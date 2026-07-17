@@ -51,19 +51,24 @@ class Relation(NamedTuple):
     topics: str | None  # optional topic set on the related entity
 
 
-RELATIONS = {
-    # The terrorist organization each designation is affiliated with.
-    "terror-org": Relation(
-        "Organization",
-        "UnknownLink",
-        "subject",
-        "object",
-        "Linked terrorist organization",
-        "crime.terror",
-    ),
-    # The owner of a designated organization or vessel.
-    "owner": Relation("LegalEntity", "Ownership", "asset", "owner", "Owner", None),
-}
+# The terrorist organization each designation is affiliated with.
+TERROR_ORG_RELATION = Relation(
+    schema="Organization",
+    link_schema="UnknownLink",
+    anchor_prop="subject",
+    related_prop="object",
+    role="Linked terrorist organization",
+    topics="crime.terror",
+)
+# The owner of a designated organization or vessel.
+OWNER_RELATION = Relation(
+    schema="LegalEntity",
+    link_schema="Ownership",
+    anchor_prop="asset",
+    related_prop="owner",
+    role="Owner",
+    topics=None,
+)
 
 
 def clean_cell(value: str | None) -> str | None:
@@ -79,25 +84,24 @@ def clean_cell(value: str | None) -> str | None:
 def emit_related(
     context: Context,
     entity: Entity,
-    kind: str,
+    relation: Relation,
     name: str | None,
     notes: str | None = None,
 ) -> None:
-    relation = RELATIONS[kind]
     notes = clean_cell(notes)
     if clean_cell(name) is None:
         entity.add("notes", notes)
         return
 
     related = context.make(relation.schema)
-    related.id = context.make_id(kind, name)
+    related.id = context.make_id(relation.role, name)
     related.add("name", name)
     related.add("topics", relation.topics)
     related.add("notes", notes)
     context.emit(related)
 
     link = context.make(relation.link_schema)
-    link.id = context.make_id(entity.id, kind, related.id)
+    link.id = context.make_id(entity.id, relation.role, related.id)
     link.add(relation.anchor_prop, entity)
     link.add(relation.related_prop, related)
     link.add("role", relation.role)
@@ -148,13 +152,9 @@ def emit_documents(
     # The three columns are passed together, so the model assigns each document
     # its own type and country - no code-side pairing or fallback.
     source_data: JsonValue = {
-        key: value
-        for key, value in (
-            ("document_type", doc_type),
-            ("document_number", raw_number),
-            ("issuing_country", raw_country),
-        )
-        if value is not None
+        "document_type": doc_type,
+        "document_number": raw_number,
+        "issuing_country": raw_country,
     }
     source_value = JSONSourceValue(
         key_parts=[v for v in (raw_number, doc_type, raw_country) if v is not None],
@@ -175,20 +175,24 @@ def emit_documents(
         origin=DEFAULT_MODEL,
     )
     if not review.accepted:
+        # Keep the raw document text in notes until the extraction is accepted,
+        # so the source information isn't dropped while awaiting review.
+        entity.add("notes", ", ".join(source_value.key_parts))
         return
     for document in review.extracted_data.documents:
-        passport = document.type == "passport"
-        proxy = context.make("Passport" if passport else "Identification")
-        proxy.id = context.make_id(entity.id, document.number, document.type)
         # Reviewed values are tagged with the review origin so the statements
         # are attributed to the model extraction rather than the crawler.
-        proxy.add("holder", entity, origin=review.origin)
-        proxy.add("number", document.number, origin=review.origin)
-        proxy.add("type", document.type, origin=review.origin)
-        proxy.add("country", document.country, origin=review.origin)
-        context.emit(proxy)
-        holder_prop = "passportNumber" if passport else "idNumber"
-        entity.add(holder_prop, document.number, origin=review.origin)
+        identification = h.make_identification(
+            context,
+            entity,
+            document.number,
+            document.type,
+            country=document.country,
+            passport=document.type == "passport",
+            origin=review.origin,
+        )
+        if identification is not None:
+            context.emit(identification)
 
 
 def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None:
@@ -241,15 +245,18 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
     )
     # Emit linked organizations
     for org in h.multi_split(row.pop("linked_org", None), [";"]):
-        emit_related(context, entity, "terror-org", org)
+        emit_related(context, entity, TERROR_ORG_RELATION, name=org)
     # Emit owners of designated vessels
     emit_related(
         context,
         entity,
-        "owner",
-        row.pop("owner_name", None),
-        row.pop("owner_info", None),
+        OWNER_RELATION,
+        name=row.pop("owner_name", None),
+        notes=row.pop("owner_info", None),
     )
+
+    entity.add("topics", "crime.terror")
+    entity.add("topics", "sanction")
 
     sanction = h.make_sanction(
         context,
