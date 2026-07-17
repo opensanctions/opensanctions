@@ -164,6 +164,12 @@ def make_address(
             country_code = country
             country = None
 
+    # Normalize casing (as format_address does internally) so that the
+    # country code hashed into the address ID is stable across datasets
+    # passing e.g. "US" vs "us":
+    if country_code is not None:
+        country_code = country_code.lower().strip()
+
     if country is not None:
         parsed_code = registry.country.clean(country)
         if parsed_code is not None:

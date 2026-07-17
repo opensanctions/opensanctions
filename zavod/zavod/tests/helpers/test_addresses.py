@@ -76,6 +76,21 @@ def test_make_address_state_not_duplicated(vcontext: Context):
     assert "Southern" in full, full
 
 
+def test_make_address_country_code_casing(vcontext: Context):
+    # The country code is hashed into the address entity ID, so its casing
+    # must be normalized for cross-dataset address dedup to work:
+    lower = make_address(
+        vcontext, street="123 Main St", city="Springfield", country_code="us"
+    )
+    upper = make_address(
+        vcontext, street="123 Main St", city="Springfield", country_code="US"
+    )
+    assert lower is not None, lower
+    assert upper is not None, upper
+    assert lower.id == upper.id
+    assert "us" in upper.get("country")
+
+
 def test_make_address_cleaning(vcontext: Context):
     addr = make_address(vcontext, full="Congo")
     assert addr is not None, addr
