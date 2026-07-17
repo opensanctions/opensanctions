@@ -33,23 +33,6 @@ def parse_detail(context: Context, url: str) -> dict[str, str]:
     return data
 
 
-def parse_term(value: str) -> tuple[str | None, str | None]:
-    """Split a "DD.MM.YYYY - DD.MM.YYYY" term string into (start, end)."""
-    parts = value.split("-")
-    if len(parts) != 2:
-        return None, None
-    return parts[0].strip(), parts[1].strip()
-
-
-def constituency_name(data: dict[str, str]) -> str | None:
-    """Build a human-readable constituency from a representative's detail table."""
-    parts = [data.get("Area"), data.get("State")]
-    labels = [p for p in parts if p and p != "-"]
-    if not labels:
-        return None
-    return ", ".join(labels)
-
-
 def apply_member_details(
     context: Context, person: Entity, data: dict[str, str], url: str
 ) -> None:
@@ -175,12 +158,14 @@ def crawl_representative(
     # `Parliament` is the constituency code; its presence marks an elected MP
     # holding the shared Member seat, with the constituency on the occupancy.
     if data.pop("Parliament"):
+        area, state = data.get("Area"), data.get("State")
+        constituency = ", ".join(p for p in (area, state) if p and p != "-") or None
         emit_occupancy(
             context,
             person,
             member_position,
             categorisation=member_categorisation,
-            constituency=constituency_name(data),
+            constituency=constituency,
         )
     elif not is_officer:
         context.log.warning("Member without constituency or office", url=url)
@@ -219,10 +204,11 @@ def crawl_senator(
     for period in (data.pop("Term of Office", None), data.pop("Reappointment", None)):
         if not period or period == "-":
             continue
-        start_date, end_date = parse_term(period)
-        if start_date is None or end_date is None:
+        parts = period.split("-")  # "DD.MM.YYYY - DD.MM.YYYY"
+        if len(parts) != 2:
             context.log.warning("Unparseable senate term", url=url, term=period)
             continue
+        start_date, end_date = parts[0].strip(), parts[1].strip()
         emit_occupancy(
             context,
             person,
