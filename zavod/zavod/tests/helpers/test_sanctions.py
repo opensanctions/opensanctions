@@ -58,6 +58,44 @@ def test_sanctions_helper_with_unknown_program(vcontext: Context):
     } in caplogs
 
 
+def test_sanctions_status_agrees_with_is_active(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    # Future start and end date: not yet active, status must agree.
+    future_start = (settings.RUN_TIME + timedelta(days=20)).date().isoformat()
+    future_end = (settings.RUN_TIME + timedelta(days=30)).date().isoformat()
+    sanction = make_sanction(
+        vcontext, person, start_date=future_start, end_date=future_end
+    )
+    assert not is_active(sanction)
+    assert sanction.get("status") == ["inactive"]
+
+    # Started in the past, ends in the future: active.
+    past_start = (settings.RUN_TIME - timedelta(days=20)).date().isoformat()
+    sanction = make_sanction(
+        vcontext, person, key="b", start_date=past_start, end_date=future_end
+    )
+    assert is_active(sanction)
+    assert sanction.get("status") == ["active"]
+
+    # Ended in the past: inactive.
+    past_end = (settings.RUN_TIME - timedelta(days=10)).date().isoformat()
+    sanction = make_sanction(
+        vcontext, person, key="c", start_date=past_start, end_date=past_end
+    )
+    assert not is_active(sanction)
+    assert sanction.get("status") == ["inactive"]
+
+
+def test_sanctions_unparseable_end_date_raises(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    with pytest.raises(ValueError, match=r"'see annex'.*'jeff'"):
+        make_sanction(vcontext, person, end_date="see annex")
+
+
 @pytest.fixture
 def person(vcontext: Context):
     person = vcontext.make("Person")
