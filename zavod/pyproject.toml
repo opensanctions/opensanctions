@@ -20,7 +20,7 @@ dependencies = [
     "followthemoney == 4.10.0",
     "nomenklatura == 4.11.4",
     "plyvel == 1.5.1", # Also update macOS install docs
-    "rigour == 2.1.2",
+    "rigour == 2.2.0",
     "datapatch >= 1.2.4, < 1.3",
     "banal >= 1.1.2, < 2.0",
     "certifi",
