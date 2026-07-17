@@ -76,6 +76,39 @@ def test_make_address_state_not_duplicated(vcontext: Context):
     assert "Southern" in full, full
 
 
+def test_make_address_state_without_state_slot(vcontext: Context):
+    # Some country templates (e.g. ae, sy) render {{state_district or state}}
+    # and have no dedicated state slot. When region occupies that slot, the
+    # state must be folded back in rather than silently dropped:
+    addr = make_address(
+        vcontext, city="Dubai", state="Sharjah", region="Deira", country_code="ae"
+    )
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full == "Dubai, Deira, Sharjah", full
+    assert full.count("Sharjah") == 1, full
+
+    # Without a region, the template's own fallback renders the state:
+    addr = make_address(vcontext, city="Dubai", state="Sharjah", country_code="ae")
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full is not None
+    assert full.count("Sharjah") == 1, full
+    assert "Dubai" in full, full
+
+
+def test_make_address_region_equals_state(vcontext: Context):
+    # Identical region and state values (plausible when a source fills both
+    # from the same field) must not render twice ("Aleppo, Aleppo"):
+    addr = make_address(
+        vcontext, street="1 Main St", state="Aleppo", region="Aleppo", country_code="sy"
+    )
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full is not None
+    assert full.count("Aleppo") == 1, full
+
+
 def test_make_address_country_code_casing(vcontext: Context):
     # The country code is hashed into the address entity ID, so its casing
     # must be normalized for cross-dataset address dedup to work:
