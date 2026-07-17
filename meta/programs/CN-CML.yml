@@ -1,7 +1,7 @@
 id: 153
 title: Chinese Counter-Measures List
 key: CN-CML
-url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538
+url: https://www.gov.cn/zhengce/content/202604/content_7065398.htm
 summary: This list includes individuals and entities subject to counter-measures by
   China in response to foreign sanctions. The measures include asset freezes, prohibitions
   on transactions, and travel bans to protect China's national interests and counteract
@@ -9,6 +9,6 @@ summary: This list includes individuals and entities subject to counter-measures
 issuer: cn_npc
 dataset: cn_sanctions
 target_territories:
-- eu
-- gb
-- us
+  - eu
+  - gb
+  - us
