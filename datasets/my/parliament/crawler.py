@@ -1,5 +1,5 @@
 import re
-from typing import Iterator
+from typing import Iterator, NamedTuple
 
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
@@ -18,39 +18,38 @@ DEWAN_RAKYAT_MIN = 180
 DEWAN_NEGARA_MIN = 40
 DEFAULT_PARLIAMENT_TOPICS = ["gov.legislative", "gov.national"]
 
-# field is inconsistently localized: most values arrive in Malay
-# even under `lang=en`, so most keys are Malay, but the House clerk arrives in English
-OFFICER_POSITIONS: dict[str, tuple[str, list[str], str | None]] = {
-    "Yang di-Pertua Dewan Rakyat": (
-        "Speaker of the Dewan Rakyat",
-        DEFAULT_PARLIAMENT_TOPICS,
-        "Q7574262",
+
+class OfficerPosition(NamedTuple):
+    """The English position that a presiding-officer role label maps to."""
+
+    name: str
+    topics: list[str]
+    wikidata_id: str | None
+
+
+# The role field is inconsistently localized: most values arrive in Malay even
+# under `lang=en`, so most keys are Malay, but the House clerk arrives in English.
+OFFICER_POSITIONS: dict[str, OfficerPosition] = {
+    "Yang di-Pertua Dewan Rakyat": OfficerPosition(
+        "Speaker of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, "Q7574262"
     ),
-    "Timbalan Yang di-Pertua Dewan Rakyat": (
-        "Deputy Speaker of the Dewan Rakyat",
-        DEFAULT_PARLIAMENT_TOPICS,
-        "Q126361900",
+    "Timbalan Yang di-Pertua Dewan Rakyat": OfficerPosition(
+        "Deputy Speaker of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, "Q126361900"
     ),
-    "Ketua Majlis": ("Leader of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, None),
-    "Timbalan Ketua Majlis": (
-        "Deputy Leader of the Dewan Rakyat",
-        DEFAULT_PARLIAMENT_TOPICS,
-        None,
+    "Ketua Majlis": OfficerPosition(
+        "Leader of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, None
     ),
-    "Secretary Of The House Of Representatives": (
-        "Secretary of the Dewan Rakyat",
-        ["gov.admin", "gov.national"],
-        None,
+    "Timbalan Ketua Majlis": OfficerPosition(
+        "Deputy Leader of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, None
     ),
-    "Yang di-Pertua Dewan Negara": (
-        "President of the Dewan Negara",
-        DEFAULT_PARLIAMENT_TOPICS,
-        "Q7241319",
+    "Secretary Of The House Of Representatives": OfficerPosition(
+        "Secretary of the Dewan Rakyat", ["gov.admin", "gov.national"], None
     ),
-    "Timbalan Yang di-Pertua Dewan Negara": (
-        "Deputy President of the Dewan Negara",
-        DEFAULT_PARLIAMENT_TOPICS,
-        "Q134572656",
+    "Yang di-Pertua Dewan Negara": OfficerPosition(
+        "President of the Dewan Negara", DEFAULT_PARLIAMENT_TOPICS, "Q7241319"
+    ),
+    "Timbalan Yang di-Pertua Dewan Negara": OfficerPosition(
+        "Deputy President of the Dewan Negara", DEFAULT_PARLIAMENT_TOPICS, "Q134572656"
     ),
 }
 
@@ -154,13 +153,12 @@ def emit_officer(context: Context, person: Entity, role: str | None) -> None:
     spec = OFFICER_POSITIONS.get(role) if role is not None else None
     if spec is None:
         return
-    name, topics, wikidata_id = spec
     position = h.make_position(
         context,
-        name=name,
+        name=spec.name,
         country="my",
-        topics=topics,
-        wikidata_id=wikidata_id,
+        topics=spec.topics,
+        wikidata_id=spec.wikidata_id,
         lang="eng",
     )
     emit_occupancy(context, person, position)
