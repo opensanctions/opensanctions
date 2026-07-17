@@ -1,11 +1,19 @@
 id: 45
 title: BIS Military End-Users (MEU) List
 key: US-BIS-MEU
-url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern
-summary: This list is maintained by BIS and includes entities that are deemed to be
-  military end-users. These entities are subject to additional export control restrictions
-  to prevent the diversion of U.S. goods and technologies for military use in ways
-  that could undermine U.S. national security. The list ensures that exports to these
-  entities are carefully monitored and controlled.
+url: https://www.ecfr.gov/current/title-15/subtitle-B/chapter-VII/subchapter-C/part-744/appendix-Supplement%20No.%207%20to%20Part%20744
+summary: Lists foreign parties that the Bureau of Industry and Security has
+  determined to be military end users in countries of concern. Exports,
+  reexports, and in-country transfers of specified items subject to the Export
+  Administration Regulations to a listed party require a license from the Bureau
+  of Industry and Security. The list is not exhaustive, and exporters remain
+  responsible for determining whether other customers qualify as military end
+  users.
 issuer: us_bis
 dataset: us_trade_csl
+aliases:
+  - MEU List
+  - Military End-User List
+  - Supplement No. 7 to Part 744 of the EAR
+measures:
+  - Export control

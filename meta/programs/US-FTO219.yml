@@ -1,18 +1,21 @@
 id: 297
 title: US Immigration and Nationality Act Section 219
 key: US-FTO219
-url: https://www.congress.gov/crs-product/IF10613#
-summary: 'Pursuant to Section 219 of the INA, the Secretary of State is authorized
-  to designate an organization as an FTO if such an entity meets three criteria: the
-  suspected terrorist group must (1) be a foreign organization; (2) engage in "terrorist
-  activity," "terrorism," or retain the capability and intent to engage in terrorist
-  activity or terrorism; and (3) threaten the security of U.S. nationals or the national
-  defense, foreign relations, or economic interests of the United States.
-
-
-  Section 219 of the INA relies on the definition of "terrorist activity" in Section
-  212(a)(3)(B) of the INA (8 U.S.C. §1182(a)(3)(B)) and the definition of "terrorism"
-  in Section 140(d)(2) of the Foreign Relations Authorization Act, Fiscal Years 1988
-  and 1989 (FRAA, P.L. 100-204, as amended; 22 U.S.C. §2656f(d)(2)).'
+url: https://www.govinfo.gov/content/pkg/USCODE-2023-title8/html/USCODE-2023-title8-chap12-subchapII-partII-sec1189.htm
+summary: The US Secretary of State designates foreign organizations as Foreign
+  Terrorist Organizations when they engage in terrorist activity or terrorism
+  that threatens the security of US nationals or the national security of the
+  United States. US financial institutions must block funds in which a
+  designated organization or its agent has an interest, knowingly providing
+  material support or resources to a designated organization is a federal
+  crime, and alien members and representatives of a designated organization
+  are inadmissible to the United States.
 issuer: us_state
 dataset: us_state_terrorist_orgs
+aliases:
+  - FTO
+  - Foreign Terrorist Organizations
+  - INA Section 219
+  - 8 U.S.C. § 1189
+measures:
+  - Asset freeze

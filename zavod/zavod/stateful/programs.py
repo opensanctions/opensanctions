@@ -142,12 +142,13 @@ class Program(BaseModel):
         description="Alternative identifiers, legal citations, or short names, "
         "e.g. 'Resolution 1970', 'UFLPA'.",
     )
-    # Omit for programs that target persons regardless of geography
-    # (e.g. counter-terrorism lists).
+    # Pseudo-territories are allowed: 'zz' for programs whose worldwide reach
+    # is a defining feature, 'ip' for regimes aimed at cyber activity. Omit
+    # when geography says nothing useful about the program.
     target_territories: list[str] = Field(
         default_factory=list,
-        description="ISO 3166-1 alpha-2 codes (lowercase) for the targeted "
-        "territories this program is linked to, e.g. 'af', 'ru', 'by'.",
+        description="Lowercase rigour territory codes for the targeted "
+        "territories this program is linked to, e.g. 'af', 'ru', 'zz'.",
     )
     # Use the legal instrument or the issuing authority's program page as
     # source of truth. For programs that transpose another regime (e.g. SECO

@@ -1,14 +1,23 @@
 id: 277
 title: Non-SDN Menu-Based Sanctions List (NS-MBS List)
 key: US-NS-MBS
-url: https://www.treasury.gov/ofac/downloads/mbs/mbslist.pdf
-summary: The Non-SDN Menu-Based Sanctions List (NS-MBS List) identifies individuals
-  and entities subject to sanctions that fall short of full blocking. These may include
-  prohibitions on specific transactions or imports, imposed under authorities such
-  as CAATSA. NS-MBS designations are included in OFAC’s Consolidated Sanctions List
-  and marked with the list type “Non-SDN” and program tags like “CAATSA - RUSSIA.”
-  Each entry specifies the applicable sanctions and legal basis.
+url: https://ofac.treasury.gov/other-ofac-sanctions-lists
+summary: Identifies persons subject to menu-based sanctions that fall short of
+  full blocking, imposed under statutory authorities such as CAATSA and the
+  Hong Kong Autonomy Act, with the applicable sanctions and legal basis
+  enumerated for each entry. Measures imposed to date include denial of US
+  export licences, bans on loans or credit from US financial institutions,
+  restrictions on dealings in new debt and equity, prohibitions on foreign
+  exchange transactions, and, for persons sanctioned under the Hong Kong
+  Autonomy Act, blocking of property subject to a statutory exception for the
+  importation of goods. The restrictions vary from one listed person to
+  another.
 issuer: us_ofac
 dataset: us_ofac_cons
 aliases:
-- NS-MBS
+  - NS-MBS
+  - Non-SDN Menu-Based Sanctions List
+measures:
+  - Asset freeze
+  - Export control
+  - Financial restrictions

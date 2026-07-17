@@ -2,11 +2,24 @@ id: 11
 title: Counter Narcotics Trafficking Sanctions
 key: US-NARCO
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/counter-narcotics-trafficking-sanctions
-summary: These sanctions target individuals and entities involved in international
-  narcotics trafficking. The executive orders authorize the U.S. government to freeze
-  assets and prohibit transactions to disrupt the financial networks of drug traffickers
-  and dismantle their operations.
+summary: Targets foreign individuals and entities involved in international
+  narcotics trafficking, from significant foreign narcotics traffickers and
+  their organizations to persons engaged in or supporting the global illicit
+  drug trade, together with those who materially assist them or act on their
+  behalf. Property of designated persons under US jurisdiction is blocked, and
+  US persons are generally prohibited from transactions with them. Designation
+  under some authorities also suspends a natural person's entry into the
+  United States.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- ' EO 12978, EO 14059'
+  - EO 12978
+  - EO 14059
+  - Foreign Narcotics Kingpin Designation Act
+  - Kingpin Act
+  - SDNT
+  - SDNTK
+  - ILLICIT-DRUGS-EO14059
+measures:
+  - Asset freeze
+  - Travel ban

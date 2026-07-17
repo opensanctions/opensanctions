@@ -3,18 +3,23 @@ title: List of Equipment and Services Covered By Section 2 of The Secure Network
   Act
 key: US-FCC
 url: https://www.fcc.gov/supplychain/coveredlist
-summary: Section 1.50002 of the US Federal Communications Commission’s rules directs
-  the Public Safety and Homeland Security Bureau to publish a list of communications
-  equipment and services (Covered List) that are deemed to pose an unacceptable risk
-  to the national security of the United States or the security and safety of United
-  States persons, based exclusively on any of four sources for such a determination
-  and that such equipment or services possess certain capabilities as enumerated in
-  section 2(a) of the Secure and Trusted Communications Networks Act of 2019, Pub.
-  L. No. 116-124, 133 Stat. 158 (2020) (codified as amended at 47 U.S.C. §§ 1601–1609).  Pursuant
-  to the Commission’s rules, the Public Safety and Homeland Security Bureau will maintain
-  this list on the Commission’s website, and will monitor the status of any determinations
-  in order to update the Covered List.
+summary: The Federal Communications Commission maintains a list of communications
+  equipment and services determined to pose an unacceptable risk to US national
+  security or to the security and safety of US persons, based on determinations
+  by Congress and federal security agencies. Listings name specific equipment and
+  services, largely from Chinese and Russian manufacturers, and may be limited to
+  particular uses such as public safety or the security of government facilities.
+  Covered equipment cannot obtain the FCC equipment authorization required to be
+  imported, marketed, or sold in the United States, and the Commission can also
+  halt further importation and marketing of previously authorized covered
+  equipment.
 issuer: us_fcc
 dataset: us_fcc_covered_list
 aliases:
-- FCC list
+  - FCC list
+  - Covered List
+  - Secure and Trusted Communications Networks Act of 2019
+  - Secure Networks Act
+  - Public Law 116-124
+measures:
+  - Import restrictions

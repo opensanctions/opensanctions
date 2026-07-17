@@ -9,5 +9,9 @@ summary: These sanctions target major transnational criminal organizations and t
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13863
-- EO 13581
+  - EO 13863
+  - EO 13581
+  - TCO
+  - 31 CFR Part 590
+measures:
+  - Asset freeze

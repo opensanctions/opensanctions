@@ -2,20 +2,43 @@ id: 38
 title: Ukraine-/Russia-Related Sanctions
 key: US-UKRRUS-REL
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/ukraine-russia-related-sanctions
-summary: These sanctions target individuals and entities involved in Russia's actions
-  undermining Ukraine's sovereignty and territorial integrity, as well as related
-  human rights abuses and destabilizing activities. The comprehensive measures include
-  asset freezes, prohibitions on transactions, and restrictions on trade to pressure
-  Russia to comply with international norms and support Ukraine's sovereignty.
+summary: Targets persons responsible for undermining Ukraine's sovereignty and
+  territorial integrity, including those involved in the annexation of Crimea,
+  officials and supporters of the Russian government, and persons operating in
+  occupied areas of Ukraine. Designated persons have their US assets frozen
+  and US persons may not deal with them. The program also imposes
+  comprehensive embargoes on the Crimea region and the so-called Donetsk and
+  Luhansk People's Republics, prohibiting new investment in those regions,
+  imports from them, and exports of goods, services, and technology to them.
+  Related restrictions on major Russian financial, energy, and defence
+  companies are maintained through the separate Sectoral Sanctions
+  Identifications List.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 14065
-- EO 13883
-- EO 13849
-- EO 13685
-- EO 13662
-- EO 13661
-- EO 13660
+  - EO 14065
+  - EO 13883
+  - EO 13849
+  - EO 13685
+  - EO 13662
+  - EO 13661
+  - EO 13660
+  - UKRAINE-EO13660
+  - UKRAINE-EO13661
+  - UKRAINE-EO13662
+  - UKRAINE-EO13685
+  - RUSSIA-EO14065
+  - SSIDES
+  - Ukraine Freedom Support Act of 2014
+  - 31 CFR Part 589
 target_territories:
-- ru
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr
+measures:
+  - Asset freeze
+  - Investment ban
+  - Import restrictions
+  - Export control
+  - Services ban

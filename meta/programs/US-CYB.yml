@@ -2,13 +2,25 @@ id: 14
 title: Cyber-Related Sanctions
 key: US-CYB
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/sanctions-related-to-significant-malicious-cyber-enabled-activities
-summary: These sanctions target individuals and entities responsible for significant
-  malicious cyber-enabled activities. The measures include asset freezes and transaction
-  prohibitions to deter cyber attacks and protect U.S. national security, economic
-  stability, and critical infrastructure.
+summary: Targets persons responsible for or complicit in significant malicious
+  cyber-enabled activities, such as attacks on critical infrastructure,
+  ransomware operations, misappropriation of funds, trade secrets, or personal
+  data, and cyber-enabled interference with election processes. Designated
+  persons, including hacking groups and enablers such as virtual currency
+  exchanges, have their US assets frozen, and US persons are barred from
+  transactions with them.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13575, EO 13694, EO 14067, EO 14144
+  - EO 13694
+  - EO 13757
+  - EO 14144
+  - CYBER2
+  - CYBER3
+  - CYBER4
+  - 31 CFR Part 578
 target_territories:
-- ip
+  # rigour pseudo-territory for cyberspace, cf. zz for global
+  - ip
+measures:
+  - Asset freeze

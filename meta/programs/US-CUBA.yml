@@ -1,13 +1,40 @@
 id: 13
-title: 'Cuba Sanctions '
+title: Cuba Sanctions
 key: US-CUBA
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/cuba-sanctions
-summary: These sanctions target the government of Cuba and certain Cuban nationals.
-  The measures restrict travel, trade, and financial transactions to pressure the
-  Cuban government to make democratic reforms and respect human rights.
+summary: The United States maintains a comprehensive embargo on Cuba under the
+  Cuban Assets Control Regulations, which block property of the Cuban
+  government and Cuban nationals and broadly prohibit trade, travel-related
+  transactions, and financial dealings involving Cuba by persons subject to US
+  jurisdiction. Imports of Cuban-origin goods are barred, most exports to Cuba
+  require US government authorization, and vessels that call at Cuban ports
+  are temporarily banned from US ports. Executive Order 14404 adds
+  designation-based sanctions on persons operating in key sectors of the Cuban
+  economy, supporting the Cuban government, or responsible for serious human
+  rights abuse or corruption; designated persons are blocked and barred from
+  entry into the United States, and foreign financial institutions transacting
+  with them risk losing access to US correspondent banking.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 12845
+  - Cuban Assets Control Regulations
+  - CACR
+  - 31 CFR Part 515
+  - Cuban Liberty and Democratic Solidarity (LIBERTAD) Act of 1996
+  - Helms-Burton Act
+  - Cuban Democracy Act of 1992
+  - Trade Sanctions Reform and Export Enhancement Act of 2000
+  - TSRA
+  - EO 12854
+  - EO 14404
+  - CUBA
+  - CUBA-EO14404
 target_territories:
-- cu
+  - cu
+measures:
+  - Asset freeze
+  - Financial restrictions
+  - Import restrictions
+  - Export control
+  - Transportation restrictions
+  - Travel ban
