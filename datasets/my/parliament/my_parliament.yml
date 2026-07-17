@@ -69,6 +69,53 @@ names:
         - "Ts."
 
 lookups:
+  # "Position in the Parliament" names a presiding office for a handful of
+  # members; for everyone else it repeats the ordinary-member designation, is
+  # blank, or (in the Senate) leaks the member's cabinet title. Only the
+  # presiding offices map to a Position; the rest are enumerated and dropped so
+  # that a renamed or newly-created office surfaces as an unmatched-lookup
+  # warning instead of being emitted silently. The role labels arrive mostly in
+  # Malay even under `lang=en`; the House clerk arrives in English.
+  position_in_parliament:
+    lowercase: true
+    options:
+      - match: Yang di-Pertua Dewan Rakyat
+        name: Speaker of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q7574262
+      - match: Timbalan Yang di-Pertua Dewan Rakyat
+        name: Deputy Speaker of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q126361900
+      - match: Ketua Majlis
+        name: Leader of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+      - match: Timbalan Ketua Majlis
+        name: Deputy Leader of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+      - match: Secretary Of The House Of Representatives
+        name: Secretary of the Dewan Rakyat
+        topics: [gov.admin, gov.national]
+      - match: Yang di-Pertua Dewan Negara
+        name: President of the Dewan Negara
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q7241319
+      - match: Timbalan Yang di-Pertua Dewan Negara
+        name: Deputy President of the Dewan Negara
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q134572656
+      # Ordinary members and blanks — not a presiding office.
+      - match:
+          - null
+          - Ahli Dewan Negara
+          - Ahli Dwan Negara  # source typo for "Ahli Dewan Negara"
+        value: null
+      # Senators who are also ministers list their cabinet title here; it is
+      # already captured from the "Position in Cabinet" field.
+      - contains:
+          - menteri
+          - minister
+        value: null
   type.email:
     options:
       - match: "-"

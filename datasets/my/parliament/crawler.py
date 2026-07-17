@@ -1,5 +1,5 @@
 import re
-from typing import Iterator, NamedTuple
+from typing import Iterator
 
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
@@ -17,41 +17,6 @@ NEGARA_URL = "https://www.parlimen.gov.my/ahli-dewan-dn.html?uweb=dn&lang=en"
 DEWAN_RAKYAT_MIN = 180
 DEWAN_NEGARA_MIN = 40
 DEFAULT_PARLIAMENT_TOPICS = ["gov.legislative", "gov.national"]
-
-
-class OfficerPosition(NamedTuple):
-    """The English position that a presiding-officer role label maps to."""
-
-    name: str
-    topics: list[str]
-    wikidata_id: str | None
-
-
-# The role field is inconsistently localized: most values arrive in Malay even
-# under `lang=en`, so most keys are Malay, but the House clerk arrives in English.
-OFFICER_POSITIONS: dict[str, OfficerPosition] = {
-    "Yang di-Pertua Dewan Rakyat": OfficerPosition(
-        "Speaker of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, "Q7574262"
-    ),
-    "Timbalan Yang di-Pertua Dewan Rakyat": OfficerPosition(
-        "Deputy Speaker of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, "Q126361900"
-    ),
-    "Ketua Majlis": OfficerPosition(
-        "Leader of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, None
-    ),
-    "Timbalan Ketua Majlis": OfficerPosition(
-        "Deputy Leader of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, None
-    ),
-    "Secretary Of The House Of Representatives": OfficerPosition(
-        "Secretary of the Dewan Rakyat", ["gov.admin", "gov.national"], None
-    ),
-    "Yang di-Pertua Dewan Negara": OfficerPosition(
-        "President of the Dewan Negara", DEFAULT_PARLIAMENT_TOPICS, "Q7241319"
-    ),
-    "Timbalan Yang di-Pertua Dewan Negara": OfficerPosition(
-        "Deputy President of the Dewan Negara", DEFAULT_PARLIAMENT_TOPICS, "Q134572656"
-    ),
-}
 
 
 def parse_detail(context: Context, url: str) -> dict[str, str]:
@@ -145,23 +110,31 @@ def emit_occupancy(
     context.emit(person)
 
 
-def emit_officer(context: Context, person: Entity, role: str | None) -> None:
-    """Emit the presiding-officer occupancy for a role label, if known.
+def emit_officer(context: Context, person: Entity, url: str, role: str | None) -> bool:
+    """Emit a presiding-officer occupancy for a "Position in the Parliament" label.
 
-    Roles absent from `OFFICER_POSITIONS` (ordinary members and the cabinet titles
-    that pollute the role field) are ignored."""
-    spec = OFFICER_POSITIONS.get(role) if role is not None else None
-    if spec is None:
-        return
+    Returns True when `role` names a presiding office and its occupancy was
+    emitted. The `position_in_parliament` lookup maps each known office to its
+    English position and enumerates the non-office labels (ordinary members,
+    blanks, and the cabinet titles the Senate leaks into this field, which are
+    already captured from "Position in Cabinet"). An unrecognised label is logged
+    rather than silently dropped, so a renamed or newly-created office surfaces."""
+    result = context.lookup("position_in_parliament", role)
+    if result is None:
+        context.log.warning("Unrecognised parliament position", role=role, url=url)
+        return False
+    if result.name is None:  # a known label that does not denote a presiding office
+        return False
     position = h.make_position(
         context,
-        name=spec.name,
+        name=result.name,
         country="my",
-        topics=spec.topics,
-        wikidata_id=spec.wikidata_id,
+        topics=result.topics,
+        wikidata_id=result.wikidata_id,
         lang="eng",
     )
     emit_occupancy(context, person, position)
+    return True
 
 
 def emit_cabinet(context: Context, person: Entity, cabinet: str | None) -> None:
@@ -196,10 +169,14 @@ def crawl_representative(
     person.id = context.make_slug(member_id)
     apply_member_details(context, person, data, url)
 
-    # `Parliament` is the constituency code; its presence marks an elected MP.
-    # A member with a constituency (P-code) is an elected MP holding the shared
-    # Member seat, with the constituency recorded on the occupancy.
-    role = data.pop("Position in the Parliament", None)
+    # A sitting MP may additionally hold a presiding office (e.g. a Deputy
+    # Speaker who also represents a constituency); the Speaker and the Secretary
+    # (House clerk) hold a presiding office but no constituency.
+    is_officer = emit_officer(
+        context, person, url, data.pop("Position in the Parliament", None)
+    )
+    # `Parliament` is the constituency code; its presence marks an elected MP
+    # holding the shared Member seat, with the constituency on the occupancy.
     if data.pop("Parliament"):
         emit_occupancy(
             context,
@@ -208,15 +185,8 @@ def crawl_representative(
             categorisation=member_categorisation,
             constituency=constituency_name(data),
         )
-        # A sitting MP may additionally be the Deputy Speaker.
-        emit_officer(context, person, role)
-    elif role in OFFICER_POSITIONS:
-        # The Speaker and the Secretary (House clerk) hold no constituency, identified by role.
-        emit_officer(context, person, role)
-    else:
-        context.log.warning(
-            "Member without constituency or known role", url=url, role=role
-        )
+    elif not is_officer:
+        context.log.warning("Member without constituency or office", url=url)
         return
     emit_cabinet(context, person, data.pop("Position in Cabinet", None))
 
@@ -265,7 +235,7 @@ def crawl_senator(
             end_date=end_date,
         )
 
-    emit_officer(context, person, data.pop("Position in the Parliament", None))
+    emit_officer(context, person, url, data.pop("Position in the Parliament", None))
     emit_cabinet(context, person, data.pop("Position in Cabinet", None))
 
     context.audit_data(
