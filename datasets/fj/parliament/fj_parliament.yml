@@ -1,0 +1,47 @@
+title: Fiji Parliament
+name: fj_parliament
+prefix: fj-parl
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-17
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Parliament of the Republic of Fiji, the unicameral national
+  legislature.
+description: |
+  The Parliament of Fiji is the country's unicameral national legislature. Its members are
+  elected under an open-list proportional representation system with the whole country as a
+  single national constituency.
+
+  This dataset records each sitting member of Parliament by name, as published on the
+  official Members of Parliament page.
+url: https://parliament.gov.fj/
+publisher:
+  name: Parliament of the Republic of Fiji
+  description: >
+    The Parliament of Fiji is the unicameral legislature of the Republic of Fiji, whose
+    members are elected nationally under proportional representation.
+  url: https://parliament.gov.fj/
+  country: fj
+  official: true
+data:
+  url: https://parliament.gov.fj/members-of-parliament/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 45
+      Position: 1
+    country_entities:
+      fj: 45
+  max:
+    schema_entities:
+      Person: 65
+      Position: 1
