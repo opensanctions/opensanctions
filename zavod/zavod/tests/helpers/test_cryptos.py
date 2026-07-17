@@ -39,11 +39,29 @@ def test_extract_cryptos():
     assert "bc1qwsqdcas3llkcx53sx4lqrcrdpxmr5s4eke6d8y" in result
     assert result["bc1qwsqdcas3llkcx53sx4lqrcrdpxmr5s4eke6d8y"] == "BTC"
 
+    # Bitcoin P2SH ("3..." addresses are BTC, not LTC)
+    p2sh = "wallet 35hK24tcLEWcgNA4JxpvbkNkoAcDGqQPsP"
+    result = extract_cryptos(p2sh)
+    assert "35hK24tcLEWcgNA4JxpvbkNkoAcDGqQPsP" in result
+    assert result["35hK24tcLEWcgNA4JxpvbkNkoAcDGqQPsP"] == "BTC"
+
+    result = extract_cryptos("3E6ZCKRrsdPc35chA9Eftp1h3DLW18NFNV")
+    assert result["3E6ZCKRrsdPc35chA9Eftp1h3DLW18NFNV"] == "BTC"
+
+    # Bitcoin taproot (bech32m, 62 chars)
+    taproot = "P2TR: bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0"
+    result = extract_cryptos(taproot)
+    assert "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0" in result
+    assert (
+        result["bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0"]
+        == "BTC"
+    )
+
     # Litecoin
-    ltc = "LTC: 3E6ZCKRrsdPc35chA9Eftp1h3DLW18NFNV"
+    ltc = "LTC: MJRSgZ3UUFcTBTBAaN38XAXvZLwRe8WVw7"
     result = extract_cryptos(ltc)
-    assert "3E6ZCKRrsdPc35chA9Eftp1h3DLW18NFNV" in result
-    assert result["3E6ZCKRrsdPc35chA9Eftp1h3DLW18NFNV"] == "LTC"
+    assert "MJRSgZ3UUFcTBTBAaN38XAXvZLwRe8WVw7" in result
+    assert result["MJRSgZ3UUFcTBTBAaN38XAXvZLwRe8WVw7"] == "LTC"
 
     # Dash
     dash = "Dash: XyARKoupuArYtToA2S6yMdnoquDCDaBsaT"
@@ -59,11 +77,25 @@ def test_extract_cryptos():
         in result
     )
 
+    # Monero subaddress (8... prefix)
+    xmr_sub = "sub: 84LooD7i35SFppgf4tQ453Vi3q5WexSUXaVgut69ro8MFnmHwuezAArEZTZyLr9fS6QotjqkSAxSF6d1aDgsPoX849izJ7m"
+    result = extract_cryptos(xmr_sub)
+    assert (
+        result[
+            "84LooD7i35SFppgf4tQ453Vi3q5WexSUXaVgut69ro8MFnmHwuezAArEZTZyLr9fS6QotjqkSAxSF6d1aDgsPoX849izJ7m"
+        ]
+        == "XMR"
+    )
+
     # Ripple
     xrp = "Send XRP: rnXyVQzgxZe7TR1EPzTkGj2jxH4LMJYh66"
     result = extract_cryptos(xrp)
     assert "rnXyVQzgxZe7TR1EPzTkGj2jxH4LMJYh66" in result
     assert result["rnXyVQzgxZe7TR1EPzTkGj2jxH4LMJYh66"] == "XRP"
+
+    # Prose words starting with "r" must not match as XRP
+    prose = "see registration rechtsanwaltskanzleien2024x for details"
+    assert len(extract_cryptos(prose)) == 0
 
     # Bitcoin Cash
     bch = "BCH: bitcoincash:qqyuc9s700plhzr6awzru7g5z2d2p906uyrm6ht0r0"
