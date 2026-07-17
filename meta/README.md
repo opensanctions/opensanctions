@@ -12,6 +12,11 @@ explain the scope and consequences of a designation. Dataset metadata is
 source-centred and explains what OpenSanctions ingests, how it is maintained,
 and where its coverage is limited.
 
+The [`Program` model and `Measure` vocabulary](../zavod/zavod/stateful/programs.py)
+are the authoritative definitions of the supported fields and values. This
+guide explains the authoring choices that cannot be expressed by the schema
+alone.
+
 Create one `.yml` file per program. Its filename must equal its `key`, for
 example `EU-RUS.yml` for `key: EU-RUS`. Before adding a key, check whether an
 existing program already covers the same regime.
@@ -126,10 +131,9 @@ Use the most specific applicable term. Common boundaries are:
 - `Travel ban` applies to natural persons and prohibits entry or transit.
 
 The complete vocabulary and its definitions are maintained in the
-[public sanctions program documentation](https://www.opensanctions.org/docs/programs/)
-and in the [`Measure` type](../zavod/zavod/stateful/programs.py). Verify measures
-against the program page or operative legal instrument rather than inferring
-them from a title or from common sanctions practice.
+[public sanctions program documentation](https://www.opensanctions.org/docs/programs/).
+Verify measures against the program page or operative legal instrument rather
+than inferring them from a title or from common sanctions practice.
 
 ### Choosing the program URL
 
