@@ -2,11 +2,18 @@ id: 217
 title: Freezing Assets of Corrupt Foreign Officials (Ukraine) Regulations (SOR/2014-44)
 key: CA-FACFOA-UKR
 url: https://laws-lois.justice.gc.ca/eng/regulations/SOR-2014-44/index.html
-summary: The Canadian governments maintains a small, Magnitsky-style list of government
-  officials that it alleges to be involved in corruption.
+summary: >
+  Freezes property belonging to politically exposed foreign persons
+  whom Ukraine alleges misappropriated state property or acquired property
+  inappropriately through their office or relationships. Canadians may not deal
+  in that property, facilitate related financial transactions, or provide related
+  financial services.
 issuer: ca_mfa
 dataset: ca_facfoa
 aliases:
-- FAAE
+  - FACFOA Ukraine Regulations
+  - SOR/2014-44
 target_territories:
-- ua
+  - ua
+measures:
+  - Asset freeze
