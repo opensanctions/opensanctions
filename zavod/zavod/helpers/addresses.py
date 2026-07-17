@@ -184,6 +184,11 @@ def make_address(
     if country_code is None:
         country_code = registry.country.clean(full)
 
+    # If both fields carry the same value, keep only the state so that no
+    # rendering path can duplicate it (e.g. "Aleppo, Aleppo"):
+    if region is not None and state is not None and region == state:
+        region = None
+
     full_origin = origin
     if not full:
         full = format_address(
@@ -197,6 +202,22 @@ def make_address(
             country=country,
             country_code=country_code,
         )
+        if state is not None and state not in full:
+            # Some country templates (e.g. ae, sa, sy) have a state_district
+            # slot but no state slot, dropping the state from the rendered
+            # line. Fold it into state_district instead. format_address is
+            # cached, so the second render is cheap.
+            full = format_address(
+                summary=summary,
+                po_box=po_box,
+                street=street,
+                postal_code=postal_code,
+                city=city,
+                state=state,
+                state_district=join_text(region, state, sep=", "),
+                country=country,
+                country_code=country_code,
+            )
         full_origin = ORIGIN_INFERRED
 
     if full == country:
