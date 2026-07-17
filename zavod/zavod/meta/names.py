@@ -112,18 +112,28 @@ class NamesSpec(BaseModel):
     def model_validate(cls, obj: Any, **kwargs: Any) -> "NamesSpec":
         """Merge provided schema_rules values with defaults."""
         if isinstance(obj, dict):
-            schema_rules_dict = obj.pop("schema_rules", {})
+            schema_rules_dict = obj.get("schema_rules", {})
+            rest = {k: v for k, v in obj.items() if k != "schema_rules"}
 
-            instance = super().model_validate(obj, **kwargs)
+            instance = super().model_validate(rest, **kwargs)
 
             for schema_name, spec in schema_rules_dict.items():
                 if schema_name in instance.schema_rules:
                     schema = Model.instance().get(schema_name)
                     assert schema is not None, schema_name
-                    # Merge with default
+                    # Merge the override into the default spec's dict form, then
+                    # re-validate so extra="forbid" and type checks apply to
+                    # overrides of the default schemata as well.
                     default_spec = instance.schema_rules[schema_name]
-                    merged_spec = default_spec.model_copy(update=spec)
-                    instance.schema_rules[schema_name] = merged_spec
+                    if not isinstance(spec, dict):
+                        raise TypeError(
+                            f"schema_rules[{schema_name!r}] must be a dict, "
+                            f"got {type(spec)}"
+                        )
+                    merged = {**default_spec.model_dump(), **spec}
+                    instance.schema_rules[schema_name] = CleaningSpec.model_validate(
+                        merged
+                    )
                 else:
                     instance.schema_rules[schema_name] = CleaningSpec.model_validate(
                         spec
