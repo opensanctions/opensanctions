@@ -1,0 +1,46 @@
+title: Niue Fono Ekepule
+name: nu_assembly
+prefix: nu-fono
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-17
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Niue Assembly (Fono Ekepule), the unicameral legislature of Niue.
+description: |
+  The Niue Assembly (Fono Ekepule) is the unicameral legislature of Niue, a self-governing
+  state in free association with New Zealand. It has twenty members: fourteen elected from
+  village constituencies and six elected on a common roll. Members serve non-partisan.
+
+  This dataset records each sitting member with their name and the village constituency or
+  common-roll seat they represent.
+url: https://www.gov.nu/government
+publisher:
+  name: Government of Niue
+  description: >
+    The Government of Niue publishes the roster of the Niue Assembly (Fono Ekepule), the
+    territory's unicameral legislature.
+  url: https://www.gov.nu/
+  country: nu
+  official: true
+data:
+  url: https://www.gov.nu/government
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 16
+      Position: 1
+    country_entities:
+      nu: 16
+  max:
+    schema_entities:
+      Person: 24
+      Position: 1
