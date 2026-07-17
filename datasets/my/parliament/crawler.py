@@ -112,12 +112,12 @@ def emit_officer(context: Context, person: Entity, url: str, role: str | None) -
     """Emit a presiding-officer occupancy for a "Position in the Parliament" label.
 
     Returns True when `role` names a presiding office and its occupancy was
-    emitted. The `position_in_parliament` lookup maps each known office to its
+    emitted. The `position` lookup maps each known office to its
     English position and enumerates the non-office labels (ordinary members,
     blanks, and the cabinet titles the Senate leaks into this field, which are
     already captured from "Position in Cabinet"). An unrecognised label is logged
     rather than silently dropped, so a renamed or newly-created office surfaces."""
-    result = context.lookup("position_in_parliament", role)
+    result = context.lookup("position", role)
     if result is None:
         context.log.warning("Unrecognised parliament position", role=role, url=url)
         return False

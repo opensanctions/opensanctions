@@ -3,27 +3,24 @@ entry_point: crawler.py
 prefix: my-parl
 coverage:
   frequency: monthly
-  start: 2026-07-02
+  start: 2026-07-17
 load_statements: true
 ci_test: false
 summary: >-
-  Members of both houses of the Parliament of Malaysia: the Dewan Rakyat (House
-  of Representatives) and the Dewan Negara (Senate)
+  Sitting members of Malaysia's bicameral federal Parliament: the elected Dewan
+  Rakyat (House of Representatives) and the appointed Dewan Negara (Senate)
 description: |
-  Members of the two houses of the Parliament of Malaysia, which together hold
-  the country's federal legislative power.
+  The Parliament of Malaysia exercises the country's federal legislative power
+  through two houses: the elected Dewan Rakyat (House of Representatives) and the
+  Dewan Negara (Senate), whose members are either appointed by the King or chosen
+  by the state legislative assemblies. This dataset covers the current membership of
+  both.
 
-  The Dewan Rakyat, House of Representatives, is the lower house. Its members are
-  elected from single-member federal constituencies. Each member, including the chamber's presiding officers,
-  is recorded with their name, party affiliation, and the constituency they represent.
-
-  The Dewan Negara, Senate, is the upper house. Its senators serve three-year
-  terms and are either appointed by the King (Yang di-Pertuan Agong) or selected
-  by the state legislative assemblies. Each senator, including the chamber's presiding officers, is recorded with their name,
-  party affiliation, and term of office.
-
-  Members of either house who also hold an executive office additionally carry
-  their cabinet position.
+  Each member is recorded as a politically exposed person, along with their party
+  and, depending on the house, the constituency they represent or their term of
+  office. Presiding officers such as the Speaker and the Senate President are
+  captured as distinct positions, as are the cabinet portfolios of members who
+  also hold executive office.
 url: https://www.parlimen.gov.my/ahli-dewan.html?uweb=dr
 publisher:
   name: Parliament of Malaysia
@@ -76,7 +73,7 @@ lookups:
   # that a renamed or newly-created office surfaces as an unmatched-lookup
   # warning instead of being emitted silently. The role labels arrive mostly in
   # Malay even under `lang=en`; the House clerk arrives in English.
-  position_in_parliament:
+  position:
     lowercase: true
     options:
       - match: Yang di-Pertua Dewan Rakyat
