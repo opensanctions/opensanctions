@@ -1,0 +1,48 @@
+title: Solomon Islands National Parliament
+name: sb_parliament
+prefix: sb-parl
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-17
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the National Parliament of Solomon Islands, the unicameral national
+  legislature.
+description: |
+  The National Parliament of Solomon Islands is the country's unicameral legislature.
+  Its members are directly elected from single-member constituencies under first-past-the-post
+  for four-year terms.
+
+  This dataset records each sitting member with their name and the constituency they
+  represent.
+url: https://parliament.gov.sb/
+publisher:
+  name: National Parliament of Solomon Islands
+  acronym: NPSI
+  description: >
+    The National Parliament is the unicameral legislature of Solomon Islands, made up of
+    members elected from single-member constituencies across the country's provinces.
+  url: https://parliament.gov.sb/
+  country: sb
+  official: true
+data:
+  url: https://parliament.gov.sb/members/themembers/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+      Position: 1
+    country_entities:
+      sb: 40
+  max:
+    schema_entities:
+      Person: 60
+      Position: 1
