@@ -1,26 +1,38 @@
 id: 207
-title: Ukraine Sanctions Regime
+title: Ukraine sanctions framework
 key: AU-UKRAINE
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime
-summary: 'Australia imposes autonomous sanctions in relation to Ukraine in response
-  to the Russian threat to the sovereignty and territorial integrity of Ukraine.
-
-
-  Sanctions listed under this regime may be part of two different regimes: The [Ukraine
-  sanctions regime](https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime)
-  or the [Specified Ukraine regions sanctions regime](https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime).
-  While these are technically different programs, they are not disambiguated in the
-  data provided by the issuer. For this reason, we also consolidate these programs
-  in our database.
-
-  '
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-framework
+summary: >
+  Targets persons and entities designated in response to the Russian threat
+  to the sovereignty and territorial integrity of Ukraine. Designated
+  persons and entities are subject to an asset freeze, and declared persons
+  are barred from entering or transiting Australia. This program also covers
+  Australia's Specified Ukraine regions sanctions framework, because the
+  DFAT Consolidated List does not distinguish the two frameworks. That
+  framework imposes region-wide measures on Crimea, Sevastopol, Donetsk and
+  Luhansk: a ban on importing goods originating there, export bans on
+  machinery and on goods for infrastructure in the transport,
+  telecommunications and energy sectors, prohibitions on loans, credit and
+  joint ventures relating to that infrastructure or to oil, gas and mineral
+  exploitation, and bans on related services.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (Ukraine)
+  - Specified Ukraine regions sanctions framework
+  - Autonomous Sanctions (Designated Persons and Entities and Declared
+    Persons – Russia and Ukraine) List 2014
+  - Autonomous Sanctions (Export Sanctioned Goods – Specified Ukraine
+    Regions) Designation 2023
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban
+  - Export control
+  - Import restrictions
+  - Financial restrictions
+  - Investment ban

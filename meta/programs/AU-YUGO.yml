@@ -1,12 +1,23 @@
 id: 197
-title: Former Federal Republic Of Yugoslavia Sanctions Regime
+title: Former Federal Republic of Yugoslavia sanctions framework
 key: AU-YUGO
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/former-federal-republic-yugoslavia-sanctions-regime
-summary: Australia imposes autonomous sanctions in relation to the Former Federal
-  Republic of Yugoslavia (FFRY) which target persons associated with the former Milosevic
-  regime, and persons indicted for or suspected of committing war crimes during the
-  Balkan wars in the early 1990s. Sanctions have been in place since 1992.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/former-federal-republic-yugoslavia-sanctions-framework
+summary: >
+  Targets persons associated with the former Milosevic regime and persons
+  indicted for or suspected of committing war crimes during the Balkan wars
+  of the early 1990s. Australia has maintained autonomous sanctions in
+  relation to the Former Federal Republic of Yugoslavia (FFRY) since 1992.
+  Designated persons are subject to an asset freeze and are barred from
+  travelling to, entering or remaining in Australia.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (FFRY)
+  - FFRY sanctions framework
+  - Autonomous Sanctions (Designated and Declared Persons – Former Federal
+    Republic of Yugoslavia) List 2012
 target_territories:
-- yucs
+  - yucs
+measures:
+  - Asset freeze
+  - Travel ban

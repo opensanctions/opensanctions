@@ -1,11 +1,20 @@
 id: 200
-title: Libya Sanctions Regime
+title: Libya sanctions framework
 key: AU-LIBYA
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/libya-sanctions-regime
-summary: Australia imposes autonomous sanctions in relation to Libya, which complement
-  the United Nations Security Council resolutions that Australia incorporates into
-  local law.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/libya-sanctions-framework
+summary: Australia imposes autonomous sanctions in relation to Libya that complement
+  the UN Security Council's Libya sanctions framework. Under the Autonomous
+  Sanctions Regulations 2011, the Foreign Minister designates additional persons
+  and entities associated with the former Qadhafi regime. The assets of designated
+  persons and entities are frozen, and designated persons are prohibited from
+  travelling to or entering Australia.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (Libya)
+  - Autonomous Sanctions (Designated Persons and Entities and Declared Persons – Libya) List 2012
 target_territories:
-- ly
+  - ly
+measures:
+  - Asset freeze
+  - Travel ban

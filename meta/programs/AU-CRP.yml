@@ -1,12 +1,19 @@
 id: 203
-title: Serious Corruption Sanctions Regime
+title: Serious corruption sanctions framework
 key: AU-CRP
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/serious-corruption-sanctions-regime
-summary: Australia established a thematic autonomous sanctions regime in relation
-  to serious corruption on 21 December 2021. Unlike a country-specific autonomous
-  sanctions regime, a thematic autonomous sanctions regime applies to sanctionable
-  conduct wherever it occurs in the world.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/serious-corruption-sanctions-framework
+summary: Targets persons and entities that have engaged in, been responsible for,
+  or been complicit in serious corruption, defined as bribery or misappropriation
+  of property, wherever in the world the conduct occurs. Designation is reserved
+  for the most egregious situations of international concern. Designated persons
+  and entities are subject to an asset freeze, and declared natural persons are
+  barred from entering or transiting through Australia.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - "Autonomous (Thematic – Corruption)"
 target_territories:
-- zz
+  - zz
+measures:
+  - Asset freeze
+  - Travel ban
