@@ -10,6 +10,7 @@ from zavod.extract.names.clean import Names, LangText
 from zavod.stateful.model import review_table
 from zavod.helpers import (
     apply_name,
+    apply_reviewed_name_string,
     apply_reviewed_names,
     make_name,
     split_comma_names,
@@ -324,6 +325,36 @@ def test_apply_reviewed_names_suggested_original(vcontext: Context):
         vcontext, entity, original=original, suggested=suggested, is_irregular=True
     )
     assert count_review_rows(vcontext.db, key) == 1
+
+
+def test_apply_reviewed_name_string_valid_prop(vcontext: Context):
+    """Valid original_prop values construct the Names payload and apply the name."""
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+
+    apply_reviewed_name_string(
+        vcontext, entity, string="Jim Doe", original_prop="alias"
+    )
+    assert entity.get("alias") == ["Jim Doe"]
+    assert entity.get("name") == []
+
+
+def test_apply_reviewed_name_string_invalid_prop_raises(vcontext: Context):
+    """A typo'd original_prop must raise instead of silently building an empty
+    Names payload and emitting the entity without a name."""
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+
+    with pytest.raises(ValueError, match="Invalid original_prop 'fullName'"):
+        apply_reviewed_name_string(
+            vcontext, entity, string="John Doe", original_prop="fullName"
+        )
+    # Even a None string must not mask the typo.
+    with pytest.raises(ValueError, match="Invalid original_prop 'firstName'"):
+        apply_reviewed_name_string(
+            vcontext, entity, string=None, original_prop="firstName"
+        )
+    assert entity.get("name") == []
 
 
 def test_apply_names_with_lang_argument(vcontext: Context):
