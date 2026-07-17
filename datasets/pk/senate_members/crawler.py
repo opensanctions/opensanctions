@@ -22,7 +22,9 @@ def crawl_member(
     uid: str,
 ) -> None:
     member_url = (
-        "https://senate.gov.pk/en/profile.php?uid=%s&catid=0&subcatid=0&cattitle=0"
+        context.data_url.replace(
+            "current_members.php", "profile.php?uid=%s&catid=0&subcatid=0&cattitle=0"
+        )
         % uid
     )
     doc = context.fetch_html(member_url, cache_days=7)
@@ -43,14 +45,13 @@ def crawl_member(
             data[label] = value
 
     name = HONORIFIC_RE.sub("", data.pop("Name")).strip()
-    assert name, member_url
+    assert name
 
     person = context.make("Person")
     person.id = context.make_slug(uid)
     person.add("name", name)
     person.add("sourceUrl", member_url)
 
-    # "Independent (IND)" denotes an independent (no party), not a political affiliation.
     party = data.pop("Party", None)
     if party is not None and not party.startswith("Independent"):
         person.add("political", party)
@@ -106,8 +107,6 @@ def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     hrefs = h.xpath_strings(doc, '//a[contains(@href, "profile.php?uid=")]/@href')
     uids = {match.group(1) for href in hrefs if (match := UID_RE.search(href))}
-    if not uids:
-        raise ValueError("No member profile links found on %s" % context.data_url)
 
     for uid in sorted(uids, key=int):
         crawl_member(context, position, categorisation, uid)
