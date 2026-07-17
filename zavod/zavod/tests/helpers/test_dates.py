@@ -179,3 +179,34 @@ def test_within_max_age(vcontext: Context):
     # The year before the cutoff year has fully elapsed.
     assert not within_max_age(vcontext, str(cutoff_year - 1))
     assert not within_max_age(vcontext, "1999-01-01")
+
+
+def test_apply_date_future_birth_date(testdataset1: Dataset):
+    data = {"id": "doe", "schema": "Person", "properties": {"name": ["John Doe"]}}
+    person = Entity(testdataset1, data)
+
+    # strptime's %y pivot maps 00-68 to 20xx: a 1968 birth date parses into
+    # the future and must not be stored.
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", "16-07-68", formats=("%d-%m-%y",))
+    assert person.get("birthDate") == []
+    assert len(cap_logs) == 1, cap_logs
+    assert cap_logs[0]["prop"] == "birthDate", cap_logs
+
+    # Two-digit years 69-99 pivot to 19xx and are kept.
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", "16-07-71", formats=("%d-%m-%y",))
+    assert "1971-07-16" in person.pop("birthDate")
+    assert cap_logs == [], cap_logs
+
+    # Explicit future dates are rejected too.
+    with capture_logs() as cap_logs:
+        apply_date(person, "birthDate", "2999-01-01")
+    assert person.get("birthDate") == []
+    assert len(cap_logs) == 1, cap_logs
+
+    # The guard applies only to birth dates.
+    with capture_logs() as cap_logs:
+        apply_date(person, "deathDate", "2999-01-01")
+    assert "2999-01-01" in person.pop("deathDate")
+    assert cap_logs == [], cap_logs
