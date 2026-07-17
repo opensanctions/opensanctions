@@ -1,0 +1,144 @@
+title: Malaysia Members of Parliament
+entry_point: crawler.py
+prefix: my-parl
+coverage:
+  frequency: monthly
+  start: 2026-07-17
+load_statements: true
+ci_test: false
+summary: >-
+  Sitting members of Malaysia's bicameral federal Parliament: the elected Dewan
+  Rakyat (House of Representatives) and the appointed Dewan Negara (Senate)
+description: |
+  The Parliament of Malaysia exercises the country's federal legislative power
+  through two houses: the elected Dewan Rakyat (House of Representatives) and the
+  Dewan Negara (Senate), whose members are either appointed by the King or chosen
+  by the state legislative assemblies. This dataset covers the current membership of
+  both.
+
+  Each member is recorded as a politically exposed person, along with their party
+  and, depending on the house, the constituency they represent or their term of
+  office. Presiding officers such as the Speaker and the Senate President are
+  captured as distinct positions, as are the cabinet portfolios of members who
+  also hold executive office.
+url: https://www.parlimen.gov.my/ahli-dewan.html?uweb=dr
+publisher:
+  name: Parliament of Malaysia
+  description: >
+    The Parliament of Malaysia is the national legislature, comprising the
+    Dewan Rakyat (House of Representatives) and the Dewan Negara (Senate).
+  url: https://www.parlimen.gov.my/
+  country: my
+  official: true
+data:
+  url: https://www.parlimen.gov.my/
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+tags:
+  - list.pep
+
+# Honorifics and courtesy titles that need stripping.
+# "@" marks an alias ("atau") embedded in the name.
+names:
+  schema_rules:
+    Person:
+      reject_chars: "@"
+      reject_strings:
+        - "Berhormat "
+        - "Seri"
+        - "Sri"
+        - "YAB"
+        - "YB"
+        - "Datuk"
+        - "Dato"
+        - "Datin"
+        - "Tuan"
+        - "Puan"
+        - "Encik"
+        - "Cik"
+        - "Haji"
+        - "Hajah"
+        - "Dr."
+        - "Prof."
+        - "Ir."
+        - "Ts."
+        - "Senator"
+        - "Hon."
+
+lookups:
+  # "Position in the Parliament" names a presiding office for a handful of
+  # members; for everyone else it repeats the ordinary-member designation, is
+  # blank, or (in the Senate) leaks the member's cabinet title. Only the
+  # presiding offices map to a Position; the rest are enumerated and dropped so
+  # that a renamed or newly-created office surfaces as an unmatched-lookup
+  # warning instead of being emitted silently. The role labels arrive mostly in
+  # Malay even under `lang=en`; the House clerk arrives in English.
+  position:
+    lowercase: true
+    options:
+      - match: Yang di-Pertua Dewan Rakyat
+        name: Speaker of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q7574262
+      - match: Timbalan Yang di-Pertua Dewan Rakyat
+        name: Deputy Speaker of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q126361900
+      - match: Ketua Majlis
+        name: Leader of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+      - match: Timbalan Ketua Majlis
+        name: Deputy Leader of the Dewan Rakyat
+        topics: [gov.legislative, gov.national]
+      - match: Secretary Of The House Of Representatives
+        name: Secretary of the Dewan Rakyat
+        topics: [gov.admin, gov.national]
+      - match: Yang di-Pertua Dewan Negara
+        name: President of the Dewan Negara
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q7241319
+      - match: Timbalan Yang di-Pertua Dewan Negara
+        name: Deputy President of the Dewan Negara
+        topics: [gov.legislative, gov.national]
+        wikidata_id: Q134572656
+      # Ordinary members and blanks — not a presiding office.
+      - match:
+          - null
+          - Ahli Dewan Negara
+          - Ahli Dwan Negara  # source typo for "Ahli Dewan Negara"
+        value: null
+      # Senators who are also ministers list their cabinet title here; it is
+      # already captured from the "Position in Cabinet" field.
+      - contains:
+          - menteri
+          - minister
+        value: null
+  type.email:
+    options:
+      - match: "-"
+        value: null
+      - match: "adamadli@.gov.my"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 220
+      Position: 40
+    country_entities:
+      my: 220
+    entities_with_prop:
+      # Per-chamber roster floors: a constituency marks a Dewan Rakyat seat, a
+      # term start date marks a Dewan Negara seat. These catch one chamber's
+      # roster silently under-collecting, which a combined Person floor would not.
+      Occupancy:
+        constituency: 180
+        startDate: 40
+  max:
+    schema_entities:
+      Person: 470
+      Position: 120
