@@ -6,7 +6,7 @@ from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
 from nomenklatura.wikidata import WikidataClient, SparqlBinding
 
-from zavod import Context
+from zavod import Context, settings
 from zavod.entity import Entity
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
@@ -215,7 +215,12 @@ def crawl(context: Context) -> None:
     # return
     seen_positions: Set[str] = set()
     cache_days = context.dataset.config.get("cache_days", 14)
-    client = WikidataClient(context.cache, context.http, cache_days=cache_days)
+    client = WikidataClient(
+        context.cache,
+        context.http,
+        cache_days=cache_days,
+        reference_time=settings.RUN_TIME,
+    )
     position_classes = query_position_classes(context, client)
     for country in all_countries():
         context.log.info(f"Crawling country: {country.qid} ({country.label})")
