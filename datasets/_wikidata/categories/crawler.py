@@ -6,7 +6,7 @@ from io import StringIO
 from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
 
-from nomenklatura.wikidata import Claim, WikidataClient
+from nomenklatura.wikidata import Claim, Item, WikidataClient
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.time import iso_datetime
 
@@ -54,7 +54,10 @@ class CrawlState(object):
             reference_time=settings.RUN_TIME,
         )
         self.log = context.log
-        self.ignore_positions: Set[str] = set()
+        # Position QID -> evaluated position entity, None if the item is not
+        # a usable PEP position. Positions recur across the whole person set,
+        # so each distinct QID is fetched and categorised only once per run.
+        self.positions: Dict[str, Optional[Entity]] = {}
 
         self.persons: Dict[str, FoundRecord] = defaultdict(FoundRecord)
         self.persons.update({qid: FoundRecord() for qid in ALWAYS_PERSONS})
@@ -64,6 +67,7 @@ class CrawlState(object):
         self.person_topics: Dict[str, Set[str]] = {}
         self.person_positions: Dict[str, Set[Entity]] = {}
         self._emitted_positions: Set[str] = set()
+        self._crawled_officeholder_positions: Set[str] = set()
         exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
         self.exclusion_checks: Set[str] = set(exc)
         self.person_modified_at: Dict[str, datetime] = {}
@@ -80,40 +84,60 @@ def title_name(title: str) -> Optional[str]:
     return clean_wikidata_name(title.replace("_", " "))
 
 
-def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
-    item = state.client.fetch_item(claim.qid)
+def get_position(state: CrawlState, qid: str) -> Optional[Entity]:
+    """Reuse evaluated positions across people who hold the same office."""
+    if qid in state.positions:
+        return state.positions[qid]
+    item = state.client.fetch_item(qid)
     if item is None:
-        if claim.qid is not None:
-            state.ignore_positions.add(claim.qid)
-        return
+        state.positions[qid] = None
+        return None
     position = wikidata_position(state.context, state.client, item)
     if position is None or position.id is None:
-        state.ignore_positions.add(item.id)
-        return
-    if item.id != claim.qid and claim.qid is not None:
-        state.context.resolver.rename_node(claim.qid, item.id)
+        state.positions[qid] = None
+        state.positions[item.id] = None
+        return None
+    if item.id != qid:
+        state.context.resolver.rename_node(qid, item.id)
         state.context.flush()
+    state.positions[qid] = position
+    state.positions[item.id] = position
+    return position
 
+
+def crawl_officeholders(state: CrawlState, item: Item, position: Entity) -> None:
+    if position.id is None or position.id in state._crawled_officeholder_positions:
+        return
+    state._crawled_officeholder_positions.add(position.id)
+
+    # persons via position --( P1308 officeholder )--> person
+    for claim in item.claims:
+        if claim.property != "P1308" or claim.qid is None:
+            continue
+        holder = crawl_person(state, claim.qid, recurse=False)
+        if holder is None:
+            continue
+        occupancy = wikidata_occupancy(state.context, holder, position, claim)
+        if occupancy is not None:
+            state.emit_position(position)
+            state.context.emit(occupancy)
+            state.context.emit(holder)
+
+
+def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
+    if claim.qid is None:
+        return
+    position = get_position(state, claim.qid)
+    if position is None:
+        return
+    item = state.client.fetch_item(claim.qid)
+    if item is not None:
+        crawl_officeholders(state, item, position)
     occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
         state.log.info("  -> %s (%s)" % (position.first("name"), position.id))
         state.emit_position(position)
         state.context.emit(occupancy)
-
-    # TODO: implement support for 'officeholder' (P1308) here
-    for officeholder_claim in item.claims:
-        if officeholder_claim.property == "P1308":  # officeholder
-            if officeholder_claim.qid is None:
-                continue
-            holder = crawl_person(state, officeholder_claim.qid, recurse=False)
-            if holder is not None:
-                occupancy = wikidata_occupancy(
-                    state.context, holder, position, officeholder_claim
-                )
-                if occupancy is not None:
-                    state.emit_position(position)
-                    state.context.emit(occupancy)
-                    state.context.emit(holder)
 
 
 def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[Entity]:
@@ -206,15 +230,12 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
 def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
     persons: Set[str] = set([])
 
-    if position_qid in state.ignore_positions:
+    position = get_position(state, position_qid)
+    if position is None:
         return persons
+    # Cheap re-fetch: get_position just pulled this item into the client LRU.
     item = state.client.fetch_item(position_qid)
     if item is None:
-        state.ignore_positions.add(position_qid)
-        return persons
-    position = wikidata_position(state.context, state.client, item)
-    if position is None:
-        state.ignore_positions.add(position_qid)
         return persons
 
     # find person QIDs such that person --( P39 position held )--> position_qid
@@ -223,6 +244,10 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
     for person_qid, modified_at in holders.items():
         if modified_at is not None:
             state.person_modified_at[person_qid] = modified_at
+
+    # Crawl direct officeholders only after their modification dates can
+    # invalidate stale person items from the cache.
+    crawl_officeholders(state, item, position)
 
     # find person QIDs such that position_qid --( P1308 officeholder )--> person
     for claim in item.claims:
@@ -307,7 +332,7 @@ def crawl_persons(state: CrawlState) -> None:
 
         positions: set[Entity] = state.person_positions.get(person_qid, set())
         for position in positions:
-            if position.id is None or position.id in state.ignore_positions:
+            if position.id is None:
                 continue
             occupancy = h.make_occupancy(
                 state.context, entity, position, no_end_implies_current=False

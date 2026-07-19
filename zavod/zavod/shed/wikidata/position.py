@@ -253,7 +253,10 @@ def position_holders(
     }}
     """
     holders: Dict[str, Optional[datetime]] = {}
-    response = client.query(query, client.CACHE_SHORT)
+    # Holder lists (and the dateModified values that drive person cache
+    # invalidation) change slowly; at 1 day, every crawl re-runs tens of
+    # thousands of WDQS queries.
+    response = client.query(query, cache_days=5)
     for result in response.results:
         person_qid = result.plain("person")
         modified_at = result.plain("modifiedAt")
