@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 
 from lxml.html import HtmlElement
@@ -64,7 +64,7 @@ def crawl_row(
 
     start_date = row.pop("Date of detention")
     if company_name:
-        company_name = company_name.replace("& #44;", ",")
+        company_name = company_name.replace("&#44;", ",")
         if company_name.lower() not in UNKNOWN:
             emit_linked_org(
                 context,
@@ -98,8 +98,11 @@ def crawl_row(
 
     end_date = row.pop("Date of release", None)
     for br in reasons_cell.xpath(".//br"):
-        br.tail = br.tail + "\n" if br.tail else "\n"
-    reason = reasons_cell.text_content().split("\n")
+        br.tail = br.tail + "
+" if br.tail else "
+"
+    reason = reasons_cell.text_content().split("
+")
     # key is type-ignored to avoid a re-key
     sanction = h.make_sanction(
         context,
@@ -116,11 +119,11 @@ def crawl_row(
     context.emit(vessel)
     context.emit(sanction)
 
-    context.audit_data(row, ["Place of detention", "Nature of deficiencies", "�"])
+    context.audit_data(row, ["Place of detention", "Nature of deficiencies", ""])
 
 
 def crawl(context: Context) -> None:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     year = START_YEAR
     month = START_MONTH
     while (year, month) <= (now.year, now.month):
