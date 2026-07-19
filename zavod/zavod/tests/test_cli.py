@@ -41,6 +41,11 @@ def test_validate_dataset():
     runner = CliRunner()
     result = runner.invoke(cli, ["validate", "/dev/null"])
     assert result.exit_code != 0, result.output
+    # An uncrawled dataset has no entities, which fails validation:
+    result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     shutil.rmtree(settings.DATA_PATH)

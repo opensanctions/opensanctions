@@ -1,12 +1,15 @@
 import json
 from typing import Optional
 from followthemoney.dataset import VersionHistory
+from pydantic import ValidationError
+from pytest import raises
 from structlog.testing import capture_logs
 from logging import Logger
 
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import DELTA_EXPORT_FILE, get_dataset_artifact, clear_data_path
+from zavod.archive import dataset_resource_path
 from zavod.archive import iter_dataset_statements, iter_previous_statements
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
 from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
@@ -184,6 +187,37 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
         INDEX_FILE,
         CATALOG_FILE,
     } | STANDARD_EXPORTS  # fmt: skip
+
+
+def test_publish_incomplete_index(testdataset1: Dataset):
+    """Publishing is refused when the index is missing run statistics that
+    consumers of published datasets rely on, e.g. because no entities were
+    emitted (https://github.com/opensanctions/opensanctions/issues/4643)."""
+    linker = get_dataset_linker(testdataset1)
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    view = store.view(testdataset1)
+    export_dataset(testdataset1, view)
+
+    index_path = dataset_resource_path(testdataset1.name, INDEX_FILE)
+    with open(index_path, "r") as fh:
+        index = json.load(fh)
+    for key in ("entity_count", "target_count", "thing_count", "last_change"):
+        del index[key]
+    with open(index_path, "w") as fh:
+        json.dump(index, fh)
+
+    with raises(ValidationError) as exc_info:
+        publish_dataset(testdataset1, republish_to_latest=True)
+    errors = {error["loc"][0] for error in exc_info.value.errors()}
+    assert errors == {"entity_count", "target_count", "thing_count", "last_change"}
+
+    # Nothing was archived or published:
+    published_path = settings.ARCHIVE_PATH / DATASETS
+    assert not (published_path / settings.RELEASE / testdataset1.name).exists()
+    assert not (published_path / "latest" / testdataset1.name).exists()
+    assert _read_history(testdataset1.name) is None
 
 
 def test_archive_failure(testdataset1: Dataset):

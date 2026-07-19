@@ -48,7 +48,7 @@ class SelfReferenceValidator(BaseValidator):
 
 
 class EmptyValidator(BaseValidator):
-    """Warn if no entities are validated."""
+    """Abort if no entities are validated."""
 
     def __init__(self, context: Context, view: View):
         super().__init__(context, view)
@@ -59,7 +59,8 @@ class EmptyValidator(BaseValidator):
 
     def finish(self) -> None:
         if self.is_empty:
-            self.context.log.warning("No entities validated.")
+            self.context.log.error("No entities validated.")
+            self.abort = True
 
 
 VALIDATORS: List[Type[BaseValidator]] = [

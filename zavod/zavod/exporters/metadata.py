@@ -1,6 +1,9 @@
+from datetime import datetime
 from enum import StrEnum
 import json
 from typing import Any, Dict, List
+
+from followthemoney.dataset.dataset import DatasetModel
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -22,6 +25,29 @@ log = get_logger(__name__)
 class DatasetVersionResult(StrEnum):
     SUCCESS = "success"
     FAILURE = "failure"
+
+
+class DatasetIndexModel(DatasetModel):
+    """The dataset index (index.json) of a successful run, requiring the run
+    statistics that consumers of published datasets rely on (#4643)."""
+
+    version: str
+    updated_at: datetime
+    entity_count: int
+    target_count: int
+    thing_count: int
+    last_change: datetime
+
+
+def validate_index(dataset: Dataset) -> None:
+    """Check that the dataset index file is complete enough to be published.
+
+    Raises a pydantic ValidationError if required metadata is missing, e.g.
+    when statistics were never generated because no entities were emitted."""
+    index_path = dataset_resource_path(dataset.name, INDEX_FILE)
+    with open(index_path, "r") as fh:
+        data = json.load(fh)
+    DatasetIndexModel.model_validate(data)
 
 
 def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
