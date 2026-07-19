@@ -174,9 +174,6 @@ def wikidata_position(
         if claim.property == "P571":
             claim.text.apply(position, "inceptionDate")
 
-        if claim.property == "P580":
-            claim.text.apply(position, "inceptionDate")
-
         # abolished date:
         if claim.property == "P576":
             claim.text.apply(position, "dissolutionDate")

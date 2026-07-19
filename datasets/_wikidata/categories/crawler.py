@@ -18,7 +18,7 @@ from zavod.shed.wikidata.position import (
 )
 from zavod.stateful.positions import categorised_position_qids
 
-from zavod import Context, Entity
+from zavod import Context, Entity, settings
 from zavod import helpers as h
 
 URL = "https://petscan.wmcloud.org/"
@@ -48,7 +48,10 @@ class CrawlState(object):
     def __init__(self, context: Context):
         self.context = context
         self.client = WikidataClient(
-            context.cache, session=context.http, cache_days=WIKIDATA_CACHE_DAYS
+            context.cache,
+            session=context.http,
+            cache_days=WIKIDATA_CACHE_DAYS,
+            reference_time=settings.RUN_TIME,
         )
         self.log = context.log
         self.ignore_positions: Set[str] = set()
