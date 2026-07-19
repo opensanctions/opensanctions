@@ -235,6 +235,9 @@ lookups:
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
       - match: "Numéro d'enregistrement"
+      - match: "N° d'enregistrement: 1022101131580"
+        props:
+          registrationNumber: "1022101131580"
       - match: "Code"
       # Sometimes leftover from "BIN/OGRN"
       - match: "BIN"
@@ -6657,3 +6660,7 @@ lookups:
         addresses:
           - "S1500, Jebel Ali Freezone, Dubaï, Émirats arabes unis"
           - "Jebel Ali Free Zone South, Dubaï, Jebel Ali 61354, AE, Émirats arabes unis"
+      - match: "121471, ville de Moscou, Municipal District of the Intracity Territory, Mozhaysky, 2nd Peter Alekseev lane, building 2, structure 1; 109028, Moscou, Serebryanichaya Embankment, 29"
+        addresses:
+          - "121471, ville de Moscou, Municipal District of the Intracity Territory, Mozhaysky, 2nd Peter Alekseev lane, building 2, structure 1"
+          - "109028, Moscou, Serebryanichaya Embankment, 29"
