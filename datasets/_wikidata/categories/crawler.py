@@ -67,6 +67,7 @@ class CrawlState(object):
         self.person_topics: Dict[str, Set[str]] = {}
         self.person_positions: Dict[str, Set[Entity]] = {}
         self._emitted_positions: Set[str] = set()
+        self._crawled_officeholder_positions: Set[str] = set()
         exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
         self.exclusion_checks: Set[str] = set(exc)
         self.person_modified_at: Dict[str, datetime] = {}
@@ -84,9 +85,7 @@ def title_name(title: str) -> Optional[str]:
 
 
 def get_position(state: CrawlState, qid: str) -> Optional[Entity]:
-    """Fetch and evaluate a position item, memoized on `state.positions` so
-    that each distinct position is fetched, categorised and crawled for
-    officeholders only once per run."""
+    """Reuse evaluated positions across people who hold the same office."""
     if qid in state.positions:
         return state.positions[qid]
     item = state.client.fetch_item(qid)
@@ -103,11 +102,14 @@ def get_position(state: CrawlState, qid: str) -> Optional[Entity]:
         state.context.flush()
     state.positions[qid] = position
     state.positions[item.id] = position
-    crawl_officeholders(state, item, position)
     return position
 
 
 def crawl_officeholders(state: CrawlState, item: Item, position: Entity) -> None:
+    if position.id is None or position.id in state._crawled_officeholder_positions:
+        return
+    state._crawled_officeholder_positions.add(position.id)
+
     # persons via position --( P1308 officeholder )--> person
     for claim in item.claims:
         if claim.property != "P1308" or claim.qid is None:
@@ -128,6 +130,9 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
     position = get_position(state, claim.qid)
     if position is None:
         return
+    item = state.client.fetch_item(claim.qid)
+    if item is not None:
+        crawl_officeholders(state, item, position)
     occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
         state.log.info("  -> %s (%s)" % (position.first("name"), position.id))
@@ -239,6 +244,10 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
     for person_qid, modified_at in holders.items():
         if modified_at is not None:
             state.person_modified_at[person_qid] = modified_at
+
+    # Crawl direct officeholders only after their modification dates can
+    # invalidate stale person items from the cache.
+    crawl_officeholders(state, item, position)
 
     # find person QIDs such that position_qid --( P1308 officeholder )--> person
     for claim in item.claims:
