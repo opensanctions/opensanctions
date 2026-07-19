@@ -70,6 +70,7 @@ SANCTION_FEATURES = {
     "IFCA Determination -": "summary",
     "PEESA Information:": "summary",
     "PAIPA Section 2 Information:": "summary",  # e.g. "BLOCKING OF PROPERTY (entity). ..."
+    "HKAA Section 6 Information:": "summary",  # e.g. "BLOCKING OF PROPERTY. Sec.6(b)(1)(A),(B),(C) ..."
     "Effective Date (CMIC)": "startDate",
     "Purchase/Sales For Divestment Date (CMIC)": "startDate",
     "Effective Date (EO 14024 Directive 1a):": "startDate",
