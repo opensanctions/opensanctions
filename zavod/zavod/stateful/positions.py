@@ -3,6 +3,7 @@ from enum import Enum
 from functools import lru_cache
 from typing import List, Optional
 
+from rigour.dates import ended_before, starts_after
 from rigour.ids.wikidata import is_qid
 from sqlalchemy import select
 
@@ -173,18 +174,21 @@ def occupancy_status(
     - ``periodEnd`` (term/period end): past implies ENDED, future implies UNKNOWN
       (e.g. a parliamentary term may still be running but the person may have left)
 
+    A death date in the past caps the status at ENDED: a deceased person is never
+    emitted as a CURRENT or UNKNOWN office-holder.
+
     If the person should not be considered a PEP, return None.
     """
-    from zavod import helpers as h
-
-    current_iso = current_time.isoformat()
-    if death_date is not None and death_date < h.backdate(current_time, AFTER_DEATH):
+    if death_date is not None and ended_before(death_date, current_time - AFTER_DEATH):
         # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None
 
-    if birth_date is not None and birth_date < h.backdate(current_time, MAX_AGE):
+    if birth_date is not None and ended_before(birth_date, current_time - MAX_AGE):
         # If they're unrealistically old, assume they're not a PEP.
         return None
+
+    # A death date entirely in the future is a data error and is ignored here.
+    died = death_date is not None and not starts_after(death_date, current_time)
 
     # Determine effective start date (most specific first)
     effective_start_date = max(occupancy.get("startDate"), default=None)
@@ -216,8 +220,8 @@ def occupancy_status(
 
     # Individual end date is the most specific signal
     if end_date is not None:
-        if end_date < current_iso:  # end_date is in the past
-            if end_date < h.backdate(current_time, after_office):
+        if ended_before(end_date, current_time):  # end_date is in the past
+            if ended_before(end_date, current_time - after_office):
                 # end_date is beyond after-office threshold
                 return None
             else:
@@ -226,7 +230,7 @@ def occupancy_status(
         elif (
             context.dataset.model.coverage
             and context.dataset.model.coverage.end
-            and context.dataset.model.coverage.end < current_iso
+            and ended_before(context.dataset.model.coverage.end, current_time)
         ):  # end_date is in the future and dataset is beyond its coverage.
             # Don't trust future end dates beyond the known coverage date of the dataset
             context.log.warning(
@@ -236,15 +240,15 @@ def occupancy_status(
                 position=position.id,
                 end_date=end_date,
             )
-            return OccupancyStatus.UNKNOWN
+            return OccupancyStatus.ENDED if died else OccupancyStatus.UNKNOWN
         else:  # end_date is in the future and coverage is unspecified or active
-            return OccupancyStatus.CURRENT
+            return OccupancyStatus.ENDED if died else OccupancyStatus.CURRENT
 
     # Period end date: less specific — a future period end does not imply the person
     # is still in office. An MP could leave a term early
     if period_end is not None:
-        if period_end < current_iso:  # period_end is in the past
-            if period_end < h.backdate(current_time, after_office):
+        if ended_before(period_end, current_time):  # period_end is in the past
+            if ended_before(period_end, current_time - after_office):
                 # period_end is beyond after-office threshold
                 return None
             else:
@@ -254,16 +258,22 @@ def occupancy_status(
     # No end date of any kind
     dis_date = max(position.get("dissolutionDate"), default=None)
     # dissolution date is in the past:
-    if dis_date is not None and dis_date < current_iso:
-        if dis_date > h.backdate(current_time, after_office):
-            return OccupancyStatus.ENDED
-        else:
+    if dis_date is not None and ended_before(dis_date, current_time):
+        if ended_before(dis_date, current_time - after_office):
             return None
+        else:
+            return OccupancyStatus.ENDED
 
-    max_office_threshold = h.backdate(current_time, MAX_OFFICE)
-    if effective_start_date is not None and effective_start_date < max_office_threshold:
+    if effective_start_date is not None and ended_before(
+        effective_start_date, current_time - MAX_OFFICE
+    ):
         # start_date is older than MAX_OFFICE threshold - probably not a PEP
         return None
+
+    if died:
+        # A deceased person no longer holds the position, even if the source
+        # hasn't recorded an end date.
+        return OccupancyStatus.ENDED
 
     if no_end_implies_current:
         # This is for sources we are really confident will provide an end date or

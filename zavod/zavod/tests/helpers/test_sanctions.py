@@ -138,3 +138,46 @@ def test_sanctions_is_active_with_future_start_date(sanction: Entity):
     sanction.set("startDate", future_date)
     sanction.set("endDate", far_future_date)
     assert not is_active(sanction)
+
+
+def test_sanctions_is_active_with_end_date_today(sanction: Entity):
+    today = settings.RUN_TIME.date().isoformat()
+    sanction.set("endDate", today)
+    assert is_active(sanction)
+
+
+def test_sanctions_is_active_with_prefix_end_dates(sanction: Entity):
+    # A sanction ending some time this year is still active today.
+    sanction.set("endDate", str(settings.RUN_TIME.year))
+    assert is_active(sanction)
+    # Same for month precision in the current month.
+    sanction.set("endDate", settings.RUN_TIME.date().isoformat()[:7])
+    assert is_active(sanction)
+    # A sanction ending last year is over.
+    sanction.set("endDate", str(settings.RUN_TIME.year - 1))
+    assert not is_active(sanction)
+    # A start date in the current year (at year precision) may have passed already.
+    sanction.set("endDate", None)
+    sanction.set("startDate", str(settings.RUN_TIME.year))
+    assert is_active(sanction)
+    sanction.set("startDate", str(settings.RUN_TIME.year + 1))
+    assert not is_active(sanction)
+
+
+def test_make_sanction_prefix_end_date_status(vcontext: Context, person: Entity):
+    # endDate="<current year>" means the sanction runs until some point this
+    # year - it must not be reported inactive from the 1st of January.
+    sanction = make_sanction(
+        vcontext, person, key="this-year", end_date=str(settings.RUN_TIME.year)
+    )
+    assert sanction.get("status") == ["active"]
+
+    sanction = make_sanction(
+        vcontext, person, key="today", end_date=settings.RUN_TIME.date().isoformat()
+    )
+    assert sanction.get("status") == ["active"]
+
+    sanction = make_sanction(
+        vcontext, person, key="last-year", end_date=str(settings.RUN_TIME.year - 1)
+    )
+    assert sanction.get("status") == ["inactive"]
