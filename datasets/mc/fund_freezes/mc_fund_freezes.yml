@@ -312,6 +312,10 @@ lookups:
         values:
           - 1958
           - 1963
+      - match: Entre 1959 et 1965
+        values:
+          - 1959
+          - 1965
       - match: Entre 1940 et 1941
         values:
           - 1940
