@@ -1,15 +1,25 @@
 id: 73
-title: EU Restrictive Measures In View Of The Situation In Lebanon
+title: EU Restrictive measures in view of the situation in Lebanon
 key: EU-LEBANON
 url: https://sanctionsmap.eu/#/main/details/51/
-summary: These sanctions target individuals and entities in Lebanon involved in activities
-  undermining peace, security, and stability. The measures include asset freezes,
-  travel bans, and trade restrictions to support Lebanon's sovereignty and promote
-  stability in the region.
+summary: Provides a framework for targeted sanctions against persons and
+  entities responsible for undermining democracy or the rule of law in
+  Lebanon, including by persistently hampering the formation of a government,
+  obstructing elections or an agreed political solution, or through serious
+  financial misconduct concerning public funds. The framework was established
+  in 2021 by Decision (CFSP) 2021/1277 and Regulation (EU) 2021/1275 and has
+  been renewed annually since, most recently until 31 July 2026. Designation
+  would result in an asset freeze and, for natural persons, a ban on entry
+  into or transit through the EU; no persons or entities have been designated
+  under the framework to date.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2021/1275
+  - Decision (CFSP) 2021/1277
+  - Restrictive measures in view of the situation in Lebanon
 target_territories:
-- lb
+  - lb
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban
