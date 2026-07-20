@@ -48,12 +48,8 @@ def crawl_holder(
     if item is None:
         return None
     if item.id != person_qid:
-        context.log.warning(
-            "Redirected person QID",
-            original=person_qid,
-            redirected=item.id,
-            position=position.id,
-        )
+        context.resolver.rename_node(person_qid, item.id)
+        context.flush()
     entity = wikidata_basic_human(context, client, item)
     if entity is None:
         return None

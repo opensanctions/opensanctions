@@ -146,11 +146,8 @@ def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[
     if item is None:
         return None
     if item.id != qid:
-        state.context.log.warning(
-            "Redirected person QID",
-            original=qid,
-            redirected=item.id,
-        )
+        state.context.resolver.rename_node(qid, item.id)
+        state.context.flush()
     entity = wikidata_basic_human(state.context, state.client, item, strict=True)
     if entity is None:
         return None
