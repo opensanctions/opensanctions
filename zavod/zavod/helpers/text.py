@@ -10,9 +10,9 @@ log = get_logger(__name__)
 PREFIX_ = r"INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
 PREFIX = re.compile(PREFIX_, re.IGNORECASE)
 
-INTERPOL_URL_ = r"https?:\/\/www\.interpol\.int\/[^ ]*(\s\d+)?"
+INTERPOL_URL_ = r"https?:\/\/www\.interpol\.int\/\S*(\s\d+)?"
 INTERPOL_URL = re.compile(INTERPOL_URL_, re.IGNORECASE)
-BRACKETED = re.compile(r"\(.*\)")
+BRACKETED = re.compile(r"\(.*?\)")
 
 
 def clean_note(text: Union[Optional[str], Sequence[Optional[str]]]) -> List[str]:
