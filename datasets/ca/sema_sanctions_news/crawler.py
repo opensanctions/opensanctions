@@ -12,13 +12,17 @@ PROGRAM_KEY = "CA-SEMA"
 MAX_AGE_DAYS = 15
 
 
-def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
+def crawl_entity_notice(
+    context: Context, row: Dict[str, _Element], row_index: int
+) -> None:
     str_row = h.cells_to_str(row)
     listing_date = str_row.pop("date")
     assert listing_date is not None
 
     # skip sanctions whose listing date is older than MAX_AGE_DAYS
-    if not h.within_max_age(context, listing_date, MAX_AGE_DAYS):
+    # but always emit the first row (the most recent) row while we sort out empty exports
+    # https://github.com/opensanctions/opensanctions/issues/4643
+    if row_index != 0 and not h.within_max_age(context, listing_date, MAX_AGE_DAYS):
         return
 
     country = str_row.pop("country")
@@ -134,8 +138,8 @@ def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     entities_table = h.xpath_element(doc, '//table[contains(@id, "dataset-filter1")]')
     linker = get_dataset_linker(context.dataset)
-    for row in h.parse_html_table(entities_table):
-        crawl_entity_notice(context, row)
+    for idx, row in enumerate(h.parse_html_table(entities_table)):
+        crawl_entity_notice(context, row, idx)
 
     ship_table = h.xpath_element(doc, '//table[contains(@class, "table wb-tables")]')
     for row in h.parse_html_table(ship_table):
