@@ -191,7 +191,11 @@ lookups:
         value: US-FORINT
       - match: HOSTAGES-EO14078
         value: US-HOSTAGE
-      - match: HK-EO13936
+      - match:
+          # HKAA designations moved to the NS-MBS list when the EO 13936 national
+          # emergency expired in July 2026; the authority stays US-HONGKONG.
+          - HKAA
+          - HK-EO13936
         value: US-HONGKONG
       - match:
           - FTO
@@ -467,6 +471,7 @@ lookups:
           - "PAIPA Section 2 Information:"
           - "Additional Sanctions Information -"
           - "Additional Program Tags -"
+          - "HKAA Section 6 Information:"
           - "Secondary sanctions risk:"
           - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
           - Effective Date (CMIC)
