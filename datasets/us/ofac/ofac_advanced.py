@@ -576,6 +576,9 @@ def emit_sanctions_entry(
     # HKAA entries are published on the multi-authority NS-MBS list. Use the
     # source program tag for their program ID without changing how other
     # consolidated-list entries are attributed.
+    # TODO(#4980): other CONS entries (SSI/CMIC/NS-PLC/NS-MBS) also carry Program-type
+    # source tags (e.g. RUSSIA-EO14024, CMIC-EO13959) but stay attributed to their list
+    # program. Generalize to prefer a resolvable source tag and drop this HKAA special case.
     program_lookup_key = "HKAA" if source_program == "HKAA" else program
     # For us_ofac_sdn, only process entries with list_id 'SDN List'
     if dataset == "us_ofac_sdn" and list_id != "SDN List":
