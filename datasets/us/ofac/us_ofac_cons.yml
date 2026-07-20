@@ -80,6 +80,8 @@ lookups:
         value: US-NS-PLC
       - match: Sectoral Sanctions Identifications List
         value: US-SSI
+      - match: HKAA
+        value: US-HONGKONG
   script.lang:
     options:
       # - match: Arab
