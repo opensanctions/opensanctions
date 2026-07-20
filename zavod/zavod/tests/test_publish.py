@@ -1,12 +1,15 @@
 import json
 from typing import Optional
-from followthemoney.dataset import VersionHistory
+
+import pytest
+from followthemoney.dataset import Version, VersionHistory
 from structlog.testing import capture_logs
 from logging import Logger
 
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import DELTA_EXPORT_FILE, get_dataset_artifact, clear_data_path
+from zavod.archive import dataset_resource_path
 from zavod.archive import iter_dataset_statements, iter_previous_statements
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
 from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
@@ -184,6 +187,41 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
         INDEX_FILE,
         CATALOG_FILE,
     } | STANDARD_EXPORTS  # fmt: skip
+
+
+def test_empty_crawl_does_not_resurrect_archived_statements(
+    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
+):
+    """A crawl that completes without emitting anything must yield an empty
+    store view, not fall back to streaming the previous successful version's
+    statements from the archive."""
+    linker = get_dataset_linker(testdataset1)
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    export_dataset(testdataset1, store.view(testdataset1))
+    publish_dataset(testdataset1, republish_to_latest=True)
+    store.close()
+
+    # Run an empty crawl under a fresh version on a clean data path, as in a
+    # production `zavod run`:
+    clear_data_path(testdataset1.name)
+    monkeypatch.setattr(settings, "RUN_VERSION", Version.new())
+    assert testdataset1.data is not None
+    testdataset1.data.format = "EMPTY"
+    stats = crawl_dataset(testdataset1)
+    assert stats.statements == 0
+
+    # The archive holds the previous version's statements, but the empty local
+    # statements file from this run takes precedence:
+    assert dataset_resource_path(testdataset1.name, STATEMENTS_FILE).is_file()
+    assert len(list(iter_dataset_statements(testdataset1))) == 0
+
+    store = get_store(testdataset1, linker)
+    store.sync(clear=True)
+    view = store.view(testdataset1, external=False)
+    assert len(list(view.entities())) == 0
+    store.close()
 
 
 def test_archive_failure(testdataset1: Dataset):

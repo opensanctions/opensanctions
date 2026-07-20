@@ -173,6 +173,13 @@ class Context:
         """Flush the context to ensure all data is written to disk."""
         if self._db is not None:
             self._db.checkpoint()
+        # The statement writer is only opened on the first emit, so a crawl
+        # that emitted nothing would leave no statements file behind - and
+        # downstream stages would silently fall back to streaming a previous
+        # version's statements from the archive, republishing old data as a
+        # new successful run. Record the empty output explicitly instead.
+        if not self.dry_run and self._writer is None:
+            self._writer_path.touch()
 
     def close(self) -> None:
         """Flush and tear down the context."""

@@ -346,6 +346,25 @@ def test_crawl_dataset_wrapper(testdataset1: Dataset):
         crawl_dataset(testdataset1)
 
 
+def test_crawl_dataset_empty(testdataset1: Dataset):
+    """A crawl that completes without emitting anything still writes an
+    (empty) statements file, so that downstream stages read this run's output
+    instead of falling back to a previous version from the archive."""
+    path = dataset_resource_path(testdataset1.name, STATEMENTS_FILE)
+    assert testdataset1.data is not None
+    testdataset1.data.format = "EMPTY"
+
+    stats = crawl_dataset(testdataset1, dry_run=True)
+    assert stats.statements == 0
+    assert not path.exists()
+
+    stats = crawl_dataset(testdataset1)
+    assert stats.statements == 0
+    assert path.is_file()
+    assert path.stat().st_size == 0
+    assert len(list(iter_dataset_statements(testdataset1))) == 0
+
+
 def test_dataset_sink(testdataset1: Dataset):
     context = Context(testdataset1)
     assert context._writer_path.is_relative_to(settings.DATA_PATH)
