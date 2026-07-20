@@ -140,9 +140,60 @@ def test_countries_count_assertion(testdataset3) -> None:
 
 
 def test_no_assertions_error() -> None:
+    # The nudge is based on the YAML config, not the merged-in defaults: a source
+    # dataset with no explicit assertions still gets nudged.
     ds = Dataset({**BASE_DATASET_CONFIG, "assertions": {}})
+    assert ds.is_collection is False
     validator, logs = run_validator(StatisticsAssertionsValidator, ds)
     assert ("error", "Dataset has no assertions.") in logs
+
+
+def test_default_assertions_applied_to_sources() -> None:
+    # A source dataset with no explicit assertions still gets the baseline
+    # defaults merged in, so validation runs and doesn't spuriously abort.
+    ds = Dataset({**BASE_DATASET_CONFIG, "assertions": {}})
+    assert ds.is_collection is False
+    assert len(ds.assertions) > 0
+    validator, _ = run_validator(StatisticsAssertionsValidator, ds)
+    assert validator.abort is False
+
+
+def test_default_property_fill_rate_skips_absent_schema() -> None:
+    # The default Person/Organization/Company name fill-rate assertions must not
+    # fail a dataset that simply doesn't emit some of those schemata.
+    ds = Dataset(BASE_DATASET_CONFIG)
+    emit_entity(ds, "Person", {"name": ["Vladimir Putin"]})
+    validator, logs = run_validator(StatisticsAssertionsValidator, ds)
+    assert validator.abort is False
+
+    # A Person present but without a name should still fail the default.
+    ds2 = Dataset({**BASE_DATASET_CONFIG, "name": "test2"})
+    emit_entity(ds2, "Person", {"country": ["ru"]})
+    validator, logs = run_validator(StatisticsAssertionsValidator, ds2)
+    assert (
+        "error",
+        "Assertion property_fill_rate failed for Person.name: 0.0 is not >= threshold 0.95",
+    ) in logs
+    assert validator.abort is True
+
+
+def test_default_property_fill_rate_company() -> None:
+    # Same as the Person case, for Company: this keeps the default assertion on
+    # Company covered so it isn't silently dropped.
+    ds = Dataset(BASE_DATASET_CONFIG)
+    emit_entity(ds, "Company", {"name": ["Acme Inc"]})
+    validator, _ = run_validator(StatisticsAssertionsValidator, ds)
+    assert validator.abort is False
+
+    # A Company present but without a name should fail the default.
+    ds2 = Dataset({**BASE_DATASET_CONFIG, "name": "test2"})
+    emit_entity(ds2, "Company", {"country": ["ru"]})
+    validator, logs = run_validator(StatisticsAssertionsValidator, ds2)
+    assert (
+        "error",
+        "Assertion property_fill_rate failed for Company.name: 0.0 is not >= threshold 0.95",
+    ) in logs
+    assert validator.abort is True
 
 
 def test_no_entities_warning() -> None:
