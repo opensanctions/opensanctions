@@ -168,6 +168,7 @@ def crawl_pep(context: Context, card: etree._Element, url: str) -> None:
     """
     link = h.xpath_element(card, "./a[contains(@href, '/catalog/persons/')]")
     href = link.get("href", "")
+    details_url = f"{BASE_URL}{href}"
     match = PERSON_ID_RE.search(href)
     if match is None:
         context.log.warning("Member link without a person id", url=url)
@@ -181,7 +182,7 @@ def crawl_pep(context: Context, card: etree._Element, url: str) -> None:
     person.add("country", "ru")
     # Link to the member's own catalogue page (built against BASE_URL so it matches
     # the biography crawl's sourceUrl and merges), not the listing.
-    person.add("sourceUrl", f"{BASE_URL}{href}")
+    person.add("sourceUrl", details_url)
     person.add("topics", "poi")
 
     # The role sits in a sibling ``jobTitle`` within the same card block.
@@ -193,13 +194,13 @@ def crawl_pep(context: Context, card: etree._Element, url: str) -> None:
     )
     if len(roles) == 1:
         emit_position(context, person, h.element_text(roles[0]), default_is_pep=True)
+    elif len(roles) == 0:
+        # A few members are listed without any role title (e.g. honorary members);
+        # their catalogue ids are allow-listed via the ``no_position`` lookup.
+        if context.lookup("no_position", match.group(1)) is None:
+            context.log.warning("Member without a role title", url=details_url)
     else:
-        context.log.warning(
-            "Member without a single role title",
-            url=url,
-            person=person.id,
-            roles=len(roles),
-        )
+        context.log.warning("Member with multiple role titles", url=details_url)
 
     context.emit(person)
 

@@ -40,12 +40,32 @@ assertions:
     schema_entities:
       Person: 150
       Position: 100
+      Occupancy: 100
+    country_entities:
+      ru: 250
+    countries: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 100
   max:
     schema_entities:
       Person: 300
       Position: 300
+      Occupancy: 300
+    country_entities:
+      ru: 700
+    countries: 1
 
 lookups:
+  # Catalogue ids of members listed without a role title on their body's page.
+  # These have no current position by design, so they are not warned about.
+  no_position:
+    options:
+      - match:
+          - "374"
+          - "380"
+          - "651"
+        value: true
   details:
     lowercase: true
     options:
