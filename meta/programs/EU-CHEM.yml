@@ -18,6 +18,8 @@ aliases:
   - Regulation (EU) 2018/1542
   - Decision (CFSP) 2018/1544
   - CHEM
+target_territories:
+  - zz
 measures:
   - Asset freeze
   - Travel ban

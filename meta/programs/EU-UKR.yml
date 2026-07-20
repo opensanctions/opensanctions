@@ -25,6 +25,8 @@ aliases:
   - Regulation (EU) No 208/2014
   - Decision 2014/119/CFSP
   - UKR
+target_territories:
+  - ua
 measures:
   - Asset freeze
   - Travel ban

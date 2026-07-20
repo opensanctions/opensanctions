@@ -21,6 +21,8 @@ aliases:
   - Regulation (EU) 2020/1998
   - Decision (CFSP) 2020/1999
   - HR
+target_territories:
+  - zz
 measures:
   - Asset freeze
   - Travel ban

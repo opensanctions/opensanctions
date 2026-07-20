@@ -23,6 +23,8 @@ aliases:
   - UNSCR 1518
   - Restrictive measures on Iraq
   - IRQ
+target_territories:
+  - iq
 measures:
   - Arms embargo
   - Asset freeze

@@ -13,9 +13,11 @@ summary: Covers vessels listed in Annex XLII to Council Regulation (EU)
   services such as bunkering, ship-to-ship transfers, technical assistance,
   financing, or insurance.
 issuer: eu_council
-dataset: null
+dataset: eu_sanctions_map
 aliases:
   - Annex XLII to Regulation (EU) No 833/2014
   - EU designated vessels
+target_territories:
+  - ru
 measures:
   - Transportation restrictions
