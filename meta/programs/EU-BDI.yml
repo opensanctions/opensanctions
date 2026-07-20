@@ -1,15 +1,26 @@
 id: 60
-title: EU Restrictive Measures In View Of The Situation In Burundi
+title: EU Restrictive measures in view of the situation in Burundi
 key: EU-BDI
 url: https://sanctionsmap.eu/#/main/details/7/
-summary: These sanctions target individuals and entities in Burundi involved in human
-  rights abuses, corruption, and actions undermining democracy. The measures include
-  asset freezes, travel bans, and trade restrictions to promote democratic governance
-  and respect for human rights in Burundi.
+summary: An EU-autonomous framework established in October 2015 in response to
+  the political crisis in Burundi. It targets persons undermining democracy,
+  obstructing the search for a political solution, or involved in serious
+  violations of international human rights law in Burundi, under Council
+  Decision (CFSP) 2015/1763 and Regulation (EU) 2015/1755. Designation entails
+  an asset freeze and a ban on entry into or transit through the EU, and claims
+  by designated persons in connection with the measures may not be satisfied.
+  The framework remains in force until 31 October 2026, but the last remaining
+  listing was removed in September 2025 and no persons or entities are
+  currently designated.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2015/1755
+  - Decision (CFSP) 2015/1763
+  - BDI
 target_territories:
-- bi
+  - bi
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Prohibition to satisfy claims
+  - Travel ban

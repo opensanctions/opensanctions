@@ -1,12 +1,27 @@
 id: 88
-title: EU Specific Measures To Combat Terrorism
+title: EU Specific measures to combat terrorism
 key: EU-TERR
 url: https://sanctionsmap.eu/#/main/details/6
-summary: These sanctions target individuals and entities involved in terrorism and
-  related activities. The measures include asset freezes, travel bans, and restrictions
-  on trade and financial transactions to prevent the financing and support of terrorist
-  activities, aiming to enhance international security and combat global terrorism.
+summary: Targets persons, groups and entities involved in terrorist acts, listed
+  on the EU's autonomous terrorist list established under Common Position
+  2001/931/CFSP in response to UN Security Council Resolution 1373 (2001) and
+  reviewed at least every six months; since February 2026, leading members of
+  listed groups and entities can also be designated. Under Regulation (EC)
+  No 2580/2001, the funds of listed persons are frozen and it is prohibited to
+  make funds, economic resources or financial services available to them. The
+  regime imposes no EU-level travel ban, and listed persons and groups whose
+  terrorist activities are confined to the EU are subject only to enhanced
+  police and judicial cooperation rather than the asset freeze.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Common Position 2001/931/CFSP
+  - Regulation (EC) No 2580/2001
+  - Decision (CFSP) 2026/455
+  - Specific measures to combat terrorism
+  - EU terrorist list
+  - CP 931 list
+  - UNSCR 1373
+  - TERR
 measures:
-- Financial restrictions
+  - Asset freeze

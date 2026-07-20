@@ -1,16 +1,27 @@
 id: 84
-title: EU Restrictive Measures In View Of The Situation In South Sudan
+title: EU Restrictive measures in view of the situation in South Sudan
 key: EU-SSD
 url: https://sanctionsmap.eu/#/main/details/30/
-summary: These sanctions target individuals and entities involved in actions that
-  threaten the peace, security, and stability of South Sudan. The measures include
-  asset freezes, travel bans, and trade restrictions to promote peace and stability
-  in South Sudan.
+summary: Targets persons and entities threatening the peace, security or
+  stability of South Sudan, including those obstructing the political process or
+  responsible for serious human rights violations. The regime implements the UN
+  sanctions line established by UN Security Council Resolution 2206 (2015) and
+  the UN arms embargo under Resolution 2428 (2018), and the EU also designates
+  persons autonomously under Council Decision (CFSP) 2015/740 and Regulation
+  (EU) 2015/735. Designated persons are subject to an asset freeze, and natural
+  persons are barred from entry or transit; these measures combine with a
+  country-wide embargo on arms and related materiel.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2015/735
+  - Decision (CFSP) 2015/740
+  - UNSCR 2206
+  - UNSCR 2428
+  - SSD
 target_territories:
-- ss
+  - ss
 measures:
-- Arms restrictions
-- Asset freeze
-- Travel ban
+  - Arms embargo
+  - Asset freeze
+  - Travel ban
