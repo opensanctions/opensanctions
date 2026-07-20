@@ -187,6 +187,7 @@ lookups:
           - "Q1500391" # chief of municipal
           - "Q1513949" # Returning officer
           - "Q1516453" # lieutenant governor
+          - "Q1558362" # voivodeship marshal (Polish provincial-level government head)
           - "Q1555246" # Supreme commanders of the Imperial and Royal Armed Forces
           - "Q1654355" # Interior Minister of Prussia
           - "Q1758037" # speaker
