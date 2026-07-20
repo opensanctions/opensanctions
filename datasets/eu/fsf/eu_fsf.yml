@@ -101,9 +101,10 @@ lookups:
       # Belarus
       - match: BLR # implementing Article 8a of Regulation (EC) No 765/2006 concerning restrictive measures in view of the situation in Belarus
         value: EU-BLR
-      # Bosnia & Herzegovina
-      - match:
-        value: EU-BOSNIA
+      # Bosnia & Herzegovina: EU-BOSNIA is an empty framework (no designations
+      # to date) and has no FSF programme code; activate a mapping here when a
+      # first designation appears.
+      # - value: EU-BOSNIA
       # Burundi
       - match: BDI # implementing Regulation (EU) 2015/1755 concerning restrictive measures in view of the situation in Burundi
         value: EU-BDI
@@ -145,9 +146,10 @@ lookups:
       # Iraq
       - match: IRQ
         value: EU-IRQ
-      # Lebanon
-      - match:
-        value: EU-LEBANON
+      # Lebanon: EU-LEBANON is an empty framework (no designations to date)
+      # and has no FSF programme code; activate a mapping here when a first
+      # designation appears.
+      # - value: EU-LEBANON
       # Libya
       - match: LBY # implementing Article 21(5) of Regulation (EU) 2016/44 concerning restrictive measures in view of the situation in Libya
         value: EU-LBY
@@ -163,9 +165,10 @@ lookups:
       # Nicaragua
       - match: NIC # implementing Regulation (EU) 2019/1716 concerning restrictive measures in view of the situation in Nicaragua
         value: EU-NIC
-      # Niger
-      - match:
-        value: EU-NIGER
+      # Niger: EU-NIGER is an empty framework (no designations to date) and
+      # has no FSF programme code; activate a mapping here when a first
+      # designation appears.
+      # - value: EU-NIGER
       # Russia
       - match: RUS # implementing Regulation (EU) 2024/1485 concerning restrictive measures in view of the situation in Russia
         value: EU-RUS
@@ -203,9 +206,9 @@ lookups:
       # Ukraine
       - match: UKR
         value: EU-UKR
-      # United States
-      - match:
-        value: EU-US-LEG
+      # United States: EU-US-LEG is the Blocking Statute, which lists US laws
+      # rather than designating persons, so no FSF programme code exists.
+      # - value: EU-US-LEG
       # Venezuela
       - match: VEN # implementing Regulation (EU) 2017/2063 concerning restrictive measures in view of the situation in Venezuela
         value: EU-VEN
