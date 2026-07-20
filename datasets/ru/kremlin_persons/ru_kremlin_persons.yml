@@ -32,9 +32,18 @@ data:
   url: http://en.kremlin.ru/catalog/persons
   format: HTML
   lang: eng
-
 tags:
   - target.ru
+
+assertions:
+  min:
+    schema_entities:
+      Person: 150
+      Position: 100
+  max:
+    schema_entities:
+      Person: 300
+      Position: 300
 
 lookups:
   details:
@@ -215,12 +224,3 @@ lookups:
         death_date: "2007-04-23"
       - match: 'died on november 3, 2010.'
         death_date: "2010-11-03"
-assertions:
-  min:
-    schema_entities:
-      Person: 150
-      Position: 100
-  max:
-    schema_entities:
-      Person: 300
-      Position: 300
