@@ -44,6 +44,7 @@ DEFAULT_ASSERTIONS: Dict[str, Any] = {
     "min": {
         "property_fill_rate": {
             "Person": {"name": 0.95},
+            "LegalEntity": {"name": 0.95},
             "Organization": {"name": 0.95},
             "Company": {"name": 0.95},
         }

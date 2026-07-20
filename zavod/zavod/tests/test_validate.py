@@ -177,6 +177,25 @@ def test_default_property_fill_rate_skips_absent_schema() -> None:
     assert validator.abort is True
 
 
+def test_default_property_fill_rate_company() -> None:
+    # Same as the Person case, for Company: this keeps the default assertion on
+    # Company covered so it isn't silently dropped.
+    ds = Dataset(BASE_DATASET_CONFIG)
+    emit_entity(ds, "Company", {"name": ["Acme Inc"]})
+    validator, _ = run_validator(StatisticsAssertionsValidator, ds)
+    assert validator.abort is False
+
+    # A Company present but without a name should fail the default.
+    ds2 = Dataset({**BASE_DATASET_CONFIG, "name": "test2"})
+    emit_entity(ds2, "Company", {"country": ["ru"]})
+    validator, logs = run_validator(StatisticsAssertionsValidator, ds2)
+    assert (
+        "error",
+        "Assertion property_fill_rate failed for Company.name: 0.0 is not >= threshold 0.95",
+    ) in logs
+    assert validator.abort is True
+
+
 def test_no_entities_warning() -> None:
     ds = Dataset(BASE_DATASET_CONFIG)
 
