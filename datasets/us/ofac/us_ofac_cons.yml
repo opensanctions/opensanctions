@@ -80,6 +80,11 @@ lookups:
         value: US-NS-PLC
       - match: Sectoral Sanctions Identifications List
         value: US-SSI
+      - match: HKAA
+        # Hong Kong Autonomy Act designations live on the NS-MBS list since
+        # the EO 13936 emergency expired in July 2026; the authority stays
+        # US-HONGKONG.
+        value: US-HONGKONG
   script.lang:
     options:
       # - match: Arab

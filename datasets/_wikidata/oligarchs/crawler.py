@@ -6,6 +6,7 @@ from zavod import Context
 from zavod import helpers as h
 
 CAATSA_URL = "https://prod-upp-image-read.ft.com/40911a30-057c-11e8-9650-9c0ad2d7c5b5"
+CAATSA_PROGRAM = "US-CAATSA-241"
 
 
 def crawl_row(context: Context, row: Dict[str, str]) -> None:
@@ -24,6 +25,7 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
         msg = "Mentioned in 2018 CAATSA report on Russian oligarchs"
         entity.add("notes", msg, lang="eng")
         entity.add("sourceUrl", CAATSA_URL)
+        entity.add("programId", CAATSA_PROGRAM)
     # context.inspect(entity)
     context.emit(entity)
 

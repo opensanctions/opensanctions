@@ -1,25 +1,24 @@
 id: 210
-title: US Countering America's Adversaries Through Sanctions Act (CAATSA)
+title: OFAC CAATSA-Related Sanctions
 key: US-CAATSA
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/countering-americas-adversaries-through-sanctions-act-related-sanctions
-summary: 'On August 2, 2017, the President signed into law the "Countering America’s
-  Adversaries Through Sanctions Act" (Public Law 115-44) (CAATSA), which among other
-  things, imposes new sanctions on Iran, Russia, and North Korea.
-
-
-  The CAATSA-Related Sanctions represent the implementation of multiple legal authorities.
-  Some of these authorities are in the form of executive orders issued by the President.
-  Other authorities are public laws (statutes) passed by The Congress. These authorities
-  are further codified by OFAC in its regulations which are published the in Code
-  of Federal Regulations (CFR). Modifications to these regulations are posted in the
-  Federal Register.
-
-
-  [Source: U.S. DEPARTMENT OF THE TREASURY](https://ofac.treasury.gov/sanctions-programs-and-country-information/countering-americas-adversaries-through-sanctions-act-related-sanctions)'
-issuer: us_treasury
-dataset: wd_oligarchs
+summary: Imposes blocking sanctions on persons connected to Iran's ballistic
+  missile programme or the Islamic Revolutionary Guard Corps, and on specified
+  Russian defence and intelligence actors, sanctions evaders, and persons
+  conducting significant transactions with them. Designated persons have their
+  US assets frozen, and US persons are generally prohibited from dealing with
+  them.
+issuer: us_ofac
+dataset: us_ofac_sdn
 aliases:
-- CAATSA
+  - CAATSA
+  - Countering America's Adversaries Through Sanctions Act of 2017
+  - Public Law 115-44
+  - CAATSA - IRAN
+  - CAATSA - RUSSIA
+  - EO 13849
 target_territories:
-- ir
-- ru
+  - ir
+  - ru
+measures:
+  - Asset freeze

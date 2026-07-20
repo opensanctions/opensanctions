@@ -136,10 +136,13 @@ lookups:
           - BPI-Sudan-14098
           - SUDAN-EO14098
         value: US-DARFUR
-      - match: PAARSSR-EO13894
+      - match:
+          # OFAC groups HRIT-SY (EO 13606) under PAARSS since the 2025
+          # revocation of the country-wide Syria program.
+          - HRIT-SY
+          - PAARSSR-EO13894
         value: US-SYR-REL
       - match:
-          - HRIT-SY
           - SYRIA
           - SYRIA-CAESAR
         value: US-SYR
@@ -191,7 +194,11 @@ lookups:
         value: US-FORINT
       - match: HOSTAGES-EO14078
         value: US-HOSTAGE
-      - match: HK-EO13936
+      - match:
+          # HKAA designations moved to the NS-MBS list when the EO 13936
+          # emergency expired in July 2026; the authority stays US-HONGKONG.
+          - HKAA
+          - HK-EO13936
         value: US-HONGKONG
       - match:
           - FTO

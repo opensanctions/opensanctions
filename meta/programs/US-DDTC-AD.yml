@@ -1,12 +1,23 @@
+# DEPRECATED — do not reference. Statutory and administrative ITAR debarments
+# are both recorded under US-AECA-DEBARRED as of July 2026; no crawler emits
+# this key anymore. The file is kept only so the key stays resolvable while
+# published statements age out. Delete it once none remain.
 id: 289
 title: US DDTC Administrative Debarment List
 key: US-DDTC-AD
 url: https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=8a89528adb3cd30044f9ff621f961931
-summary: The US Department of State's Directorate of Defense Trade Controls (DDTC)
-  maintains the Administrative Debarment List under 22 CFR Section 127.7(a) of the
-  International Traffic in Arms Regulations (ITAR). This list includes persons subject
-  to administrative debarment. Unlike statutory debarments which result from criminal
-  convictions, administrative debarments are civil enforcement actions that prohibit
-  designated persons from participating in defense trade activities.
+summary: Lists persons administratively debarred by the US Department of State's
+  Directorate of Defense Trade Controls following civil enforcement proceedings
+  for violations of the Arms Export Control Act or the International Traffic in
+  Arms Regulations. Unlike statutory debarment, which follows automatically from
+  a criminal conviction, administrative debarment is imposed by administrative
+  order. Debarred persons are prohibited from participating, directly or
+  indirectly, in the export of defense articles, defense services, and related
+  technical data.
 issuer: us_state
 dataset: us_ddtc_debarred
+aliases:
+  - Administratively Debarred Parties
+  - 22 CFR § 127.7(a)
+measures:
+  - Arms restrictions
