@@ -17,7 +17,7 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     listing_date = str_row.pop("date")
     assert listing_date is not None
 
-    # skip sanctions whose listing date is older than 100 days
+    # skip sanctions whose listing date is older than MAX_AGE_DAYS
     if not h.within_max_age(context, listing_date, MAX_AGE_DAYS):
         return
 
