@@ -51,7 +51,11 @@ tags:
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
   format: XLSX
-  lang: jpn
+  # No dataset-wide `lang` default: the source packs Japanese and Latin-script
+  # (transliterated / English) values into the same columns, so a blanket `jpn`
+  # would mislabel every English name, note and the metadata authority as
+  # Japanese. Individual adds that are reliably Japanese pass lang="jpn"
+  # explicitly in the crawler.
 dates:
   formats:
     [
