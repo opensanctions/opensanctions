@@ -59,11 +59,17 @@ def crawl_npidata(context: Context, fh: TextIO) -> None:
 
         entity.add("npiCode", npi)
         entity.add("name", row.pop("Provider Organization Name (Legal Business Name)"))
+        # The source uses placeholders like "-" or a bare "0" for missing middle names
+        middle_name = row.pop("Provider Middle Name")
+        if middle_name is not None and (
+            is_nullword(middle_name) or middle_name.strip() == "0"
+        ):
+            middle_name = None
         h.apply_name(
             entity,
             first_name=row.pop("Provider First Name"),
             last_name=row.pop("Provider Last Name (Legal Name)"),
-            middle_name=row.pop("Provider Middle Name"),
+            middle_name=middle_name,
             quiet=True,
         )
         entity.add("title", row.pop("Provider Name Prefix Text"), quiet=True)
