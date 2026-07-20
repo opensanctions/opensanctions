@@ -192,6 +192,8 @@ lookups:
       - match: HOSTAGES-EO14078
         value: US-HOSTAGE
       - match:
+          # HKAA designations moved to the NS-MBS list when the EO 13936 national
+          # emergency expired in July 2026; the authority stays US-HONGKONG.
           - HKAA
           - HK-EO13936
         value: US-HONGKONG
