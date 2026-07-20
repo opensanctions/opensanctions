@@ -81,6 +81,8 @@ lookups:
       - match: Sectoral Sanctions Identifications List
         value: US-SSI
       - match: HKAA
+        # Hong Kong Autonomy Act designations moved to the NS-MBS list when the
+        # EO 13936 national emergency expired in July 2026; the authority stays US-HONGKONG.
         value: US-HONGKONG
   script.lang:
     options:
