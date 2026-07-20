@@ -59,7 +59,14 @@ def str_cell(cell: Cell | MergedCell) -> str | None:
         return value.isoformat()
     if isinstance(value, bool):
         return str(value).lower()
-    return stringify(value)
+    text = stringify(value)
+    if text is None:
+        return None
+    # `_x000D_` is the OOXML escape for a carriage return (0x0D). openpyxl surfaces
+    # it verbatim instead of un-escaping it, so cells with in-cell line breaks arrive
+    # carrying the literal artifact. Turn it back into a newline so the `\n` token in
+    # SPLITS separates multi-value cells cleanly (rather than leaving it in the text).
+    return text.replace("_x000D_", "\n")
 
 
 def parse_date(text: List[str]) -> List[str]:
@@ -207,8 +214,8 @@ def emit_row(
         suggested=suggested,
         is_irregular=is_irregular,
         # Only auto-accept clean names. Names still flagged as irregular (e.g. ones that
-        # contain brackets, colons or an _x000D_ carriage-return artifact) are held back
-        # for human review instead of being locked in as accepted. The weak_alias and
+        # contain brackets or colons) are held back for human review instead of being
+        # locked in as accepted. The weak_alias and
         # nickname fields often hold notes/descriptions rather than names, so they are
         # held back too.
         default_accepted=not is_irregular and not (raw_weak_alias or raw_nickname),
