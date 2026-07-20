@@ -23,5 +23,7 @@ aliases:
   - CP 931 list
   - UNSCR 1373
   - TERR
+target_territories:
+  - zz
 measures:
   - Asset freeze

@@ -28,6 +28,8 @@ aliases:
   - UNSCR 2253
   - TAQA
   - EUAQ
+target_territories:
+  - zz
 measures:
   - Arms restrictions
   - Asset freeze
