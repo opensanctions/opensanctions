@@ -127,7 +127,7 @@ def wikidata_position(
     # If this position has already been reviewed and rejected, skip it before
     # doing any of the more expensive work below (country lookups, translation).
     existing = categorise_many(context, [item.id])
-    if len(existing) > 0 and not existing[0].is_pep:
+    if len(existing) > 0 and existing[0].is_pep is False:
         return None
 
     position = context.make("Position")
