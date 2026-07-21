@@ -76,11 +76,6 @@ assertions:
     schema_entities:
       Person: 500000
 
-config:
-  countries_local:
-    - us
-    - gb
-
 lookups:
   type.country:
     options:
