@@ -13,7 +13,7 @@ from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
 from zavod.shed.trans import translate_position_name
 from zavod.util import LangText
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import categorise, categorise_many
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
 
@@ -122,6 +122,12 @@ def wikidata_position(
     if len(types.intersection(POSITION_BASICS)) == 0:
         return None
     if len(types.intersection(IGNORE_TYPES)) > 0:
+        return None
+
+    # If this position has already been reviewed and rejected, skip it before
+    # doing any of the more expensive work below (country lookups, translation).
+    existing = categorise_many(context, [item.id])
+    if len(existing) > 0 and not existing[0].is_pep:
         return None
 
     position = context.make("Position")
