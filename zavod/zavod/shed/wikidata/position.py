@@ -13,7 +13,7 @@ from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
 from zavod.shed.trans import translate_position_name
 from zavod.util import LangText
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import categorise, categorise_many
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
 
@@ -124,38 +124,15 @@ def wikidata_position(
     if len(types.intersection(IGNORE_TYPES)) > 0:
         return None
 
+    # If this position has already been reviewed and rejected, skip it before
+    # doing any of the more expensive work below (country lookups, translation).
+    existing = categorise_many(context, [item.id])
+    if len(existing) > 0 and existing[0].is_pep is False:
+        return None
+
     position = context.make("Position")
     position.id = item.id
     position.add("wikidataId", item.id)
-    if item.label is not None and item.label.text is not None:
-        # item.label is picked from the available labels in PREFERRED_WD_LANGS order
-        # (English first, then "mul"/multilingual, then the next-best preferred
-        # language). English and multilingual labels can be used as-is; anything
-        # else is the next-best language Wikidata gave us, and we translate it to
-        # English. Picking what to translate may get more complex in the future,
-        # but for now translating the next-best pick after English works for us.
-        if item.label.lang in ("eng", MULTI_LANG, None):
-            item.label.apply(position, "name", clean=clean_wikidata_name)
-        else:
-            clean_label_text = clean_wikidata_name(item.label.text)
-            if clean_label_text is not None and clean_label_text.strip() != "":
-                assert item.label.lang is not None
-                result = translate_position_name(
-                    context,
-                    LangText(text=item.label.text, lang=item.label.lang),
-                )
-                translated = result.get_english()
-                # if for some reason the translation fails, fall back to the original
-                if translated is None:
-                    item.label.apply(position, "name", clean=clean_wikidata_name)
-                else:
-                    position.add(
-                        "name",
-                        translated.text,
-                        lang=translated.lang,
-                        original_value=item.label.text,
-                        origin=result.origin,
-                    )
 
     for claim in item.claims:
         if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
@@ -202,6 +179,36 @@ def wikidata_position(
     end_date = max(position.get("dissolutionDate"), default=None)
     if end_date is not None and end_date < "1990-12-26":
         return None
+
+    if item.label is not None and item.label.text is not None:
+        # item.label is picked from the available labels in PREFERRED_WD_LANGS order
+        # (English first, then "mul"/multilingual, then the next-best preferred
+        # language). English and multilingual labels can be used as-is; anything
+        # else is the next-best language Wikidata gave us, and we translate it to
+        # English. Picking what to translate may get more complex in the future,
+        # but for now translating the next-best pick after English works for us.
+        if item.label.lang in ("eng", MULTI_LANG, None):
+            item.label.apply(position, "name", clean=clean_wikidata_name)
+        else:
+            clean_label_text = clean_wikidata_name(item.label.text)
+            if clean_label_text is not None and clean_label_text.strip() != "":
+                assert item.label.lang is not None
+                result = translate_position_name(
+                    context,
+                    LangText(text=item.label.text, lang=item.label.lang),
+                )
+                translated = result.get_english()
+                # if for some reason the translation fails, fall back to the original
+                if translated is None:
+                    item.label.apply(position, "name", clean=clean_wikidata_name)
+                else:
+                    position.add(
+                        "name",
+                        translated.text,
+                        lang=translated.lang,
+                        original_value=item.label.text,
+                        origin=result.origin,
+                    )
 
     topics: Set[str] = set()
     for sub_type, type_topics in SUB_TYPES.items():
