@@ -110,7 +110,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(item, ["id", "createdAt", "typeAr", "typeEn", "typeKu"])
+    context.audit_data(item, ignore=["id", "createdAt", "typeAr", "typeEn", "typeKu"])
 
 
 def crawl(context: Context) -> None:
@@ -119,7 +119,7 @@ def crawl(context: Context) -> None:
         params={"pageSize": PAGE_SIZE},
         cache_days=1,
     )
-    if payload.get("error"):
+    if payload["error"]:
         raise RuntimeError(f"API error: {payload.get('message')}")
     data = payload["data"]
     items = data["data"]
