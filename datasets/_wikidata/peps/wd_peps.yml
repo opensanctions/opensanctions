@@ -77,7 +77,6 @@ assertions:
       Person: 500000
 
 config:
-  cache_days: 14
   countries_local:
     - us
     - gb

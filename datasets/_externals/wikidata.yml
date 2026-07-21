@@ -72,7 +72,7 @@ inputs:
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
   label_cache_days: 90
-  cache_days: 14
+  cache_days: 45
   schemata:
     - Person
 
