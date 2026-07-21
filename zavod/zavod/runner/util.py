@@ -58,19 +58,20 @@ def _is_publishable(entity_id: str, view: View, enrich_topics: frozenset[str]) -
 
 
 def check_publishability(
-    expanded: Iterable[Entity], view: View, enrich_topics: frozenset[str]
+    expanded: Iterable[Entity], subject_view: View, enrich_topics: frozenset[str]
 ) -> dict[str, bool]:
     """Look up publishability once per entity ID that will need it.
 
     Non-edge supporting entities in the expansion are publishable by virtue of
-    their schema, so they are seeded into the map without a lookup. Supporting
-    entities usually come from the target dataset and are absent from the
-    subject view, so this seeding is also what lets an edge to them (e.g. a
-    Documentation edge to an Article) publish.
+    their schema, not due to risk topics, so they are seeded into the returned
+    map without a lookup in the subject view.
 
     Non-supporting entities (the more common case - entities related via e.g.
     Ownership, Family) are looked up in the subject view where graph analyzer
     could have added topics.
+
+    Edges (supporting and risk-connecting) are publishable if all their endpoints
+    are publishable.
     """
     publishable: dict[str, bool] = {}
     ids_to_check: set[str] = set()
@@ -85,7 +86,7 @@ def check_publishability(
                 ids_to_check.add(entity.id)
     for eid in ids_to_check:
         if eid not in publishable:
-            publishable[eid] = _is_publishable(eid, view, enrich_topics)
+            publishable[eid] = _is_publishable(eid, subject_view, enrich_topics)
     return publishable
 
 
