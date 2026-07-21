@@ -128,6 +128,7 @@ def emit_patch(
     topic: str,
     existing_topics: Set[str],
 ) -> None:
+    """Emit a minimal patch entity to add ``topic`` to ``related_entity``."""
     context.log.info(
         f"Adding topic: {topic}",
         risk_source=risk_source.caption,
