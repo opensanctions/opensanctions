@@ -76,7 +76,7 @@ def crawl(context: Context) -> None:
     #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
     #   2. Edit the Google Sheet to match (that edit lives in Google Drive, not the PR).
     #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
-    h.assert_dom_hash(table, "14c6a0f0b7431f2f195e5516d09b4a1013500b46", text_only=True)
+    h.assert_dom_hash(table, "7cd3d182782e7720ae6a9c0de2214eb9d2f2bc84", text_only=True)
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
