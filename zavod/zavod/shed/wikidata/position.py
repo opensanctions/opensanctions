@@ -72,16 +72,45 @@ SUB_TYPES: Dict[str, Set[str]] = {
     "Q707492": {"role.pep", "gov.national", "gov.security"},  # military chief of staff
 }
 
-IGNORE_TYPES: Set[str] = {
+# Positions dissolved before this date never confer PEP status; the cutoff
+# marks the internationally recognized end of history. Positions abolished
+# *after* it still matter — living former holders remain PEPs.
+POSITION_ABOLISHED_CUTOFF = "1990-12-26"
+
+# Ancestor classes (matched against the item's full P31/P279 closure) whose
+# descendants are categorically never PEP positions. Exclusion is silent —
+# candidates hit by it never reach holder collection or the review UI — so
+# the bar for adding entries is high: only classes that are unambiguously
+# non-PEP-conferring belong here. When in doubt, leave the candidate to the
+# review workflow, where the decision is recorded and reversible.
+EXCLUDE_TYPES: Set[str] = {
     "Q114962596",  # historical position
     "Q193622",  # order
     "Q60754876",  # grade of an order
     "Q618779",  # award
+    "Q13424289",  # honorary title (e.g. "national hero" designations)
     "Q4240305",  # cross
     "Q120560",  # minor basilica?
     "Q2977",  # cathedral
     "Q3320743",  # title of honor
+    "Q42603",  # priest
+    "Q11773926",  # ecclesiastical occupation
+    "Q63187345",  # religious occupation
 }
+
+# Types that keep an item in the candidate set even when its ancestry hits
+# EXCLUDE_TYPES or misses POSITION_BASICS (allow beats exclude; a reviewed
+# position DB row beats both — see the `vetted` flag on wikidata_position).
+ALLOW_TYPES: Set[str] = {
+    # Members of the College of Cardinals are recognised by the Holy See as
+    # PEPs, despite their religious-occupation ancestry:
+    "Q45722",  # cardinal
+    "Q1729113",  # cardinal-bishop
+    "Q2033341",  # cardinal priest
+    "Q2361374",  # cardinal-deacon
+    "Q19808790",  # Episcopal Co-Prince (joint head of state of Andorra)
+}
+ALLOW_TYPES.update(SUB_TYPES.keys())
 
 # TEMP: We're starting to include municipal PEPs for specific countries
 MUNI_COUNTRIES = {
@@ -119,17 +148,21 @@ MUNI_COUNTRIES = {
 def wikidata_position(
     context: Context, client: WikidataClient, item: Item
 ) -> Optional[Entity]:
-    types = item.types
-    if len(types.intersection(POSITION_BASICS)) == 0:
-        return None
-    if len(types.intersection(IGNORE_TYPES)) > 0:
-        return None
-
-    # If this position has already been reviewed and rejected, skip it before
-    # doing any of the more expensive work below (country lookups, translation).
+    # Precedence: a position DB verdict beats the type-based heuristics below,
+    # and ALLOW_TYPES beats EXCLUDE_TYPES. The DB check also runs first so a
+    # reviewed-rejected position skips the more expensive work (country
+    # lookups, translation).
     existing = categorise_many(context, [item.id])
     if len(existing) > 0 and existing[0].is_pep is False:
         return None
+    db_is_pep = len(existing) > 0 and existing[0].is_pep is True
+
+    types = item.types
+    if not db_is_pep and types.isdisjoint(ALLOW_TYPES):
+        if types.isdisjoint(POSITION_BASICS):
+            return None
+        if not types.isdisjoint(EXCLUDE_TYPES):
+            return None
 
     position = context.make("Position")
     position.id = item.id
@@ -176,9 +209,11 @@ def wikidata_position(
     if not position.has("country"):
         return None
 
-    # Check for the intl. recognized end of history:
+    # Positions dissolved before the cutoff are dropped — unless the position
+    # DB explicitly marks them as PEP-conferring (living former holders can
+    # remain PEPs regardless of when their position was abolished):
     end_date = max(position.get("dissolutionDate"), default=None)
-    if end_date is not None and end_date < "1990-12-26":
+    if end_date is not None and end_date < POSITION_ABOLISHED_CUTOFF and not db_is_pep:
         return None
 
     if item.label is not None and item.label.text is not None:
@@ -247,11 +282,13 @@ def wikidata_position(
 def position_holders(
     client: WikidataClient, item: Item
 ) -> Dict[str, Optional[datetime]]:
-    """Find persons who have held the position defined by `item`. This performs
-    the inverted lookup on property P39 (position held). Independently, the crawler
-    should check property P1308 (officeholder) on the position item itself.
+    """Find persons who have held the position defined by `item`, combining the
+    inverted lookup on property P39 (position held) with the position item's own
+    P1308 (officeholder) claims.
 
-    Returns a dict mapping person QID → schema:dateModified timestamp (ISO 8601).
+    Returns a dict mapping person QID → schema:dateModified timestamp (ISO 8601);
+    the timestamp is None for holders known only via P1308, so their cached item
+    expires on the regular schedule instead of being refreshed on change.
     """
     query = f"""
     SELECT ?person ?modifiedAt WHERE {{
@@ -270,6 +307,10 @@ def position_holders(
         modified_at = result.plain("modifiedAt")
         if person_qid is not None:
             holders[person_qid] = iso_datetime(modified_at)
+
+    for claim in item.claims:
+        if claim.property == "P1308" and claim.qid is not None:
+            holders.setdefault(claim.qid, None)
 
     return holders
 
