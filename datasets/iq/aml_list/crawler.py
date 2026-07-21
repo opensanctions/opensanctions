@@ -37,24 +37,16 @@ ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العمل
 
 
 def crawl_item(context: Context, item: dict[str, Any]) -> None:
-    entity_type = item.pop("type")
+    entity_type = item.pop("typeEn")
     decision_number = item.pop("decisionNumber")
     raw_name = item.pop("name")
 
-    # Excluded (delisted) records.
+    # Excluded records, at the time of writing, are always False.
     is_excluded = item.pop("isExcluded")
     if is_excluded:
-        context.log.warning(
-            "Skipping excluded record; representation not yet defined",
-            name=raw_name,
-            decision_number=decision_number,
-        )
         return
 
-    # The numeric `type` maps to a FollowTheMoney schema via the `type` lookup;
-    # an unmapped value signals a new category that needs handling.
-    schema = context.lookup_value("type", str(entity_type))
-    if schema == "LegalEntity":
+    if entity_type == "Entities":
         name = ENTITY_NAME_REASON.sub("", raw_name).strip()
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, decision_number)
@@ -64,7 +56,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
             entity.add("sector", sector.group().strip(), lang="ara")
         if name != latinize_text(name):
             apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
-    elif schema == "Person":
+    elif entity_type == "Individuals":
         mother_name = item.pop("motherName")
         birth_year = item.pop("birthYear")
         # The nickname is embedded in the name and also duplicated in the
@@ -75,10 +67,6 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
         aliases = parts[1:] + h.multi_split(alias_field, NAME_SPLITS)
 
         entity = context.make("Person")
-        # ID scheme kept identical to the pre-migration crawler (name + birth
-        # year) so published Person IDs stay stable across the source move.
-        # People listed under several decisions collapse into one entity, whose
-        # sanction accumulates each decision's recordId/listingDate.
         entity.id = context.make_id(raw_name, birth_year)
         h.apply_name(entity, full=name, matronymic=mother_name, lang="ara")
         entity.add("alias", aliases, lang="ara")
@@ -106,7 +94,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
 
     context.audit_data(
         item,
-        ignore=["id", "createdAt", "typeAr", "typeEn", "typeKu", "excludeAttachment"],
+        ignore=["id", "createdAt", "type", "typeAr", "typeKu", "excludeAttachment"],
     )
 
 

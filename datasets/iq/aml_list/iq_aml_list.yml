@@ -45,12 +45,6 @@ assertions:
       LegalEntity: 50
 
 lookups:
-  type:
-    options:
-      - match: "0"
-        value: Person
-      - match: "1"
-        value: LegalEntity
   type.date:
     options:
       # Implausible birth years from source data-entry errors.
