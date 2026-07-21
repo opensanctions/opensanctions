@@ -53,8 +53,22 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
             things = stats.get("things", {})
             meta["thing_count"] = things.get("total", 0)
             last_change = stats.get("last_change")
-            if last_change is not None:
-                meta["last_change"] = last_change
+            # Stopgap: an empty export (no statements) has no entity to derive
+            # last_change from, so it stays null and fails catalog validation
+            # downstream in kombinat
+            # (https://github.com/opensanctions/opensanctions/issues/4643). Fall
+            # back to the run time so the field is always populated.
+            #
+            # TODO: The permanent fix is to backfill last_change from the last
+            # successful run, which needs the versioned-artifact semantics from
+            # https://github.com/opensanctions/operations/issues/2675 — tracked
+            # in https://github.com/opensanctions/opensanctions/issues/5017.
+            # Counter-intuitive but correct: last_change doesn't track deletions,
+            # so an emptied dataset's last change is whatever the last successful
+            # run reported.
+            if last_change is None:
+                last_change = settings.RUN_TIME_ISO
+            meta["last_change"] = last_change
 
     res_datas: List[Dict[str, Any]] = []
     for res in DatasetResources(dataset).all():
