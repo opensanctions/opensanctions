@@ -6,8 +6,9 @@ from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
 from nomenklatura.wikidata import WikidataClient, SparqlBinding
 
-from zavod import Context, settings
+from zavod import Context
 from zavod.entity import Entity
+from zavod.shed.wikidata.client import create_wikidata_client, WIKIDATA_QUERY_CACHE
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
 from zavod.shed.wikidata.position import position_holders
@@ -103,7 +104,7 @@ def query_positions(
         }}
         GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
         """
-        country_response = client.query(country_query)
+        country_response = client.query(country_query, cache_days=WIKIDATA_QUERY_CACHE)
         country_results.extend(country_response.results)
 
     # a.2) Instances of Q4164871 (position) by jurisdiction/country
@@ -119,7 +120,7 @@ def query_positions(
         }}
         GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
         """
-    country_response = client.query(country_query)
+    country_response = client.query(country_query, cache_days=WIKIDATA_QUERY_CACHE)
     country_results.extend(country_response.results)
 
     for bind in country_results:
@@ -148,7 +149,9 @@ def query_positions(
         }}
         GROUP BY ?position ?positionLabel ?jurisdiction ?country ?abolished
     """
-    politician_response = client.query(politician_query)
+    politician_response = client.query(
+        politician_query, cache_days=WIKIDATA_QUERY_CACHE
+    )
     for bind in politician_response.results:
         picked_country = pick_country(
             bind.plain("country"),
@@ -190,7 +193,7 @@ def query_position_classes(context: Context, client: WikidataClient) -> List[Pos
         SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }
     }
     """
-    response = client.query(subclasses_query)
+    response = client.query(subclasses_query, cache_days=WIKIDATA_QUERY_CACHE)
     classes: List[Position] = []
     for binding in response.results:
         qid = binding.plain("class")
@@ -210,13 +213,7 @@ def crawl(context: Context) -> None:
     # crawl_test(context)
     # return
     seen_positions: Set[str] = set()
-    cache_days = context.dataset.config.get("cache_days", 14)
-    client = WikidataClient(
-        context.cache,
-        context.http,
-        cache_days=cache_days,
-        reference_time=settings.RUN_TIME,
-    )
+    client = create_wikidata_client(context)
     position_classes = query_position_classes(context, client)
     for country in all_countries():
         context.log.info(f"Crawling country: {country.qid} ({country.label})")

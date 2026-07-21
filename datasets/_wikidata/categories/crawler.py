@@ -6,10 +6,11 @@ from io import StringIO
 from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
 
-from nomenklatura.wikidata import Claim, Item, WikidataClient
+from nomenklatura.wikidata import Claim, Item
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.time import iso_datetime
 
+from zavod.shed.wikidata.client import create_wikidata_client, WIKIDATA_QUERY_CACHE
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import (
     position_holders,
@@ -18,7 +19,7 @@ from zavod.shed.wikidata.position import (
 )
 from zavod.stateful.positions import categorised_position_qids
 
-from zavod import Context, Entity, settings
+from zavod import Context, Entity
 from zavod import helpers as h
 
 URL = "https://petscan.wmcloud.org/"
@@ -34,7 +35,6 @@ QUERY = {
 }
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
-WIKIDATA_CACHE_DAYS = 14
 
 
 @dataclass
@@ -47,12 +47,7 @@ class FoundRecord:
 class CrawlState(object):
     def __init__(self, context: Context):
         self.context = context
-        self.client = WikidataClient(
-            context.cache,
-            session=context.http,
-            cache_days=WIKIDATA_CACHE_DAYS,
-            reference_time=settings.RUN_TIME,
-        )
+        self.client = create_wikidata_client(context)
         self.log = context.log
         # Position QID -> evaluated position entity, None if the item is not
         # a usable PEP position. Positions recur across the whole person set,
@@ -160,7 +155,6 @@ def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[
 
 
 def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> None:
-    cache_days = int(category_crawl_spec.pop("cache_days", 14))
     topics: List[str] = category_crawl_spec.pop("topics", [])
     if "topic" in category_crawl_spec:
         topics.append(category_crawl_spec.pop("topic"))
@@ -185,7 +179,7 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
 
     query_string = urlencode(query)
     url = f"{URL}?{query_string}"
-    data = state.context.fetch_text(url, cache_days=cache_days)
+    data = state.context.fetch_text(url, cache_days=WIKIDATA_QUERY_CACHE)
     wrapper = StringIO(data)
     results = 0
     for row in csv.DictReader(wrapper):
@@ -268,7 +262,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
         }}
         """
         roles.add(seed)
-        response = state.client.query(query)
+        response = state.client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
         for result in response.results:
             role = result.plain("role")
             if role is not None:
@@ -292,7 +286,7 @@ def crawl_declarator(state: CrawlState) -> None:
         ?person schema:dateModified ?modifiedAt .
     }
     """
-    response = state.client.query(query, state.client.CACHE_SHORT)
+    response = state.client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
     state.log.info("Found %d declarator profiles" % len(response.results))
     for result in response.results:
         person_qid = result.plain("person")
