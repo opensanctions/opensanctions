@@ -72,13 +72,13 @@ def test_endpoint_ids(testdataset1: Dataset) -> None:
 def test_should_promote_non_edges(testdataset1: Dataset) -> None:
     # Supporting schemata publish without any lookup entry.
     address = make(testdataset1, "Address", "addr", full=["1 Main St"])
-    publishability = check_publishability([address], FakeView([address]), frozenset())
+    publishability = check_publishability([address], FakeView([]), frozenset())
     assert should_promote(address, publishability)
     article = make(testdataset1, "Article", "article", title=["Scoop"])
-    publishability = check_publishability([article], FakeView([article]), frozenset())
+    publishability = check_publishability([article], FakeView([]), frozenset())
     assert should_promote(article, publishability)
     sanction = make(testdataset1, "Sanction", "sanc", reason=["bad"])
-    publishability = check_publishability([sanction], FakeView([sanction]), frozenset())
+    publishability = check_publishability([sanction], FakeView([]), frozenset())
     assert should_promote(sanction, publishability)
 
     # Risk targets publish iff their lookup found a matching topic.
@@ -97,6 +97,15 @@ def test_should_promote_edges(testdataset1: Dataset) -> None:
     # An edge with no endpoint values never publishes.
     dangling = make(testdataset1, "Ownership", "own2", role=["shareholder"])
     assert not should_promote(dangling, {})
+
+    # Documentation is an edge like any other: publishable iff its endpoints are,
+    # regardless of it being an Interval subclass.
+    documentation = make(
+        testdataset1, "Documentation", "doc", entity=["per"], document=["art"]
+    )
+    assert should_promote(documentation, {"per": True, "art": True})
+    assert not should_promote(documentation, {"per": True, "art": False})
+    assert not should_promote(documentation, {"per": True})
 
 
 def test_check_publishability(testdataset1: Dataset) -> None:
