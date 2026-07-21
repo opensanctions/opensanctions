@@ -1,94 +1,94 @@
 import re
-from typing import Optional, Set, Dict, List
+from typing import Any
 
 from normality import latinize_text
-from openpyxl import load_workbook
-from rigour.mime.types import XLSX
-from zavod.shed.trans import (
-    apply_translit_full_name,
-    ENGLISH,
-)
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.trans import apply_translit_full_name, ENGLISH
 
-# These sheets do not contain actual data but serve as reference sheets
-LOCAL_FILE_IGNORE_SHEETS = [
-    "الافراد",  # Individuals
-    "القوائم المحلية ",  # Local lists
-]
-NAME_SPLITS = [
-    "المكنى",  # Nickname
-    # It looks like what's in parentheses is always a nickname, sometimes with,
-    # sometimes without "المكنى" (nicknamed)
-    "(",
-    ")",
-]
+# The local sanctions list is served by the platform's JSON API. Its paginated
+# ordering is unstable — successive pages overlap and drop records — so we fetch
+# the whole list in a single request with a page size well above the row count
+# and assert it wasn't truncated.
+API_URL = "https://api.aml-iq.com/api/localsanctionslist/getall/1"
+PAGE_SIZE = 100_000
 
-YEAR_PATTERN = re.compile(r"\b\d{4}\b")
-# To mediate in the sale and purchase of foreign currencies
-ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
+# The `type` field distinguishes natural persons from organisations.
+TYPE_INDIVIDUAL = 0
+TYPE_ENTITY = 1
 
 TRANSLIT_OUTPUT = [ENGLISH]
 
+# Nicknames are appended to the primary name, either introduced by a
+# "nicknamed" marker or wrapped in parentheses/quotes. Splitting on these
+# separators yields the clean name in the first segment and the nickname(s)
+# in the rest.
+NAME_SPLITS = [
+    "المكنى",  # nicknamed
+    "الملقبة",  # nicknamed (feminine)
+    "الملقب",  # nicknamed
+    "(",
+    ")",
+    '"',
+]
 
-def clean_entity_name(entity_name: Optional[str]) -> Optional[str]:
-    if entity_name is None:
-        return None
-    return ENTITY_NAME_REASON.sub("", entity_name).strip()
-
-
-def extract_sector(entity_name: Optional[str]) -> Optional[str]:
-    if entity_name is None:
-        return None
-    match = ENTITY_NAME_REASON.search(entity_name)
-    return match.group().strip() if match else None
-
-
-def extract_listing_date(decision_number: Optional[str]) -> Optional[str]:
-    """Extracts the listing year from the decision number."""
-    if decision_number is None:
-        return None
-    match = YEAR_PATTERN.search(decision_number)
-    return match.group(0) if match else None
+# Currency-exchange companies encode their licensed activity as a name suffix.
+# We strip it from the name and record it as the sector.
+# "to mediate in the sale and purchase of foreign currencies"
+ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
 
 
-def crawl_row(row: Dict[str, str | None], context: Context) -> None:
-    row.pop("id", None)
-    # Skip empty rows
-    if not any(row.values()):
-        return
-    raw_entity_name = row.pop("entity_name", None)
-    decision_number = row.pop("decision_no")
-    entity_name = clean_entity_name(raw_entity_name)
+def crawl_item(context: Context, item: dict[str, Any]) -> None:
+    entity_type = item.pop("type")
+    decision_number = item.pop("decisionNumber")
+    decision_year = item.pop("decisionYear")
+    raw_name = item.pop("name")
 
-    if entity_name:
-        entity = context.make("LegalEntity")
-        entity.id = context.make_id(entity_name, decision_number)
-        entity.add("name", entity_name, lang="ara")
-        entity.add("sector", extract_sector(raw_entity_name), lang="ara")
-        if entity_name != latinize_text(entity_name):
-            print(entity_name)
-            apply_translit_full_name(
-                context, entity, "ara", entity_name, TRANSLIT_OUTPUT
-            )
-    else:
-        raw_person_name = row.pop("name", row.pop("person_name"))
-        parts = h.multi_split(raw_person_name, NAME_SPLITS)
-        name = parts[0]
-        aliases = parts[1:]
-        birth_date = row.pop("dob")
-        entity = context.make("Person")
-        entity.id = context.make_id(raw_person_name, birth_date)
-        entity.add("nationality", row.pop("nationality", None), lang="ara")
-        h.apply_date(entity, "birthDate", birth_date)
-        h.apply_name(
-            entity,
-            full=name,
-            matronymic=row.pop("matronymic"),
-            lang="ara",
+    # Excluded (delisted) records carry a removal attachment. We do not have a
+    # confirmed example yet, so surface them for review rather than guessing
+    # how to represent a delisting.
+    is_excluded = item.pop("isExcluded")
+    exclude_attachment = item.pop("excludeAttachment")
+    if is_excluded:
+        context.log.warning(
+            "Skipping excluded record; representation not yet defined",
+            name=raw_name,
+            decision_number=decision_number,
+            exclude_attachment=exclude_attachment,
         )
+        return
+
+    if entity_type == TYPE_ENTITY:
+        name = ENTITY_NAME_REASON.sub("", raw_name).strip()
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(name, decision_number)
+        entity.add("name", name, lang="ara")
+        sector = ENTITY_NAME_REASON.search(raw_name)
+        if sector is not None:
+            entity.add("sector", sector.group().strip(), lang="ara")
+        if name != latinize_text(name):
+            apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
+    elif entity_type == TYPE_INDIVIDUAL:
+        mother_name = item.pop("motherName")
+        birth_year = item.pop("birthYear")
+        # The nickname is embedded in the name and also duplicated in the
+        # `alias` field, usually behind a "nicknamed" marker.
+        alias_field = item.pop("alias")
+        parts = h.multi_split(raw_name, NAME_SPLITS)
+        name = parts[0]
+        aliases = parts[1:] + h.multi_split(alias_field, NAME_SPLITS)
+
+        entity = context.make("Person")
+        # ID scheme kept identical to the pre-migration crawler (name + birth
+        # year) so published Person IDs stay stable across the source move.
+        # People listed under several decisions collapse into one entity, whose
+        # sanction accumulates each decision's recordId/listingDate.
+        entity.id = context.make_id(raw_name, birth_year)
+        h.apply_name(entity, full=name, matronymic=mother_name, lang="ara")
         entity.add("alias", aliases, lang="ara")
+        if birth_year is not None:
+            h.apply_date(entity, "birthDate", str(birth_year))
         if name != latinize_text(name):
             apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
         for alias in aliases:
@@ -96,70 +96,36 @@ def crawl_row(row: Dict[str, str | None], context: Context) -> None:
                 apply_translit_full_name(
                     context, entity, "ara", alias, TRANSLIT_OUTPUT, alias=True
                 )
+    else:
+        context.log.warning("Unknown entity type", type=entity_type, name=raw_name)
+        return
 
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("recordId", decision_number)
-    listing_date = extract_listing_date(decision_number)
-    h.apply_date(sanction, "listingDate", listing_date)
+    if decision_year is not None:
+        h.apply_date(sanction, "listingDate", str(decision_year))
 
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(row, ["id"])
-
-
-def process_xlsx(
-    context: Context,
-    *,
-    url: str,
-    filename: str,
-    titles: Set[str],
-    ignore_sheets: List[str] = [],
-) -> None:
-    context.log.info(f"Processing {filename} from {url}")
-    excel_link_xpath = (
-        '//article[contains(@id, "post-")]//a[contains(@href, "xlsx")]/@href'
-    )
-    doc = fetch_html(context, url, excel_link_xpath, cache_days=1, geolocation="IQ")
-    file_url = h.xpath_string(doc, excel_link_xpath)
-
-    assert file_url.endswith(".xlsx"), file_url
-    assert any(title in file_url for title in titles), file_url
-
-    _, _, _, path = fetch_resource(context, filename, file_url, XLSX, geolocation="IQ")
-    context.export_resource(path, XLSX)
-
-    wb = load_workbook(path, read_only=True)
-    processed_sheets = set()
-    for sheet in wb.sheetnames:
-        context.log.info(f"Processing sheet: {sheet}")
-        if sheet in ignore_sheets:
-            continue
-        for row in h.parse_xlsx_sheet(
-            context, wb[sheet], skiprows=3, header_lookup=context.get_lookup("columns")
-        ):
-            crawl_row(row, context)
-            processed_sheets.add(sheet)
-
-    assert set(wb.sheetnames) == processed_sheets | set(ignore_sheets)
+    context.audit_data(item, ["id", "createdAt", "typeAr", "typeEn", "typeKu"])
 
 
 def crawl(context: Context) -> None:
-    process_xlsx(
-        context,
-        url="https://aml.iq/?page_id=2169",
-        filename="international.xlsx",
-        titles={"القائمة-الدولية"},  # International List
+    payload = context.fetch_json(
+        API_URL,
+        params={"pageSize": PAGE_SIZE},
+        cache_days=1,
     )
-    process_xlsx(
-        context,
-        url="https://aml.iq/?page_id=2171",
-        filename="local.xlsx",
-        titles={
-            "القوائم-المحلية",  # Local Lists
-            "القائمة-المحلية",  # Local List
-        },
-        ignore_sheets=LOCAL_FILE_IGNORE_SHEETS,
-    )
+    if payload.get("error"):
+        raise RuntimeError(f"API error: {payload.get('message')}")
+    data = payload["data"]
+    items = data["data"]
+    # The single request must cover the whole list; a second page would mean the
+    # list outgrew PAGE_SIZE and we'd hit the unstable pagination.
+    assert data["pageCount"] == 1, data["pageCount"]
+    assert len(items) == data["rowCount"], (len(items), data["rowCount"])
+    for item in items:
+        crawl_item(context, item)

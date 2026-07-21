@@ -5,17 +5,14 @@ coverage:
   frequency: daily
   start: 2025-02-13
 load_statements: true
+ci_test: false # LLM-based transliteration is too costly to run in CI
 summary: >
   Individuals and entities suspected of involvement in money laundering or terrorist
   financing activities, sourced from both international and local lists.
 description: |
   This dataset comprises information about individuals and entities designated by the
-  Anti-Money Laundering and Terrorist Financing Office. It covers both international and
-  local lists, featuring names of companies and individuals, and listing dates.
-
-  The entities required to act upon the listing of individuals or entities, and the
-  scope of those actions, are listed in the
-  [Terrorist Funds Freezing Committee System No. (6) of 2023 order](https://aml.iq/?page_id=2160)
+  Anti-Money Laundering and Terrorist Financing Office. It covers the local sanctions
+  list, featuring names of companies and individuals, and listing dates.
 
   **Note:** This crawler uses an LLM-based approach to transliterate entity names.
 publisher:
@@ -30,72 +27,28 @@ publisher:
   country: iq
 url: https://aml.iq
 data:
-  url: https://aml.iq
-  format: HTML
-ci_test: false # No zyte key in CI
+  url: https://api.aml-iq.com/api/localsanctionslist/getall/1
+  format: JSON
 tags:
   - list.sanction
 dates:
-  formats: ["%d-%m-%Y", "%d/%m/%Y"]
+  formats: ["%Y"]
 
 assertions:
   min:
     schema_entities:
-      Person: 5200
-      LegalEntity: 35
+      Person: 5000
+      LegalEntity: 20
   max:
     schema_entities:
       Person: 10000
-      LegalEntity: 80
+      LegalEntity: 50
 
 lookups:
-  columns:
-    options:
-      - match: ت
-        value: id
-      - match:
-          - اسم الشخص
-          - اسماء الاشخاص
-        value: person_name
-      - match: التولد
-        value: dob
-      - match: اسم الام
-        value: matronymic
-      - match: رقم القرار
-        value: decision_no
-      - match: اسم الكيان
-        value: entity_name
-      - match: الجنسية
-        value: nationality
   type.date:
     options:
+      # Implausible birth years from source data-entry errors.
       - match:
-          - "لا يوجد" # nothing
-          - /
-          - 32853
-          - 25722
-          - 29136
-          - 198
+          - "198"
+          - "28138"
         value: null
-  type.string:
-    options:
-      - match: /
-        value: null
-  type.country:
-    options:
-      - match: "عرب سعودية"
-        value: "Saudi Arabia"
-      - match: "اندنوسيا"
-        value: "Indonesia"
-      - match: "فلبينية"
-        value: "Philippines"
-      - match: "مسير"
-        # Claude thinks it's a misspelling of "Egypt", but let's wait while we
-        # confirm with a native speaker.
-        value: null
-      - match: "يمن"
-        value: "Yemen"
-      - match: "فلبينية/ ماليزيا"
-        values:
-          - "Philippines"
-          - "Malaysia"
