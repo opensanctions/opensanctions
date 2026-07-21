@@ -67,7 +67,7 @@ def crawl(context: Context) -> None:
         writer.writerows(rows)
     # Check if the data has been updated, normally with a new report, if the content has changed.
     h.assert_dom_hash(
-        content[0], "66e1e163a93d72deb0ad257d2069004f70afba0f", text_only=True
+        content[0], "88d41d38d368ce8b9170ca98319969c1875d3500", text_only=True
     )
     # 2018: OHCHR published an interim report (A/HRC/37/39), setting out the methods of work and methodology used to discharge the mandate as set out in Council resolution 31/36.
     # 2020: OHCHR published a report (A/HRC/43/71) containing a database listing 112 business enterprises.
