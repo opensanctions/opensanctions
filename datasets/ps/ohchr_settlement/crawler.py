@@ -46,11 +46,15 @@ def crawl(context: Context) -> None:
     doc = zyte_api.fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
     content = h.xpath_elements(doc, content_xpath, expect_exactly=1)
     # OHCHR only publishes the database as HTML tables on the page, so the actual data is a
-    # hand-curated Google Sheet (the dataset's data_url) mirroring it. To update it when the
-    # OHCHR page changes:
+    # hand-curated Google Sheet (the dataset's data_url) mirroring it. The page has two tables,
+    # written to table.csv one after the other (the second table's "No." restarts at 1): the
+    # current listing, followed by a smaller table of enterprises that have been delisted. To
+    # sync the Sheet when the OHCHR page changes:
     #   1. Run the crawler locally. It rewrites table.csv from the OHCHR page and logs a
     #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
-    #   2. Edit the Google Sheet to match (that edit lives in Google Drive, not the PR).
+    #   2. Add newly listed enterprises from the first table to the Google Sheet. For each
+    #      enterprise in the delisted table, remove it from the Sheet if present (do not add
+    #      it). These edits live in Google Drive, not the PR.
     #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
     rows = [
         h.cells_to_str(row)
