@@ -94,7 +94,14 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
 
     context.audit_data(
         item,
-        ignore=["id", "createdAt", "type", "typeAr", "typeKu", "excludeAttachment"],
+        ignore=[
+            "id",
+            "createdAt",  # when the row was inserted into the source DB
+            "type",
+            "typeAr",
+            "typeKu",
+            "excludeAttachment",
+        ],
     )
 
 
