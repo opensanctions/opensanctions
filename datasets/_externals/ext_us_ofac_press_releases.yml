@@ -47,6 +47,7 @@ inputs:
   # - maritime
 
 config:
+  topic_gated: true
   index_options:
     memory: 2000
     max_bucket_size: 300
