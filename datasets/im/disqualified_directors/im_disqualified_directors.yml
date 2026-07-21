@@ -34,6 +34,11 @@ data:
   url: https://www.iomfsa.im/enforcement/disqualified-directors/
   format: HTML
   lang: eng
+http:
+  # The site's WAF rejects zavod's default user agent with a 200 "Request
+  # Rejected" page, yielding zero entities. A browser-like user agent gets
+  # served the real page.
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 (zavod; opensanctions.org)
 
 dates:
   formats: ["%d %B %Y", "%d %b %Y", "%m/%d/%Y"]
