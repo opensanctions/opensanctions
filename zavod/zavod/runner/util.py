@@ -6,6 +6,13 @@ from followthemoney.schema import Schema
 from zavod.entity import Entity
 from zavod.store import View
 
+SUPPORTING_SCHEMATA = {
+    "Address",
+    "Analyzable",
+    "Identification",
+    "Sanction",
+}
+
 
 @lru_cache(maxsize=None)
 def is_supporting_schema(schema: Schema) -> bool:
@@ -16,9 +23,7 @@ def is_supporting_schema(schema: Schema) -> bool:
     published when expansion reaches them; only risk targets (LegalEntity/Asset
     descendants, Position, CryptoWallet) require a topic.
     """
-    return (
-        schema.is_a("Address") or schema.is_a("Analyzable") or schema.is_a("Interval")
-    )
+    return any(schema.is_a(schema_name) for schema_name in SUPPORTING_SCHEMATA)
 
 
 def endpoint_ids(entity: Entity) -> set[str]:
@@ -38,7 +43,7 @@ def _is_publishable(entity_id: str, view: View, enrich_topics: frozenset[str]) -
         return False
     if is_supporting_schema(entity.schema):
         return True
-    return bool(enrich_topics.intersection(entity.get("topics")))
+    return bool(enrich_topics.intersection(entity.get("topics", quiet=True)))
 
 
 def check_publishability(
@@ -54,7 +59,7 @@ def check_publishability(
     for entity in expanded:
         if entity.schema.edge:
             ids_to_check.update(endpoint_ids(entity))
-        elif not is_supporting_schema(entity.schema):
+        else:
             assert entity.id is not None
             ids_to_check.add(entity.id)
     return {eid: _is_publishable(eid, view, enrich_topics) for eid in ids_to_check}
@@ -68,7 +73,5 @@ def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
         if not endpoints:
             return False
         return all(publishable.get(eid, False) for eid in endpoints)
-    if is_supporting_schema(entity.schema):
-        return True
     assert entity.id is not None
     return publishable.get(entity.id, False)

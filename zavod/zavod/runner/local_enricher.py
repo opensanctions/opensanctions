@@ -195,6 +195,9 @@ def save_match(
         expanded = [adj for adj in expanded if not check_person_cutoff(adj)]
 
         if topic_gated:
+            # The first expansion result is the confirmed match itself. Keep it
+            # visible; gate the graph context that follows it on risk topics assigned
+            # by the subject datasets and analyzers.
             publishable = check_publishability(expanded, subject_view, enrich_topics)
             for adj in expanded:
                 context.emit(adj, external=not should_promote(adj, publishable))

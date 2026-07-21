@@ -36,7 +36,7 @@ def make(dataset: Dataset, schema: str, id: str, **props: list[str]) -> Entity:
     return Entity.from_data(dataset, {"schema": schema, "id": id, "properties": props})
 
 
-def test_is_supporting_schema():
+def test_is_supporting_schema() -> None:
     supporting = [
         "Address",
         "Article",
@@ -62,21 +62,24 @@ def test_is_supporting_schema():
         assert not is_supporting_schema(model.get(name)), name
 
 
-def test_endpoint_ids(testdataset1: Dataset):
+def test_endpoint_ids(testdataset1: Dataset) -> None:
     ownership = make(testdataset1, "Ownership", "own", owner=["per"], asset=["com"])
     assert endpoint_ids(ownership) == {"per", "com"}
     person = make(testdataset1, "Person", "per", name=["Jane"])
     assert endpoint_ids(person) == set()
 
 
-def test_should_promote_non_edges(testdataset1: Dataset):
+def test_should_promote_non_edges(testdataset1: Dataset) -> None:
     # Supporting schemata publish without any lookup entry.
     address = make(testdataset1, "Address", "addr", full=["1 Main St"])
-    assert should_promote(address, {})
+    publishability = check_publishability([address], FakeView([address]), frozenset())
+    assert should_promote(address, publishability)
     article = make(testdataset1, "Article", "article", title=["Scoop"])
-    assert should_promote(article, {})
+    publishability = check_publishability([article], FakeView([article]), frozenset())
+    assert should_promote(article, publishability)
     sanction = make(testdataset1, "Sanction", "sanc", reason=["bad"])
-    assert should_promote(sanction, {})
+    publishability = check_publishability([sanction], FakeView([sanction]), frozenset())
+    assert should_promote(sanction, publishability)
 
     # Risk targets publish iff their lookup found a matching topic.
     person = make(testdataset1, "Person", "per", name=["Jane"])
@@ -85,7 +88,7 @@ def test_should_promote_non_edges(testdataset1: Dataset):
     assert not should_promote(person, {})
 
 
-def test_should_promote_edges(testdataset1: Dataset):
+def test_should_promote_edges(testdataset1: Dataset) -> None:
     ownership = make(testdataset1, "Ownership", "own", owner=["per"], asset=["com"])
     assert should_promote(ownership, {"per": True, "com": True})
     assert not should_promote(ownership, {"per": True, "com": False})
@@ -96,7 +99,7 @@ def test_should_promote_edges(testdataset1: Dataset):
     assert not should_promote(dangling, {})
 
 
-def test_check_publishability(testdataset1: Dataset):
+def test_check_publishability(testdataset1: Dataset) -> None:
     tagged = make(testdataset1, "Person", "tagged", topics=["crime.boss"])
     untagged = make(testdataset1, "Person", "untagged", name=["Jane"])
     article = make(testdataset1, "Article", "article", title=["Scoop"])
@@ -124,7 +127,7 @@ def test_check_publishability(testdataset1: Dataset):
     assert not should_promote(ownership, publishable)
 
 
-def test_check_publishability_missing_endpoint(testdataset1: Dataset):
+def test_check_publishability_missing_endpoint(testdataset1: Dataset) -> None:
     tagged = make(testdataset1, "Person", "tagged", topics=["crime.boss"])
     edge = make(
         testdataset1, "Documentation", "doc", entity=["tagged"], document=["ghost"]
