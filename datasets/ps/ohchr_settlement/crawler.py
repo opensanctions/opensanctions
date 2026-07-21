@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 from typing import Dict
 
 from zavod.extract import zyte_api
@@ -44,6 +45,22 @@ def crawl(context: Context) -> None:
     assert context.dataset.url is not None
     doc = zyte_api.fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
     content = h.xpath_elements(doc, content_xpath, expect_exactly=1)
+    # OHCHR only publishes the database as HTML tables on the page, so the actual data is a
+    # hand-curated Google Sheet (the dataset's data_url) mirroring it. To update it when the
+    # OHCHR page changes:
+    #   1. Run the crawler locally. It rewrites table.csv from the OHCHR page and logs a
+    #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
+    #   2. Edit the Google Sheet to match (that edit lives in Google Drive, not the PR).
+    #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
+    rows = [
+        h.cells_to_str(row)
+        for table in h.xpath_elements(content[0], ".//table")
+        for row in h.parse_html_table(table)
+    ]
+    with open(Path(__file__).parent / "table.csv", "w") as fh:
+        writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
     # Check if the data has been updated, normally with a new report, if the content has changed.
     h.assert_dom_hash(
         content[0], "66e1e163a93d72deb0ad257d2069004f70afba0f", text_only=True
