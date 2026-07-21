@@ -12,6 +12,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
 from zavod.shed.trans import translate_position_name
+from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE
 from zavod.util import LangText
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
@@ -256,7 +257,7 @@ def position_holders(
     # Holder lists (and the dateModified values that drive person cache
     # invalidation) change slowly; at 1 day, every crawl re-runs tens of
     # thousands of WDQS queries.
-    response = client.query(query, cache_days=5)
+    response = client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
     for result in response.results:
         person_qid = result.plain("person")
         modified_at = result.plain("modifiedAt")
