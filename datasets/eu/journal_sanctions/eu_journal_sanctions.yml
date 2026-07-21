@@ -75,6 +75,11 @@ lookups:
     options:
       - match: Lev Anatolyevich Ershov
         value: Lev Anatolyevich
+      # Consolidated act 02002R0881 lists this person as "Hamidah Nabagala"
+      # (with "Nabaggala"/"Hamida" only as separate low-quality aliases), so the
+      # journal spelling "Hamida Nabaggala" is not found as a contiguous string.
+      - match: Hamida Nabaggala
+        value: Hamidah Nabagala
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)
