@@ -51,23 +51,37 @@ def check_publishability(
 ) -> dict[str, bool]:
     """Look up publishability once per entity ID that will need it.
 
-    We need a lookup for every edge endpoint (to gate the edge) and for every
-    non-edge risk target (to gate the node). Non-edge supporting schemata are
-    always publishable, so we skip the lookup for them.
+    Non-edge supporting entities in the expansion are publishable by virtue of
+    their schema, so they are seeded into the map without a lookup. Supporting
+    entities usually come from the target dataset and are absent from the
+    subject view, so this seeding is also what lets an edge to them (e.g. a
+    Documentation edge to an Article) publish.
+
+    Non-supporting entities (the more common case - entities related via e.g.
+    Ownership, Family) are looked up in the subject view where graph analyzer
+    could have added topics.
     """
+    publishable: dict[str, bool] = {}
     ids_to_check: set[str] = set()
     for entity in expanded:
         if entity.schema.edge:
             ids_to_check.update(endpoint_ids(entity))
         else:
             assert entity.id is not None
-            ids_to_check.add(entity.id)
-    return {eid: _is_publishable(eid, view, enrich_topics) for eid in ids_to_check}
+            if is_supporting_schema(entity.schema):
+                publishable[entity.id] = True
+            else:
+                ids_to_check.add(entity.id)
+    for eid in ids_to_check:
+        if eid not in publishable:
+            publishable[eid] = _is_publishable(eid, view, enrich_topics)
+    return publishable
 
 
 def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
-    """Publish supporting non-edges always, risk-target non-edges iff they carry a
-    topic, and edges iff every endpoint is itself publishable."""
+    """Publish non-edges iff the map says so (supporting schemata were seeded
+    True, risk targets need a topic) and edges iff every endpoint is itself
+    publishable."""
     if entity.schema.edge:
         endpoints = endpoint_ids(entity)
         if not endpoints:
