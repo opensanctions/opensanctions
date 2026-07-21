@@ -127,6 +127,28 @@ def test_check_publishability(testdataset1: Dataset) -> None:
     assert not should_promote(ownership, publishable)
 
 
+def test_check_publishability_supporting_absent_from_view(
+    testdataset1: Dataset,
+) -> None:
+    """Supporting entities come from the target dataset via expansion and are
+    typically absent from the subject view; they and the edges reaching them
+    must still publish (e.g. ext_us_ofac_press_releases Articles)."""
+    tagged = make(testdataset1, "Person", "tagged", topics=["crime.boss"])
+    article = make(testdataset1, "Article", "article", title=["Scoop"])
+    documentation = make(
+        testdataset1, "Documentation", "doc", entity=["tagged"], document=["article"]
+    )
+
+    # The subject view knows nothing about the article.
+    view = FakeView([tagged])
+    expanded = [tagged, article, documentation]
+    publishable = check_publishability(expanded, view, ENRICH_TOPICS)
+    assert publishable == {"tagged": True, "article": True}
+
+    assert should_promote(article, publishable)
+    assert should_promote(documentation, publishable)
+
+
 def test_check_publishability_missing_endpoint(testdataset1: Dataset) -> None:
     tagged = make(testdataset1, "Person", "tagged", topics=["crime.boss"])
     edge = make(
