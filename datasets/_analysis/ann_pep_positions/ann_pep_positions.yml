@@ -47,6 +47,12 @@ assertions:
   min:
     schema_entities:
       Position: 87000
+    # This analyzer emits Person entities that carry only an inferred
+    # `classification` annotation and no name; they merge into the full person
+    # from other datasets. Disable the default Person.name fill-rate baseline.
+    property_fill_rate:
+      Person:
+        name: 0
   max:
     schema_entities:
       Position: 204000
