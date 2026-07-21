@@ -30,9 +30,7 @@ def is_supporting_schema(schema: Schema) -> bool:
     """Schemata that don't carry risk topics themselves but appear in expansion
     as attachments or context around risk targets — Addresses, Documents (Article,
     Image, PlainText, ...), Notes and other Analyzables, and non-edge Intervals
-    like Sanction, Passport, Identification. Under topic gating these are always
-    published when expansion reaches them; only risk targets (LegalEntity/Asset
-    descendants, Position, CryptoWallet) require a topic.
+    like Sanction, Passport, Identification.
     """
     return any(schema.is_a(schema_name) for schema_name in SUPPORTING_SCHEMATA)
 
