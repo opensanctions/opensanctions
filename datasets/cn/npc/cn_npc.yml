@@ -45,14 +45,130 @@ tags:
   - list.pep
 
 lookups:
-  annotations:
-    options:
-      - match: "(鄂伦春族))"  # doubled closing paren on 吴海军, Inner Mongolia
-        value: "(鄂伦春族)"
   type.gender:
     options:
       - match: 女
         value: female
+  # Home districts that disambiguate same-named deputies, to their English names.
+  districts:
+    options:
+      - match: 拉萨城关区
+        value: Chengguan District, Lhasa
+      - match: 拉萨达孜区
+        value: Dagzê District, Lhasa
+  # Chinese ethnic minority names to their official English ethnonyms
+  ethnicity:
+    options:
+      - match: 蒙古族
+        value: Mongolian
+      - match: 回族
+        value: Hui
+      - match: 藏族
+        value: Tibetan
+      - match: 维吾尔族
+        value: Uygur
+      - match: 苗族
+        value: Miao
+      - match: 彝族
+        value: Yi
+      - match: 壮族
+        value: Zhuang
+      - match: 布依族
+        value: Buyei
+      - match: 朝鲜族
+        value: Korean
+      - match: 满族
+        value: Manchu
+      - match: 侗族
+        value: Dong
+      - match: 瑶族
+        value: Yao
+      - match: 白族
+        value: Bai
+      - match: 土家族
+        value: Tujia
+      - match: 哈尼族
+        value: Hani
+      - match: 哈萨克族
+        value: Kazak
+      - match: 傣族
+        value: Dai
+      - match: 黎族
+        value: Li
+      - match: 傈僳族
+        value: Lisu
+      - match: 佤族
+        value: Va
+      - match: 畲族
+        value: She
+      - match: 高山族
+        value: Gaoshan
+      - match: 拉祜族
+        value: Lahu
+      - match: 水族
+        value: Sui
+      - match: 东乡族
+        value: Dongxiang
+      - match: 纳西族
+        value: Naxi
+      - match: 景颇族
+        value: Jingpo
+      - match: 柯尔克孜族
+        value: Kirgiz
+      - match: 土族
+        value: Tu
+      - match: 达斡尔族
+        value: Daur
+      - match: 仫佬族
+        value: Mulam
+      - match: 羌族
+        value: Qiang
+      - match: 布朗族
+        value: Blang
+      - match: 撒拉族
+        value: Salar
+      - match: 毛南族
+        value: Maonan
+      - match: 仡佬族
+        value: Gelao
+      - match: 锡伯族
+        value: Xibe
+      - match: 阿昌族
+        value: Achang
+      - match: 普米族
+        value: Pumi
+      - match: 塔吉克族
+        value: Tajik
+      - match: 怒族
+        value: Nu
+      - match: 乌孜别克族
+        value: Uzbek
+      - match: 俄罗斯族
+        value: Russian
+      - match: 鄂温克族
+        value: Ewenki
+      - match: 德昂族
+        value: Deang
+      - match: 保安族
+        value: Bonan
+      - match: 裕固族
+        value: Yugur
+      - match: 京族
+        value: Gin
+      - match: 塔塔尔族
+        value: Tatar
+      - match: 独龙族
+        value: Derung
+      - match: 鄂伦春族
+        value: Oroqen
+      - match: 赫哲族
+        value: Hezhen
+      - match: 门巴族
+        value: Monba
+      - match: 珞巴族
+        value: Lhoba
+      - match: 基诺族
+        value: Jino
 
 assertions:
   min:
