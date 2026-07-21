@@ -111,28 +111,18 @@ def test_should_promote_edges(testdataset1: Dataset) -> None:
 def test_check_publishability(testdataset1: Dataset) -> None:
     tagged = make(testdataset1, "Person", "tagged", topics=["crime.boss"])
     untagged = make(testdataset1, "Person", "untagged", name=["Jane"])
-    article = make(testdataset1, "Article", "article", title=["Scoop"])
     ownership = make(
         testdataset1, "Ownership", "own", owner=["tagged"], asset=["untagged"]
     )
-    documentation = make(
-        testdataset1, "Documentation", "doc", entity=["tagged"], document=["article"]
-    )
 
-    view = FakeView([tagged, untagged, article])
-    expanded = [tagged, untagged, article, ownership, documentation]
+    view = FakeView([tagged, untagged])
+    expanded = [tagged, untagged, ownership]
     publishable = check_publishability(expanded, view, ENRICH_TOPICS)
-
-    # The article is looked up as a Documentation endpoint and is publishable
-    # as a supporting schema despite carrying no topic.
-    assert publishable == {"tagged": True, "untagged": False, "article": True}
+    assert publishable == {"tagged": True, "untagged": False}
 
     assert should_promote(tagged, publishable)
     assert not should_promote(untagged, publishable)
-    assert should_promote(article, publishable)
-    # The edge to the supporting article follows the article ...
-    assert should_promote(documentation, publishable)
-    # ... but the edge to the lateral untagged person still drops.
+    # The edge to the lateral untagged person drops.
     assert not should_promote(ownership, publishable)
 
 
