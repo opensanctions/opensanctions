@@ -1,7 +1,9 @@
+import json
 import re
 from typing import Any
 
 from normality import latinize_text
+from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h
@@ -11,12 +13,7 @@ from zavod.shed.trans import apply_translit_full_name, ENGLISH
 # ordering is unstable — successive pages overlap and drop records — so we fetch
 # the whole list in a single request with a page size well above the row count
 # and assert it wasn't truncated.
-API_URL = "https://api.aml-iq.com/api/localsanctionslist/getall/1"
 PAGE_SIZE = 100_000
-
-# The `type` field distinguishes natural persons from organisations.
-TYPE_INDIVIDUAL = 0
-TYPE_ENTITY = 1
 
 TRANSLIT_OUTPUT = [ENGLISH]
 
@@ -42,24 +39,22 @@ ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العمل
 def crawl_item(context: Context, item: dict[str, Any]) -> None:
     entity_type = item.pop("type")
     decision_number = item.pop("decisionNumber")
-    decision_year = item.pop("decisionYear")
     raw_name = item.pop("name")
 
-    # Excluded (delisted) records carry a removal attachment. We do not have a
-    # confirmed example yet, so surface them for review rather than guessing
-    # how to represent a delisting.
+    # Excluded (delisted) records.
     is_excluded = item.pop("isExcluded")
-    exclude_attachment = item.pop("excludeAttachment")
     if is_excluded:
         context.log.warning(
             "Skipping excluded record; representation not yet defined",
             name=raw_name,
             decision_number=decision_number,
-            exclude_attachment=exclude_attachment,
         )
         return
 
-    if entity_type == TYPE_ENTITY:
+    # The numeric `type` maps to a FollowTheMoney schema via the `type` lookup;
+    # an unmapped value signals a new category that needs handling.
+    schema = context.lookup_value("type", str(entity_type))
+    if schema == "LegalEntity":
         name = ENTITY_NAME_REASON.sub("", raw_name).strip()
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, decision_number)
@@ -69,7 +64,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
             entity.add("sector", sector.group().strip(), lang="ara")
         if name != latinize_text(name):
             apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
-    elif entity_type == TYPE_INDIVIDUAL:
+    elif schema == "Person":
         mother_name = item.pop("motherName")
         birth_year = item.pop("birthYear")
         # The nickname is embedded in the name and also duplicated in the
@@ -104,23 +99,24 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
 
     sanction = h.make_sanction(context, entity)
     sanction.add("recordId", decision_number)
-    if decision_year is not None:
-        h.apply_date(sanction, "listingDate", str(decision_year))
+    h.apply_date(sanction, "listingDate", item.pop("decisionYear"))
 
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(item, ignore=["id", "createdAt", "typeAr", "typeEn", "typeKu"])
+    context.audit_data(
+        item,
+        ignore=["id", "createdAt", "typeAr", "typeEn", "typeKu", "excludeAttachment"],
+    )
 
 
 def crawl(context: Context) -> None:
-    payload = context.fetch_json(
-        API_URL,
-        params={"pageSize": PAGE_SIZE},
-        cache_days=1,
+    path = context.fetch_resource(
+        "source.json", f"{context.data_url}?pageSize={PAGE_SIZE}"
     )
-    if payload["error"]:
-        raise RuntimeError(f"API error: {payload.get('message')}")
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    with open(path, "r") as fh:
+        payload = json.load(fh)
     data = payload["data"]
     items = data["data"]
     # The single request must cover the whole list; a second page would mean the
