@@ -360,12 +360,14 @@ lookups:
         value: Colombia
       - match:
           - コロンビア; イタリア_x000D_
+          - コロンビア; イタリア
           - Colombia; Italy
         values:
           - Colombia
           - Italy
       - match:
           - コロンビア; スペイン_x000D_
+          - コロンビア; スペイン
           - Colombia; Spain
         values:
           - Colombia
