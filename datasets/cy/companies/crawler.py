@@ -38,7 +38,13 @@ def parse_organisations(
     for row in rows:
         org_type = row.pop("ORGANISATION_TYPE_CODE", None)
         reg_nr = row.pop("REGISTRATION_NO", None)
-        if org_type is None or org_type == "Εμπορική Επωνυμία":
+        # Skip rows whose type code is not a recognised organisation code. These
+        # are trade-name entries ("Εμπορική Επωνυμία") or corrupt fragments: the
+        # source occasionally splits a single record across multiple physical
+        # lines, leaving Greek label text (e.g. "Ιδιωτική", "Εταιρεία") in the
+        # type code column and no recoverable registration number. This mirrors
+        # the handling in parse_officials.
+        if org_type not in TYPES:
             continue
         if reg_nr is None:
             continue
