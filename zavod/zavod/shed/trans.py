@@ -89,8 +89,9 @@ class TranslationResult:
     """The model that produced the translation. Suitable for passing as the
     ``origin`` when applying the resulting values to an entity."""
 
-    def get_english(self) -> Optional[LangText]:
-        """Return the English ``LangText`` from ``texts``, or None if absent."""
+    def get_preferred_language(self) -> Optional[LangText]:
+        """Return the ``LangText`` for the preferred output language, or None
+        if absent. The preferred language is currently English."""
         for text in self.texts:
             if text.lang == "eng":
                 return text
@@ -168,7 +169,7 @@ def translate_position_name(
 
     ``label`` carries the source text and its language in ``label.lang``,
     which must be set. Builds the position-translation prompt for that
-    language and runs it. Use ``result.get_english()`` to read the English
+    language and runs it. Use ``result.get_preferred_language()`` to read the
     ``LangText`` (None if none was produced) and ``result.origin`` as the
     ``origin`` when applying it to an entity.
     """
