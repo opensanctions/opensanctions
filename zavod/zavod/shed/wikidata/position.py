@@ -233,7 +233,7 @@ def wikidata_position(
                     context,
                     LangText(text=item.label.text, lang=item.label.lang),
                 )
-                translated = result.get_english()
+                translated = result.get_preferred_language()
                 # if for some reason the translation fails, fall back to the original
                 if translated is None:
                     item.label.apply(position, "name", clean=clean_wikidata_name)

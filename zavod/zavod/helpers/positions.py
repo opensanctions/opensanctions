@@ -94,7 +94,7 @@ def make_position(
         from zavod.shed.trans import translate_position_name
 
         result = translate_position_name(context, LangText(text=name, lang=source_lang))
-        translated = result.get_english()
+        translated = result.get_preferred_language()
         if translated is not None:
             position.add(
                 "name",
