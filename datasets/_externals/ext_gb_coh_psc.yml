@@ -102,6 +102,15 @@ assertions:
       Company: 370
       Person: 150
       Organization: 10
+    # This is a local enricher: a stable ~21% of matched Company entities are
+    # identified by registration number / external link without a name (only
+    # Person and Organization names are consistently present). The Company.name
+    # fill rate has sat at ~0.785 (466/593 on the last good run), so the default
+    # 0.95 floor never fit. Lower it while still catching a full break in name
+    # extraction.
+    property_fill_rate:
+      Company:
+        name: 0.7
   max:
     schema_entities:
       Company: 870
