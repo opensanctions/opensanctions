@@ -26,6 +26,7 @@ DENY_LIST = set()
 BROKEN_LINKS = {
     "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf",
     "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251037promjananaobstojatelstva.pdf",
+    "http://62.176.124.194/images/declaracii/2026/DesislavaGeorgievaIvanova100520261335.pdf",
 }
 
 
