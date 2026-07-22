@@ -1,6 +1,5 @@
 import re
 import pdfplumber
-from lxml.html import HtmlElement
 from requests.exceptions import HTTPError
 from rigour.text.distance import levenshtein_similarity
 from rigour.env import MAX_NAME_LENGTH
@@ -9,6 +8,7 @@ from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
+from zavod.util import Element
 
 # e.g. (name_html, name_pdf)
 # {
@@ -67,20 +67,21 @@ def extract_judicial_declaration(
 
 
 def parse_html_table(
-    table: HtmlElement,
+    table: Element,
     headers: List[str] = [],
-) -> Generator[Dict[str, HtmlElement], None, None]:
+) -> Generator[Dict[str, Element], None, None]:
     first_row = table.find(".//tr[1]")
+    assert first_row is not None, "Table has no rows"
     assert len(headers) == len(
         first_row.findall("./td")
     ), f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
 
-    for rownum, row in enumerate(table.findall(".//tr")):
+    for row in table.findall(".//tr"):
         cells = row.findall("./td")
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> None:
+def crawl_row(context: Context, row: Dict[str, Element], index_url: str) -> None:
     str_row = h.cells_to_str(row)
     name = str_row.pop("name")
     doc_id_date = str_row.pop("doc_id_date")
@@ -103,7 +104,12 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
             return
         date = looked_up
     # Link is in the same cell as the name
-    name_link_elem = HtmlElement(row["name"]).find(".//a")
+    name_link_elem = row["name"].find(".//a")
+    if name_link_elem is None:
+        context.log.warning(
+            f"Missing declaration link for {name}", index_url=index_url
+        )
+        return
     declaration_url = name_link_elem.get("href")
     if not declaration_url or declaration_url in BROKEN_LINKS:
         return
@@ -210,18 +216,21 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-    alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
+    alphabet_links = h.xpath_elements(
+        doc, ".//div[@itemprop='articleBody']/p//a[@href]"
+    )
     assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
         link = a.get("href")
+        assert link is not None, "Anchor matched [@href] but has no href"
         doc = context.fetch_html(link, cache_days=1, absolute_links=True)
-        table = doc.xpath(".//table")
-        if len(table) == 0:
+        tables = h.xpath_elements(doc, ".//table")
+        if len(tables) == 0:
             context.log.info("No tables found", url=link)
             continue
-        assert len(table) == 1
-        table = table[0]
+        assert len(tables) == 1
+        table = tables[0]
         for row in parse_html_table(table, headers=["name", "doc_id_date"]):
             crawl_row(context, row, link)
