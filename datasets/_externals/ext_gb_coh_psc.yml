@@ -102,6 +102,9 @@ assertions:
       Company: 370
       Person: 150
       Organization: 10
+    property_fill_rate:
+      Company:
+        name: 0.65
   max:
     schema_entities:
       Company: 870
