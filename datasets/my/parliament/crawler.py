@@ -57,8 +57,9 @@ def apply_member_details(
     """Populate the fields shared by both houses on an already-created person.
 
     Consumes the `Name`, `Party` and `Email` entries from the detail table."""
+    clean_name = h.strip_name_titles(context, data.pop("Name"))
     h.apply_reviewed_name_string(
-        context, person, string=data.pop("Name"), llm_cleaning=True, lang="msa"
+        context, person, string=clean_name, llm_cleaning=True, lang="msa"
     )
     person.add("sourceUrl", url)
     # Membership of either house of Parliament requires Malaysian citizenship

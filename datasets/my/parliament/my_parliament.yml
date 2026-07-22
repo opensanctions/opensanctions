@@ -41,42 +41,68 @@ dates:
 tags:
   - list.pep
 
-# Honorifics and courtesy titles that need stripping.
-# "@" marks an alias ("atau") embedded in the name.
 names:
+  prefixes_strip:
+    - YB
+    - YAB
+    - Tan Sri
+    - Puan Sri
+    - "Dato'"
+    - Dato
+    - Datuk
+    - Datin
+    - Seri
+    - Sri
+    - Utama
+    - Amar
+    - Wira
+    - Setia
+    - Diraja
+    - Paduka
+    - Panglima
+    - Dr.
+    - Prof.
+    - Ir.
+    - Ts.
+    - Emeritus
+    - Tuan
+    - Puan
+    - Encik
+    - Cik
+    - Haji
+    - Hajah
+    - Hajjah
+  suffixes_strip:
+    - ", HON. Senator"
+    - Dr.
+    - Prof.
+    - Emeritus
+    - Seri
+    - Sri
+    - "Dato'"
+    - Dato
+    - Datuk
+    - Datin
+    - Haji
+    - Hajah
+    - Wira
+    - Setia
+    - Diraja
+    - Utama
+    - Amar
+    - Paduka
+    - Panglima
+    - Tan Sri
+    - Puan
+    - Tuan
+    - Ir.
+    - Ts.
   schema_rules:
     Person:
+      # "@" marks an alias ("atau") embedded in the name; route those to review.
       reject_chars: "@"
-      reject_strings:
-        - "Berhormat "
-        - "Seri"
-        - "Sri"
-        - "YAB"
-        - "YB"
-        - "Datuk"
-        - "Dato"
-        - "Datin"
-        - "Tuan"
-        - "Puan"
-        - "Encik"
-        - "Cik"
-        - "Haji"
-        - "Hajah"
-        - "Dr."
-        - "Prof."
-        - "Ir."
-        - "Ts."
-        - "Senator"
-        - "Hon."
 
 lookups:
-  # "Position in the Parliament" names a presiding office for a handful of
-  # members; for everyone else it repeats the ordinary-member designation, is
-  # blank, or (in the Senate) leaks the member's cabinet title. Only the
-  # presiding offices map to a Position; the rest are enumerated and dropped so
-  # that a renamed or newly-created office surfaces as an unmatched-lookup
-  # warning instead of being emitted silently. The role labels arrive mostly in
-  # Malay even under `lang=en`; the House clerk arrives in English.
   position:
     lowercase: true
     options:
