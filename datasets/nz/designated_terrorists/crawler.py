@@ -43,6 +43,8 @@ EMPTY_COLUMN_KEYS = ["column_0", "column_2", "column_4"]
 
 
 def _cell_dates(cell: Element) -> list[str]:
+    for br in h.xpath_elements(cell, ".//br"):
+        br.tail = br.tail + "\n" if br.tail else "\n"
     return re.findall(DATE_PATTERN, h.element_text(cell))
 
 

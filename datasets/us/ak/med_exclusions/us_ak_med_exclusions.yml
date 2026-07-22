@@ -52,7 +52,7 @@ publisher:
   country: "us"
 url: https://health.alaska.gov/Commissioner/Pages/ProgramIntegrity/default.aspx
 data:
-  url: https://health.alaska.gov/media/h3ueo2kf/alaska-medical-assistance-excluded-provider-list.pdf
+  url: https://health.alaska.gov/en/office-of-the-commissioner/medicaid-program-integrity/
   format: PDF
   lang: eng
 dates:

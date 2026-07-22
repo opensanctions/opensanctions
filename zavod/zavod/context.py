@@ -173,6 +173,13 @@ class Context:
         """Flush the context to ensure all data is written to disk."""
         if self._db is not None:
             self._db.checkpoint()
+        # The statement writer is only opened on the first emit, so a crawl
+        # that emitted nothing would leave no statements file behind - and
+        # downstream stages would silently fall back to streaming a previous
+        # version's statements from the archive, republishing old data as a
+        # new successful run. Record the empty output explicitly instead.
+        if not self.dry_run and self._writer is None:
+            self._writer_path.touch()
 
     def close(self) -> None:
         """Flush and tear down the context."""
@@ -260,7 +267,7 @@ class Context:
             A response object.
         """
         self.log.debug(f"HTTP {method}", url=url)
-        timeout = (settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT)
+        timeout = (self.dataset.http.timeout, self.dataset.http.timeout)
 
         kwargs: Dict[str, Any] = {
             "headers": headers,
@@ -389,11 +396,7 @@ class Context:
             try:
                 return orjson.loads(text)
             except Exception:
-                cache_url = build_url(url, params)
-                fingerprint = request_hash(
-                    cache_url, auth=auth, method=method, data=data
-                )
-                self.clear_url(fingerprint)
+                self.clear_url(url, params=params, auth=auth, method=method, data=data)
                 raise
 
     def fetch_html(
@@ -447,19 +450,29 @@ class Context:
                 cast(html.HtmlElement, doc).make_links_absolute(url, params)
             return doc
         except Exception as exc:
-            cache_url = build_url(url, params)
-            fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
-            self.clear_url(fingerprint)
+            self.clear_url(url, params=params, auth=auth, method=method, data=data)
             raise exc
 
-    def clear_url(self, fingerprint: str) -> None:
+    def clear_url(
+        self,
+        url: str,
+        params: ParamsType = None,
+        auth: _Auth = None,
+        method: str = "GET",
+        data: Optional[_Body] = None,
+        encoding: Optional[str] = None,
+    ) -> None:
+        """Evict a cached response so the next fetch re-hits the server.
+
+        Reach for this when a fetch succeeded at the HTTP level but returned a bad
+        body (an interstitial, truncated, or otherwise unusable page) that must not
+        be served from cache. Pass the same arguments you fetched the URL with, so
+        the matching cache entry is the one that gets removed.
         """
-        Remove a given URL from the cache using request fingerprint
-        Args:
-            fingerprint: The unique fingerprint of the request.
-        Returns:
-            None
-        """
+        cache_url = build_url(url, params)
+        fingerprint = request_hash(
+            cache_url, auth=auth, method=method, data=data, encoding=encoding
+        )
         self.cache.delete(fingerprint)
 
     def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:

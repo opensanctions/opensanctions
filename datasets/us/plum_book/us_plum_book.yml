@@ -58,10 +58,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 6700
+      Person: 9000
   max:
     schema_entities:
-      Person: 9000
+      Person: 12500
 
 lookups:
   type.date:

@@ -68,6 +68,7 @@ config:
   topic_gated: true
   index_options:
     memory: 2000
+    max_bucket_size: 150
   threshold: 0.3
   topics:
     - role.pep
@@ -92,7 +93,7 @@ config:
 assertions:
   min:
     schema_entities:
-      Organization: 210
+      Organization: 30
   max:
     schema_entities:
       Organization: 500

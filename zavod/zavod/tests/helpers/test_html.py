@@ -70,3 +70,17 @@ def test_element_text_hash():
     assert h.element_text_hash(doc) == hash, (doc, hash)
     doc = html.fromstring("<span> HELLO, <div>WORLD</div> &nbsp;</span>")
     assert h.element_text_hash(doc) == hash, (doc, hash)
+
+
+def test_split_html_newline_tags():
+    split = h.split_html_newline_tags
+    assert split("John Smith<br>Jane Doe") == ["John Smith", "Jane Doe"]
+    assert split("<p>Ground one</p><p>Ground two</p>") == ["Ground one", "Ground two"]
+    # Self-closing and upper-case variants
+    assert split("one<br/>two") == ["one", "two"]
+    assert split("one<BR>two") == ["one", "two"]
+    assert split("one<br />two") == ["one", "two"]
+    # Empty and whitespace-only chunks are dropped
+    assert split("one<br>  <br>two") == ["one", "two"]
+    assert split("") == []
+    assert split("no tags here") == ["no tags here"]

@@ -1,5 +1,7 @@
 from typing import Optional
 
+from rigour.dates import ended_before, starts_after
+
 from zavod import helpers as h
 from zavod import settings
 from zavod.constants import ORIGIN_METADATA
@@ -35,6 +37,11 @@ def make_sanction(
 
     The country, authority, sourceUrl, and subject entity properties
     are automatically set.
+
+    If an ``end_date`` is given, a ``status`` of "active" or "inactive" is
+    derived using the same semantics as `is_active`. Note that the status is
+    only computed at construction time: dates applied to the sanction
+    afterwards (e.g. via `h.apply_date`) do not update it.
 
     Args:
         context: The runner context with dataset metadata.
@@ -83,9 +90,13 @@ def make_sanction(
         h.apply_date(sanction, "startDate", start_date)
     if end_date:
         h.apply_date(sanction, "endDate", end_date)
-        iso_end_date = max(sanction.get("endDate"))
-        is_active = iso_end_date >= settings.RUN_TIME_ISO
-        sanction.add("status", "active" if is_active else "inactive")
+        if not sanction.get("endDate"):
+            raise ValueError(
+                f"Sanction end_date {end_date!r} could not be parsed as a date "
+                f"(entity {entity.id!r}). Add a datepatterns entry or a lookup "
+                "to clean the value."
+            )
+        sanction.add("status", "active" if is_active(sanction) else "inactive")
 
     return sanction
 
@@ -101,6 +112,6 @@ def is_active(sanction: Entity) -> bool:
     iso_start_date = min(sanction.get("startDate"), default=None)
     iso_end_date = max(sanction.get("endDate"), default=None)
     is_active = (
-        iso_start_date is None or iso_start_date <= settings.RUN_TIME_ISO
-    ) and (iso_end_date is None or iso_end_date >= settings.RUN_TIME_ISO)
+        iso_start_date is None or not starts_after(iso_start_date, settings.RUN_TIME)
+    ) and (iso_end_date is None or not ended_before(iso_end_date, settings.RUN_TIME))
     return is_active

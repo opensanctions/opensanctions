@@ -1,22 +1,28 @@
 id: 4
-title: Special Economic Measures Act
+title: Sanctions under the Special Economic Measures Act
 key: CA-SEMA
-url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/legislation-lois.aspx?lang=eng
-summary: The purpose of this Act is to enable the Government of Canada to take economic
-  measures against certain persons in circumstances where an international organization
-  of states or association of states of which Canada is a member calls on its members
-  to do so, a grave breach of international peace and security has occurred, gross
-  and systematic human rights violations have been committed in a foreign state or
-  acts of significant corruption involving a national of a foreign state have been
-  committed.
+url: https://laws-lois.justice.gc.ca/eng/acts/S-14.5/FullText.html
+summary: >
+  Covers Canada's autonomous sanctions regulations responding to grave breaches
+  of international peace and security, gross and systematic human rights violations,
+  significant corruption, or calls for economic measures by an international
+  organization of states. Listed persons are generally subject to dealings
+  prohibitions and an asset freeze, while individual regulations also impose
+  country- or sector-specific trade, financial, investment, services, arms, and
+  transportation restrictions. The applicable measures vary by regulation and
+  designation.
 issuer: ca_mfa
 dataset: ca_dfatd_sema_sanctions
+aliases:
+  - SEMA
+  - Special Economic Measures Act
+  - S.C. 1992, c. 17
 measures:
-- Arms restrictions
-- Asset freeze
-- Export control
-- Financial restrictions
-- Import restrictions
-- Investment ban
-- Services ban
-- Transportation restrictions
+  - Arms restrictions
+  - Asset freeze
+  - Export control
+  - Financial restrictions
+  - Import restrictions
+  - Investment ban
+  - Services ban
+  - Transportation restrictions

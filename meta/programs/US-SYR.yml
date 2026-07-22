@@ -1,22 +1,41 @@
 id: 35
-title: Syria Sanctions (EO 13608 et al.)
+title: Syria Sanctions
 key: US-SYR
-url: https://ofac.treasury.gov/sanctions-programs-and-country-information/syria-sanctions
-summary: These sanctions target the Syrian government and entities involved in human
-  rights abuses, terrorism, and other destabilizing activities. The measures include
-  asset freezes, prohibitions on transactions, and restrictions on trade to pressure
-  Syria to comply with international norms and cease its destabilizing actions.
+url: https://www.federalregister.gov/documents/2011/08/22/2011-21505/blocking-property-of-the-government-of-syria-and-prohibiting-certain-transactions-with-respect-to
+summary: The comprehensive US sanctions program on Syria was revoked effective
+  July 1, 2025, when Executive Order 14312 rescinded the six executive orders
+  underlying it and OFAC removed the Syrian Sanctions Regulations from the Code
+  of Federal Regulations; the Caesar Act was subsequently repealed. While in
+  force, the program blocked the property of the Government of Syria and of
+  designated regime officials and supporters, banned new investment in Syria,
+  the export of US services to Syria, and imports of Syrian-origin petroleum,
+  and restricted exports of most US goods to Syria. Persons designated solely
+  under these authorities have been removed from the SDN List; sanctions on
+  Bashar al-Assad, his associates, and other destabilizing actors continue
+  under the separate PAARSS program.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13608
-- EO 13606
-- EO 13582
-- EO 13573
-- EO 13572
-- EO 13460
-- EO 13460
-- EO 13399
-- EO 13338
+  - Syrian Sanctions Regulations
+  - SySR
+  - 31 CFR Part 542
+  - EO 13338
+  - EO 13399
+  - EO 13460
+  - EO 13572
+  - EO 13573
+  - EO 13582
+  - Caesar Syria Civilian Protection Act
+  - Caesar Act
+  - SYRIA
+  - SYRIA-CAESAR
+  - HRIT-SY
 target_territories:
-- sy
+  - sy
+measures:
+  - Asset freeze
+  - Import restrictions
+  - Export control
+  - Investment ban
+  - Services ban
+  - Travel ban

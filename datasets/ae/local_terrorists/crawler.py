@@ -3,7 +3,7 @@ import re
 
 from typing import List, Optional, NamedTuple
 from pathlib import Path
-from normality import collapse_spaces
+from normality import collapse_spaces, squash_spaces
 from rigour.mime.types import XLS
 
 from zavod import Context
@@ -31,15 +31,16 @@ def parse_row(
 ) -> None:
     entity_id = context.make_id(*row)
     schema = context.lookup_value("schema.override", entity_id, "LegalEntity")
+    assert schema is not None
     entity = context.make(schema)
     entity.id = entity_id
     if sanctioned:
         entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
-    address = {}
-    identification = {}
+    address: dict[str, str] = {}
+    identification: dict[str, str] = {}
     for header, value_ in zip(headers, row):
-        value = collapse_spaces(value_)
+        value = squash_spaces(value_) if value_ is not None else None
         if value is None or value == "-":
             continue
 
@@ -119,7 +120,7 @@ def parse_row(
 
 def parse_excel(context: Context, path: Path) -> None:
     # Pass formatting_info=True to get the merged cells
-    xls = xlrd.open_workbook(path, formatting_info=True)
+    xls = xlrd.open_workbook(str(path), formatting_info=True)
     for sheet in xls.sheets():
         res = context.lookup("sanction_is_active", sheet.name)
         if res is None:
@@ -166,6 +167,7 @@ def parse_excel(context: Context, path: Path) -> None:
                     if result is None:
                         context.log.error("Unknown column", arabic=header_text_ara)
                         continue
+                    assert result.value is not None
                     headers.append(HeaderSpec(result.value, result.lang))
                 # print(headers)
                 continue
@@ -182,6 +184,7 @@ def crawl(context: Context) -> None:
         xpath,
     )
     url = link.get("href")
+    assert url is not None
     path = context.fetch_resource("source.xls", url)
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
     parse_excel(context, path)

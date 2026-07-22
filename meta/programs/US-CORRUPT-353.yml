@@ -1,16 +1,20 @@
 id: 187
-title: Section 353 of the Corrupt and Undemocratic Actors Report
+title: Section 353 Corrupt and Undemocratic Actors Report
 key: US-CORRUPT-353
 url: https://www.state.gov/reports/section-353-corrupt-and-undemocratic-actors-report-2023/
-summary: 'Section 353 of the Corrupt and Undemocratic Actors Report lists foreign
-  persons who have knowingly engaged in actions that undermine democratic processes
-  or institutions, significant corruption, or obstruction of investigations into such
-  acts of corruption in El Salvador, Guatemala, Honduras, and Nicaragua.
-
-
-  Since the December 2023 expiration of the Section 353 sanctions authority, individuals
-  designated under the act have been eligible to apply for new visas.'
+summary: Lists foreign persons determined to have knowingly engaged in
+  significant corruption, obstruction of investigations into such corruption,
+  or actions that undermine democratic processes or institutions in
+  El Salvador, Guatemala, Honduras, or Nicaragua. Listed persons were
+  ineligible for visas and admission to the United States, and any existing
+  visas were revoked. The sanctions authority expired in December 2023;
+  persons designated under it may again apply for US visas, and no new
+  designations are being made.
 issuer: us_state
 dataset: us_special_leg
 aliases:
-- Engel List
+  - Engel List
+  - United States–Northern Triangle Enhanced Engagement Act
+  - 22 U.S.C. § 2277a
+measures:
+  - Travel ban

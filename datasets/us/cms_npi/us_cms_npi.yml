@@ -53,18 +53,40 @@ assertions:
   min:
     schema_entities:
       LegalEntity: 100000
+    property_fill_rate:
+      # Providers materialise as Person or Organization (from the primary
+      # npidata file). Bare LegalEntity entities only exist as a side effect:
+      # the othername file contributes secondary/DBA names keyed by NPI, which
+      # we attach as `alias` (not `name`) so they merge into the primary entity
+      # by shared id.
+      LegalEntity:
+        name: 0
 
 lookups:
   type.name:
     options:
+      # Drop values that are not real names: nullwords, plus anything made up
+      # entirely of digits, whitespace and punctuation (bare dashes, phone
+      # numbers, dates, tax numbers, ...). A real name in any script contains
+      # at least one letter, so `^[\d\s\W]+$` never matches a genuine name.
       - match:
+          - null
+          - ""
           - N/A
           - NONE
           - UNKNOWN
-          - ""
-          # binary doctors:
-          - "1"
-          - "0"
-          - "07"
-        regex: "-+"
+        regex: '^[\d\s\W]+$'
         value: null
+  # Some source rows carry a whole military/PO-box address in the postal code
+  # field, exceeding the 16-char type length. Map them to the real ZIP(+4).
+  type.string:
+    options:
+      - match:
+          - APO AP 96278 2060
+        value: 96278-2060
+      - match:
+          - FPO AE 09569 1969
+        value: 09569-1969
+      - match:
+          - 11426 PO BOX 22490
+        value: "11426"

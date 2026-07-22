@@ -47,8 +47,16 @@ assertions:
       LegalEntity: 65000
       Security: 150
       Vessel: 15
+    # This is a patch dataset: its rules emit minimal patches carrying only the
+    # `topics` property (see analyzer.py module docstring), so emitted
+    # LegalEntity entities legitimately have no `name`. Disable the default
+    # `min.property_fill_rate.LegalEntity.name` (0.95) which would otherwise
+    # fail the run at a fill rate of 0.0.
+    property_fill_rate:
+      LegalEntity:
+        name: 0
   max:
     schema_entities:
       LegalEntity: 130000
-      Security: 400
-      Vessel: 200
+      Security: 12000
+      Vessel: 900

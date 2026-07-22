@@ -54,6 +54,7 @@ children:
   - be_walloon_parliament
   - bg_jud_declarations
   - bg_parliament
+  - bh_nuwab
   - bo_senado
   - br_pep
   - bz_national_assembly
@@ -61,6 +62,7 @@ children:
   - ca_foreign_reps
   - ca_senate
   - ch_parlament
+  - ci_senate
   - cl_info_probidad
   - cn_peoples_congress_wikipedia
   - co_funcion_publica
@@ -88,6 +90,7 @@ children:
   - gb_commons
   - gb_lords
   - ge_declarations
+  - gh_parliament
   - gr_parliament
   - gt_congress
   - hk_legco
@@ -105,9 +108,10 @@ children:
   - it_senate
   - jp_sangiin
   - jp_shugiin
+  - ke_national_assembly
+  - ke_senate
   - kg_jogorku_kenesh
-  # Doesn't have data yet. Leads to broken catalog export.
-  # - kr_assembly
+  - kr_assembly
   - ky_judicial
   - ky_parliament
   - kz_mazhilis
@@ -118,6 +122,7 @@ children:
   - lu_bourgmestres
   - lu_chamber
   - lv_saeima
+  - ma_representatives
   - me_acp_peps
   - me_skupstina
   - mk_officials
@@ -135,6 +140,7 @@ children:
   - no_brreg
   - no_storting
   - nz_parliament
+  - om_parliament
   - pa_asamblea
   - pe_congreso
   - pg_parliament
@@ -148,6 +154,9 @@ children:
   - ro_fiu_declarations
   - ro_senate
   - rs_national_assembly
+  - ru_duma_deputies
+  - ru_federation_council
+  - rw_parliament
   - se_riksdag
   - se_soe
   - sg_gov_dir
@@ -155,6 +164,7 @@ children:
   - si_zvezoskop
   - sk_nrsr_poslanci
   - sk_public_officials
+  - sn_assembly
   - sr_national_assembly
   - sv_legislature
   - th_cabinet
@@ -163,6 +173,7 @@ children:
   - tw_legislature
   - tz_bunge
   - ua_rada
+  - ug_parliament
   - un_ga_protocol
   - us_cia_world_leaders
   - us_congress

@@ -35,9 +35,12 @@ def make_session(http_conf: HTTP) -> Session:
     session.headers["User-Agent"] = http_conf.user_agent
     # Too many of our target sites have invalid SSL certificates:
     session.verify = False
+    # Default timeout only for callers that use the session directly. All the
+    # convenience methods (Context.fetch_*) and the Zyte extractor pass an
+    # explicit timeout, so this is just a safety net against an unbounded hang.
     session.request = partial(  # type: ignore
         session.request,
-        timeout=settings.HTTP_TIMEOUT,
+        timeout=http_conf.timeout,
     )
     retries = Retry(
         total=http_conf.total_retries,

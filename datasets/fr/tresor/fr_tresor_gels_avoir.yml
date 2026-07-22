@@ -62,6 +62,7 @@ lookups:
           - art L. 562-3 du code monétaire et financier
           - art L. 562-2 du code monétaire et financier
           - art L. 562-2-1 du code monétaire et financier
+          - art L. 562-2-2 du code monétaire et financier
         value: "FR-CMF-562"
       - contains: "ONU République démocratique du Congo - RCSNU 1533 (2004) et R (CE) 1183/2005"
         value: UN-SC1533
@@ -234,6 +235,9 @@ lookups:
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
       - match: "Numéro d'enregistrement"
+      - match: "N° d'enregistrement: 1022101131580"
+        props:
+          registrationNumber: "1022101131580"
       - match: "Code"
       # Sometimes leftover from "BIN/OGRN"
       - match: "BIN"
@@ -1075,6 +1079,10 @@ lookups:
         props:
           registrationNumber: W381009783
           incorporationDate: 2010-04-06
+      - match: "Déclarée le 10 avril 2018 à la sous-préfecture du Raincy (93): W932007231"
+        props:
+          registrationNumber: W932007231
+          incorporationDate: 2018-04-10
       - match: "Date d’enregistrement: juin 2011"
         props:
           incorporationDate: 2011-06
@@ -1330,6 +1338,51 @@ lookups:
       - match: "PPC: 504701001"
         note: true
       - match: "Tél.: 15.6.20267 (34147) 4-27-53; 15.6.20267  (34147) 2-99-77"
+        note: true
+      # Places of registration / principal establishment carrying a location the
+      # free-text splitter can't reduce to a single value.
+      - match: "Principal établissement: Saint-Pétersbourg, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Saint-Pétersbourg"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg"
+      - match: "Lieu d'enregistrement: Riga"
+        props:
+          jurisdiction: lv
+          address: "Riga"
+      - match: "Lieu d'enregistrement: Inspection interdistrict du service fédéral des impôts no 26 pour la région de Rostov, 344019, Rostov-sur-le-Don, ul. Myasnikova, d. 52/32, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Inspection interdistrict du service fédéral des impôts no 26 pour la région de Rostov, 344019, Rostov-sur-le-Don, ul. Myasnikova, d. 52/32, Fédération de Russie"
+      - match: "société à responsabilité limitée"
+        props:
+          legalForm: "société à responsabilité limitée"
+      # Associated persons / entities.
+      - match: "Personne associée: Alexander Volosovik"
+        associates:
+          - Alexander Volosovik
+      - match: "Personnes associées: Evgeniy Bashev"
+        associates:
+          - Evgeniy Bashev
+      - match: "Personnes associées: Yuliya Pankratova"
+        associates:
+          - Yuliya Pankratova
+      - match: "Entités associées: Unité 29155 de la GRU"
+        associates:
+          - Unité 29155 de la GRU
+      - match: "Entités associées: Cyber Army of Russia Reborn/CARR"
+        associates:
+          - Cyber Army of Russia Reborn
+      - match: "Entités associées: ML.Cloud"
+        associates:
+          - ML.Cloud
+      # Social media accounts; kept as free-text notes.
+      - match: "Compte sur X.com: ZPentest (compte suspendu)"
+        note: true
+      - match: "Compte sur Telegram: Zpentestalliance"
         note: true
 
 
@@ -6420,6 +6473,45 @@ lookups:
           idNumber: AEC221966655
       - match: "Principal lieu d'activité: RPDC, République populaire de Chine"
         jurisdiction: cn
+      # INN/OGRN where the parenthetical description tripped the segment splitter
+      - match: "INN (numéro d’identification fiscale russe): 3900015862"
+        props:
+          innCode: "3900015862"
+      - match: "INN (numéro d’identification fiscale russe): 5260146265"
+        props:
+          innCode: "5260146265"
+      - match: "INN (numéro d’identification fiscale russe): 7705051215"
+        props:
+          innCode: "7705051215"
+      - match: "INN (numéro d’identification fiscale russe): 7841476577"
+        props:
+          innCode: "7841476577"
+      - match: "INN (numéro d’identification fiscale russe): 9701012339"
+        props:
+          innCode: "9701012339"
+      - match: "INN (numéro d’identification fiscale russe): 9714058267"
+        props:
+          innCode: "9714058267"
+      - match: "OGRN (numéro d’immatriculation au registre du commerce): 1233900010585"
+        props:
+          ogrnCode: "1233900010585"
+      - match: "OGRN (ОГРН): 1106194004850"
+        props:
+          ogrnCode: "1106194004850"
+      - match: "Numéro d'enregistrement: INN (ИНН): 6168033776"
+        props:
+          innCode: "6168033776"
+      # TIN is the English label for the Russian INN; same values as the INN entries above.
+      - match: "TIN: 3900015862"
+        props:
+          innCode: "3900015862"
+      - match: "TIN: 9714058267"
+        props:
+          innCode: "9714058267"
+      # "Autres" gets split off the front, breaking the associate segment.
+      - match: "Autres entités associées: Media Land LLC"
+        associates:
+          - Media Land LLC
   # =====================================
   #
   #  ADDRESSES
@@ -6428,6 +6520,13 @@ lookups:
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
+      - match: "Moscou, 12 Tvadovskogo Street, building 3, apt. 263; Moscou, Lobnenskaya st. 2, apt. 128"
+        addresses:
+          - "Moscou, 12 Tvadovskogo Street, building 3, apt. 263"
+          - "Moscou, Lobnenskaya st. 2, apt. 128"
+      # A single address where ";" only separates its components.
+      - match: "Serebristy Bulvar 34 (SerebristyyBul'var); krp 1; flt 528; 197341; Saint-Pétersbourg"
+        addresses: "Serebristy Bulvar 34 (SerebristyyBul'var); krp 1; flt 528; 197341; Saint-Pétersbourg"
       - match: "K.2.a, Tsiolkovskogo street 9, Saint-Pétersbourg, 190020, Fédération de Russie (siège); Office 311, Liter A, Fokina street 5, Saint-Pétersbourg, 194044"
         addresses:
           - "K.2.a, Tsiolkovskogo street 9, Saint-Pétersbourg, 190020, Fédération de Russie (siège)"
@@ -6561,3 +6660,7 @@ lookups:
         addresses:
           - "S1500, Jebel Ali Freezone, Dubaï, Émirats arabes unis"
           - "Jebel Ali Free Zone South, Dubaï, Jebel Ali 61354, AE, Émirats arabes unis"
+      - match: "121471, ville de Moscou, Municipal District of the Intracity Territory, Mozhaysky, 2nd Peter Alekseev lane, building 2, structure 1; 109028, Moscou, Serebryanichaya Embankment, 29"
+        addresses:
+          - "121471, ville de Moscou, Municipal District of the Intracity Territory, Mozhaysky, 2nd Peter Alekseev lane, building 2, structure 1"
+          - "109028, Moscou, Serebryanichaya Embankment, 29"

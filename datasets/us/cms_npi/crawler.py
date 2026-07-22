@@ -1,13 +1,36 @@
 import csv
+import html
 from io import TextIOWrapper
 from typing import Any, Optional, TextIO
 from urllib.parse import urljoin
 import zipfile
 from rigour.mime.types import ZIP
+from rigour.names import is_name
 from rigour.text.stopwords import is_nullword
 
 from zavod import Context
 from zavod import helpers as h
+
+
+def unescape_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Decode HTML numeric character references (e.g. ``&#8232;``) that the
+    source CSV embeds in name and address fields. Leaving them undecoded trips
+    zavod's HTML/XSS smell check; decoding recovers the intended characters."""
+    return {k: html.unescape(v) if isinstance(v, str) else v for k, v in row.items()}
+
+
+def clean_name(value: Optional[str]) -> Optional[str]:
+    """Return ``value`` only if it plausibly contains a name.
+
+    The source frequently misuses name fields for placeholders (``-----``,
+    ``0``), phone numbers, postal codes, dates and bare digits. ``is_name``
+    rejects anything without at least one letter, keeping such junk out of the
+    name properties and out of zavod's "not a valid name" warnings."""
+    if value is None:
+        return None
+    if is_nullword(value) or not is_name(value):
+        return None
+    return value
 
 
 def npi_id(npi: Any) -> Optional[str]:
@@ -34,8 +57,8 @@ def crawl_data_file(context: Context) -> str:
 
 
 def crawl_npidata(context: Context, fh: TextIO) -> None:
-    for row in csv.DictReader(fh):
-        # row = {k: v for k, v in raw.items() if len(v) > 0}
+    for raw in csv.DictReader(fh):
+        row = unescape_row(raw)
         type_code = row.pop("Entity Type Code")
         schema = "LegalEntity"
         if type_code == "1":
@@ -50,12 +73,15 @@ def crawl_npidata(context: Context, fh: TextIO) -> None:
             continue
 
         entity.add("npiCode", npi)
-        entity.add("name", row.pop("Provider Organization Name (Legal Business Name)"))
+        entity.add(
+            "name",
+            clean_name(row.pop("Provider Organization Name (Legal Business Name)")),
+        )
         h.apply_name(
             entity,
-            first_name=row.pop("Provider First Name"),
-            last_name=row.pop("Provider Last Name (Legal Name)"),
-            middle_name=row.pop("Provider Middle Name"),
+            first_name=clean_name(row.pop("Provider First Name")),
+            last_name=clean_name(row.pop("Provider Last Name (Legal Name)")),
+            middle_name=clean_name(row.pop("Provider Middle Name")),
             quiet=True,
         )
         entity.add("title", row.pop("Provider Name Prefix Text"), quiet=True)
@@ -95,24 +121,18 @@ def crawl_npidata(context: Context, fh: TextIO) -> None:
 
 
 def crawl_othernames(context: Context, fh: TextIO) -> None:
-    for row in csv.DictReader(fh):
+    for raw in csv.DictReader(fh):
+        row = unescape_row(raw)
         entity = context.make("LegalEntity")
         entity.id = npi_id(row.get("NPI"))
         if not entity.id:
             context.log.warning(f"Invalid NPI in othername record: {row!r}")
             continue
-        name = row.get("Provider Other Organization Name")
-        if name is None or is_nullword(name):
+        name = clean_name(row.get("Provider Other Organization Name"))
+        if name is None:
             continue
-        # if name is None or len(name.strip()) == 0:
-        #     context.log.warning(f"Missing other organization name in record: {row!r}")
-        #     continue
         entity.add("alias", name)
-        if not entity.has("alias"):
-            # context.log.warning(f"Empty other organization name in record: {name!r}")
-            pass
-        else:
-            context.emit(entity)
+        context.emit(entity)
 
 
 def crawl(context: Context) -> None:

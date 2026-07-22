@@ -2,6 +2,7 @@ import re
 from functools import lru_cache
 from normality import stringify
 from prefixdate import parse_formats
+from rigour.dates import ended_before
 from datetime import datetime, date, timedelta, timezone
 from typing import Tuple, Union, Iterable, Set, Optional, List, TYPE_CHECKING
 from followthemoney import registry
@@ -182,4 +183,4 @@ def within_max_age(
     if isinstance(date, str):
         date = date.strip()
     cleaned_date = extract_date(context.dataset, date, fallback_to_original=False)[0]
-    return cleaned_date > backdate(RUN_TIME, timedelta(days=max_age_days))
+    return not ended_before(cleaned_date, RUN_TIME - timedelta(days=max_age_days))

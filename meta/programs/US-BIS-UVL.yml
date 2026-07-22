@@ -1,11 +1,19 @@
 id: 42
 title: BIS Unverified List
 key: US-BIS-UVL
-url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/unverified-list
-summary: This list is maintained by the Bureau of Industry and Security (BIS). It
-  includes entities for which the U.S. government has been unable to verify the legitimacy
-  of end-users in export transactions. The inclusion on this list indicates that further
-  due diligence is required before engaging in transactions with these entities to
-  prevent diversion to unauthorized end uses or users.
+url: https://www.ecfr.gov/current/title-15/subtitle-B/chapter-VII/subchapter-C/part-744/appendix-Supplement%20No.%206%20to%20Part%20744
+summary: Lists foreign parties whose bona fides the Bureau of Industry and
+  Security has been unable to verify, typically because an end-use check such as
+  a pre-license check or post-shipment verification could not be completed.
+  Exports, reexports, and in-country transfers of items subject to the Export
+  Administration Regulations to a listed party may not use license exceptions,
+  and exporters must obtain a statement from the party before shipping items that
+  do not require a license. Listing signals a red flag requiring additional due
+  diligence rather than a finding of wrongdoing.
 issuer: us_bis
 dataset: us_trade_csl
+aliases:
+  - UVL
+  - Supplement No. 6 to Part 744 of the EAR
+measures:
+  - Export control

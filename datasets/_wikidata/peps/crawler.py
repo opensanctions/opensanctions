@@ -1,265 +1,244 @@
-from collections import defaultdict
-from typing import Optional, List, Generator, NamedTuple, Set
+from datetime import datetime
+from functools import lru_cache
+from typing import Dict, Generator, Optional, Set
+
 from rigour.ids.wikidata import is_qid
-from rigour.territories import get_territories, get_territory_by_qid
-from nomenklatura.wikidata import WikidataClient, SparqlBinding
+from rigour.territories import get_territories
+from rigour.territories.territory import Territory
+from nomenklatura.wikidata import WikidataClient
 
 from zavod import Context
 from zavod.entity import Entity
+from zavod.shed.wikidata.client import create_wikidata_client, WIKIDATA_QUERY_CACHE
 from zavod.shed.wikidata.human import wikidata_basic_human
-from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
-from zavod.shed.wikidata.position import position_holders
+from zavod.shed.wikidata.position import (
+    POSITION_ABOLISHED_CUTOFF,
+    position_holders,
+    wikidata_occupancy,
+    wikidata_position,
+)
+from zavod.stateful.positions import categorised_position_qids
+
+# Positions are discovered by evidence of use — someone holds them via P39
+# (position held), or they name an officeholder via P1308 — rather than by
+# traversing wikidata's chaotic ontology of position classes. The class
+# hierarchy is consulted only upward, via `Item.types`, when classifying each
+# candidate in `wikidata_position`.
+
+ABOLISHED_CLAUSE = """
+    OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
+"""
 
 
-class Country(NamedTuple):
-    qid: str
-    code: str
-    label: Optional[str]
-
-
-class Position(NamedTuple):
-    qid: str
-    label: Optional[str]
-    country_codes: Set[str]
-
-
-def pick_country(*qids: Optional[str]) -> Optional[str]:
-    for qid in qids:
-        if qid is None:
-            continue
-        territory = get_territory_by_qid(qid)
-        if territory is not None and territory.ftm_country is not None:
-            return territory.ftm_country
-    return None
-
-
-def crawl_holder(
-    context: Context,
-    client: WikidataClient,
-    position: Entity,
-    person_qid: str,
-) -> Optional[Entity]:
-    if not is_qid(person_qid):
-        return None
-    item = client.fetch_item(person_qid)
-    if item is None:
-        return None
-    if item.id != person_qid:
-        context.log.warning(
-            "Redirected person QID",
-            original=person_qid,
-            redirected=item.id,
-            position=position.id,
-        )
-    entity = wikidata_basic_human(context, client, item)
-    if entity is None:
-        return None
-
-    has_occupancy = False
-    for claim in item.claims:
-        if claim.property == "P39" and claim.qid == position.id:
-            occupancy = wikidata_occupancy(
-                context,
-                entity,
-                position,
-                claim,
-            )
-            if occupancy is not None:
-                context.emit(occupancy)
-                has_occupancy = True
-
-    if not has_occupancy:
-        return None
-
-    context.emit(entity)
-    return entity
-
-
-def query_positions(
-    context: Context,
-    client: WikidataClient,
-    position_classes: List[Position],
-    country: Country,
-) -> Generator[Position, None, None]:
-    """
-    May return duplicates
-    """
-    context.log.info(f"Crawling positions for {country.qid} ({country.label})")
-    position_countries: defaultdict[str, Set[str]] = defaultdict(set)
-
-    # a.1) Instances of one or more subclasses of Q4164871 (position) by jurisdiction/country
-    country_results: List[SparqlBinding] = []
-    for position_class in position_classes:
-        context.log.info(
-            f"Querying descendants of {position_class.qid} ({position_class.label!r}) in {country.label!r}"
-        )
-        country_query = f"""
-        SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished WHERE {{
-            {{ SELECT ?position WHERE {{ ?position (wdt:P31|wdt:P279)* wd:{position_class.qid} . }} }}
-            {{ SELECT ?position WHERE {{ ?position wdt:P1001|wdt:P17 wd:{country.qid} . }} }}
-            OPTIONAL {{ ?position wdt:P17 ?country }}
-            OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
-            OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
-            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }}
-        }}
-        GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
-        """
-        country_response = client.query(country_query)
-        country_results.extend(country_response.results)
-
-    # a.2) Instances of Q4164871 (position) by jurisdiction/country
-    context.log.info("Querying instances of Q4164871 (position)")
-    country_query = f"""
-        SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished WHERE {{
-            {{ SELECT ?position WHERE {{ ?position wdt:P31* wd:Q4164871 . }} }}
-            {{ SELECT ?position WHERE {{ ?position wdt:P1001|wdt:P17 wd:{country.qid} . }} }}
-            OPTIONAL {{ ?position wdt:P17 ?country }}
-            OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
-            OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
-            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }}
-        }}
-        GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
-        """
-    country_response = client.query(country_query)
-    country_results.extend(country_response.results)
-
-    for bind in country_results:
-        picked_country = pick_country(
-            bind.plain("country"),
-            bind.plain("jurisdiction"),
-            country.qid,
-        )
-        position = bind.plain("position")
-        if picked_country is not None and position is not None:
-            position_countries[position].add(picked_country)
-
-    # b) Positions held by politicans from that country
-    # occupation (P106) == politician (Q82955)
-    # country of citizenship (P27) == country.qid
-    politician_query = f"""
-        SELECT ?position ?positionLabel ?jurisdiction ?country ?abolished
-        WHERE {{
-            ?holder wdt:P39 ?position .
-            ?holder wdt:P106 wd:Q82955 .
-            ?holder wdt:P27 wd:{country.qid} .
-            OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
-            OPTIONAL {{ ?position wdt:P17 ?country }}
-            OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
-        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }}
-        }}
-        GROUP BY ?position ?positionLabel ?jurisdiction ?country ?abolished
-    """
-    politician_response = client.query(politician_query)
-    for bind in politician_response.results:
-        picked_country = pick_country(
-            bind.plain("country"),
-            bind.plain("jurisdiction"),
-        )
-        position = bind.plain("position")
-        if picked_country is not None and position is not None:
-            position_countries[position].add(picked_country)
-
-    for bind in country_results + politician_response.results:
-        position = bind.plain("position")
-        if position is None or not is_qid(position):
-            continue
-        date_abolished = bind.plain("abolished")
-        if date_abolished is not None and date_abolished < "2000-01-01":
-            context.log.debug(f"Skipping abolished position: {bind.plain('position')}")
-            continue
-        yield Position(
-            position,
-            bind.plain("positionLabel"),
-            position_countries[position],
-        )
-
-
-def all_countries() -> Generator[Country, None, None]:
+def all_territories() -> Generator[Territory, None, None]:
+    """Territories to sweep for positions: countries, but also subnational
+    jurisdictions (states, provinces) and pseudo-territories, as long as they
+    can eventually be mapped onto an FtM country code."""
     for territory in get_territories():
         if territory.is_historical:
             continue
-        code = territory.ftm_country
-        if code is None:
+        if territory.ftm_country is None:
             continue
-        yield Country(territory.qid, code, territory.name)
+        yield territory
 
 
-def query_position_classes(context: Context, client: WikidataClient) -> List[Position]:
-    subclasses_query = """
-    SELECT ?class ?classLabel WHERE {
-        ?class wdt:P279 wd:Q4164871 .
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }
-    }
+def collect_positions(context: Context, client: WikidataClient, query: str) -> Set[str]:
+    positions: Set[str] = set()
+    response = client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
+    for bind in response.results:
+        position_qid = bind.plain("position")
+        if position_qid is None or not is_qid(position_qid):
+            continue
+        date_abolished = bind.plain("abolished")
+        if date_abolished is not None and date_abolished < POSITION_ABOLISHED_CUTOFF:
+            context.log.debug(f"Skipping abolished position: {position_qid}")
+            continue
+        positions.add(position_qid)
+    return positions
+
+
+def query_usage_positions(
+    context: Context, client: WikidataClient, territory: Territory
+) -> Set[str]:
+    """Positions in use that are tied to the territory via jurisdiction (P1001)
+    or country (P17): they either have a human holder (P39 inverse) or name an
+    officeholder themselves (P1308).
+
+    All the territory's QIDs are swept, not just the primary one: aliases cover
+    entities like the Russia/Belarus Union State (an alias of `ru`), whose organ
+    positions would otherwise be invisible to jurisdiction-based discovery."""
+    values = " ".join(f"wd:{qid}" for qid in sorted(territory.qids))
+    query = f"""
+    SELECT DISTINCT ?position ?abolished WHERE {{
+        ?position wdt:P1001|wdt:P17 ?territory .
+        VALUES ?territory {{ {values} }}
+        {{ ?holder wdt:P39 ?position . ?holder wdt:P31 wd:Q5 . }}
+        UNION {{ ?position wdt:P1308 ?officeholder . }}
+        {ABOLISHED_CLAUSE}
+    }}
     """
-    response = client.query(subclasses_query)
-    classes: List[Position] = []
-    for binding in response.results:
-        qid = binding.plain("class")
-        if qid is None or not is_qid(qid):
+    return collect_positions(context, client, query)
+
+
+def query_occupation_positions(
+    context: Context, client: WikidataClient, territory: Territory
+) -> Set[str]:
+    """Positions held by politicians, diplomats and judges who are citizens of
+    the country. This catches positions with no country/jurisdiction statement
+    of their own, including diplomatic postings and foreign or IGO offices."""
+    query = f"""
+    SELECT DISTINCT ?position ?abolished WHERE {{
+        ?holder wdt:P39 ?position .
+        ?holder wdt:P27 wd:{territory.qid} .
+        ?holder wdt:P106 ?occupation .
+        VALUES ?occupation {{ wd:Q82955 wd:Q193391 wd:Q16533 }}
+        {ABOLISHED_CLAUSE}
+    }}
+    """
+    return collect_positions(context, client, query)
+
+
+def discover_candidates(context: Context, client: WikidataClient) -> Set[str]:
+    """Enumerate candidate position QIDs. Positions already categorised as PEP
+    in the review database are always included, so a failing discovery query
+    can delay new positions but never drop known ones."""
+    candidates: Set[str] = set(categorised_position_qids(context))
+    context.log.info(f"Loaded {len(candidates)} positions from the review database")
+    for territory in all_territories():
+        context.log.info(f"Crawling territory: {territory.qid} ({territory.name})")
+        try:
+            candidates.update(query_usage_positions(context, client, territory))
+            if territory.is_country:
+                candidates.update(
+                    query_occupation_positions(context, client, territory)
+                )
+        except Exception as exc:
+            context.log.warning(
+                "Position discovery query failed",
+                territory=territory.qid,
+                name=territory.name,
+                error=str(exc),
+            )
+        context.flush()
+    return candidates
+
+
+@lru_cache(maxsize=5000)
+def get_position(
+    context: Context, client: WikidataClient, qid: str
+) -> Optional[Entity]:
+    """Build (or rebuild) the Position entity for a QID. Bounded cache: evicted
+    entries are reconstructed from the SQL-cached item data, so run-level memory
+    does not grow with the number of accepted positions."""
+    item = client.fetch_item(qid)
+    if item is None:
+        return None
+    return wikidata_position(context, client, item)
+
+
+def crawl_person(
+    context: Context,
+    client: WikidataClient,
+    accepted: Set[str],
+    aliases: Dict[str, str],
+    person_qid: str,
+    modified_at: Optional[datetime],
+) -> Set[str]:
+    """Emit a person and one occupancy for every P39 claim that points to an
+    accepted position — not just the position that discovered them. Returns the
+    QIDs of the positions this person occupies; the Position entities themselves
+    are emitted at the end of the run, once it's known they have holders."""
+    occupied_positions: Set[str] = set()
+    if not is_qid(person_qid):
+        return occupied_positions
+    item = client.fetch_item(person_qid, modified_at=modified_at)
+    if item is None:
+        return occupied_positions
+    if item.id != person_qid:
+        context.resolver.rename_node(person_qid, item.id)
+        context.flush()
+    entity = wikidata_basic_human(context, client, item)
+    if entity is None:
+        return occupied_positions
+
+    for claim in item.claims:
+        if claim.property != "P39" or claim.qid is None:
             continue
-        label = binding.plain("classLabel")
-        res = context.lookup("position_subclasses", qid)
-        if res:
-            if res.maybe_pep:
-                classes.append(Position(qid, label, set()))
-        else:
-            context.log.warning(f"Unknown subclass of position: '{qid}' ({label})")
-    return classes
+        position_qid = aliases.get(claim.qid, claim.qid)
+        if position_qid not in accepted:
+            continue
+        position = get_position(context, client, position_qid)
+        if position is None:
+            continue
+        occupancy = wikidata_occupancy(context, entity, position, claim)
+        if occupancy is not None:
+            context.emit(occupancy)
+            occupied_positions.add(position_qid)
+
+    if len(occupied_positions) > 0:
+        context.emit(entity)
+    return occupied_positions
 
 
 def crawl(context: Context) -> None:
-    # crawl_test(context)
-    # return
-    seen_positions: Set[str] = set()
-    cache_days = context.dataset.config.get("cache_days", 14)
-    client = WikidataClient(context.cache, context.http, cache_days=cache_days)
-    position_classes = query_position_classes(context, client)
+    client = create_wikidata_client(context)
 
-    for country in all_countries():
-        context.log.info(f"Crawling country: {country.qid} ({country.label})")
+    candidates = discover_candidates(context, client)
+    context.log.info(f"Discovered {len(candidates)} candidate positions")
 
-        for wd_position in query_positions(context, client, position_classes, country):
-            if wd_position.qid in seen_positions:
-                continue
-
-            seen_positions.add(wd_position.qid)
-
-            pos_item = client.fetch_item(wd_position.qid)
-            if pos_item is None:
-                continue
-            if pos_item.id != wd_position.qid:
-                context.log.warning(
-                    "Redirected position QID",
-                    original=wd_position.qid,
-                    redirected=pos_item.id,
-                )
-
-            position = wikidata_position(context, client, pos_item)
-            if position is None:
-                continue
-
-            context.log.info("Position [%s]: %s" % (position.id, position.caption))
-
-            has_holders = False
-            for person in position_holders(client, pos_item):
-                holder = crawl_holder(context, client, position, person)
-                if holder is not None:
-                    has_holders = True
-
-            if has_holders:
-                context.emit(position)
-
+    # Classification must complete over all territories before any person is
+    # processed, so that occupancies are built against the final accepted set.
+    accepted: Set[str] = set()
+    aliases: Dict[str, str] = {}
+    for idx, qid in enumerate(sorted(candidates)):
+        item = client.fetch_item(qid)
+        if item is None:
+            continue
+        if item.id != qid:
+            context.resolver.rename_node(qid, item.id)
+            aliases[qid] = item.id
+        position = get_position(context, client, item.id)
+        if position is not None:
+            accepted.add(item.id)
+        if idx % 500 == 0:
+            context.log.info(f"Classified {idx} of {len(candidates)} candidates...")
             context.flush()
+    context.flush()
+    context.log.info(f"Accepted {len(accepted)} of {len(candidates)} positions")
 
+    # One pass over the holders of every accepted position. Each person is
+    # fetched and emitted exactly once, with occupancies for all their accepted
+    # positions; only QID-keyed bookkeeping is retained across the run.
+    done_persons: Set[str] = set()
+    has_holders: Set[str] = set()
+    for idx, position_qid in enumerate(sorted(accepted)):
+        position_item = client.fetch_item(position_qid)
+        if position_item is None:
+            continue
+        position = get_position(context, client, position_qid)
+        if position is None:
+            continue
+        context.log.info("Position [%s]: %s" % (position.id, position.caption))
+        for person_qid, modified_at in position_holders(client, position_item).items():
+            if person_qid in done_persons:
+                continue
+            done_persons.add(person_qid)
+            occupied_positions = crawl_person(
+                context, client, accepted, aliases, person_qid, modified_at
+            )
+            has_holders.update(occupied_positions)
+            if len(done_persons) % 1000 == 0:
+                context.log.info(f"Crawled {len(done_persons)} persons...")
+                context.flush()
+        if idx % 100 == 0 and idx > 0:
+            context.log.info(f"Crawled holders for {idx} positions...")
+        context.flush()
 
-# def crawl_test(context: Context):
-#     client = WikidataClient(context.cache, context.http)
-#     item = client.fetch_item("Q11696")
-#     assert item is not None
-#     position = wikidata_position(context, client, item)
-#     assert position is not None
-#     context.log.info("Position [%s]: %s" % (position.id, position.caption))
-
-#     for person in position_holders(client, item):
-#         holder = crawl_holder(context, client, position, person)
-#         context.log.info("Holder: %r" % holder)
+    for position_qid in sorted(has_holders):
+        position = get_position(context, client, position_qid)
+        if position is not None:
+            context.emit(position)
+    context.flush()
+    context.log.info(
+        f"Emitted {len(has_holders)} positions and {len(done_persons)} candidate persons"
+    )

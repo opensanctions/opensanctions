@@ -15,18 +15,46 @@ should not add or remove rows in `sanctions.csv` automatically.
 The CSV remains the reviewed source of truth. Every designation added to it must cite
 the official notice from which it was extracted.
 
-## Initial sources
+## Implemented sources
 
-| Authority | Index | Useful title terms |
+The crawler's `discover_candidates()` polls four indexes. MFA and TAO are matched by
+notice-URL pattern (every notice on the index is a candidate; non-designations are
+muted through `reviewed_urls`). Both MOFCOM indexes filter on title keywords because
+their columns mix designation notices with unrelated regulatory documents.
+
+| Authority | Index | Match strategy |
 | --- | --- | --- |
-| Ministry of Foreign Affairs | [Anti-sanctions notices](https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/) | `采取反制措施` (take countermeasures) |
-| Ministry of Commerce | [Security and Control Bureau policy notices](https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/index.html) | `采取反制措施`, `列入不可靠实体清单`, `列入出口管制管控名单`, `列入关注名单` |
-| Taiwan Affairs Office | [Measures against Taiwan independence](https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/bt/) | `“台独”顽固分子`, `“台独”打手帮凶` |
+| Ministry of Foreign Affairs | [Anti-sanctions notices](https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/) | notice-URL pattern |
+| Ministry of Commerce (annual) | `zcfb/blgg/gg/{year}` announcement indexes | title keywords |
+| Ministry of Commerce (industry security) | [Security and Control Bureau notices](https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/index.html) | title keywords |
+| Taiwan Affairs Office | [Measures against Taiwan independence hub](https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/) | notice-URL pattern |
 
-Keyword matches are discovery hints, not proof that a page contains a designation.
-The Taiwan Affairs Office does not use a consistent notice-title format. MFA measures
-announced only by an embassy will not necessarily appear in the central index and
-need a separate discovery strategy.
+Useful title terms for the keyword-filtered MOFCOM sources: `采取反制` (take
+countermeasures; the loose stem also matches the early `采取反制裁` variant),
+`列入不可靠实体清单`, `列入出口管制管控名单`, `列入关注名单`, and the state-change stems
+`移出`/`暂停`/`取消` combined with a program name or `反制措施`. Keyword matches are
+discovery hints, not proof that a page contains a designation.
+
+The TAO hub is crawled at its parent path (not the `/bt/` subpath) so new designation
+categories appearing as new subpaths are still caught; its notice titles are
+inconsistent, so it is matched by URL rather than keyword. MFA measures announced only
+by an embassy will not necessarily appear in the central index and remain a separate
+discovery gap tracked by the dataset's `manual_check` reminder.
+
+### Source characteristics to preserve
+
+- The TAO hub is served as GB2312/GB18030, not UTF-8; the fetch transcodes explicitly.
+- The aqygzj index is a JavaScript shell whose list is served by a JPaaS CMS API. The
+  front-end requests the entire list in one call and paginates client-side, so passing
+  `paramJson={"pageNo":1,"pageSize":99999}` returns every notice in a single request —
+  there is no server-side paging to iterate. The `webId`/`pageId`/`tplSetId` query
+  values are CMS-internal and will change on a site redesign, so the parser fails loudly
+  when the JSON response shape changes rather than reporting an empty run.
+- The aqygzj notices use `/flzc/gzjgfxwj/art/...` URLs, distinct from the `blgg/gg`
+  copies. A notice already represented under a `blgg` URL therefore still surfaces here
+  under its aqygzj URL until that URL is added to `reviewed_urls`. Its unique value is
+  the `商务部令` countermeasure orders and some UEL Working Mechanism announcements that
+  never appear on the annual indexes.
 
 MOFCOM publishes a stream of announcements rather than a structured snapshot of the
 current lists. Monitoring must therefore detect notices that add, remove, suspend,

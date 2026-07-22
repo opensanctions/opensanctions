@@ -129,6 +129,50 @@ def test_unblock_failed(testdataset1: Dataset):
     context.close()
 
 
+def test_unblock_retry_preserves_request_options(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    # First response fails the unblock validator, second succeeds. The retry
+    # must re-request with the same options (geolocation) and post-process the
+    # final document the same way (absolute_links).
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            [
+                {
+                    "json": {
+                        "browserHtml": "<html><h1>Enable JS</h1></html>",
+                        "statusCode": 200,
+                    }
+                },
+                {
+                    "json": {
+                        "browserHtml": (
+                            '<html><div id="content">'
+                            '<a href="/company/foo">Foo</a>'
+                            "</div></html>"
+                        ),
+                        "statusCode": 200,
+                    }
+                },
+            ],
+        )
+        doc = fetch_html(
+            context,
+            "https://test.com/bla",
+            './/div[@id="content"]',
+            geolocation="us",
+            absolute_links=True,
+            backoff_factor=0,
+        )
+        assert m.call_count == 2
+        for request in m.request_history:
+            assert request.json()["geolocation"] == "us", request.json()
+        assert doc.xpath(".//a/@href") == ["https://test.com/company/foo"]
+
+    context.close()
+
+
 def test_caching(testdataset1: Dataset):
     context = Context(testdataset1)
 

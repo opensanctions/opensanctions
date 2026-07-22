@@ -326,6 +326,12 @@ def crawl_chamber(context: Context, chamber: Chamber) -> None:
             term=f"{term.start}-{term.end}",
             members=len(members),
         )
+        context.log.info(
+            "members by term",
+            chamber=chamber.slug,
+            term=f"{term.start}-{term.end}",
+            member_count=len(members),
+        )
         for member in members:
             crawl_member(context, chamber, positions, member, term)
 

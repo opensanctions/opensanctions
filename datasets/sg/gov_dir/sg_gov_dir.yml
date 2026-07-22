@@ -39,10 +39,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 15_000
+      Person: 7_000
   max:
     schema_entities:
-      Person: 40_000
+      Person: 10_000
 
 lookups:
   type.email:

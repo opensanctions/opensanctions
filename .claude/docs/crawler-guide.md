@@ -89,7 +89,7 @@ def crawl(context: Context) -> None:
 
 `context.data_url` is from `data.url` in the YAML.
 
-**Fail loudly.** Crash or warn on unexpected data — never silently emit ambiguous output.
+**Strict interpretation.** Every source value within the crawler's scope is handled, explicitly ignored, or raises a signal — crash or warn on unexpected data, never silently emit ambiguous output. See `zavod/docs/best_practices/strict_interpretation.md`.
 
 ### Fetching data
 
@@ -175,6 +175,8 @@ full = h.make_name(full=row.get("fullname"), first_name=first, last_name=last)
 ```
 
 Use `h.apply_name()` for Person entities. For name-only: `entity.add("name", ...)`.
+
+When source names carry a fixed set of honorifics or post-nominals (`Hon.`, `Dr.`, `, MP`), strip them deterministically via dataset config rather than the review system — see `zavod/docs/best_practices/name_titles.md`.
 
 ### Dates
 
@@ -301,7 +303,11 @@ zavod crawl datasets/xx/foo/xx_foo.yml
 # Output: data/datasets/xx_foo/
 ```
 
-Check `issues.json` for errors, then spot-check with qsv:
+For a dataset already deployed, `python -m contrib.maintenance.diagnose <name>` prints
+its production runtime state: run verdict, artifact links, current issues, assertion
+drift.
+
+Check `issues.log` for errors, then spot-check with qsv:
 
 ```bash
 qsv count data/datasets/xx_foo/statements.pack

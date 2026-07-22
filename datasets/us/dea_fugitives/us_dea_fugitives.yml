@@ -61,6 +61,8 @@ lookups:
         value: null
       - match: CA
         value: CA
+      - match: MN
+        value: MN
       - match: NY
         value: NY
       - match: PR

@@ -45,7 +45,7 @@ def _crawl_item_countries(
     for claim in item.claims:
         # country:
         if claim.property in ("P17", "P27"):
-            if claim.qualifiers.get("P582"):
+            if claim.is_ended():
                 continue
             if claim.qid is None or claim.qid in next_seen:
                 continue
@@ -58,7 +58,7 @@ def _crawl_item_countries(
         for claim in item.claims:
             if claim.property != prop:
                 continue
-            if claim.qualifiers.get("P582") or claim.qid is None:
+            if claim.is_ended() or claim.qid is None:
                 continue
             if claim.qid in next_seen:
                 continue

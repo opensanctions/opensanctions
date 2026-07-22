@@ -60,8 +60,14 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 3
-      Organization: 20
+      # This dataset only surfaces announcements from the last MAX_AGE_DAYS (15)
+      # days (see crawler.py and opensanctions/crawler-planning#580). During
+      # publication gaps longer than that it is legitimately empty, so we can't
+      # assert a positive floor here. Structural source changes still fail loudly
+      # via the crawler's column pops and per-row assertions, and the `max`
+      # assertions below guard against the age filter breaking and over-emitting.
+      Person: 0
+      Organization: 0
       # currently all vessels are merged with ca_dfatd_sema_sanctions
       # Vessel: 0
   max:

@@ -1,6 +1,7 @@
 import re
 import string
 from datetime import date, datetime
+from itertools import chain
 from typing import Dict, List
 from urllib.parse import urljoin
 
@@ -58,7 +59,14 @@ def str_cell(cell: Cell | MergedCell) -> str | None:
         return value.isoformat()
     if isinstance(value, bool):
         return str(value).lower()
-    return stringify(value)
+    text = stringify(value)
+    if text is None:
+        return None
+    # `_x000D_` is the OOXML escape for a carriage return (0x0D). openpyxl surfaces
+    # it verbatim instead of un-escaping it, so cells with in-cell line breaks arrive
+    # carrying the literal artifact. Turn it back into a newline so the `\n` token in
+    # SPLITS separates multi-value cells cleanly (rather than leaving it in the text).
+    return text.replace("_x000D_", "\n")
 
 
 def parse_date(text: List[str]) -> List[str]:
@@ -125,7 +133,8 @@ def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
             context.emit(wallet)
 
         clean = h.clean_note(note)
-        entity.add("notes", clean)
+        # other_information / details are MoF's own Japanese free-text columns.
+        entity.add("notes", clean, lang="jpn")
 
 
 def fetch_excel_url(context: Context) -> str:
@@ -157,20 +166,63 @@ def emit_row(
     if entity.id is None:
         # context.inspect((sheet, row))
         return
-    entity.add("name", parse_names(name_english), lang="eng")
-    entity.add("name", parse_names(name_japanese))
-    entity.add("alias", parse_names(h.multi_split(row.pop("alias", []), ALIAS_SPLITS)))
-    entity.add("alias", parse_names(row.pop("known_alias", [])))
-    # FIXME: https://github.com/opensanctions/opensanctions/issues/2928
-    # entity.add(
-    #     "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
-    # )
-    # entity.add(
-    #     "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
-    # )
-    entity.add("previousName", parse_names(row.pop("past_alias", [])))
-    entity.add("previousName", parse_names(row.pop("old_name", [])))
-    entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
+    raw_alias = row.pop("alias", [])
+    raw_known_alias = row.pop("known_alias", [])
+    raw_past_alias = row.pop("past_alias", [])
+    raw_old_name = row.pop("old_name", [])
+    raw_weak_alias = row.pop("weak_alias", [])
+    raw_nickname = row.pop("nickname", [])
+    entity.add("name", parse_names(name_english))
+    entity.add("name", parse_names(name_japanese), lang="jpn")
+    entity.add("alias", parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)))
+    entity.add("alias", parse_names(raw_known_alias))
+    entity.add("previousName", parse_names(raw_past_alias))
+    entity.add("previousName", parse_names(raw_old_name))
+    original = h.Names()
+    for n in name_english:
+        original.add("name", n)
+    for n in name_japanese:
+        original.add("name", n, lang="jpn")
+    for n in chain(raw_alias, raw_known_alias):
+        original.add("alias", n)
+    for n in chain(raw_past_alias, raw_old_name):
+        original.add("previousName", n)
+    for n in chain(raw_weak_alias, raw_nickname):
+        original.add("weakAlias", n)
+    suggested = h.Names()
+    for n in parse_names(name_english):
+        suggested.add("name", n)
+    for n in parse_names(name_japanese):
+        suggested.add("name", n, lang="jpn")
+    for n in chain(
+        parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)),
+        parse_names(raw_known_alias),
+    ):
+        suggested.add("alias", n)
+    for n in chain(parse_names(raw_past_alias), parse_names(raw_old_name)):
+        suggested.add("previousName", n)
+    for n in chain(
+        parse_names(h.multi_split(raw_weak_alias, ALIAS_SPLITS)),
+        parse_names(h.multi_split(raw_nickname, ALIAS_SPLITS)),
+    ):
+        suggested.add("weakAlias", n)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+        # Only auto-accept clean names. Names still flagged as irregular (e.g. ones that
+        # contain brackets or colons) are held back for human review instead of being
+        # locked in as accepted. The weak_alias and
+        # nickname fields often hold notes/descriptions rather than names, so they are
+        # held back too.
+        default_accepted=not is_irregular and not (raw_weak_alias or raw_nickname),
+    )
+    # The position column mixes Japanese and Latin-script values, so it carries
+    # no language tag rather than a blanket (and often wrong) eng/jpn label.
+    entity.add_cast("Person", "position", row.pop("position", []))
 
     birth_date = parse_date(row.pop("birth_date", []))
     if birth_date != []:
@@ -217,9 +269,10 @@ def emit_row(
     entity.add("country", row.pop("activity_area", []))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("program", section)
-    sanction.add("reason", row.pop("root_nomination", None))
-    sanction.add("reason", row.pop("reason_res1483", None))
+    # section and the designation-basis reasons are MoF's own Japanese text.
+    sanction.add("program", section, lang="jpn")
+    sanction.add("reason", row.pop("root_nomination", None), lang="jpn")
+    sanction.add("reason", row.pop("reason_res1483", None), lang="jpn")
     sanction.add("authorityId", row.pop("notification_number", None))
     sanction.add("unscId", row.pop("unsc_id", None))
     h.apply_dates(sanction, "startDate", parse_date(row.pop("designated_date_un", [])))
@@ -231,8 +284,7 @@ def emit_row(
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
-    # TODO: remove IGNORE columns after https://github.com/opensanctions/opensanctions/issues/2928 is fixed
-    context.audit_data(row, ignore=["nickname", "weak_alias"])
+    context.audit_data(row)
 
 
 def trim_rightmost_blank(values: List[str | None], keep: int = 0) -> List[str | None]:

@@ -10,6 +10,8 @@ Clean, correctly categorised names are important to maximise recall (finding all
 
 While we've done this using simple, explainable logic for the most part, this leaves some noise or incorrectly-categorised names for a number of sources.
 
+When a source attaches a fixed, predictable set of honorific titles to names (`Hon.`, `Dr.`, `, MP`), strip them deterministically rather than through review. See [stripping name prefixes and suffixes](../best_practices/name_titles.md).
+
 In most cases, the end goal is to use the [zavod.helpers.apply_reviewed_name_string][] or [zavod.helpers.apply_reviewed_names][] to
 
 - determine whether names need cleaning
@@ -181,6 +183,8 @@ entity.id = context.make_id(names_string, ...)
 
 h.apply_reviewed_name_string(context, entity, string=names_string)
 ```
+
+All crawlers calling `h.review_names` or `h.apply_reviewed_names` should end with a call to `assert_all_accepted(context, raise_on_unaccepted=False)` (imported from `zavod.stateful.review`). This logs a warning with the count of any name reviews that are still unaccepted for the current dataset and version, rather than raising, so the crawler completes and emits output while flagging that reviews remain outstanding.
 
 After the deployment of step 3 has run, check the latest reviews and make sure new names were't auto-accepted between deploying step 1 and step 3.
 

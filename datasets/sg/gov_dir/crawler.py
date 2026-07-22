@@ -181,13 +181,17 @@ def crawl_person(
     if not full_name.strip().strip("-"):
         return False
     email_elem = official.find(".//div[@class='email info-contact']")
+    email: str | None
     if email_elem is not None:
         email = email_elem.text_content().strip()
     else:
-        # For spokepersons, the email is in a different format
-        email = official.xpath(
-            ".//div[@class='name']//span[@class='fas fa-envelope']/following-sibling::text()"
-        )[0]
+        # For spokepersons, the email is in a different format. Some entries have
+        # no email at all, so the following-sibling text can be missing.
+        email_texts = h.xpath_strings(
+            official,
+            ".//div[@class='name']//span[@class='fas fa-envelope']/following-sibling::text()",
+        )
+        email = email_texts[0] if email_texts else None
 
     pep_status = is_pep(context, rank)
     position_name = make_position_name(

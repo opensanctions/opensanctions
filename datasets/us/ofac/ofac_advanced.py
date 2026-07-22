@@ -65,6 +65,7 @@ SANCTION_FEATURES = {
     # https://www.ecfr.gov/current/title-31/part-594/section-594.201
     # "affiliates of the IRGC are identified by a special reference to the “IRGC” at the end of their entries"
     "Additional Program Tags -": "program",
+    "HKAA Section 6 Information:": "summary",
     "Secondary sanctions risk:": "summary",
     "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:": "summary",  # noqa
     "IFCA Determination -": "summary",
@@ -542,18 +543,8 @@ def parse_id_reg_document(
         context.emit(identification)
 
 
-def extract_sdn_sanctions_measure_name(entry: Element, refs: Element) -> Optional[str]:
-    """
-    Extracts the program name associated with a sanctions entry on the SDN List.
-
-    Returns:
-        A string representing the program name (e.g., "IRAN-EO13876")
-    """
-    list_name = get_ref_text(refs, "List", entry.get("ListID"))
-    assert list_name == "SDN List"
-
-    # The SDN List may include multiple SanctionsMeasures, and the actual program name is inside
-    # the <Comment> tag of a <SanctionsMeasure> element where SanctionsTypeID resolves to "Program".
+def extract_sanctions_measure_name(entry: Element, refs: Element) -> Optional[str]:
+    """Extract the source program tag from a sanctions entry."""
     for measure in entry.findall("./SanctionsMeasure"):
         sanctions_type_id = measure.get("SanctionsTypeID")
         sanctions_type = get_ref_text(refs, "SanctionsType", sanctions_type_id)
@@ -580,11 +571,15 @@ def emit_sanctions_entry(
     list_id = get_ref_text(refs, "List", entry.get("ListID"))
     # For entries on the SDN list, the XML contains a more specific sanctions program designation
     # For the various lists that are part of the Consolidated List, we use the list name as the program.
-    program = (
-        extract_sdn_sanctions_measure_name(entry, refs)
-        if list_id == "SDN List"
-        else list_id
-    )
+    source_program = extract_sanctions_measure_name(entry, refs)
+    program = source_program if list_id == "SDN List" else list_id
+    # HKAA entries are published on the multi-authority NS-MBS list. Use the
+    # source program tag for their program ID without changing how other
+    # consolidated-list entries are attributed.
+    # TODO(#4980): other CONS entries (SSI/CMIC/NS-PLC/NS-MBS) also carry Program-type
+    # source tags (e.g. RUSSIA-EO14024, CMIC-EO13959) but stay attributed to their list
+    # program. Generalize to prefer a resolvable source tag and drop this HKAA special case.
+    program_lookup_key = "HKAA" if source_program == "HKAA" else program
     # For us_ofac_sdn, only process entries with list_id 'SDN List'
     if dataset == "us_ofac_sdn" and list_id != "SDN List":
         return None
@@ -604,11 +599,13 @@ def emit_sanctions_entry(
         proxy,
         key=entry.get("ID"),
         program_name=program,
-        source_program_key=program,
+        source_program_key=program_lookup_key,
         # For entries on the SDN list, the XML contains a more specific sanctions program designation
         # For the various lists that are part of the Consolidated List, we use the list name as the program.
         program_key=(
-            h.lookup_sanction_program_key(context, program) if program else None
+            h.lookup_sanction_program_key(context, program_lookup_key)
+            if program_lookup_key
+            else None
         ),
     )
     sanction.set("authorityId", entry.get("ProfileID"))

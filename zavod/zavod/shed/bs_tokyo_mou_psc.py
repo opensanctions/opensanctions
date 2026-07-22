@@ -16,6 +16,7 @@ This module is shared between two MoU crawlers:
 import re
 from lxml import html
 from typing import Optional, Dict
+from urllib3 import Retry
 
 from zavod import Context, helpers as h
 
@@ -131,33 +132,51 @@ def crawl_vessel_page(
         "initiator": "insp",
     }
 
-    # POST to get full ship profile using shipuid
-    detail_doc = context.fetch_html(
-        getships_url,
-        data=detail_data,
-        headers=headers,
-        method="POST",
-        cache_days=182,  # Cache for 6 months
-    )
-    inspection_table = h.xpath_element(
-        detail_doc, "//h2[text()='Inspection data']/following-sibling::table[1]"
-    )
-    rows = list(h.parse_html_table(inspection_table))
-    assert len(rows) == 1, len(rows)
-    inspection_data = h.cells_to_str(rows[0])
+    retry = Retry(total=3, backoff_factor=3)
+    while not retry.is_exhausted():
+        # POST to get full ship profile using shipuid
+        detail_doc = context.fetch_html(
+            getships_url,
+            data=detail_data,
+            headers=headers,
+            method="POST",
+            cache_days=182,  # Cache for 6 months
+        )
+        try:
+            inspection_table = h.xpath_element(
+                detail_doc, "//h2[text()='Inspection data']/following-sibling::table[1]"
+            )
+            rows = list(h.parse_html_table(inspection_table))
+            assert len(rows) == 1, len(rows)
+            inspection_data = h.cells_to_str(rows[0])
 
-    ship_data_table = h.xpath_element(
-        detail_doc, "//h2[text()='Ship data']/following-sibling::table[1]"
-    )
-    rows = list(h.parse_html_table(ship_data_table))
-    assert len(rows) == 1, len(rows)
-    ship_data = h.cells_to_str(rows[0])
+            ship_data_table = h.xpath_element(
+                detail_doc, "//h2[text()='Ship data']/following-sibling::table[1]"
+            )
+            rows = list(h.parse_html_table(ship_data_table))
+            assert len(rows) == 1, len(rows)
+            ship_data = h.cells_to_str(rows[0])
+
+            company_data = h.xpath_element(
+                detail_doc, "//h2[text()='Company details']/following-sibling::table[1]"
+            )
+            break
+        except ValueError as err:
+            # Sometimes the source serves a body that's missing the expected
+            # tables. Evict the cache entry and retry, forcing the next attempt
+            # to re-fetch a fresh page from source.
+            context.log.info(
+                "Failed to parse ship profile, retrying",
+                shipuid=shipuid,
+                err=str(err),
+            )
+            context.clear_url(getships_url, data=detail_data, method="POST")
+            # retry.increment will throw if we exhausted our retries
+            retry = retry.increment()
+
     assert inspection_data["date"] is not None, "Inspection date is missing"
     vessel_id = crawl_vessel_row(context, ship_data, inspection_data["date"])
 
-    company_data = h.xpath_element(
-        detail_doc, "//h2[text()='Company details']/following-sibling::table[1]"
-    )
     for row in h.parse_html_table(company_data):
         str_row = h.cells_to_str(row)
         company_id = crawl_company_details(context, str_row)

@@ -127,10 +127,12 @@ def fetch_resource(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     configure_session(context.http)
 
+    timeout = context.dataset.http.timeout
     api_response = context.http.post(
         ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),
         json=zyte_data,
+        timeout=(timeout, timeout),
     )
     api_response.raise_for_status()
 
@@ -270,10 +272,12 @@ def fetch(
     context.log.debug(f"Zyte API request: {zyte_request.url}", data=zyte_data)
     configure_session(context.http)
 
+    timeout = context.dataset.http.timeout
     api_response = context.http.post(
         ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),
         json=zyte_data,
+        timeout=(timeout, timeout),
     )
     api_response.raise_for_status()
 
@@ -486,11 +490,13 @@ def fetch_html(
                 actions,
                 html_source=html_source,
                 javascript=javascript,
+                geolocation=geolocation,
                 request_cookies=request_cookies,
                 cache_days=cache_days,
                 retries=retries,
                 backoff_factor=backoff_factor,
                 previous_retries=previous_retries + 1,
+                absolute_links=absolute_links,
             )
         context.log.debug("Unblocking failed", url=url, html=zyte_result.response_text)
         raise UnblockFailedException(url, unblock_validator)

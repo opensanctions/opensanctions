@@ -312,6 +312,10 @@ lookups:
         values:
           - 1958
           - 1963
+      - match: Entre 1959 et 1965
+        values:
+          - 1959
+          - 1965
       - match: Entre 1940 et 1941
         values:
           - 1940
@@ -421,6 +425,7 @@ lookups:
         value: jo
       - match:
           - ou RUSSIE
+          - prétendument RUSSIE
           - RUSSIE (l’Union européenne ne reconnait pas les passeports délivrés par la Fédération de Russie en Crimée)
         value: ru
       - match: Ukraine Russie

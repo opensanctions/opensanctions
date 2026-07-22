@@ -1,0 +1,51 @@
+title: Bhutan Parliament
+entry_point: crawler.py
+prefix: bt-pa
+coverage:
+  frequency: monthly
+  start: 2026-06-25
+load_statements: true
+summary: >-
+  Current and former members of both chambers of Bhutan's Parliament.
+description: |
+  Bhutan's Parliament is the bicameral national legislature established under the
+  2008 Constitution. It comprises the National Council (Gyelyong Tshogde), a
+  25-seat upper house, and the National Assembly (Gyelyong Tshogdu), a 47-seat
+  lower house.
+
+  The dataset lists members of both chambers across every parliamentary term
+  since the first Parliament was convened in 2008, covering sitting members as
+  well as those who served in earlier terms. National Council seats are filled
+  by one elected member per dzongkhag (district), together with five members
+  appointed by the King; National Assembly members represent single-member
+  constituencies.
+url: https://www.parliament.gov.bt/
+publisher:
+  name: Chi Tshog
+  name_en: Parliament of Bhutan
+  description: >
+    The Parliament of Bhutan (Chi Tshog) is the bicameral national legislature
+    established under the 2008 Constitution. It consists of the Druk Gyalpo (King),
+    the National Council and the National Assembly.
+  url: https://www.parliament.gov.bt/
+  country: bt
+  official: true
+data:
+  url: https://cms.parliament.gov.bt/api/nc-members
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 180
+      Position: 2
+    country_entities:
+      bt: 180
+  max:
+    schema_entities:
+      Person: 400
+      Position: 2

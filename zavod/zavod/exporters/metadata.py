@@ -53,8 +53,22 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
             things = stats.get("things", {})
             meta["thing_count"] = things.get("total", 0)
             last_change = stats.get("last_change")
-            if last_change is not None:
-                meta["last_change"] = last_change
+            # Stopgap: an empty export (no statements) has no entity to derive
+            # last_change from, so it stays null and fails catalog validation
+            # downstream in kombinat
+            # (https://github.com/opensanctions/opensanctions/issues/4643). Fall
+            # back to the run time so the field is always populated.
+            #
+            # TODO: The permanent fix is to backfill last_change from the last
+            # successful run, which needs the versioned-artifact semantics from
+            # https://github.com/opensanctions/operations/issues/2675 — tracked
+            # in https://github.com/opensanctions/opensanctions/issues/5017.
+            # Counter-intuitive but correct: last_change doesn't track deletions,
+            # so an emptied dataset's last change is whatever the last successful
+            # run reported.
+            if last_change is None:
+                last_change = settings.RUN_TIME_ISO
+            meta["last_change"] = last_change
 
     res_datas: List[Dict[str, Any]] = []
     for res in DatasetResources(dataset).all():
@@ -95,10 +109,9 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
     for res_data in meta["resources"]:
         res_data["url"] = make_artifact_url(dataset.name, version.id, res_data["path"])
 
-    if not dataset.is_collection:
-        issues = DatasetIssues(dataset)
-        meta["issue_levels"] = issues.by_level()
-        meta["issue_count"] = sum(meta["issue_levels"].values())
+    issues = DatasetIssues(dataset)
+    meta["issue_levels"] = issues.by_level()
+    meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
     meta["result"] = result.value
     # NOTE: when adding a another URL here, make sure to update Delivery Service,
