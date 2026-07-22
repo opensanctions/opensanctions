@@ -37,6 +37,17 @@ data:
 dates:
   formats: ["%d-%m-%Y"]
 
+names:
+  prefixes_strip:
+    - Mr.
+    - Mr
+    - Mrs.
+    - Mrs
+    - Ms.
+    - Ms
+    - Dr.
+    - Dr
+
 tags:
   - list.pep
 
