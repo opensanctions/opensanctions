@@ -51,13 +51,25 @@ assertions:
       Position: 15
 
 names:
-  schema_rules:
-    Person:
-      # Judge names on the source carry honorific titles (e.g. "Hon. Justice",
-      # "Hon. Lady Justice") and, in some cases, comma-separated post-nominals
-      # ("..., EGH"). These reject rules flag the names as needing cleaning so
-      # they are sent for LLM-assisted review rather than emitted as-is.
-      reject_strings:
-        - "Justice"
-        - "Judge"
-      reject_chars: ","
+  prefixes_strip:
+    - Hon.
+    - "Hon "
+    - Mr.
+    - Mrs.
+    - Ms.
+    - "Lady "
+    - "Justice "
+    - (Dr.)
+    - (Dr)
+    - Dr.
+    - (Prof.)
+    - (Prof)
+    - Prof.
+    - "Prof "
+  suffixes_strip:
+    - ", EGH"
+    - ", CBS"
+    - ", EBS"
+    - ", FCIArb"
+    - ", SC"
+    - ", OGW"
