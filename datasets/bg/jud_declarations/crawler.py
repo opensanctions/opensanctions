@@ -72,9 +72,9 @@ def parse_html_table(
 ) -> Generator[Dict[str, Element], None, None]:
     first_row = table.find(".//tr[1]")
     assert first_row is not None, "Table has no rows"
-    assert len(headers) == len(
-        first_row.findall("./td")
-    ), f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
+    assert len(headers) == len(first_row.findall("./td")), (
+        f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
+    )
 
     for row in table.findall(".//tr"):
         cells = row.findall("./td")
