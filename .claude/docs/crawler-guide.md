@@ -176,6 +176,8 @@ full = h.make_name(full=row.get("fullname"), first_name=first, last_name=last)
 
 Use `h.apply_name()` for Person entities. For name-only: `entity.add("name", ...)`.
 
+When source names carry a fixed set of honorifics or post-nominals (`Hon.`, `Dr.`, `, MP`), strip them deterministically via dataset config rather than the review system — see `zavod/docs/best_practices/name_titles.md`.
+
 ### Dates
 
 ```python
