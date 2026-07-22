@@ -106,9 +106,7 @@ def crawl_row(context: Context, row: Dict[str, Element], index_url: str) -> None
     # Link is in the same cell as the name
     name_link_elem = row["name"].find(".//a")
     if name_link_elem is None:
-        context.log.warning(
-            f"Missing declaration link for {name}", index_url=index_url
-        )
+        context.log.warning(f"Missing declaration link for {name}", index_url=index_url)
         return
     declaration_url = name_link_elem.get("href")
     if not declaration_url or declaration_url in BROKEN_LINKS:
