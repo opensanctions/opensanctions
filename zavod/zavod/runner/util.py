@@ -42,7 +42,7 @@ def _is_publishable(entity_id: str, view: View, enrich_topics: frozenset[str]) -
         return False
     if is_supporting_schema(entity.schema):
         return True
-    # Match _filter_entity's topic extraction (any topic-typed property).
+    # Match BaseEnricher._filter_entity's topic extraction (any topic-typed property).
     return bool(enrich_topics.intersection(entity.get_type_values(registry.topic)))
 
 

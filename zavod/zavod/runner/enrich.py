@@ -35,7 +35,7 @@ def save_match(
 
         # The first expansion result is the confirmed match itself. Keep it
         # visible; gate the graph context that follows it on risk topics assigned
-        # by the subject datasets and analyzers.
+        # by the subject datasets and analyzers or being supporting schemata.
         context.emit(expanded[0])
         adjacent = [e for e in expanded[1:] if not check_person_cutoff(e)]
         publishable = check_publishability(
