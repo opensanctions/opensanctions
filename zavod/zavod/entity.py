@@ -173,8 +173,13 @@ class Entity(StatementEntity):
 
     @property
     def external(self) -> bool:
-        """Return whether the entity is completely composed of external statements."""
-        return all(s.external for s in self.statements)
+        """Return whether the entity is completely composed of external statements.
+
+        Computed over the entity's property statements only: the synthetic
+        BASE_ID statement appended by ``statements`` is never external, and
+        including it would make this False for every assembled entity.
+        """
+        return all(s.external for s in self._iter_stmt())
 
     def _to_nested_dict(
         self: Self, view: "View[Dataset, Entity]", depth: int, path: List[str]

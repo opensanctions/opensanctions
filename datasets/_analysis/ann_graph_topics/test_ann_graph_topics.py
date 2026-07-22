@@ -47,11 +47,16 @@ def _entity(
     id: str,
     properties: Optional[Dict[str, List[str]]] = None,
     dataset: Dataset = SOURCE,
+    external: bool = False,
 ) -> Entity:
-    return Entity.from_data(
+    entity = Entity.from_data(
         dataset,
         {"schema": schema, "id": id, "properties": properties or {}},
     )
+    if external:
+        for prop, stmts in entity._statements.items():
+            entity._statements[prop] = {s.clone(external=True) for s in stmts}
+    return entity
 
 
 def _store(
@@ -114,6 +119,39 @@ def test_rca_skipped_if_target_already_rca_or_pep() -> None:
         source_id="pep",
     )
     assert _emits(ctx) == []
+
+
+def test_patch_inherits_target_externality() -> None:
+    """A patch on a purely-external passenger is emitted external; a patch on
+    an entity with at least one internal statement is emitted internal."""
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity(
+                "Family",
+                "fam",
+                {"person": ["pep"], "relative": ["spouse"]},
+                external=True,
+            ),
+            _entity("Person", "spouse", {"name": ["Passenger"]}, external=True),
+        ],
+        source_id="pep",
+    )
+    [(patch, external)] = ctx.emitted
+    assert patch.id == "spouse"
+    assert external is True
+
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity("Family", "fam", {"person": ["pep"], "relative": ["spouse"]}),
+            _entity("Person", "spouse", {"name": ["Published"]}),
+        ],
+        source_id="pep",
+    )
+    [(patch, external)] = ctx.emitted
+    assert patch.id == "spouse"
+    assert external is False
 
 
 # ---- rule_sanction_adjacency --------------------------------------------
