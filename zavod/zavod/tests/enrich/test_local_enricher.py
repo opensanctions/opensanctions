@@ -1,6 +1,7 @@
 import shutil
 from copy import deepcopy
 
+import pytest
 from nomenklatura.judgement import Judgement
 
 from zavod import settings
@@ -9,6 +10,7 @@ from zavod.archive import clear_data_path, dataset_state_path
 from zavod.context import Context
 from nomenklatura.db import make_session
 from zavod.crawl import crawl_dataset
+from zavod.exc import RunFailedException
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
@@ -211,6 +213,19 @@ def test_limit(vcontext: Context):
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_topic_gated_requires_topics(testdataset1: Dataset):
+    """topic_gated without `topics` is a config error: subjects wouldn't be
+    topic-filtered, so untagged matches could emit disconnected supporting
+    entities."""
+    crawl_dataset(testdataset1)
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
+    with pytest.raises(RunFailedException):
+        crawl_dataset(enricher_ds)
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
