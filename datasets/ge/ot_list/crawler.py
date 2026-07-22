@@ -9,7 +9,8 @@ from lxml.html import HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.shed.trans import ENGLISH, apply_translit_full_name
+from zavod.shed.trans import apply_translit_full_name
+from zavod.util import LangText
 
 NAME_FIELD = "ბრალდებული/ მსჯავრდებული"
 DEMOGRAPHICS = "დემოგრაფიული მონაცემები"
@@ -22,7 +23,6 @@ UNUSED_FIELDS = [
     "შენიშვნა",  # Note
 ]
 PATROYNMIC = re.compile(r"\b(\S+)\s+ძე\s+")
-TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def apply_translit_name(context: Context, person: Entity, name: str) -> None:
@@ -34,7 +34,7 @@ def apply_translit_name(context: Context, person: Entity, name: str) -> None:
         name = name[: m.start()] + name[m.end() :]
         context.log.debug(f"Patroynmic: {m.group(1)}")
     h.apply_name(person, full=name, patronymic=patronym, lang="kat")
-    apply_translit_full_name(context, person, "kat", name, TRANSLIT_OUTPUT)
+    apply_translit_full_name(context, person, LangText(name, "kat"))
 
 
 def crawl_row(context: Context, row: Dict[str, str]) -> None:

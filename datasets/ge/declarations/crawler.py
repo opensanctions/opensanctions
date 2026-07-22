@@ -19,6 +19,7 @@ from zavod.shed.trans import (
     ARABIC,
 )
 from zavod.stateful.positions import categorise, OccupancyStatus
+from zavod.util import LangText
 
 from zavod import helpers as h
 
@@ -115,7 +116,7 @@ def crawl_enterprise(
     company.id = context.make_id(name)
     company.add("name", name, lang="kat")
     apply_translit_full_name(
-        context, entity=company, input_code="kat", name=name, output=TRANSLIT_OUTPUT
+        context, entity=company, name=LangText(name, "kat"), output=TRANSLIT_OUTPUT
     )
     company.add("address", item.pop("EnterpriseAddress"), lang="kat")
     h.apply_date(company, "incorporationDate", item.pop("RegisterDate"))
@@ -144,8 +145,7 @@ def crawl_enterprise(
         apply_translit_full_name(
             context,
             entity=partner,
-            input_code="kat",
-            name=partner_name,
+            name=LangText(partner_name, "kat"),
             output=TRANSLIT_OUTPUT,
         )
         partner.add("address", address, lang="kat")
