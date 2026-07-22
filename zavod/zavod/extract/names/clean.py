@@ -39,6 +39,12 @@ class Names(BaseModel):
 
     Cleaning might include splitting or re-combining parts, and stripping punctuation
     which does not form part of the name.
+
+    Unknown keys are deliberately tolerated on validation (pydantic's default
+    ``extra="ignore"``): stored review payloads are re-validated with the current
+    model, and reviewer-edited or legacy payloads can carry keys that are not
+    (or no longer) fields. Construction sites that build a Names from dynamic
+    keys must validate them against ``Names.model_fields`` instead.
     """
 
     name: NamesValues = None

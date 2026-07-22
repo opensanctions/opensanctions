@@ -816,9 +816,18 @@ def apply_reviewed_name_string(
         entity: The entity to apply names to.
         string: The raw name(s) string.
         original_prop: The original property for the name according to the data source.
+            Must be one of the ``Names`` model fields, e.g. "name" or "alias".
         lang: The language of the name, if known.
         llm_cleaning: Whether to use LLM-based name cleaning.
     """
+    # Names tolerates unknown keys on validation (stored review payloads may carry
+    # them), so a typo'd prop would otherwise silently produce an empty Names and
+    # the entity would be emitted without any name.
+    if original_prop not in Names.model_fields:
+        raise ValueError(
+            f"Invalid original_prop {original_prop!r}. "
+            f"Expected one of: {', '.join(sorted(Names.model_fields))}"
+        )
     original = Names(**{original_prop: string})
 
     apply_reviewed_names(
