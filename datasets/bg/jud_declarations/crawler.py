@@ -1,6 +1,7 @@
 import re
 import pdfplumber
 from lxml.html import HtmlElement
+from requests.exceptions import HTTPError
 from rigour.text.distance import levenshtein_similarity
 from rigour.env import MAX_NAME_LENGTH
 from normality import normalize, slugify
@@ -8,7 +9,6 @@ from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
-
 
 # e.g. (name_html, name_pdf)
 # {
@@ -21,11 +21,8 @@ ALLOW_LIST = {
     ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
 }
 DENY_LIST = set()
-# TODO: clean up 'BROKEN_LINKS' once the links are accessible on the website again
-# 404 Client Error
 BROKEN_LINKS = {
-    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf",
-    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251037promjananaobstojatelstva.pdf",
+    "http://62.176.124.194/images/declaracii/2026/DesislavaGeorgievaIvanova100520261335.pdf",
 }
 
 
@@ -33,7 +30,14 @@ def extract_judicial_declaration(
     context: Context, name: str, url: str, doc_id_date: str
 ) -> Dict[str, Optional[str]]:
     """Extract name, role, and organization from the first page of a judicial declaration PDF."""
-    pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
+    try:
+        pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
+    except HTTPError as e:
+        # The index regularly links to declaration PDFs that have not (yet) been
+        # uploaded to the server. Skip the row rather than aborting the whole run;
+        # add persistently broken links to BROKEN_LINKS to silence this warning.
+        context.log.warning("Failed to fetch declaration PDF", url=url, error=str(e))
+        return {}
     extracted_data = {}
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -67,9 +71,9 @@ def parse_html_table(
     headers: List[str] = [],
 ) -> Generator[Dict[str, HtmlElement], None, None]:
     first_row = table.find(".//tr[1]")
-    assert len(headers) == len(first_row.findall("./td")), (
-        f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
-    )
+    assert len(headers) == len(
+        first_row.findall("./td")
+    ), f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
 
     for rownum, row in enumerate(table.findall(".//tr")):
         cells = row.findall("./td")
@@ -95,11 +99,10 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
             context.log.warning(
                 f"Invalid doc_id_date: {doc_id_date}", index_url=index_url
             )
-        return
+            return
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
-    # TODO: https://github.com/opensanctions/opensanctions/issues/3388
     if not declaration_url or declaration_url in BROKEN_LINKS:
         return
 
