@@ -4,6 +4,7 @@ from typing import Optional, IO
 
 from followthemoney.util import make_entity_id
 from lxml import etree
+from rigour.text import is_nullword
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.util import ElementOrTree
@@ -30,7 +31,7 @@ def make_address(tree: Optional[ElementOrTree] = None) -> Optional[str]:
         return None
 
     full = tree.findtext("text")
-    if full is not None:
+    if full is not None and not is_nullword(full.strip()) and full.strip() != ".":
         return full
 
     components = {
