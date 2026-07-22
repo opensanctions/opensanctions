@@ -223,8 +223,8 @@ def enrich(context: Context) -> None:
     enricher = LocalEnricher(context.dataset, context.cache, config)
     # The same resolved set gates expansion context (check_publishability) and
     # filters which subject entities are matched and expanded at all
-    # (_filter_entity). That coupling guarantees the confirmed match always
-    # passes the gate, so supporting entities never publish disconnected.
+    # (BaseEnricher._filter_entity). That coupling guarantees the confirmed match
+    # always passes the gate, so supporting entities never publish disconnected.
     enrich_topics: frozenset[str] = frozenset(enricher.filter_topics)
     if topic_gated and not enrich_topics:
         raise ValueError(
