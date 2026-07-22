@@ -7,15 +7,14 @@ from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.trans import apply_translit_full_name, ENGLISH
+from zavod.shed.trans import apply_translit_full_name
+from zavod.util import LangText
 
 # The local sanctions list is served by the platform's JSON API. Its paginated
 # ordering is unstable — successive pages overlap and drop records — so we fetch
 # the whole list in a single request with a page size well above the row count
 # and assert it wasn't truncated.
 PAGE_SIZE = 100_000
-
-TRANSLIT_OUTPUT = [ENGLISH]
 
 # Nicknames are appended to the primary name, either introduced by a
 # "nicknamed" marker or wrapped in parentheses/quotes. Splitting on these
@@ -55,7 +54,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
         if sector is not None:
             entity.add("sector", sector.group().strip(), lang="ara")
         if name != latinize_text(name):
-            apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
+            apply_translit_full_name(context, entity, LangText(name, "ara"))
     elif entity_type == "Individuals":
         mother_name = item.pop("motherName")
         birth_year = item.pop("birthYear")
@@ -73,11 +72,11 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
         if birth_year is not None:
             h.apply_date(entity, "birthDate", str(birth_year))
         if name != latinize_text(name):
-            apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
+            apply_translit_full_name(context, entity, LangText(name, "ara"))
         for alias in aliases:
             if alias != latinize_text(alias):
                 apply_translit_full_name(
-                    context, entity, "ara", alias, TRANSLIT_OUTPUT, alias=True
+                    context, entity, LangText(alias, "ara"), alias=True
                 )
     else:
         context.log.warning("Unknown entity type", type=entity_type, name=raw_name)
