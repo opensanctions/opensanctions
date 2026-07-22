@@ -20,7 +20,7 @@ ALLOW_LIST = {
     ("Дафина Петрова Димова", "Дафина Петрова Димова-Маратилова"),
     ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
 }
-DENY_LIST = set()
+DENY_LIST: set[tuple[str, str]] = set()
 BROKEN_LINKS = {
     "http://62.176.124.194/images/declaracii/2026/DesislavaGeorgievaIvanova100520261335.pdf",
 }
@@ -88,18 +88,20 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
     if name == "Име" and doc_id_date == "Входящ номер":
         return
     # Important assertions to be sure that the table structure is as expected
+    assert name is not None, "Missing name cell"
+    assert doc_id_date is not None, "Missing doc_id_date cell"
     assert re.match(r"^[\u0400-\u04FF]", name), f"Invalid name format: {name}"
     assert re.match(r"^\d", doc_id_date), f"Invalid doc_id_date format: {doc_id_date}"
 
     if len(doc_id_date.split("/")) == 2:
         _, date = doc_id_date.split("/")
     else:
-        date = context.lookup_value("doc_id_date", doc_id_date)
-        if date is None:
-            context.log.warning(
-                f"Invalid doc_id_date: {doc_id_date}", index_url=index_url
-            )
+        looked_up = context.lookup_value(
+            "doc_id_date", doc_id_date, warn_unmatched=True
+        )
+        if not looked_up:
             return
+        date = looked_up
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
@@ -115,10 +117,20 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
     if not extracted_data:
         return
     name_dec = extracted_data.pop("name")
+    if name_dec is None:
+        context.log.warning(
+            "Missing name in declaration PDF",
+            declaration_url=declaration_url,
+            index_url=index_url,
+        )
+        return
     # Check if the name from the HTML and the name from the PDF are similar
+    norm_html = normalize(name)
+    norm_pdf = normalize(name_dec)
+    assert norm_html is not None and norm_pdf is not None, (name, name_dec)
     similarity = levenshtein_similarity(
-        normalize(name),
-        normalize(name_dec),
+        norm_html,
+        norm_pdf,
         max_length=MAX_NAME_LENGTH,
         max_edits=12,
         max_percent=0.4,
@@ -189,9 +201,8 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
         categorisation=categorisation,
         status=OccupancyStatus.UNKNOWN,
     )
-    h.apply_date(occupancy, "declarationDate", date)
-
     if occupancy is not None:
+        h.apply_date(occupancy, "declarationDate", date)
         context.emit(position)
         context.emit(occupancy)
         context.emit(person)
