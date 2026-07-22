@@ -2,9 +2,12 @@ from enum import StrEnum
 import json
 from typing import Any
 
+from pydantic import ValidationError
+
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset, get_catalog
+from zavod.exporters.metadata.model import CatalogDatasetModel
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
 from zavod.archive import UNLISTED_RESOURCES
@@ -139,6 +142,21 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
                     dataset.name, version.id, DELTA_INDEX_FILE
                 )
                 break
+
+    # Validate against the published output contract before writing. The model
+    # knows a failed run legitimately lacks statistics, so a degraded failure
+    # index doesn't trip it.
+    # TODO: For now this only warns so we can gauge how often real runs violate
+    # the contract; tighten it to a hard failure once we're confident
+    # (https://github.com/opensanctions/opensanctions/issues/4643).
+    try:
+        CatalogDatasetModel.model_validate(meta)
+    except ValidationError as exc:
+        log.warning(
+            "Dataset metadata does not conform to the catalog model",
+            dataset=dataset.name,
+            errors=exc.errors(),
+        )
 
     with open(index_path, "wb") as fh:
         write_json(meta, fh)
