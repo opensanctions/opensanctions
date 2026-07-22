@@ -70,7 +70,6 @@ repos:
           datasets/_global/un_sc_sanctions|
           datasets/_wikidata|
           datasets/ae|
-          datasets/bg/jud_declarations|
           datasets/cn|
           datasets/eu|
           datasets/gb/coh|

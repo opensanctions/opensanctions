@@ -102,6 +102,12 @@ assertions:
       Company: 370
       Person: 150
       Organization: 10
+    # This is a local enricher: a stable ~21% of matched Company entities are
+    # identified by registration number / external link without a name (only
+    # Person and Organization names are consistently present).
+    property_fill_rate:
+      Company:
+        name: 0.7
   max:
     schema_entities:
       Company: 870

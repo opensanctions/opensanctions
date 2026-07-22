@@ -122,6 +122,8 @@ lookups:
         value: ru
       - match: RF, ASTRAKHAN RERION
         value: ru
+      - match: AVUSTRYA
+        value: at
   type.date:
     lowercase: true
     normalize: true

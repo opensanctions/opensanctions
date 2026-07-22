@@ -1,14 +1,14 @@
 import re
 import pdfplumber
-from lxml.html import HtmlElement
+from requests.exceptions import HTTPError
 from rigour.text.distance import levenshtein_similarity
 from rigour.env import MAX_NAME_LENGTH
 from normality import normalize, slugify
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Iterator, List, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
-
+from zavod.util import Element
 
 # e.g. (name_html, name_pdf)
 # {
@@ -20,12 +20,9 @@ ALLOW_LIST = {
     ("Дафина Петрова Димова", "Дафина Петрова Димова-Маратилова"),
     ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
 }
-DENY_LIST = set()
-# TODO: clean up 'BROKEN_LINKS' once the links are accessible on the website again
-# 404 Client Error
+DENY_LIST: set[tuple[str, str]] = set()
 BROKEN_LINKS = {
-    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf",
-    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251037promjananaobstojatelstva.pdf",
+    "http://62.176.124.194/images/declaracii/2026/DesislavaGeorgievaIvanova100520261335.pdf",
 }
 
 
@@ -33,7 +30,14 @@ def extract_judicial_declaration(
     context: Context, name: str, url: str, doc_id_date: str
 ) -> Dict[str, Optional[str]]:
     """Extract name, role, and organization from the first page of a judicial declaration PDF."""
-    pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
+    try:
+        pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
+    except HTTPError as e:
+        # The index regularly links to declaration PDFs that have not (yet) been
+        # uploaded to the server. Skip the row rather than aborting the whole run;
+        # add persistently broken links to BROKEN_LINKS to silence this warning.
+        context.log.warning("Failed to fetch declaration PDF", url=url, error=str(e))
+        return {}
     extracted_data = {}
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -63,20 +67,21 @@ def extract_judicial_declaration(
 
 
 def parse_html_table(
-    table: HtmlElement,
+    table: Element,
     headers: List[str] = [],
-) -> Generator[Dict[str, HtmlElement], None, None]:
+) -> Iterator[Dict[str, Element]]:
     first_row = table.find(".//tr[1]")
+    assert first_row is not None, "Table has no rows"
     assert len(headers) == len(first_row.findall("./td")), (
         f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
     )
 
-    for rownum, row in enumerate(table.findall(".//tr")):
+    for row in table.findall(".//tr"):
         cells = row.findall("./td")
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> None:
+def crawl_row(context: Context, row: Dict[str, Element], index_url: str) -> None:
     str_row = h.cells_to_str(row)
     name = str_row.pop("name")
     doc_id_date = str_row.pop("doc_id_date")
@@ -84,22 +89,26 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
     if name == "Име" and doc_id_date == "Входящ номер":
         return
     # Important assertions to be sure that the table structure is as expected
+    assert name is not None, "Missing name cell"
+    assert doc_id_date is not None, "Missing doc_id_date cell"
     assert re.match(r"^[\u0400-\u04FF]", name), f"Invalid name format: {name}"
     assert re.match(r"^\d", doc_id_date), f"Invalid doc_id_date format: {doc_id_date}"
 
     if len(doc_id_date.split("/")) == 2:
         _, date = doc_id_date.split("/")
     else:
-        date = context.lookup_value("doc_id_date", doc_id_date)
-        if date is None:
-            context.log.warning(
-                f"Invalid doc_id_date: {doc_id_date}", index_url=index_url
-            )
-        return
+        looked_up = context.lookup_value(
+            "doc_id_date", doc_id_date, warn_unmatched=True
+        )
+        if not looked_up:
+            return
+        date = looked_up
     # Link is in the same cell as the name
-    name_link_elem = HtmlElement(row["name"]).find(".//a")
+    name_link_elem = row["name"].find(".//a")
+    if name_link_elem is None:
+        context.log.warning(f"Missing declaration link for {name}", index_url=index_url)
+        return
     declaration_url = name_link_elem.get("href")
-    # TODO: https://github.com/opensanctions/opensanctions/issues/3388
     if not declaration_url or declaration_url in BROKEN_LINKS:
         return
 
@@ -112,10 +121,20 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
     if not extracted_data:
         return
     name_dec = extracted_data.pop("name")
+    if name_dec is None:
+        context.log.warning(
+            "Missing name in declaration PDF",
+            declaration_url=declaration_url,
+            index_url=index_url,
+        )
+        return
     # Check if the name from the HTML and the name from the PDF are similar
+    norm_html = normalize(name)
+    norm_pdf = normalize(name_dec)
+    assert norm_html is not None and norm_pdf is not None, (name, name_dec)
     similarity = levenshtein_similarity(
-        normalize(name),
-        normalize(name_dec),
+        norm_html,
+        norm_pdf,
         max_length=MAX_NAME_LENGTH,
         max_edits=12,
         max_percent=0.4,
@@ -186,9 +205,8 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
         categorisation=categorisation,
         status=OccupancyStatus.UNKNOWN,
     )
-    h.apply_date(occupancy, "declarationDate", date)
-
     if occupancy is not None:
+        h.apply_date(occupancy, "declarationDate", date)
         context.emit(position)
         context.emit(occupancy)
         context.emit(person)
@@ -196,18 +214,21 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-    alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
+    alphabet_links = h.xpath_elements(
+        doc, ".//div[@itemprop='articleBody']/p//a[@href]"
+    )
     assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
         link = a.get("href")
+        assert link is not None, "Anchor matched [@href] but has no href"
         doc = context.fetch_html(link, cache_days=1, absolute_links=True)
-        table = doc.xpath(".//table")
-        if len(table) == 0:
+        tables = h.xpath_elements(doc, ".//table")
+        if len(tables) == 0:
             context.log.info("No tables found", url=link)
             continue
-        assert len(table) == 1
-        table = table[0]
+        assert len(tables) == 1
+        table = tables[0]
         for row in parse_html_table(table, headers=["name", "doc_id_date"]):
             crawl_row(context, row, link)

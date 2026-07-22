@@ -69,6 +69,12 @@ lookups:
         value: 15.05.2025
       - match: 12887/22/07.2025
         value: 22.07.2025
+      - match: 3539//06.04.2026
+        value: 06.04.2026
+      - match: 7413.13.05.2026
+        value: 13.05.2026
+      - match: 525904.05.2026
+        value: 04.05.2026
   type.date:
     options:
       - match: 15.50.2024
@@ -87,6 +93,10 @@ lookups:
         value: 2023-10-27
       - match: "05.2025"
         value: 2025-05
+      - match: ".27.04.2026"
+        value: 2026-04-27
+      - match: "04.06.20026"
+        value: 2026-06-04
       # weird ones:
       - match: 07.04.2023
         value: 2023-04-07

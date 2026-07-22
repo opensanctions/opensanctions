@@ -194,6 +194,12 @@ assertions:
   min:
     schema_entities:
       Company: 750
+    # This is an enrichment dataset: matched entities are emitted as Company
+    # stubs carrying only the `opencorporatesUrl` link, while their name lives
+    # on the target entity in the input dataset.
+    property_fill_rate:
+      Company:
+        name: 0
   max:
     schema_entities:
       Company: 1750
