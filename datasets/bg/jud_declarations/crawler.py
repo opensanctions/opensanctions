@@ -4,7 +4,7 @@ from requests.exceptions import HTTPError
 from rigour.text.distance import levenshtein_similarity
 from rigour.env import MAX_NAME_LENGTH
 from normality import normalize, slugify
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Iterator, List, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
@@ -69,7 +69,7 @@ def extract_judicial_declaration(
 def parse_html_table(
     table: Element,
     headers: List[str] = [],
-) -> Generator[Dict[str, Element], None, None]:
+) -> Iterator[Dict[str, Element]]:
     first_row = table.find(".//tr[1]")
     assert first_row is not None, "Table has no rows"
     assert len(headers) == len(first_row.findall("./td")), (
