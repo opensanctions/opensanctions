@@ -1,0 +1,70 @@
+title: Pakistan Members of National Assembly
+name: pk_na_members
+prefix: pk-na
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-02
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the National Assembly of Pakistan, the directly-elected
+  lower house of the Parliament.
+description: |
+  Current members of the National Assembly, the directly elected lower house of the
+  bicameral Majlis-e-Shoora (Parliament) of Pakistan. Its members are elected on
+  general and reserved (women and non-Muslim) seats for a five-year term, unless the
+  assembly is dissolved earlier, and hold the country's legislative power, including
+  passing laws and electing the Prime Minister.
+
+  This dataset records each sitting member with their name, political party, national
+  identity number (CNIC) where published, and the date they took their oath of office.
+url: https://www.na.gov.pk/en/all-members.php
+publisher:
+  name: National Assembly of Pakistan
+  acronym: NA
+  description: >
+    The National Assembly is the directly-elected lower house of the Parliament
+    of Pakistan, responsible for legislation and for electing the Prime Minister.
+  url: https://www.na.gov.pk
+  country: pk
+  official: true
+data:
+  url: https://www.na.gov.pk/en/all-members.php
+  format: HTML
+  lang: eng
+dates:
+  formats: ["%d-%m-%Y"]
+
+names:
+  prefixes_strip:
+    - Mr.
+    - Mr
+    - Mrs.
+    - Mrs
+    - Ms.
+    - Ms
+    - Dr.
+    - Dr
+
+tags:
+  - list.pep
+
+lookups:
+  type.email:
+    options:
+      - match: "-"
+        values:
+          - null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 280
+      Position: 1
+    country_entities:
+      pk: 280
+  max:
+    schema_entities:
+      Person: 400
+      Position: 1

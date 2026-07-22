@@ -1,0 +1,108 @@
+import re
+
+from zavod import Context
+from zavod import helpers as h
+from zavod.entity import Entity
+from zavod.stateful.positions import PositionCategorisation, categorise
+
+
+# Member profile links look like ``profile.php?uid=1617``; the uid is a stable,
+# opaque source identifier we key the person entity on.
+UID_RE = re.compile(r"profile\.php\?uid=(\d+)")
+
+
+def crawl_member(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    uid: str,
+) -> None:
+    member_url = context.data_url.replace("all-members.php", "profile.php?uid=%s") % uid
+    doc = context.fetch_html(member_url, cache_days=7)
+
+    # The profile is a vertical label/value table (``<tr><th>Label</th><td>…</td>``),
+    # not a column-oriented one, so h/parse_html_table() wouldn't fit
+    data: dict[str, str] = {}
+    rows = h.xpath_elements(
+        doc, '//table[contains(@class, "profile_tbl")]//tr[th and td]'
+    )
+    for row in rows:
+        label = h.element_text(h.xpath_element(row, "./th"))
+        value = h.element_text(h.xpath_element(row, "./td[1]"))
+        data[label] = value
+
+    raw_name = data.pop("Name")
+    name = h.strip_name_titles(context, raw_name)
+    original_name = raw_name if name != raw_name else None
+    assert name, member_url
+
+    person = context.make("Person")
+    person.id = context.make_slug(uid)
+    person.add("name", name, lang="eng", original_value=original_name)
+    person.add("fatherName", data.pop("Father's Name", None), lang="eng")
+    person.add("sourceUrl", member_url)
+    person.add("email", data.pop("Email", None))
+
+    # "IND" denotes an independent (no party), not a political affiliation.
+    party = data.pop("Party", None)
+    if party is not None and party != "IND":
+        person.add("political", party)
+
+    # CNIC is the Pakistani national ID number
+    cnic = data.pop("CNIC", None)
+    if cnic is not None and any(char.isdigit() for char in cnic):
+        person.add("idNumber", cnic)
+    # A member of Parliament must be a citizen of Pakistan under Article 62(1)(a)
+    # of the Constitution of Pakistan, 1973 ("he is a citizen of Pakistan").
+    # https://www.pakistani.org/pakistan/constitution/part3.ch2.html
+    person.add("citizenship", "pk")
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=True,
+        start_date=data.pop("Oath Taking Date", None),
+        categorisation=categorisation,
+    )
+    if occupancy is None:
+        return
+
+    constituency = data.pop("Constituency", None)
+    province = data.pop("Province", None)
+    parts = [part for part in (constituency, province) if part is not None]
+    if parts:
+        occupancy.add("constituency", ", ".join(parts))
+
+    context.audit_data(
+        data,
+        ignore=[
+            "Father/Husband's Name",
+            "Permanent Address",
+            "Local Address",
+            "Contact Number",
+        ],
+    )
+
+    context.emit(occupancy)
+    context.emit(person)
+
+
+def crawl(context: Context) -> None:
+    position = h.make_position(
+        context,
+        name="Member of the National Assembly of Pakistan",
+        country="pk",
+        wikidata_id="Q20760546",
+    )
+    categorisation = categorise(context, position)
+    context.emit(position)
+
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    hrefs = h.xpath_strings(doc, '//a[contains(@href, "profile.php?uid=")]/@href')
+    uids = {match.group(1) for href in hrefs if (match := UID_RE.search(href))}
+    if not uids:
+        raise ValueError("No member profile links found on %s" % context.data_url)
+
+    for uid in sorted(uids, key=int):
+        crawl_member(context, position, categorisation, uid)
