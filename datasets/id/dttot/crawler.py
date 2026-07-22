@@ -66,9 +66,13 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
+    # The source page wraps this single download link in a markup structure that
+    # changes from time to time, so select the unique .xlsx anchor directly rather
+    # than depending on a specific ancestor element. xpath_string still asserts a
+    # single match, so any future duplication crashes loudly.
     xlsx_link = h.xpath_string(
         doc,
-        ".//p[contains(., 'Daftar Terduga Teroris')]//a[contains(@href, '.xlsx')]/@href",
+        ".//a[contains(@href, '.xlsx')]/@href",
     )
     path = context.fetch_resource("source.xlsx", xlsx_link)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
