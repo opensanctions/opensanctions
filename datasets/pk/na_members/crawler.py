@@ -10,10 +10,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # opaque source identifier we key the person entity on.
 UID_RE = re.compile(r"profile\.php\?uid=(\d+)")
 
-# Names carry an honorific prefix ("Mr.", "Ms.", "Dr."). Strip it so the emitted
-# name is the person's actual name; the matcher normalises case anyway.
-HONORIFIC_RE = re.compile(r"^(mr|mrs|ms|dr)\.?\s+", re.IGNORECASE)
-
 
 def crawl_member(
     context: Context,
@@ -35,12 +31,15 @@ def crawl_member(
         value = h.element_text(h.xpath_element(row, "./td[1]"))
         data[label] = value
 
-    name = HONORIFIC_RE.sub("", data.pop("Name")).strip()
+    raw_name = data.pop("Name")
+    name = h.strip_name_titles(context, raw_name)
+    original_name = raw_name if name != raw_name else None
     assert name, member_url
 
     person = context.make("Person")
     person.id = context.make_slug(uid)
-    person.add("name", name)
+    person.add("name", name, lang="eng", original_value=original_name)
+    person.add("fatherName", data.pop("Father's Name", None), lang="eng")
     person.add("sourceUrl", member_url)
     person.add("email", data.pop("Email", None))
 
@@ -78,7 +77,6 @@ def crawl_member(
     context.audit_data(
         data,
         ignore=[
-            "Father's Name",
             "Father/Husband's Name",
             "Permanent Address",
             "Local Address",
