@@ -5,6 +5,7 @@ from normality import squash_spaces
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 # Date range like "00/00/1970-1973"
 DATE_RANGE_RE = re.compile(r"00/00/(\d{4})-(\d{4})")
@@ -31,7 +32,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     res = context.lookup("type", row.pop("type"), warn_unmatched=True)
     assert res and res.value
     entity = context.make(res.value)
-    names = h.multi_split(row.pop("name"), ["alias", "ALIAS"])
+    names = h.multi_split(row.pop("name"), ["alias", "ALIAS", "Alias"])
     entity.id = context.make_id(item_id, *names)
     entity.add("name", names[0])
     entity.add("alias", names[1:])
@@ -65,16 +66,25 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url)
     # The source page wraps this single download link in a markup structure that
     # changes from time to time, so select the unique .xlsx anchor directly rather
     # than depending on a specific ancestor element. xpath_string still asserts a
     # single match, so any future duplication crashes loudly.
-    xlsx_link = h.xpath_string(
-        doc,
-        ".//a[contains(@href, '.xlsx')]/@href",
+    xlsx_link_xpath = ".//a[contains(@href, '.xlsx')]/@href"
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=xlsx_link_xpath,
+        geolocation="ID",
     )
-    path = context.fetch_resource("source.xlsx", xlsx_link)
+    xlsx_link = h.xpath_string(doc, xlsx_link_xpath)
+    _, _, _, path = zyte_api.fetch_resource(
+        context,
+        "source.xlsx",
+        xlsx_link,
+        expected_media_type=XLSX,
+        geolocation="ID",
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     wb: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert len(wb.sheetnames) == 1, wb.sheetnames
