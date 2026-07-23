@@ -5,6 +5,7 @@ import { syntaxTree } from "@codemirror/language";
 import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { createHighlighter } from '@/lib/codemirror';
+import { translationTooltip } from '@/lib/translate';
 import { yamlSchema } from "codemirror-json-schema/yaml";
 import { compileSchema, draft04, JsonSchema } from 'json-schema-library';
 import { parse as parseYaml, stringify as stringifyToYaml, YAMLParseError } from 'yaml';
@@ -206,6 +207,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
                 extensions={[
                   yamlSchema(schema),
                   EditorView.lineWrapping,
+                  translationTooltip,
                   ...(highlighter ? [highlighter] : [])
                 ]}
                 editable={false}
@@ -224,6 +226,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
                   yamlSchema(schema),
                   EditorView.lineWrapping,
                   escapeBlurKeymap,
+                  translationTooltip,
                   ...(highlighter ? [highlighter] : [])
                 ]}
                 height="100%"

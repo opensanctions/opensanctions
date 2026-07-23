@@ -12,6 +12,7 @@ import { stringify as stringifyToYaml } from 'yaml';
 
 import { ReviewEntity } from '@/lib/db';
 import { createHighlighter } from '@/lib/codemirror';
+import { translationTooltip } from '@/lib/translate';
 import styles from "@/styles/Review.module.scss";
 
 type SourceViewProps = {
@@ -52,6 +53,7 @@ function makeCodeMirror(
     style={{ height: '100%', width: '100%' }}
     extensions={[
       EditorView.lineWrapping,
+      translationTooltip,
       ...extensions,
       ...(highlighter ? [highlighter] : []),
       ...(selectionHandler ? [selectionHandler] : [])
