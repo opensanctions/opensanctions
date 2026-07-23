@@ -113,12 +113,9 @@ def emit_position(
         context.emit(occupancy)
 
 
-def crawl_associate(context: Context, person_id: str) -> None:
-    """Emit one person from the Kremlin directory as an associate of the President.
+def crawl_biography(context: Context, person_id: str) -> None:
+    """Emit one person from the Kremlin directory who has a narrative biography."""
 
-    Fetches the narrative biography, applies birth/death details and the timeline,
-    and records a single listed job title as a review-gated position.
-    """
     url = f"{BASE_URL}/catalog/persons/{person_id}/biography"
     name_xpath = ".//*[@itemprop='familyName']"
     doc = zyte_api.fetch_html(
