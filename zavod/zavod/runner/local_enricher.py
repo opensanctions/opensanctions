@@ -20,6 +20,7 @@ from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.runner.util import (
     check_publishability,
+    emit_external_reference_stub,
     prune_unpublishable_references,
     should_promote,
 )
@@ -211,17 +212,7 @@ def save_match(
                 external = not should_promote(adj, publishable)
                 if not external:
                     pruned = prune_unpublishable_references(context, adj, publishable)
-                    if pruned:
-                        # Keep the pruned references visible to the graph
-                        # analyzer via an external stub, so it can tag the
-                        # referenced entities and make them publishable on a
-                        # later run.
-                        assert adj.id is not None
-                        stub = context.make(adj.schema.name)
-                        stub.id = adj.id
-                        for prop, other_id in pruned:
-                            stub.add(prop, other_id)
-                        context.emit(stub, external=True)
+                    emit_external_reference_stub(context, adj, pruned)
                 context.emit(adj, external=external)
         else:
             for adj in expanded:
