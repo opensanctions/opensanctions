@@ -496,8 +496,8 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
     Derive an original_value for each value in extracted based on the values in original.
 
     For each value in extracted:
-        (1) If there's exactly one value in original, use that for all names.
-        (2) If some value in original matches it exactly, leave blank - no original_value needed.
+        (1) If some value in original matches it exactly, leave blank - no original_value needed.
+        (2) If there's exactly one value in original, use that for all names.
         (3) If some value in original contains it, we can use that the value from original as original_value.
         Otherwise leave blank - this is best-effort only.
     """
@@ -512,12 +512,12 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
         for extracted_value in extracted_values:
             extracted_string = extracted_value.text
 
-            if len(original_values) == 1:
-                # (1) If there's exactly one value in original, use that for all names.
-                derived_originals[extracted_string] = original_values[0]
-            elif extracted_string in original_values:
-                # (2) Exact match exists, no original_value needed.
+            if extracted_string in original_values:
+                # (1) Exact match exists, no original_value needed.
                 continue
+            elif len(original_values) == 1:
+                # (2) If there's exactly one value in original, use that for all names.
+                derived_originals[extracted_string] = original_values[0]
             else:
                 for original_string in original_values:
                     if extracted_string in original_string:
