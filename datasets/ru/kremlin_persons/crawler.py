@@ -226,11 +226,11 @@ def crawl(context: Context) -> None:
         if match is not None:
             person_ids.add(match.group(1))
 
-    # An associate and a council/administration member can be the same person;
+    # A person with a biography and a council/administration member can be the same person;
     # they merge by catalogue id, so an entity may gain both a biography and a
     # PEP occupancy.
     for person_id in person_ids:
-        crawl_associate(context, person_id)
+        crawl_biography(context, person_id)
 
     for url in MEMBER_URLS:
         doc = zyte_api.fetch_html(
