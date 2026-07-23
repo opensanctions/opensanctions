@@ -5,9 +5,9 @@ from normality import squash_spaces
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
-from zavod.shed.trans import ENGLISH, apply_translit_full_name
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
-from zavod.util import Element
+from zavod.util import Element, LangText
 
 
 REGEX_LABEL = re.compile(r"^(?P<name>[^（(]+?)(?P<annotation>[（(].*)?$")
@@ -21,8 +21,8 @@ def parse_annotation(
 
     Alongside gender and ethnicity, the annotation can carry a home district
     (ending 区): the Tibet delegation has two deputies both named 拉琼, which the
-    source disambiguates this way. Ethnicity and district are resolved to their
-    English names via the `ethnicity` and `districts` lookups.
+    source disambiguates this way. Ethnicity is kept in the source language; the
+    district is resolved to its English name via the `districts` lookup.
     """
 
     gender: str | None = None
@@ -38,7 +38,7 @@ def parse_annotation(
         elif "族" in part:
             ethnicity = part
         elif part.endswith("区"):
-            constituency = context.lookup_value("districts", part)
+            constituency = context.lookup_value("districts", part, warn_unmatched=True)
         else:
             raise ValueError(f"Unknown annotation token for {name}: {part!r}")
     return gender, ethnicity, constituency
@@ -61,7 +61,7 @@ def crawl_deputy(
     person.id = context.make_id(delegation, name, annotation)
 
     person.add("name", name, lang="zho")
-    apply_translit_full_name(context, person, "chi", name, [ENGLISH])
+    apply_translit_full_name(context, person, LangText(name, "chi"))
 
     # NPC deputies must be PRC citizens: Electoral Law of the National People's
     # Congress and Local People's Congresses, Art. 3 and Art. 15
