@@ -31,10 +31,21 @@ def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    name: str,
+    src: str,
 ) -> None:
+    filename_raw = src.rsplit("/", 1)[-1]
+    if FILENAME_RE.match(filename_raw) is None:
+        return
+    name = clean_name(filename_raw)
+    # The file-name convention always yields at least a given name and a surname; a
+    # single token signals an unexpected file name and should fail loudly.
+    if len(name.split()) < 2:
+        context.log.warning(f"Unexpected member file name: {filename_raw}")
+        return
+
     person = context.make("Person")
-    person.id = context.make_id(name)
+    # use raw filename for id, not the cleaned name
+    person.id = context.make_id(filename_raw)
     person.add("name", name)
     # A candidate for Parliament must be a citizen of Fiji and hold no other
     # citizenship (2013 Constitution of Fiji, Section 56(2)(a)).
@@ -72,13 +83,5 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
 
-    for src in h.xpath_strings(doc, "//img/@src"):
-        filename = src.rsplit("/", 1)[-1]
-        if FILENAME_RE.match(filename) is None:
-            continue
-        name = clean_name(filename)
-        # The file-name convention always yields at least a given name and a surname; a
-        # single token signals an unexpected file name and should fail loudly.
-        if len(name.split()) < 2:
-            raise ValueError(f"Could not parse member name from image: {filename!r}")
-        crawl_member(context, position, categorisation, name)
+    for source_attr in h.xpath_strings(doc, "//img/@src"):
+        crawl_member(context, position, categorisation, source_attr)
