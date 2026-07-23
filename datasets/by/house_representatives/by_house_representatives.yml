@@ -1,0 +1,46 @@
+title: Belarus House of Representatives
+name: by_house_representatives
+prefix: by-hor
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the House of Representatives, the lower chamber of the National
+  Assembly of Belarus.
+description: |
+  The House of Representatives is the lower chamber of the National Assembly of Belarus. Its
+  110 members are elected from single-member constituencies for a four-year term. The
+  current legislature is the 8th convocation.
+
+  This dataset records each member by name, from the House's official directory.
+url: https://house.gov.by/en/deputies-en/
+publisher:
+  name: House of Representatives of the National Assembly of Belarus
+  description: >
+    The House of Representatives is the lower chamber of the National Assembly of the
+    Republic of Belarus.
+  url: https://house.gov.by/
+  country: by
+  official: true
+data:
+  url: https://house.gov.by/en/deputies-en/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Position: 1
+    country_entities:
+      by: 90
+  max:
+    schema_entities:
+      Person: 130
+      Position: 1
