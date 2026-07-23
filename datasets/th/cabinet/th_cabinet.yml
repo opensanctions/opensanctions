@@ -29,6 +29,11 @@ url: https://www.thaigov.go.th/en/cabinet/minister
 data:
   url: https://www.thaigov.go.th/en/cabinet/minister
   format: HTML
+http:
+  # The source sits behind a Cloudflare "Just a moment..." JS challenge, which
+  # Zyte solves via browser rendering. Solving it can take longer than the
+  # default 60s read timeout, so give the Zyte API more time to respond.
+  timeout: 180
 
 assertions:
   min:

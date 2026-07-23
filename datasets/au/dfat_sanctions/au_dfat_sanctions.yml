@@ -284,6 +284,16 @@ lookups:
           - 196719611973
           - 2/05/196
         value: null
+      - match: "approximately: between 1959 and 1965"
+        values:
+          - 1959
+          - 1960
+          - 1961
+          - 1962
+          - 1963
+          - 1964
+          - 1965
+
   type.identifier:
     options:
       - match: 9222650

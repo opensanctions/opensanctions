@@ -21,8 +21,16 @@ ALLOW_LIST = {
     ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
 }
 DENY_LIST: set[tuple[str, str]] = set()
+# Known-broken links: still attempted each run, but failures don't warn.
 BROKEN_LINKS = {
     "http://62.176.124.194/images/declaracii/2026/DesislavaGeorgievaIvanova100520261335.pdf",
+    "http://62.176.124.194/images/declaracii/2026/ZhivkaPalovaMangyrova140520262024.pdf",
+    "http://62.176.124.194/images/declaracii/2026/IvelinaDijanovaChavdarova150520261026.pdf",
+    "http://62.176.124.194/images/declaracii/2026/IvelinaKrasimirovaKoseva170420261415.pdf",
+    "http://62.176.124.194/images/declaracii/2026/IvelinaLenkovaMavrodieva110520261524.pdf",
+    "http://62.176.124.194/images/declaracii/2026/MarijaHristovaZheljazkova090520261313.pdf",
+    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf",
+    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251037promjananaobstojatelstva.pdf",
 }
 
 
@@ -34,9 +42,13 @@ def extract_judicial_declaration(
         pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
     except HTTPError as e:
         # The index regularly links to declaration PDFs that have not (yet) been
-        # uploaded to the server. Skip the row rather than aborting the whole run;
-        # add persistently broken links to BROKEN_LINKS to silence this warning.
-        context.log.warning("Failed to fetch declaration PDF", url=url, error=str(e))
+        # uploaded to the server. Skip the row rather than aborting the whole run.
+        # Persistently broken links are listed in BROKEN_LINKS so we keep retrying
+        # them without logging a warning every run.
+        if url not in BROKEN_LINKS:
+            context.log.warning(
+                "Failed to fetch declaration PDF", url=url, error=str(e)
+            )
         return {}
     extracted_data = {}
     try:
@@ -109,7 +121,7 @@ def crawl_row(context: Context, row: Dict[str, Element], index_url: str) -> None
         context.log.warning(f"Missing declaration link for {name}", index_url=index_url)
         return
     declaration_url = name_link_elem.get("href")
-    if not declaration_url or declaration_url in BROKEN_LINKS:
+    if not declaration_url:
         return
 
     extracted_data = extract_judicial_declaration(

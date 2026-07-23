@@ -25,10 +25,12 @@ def clean_name(value: Optional[str]) -> Optional[str]:
     The source frequently misuses name fields for placeholders (``-----``,
     ``0``), phone numbers, postal codes, dates and bare digits. ``is_name``
     rejects anything without at least one letter, keeping such junk out of the
-    name properties and out of zavod's "not a valid name" warnings."""
+    name properties and out of zavod's "not a valid name" warnings. ``is_nullword``
+    (normalised, so case variants like ``NONE`` match) drops placeholder tokens
+    such as ``N/A``, ``UNKNOWN`` or ``NONE``."""
     if value is None:
         return None
-    if is_nullword(value) or not is_name(value):
+    if is_nullword(value, normalize=True) or not is_name(value):
         return None
     return value
 
@@ -132,11 +134,6 @@ def crawl_othernames(context: Context, fh: TextIO) -> None:
         if name is None:
             continue
         entity.add("alias", name)
-        # `alias` is the only property on these othername records. `clean_name`
-        # lets some non-names through (e.g. "NONE") that the `type.name` lookup
-        # then drops, leaving an empty entity. Skip emitting those.
-        if not entity.has_statements:
-            continue
         context.emit(entity)
 
 
