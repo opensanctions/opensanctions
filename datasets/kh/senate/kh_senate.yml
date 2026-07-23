@@ -1,0 +1,47 @@
+title: Cambodia Senate
+name: kh_senate
+prefix: kh-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Senate of Cambodia, the upper chamber of the Parliament.
+description: |
+  The Senate is the upper chamber of the Parliament of Cambodia. It has 62 members: most
+  indirectly elected by commune councillors and the National Assembly across eight regions,
+  plus royal and National Assembly appointees, serving six-year terms. The current Senate is
+  the 5th legislature, inaugurated on 3 April 2024.
+
+  This dataset records each senator with their name, gender, date of birth, political party
+  and term dates, from the Senate's official directory.
+url: https://senate.gov.kh/search-senator-all/
+publisher:
+  name: Senate of Cambodia
+  description: >
+    The Senate is the upper chamber of the Parliament of Cambodia, whose members are
+    indirectly elected and appointed for six-year terms.
+  url: https://senate.gov.kh/
+  country: kh
+  official: true
+data:
+  url: https://senate.gov.kh/wp-content/themes/senate/ajax/generalsearch.php
+  format: JSON
+  lang: khm
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Position: 1
+    country_entities:
+      kh: 50
+  max:
+    schema_entities:
+      Person: 80
+      Position: 1
