@@ -36,7 +36,7 @@ def parse_annotation(
         if part == "女":
             gender = part
         elif "族" in part:
-            ethnicity = context.lookup_value("ethnicity", part)
+            ethnicity = part
         elif part.endswith("区"):
             constituency = context.lookup_value("districts", part)
         else:
@@ -82,7 +82,7 @@ def crawl_deputy(
     if annotation is not None:
         gender, ethnicity, constituency = parse_annotation(context, name, annotation)
         person.add("gender", gender)
-        person.add("ethnicity", ethnicity, lang="eng")
+        person.add("ethnicity", ethnicity, lang="zho")
         occupancy.add("constituency", constituency, lang="eng")
 
     context.emit(person)
