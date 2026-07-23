@@ -1,0 +1,51 @@
+title: Thailand Senate
+name: th_senate
+prefix: th-sen
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Senate of Thailand, the upper chamber of the National Assembly.
+description: |
+  The Senate is the upper chamber of the National Assembly of Thailand. Its 200 members are
+  indirectly selected across 20 occupational groups for a five-year term. The current
+  Senate is Council 12 (B.E. 2567), seated on 10 July 2024.
+
+  This dataset records each senator with their name, occupational group, and the dates
+  their term began and (where applicable) ended, from the Senate Secretariat's open-data
+  catalogue.
+url: https://datacatalog.senate.go.th/dataset/sec_03_1101
+publisher:
+  name: Secretariat of the Senate
+  acronym: Senate
+  description: >
+    The Secretariat of the Senate publishes the roster of the Senate of Thailand, the
+    upper chamber of the National Assembly, through its open-data catalogue.
+  url: https://www.senate.go.th/
+  country: th
+  official: true
+data:
+  url: https://datacatalog.senate.go.th/dataset/5221510c-b23a-4b04-84d5-68215d7a6ee4/resource/2abbb3f8-9d7e-436b-b026-07fe5e5f1e9a/download/senator12-69.csv
+  format: CSV
+  lang: tha
+
+dates:
+  formats: ["%d/%m/%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 160
+      Position: 1
+    country_entities:
+      th: 160
+  max:
+    schema_entities:
+      Person: 260
+      Position: 1
