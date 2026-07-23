@@ -1,0 +1,48 @@
+title: Indonesia Regional Representative Council (DPD)
+name: id_dpd
+prefix: id-dpd
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Regional Representative Council (DPD), the upper chamber of the
+  Indonesian parliament.
+description: |
+  The Regional Representative Council (Dewan Perwakilan Daerah, DPD) is the upper chamber of
+  Indonesia's parliament. It has 152 members: four non-partisan senators directly elected
+  from each of the 38 provinces, serving five-year terms. The current term is 2024–2029.
+
+  This dataset records each member with their name, province, gender, place and date of
+  birth from the Council's official member API.
+url: https://www.dpd.go.id/anggota/anggota
+publisher:
+  name: Dewan Perwakilan Daerah Republik Indonesia
+  acronym: DPD
+  description: >
+    The Regional Representative Council is the upper chamber of the Indonesian parliament,
+    composed of directly elected provincial senators.
+  url: https://www.dpd.go.id/
+  country: id
+  official: true
+data:
+  url: https://service.dpd.go.id/anggota/api/v1/member/public/profile?periodId=13&page=1&perPage=200
+  format: JSON
+  lang: ind
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 1
+    country_entities:
+      id: 120
+  max:
+    schema_entities:
+      Person: 180
+      Position: 1
