@@ -9,6 +9,11 @@ stricter published :class:`ResourceModel`, and it adds the operational fields
 that only exist once a run has produced them (counts, ``last_change``, issue
 levels, artifact URLs, ``result``).
 
+The input side, :class:`zavod.meta.model.ZavodDatasetModel`, also extends
+``DatasetModel``: it reads a dataset's description from its ``.yml`` metadata
+file and carries knobs controlling how the crawler runs (e.g. scheduling and
+memory consumption) that have no place on the output side.
+
 The statistics-derived fields are required only for a successful run — a failed
 run deliberately drops its statistics.
 
