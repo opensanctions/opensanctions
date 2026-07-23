@@ -3,6 +3,7 @@ from copy import deepcopy
 
 import pytest
 from nomenklatura.judgement import Judgement
+from structlog.testing import capture_logs
 
 from zavod import settings
 from zavod.entity import Entity
@@ -226,6 +227,66 @@ def test_topic_gated_requires_topics(testdataset1: Dataset):
     enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
     with pytest.raises(RunFailedException):
         crawl_dataset(enricher_ds)
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_topic_gated_prunes_unpublishable_references(
+    testdataset_securities: Dataset, testdataset_enrich_subject: Dataset
+):
+    """A promoted entity referencing an entity that isn't published internally
+    (e.g. a security whose issuer has no risk topic) is emitted without that
+    reference, so the published dataset has no dangling references."""
+    clear_data_path(testdataset_enrich_subject.name)
+    crawl_dataset(testdataset_securities)  # enriching against this
+
+    # The subject store holds a security with a gating topic, but no issuer.
+    subject_security = {
+        "schema": "Security",
+        "id": "sub-isin-a",
+        "properties": {"name": ["AAA USD ISK"], "topics": ["reg.warn"]},
+    }
+    subject_ctx = Context(testdataset_enrich_subject)
+    subject_ctx.emit(Entity.from_data(testdataset_enrich_subject, subject_security))
+    subject_ctx.close()
+
+    # Confirm the match (committed on block exit, before the enrich crawl)
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        canon_id = resolver.decide("osv-isin-a", "sub-isin-a", Judgement.POSITIVE)
+
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    dataset_data["config"]["topics"] = ["reg.warn"]
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset_securities.name)
+    clear_data_path(enricher_ds.name)
+    with capture_logs() as cap_logs:
+        crawl_dataset(enricher_ds)
+    assert {
+        "event": "Removing reference to unpublishable entity",
+        "log_level": "info",
+        "entity_id": "osv-isin-a",
+        "prop": "issuer",
+        "ref": "osv-lei-a",
+    } in cap_logs
+
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(enricher_ds, resolver)
+        store.sync(clear=True)
+        view_internal = store.view(enricher_ds, external=False)
+        view_all = store.view(enricher_ds, external=True)
+
+        # The matched security is published, without the dangling issuer ref.
+        security = view_internal.get_entity(canon_id)
+        assert security is not None
+        assert security.get("issuer") == [], security.get("issuer")
+
+        # The issuer has no gating topic in the subject store → external only.
+        assert view_internal.get_entity("osv-lei-a") is None
+        assert view_all.get_entity("osv-lei-a") is not None
+        store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
