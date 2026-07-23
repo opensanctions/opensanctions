@@ -1067,3 +1067,8 @@ lookups:
         entities:
           - Ytane Mamou
           - Elie Houri
+      - match: "<br /> <br /> La société Uzès Gestion<br /> M. Jean-Marie Godet<br /> M. Christian Maugey"
+        entities:
+          - Uzès Gestion
+          - Jean-Marie Godet
+          - Christian Maugey
