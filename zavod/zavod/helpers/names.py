@@ -32,9 +32,20 @@ from zavod.stateful.review import (
 )
 
 REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
-REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
+# A single person name written "Lastname(s), Firstname" — e.g. "Smith, John",
+# "Smith-Jones, Mary", "O'Brien, John", "Van Der Berg, Jan", "Smith, Jane B.".
+# Kept conservative: the surname may span at most three tokens, and the part
+# after the comma must be a single given name (optionally followed by dotted
+# initials), so that comma-separated lists of full names don't match and still
+# get split or warned about.
+REGEX_LNAME_FNAME = re.compile(
+    r"^[\w'’-]+(?: [\w'’-]+){0,2}, [\w'’-]+\.?(?: [^\W\d_]\.)*$",
+    re.I,
+)
+# The optional opening paren is captured separately so the alias markers also
+# match in parenthesised form, e.g. "John Smith, (A/K/A Smitty)".
 REGEX_CLEAN_COMMA = re.compile(
-    r", \b(LLC|L\.L\.C|Inc|Jr|INC|LLLP|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
+    r", (\(?)(LLC|L\.L\.C|Inc|Jr|INC|LLLP|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|A/K/A|N\.K\.A|N/K/A|F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
 REGEX_SPACES = re.compile(r"\s+")
@@ -320,14 +331,18 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     if res:
         return cast(List[str], res.names)
 
-    text = REGEX_CLEAN_COMMA.sub(r" \1", text)
+    text = REGEX_CLEAN_COMMA.sub(r" \1\2", text)
     # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
     if text.endswith(","):
         text = text[:-1]
 
-    if not REGEX_AND.search(text) and not REGEX_LNAME_FNAME.match(text):
+    # A single "Lastname, Firstname"-shaped person name: return as-is, no warning.
+    if REGEX_LNAME_FNAME.match(text):
+        return [text]
+
+    if not REGEX_AND.search(text):
         names = [n.strip() for n in text.split(",")]
-        return names
+        return [n for n in names if n != ""]
     else:
         if ("," in text) or (" and " in text):
             res = context.lookup("comma_names", text)
