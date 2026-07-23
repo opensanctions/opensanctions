@@ -83,5 +83,11 @@ def crawl_item(context: Context, item: Dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
 
-    for item in h.xpath_elements(response, './/*[@class="accordion-item"]/div'):
+    items = h.xpath_elements(response, './/*[@class="accordion-item"]/div')
+    # No items means a page change or a WAF block (200 "Request Rejected" page);
+    # fail loudly instead of logging a clean run with zero entities.
+    if len(items) == 0:
+        context.log.error("No disqualified-director entries found")
+        return
+    for item in items:
         crawl_item(context, extract_data(item))
