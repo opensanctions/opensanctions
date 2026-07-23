@@ -168,10 +168,12 @@ def test_prune_unpublishable_references(vcontext: Context) -> None:
     )
     publishable = {"sec": True, "pub": True, "unpub": False}
     with capture_logs() as cap_logs:
-        prune_unpublishable_references(vcontext, security, publishable)
+        pruned = prune_unpublishable_references(vcontext, security, publishable)
     assert security.get("issuer") == ["pub"]
+    # The removed pair is returned so the caller can re-emit it as external.
+    assert [(prop.name, ref) for prop, ref in pruned] == [("issuer", "unpub")]
     assert {
-        "event": "Removing reference to unpublishable entity",
+        "event": "Demoting reference to unpublishable entity to external",
         "log_level": "info",
         "entity_id": "sec",
         "prop": "issuer",
@@ -184,6 +186,7 @@ def test_prune_unpublishable_references(vcontext: Context) -> None:
         vcontext.dataset, "Ownership", "own", owner=["pub"], asset=["unpub"]
     )
     with capture_logs() as cap_logs:
-        prune_unpublishable_references(vcontext, ownership, publishable)
+        pruned = prune_unpublishable_references(vcontext, ownership, publishable)
+    assert pruned == []
     assert ownership.get("asset") == ["unpub"]
     assert cap_logs == []
