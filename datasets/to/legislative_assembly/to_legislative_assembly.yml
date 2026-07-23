@@ -1,0 +1,50 @@
+title: Tonga Legislative Assembly (Fale Alea)
+name: to_legislative_assembly
+prefix: to-fale
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-17
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Legislative Assembly of Tonga (Fale Alea), the unicameral
+  national legislature.
+description: |
+  The Legislative Assembly of Tonga (Fale Alea) is the country's unicameral national
+  legislature. It is made up of People's Representatives, directly elected from
+  single-member constituencies, and Nobles' Representatives, elected by the country's
+  hereditary nobles. Both sit as members of the Assembly.
+
+  This dataset records each sitting member, drawn from the official People's
+  Representatives and Nobles' Representatives listings, with their name.
+url: https://www.parliament.gov.to/
+publisher:
+  name: Legislative Assembly of Tonga
+  acronym: Fale Alea
+  description: >
+    The Fale Alea is the unicameral legislature of the Kingdom of Tonga, comprising
+    directly elected People's Representatives and Nobles' Representatives elected by the
+    hereditary nobility.
+  url: https://www.parliament.gov.to/
+  country: to
+  official: true
+data:
+  url: https://www.parliament.gov.to/en/members/peoples-representatives
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20
+      Position: 1
+    country_entities:
+      to: 20
+  max:
+    schema_entities:
+      Person: 35
+      Position: 1
