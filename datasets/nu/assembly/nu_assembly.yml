@@ -33,6 +33,11 @@ data:
 tags:
   - list.pep
 
+names:
+  prefixes_strip:
+    - "Hon "
+    - Hon.
+
 assertions:
   min:
     schema_entities:
