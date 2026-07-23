@@ -1,0 +1,46 @@
+title: Belarus Council of the Republic
+name: by_council_republic
+prefix: by-cr
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Council of the Republic, the upper chamber of the National
+  Assembly of Belarus.
+description: |
+  The Council of the Republic is the upper chamber of the National Assembly of Belarus. It
+  has 64 members: eight elected from each of the six regions and the city of Minsk, plus
+  eight appointed by the President, serving four-year terms.
+
+  This dataset records each sitting member by name, from the Council's official directory.
+url: https://sovrep.gov.by/en/senators-en/
+publisher:
+  name: Council of the Republic of the National Assembly of Belarus
+  description: >
+    The Council of the Republic is the upper chamber of the National Assembly of the
+    Republic of Belarus.
+  url: https://sovrep.gov.by/
+  country: by
+  official: true
+data:
+  url: https://sovrep.gov.by/en/senators-en/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 45
+      Position: 1
+    country_entities:
+      by: 45
+  max:
+    schema_entities:
+      Person: 70
+      Position: 1
