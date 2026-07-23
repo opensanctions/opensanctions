@@ -82,6 +82,8 @@ lookups:
         value: null
       - match: "Omanikukonto: ORKLA CONFECTIONERY &#038; SNACKS AS"
         value: "Omanikukonto: ORKLA CONFECTIONERY & SNACKS AS"
+      - match: "Omanikukonto: DSV AIR &#038; SEA HOLDING A/S"
+        value: "Omanikukonto: DSV AIR & SEA HOLDING A/S"
   type.address:
     options:
       - match:
