@@ -210,7 +210,18 @@ def save_match(
             for adj in expanded:
                 external = not should_promote(adj, publishable)
                 if not external:
-                    prune_unpublishable_references(context, adj, publishable)
+                    pruned = prune_unpublishable_references(context, adj, publishable)
+                    if pruned:
+                        # Keep the pruned references visible to the graph
+                        # analyzer via an external stub, so it can tag the
+                        # referenced entities and make them publishable on a
+                        # later run.
+                        assert adj.id is not None
+                        stub = context.make(adj.schema.name)
+                        stub.id = adj.id
+                        for prop, other_id in pruned:
+                            stub.add(prop, other_id)
+                        context.emit(stub, external=True)
                 context.emit(adj, external=external)
         else:
             for adj in expanded:

@@ -2,6 +2,7 @@ from functools import lru_cache
 from typing import Iterable, Mapping
 
 from followthemoney import registry
+from followthemoney.property import Property
 from followthemoney.schema import Schema
 
 from zavod.context import Context
@@ -95,23 +96,31 @@ def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
 
 def prune_unpublishable_references(
     context: Context, entity: Entity, publishable: Mapping[str, bool]
-) -> None:
+) -> list[tuple[Property, str]]:
     """Drop references from a non-edge entity to entities that will not be
     published (e.g. a security's issuer without a risk topic), so that the
     published entity doesn't contain dangling references. Edges are only
     published when all their endpoints are (see ``should_promote``), so they
-    are left untouched."""
+    are left untouched.
+
+    Returns the removed ``(prop, referenced_id)`` pairs so the caller can
+    re-emit them as external — keeping the relationship visible to the graph
+    analyzer (which reads the external view and may tag the referenced entity,
+    making it publishable on a later run) without the exporter seeing it."""
+    pruned: list[tuple[Property, str]] = []
     if entity.schema.edge:
-        return
+        return pruned
     for prop in list(entity.iterprops()):
         if prop.type != registry.entity:
             continue
         for other_id in entity.get(prop):
             if not publishable.get(other_id, False):
                 entity.remove(prop, other_id)
+                pruned.append((prop, other_id))
                 context.log.info(
-                    "Removing reference to unpublishable entity",
+                    "Demoting reference to unpublishable entity to external",
                     entity_id=entity.id,
                     prop=prop.name,
                     ref=other_id,
                 )
+    return pruned

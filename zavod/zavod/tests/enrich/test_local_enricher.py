@@ -263,7 +263,7 @@ def test_topic_gated_prunes_unpublishable_references(
     with capture_logs() as cap_logs:
         crawl_dataset(enricher_ds)
     assert {
-        "event": "Removing reference to unpublishable entity",
+        "event": "Demoting reference to unpublishable entity to external",
         "log_level": "info",
         "entity_id": "osv-isin-a",
         "prop": "issuer",
@@ -286,6 +286,12 @@ def test_topic_gated_prunes_unpublishable_references(
         # The issuer has no gating topic in the subject store → external only.
         assert view_internal.get_entity("osv-lei-a") is None
         assert view_all.get_entity("osv-lei-a") is not None
+
+        # The pruned reference is kept in an external stub so the graph
+        # analyzer can still discover the relationship and tag the issuer.
+        security_all = view_all.get_entity(canon_id)
+        assert security_all is not None
+        assert "osv-lei-a" in security_all.get("issuer")
         store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
