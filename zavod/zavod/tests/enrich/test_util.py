@@ -6,6 +6,7 @@ from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.runner.util import (
     check_publishability,
+    emit_external_reference_stub,
     endpoint_ids,
     is_supporting_schema,
     prune_unpublishable_references,
@@ -190,3 +191,19 @@ def test_prune_unpublishable_references(vcontext: Context) -> None:
     assert pruned == []
     assert ownership.get("asset") == ["unpub"]
     assert cap_logs == []
+
+
+def test_emit_external_reference_stub(vcontext: Context) -> None:
+    security = make(
+        vcontext.dataset, "Security", "sec", name=["AAA"], issuer=["pub", "unpub"]
+    )
+    publishable = {"sec": True, "pub": True, "unpub": False}
+    pruned = prune_unpublishable_references(vcontext, security, publishable)
+
+    before = vcontext.stats.entities
+    emit_external_reference_stub(vcontext, security, pruned)
+    assert vcontext.stats.entities == before + 1
+
+    # Nothing pruned → nothing emitted.
+    emit_external_reference_stub(vcontext, security, [])
+    assert vcontext.stats.entities == before + 1
