@@ -18,7 +18,12 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
-from zavod.runner.util import check_publishability, should_promote
+from zavod.runner.util import (
+    check_publishability,
+    emit_external_reference_stub,
+    prune_unpublishable_references,
+    should_promote,
+)
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
@@ -204,7 +209,11 @@ def save_match(
             # by the subject datasets and analyzers or being supporting schemata.
             publishable = check_publishability(expanded, subject_view, enrich_topics)
             for adj in expanded:
-                context.emit(adj, external=not should_promote(adj, publishable))
+                external = not should_promote(adj, publishable)
+                if not external:
+                    pruned = prune_unpublishable_references(context, adj, publishable)
+                    emit_external_reference_stub(context, adj, pruned)
+                context.emit(adj, external=external)
         else:
             for adj in expanded:
                 context.emit(adj, external=False)

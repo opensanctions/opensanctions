@@ -1,11 +1,15 @@
 from followthemoney import model
+from structlog.testing import capture_logs
 
+from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.runner.util import (
     check_publishability,
+    emit_external_reference_stub,
     endpoint_ids,
     is_supporting_schema,
+    prune_unpublishable_references,
     should_promote,
 )
 
@@ -157,3 +161,49 @@ def test_check_publishability_missing_endpoint(testdataset1: Dataset) -> None:
     publishable = check_publishability([edge], view, ENRICH_TOPICS)
     assert publishable == {"tagged": True, "ghost": False}
     assert not should_promote(edge, publishable)
+
+
+def test_prune_unpublishable_references(vcontext: Context) -> None:
+    security = make(
+        vcontext.dataset, "Security", "sec", name=["AAA"], issuer=["pub", "unpub"]
+    )
+    publishable = {"sec": True, "pub": True, "unpub": False}
+    with capture_logs() as cap_logs:
+        pruned = prune_unpublishable_references(vcontext, security, publishable)
+    assert security.get("issuer") == ["pub"]
+    # The removed pair is returned so the caller can re-emit it as external.
+    assert [(prop.name, ref) for prop, ref in pruned] == [("issuer", "unpub")]
+    assert {
+        "event": "Demoting reference to unpublishable entity to external",
+        "log_level": "info",
+        "entity_id": "sec",
+        "prop": "issuer",
+        "ref": "unpub",
+    } in cap_logs
+
+    # Edges are left untouched: promotion already guarantees their endpoints
+    # are publishable, and unpublishable edges aren't published at all.
+    ownership = make(
+        vcontext.dataset, "Ownership", "own", owner=["pub"], asset=["unpub"]
+    )
+    with capture_logs() as cap_logs:
+        pruned = prune_unpublishable_references(vcontext, ownership, publishable)
+    assert pruned == []
+    assert ownership.get("asset") == ["unpub"]
+    assert cap_logs == []
+
+
+def test_emit_external_reference_stub(vcontext: Context) -> None:
+    security = make(
+        vcontext.dataset, "Security", "sec", name=["AAA"], issuer=["pub", "unpub"]
+    )
+    publishable = {"sec": True, "pub": True, "unpub": False}
+    pruned = prune_unpublishable_references(vcontext, security, publishable)
+
+    before = vcontext.stats.entities
+    emit_external_reference_stub(vcontext, security, pruned)
+    assert vcontext.stats.entities == before + 1
+
+    # Nothing pruned → nothing emitted.
+    emit_external_reference_stub(vcontext, security, [])
+    assert vcontext.stats.entities == before + 1

@@ -2,8 +2,10 @@ from functools import lru_cache
 from typing import Iterable, Mapping
 
 from followthemoney import registry
+from followthemoney.property import Property
 from followthemoney.schema import Schema
 
+from zavod.context import Context
 from zavod.entity import Entity
 from zavod.store import View
 
@@ -36,6 +38,10 @@ def endpoint_ids(entity: Entity) -> set[str]:
 
 
 def _is_publishable(entity_id: str, view: View, enrich_topics: frozenset[str]) -> bool:
+    """
+    Publishable means the (non-edge) entity has a risk topic or is a supporting schema,
+    and can therefore be emitted as 'internal' to be included in exports.
+    """
     canonical_id = view.store.linker.get_canonical(entity_id)
     entity = view.get_entity(canonical_id)
     if entity is None:
@@ -80,9 +86,10 @@ def check_publishability(
 
 
 def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
-    """Publish non-edges iff the map says so (supporting schemata were seeded
-    True, risk targets need a topic) and edges iff every endpoint is itself
-    publishable."""
+    """Promote means emit as 'internal'.
+
+    Non-edges are promotable if they are publishable.
+    Edges are promotable iff each of its endpoints are publishable."""
     if entity.schema.edge:
         endpoints = endpoint_ids(entity)
         if not endpoints:
@@ -90,3 +97,52 @@ def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
         return all(publishable.get(eid, False) for eid in endpoints)
     assert entity.id is not None
     return publishable.get(entity.id, False)
+
+
+def prune_unpublishable_references(
+    context: Context, entity: Entity, publishable: Mapping[str, bool]
+) -> list[tuple[Property, str]]:
+    """Drop references from a non-edge entity to entities that will not be
+    published (e.g. a security's issuer without a risk topic), so that the
+    published entity doesn't contain dangling references. Edges are only
+    published when all their endpoints are (see ``should_promote``), so they
+    are left untouched.
+
+    Returns the removed ``(prop, referenced_id)`` pairs so the caller can
+    re-emit them as external — keeping the relationship visible to the graph
+    analyzer (which reads the external view and may tag the referenced entity,
+    making it publishable on a later run) without the exporter seeing it."""
+    pruned: list[tuple[Property, str]] = []
+    if entity.schema.edge:
+        return pruned
+    for prop in list(entity.iterprops()):
+        if prop.type != registry.entity:
+            continue
+        for other_id in entity.get(prop):
+            if not publishable.get(other_id, False):
+                entity.remove(prop, other_id)
+                pruned.append((prop, other_id))
+                context.log.info(
+                    "Demoting reference to unpublishable entity to external",
+                    entity_id=entity.id,
+                    prop=prop.name,
+                    ref=other_id,
+                )
+    return pruned
+
+
+def emit_external_reference_stub(
+    context: Context, entity: Entity, pruned: list[tuple[Property, str]]
+) -> None:
+    """Re-emit references pruned from ``entity`` in an external stub, so the
+    graph analyzer (which reads the external view) can still discover the
+    relationship and tag the referenced entities, making them publishable on
+    a later run — while the exporter (internal view) doesn't see them."""
+    if not pruned:
+        return
+    assert entity.id is not None
+    stub = context.make(entity.schema.name)
+    stub.id = entity.id
+    for prop, other_id in pruned:
+        stub.add(prop, other_id)
+    context.emit(stub, external=True)
