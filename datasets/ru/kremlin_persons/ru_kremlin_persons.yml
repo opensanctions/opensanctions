@@ -40,10 +40,11 @@ assertions:
     schema_entities:
       Person: 150
       Position: 100
-      Occupancy: 100
     country_entities:
       ru: 250
     countries: 1
+    # Occupancy is an Interval, not a Thing, so it isn't counted by
+    # schema_entities; assert the occupancy volume via entities_with_prop.
     entities_with_prop:
       Occupancy:
         holder: 100
@@ -51,7 +52,6 @@ assertions:
     schema_entities:
       Person: 300
       Position: 300
-      Occupancy: 300
     country_entities:
       ru: 700
     countries: 1
