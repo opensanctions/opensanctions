@@ -1,0 +1,49 @@
+title: Tunisia Assembly of the Representatives of the People
+name: tn_arp
+prefix: tn-arp
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Assembly of the Representatives of the People (ARP), the lower
+  chamber of the Tunisian parliament.
+description: |
+  The Assembly of the Representatives of the People (ARP) is the lower chamber of Tunisia's
+  bicameral parliament under the 2022 constitution. It has 161 seats — 151 elected from
+  domestic single-member constituencies and 10 from constituencies for Tunisians abroad —
+  for a five-year mandate.
+
+  This dataset records each sitting deputy of the current mandate with their name.
+url: https://www.arp.tn/
+publisher:
+  name: Assembly of the Representatives of the People
+  acronym: ARP
+  description: >
+    The Assembly of the Representatives of the People (Majlis Nuwwab al-Sha'b) is the
+    lower chamber of the Tunisian parliament, elected from domestic and overseas
+    constituencies.
+  url: https://www.arp.tn/
+  country: tn
+  official: true
+data:
+  url: https://www.arp.tn/hemicycle/json
+  format: JSON
+  lang: ara
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 130
+      Position: 1
+    country_entities:
+      tn: 130
+  max:
+    schema_entities:
+      Person: 200
+      Position: 1
