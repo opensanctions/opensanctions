@@ -1,30 +1,24 @@
 """Typed model for the metadata zavod writes to a dataset's ``index.json``.
 
-This is the *output* contract for a single dataset entry in the catalog, and it
-is deliberately distinct from the two *input* models it sits downstream of:
+This is the *output* contract for a single dataset entry in the catalog. It
+extends :class:`followthemoney.dataset.dataset.DatasetModel` — the loose schema
+used to read any catalog, where nearly every field is optional — and tightens
+it into what a published export must actually contain: ``version``,
+``updated_at`` and ``last_export`` become required, ``resources`` use the
+stricter published :class:`ResourceModel`, and it adds the operational fields
+that only exist once a run has produced them (counts, ``last_change``, issue
+levels, artifact URLs, ``result``).
 
-- ``followthemoney.dataset.dataset.DatasetModel`` is the loose, general schema
-  used to parse any catalog. Nearly every field there is optional so it can read
-  many shapes, so it cannot guard our exports.
-- ``zavod.meta.model.ZavodDatasetModel`` reads a dataset's description from its
-  ``.yml`` metadata file. Beyond the descriptive fields it also carries knobs
-  that control how the crawler runs — e.g. scheduling and memory consumption —
-  which have no place on the output side. It carries none of the operational
-  run fields (counts, ``last_change``, artifact URLs, ``result``) that only
-  come into existence after an export.
+The statistics-derived fields are required only for a successful run — a failed
+run deliberately drops its statistics.
 
-``CatalogDatasetModel`` is a flat, standalone model rather than a subclass of
-either of the above, for two reasons: (a) it adds the operational fields that
-only exist once a run has produced them, and (b) it is more restrictive than the
-input models because it is public API surface, which we want to evolve
-deliberately.
+It is public API surface, so evolve it deliberately.
 """
 
 from datetime import datetime
 from typing import Annotated, Any, Literal, Optional, Self
 
-from followthemoney.dataset.coverage import DataCoverage
-from followthemoney.dataset.publisher import DataPublisher
+from followthemoney.dataset.dataset import DatasetModel as FTMDatasetModel
 from pydantic import (
     BaseModel,
     HttpUrl,
@@ -74,31 +68,22 @@ class ResourceModel(BaseModel):
         return self
 
 
-class CatalogDatasetModel(BaseModel):
-    """Typed representation of a dataset entry in the OpenSanctions catalog and
-    per-dataset ``index.json``.
+class CatalogDatasetModel(FTMDatasetModel):
+    """A dataset entry in the OpenSanctions catalog and per-dataset ``index.json``.
 
-    See the module docstring for how this output model relates to the
-    ``DatasetModel`` / ``ZavodDatasetModel`` input models.
+    See the module docstring for how this tightens the FtM ``DatasetModel`` base.
     """
 
-    name: str
-    title: str
-    summary: Optional[str] = None
-    description: Optional[str] = None
-    url: Optional[HttpUrl] = None
+    # ── Tightened from the FtM base ───────────────────────────────────────────
     version: str
-    tags: list[str] = []
-    publisher: Optional[DataPublisher] = None
-    """None for collections, which aggregate sources rather than having their own publisher."""
-    coverage: Optional[DataCoverage] = None
-    children: set[str] = set()
-    """Internal representation of the datasets included in this collection. Prefer `datasets` for external use."""
-    deprecation: Optional[str] = None
-    """Markdown explanation of why the dataset was deprecated and what happened to it.
-    Only present when `deprecated` is True, e.g. 'The source API was shut down in April 2025...'"""
-    deprecated: bool
-    """Whether this dataset is deprecated (i.e. no longer actively maintained or updated)."""
+    updated_at: IsoDatetime
+    last_export: IsoDatetime
+    # ResourceModel is the stricter published form of the base's DataResource;
+    # list invariance stops mypy from seeing this as a valid narrowing.
+    resources: list[ResourceModel] = []  # type: ignore[assignment]
+    """Downloadable data files for this dataset (excludes internal artifact files)."""
+
+    # ── Zavod configuration carried into the export ───────────────────────────
     entry_point: Optional[str] = None
     disabled: bool
     hidden: bool
@@ -106,7 +91,6 @@ class CatalogDatasetModel(BaseModel):
     """Whether to run entity resolution on this dataset. Implicit default is True;
     only serialized when False (currently only 'maritime')."""
     full_dataset: Optional[str] = None
-
     data: Optional[DataModel] = None
     """Crawler source metadata (URL, format, mode). None for collections and some externals."""
 
@@ -123,13 +107,10 @@ class CatalogDatasetModel(BaseModel):
     """The public-facing list of datasets included in this collection — always identical to `children`.
     This is the field documented and intended for external consumers; `children` is the internal representation."""
 
-    updated_at: IsoDatetime
-    last_export: IsoDatetime
+    # ── Operational fields, only present after a run ──────────────────────────
     last_change: Optional[IsoDatetime] = None
     """Timestamp of the most recent entity change in the dataset."""
 
-    entity_count: Optional[int] = None
-    thing_count: Optional[int] = None
     target_count: Optional[int] = None
     """Number of entities flagged as targets."""
 
@@ -139,9 +120,6 @@ class CatalogDatasetModel(BaseModel):
 
     issue_count: int
     """Total number of issues across all levels."""
-
-    resources: list[ResourceModel] = []
-    """Downloadable data files for this dataset (excludes internal artifact files)."""
 
     index_url: HttpUrl
     """Published URL of this dataset's index.json."""
