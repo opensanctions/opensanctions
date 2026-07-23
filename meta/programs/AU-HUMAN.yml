@@ -1,12 +1,21 @@
 id: 204
-title: Serious Violations Or Serious Abuses Of Human Rights Sanctions Regime
+title: Serious violations or serious abuses of human rights sanctions framework
 key: AU-HUMAN
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/serious-violations-or-serious-abuses-human-rights-sanctions-regime
-summary: Australia established a thematic autonomous sanctions regime in relation
-  to serious violations or serious abuses of human rights on 21 December 2021. Unlike
-  a country-specific autonomous sanctions regime, a thematic autonomous sanctions
-  regime applies to sanctionable conduct wherever it occurs in the world.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/serious-violations-or-serious-abuses-human-rights-sanctions-framework
+summary: Targets persons and entities that have engaged in, been responsible for,
+  or been complicit in serious violations or serious abuses of the right to life,
+  the right not to be subjected to torture or cruel, inhuman or degrading treatment,
+  or the right not to be held in slavery or subjected to forced labour, wherever
+  in the world the conduct occurs. Designation is reserved for the most egregious
+  situations of international concern. Designated persons and entities are subject
+  to an asset freeze, and declared natural persons are barred from entering or
+  transiting through Australia.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - "Autonomous (Thematic - Human Rights)"
 target_territories:
-- zz
+  - zz
+measures:
+  - Asset freeze
+  - Travel ban

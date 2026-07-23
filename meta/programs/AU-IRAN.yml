@@ -1,11 +1,26 @@
 id: 198
-title: Iran Sanctions Regime
+title: Iran sanctions framework
 key: AU-IRAN
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/iran-sanctions-regime
-summary: Australia imposes autonomous sanctions in relation to Iran, which complement
-  the United Nations Security Council resolutions that Australia incorporates into
-  local law.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/iran-sanctions-framework
+summary: >
+  Targets persons and entities contributing to Iran's nuclear or missile
+  programs, as well as those undermining good governance or the rule of law
+  in Iran, or assisting Iran to threaten the sovereignty or territorial
+  integrity of other countries. Designated persons and entities are subject
+  to an asset freeze, and declared persons are barred from entering or
+  transiting Australia. Country-wide measures prohibit supplying arms and
+  related matériel, as well as certain graphite, metals and
+  industrial-process software, to Iran. These autonomous measures complement
+  the UN Security Council sanctions on Iran, reimposed in September 2025
+  under the Resolution 2231 snapback, which Australia implements separately.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (Iran)
 target_territories:
-- ir
+  - ir
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control

@@ -1,14 +1,27 @@
 id: 196
-title: Democratic People's Republic Of Korea (North Korea) Sanctions Regime
+title: Democratic People's Republic of Korea (North Korea) sanctions framework
 key: AU-DPRK
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/democratic-peoples-republic-korea-sanctions-regime
-summary: Australia implements the United Nations Security Council (UNSC) related to
-  the Democratic People’s Republic of Korea (DPRK) by incorporating them into Australian
-  law. In addition, since 2006 Australia has imposed autonomous sanctions in relation
-  to the DPRK, which complement the UNSC sanctions. The autonomous sanctions were
-  imposed in response to Australia’s concerns about the nature of the DPRK’s nuclear,
-  weapons of mass destruction (WMD) and proliferation programs.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/democratic-peoples-republic-korea-sanctions-framework
+summary: >
+  Targets the Democratic People's Republic of Korea (DPRK) in response to
+  its nuclear, other weapons of mass destruction, and ballistic missile
+  programs, complementing the UN Security Council sanctions that Australia
+  implements separately. Persons and entities designated by the Foreign
+  Minister are subject to an asset freeze, and declared persons are barred
+  from entering or transiting Australia. The autonomous measures also
+  prohibit providing services to Air Koryo and services or commercial
+  activity relating to the DPRK's extractive industries, and allow vessels
+  linked to the DPRK to be designated and directed away from Australian
+  ports.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (DPRK)
+  - DPRK sanctions framework
 target_territories:
-- kp
+  - kp
+measures:
+  - Asset freeze
+  - Travel ban
+  - Sectoral sanctions
+  - Transportation restrictions
