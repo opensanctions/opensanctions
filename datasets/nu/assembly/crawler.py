@@ -1,5 +1,3 @@
-import re
-
 from lxml import html
 
 from zavod import Context
@@ -17,10 +15,6 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-# Cabinet members carry the honorific "Hon". Strip it so the emitted name is the person's
-# actual name.
-HONORIFIC_RE = re.compile(r"^Hon\.?\s+")
-
 
 def crawl_member(
     context: Context,
@@ -29,13 +23,16 @@ def crawl_member(
     block: html.HtmlElement,
 ) -> None:
     constituency = h.element_text(h.xpath_element(block, './/p[@class="position"]'))
-    name = HONORIFIC_RE.sub("", h.element_text(h.xpath_element(block, ".//h4"))).strip()
+    # Members carry the honorific "Hon"; strip the affixes declared under
+    # `names.prefixes_strip` in the metadata, keeping the raw value as provenance.
+    raw_name = h.element_text(h.xpath_element(block, ".//h4"))
+    name = h.strip_name_titles(context, raw_name)
     assert name, "Empty member name"
     assert constituency, f"Empty constituency for {name!r}"
 
     person = context.make("Person")
     person.id = context.make_id(name, constituency)
-    person.add("name", name)
+    person.add("name", name, original_value=raw_name if name != raw_name else None)
     # Members must be a New Zealand citizen or a Permanent Resident of Niue (Constitution
     # of Niue, Article 17(1)(a)) — Niue is self-governing in free association with New
     # Zealand and has no separate citizenship. We therefore record country rather than
