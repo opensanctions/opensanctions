@@ -1,0 +1,46 @@
+title: Singapore Parliament
+name: sg_parliament
+prefix: sg-parl
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Parliament of Singapore, the unicameral national legislature.
+description: |
+  The Parliament of Singapore is the country's unicameral legislature. It comprises elected
+  members from Group Representation Constituencies (GRCs) and Single Member Constituencies
+  (SMCs), Non-Constituency Members (NCMPs) drawn from the best-performing losing candidates,
+  and Nominated Members (NMPs) appointed by the President.
+
+  This dataset records each sitting member with their name and constituency (or NCMP/NMP
+  designation) as published in the official list of current MPs.
+url: https://www.parliament.gov.sg/mps/list-of-current-mps
+publisher:
+  name: Parliament of Singapore
+  description: >
+    The Parliament of Singapore is the unicameral legislature of the Republic of Singapore.
+  url: https://www.parliament.gov.sg/
+  country: sg
+  official: true
+data:
+  url: https://www.parliament.gov.sg/mps/list-of-current-mps
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Position: 1
+    country_entities:
+      sg: 90
+  max:
+    schema_entities:
+      Person: 130
+      Position: 1
