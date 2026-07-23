@@ -69,10 +69,9 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     doc = context.fetch_html(context.data_url, headers=HEADERS, cache_days=1)
-    blocks = h.xpath_elements(
-        doc,
-        '//div[contains(@class, "cabinet-member")][.//p[@class="position"] and .//h4]',
-    )
+    # Select every member card and let crawl_member's xpath_element calls raise if one
+    # lacks a name or constituency, rather than filtering incomplete cards out silently.
+    blocks = h.xpath_elements(doc, '//div[contains(@class, "cabinet-member")]')
     if not blocks:
         raise ValueError("No member blocks found on the Niue government page")
     for block in blocks:
