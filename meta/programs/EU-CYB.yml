@@ -1,16 +1,27 @@
 id: 63
-title: EU Restrictive Measures Against Cyber-Attacks Threatening The Union Or Its
-  Member States
+title: EU Restrictive measures against cyber-attacks threatening the Union or
+  its Member States
 key: EU-CYB
 url: https://sanctionsmap.eu/#/main/details/47/
-summary: These sanctions target individuals and entities responsible for cyber-attacks
-  that threaten the security of the European Union or its member states. The measures
-  include asset freezes and prohibitions on transactions to deter and respond to malicious
-  cyber activities.
+summary: Targets persons and entities responsible for cyber-attacks or
+  attempted cyber-attacks with a significant effect which constitute an
+  external threat to the EU or its member states, including attacks against
+  third states or international organisations, as well as those who provide
+  support for or are otherwise involved in such attacks. Under Council
+  Decision (CFSP) 2019/797 and Regulation (EU) 2019/796, designated persons
+  and entities are subject to an asset freeze and a prohibition on making
+  funds or economic resources available to them, and designated individuals
+  are banned from entering or transiting the EU. The regime is thematic and
+  applies regardless of where the attackers are located; it imposes no
+  country- or sector-wide restrictions.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2019/796
+  - Decision (CFSP) 2019/797
+  - CYB
 target_territories:
-- ip
+  - ip
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

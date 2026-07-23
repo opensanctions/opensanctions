@@ -1,15 +1,26 @@
 id: 75
-title: EU Restrictive Measures In View Of The Situation In Mali
+title: EU Restrictive measures in view of the situation in Mali
 key: EU-MLI
 url: https://sanctionsmap.eu/#/main/details/42/
-summary: These sanctions target individuals and entities involved in the conflict
-  and destabilizing activities in Mali, including terrorism and human rights abuses.
-  The measures include asset freezes and prohibitions on transactions to support peace,
-  security, and governance in Mali.
+summary: Targets individuals and entities responsible for threatening the
+  peace, security or stability of Mali, or for obstructing or undermining its
+  political transition. Established in 2017 to implement the UN sanctions
+  regime under UN Security Council Resolution 2374 (2017), with an
+  EU-autonomous track added after the 2021 coup d'etat; after a Russian veto
+  ended the UN regime in August 2023, the EU converted the framework into a
+  fully autonomous regime in April 2024. Designated persons and entities are
+  subject to an asset freeze, and natural persons to a travel ban.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2017/1770
+  - Decision (CFSP) 2017/1775
+  - Council Decision concerning restrictive measures in view of the situation in Mali
+  - Restrictive measures in view of the situation in Mali
+  - UNSCR 2374
+  - MLI
 target_territories:
-- ml
+  - ml
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

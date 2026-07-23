@@ -1,14 +1,28 @@
 id: 77
-title: EU Restrictive Measures In View Of Actions Destabilising The Republic Of Moldova
+title: EU Restrictive measures in view of actions destabilising the Republic of Moldova
 key: EU-MDA
 url: https://sanctionsmap.eu/#/main/details/55/
-summary: These sanctions target individuals and entities involved in actions destabilizing
-  Moldova. The measures include asset freezes, travel bans, and trade restrictions
-  to promote stability, democracy, and the rule of law in Moldova.
+summary: Targets individuals and entities responsible for actions
+  destabilising, undermining or threatening the sovereignty and independence
+  of the Republic of Moldova, including obstructing the democratic political
+  process and elections, and planning, directing or participating in violent
+  demonstrations. The regime was established in 2023 at the request of the
+  Moldovan government under Council Decision (CFSP) 2023/891 and Regulation
+  (EU) 2023/888, and listings have focused on Russia-linked actors and
+  networks interfering in Moldovan elections; it is currently extended until
+  April 2027. Designated persons and entities are subject to an asset freeze
+  and a prohibition on making funds or economic resources available to them,
+  and designated individuals are banned from entering or transiting EU
+  territory.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Restrictive measures in view of actions destabilising the Republic of Moldova
+  - Regulation (EU) 2023/888
+  - Decision (CFSP) 2023/891
+  - MDA
 target_territories:
-- md
+  - md
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

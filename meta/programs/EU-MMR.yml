@@ -1,12 +1,32 @@
 id: 79
-title: EU Restrictive Measures In View Of The Situation In Myanmar And Burma
+title: EU Restrictive measures in view of the situation in Myanmar/Burma
 key: EU-MMR
 url: https://sanctionsmap.eu/#/main/details/8/
-summary: These sanctions target individuals and entities in Myanmar involved in human
-  rights abuses, undermining democracy, and contributing to instability. The measures
-  include asset freezes, travel bans, and restrictions on trade to pressure the Myanmar
-  government to respect human rights and restore democracy.
+summary: Targets those responsible for the February 2021 military coup in
+  Myanmar and for serious human rights violations, including senior officers
+  of the Myanmar Armed Forces (Tatmadaw), military-controlled companies, and
+  persons and entities supplying revenue, arms or aviation fuel to the
+  military regime. The regime is EU-autonomous; designations under Council
+  Decision 2013/184/CFSP and Regulation (EU) No 401/2013 result in
+  an asset freeze and, for individuals, a ban on entry into or transit
+  through the EU. The designation-level measures combine with a
+  country-wide arms embargo, export bans on dual-use goods destined for the
+  military or border guard police, on equipment which might be used for
+  internal repression and on communications-interception equipment, and a
+  prohibition on military training of and military cooperation with the
+  Tatmadaw.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) No 401/2013
+  - Decision 2013/184/CFSP
+  - Council Decision concerning restrictive measures in view of the
+    situation in Myanmar/Burma
+  - MMR
 target_territories:
-- mm
+  - mm
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control

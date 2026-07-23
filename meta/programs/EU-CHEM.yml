@@ -1,13 +1,25 @@
 id: 61
-title: EU Restrictive Measures Against The Proliferation And Use Of Chemical Weapons
+title: EU Restrictive measures against the proliferation and use of chemical
+  weapons
 key: EU-CHEM
 url: https://sanctionsmap.eu/#/main/details/46/
-summary: These sanctions target individuals and entities involved in the proliferation
-  and use of chemical weapons. The measures include asset freezes, travel bans, and
-  restrictions on trade to prevent the spread and use of chemical weapons and to hold
-  accountable those responsible for their use.
+summary: Targets persons and entities who are responsible for, provide
+  financial, technical or material support for, or are otherwise involved in
+  the development or use of chemical weapons, regardless of their nationality
+  or location. Under Council Decision (CFSP) 2018/1544 and Regulation (EU)
+  2018/1542, designated persons and entities are subject to an asset freeze
+  and a prohibition on making funds or economic resources available to them,
+  and designated individuals are banned from entering or transiting the EU.
+  The regime is thematic and applies worldwide; it imposes no country- or
+  sector-wide restrictions.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2018/1542
+  - Decision (CFSP) 2018/1544
+  - CHEM
+target_territories:
+  - zz
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

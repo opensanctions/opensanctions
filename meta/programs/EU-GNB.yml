@@ -2,25 +2,24 @@ id: 261
 title: EU Restrictive measures in view of the situation in Guinea-Bissau
 key: EU-GNB
 url: https://sanctionsmap.eu/#/main/details/15/
-summary: 'EU restrictive measures against Guinea-Bissau were introduced on 3 May 2012.
-  Travel restrictions and an asset freeze were imposed targeting those who sought
-  to prevent or block a peaceful political process or who took action that undermined
-  stability in the Republic of Guinea-Bissau, in particular those who played a leading
-  role in the mutiny of 1 April 2010 and the coup d’état of 12 April 2012. The measures
-  also target those who sought to undermine the rule of law, curtailing the primacy
-  of civilian power and furthering impunity and instability in the country.
-
-
-  On 18 May 2012, the UN Security Council adopted a Resolution 2048 (2012), which
-  imposed a travel ban on persons seeking to prevent the restoration of the constitutional
-  order or taking action that undermines stability in the Republic of Guinea-Bissau.
-  This restrictive measures regime includes both Council of the EU and UN Security
-  Council designations.
-
-
-  Derogations to the restrictive measures are possible as well as exemptions for humanitarian
-  purposes.'
+summary: Targets persons who threaten the peace, security or stability of
+  Guinea-Bissau, in particular those who played a leading role in the
+  April 2010 mutiny and the April 2012 coup d'etat, and those who undermine
+  the rule of law or the primacy of civilian power. The regime implements the
+  travel ban imposed by UN Security Council Resolution 2048 (2012) and adds
+  EU-autonomous designations. Designated persons are subject to a travel ban,
+  and persons listed under the EU regulation additionally to an asset freeze.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) No 377/2012
+  - Decision 2012/285/CFSP
+  - Council Decision concerning restrictive measures in view of the situation in Guinea-Bissau and repealing Decision 2012/237/CFSP
+  - Restrictive measures in view of the situation in Guinea-Bissau
+  - UNSCR 2048
+  - GNB
 target_territories:
-- gw
+  - gw
+measures:
+  - Asset freeze
+  - Travel ban

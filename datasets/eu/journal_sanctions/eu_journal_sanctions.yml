@@ -178,7 +178,11 @@ lookups:
           - 2018/1542
           - 2018/1544
         value: EU-CHEM
-      - match: 881/2002
+      - match:
+          - 881/2002
+          # autonomous ISIL/Al-Qaida track of the same program
+          - 2016/1686
+          - 2016/1693
         value: EU-TAQA-EUAQ
       - match: 2022/2319
         value: EU-HTI
@@ -199,6 +203,9 @@ lookups:
       - match:
           - 2001/931
           - 2580/2001
+          # Decision (CFSP) 2026/455 replaced the operative articles of
+          # Common Position 2001/931 in February 2026
+          - 2026/455
         value: EU-TERR
       - match: 1210/2003
         value: EU-IRQ

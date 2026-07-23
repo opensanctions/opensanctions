@@ -2,28 +2,35 @@ id: 268
 title: EU sanctions related to Ukraine
 key: EU-UKR
 url: https://sanctionsmap.eu/#/main/details/35,36/
-summary: 'Entities listed under these programs may be subject to only one of them.
-  This regime covers the European Union''s sanctions related to Ukraine under two
-  main frameworks:
-
-
-  * **Misappropriation of State Funds**: In response to the violence and political
-  instability in Ukraine, the EU adopted measures targeting individuals identified
-  as responsible for the misappropriation of Ukrainian state funds and human rights
-  violations. These measures aim to support the rule of law and respect for human
-  rights. Sanctions include asset freezes and prohibitions on making funds available.
-
-
-  * **Territorial Integrity of Ukraine**: The EU imposed asset freezes and travel
-  bans on individuals and entities responsible for actions undermining Ukraine''s
-  territorial integrity, sovereignty, and independence. This followed Russia’s illegal
-  annexation of Crimea and the invasion of Ukraine in 2022. Sanctions were progressively
-  expanded to target those supporting the Russian government, providing substantial
-  revenue, and benefitting from its actions. These measures also address the involvement
-  of Belarus in the aggression. Derogations allow for humanitarian aid delivery.'
+summary: Covers two designation-based EU regimes related to Ukraine. Under
+  Council Decision 2014/145/CFSP and Regulation (EU) No 269/2014, the EU
+  freezes the assets of, and bans travel by, persons and entities responsible
+  for actions undermining or threatening the territorial integrity,
+  sovereignty and independence of Ukraine, including those supporting,
+  benefitting from, or providing substantial revenue to the Government of
+  Russia. Under Decision 2014/119/CFSP and Regulation (EU) No 208/2014, it
+  freezes the assets of former Ukrainian officials identified as responsible
+  for the misappropriation of Ukrainian state funds; this regime was most
+  recently renewed until March 2027. Both regimes impose designation-level
+  measures only; the EU's sector-wide restrictions on Russia are imposed
+  under separate instruments.
 issuer: eu_council
 dataset: eu_fsf
 aliases:
-- Misappropriation of state funds of Ukraine
-- Restrictive measures in respect of actions undermining or threatening the territorial
-  integrity, sovereignty and independence of Ukraine
+  - Misappropriation of state funds of Ukraine
+  - Restrictive measures in respect of actions undermining or threatening the
+    territorial integrity, sovereignty and independence of Ukraine
+  - Regulation (EU) No 269/2014
+  - Decision 2014/145/CFSP
+  - Regulation (EU) No 208/2014
+  - Decision 2014/119/CFSP
+  - UKR
+target_territories:
+  - ua
+  - ua-cri
+  - ua-dpr
+  - ua-lpr
+  - ru
+measures:
+  - Asset freeze
+  - Travel ban

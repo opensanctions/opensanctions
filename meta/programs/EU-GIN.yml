@@ -1,15 +1,25 @@
 id: 67
-title: EU Restrictive Measures In View Of The Situation In Guinea
+title: EU Restrictive measures in view of the situation in Guinea
 key: EU-GIN
 url: https://sanctionsmap.eu/#/main/details/14/
-summary: These sanctions target individuals and entities in Guinea involved in human
-  rights abuses, corruption, and actions undermining democracy. The measures include
-  asset freezes, travel bans, and restrictions on trade to promote democratic governance
-  and respect for human rights in Guinea.
+summary: EU-autonomous regime adopted in response to the violent crackdown by
+  security forces on political demonstrators in Conakry, Guinea, on
+  28 September 2009. It targets persons identified by the International
+  Commission of Inquiry as responsible for those events, together with
+  individuals associated with them. Designated persons are subject to an asset
+  freeze and a travel ban. The arms embargo and the ban on exporting equipment
+  usable for internal repression initially imposed under the regime were
+  lifted in 2014.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) No 1284/2009
+  - Decision 2010/638/CFSP
+  - Council Decision concerning restrictive measures in view of the situation in Guinea
+  - Restrictive measures in view of the situation in Guinea
+  - GIN
 target_territories:
-- gn
+  - gn
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

@@ -1,15 +1,25 @@
 id: 80
-title: EU Restrictive Measures In View Of The Situation In Nicaragua
+title: EU Restrictive measures in view of the situation in Nicaragua
 key: EU-NIC
 url: https://sanctionsmap.eu/#/main/details/48/
-summary: These sanctions target individuals and entities in Nicaragua involved in
-  human rights abuses, corruption, and actions undermining democracy. The measures
-  include asset freezes, travel bans, and trade restrictions to promote democratic
-  governance and respect for human rights in Nicaragua.
+summary: Targets persons and entities responsible for serious human rights
+  violations or abuses, for the repression of civil society and democratic
+  opposition, and for undermining democracy or the rule of law in Nicaragua,
+  under the EU-autonomous framework of Decision (CFSP) 2019/1720 and
+  Regulation (EU) 2019/1716. Designated persons and entities are subject to
+  an asset freeze and a prohibition on making funds or economic resources
+  available to them, and designated natural persons are barred from entering
+  or transiting EU territory. The regime imposes no country-wide trade or
+  sectoral restrictions.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2019/1716
+  - Decision (CFSP) 2019/1720
+  - Restrictive measures in view of the situation in Nicaragua
+  - NIC
 target_territories:
-- ni
+  - ni
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

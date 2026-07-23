@@ -2,34 +2,42 @@ id: 263
 title: EU Sanctions against Russia
 key: EU-RUS
 url: https://sanctionsmap.eu/#/main/details/61,26/
-summary: 'Entities listed under these programs may be subject to only one of them.
-
-  This regime covers the European Union''s sanctions imposed on Russia under two main
-  frameworks:
-
-
-  Restrictive measures in view of the situation in Russia:
-
-  In response to the accelerating repression, deteriorating human rights situation,
-  and the death of opposition politician Alexei Navalny, the EU adopted a framework
-  targeting individuals and entities responsible for serious human rights violations,
-  repression of civil society, and undermining democracy and the rule of law. Measures
-  include asset freezes, travel bans, and restrictions on equipment for internal repression.
-
-
-  Restrictive measures in view of Russia''s actions destabilising the situation in
-  Ukraine:
-
-  Adopted progressively since 2014, and expanded following Russia’s 2022 military
-  aggression, these measures target Russia’s economic and military capabilities. Sanctions
-  include restrictions on dual-use goods, financial transactions, oil imports, trade
-  in Russian diamonds, and advanced technologies, alongside measures to prevent circumvention
-  of sanctions.'
+summary: Covers two EU regimes concerning Russia. Under Council Decision (CFSP)
+  2024/1484 and Regulation (EU) 2024/1485, the EU designates individuals and
+  entities responsible for serious human rights violations, the repression of
+  civil society and democratic opposition, or the undermining of the rule of
+  law in Russia; designated persons are subject to an asset freeze, designated
+  individuals to a travel ban, and exports of equipment for internal repression
+  or for telecommunications interception are restricted. Under Decision
+  2014/512/CFSP and Regulation (EU) No 833/2014, adopted in view of Russia's
+  actions destabilising the situation in Ukraine, the EU also imposes
+  country-wide sectoral measures, including an arms embargo, export controls
+  on dual-use and advanced-technology items and luxury goods, import bans on
+  Russian oil, coal, gold, diamonds, and iron and steel, capital-market,
+  banking and financial-messaging restrictions, port, airspace and
+  road-transport closures, an investment ban in the Russian energy and mining
+  sectors, and a ban on providing professional services to Russia.
 issuer: eu_council
 dataset: eu_fsf
 aliases:
-- Restrictive measures in view of the situation in Russia
-- Restrictive measures in view of Russia's actions destabilising the situation in
-  Ukraine (sectoral restrictive measures)
+  - Restrictive measures in view of the situation in Russia
+  - Restrictive measures in view of Russia's actions destabilising the
+    situation in Ukraine (sectoral restrictive measures)
+  - Regulation (EU) 2024/1485
+  - Decision (CFSP) 2024/1484
+  - Regulation (EU) No 833/2014
+  - Decision 2014/512/CFSP
+  - RUS
 target_territories:
-- ru
+  - ru
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Export control
+  - Financial restrictions
+  - Import restrictions
+  - Investment ban
+  - Prohibition to satisfy claims
+  - Services ban
+  - Transportation restrictions
+  - Travel ban

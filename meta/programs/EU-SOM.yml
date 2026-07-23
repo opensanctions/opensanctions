@@ -2,22 +2,33 @@ id: 264
 title: EU Restrictive measures in view of the situation in Somalia
 key: EU-SOM
 url: https://sanctionsmap.eu/#/main/details/29/
-summary: 'Measures imposed at UN level since UN Security Council Resolution 733 (1992)
-  of 23 January 1992 and subsequent Resolutions are transposed into EU sanctions law.
-  The measures include an arms embargo, which is partial and allows under certain
-  conditions arms supplies for the development of Somalia''s security and police institutions.
-  In addition the measures include a ban on the direct or indirect import of charcoal
-  from Somalia and a prohibition of the direct or indirect sale, supply or transfer
-  to Somalia of listed items if there is sufficient evidence to demonstrate that the
-  item(s) will be used, or a significant risk they may be used, in the manufacture
-  in Somalia of improvised explosive devices (IEDs). The measures also cover targeted
-  individual sanctions on designated persons and entities (asset freeze and prohibition
-  from making funds and economic resources available as well as travel restrictions).
-
-
-  Derogations to the restrictive measures are possible as well as exemptions for humanitarian
-  purposes.'
+summary: Transposes the UN sanctions regime on Somalia, established by UN Security
+  Council Resolution 733 (1992) and refocused on Al-Shabaab by Resolution 2713
+  (2023), through Council Decision 2010/231/CFSP, Regulation (EC) No 147/2003 and
+  Regulation (EU) No 356/2010. Persons and entities designated for threatening
+  peace and security in Somalia or supporting Al-Shabaab are subject to an asset
+  freeze, and natural persons are barred from entry or transit. These
+  designation-level measures combine with targeted arms restrictions directed at
+  Al-Shabaab (the blanket embargo on the Somali government was lifted in December
+  2023), a ban on importing charcoal from Somalia, and restrictions on supplying
+  listed items that could be used to manufacture improvised explosive devices.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Decision 2010/231/CFSP
+  - Regulation (EC) No 147/2003
+  - Regulation (EU) No 356/2010
+  - Council Decision concerning restrictive measures against Somalia and repealing Common Position 2009/138/CFSP
+  - UNSCR 733
+  - UNSCR 751
+  - UNSCR 1844
+  - UNSCR 2713
+  - SOM
 target_territories:
-- so
+  - so
+measures:
+  - Arms restrictions
+  - Asset freeze
+  - Export control
+  - Import restrictions
+  - Travel ban

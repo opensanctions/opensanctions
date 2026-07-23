@@ -1,15 +1,25 @@
 id: 66
-title: EU Restrictive Measures In View Of The Situation In Guatemala
+title: EU Restrictive measures in view of the situation in Guatemala
 key: EU-GTM
 url: https://sanctionsmap.eu/#/main/details/59/
-summary: These sanctions target individuals and entities in Guatemala involved in
-  human rights abuses, corruption, and undermining democratic processes. The measures
-  include asset freezes, travel bans, and restrictions on trade to promote democratic
-  governance and respect for human rights in Guatemala.
+summary: Targets persons and entities responsible for actions undermining
+  democracy, the rule of law or the peaceful transfer of power in Guatemala,
+  a framework adopted in January 2024 in response to attempts to obstruct
+  the transition following the country's 2023 general elections. The
+  EU-autonomous regime is established by Decision (CFSP) 2024/254 and
+  Regulation (EU) 2024/287. Designated persons and entities are subject to
+  an asset freeze and a prohibition on making funds or economic resources
+  available to them, and designated natural persons are barred from entering
+  or transiting EU territory.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2024/287
+  - Decision (CFSP) 2024/254
+  - Restrictive measures in view of the situation in Guatemala
+  - GTM
 target_territories:
-- gt
+  - gt
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

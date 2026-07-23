@@ -2,17 +2,28 @@ id: 260
 title: Restrictive measures in view of the situation in the Central African Republic
 key: EU-CAF
 url: https://sanctionsmap.eu/#/main/details/9/
-summary: 'On 5 December 2013, the UN Security Council adopted Resolution 2127 (2013),
-  which imposes an arms embargo against the Central African Republic (CAR). The EU
-  implemented this decision on 23 December 2013. On 28 January 2014, the UN Security
-  Council adopted Resolution 2134 (2014) imposing also targeted restrictive measures
-  on persons or entities that undermine the peace, stability or security of the CAR,
-  or that threaten or impede the political transition process, or that fuel violence.
-
-
-  Derogations to the restrictive measures are possible as well as exemptions for humanitarian
-  purposes.'
+summary: Implements the UN sanctions regime on the Central African Republic
+  established by UN Security Council Resolution 2127 (2013). Persons and
+  entities designated by the UN Sanctions Committee for engaging in or
+  supporting acts that undermine the peace, stability or security of the
+  country are subject to an asset freeze, and natural persons to a travel ban.
+  The regime also prohibits the supply of arms and related services to armed
+  groups and associated individuals operating in the Central African Republic;
+  following UN Security Council Resolution 2745 (2024), the arms embargo no
+  longer applies to the country's government forces.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) No 224/2014
+  - Decision 2013/798/CFSP
+  - Council Decision concerning restrictive measures against the Central African Republic
+  - UNSCR 2127
+  - UNSCR 2134
+  - CAF
 target_territories:
-- cf
+  - cf
+measures:
+  - Arms restrictions
+  - Asset freeze
+  - Prohibition to satisfy claims
+  - Travel ban

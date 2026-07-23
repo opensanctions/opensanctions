@@ -1,16 +1,26 @@
 id: 86
-title: EU Restrictive Measures In View Of The Situation In Sudan
+title: EU Restrictive measures in view of the situation in Sudan
 key: EU-SDN
 url: https://sanctionsmap.eu/#/main/details/31/
-summary: These sanctions target individuals and entities in Sudan involved in human
-  rights abuses, conflict, and actions that undermine peace and security. The measures
-  include asset freezes, travel bans, and trade restrictions to pressure the Sudanese
-  government to engage in peaceful negotiations and respect human rights.
+summary: Targets individuals and entities obstructing the peace process in Sudan
+  or committing violations of international humanitarian and human rights law,
+  implementing the UN Darfur sanctions line established by UN Security Council
+  Resolutions 1556 (2004) and 1591 (2005). Designated persons are subject to an
+  asset freeze under Regulation (EU) No 747/2014, and natural persons are barred
+  from entry or transit under Council Decision 2014/450/CFSP. These
+  designation-level measures combine with an EU arms embargo covering the whole
+  of Sudan, which is broader than the UN embargo focused on Darfur.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) No 747/2014
+  - Decision 2014/450/CFSP
+  - UNSCR 1556
+  - UNSCR 1591
+  - SDN
 target_territories:
-- sd
+  - sd
 measures:
-- Arms restrictions
-- Asset freeze
-- Travel ban
+  - Arms embargo
+  - Asset freeze
+  - Travel ban

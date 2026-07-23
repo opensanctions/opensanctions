@@ -1,12 +1,28 @@
 id: 69
-title: EU Restrictive Measures Against Serious Human Rights Violations And Abuses
+title: EU Restrictive measures against serious human rights violations and
+  abuses
 key: EU-HR
 url: https://sanctionsmap.eu/#/main/details/50/
-summary: These sanctions target individuals and entities responsible for serious human
-  rights violations and abuses worldwide. The measures include asset freezes and travel
-  bans to hold perpetrators accountable and deter further abuses.
+summary: Targets individuals, entities and bodies, including state and
+  non-state actors, responsible for, involved in, or associated with serious
+  human rights violations and abuses worldwide, such as genocide, crimes
+  against humanity, torture, extrajudicial killings, enforced disappearances,
+  and systematic abuses of the freedoms of peaceful assembly, expression, or
+  religion. Under Council Decision (CFSP) 2020/1999 and Regulation (EU)
+  2020/1998, designated persons and entities are subject to an asset freeze
+  and a prohibition on making funds or economic resources available to them,
+  and designated individuals are banned from entering or transiting the EU.
+  The regime is thematic and applies worldwide; it imposes no country- or
+  sector-wide restrictions.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - EU Global Human Rights Sanctions Regime
+  - Regulation (EU) 2020/1998
+  - Decision (CFSP) 2020/1999
+  - HR
+target_territories:
+  - zz
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

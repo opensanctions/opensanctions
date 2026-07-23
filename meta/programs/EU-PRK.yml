@@ -1,13 +1,42 @@
 id: 64
-title: EU Restrictive Measures In Relation To The Non-Proliferation Of The Weapons
-  Of Mass Destruction (WMD)
+title: EU Restrictive measures against the Democratic People's Republic of
+  Korea (North Korea)
 key: EU-PRK
 url: https://sanctionsmap.eu/#/main/details/20/
-summary: These sanctions target individuals and entities in North Korea involved in
-  the development and proliferation of weapons of mass destruction. The measures include
-  asset freezes, travel bans, and restrictions on trade to prevent North Korea from
-  advancing its WMD programs.
+summary: Implements the United Nations sanctions on North Korea adopted under
+  the Security Council Resolution 1718 (2006) line and supplements them with
+  EU-autonomous listings and trade restrictions. Persons and entities
+  designated under Council Decision (CFSP) 2016/849 and Regulation (EU)
+  2017/1509 for involvement in the DPRK's nuclear, ballistic-missile and
+  other weapons-of-mass-destruction programmes are subject to an asset
+  freeze and, for individuals, a ban on entry into or transit through the
+  EU. The designation-level measures sit within near-comprehensive
+  country-wide restrictions, including a full arms embargo, export controls
+  on dual-use items and luxury goods, import bans on coal, minerals,
+  textiles, seafood and other commodities, bans on supplying crude oil,
+  refined petroleum and aviation fuel, restrictions on financial transfers
+  and banking relationships, a prohibition on new investment and on
+  providing computer and certain other services, a suspension of aid
+  commitments, and port, shipping and aviation restrictions.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2017/1509
+  - Decision (CFSP) 2016/849
+  - Council Decision concerning restrictive measures against the Democratic
+    People's Republic of Korea and repealing Decision 2013/183/CFSP
+  - UNSCR 1718
+  - PRK
 target_territories:
-- kp
+  - kp
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control
+  - Import restrictions
+  - Financial restrictions
+  - Investment ban
+  - Aid suspension
+  - Services ban
+  - Transportation restrictions
