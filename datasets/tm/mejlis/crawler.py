@@ -1,10 +1,10 @@
 import re
 from lxml.html import HtmlElement
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.extract.zyte_api import fetch_html
 
 DEPUTY_RE = re.compile(r"single-deputy/(\d+)")
 YEAR_RE = re.compile(r"^\d{4}$")
@@ -40,15 +40,21 @@ def crawl_deputy(
     categorisation: PositionCategorisation,
 ) -> None:
     url = f"https://mejlis.gov.tm/single-deputy/{deputy_id}"
-    doc = context.fetch_html(url, params={"lang": "en"}, cache_days=7)
-    right_block = h.xpath_element(doc, "//div[contains(@class, 'right_block')]")
+    right_block_xpath = "//div[contains(@class, 'right_block')]"
+    doc = fetch_html(
+        context,
+        f"{url}?lang=en",
+        unblock_validator=right_block_xpath,
+        html_source="httpResponseBody",
+        cache_days=7,
+    )
+    right_block = h.xpath_element(doc, right_block_xpath)
     name = h.element_text(h.xpath_element(right_block, ".//h3[@class='name']"))
 
     person = context.make("Person")
     person.id = context.make_slug("deputy", deputy_id)
     h.apply_name(person, full=name, lang="eng")
-    url_en = f"{url}?lang=en"
-    person.add("sourceUrl", url_en)
+    person.add("sourceUrl", f"{url}?lang=en")
     # Deputies of the Mejlis must be citizens of Turkmenistan (Constitution art. 120).
     # https://www.constituteproject.org/constitution/Turkmenistan_2016
     person.add("citizenship", "tm")
@@ -88,7 +94,12 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    doc = context.fetch_html(context.data_url, params={"lang": "en"}, cache_days=1)
+    doc = fetch_html(
+        context,
+        f"{context.data_url}?lang=en",
+        unblock_validator="//a[contains(@href, 'single-deputy/')]",
+        cache_days=1,
+    )
     deputy_ids = parse_deputy_ids(doc)
 
     for deputy_id in deputy_ids:
