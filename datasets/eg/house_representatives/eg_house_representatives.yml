@@ -1,0 +1,49 @@
+title: Egypt House of Representatives
+name: eg_house_representatives
+prefix: eg-hor
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the House of Representatives of Egypt, the lower chamber of the
+  bicameral parliament.
+description: |
+  The House of Representatives (Majlis al-Nuwwab) is the lower chamber of Egypt's bicameral
+  parliament. It has 596 members: 568 directly elected — half from individual candidacy
+  constituencies and half from closed party lists — and 28 appointed by the President.
+
+  This dataset records each sitting member with their name, governorate, electoral
+  constituency, political party and place of birth as published on the House's website.
+url: https://www.parliament.gov.eg/
+publisher:
+  name: House of Representatives of Egypt
+  acronym: HoR
+  description: >
+    The House of Representatives is the lower chamber of the Parliament of Egypt, whose
+    members are elected from individual and party-list constituencies or appointed by the
+    President.
+  url: https://www.parliament.gov.eg/
+  country: eg
+  official: true
+data:
+  url: https://www.parliament.gov.eg/MembersDetails.aspx
+  format: HTML
+  lang: ara
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+      Position: 1
+    country_entities:
+      eg: 450
+  max:
+    schema_entities:
+      Person: 650
+      Position: 1
