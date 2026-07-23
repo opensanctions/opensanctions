@@ -5,6 +5,7 @@ from followthemoney import registry
 from followthemoney.schema import Schema
 
 from zavod.constants import ANALYZER_DATASETS
+from zavod.context import Context
 from zavod.entity import Entity
 from zavod.store import View
 
@@ -101,3 +102,27 @@ def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
         return all(publishable.get(eid, False) for eid in endpoints)
     assert entity.id is not None
     return publishable.get(entity.id, False)
+
+
+def prune_unpublishable_references(
+    context: Context, entity: Entity, publishable: Mapping[str, bool]
+) -> None:
+    """Drop references from a non-edge entity to entities that will not be
+    published (e.g. a security's issuer without a risk topic), so that the
+    published entity doesn't contain dangling references. Edges are only
+    published when all their endpoints are (see ``should_promote``), so they
+    are left untouched."""
+    if entity.schema.edge:
+        return
+    for prop in list(entity.iterprops()):
+        if prop.type != registry.entity:
+            continue
+        for other_id in entity.get(prop):
+            if not publishable.get(other_id, False):
+                entity.remove(prop, other_id)
+                context.log.info(
+                    "Removing reference to unpublishable entity",
+                    entity_id=entity.id,
+                    prop=prop.name,
+                    ref=other_id,
+                )
