@@ -13,9 +13,10 @@ summary: Targets people and entities involved in activities that threaten the
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Mali (Sanctions) (EU Exit) Regulations 2020
-  - SI 2020/705
   - Mali
+  - Resolution 2374
+  - SI 2020/705
+  - The Mali (Sanctions) (EU Exit) Regulations 2020
   - UNSCR 2374
 target_territories:
   - ml

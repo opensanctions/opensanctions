@@ -13,12 +13,13 @@ summary: Gives effect to the United Nations sanctions regime on Haiti
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Haiti (Sanctions) Regulations 2022
+  - Resolution 2653
   - SI 2022/1281
+  - The Haiti (Sanctions) Regulations 2022
   - UNSCR 2653
 target_territories:
   - ht
 measures:
+  - Arms embargo
   - Asset freeze
   - Travel ban
-  - Arms embargo

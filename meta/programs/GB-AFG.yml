@@ -11,12 +11,13 @@ summary: Implements the UN Security Council's Afghanistan sanctions regime in
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Afghanistan (Sanctions) (EU Exit) Regulations 2020
+  - Resolution 1988
   - SI 2020/948
+  - The Afghanistan (Sanctions) (EU Exit) Regulations 2020
   - UNSCR 1988
 target_territories:
   - af
 measures:
+  - Arms restrictions
   - Asset freeze
   - Travel ban
-  - Arms restrictions

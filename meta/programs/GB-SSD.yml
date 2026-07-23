@@ -12,14 +12,16 @@ summary: Gives effect to the UN Security Council's South Sudan sanctions regime,
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The South Sudan (Sanctions) (EU Exit) Regulations 2019
+  - Resolution 2206
+  - Resolution 2428
   - SI 2019/438
   - South Sudan
+  - The South Sudan (Sanctions) (EU Exit) Regulations 2019
   - UNSCR 2206
   - UNSCR 2428
 target_territories:
   - ss
 measures:
+  - Arms embargo
   - Asset freeze
   - Travel ban
-  - Arms embargo

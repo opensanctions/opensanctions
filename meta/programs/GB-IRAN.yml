@@ -14,11 +14,11 @@ summary: Targets persons responsible for or involved in serious human rights
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Iran (Sanctions) Regulations 2023
+  - Iran (Human Rights)
+  - SI 2019/134
   - SI 2023/1314
   - The Iran (Sanctions) (Human Rights) (EU Exit) Regulations 2019
-  - SI 2019/134
-  - Iran (Human Rights)
+  - The Iran (Sanctions) Regulations 2023
 target_territories:
   - ir
 measures:

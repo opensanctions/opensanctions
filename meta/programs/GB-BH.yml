@@ -12,8 +12,8 @@ summary: Targets people and entities that undermine the sovereignty, territorial
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020
   - SI 2020/608
+  - The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020
 target_territories:
   - ba
 measures:

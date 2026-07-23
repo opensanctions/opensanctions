@@ -11,9 +11,9 @@ summary: Targets individuals and entities involved in cyber activity that
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Cyber (Sanctions) (EU Exit) Regulations 2020
-  - SI 2020/597
   - Cyber
+  - SI 2020/597
+  - The Cyber (Sanctions) (EU Exit) Regulations 2020
 target_territories:
   # rigour pseudo-territory for cyberspace, cf. zz for global
   - ip

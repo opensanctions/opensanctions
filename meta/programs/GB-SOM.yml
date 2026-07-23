@@ -13,15 +13,17 @@ summary: Gives effect in the United Kingdom to the UN Security Council's
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Somalia (Sanctions) (EU Exit) Regulations 2020
-  - SI 2020/642
-  - Resolution 751
   - Resolution 2713
+  - Resolution 751
+  - SI 2020/642
+  - The Somalia (Sanctions) (EU Exit) Regulations 2020
+  - UNSCR 2713
+  - UNSCR 751
 target_territories:
   - so
 measures:
-  - Asset freeze
-  - Travel ban
   - Arms embargo
+  - Asset freeze
   - Export control
   - Import restrictions
+  - Travel ban

@@ -1,4 +1,4 @@
-title: Global Irregular Migration and Trafficking in Persons Sanctions
+title: UK sanctions relating to global irregular migration and trafficking in persons
 key: GB-MIGR
 url: https://www.gov.uk/government/publications/global-irregular-migration-and-trafficking-in-persons-sanctions-guidance
 summary: Targets persons involved in facilitating irregular migration to the
@@ -10,9 +10,9 @@ summary: Targets persons involved in facilitating irregular migration to the
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
-  - SI 2025/902
   - Global Irregular Migration
+  - SI 2025/902
+  - The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
 target_territories:
   - zz
 measures:

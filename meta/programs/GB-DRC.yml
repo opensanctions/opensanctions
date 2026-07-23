@@ -13,12 +13,13 @@ summary: Gives effect in the United Kingdom to the UN Security Council's
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019
-  - SI 2019/433
   - Resolution 1533
+  - SI 2019/433
+  - The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019
+  - UNSCR 1533
 target_territories:
   - cd
 measures:
+  - Arms restrictions
   - Asset freeze
   - Travel ban
-  - Arms restrictions

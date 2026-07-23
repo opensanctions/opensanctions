@@ -14,9 +14,9 @@ summary: Gives effect to UN nuclear-related sanctions against Iran, targeting
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019
-  - SI 2019/461
   - Iran (Nuclear)
+  - SI 2019/461
+  - The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019
 target_territories:
   - ir
 measures:

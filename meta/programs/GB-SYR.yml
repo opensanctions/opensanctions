@@ -15,8 +15,8 @@ summary: Targets persons involved in repressing the civilian population in
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Syria (Sanctions) (EU Exit) Regulations 2019
   - SI 2019/792
+  - The Syria (Sanctions) (EU Exit) Regulations 2019
 target_territories:
   - sy
 measures:

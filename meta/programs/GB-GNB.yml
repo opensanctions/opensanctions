@@ -13,9 +13,10 @@ summary: Targets people and entities involved in actions that undermine the
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019
-  - SI 2019/554
   - Republic of Guinea-Bissau
+  - Resolution 2048
+  - SI 2019/554
+  - The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019
   - UNSCR 2048
 target_territories:
   - gw

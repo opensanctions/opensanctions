@@ -12,13 +12,16 @@ issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019
-  - The ISIL (Da'esh) and Al-Qaida (United Nations Sanctions) (EU Exit) Regulations 2019
+  - Resolution 1267
+  - Resolution 1989
+  - Resolution 2253
   - SI 2019/466
+  - The ISIL (Da'esh) and Al-Qaida (United Nations Sanctions) (EU Exit) Regulations 2019
   - UNSCR 1267
   - UNSCR 1989
   - UNSCR 2253
 target_territories:
   - zz
 measures:
-  - Asset freeze
   - Arms restrictions
+  - Asset freeze

@@ -13,10 +13,10 @@ summary: Targets individuals and entities that repress the civilian population
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Myanmar (Sanctions) Regulations 2021
-  - SI 2021/496
-  - Myanmar
   - Burma
+  - Myanmar
+  - SI 2021/496
+  - The Myanmar (Sanctions) Regulations 2021
 target_territories:
   - mm
 measures:

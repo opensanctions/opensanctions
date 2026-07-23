@@ -13,16 +13,16 @@ summary: Targets individuals and entities responsible for human rights violation
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019
-  - SI 2019/600
   - Belarus
+  - SI 2019/600
+  - The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019
 target_territories:
   - by
 measures:
-  - Asset freeze
-  - Travel ban
   - Arms embargo
+  - Asset freeze
   - Export control
-  - Import restrictions
   - Financial restrictions
+  - Import restrictions
   - Transportation restrictions
+  - Travel ban

@@ -12,9 +12,9 @@ summary: Targets those responsible for the violent repression of demonstrators
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Guinea (Sanctions) (EU Exit) Regulations 2019
-  - SI 2019/1145
   - Guinea
+  - SI 2019/1145
+  - The Guinea (Sanctions) (EU Exit) Regulations 2019
 target_territories:
   - gn
 measures:

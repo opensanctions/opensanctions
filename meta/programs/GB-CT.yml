@@ -11,8 +11,8 @@ summary: Provides for the designation of persons involved in terrorist activity
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019
   - SI 2019/577
+  - The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019
 target_territories:
   - gb
 measures:

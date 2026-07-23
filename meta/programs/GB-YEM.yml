@@ -12,12 +12,14 @@ summary: Gives effect to the UN Security Council's Yemen sanctions regime,
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Yemen (Sanctions) (EU Exit) Regulations 2020
-  - The Yemen (Sanctions) (EU Exit) (No. 2) Regulations 2020
+  - Resolution 2140
+  - Resolution 2216
   - SI 2020/1278
-  - Yemen
+  - The Yemen (Sanctions) (EU Exit) (No. 2) Regulations 2020
+  - The Yemen (Sanctions) (EU Exit) Regulations 2020
   - UNSCR 2140
   - UNSCR 2216
+  - Yemen
 target_territories:
   - ye
 measures:

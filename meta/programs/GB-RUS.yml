@@ -15,18 +15,18 @@ summary: Targets individuals and entities involved in destabilising Ukraine or i
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Russia (Sanctions) (EU Exit) Regulations 2019
-  - SI 2019/855
   - Russia
+  - SI 2019/855
+  - The Russia (Sanctions) (EU Exit) Regulations 2019
 target_territories:
   - ru
 measures:
-  - Asset freeze
-  - Travel ban
   - Arms embargo
+  - Asset freeze
   - Export control
-  - Import restrictions
   - Financial restrictions
+  - Import restrictions
   - Investment ban
   - Services ban
   - Transportation restrictions
+  - Travel ban

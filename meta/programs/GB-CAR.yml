@@ -13,12 +13,13 @@ summary: Gives effect in the United Kingdom to the UN Security Council's
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Central African Republic (Sanctions) (EU Exit) Regulations 2020
-  - SI 2020/616
   - Resolution 2127
+  - SI 2020/616
+  - The Central African Republic (Sanctions) (EU Exit) Regulations 2020
+  - UNSCR 2127
 target_territories:
   - cf
 measures:
+  - Arms restrictions
   - Asset freeze
   - Travel ban
-  - Arms restrictions

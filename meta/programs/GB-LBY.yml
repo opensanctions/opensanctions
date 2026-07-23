@@ -14,9 +14,10 @@ summary: Gives effect to the UN Security Council's Libya sanctions regime,
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Libya (Sanctions) (EU Exit) Regulations 2020
-  - SI 2020/1665
   - Libya
+  - Resolution 1970
+  - SI 2020/1665
+  - The Libya (Sanctions) (EU Exit) Regulations 2020
   - UNSCR 1970
 target_territories:
   - ly

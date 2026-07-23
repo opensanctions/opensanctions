@@ -13,12 +13,13 @@ summary: Gives effect in the United Kingdom to the UN Security Council's
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Sudan (Sanctions) (EU Exit) Regulations 2020
-  - SI 2020/753
   - Resolution 1591
+  - SI 2020/753
+  - The Sudan (Sanctions) (EU Exit) Regulations 2020
+  - UNSCR 1591
 target_territories:
   - sd
 measures:
+  - Arms embargo
   - Asset freeze
   - Travel ban
-  - Arms embargo

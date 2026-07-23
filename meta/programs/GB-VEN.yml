@@ -12,12 +12,12 @@ summary: Targets people and entities involved in the repression of civil society
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Venezuela (Sanctions) (EU Exit) Regulations 2019
   - SI 2019/135
+  - The Venezuela (Sanctions) (EU Exit) Regulations 2019
 target_territories:
   - ve
 measures:
-  - Asset freeze
-  - Travel ban
   - Arms embargo
+  - Asset freeze
   - Export control
+  - Travel ban

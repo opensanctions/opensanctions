@@ -11,8 +11,8 @@ summary: Targets people and entities responsible for serious human rights
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Nicaragua (Sanctions) (EU Exit) Regulations 2020
   - SI 2020/610
+  - The Nicaragua (Sanctions) (EU Exit) Regulations 2020
 target_territories:
   - ni
 measures:

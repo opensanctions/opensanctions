@@ -16,11 +16,12 @@ summary: Gives effect to the UN Security Council's sanctions regime against
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019
-  - SI 2019/411
   - Democratic People's Republic of Korea
   - DPRK
   - North Korea
+  - Resolution 1718
+  - SI 2019/411
+  - The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019
   - UNSCR 1718
 target_territories:
   - kp

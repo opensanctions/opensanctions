@@ -11,9 +11,9 @@ summary: Targets individuals and entities involved in serious corruption, meanin
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Global Anti-Corruption Sanctions Regulations 2021
-  - SI 2021/488
   - Global Anti-Corruption
+  - SI 2021/488
+  - The Global Anti-Corruption Sanctions Regulations 2021
 target_territories:
   - zz
 measures:

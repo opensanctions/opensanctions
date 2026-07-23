@@ -11,9 +11,9 @@ summary: Aims to deter the proliferation and use of chemical weapons and to
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-  - The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019
-  - SI 2019/618
   - Chemical Weapons
+  - SI 2019/618
+  - The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019
 target_territories:
   - zz
 measures:
