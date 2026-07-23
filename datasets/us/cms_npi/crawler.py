@@ -132,6 +132,11 @@ def crawl_othernames(context: Context, fh: TextIO) -> None:
         if name is None:
             continue
         entity.add("alias", name)
+        # `alias` is the only property on these othername records. `clean_name`
+        # lets some non-names through (e.g. "NONE") that the `type.name` lookup
+        # then drops, leaving an empty entity. Skip emitting those.
+        if not entity.has_statements:
+            continue
         context.emit(entity)
 
 
