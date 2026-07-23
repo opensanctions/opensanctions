@@ -1,0 +1,48 @@
+title: Algeria People's National Assembly
+name: dz_apn
+prefix: dz-apn
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the People's National Assembly (APN), the lower chamber of the
+  Algerian parliament.
+description: |
+  The People's National Assembly (Assemblée populaire nationale, APN) is the lower chamber
+  of Algeria's bicameral parliament. Its deputies are directly elected from the wilayas and
+  from constituencies for Algerians abroad for a five-year term.
+
+  This dataset records each sitting deputy by name, as published in the Assembly's members
+  directory.
+url: https://www.apn.dz/
+publisher:
+  name: People's National Assembly
+  acronym: APN
+  description: >
+    The People's National Assembly is the lower chamber of the Algerian parliament, whose
+    deputies are directly elected from the wilayas and overseas constituencies.
+  url: https://www.apn.dz/
+  country: dz
+  official: true
+data:
+  url: https://www.apn.dz/deputes-liste
+  format: HTML
+  lang: fra
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 1
+    country_entities:
+      dz: 300
+  max:
+    schema_entities:
+      Person: 500
+      Position: 1
