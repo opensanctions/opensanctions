@@ -1072,3 +1072,8 @@ lookups:
           - Uzès Gestion
           - Jean-Marie Godet
           - Christian Maugey
+      - match: "La société Financière Fonds Privés<br /> M. Pierre-Michel Deléglise<br /> M. Thierry de Chambure"
+        entities:
+          - Financière Fonds Privés
+          - Pierre-Michel Deléglise
+          - Thierry de Chambure
