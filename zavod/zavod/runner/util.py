@@ -1,8 +1,19 @@
+from functools import lru_cache
 from collections.abc import Iterable, Mapping
+
+from followthemoney import registry
+from followthemoney.schema import Schema
 
 from zavod.constants import ANALYZER_DATASETS
 from zavod.entity import Entity
 from zavod.store import View
+
+SUPPORTING_SCHEMATA = {
+    "Address",
+    "Analyzable",
+    "Identification",
+    "Sanction",
+}
 
 
 def is_analyzer_stub(entity: Entity) -> bool:
@@ -15,6 +26,16 @@ def is_analyzer_stub(entity: Entity) -> bool:
     return entity.datasets.issubset(ANALYZER_DATASETS)
 
 
+@lru_cache(maxsize=None)
+def is_supporting_schema(schema: Schema) -> bool:
+    """Schemata that don't carry risk topics themselves but appear in expansion
+    as attachments or context around risk targets — Addresses, Documents (Article,
+    Image, PlainText, ...), Notes and other Analyzables, and non-edge Intervals
+    like Sanction, Passport, Identification.
+    """
+    return any(schema.is_a(schema_name) for schema_name in SUPPORTING_SCHEMATA)
+
+
 def endpoint_ids(entity: Entity) -> set[str]:
     """Get the entity IDs joined by an edge."""
     endpoint_ids: set[str] = set()
@@ -25,35 +46,58 @@ def endpoint_ids(entity: Entity) -> set[str]:
     return endpoint_ids
 
 
-def has_enrich_topic(entity_id: str, view: View, enrich_topics: frozenset[str]) -> bool:
-    """Check whether an entity carries a topic that justifies publication."""
+def _is_publishable(entity_id: str, view: View, enrich_topics: frozenset[str]) -> bool:
     canonical_id = view.store.linker.get_canonical(entity_id)
     entity = view.get_entity(canonical_id)
     if entity is None:
         return False
-    return bool(enrich_topics.intersection(entity.get("topics")))
+    if is_supporting_schema(entity.schema):
+        return True
+    # Match BaseEnricher._filter_entity's topic extraction (any topic-typed property).
+    return bool(enrich_topics.intersection(entity.get_type_values(registry.topic)))
 
 
-def check_enrich_topics(
-    expanded: Iterable[Entity], view: View, enrich_topics: frozenset[str]
+def check_publishability(
+    expanded: Iterable[Entity], subject_view: View, enrich_topics: frozenset[str]
 ) -> dict[str, bool]:
-    """Look up publication topics once per entity ID in an expansion."""
+    """Look up publishability once per entity ID that will need it.
+
+    Non-edge supporting entities in the expansion are publishable by virtue of
+    their schema, not due to risk topics, so they are seeded into the returned
+    map without a lookup in the subject view.
+
+    Non-supporting entities (the more common case - entities related via e.g.
+    Ownership, Family) are looked up in the subject view where graph analyzer
+    could have added topics.
+
+    Edges (supporting and risk-connecting) are publishable if all their endpoints
+    are publishable.
+    """
+    publishable: dict[str, bool] = {}
     ids_to_check: set[str] = set()
     for entity in expanded:
         if entity.schema.edge:
             ids_to_check.update(endpoint_ids(entity))
         else:
             assert entity.id is not None
-            ids_to_check.add(entity.id)
-    return {eid: has_enrich_topic(eid, view, enrich_topics) for eid in ids_to_check}
+            if is_supporting_schema(entity.schema):
+                publishable[entity.id] = True
+            else:
+                ids_to_check.add(entity.id)
+    for eid in ids_to_check:
+        if eid not in publishable:
+            publishable[eid] = _is_publishable(eid, subject_view, enrich_topics)
+    return publishable
 
 
-def should_promote(entity: Entity, topic_matches: Mapping[str, bool]) -> bool:
-    """Publish nodes with a topic and edges whose endpoints all have topics."""
+def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
+    """Publish non-edges iff the map says so (supporting schemata were seeded
+    True, risk targets need a topic) and edges iff every endpoint is itself
+    publishable."""
     if entity.schema.edge:
         endpoints = endpoint_ids(entity)
         if not endpoints:
             return False
-        return all(topic_matches.get(entity_id, False) for entity_id in endpoints)
+        return all(publishable.get(eid, False) for eid in endpoints)
     assert entity.id is not None
-    return topic_matches.get(entity.id, False)
+    return publishable.get(entity.id, False)

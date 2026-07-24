@@ -18,7 +18,7 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
-from zavod.runner.util import check_enrich_topics, is_analyzer_stub, should_promote
+from zavod.runner.util import check_publishability, is_analyzer_stub, should_promote
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
@@ -166,6 +166,10 @@ class LocalEnricher(BaseEnricher[Dataset]):
     def expand_wrapped(
         self, entity: Entity, match: Entity
     ) -> Generator[Entity, None, None]:
+        """Yield the confirmed match itself, followed by entities related to
+        it in the external source (e.g. officers, owners, family members).
+
+        Only yields if ``entity`` passes the filter."""
         if not self._filter_entity(entity):
             return
         yield from self.expand(match)
@@ -197,9 +201,12 @@ def save_match(
         expanded = [adj for adj in expanded if not check_person_cutoff(adj)]
 
         if topic_gated:
-            topic_matches = check_enrich_topics(expanded, subject_view, enrich_topics)
+            # The first expansion result is the confirmed match itself. Keep it
+            # visible; gate the graph context that follows it on risk topics assigned
+            # by the subject datasets and analyzers or being supporting schemata.
+            publishable = check_publishability(expanded, subject_view, enrich_topics)
             for adj in expanded:
-                context.emit(adj, external=not should_promote(adj, topic_matches))
+                context.emit(adj, external=not should_promote(adj, publishable))
         else:
             for adj in expanded:
                 context.emit(adj, external=False)
@@ -214,10 +221,16 @@ def enrich(context: Context) -> None:
     config = dict(context.dataset.config)
     topic_gated: bool = bool(config.get("topic_gated", False))
     enricher = LocalEnricher(context.dataset, context.cache, config)
+    # The same resolved set gates expansion context (check_publishability) and
+    # filters which subject entities are matched and expanded at all
+    # (BaseEnricher._filter_entity). That coupling guarantees the confirmed match
+    # always passes the gate, so supporting entities never publish disconnected.
     enrich_topics: frozenset[str] = frozenset(enricher.filter_topics)
     if topic_gated and not enrich_topics:
-        context.log.warning(
-            "topic_gated=True but no topics configured; all expanded entities will be external"
+        raise ValueError(
+            "topic_gated=True requires `topics` to be configured: without a "
+            "subject topic filter, expansion of untagged matches would emit "
+            "disconnected supporting entities."
         )
 
     subject_store = get_store(scope, context.resolver)
@@ -226,6 +239,9 @@ def enrich(context: Context) -> None:
     # resolver is in-memory after the load.
     context.flush()
     subject_store.sync()
+    # When topic-gated, read the subject store including external statements so
+    # the analyzer's topic patches on ingested-but-untagged neighbours are
+    # visible.
     subject_view = subject_store.view(scope, external=topic_gated)
 
     reset_caches()
