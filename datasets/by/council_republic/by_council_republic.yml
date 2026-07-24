@@ -1,4 +1,4 @@
-title: Belarus Council of the Republic
+title: Belarus Members of the Council of the Republic
 name: by_council_republic
 prefix: by-cr
 entry_point: crawler.py
@@ -29,6 +29,10 @@ data:
   url: https://sovrep.gov.by/en/senators-en/
   format: HTML
   lang: eng
+
+# The site returns HTTP 403 to the default client; a browser User-Agent is accepted.
+http:
+  user_agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 (zavod; opensanctions.org)"
 
 tags:
   - list.pep
