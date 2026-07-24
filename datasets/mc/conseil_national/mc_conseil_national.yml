@@ -1,4 +1,4 @@
-title: Monaco Conseil National
+title: Monaco Members of the National Council
 name: mc_conseil_national
 prefix: mc-cn
 entry_point: crawler.py
