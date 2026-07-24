@@ -81,11 +81,19 @@ Do
   institutions where translation would obscure the reference
   (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
 - always pass `lang=` to `h.make_position` declaring the language of the name you
-  pass. When the position name comes from the source in a non-English language,
-  pass it unmodified with `translate_name=True` — the helper translates it to
-  English and derives the entity ID from the untranslated name, keeping IDs
-  stable. When the source has only very few distinct labels, a `position` lookup
-  in the YAML translating them to English is an acceptable alternative.
+  pass. `lang=` describes the position name specifically, and if you omit it the
+  helper falls back to the dataset's `data.lang` (`lang or context.lang`) — both to
+  label the stored name and to decide whether to translate. So when the crawler
+  supplies an English name (the standard case) over a source whose `data.lang` is
+  another language, pass `lang="eng"` explicitly, e.g. a `data.lang: spa` source
+  whose crawler emits `Member of the Congress of the Republic` must pass
+  `lang="eng"` — otherwise the English name is treated as Spanish (and, with
+  `translate_name=True`, wrongly sent to the translator). When the position name
+  comes from the source in a non-English language, pass it unmodified with
+  `translate_name=True` — the helper translates it to English and derives the
+  entity ID from the untranslated name, keeping IDs stable. When the source has
+  only very few distinct labels, a `position` lookup in the YAML translating them
+  to English is an acceptable alternative.
 - include the role
 - include the organizational body where needed
 - include the specific geographic jurisdiction where relevant
