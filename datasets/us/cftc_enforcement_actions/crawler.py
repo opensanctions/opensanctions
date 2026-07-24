@@ -1,7 +1,6 @@
 import re
 from typing import Literal
 
-from lxml.html import HtmlElement
 from pydantic import BaseModel, Field
 from zavod.context import Context
 from zavod.entity import Entity
@@ -11,6 +10,7 @@ from zavod.stateful.review import (
     assert_all_accepted,
     review_extraction,
 )
+from zavod.util import Element
 
 from zavod import helpers as h
 
@@ -21,22 +21,6 @@ REGEX_RELEASE_ID = re.compile(r"(\w{2,8}-\w{2,4}[\w #-]*)$")
 # Not extracting relationships for now because the results were inconsistent
 # between GPT queries.
 
-schema_field = Field(
-    description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
-)
-address_field = Field(
-    default=[],
-    description=("The addresses or even just the districts/states of the defendant."),
-)
-original_press_release_number_field = Field(
-    description=(
-        "The original press release number of the enforcement action notice."
-        " When announcing charges, this is the press release number of the"
-        " announcement. When announcing court orders or dropped charges,"
-        " this is the reference to the original press release."
-    )
-)
-
 
 class RelatedCompany(BaseModel):
     name: str
@@ -44,17 +28,29 @@ class RelatedCompany(BaseModel):
 
 
 class Defendant(BaseModel):
-    entity_schema: Schema = schema_field
+    entity_schema: Schema = Field(
+        description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
+    )
     name: str
     aliases: list[str] | None = []
-    address: str | list[str] | None = address_field
+    address: str | list[str] | None = Field(
+        default=[],
+        description="The addresses or even just the districts/states of the defendant.",
+    )
     country: str | list[str] | None = []
     # status - was removed because it isn't consistently present in the source
     #          text in a way we can extract as a meaningful self-standing value.
     #          It remains in the json of old accepted values but is unused and
     #          not added for new entries.
     # notes - was just additional context to 'status'. Same fate.
-    original_press_release_number: str | None = original_press_release_number_field
+    original_press_release_number: str | None = Field(
+        description=(
+            "The original press release number of the enforcement action notice."
+            " When announcing charges, this is the press release number of the"
+            " announcement. When announcing court orders or dropped charges,"
+            " this is the reference to the original press release."
+        )
+    )
     related_companies: list[RelatedCompany] = []
 
 
@@ -72,10 +68,10 @@ aliases of the person. If the name is a person name, use `Person` as the entity_
 
 Specific fields:
 
-- entity_schema: {schema_field.description}
-- address: {address_field.description}
+- entity_schema: {Defendant.model_fields["entity_schema"].description}
+- address: {Defendant.model_fields["address"].description}
 - country: Any countries explicitly associated with the defendant in the text. Leave empty if not explicitly stated.
-- original_press_release_number: {original_press_release_number_field.description}
+- original_press_release_number: {Defendant.model_fields["original_press_release_number"].description}
 - related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
     - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
 """
@@ -88,30 +84,31 @@ def get_release_id(url: str) -> str:
     return match.group(1)
 
 
-def fetch_article(context: Context, url: str) -> HtmlElement | None:
+def fetch_article(context: Context, url: str) -> Element | None:
     # TODO: handle length limit
     if url == "https://www.cftc.gov/PressRoom/PressReleases/7274-15":
         return None
     # Try the article in the main page first.
     doc = context.fetch_html(url, cache_days=30, absolute_links=True)
-    article_element = doc.xpath(".//article")[0]
+    article_element = h.xpath_elements(doc, ".//article")[0]
     # All but one are HTML, not PDF.
-    redirect_link = article_element.xpath(
-        ".//div[contains(@class, 'press-release-open-link-pdf-link')]//a/@href"
+    redirect_link = h.xpath_strings(
+        article_element,
+        ".//div[contains(@class, 'press-release-open-link-pdf-link')]//a/@href",
     )
-    if redirect_link and len(article_element.text_content()) > 200:
+    if redirect_link and len(h.element_text(article_element)) > 200:
         context.log.warning("Has redirect link but isn't tiny.", url=url)
-    if not redirect_link and len(article_element.text_content()) < 200:
+    if not redirect_link and len(h.element_text(article_element)) < 200:
         context.log.warning("Is tiny but doesn't have a redirect link.", url=url)
         return None
     # If no article in main page, try the redirect link.
-    if redirect_link and len(article_element.text_content()) < 200:
+    if redirect_link and len(h.element_text(article_element)) < 200:
         # TODO: handle PDF
         if redirect_link[0].endswith(".pdf"):
             context.log.warning("Has PDF redirect link.", url=url)
             return None
         article_element = context.fetch_html(redirect_link[0], cache_days=30)
-    assert len(article_element.text_content()) > 200
+    assert len(h.element_text(article_element)) > 200
     return article_element
 
 
@@ -133,11 +130,11 @@ def make_company_link(
     return link
 
 
-def get_title(article_element: HtmlElement) -> str:
-    titles = article_element.xpath(".//h1")
+def get_title(article_element: Element) -> str:
+    titles = h.xpath_elements(article_element, ".//h1")
     assert len(titles) == 2
-    assert "Release Number" in titles[0].text_content()
-    return titles[1].text_content()
+    assert "Release Number" in h.element_text(titles[0])
+    return h.element_text(titles[1])
 
 
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
@@ -164,7 +161,9 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
 
     for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
-        entity.id = context.make_id(item.name, item.address, item.country)
+        # make_id takes str | None; item.address/item.country are lists but must
+        # stay in the key unchanged to avoid re-keying existing entities.
+        entity.id = context.make_id(item.name, item.address, item.country)  # type: ignore[arg-type]
         entity.add("name", item.name, origin=review.origin)
         if item.address != item.country:
             entity.add("address", item.address, origin=review.origin)
@@ -208,20 +207,21 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         context.emit(documentation)
 
 
-def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
+def crawl_index_page(context: Context, doc: Element) -> bool:
     """Returns false if we should stop crawling."""
     table_xpath = ".//div[contains(@class, 'view-content')]//table"
-    tables = doc.xpath(table_xpath)
-    assert len(tables) == 1
-    for row in h.parse_html_table(tables[0]):
+    table = h.xpath_element(doc, table_xpath)
+    for row in h.parse_html_table(table):
         enforcement_date = h.element_text(row["date"])
         if not h.within_max_age(context, enforcement_date):
             return False
         action_cell = row["enforcement_actions"]
         # Remove related links so we can assert that there's one key link
         for ul in action_cell.findall(".//ul"):
-            ul.getparent().remove(ul)
-        urls = action_cell.xpath(".//a/@href")
+            parent = ul.getparent()
+            assert parent is not None
+            parent.remove(ul)
+        urls = h.xpath_strings(action_cell, ".//a/@href")
         assert len(urls) == 1
         url = urls[0]
         crawl_enforcement_action(context, enforcement_date, url)
@@ -232,7 +232,7 @@ def crawl(context: Context) -> None:
     next_url: str | None = context.data_url
     while next_url:
         doc = context.fetch_html(next_url, absolute_links=True)
-        next_urls = doc.xpath(".//a[@rel='next']/@href")
+        next_urls = h.xpath_strings(doc, ".//a[@rel='next']/@href")
         assert len(next_urls) <= 1
         if next_urls:
             next_url = next_urls[0]
