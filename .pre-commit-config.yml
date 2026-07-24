@@ -100,12 +100,10 @@ repos:
           datasets/us/ice_wanted|
           datasets/us/irs_ffi|
           datasets/us/state_terrorist_exclusion|
-          datasets/us/ofac/enforcement_actions|
           datasets/us/ofac/press_releases|
           datasets/us/sec/pause|
           datasets/us/sec/harmed_investors|
           datasets/us/sec/litigation|
-          datasets/us/cftc_enforcement_actions|
           datasets/us/occ_enfact|
           datasets/us/ddtc_enforcements|
           datasets/us/nk_jointventures|
