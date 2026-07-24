@@ -2,14 +2,18 @@ import json
 import logging
 
 from nomenklatura import Resolver
+from pytest import MonkeyPatch
+from structlog.testing import capture_logs
 
 from zavod import settings
+from zavod.archive import STATISTICS_FILE, dataset_resource_path
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.entity import Entity
-from zavod.exporters import export_dataset
+from zavod.exporters import export_dataset, metadata
 from zavod.exporters.metadata import DatasetVersionResult, write_dataset_index
 from zavod.meta import Dataset
+from zavod.exporters.metadata.model import CatalogDatasetModel
 from zavod.store import get_store
 
 
@@ -35,6 +39,8 @@ def test_metadata_collection_export(
         # When resolve is false, the resolve key is exported with correct value
         assert testdataset1.model.resolve is False
         assert index["resolve"] is False, index
+        # The written index conforms to the output contract zavod validates against.
+        CatalogDatasetModel.model_validate(index)
 
     collection_path = settings.DATA_PATH / "datasets" / collection.name
     export_dataset(collection, view)
@@ -78,3 +84,68 @@ def test_metadata_collection_issue_count(
         index = json.load(fh)
     assert index["issue_count"] == 2, index
     assert index["issue_levels"] == {"error": 1, "warning": 1}, index
+
+
+def test_metadata_validation_warns_on_missing_required_field(
+    collection: Dataset, monkeypatch: MonkeyPatch
+) -> None:
+    """A successful run whose metadata is missing a required field only warns;
+    the index is still written."""
+    context = Context(collection)
+    context.begin(clear=True)
+    context.close()
+
+    with open(dataset_resource_path(collection.name, STATISTICS_FILE), "w") as fh:
+        json.dump(
+            {
+                "entity_count": 5,
+                "things": {"total": 5},
+                "targets": {"total": 2},
+                "last_change": settings.RUN_TIME_ISO,
+            },
+            fh,
+        )
+
+    real_get_base = metadata.get_base_dataset_metadata
+
+    def drop_required_field(dataset: Dataset) -> dict:
+        meta = real_get_base(dataset)
+        del meta["entity_count"]
+        return meta
+
+    monkeypatch.setattr(metadata, "get_base_dataset_metadata", drop_required_field)
+
+    with capture_logs() as cap_logs:
+        write_dataset_index(collection, DatasetVersionResult.SUCCESS)
+
+    assert any(
+        entry.get("log_level") == "warning"
+        and "catalog model" in entry.get("event", "")
+        for entry in cap_logs
+    )
+    assert (settings.DATA_PATH / "datasets" / collection.name / "index.json").is_file()
+
+
+def test_metadata_failure_no_statistics_no_warning(collection: Dataset) -> None:
+    """A failed run legitimately lacks statistics, so the model tolerates the
+    missing fields and validation does not warn."""
+    context = Context(collection)
+    context.begin(clear=True)
+    context.close()
+
+    assert not dataset_resource_path(collection.name, STATISTICS_FILE).is_file()
+    with capture_logs() as cap_logs:
+        write_dataset_index(collection, DatasetVersionResult.FAILURE)
+
+    assert not [
+        entry
+        for entry in cap_logs
+        if entry.get("log_level") == "warning"
+        and "catalog model" in entry.get("event", "")
+    ]
+
+    index_path = settings.DATA_PATH / "datasets" / collection.name / "index.json"
+    with open(index_path) as fh:
+        index = json.load(fh)
+    assert index["result"] == "failure"
+    assert "entity_count" not in index
