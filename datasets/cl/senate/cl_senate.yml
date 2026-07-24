@@ -1,0 +1,45 @@
+title: Chile Senate
+name: cl_senate
+prefix: cl-sen
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-07-24
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Senate of Chile, the upper house of the National Congress.
+description: |
+  The Senate (Senado) is the upper house of the National Congress of Chile. Its senators
+  are elected by proportional representation from the country's regional constituencies for
+  an eight-year term.
+
+  This dataset records each sitting senator with their name, gender, party and region from
+  the Senate's open-data service.
+url: https://www.senado.cl/
+publisher:
+  name: Senado de la República de Chile
+  description: >
+    The Senate is the upper house of the National Congress of Chile.
+  url: https://www.senado.cl/
+  country: cl
+  official: true
+data:
+  url: https://web-back.senado.cl/api/hemicycle?vigentes=1&camara=S&limit=100
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+      Position: 1
+    country_entities:
+      cl: 40
+  max:
+    schema_entities:
+      Person: 60
+      Position: 1
