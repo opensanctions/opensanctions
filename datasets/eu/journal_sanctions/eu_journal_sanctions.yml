@@ -124,6 +124,10 @@ lookups:
         value: ua-lpr
       - match: "so-called “Donetsk People’s Republic”"
         value: ua-dpr
+      - match: "Russia’s occupied part of the Donbass region"
+        values:
+          - ua-dpr
+          - ua-lpr
       - match:
           - "Russian-occupied regions of Zaporizhzhia and Kherson"
           - Moscow, Russian Federation
