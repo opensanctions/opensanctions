@@ -29,7 +29,15 @@ def convert_excel_cell(book: Book, cell: Cell) -> str | None:
     """
     # https://xlrd.readthedocs.io/en/latest/api.html#xlrd.sheet.Cell
     if cell.ctype == XL_CELL_NUMBER:
-        return str(int(cell.value))
+        # xlrd reports every number as a float, so integer identifiers arrive
+        # as e.g. 1234.0. Drop that artifact only when the value really is
+        # integral: int() truncates toward zero, which would silently turn a
+        # genuine 12.75 into "12". This matches parse_xls_sheet, which
+        # stringifies the same cells.
+        assert isinstance(cell.value, float)
+        if cell.value.is_integer():
+            return str(int(cell.value))
+        return stringify(cell.value)
     elif cell.ctype in (XL_CELL_EMPTY, XL_CELL_ERROR, XL_CELL_BLANK):
         return None
     if cell.ctype == XL_CELL_DATE:

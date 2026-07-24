@@ -1,4 +1,6 @@
 import xlrd  # type: ignore
+from xlrd import XL_CELL_NUMBER  # type: ignore
+from xlrd.sheet import Cell  # type: ignore
 from openpyxl import load_workbook
 from zavod.context import Context
 from zavod.helpers.excel import (
@@ -25,6 +27,21 @@ def test_excel_cell():
     cells = [convert_excel_cell(book, cell) for cell in row]
     assert cells[0] == "1"
     assert cells[1] == "2023-07-26T00:00:00"
+
+
+def test_excel_cell_fractional_number():
+    """Fractional cells must keep their decimal part, not be truncated."""
+    book = xlrd.open_workbook(XLS_BOOK.as_posix())
+
+    # integral values still lose the float artifact xlrd adds
+    assert convert_excel_cell(book, Cell(XL_CELL_NUMBER, 1.0)) == "1"
+    assert convert_excel_cell(book, Cell(XL_CELL_NUMBER, 1234.0)) == "1234"
+    assert convert_excel_cell(book, Cell(XL_CELL_NUMBER, 0.0)) == "0"
+
+    # fractional values are preserved rather than truncated toward zero
+    assert convert_excel_cell(book, Cell(XL_CELL_NUMBER, 12.75)) == "12.75"
+    assert convert_excel_cell(book, Cell(XL_CELL_NUMBER, 0.75)) == "0.75"
+    assert convert_excel_cell(book, Cell(XL_CELL_NUMBER, -2.5)) == "-2.5"
 
 
 def test_excel_date():
