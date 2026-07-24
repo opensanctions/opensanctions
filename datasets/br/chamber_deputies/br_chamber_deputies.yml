@@ -1,0 +1,50 @@
+title: Brazil Chamber of Deputies
+name: br_chamber_deputies
+prefix: br-cd
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-07-24
+load_statements: true
+ci_test: false
+summary: >-
+  Current and recent members of the Chamber of Deputies of Brazil, the lower house
+  of the National Congress.
+description: |
+  The Chamber of Deputies (Câmara dos Deputados) is the lower house of the National
+  Congress of Brazil. Its 513 federal deputies are elected by open-list proportional
+  representation from the states and the Federal District for a four-year term.
+
+  This dataset records deputies from the Chamber's open-data API, covering each
+  legislative term they served.
+
+  Coverage is not limited to the deputies currently sitting: it spans the recent
+  legislative terms and so also includes former deputies, among them substitutes
+  (suplentes) who held a seat during the current legislature but have since left it.
+url: https://www.camara.leg.br/
+publisher:
+  name: Câmara dos Deputados
+  description: >
+    The Chamber of Deputies is the lower house of the National Congress of Brazil.
+  url: https://www.camara.leg.br/
+  country: br
+  official: true
+data:
+  url: https://dadosabertos.camara.leg.br/api/v2
+  format: JSON
+  lang: por
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+      Position: 1
+    country_entities:
+      br: 450
+  max:
+    schema_entities:
+      Person: 560
+      Position: 1
