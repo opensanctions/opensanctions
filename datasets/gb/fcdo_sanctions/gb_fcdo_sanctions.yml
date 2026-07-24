@@ -45,6 +45,23 @@ assertions:
       Person: 3060
       Organization: 890
       Vessel: 125
+    property_fill_rate:
+      Person:
+        name: 1.0
+        birthDate: 0.7
+        nationality: 0.6
+      Organization:
+        name: 1.0
+      Company:
+        name: 1.0
+      Vessel:
+        name: 1.0
+        imoNumber: 0.9
+      Sanction:
+        # Actually 1.0, but we make them 0.98 so a single unparseable value
+        # doesn't fail the export, while a mass drop still trips the assertion.
+        program: 0.98
+        startDate: 0.98
   max:
     schema_entities:
       Person: 7200

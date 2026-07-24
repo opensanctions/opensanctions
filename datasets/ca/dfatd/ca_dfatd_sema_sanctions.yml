@@ -52,6 +52,23 @@ assertions:
     entities_with_prop:
       Sanction:
         listingDate: 2500
+    property_fill_rate:
+      Person:
+        name: 1.0
+        country: 0.9
+        birthDate: 0.4
+      LegalEntity:
+        name: 1.0
+        country: 0.95
+      Vessel:
+        name: 1.0
+        imoNumber: 0.95
+      Sanction:
+        # Actually 1.0, but we make them 0.98 so a single unparseable value
+        # doesn't fail the export, while a mass drop still trips the assertion.
+        program: 0.98
+        listingDate: 0.98
+        reason: 0.85
   max:
     schema_entities:
       Person: 6500

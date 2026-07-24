@@ -56,6 +56,22 @@ assertions:
       Company: 20
       Security: 5
       LegalEntity: 3
+    property_fill_rate:
+      Person:
+        name: 1.0
+        birthDate: 0.9
+        nationality: 0.6
+      Organization:
+        name: 1.0
+        country: 0.9
+      Vessel:
+        name: 1.0
+        imoNumber: 0.9
+        flag: 0.85
+      Sanction:
+        # Actually 1.0, but we make them 0.98 so a single unparseable value
+        # doesn't fail the export, while a mass drop still trips the assertion.
+        program: 0.98
   max:
     schema_entities:
       Address: 32280
