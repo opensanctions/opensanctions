@@ -1,15 +1,13 @@
+from collections.abc import Generator
 from datetime import datetime
 from functools import lru_cache
-from collections.abc import Generator
 
+from nomenklatura.wikidata import WikidataClient
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
 from rigour.territories.territory import Territory
-from nomenklatura.wikidata import WikidataClient
-
-from zavod import Context
 from zavod.entity import Entity
-from zavod.shed.wikidata.client import create_wikidata_client, WIKIDATA_QUERY_CACHE
+from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import (
     POSITION_ABOLISHED_CUTOFF,
@@ -18,6 +16,8 @@ from zavod.shed.wikidata.position import (
     wikidata_position,
 )
 from zavod.stateful.positions import categorised_position_qids
+
+from zavod import Context
 
 # Positions are discovered by evidence of use — someone holds them via P39
 # (position held), or they name an officeholder via P1308 — rather than by
@@ -28,6 +28,7 @@ from zavod.stateful.positions import categorised_position_qids
 ABOLISHED_CLAUSE = """
     OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
 """
+POSITION_CACHE_SIZE = 250_000
 
 
 def all_territories() -> Generator[Territory, None, None]:
@@ -112,7 +113,7 @@ def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
                 candidates.update(
                     query_occupation_positions(context, client, territory)
                 )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             context.log.warning(
                 "Position discovery query failed",
                 territory=territory.qid,
@@ -123,11 +124,9 @@ def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
     return candidates
 
 
-@lru_cache(maxsize=5000)
+@lru_cache(maxsize=POSITION_CACHE_SIZE)
 def get_position(context: Context, client: WikidataClient, qid: str) -> Entity | None:
-    """Build (or rebuild) the Position entity for a QID. Bounded cache: evicted
-    entries are reconstructed from the SQL-cached item data, so run-level memory
-    does not grow with the number of accepted positions."""
+    """Retain evaluated FtM positions across every phase of a PEP crawl."""
     item = client.fetch_item(qid)
     if item is None:
         return None
@@ -239,4 +238,13 @@ def crawl(context: Context) -> None:
     context.flush()
     context.log.info(
         f"Emitted {len(has_holders)} positions and {len(done_persons)} candidate persons"
+    )
+    cache_info = get_position.cache_info()
+    context.log.info(
+        "Position entity cache",
+        hits=cache_info.hits,
+        misses=cache_info.misses,
+        evictions=max(0, cache_info.misses - cache_info.currsize),
+        size=cache_info.currsize,
+        maxsize=cache_info.maxsize,
     )
