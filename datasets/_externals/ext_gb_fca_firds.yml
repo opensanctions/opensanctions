@@ -83,6 +83,12 @@ assertions:
     schema_entities:
       Security: 50
       Organization: 200
+    property_fill_rate:
+      # Issuer Organizations enriched from FIRDS are keyed by LEI and only carry
+      # a leiCode; FIRDS provides no issuer name, so the default name fill-rate
+      # does not apply. Mirrors the override on the gb_fca_firds source dataset.
+      Organization:
+        name: 0
   max:
     schema_entities:
       Security: 1000
