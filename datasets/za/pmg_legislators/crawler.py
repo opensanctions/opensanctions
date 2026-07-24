@@ -1,6 +1,7 @@
 from followthemoney.helpers import post_summary
 from rigour.ids.wikidata import is_qid
 from urllib.parse import unquote
+from typing import Any
 import re
 from rigour.mime.types import JSON
 from orjson import loads
@@ -51,7 +52,7 @@ def clean_phones(phones: str | None) -> list[str]:
 
 
 def crawl_person(
-    context: Context, person_data: dict[str, str], organizations: dict[str, str]
+    context: Context, person_data: dict[str, Any], organizations: dict[str, str]
 ) -> None:
     person_id = person_data.get("id")
 
@@ -110,8 +111,11 @@ def crawl_person(
 
 
 def crawl_membership(
-    context: Context, entity: Entity, membership: dict, organizations: dict[str, str]
-) -> str | None:
+    context: Context,
+    entity: Entity,
+    membership: dict[str, Any],
+    organizations: dict[str, str],
+) -> None:
     org_id = membership.get("organization_id")
     if org_id is None:
         context.log.info("Membership without organization", membership=membership)
