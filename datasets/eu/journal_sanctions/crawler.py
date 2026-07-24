@@ -186,7 +186,12 @@ def check_in_consolidated_act_text(
     diacritics folded to catch transcription differences.
     """
     start_date_parsed = h.extract_date(context.dataset, start_date)
-    if len(start_date_parsed) == 0 or CHECK_CONSOLIDATED_DATE < start_date_parsed[0]:
+    # extract_date falls back to the original text when it can't parse a date,
+    # so a blank cell yields [""] rather than []. Without a usable start date we
+    # can't judge recency, so skip the check rather than warn spuriously.
+    if len(start_date_parsed) == 0 or not start_date_parsed[0]:
+        return
+    if CHECK_CONSOLIDATED_DATE < start_date_parsed[0]:
         # Don't bother checking recent entries since the consolidated text
         # may not have been updated yet.
         return
