@@ -1,4 +1,4 @@
-from typing import Dict, Generator, Iterator, List, Optional, Union
+from collections.abc import Generator, Iterator
 from datetime import datetime
 from datapatch import Lookup
 from normality import slugify_text, stringify
@@ -17,7 +17,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from zavod.context import Context
 
 
-def convert_excel_cell(book: Book, cell: Cell) -> Optional[str]:
+def convert_excel_cell(book: Book, cell: Cell) -> str | None:
     """Convert an Excel cell to a string, handling different types.
 
     Args:
@@ -43,7 +43,7 @@ def convert_excel_cell(book: Book, cell: Cell) -> Optional[str]:
         return str(cell.value)
 
 
-def convert_excel_date(value: Optional[Union[str, int, float]]) -> Optional[str]:
+def convert_excel_date(value: str | int | float | None) -> str | None:
     """Convert an Excel date to a string.
 
     Args:
@@ -73,7 +73,7 @@ def parse_xls_sheet(
     sheet: Sheet,
     skiprows: int = 0,
     join_header_rows: int = 0,
-) -> Generator[Dict[str, str | None], None, None]:
+) -> Generator[dict[str, str | None], None, None]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
 
@@ -81,12 +81,12 @@ def parse_xls_sheet(
 
     Cells with links are included as keys with _url appended to the original key.
     """
-    headers: List[str] | None = None
+    headers: list[str] | None = None
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
             continue
-        cells: List[Optional[str]] = []
-        record: Dict[str, str | None] = {}
+        cells: list[str | None] = []
+        record: dict[str, str | None] = {}
         for cell_ix, xl_cell in enumerate(row):
             if xl_cell.ctype == XL_CELL_DATE:
                 # Convert Excel date format to zavod date
@@ -134,9 +134,9 @@ def parse_xlsx_sheet(
     context: Context,
     sheet: Worksheet,
     skiprows: int = 0,
-    header_lookup: Optional[Lookup] = None,
+    header_lookup: Lookup | None = None,
     extract_links: bool = False,
-) -> Iterator[Dict[str, str | None]]:
+) -> Iterator[dict[str, str | None]]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
 
@@ -147,7 +147,7 @@ def parse_xlsx_sheet(
         header_lookup: The lookup key for translating headers.
         extract_links: Whether to extract hyperlinks. Only works when read_only=False
     """
-    headers: Optional[List[str]] = None
+    headers: list[str] | None = None
     row_counter = 0
 
     for row in sheet.iter_rows():

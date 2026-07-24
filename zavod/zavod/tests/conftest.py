@@ -1,4 +1,4 @@
-from typing import Generator
+from collections.abc import Generator
 import pytest
 import shutil
 from pathlib import Path

@@ -1,4 +1,4 @@
-from typing import Generator, List, Optional, Dict, Tuple
+from collections.abc import Generator
 from followthemoney import Schema
 from nomenklatura.store import View
 from followthemoney.property import Property
@@ -22,15 +22,15 @@ class ViewFragment(View[Dataset, Entity]):
     def __init__(self, view: ZavodView, entity: Entity):
         self.view: ZavodView = view
         self.entity = entity
-        self._entities: Dict[str, Optional[Entity]] = {}
-        self._inverted: Dict[str, List[str]] = {}
+        self._entities: dict[str, Entity | None] = {}
+        self._inverted: dict[str, list[str]] = {}
         if entity.id is not None:
             self._entities[entity.id] = entity
 
     def has_entity(self, id: str) -> bool:
         return self.get_entity(id) is not None
 
-    def get_entity(self, id: str) -> Optional[Entity]:
+    def get_entity(self, id: str) -> Entity | None:
         if id in self._entities:
             return self._entities[id]
         entity = self.view.get_entity(id)
@@ -40,7 +40,7 @@ class ViewFragment(View[Dataset, Entity]):
                 self._entities[id] = entity
         return entity
 
-    def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:
+    def get_inverted(self, id: str) -> Generator[tuple[Property, Entity], None, None]:
         if id in self._inverted:
             for inverted_id in self._inverted[id]:
                 entity = self.get_entity(inverted_id)
@@ -60,12 +60,12 @@ class ViewFragment(View[Dataset, Entity]):
 
             if len(self._inverted[id]) > self.MAX_BUFFER:
                 log.debug(
-                    "Adjacency list for %s is greater than buffer limit (%d entries)"
-                    % (id, len(self._inverted[id])),
+                    f"Adjacency list for {id} is greater than buffer limit "
+                    f"({len(self._inverted[id])} entries)",
                 )
 
     def entities(
-        self, include_schemata: Optional[List[Schema]] = None
+        self, include_schemata: list[Schema] | None = None
     ) -> Generator[Entity, None, None]:
         # Don't cache entities here
         raise NotImplementedError("This method should not be called on a ViewFragment!")

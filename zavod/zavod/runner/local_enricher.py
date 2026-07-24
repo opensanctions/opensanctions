@@ -1,6 +1,6 @@
 import logging
 from decimal import Decimal
-from typing import Generator, Iterator, List, Tuple
+from collections.abc import Generator, Iterator
 from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
 
@@ -92,7 +92,7 @@ class LocalEnricher(BaseEnricher[Dataset]):
 
     def candidates(
         self, subjects: Iterator[Entity]
-    ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
+    ) -> Generator[tuple[Identifier, BlockingMatches], None, None]:
         entity_generator = (e for e in subjects if self._filter_entity(e))
         yield from self._index.match_entities(entity_generator)
 
@@ -106,7 +106,7 @@ class LocalEnricher(BaseEnricher[Dataset]):
         if same_id_match is not None:
             yield same_id_match
 
-        scores: List[Tuple[float, Entity]] = []
+        scores: list[tuple[float, Entity]] = []
         last_rounded_score = None
         bin = 0
 
@@ -136,7 +136,7 @@ class LocalEnricher(BaseEnricher[Dataset]):
             yield proxy
 
     def _traverse_nested(
-        self, entity: Entity, path: List[str] = []
+        self, entity: Entity, path: list[str] = []
     ) -> Generator[Entity, None, None]:
         """Expand starting from a match, recursing to related non-edge entities"""
         assert entity.id is not None
@@ -190,7 +190,7 @@ def save_match(
     # Store previously confirmed matches to the database and make
     # them visible:
     if judgement == Judgement.POSITIVE:
-        context.log.info("Enrich [%s]: %r" % (entity, match))
+        context.log.info(f"Enrich [{entity}]: {match!r}")
         expanded = list(enricher.expand_wrapped(entity, match))
         expanded = [adj for adj in expanded if not check_person_cutoff(adj)]
 
@@ -207,9 +207,7 @@ def enrich(context: Context) -> None:
     scope = get_multi_dataset(context.dataset.inputs)
     # The Context resolver is read-only here (save_match only reads judgements),
     # so its load commits as a no-op along with the cache via context.close().
-    context.log.info(
-        "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
-    )
+    context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")
 
     config = dict(context.dataset.config)
     topic_gated: bool = bool(config.get("topic_gated", False))
@@ -241,10 +239,10 @@ def enrich(context: Context) -> None:
             if entity_idx > 0 and entity_idx % 100 == 0:
                 context.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
-                context.log.info("Enriched %s entities..." % entity_idx)
+                context.log.info(f"Enriched {entity_idx} entities...")
             subject_entity = subject_view.get_entity(entity_id.id)
             if subject_entity is None:
-                context.log.error("Missing entity: %r" % entity_id)
+                context.log.error(f"Missing entity: {entity_id!r}")
                 continue
             try:
                 for match in enricher.match_candidates(subject_entity, candidate_set):
@@ -258,9 +256,7 @@ def enrich(context: Context) -> None:
                         enrich_topics,
                     )
             except EnrichmentException as exc:
-                context.log.error(
-                    "Enrichment error %r: %s" % (subject_entity, str(exc))
-                )
+                context.log.error(f"Enrichment error {subject_entity!r}: {str(exc)}")
         context.log.info("Enrichment process complete.")
     finally:
         enricher.close()

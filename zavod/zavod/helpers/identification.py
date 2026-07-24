@@ -1,5 +1,3 @@
-from typing import Optional
-
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.context import Context
@@ -11,17 +9,17 @@ log = get_logger(__name__)
 def make_identification(
     context: Context,
     entity: Entity,
-    number: Optional[str],
-    doc_type: Optional[str] = None,
-    country: Optional[str] = None,
-    summary: Optional[str] = None,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    authority: Optional[str] = None,
-    key: Optional[str] = None,
+    number: str | None,
+    doc_type: str | None = None,
+    country: str | None = None,
+    summary: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    authority: str | None = None,
+    key: str | None = None,
     passport: bool = False,
-    origin: Optional[str] = None,
-) -> Optional[Entity]:
+    origin: str | None = None,
+) -> Entity | None:
     """Create an `Identification` or `Passport` object linked to a passport holder.
 
     Args:
@@ -49,7 +47,7 @@ def make_identification(
     assert holder_prop.range is not None
     if not entity.schema.is_a(holder_prop.range):
         log.warning(
-            "Holder is not a valid type for %s" % schema,
+            f"Holder is not a valid type for {schema}",
             entity_schema=entity.schema,
             entity_id=entity.id,
             number=number,

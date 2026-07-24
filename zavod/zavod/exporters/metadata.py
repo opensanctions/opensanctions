@@ -1,6 +1,6 @@
 from enum import StrEnum
 import json
-from typing import Any, Dict, List
+from typing import Any
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -24,9 +24,9 @@ class DatasetVersionResult(StrEnum):
     FAILURE = "failure"
 
 
-def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
+def get_base_dataset_metadata(dataset: Dataset) -> dict[str, Any]:
     """Build the barebones metadata block for a dataset, without artifact URLs."""
-    meta: Dict[str, Any] = {
+    meta: dict[str, Any] = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
@@ -45,8 +45,8 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
     #  see https://github.com/opensanctions/opensanctions/pull/2483
     statistics_path = get_dataset_artifact(dataset.name, STATISTICS_FILE)
     if statistics_path.is_file():
-        with open(statistics_path, "r") as fh:
-            stats: Dict[str, Any] = json.load(fh)
+        with open(statistics_path) as fh:
+            stats: dict[str, Any] = json.load(fh)
             meta["entity_count"] = stats.get("entity_count", 0)
             targets = stats.get("targets", {})
             meta["target_count"] = targets.get("total", 0)
@@ -70,7 +70,7 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
                 last_change = settings.RUN_TIME_ISO
             meta["last_change"] = last_change
 
-    res_datas: List[Dict[str, Any]] = []
+    res_datas: list[dict[str, Any]] = []
     for res in DatasetResources(dataset).all():
         if res.name in UNLISTED_RESOURCES:
             continue
@@ -144,7 +144,7 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
         write_json(meta, fh)
 
 
-def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
+def get_catalog_dataset(dataset: Dataset) -> dict[str, Any]:
     """Get a metadata description of a single dataset for the catalog.
 
     Uses run information from the latest published index file, but patches it with the latest metadata from
@@ -156,7 +156,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     # Use the latest published index file, if available.
     path = get_dataset_artifact(dataset.name, INDEX_FILE)
     if path.is_file():
-        with open(path, "r") as fh:
+        with open(path) as fh:
             meta.update(json.load(fh))
     else:
         log.warn(
@@ -172,7 +172,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     return meta
 
 
-def get_catalog_datasets(scope: Dataset) -> List[Dict[str, Any]]:
+def get_catalog_datasets(scope: Dataset) -> list[dict[str, Any]]:
     datasets = []
     for dataset in scope.datasets:
         datasets.append(get_catalog_dataset(dataset))
@@ -184,7 +184,7 @@ def write_delta_index(
 ) -> None:
     """Export list of delta data versions for the dataset with their URLs
     associated."""
-    versions: Dict[str, str] = {}
+    versions: dict[str, str] = {}
 
     # This hasn't been uploaded yet, but will become available at the same
     # time as the index file:

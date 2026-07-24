@@ -1,5 +1,4 @@
 import yaml
-from typing import Optional
 from pathlib import Path
 from followthemoney.dataset import DataCatalog
 
@@ -11,8 +10,8 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
     def __init__(self) -> None:
         super().__init__(Dataset, {})
 
-    def load_yaml(self, path: Path) -> Optional[Dataset]:
-        with open(path, "r") as fh:
+    def load_yaml(self, path: Path) -> Dataset | None:
+        with open(path) as fh:
             data = yaml.safe_load(fh)
         if "name" not in data:
             data["name"] = path.stem
@@ -23,7 +22,7 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
             self.get(name)
         return dataset
 
-    def get(self, name: str) -> Optional[Dataset]:
+    def get(self, name: str) -> Dataset | None:
         dataset = super().get(name)
         if dataset is not None:
             return dataset

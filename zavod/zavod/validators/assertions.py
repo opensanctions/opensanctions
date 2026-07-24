@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 from banal import ensure_dict
 
 from zavod.context import Context
@@ -27,7 +27,7 @@ def is_assertion_fatal(assertion: Assertion) -> bool:
 
 def check_assertion(
     context: Context,
-    stats: Dict[str, Any],
+    stats: dict[str, Any],
     assertion: Assertion,
 ) -> bool:
     """Returns true if the assertion is valid, false otherwise."""

@@ -118,7 +118,7 @@ def test_context_get_fetchers(testdataset1: Dataset):
         m.get("/bla", text=long)
         path = context.fetch_resource("world.txt", "https://test.com/bla")
     assert path.stem == "world"
-    with open(path, "r") as fh:
+    with open(path) as fh:
         assert fh.read() == long
 
     with requests_mock.Mocker() as m:
@@ -131,12 +131,12 @@ def test_context_get_fetchers(testdataset1: Dataset):
         )
     assert path.stem == "world-post"
     assert m.request_history[0].body == "foo=bar"
-    with open(path, "r") as fh:
+    with open(path) as fh:
         assert fh.read() == long
 
     path = context.get_resource_path("doc.xml")
     with open(path, "w") as fh:
-        with open(XML_DOC, "r") as src:
+        with open(XML_DOC) as src:
             fh.write(src.read())
     xml_doc = context.parse_resource_xml("doc.xml")
     assert "MyAddress" in xml_doc.getroot().tag
@@ -153,7 +153,7 @@ def test_context_get_fetchers(testdataset1: Dataset):
 def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
     context = Context(testdataset1)
     url = "https://test.com/encoding"
-    body = "商务部".encode("utf-8")
+    body = "商务部".encode()
 
     with requests_mock.Mocker() as m:
         m.get(url, content=body, headers={"Content-Type": "text/html"})

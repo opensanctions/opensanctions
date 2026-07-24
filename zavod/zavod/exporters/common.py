@@ -7,7 +7,7 @@ from zavod.context import Context
 ExportView = View[Dataset, Entity]
 
 
-class Exporter(object):
+class Exporter:
     """A common interface for file format exports at the end of the export pipeline."""
 
     FILE_NAME = ""
@@ -37,13 +37,13 @@ class Exporter(object):
                 title=self.TITLE,
             )
             self.context.log.info(
-                "Exported: %s" % self.TITLE,
+                f"Exported: {self.TITLE}",
                 path=self.path,
                 size=resource.size,
             )
         except ValueError as ve:
             self.context.log.warning(
-                "Export failed: %s" % ve,
+                f"Export failed: {ve}",
                 path=self.path,
             )
             return

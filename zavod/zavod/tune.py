@@ -21,7 +21,7 @@ LEVEL_OPTIONS = click.Choice(LEVELS, case_sensitive=False)
 
 class IndentedListDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):  # type: ignore
-        return super(IndentedListDumper, self).increase_indent(flow, indentless=False)
+        return super().increase_indent(flow, indentless=False)
 
 
 @click.group(help="Zavod DSPy optimisation and evaluation tools")

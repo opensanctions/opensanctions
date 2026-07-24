@@ -1,5 +1,5 @@
 from collections import defaultdict, namedtuple
-from typing import Dict, List, Any, Optional, Set
+from typing import Any
 from followthemoney import model, registry
 
 from zavod.entity import Entity
@@ -8,8 +8,8 @@ from zavod.exporters.common import Exporter, ExportView
 from zavod.util import write_json
 
 
-def get_schema_facets(schemata: Dict[str, int]) -> List[Any]:
-    facets: List[Any] = []
+def get_schema_facets(schemata: dict[str, int]) -> list[Any]:
+    facets: list[Any] = []
     for name, count in sorted(schemata.items(), key=lambda s: s[1], reverse=True):
         schema = model.get(name)
         if schema is None:
@@ -24,8 +24,8 @@ def get_schema_facets(schemata: Dict[str, int]) -> List[Any]:
     return facets
 
 
-def get_country_facets(countries: Dict[str, int]) -> List[Any]:
-    facets: List[Any] = []
+def get_country_facets(countries: dict[str, int]) -> list[Any]:
+    facets: list[Any] = []
     for code, count in sorted(countries.items(), key=lambda s: s[1], reverse=True):
         facet = {
             "code": code,
@@ -36,7 +36,7 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
     return facets
 
 
-def get_sanctions_programs_facets(sanctions_programs: Dict[str, int]) -> List[Any]:
+def get_sanctions_programs_facets(sanctions_programs: dict[str, int]) -> list[Any]:
     return [
         {
             "id": program_id,
@@ -52,10 +52,10 @@ SchemaProperty = namedtuple("SchemaProperty", ["schema", "property"])
 
 
 def get_entities_with_prop_facets(
-    properties: Dict[SchemaProperty, int],
-    schema_counts: Dict[str, int],
-) -> List[Any]:
-    facets: List[Any] = []
+    properties: dict[SchemaProperty, int],
+    schema_counts: dict[str, int],
+) -> list[Any]:
+    facets: list[Any] = []
     for prop, count in sorted(properties.items()):
         total = schema_counts.get(prop.schema, 0)
         fill_rate = count / total if total > 0 else 0.0
@@ -70,25 +70,25 @@ def get_entities_with_prop_facets(
     return facets
 
 
-class Statistics(object):
+class Statistics:
     def __init__(self) -> None:
         self.entity_count = 0
-        self.last_change: Optional[str] = None
-        self.schemata: Set[str] = set()
-        self.qnames: Set[str] = set()
+        self.last_change: str | None = None
+        self.schemata: set[str] = set()
+        self.qnames: set[str] = set()
 
-        self.entity_count_by_schema: Dict[str, int] = defaultdict(int)
+        self.entity_count_by_schema: dict[str, int] = defaultdict(int)
 
         self.thing_count = 0
-        self.thing_countries: Dict[str, int] = defaultdict(int)
-        self.thing_schemata: Dict[str, int] = defaultdict(int)
-        self.entities_with_prop_count: Dict[SchemaProperty, int] = defaultdict(int)
+        self.thing_countries: dict[str, int] = defaultdict(int)
+        self.thing_schemata: dict[str, int] = defaultdict(int)
+        self.entities_with_prop_count: dict[SchemaProperty, int] = defaultdict(int)
 
         self.target_count = 0
-        self.target_countries: Dict[str, int] = defaultdict(int)
-        self.target_schemata: Dict[str, int] = defaultdict(int)
+        self.target_countries: dict[str, int] = defaultdict(int)
+        self.target_schemata: dict[str, int] = defaultdict(int)
 
-        self.sanctions_programs: Dict[str, int] = defaultdict(int)
+        self.sanctions_programs: dict[str, int] = defaultdict(int)
 
     def observe(self, entity: Entity) -> None:
         self.entity_count += 1
@@ -125,7 +125,7 @@ class Statistics(object):
             else:
                 self.last_change = max(self.last_change, entity.last_change)
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "last_change": self.last_change,
             "schemata": list(self.schemata),

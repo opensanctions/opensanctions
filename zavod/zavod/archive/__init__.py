@@ -24,7 +24,8 @@ import shutil
 from pathlib import Path
 from functools import lru_cache
 from typing import TYPE_CHECKING
-from typing import Optional, Generator, TextIO, Set
+from typing import TextIO
+from collections.abc import Generator
 from rigour.mime.types import JSON
 from followthemoney import Statement
 from followthemoney.statement.serialize import read_pack_statements_decoded
@@ -110,7 +111,7 @@ def get_dataset_artifact(
     dataset_name: str,
     resource: str,
     backfill: bool = True,
-    version: Optional[str] = None,
+    version: str | None = None,
 ) -> Path:
     path = dataset_resource_path(dataset_name, resource)
     if path.exists():
@@ -132,9 +133,7 @@ def get_dataset_artifact(
 # The right thing to do might be to have two functions, one to get the "root" version file
 # at artifacts/{dataset_name}/versions.json, and one to get the version file for a specific version.
 @lru_cache(maxsize=1000)
-def get_versions_data(
-    dataset_name: str, version: Optional[str] = None
-) -> Optional[str]:
+def get_versions_data(dataset_name: str, version: str | None = None) -> str | None:
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     if version is not None:
@@ -148,7 +147,7 @@ def get_versions_data(
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
     """Iterate over all versions of a given dataset."""
     data = get_versions_data(dataset_name)
-    seen: Set[str] = set()
+    seen: set[str] = set()
     while True:
         if data is None:
             break
@@ -163,8 +162,8 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
 
 
 def get_artifact_object(
-    dataset_name: str, resource: str, version: Optional[str] = None
-) -> Optional[ArchiveObject]:
+    dataset_name: str, resource: str, version: str | None = None
+) -> ArchiveObject | None:
     backend = get_archive_backend()
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
@@ -206,7 +205,7 @@ def archive_artifact(
     dataset_name: str,
     version: Version,
     resource: str,
-    mime_type: Optional[str] = None,
+    mime_type: str | None = None,
 ) -> None:
     """Publish a file in the given versions artifact directory of the dataset."""
     assert path.relative_to(dataset_data_path(dataset_name))
@@ -266,7 +265,7 @@ def iter_local_statements(dataset: "Dataset", external: bool = True) -> Statemen
         get_dataset_artifact(dataset.name, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
-    with open(path, "r") as fh:
+    with open(path) as fh:
         yield from _read_fh_statements(fh, external)
 
 
@@ -291,7 +290,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
 
 
 def iter_previous_statements(
-    dataset: "Dataset", external: bool = True, version: Optional[str] = None
+    dataset: "Dataset", external: bool = True, version: str | None = None
 ) -> StatementGen:
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""

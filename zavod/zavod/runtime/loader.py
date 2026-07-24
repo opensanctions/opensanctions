@@ -2,7 +2,8 @@ import re
 import sys
 from pathlib import Path
 from types import ModuleType
-from typing import Callable, Any, Optional, cast
+from typing import Any, cast
+from collections.abc import Callable
 from importlib import import_module, invalidate_caches
 from importlib.util import module_from_spec, spec_from_file_location
 
@@ -21,7 +22,7 @@ def load_entry_point(dataset: Dataset, method: str = "crawl") -> Callable[[Any],
     module_name = dataset.model.entry_point
     if ":" in module_name:
         module_name, method = module_name.rsplit(":", 1)
-    module: Optional[ModuleType] = None
+    module: ModuleType | None = None
     try:
         module = import_module(module_name)
     except ModuleNotFoundError:
@@ -40,12 +41,12 @@ def load_entry_point(dataset: Dataset, method: str = "crawl") -> Callable[[Any],
                     spec.loader.exec_module(module)
                     break
     if module is None:
-        raise RuntimeError("Could not load entry point: %s" % dataset.model.entry_point)
+        raise RuntimeError(f"Could not load entry point: {dataset.model.entry_point}")
     try:
         method_ = getattr(module, method)
         return cast(Callable[[Any], None], method_)
     except AttributeError:
-        raise RuntimeError("Function does not exist: %r (on %r)" % (method, module))
+        raise RuntimeError(f"Function does not exist: {method!r} (on {module!r})")
 
 
 def example_function() -> None:

@@ -1,7 +1,6 @@
 import re
 from normality import slugify_text
 from functools import lru_cache
-from typing import Optional, Tuple
 from followthemoney import registry
 from followthemoney.util import join_text, make_entity_id
 from rigour.addresses import format_address_line
@@ -17,21 +16,21 @@ REGEX_POBOX = re.compile(r"^p\.?o\.? ?box [\d-]+$", re.IGNORECASE)
 
 @lru_cache(maxsize=10000)
 def format_address(
-    summary: Optional[str] = None,
-    po_box: Optional[str] = None,
-    street: Optional[str] = None,
-    street2: Optional[str] = None,
-    street3: Optional[str] = None,
-    house: Optional[str] = None,
-    house_number: Optional[str] = None,
-    postal_code: Optional[str] = None,
-    city: Optional[str] = None,
-    county: Optional[str] = None,
-    state: Optional[str] = None,
-    state_district: Optional[str] = None,
-    state_code: Optional[str] = None,
-    country: Optional[str] = None,
-    country_code: Optional[str] = None,
+    summary: str | None = None,
+    po_box: str | None = None,
+    street: str | None = None,
+    street2: str | None = None,
+    street3: str | None = None,
+    house: str | None = None,
+    house_number: str | None = None,
+    postal_code: str | None = None,
+    city: str | None = None,
+    county: str | None = None,
+    state: str | None = None,
+    state_district: str | None = None,
+    state_code: str | None = None,
+    country: str | None = None,
+    country_code: str | None = None,
 ) -> str:
     """Given the components of a postal address, format it into a single line
     using some country-specific templating logic.
@@ -86,10 +85,10 @@ def format_address(
 
 def _make_id(
     entity: Entity,
-    full: Optional[str],
-    country_code: Optional[str],
-    key: Optional[str] = None,
-) -> Optional[str]:
+    full: str | None,
+    country_code: str | None,
+    key: str | None = None,
+) -> str | None:
     if full is None or not len(full.strip()):
         country_id = make_entity_id(country_code, full, key)
         if country_id is None:
@@ -107,24 +106,24 @@ def _make_id(
 
 def make_address(
     context: Context,
-    full: Optional[str] = None,
-    remarks: Optional[str] = None,
-    summary: Optional[str] = None,
-    po_box: Optional[str] = None,
-    street: Optional[str] = None,
-    street2: Optional[str] = None,
-    street3: Optional[str] = None,
-    city: Optional[str] = None,
-    place: Optional[str] = None,
-    postal_code: Optional[str] = None,
-    state: Optional[str] = None,
-    region: Optional[str] = None,
-    country: Optional[str] = None,
-    country_code: Optional[str] = None,
-    key: Optional[str] = None,
-    lang: Optional[str] = None,
-    origin: Optional[str] = None,
-) -> Optional[Entity]:
+    full: str | None = None,
+    remarks: str | None = None,
+    summary: str | None = None,
+    po_box: str | None = None,
+    street: str | None = None,
+    street2: str | None = None,
+    street3: str | None = None,
+    city: str | None = None,
+    place: str | None = None,
+    postal_code: str | None = None,
+    state: str | None = None,
+    region: str | None = None,
+    country: str | None = None,
+    country_code: str | None = None,
+    key: str | None = None,
+    lang: str | None = None,
+    origin: str | None = None,
+) -> Entity | None:
     """Generate an address schema object adjacent to the main entity.
 
     Args:
@@ -215,7 +214,7 @@ def make_address(
     return address
 
 
-def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -> None:
+def apply_address(context: Context, entity: Entity, address: Entity | None) -> None:
     """Link the given entity to the given address and emits the address.
 
     Args:
@@ -236,7 +235,7 @@ def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -
         entity.add("address", address.get("full"))
 
 
-def copy_address(entity: Entity, address: Optional[Entity]) -> None:
+def copy_address(entity: Entity, address: Entity | None) -> None:
     """Assign to full address text and country directly to the given entity.
 
     This is an alternative to using `apply_address` when the address should
@@ -255,7 +254,7 @@ def copy_address(entity: Entity, address: Optional[Entity]) -> None:
                     entity.adopt_statement(stmt, prop="country")
 
 
-def postcode_pobox(text: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
+def postcode_pobox(text: str | None) -> tuple[str | None, str | None]:
     """
     For when PO Box is stuffed into postcode, sometimes.
 

@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import List
 
 import click
 from click.shell_completion import CompletionItem
@@ -26,7 +25,7 @@ class DatasetPath(click.Path):
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
-    ) -> List[CompletionItem]:
+    ) -> list[CompletionItem]:
         completions: list[CompletionItem] = []
         for path in sorted(Path("datasets").glob("**/*.yml")):
             if incomplete in path.name:
@@ -42,13 +41,13 @@ DatasetInPath = DatasetPath(
 def _load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
-        raise click.BadParameter("Invalid dataset path: %s" % path)
+        raise click.BadParameter(f"Invalid dataset path: {path}")
     set_logging_context_dataset_name(dataset.name)
     return dataset
 
 
-def _load_datasets(paths: List[Path]) -> Dataset:
-    inputs: List[str] = []
+def _load_datasets(paths: list[Path]) -> Dataset:
+    inputs: list[str] = []
     for path in paths:
         inputs.append(_load_dataset(path).name)
     return get_multi_dataset(inputs)

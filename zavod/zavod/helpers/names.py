@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import re
-from typing import Dict, List, Optional, Tuple, cast
+from typing import cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
@@ -40,12 +40,12 @@ REGEX_CLEAN_COMMA = re.compile(
 REGEX_SPACES = re.compile(r"\s+")
 
 
-def _title_terms(terms: List[str]) -> List[str]:
+def _title_terms(terms: list[str]) -> list[str]:
     terms_ = [REGEX_SPACES.sub(" ", term) for term in terms]
     return sorted([term for term in terms_ if term.strip()], key=len, reverse=True)
 
 
-def _strip_title_prefixes(name: str, terms: List[str]) -> str:
+def _strip_title_prefixes(name: str, terms: list[str]) -> str:
     terms_ = _title_terms(terms)
     while True:
         for term in terms_:
@@ -65,7 +65,7 @@ def _strip_title_prefixes(name: str, terms: List[str]) -> str:
             return name
 
 
-def _strip_title_suffixes(name: str, terms: List[str]) -> str:
+def _strip_title_suffixes(name: str, terms: list[str]) -> str:
     terms_ = _title_terms(terms)
     while True:
         for term in terms_:
@@ -85,7 +85,7 @@ def _strip_title_suffixes(name: str, terms: List[str]) -> str:
             return name
 
 
-def strip_name_titles(context: Context, name: Optional[str]) -> Optional[str]:
+def strip_name_titles(context: Context, name: str | None) -> str | None:
     """Strip configured title affixes from a source name.
 
     Use when a dataset stores honorific prefixes or post-nominals as part of a
@@ -115,23 +115,23 @@ def strip_name_titles(context: Context, name: Optional[str]) -> Optional[str]:
 
 
 def make_name(
-    full: Optional[str] = None,
-    name1: Optional[str] = None,
-    first_name: Optional[str] = None,
-    given_name: Optional[str] = None,
-    name2: Optional[str] = None,
-    second_name: Optional[str] = None,
-    middle_name: Optional[str] = None,
-    name3: Optional[str] = None,
-    patronymic: Optional[str] = None,
-    matronymic: Optional[str] = None,
-    name4: Optional[str] = None,
-    name5: Optional[str] = None,
-    tail_name: Optional[str] = None,
-    last_name: Optional[str] = None,
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
-) -> Optional[str]:
+    full: str | None = None,
+    name1: str | None = None,
+    first_name: str | None = None,
+    given_name: str | None = None,
+    name2: str | None = None,
+    second_name: str | None = None,
+    middle_name: str | None = None,
+    name3: str | None = None,
+    patronymic: str | None = None,
+    matronymic: str | None = None,
+    name4: str | None = None,
+    name5: str | None = None,
+    tail_name: str | None = None,
+    last_name: str | None = None,
+    prefix: str | None = None,
+    suffix: str | None = None,
+) -> str | None:
     """Provides a standardised way of assembling the components of a human name.
     This does a whole lot of cultural ignorance work, so YMMV.
 
@@ -182,10 +182,10 @@ def make_name(
 def set_name_part(
     entity: Entity,
     prop: str,
-    value: Optional[str],
+    value: str | None,
     quiet: bool,
-    lang: Optional[str],
-    origin: Optional[str],
+    lang: str | None,
+    origin: str | None,
 ) -> None:
     if value is None:
         return
@@ -193,35 +193,35 @@ def set_name_part(
     if prop_ is None:
         if quiet:
             return
-        raise TypeError("Invalid prop: %s [value: %r]" % (prop, value))
+        raise TypeError(f"Invalid prop: {prop} [value: {value!r}]")
     entity.add(prop_, value, lang=lang, origin=origin)
 
 
 def apply_name(
     entity: Entity,
-    full: Optional[str] = None,
-    name1: Optional[str] = None,
-    first_name: Optional[str] = None,
-    given_name: Optional[str] = None,
-    name2: Optional[str] = None,
-    second_name: Optional[str] = None,
-    middle_name: Optional[str] = None,
-    name3: Optional[str] = None,
-    patronymic: Optional[str] = None,
-    matronymic: Optional[str] = None,
-    name4: Optional[str] = None,
-    name5: Optional[str] = None,
-    tail_name: Optional[str] = None,
-    last_name: Optional[str] = None,
-    maiden_name: Optional[str] = None,
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
+    full: str | None = None,
+    name1: str | None = None,
+    first_name: str | None = None,
+    given_name: str | None = None,
+    name2: str | None = None,
+    second_name: str | None = None,
+    middle_name: str | None = None,
+    name3: str | None = None,
+    patronymic: str | None = None,
+    matronymic: str | None = None,
+    name4: str | None = None,
+    name5: str | None = None,
+    tail_name: str | None = None,
+    last_name: str | None = None,
+    maiden_name: str | None = None,
+    prefix: str | None = None,
+    suffix: str | None = None,
     alias: bool = False,
     name_prop: str = "name",
     is_weak: bool = False,
     quiet: bool = False,
-    lang: Optional[str] = None,
-    origin: Optional[str] = None,
+    lang: str | None = None,
+    origin: str | None = None,
 ) -> None:
     """A standardised way to set a name for a person or other entity, which handles
     normalising the categories of names found in source data to the correct properties
@@ -299,7 +299,7 @@ def apply_name(
         entity.add(name_prop, full, quiet=quiet, lang=lang, origin=full_origin)
 
 
-def split_comma_names(context: Context, text: str) -> List[str]:
+def split_comma_names(context: Context, text: str) -> list[str]:
     """Split a string of multiple names that may contain company and individual names,
     some including commas, into individual names without breaking partnership names
     like "A, B and C Inc" or individuals like "Smith, Jane".
@@ -318,7 +318,7 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     # Check early for overrides of cases where splitting on comma is a mistake.
     res = context.lookup("comma_names", text)
     if res:
-        return cast(List[str], res.names)
+        return cast(list[str], res.names)
 
     text = REGEX_CLEAN_COMMA.sub(r" \1", text)
     # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
@@ -332,7 +332,7 @@ def split_comma_names(context: Context, text: str) -> List[str]:
         if ("," in text) or (" and " in text):
             res = context.lookup("comma_names", text)
             if res:
-                return cast("List[str]", res.names)
+                return cast("list[str]", res.names)
             else:
                 context.log.warning("Not sure how to split on comma or and.", text=text)
                 return [text]
@@ -343,7 +343,7 @@ def split_comma_names(context: Context, text: str) -> List[str]:
 @dataclass
 class Regularity:
     is_irregular: bool
-    suggested_prop: Optional[str] = None
+    suggested_prop: str | None = None
 
 
 def _is_single_token(string: str) -> bool:
@@ -360,7 +360,7 @@ def _is_single_token(string: str) -> bool:
 
 def _check_suggesting_heuristics(
     entity: Entity, string: str, names_spec: NamesSpec
-) -> Optional[Regularity]:
+) -> Regularity | None:
     # The flags for datasets to opt into suggesting heuristics are super verbose.
     # The idea is to rather introduce additional heuristics with different names
     # than have very general heuristics like 'suggest_person_weak_alias' and keep
@@ -400,7 +400,7 @@ def _check_suggesting_heuristics(
     return None
 
 
-def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regularity]:
+def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Regularity | None:
     for char in spec.reject_chars_consolidated:
         if char in string:
             return Regularity(is_irregular=True)
@@ -436,7 +436,7 @@ def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regula
     return None
 
 
-def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
+def check_name_regularity(entity: Entity, string: str | None) -> Regularity:
     """Determine whether a name string potentially needs cleaning."""
     string = squash_spaces(string or "")
 
@@ -461,12 +461,12 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     return Regularity(is_irregular=False)
 
 
-def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
+def is_name_irregular(entity: Entity, string: str | None) -> bool:
     """Determine whether a name string is irregular and needs cleaning."""
     return check_name_regularity(entity, string).is_irregular
 
 
-def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, LangNames]:
+def check_names_regularity(entity: Entity, names: Names) -> tuple[bool, LangNames]:
     """
     Determine whether any name string in the given Names instance is irregular
     and needs cleaning.
@@ -477,7 +477,7 @@ def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, LangName
     from "name" to "alias" or "weakAlias").
     """
     is_irregular = False
-    updated_suggested_data: Dict[str, List[LangText]] = defaultdict(list)
+    updated_suggested_data: dict[str, list[LangText]] = defaultdict(list)
     for key, names_values in names.as_langtexts():
         for name_val in names_values:
             regularity = check_name_regularity(entity, name_val.text)
@@ -491,7 +491,7 @@ def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, LangName
     return is_irregular, updated_suggested
 
 
-def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
+def derive_original_values(original: Names, extracted: Names) -> dict[str, str]:
     """
     Derive an original_value for each value in extracted based on the values in original.
 
@@ -532,8 +532,8 @@ def apply_names(
     *,
     original: Names,
     names: Names,
-    lang: Optional[str] = None,
-    origin: Optional[str] = None,
+    lang: str | None = None,
+    origin: str | None = None,
 ) -> None:
     """
     Apply the given names to the entity in the indicated props.
@@ -561,7 +561,7 @@ def apply_names(
             )
 
 
-def review_key_parts(entity: Entity, original: Names) -> List[str]:
+def review_key_parts(entity: Entity, original: Names) -> list[str]:
     # Only use the non-empty props in the key so that adding props in
     # future doesn't change the key unless they're actually populated.
     # Both props and names within each prop are sorted for a stable key.
@@ -579,7 +579,7 @@ def _review_names(
     context: Context,
     entity: Entity,
     original: Names,
-    suggested: Optional[Names] = None,
+    suggested: Names | None = None,
     llm_cleaning: bool = False,
     default_accepted: bool = False,
 ) -> Review[Names]:
@@ -609,16 +609,16 @@ def _review_names(
 
     # For human readability, we only include the populated props in the source value.
     # Sort within each prop so the source_value JSON is stable when source order changes.
-    populated_props: Dict[str, List[str | Dict[str, str | None]]] = {}
+    populated_props: dict[str, list[str | dict[str, str | None]]] = {}
     for prop, vals in source_names.original.as_langtexts():
-        items: List[str | Dict[str, str | None]] = []
+        items: list[str | dict[str, str | None]] = []
         for v in sorted(vals, key=lambda v: (v.lang or "", v.text)):
             if v.lang is None:
                 items.append(v.text)
             else:
-                items.append(cast(Dict[str, str | None], v.model_dump()))
+                items.append(cast(dict[str, str | None], v.model_dump()))
         populated_props[prop] = items
-    source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
+    source_value_data: dict[str, str | dict[str, list[str | dict[str, str | None]]]] = {
         "entity_schema": entity.schema.name,
         "original": populated_props,
     }
@@ -655,11 +655,11 @@ def review_names(
     entity: Entity,
     *,
     original: Names,
-    suggested: Optional[Names] = None,
+    suggested: Names | None = None,
     is_irregular: bool = False,
     llm_cleaning: bool = False,
     default_accepted: bool = False,
-) -> Optional[Review[Names]]:
+) -> Review[Names] | None:
     """
     Determines whether names need cleaning and if so, posts them for review.
 
@@ -734,9 +734,9 @@ def apply_reviewed_names(
     entity: Entity,
     *,
     original: Names,
-    suggested: Optional[Names] = None,
+    suggested: Names | None = None,
     is_irregular: bool = False,
-    lang: Optional[str] = None,
+    lang: str | None = None,
     llm_cleaning: bool = False,
     default_accepted: bool = False,
 ) -> None:
@@ -794,9 +794,9 @@ def apply_reviewed_name_string(
     context: Context,
     entity: Entity,
     *,
-    string: Optional[str],
+    string: str | None,
     original_prop: str = "name",
-    lang: Optional[str] = None,
+    lang: str | None = None,
     llm_cleaning: bool = False,
 ) -> None:
     """

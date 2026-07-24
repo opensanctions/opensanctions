@@ -2,7 +2,7 @@ import mimetypes
 from functools import cached_property
 from hashlib import sha1
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from banal import ensure_dict, ensure_list
 from datapatch import Lookup, get_lookups
@@ -40,7 +40,7 @@ log = get_logger(__name__)
 # `property_fill_rate` only applies to schemata the dataset actually emits: the
 # validator skips any schema with zero entities, so naming schemata a dataset
 # doesn't produce here is harmless.
-DEFAULT_ASSERTIONS: Dict[str, Any] = {
+DEFAULT_ASSERTIONS: dict[str, Any] = {
     "min": {
         "property_fill_rate": {
             "Person": {"name": 0.95},
@@ -53,7 +53,7 @@ DEFAULT_ASSERTIONS: Dict[str, Any] = {
 
 
 class Dataset(FollowTheMoneyDataset):
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, data: dict[str, Any]):
         super().__init__(data)
         self.model: ZavodDatasetModel = ZavodDatasetModel.model_validate(data)
         self.prefix = self.model.prefix
@@ -64,13 +64,13 @@ class Dataset(FollowTheMoneyDataset):
                 self.model.coverage = DataCoverage()
             self.model.coverage.frequency = "never"
 
-        self.config: Dict[str, Any] = ensure_dict(data.get("config", {}))
+        self.config: dict[str, Any] = ensure_dict(data.get("config", {}))
         _inputs = ensure_list(data.get("inputs", []))
-        self.inputs: List[str] = [str(x) for x in _inputs]
+        self.inputs: list[str] = [str(x) for x in _inputs]
         """List of other datasets that this dataset depends on as processing inputs."""
 
         self._data = data
-        self.base_path: Optional[Path] = None
+        self.base_path: Path | None = None
 
         # TODO: this is for backward compatibility, get rid of it one day
         _type = "collection" if self.is_collection else "source"
@@ -81,7 +81,7 @@ class Dataset(FollowTheMoneyDataset):
         assertions_config = merge_assertions_config(
             DEFAULT_ASSERTIONS, user_assertions_config
         )
-        self.assertions: List[Assertion] = list(parse_assertions(assertions_config))
+        self.assertions: list[Assertion] = list(parse_assertions(assertions_config))
         """
         List of assertions which should be considered warnings if they fail.
 
@@ -115,27 +115,27 @@ class Dataset(FollowTheMoneyDataset):
         """Number parsing configuration for this dataset."""
 
     @cached_property
-    def lookups(self) -> Dict[str, Lookup]:
+    def lookups(self) -> dict[str, Lookup]:
         config = self._data.get("lookups", {})
         return get_lookups(config, debug=settings.DEBUG)
 
     @property
-    def url(self) -> Optional[str]:
+    def url(self) -> str | None:
         return self.model.url
 
     @property
-    def data(self) -> Optional[DataModel]:
+    def data(self) -> DataModel | None:
         return self.model.data
 
     def resource_from_path(
         self,
         path: Path,
-        mime_type: Optional[str] = None,
-        title: Optional[str] = None,
+        mime_type: str | None = None,
+        title: str | None = None,
     ) -> "DataResource":
         """Create a resource description object from a local file path."""
         if not path.exists():
-            raise ValueError("File does not exist: %s" % path)
+            raise ValueError(f"File does not exist: {path}")
         if mime_type is None:
             mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=False)
         dataset_path_ = dataset_data_path(self.name)
@@ -160,7 +160,7 @@ class Dataset(FollowTheMoneyDataset):
             url=make_published_url(self.name, name),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Generate a metadata export, not including operational details."""
         data = super().to_dict()
         data["hidden"] = self.model.hidden
@@ -181,7 +181,7 @@ class Dataset(FollowTheMoneyDataset):
             data.pop("children", None)
         return data
 
-    def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> Dict[str, Any]:
+    def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> dict[str, Any]:
         """Generate a metadata export in the format expected by the OpenSanctions catalog."""
         data = self.to_dict()
         assert self._type in ("collection", "source", "external"), self._type

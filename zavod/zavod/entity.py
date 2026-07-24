@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Self, Union
+from typing import Any, Self
 from followthemoney import model
 from followthemoney.exc import InvalidData, InvalidModel
 from followthemoney.util import gettext
@@ -20,7 +20,7 @@ class Entity(StatementEntity):
     extracting data from sanctions lists and for auditing parsing errors to structured logging.
     """  # noqa
 
-    def __init__(self, dataset: Dataset, data: Dict[str, Any], cleaned: bool = True):
+    def __init__(self, dataset: Dataset, data: dict[str, Any], cleaned: bool = True):
         super().__init__(dataset, data, cleaned=cleaned)
         self.dataset: Dataset = dataset
 
@@ -30,17 +30,17 @@ class Entity(StatementEntity):
     def unsafe_add(
         self,
         prop: Property,
-        value: Optional[str],
+        value: str | None,
         cleaned: bool = False,
         fuzzy: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
         quiet: bool = False,
-        schema: Optional[str] = None,
-        dataset: Optional[str] = None,
-        seen: Optional[str] = None,
-        lang: Optional[str] = None,
-        original_value: Optional[str] = None,
-        origin: Optional[str] = None,
+        schema: str | None = None,
+        dataset: str | None = None,
+        seen: str | None = None,
+        lang: str | None = None,
+        original_value: str | None = None,
+        origin: str | None = None,
         external: bool = False,
     ) -> None:
         """Add a statement to the entity, possibly the value."""
@@ -93,10 +93,10 @@ class Entity(StatementEntity):
         values: Any,
         cleaned: bool = False,
         fuzzy: bool = False,
-        format: Optional[str] = None,
-        lang: Optional[str] = None,
-        original_value: Optional[str] = None,
-        origin: Optional[str] = None,
+        format: str | None = None,
+        lang: str | None = None,
+        original_value: str | None = None,
+        origin: str | None = None,
     ) -> None:
         """Set a property on an entity. If the entity is of a schema that doesn't
         have the given property, also modify the schema (e.g. if something has a
@@ -108,10 +108,10 @@ class Entity(StatementEntity):
 
         schema_ = model.get(schema)
         if schema_ is None:
-            raise InvalidModel("Invalid schema: %s" % schema)
+            raise InvalidModel(f"Invalid schema: {schema}")
         prop_ = schema_.get(prop)
         if prop_ is None:
-            raise InvalidModel("Invalid prop: %s" % prop)
+            raise InvalidModel(f"Invalid prop: {prop}")
         for text in string_list(values):
             for norm_prop_, clean, origin_ in value_clean(
                 self,
@@ -134,7 +134,7 @@ class Entity(StatementEntity):
                     origin=origin_,
                 )
 
-    def adopt_statement(self, stmt: Statement, prop: Optional[str] = None) -> None:
+    def adopt_statement(self, stmt: Statement, prop: str | None = None) -> None:
         """Adopt a statement from another entity, copying it to this entity."""
         prop = prop or stmt.prop
         prop_ = self.schema.get(prop)
@@ -152,7 +152,7 @@ class Entity(StatementEntity):
             cleaned=True,
         )
 
-    def add_schema(self, schema: Union[str, Schema]) -> None:
+    def add_schema(self, schema: str | Schema) -> None:
         """Try to apply the given schema to the current entity, making it more
         specific (e.g. turning a `LegalEntity` into a `Company`). This raises an
         exception if the current and new type are incompatible."""
@@ -177,8 +177,8 @@ class Entity(StatementEntity):
         return all(s.external for s in self.statements)
 
     def _to_nested_dict(
-        self: Self, view: "View[Dataset, Entity]", depth: int, path: List[str]
-    ) -> Dict[str, Any]:
+        self: Self, view: "View[Dataset, Entity]", depth: int, path: list[str]
+    ) -> dict[str, Any]:
         next_depth = depth if self.schema.edge else depth - 1
         next_path = list(path)
         if self.id is not None:
@@ -186,7 +186,7 @@ class Entity(StatementEntity):
         data = self.to_dict()
         if next_depth < 0:
             return data
-        nested: Dict[str, List[Any]] = {}
+        nested: dict[str, list[Any]] = {}
         for prop, adjacent in view.get_adjacent(self):
             if adjacent.id in next_path:
                 continue
@@ -199,10 +199,10 @@ class Entity(StatementEntity):
 
     def to_nested_dict(
         self: Self, view: "View[Dataset, Entity]", depth: int = 1
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return self._to_nested_dict(view, depth=depth, path=[])
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         data = super().to_dict()
         data["target"] = self.target or False
         return data

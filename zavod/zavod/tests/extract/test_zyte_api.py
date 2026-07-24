@@ -59,7 +59,7 @@ def test_fetch_html_http_response_body(testdataset1: Dataset):
             "https://api.zyte.com/v1/extract",
             json={
                 "httpResponseBody": b64encode(
-                    "<html><h1>Hello, World!</h1></html>".encode()
+                    b"<html><h1>Hello, World!</h1></html>"
                 ).decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/html; charset=iso-8859-1"}
@@ -205,9 +205,7 @@ def test_fetch_resource(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode(
-                    "name,surname\nSally,Sue".encode()
-                ).decode(),
+                "httpResponseBody": b64encode(b"name,surname\nSally,Sue").decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/csv; charset=latin-1"}
                 ],
@@ -260,7 +258,7 @@ def test_fetch_text(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode("Hello, World!".encode()).decode(),
+                "httpResponseBody": b64encode(b"Hello, World!").decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/plain; charset=utf-8"}
                 ],
@@ -287,7 +285,7 @@ def test_fetch_json(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode('{"name": "Sally"}'.encode()).decode(),
+                "httpResponseBody": b64encode(b'{"name": "Sally"}').decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "application/json; charset=utf-8"}
                 ],
@@ -317,7 +315,7 @@ def test_fetch_json_expect_json(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode("Go away".encode()).decode(),
+                "httpResponseBody": b64encode(b"Go away").decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/html; charset=utf-8"}
                 ],

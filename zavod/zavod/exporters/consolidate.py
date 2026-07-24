@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import List, Tuple
 
 from normality import WS
 from followthemoney import registry
@@ -47,9 +46,9 @@ NEVER_REMOVE_NAMES_DATASETS = {
 
 
 @lru_cache(maxsize=10000)
-def _remove_prefix_date_values(values: Tuple[str, ...]) -> Tuple[str, ...]:
+def _remove_prefix_date_values(values: tuple[str, ...]) -> tuple[str, ...]:
     """See ``_simplify_dates``."""
-    kept: List[str] = []
+    kept: list[str] = []
     values_list = sorted(values, reverse=True)
     for index, value in enumerate(values_list):
         if index > 0:
@@ -105,8 +104,8 @@ def _simplify_undirected(entity: Entity) -> Entity:
         return entity
     sources = entity.get_statements(entity.schema.edge_source)
     targets = entity.get_statements(entity.schema.edge_target)
-    source_ids = set((s.value for s in sources))
-    target_ids = set((t.value for t in targets))
+    source_ids = set(s.value for s in sources)
+    target_ids = set(t.value for t in targets)
     common = source_ids.intersection(target_ids)
     if len(common) != 2:
         return entity

@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any, List
+from typing import Any
 from followthemoney.dataset import DataResource
 
 from zavod.meta import Dataset
@@ -7,7 +7,7 @@ from zavod.archive import dataset_resource_path
 from zavod.archive import RESOURCES_FILE
 
 
-class DatasetResources(object):
+class DatasetResources:
     """Store information about the resources in the dataset that have been emitted
     from the context during runtime."""
 
@@ -15,9 +15,9 @@ class DatasetResources(object):
         self.dataset = dataset
         self.path = dataset_resource_path(dataset.name, RESOURCES_FILE)
 
-    def _store_resources(self, resources: List[DataResource]) -> None:
+    def _store_resources(self, resources: list[DataResource]) -> None:
         with open(self.path, "w") as fh:
-            objs: List[Dict[str, Any]] = []
+            objs: list[dict[str, Any]] = []
             for resource in resources:
                 data = resource.model_dump(mode="json", exclude_none=True)
                 data["path"] = resource.name
@@ -34,13 +34,13 @@ class DatasetResources(object):
         resources = [r for r in self.all() if r.name != name]
         self._store_resources(resources)
 
-    def all(self) -> List[DataResource]:
-        resources: List[DataResource] = []
-        data: Dict[str, Any] = {}
+    def all(self) -> list[DataResource]:
+        resources: list[DataResource] = []
+        data: dict[str, Any] = {}
         # if not self.path.exists():
         #     self.path = get_dataset_artifact(self.dataset.name, RESOURCES_FILE)
         if self.path.exists():
-            with open(self.path, "r") as fh:
+            with open(self.path) as fh:
                 data = json.load(fh)
         for raw in data.get("resources", []):
             resources.append(DataResource.model_validate(raw))

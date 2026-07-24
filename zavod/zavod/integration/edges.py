@@ -333,7 +333,7 @@ def group_edges(view: View) -> list[list[str]]:
 
     for idx, entity in enumerate(view.entities()):
         if idx > 0 and idx % 100000 == 0:
-            log.info("Keyed %s entities..." % idx)
+            log.info(f"Keyed {idx} entities...")
 
         key = bucket_key(entity)
         if key is None:
@@ -393,7 +393,7 @@ def merge_groups(
             other = view.get_entity(other_id)
             assert other is not None
 
-            log.info("Merge edge: %s (%s -> %s)" % (other, other_canon, canonical))
+            log.info(f"Merge edge: {other} ({other_canon} -> {canonical})")
             canonical = resolver.decide(
                 canonical,
                 other_canon,
@@ -409,11 +409,11 @@ def merge_groups(
         cluster_count += 1
         if uncommitted >= commit_every:
             session.checkpoint()
-            log.info("Committed %s merge decisions..." % merged_count)
+            log.info(f"Committed {merged_count} merge decisions...")
             uncommitted = 0
-    log.info("Merged %s edge entities into %s clusters" % (merged_count, cluster_count))
+    log.info(f"Merged {merged_count} edge entities into {cluster_count} clusters")
     for dataset, count in dataset_counts.items():
-        log.info("Merged %s edges in dataset %s" % (count, dataset))
+        log.info(f"Merged {count} edges in dataset {dataset}")
 
 
 def dedupe_edges(resolver: Resolver[Entity], session: Session, view: View) -> None:

@@ -1,4 +1,3 @@
-from typing import List, Type
 from followthemoney import registry
 
 from zavod.archive import dataset_data_path
@@ -62,7 +61,7 @@ class EmptyValidator(BaseValidator):
             self.context.log.warning("No entities validated.")
 
 
-VALIDATORS: List[Type[BaseValidator]] = [
+VALIDATORS: list[type[BaseValidator]] = [
     DanglingReferencesValidator,
     SelfReferenceValidator,
     StatisticsAssertionsValidator,
@@ -87,7 +86,7 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
         validators = [validator(context, view) for validator in VALIDATORS]
         for idx, entity in enumerate(view.entities()):
             if idx > 0 and idx % 10000 == 0:
-                context.log.info("Validated %s entities..." % idx, dataset=dataset.name)
+                context.log.info(f"Validated {idx} entities...", dataset=dataset.name)
 
             for validator in validators:
                 validator.feed(entity)

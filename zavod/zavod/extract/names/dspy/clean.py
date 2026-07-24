@@ -1,5 +1,4 @@
 from functools import cache
-from typing import List
 
 from zavod.extract.names.clean import LLM_MODEL_VERSION, SINGLE_ENTITY_PROGRAM_PATH
 from zavod.settings import OPENAI_API_KEY
@@ -14,12 +13,12 @@ class CleanNamesSignature(dspy.Signature):  # type: ignore
     entity_schema: str = dspy.InputField(
         desc="The schema denotes the type of entity. Both Persons and Organizations are specialisation of LegalEntity. Company is a specialisation of Organization. Everything extends Thing."
     )
-    strings: List[str] = dspy.InputField(
+    strings: list[str] = dspy.InputField(
         desc="A list of raw name strings to be cleaned and categorised. Each string might contain multiple names."
     )
 
     # Outputs
-    name: List[str] = dspy.OutputField(
+    name: list[str] = dspy.OutputField(
         desc="A list of the primary names of this entity, potentially in various languages and transliterations."
     )
     alias: list[str] = dspy.OutputField(

@@ -1,6 +1,6 @@
 import io
 import csv
-from typing import List, Iterable
+from collections.abc import Iterable
 from followthemoney import registry
 from followthemoney.util import join_text
 
@@ -86,7 +86,7 @@ class SimpleCSVExporter(Exporter):
                 identifiers.update(adjacent.get("number"))
                 countries.update(adjacent.get("country"))
 
-        datasets: List[str] = []
+        datasets: list[str] = []
         for dataset in entity.datasets:
             ds = get_catalog().require(dataset)
             datasets.append(ds.model.title)

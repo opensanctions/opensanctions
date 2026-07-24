@@ -36,7 +36,7 @@ def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
     issues_path.unlink()
     context.issues.export()
     assert issues_path.exists()
-    with open(issues_path, "r") as fh:
+    with open(issues_path) as fh:
         data = json.load(fh)
         assert len(data["issues"]) == 2
         for issue in data["issues"]:

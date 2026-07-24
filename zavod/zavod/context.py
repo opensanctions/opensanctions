@@ -1,7 +1,8 @@
 import orjson
 import contextvars
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Union, cast
+from typing import Any, cast
+from collections.abc import Mapping
 from datapatch import Lookup, LookupException, Result
 from followthemoney.dataset import DataResource, Version
 from followthemoney.schema import Schema
@@ -58,17 +59,17 @@ class Context:
         self.resources = DatasetResources(dataset)
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
-        self._db: Optional[Session] = None
-        self._cache: Optional[Cache] = None
-        self._timestamps: Optional[TimeStampIndex] = None
-        self._resolver: Optional[Resolver[Entity]] = None
-        self._structlog_contextvars_tokens: Optional[
-            Mapping[str, contextvars.Token[Any]]
-        ] = None
+        self._db: Session | None = None
+        self._cache: Cache | None = None
+        self._timestamps: TimeStampIndex | None = None
+        self._resolver: Resolver[Entity] | None = None
+        self._structlog_contextvars_tokens: (
+            Mapping[str, contextvars.Token[Any]] | None
+        ) = None
         self._writer_path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-        self._writer: Optional[PackStatementWriter] = None
+        self._writer: PackStatementWriter | None = None
 
-        self.lang: Optional[str] = None
+        self.lang: str | None = None
         """Default language for statements emitted from this dataset"""
         if dataset.data is not None:
             self.lang = dataset.data.lang
@@ -124,7 +125,7 @@ class Context:
     def data_url(self) -> str:
         """The URL of the source data for the dataset."""
         if self.dataset.data is None or self.dataset.data.url is None:
-            raise ValueError("Dataset has no data URL: %r" % self.dataset)
+            raise ValueError(f"Dataset has no data URL: {self.dataset!r}")
         return self.dataset.data.url
 
     def begin(self, clear: bool = False) -> None:
@@ -206,7 +207,7 @@ class Context:
         return dataset_resource_path(self.dataset.name, str(name))
 
     def export_resource(
-        self, path: Path, mime_type: Optional[str] = None, title: Optional[str] = None
+        self, path: Path, mime_type: str | None = None, title: str | None = None
     ) -> DataResource:
         """Register a file as a data resource exported by the dataset.
 
@@ -229,10 +230,10 @@ class Context:
         self,
         name: str,
         url: str,
-        auth: Optional[Any] = None,
-        headers: Optional[Any] = None,
+        auth: Any | None = None,
+        headers: Any | None = None,
         method: str = "GET",
-        data: Optional[_Body] = None,
+        data: _Body | None = None,
     ) -> Path:
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
@@ -253,7 +254,7 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         method: str = "GET",
-        data: Optional[_Body] = None,
+        data: _Body | None = None,
     ) -> Response:
         """Execute an HTTP request using the contexts' session.
 
@@ -269,7 +270,7 @@ class Context:
         self.log.debug(f"HTTP {method}", url=url)
         timeout = (self.dataset.http.timeout, self.dataset.http.timeout)
 
-        kwargs: Dict[str, Any] = {
+        kwargs: dict[str, Any] = {
             "headers": headers,
             "auth": auth,
             "timeout": timeout,
@@ -301,11 +302,11 @@ class Context:
         params: ParamsType = None,
         headers: _Headers = None,
         auth: _Auth = None,
-        cache_days: Optional[int] = None,
+        cache_days: int | None = None,
         method: str = "GET",
-        data: Optional[_Body] = None,
-        encoding: Optional[str] = None,
-    ) -> Optional[str]:
+        data: _Body | None = None,
+        encoding: str | None = None,
+    ) -> str | None:
         """Execute an HTTP request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
         cache will be used for the given number of days.
@@ -363,9 +364,9 @@ class Context:
         params: ParamsType = None,
         headers: _Headers = None,
         auth: _Auth = None,
-        cache_days: Optional[int] = None,
+        cache_days: int | None = None,
         method: str = "GET",
-        data: Optional[_Body] = None,
+        data: _Body | None = None,
     ) -> Any:
         """Execute an HTTP request using the contexts' session and return
         a JSON-decoded object based on the response. If a `cache_days` argument
@@ -405,11 +406,11 @@ class Context:
         params: ParamsType = None,
         headers: _Headers = None,
         auth: _Auth = None,
-        cache_days: Optional[int] = None,
+        cache_days: int | None = None,
         method: str = "GET",
-        data: Optional[_Body] = None,
+        data: _Body | None = None,
         absolute_links: bool = False,
-        encoding: Optional[str] = None,
+        encoding: str | None = None,
     ) -> Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
@@ -444,7 +445,7 @@ class Context:
         )
         try:
             if text is None or len(text) == 0:
-                raise ValueError("Invalid HTML document: %s" % url)
+                raise ValueError(f"Invalid HTML document: {url}")
             doc = html.fromstring(text)
             if absolute_links and isinstance(doc, html.HtmlElement):
                 cast(html.HtmlElement, doc).make_links_absolute(url, params)
@@ -459,8 +460,8 @@ class Context:
         params: ParamsType = None,
         auth: _Auth = None,
         method: str = "GET",
-        data: Optional[_Body] = None,
-        encoding: Optional[str] = None,
+        data: _Body | None = None,
+        encoding: str | None = None,
     ) -> None:
         """Evict a cached response so the next fetch re-hits the server.
 
@@ -488,7 +489,7 @@ class Context:
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
-    def make(self, schema: Union[str, Schema]) -> Entity:
+    def make(self, schema: str | Schema) -> Entity:
         """Make a new entity with some dataset context set.
 
         Args:
@@ -500,8 +501,8 @@ class Context:
         return Entity(self.dataset, {"schema": schema})
 
     def make_slug(
-        self, *parts: Optional[str], strict: bool = True, prefix: Optional[str] = None
-    ) -> Optional[str]:
+        self, *parts: str | None, strict: bool = True, prefix: str | None = None
+    ) -> str | None:
         """Make a slug-based entity ID from a list of strings, using the
         dataset prefix."""
         prefix = self.dataset.prefix if prefix is None else prefix
@@ -509,10 +510,10 @@ class Context:
 
     def make_id(
         self,
-        *parts: Optional[str],
-        prefix: Optional[str] = None,
-        hash_prefix: Optional[str] = None,
-    ) -> Optional[str]:
+        *parts: str | None,
+        prefix: str | None = None,
+        hash_prefix: str | None = None,
+    ) -> str | None:
         """Make a hash-based entity ID from a list of strings, prefixed with the
         dataset prefix.
 
@@ -531,11 +532,11 @@ class Context:
     def lookup_value(
         self,
         lookup: str,
-        value: Optional[str],
-        default: Optional[str] = None,
+        value: str | None,
+        default: str | None = None,
         *,
         warn_unmatched: bool = False,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Invoke a datapatch lookup defined in the dataset metadata, returning the `value` attribute.
 
         Args:
@@ -557,8 +558,8 @@ class Context:
         return self.dataset.lookups[lookup]
 
     def lookup(
-        self, lookup: str, value: Optional[str], *, warn_unmatched: bool = False
-    ) -> Optional[Result]:
+        self, lookup: str, value: str | None, *, warn_unmatched: bool = False
+    ) -> Result | None:
         """Invoke a datapatch lookup defined in the dataset metadata.
 
         Args:
@@ -595,7 +596,7 @@ class Context:
         if text is not None:
             self.log.info(text)
 
-    def audit_data(self, data: Dict[Any, Any], ignore: List[Any] = []) -> None:
+    def audit_data(self, data: dict[Any, Any], ignore: list[Any] = []) -> None:
         """Print the formatted data object if it contains any fields not explicitly
         excluded by the ignore list. This is used to warn about unexpected data in
         the source by removing the fields one by one and then inspecting the rest.
@@ -618,7 +619,7 @@ class Context:
             )
 
     def emit(
-        self, entity: Entity, external: bool = False, origin: Optional[str] = None
+        self, entity: Entity, external: bool = False, origin: str | None = None
     ) -> None:
         """Send an entity from the crawling/runner process to be stored.
 
@@ -636,7 +637,7 @@ class Context:
         self.stats.entities += 1
         if self.stats.entities % 10000 == 0:
             self.log.info(
-                "Emitted %s entities" % self.stats.entities,
+                f"Emitted {self.stats.entities} entities",
                 statements=self.stats.statements,
             )
             self.flush()

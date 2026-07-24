@@ -1,7 +1,7 @@
 from collections import defaultdict
 import csv
 import os
-from typing import Iterable, List, Mapping, Tuple
+from collections.abc import Iterable, Mapping
 from lxml import etree
 from pathlib import Path
 from zipfile import ZipFile
@@ -105,8 +105,8 @@ def parse_xml_file(context: Context, path: Path) -> None:
 
 
 def latest_full_set(
-    context: Context, dump_urls: Iterable[Tuple[str, str]]
-) -> List[Tuple[str, str]]:
+    context: Context, dump_urls: Iterable[tuple[str, str]]
+) -> list[tuple[str, str]]:
     """Given a list of (file_name, url) tuples, return the items for the latest date
     occurring in the list."""
     date_sets = defaultdict(list)

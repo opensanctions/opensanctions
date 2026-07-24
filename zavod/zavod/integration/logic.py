@@ -1,4 +1,3 @@
-from typing import List, Optional
 from followthemoney import Schema, model, registry
 from nomenklatura import Resolver, Judgement
 
@@ -16,7 +15,7 @@ def logic_unique(
     left: Entity,
     right: Entity,
     score: float,
-) -> Optional[float]:
+) -> float | None:
     """We consider the legal entities on the given unique lists to be, de jure, different."""
     if common.is_a("Address"):
         return score
@@ -37,7 +36,7 @@ def logic_vessel_match(
     left: Entity,
     right: Entity,
     score: float,
-) -> Optional[float]:
+) -> float | None:
     """Custom logic for matching vessels based on IMO number."""
     if not common.is_a("Vessel"):
         return score
@@ -52,7 +51,7 @@ def logic_vessel_match(
     if not len(left_names.intersection(right_names)) > 0:
         return score
     if left.id is not None and right.id is not None:
-        log.info("Vessel positive match: %s %s" % (left.id, right.id))
+        log.info(f"Vessel positive match: {left.id} {right.id}")
         resolver.decide(left.id, right.id, Judgement.POSITIVE, user=USER)
     return score
 
@@ -63,7 +62,7 @@ def logic_securities_mismatch(
     left: Entity,
     right: Entity,
     score: float,
-) -> Optional[float]:
+) -> float | None:
     """Custom logic for avoiding matches between securities with different ISINs."""
     if not common.is_a("Security"):
         return score
@@ -78,7 +77,7 @@ def logic_securities_mismatch(
     return score
 
 
-def _perfect_identifier_match(left: List[str], right: List[str]) -> bool:
+def _perfect_identifier_match(left: list[str], right: list[str]) -> bool:
     left_set = set(left)
     right_set = set(right)
     longest = max(len(left_set), len(right_set))
@@ -93,7 +92,7 @@ def logic_identifiers(
     left: Entity,
     right: Entity,
     score: float,
-) -> Optional[float]:
+) -> float | None:
     """Custom logic for avoiding matches between Russian entities with different identifiers."""
     if not common.is_a("LegalEntity") or left.id is None or right.id is None:
         return score
@@ -105,14 +104,14 @@ def logic_identifiers(
             left_inns = left.get("innCode")
             right_inns = right.get("innCode")
             if _perfect_identifier_match(left_inns, right_inns):
-                log.info("Russian INN match: %s %s" % (left.id, right.id))
+                log.info(f"Russian INN match: {left.id} {right.id}")
                 resolver.decide(left.id, right.id, Judgement.POSITIVE, user=USER)
                 return None
         if common.is_a("Organization"):
             left_ogrns = left.get("ogrnCode")
             right_ogrns = right.get("ogrnCode")
             if _perfect_identifier_match(left_ogrns, right_ogrns):
-                log.info("Russian OGRN match: %s %s" % (left.id, right.id))
+                log.info(f"Russian OGRN match: {left.id} {right.id}")
                 resolver.decide(left.id, right.id, Judgement.POSITIVE, user=USER)
                 return None
     if common.is_a("Organization"):
@@ -132,7 +131,7 @@ def logic_pkpro_ids(
     left: Entity,
     right: Entity,
     score: float,
-) -> Optional[float]:
+) -> float | None:
     """Custom logic for avoiding matches between entities from Pakistan."""
     if not common.is_a("Person"):
         return score
@@ -145,7 +144,7 @@ def logic_pkpro_ids(
     right_ids = set([s.value for s in right_ids_ if s.dataset == PK])
     if len(left_ids) > 0 and len(right_ids) > 0 and left_ids.isdisjoint(right_ids):
         if left.id is not None and right.id is not None:
-            log.info("PK proscribed negative match: %s %s" % (left.id, right.id))
+            log.info(f"PK proscribed negative match: {left.id} {right.id}")
             resolver.decide(left.id, right.id, Judgement.NEGATIVE, user=USER)
             return None
     return score
@@ -153,7 +152,7 @@ def logic_pkpro_ids(
 
 def logic_decide(
     resolver: Resolver[Entity], left: Entity, right: Entity, score: float
-) -> Optional[float]:
+) -> float | None:
     """Decide whether to automatically merge two entities based on custom logic."""
     common = model.common_schema(left.schema, right.schema)
     res_score = logic_vessel_match(resolver, common, left, right, score)
