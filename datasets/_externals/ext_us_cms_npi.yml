@@ -54,6 +54,7 @@ assertions:
       Person: 100
 
 inputs:
+  - ann_graph_topics
   - debarment
 
 config:

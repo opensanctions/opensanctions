@@ -51,6 +51,7 @@ assertions:
       Company: 1200
 
 inputs:
+  - ann_graph_topics
   - eu_sanctions
   - ir_uani_business_registry
   - us_sanctions

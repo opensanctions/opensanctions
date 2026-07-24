@@ -56,6 +56,7 @@ http:
     - POST
 
 inputs:
+  - ann_graph_topics
   - interpol_red_notices
   - peps
   - sanctions

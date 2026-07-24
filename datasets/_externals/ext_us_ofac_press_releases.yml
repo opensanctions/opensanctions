@@ -41,7 +41,7 @@ tags:
 url: https://ofac.treasury.gov/press-releases
 
 inputs:
-  # - ann_graph_topics
+  - ann_graph_topics
   - us_sanctions
   # - special_interest
   # - maritime

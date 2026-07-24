@@ -49,6 +49,7 @@ http:
     - POST
 
 inputs:
+  - ann_graph_topics
   - sanctions
   - securities
   - ru_nsd_isin
