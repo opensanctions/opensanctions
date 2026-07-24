@@ -2,7 +2,8 @@ import re
 from datetime import datetime
 from itertools import zip_longest
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any
+from collections.abc import Iterator
 
 from normality import slugify, squash_spaces, stringify
 from openpyxl import load_workbook
@@ -60,7 +61,7 @@ def apply_addresses(
         h.apply_address(context, entity, address)
 
 
-def parse_interval(sanction: Entity, date: Optional[str]) -> None:
+def parse_interval(sanction: Entity, date: str | None) -> None:
     if date is None:
         return
     date = date.strip()
@@ -82,7 +83,7 @@ def clean_numbered_name(raw_name: str) -> str:
     return cleaned
 
 
-def lang_pick(record: dict[str, str], field: str) -> Optional[str]:
+def lang_pick(record: dict[str, str], field: str) -> str | None:
     hebrew = record.pop(f"{field}_hebrew", None)
     english = record.pop(f"{field}_english", None)
     if english is not None:

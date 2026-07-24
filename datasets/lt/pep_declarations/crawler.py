@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -29,7 +28,7 @@ class PinregSession:
         self.context = context
         self._guest_token = f"c{GUEST_ID}"
 
-    def get_deklaracija_by_id(self, id: int) -> Optional[dict[any]]:
+    def get_deklaracija_by_id(self, id: int) -> dict[any] | None:
         id_str = f"{id:06d}"
         self.context.log.info(f"fetching declaration {id_str}")
         r = self.context.http.get(
@@ -101,7 +100,7 @@ def parse_affiliations(
             if not role.pop("privaluDeklaruoti"):  # role must be declared
                 continue
 
-            position_name: Optional[str] = role.pop("pareigos")
+            position_name: str | None = role.pop("pareigos")
             assert position_name, (person, position_name)
             if not entity_is_lithuanian:
                 context.log.info(

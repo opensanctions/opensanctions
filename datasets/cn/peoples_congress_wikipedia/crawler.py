@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Generator, cast
+from typing import cast
+from collections.abc import Generator
 from normality import squash_spaces
 from lxml.html import HtmlElement
 import re
@@ -196,7 +197,7 @@ def expand_rowspan_cells(
 
 def parse_table(
     context: Context, table: HtmlElement
-) -> Generator[Dict[str, HtmlElement], None, None]:
+) -> Generator[dict[str, HtmlElement], None, None]:
     headers = None
     rowspans: dict[int, PendingRowspan] = {}
     for row in table.findall(".//tr"):

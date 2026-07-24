@@ -1,6 +1,6 @@
 import re
 import os
-from typing import Any, Dict
+from typing import Any
 from zipfile import ZipFile
 from rigour.mime.types import ZIP
 from yaml import safe_load
@@ -150,7 +150,7 @@ def crawl_jurisdictions(
     jurisdictions = {}
     house_positions = {}
     headers = {"x-api-key": API_KEY}
-    query: Dict[str, Any] = {
+    query: dict[str, Any] = {
         "page": 1,
         "classification": "state",
         "include": "organizations",

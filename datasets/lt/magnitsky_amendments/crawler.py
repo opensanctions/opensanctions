@@ -53,7 +53,7 @@ def crawl(context: Context) -> None:
         context.export_resource(
             path, mime_type="application/json", title=f"page_{page}"
         )
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             data = json.load(fh)
             if data.get("list") == []:
                 break

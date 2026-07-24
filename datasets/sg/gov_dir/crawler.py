@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 from followthemoney.types import registry
 from lxml import etree
@@ -80,7 +79,7 @@ POSITION_REPLACEMENTS = [
 ]
 
 
-class CrawlState(object):
+class CrawlState:
     """Track what's seen and categorised to help validate the crawl"""
 
     seen_urls = set()
@@ -113,7 +112,7 @@ def is_pep(context: Context, rank: str) -> bool | None:
     return None
 
 
-def make_hierarchy(breadcrumbs: HtmlElement) -> Optional[str]:
+def make_hierarchy(breadcrumbs: HtmlElement) -> str | None:
     """
     A string like "PEC, IPOS, MINLAW" if the depth is > 1
 
@@ -171,7 +170,7 @@ def crawl_person(
     public_body: str,
     agency: str,
     section_name: str,
-    hierarchy: Optional[str],
+    hierarchy: str | None,
 ) -> bool:
     """Returns true if the crawled person is a PEP based on the provided position info"""
 

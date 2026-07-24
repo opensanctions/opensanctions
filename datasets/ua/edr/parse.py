@@ -143,7 +143,7 @@ def parse_uo(context: Context, fh: IO[bytes]) -> None:
 def crawl(context: Context) -> None:
     path = context.get_resource_path("source.zip")
     fetch_internal_data("ua_edr/23022022.zip", path)
-    context.log.info("Parsing: %s" % path)
+    context.log.info(f"Parsing: {path}")
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             if not name.lower().endswith(".xml"):

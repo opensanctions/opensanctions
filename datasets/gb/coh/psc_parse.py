@@ -2,7 +2,8 @@ import csv
 import json
 import re
 import yaml
-from typing import Optional, Generator, Dict, Any, cast
+from typing import Any, cast
+from collections.abc import Generator
 from zipfile import ZipFile
 from functools import lru_cache
 from io import TextIOWrapper
@@ -74,12 +75,12 @@ def fetch_psc_short_descriptions(context: Context) -> dict[str, str]:
     map is logged so new CH taxonomy additions surface in the run.
     """
     path = context.fetch_resource("psc_descriptions.yml", PSC_DESCRIPTIONS_URL)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         data = cast(dict[str, Any], yaml.safe_load(fh))
     return cast(dict[str, str], data.get("short_description", {}))
 
 
-def percentage_range(slug: str) -> Optional[str]:
+def percentage_range(slug: str) -> str | None:
     """Render the share-range encoded in a PSC slug as ``"25–50%"`` etc."""
     match = PERCENTAGE_RE.search(slug)
     if match is None:
@@ -88,7 +89,7 @@ def percentage_range(slug: str) -> Optional[str]:
 
 
 @lru_cache(maxsize=MEMO_MEDIUM)
-def parse_country(name: str, default: Optional[str] = None) -> Optional[str]:
+def parse_country(name: str, default: str | None = None) -> str | None:
     code = registry.country.clean(name)
     if code is None:
         return default
@@ -112,7 +113,7 @@ def get_base_data_url(context: Context) -> str:
     raise RuntimeError("No base data URL found!")
 
 
-def read_base_data_csv(path: PathLike) -> Generator[Dict[str, str], None, None]:
+def read_base_data_csv(path: PathLike) -> Generator[dict[str, str], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
@@ -127,7 +128,7 @@ def parse_base_data(context: Context) -> None:
         raise RuntimeError("Base data zip URL not found!")
     data_path = context.fetch_resource("base_data.zip", base_data_url)
 
-    context.log.info("Loading: %s" % data_path)
+    context.log.info(f"Loading: {data_path}")
     for idx, row in enumerate(read_base_data_csv(data_path)):
         if idx > 0 and idx % 100_000 == 0:
             context.log.info("Base data: %d..." % idx)
@@ -192,7 +193,7 @@ def get_psc_data_url(context: Context) -> str:
     raise RuntimeError("No PSC data URL found!")
 
 
-def read_psc_data(path: PathLike) -> Generator[Dict[str, Any], None, None]:
+def read_psc_data(path: PathLike) -> Generator[dict[str, Any], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
@@ -207,7 +208,7 @@ def parse_psc_data(context: Context) -> None:
     if psc_data_url is None:
         raise RuntimeError("PSC data zip URL not found!")
     data_path = context.fetch_resource("psc_data.zip", psc_data_url)
-    context.log.info("Loading: %s" % data_path)
+    context.log.info(f"Loading: {data_path}")
     for idx, row in enumerate(read_psc_data(data_path)):
         if idx > 0 and idx % 100_000 == 0:
             context.log.info("PSC statements: %d..." % idx)
@@ -216,7 +217,7 @@ def parse_psc_data(context: Context) -> None:
         #     return
         company_nr = row.pop("company_number", None)
         if company_nr is None:
-            context.log.warning("No company number: %r" % row)
+            context.log.warning(f"No company number: {row!r}")
             continue
         data = row.pop("data")
         data.pop("etag", None)

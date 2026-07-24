@@ -1,5 +1,6 @@
 import re
-from typing import Any, Iterator
+from typing import Any
+from collections.abc import Iterator
 
 from zavod.context import Context
 from zavod import helpers as h

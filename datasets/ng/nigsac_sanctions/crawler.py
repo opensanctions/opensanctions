@@ -123,7 +123,7 @@ def crawl_entity(context: Context, url: str, data: dict[str, str | None]) -> Non
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         doc = html.fromstring(fh.read())
     doc.make_links_absolute(context.data_url)  # type: ignore[attr-defined]  # lxml-stubs omits HtmlMixin methods
 

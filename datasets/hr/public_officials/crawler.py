@@ -1,5 +1,4 @@
 import csv
-from typing import Dict, List, Optional
 
 from rigour.mime.types import CSV
 
@@ -53,7 +52,7 @@ FIELDS = [
 ]
 
 
-def build_position_name(data: Dict[str, str]) -> Optional[str]:
+def build_position_name(data: dict[str, str]) -> str | None:
     """Builds the full Croatian position name from the title and legal entity name.
 
     When there's no title we fall back to the Croatian "Nepoznata dužnost" ("Unknown
@@ -83,9 +82,9 @@ def make_affiliation_entities(
     context: Context,
     person: Entity,
     *,
-    position_name: Optional[str],
-    position_data: Dict[str, str],
-) -> List[Entity]:
+    position_name: str | None,
+    position_data: dict[str, str],
+) -> list[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and optionally the name of the legal entity
     * A position with a legal entity but no title is titled 'Unknown position'
@@ -125,8 +124,8 @@ def make_person(
     *,
     first_name: str,
     last_name: str,
-    primary_position_name: Optional[str],
-    secondary_position_name: Optional[str],
+    primary_position_name: str | None,
+    secondary_position_name: str | None,
 ) -> Entity:
     positions = sorted(
         p for p in [primary_position_name, secondary_position_name] if p is not None
@@ -142,7 +141,7 @@ def make_person(
     return person
 
 
-def dict_keys_by_prefix(data: Dict[str, str], prefix: str) -> Dict[str, str]:
+def dict_keys_by_prefix(data: dict[str, str], prefix: str) -> dict[str, str]:
     """
     Returns a new dict with keys and values from the original matching the prefix.
     The prefix is removed from the keys in the new dict.
@@ -154,7 +153,7 @@ def dict_keys_by_prefix(data: Dict[str, str], prefix: str) -> Dict[str, str]:
     }
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     position_entities = []
 
     primary_position_data = dict_keys_by_prefix(row, "primary_")
@@ -199,8 +198,8 @@ def crawl_file(
     *,
     url: str,
     filename: str,
-    fields: List[str],
-    expected_headings: List[str],
+    fields: list[str],
+    expected_headings: list[str],
 ) -> None:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)

@@ -4,7 +4,8 @@ Crawler for members of the French National Assembly.
 
 import json
 import re
-from typing import Any, Iterator
+from typing import Any
+from collections.abc import Iterator
 from zipfile import ZipFile
 
 from zavod import Context, Entity

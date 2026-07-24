@@ -4,7 +4,6 @@ the individuals on the Otkhozoria–Tatunashvili List.
 """
 
 import re
-from typing import Dict
 from lxml.html import HtmlElement
 
 from zavod import Context, Entity
@@ -37,7 +36,7 @@ def apply_translit_name(context: Context, person: Entity, name: str) -> None:
     apply_translit_full_name(context, person, LangText(name, "kat"))
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     """Process a row of the table in the OT list."""
     name = row.pop(NAME_FIELD)
     birth_date = row.pop(DEMOGRAPHICS).split(maxsplit=1)[0]

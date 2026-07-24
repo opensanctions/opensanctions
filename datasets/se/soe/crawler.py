@@ -39,7 +39,7 @@ def crawl(context: Context) -> None:
     check_updates(context)
 
     path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             company_name = row.pop("company")
             pep_name = row.pop("name")

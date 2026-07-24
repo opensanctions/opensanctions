@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Iterator
+from collections.abc import Iterator
 from lxml import etree
 import re
 from zavod import Context, helpers as h
@@ -85,7 +85,7 @@ def crawl_prohibition(context: Context, item: ProhibitionDetails) -> None:
     context.emit(person)
 
 
-def crawl_item(context: Context, item: Dict[str, str | None]) -> None:
+def crawl_item(context: Context, item: dict[str, str | None]) -> None:
     name = item.pop("name_of_disqualified_director")
 
     person = context.make("Person")

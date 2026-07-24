@@ -86,11 +86,11 @@ def parse_foreign_persons(context: Context, entity: Entity, text: str) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         doc = html.parse(fh)
 
     for sec_id, (section, schema) in SECTIONS.items():
-        el = doc.find(".//div[@id='%s']" % sec_id)
+        el = doc.find(f".//div[@id='{sec_id}']")
         for item in el.findall(".//li"):
             text = item.text_content().strip()
             index, text = text.split(".", 1)

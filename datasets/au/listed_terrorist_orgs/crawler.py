@@ -1,5 +1,3 @@
-from typing import Optional
-
 from zavod import Context
 from zavod import helpers as h
 
@@ -7,7 +5,7 @@ from zavod import helpers as h
 PROGRAM_KEY = "AU-TERROR"
 
 
-def parse_listing_dates(date_text: Optional[str]) -> Optional[str]:
+def parse_listing_dates(date_text: str | None) -> str | None:
     """Parse the listing date text to extract the initial listing date."""
     if not date_text:
         return None

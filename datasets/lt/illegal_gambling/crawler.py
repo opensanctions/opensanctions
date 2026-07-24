@@ -1,5 +1,5 @@
 import re
-from typing import Iterator
+from collections.abc import Iterator
 
 from zavod import Context
 from zavod import helpers as h

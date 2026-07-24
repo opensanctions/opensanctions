@@ -1,5 +1,4 @@
 import re
-from typing import Optional, Tuple
 from urllib.parse import urljoin
 
 from lxml.etree import _Element
@@ -15,7 +14,7 @@ DOB_REGEX = re.compile(r"Geboortedatum:\s*([\d-]+)")
 def get_residency_dob(
     context: Context,
     member_el: _Element,
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[str | None, str | None]:
     """
     Extracts residency and date of birth from a member element.
     Tries regex on the combined text of child nodes. Falls back to context.lookup if missing.
@@ -43,7 +42,7 @@ def get_residency_dob(
 
 def get_name_date_party(
     context: Context, doc: _Element
-) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+) -> tuple[str | None, str | None, str | None]:
     wrapper = doc.find(".//div[@id='main_content_wrapper']")
     # Get first sentence of first paragraph
     description = h.element_text(wrapper)

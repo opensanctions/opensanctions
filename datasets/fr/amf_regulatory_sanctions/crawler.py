@@ -1,4 +1,4 @@
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from normality import squash_spaces
 from zavod import Context, helpers as h
@@ -40,7 +40,7 @@ prefix_anon = "(" + "|".join(PREFIXES) + r")[\. \b]+[A-Z]\b"
 comma_anon = r"(,|et) +[A-Z]\b"
 
 
-def clean_names_str(names_str: str) -> Optional[str]:
+def clean_names_str(names_str: str) -> str | None:
     names_str = re.sub(comma_prefix_anon, "", names_str)
     names_str = re.sub(prefix_anon, "", names_str)
     names_str = re.sub(comma_anon, "", names_str)
@@ -48,7 +48,7 @@ def clean_names_str(names_str: str) -> Optional[str]:
     return names_str
 
 
-def entity_id(context: Context, name: str, listing_date: Optional[str]) -> str:
+def entity_id(context: Context, name: str, listing_date: str | None) -> str:
     id_ = context.make_id(name, listing_date)
     assert id_ is not None
     return id_
@@ -59,9 +59,9 @@ def crawl_entity(
     *,
     name: str,
     reason: str,
-    listing_date: Optional[str],
+    listing_date: str | None,
     source_urls: list[str],
-    title: Optional[str],
+    title: str | None,
 ) -> None:
     """Process a legal entity entry."""
     entity = context.make("LegalEntity")
@@ -100,7 +100,7 @@ def crawl(context: Context) -> None:
         entities_res = context.lookup("entities", names_str)
         # No mapping yet
         if entities_res is None:
-            context.log.warning("No entity mapping for %r" % names_str)
+            context.log.warning(f"No entity mapping for {names_str!r}")
             continue
 
         # No entities for remaining names str

@@ -1,6 +1,6 @@
 import tarfile
 from normality import slugify
-from typing import Optional, IO
+from typing import IO
 
 from followthemoney.util import make_entity_id
 from lxml import etree
@@ -11,22 +11,22 @@ from zavod.util import ElementOrTree
 
 
 def company_id(
-    context: Context, reg_nr: Optional[str], name: Optional[str] = None
-) -> Optional[str]:
+    context: Context, reg_nr: str | None, name: str | None = None
+) -> str | None:
     if reg_nr:
         return f"oc-companies-cz-{reg_nr}"
     return context.make_slug("company", name)
 
 
 def person_id(
-    context: Context, name: str, address: Optional[str], company_id: str
-) -> Optional[str]:
+    context: Context, name: str, address: str | None, company_id: str
+) -> str | None:
     if slugify(address) is not None:
         return context.make_slug("person", name, make_entity_id(address))
     return context.make_slug("person", name, make_entity_id(company_id))
 
 
-def make_address(tree: Optional[ElementOrTree] = None) -> Optional[str]:
+def make_address(tree: ElementOrTree | None = None) -> str | None:
     if tree is None:
         return None
 
@@ -53,7 +53,7 @@ def make_address(tree: Optional[ElementOrTree] = None) -> Optional[str]:
     return h.format_address(country_code="cz", **data)
 
 
-def make_company(context: Context, tree: ElementOrTree) -> Optional[Entity]:
+def make_company(context: Context, tree: ElementOrTree) -> Entity | None:
     tree = h.remove_namespace(tree)
     name = tree.findtext(".//ObchodniFirma")
     proxy = context.make("Company")
@@ -73,7 +73,7 @@ def parse_xml(context: Context, reader: IO[bytes], file_name: str) -> None:
     try:
         tree = etree.parse(reader)
     except etree.XMLSyntaxError:
-        context.log.warning("Invalid XML file: %s" % file_name)
+        context.log.warning(f"Invalid XML file: {file_name}")
         return
     company = make_company(context, tree)
     if company is None or company.id is None:
@@ -117,7 +117,7 @@ def crawl(context: Context) -> None:
             idx += 1
             res = f.extractfile(archive_member)
             if res is None:
-                context.log.warn("Cannot read: %s" % archive_member.name)
+                context.log.warn(f"Cannot read: {archive_member.name}")
                 continue
             with res:
                 parse_xml(context, res, archive_member.name)

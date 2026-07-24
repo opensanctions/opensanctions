@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Literal
 
 from lxml.html import tostring
 from pydantic import BaseModel, Field
@@ -34,15 +34,15 @@ schema_field = Field(
 class Designee(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] = []
-    nationality: List[str] = []
-    imo: List[str] = []
-    country: List[str] = []
-    related_url: List[str] = []
+    aliases: list[str] = []
+    nationality: list[str] = []
+    imo: list[str] = []
+    country: list[str] = []
+    related_url: list[str] = []
 
 
 class Designees(BaseModel):
-    designees: List[Designee]
+    designees: list[Designee]
 
 
 PROMPT = f"""
@@ -129,7 +129,7 @@ def crawl_item(
     date: str,
     url: str,
     article_name: str,
-    origin: Optional[str],
+    origin: str | None,
 ) -> None:
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, *item.country)

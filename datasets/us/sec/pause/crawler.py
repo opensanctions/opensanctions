@@ -116,7 +116,7 @@ def crawl(context: Context) -> None:
             sleep(SLEEP)
             name_a_el = h.xpath_element(row.pop("name"), ".//a")
             name, url = h.element_text(name_a_el), name_a_el.get("href")
-            assert url is not None, "No URL found for name: %s" % name
+            assert url is not None, f"No URL found for name: {name}"
             category = h.element_text(row.pop("category"))
 
             crawl_entity(context, url=url, name=name, category=category)

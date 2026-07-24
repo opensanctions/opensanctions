@@ -1,5 +1,5 @@
 import csv
-from typing import Any, Dict
+from typing import Any
 from normality.cleaning import collapse_spaces
 from followthemoney.types import registry
 
@@ -8,7 +8,7 @@ from zavod.entity import Entity
 from zavod.shed.internal_data import fetch_internal_data
 
 
-def crawl_row(context: Context, row: Dict[str, Any]) -> None:
+def crawl_row(context: Context, row: dict[str, Any]) -> None:
     id = row.pop("id")
     name = row.pop("name")
     legal_form = row.pop("legal_form")
@@ -80,7 +80,7 @@ def crawl_row(context: Context, row: Dict[str, Any]) -> None:
 def emit_rel(
     context: Context,
     schema_name: str,
-    row: Dict[str, Any],
+    row: dict[str, Any],
     name: str,
     entity: Entity,
     id: str,
@@ -123,7 +123,7 @@ def emit_rel(
 def crawl(context: Context) -> None:
     local_path = context.get_resource_path("companyinfo_v3.csv")
     fetch_internal_data("ge_ti_companies/companyinfo_v3.csv", local_path)
-    with open(local_path, "r", encoding="utf-8") as fh:
+    with open(local_path, encoding="utf-8") as fh:
         reader = csv.reader(fh, delimiter=";")
         original_headers = next(reader)
 

@@ -3,15 +3,15 @@ import tarfile
 from io import TextIOWrapper
 from pathlib import Path
 from normality import slugify
-from typing import Callable, Optional, Dict
+from collections.abc import Callable
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
-Row = Dict[str, str]
+Row = dict[str, str]
 
 
-def clean(value: Optional[str] = None) -> Optional[str]:
+def clean(value: str | None = None) -> str | None:
     if value is None:
         return None
     if value.lower().strip() == "null":
@@ -19,7 +19,7 @@ def clean(value: Optional[str] = None) -> Optional[str]:
     return value
 
 
-def make_proxy(context: Context, cw_id: str, row: Row) -> Optional[Entity]:
+def make_proxy(context: Context, cw_id: str, row: Row) -> Entity | None:
     """
     The cases detected where we don't find a suitable id are unusual data, so
     it's ok to not return any proxy then.
@@ -136,7 +136,7 @@ def parse_csv(
     with tarfile.open(data_path, "r:*") as tf:
         member = tf.extractfile(f"corpwatch_api_tables_csv/{name}")
         if member is None:
-            raise RuntimeError("Missing file in archive: %s" % name)
+            raise RuntimeError(f"Missing file in archive: {name}")
         wrapper = TextIOWrapper(member, encoding="utf-8-sig")
         reader = csv.DictReader(wrapper, delimiter="\t")
         idx = 0

@@ -8,7 +8,7 @@ from followthemoney.types import registry
 from zavod import Context
 from zavod import helpers as h
 
-SPLITS = ["%s)" % c for c in string.ascii_lowercase]
+SPLITS = [f"{c})" for c in string.ascii_lowercase]
 SPLITS = SPLITS + ["; ", " и "]
 
 
@@ -30,7 +30,7 @@ def maybe_rsplit(text: str | None, splitter: str) -> tuple[str | None, str | Non
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         doc = html.parse(fh)
     tables = doc.findall(".//table")
     assert len(tables) == 1

@@ -1,6 +1,5 @@
 import json
 import re
-from typing import Dict
 
 from pydantic import BaseModel, JsonValue
 from rigour.names import contains_split_phrase
@@ -72,7 +71,7 @@ def apply_entity_data(entity: Entity, data: EntityData) -> None:
             entity.add(prop, val)
 
 
-def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     full_name = row.pop("name") or ""
     other_name = (row.pop("otherName") or "").replace("\\", "")
     country = row.pop("nationality") or ""

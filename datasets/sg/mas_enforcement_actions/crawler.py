@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
@@ -26,14 +26,14 @@ schema_field = Field(
 class Defendant(BaseModel):
     name: str
     entity_schema: Schema = schema_field
-    aliases: List[str] = []
-    nationality: List[str] = []
-    country: List[str] = []
-    related_url: List[str] = []
+    aliases: list[str] = []
+    nationality: list[str] = []
+    country: list[str] = []
+    related_url: list[str] = []
 
 
 class Defendants(BaseModel):
-    defendants: List[Defendant]
+    defendants: list[Defendant]
 
 
 PROMPT = f"""
@@ -100,8 +100,8 @@ def crawl_item(
     date: str,
     url: str,
     article_name: str,
-    action_type: Optional[str],
-    origin: Optional[str],
+    action_type: str | None,
+    origin: str | None,
 ) -> None:
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.country)  # type: ignore[arg-type]
@@ -129,7 +129,7 @@ def crawl_item(
 
 
 def crawl_enforcement_action(
-    context: Context, url: str, date: str, action_type: Optional[str]
+    context: Context, url: str, date: str, action_type: str | None
 ) -> None:
     article = context.fetch_html(url, cache_days=7, absolute_links=True)
     article_el = h.xpath_elements(

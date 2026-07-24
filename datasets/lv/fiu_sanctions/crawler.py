@@ -1,5 +1,3 @@
-from typing import Optional
-
 from lxml.etree import _Element
 from normality import slugify
 from openpyxl import load_workbook
@@ -13,7 +11,7 @@ from zavod.helpers import dates
 FROZEN_ASSETS_URL = "https://sankcijas.fid.gov.lv/uploads/sankciju_subjekti_tabula.xlsx"
 
 
-def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
+def crawl_person(context: Context, node: _Element) -> Entity | None:
     entity = context.make("Person")
     entity.id = context.make_slug("person", node.findtext(".//Id"))
 
@@ -92,7 +90,7 @@ def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
     return entity
 
 
-def crawl_organization(context: Context, node: _Element) -> Optional[Entity]:
+def crawl_organization(context: Context, node: _Element) -> Entity | None:
     entity = context.make("Organization")
     entity.id = context.make_slug("org", node.findtext(".//Id"))
 

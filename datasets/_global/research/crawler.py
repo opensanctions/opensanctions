@@ -43,7 +43,7 @@ def crawl_sec_row(context: Context, row: dict[str, str]) -> None:
 def crawl_sec(context: Context) -> None:
     path = context.fetch_resource("sec-source.csv", SECURITIES_STATEMENTS_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         entity: Entity | None = None
         for row in csv.DictReader(fh):
             entity_id = stringify(row.pop("entity_id"))
@@ -72,7 +72,7 @@ def crawl_sec(context: Context) -> None:
 
     path = context.fetch_resource("securities.csv", SECURITIES_CUSTOM_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_sec_row(context, row)
 
@@ -152,7 +152,7 @@ def crawl_sanction_ownership(context: Context) -> None:
         "sanction-ownership-source.csv", SANCTION_OWNERSHIP_CSV
     )
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_sanction_ownership_row(context, row)
 

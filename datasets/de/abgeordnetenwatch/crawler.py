@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 from rigour.ids.wikidata import is_qid
 from zavod.stateful.positions import categorise
@@ -8,8 +8,8 @@ from zavod import helpers as h
 
 
 def make_position(
-    context: Context, parliamentary_period: Dict[str, Any]
-) -> Optional[Entity]:
+    context: Context, parliamentary_period: dict[str, Any]
+) -> Entity | None:
     parliament_detail = context.fetch_json(
         parliamentary_period["parliament"]["api_url"],
         cache_days=1,
@@ -31,7 +31,7 @@ def make_position(
     )
 
 
-def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
+def crawl_mandate(context: Context, mandate: dict[str, Any]) -> None:
     politician = mandate.pop("politician")
     period = mandate.pop("parliament_period")
     period_detail = context.fetch_json(period["api_url"], cache_days=1).pop("data")

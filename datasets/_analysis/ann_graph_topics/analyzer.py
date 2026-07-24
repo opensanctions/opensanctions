@@ -66,7 +66,7 @@ Requirements and invariants that make this correct:
   target entities downstream rather than replacing them.
 """
 
-from typing import Iterator, Set, Tuple
+from collections.abc import Iterator
 
 from followthemoney import registry
 from followthemoney.property import Property
@@ -110,7 +110,7 @@ SANCTION_CONTROL_SEEDS = frozenset({"sanction", "sanction.control"})
 EXPORT_CONTROL_SEEDS = frozenset({"export.control", "export.control.linked"})
 
 
-def non_graph_topics(context: Context, entity: Entity) -> Set[str]:
+def non_graph_topics(context: Context, entity: Entity) -> set[str]:
     """Return topics on ``entity`` that were contributed by other datasets.
 
     Used to decide whether a candidate target is *already* tagged without
@@ -126,7 +126,7 @@ def emit_patch(
     risk_source: Entity,
     related_entity: Entity,
     topic: str,
-    existing_topics: Set[str],
+    existing_topics: set[str],
 ) -> None:
     context.log.info(
         f"Adding topic: {topic}",
@@ -148,7 +148,7 @@ def emit_patch(
 
 def walk_edge(
     view: View, edge: Entity, prop: Property
-) -> Iterator[Tuple[Entity, Property]]:
+) -> Iterator[tuple[Entity, Property]]:
     """Yield ``(other_end, counterpart_prop)`` pairs across an edge entity.
 
     ``prop`` is the property on the *source* entity that reached ``edge``. The
@@ -174,7 +174,7 @@ def rule_pep_family_to_rca(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
@@ -198,7 +198,7 @@ def rule_sanction_adjacency(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
@@ -239,7 +239,7 @@ def rule_ownership_descent(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
@@ -271,7 +271,7 @@ def rule_sanction_control_descent(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
@@ -298,7 +298,7 @@ def rule_export_control_descent(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
@@ -341,7 +341,7 @@ RULES = (
 
 
 def analyze_entity(context: Context, view: View, entity: Entity) -> None:
-    source_topics: Set[str] = set(entity.get_type_values(registry.topic))
+    source_topics: set[str] = set(entity.get_type_values(registry.topic))
     for prop, adjacent in view.get_adjacent(entity):
         if len(adjacent.get("endDate", quiet=True)) > 0:
             context.log.info(
@@ -364,5 +364,5 @@ def crawl(context: Context) -> None:
 
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 1000 == 0:
-            context.log.info("Processed %s entities" % entity_idx)
+            context.log.info(f"Processed {entity_idx} entities")
         analyze_entity(context, view, entity)

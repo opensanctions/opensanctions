@@ -1,7 +1,7 @@
 import bz2
 import re
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 
 import orjson
 from followthemoney.util import join_text, make_entity_id
@@ -73,7 +73,7 @@ def make_rel(
     company: Entity,
     officer: Entity,
     data: dict[str, Any],
-    summary: Optional[str] = None,
+    summary: str | None = None,
 ) -> None:
     type_ = data.pop("position")
     schema = REL_SCHEMS[type_]
@@ -131,7 +131,7 @@ def make_officer_and_rel(
         proxy.id = context.make_slug("officer", make_entity_id(company.id, name))
         proxy.add("name", name)
     else:
-        context.log.warning("Unknown type: %s" % type_)
+        context.log.warning(f"Unknown type: {type_}")
         proxy = context.make("LegalEntity")
         proxy.id = context.make_slug("officer", make_entity_id(company.id, name))
         proxy.add("name", name)

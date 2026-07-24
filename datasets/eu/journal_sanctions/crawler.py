@@ -430,7 +430,7 @@ def crawl(context: Context) -> None:
     # Current journal rows that are not yet present in the canonical EU feeds.
     path = context.fetch_resource("unconsolidated.csv", context.data_url)
     linker = get_dataset_linker(context.dataset)
-    with open(path, "rt") as infh:
+    with open(path) as infh:
         for idx, row in enumerate(csv.DictReader(infh)):
             crawl_unconsolidated_row(context, linker, idx + 2, row)
 
@@ -438,7 +438,7 @@ def crawl(context: Context) -> None:
     context_url = context.data_url.replace("gid=0", "gid=1314630186")
     assert context_url != context.data_url
     path = context.fetch_resource("context.csv", context_url)
-    with open(path, "rt") as infh:
+    with open(path) as infh:
         for idx, row in enumerate(csv.DictReader(infh)):
             crawl_context_row(context, idx + 2, row)
 

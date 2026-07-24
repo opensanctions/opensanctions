@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from zavod import Context
 
@@ -26,7 +26,7 @@ RESTRICTION_NOTE = (
 )
 
 
-def rename_record(context: Context, entry: Dict[str, Any]) -> Dict[str, Any]:
+def rename_record(context: Context, entry: dict[str, Any]) -> dict[str, Any]:
     result = {}
     for old_key, value in entry.items():
         new_key = context.lookup_value("columns", old_key)
@@ -37,7 +37,7 @@ def rename_record(context: Context, entry: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
-def crawl_entity(context: Context, record: Dict[str, Any]) -> None:
+def crawl_entity(context: Context, record: dict[str, Any]) -> None:
     subject_name = record.pop("entity_name")
     registration_number = record.pop("entity_reg_number")
     country = record.pop("country")

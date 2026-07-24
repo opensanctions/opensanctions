@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from zavod.stateful.positions import categorise
 
@@ -60,7 +60,7 @@ WHERE {{
 """
 
 
-def build_request_query(legislature: int) -> Dict[str, str]:
+def build_request_query(legislature: int) -> dict[str, str]:
     return {"query": QUERY.format(legislature=legislature), "format": "json"}
 
 

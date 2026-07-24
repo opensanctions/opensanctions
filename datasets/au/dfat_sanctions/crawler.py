@@ -1,7 +1,7 @@
 import string
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import openpyxl
 from normality import slugify
@@ -10,7 +10,7 @@ from rigour.mime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
 
-SPLITS = [" %s)" % char for char in string.ascii_lowercase]
+SPLITS = [f" {char})" for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [
     ";",
     "iii) ",
@@ -75,7 +75,7 @@ def clean_date(date: str) -> list[str]:
     return dates
 
 
-def clean_reference(ref: str) -> Optional[str]:
+def clean_reference(ref: str) -> str | None:
     """Given a reference like 101a, return 101"""
     number = ref
     while len(number):
@@ -111,7 +111,7 @@ def parse_reference(
         return
     entity = context.make(schemata.pop())
 
-    primary_name: Optional[str] = None
+    primary_name: str | None = None
     names: list[tuple[str, str]] = []
     for row in rows:
         name = row.pop("name_of_individual_or_entity")
@@ -211,7 +211,7 @@ def crawl(context: Context) -> None:
     reference_blocks_seen_count: dict[str, int] = dict()
     last_clean_ref = None
     for sheet in workbook.worksheets:
-        headers: Optional[list[str]] = None
+        headers: list[str] | None = None
         for row_num, raw_row in enumerate(sheet.rows):
             cells = [c.value for c in raw_row]
             if headers is None:

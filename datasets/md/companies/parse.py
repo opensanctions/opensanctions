@@ -1,6 +1,6 @@
 from openpyxl import Workbook, load_workbook
 from rigour.mime.types import XLSX
-from typing import Optional, Dict, Any, List
+from typing import Any
 from urllib.parse import urljoin
 import re
 
@@ -44,9 +44,7 @@ def read_ckan(context: Context, source_url: str, label: str) -> str:
     raise RuntimeError("No data URL on data resource page!")
 
 
-def parse_directors(
-    context: Context, company: Entity, directors: Optional[str]
-) -> None:
+def parse_directors(context: Context, company: Entity, directors: str | None) -> None:
     if directors is None:
         return
     for director in directors.split("],"):
@@ -80,11 +78,11 @@ def parse_directors(
         context.emit(dship)
 
 
-def parse_founders(context: Context, company: Entity, founders: Optional[str]) -> None:
+def parse_founders(context: Context, company: Entity, founders: str | None) -> None:
     if founders is None:
         return
     if isinstance(founders, int):
-        context.log.info("last line: %r" % founders)
+        context.log.info(f"last line: {founders!r}")
         return
     for founder in founders.split("),"):
         founder = founder.replace(")", "")
@@ -108,7 +106,7 @@ def parse_founders(context: Context, company: Entity, founders: Optional[str]) -
         context.emit(own)
 
 
-def parse_owners(context: Context, company: Entity, owners: Optional[str]) -> None:
+def parse_owners(context: Context, company: Entity, owners: str | None) -> None:
     if owners is None:
         return
     for owner in owners.split("),"):
@@ -136,7 +134,7 @@ def parse_owners(context: Context, company: Entity, owners: Optional[str]) -> No
         context.emit(own)
 
 
-def parse_company(context: Context, data: Dict[str, Any]) -> None:
+def parse_company(context: Context, data: dict[str, Any]) -> None:
     idno = data.pop("IDNO/ Cod fiscal")
     name = data.pop("Denumirea completă")
     address = data.pop("Adresa")
@@ -169,7 +167,7 @@ def parse_company(context: Context, data: Dict[str, Any]) -> None:
 
 
 def parse_companies(context: Context, book: Workbook) -> None:
-    headers: Optional[List[str]] = None
+    headers: list[str] | None = None
     for idx, row in enumerate(book["Company"].iter_rows()):
         cells = [c.value for c in row]
         if headers is None:

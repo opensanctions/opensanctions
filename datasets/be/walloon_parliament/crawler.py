@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any
 from rigour.mime.types import JSON
 
 from zavod import Context, helpers as h
@@ -28,7 +28,7 @@ IGNORE = [
 ]
 
 
-def crawl_item(context: Context, item: Dict[str, Any]) -> None:
+def crawl_item(context: Context, item: dict[str, Any]) -> None:
     dep_id = item.pop("dep_id")
     full_name = item.pop("dep_nomcomplet")
 
@@ -78,7 +78,7 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         data = json.load(fh)
     for item in data["deputes"]:
         crawl_item(context, item)

@@ -25,6 +25,6 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

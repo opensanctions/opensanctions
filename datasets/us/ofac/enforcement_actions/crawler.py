@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List, Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 from zavod.entity import Entity
@@ -65,17 +65,17 @@ class RelatedCompany(BaseModel):
 class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] = []
-    address: List[str] = address_field
-    country: List[str] = []
+    aliases: list[str] = []
+    address: list[str] = address_field
+    country: list[str] = []
     status: Status = status_field
-    notes: Optional[str] = notes_field
-    related_companies: List[RelatedCompany] = []
-    pdf_url: List[str] = []
+    notes: str | None = notes_field
+    related_companies: list[RelatedCompany] = []
+    pdf_url: list[str] = []
 
 
 class Defendants(BaseModel):
-    defendants: List[Defendant]
+    defendants: list[Defendant]
 
 
 PROMPT = f"""

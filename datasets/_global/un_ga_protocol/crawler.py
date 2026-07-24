@@ -57,7 +57,7 @@ def crawl(context: Context) -> None:
             entity.add("topics", "role.pep")
             if norm_name != holder.get("person_name"):
                 context.log.debug(
-                    "Modified name: %r" % holder.get("person_name"),
+                    "Modified name: {!r}".format(holder.get("person_name")),
                     clean=norm_name,
                 )
             entity.add("name", norm_name)

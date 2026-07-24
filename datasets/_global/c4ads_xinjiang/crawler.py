@@ -9,7 +9,7 @@ def crawl(context: Context) -> None:
     path = context.get_resource_path("source.csv")
     fetch_internal_data("c4ads_xinjiang/xpcc_public_dissemination.csv", path)
 
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             name_zho = row.pop("Company_Name_Chinese")
             addr_zho = row.pop("Registered_Address")

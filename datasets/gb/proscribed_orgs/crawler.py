@@ -4,7 +4,6 @@ proscribed terrorist groups and organizations.
 """
 
 import re
-from typing import Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -20,7 +19,7 @@ ALIAS_RE = re.compile(r"\s+\(([^)]+)\)")
 JUNK = " ,.;\t\r\n"
 
 
-def parse_comment(text: str) -> Optional[str | None]:
+def parse_comment(text: str) -> str | None:
     """
     Parse stack of  commentary from the act looking for the most
     recent date when groups were added.

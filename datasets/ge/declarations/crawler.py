@@ -2,7 +2,7 @@ from enum import Enum
 import re
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Any, Set, cast
+from typing import Any, cast
 from urllib.parse import urlencode
 
 from followthemoney.types import registry
@@ -179,7 +179,7 @@ def crawl_enterprise(
 def crawl_assets_for_family(
     context: Context,
     *,
-    minors: Set[tuple[str, str]],
+    minors: set[tuple[str, str]],
     item: dict[str, Any],
     key: str,
     pep: Entity,
@@ -351,7 +351,7 @@ def crawl_declaration(context: Context, *, item: dict[str, Any]) -> None:
     context.emit(occupancy)
     context.emit(person)
 
-    minor_family_member_names: Set[tuple[str, str]] = set()
+    minor_family_member_names: set[tuple[str, str]] = set()
     for rel in item.pop("FamilyMembers"):
         first_name, last_name, status = crawl_family_member(
             context, pep=person, relative=rel, declaration_url=declaration_url

@@ -1,5 +1,5 @@
 import re
-from typing import Generator, Optional
+from collections.abc import Generator
 from datetime import datetime
 from followthemoney.types.identifier import IdentifierType
 
@@ -31,7 +31,7 @@ DATES_SPLITS = [
 ]
 
 
-def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
+def clean_id(entity: Entity, text: str | None) -> Generator[str, None, None]:
     if text is None:
         return
     for substring in text.split(";"):

@@ -102,7 +102,7 @@ def crawl(context: Context) -> None:
     hrefs = h.xpath_strings(doc, '//a[contains(@href, "profile.php?uid=")]/@href')
     uids = {match.group(1) for href in hrefs if (match := UID_RE.search(href))}
     if not uids:
-        raise ValueError("No member profile links found on %s" % context.data_url)
+        raise ValueError(f"No member profile links found on {context.data_url}")
 
     for uid in sorted(uids, key=int):
         crawl_member(context, position, categorisation, uid)

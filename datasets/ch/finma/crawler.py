@@ -24,7 +24,7 @@ def crawl(context: Context, data: dict[str, Any]) -> None:
         except Exception as exc:
             if "404" in str(exc):
                 continue
-            context.log.warn("Cannot fetch item: %s" % url)
+            context.log.warn(f"Cannot fetch item: {url}")
             continue
         for row in html.findall('.//div[@class="l-main"]//table//tr'):
             header = row.findtext("./th")
@@ -47,7 +47,7 @@ def crawl(context: Context, data: dict[str, Any]) -> None:
             elif header in ("Commercial register"):
                 continue
             else:
-                context.log.warn("Unknown header: %s" % header, value=value, url=url)
+                context.log.warn(f"Unknown header: {header}", value=value, url=url)
 
         context.emit(entity)
 

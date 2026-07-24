@@ -10,7 +10,7 @@ import requests
 import lxml.html
 from pathlib import Path
 from urllib.parse import urlencode
-from typing import Literal, Set
+from typing import Literal
 
 WEBPAGE = r"https://data.hetq.am/%(lang)s"
 FRONTPAGE = r"https://data.hetq.am/api/v2/%(lang)s/front/filters"
@@ -55,9 +55,9 @@ def download_front_page(lang: LANGUAGE, outdir: Path) -> None:
         url = WEBPAGE % {"lang": "" if lang == "hy" else lang}
         r = requests.get(url, headers=CHROME_HEADER)
         r.raise_for_status()
-        with open(pagepath, "wt") as page:
+        with open(pagepath, "w") as page:
             page.write(r.text)
-    with open(pagepath, "rt") as page:
+    with open(pagepath) as page:
         root = lxml.html.parse(page).getroot()
     yeardiv = root.find_class("filter-year")
     for label in yeardiv[0].findall(".//label"):
@@ -80,7 +80,7 @@ def download_front_page(lang: LANGUAGE, outdir: Path) -> None:
                 break
             entries.extend(these_entries)
             offset += len(these_entries)
-        with open(frontpath, "wt") as outfh:
+        with open(frontpath, "w") as outfh:
             json.dump(entries, outfh, indent=2, ensure_ascii=False)
 
 
@@ -96,17 +96,17 @@ def download_people_page(lang: LANGUAGE, outdir: Path, person: int) -> None:
         r.raise_for_status()
     elif r.status_code != 200:
         LOGGER.warning("Got weird status %d for %s", r.status_code, url)
-    with open(personpath, "wt") as page:
+    with open(personpath, "w") as page:
         page.write(r.text)
 
 
-def download_people_pages(lang: LANGUAGE, outdir: Path) -> Set[int]:
+def download_people_pages(lang: LANGUAGE, outdir: Path) -> set[int]:
     """Get the page for each PEP (no JSON available it seems)."""
     frontdir = outdir / "front"
     # Merge all of them to get unique person ids
-    person_ids: Set[int] = set()
+    person_ids: set[int] = set()
     for path in frontdir.glob("*.json"):
-        with open(path, "rt") as infh:
+        with open(path) as infh:
             person_ids.update(e["personID"] for e in json.load(infh))
     LOGGER.info("Got %d unique person IDs for %s", len(person_ids), lang)
     (outdir / "person").mkdir(parents=True, exist_ok=True)
@@ -116,7 +116,7 @@ def download_people_pages(lang: LANGUAGE, outdir: Path) -> Set[int]:
 
 
 def download_relations_pages(
-    person_ids: Set[int], lang: LANGUAGE, outdir: Path
+    person_ids: set[int], lang: LANGUAGE, outdir: Path
 ) -> None:
     """Get relation graph for each PEP (in JSON not SVG thankfully)."""
     (outdir / "relations").mkdir(parents=True, exist_ok=True)
@@ -133,9 +133,9 @@ def download_relations_pages(
                 r.raise_for_status()
             elif r.status_code != 200:
                 LOGGER.warning("Got weird status %d for %s", r.status_code, url)
-            with open(personpath, "wt") as page:
+            with open(personpath, "w") as page:
                 json.dump(r.json(), page, indent=2, ensure_ascii=False)
-        with open(personpath, "rt") as infh:
+        with open(personpath) as infh:
             graph = json.load(infh)
         if not graph:
             continue
@@ -164,7 +164,7 @@ def download_officialtypes(outdir: Path) -> None:
         r.raise_for_status()
     elif r.status_code != 200:
         LOGGER.warning("Got weird status %d for %s", r.status_code, url)
-    with open(officialtypes, "wt") as page:
+    with open(officialtypes, "w") as page:
         json.dump(r.json(), page, indent=2, ensure_ascii=False)
 
 

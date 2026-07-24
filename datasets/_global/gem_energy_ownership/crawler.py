@@ -1,6 +1,5 @@
 import openpyxl
 import re
-from typing import Dict, List, Set, Tuple
 
 from zavod import Context
 from zavod import helpers as h
@@ -41,13 +40,13 @@ REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
 
-def split_urls(value: str) -> List[str]:
+def split_urls(value: str) -> list[str]:
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
 def split_associates(
     context: Context, name: str
-) -> Tuple[str, str, Set[Tuple[str, str]]]:
+) -> tuple[str, str, set[tuple[str, str]]]:
     if REGEX_POSSIBLE_ASSOCIATES.search(name):
         result = context.lookup("associates", name)
         if result is None:
@@ -61,7 +60,7 @@ def split_associates(
 
 
 def crawl_company(
-    context: Context, row: Dict[str, str | None], skipped: Set[str]
+    context: Context, row: dict[str, str | None], skipped: set[str]
 ) -> None:
     id_ = row.pop("entity_id")
     if id_ is None:
@@ -100,8 +99,8 @@ def crawl_company(
         row.pop("name_local"),
     ]
     # (potentially trimmed name, original string)
-    associates: Set[Tuple[str, str]] = set()
-    names: Set[Tuple[str, str]] = set()
+    associates: set[tuple[str, str]] = set()
+    names: set[tuple[str, str]] = set()
     for name in original_names:
         if name is None:
             continue
@@ -177,7 +176,7 @@ def crawl_company(
     )
 
 
-def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]) -> None:
+def crawl_rel(context: Context, row: dict[str, str | None], skipped: set[str]) -> None:
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
 
@@ -195,7 +194,7 @@ def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]) -
     ownership.add("asset", context.make_slug(subject_entity_id))
     ownership.add("owner", context.make_slug(interested_party_id))
     percentage = row.pop("share_of_ownership")
-    ownership.add("percentage", "%.2f" % float(percentage) if percentage else None)
+    ownership.add("percentage", f"{float(percentage):.2f}" if percentage else None)
     source_urls = row.pop("data_source_url")
     if source_urls is not None:
         ownership.add("sourceUrl", split_urls(source_urls))
@@ -213,7 +212,7 @@ def crawl(context: Context) -> None:
         path,
     )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    skipped: Set[str] = set()
+    skipped: set[str] = set()
 
     for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
         crawl_company(context, row, skipped)

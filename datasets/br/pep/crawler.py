@@ -1,5 +1,5 @@
 import csv
-from typing import Dict, Any
+from typing import Any
 from zipfile import ZipFile
 
 from zavod import Context
@@ -29,7 +29,7 @@ def get_csv_url(context: Context) -> str:
     return h.xpath_string(doc, "//a[contains(@href, '/download-de-dados/pep/')]/@href")
 
 
-def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
+def create_entity(raw_entity: dict[str, Any], context: Context) -> None:
     """
     Creates entities from the data fetched from the website.
 
@@ -90,7 +90,7 @@ def crawl(context: Context) -> None:
         for file_name in zip_file.namelist():
             context.log.info(f"Extracting {file_name}")
             file_path = zip_file.extract(file_name, work_dir)
-            with open(file_path, "r", encoding="iso-8859-1") as fh:
+            with open(file_path, encoding="iso-8859-1") as fh:
                 reader = csv.DictReader(fh, delimiter=";")
                 for row in reader:
                     create_entity(row, context)

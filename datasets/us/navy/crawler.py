@@ -1,5 +1,6 @@
 from collections import namedtuple
-from typing import Any, Mapping, Optional
+from typing import Any
+from collections.abc import Mapping
 from lxml import html, etree
 from urllib.parse import urljoin
 import orjson
@@ -77,7 +78,7 @@ def crawl_person(context: Context, item_html: str) -> None:
 
 def parse_json_or_xml(
     context: Context, url: str, data: str
-) -> Optional[Mapping[str, Any]]:
+) -> Mapping[str, Any] | None:
     try:
         root = etree.fromstring(data)
         html_data = h.xpath_string(root, ".//*[local-name() = 'data']/text()")

@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -30,7 +30,7 @@ def translate_keys(context: Context, member_dict: dict[str, Any]) -> dict[str, A
     return {context.lookup_value("keys", k) or k: v for k, v in member_dict.items()}
 
 
-def extract_biography(person_info: Any) -> Optional[str]:
+def extract_biography(person_info: Any) -> str | None:
     """Join the source's biographical text blocks into a single narrative.
 
     The `personuppgift` payload mixes biography with images, contact details and
@@ -52,7 +52,7 @@ def extract_biography(person_info: Any) -> Optional[str]:
     return "\n".join(lines) if lines else None
 
 
-def position_for_mandate(context: Context, role: dict[str, Any]) -> Optional[Entity]:
+def position_for_mandate(context: Context, role: dict[str, Any]) -> Entity | None:
     """Build the Position a single mandate entry corresponds to, or None to skip it.
 
     The source lists every assignment a person has ever held. Only a few of them

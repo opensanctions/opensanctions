@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Any, Dict, Optional
+from typing import Any
 
 from banal import ensure_list
 from datapatch import Lookup
@@ -85,7 +85,7 @@ TEXT_KEYS = {
 }
 
 
-def clean_key(key: str) -> Optional[str]:
+def clean_key(key: str) -> str | None:
     return slugify(key)
 
 
@@ -168,7 +168,7 @@ def identifier_value_is_single_value(context: Context, value: str) -> bool:
 def parse_identification(
     context: Context,
     entity: Entity,
-    value: Dict[str, str],
+    value: dict[str, str],
 ) -> None:
     """Parse the identification field and add the appropriate properties to the entity."""
     comment = value.pop("Commentaire")
@@ -238,7 +238,7 @@ def apply_prop(
     entity: Entity,
     sanction: Entity,
     field: str,
-    value: Dict[str, Any],
+    value: dict[str, Any],
 ) -> None:
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"), lang="fra")
@@ -301,7 +301,7 @@ def apply_prop(
         )
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
+def crawl_entity(context: Context, data: dict[str, Any]) -> None:
     # context.inspect(data)
     nature = data.pop("Nature")
     reg_id = data.pop("IdRegistre")
@@ -364,7 +364,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url, headers=HEADERS)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         data = json.load(fh)
 
     publications = data.get("Publications")

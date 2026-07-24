@@ -5,7 +5,7 @@ from pathlib import Path
 from functools import cache, lru_cache
 from banal import first, as_bool
 from collections import defaultdict
-from typing import Optional, Dict, Union, List, Tuple, Set
+from typing import Union
 from datapatch import Result
 from lxml.etree import tostring, _Element as Element
 from os.path import commonprefix
@@ -21,7 +21,7 @@ from zavod import helpers as h
 from zavod.util import ElementOrTree
 
 FeatureValue = Union[str, Entity, None]
-FeatureValues = List[FeatureValue]
+FeatureValues = list[FeatureValue]
 
 
 @cache
@@ -32,7 +32,7 @@ def load_sdn() -> Dataset:
     return dataset
 
 
-def lookup(name: str, value: Optional[str]) -> Optional[Result]:
+def lookup(name: str, value: str | None) -> Result | None:
     # We don't want to duplicate the lookup configs in both YAML files,
     # so we're hard-coding that lookups go against the SDN config.
     lookup = load_sdn().lookups.get(name)
@@ -86,9 +86,7 @@ SANCTION_FEATURES = {
 IMO_RE = re.compile(r"IMO \d{6,9}")
 
 
-def get_relation_schema(
-    party_schema: Optional[Schema], range: Optional[Schema]
-) -> Schema:
+def get_relation_schema(party_schema: Schema | None, range: Schema | None) -> Schema:
     assert party_schema is not None
     assert range is not None
     if range.is_a("Asset") and party_schema.is_a("Organization"):
@@ -102,28 +100,28 @@ def get_relation_schema(
         raise
 
 
-def get_ref_element(refs: Element, type_: str, id: Optional[str]) -> Element:
+def get_ref_element(refs: Element, type_: str, id: str | None) -> Element:
     if id is None:
-        raise ValueError("Reference ID is None for type: %s" % type_)
+        raise ValueError(f"Reference ID is None for type: {type_}")
     element = refs.find(f"./{type_}Values/{type_}[@ID='{id}']")
     if element is None:
-        raise ValueError("Cannot find reference value [%s]: %s" % (type_, id))
+        raise ValueError(f"Cannot find reference value [{type_}]: {id}")
     return element
 
 
 @cache
-def get_ref_text(refs: Element, type_: str, id: str) -> Optional[str]:
+def get_ref_text(refs: Element, type_: str, id: str) -> str | None:
     element = get_ref_element(refs, type_, id)
     return element.text
 
 
 @cache
-def get_ref_country(refs: Element, id: str) -> Optional[str]:
+def get_ref_country(refs: Element, id: str) -> str | None:
     element = get_ref_element(refs, "Country", id)
     return element.text or element.get("ISO2")
 
 
-def parse_date(el: Optional[Element]) -> Optional[str]:
+def parse_date(el: Element | None) -> str | None:
     if el is None:
         return None
     pf = parse_parts(
@@ -134,9 +132,9 @@ def parse_date(el: Optional[Element]) -> Optional[str]:
     return pf.text
 
 
-def date_prefix(*dates: Optional[str]) -> Optional[str]:
+def date_prefix(*dates: str | None) -> str | None:
     dates_ = [d for d in dates if d is not None]
-    prefix: Optional[str] = commonprefix(dates_)[:10]
+    prefix: str | None = commonprefix(dates_)[:10]
     if prefix is not None and len(prefix) < 10:
         prefix = prefix[:7]
     if prefix is not None and len(prefix) < 7:
@@ -146,14 +144,14 @@ def date_prefix(*dates: Optional[str]) -> Optional[str]:
     return prefix
 
 
-def parse_date_period(date: Element) -> Tuple[str, ...]:
-    start: Optional[str] = None
+def parse_date_period(date: Element) -> tuple[str, ...]:
+    start: str | None = None
     start_el = date.find("./Start")
     if start_el is not None:
         start_from = parse_date(start_el.find("./From"))
         start_to = parse_date(start_el.find("./To"))
         start = date_prefix(start_from, start_to)
-    end: Optional[str] = None
+    end: str | None = None
     end_el = date.find("./End")
     if end_el is not None:
         end_from = parse_date(end_el.find("./From"))
@@ -171,7 +169,7 @@ def parse_date_period(date: Element) -> Tuple[str, ...]:
 
 @lru_cache(maxsize=2000)
 def parse_location(context: Context, refs: Element, location: Element) -> FeatureValue:
-    countries: Set[Optional[str]] = set()
+    countries: set[str | None] = set()
     for area in location.findall("./LocationAreaCode"):
         area_code = get_ref_element(refs, "AreaCode", area.get("AreaCodeID"))
         countries.add(area_code.get("Description"))
@@ -185,7 +183,7 @@ def parse_location(context: Context, refs: Element, location: Element) -> Featur
         context.log.warn("Multiple countries", countries=country_names)
     country_name = first(country_names)
 
-    parts: Dict[Optional[str], Optional[str]] = {}
+    parts: dict[str | None, str | None] = {}
     for part in location.findall("./LocationPart"):
         part_type = get_ref_text(refs, "LocPartType", part.get("LocPartTypeID"))
         parts[part_type] = part.findtext("./LocationPartValue/Value")
@@ -225,7 +223,7 @@ def parse_location(context: Context, refs: Element, location: Element) -> Featur
 
 
 def parse_relation(
-    context: Context, refs: Element, el: Element, parties: Dict[str, Schema]
+    context: Context, refs: Element, el: Element, parties: dict[str, Schema]
 ) -> None:
     type_id = el.get("RelationTypeID")
     type_ = get_ref_text(refs, "RelationType", type_id)
@@ -306,7 +304,7 @@ def parse_relation(
     # pprint(entity.to_dict())
 
 
-def parse_schema(refs: Element, sub_type_id: Optional[str]) -> str:
+def parse_schema(refs: Element, sub_type_id: str | None) -> str:
     sub_type = get_ref_element(refs, "PartySubType", sub_type_id)
 
     type_text = sub_type.text
@@ -314,7 +312,7 @@ def parse_schema(refs: Element, sub_type_id: Optional[str]) -> str:
         type_text = get_ref_text(refs, "PartyType", sub_type.get("PartyTypeID"))
 
     if type_text not in TYPES:
-        raise ValueError("Unknown party type: %s" % type_text)
+        raise ValueError(f"Unknown party type: {type_text}")
 
     return TYPES[type_text]
 
@@ -339,7 +337,7 @@ def parse_distinct_party(
     identity = identities[0]
 
     # Name parts (not clear why this cannot be in aliases...)
-    parts: Dict[str, str] = {}
+    parts: dict[str, str] = {}
     for group in identity.findall("NamePartGroups/MasterNamePartGroup/NamePartGroup"):
         part = get_ref_text(refs, "NamePartType", group.get("NamePartTypeID"))
         group_id = group.get("ID")
@@ -359,7 +357,7 @@ def parse_distinct_party(
     for reg_doc in doc.findall(reg_doc_path):
         parse_id_reg_document(context, proxy, refs, reg_doc)
 
-    features: Dict[str, FeatureValues] = {}
+    features: dict[str, FeatureValues] = {}
     for feature in profile.findall("./Feature"):
         feat_label, values = parse_feature(context, refs, doc, feature)
         if feat_label not in features:
@@ -390,17 +388,17 @@ def parse_alias(
     context: Context,
     proxy: Entity,
     refs: Element,
-    parts: Dict[str, str],
+    parts: dict[str, str],
     alias: Element,
 ) -> None:
     # primary = as_bool(alias.get("Primary"))
     is_weak = as_bool(alias.get("LowQuality"))
     alias_type = get_ref_element(refs, "AliasType", alias.get("AliasTypeID"))
     if alias_type.text not in ALIAS_TYPES:
-        raise ValueError("Unknown alias type: %s" % alias_type.text)
+        raise ValueError(f"Unknown alias type: {alias_type.text}")
     name_prop = ALIAS_TYPES[alias_type.text]
     for name in alias.findall("DocumentedName"):
-        names: Dict[str, str] = defaultdict(lambda: "")
+        names: dict[str, str] = defaultdict(lambda: "")
         lang = "eng"
         for value in name.findall("DocumentedNamePart/NamePartValue"):
             script_id = value.get("ScriptID")
@@ -497,8 +495,8 @@ def parse_id_reg_document(
             proxy.add(conf.prop, number)
 
     if proxy.schema.is_a("Person") and (conf.identification or conf.passport):
-        issue_date: Optional[str] = None
-        expire_date: Optional[str] = None
+        issue_date: str | None = None
+        expire_date: str | None = None
         for date in reg_doc.findall("./DocumentDate"):
             period_el = date.find("./DatePeriod")
             assert period_el is not None
@@ -543,7 +541,7 @@ def parse_id_reg_document(
         context.emit(identification)
 
 
-def extract_sanctions_measure_name(entry: Element, refs: Element) -> Optional[str]:
+def extract_sanctions_measure_name(entry: Element, refs: Element) -> str | None:
     """Extract the source program tag from a sanctions entry."""
     for measure in entry.findall("./SanctionsMeasure"):
         sanctions_type_id = measure.get("SanctionsTypeID")
@@ -561,9 +559,9 @@ def emit_sanctions_entry(
     context: Context,
     proxy: Entity,
     refs: Element,
-    features: Dict[str, FeatureValues],
+    features: dict[str, FeatureValues],
     entry: Element,
-) -> Optional[Entity]:
+) -> Entity | None:
     # context.inspect(entry)
     proxy.add("topics", "sanction")
 
@@ -642,12 +640,12 @@ def emit_sanctions_entry(
 
 def parse_feature(
     context: Context, refs: Element, doc: ElementOrTree, feature: Element
-) -> Tuple[str, FeatureValues]:
+) -> tuple[str, FeatureValues]:
     """Extract the value of typed features linked to entities."""
     feature_id = feature.get("FeatureTypeID")
     feature_label = get_ref_text(refs, "FeatureType", feature_id)
     if feature_label is None:
-        raise ValueError("Unknown feature type ID: %s" % feature_id)
+        raise ValueError(f"Unknown feature type ID: {feature_id}")
     feature_label = feature_label.strip()
     values: FeatureValues = []
 
@@ -745,7 +743,7 @@ def apply_feature(
 
         if prop is None:
             context.log.warn(
-                "Property not found: %s" % result.prop,
+                f"Property not found: {result.prop}",
                 entity=proxy,
                 schema=proxy.schema,
                 feature=feature,
@@ -761,7 +759,7 @@ def apply_feature(
 
         proxy.add(prop, values)
 
-    nested: Optional[Dict[str, str]] = result.nested
+    nested: dict[str, str] | None = result.nested
     if nested is not None:
         # So this is deeply funky: basically, nested entities are
         # mapped from
@@ -785,7 +783,7 @@ def apply_feature(
         if backref is not None:
             backref_prop = adj.schema.get(backref)
             if backref_prop is None:
-                raise ValueError("Backref prop not found: %s" % backref)
+                raise ValueError(f"Backref prop not found: {backref}")
             assert proxy.schema.is_a(backref_prop.range), (
                 proxy.schema,
                 backref_prop.range,
@@ -824,7 +822,7 @@ def crawl(context: Context) -> None:
     # with open(clean_path, "wb") as fh:
     #     fh.write(tostring(doc, pretty_print=True, encoding="utf-8"))
 
-    parties: Dict[str, Schema] = {}
+    parties: dict[str, Schema] = {}
     for distinct_party in doc.findall("./DistinctParties/DistinctParty"):
         proxy = parse_distinct_party(context, doc, refs, distinct_party)
         if proxy.id is not None:

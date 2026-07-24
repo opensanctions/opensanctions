@@ -2,7 +2,7 @@ import csv
 import re
 from pathlib import Path
 from urllib.parse import urlparse
-from typing import Any, Optional
+from typing import Any
 
 import pdfplumber
 from lxml import html
@@ -34,7 +34,7 @@ EXPECTED_HASHES = {
 }
 
 
-def detect_script(context: Context, text: str) -> Optional[str]:
+def detect_script(context: Context, text: str) -> str | None:
     """
     Detect script in a string. Return 'jpn' or 'eng' if confident, else None.
     Used primarily not to misclassify Chinese names as Japanese.
@@ -232,6 +232,6 @@ def crawl(context: Context) -> None:
     # Crawling the google sheet
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)
