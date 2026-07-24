@@ -92,8 +92,8 @@ def crawl(context: Context) -> None:
         reason = unescape(str(data_entry.get("theme")))
         infos_dict = data_entry.get("infos", {})
 
-        names_str = unescape(infos_dict.pop("text_egard", ""))
-        names_str = clean_names_str(names_str)
+        raw_names = unescape(infos_dict.pop("text_egard", ""))
+        names_str = clean_names_str(raw_names)
         if not names_str:
             continue
 
