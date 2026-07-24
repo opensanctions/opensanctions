@@ -67,7 +67,7 @@ def parse_owner(context: Context, company_id: str, unique_id: str, el: Element) 
 def parse_uo(context: Context, fh: IO[bytes]) -> None:
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag="RECORD")):
         if idx > 0 and idx % 10000 == 0:
-            context.log.info("Parse UO records: %d..." % idx)
+            context.log.info(f"Parse UO records: {idx}...")
         # print(tag_text(el))
 
         company = context.make("Company")

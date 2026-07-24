@@ -215,8 +215,8 @@ def parse_json(context: Context, source: str) -> Generator[Item, None, None]:
                     for idx, item in enumerate(items):
                         yield item
                         if idx and idx % 10_000 == 0:
-                            context.log.info("Parse ijson item %d ..." % idx)
-    context.log.info("Parsed %d ijson items." % (idx + 1), fp=data_path.name)
+                            context.log.info(f"Parse ijson item {idx} ...")
+    context.log.info(f"Parsed {idx + 1} ijson items.", fp=data_path.name)
 
 
 def crawl(context: Context) -> None:

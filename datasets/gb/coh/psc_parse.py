@@ -131,7 +131,7 @@ def parse_base_data(context: Context) -> None:
     context.log.info(f"Loading: {data_path}")
     for idx, row in enumerate(read_base_data_csv(data_path)):
         if idx > 0 and idx % 100_000 == 0:
-            context.log.info("Base data: %d..." % idx)
+            context.log.info(f"Base data: {idx}...")
             context.flush()
         company_nr = row.pop("CompanyNumber")
         entity = context.make("Company")
@@ -211,7 +211,7 @@ def parse_psc_data(context: Context) -> None:
     context.log.info(f"Loading: {data_path}")
     for idx, row in enumerate(read_psc_data(data_path)):
         if idx > 0 and idx % 100_000 == 0:
-            context.log.info("PSC statements: %d..." % idx)
+            context.log.info(f"PSC statements: {idx}...")
             context.flush()
         # if idx > 0 and idx % 1000000 == 0:
         #     return

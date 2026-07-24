@@ -5,7 +5,6 @@ from pathlib import Path
 from functools import cache, lru_cache
 from banal import first, as_bool
 from collections import defaultdict
-from typing import Union
 from datapatch import Result
 from lxml.etree import tostring, _Element as Element
 from os.path import commonprefix
@@ -20,7 +19,7 @@ from zavod.meta import load_dataset_from_path
 from zavod import helpers as h
 from zavod.util import ElementOrTree
 
-FeatureValue = Union[str, Entity, None]
+FeatureValue = str | Entity | None
 FeatureValues = list[FeatureValue]
 
 

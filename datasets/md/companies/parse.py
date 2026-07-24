@@ -180,7 +180,7 @@ def parse_companies(context: Context, book: Workbook) -> None:
         data = dict(zip(headers, cells))
         parse_company(context, data)
         if idx > 0 and idx % 10000 == 0:
-            context.log.info("Read %d companies..." % idx)
+            context.log.info(f"Read {idx} companies...")
 
 
 def parse_nonprofits(context: Context, wb: Workbook) -> None:

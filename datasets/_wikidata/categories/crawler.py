@@ -246,9 +246,7 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> set[str]:
             if claim.qid is not None:
                 persons.add(claim.qid)
 
-    state.log.info(
-        "Found %d holders of %s [%s]" % (len(persons), item.label, position_qid)
-    )
+    state.log.info(f"Found {len(persons)} holders of {item.label} [{position_qid}]")
     return persons
 
 
@@ -268,7 +266,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
             if role is not None:
                 roles.add(role)
 
-    state.log.info("Found %d seed positions" % len(roles))
+    state.log.info(f"Found {len(roles)} seed positions")
     for role in roles:
         for position_holder_qid in crawl_position_holder(state, role):
             state.persons[position_holder_qid].from_positions.add(role)
@@ -287,7 +285,7 @@ def crawl_declarator(state: CrawlState) -> None:
     }
     """
     response = state.client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
-    state.log.info("Found %d declarator profiles" % len(response.results))
+    state.log.info(f"Found {len(response.results)} declarator profiles")
     for result in response.results:
         person_qid = result.plain("person")
         if person_qid is None:
@@ -307,7 +305,7 @@ def crawl_declarator(state: CrawlState) -> None:
 
 
 def crawl_persons(state: CrawlState) -> None:
-    state.context.log.info("Generated %d persons" % len(state.persons))
+    state.context.log.info(f"Generated {len(state.persons)} persons")
     for idx, (person_qid, found_record) in enumerate(state.persons.items()):
         entity = crawl_person(state, person_qid)
         if entity is None:

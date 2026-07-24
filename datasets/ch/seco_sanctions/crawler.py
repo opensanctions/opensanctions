@@ -10,7 +10,7 @@
 #   or include_in_notes is true so that the unextracted information is captured in notes.
 
 from itertools import product
-from typing import Literal, Optional
+from typing import Literal
 
 from followthemoney.types import registry
 from followthemoney.util import join_text
@@ -27,7 +27,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 # TODO: sanctions-program full parse
-MayStr = Optional[str]
+MayStr = str | None
 
 SKIP_OLD = {"41406"}
 NAME_QUALITY_WEAK: dict[MayStr, bool] = {"good": False, "low": True}

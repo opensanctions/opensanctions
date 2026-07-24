@@ -150,7 +150,7 @@ def crawl(context: Context) -> None:
 
     office_path = get_path(files, "registered_office_")
     addresses = load_addresses(iter_rows(office_path))
-    context.log.info("Loaded %d addresses" % len(addresses))
+    context.log.info(f"Loaded {len(addresses)} addresses")
 
     org_path = get_path(files, "organisations_")
     parse_organisations(context, iter_rows(org_path), addresses)

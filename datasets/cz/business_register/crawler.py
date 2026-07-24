@@ -123,5 +123,5 @@ def crawl(context: Context) -> None:
                 parse_xml(context, res, archive_member.name)
             archive_member = f.next()
             if idx and idx % 10_000 == 0:
-                context.log.info("Parse item %d ..." % idx)
-    context.log.info("Parsed %d items." % idx, fp=data_path.name)
+                context.log.info(f"Parse item {idx} ...")
+    context.log.info(f"Parsed {idx} items.", fp=data_path.name)

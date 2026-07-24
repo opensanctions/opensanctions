@@ -185,6 +185,6 @@ def crawl(context: Context) -> None:
             parse_record(context, record)
             idx += 1
             if idx and idx % 10_000 == 0:
-                context.log.info("Parse record %d ..." % idx)
+                context.log.info(f"Parse record {idx} ...")
         if idx:
-            context.log.info("Parsed %d records." % (idx + 1), fp=data_fp.name)
+            context.log.info(f"Parsed {idx + 1} records.", fp=data_fp.name)

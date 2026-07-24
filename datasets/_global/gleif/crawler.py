@@ -282,7 +282,7 @@ def parse_lei_file(context: Context, fh: IO[bytes]) -> None:
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=f"{{{LEI}}}LEIRecord")):
         if idx > 0 and idx % 10000 == 0:
-            context.log.info("Parse LEIRecord: %d..." % idx)
+            context.log.info(f"Parse LEIRecord: {idx}...")
         parse_lei_record(context, el, bics=bics, ocurls=ocurls, isins=isins, elfs=elfs)
         el.clear()
 
@@ -364,7 +364,7 @@ def parse_rr_file(context: Context, fh: IO[bytes]) -> None:
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
         if idx > 0 and idx % 10000 == 0:
-            context.log.info("Parse RelationshipRecord: %d..." % idx)
+            context.log.info(f"Parse RelationshipRecord: {idx}...")
         parse_relationship_record(context, el)
         el.clear()
 
