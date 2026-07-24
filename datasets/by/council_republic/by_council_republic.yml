@@ -11,11 +11,14 @@ summary: >-
   Members of the Council of the Republic, the upper chamber of the National
   Assembly of Belarus.
 description: |
-  The Council of the Republic is the upper chamber of the National Assembly of Belarus. It
-  has 64 members: eight elected from each of the six regions and the city of Minsk, plus
-  eight appointed by the President, serving four-year terms.
+  Current members of the Council of the Republic (Совет Республики), the upper chamber
+  of the bicameral National Assembly of Belarus. Its 64 members serve four-year terms —
+  eight indirectly elected by the local councils of each of the six regions and the
+  city of Minsk, plus eight appointed by the President — and, together with the House
+  of Representatives, hold the country's legislative power, including passing laws and
+  approving the budget.
 
-  This dataset records each sitting member by name, from the Council's official directory.
+  This dataset records each sitting member by name.
 url: https://sovrep.gov.by/en/senators-en/
 publisher:
   name: Council of the Republic of the National Assembly of Belarus
