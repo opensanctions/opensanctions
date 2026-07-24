@@ -14,10 +14,13 @@ def crawl_member(
 ) -> None:
     first_name = member.pop("firstName").strip()
     family_name = member.pop("familyName").strip()
+    father_name = member.pop("fatherName")
 
     person = context.make("Person")
     person.id = context.make_slug(str(member.pop("id")))
     h.apply_name(person, first_name=first_name, last_name=family_name, lang="eng")
+    if father_name is not None:
+        person.add("fatherName", father_name.strip(), lang="eng")
     person.add("gender", str(member.pop("gender")["id"]))
 
     h.apply_date(person, "birthDate", member.pop("dob"))
@@ -50,7 +53,6 @@ def crawl_member(
             "avatar",
             "bureau",
             "colleagueStatus",
-            "fatherName",
             "fullName",  # often None
             "image",
             "local_avatar",
