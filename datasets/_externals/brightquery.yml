@@ -55,7 +55,7 @@ inputs:
   - eu_sanctions
   - ir_uani_business_registry
   - us_sanctions
-  - us_sam_exclusions
+  # - us_sam_exclusions
   - us_cftc_enforcement_actions
   - us_ddtc_debarred
   - us_ddtc_enforcements
@@ -63,10 +63,10 @@ inputs:
   - us_fed_enforcements
   - us_ofac_enforcement_actions
   - us_sec_pause
-  - regulatory
+  # - regulatory
   - enforcement
-  - debarment
-  - ext_us_cms_npi
+  # - debarment
+  # - ext_us_cms_npi
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher

@@ -18,7 +18,7 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
-from zavod.runner.util import check_enrich_topics, should_promote
+from zavod.runner.util import check_enrich_topics, is_analyzer_stub, should_promote
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
@@ -93,7 +93,9 @@ class LocalEnricher(BaseEnricher[Dataset]):
     def candidates(
         self, subjects: Iterator[Entity]
     ) -> Generator[tuple[Identifier, BlockingMatches], None, None]:
-        entity_generator = (e for e in subjects if self._filter_entity(e))
+        entity_generator = (
+            e for e in subjects if self._filter_entity(e) and not is_analyzer_stub(e)
+        )
         yield from self._index.match_entities(entity_generator)
 
     def match_candidates(

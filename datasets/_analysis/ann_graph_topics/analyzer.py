@@ -49,14 +49,17 @@ Requirements and invariants that make this correct:
   analyzer reads the store with ``external=True`` precisely so it can *see*
   those passengers and apply the rules to them; with an internal-only view it
   would be blind to exactly the entities it needs to evaluate.
-- **Patches inherit the related entity's external-ness.** A patch is emitted
-  internal iff the related entity already has at least one internal statement
-  (``Entity.external`` is true only when *every* statement is external),
-  otherwise external. So a derived topic on a genuinely published entity is
-  published, while a topic on a purely-external passenger stays external.
-  Either way the topic is visible in the ``external=True`` view and continues
-  to feed the next ownership hop — but tagging a passenger does not, on its
-  own, force it into the published export.
+- **Patch external-ness tracks published source data.** A patch is emitted
+  internal iff the related entity has at least one internal statement from a
+  non-analyzer dataset (``ANALYZER_DATASETS``), otherwise external. So a
+  derived topic on a genuinely published entity is published, while a topic
+  on a purely-external passenger stays external. Discounting the analyzers'
+  own statements is what keeps this from becoming self-sustaining: without
+  it, one internal patch would keep an entity "internal" forever — even
+  after its source data was demoted to external — publishing nameless,
+  topic-only stubs. Either way the topic is visible in the ``external=True``
+  view and continues to feed the next ownership hop — but tagging a
+  passenger does not, on its own, force it into the published export.
 - **Edge end dates terminate propagation.** Relationships carrying an
   ``endDate`` are skipped: a former director or ex-spouse does not propagate
   risk. Checked once in ``analyze_entity`` before rule dispatch.
@@ -70,11 +73,12 @@ from collections.abc import Iterator
 
 from followthemoney import registry
 from followthemoney.property import Property
+from followthemoney.statement import BASE_ID
 from nomenklatura.store.base import View as BaseView
 
 from zavod import Context, Entity
 from zavod.meta import Dataset, get_multi_dataset
-from zavod.constants import ORIGIN_INFERRED
+from zavod.constants import ANALYZER_DATASETS, ORIGIN_INFERRED
 from zavod.store import get_store
 from zavod.integration import get_dataset_linker
 
@@ -121,6 +125,23 @@ def non_graph_topics(context: Context, entity: Entity) -> set[str]:
     return {s.value for s in topic_stmts if s.dataset != context.dataset.name}
 
 
+def has_published_substance(entity: Entity) -> bool:
+    """Return whether the entity has published source data of its own.
+
+    Decides patch external-ness — see the ``Patch external-ness`` invariant
+    in the module docstring: analyzer statements are discounted so a prior
+    patch cannot keep an otherwise-unpublished entity internal. BASE_ID
+    checksum statements are skipped: they are synthesized at read time with
+    a meaningless external flag.
+    """
+    for stmt in entity.statements:
+        if stmt.prop == BASE_ID:
+            continue
+        if not stmt.external and stmt.dataset not in ANALYZER_DATASETS:
+            return True
+    return False
+
+
 def emit_patch(
     context: Context,
     risk_source: Entity,
@@ -143,7 +164,7 @@ def emit_patch(
     patch = context.make(schema_name)
     patch.id = related_entity.id
     patch.add("topics", topic, origin=ORIGIN_INFERRED)
-    context.emit(patch, external=related_entity.external)
+    context.emit(patch, external=not has_published_substance(related_entity))
 
 
 def walk_edge(

@@ -45,11 +45,16 @@ def _entity(
     id: str,
     properties: dict[str, list[str]] | None = None,
     dataset: Dataset = SOURCE,
+    external: bool = False,
 ) -> Entity:
-    return Entity.from_data(
+    entity = Entity.from_data(
         dataset,
         {"schema": schema, "id": id, "properties": properties or {}},
     )
+    if external:
+        for stmt in entity.statements:
+            stmt._external = True
+    return entity
 
 
 def _store(
@@ -549,6 +554,59 @@ def test_emit_patch_preserves_non_legalentity_schema() -> None:
     )
     patches = {e.id: e for e, _ in ctx.emitted}
     assert patches["sec1"].schema.name == "Security"
+
+
+# ---- emit_patch external-ness --------------------------------------------
+
+
+def _patch_external(ctx: FakeContext, target_id: str) -> bool:
+    flags = {ext for entity, ext in ctx.emitted if entity.id == target_id}
+    assert len(flags) == 1, flags
+    return flags.pop()
+
+
+def test_patch_internal_for_published_target() -> None:
+    # The spouse has internal source statements, so the derived topic is
+    # published along with them.
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity("Family", "fam", {"person": ["pep"], "relative": ["spouse"]}),
+            _entity("Person", "spouse", {"name": ["Jane Doe"]}),
+        ],
+        source_id="pep",
+    )
+    assert _patch_external(ctx, "spouse") is False
+
+
+def test_patch_external_for_passenger_target() -> None:
+    # The spouse only exists as an external enrichment passenger; tagging it
+    # must not, on its own, pull it into the published export.
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity("Family", "fam", {"person": ["pep"], "relative": ["spouse"]}),
+            _entity("Person", "spouse", {"name": ["Jane Doe"]}, external=True),
+        ],
+        source_id="pep",
+    )
+    assert _patch_external(ctx, "spouse") is True
+
+
+def test_patch_external_despite_prior_own_patch() -> None:
+    # A previously emitted internal patch must not keep the target internal
+    # once its source data has been demoted to external: analyzer statements
+    # are discounted when judging published substance.
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity("Family", "fam", {"person": ["pep"], "relative": ["spouse"]}),
+            _entity("Person", "spouse", {"name": ["Jane Doe"]}, external=True),
+            _entity("Person", "spouse", {"topics": ["role.rca"]}, dataset=GRAPH),
+        ],
+        source_id="pep",
+    )
+    assert _patch_external(ctx, "spouse") is True
 
 
 # ---- non_graph_topics ---------------------------------------------------

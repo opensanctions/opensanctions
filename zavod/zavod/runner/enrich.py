@@ -6,7 +6,7 @@ from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
-from zavod.runner.util import check_enrich_topics, should_promote
+from zavod.runner.util import check_enrich_topics, is_analyzer_stub, should_promote
 from zavod.store import get_store, View
 
 
@@ -69,6 +69,8 @@ def enrich(context: Context) -> None:
                 context.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
                 context.log.info(f"Enriched {entity_idx} entities...")
+            if is_analyzer_stub(entity):
+                continue
             context.log.debug(f"Enrich query: {entity!r}")
             try:
                 for match in enricher.match_wrapped(entity):

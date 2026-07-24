@@ -1,7 +1,18 @@
 from collections.abc import Iterable, Mapping
 
+from zavod.constants import ANALYZER_DATASETS
 from zavod.entity import Entity
 from zavod.store import View
+
+
+def is_analyzer_stub(entity: Entity) -> bool:
+    """Return whether the entity consists only of analyzer-emitted statements.
+
+    Such entities are derived annotations (e.g. a bare topic patch) with no
+    source data of their own — there is nothing to match on, so enrichers
+    skip them as subjects.
+    """
+    return entity.datasets.issubset(ANALYZER_DATASETS)
 
 
 def endpoint_ids(entity: Entity) -> set[str]:
