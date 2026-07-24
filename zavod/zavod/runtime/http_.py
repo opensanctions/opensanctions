@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Optional, Union
+from typing import Any
 from collections.abc import Mapping, Iterable
 from functools import partial
 from pathlib import Path
@@ -17,10 +17,10 @@ from zavod.meta.http import HTTP
 log = get_logger(__name__)
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
-_Auth = Optional[tuple[str, str]]
-_Headers = Optional[Mapping[str, str]]
+_Auth = tuple[str, str] | None
+_Headers = Mapping[str, str] | None
 # Copied from requests-stubs because it's impossible to import from stubs
-_Body = Union[
+_Body = (
     Iterable[bytes]
     | str
     | bytes
@@ -28,7 +28,7 @@ _Body = Union[
     | list[tuple[Any, Any]]
     | tuple[tuple[Any, Any], ...]
     | Mapping[Any, Any]
-]
+)
 
 
 def make_session(http_conf: HTTP) -> Session:

@@ -4,7 +4,7 @@ from normality import stringify
 from prefixdate import parse_formats
 from rigour.dates import ended_before
 from datetime import datetime, date, timedelta, UTC
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from collections.abc import Iterable
 from followthemoney import registry
 
@@ -20,7 +20,7 @@ log = get_logger(__name__)
 NUMBERS = re.compile(r"\b\d+\b")
 # We always want to accept ISO prefix dates.
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
-DateValue = Union[str, date, datetime, None]
+DateValue = str | date | datetime | None
 MAX_ENFORCEMENT_DAYS = 365 * 5
 
 __all__ = [

@@ -164,7 +164,7 @@ def wikidata_reconcile(
     if len(text):
         text += "\n"
     output.write_text(text)
-    log.info("Wrote %d QuickStatements commands: %s" % (len(commands), output))
+    log.info(f"Wrote {len(commands)} QuickStatements commands: {output}")
 
 
 @cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")

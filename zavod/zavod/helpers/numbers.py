@@ -1,12 +1,11 @@
 from decimal import Decimal
-from typing import Union
 from followthemoney import registry
 from rigour.units import normalize_unit
 
 from zavod.logs import get_logger
 from zavod.entity import Entity
 
-NumberValue = Union[str, int, float, Decimal]
+NumberValue = str | int | float | Decimal
 log = get_logger(__name__)
 
 

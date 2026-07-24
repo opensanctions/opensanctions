@@ -3,13 +3,13 @@ import logging
 from dataclasses import dataclass
 from lxml import etree
 from functools import cache
-from typing import Union, IO, Any
+from typing import IO, Any
 from normality import slugify
 from followthemoney.util import ENTITY_ID_LEN
 
 log = logging.getLogger(__name__)
 Element = etree._Element
-ElementOrTree = Union[etree._Element, etree._ElementTree]
+ElementOrTree = etree._Element | etree._ElementTree
 ID_SEP = "-"
 
 

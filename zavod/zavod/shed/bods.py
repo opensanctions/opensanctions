@@ -175,7 +175,7 @@ def parse_bods_fh(context: Context, fh: BinaryIO) -> None:
         parse_statement(context, data)
         index += 1
         if index > 0 and index % 10000 == 0:
-            context.log.info("BODS statements: %d..." % index)
+            context.log.info(f"BODS statements: {index}...")
 
 
 def parse_bods_file(context: Context, file_name: Path) -> None:
