@@ -1,9 +1,9 @@
-title: Georgia Parliament
+title: Georgia Members of Parliament
 name: ge_parliament
 prefix: ge-parl
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-07-23
 load_statements: true
 ci_test: false
