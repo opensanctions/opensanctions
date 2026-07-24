@@ -36,6 +36,7 @@ publisher:
   official: false
 
 inputs:
+  - ann_graph_topics
   - peps
   - wd_curated
   - wd_categories
