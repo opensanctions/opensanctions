@@ -1,0 +1,69 @@
+title: Sri Lanka Members of Parliament
+entry_point: crawler.py
+prefix: lk-parl
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false # Live external government website, not available in CI
+summary: >-
+  Members of the Parliament of Sri Lanka, the country's unicameral legislature
+description: |
+  Members of the Parliament of Sri Lanka, the unicameral national legislature. It has
+  225 members elected for five-year terms from multi-member electoral districts by
+  proportional representation, plus members returned from the national list.
+
+  This dataset records each sitting member with their name, electoral district,
+  political party and date of birth, sourced from the Parliament's official directory
+  of members.
+url: https://www.parliament.lk/en/members-of-parliament/directory-of-members
+publisher:
+  name: Parliament of Sri Lanka
+  description: >
+    The Parliament of Sri Lanka is the supreme legislative body of the country, a
+    unicameral legislature of 225 members.
+  url: https://www.parliament.lk/
+  country: lk
+  official: true
+data:
+  url: https://www.parliament.lk/en/members-of-parliament/directory-of-members
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+names:
+  prefixes_strip:
+    - Hon.
+    - "Hon "
+    - (Dr.)
+    - Dr.
+    - (Prof.)
+    - Prof.
+    - (Ven.)
+    - Ven.
+    - (Rev.)
+    - Rev.
+    - (Eng.)
+    - Eng.
+    - (Adv.)
+    - Adv.
+    - Mr.
+    - Mrs.
+    - Ms.
+  suffixes_strip:
+    - ", M.P."
+    - ", MP"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 180
+      Position: 1
+    country_entities:
+      lk: 180
+  max:
+    schema_entities:
+      Person: 260
+      Position: 1
