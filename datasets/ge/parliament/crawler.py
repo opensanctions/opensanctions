@@ -12,8 +12,8 @@ def crawl_member(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    first_name = member.pop("firstName").strip().title()
-    family_name = member.pop("familyName").strip().title()
+    first_name = member.pop("firstName").strip()
+    family_name = member.pop("familyName").strip()
 
     person = context.make("Person")
     person.id = context.make_slug(str(member.pop("id")))
