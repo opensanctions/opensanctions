@@ -6,7 +6,7 @@ disabled: false
 hidden: false
 coverage:
   frequency: weekly
-  start: 2026-02-26
+  start: 2026-07-24
 exports:
   - statistics.json
   - entities.delta.json
@@ -37,6 +37,15 @@ publisher:
   official: true
   country: "zz"
 
+assertions:
+  min:
+    schema_entities:
+      Vessel: 1
+      Company: 1
+  max:
+    schema_entities:
+      Vessel: 20
+      Company: 20
 inputs:
   - ann_graph_topics
   # - debarment
