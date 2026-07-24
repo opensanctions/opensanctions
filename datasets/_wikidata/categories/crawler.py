@@ -9,15 +9,13 @@ from urllib.parse import urlencode
 from nomenklatura.wikidata import Claim, Item
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.time import iso_datetime
-
-from zavod.shed.wikidata.client import create_wikidata_client, WIKIDATA_QUERY_CACHE
+from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import (
     position_holders,
     wikidata_occupancy,
     wikidata_position,
 )
-from zavod.stateful.positions import categorised_position_qids
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -219,7 +217,7 @@ def crawl_category(state: CrawlState, category_crawl_spec: dict[str, Any]) -> No
 
 
 def crawl_position_holder(state: CrawlState, position_qid: str) -> set[str]:
-    persons: set[str] = set([])
+    persons: set[str] = set()
 
     position = get_position(state, position_qid)
     if position is None:
@@ -242,34 +240,20 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> set[str]:
 
     # find person QIDs such that position_qid --( P1308 officeholder )--> person
     for claim in item.claims:
-        if claim.property == "P1308":  # officeholder
-            if claim.qid is not None:
-                persons.add(claim.qid)
+        if claim.property == "P1308" and claim.qid is not None:  # officeholder
+            persons.add(claim.qid)
 
     state.log.info(f"Found {len(persons)} holders of {item.label} [{position_qid}]")
     return persons
 
 
-def crawl_position_seeds(state: CrawlState) -> None:
-    seeds: list[str] = state.context.dataset.config.get("seeds", [])
-    roles: set[str] = set(categorised_position_qids(state.context))
-    for seed in seeds:
-        query = f"""
-        SELECT ?role WHERE {{
-            ?role (wdt:P279|wdt:P31)+ wd:{seed}
-        }}
-        """
-        roles.add(seed)
-        response = state.client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
-        for result in response.results:
-            role = result.plain("role")
-            if role is not None:
-                roles.add(role)
-
-    state.log.info(f"Found {len(roles)} seed positions")
-    for role in roles:
-        for position_holder_qid in crawl_position_holder(state, role):
-            state.persons[position_holder_qid].from_positions.add(role)
+def crawl_igo_positions(state: CrawlState) -> None:
+    """Crawl holders of explicitly curated international-organisation roles."""
+    position_qids: list[str] = state.context.dataset.config.get("igo_positions", [])
+    state.log.info(f"Crawling {len(position_qids)} IGO positions")
+    for position_qid in position_qids:
+        for holder_qid in crawl_position_holder(state, position_qid):
+            state.persons[holder_qid].from_positions.add(position_qid)
 
         state.context.flush()
 
@@ -355,7 +339,7 @@ def crawl_persons(state: CrawlState) -> None:
 def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
-    crawl_position_seeds(state)
+    crawl_igo_positions(state)
     category_crawl_specs: list[dict[str, Any]] = context.dataset.config.get(
         "categories", []
     )
