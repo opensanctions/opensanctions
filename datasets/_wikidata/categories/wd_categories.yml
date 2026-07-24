@@ -1,7 +1,7 @@
 # This discovers entities in three ways:
 #
 # - wikidata items with a Declarator.org ID
-# - wikidata items holding one of the "seed" positions defined below
+# - wikidata items holding one of the explicitly curated IGO positions defined below
 # - wikidata items in specific Wikipedia categories defined below, using https://petscan.wmcloud.org
 #
 # # Categories
@@ -171,61 +171,9 @@ lookups:
         value: 2026-06
 
 config:
-  seeds:
-    - "Q109862464" # lord mayor
-    - "Q2285706" # head of government
-    - "Q48352" # head of state
-    - "Q183318" # dictator
-    - "Q7645115" # supreme leader
-    - "Q3099723" # minister-president
-    - "Q4175034" # legislator
-    - "Q486839" # member of parliament
-    - "Q83307" # minister
-    - "Q7330070" # foreign minister
-    - "Q14212" # prime minister
-    - "Q877955" # deputy prime minister
-    - "Q15966511" # state minister
-    - "Q26204040" # deputy minister
-    - "Q16163440" # chief minister
-    - "Q46403368" # deputy at the national level
-    - "Q7603534" # state senator
-    - "Q132050" # governor
-    - "Q380782" # commander in chief
-    - "Q599151" # official
-    - "Q294414" # public office
-    - "Q42841" # incumbent
-    - "Q766504" # undersecretary
-    - "Q20086425" # shadow minister
-    - "Q2998914" # county executive
-    - "Q108290289" # senior government officials
-    - "Q108289363" # legislators and senior officials
-    - "Q372436" # statesperson
-    - "Q6635529" # provincial leader of the People's Republic of China
-    - "Q117826617" # supreme court judge
-    - "Q55736868" # national sup court judge
-    - "Q13554447" # chief judge
-    - "Q1501926" # attorney general
-    - "Q3368517" # public prosecutor general
-    - "Q7574852" # special prosecutor
-    - "Q109607046" # deputy public prosecutor general
-    - "Q107363151" # central bank governor
-    - "Q1553195" # party leader
-    - "Q2746259" # party chair
-    - "Q836971" # party secretary
-    - "Q193391" # diplomat
-    - "Q29645880" # ambassador of a country
-    - "Q29645886" # ambassador to a country
-    - "Q29918335" # class of ambassador to a country
-    - "Q116182667" # diplomat to a country
-    - "Q707492" # military chief of staff
-    - "Q105434600" # high civil servant
-    - "Q17279032" # elective office
-    - "Q16060143" # elected person
-    - "Q131981747" # -elect
-    - "Q220098" # warlord
-    # skip:
-    # - "Q30185" # mayor
-    # Heads of international organisations for which Wikidata Q codes were found
+  # Heads of international organisations for which Wikidata Q codes were found.
+  # These are crawled directly, without expanding their Wikidata subclasses.
+  igo_positions:
     - "Q24558593" # Administrator of the United Nations Development Programme
     - "Q65782205" # Director General of the International Atomic Energy Agency
     - "Q66566041" # Director-General of the Food and Agriculture Organization
