@@ -1,0 +1,20 @@
+title: UK sanctions relating to global irregular migration and trafficking in persons
+key: GB-MIGR
+url: https://www.gov.uk/government/publications/global-irregular-migration-and-trafficking-in-persons-sanctions-guidance
+summary: Targets persons involved in facilitating irregular migration to the
+  United Kingdom or in trafficking in persons, including the leaders, financiers
+  and suppliers of people-smuggling networks. The regime applies to designated
+  persons only, who are subject to an asset freeze; designated individuals are
+  also barred from entering or transiting the United Kingdom. There are no
+  sanctions on goods or services under the regime.
+issuer: gb_fcdo
+dataset: gb_fcdo_sanctions
+aliases:
+  - Global Irregular Migration
+  - SI 2025/902
+  - The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
+target_territories:
+  - zz
+measures:
+  - Asset freeze
+  - Travel ban

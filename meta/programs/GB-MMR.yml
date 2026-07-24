@@ -2,8 +2,25 @@ id: 247
 title: UK sanctions relating to Myanmar
 key: GB-MMR
 url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-myanmar
-summary: Measures addressing conflict and issues in Myanmar.
-issuer: gb_ofsi
+summary: Targets individuals and entities that repress the civilian population
+  of Myanmar, undermine democracy or the rule of law, or commit serious human
+  rights violations there, including the Myanmar armed forces and their
+  associates, under an autonomous UK regime. Designated persons are subject to
+  an asset freeze, and designated individuals are barred from entering or
+  transiting the United Kingdom. The regime also imposes a country-wide arms
+  embargo and export bans on dual-use items and on equipment for internal
+  repression or communications interception.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Burma
+  - Myanmar
+  - SI 2021/496
+  - The Myanmar (Sanctions) Regulations 2021
 target_territories:
-- mm
+  - mm
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Export control
+  - Travel ban

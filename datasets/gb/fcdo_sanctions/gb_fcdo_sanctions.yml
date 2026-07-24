@@ -55,7 +55,7 @@ lookups:
   sanction.program:
     options:
       - match: The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
-        value: GB-SAMLA
+        value: GB-MIGR
       - match: The Global Human Rights Sanctions Regulations 2020
         value: GB-HR
       - match: The Global Anti-Corruption Sanctions Regulations 2021

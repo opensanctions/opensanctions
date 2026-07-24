@@ -2,8 +2,21 @@ id: 242
 title: UK sanctions relating to Iraq
 key: GB-IRQ
 url: https://www.gov.uk/government/collections/uk-sanctions-on-iraq
-summary: Measures addressing conflict and issues in Iraq.
-issuer: gb_ofsi
+summary: Gives effect to UN Security Council obligations concerning Iraq,
+  targeting senior officials of the former Saddam Hussein regime and bodies of
+  the former Iraqi government whose funds are to be transferred to Iraq's
+  development fund. Designated persons, the former Government of Iraq and its
+  state bodies are subject to an asset freeze. Country-wide measures prohibit
+  the export of military goods and technology to Iraq and ban trade in
+  illegally removed Iraqi cultural property.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - SI 2020/707
+  - The Iraq (Sanctions) (EU Exit) Regulations 2020
 target_territories:
-- iq
+  - iq
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Import restrictions
