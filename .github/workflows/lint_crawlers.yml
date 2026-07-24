@@ -47,7 +47,7 @@ jobs:
           files: 'datasets/**'
           separator: "\n"
           safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: 'pip'
