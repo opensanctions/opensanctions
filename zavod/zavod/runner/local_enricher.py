@@ -212,7 +212,7 @@ def enrich(context: Context) -> None:
     config = dict(context.dataset.config)
     topic_gated: bool = bool(config.get("topic_gated", False))
     enricher = LocalEnricher(context.dataset, context.cache, config)
-    enrich_topics: frozenset[str] = frozenset(enricher._filter_topics)
+    enrich_topics: frozenset[str] = frozenset(enricher.filter_topics)
     if topic_gated and not enrich_topics:
         context.log.warning(
             "topic_gated=True but no topics configured; all expanded entities will be external"

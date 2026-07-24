@@ -18,7 +18,7 @@ classifiers = [
 requires-python = ">= 3.12"
 dependencies = [
     "followthemoney == 4.10.0",
-    "nomenklatura == 4.12.2",
+    "nomenklatura == 4.12.4",
     "plyvel == 1.5.1", # Also update macOS install docs
     "rigour == 2.2.3",
     "datapatch >= 1.2.4, < 1.3",
@@ -110,6 +110,7 @@ src_paths = ["zavod"]
 
 [tool.ruff.lint]
 # Pin the enforced rule set explicitly so a ruff upgrade can't opt the whole
-# codebase into new default rules at once. This is the pre-0.16 default set;
-# adopt further rules deliberately via extend-select.
+# codebase into new default rules at once. E4/E7/E9/F is the pre-0.16 default;
+# UP (pyupgrade) is enabled deliberately now that the tree is clean.
 select = ["E4", "E7", "E9", "F"]
+extend-select = ["UP"]

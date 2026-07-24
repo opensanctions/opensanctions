@@ -1,6 +1,6 @@
 import ijson  # type: ignore
 import zipfile
-from typing import Any, TypeVar
+from typing import Any
 from collections.abc import Generator
 from followthemoney.util import make_entity_id
 
@@ -8,7 +8,6 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 Item = dict[str, Any]
-Default = TypeVar("Default")
 
 SOURCES = {
     "officers1": "ettevotja_rekvisiidid__kaardile_kantud_isikud.json",
@@ -28,7 +27,7 @@ TYPES = {
 NULL_NAME = {"-", ".", "#", "##"}
 
 
-def get_value(
+def get_value[Default](
     data: Item, keys: tuple[str, ...], default: Default | None = None
 ) -> Default | Any:
     for key in keys:
