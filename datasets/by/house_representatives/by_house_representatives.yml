@@ -1,4 +1,4 @@
-title: Belarus House of Representatives
+title: Belarus Members of the House of Representatives
 name: by_house_representatives
 prefix: by-hor
 entry_point: crawler.py
