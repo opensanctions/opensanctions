@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -28,7 +28,7 @@ def clean_birth_date(raw: str | None) -> str | None:
     year = int(raw[:4])
     if year < 1925 or year > 2007:
         return None
-    parsed = datetime.fromisoformat(raw).replace(tzinfo=timezone.utc)
+    parsed = datetime.fromisoformat(raw).replace(tzinfo=UTC)
     return parsed.astimezone(TIRANE).date().isoformat()
 
 
