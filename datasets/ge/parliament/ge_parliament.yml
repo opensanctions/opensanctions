@@ -10,11 +10,13 @@ ci_test: false
 summary: >-
   Members of the Parliament of Georgia, the unicameral national legislature.
 description: |
-  The Parliament of Georgia is the country's unicameral national legislature, with 150
-  members elected under proportional representation for a four-year term.
+  Current members of the Parliament of Georgia, the country's unicameral national
+  legislature. Its 150 members are elected under proportional representation for a
+  four-year term and hold the country's legislative power, including passing laws,
+  approving the budget, and overseeing the government.
 
-  This dataset records each seated member with their name, gender and date of birth, from
-  the Parliament's official member API.
+  This dataset records each seated member with their name, gender, and date and place
+  of birth.
 url: https://parliament.ge/en/parliament-members
 publisher:
   name: Parliament of Georgia
@@ -27,12 +29,25 @@ data:
   url: https://web-api.parliament.ge/api/colleagues/deputies
   format: JSON
   lang: eng
+http:
+  # A default zavod User-Agent gets a 403 from this API; a browser one works.
+  user_agent: >-
+    Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)
+    Chrome/124.0.0.0 Safari/537.36 (zavod; opensanctions.org)
 
 dates:
   formats: ["%d-%m-%Y"]
 
 tags:
   - list.pep
+
+lookups:
+  type.gender:
+    options:
+      - match: "1"
+        value: male
+      - match: "2"
+        value: female
 
 assertions:
   min:
