@@ -1,12 +1,13 @@
 import ijson  # type: ignore
 import zipfile
-from typing import Any, Generator, Optional, Tuple, Dict, TypeVar, Union
+from typing import Any, TypeVar
+from collections.abc import Generator
 from followthemoney.util import make_entity_id
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
-Item = Dict[str, Any]
+Item = dict[str, Any]
 Default = TypeVar("Default")
 
 SOURCES = {
@@ -28,8 +29,8 @@ NULL_NAME = {"-", ".", "#", "##"}
 
 
 def get_value(
-    data: Item, keys: Tuple[str, ...], default: Optional[Default] = None
-) -> Union[Default, Any]:
+    data: Item, keys: tuple[str, ...], default: Default | None = None
+) -> Default | Any:
     for key in keys:
         val = data.pop(key, None)
         if val is not None:
@@ -37,10 +38,8 @@ def get_value(
     return default
 
 
-def get_address(data: Item) -> Optional[str]:
-    value: Optional[str] = data.pop(
-        "aadress_ads__ads_normaliseeritud_taisaadress", None
-    )
+def get_address(data: Item) -> str | None:
+    value: str | None = data.pop("aadress_ads__ads_normaliseeritud_taisaadress", None)
     if value is not None:
         return value
     parts = []
@@ -53,7 +52,7 @@ def get_address(data: Item) -> Optional[str]:
     return None
 
 
-def make_proxy(context: Context, row: Item, schema: Optional[str] = None) -> Entity:
+def make_proxy(context: Context, row: Item, schema: str | None = None) -> Entity:
     if schema is None:
         schema = "LegalEntity"
     proxy = context.make(schema)
@@ -115,7 +114,7 @@ def make_rel(
     officer: Entity,
     schema: str,
     data: Item,
-    role: Optional[str] = None,
+    role: str | None = None,
 ) -> Entity:
     rel = context.make(schema)
     rel.id = context.make_id(rel.schema.name, company.id, officer.id, role)
@@ -216,8 +215,8 @@ def parse_json(context: Context, source: str) -> Generator[Item, None, None]:
                     for idx, item in enumerate(items):
                         yield item
                         if idx and idx % 10_000 == 0:
-                            context.log.info("Parse ijson item %d ..." % idx)
-    context.log.info("Parsed %d ijson items." % (idx + 1), fp=data_path.name)
+                            context.log.info(f"Parse ijson item {idx} ...")
+    context.log.info(f"Parsed {idx + 1} ijson items.", fp=data_path.name)
 
 
 def crawl(context: Context) -> None:

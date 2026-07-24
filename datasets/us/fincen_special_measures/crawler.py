@@ -2,21 +2,21 @@ from lxml import html
 import re
 from zavod import Context, helpers as h
 from normality import slugify, squash_spaces
-from typing import Dict, Generator, cast
-from typing import List
+from typing import cast
+from collections.abc import Generator
 from normality import collapse_spaces
 
 
 REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
 
 
-def convert_date(date_str: str) -> List[str]:
+def convert_date(date_str: str) -> list[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
     dates = REGEX_DATE.findall(date_str)
     return dates
 
 
-def crawl_item(context: Context, row: Dict[str, str]) -> None:
+def crawl_item(context: Context, row: dict[str, str]) -> None:
     # Create the entity based on the schema
     name = row.pop("name").text_content()
     schema = context.lookup_value("target_type", name)
@@ -73,7 +73,7 @@ def crawl_item(context: Context, row: Dict[str, str]) -> None:
 
 
 # Parse the table and yield rows as dictionaries.
-def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None]:
+def parse_table(table: html.HtmlElement) -> Generator[dict[str, str], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:

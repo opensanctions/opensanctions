@@ -79,6 +79,6 @@ def crawl_row(
 def crawl(context: Context) -> None:
     """Retrieve list of mayors as CSV and emit PEP entities."""
     path = context.fetch_resource("elus-maires.csv", context.data_url)
-    with open(path, "rt", encoding="utf-8") as infh:
+    with open(path, encoding="utf-8") as infh:
         for row in csv.DictReader(infh, delimiter=";"):
             crawl_row(context, row)

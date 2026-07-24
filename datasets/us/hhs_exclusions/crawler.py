@@ -1,5 +1,5 @@
 import csv
-from typing import Dict, Any
+from typing import Any
 
 from zavod import helpers as h
 from zavod import Context
@@ -12,7 +12,7 @@ def is_zero(value: str) -> bool:
     return all(c == "0" for c in value)
 
 
-def crawl_item(context: Context, row: Dict[str, Any]) -> None:
+def crawl_item(context: Context, row: dict[str, Any]) -> None:
     city = row.pop("CITY")
     zip_code = row.pop("ZIP")
     first_name = row.pop("FIRSTNAME")
@@ -105,7 +105,7 @@ def crawl_item(context: Context, row: Dict[str, Any]) -> None:
 
 def crawl(context: Context) -> None:
     source_file = context.fetch_resource("source.csv", context.data_url)
-    with open(source_file, "r") as f:
+    with open(source_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             for key, value in row.items():

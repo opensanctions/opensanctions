@@ -1,11 +1,10 @@
-from typing import Dict, Tuple
 from lxml.etree import _Element as Element
 
 from zavod import Context, helpers as h
 
 
-def extract_data(el: Element) -> Dict[str, str]:
-    data_dict: Dict[str, str] = {}
+def extract_data(el: Element) -> dict[str, str]:
+    data_dict: dict[str, str] = {}
 
     # Iterate through each p element
     for p in el:
@@ -29,14 +28,14 @@ def extract_data(el: Element) -> Dict[str, str]:
     return data_dict
 
 
-def parse_period(period: str) -> Tuple[str, str]:
+def parse_period(period: str) -> tuple[str, str]:
     period = period.replace("\xa0", " ").replace("From ", "").replace(" To ", " to ")
     start_date_str, end_date_str = period.split(" to ", 1)
 
     return start_date_str.strip(), end_date_str.strip()
 
 
-def crawl_item(context: Context, item: Dict[str, str]) -> None:
+def crawl_item(context: Context, item: dict[str, str]) -> None:
     name = item.pop("Name")
     birth_date = item.pop("Date of Birth")
     address = item.pop("Address (at date of disqualification)")

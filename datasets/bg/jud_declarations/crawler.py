@@ -4,7 +4,7 @@ from requests.exceptions import HTTPError
 from rigour.text.distance import levenshtein_similarity
 from rigour.env import MAX_NAME_LENGTH
 from normality import normalize, slugify
-from typing import Dict, Iterator, List, Optional
+from collections.abc import Iterator
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
@@ -36,7 +36,7 @@ BROKEN_LINKS = {
 
 def extract_judicial_declaration(
     context: Context, name: str, url: str, doc_id_date: str
-) -> Dict[str, Optional[str]]:
+) -> dict[str, str | None]:
     """Extract name, role, and organization from the first page of a judicial declaration PDF."""
     try:
         pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
@@ -80,8 +80,8 @@ def extract_judicial_declaration(
 
 def parse_html_table(
     table: Element,
-    headers: List[str] = [],
-) -> Iterator[Dict[str, Element]]:
+    headers: list[str] = [],
+) -> Iterator[dict[str, Element]]:
     first_row = table.find(".//tr[1]")
     assert first_row is not None, "Table has no rows"
     assert len(headers) == len(first_row.findall("./td")), (
@@ -93,7 +93,7 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_row(context: Context, row: Dict[str, Element], index_url: str) -> None:
+def crawl_row(context: Context, row: dict[str, Element], index_url: str) -> None:
     str_row = h.cells_to_str(row)
     name = str_row.pop("name")
     doc_id_date = str_row.pop("doc_id_date")

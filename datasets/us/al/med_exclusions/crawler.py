@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from openpyxl import load_workbook
 from pydantic import BaseModel, Field
@@ -61,8 +60,8 @@ POSITIONS_DESCRIPTION = (
 class Entity(BaseModel):
     name: str
     name_suffix: str | None = None
-    aliases: List[str] = []
-    positions: List[str] = Field(default=[], description=POSITIONS_DESCRIPTION)
+    aliases: list[str] = []
+    positions: list[str] = Field(default=[], description=POSITIONS_DESCRIPTION)
     address: str | None = None
 
 
@@ -84,7 +83,7 @@ RELATED_ENTITIES_DESCRIPTION = (
 
 
 class RootEntity(Entity):
-    related_entities: List[RelatedEntity] = Field(
+    related_entities: list[RelatedEntity] = Field(
         default=[], description=RELATED_ENTITIES_DESCRIPTION
     )
 

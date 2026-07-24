@@ -2,7 +2,8 @@ import csv
 from pathlib import Path
 from zipfile import ZipFile
 from io import TextIOWrapper
-from typing import Any, Dict, Generator
+from typing import Any
+from collections.abc import Generator
 
 from zavod import Context
 from zavod import helpers as h
@@ -18,10 +19,10 @@ HEADERS = [
 ]
 
 
-def read_zip_csv(context: Context, path: Path) -> Generator[Dict[str, Any], None, None]:
+def read_zip_csv(context: Context, path: Path) -> Generator[dict[str, Any], None, None]:
     with ZipFile(path, "r") as zipfh:
         for name in zipfh.namelist():
-            context.log.info("Reading: %s in %s" % (name, path))
+            context.log.info(f"Reading: {name} in {path}")
             with zipfh.open(name, "r") as fhb:
                 fh = TextIOWrapper(fhb, encoding="utf-8")
                 reader = csv.reader(fh, delimiter=",")

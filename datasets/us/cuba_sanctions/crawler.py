@@ -37,7 +37,7 @@ def crawl_accommodations(context: Context) -> None:
 
     path = context.fetch_resource("accommodations.csv", ACCOMMODATIONS_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             proxy = context.make("Company")
             name = row.pop("Name").strip()
@@ -65,7 +65,7 @@ def crawl_restricted_entities(context: Context) -> None:
 
     path = context.fetch_resource("restricted_entities.csv", RESTRICTED_ENTITIES_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             proxy = context.make("Company")
             name = row.pop("Company").strip()

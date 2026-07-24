@@ -109,7 +109,7 @@ def crawl(context: Context) -> None:
         "source.json", f"{context.data_url}?pageSize={PAGE_SIZE}"
     )
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         payload = json.load(fh)
     data = payload["data"]
     items = data["data"]

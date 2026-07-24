@@ -1,5 +1,6 @@
 from zavod import Context
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any
+from collections.abc import Iterator
 from rigour.mime.types import XLSX
 import openpyxl
 from normality import slugify
@@ -8,7 +9,7 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 
 
 def sheet_to_dicts(sheet: Any) -> Iterator[dict[str, Any]]:
-    headers: Optional[List[str]] = None
+    headers: list[str] | None = None
     for row in sheet.rows:
         cells = [c.value for c in row]
 
@@ -21,7 +22,7 @@ def sheet_to_dicts(sheet: Any) -> Iterator[dict[str, Any]]:
             yield row
 
 
-def parse_sheet_row(context: Context, row: Dict[str, str]) -> None:
+def parse_sheet_row(context: Context, row: dict[str, str]) -> None:
     person = context.make("Person")
 
     id_number = row.pop("c-i")

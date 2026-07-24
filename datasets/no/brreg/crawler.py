@@ -2,7 +2,7 @@ import gzip
 import csv
 
 from rigour.mime.types import GZIP
-from typing import Any, List, Dict
+from typing import Any
 
 from zavod import Context, helpers as h, Entity
 from zavod.stateful.positions import categorise, OccupancyStatus
@@ -83,7 +83,7 @@ IGNORE = [
 ]
 
 
-def get_oldest_date(row: Dict[str, Any], keys_to_check: List[str]) -> str | None:
+def get_oldest_date(row: dict[str, Any], keys_to_check: list[str]) -> str | None:
     """
     Get the oldest date value from keys to check, delete the rest.
     """
@@ -96,7 +96,7 @@ def get_oldest_date(row: Dict[str, Any], keys_to_check: List[str]) -> str | None
 
 def crawl_company(
     context: Context,
-    row: Dict[Any, Any],
+    row: dict[Any, Any],
     company_name: str,
     org_number: str,
 ) -> Entity:

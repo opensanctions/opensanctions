@@ -8,7 +8,6 @@ ship-management orgs) so they don't depend on the source's internal numeric ids.
 
 import re
 from collections.abc import Iterator
-from typing import Optional
 from urllib.parse import urljoin
 
 from normality import squash_spaces
@@ -124,7 +123,7 @@ def resource_links(doc: Element) -> list[str]:
     )
 
 
-def parse_party(raw: Optional[str]) -> Optional[dict[str, str]]:
+def parse_party(raw: str | None) -> dict[str, str] | None:
     """Parse a 'Name (IMO / Country / Date)' owner/manager row."""
     if raw is None:
         return None
@@ -137,7 +136,7 @@ def parse_party(raw: Optional[str]) -> Optional[dict[str, str]]:
 def emit_party(
     context: Context,
     vessel: Entity,
-    raw: Optional[str],
+    raw: str | None,
     *,
     role: str,
     schema: str,
@@ -170,7 +169,7 @@ def url_id_of(url: str) -> str:
     return url.rstrip("/").rsplit("/", 1)[-1]
 
 
-def value_lines(el: Optional[Element]) -> list[str]:
+def value_lines(el: Element | None) -> list[str]:
     """Text runs of a value cell, split on <br> (one per text node), whitespace-squashed."""
     if el is None:
         return []
@@ -178,15 +177,13 @@ def value_lines(el: Optional[Element]) -> list[str]:
     return [s for s in (squash_spaces(t) for t in texts) if s]
 
 
-def pop_text(pairs: dict[str, Element], label: str) -> Optional[str]:
+def pop_text(pairs: dict[str, Element], label: str) -> str | None:
     """Remove a label's value cell from the map and return its squashed text, if any."""
     el = pairs.pop(label, None)
     return h.element_text(el) or None if el is not None else None
 
 
-def pop_prefixed(
-    pairs: dict[str, Element], prefix: str
-) -> tuple[Optional[Element], str]:
+def pop_prefixed(pairs: dict[str, Element], prefix: str) -> tuple[Element | None, str]:
     """Remove the first label that starts with `prefix`; return its value cell and full label.
 
     Used where a label carries an appended status badge (e.g. a liquidation date) so its text
@@ -246,8 +243,8 @@ def crawl_entity_page(
     context: Context,
     url: str,
     *,
-    program_key: Optional[str],
-    topic: Optional[str],
+    program_key: str | None,
+    topic: str | None,
 ) -> str:
     """Emit a LegalEntity from any company-type page (col-sm-8 layout); return its id.
 
@@ -508,8 +505,8 @@ def crawl_person_page(
     context: Context,
     url: str,
     *,
-    program_key: Optional[str],
-    topic: Optional[str],
+    program_key: str | None,
+    topic: str | None,
 ) -> None:
     """Emit a Person from a persons-listing detail page (col-md-4 layout).
 

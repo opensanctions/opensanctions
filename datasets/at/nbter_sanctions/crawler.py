@@ -69,7 +69,7 @@ def crawl(context: Context) -> None:
     # Kundmachung DL 1/2009 der OeNB – März 2009 (PDF, 72,8 KB)
 
     path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             crawl_row(context, row)

@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
@@ -7,13 +6,13 @@ from zavod.extract.zyte_api import fetch_resource
 PAGE_SETTINGS = {"join_y_tolerance": 2}
 
 
-def key_from_prefix(row: Dict[str, str | None], prefix: str) -> str:
+def key_from_prefix(row: dict[str, str | None], prefix: str) -> str:
     key = [k for k in row.keys() if k.startswith(prefix)]
     assert len(key) == 1, ("Cannot find key.", key, row)
     return key[0]
 
 
-def crawl_item(row: Dict[str, str | None], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     name = row.pop(key_from_prefix(row, "provider_name"))
     listing_date = row.pop(key_from_prefix(row, "date_added_to_nmep"))
     npi = row.pop("provider_npi")

@@ -54,13 +54,14 @@ def fetch_page(context: Context, page: int) -> dict[str, Any]:
     status = response.get("status")
     if status == 401:
         raise RuntimeError(
-            "API rejected the authorization token (HTTP body status 401: %r). The "
+            "API rejected the authorization token (HTTP body status 401: {!r}). The "
             "site likely rotated x-hrep-website-backend; refresh WEBSITE_BACKEND_TOKEN "
-            "from the current value in the congress.gov.ph house-members JS bundle."
-            % response.get("message")
+            "from the current value in the congress.gov.ph house-members JS bundle.".format(
+                response.get("message")
+            )
         )
     if status != 200 or not response.get("success") or "data" not in response:
-        raise RuntimeError("Unexpected API response: %r" % response)
+        raise RuntimeError(f"Unexpected API response: {response!r}")
     data: dict[str, Any] = response["data"]
     return data
 

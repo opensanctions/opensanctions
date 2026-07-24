@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import CSV, PDF
 import csv
 
@@ -6,7 +5,7 @@ from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
-def crawl_item(context: Context, row: Dict[str, str]) -> None:
+def crawl_item(context: Context, row: dict[str, str]) -> None:
     name = row.pop("Joint Venture Name")
     sector = row.pop("Sector")
 
@@ -40,6 +39,6 @@ def crawl(context: Context) -> None:
 
     csv_path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(csv_path, CSV, title=context.SOURCE_TITLE)
-    with open(csv_path, "r") as fh:
+    with open(csv_path) as fh:
         for row in csv.DictReader(fh):
             crawl_item(context, row)

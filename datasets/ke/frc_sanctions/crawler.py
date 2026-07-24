@@ -1,5 +1,3 @@
-from typing import Dict
-
 from normality import stringify
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
@@ -25,7 +23,7 @@ def parse_aliases(raw: str | None) -> list[str]:
     return results
 
 
-def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     # parse_xlsx_sheet slugifies headers: "Full Name" -> "full_name"
     # Pre-clean n/a placeholders so entity.add() receives None rather than the string
     row = {

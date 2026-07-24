@@ -1,6 +1,5 @@
 import csv
 import re
-from typing import Dict, Optional
 from rigour.mime.types import CSV
 
 from zavod import Context
@@ -48,9 +47,7 @@ def clean_name(context: Context, name: str) -> str:
     return name.strip()
 
 
-def crawl_card_2025(
-    context: Context, position_str: str, el: Element
-) -> Optional[Entity]:
+def crawl_card_2025(context: Context, position_str: str, el: Element) -> Entity | None:
     content_el = h.xpath_element(el, ".//div[@class='member-select-content']")
     links_el = h.xpath_element(el, ".//div[@class='member-select-links']")
     name = clean_name(context, h.xpath_string(content_el, "./h1/text()"))
@@ -102,7 +99,7 @@ def crawl_card_2025(
     return None
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     start_date = row.pop("Start date", None)
     if start_date and start_date < h.earliest_term_start(TOPICS):
         context.log.info(
@@ -188,6 +185,6 @@ def crawl(context: Context) -> None:
     # i.e. 2025 is assumed as the `end_date`.
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

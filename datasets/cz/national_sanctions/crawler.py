@@ -1,5 +1,4 @@
 import re
-from typing import Dict
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from rigour.names import pick_name
@@ -10,7 +9,7 @@ from zavod import Context, helpers as h
 REGEX_LAST_NAME = re.compile(r"^[\w\?]+( ?/\s*[\w\?]+)*$")
 
 
-def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
+def crawl_item(context: Context, row: dict[str, str | None]) -> None:
     # Jméno fyzické osoby
     # -> First name of the natural person
 

@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from io import StringIO
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from urllib.parse import urlencode
 
 from nomenklatura.wikidata import Claim, Item
@@ -39,12 +39,12 @@ ALWAYS_PERSONS = ["Q21258544"]
 
 @dataclass
 class FoundRecord:
-    from_categories: Set[str] = field(default_factory=set)
-    from_positions: Set[str] = field(default_factory=set)
+    from_categories: set[str] = field(default_factory=set)
+    from_positions: set[str] = field(default_factory=set)
     from_declarator: bool = False
 
 
-class CrawlState(object):
+class CrawlState:
     def __init__(self, context: Context):
         self.context = context
         self.client = create_wikidata_client(context)
@@ -52,20 +52,20 @@ class CrawlState(object):
         # Position QID -> evaluated position entity, None if the item is not
         # a usable PEP position. Positions recur across the whole person set,
         # so each distinct QID is fetched and categorised only once per run.
-        self.positions: Dict[str, Optional[Entity]] = {}
+        self.positions: dict[str, Entity | None] = {}
 
-        self.persons: Dict[str, FoundRecord] = defaultdict(FoundRecord)
+        self.persons: dict[str, FoundRecord] = defaultdict(FoundRecord)
         self.persons.update({qid: FoundRecord() for qid in ALWAYS_PERSONS})
 
-        self.person_title: Dict[str, str] = {}
-        self.person_countries: Dict[str, Set[str]] = {}
-        self.person_topics: Dict[str, Set[str]] = {}
-        self.person_positions: Dict[str, Set[Entity]] = {}
-        self._emitted_positions: Set[str] = set()
-        self._crawled_officeholder_positions: Set[str] = set()
+        self.person_title: dict[str, str] = {}
+        self.person_countries: dict[str, set[str]] = {}
+        self.person_topics: dict[str, set[str]] = {}
+        self.person_positions: dict[str, set[Entity]] = {}
+        self._emitted_positions: set[str] = set()
+        self._crawled_officeholder_positions: set[str] = set()
         exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
-        self.exclusion_checks: Set[str] = set(exc)
-        self.person_modified_at: Dict[str, datetime] = {}
+        self.exclusion_checks: set[str] = set(exc)
+        self.person_modified_at: dict[str, datetime] = {}
 
     def emit_position(self, position: Entity) -> None:
         if position.id is None:
@@ -75,11 +75,11 @@ class CrawlState(object):
             self.context.emit(position)
 
 
-def title_name(title: str) -> Optional[str]:
+def title_name(title: str) -> str | None:
     return clean_wikidata_name(title.replace("_", " "))
 
 
-def get_position(state: CrawlState, qid: str) -> Optional[Entity]:
+def get_position(state: CrawlState, qid: str) -> Entity | None:
     """Reuse evaluated positions across people who hold the same office."""
     if qid in state.positions:
         return state.positions[qid]
@@ -130,12 +130,12 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
         crawl_officeholders(state, item, position)
     occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
-        state.log.info("  -> %s (%s)" % (position.first("name"), position.id))
+        state.log.info("  -> {} ({})".format(position.first("name"), position.id))
         state.emit_position(position)
         state.context.emit(occupancy)
 
 
-def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[Entity]:
+def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Entity | None:
     modified_at = state.person_modified_at.get(qid)
     item = state.client.fetch_item(qid, modified_at=modified_at)
     if item is None:
@@ -154,20 +154,20 @@ def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[
     return entity
 
 
-def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> None:
-    topics: List[str] = category_crawl_spec.pop("topics", [])
+def crawl_category(state: CrawlState, category_crawl_spec: dict[str, Any]) -> None:
+    topics: list[str] = category_crawl_spec.pop("topics", [])
     if "topic" in category_crawl_spec:
         topics.append(category_crawl_spec.pop("topic"))
-    country: Optional[str] = category_crawl_spec.pop("country", None)
+    country: str | None = category_crawl_spec.pop("country", None)
 
     query = dict(QUERY)
     cat: str = category_crawl_spec.pop("category", "")
     query["categories"] = cat.strip()
     query.update(category_crawl_spec)
-    state.log.info("Crawl category: %s" % cat)
+    state.log.info(f"Crawl category: {cat}")
 
-    position_data: Dict[str, Any] = category_crawl_spec.pop("position", {})
-    position: Optional[Entity] = None
+    position_data: dict[str, Any] = category_crawl_spec.pop("position", {})
+    position: Entity | None = None
     if "name" in position_data:
         position = h.make_position(
             state.context,
@@ -211,15 +211,15 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
             state.person_title[person_qid] = person_title
 
     state.log.info(
-        "PETScanning category: %s" % cat,
+        f"PETScanning category: {cat}",
         topics=topics,
         results=results,
     )
     state.context.flush()
 
 
-def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
-    persons: Set[str] = set([])
+def crawl_position_holder(state: CrawlState, position_qid: str) -> set[str]:
+    persons: set[str] = set([])
 
     position = get_position(state, position_qid)
     if position is None:
@@ -246,15 +246,13 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
             if claim.qid is not None:
                 persons.add(claim.qid)
 
-    state.log.info(
-        "Found %d holders of %s [%s]" % (len(persons), item.label, position_qid)
-    )
+    state.log.info(f"Found {len(persons)} holders of {item.label} [{position_qid}]")
     return persons
 
 
 def crawl_position_seeds(state: CrawlState) -> None:
-    seeds: List[str] = state.context.dataset.config.get("seeds", [])
-    roles: Set[str] = set(categorised_position_qids(state.context))
+    seeds: list[str] = state.context.dataset.config.get("seeds", [])
+    roles: set[str] = set(categorised_position_qids(state.context))
     for seed in seeds:
         query = f"""
         SELECT ?role WHERE {{
@@ -268,7 +266,7 @@ def crawl_position_seeds(state: CrawlState) -> None:
             if role is not None:
                 roles.add(role)
 
-    state.log.info("Found %d seed positions" % len(roles))
+    state.log.info(f"Found {len(roles)} seed positions")
     for role in roles:
         for position_holder_qid in crawl_position_holder(state, role):
             state.persons[position_holder_qid].from_positions.add(role)
@@ -287,7 +285,7 @@ def crawl_declarator(state: CrawlState) -> None:
     }
     """
     response = state.client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
-    state.log.info("Found %d declarator profiles" % len(response.results))
+    state.log.info(f"Found {len(response.results)} declarator profiles")
     for result in response.results:
         person_qid = result.plain("person")
         if person_qid is None:
@@ -307,7 +305,7 @@ def crawl_declarator(state: CrawlState) -> None:
 
 
 def crawl_persons(state: CrawlState) -> None:
-    state.context.log.info("Generated %d persons" % len(state.persons))
+    state.context.log.info(f"Generated {len(state.persons)} persons")
     for idx, (person_qid, found_record) in enumerate(state.persons.items()):
         entity = crawl_person(state, person_qid)
         if entity is None:
@@ -358,7 +356,7 @@ def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
     crawl_position_seeds(state)
-    category_crawl_specs: List[Dict[str, Any]] = context.dataset.config.get(
+    category_crawl_specs: list[dict[str, Any]] = context.dataset.config.get(
         "categories", []
     )
     for category_crawl_spec in category_crawl_specs:

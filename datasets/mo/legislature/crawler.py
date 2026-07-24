@@ -94,13 +94,13 @@ def crawl(context: Context) -> None:
     heading = h.element_text(h.xpath_element(doc, ".//h3[contains(., 'Legislatura')]"))
     match = LEGISLATURE_RE.search(heading)
     if match is None:
-        raise ValueError("Could not parse legislature from heading: %r" % heading)
+        raise ValueError(f"Could not parse legislature from heading: {heading!r}")
     legislature = match.group(1)
     term_start = LEGISLATURE_START.get(legislature)
     if term_start is None:
         raise ValueError(
-            "Unknown legislature %r — a new term has been seated; add its start date "
-            "to LEGISLATURE_START." % legislature
+            f"Unknown legislature {legislature!r} — a new term has been seated; add its start date "
+            "to LEGISLATURE_START."
         )
 
     position = h.make_position(

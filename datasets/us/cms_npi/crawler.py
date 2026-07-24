@@ -1,7 +1,7 @@
 import csv
 import html
 from io import TextIOWrapper
-from typing import Any, Optional, TextIO
+from typing import Any, TextIO
 from urllib.parse import urljoin
 import zipfile
 from rigour.mime.types import ZIP
@@ -19,7 +19,7 @@ def unescape_row(row: dict[str, Any]) -> dict[str, Any]:
     return {k: html.unescape(v) if isinstance(v, str) else v for k, v in row.items()}
 
 
-def clean_name(value: Optional[str]) -> Optional[str]:
+def clean_name(value: str | None) -> str | None:
     """Return ``value`` only if it plausibly contains a name.
 
     The source frequently misuses name fields for placeholders (``-----``,
@@ -35,7 +35,7 @@ def clean_name(value: Optional[str]) -> Optional[str]:
     return value
 
 
-def npi_id(npi: Any) -> Optional[str]:
+def npi_id(npi: Any) -> str | None:
     """Format NPI as a zero-padded 10-digit string."""
     if npi is None or len(npi) != 10:
         return None

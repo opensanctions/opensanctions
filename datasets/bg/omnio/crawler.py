@@ -1,5 +1,4 @@
 import csv
-from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod import Context
@@ -12,7 +11,7 @@ TYPES = {
 }
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity = context.make(TYPES[row.pop("Entity_Type")])
     row.pop("Entity_Type_BG")
     entity.id = context.make_id(
@@ -113,6 +112,6 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

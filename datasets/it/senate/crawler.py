@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any
 
 from rigour.mime.types import JSON
 from zavod.stateful.positions import categorise
@@ -8,7 +8,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def build_request_data(legislature: int) -> Dict[str, str]:
+def build_request_data(legislature: int) -> dict[str, str]:
     return {
         "alias": "senatori-legislatura",
         "id": "2",
@@ -19,7 +19,7 @@ def build_request_data(legislature: int) -> Dict[str, str]:
     }
 
 
-def crawl_item(context: Context, item: Dict[str, Any]) -> None:
+def crawl_item(context: Context, item: dict[str, Any]) -> None:
     first_name = item.pop("nome").get("value")
     last_name = item.pop("cognome").get("value")
     dob = item.pop("dataNascita").get("value")
@@ -110,7 +110,7 @@ def crawl(context: Context) -> None:
             data=build_request_data(leg),
         )
         context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-        with open(path, "r") as fh:
+        with open(path) as fh:
             data = json.load(fh)
         for item in data["results"]["bindings"]:
             crawl_item(context, item)

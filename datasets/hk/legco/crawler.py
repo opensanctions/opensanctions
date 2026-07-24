@@ -3,7 +3,7 @@ Crawler for extracting names and constituencies of Hong Kong
 Legislative Council members.
 """
 
-from typing import Any, Dict, NamedTuple, Union
+from typing import Any, NamedTuple
 
 from banal import ensure_list
 from zavod import Context, Entity
@@ -17,9 +17,9 @@ MEMBER_URL_FORMAT = (
 class MemberPages(NamedTuple):
     """Member pages in English, Traditional and Simplified Chinese"""
 
-    en: Dict[str, Any]
-    hant: Dict[str, Any]
-    hans: Dict[str, Any]
+    en: dict[str, Any]
+    hant: dict[str, Any]
+    hans: dict[str, Any]
 
 
 def crawl_member_pages(context: Context, member_id: int) -> MemberPages:
@@ -34,7 +34,7 @@ def crawl_member_pages(context: Context, member_id: int) -> MemberPages:
 
 def crawl_person(
     context: Context,
-    member: Dict[str, Union[str, int]],
+    member: dict[str, str | int],
     pages: MemberPages,
 ) -> Entity:
     """Fetch personal information for a Legislative Council member and
@@ -45,33 +45,33 @@ def crawl_person(
     )
     # citizenship not required (Art 67): https://www.cmab.gov.hk/doc/en/documents/policy_responsibilities/Racial_Discrimination/AnnexI-Eng.pdf
     person.add("country", "hk")
-    context.log.debug("Unique ID {person_id}".format(person_id=person.id))
+    context.log.debug(f"Unique ID {person.id}")
     # Add names in English and both Chinese writing systems
     h.apply_name(person, full=pages.en.pop("name"), lang="eng")
     h.apply_name(person, full=pages.hant.pop("name"), lang="zho")
     h.apply_name(person, full=pages.hans.pop("name"), lang="zho")
     for email in ensure_list(pages.en.pop("email_address", [])):
-        context.log.debug("Email: {email}".format(email=email))
+        context.log.debug(f"Email: {email}")
         person.add("email", email)
     for url in ensure_list(pages.en.pop("homepage", [])):
         if url is not None:
-            context.log.debug("Web: {url}".format(url=url))
+            context.log.debug(f"Web: {url}")
             person.add("website", url)
     for phone in ("office_telephone", "mobile_phone"):
         for number in ensure_list(pages.en.pop(phone, [])):
             if number:
-                context.log.debug("Phone: {number}".format(number=number))
+                context.log.debug(f"Phone: {number}")
                 person.add("phone", number)
     title = pages.en.pop("title")
     if title and title != "-":
         person.add("title", title)
     for qual in ensure_list(pages.en.pop("qualification", [])):
         if qual:
-            context.log.debug("Education: {qual}".format(qual=qual))
+            context.log.debug(f"Education: {qual}")
             person.add("education", qual)
     for address in ensure_list(pages.en.pop("office_address", [])):
         if address:
-            context.log.debug("Address: {address}".format(address=address))
+            context.log.debug(f"Address: {address}")
             address_entity = h.make_address(context, address)
             h.copy_address(person, address_entity)
     return person
@@ -111,11 +111,11 @@ PAGE_FIELDS = [
 
 def crawl_member(
     context: Context,
-    member: Dict[str, Union[str, int]],
+    member: dict[str, str | int],
 ) -> None:
     """Emit entities for a member of the Legislative Council from JSON data."""
     salute_name = member.pop("salute_name")
-    context.log.debug("Adding {name}".format(name=salute_name))
+    context.log.debug(f"Adding {salute_name}")
     member_id = int(member["member_id"])
     pages = crawl_member_pages(context, member_id)
     person = crawl_person(context, member, pages)
@@ -143,7 +143,7 @@ def crawl_member(
         return
 
     for lang, page in zip(pages._fields, pages):
-        context.log.debug("Auditing data for {lang}".format(lang=lang))
+        context.log.debug(f"Auditing data for {lang}")
         assert int(page.pop("member_id")) == member_id
         if lang in ("hant", "hans"):
             lang = "zho"

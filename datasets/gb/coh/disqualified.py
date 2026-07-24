@@ -2,7 +2,7 @@ import os
 import re
 import string
 from itertools import count
-from typing import Dict, Any, Optional
+from typing import Any
 from urllib.parse import urljoin
 
 from requests.exceptions import HTTPError, RetryError
@@ -26,9 +26,9 @@ SLEEP = 315
 def http_get(
     context: Context,
     url: str,
-    params: Optional[Dict[str, Any]] = None,
-    cache_days: Optional[int] = None,
-) -> Optional[Dict[str, Any]]:
+    params: dict[str, Any] | None = None,
+    cache_days: int | None = None,
+) -> dict[str, Any] | None:
     for attempt in count(1):
         try:
             return context.fetch_json(
@@ -47,13 +47,13 @@ def http_get(
                 )
                 time.sleep(SLEEP)
             else:
-                context.log.exception("Failed to fetch data: %s" % url)
+                context.log.exception(f"Failed to fetch data: {url}")
                 return None
 
 
 def build_address(
-    context: Context, full: str, address_data: dict[str, Optional[str]]
-) -> Optional[Entity]:
+    context: Context, full: str, address_data: dict[str, str | None]
+) -> Entity | None:
     address_components = {
         "street": address_data.get("address_line_1"),
         "street2": address_data.get("premises"),
@@ -92,9 +92,7 @@ def build_address(
     return h.make_address(context, **cleaned_address_components)
 
 
-def resolve_company_name_by_number(
-    context: Context, company_number: str
-) -> Optional[str]:
+def resolve_company_name_by_number(context: Context, company_number: str) -> str | None:
     """If the company_number is found on Companies House, return its name, else None."""
     search_url = f"https://find-and-update.company-information.service.gov.uk/search?q={company_number}"
     doc = context.fetch_html(search_url, cache_days=7)
@@ -108,7 +106,7 @@ def resolve_company_name_by_number(
     return None
 
 
-def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
+def crawl_item(context: Context, listing: dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
     data = http_get(context, url, cache_days=45)
@@ -237,7 +235,7 @@ def crawl(context: Context) -> None:
                 data = http_get(context, context.data_url, params=params, cache_days=1)
                 if data is None:
                     break
-                context.log.info("Search: %s" % letter, start_index=start_index)
+                context.log.info(f"Search: {letter}", start_index=start_index)
                 for item in data.pop("items", []):
                     crawl_item(context, item)
                 start_index = data["start_index"] + data["items_per_page"]

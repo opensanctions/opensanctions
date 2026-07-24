@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
@@ -22,13 +22,13 @@ schema_field = Field(
 class Offender(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] = []
-    address: List[str] = []
-    country: List[str] = []
+    aliases: list[str] = []
+    address: list[str] = []
+    country: list[str] = []
 
 
 class Offenders(BaseModel):
-    offenders: List[Offender]
+    offenders: list[Offender]
 
 
 PROMPT = f"""
@@ -77,8 +77,8 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_element = article_content[0]
 
     # Extract topics and look them up
-    raw_topics: List[str] = article_doc.xpath("//li[@itemprop='keywords']/a/text()")
-    topics: List[str] = []
+    raw_topics: list[str] = article_doc.xpath("//li[@itemprop='keywords']/a/text()")
+    topics: list[str] = []
     for topic in raw_topics:
         res = context.lookup("topics", topic.strip(), warn_unmatched=True)
         if res is not None:

@@ -25,7 +25,7 @@ def crawl_node(
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
-    url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id
+    url = f"http://www.europarl.europa.eu/meps/en/{mep_id}"
     person.add("sourceUrl", url)
     name = node.findtext(".//fullName")
     assert name is not None

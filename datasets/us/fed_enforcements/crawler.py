@@ -1,5 +1,4 @@
 import csv
-from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 from pydantic import BaseModel, Field
@@ -49,7 +48,7 @@ Instructions for specific fields:
 """
 
 
-def crawl_article(context: Context, url: str | None) -> Optional[Entity]:
+def crawl_article(context: Context, url: str | None) -> Entity | None:
     if not url or not url.strip():
         return None
     title: str | None = None
@@ -158,7 +157,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path, "r", encoding="utf-8-sig") as fh:
+    with open(path, encoding="utf-8-sig") as fh:
         for item in csv.DictReader(fh):
             url = item.pop("URL")
             if url != "DNE":

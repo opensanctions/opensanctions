@@ -26,8 +26,8 @@ def crawl_item(li_tag: Element, context: Context) -> None:
             description = None
             import json
 
-            print("- match: %s" % json.dumps(long_name))
-            print("  name: %s" % json.dumps(long_name))
+            print(f"- match: {json.dumps(long_name)}")
+            print(f"  name: {json.dumps(long_name)}")
             return
 
         if res.ignore is True:
@@ -40,7 +40,7 @@ def crawl_item(li_tag: Element, context: Context) -> None:
         description = cast("str", res.description) or long_name
 
     if any(context.lookup("urgent_skip", name) for name in names):
-        context.log.info("Skipping %s" % name)
+        context.log.info(f"Skipping {name}")
         return
 
     source_url = li_link.get("href")

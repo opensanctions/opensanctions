@@ -1,5 +1,5 @@
 from itertools import count
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any
 
 from lxml.html import fromstring
 from prefixdate import parse_formats
@@ -11,7 +11,7 @@ from zavod import helpers as h
 CACHE = 7
 
 
-def decode_email(encoded: str | None) -> List[str]:
+def decode_email(encoded: str | None) -> list[str]:
     if not encoded or not isinstance(encoded, str):
         return []
     # Decode the email address
@@ -57,8 +57,8 @@ def emit_rca(context: Context, person: Entity, raw_name: str | None, role: str) 
 def crawl_ls_member(
     context: Context,
     position: Entity,
-    periods: Dict[str, Tuple[str, str]],
-    member: Dict[str, Any],
+    periods: dict[str, tuple[str, str]],
+    member: dict[str, Any],
 ) -> None:
     person = context.make("Person")
     mpsno = member.pop("mpsno", None)
@@ -135,13 +135,13 @@ def crawl_ls(context: Context) -> None:
     )
     context.emit(position)
 
-    periods: Dict[str, Tuple[str, str]] = {}
+    periods: dict[str, tuple[str, str]] = {}
     dates_resp = context.fetch_json(
         "https://sansad.in/api_ls/business/AllLoksabhaAndSessionDates", cache_days=1
     )
     for ls in dates_resp:
         num = str(ls.get("loksabha", ""))
-        dates: Set[str] = set()
+        dates: set[str] = set()
         for session in ls.get("sessions", []):
             for date in session.get("dates", []):
                 parsed = parse_formats(date, ["%d/%m/%Y"])
@@ -155,7 +155,7 @@ def crawl_ls(context: Context) -> None:
         crawl_ls_member(context, position, periods, member)
 
 
-def crawl_rs_member(context: Context, position: Entity, member: Dict[str, Any]) -> None:
+def crawl_rs_member(context: Context, position: Entity, member: dict[str, Any]) -> None:
     person = context.make("Person")
     mpsno = member.pop("mpsno", None)
     person.id = context.make_slug("rs", mpsno)

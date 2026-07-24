@@ -1,6 +1,5 @@
 from followthemoney.helpers import post_summary
 from rigour.ids.wikidata import is_qid
-from typing import Dict, Optional
 from urllib.parse import unquote
 import re
 from rigour.mime.types import JSON
@@ -111,8 +110,8 @@ def crawl_person(
 
 
 def crawl_membership(
-    context: Context, entity: Entity, membership: dict, organizations: Dict[str, str]
-) -> Optional[str]:
+    context: Context, entity: Entity, membership: dict, organizations: dict[str, str]
+) -> str | None:
     org_id = membership.get("organization_id")
     if org_id is None:
         context.log.info("Membership without organization", membership=membership)
@@ -181,7 +180,7 @@ def crawl_membership(
 def crawl(context: Context) -> None:
     path = context.fetch_resource("pombola.json", context.data_url)
     context.export_resource(path, JSON, context.SOURCE_TITLE)
-    with open(path, "r") as f:
+    with open(path) as f:
         data = loads(f.read())
 
     # Extract and prepare organizations

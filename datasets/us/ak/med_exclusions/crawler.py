@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
@@ -16,7 +15,7 @@ Return an empty string for unset fields.
 """
 
 
-def crawl_item(row: Dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str], context: Context) -> None:
     if not row.get("last_name"):
         return
 

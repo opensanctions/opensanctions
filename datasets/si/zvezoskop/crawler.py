@@ -2,7 +2,7 @@ from datetime import datetime
 from normality import slugify, stringify
 from openpyxl import load_workbook
 from pathlib import Path
-from typing import Dict, Generator
+from collections.abc import Generator
 
 from zavod import Context
 from zavod import helpers as h
@@ -14,7 +14,7 @@ def make_person_id(context: Context, id: str) -> str:
     return context.make_slug("person", id)
 
 
-def crawl_person(context: Context, row: Dict[str, str]) -> str:
+def crawl_person(context: Context, row: dict[str, str]) -> str:
     person = context.make("Person")
     zvezo_id = row.pop("id_gni_live")
     if not zvezo_id:
@@ -99,7 +99,7 @@ def si_label(institution_si: str, department_si: str, position_si: str) -> str:
 
 
 def crawl_cv_entry(
-    context: Context, entities: Dict[str, Entity], row: Dict[str, str]
+    context: Context, entities: dict[str, Entity], row: dict[str, str]
 ) -> bool | None:
     svezo_id = row.pop("id_gni_live")
     person = entities[svezo_id]
@@ -222,7 +222,7 @@ def header_names(cells: list[str | None], expected_columns: int) -> list[str | N
 
 def excel_records(
     path: Path, sheet_name: str, expected_columns: int
-) -> Generator[Dict[str, str], None, None]:
+) -> Generator[dict[str, str], None, None]:
     wb = load_workbook(filename=path, read_only=True)
     sheet = wb[sheet_name]
     headers = None

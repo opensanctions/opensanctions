@@ -1,8 +1,8 @@
-from typing import Any, Dict
+from typing import Any
 from zavod import Context
 
 
-def crawl_entity(context: Context, item: Dict[str, Any]) -> None:
+def crawl_entity(context: Context, item: dict[str, Any]) -> None:
     entity = context.make("LegalEntity")
 
     soe = item.pop("SOE")

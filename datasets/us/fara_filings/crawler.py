@@ -3,7 +3,7 @@ from datetime import datetime
 from lxml import etree
 from rigour.mime.types import ZIP
 from pathlib import Path
-from typing import Iterator
+from collections.abc import Iterator
 from zipfile import ZipFile
 
 from zavod import Context, helpers as h

@@ -1,6 +1,6 @@
 import io
 from pathlib import Path
-from typing import Iterator
+from collections.abc import Iterator
 from csv import DictReader
 from zipfile import ZipFile
 from normality import stringify
@@ -175,7 +175,7 @@ def make_row_relationship(context: Context, row: dict[str, str | None]) -> None:
     try:
         res = context.lookup("relationships", link)
     except Exception:
-        context.log.exception("Unknown link: %s" % link)
+        context.log.exception(f"Unknown link: {link}")
         return
 
     if start_ent is None or end_ent is None:

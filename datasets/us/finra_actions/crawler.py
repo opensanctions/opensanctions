@@ -20,7 +20,6 @@ Mitigations:
 
 from lxml.etree import _Element
 from secrets import token_urlsafe
-from typing import Dict, Optional
 from urllib.parse import parse_qs, urljoin, urlparse
 
 from zavod import Context, helpers as h
@@ -32,7 +31,7 @@ RESULT_ROW_VALIDATOR = (
 )
 
 
-def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
+def crawl_item(context: Context, row: dict[str, _Element]) -> None:
     names = []
     name_els = row.pop("firms_individuals")
     for div_row in h.xpath_elements(name_els, ".//div[@class='row']"):
@@ -82,7 +81,7 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     context.audit_data(row, ignore=["document_type"])
 
 
-def get_max_page(response: _Element) -> Optional[int]:
+def get_max_page(response: _Element) -> int | None:
     links = h.xpath_elements(response, ".//a[contains(@title, 'Go to last page')]")
     if len(links) == 0:
         # Intermediate result pages incorrectly showing "No Results Found" have

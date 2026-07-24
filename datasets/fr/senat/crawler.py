@@ -4,7 +4,8 @@ Crawler for active French senators.
 
 import csv
 from collections import defaultdict
-from typing import Optional, Iterator, NamedTuple
+from typing import NamedTuple
+from collections.abc import Iterator
 from urllib.parse import urljoin
 
 from zavod import Context, Entity
@@ -13,9 +14,9 @@ from zavod.stateful.positions import categorise
 
 
 class Mandate(NamedTuple):
-    start_date: Optional[str]
-    end_date: Optional[str]
-    election_date: Optional[str]
+    start_date: str | None
+    end_date: str | None
+    election_date: str | None
 
 
 UNUSED_FIELDS = [
@@ -157,14 +158,14 @@ def crawl(context: Context) -> None:
     # Keyed by senator matricule (senid); one senator can have multiple mandates
     # covering different terms, each with its own start/end/election dates.
     mandates_by_senid: defaultdict[str, list[Mandate]] = defaultdict(list)
-    with open(path, "rt", encoding="cp1252") as infh:
+    with open(path, encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for senid, mandate in crawl_mandates(context, csv.DictReader(decomment)):
             mandates_by_senid[senid].append(mandate)
 
     # Main CSV: one row per senator with biographical and status fields
     path = context.fetch_resource("senators.csv", context.data_url)
-    with open(path, "rt", encoding="cp1252") as infh:
+    with open(path, encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for row in csv.DictReader(decomment):
             crawl_row(context, row, mandates_by_senid)

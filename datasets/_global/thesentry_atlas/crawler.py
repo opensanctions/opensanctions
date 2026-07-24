@@ -1,13 +1,13 @@
 import csv
 from io import TextIOWrapper
-from typing import Generator, Dict
+from collections.abc import Generator
 import zipfile
 from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
 
-CSVIter = Generator[Dict[str, str], None, None]
+CSVIter = Generator[dict[str, str], None, None]
 
 SOURCES = {
     "aliyev-empire.zip": "https://atlas.thesentry.org/wp-content/uploads/2024/10/Aliyev-Empire-Data.zip",
@@ -76,8 +76,7 @@ def iter_zf_csv(zf: zipfile.ZipFile, name: str) -> CSVIter:
         wrapper = TextIOWrapper(fh)
         wrapper.read(1)
         reader = csv.DictReader(wrapper)
-        for row in reader:
-            yield row
+        yield from reader
 
 
 def crawl_assets(context: Context, rows: CSVIter) -> None:
@@ -172,7 +171,7 @@ def crawl(context: Context) -> None:
         path = context.fetch_resource(file_name, data_url)
         context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
         # entity_schema: Dict[str, str] = {}
-        context.log.info("Crawling: %r" % path)
+        context.log.info(f"Crawling: {path!r}")
 
         with zipfile.ZipFile(path, "r") as zf:
             for name in zf.namelist():

@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -15,7 +15,7 @@ POSITIONS = {
 }
 
 
-def crawl_member(context: Context, member: Dict[str, Any]) -> None:
+def crawl_member(context: Context, member: dict[str, Any]) -> None:
     person = context.make("Person")
     person.id = context.make_id(member.pop("memberCode"))
     h.apply_name(

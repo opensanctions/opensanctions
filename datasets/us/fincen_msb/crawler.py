@@ -1,5 +1,4 @@
 from csv import DictReader
-from typing import Dict, List
 from rigour.mime.types import CSV
 
 from zavod import Context
@@ -34,7 +33,7 @@ IGNORE_COLUMNS = [
 ]
 
 
-def crawl_row(context: Context, row: Dict[str, List[str]]) -> None:
+def crawl_row(context: Context, row: dict[str, list[str]]) -> None:
     name = h.multi_split(row.pop("LEGAL NAME"), NAME_SPLITS)
     street = row.pop("STREET ADDRESS")
     city = row.pop("CITY")

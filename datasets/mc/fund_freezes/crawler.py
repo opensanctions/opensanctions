@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict
+from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
@@ -47,7 +47,7 @@ def extract_passport_no(text: str | None) -> list[str] | None:
     return matches
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
+def crawl_entity(context: Context, data: dict[str, Any]) -> None:
     entity_id = data.pop("mesureId")
     status = data.pop("state")
     if status == "withdrawal":

@@ -1,6 +1,6 @@
 import re
 from time import sleep
-from typing import List, Literal, Optional
+from typing import Literal
 
 from lxml.html import HtmlElement
 from pydantic import BaseModel, Field
@@ -90,15 +90,15 @@ aliases_field = Field(
 class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] = aliases_field
-    address: List[str] = address_field
-    country: List[str] = []
+    aliases: list[str] = aliases_field
+    address: list[str] = address_field
+    country: list[str] = []
     status: Status = status_field
-    notes: Optional[str] = notes_field
+    notes: str | None = notes_field
 
 
 class Defendants(BaseModel):
-    defendants: List[Defendant]
+    defendants: list[Defendant]
 
 
 PROMPT = f"""
@@ -130,7 +130,7 @@ def get_title(url: str, article_element: HtmlElement) -> str:
     return titles[0].text_content()
 
 
-def get_case_numbers(article_element: HtmlElement) -> List[str]:
+def get_case_numbers(article_element: HtmlElement) -> list[str]:
     case_numbers = []
     for h3 in article_element.xpath(".//h3"):
         h3_text = h3.text_content().strip()
@@ -147,7 +147,7 @@ def get_release_id(url: str) -> str:
 
 
 def crawl_release(
-    context: Context, date: str, url: str, see_also_urls: List[str]
+    context: Context, date: str, url: str, see_also_urls: list[str]
 ) -> None:
     sleep(SLEEP)
     doc = context.fetch_html(url, headers=HEADERS, cache_days=15, absolute_links=True)
@@ -239,7 +239,7 @@ def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
 
 
 def crawl(context: Context) -> None:
-    next_url: Optional[str] = context.data_url
+    next_url: str | None = context.data_url
     while next_url:
         context.log.info("Crawling index page", url=next_url)
         sleep(SLEEP)

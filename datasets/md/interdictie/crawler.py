@@ -1,5 +1,5 @@
 import re
-from typing import Iterator, List
+from collections.abc import Iterator
 from lxml import html
 from rigour.mime.types import HTML
 
@@ -40,7 +40,7 @@ ROLES = {
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         doc = html.parse(fh)
 
     table = doc.find(".//table")
@@ -170,7 +170,7 @@ def crawl_control(
 
 
 def make_ownerships(
-    context: Context, company: Entity, date: str | None, owners: List[str]
+    context: Context, company: Entity, date: str | None, owners: list[str]
 ) -> Iterator[Entity]:
     for name in owners:
         name = name.strip()
@@ -196,7 +196,7 @@ def make_ownerships(
 
 
 def make_members(
-    context: Context, company: Entity, date: str | None, members: List[str]
+    context: Context, company: Entity, date: str | None, members: list[str]
 ) -> Iterator[Entity]:
     for name in members:
         name = name.strip()

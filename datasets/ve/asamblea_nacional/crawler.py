@@ -4,7 +4,7 @@ PEP entities for its members.
 """
 
 import re
-from typing import Iterator
+from collections.abc import Iterator
 from urllib.parse import parse_qs, urlparse
 
 from zavod import Context, Entity

@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import urlencode
 
 import xlrd
@@ -9,7 +9,7 @@ from rigour.mime.types import XLS
 from rigour.names.split_phrases import contains_split_phrase
 
 
-def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> None:
+def crawl_row(drow: dict[str, Any], context: Context, wb: xlrd.book.Book) -> None:
     for k, v in drow.items():
         if isinstance(v, str) and v.lower() in ["n/a"]:  # normalize NAs in values
             drow[k] = None

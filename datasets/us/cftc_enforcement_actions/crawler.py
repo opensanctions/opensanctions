@@ -1,5 +1,5 @@
 import re
-from typing import List, Literal, Optional
+from typing import Literal
 
 from lxml.html import HtmlElement
 from pydantic import BaseModel, Field
@@ -46,20 +46,20 @@ class RelatedCompany(BaseModel):
 class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] | None = []
-    address: str | List[str] | None = address_field
-    country: str | List[str] | None = []
+    aliases: list[str] | None = []
+    address: str | list[str] | None = address_field
+    country: str | list[str] | None = []
     # status - was removed because it isn't consistently present in the source
     #          text in a way we can extract as a meaningful self-standing value.
     #          It remains in the json of old accepted values but is unused and
     #          not added for new entries.
     # notes - was just additional context to 'status'. Same fate.
-    original_press_release_number: Optional[str] = original_press_release_number_field
-    related_companies: List[RelatedCompany] = []
+    original_press_release_number: str | None = original_press_release_number_field
+    related_companies: list[RelatedCompany] = []
 
 
 class Defendants(BaseModel):
-    defendants: List[Defendant]
+    defendants: list[Defendant]
 
 
 PROMPT = f"""
@@ -229,7 +229,7 @@ def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
 
 
 def crawl(context: Context) -> None:
-    next_url: Optional[str] = context.data_url
+    next_url: str | None = context.data_url
     while next_url:
         doc = context.fetch_html(next_url, absolute_links=True)
         next_urls = doc.xpath(".//a[@rel='next']/@href")

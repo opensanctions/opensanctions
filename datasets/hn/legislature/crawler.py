@@ -35,7 +35,7 @@ def crawl_deputy(
     if role == SUPLENTE_ROLE:
         return
     if role not in TITULAR_ROLES:
-        raise ValueError("Unknown deputy role: %r" % role)
+        raise ValueError(f"Unknown deputy role: {role!r}")
 
     record_id = row.pop("userDocument")
     party = row.pop("party")
@@ -44,7 +44,8 @@ def crawl_deputy(
     person.id = context.make_slug(str(record_id))
     # Each deputy has a public profile page keyed by their numeric site id.
     person.add(
-        "sourceUrl", "https://congresonacional.hn/congresistas/%s" % row.pop("userId")
+        "sourceUrl",
+        "https://congresonacional.hn/congresistas/{}".format(row.pop("userId")),
     )
     h.apply_name(
         person,

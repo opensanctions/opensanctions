@@ -1,5 +1,5 @@
 import re
-from typing import Iterator
+from collections.abc import Iterator
 
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
@@ -245,7 +245,7 @@ def iter_member_links(context: Context, roster_url: str) -> Iterator[tuple[str, 
     for link in links:
         match = re.search(r"[?&]id=(\d+)", link)
         if match is None:
-            raise ValueError("Member link without id: %s" % link)
+            raise ValueError(f"Member link without id: {link}")
         yield match.group(1), link
 
 

@@ -1,5 +1,5 @@
 import re
-from typing import Dict, List, Optional, NamedTuple
+from typing import NamedTuple
 
 from openpyxl import load_workbook
 
@@ -8,9 +8,9 @@ from zavod import Context, helpers as h
 
 
 class SplitName(NamedTuple):
-    middle_name: Optional[str]
-    aliases: List[str]
-    first_names: List[str]
+    middle_name: str | None
+    aliases: list[str]
+    first_names: list[str]
 
 
 def split_middle_name(context: Context, middle_name: str) -> SplitName:
@@ -30,12 +30,12 @@ def split_middle_name(context: Context, middle_name: str) -> SplitName:
     return SplitName(name, aliases, [])
 
 
-def crawl_item(row: Dict[str, str | None], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
     middle_name = row.pop("middle_name")
-    first_names: List[str] = []
-    aliases: List[str] = []
+    first_names: list[str] = []
+    aliases: list[str] = []
     if middle_name and "aka" in middle_name.lower():
         split = split_middle_name(context, middle_name)
         middle_name, aliases, first_names = split

@@ -6,8 +6,6 @@ that captures emitted patches, and asserts on the set of ``(target_id, topic)``
 pairs that came out.
 """
 
-from typing import Dict, List, Optional, Tuple
-
 from nomenklatura.resolver import Linker
 from nomenklatura.store.memory import MemoryStore
 from zavod import Context, Dataset, Entity
@@ -31,13 +29,13 @@ class FakeContext(Context):
     def __init__(self, dataset: Dataset = GRAPH) -> None:
         self.dataset = dataset
         self.log = get_logger(dataset.name)
-        self.emitted: List[Tuple[Entity, bool]] = []
+        self.emitted: list[tuple[Entity, bool]] = []
 
     def emit(
         self,
         entity: Entity,
         external: bool = False,
-        origin: Optional[str] = None,
+        origin: str | None = None,
     ) -> None:
         self.emitted.append((entity, external))
 
@@ -45,7 +43,7 @@ class FakeContext(Context):
 def _entity(
     schema: str,
     id: str,
-    properties: Optional[Dict[str, List[str]]] = None,
+    properties: dict[str, list[str]] | None = None,
     dataset: Dataset = SOURCE,
 ) -> Entity:
     return Entity.from_data(
@@ -55,7 +53,7 @@ def _entity(
 
 
 def _store(
-    entities: List[Entity], scope: Dataset = SOURCE
+    entities: list[Entity], scope: Dataset = SOURCE
 ) -> MemoryStore[Dataset, Entity]:
     linker: Linker[Entity] = Linker({})
     store: MemoryStore[Dataset, Entity] = MemoryStore(scope, linker)
@@ -69,9 +67,9 @@ def _store(
     return store
 
 
-def _emits(ctx: FakeContext) -> List[Tuple[str, str]]:
+def _emits(ctx: FakeContext) -> list[tuple[str, str]]:
     """Flatten captured emits to ``(target_id, topic)`` pairs."""
-    out: List[Tuple[str, str]] = []
+    out: list[tuple[str, str]] = []
     for entity, _external in ctx.emitted:
         assert entity.id is not None
         for topic in entity.get("topics"):
@@ -79,7 +77,7 @@ def _emits(ctx: FakeContext) -> List[Tuple[str, str]]:
     return out
 
 
-def _analyze(entities: List[Entity], source_id: str) -> FakeContext:
+def _analyze(entities: list[Entity], source_id: str) -> FakeContext:
     store = _store(entities)
     view = store.view(SOURCE, external=True)
     source = view.get_entity(source_id)

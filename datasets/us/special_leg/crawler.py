@@ -77,7 +77,7 @@ def crawl_fr_notices(context: Context) -> None:
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             crawl_row(context, row)

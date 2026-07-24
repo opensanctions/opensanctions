@@ -4,7 +4,7 @@ from datapatch import Lookup
 from normality import squash_spaces
 from pdfplumber.page import Page
 from rigour.mime.types import PDF
-from typing import Tuple, Dict, Any
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html
@@ -76,7 +76,7 @@ def crawl_row(
     context.audit_data(row, ignore=["internal_no"])
 
 
-def page_settings(page: Page) -> Tuple[Page, Dict[str, Any]]:
+def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
     # Crop top/bottom margins to focus on table area
     cropped = page.crop((0, 75, page.width, page.height - 10))
     settings = {

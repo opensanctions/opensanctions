@@ -1,5 +1,4 @@
 import csv
-from typing import Optional
 from urllib.parse import urljoin
 from rigour.mime.types import CSV
 
@@ -11,7 +10,7 @@ SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnxl3-xyO-9BBqM-rw
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
-    url: Optional[str] = None
+    url: str | None = None
     for link in doc.findall(".//div[@class='text-editor']//a"):
         url = urljoin(context.data_url, link.get("href"))
         url = url.replace("http://", "https://")
@@ -34,7 +33,7 @@ def crawl(context: Context) -> None:
 
     path = context.fetch_resource("source.csv", SHEET_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             entity = context.make("Person")
             name = row.pop("name_srp")

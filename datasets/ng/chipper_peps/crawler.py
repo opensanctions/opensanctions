@@ -2,7 +2,6 @@ import re
 import csv
 from normality import squash_spaces
 from rigour.mime.types import CSV
-from typing import Dict, Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -34,7 +33,7 @@ REGEX_HOUSE_REP = re.compile(
 # House of Representatives Deputy Chairman Army
 
 
-def has_length(name: Optional[str], length: int) -> bool:
+def has_length(name: str | None, length: int) -> bool:
     if name is None:
         return False
     return len(name.strip().strip(".")) >= length
@@ -79,7 +78,7 @@ def crawl_position(context: Context, entity: Entity, name: str) -> None:
         entity.add("topics", "poi")
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity = context.make("Person")
     identifier = row.pop("Unique Identifier")
     if not identifier:
@@ -138,6 +137,6 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

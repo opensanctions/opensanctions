@@ -10,7 +10,7 @@
 #   or include_in_notes is true so that the unextracted information is captured in notes.
 
 from itertools import product
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Literal
 
 from followthemoney.types import registry
 from followthemoney.util import join_text
@@ -27,16 +27,16 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 # TODO: sanctions-program full parse
-MayStr = Optional[str]
+MayStr = str | None
 
 SKIP_OLD = {"41406"}
-NAME_QUALITY_WEAK: Dict[MayStr, bool] = {"good": False, "low": True}
-NAME_TYPE: Dict[MayStr, str] = {
+NAME_QUALITY_WEAK: dict[MayStr, bool] = {"good": False, "low": True}
+NAME_TYPE: dict[MayStr, str] = {
     "primary-name": "name",
     "alias": "alias",
     "formerly-known-as": "previousName",
 }
-NAME_PARTS: Dict[MayStr, MayStr] = {
+NAME_PARTS: dict[MayStr, MayStr] = {
     "title": "title",
     "given-name": "firstName",
     "further-given-name": "firstName",
@@ -87,13 +87,13 @@ class RelatedEntity(BaseModel):
     # (asset/owner props) right is more important than other relationships
     # and adds complexity.
     relationship_schema: Literal["Family", "UnknownLink"]
-    related_entity_name: List[str]
-    relationship: Optional[str] = None
+    related_entity_name: list[str]
+    relationship: str | None = None
 
 
 class OtherInfo(BaseModel):
-    simple_values: List[SimpleValue] = []
-    related_entities: List[RelatedEntity] = []
+    simple_values: list[SimpleValue] = []
+    related_entities: list[RelatedEntity] = []
     include_in_notes: bool = Field(
         description="If True, the original value will be included in notes.",
         default=False,
@@ -246,7 +246,7 @@ def parse_name(context: Context, entity: Entity, node: Element) -> None:
         name_prop = "weakAlias"
 
     max_order: int = 0
-    parts: List[Tuple[str, MayStr, MayStr, int, str]] = []
+    parts: list[tuple[str, MayStr, MayStr, int, str]] = []
     for part_node in node.findall("./name-part"):
         part_type = part_node.get("name-part-type")
         order_str = part_node.get("order")
@@ -265,7 +265,7 @@ def parse_name(context: Context, entity: Entity, node: Element) -> None:
                 continue
             parts.append((part_type, lang, script, order, spelling.text))
 
-    ordered: Dict[Tuple[MayStr, MayStr], Dict[int, List[MayStr]]] = {}
+    ordered: dict[tuple[MayStr, MayStr], dict[int, list[MayStr]]] = {}
     for part_type, lang, script, order, value in parts:
         # if part_type in ("suffix", "title"):
         #     print("XXX", part_type, value)
@@ -293,7 +293,7 @@ def parse_name(context: Context, entity: Entity, node: Element) -> None:
             entity.add(part_prop, value, lang=lang, quiet=True)
 
     for (lang, script), ords in ordered.items():
-        whole_parts: List[List[MayStr]] = []
+        whole_parts: list[list[MayStr]] = []
         for order in range(1, max_order + 1):
             values = ords.get(order, ordered[(None, None)][order])
             whole_parts.append(values)
@@ -364,7 +364,7 @@ def parse_identity(
 
 def make_related_entities(
     context: Context, entity: Entity, relationship: RelatedEntity
-) -> List[Entity]:
+) -> list[Entity]:
     other = context.make("LegalEntity")
     other.id = context.make_id(*relationship.related_entity_name)
     other.add("name", relationship.related_entity_name)
@@ -542,7 +542,7 @@ def parse_entry(
     foreign_id = target.findtext("./foreign-identifier")
     sanction.add("unscId", foreign_id)
 
-    justifications: List[Tuple[str, str]] = []
+    justifications: list[tuple[str, str]] = []
     for justification in node.findall("./justification"):
         just_ssid = justification.get("ssid")
         if just_ssid is not None and justification.text is not None:
@@ -599,7 +599,7 @@ def crawl(context: Context) -> None:
     #     context.data_time = datetime.strptime(date, "%Y-%m-%d")
 
     # TODO(Leon Handreke): Add a lookup to see if a new sanctions program shows up that we don't have in the database
-    programs: Dict[str, MayStr] = {}
+    programs: dict[str, MayStr] = {}
     for sanc in doc.findall(".//sanctions-program"):
         sanc_set = sanc.find("./sanctions-set")
         if sanc_set is None:
