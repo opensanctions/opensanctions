@@ -23,12 +23,13 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     table_xpath = ".//table[@aria-label='Table of Files associated with page']"
+    dataset_url = context.dataset.url
+    assert dataset_url is not None
     doc = fetch_html(
-        context, context.dataset.url, table_xpath, cache_days=1, absolute_links=True
+        context, dataset_url, table_xpath, cache_days=1, absolute_links=True
     )
-    table = doc.xpath(table_xpath)
-    assert len(table) == 1, "Expected exactly one table in the document"
-    link = table[0].xpath(".//a/@href")
+    table = h.xpath_element(doc, table_xpath)
+    link = h.xpath_strings(table, ".//a/@href")
     assert len(link) == 1, "Expected exactly one link in the table"
 
     # Expect
