@@ -1,4 +1,4 @@
-title: San Marino Grand and General Council
+title: San Marino Members of the Grand and General Council
 name: sm_consiglio
 prefix: sm-cgg
 entry_point: crawler.py
