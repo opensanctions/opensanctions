@@ -89,13 +89,17 @@ class CatalogDatasetModel(FTMDatasetModel):
     """Downloadable data files for this dataset (excludes internal artifact files)."""
 
     # ── Zavod configuration carried into the export ───────────────────────────
+    # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
     entry_point: Optional[str] = None
     disabled: bool
     hidden: bool
+    # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
     resolve: bool = True
     """Whether to run entity resolution on this dataset. Implicit default is True;
     only serialized when False (currently only 'maritime')."""
+    # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
     full_dataset: Optional[str] = None
+    # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
     data: Optional[DataModel] = None
     """Crawler source metadata (URL, format, mode). None for collections and some externals."""
 
