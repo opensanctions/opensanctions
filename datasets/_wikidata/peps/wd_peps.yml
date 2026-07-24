@@ -102,6 +102,8 @@ lookups:
         value: 2011-02
       - match: "1949-02-29"
         value: 1949-02
+      - match: "1942-02-29"
+        value: 1942-02
       - match: "2018-02-29"
         value: 2018-02
       - match: "1999-02-31"
