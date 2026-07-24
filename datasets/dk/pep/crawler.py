@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import categorise, OccupancyStatus
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -137,14 +137,18 @@ def crawl_old_pep_item(
     position = h.make_position(
         context, job_title, country=country, lang=lang, translate_name=True
     )
+    # This sheet holds former PEPs. When the source fills in a removal date we
+    # use it as the occupancy end date. Some entries have it left blank; those
+    # people are still former PEPs by virtue of appearing in this sheet, so we
+    # record the occupancy as ended without a specific end date.
     removal_date = row.pop("removal_date")
-    assert removal_date is not None, row
     occupation = h.make_occupancy(
         context,
         entity,
         position,
-        True,
-        end_date=removal_date.strip(),
+        no_end_implies_current=False,
+        end_date=removal_date.strip() if removal_date is not None else None,
+        status=OccupancyStatus.ENDED if removal_date is None else None,
         categorisation=categorise(context, position, default_is_pep=True),
     )
 
