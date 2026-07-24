@@ -89,12 +89,18 @@ capture".
 Build position names with `h.make_position`. Rules:
 
 - **Always pass `lang=`** (ISO 639-3, e.g. `lang="eng"`, `lang="fra"`) declaring the
-  language the position name is in. Two cases:
+  language the position name is in. If omitted, `make_position` falls back to the
+  dataset's `data.lang` (`lang or context.lang`) — so an English name over a
+  non-English source must set `lang="eng"` explicitly. Two cases:
     - **Crawler-supplied names** (the standard case — e.g. a parliament crawler where
       the name is always `Member of the ... Parliament`): write the name in English
       and pass `lang="eng"`. Use the standard English term for the role; keep
       native-language terminology only for proper nouns of specific institutions
-      (e.g. `Landtag of Mecklenburg-Vorpommern`).
+      (e.g. `Landtag of Mecklenburg-Vorpommern`). Pass `lang="eng"` even when the
+      dataset's `data.lang` is another language (e.g. a `data.lang: spa` source whose
+      crawler emits `Member of the Congress of the Republic` still passes
+      `lang="eng"`) — otherwise the English name is treated as being in the dataset
+      language and, with `translate_name=True`, wrongly sent to the translator.
     - **Source-supplied names** (role labels read from the data): pass them through
       as-is with the source language as `lang=` and `translate_name=True` —
       `make_position` translates the name to English via LLM and keys the entity ID
