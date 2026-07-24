@@ -145,7 +145,7 @@ def test_metadata_failure_no_statistics_no_warning(collection: Dataset) -> None:
     ]
 
     index_path = settings.DATA_PATH / "datasets" / collection.name / "index.json"
-    with open(index_path, "r") as fh:
+    with open(index_path) as fh:
         index = json.load(fh)
     assert index["result"] == "failure"
     assert "entity_count" not in index

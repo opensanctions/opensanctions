@@ -21,7 +21,7 @@ It is public API surface, so evolve it deliberately.
 """
 
 from datetime import datetime
-from typing import Annotated, Any, Literal, Optional, Self
+from typing import Annotated, Any, Literal, Self
 
 from followthemoney.dataset.dataset import DatasetModel as FTMDatasetModel
 from pydantic import (
@@ -58,7 +58,7 @@ class ResourceModel(BaseModel):
     """MIME type, e.g. 'application/json+ftm' or 'text/plain'."""
     mime_type_label: str
     """Generic format label derived from the MIME type, e.g. 'FollowTheMoney Entities' or 'Plain text'."""
-    title: Optional[str] = None
+    title: str | None = None
     """Description of what this specific file contains, e.g. 'FollowTheMoney entities' or 'Target names text file'.
     Absent for raw source files published without a title (e.g. pass-through .xlsx files)."""
     size: int
@@ -90,7 +90,7 @@ class CatalogDatasetModel(FTMDatasetModel):
 
     # ── Zavod configuration carried into the export ───────────────────────────
     # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
-    entry_point: Optional[str] = None
+    entry_point: str | None = None
     disabled: bool
     hidden: bool
     # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
@@ -98,9 +98,9 @@ class CatalogDatasetModel(FTMDatasetModel):
     """Whether to run entity resolution on this dataset. Implicit default is True;
     only serialized when False (currently only 'maritime')."""
     # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
-    full_dataset: Optional[str] = None
+    full_dataset: str | None = None
     # TODO: this default ideally belongs only on the input (ZavodDatasetModel) side and passes through; kept here while we still build the index JSON by hand.
-    data: Optional[DataModel] = None
+    data: DataModel | None = None
     """Crawler source metadata (URL, format, mode). None for collections and some externals."""
 
     # ── Fields computed for the catalog export ────────────────────────────────
@@ -117,10 +117,10 @@ class CatalogDatasetModel(FTMDatasetModel):
     This is the field documented and intended for external consumers; `children` is the internal representation."""
 
     # ── Operational fields, only present after a run ──────────────────────────
-    last_change: Optional[IsoDatetime] = None
+    last_change: IsoDatetime | None = None
     """Timestamp of the most recent entity change in the dataset."""
 
-    target_count: Optional[int] = None
+    target_count: int | None = None
     """Number of entities flagged as targets."""
 
     issue_levels: dict[str, int] = {}
@@ -139,11 +139,11 @@ class CatalogDatasetModel(FTMDatasetModel):
     statistics_url: HttpUrl
     """URL to the statistics JSON artifact for the last export."""
 
-    delta_url: Optional[HttpUrl] = None
+    delta_url: HttpUrl | None = None
     """URL to the delta index for the most recent export that produced one.
     Not all exports produce a delta; None when absent."""
 
-    result: Optional[Literal["success", "failure"]] = None
+    result: Literal["success", "failure"] | None = None
     """Outcome of the last export run."""
 
     @field_validator("tags")
