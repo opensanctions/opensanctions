@@ -46,6 +46,12 @@ def http_get(
                     error=str(err),
                 )
                 time.sleep(SLEEP)
+            elif err.response is not None and err.response.status_code == 404:
+                # Officers can appear in the search index but 404 on the detail
+                # endpoint (e.g. removed from the register between index updates);
+                # skip them without failing the run.
+                context.log.warn("Officer not found (404): %s" % url)
+                return None
             else:
                 context.log.exception("Failed to fetch data: %s" % url)
                 return None
