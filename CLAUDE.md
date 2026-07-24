@@ -45,6 +45,7 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 * Writing a sanctions crawler: use the `/crawler-sanctions` skill
 * Debugging a failing crawler: use the `/debug-crawler` skill
 * General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
+* Investigating past versions of dataset runs on the https://data.opensanctions.org archive (entity counts over time, when an entity disappeared, failed runs): `.claude/docs/archive-investigation.md`
 
 ## Coding hints
 
