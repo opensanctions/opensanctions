@@ -172,6 +172,7 @@ class Dataset(FollowTheMoneyDataset):
         for resource in data.get("resources", []):
             resource["path"] = resource["name"]
         if self.is_collection:
+            data["children"] = [d.name for d in self.children]
             # As of mid-2025, the same is now in `children`, but we keep it in `datasets` for backward compatibility.
             data["datasets"] = [d.name for d in self.datasets]
             data["datasets"].remove(self.name)
