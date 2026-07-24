@@ -12,7 +12,7 @@ EXAMPLES_PATH = Path(__file__).parent / "single_entity_examples.yml"
 def load_data(
     examples_path: Path,
 ) -> tuple[list[dspy.Example], list[dspy.Example], list[dspy.Example]]:
-    with open(examples_path, "r", encoding="utf-8") as f:
+    with open(examples_path, encoding="utf-8") as f:
         cases = yaml.load(f, Loader=yaml.SafeLoader)
 
     dspy_dataset = []

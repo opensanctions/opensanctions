@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 import pytest
 from followthemoney.dataset import Version, VersionHistory
@@ -31,11 +30,11 @@ STANDARD_EXPORTS = {
 }
 
 
-def _read_history(dataset_name: str) -> Optional[VersionHistory]:
+def _read_history(dataset_name: str) -> VersionHistory | None:
     fn = settings.ARCHIVE_PATH / ARTIFACTS / dataset_name / VERSIONS_FILE
     if not fn.exists():
         return None
-    with open(fn, "r") as fh:
+    with open(fn) as fh:
         return VersionHistory.from_json(fh.read())
 
 

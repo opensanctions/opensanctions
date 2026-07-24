@@ -1,6 +1,5 @@
 from pathlib import Path
 from banal import hash_data
-from typing import Optional, List
 from functools import cache
 from followthemoney.exc import MetadataException
 
@@ -18,26 +17,26 @@ def get_catalog() -> ArchiveBackedCatalog:
     return ArchiveBackedCatalog()
 
 
-def load_dataset_from_path(path: Path) -> Optional[Dataset]:
+def load_dataset_from_path(path: Path) -> Dataset | None:
     """Load a dataset from a given path."""
     return get_catalog().load_yaml(path)
 
 
-def get_multi_dataset(names: List[str]) -> Dataset:
+def get_multi_dataset(names: list[str]) -> Dataset:
     """The scopes of a dataset is the set of other datasets on which analysis or
     enrichment should be performed by the runner."""
     catalog = get_catalog()
-    inputs: List[Dataset] = []
+    inputs: list[Dataset] = []
     for input_name in names:
         try:
             inputs.append(catalog.require(input_name))
         except MetadataException as exc:
             log.error(
-                "Invalid dataset input: %s" % exc,
+                f"Invalid dataset input: {exc}",
                 input=input_name,
             )
     if not len(inputs):
-        raise MetadataException("No valid input datasets: %r" % names)
+        raise MetadataException(f"No valid input datasets: {names!r}")
     if len(inputs) == 1:
         return inputs[0]
     # Weird: if there are many scopes, we're making up a synthetic collection

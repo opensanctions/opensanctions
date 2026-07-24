@@ -1,6 +1,6 @@
 import orjson
 from pathlib import Path
-from typing import Any, Dict, BinaryIO
+from typing import Any, BinaryIO
 
 from zavod.context import Context
 
@@ -52,7 +52,7 @@ SCHEME_PROPS = {
 }
 
 
-def parse_statement(context: Context, data: Dict[str, Any]) -> None:
+def parse_statement(context: Context, data: dict[str, Any]) -> None:
     statement_type = data.pop("statementType")
     statement_id = data.pop("statementID")
     proxy_id = context.make_slug(statement_id)

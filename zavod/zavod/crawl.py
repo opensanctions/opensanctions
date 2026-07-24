@@ -68,7 +68,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
             )
         raise RunFailedException() from rexc
     except Exception as exc:
-        context.log.exception("Runner failed: %s" % str(exc))
+        context.log.exception(f"Runner failed: {str(exc)}")
         raise RunFailedException() from exc
     finally:
         context.close()

@@ -1,7 +1,7 @@
 # from zavod.entity import Entity
 
 
-class ContextStats(object):
+class ContextStats:
     """A simple object for tracking the number of statements, entities and targets
     emitted by a dataset context while running the dataset method."""
 

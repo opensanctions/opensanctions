@@ -28,7 +28,7 @@ def test_metadata_collection_export(
     index_path = ds_path / "index.json"
     assert index_path.is_file()
 
-    with open(index_path, "r") as fh:
+    with open(index_path) as fh:
         index = json.load(fh)
         assert index["updated_at"] == settings.RUN_TIME_ISO
         assert len(index["resources"]) > 2
@@ -40,7 +40,7 @@ def test_metadata_collection_export(
     export_dataset(collection, view)
     assert collection_path.is_dir()
 
-    with open(collection_path / "index.json", "r") as fh:
+    with open(collection_path / "index.json") as fh:
         collection_index = json.load(fh)
         # When resolve is true, the resolve key is not exported.
         assert collection.model.resolve is True
@@ -49,7 +49,7 @@ def test_metadata_collection_export(
     catalog_path = collection_path / "catalog.json"
     assert catalog_path.is_file()
 
-    with open(catalog_path, "r") as fh:
+    with open(catalog_path) as fh:
         catalog = json.load(fh)
 
     assert catalog["updated_at"] == settings.RUN_TIME_ISO
@@ -74,7 +74,7 @@ def test_metadata_collection_issue_count(
     write_dataset_index(collection, DatasetVersionResult.SUCCESS)
 
     index_path = settings.DATA_PATH / "datasets" / collection.name / "index.json"
-    with open(index_path, "r") as fh:
+    with open(index_path) as fh:
         index = json.load(fh)
     assert index["issue_count"] == 2, index
     assert index["issue_levels"] == {"error": 1, "warning": 1}, index

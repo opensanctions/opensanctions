@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Optional, Union
+from typing import Union
 from followthemoney import registry
 from rigour.units import normalize_unit
 
@@ -18,7 +18,7 @@ def _float_str(float: float) -> str:
 
 
 def apply_number(
-    entity: Entity, prop: str, value: NumberValue, origin: Optional[str] = None
+    entity: Entity, prop: str, value: NumberValue, origin: str | None = None
 ) -> None:
     """Apply a numeric value to a property of an entity. This will try and parse the
     number, round it, and normalize the present unit specifier (e.g. km, tons) if present.
@@ -40,7 +40,7 @@ def apply_number(
             separator=entity.dataset.numbers.separator,
         )
         if num is None:
-            log.warning("Cannot parse number: %s" % (value))
+            log.warning(f"Cannot parse number: {value}")
             return
         try:
             num = _float_str(float(num))

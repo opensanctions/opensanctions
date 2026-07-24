@@ -28,7 +28,7 @@ def save_match(
 
     # Store previously confirmed matches to the database and make them visible:
     if judgement == Judgement.POSITIVE:
-        context.log.info("Enrich [%s]: %r" % (entity, match))
+        context.log.info(f"Enrich [{entity}]: {match!r}")
         expanded = [adjacent for adjacent in enricher.expand_wrapped(entity, match)]
         if not expanded:
             return
@@ -50,9 +50,7 @@ def save_match(
 
 def enrich(context: Context) -> None:
     scope = get_multi_dataset(context.dataset.inputs)
-    context.log.info(
-        "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
-    )
+    context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")
     store = get_store(scope, context.resolver)
     # Commit the resolver's load-time read so no transaction is held open across
     # the (potentially long) store sync below; the resolver is in-memory after.
@@ -70,13 +68,13 @@ def enrich(context: Context) -> None:
             if entity_idx > 0 and entity_idx % 100 == 0:
                 context.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
-                context.log.info("Enriched %s entities..." % entity_idx)
-            context.log.debug("Enrich query: %r" % entity)
+                context.log.info(f"Enriched {entity_idx} entities...")
+            context.log.debug(f"Enrich query: {entity!r}")
             try:
                 for match in enricher.match_wrapped(entity):
                     save_match(context, enricher, entity, match, view)
             except EnrichmentException as exc:
-                context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
+                context.log.error(f"Enrichment error {entity!r}: {str(exc)}")
         context.log.info("Enrichment process complete.")
     finally:
         enricher.close()

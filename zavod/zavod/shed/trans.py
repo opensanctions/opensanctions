@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, NamedTuple, List, Sequence
+from typing import NamedTuple
+from collections.abc import Sequence
 import orjson
 
 from zavod.context import Context
@@ -82,8 +83,8 @@ def make_position_translation_prompt(input_code: str) -> str:
 
 @dataclass(frozen=True, kw_only=True)
 class TranslationResult:
-    texts: List[LangText]
-    cache_key: Optional[str]
+    texts: list[LangText]
+    cache_key: str | None
     """Cache key of the underlying run_text_prompt response, set only when
     the response was parsed and accepted. Callers that do additional
     per-result validation can drop this entry via context.cache.delete()
@@ -92,7 +93,7 @@ class TranslationResult:
     """The model that produced the translation. Suitable for passing as the
     ``origin`` when applying the resulting values to an entity."""
 
-    def get_preferred_language(self) -> Optional[LangText]:
+    def get_preferred_language(self) -> LangText | None:
         """Return the ``LangText`` for the preferred output language, or None
         if absent. The preferred language is currently English."""
         for text in self.texts:
@@ -106,7 +107,7 @@ def run_translation_prompt(
     *,
     prompt: str,
     text: str,
-    output_langs: List[str] = ["eng"],
+    output_langs: list[str] = ["eng"],
     model: str = DEFAULT_MODEL,
 ) -> TranslationResult:
     """Run a translation/transliteration prompt and return the result as
@@ -128,7 +129,7 @@ def run_translation_prompt(
     try:
         response = run_text_prompt(context, prompt, text, model=model)
     except ConfigurationException as ce:
-        context.log.error("LLM translation skipped: %s" % ce.message)
+        context.log.error(f"LLM translation skipped: {ce.message}")
         return TranslationResult(texts=[], cache_key=None, origin=model)
     try:
         trans_by_lang = orjson.loads(response.content)
@@ -153,7 +154,7 @@ def run_translation_prompt(
             expected=sorted(output_langs),
         )
         return TranslationResult(texts=[], cache_key=None, origin=model)
-    results: List[LangText] = []
+    results: list[LangText] = []
     for lang in output_langs:
         value = trans_by_lang.get(lang)
         if not isinstance(value, str) or not value.strip():
@@ -188,7 +189,7 @@ def apply_translit_names(
     input_code: str,
     first_name: str,
     last_name: str,
-    output_spec: List[TransliterationLanguageSpec] = [ENGLISH],
+    output_spec: list[TransliterationLanguageSpec] = [ENGLISH],
     model: str = DEFAULT_MODEL,
 ) -> None:
     """
@@ -258,7 +259,7 @@ def apply_translit_full_name(
     name: LangText,
     *,
     output: Sequence[TransliterationLanguageSpec] = (PREFERRED_LANGUAGE,),
-    prompt: Optional[str] = None,
+    prompt: str | None = None,
     alias: bool = False,
     model: str = DEFAULT_MODEL,
 ) -> None:

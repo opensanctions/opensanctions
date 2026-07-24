@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any
+from typing import Any
 from followthemoney import model, registry
 
 from zavod import settings
@@ -15,7 +15,7 @@ from zavod.logs import get_logger
 log = get_logger(__name__)
 
 
-def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
+def get_opensanctions_catalog(scope: Dataset) -> dict[str, Any]:
     """Get the OpenSanctions-style catalog, including all datasets in the given
     scope."""
     datasets = get_catalog_datasets(scope)
@@ -23,8 +23,8 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
     schemata = set()
     statistics_path = get_dataset_artifact(scope.name, STATISTICS_FILE)
     if statistics_path.is_file():
-        with open(statistics_path, "r") as fh:
-            stats: Dict[str, Any] = json.load(fh)
+        with open(statistics_path) as fh:
+            stats: dict[str, Any] = json.load(fh)
             schemata.update(stats.get("schemata", []))
 
     log.info("Generating catalog", schemata=len(schemata), datasets=len(datasets))
@@ -49,7 +49,7 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
     }
 
 
-def get_nk_catalog(scope: Dataset) -> Dict[str, Any]:
+def get_nk_catalog(scope: Dataset) -> dict[str, Any]:
     """Get the Nomenklatura-style catalog, including all datasets in the given
     scope."""
     datasets = get_catalog_datasets(scope)

@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import lru_cache
-from typing import List, Optional
 
 from rigour.dates import ended_before, starts_after
 from rigour.ids.wikidata import is_qid
@@ -30,15 +29,15 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
-class PositionCategorisation(object):
-    is_pep: Optional[bool]
+class PositionCategorisation:
+    is_pep: bool | None
     """Whether the position denotes a politically exposed person or not"""
-    topics: List[str]
+    topics: list[str]
     """The topics linked to the position, as a list"""
 
     __slots__ = ["topics", "is_pep"]
 
-    def __init__(self, topics: List[str], is_pep: Optional[bool]):
+    def __init__(self, topics: list[str], is_pep: bool | None):
         self.topics = topics
         self.is_pep = is_pep
 
@@ -48,7 +47,7 @@ def categorise(
     context: Context,
     position: Entity,
     *,
-    default_is_pep: Optional[bool] = True,
+    default_is_pep: bool | None = True,
 ) -> PositionCategorisation:
     """Return the reviewed categorisation (topics, is_pep) for a position.
 
@@ -109,8 +108,8 @@ def categorise(
 
 
 def categorise_many(
-    contextL: Context, position_ids: List[str]
-) -> List[PositionCategorisation]:
+    contextL: Context, position_ids: list[str]
+) -> list[PositionCategorisation]:
     """Categorise multiple positions at once. This is a performance optimisation to
     avoid multiple database queries."""
     stmt = position_table.select()
@@ -128,7 +127,7 @@ def categorise_many(
     return categorisations
 
 
-def categorised_position_qids(context: Context) -> List[str]:
+def categorised_position_qids(context: Context) -> list[str]:
     """Return a list of position QIDs that have been categorised."""
     stmt = select(position_table.c.entity_id)
     stmt = stmt.filter(position_table.c.is_pep.is_(True))
@@ -142,7 +141,7 @@ def categorised_position_qids(context: Context) -> List[str]:
     return qids
 
 
-def get_after_office(topics: List[str]) -> timedelta:
+def get_after_office(topics: list[str]) -> timedelta:
     if "gov.national" in topics:
         if "gov.head" in topics:
             return NO_EXPIRATION
@@ -160,10 +159,10 @@ def occupancy_status(
     occupancy: Entity,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
-    birth_date: Optional[str] = None,
-    death_date: Optional[str] = None,
-    categorisation: Optional[PositionCategorisation] = None,
-) -> Optional[OccupancyStatus]:
+    birth_date: str | None = None,
+    death_date: str | None = None,
+    categorisation: PositionCategorisation | None = None,
+) -> OccupancyStatus | None:
     """Determine the occupancy status of a person in a position given a set of dates.
 
     Dates are extracted from the occupancy entity. The effective start date is

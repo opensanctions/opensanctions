@@ -1,4 +1,4 @@
-from typing import Generator, Set
+from collections.abc import Generator
 from followthemoney import Statement
 from nomenklatura.resolver import Linker
 
@@ -22,7 +22,7 @@ def iter_output_statements(
         A generator of statements.
     """
     assert not scope.is_collection
-    seen_ids: Set[str] = set()
+    seen_ids: set[str] = set()
     for stmt in iter_dataset_statements(scope, external=external):
         if stmt.entity_id is None:
             continue

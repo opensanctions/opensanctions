@@ -1,4 +1,3 @@
-from typing import Type
 import uuid
 
 from structlog.testing import capture_logs
@@ -24,7 +23,7 @@ BASE_DATASET_CONFIG = {
 }
 
 
-def run_validator(clazz: Type[BaseValidator], dataset: Dataset):
+def run_validator(clazz: type[BaseValidator], dataset: Dataset):
     context = Context(dataset)
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)

@@ -1,5 +1,6 @@
 import warnings
-from typing import Any, Optional, Tuple, Mapping, Iterable, Union
+from typing import Any, Optional, Union
+from collections.abc import Mapping, Iterable
 from functools import partial
 from pathlib import Path
 
@@ -16,7 +17,7 @@ from zavod.meta.http import HTTP
 log = get_logger(__name__)
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
-_Auth = Optional[Tuple[str, str]]
+_Auth = Optional[tuple[str, str]]
 _Headers = Optional[Mapping[str, str]]
 # Copied from requests-stubs because it's impossible to import from stubs
 _Body = Union[
@@ -56,10 +57,10 @@ def make_session(http_conf: HTTP) -> Session:
 
 def request_hash(
     url: str,
-    auth: Optional[_Auth] = None,
+    auth: _Auth | None = None,
     method: str = "GET",
     data: Any = None,
-    encoding: Optional[str] = None,
+    encoding: str | None = None,
 ) -> str:
     """
     Generate a unique fingerprint for an HTTP request.
@@ -84,10 +85,10 @@ def fetch_file(
     url: str,
     name: str,
     data_path: Path = settings.DATA_PATH,
-    auth: Optional[Any] = None,
-    headers: Optional[Any] = None,
+    auth: Any | None = None,
+    headers: Any | None = None,
     method: str = "GET",
-    data: Optional[_Body] = None,
+    data: _Body | None = None,
 ) -> Path:
     """Fetch a (large) file via HTTP to the data path."""
     out_path = data_path.joinpath(name)

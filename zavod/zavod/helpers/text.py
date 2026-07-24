@@ -1,6 +1,6 @@
 import re
 from banal import is_listish, ensure_list
-from typing import Optional, List, Sequence, Union, Iterable
+from collections.abc import Sequence, Iterable
 from normality import squash_spaces
 
 from zavod.logs import get_logger
@@ -15,7 +15,7 @@ INTERPOL_URL = re.compile(INTERPOL_URL_, re.IGNORECASE)
 BRACKETED = re.compile(r"\(.*?\)")
 
 
-def clean_note(text: Union[Optional[str], Sequence[Optional[str]]]) -> List[str]:
+def clean_note(text: str | None | Sequence[str | None]) -> list[str]:
     """Remove a set of specific text sections from notes supplied by sanctions data
     publishers. These include cross-references to the Security Council web site and
     the Interpol web site.
@@ -26,7 +26,7 @@ def clean_note(text: Union[Optional[str], Sequence[Optional[str]]]) -> List[str]
     Returns:
         A cleaned version of the text.
     """
-    out: List[str] = []
+    out: list[str] = []
     if text is None:
         return out
     if is_listish(text):
@@ -44,8 +44,8 @@ def clean_note(text: Union[Optional[str], Sequence[Optional[str]]]) -> List[str]
 
 
 def multi_split(
-    text: Optional[Union[str, Iterable[Optional[str]]]], splitters: Iterable[str]
-) -> List[str]:
+    text: str | Iterable[str | None] | None, splitters: Iterable[str]
+) -> list[str]:
     """Sequentially attempt to split a text based on an array of splitting criteria.
     This is useful for strings where multiple separators are used to separate values,
     e.g.: `test,other/misc`. A special case of this is itemised lists like `a) test
@@ -64,7 +64,7 @@ def multi_split(
     sorted_splitters = tuple(sorted(splitters, key=len, reverse=True))
 
     for splitter in sorted_splitters:
-        out: List[Optional[str]] = []
+        out: list[str | None] = []
         for fragment in fragments:
             if fragment is None:
                 continue
@@ -78,7 +78,7 @@ def multi_split(
     return result
 
 
-def is_empty(text: Optional[str]) -> bool:
+def is_empty(text: str | None) -> bool:
     """Check if the given text is empty: it can either be null, or
     the stripped version of the string could have 0 length.
 
@@ -96,7 +96,7 @@ def is_empty(text: Optional[str]) -> bool:
     return False
 
 
-def remove_bracketed(text: Optional[str]) -> Optional[str]:
+def remove_bracketed(text: str | None) -> str | None:
     """Helps to deal with property values where additional info has been supplied in
     brackets that makes it harder to parse the value. Examples:
 

@@ -1,4 +1,3 @@
-from typing import Optional
 from requests.exceptions import RequestException
 from zavod.context import Context
 from nomenklatura.wikidata.client import WikidataClient
@@ -7,8 +6,8 @@ from rigour.ids.wikidata import is_qid
 
 
 def deref_wikidata_id(
-    context: Context, qid: Optional[str], cache_days: int = 60
-) -> Optional[str]:
+    context: Context, qid: str | None, cache_days: int = 60
+) -> str | None:
     """Check if a Wikidata QID is a redirect, and return the target QID if so.
 
     This is used with static data sources that reference Wikidata items that may have

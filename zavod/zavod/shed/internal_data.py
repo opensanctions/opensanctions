@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Generator
+from collections.abc import Generator
 from google.cloud.storage import Client, Bucket  # type: ignore
 
 

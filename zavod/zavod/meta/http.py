@@ -1,7 +1,7 @@
 import logging
 from banal import ensure_list
 from urllib3.util import Retry
-from typing import Any, Dict, List, Set
+from typing import Any
 from followthemoney.settings import USER_AGENT
 
 from zavod import settings
@@ -10,13 +10,13 @@ from zavod import settings
 DEFAULT_RETRY_STATUS_CODES = [500, 502, 504] + list(Retry.RETRY_AFTER_STATUS_CODES)
 
 
-class HTTP(object):
-    def __init__(self, data: Dict[str, Any]) -> None:
+class HTTP:
+    def __init__(self, data: dict[str, Any]) -> None:
         self.total_retries: int = data.get("total_retries", settings.HTTP_RETRY_TOTAL)
         self.backoff_factor: float = data.get(
             "backoff_factor", settings.HTTP_RETRY_BACKOFF_FACTOR
         )
-        statuses: Set[int] = set(
+        statuses: set[int] = set(
             data.get("retry_statuses", DEFAULT_RETRY_STATUS_CODES)
             + data.get("additional_retry_statuses", [])
         )
@@ -29,9 +29,9 @@ class HTTP(object):
         # HTTP session and Zyte API requests.
         self.timeout: int = data.get("timeout", settings.HTTP_TIMEOUT)
         self.backoff_max: int = settings.HTTP_RETRY_BACKOFF_MAX
-        self.retry_statuses: List[int] = list(statuses)
-        retry_methods: List[str] = ensure_list(
+        self.retry_statuses: list[int] = list(statuses)
+        retry_methods: list[str] = ensure_list(
             data.get("retry_methods", list(Retry.DEFAULT_ALLOWED_METHODS))
         )
-        self.retry_methods: List[str] = retry_methods
+        self.retry_methods: list[str] = retry_methods
         self.user_agent: str = data.get("user_agent") or USER_AGENT

@@ -34,11 +34,9 @@ examples = [example, deepcopy(example), deepcopy(example)]
 def assert_exit_status_zero(result: Result) -> None:
     if result.exit_code != 0:
         raise AssertionError(
-            (
-                "'zavod-run compare' invocation exited non-zero.\n\n"
-                f"Output: {result.output}\n"
-                f"{''.join(format_exception(*result.exc_info))}"
-            )
+            "'zavod-run compare' invocation exited non-zero.\n\n"
+            f"Output: {result.output}\n"
+            f"{''.join(format_exception(*result.exc_info))}"
         )
 
 

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Dict, Optional, Set
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
@@ -18,13 +17,13 @@ from zavod.stateful.positions import categorise, categorise_many
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
 
-POSITION_BASICS: Set[str] = {
+POSITION_BASICS: set[str] = {
     "Q4164871",  # position
     "Q29645880",  # ambassador of a country
     "Q29645886",  # ambassador to a country
     "Q707492",  # military chief of staff
 }
-SUB_TYPES: Dict[str, Set[str]] = {
+SUB_TYPES: dict[str, set[str]] = {
     "Q30185": {"role.pep", "gov.executive", "gov.muni"},  # mayor
     "Q17279032": {"role.pep"},  # elective office
     "Q109862464": {"gov.executive", "gov.muni"},  # lord mayor
@@ -83,7 +82,7 @@ POSITION_ABOLISHED_CUTOFF = "1990-12-26"
 # the bar for adding entries is high: only classes that are unambiguously
 # non-PEP-conferring belong here. When in doubt, leave the candidate to the
 # review workflow, where the decision is recorded and reversible.
-EXCLUDE_TYPES: Set[str] = {
+EXCLUDE_TYPES: set[str] = {
     "Q114962596",  # historical position
     "Q193622",  # order
     "Q60754876",  # grade of an order
@@ -101,7 +100,7 @@ EXCLUDE_TYPES: Set[str] = {
 # Types that keep an item in the candidate set even when its ancestry hits
 # EXCLUDE_TYPES or misses POSITION_BASICS (allow beats exclude; a reviewed
 # position DB row beats both — see the `vetted` flag on wikidata_position).
-ALLOW_TYPES: Set[str] = {
+ALLOW_TYPES: set[str] = {
     # Members of the College of Cardinals are recognised by the Holy See as
     # PEPs, despite their religious-occupation ancestry:
     "Q45722",  # cardinal
@@ -147,7 +146,7 @@ MUNI_COUNTRIES = {
 
 def wikidata_position(
     context: Context, client: WikidataClient, item: Item
-) -> Optional[Entity]:
+) -> Entity | None:
     # Precedence: a position DB verdict beats the type-based heuristics below,
     # and ALLOW_TYPES beats EXCLUDE_TYPES. The DB check also runs first so a
     # reviewed-rejected position skips the more expensive work (country
@@ -246,7 +245,7 @@ def wikidata_position(
                         origin=result.origin,
                     )
 
-    topics: Set[str] = set()
+    topics: set[str] = set()
     for sub_type, type_topics in SUB_TYPES.items():
         if sub_type in types:
             topics.update(type_topics)
@@ -279,9 +278,7 @@ def wikidata_position(
     return position
 
 
-def position_holders(
-    client: WikidataClient, item: Item
-) -> Dict[str, Optional[datetime]]:
+def position_holders(client: WikidataClient, item: Item) -> dict[str, datetime | None]:
     """Find persons who have held the position defined by `item`, combining the
     inverted lookup on property P39 (position held) with the position item's own
     P1308 (officeholder) claims.
@@ -297,7 +294,7 @@ def position_holders(
         ?person schema:dateModified ?modifiedAt .
     }}
     """
-    holders: Dict[str, Optional[datetime]] = {}
+    holders: dict[str, datetime | None] = {}
     # Holder lists (and the dateModified values that drive person cache
     # invalidation) change slowly; at 1 day, every crawl re-runs tens of
     # thousands of WDQS queries.
@@ -317,10 +314,10 @@ def position_holders(
 
 def wikidata_occupancy(
     context: Context, person: Entity, position: Entity, claim: Claim
-) -> Optional[Entity]:
+) -> Entity | None:
     """Create an Occupancy entity for the given person and position based on the claim,
     which identifies relevant qualifiers."""
-    start_date: Optional[str] = None
+    start_date: str | None = None
     for qual in claim.get_qualifier("P580"):
         qual_date = qual.text.text
         if qual_date is not None:
@@ -329,7 +326,7 @@ def wikidata_occupancy(
             else:
                 start_date = min(start_date, qual_date)
 
-    end_date: Optional[str] = None
+    end_date: str | None = None
     for qual in claim.get_qualifier("P582"):
         qual_date = qual.text.text
         if qual_date is not None:

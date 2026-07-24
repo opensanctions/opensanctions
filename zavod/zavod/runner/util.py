@@ -1,4 +1,4 @@
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 from zavod.entity import Entity
 from zavod.store import View

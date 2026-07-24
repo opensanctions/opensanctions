@@ -1,4 +1,3 @@
-from typing import Set, Tuple
 from functools import lru_cache
 from nomenklatura.wikidata import WikidataClient, LangText
 from rigour.territories import get_territory_by_qid
@@ -23,19 +22,19 @@ def is_historical_country(client: WikidataClient, qid: str) -> bool:
 
 
 @lru_cache(maxsize=5000)
-def item_countries(client: WikidataClient, qid: str) -> Set[LangText]:
+def item_countries(client: WikidataClient, qid: str) -> set[LangText]:
     """Extract the countries linked to an item, traversing up an administrative hierarchy
     via jurisdiction/part of properties."""
     return _crawl_item_countries(client, qid, (qid,))
 
 
 def _crawl_item_countries(
-    client: WikidataClient, qid: str, seen: Tuple[str, ...]
-) -> Set[LangText]:
+    client: WikidataClient, qid: str, seen: tuple[str, ...]
+) -> set[LangText]:
     item = client.fetch_item(qid)
     if item is None:
         return set()
-    countries: Set[LangText] = set()
+    countries: set[LangText] = set()
     territory = get_territory_by_qid(item.id)
     if territory is not None and territory.ftm_country is not None:
         text = LangText(territory.ftm_country, original=item.id)

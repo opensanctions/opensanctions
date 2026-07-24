@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Generator, List, Optional, Tuple
+from collections.abc import Generator
 from lxml.etree import _Element as Element
 
 from zavod import Context, Entity
@@ -30,8 +30,8 @@ def get_persons(
     context: Context,
     prefix: str,
     doc: ElementOrTree,
-    include_prefixes: Optional[List[Regime]] = None,
-) -> Generator[Tuple[Element, Entity], None, None]:
+    include_prefixes: list[Regime] | None = None,
+) -> Generator[tuple[Element, Entity], None, None]:
     yield from get_entities(
         context, prefix, doc, include_prefixes, "INDIVIDUAL", "Person"
     )
@@ -41,8 +41,8 @@ def get_legal_entities(
     context: Context,
     prefix: str,
     doc: ElementOrTree,
-    include_prefixes: Optional[List[Regime]] = None,
-) -> Generator[Tuple[Element, Entity], None, None]:
+    include_prefixes: list[Regime] | None = None,
+) -> Generator[tuple[Element, Entity], None, None]:
     yield from get_entities(
         context, prefix, doc, include_prefixes, "ENTITY", "LegalEntity"
     )
@@ -52,10 +52,10 @@ def get_entities(
     context: Context,
     prefix: str,
     doc: ElementOrTree,
-    include_prefixes: Optional[List[Regime]],
+    include_prefixes: list[Regime] | None,
     tag: str,
     schema: str,
-) -> Generator[Tuple[Element, Entity], None, None]:
+) -> Generator[tuple[Element, Entity], None, None]:
     for node in doc.findall(f".//{tag}"):
         perm_ref = node.findtext("./REFERENCE_NUMBER")
         if (
@@ -90,7 +90,7 @@ def make_entity(context: Context, prefix: str, schema: str, node: Element) -> En
 
 
 def apply_un_name_list(
-    context: Context, entity: Entity, names: List[str], lang: Optional[str] = None
+    context: Context, entity: Entity, names: list[str], lang: str | None = None
 ) -> None:
     """Apply the list of names given by the UN to an entity.
 
@@ -114,7 +114,7 @@ def apply_un_name_list(
         entity.add("name", h.make_name(**name_args), lang=lang)
 
 
-def load_un_sc(context: Context) -> Tuple[Dataset, ElementOrTree]:
+def load_un_sc(context: Context) -> tuple[Dataset, ElementOrTree]:
     un_sc_path = (
         Path(__file__).parent.parent.parent.parent
         / "datasets/_global/un_sc_sanctions/un_sc_sanctions.yml"

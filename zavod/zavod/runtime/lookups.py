@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING
 from datapatch import Result
 from datapatch.lookup import Lookup
 from followthemoney import Property
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 log = get_logger(__name__)
 
 
-def get_type_lookup(dataset: Dataset, type_: PropertyType) -> Optional[Lookup]:
+def get_type_lookup(dataset: Dataset, type_: PropertyType) -> Lookup | None:
     """Get a type-based lookup from the dataset by name."""
     return dataset.lookups.get(f"type.{type_.name}")
 
@@ -32,15 +32,13 @@ def is_type_lookup_value(entity: "Entity", type_: PropertyType, value: str) -> b
 
 
 def match_type_lookup(
-    entity: "Entity", type_: PropertyType, value: Optional[str]
+    entity: "Entity", type_: PropertyType, value: str | None
 ) -> Result | None:
     lookup = get_type_lookup(entity.dataset, type_)
     return lookup.match(value) if lookup is not None else None
 
 
-def type_lookup(
-    dataset: Dataset, type_: PropertyType, value: Optional[str]
-) -> List[str]:
+def type_lookup(dataset: Dataset, type_: PropertyType, value: str | None) -> list[str]:
     """Given a value and a certain property type, check to see if there is a
     normalised override available. This uses the lookups defined in the dataset
     metadata. If no override is available, the value is returned as-is."""
@@ -52,8 +50,8 @@ def type_lookup(
 
 
 def prop_lookup(
-    entity: "Entity", prop: Property, value: Optional[str]
-) -> List[Tuple[Property, str]]:
+    entity: "Entity", prop: Property, value: str | None
+) -> list[tuple[Property, str]]:
     """Given a value and a certain property, check to see if there is a type-based
     normalised override available. This uses the lookups defined in the dataset
     metadata. If no override is available, the value is returned as-is."""

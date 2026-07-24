@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from followthemoney import registry, Property
 
@@ -45,7 +45,7 @@ SILENCE_WARNING_TYPE = "xss-html-smell"
 
 
 def check_xss_html_smell(
-    entity: "Entity", prop: Property, *, raw_value: Optional[str], cleaned_value: str
+    entity: "Entity", prop: Property, *, raw_value: str | None, cleaned_value: str
 ) -> str | None:
     """A very basic HTML entity and XSS check.
 

@@ -1,6 +1,6 @@
 import unicodedata
 from typing import TYPE_CHECKING
-from typing import Optional, Generator, Tuple
+from collections.abc import Generator
 from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
@@ -46,8 +46,8 @@ VALIDATE_AS_NAME_PROPS = {
 log = get_logger(__name__)
 
 
-def clean_identifier(prop: Property, value: str) -> Optional[str]:
-    normalized: Optional[str] = value
+def clean_identifier(prop: Property, value: str) -> str | None:
+    normalized: str | None = value
     if prop.format in VALIDATE_FORMATS:
         format_ = get_identifier_format(prop.format)
         if format_ is not None:
@@ -66,22 +66,22 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
 def value_clean(
     entity: "Entity",
     prop: Property,
-    value: Optional[str],
+    value: str | None,
     cleaned: bool = False,
     fuzzy: bool = False,
-    format: Optional[str] = None,
-    origin: Optional[str] = None,
-) -> Generator[Tuple[Property, str, Optional[str]], None, None]:
+    format: str | None = None,
+    origin: str | None = None,
+) -> Generator[tuple[Property, str, str | None], None, None]:
     if prop.deprecated:
         log.warning(
-            "Deprecated property used: %s" % prop.name,
+            f"Deprecated property used: {prop.name}",
             entity_id=entity.id,
             schema=entity.schema.name,
             prop=prop.name,
         )
 
     for prop_, item in prop_lookup(entity, prop, value):
-        clean: Optional[str] = item
+        clean: str | None = item
         if origin is None and item != value:
             origin = ORIGIN_LOOKUP
         if not cleaned:

@@ -1,7 +1,7 @@
 from pathlib import Path
 from lxml import etree
 from hashlib import sha1
-from typing import Any, Optional
+from typing import Any
 from normality import squash_spaces
 
 from zavod.logs import get_logger
@@ -16,8 +16,8 @@ def assert_url_hash(
     url: str,
     hash: str,
     raise_exc: bool = False,
-    auth: Optional[Any] = None,
-    headers: Optional[Any] = None,
+    auth: Any | None = None,
+    headers: Any | None = None,
 ) -> bool:
     """Assert that a document located at the URL has a given SHA1 hash."""
     digest = sha1()
@@ -32,7 +32,7 @@ def assert_url_hash(
             raise AssertionError(msg)
         else:
             log.warning(
-                "URL hash changed: %s" % url,
+                f"URL hash changed: {url}",
                 expected=hash,
                 actual=actual,
                 url=url,
@@ -57,7 +57,7 @@ def assert_file_hash(
             raise AssertionError(msg)
         else:
             log.warning(
-                "File hash changed: %s" % path.name,
+                f"File hash changed: {path.name}",
                 expected=hash,
                 actual=actual,
                 name=path.name,
@@ -67,8 +67,8 @@ def assert_file_hash(
 
 
 def _compute_node_hash(
-    node: Optional[ElementOrTree], text_only: bool = False
-) -> Optional[str]:
+    node: ElementOrTree | None, text_only: bool = False
+) -> str | None:
     digest = sha1()
     if node is None:
         return None
@@ -93,7 +93,7 @@ def _compute_node_hash(
 
 
 def assert_dom_hash(
-    node: Optional[ElementOrTree],
+    node: ElementOrTree | None,
     hash: str,
     raise_exc: bool = False,
     text_only: bool = False,
@@ -106,7 +106,7 @@ def assert_dom_hash(
             raise AssertionError(msg)
         else:
             log.warning(
-                "DOM hash changed: %s" % node,
+                f"DOM hash changed: {node}",
                 expected=hash,
                 actual=actual,
                 node=repr(node),
@@ -119,7 +119,7 @@ def assert_html_url_hash(
     context: Context,
     url: str,
     hash: str,
-    path: Optional[str] = None,
+    path: str | None = None,
     raise_exc: bool = False,
     text_only: bool = False,
 ) -> bool:
