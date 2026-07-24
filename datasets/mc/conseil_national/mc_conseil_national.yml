@@ -8,15 +8,15 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the National Council (Conseil National) of Monaco, the unicameral
+  Members of the National Council of Monaco, the unicameral
   legislature.
 description: |
-  The National Council (Conseil National) is the unicameral legislature of the Principality
-  of Monaco. Its 24 members are directly elected for a five-year term. The current
-  legislature covers 2023–2028.
+  Current members of the National Council (Conseil National), the unicameral
+  legislature of the Principality of Monaco. Its 24 members are directly elected for a
+  five-year term and hold the principality's legislative power, including passing laws
+  and approving the budget.
 
-  This dataset records each member of the current National Council by name, from the
-  Council's official website.
+  This dataset records each sitting member by name.
 url: https://www.conseil-national.mc/vos-elus/
 publisher:
   name: Conseil National de Monaco
