@@ -7,7 +7,7 @@ coverage:
   start: 2022-12-27
 deploy:
   memory: "2000Mi"
-  memory_limit: "4000Mi"
+  memory_limit: "5000Mi"
   schedule: "0 0 * * 2,4,6"
   premium: true
 load_statements: true
