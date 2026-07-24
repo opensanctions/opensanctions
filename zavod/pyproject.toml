@@ -107,3 +107,9 @@ combine_as_imports = true
 force_single_line = false
 force_alphabetical_sort_within_sections = true
 src_paths = ["zavod"]
+
+[tool.ruff.lint]
+# Pin the enforced rule set explicitly so a ruff upgrade can't opt the whole
+# codebase into new default rules at once. This is the pre-0.16 default set;
+# adopt further rules deliberately via extend-select.
+select = ["E4", "E7", "E9", "F"]
