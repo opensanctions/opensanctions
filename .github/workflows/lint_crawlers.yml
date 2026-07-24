@@ -66,8 +66,8 @@ jobs:
           while IFS= read -r dataset; do
             [ -z "$dataset" ] && continue
             echo Linting "$dataset"
-            ruff check "$dataset"
-            ruff format --check --diff "$dataset"
+            ruff check --config zavod/pyproject.toml "$dataset"
+            ruff format --check --diff --config zavod/pyproject.toml "$dataset"
           done <<< "$CHANGED_FILES"
       - name: Run prek pre-commit hooks on modified files
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
