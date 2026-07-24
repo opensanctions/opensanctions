@@ -169,6 +169,10 @@ lookups:
         value: 2020-09
       - match: "2026-06-31"
         value: 2026-06
+      - match: "1951-06-31"
+        value: 1951-06
+      - match: "1942-02-29"
+        value: 1942-02
 
 config:
   seeds:
