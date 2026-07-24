@@ -41,35 +41,31 @@ Status = Literal[
 # Recent OFAC Actions
 
 
-schema_field = Field(
-    description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
-)
-address_field = Field(
-    default=[],
-    description=("The addresses or even just the districts/states of the defendant."),
-)
-status_field = Field(
-    description=(
-        "The status of the enforcement action notice."
-        " If `Other`, add the text used as the status in the source to `notes`."
-    )
-)
-notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
-
-
 class RelatedCompany(BaseModel):
     name: str
     relationship: str
 
 
 class Defendant(BaseModel):
-    entity_schema: Schema = schema_field
+    entity_schema: Schema = Field(
+        description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
+    )
     name: str
     aliases: list[str] = []
-    address: list[str] = address_field
+    address: list[str] = Field(
+        default=[],
+        description="The addresses or even just the districts/states of the defendant.",
+    )
     country: list[str] = []
-    status: Status = status_field
-    notes: str | None = notes_field
+    status: Status = Field(
+        description=(
+            "The status of the enforcement action notice."
+            " If `Other`, add the text used as the status in the source to `notes`."
+        )
+    )
+    notes: str | None = Field(
+        default=None, description="Only used if `status` is `Other`."
+    )
     related_companies: list[RelatedCompany] = []
     pdf_url: list[str] = []
 
@@ -87,11 +83,11 @@ If the name is a person name, use `Person` as the entity_schema.
 Specific fields:
 
 - name: The name of the entity precisely as expressed in the text. If an acronym follows the name in parentheses, include it as an alias and not as part of the name.
-- entity_schema: {schema_field.description}
-- address: {address_field.description}
+- entity_schema: {Defendant.model_fields["entity_schema"].description}
+- address: {Defendant.model_fields["address"].description}
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
-- status: {status_field.description}
-- notes: {notes_field.description}
+- status: {Defendant.model_fields["status"].description}
+- notes: {Defendant.model_fields["notes"].description}
 - related_companies: If the defendant has an ownership or controlling relationship with the related entity, add it here.
 - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
 - pdf_url: The PDF URL exactly as written in the source text.
@@ -120,15 +116,12 @@ def make_company_link(
 
 
 def crawl_enforcement_action(context: Context, url: str) -> None:
-    article = context.fetch_html(url, cache_days=7)
-    article.make_links_absolute(context.data_url)
-    if article is None:
+    article_el = context.fetch_html(url, cache_days=7, absolute_links=True)
+    if article_el is None:
         return
-    article_name = article.xpath(NAME_XPATH)[0]
-    article_content = article.xpath(CONTENT_XPATH)
-    assert len(article_content) == 1
-    article_element = article_content[0]
-    date = article.xpath(DATE_XPATH)[0]
+    article_name = h.xpath_strings(article_el, NAME_XPATH)[0]
+    article_element = h.xpath_element(article_el, CONTENT_XPATH)
+    date = h.xpath_strings(article_el, DATE_XPATH)[0]
 
     source_value = HtmlSourceValue(
         key_parts=url,
@@ -151,7 +144,9 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
     for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
-        entity.id = context.make_id(item.name, item.address, item.country)
+        # make_id takes str | None; item.address/item.country are lists but must
+        # stay in the key unchanged to avoid re-keying existing entities.
+        entity.id = context.make_id(item.name, item.address, item.country)  # type: ignore[arg-type]
         entity.add("name", item.name, origin=review.origin)
         if item.address != item.country:
             entity.add("address", item.address, origin=review.origin)
@@ -193,23 +188,28 @@ def crawl(context: Context) -> None:
         )
         context.log.info("Crawling index page", url=base_url)
         doc = context.fetch_html(base_url, absolute_links=True)
-        links = doc.xpath(
-            "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
+        links = h.xpath_strings(
+            doc,
+            "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href",
         )
         if not links:
             break
-        search_results = doc.xpath(".//div[contains(@class, 'search-result')]")
+        search_results = h.xpath_elements(
+            doc, ".//div[contains(@class, 'search-result')]"
+        )
         for result in search_results:
-            enforcement_date = result.xpath(
-                ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
+            enforcement_date = h.xpath_strings(
+                result,
+                ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]",
             )
             assert len(enforcement_date) == 1, "Expected exactly one enforcement date"
             clean_date = enforcement_date[0].strip().removesuffix(" -")
             if not h.within_max_age(context, clean_date, MAX_AGE_DAYS):
                 within_age_limit = False
                 break
-            link = result.xpath(
-                ".//a[contains(@href, 'recent-actions') or contains(@href, 'recent-issues') and not(contains(@href, 'enforcement-actions'))]/@href"
+            link = h.xpath_strings(
+                result,
+                ".//a[contains(@href, 'recent-actions') or contains(@href, 'recent-issues') and not(contains(@href, 'enforcement-actions'))]/@href",
             )[0]
             # Extract the first link to the enforcement action (or "recent-issues").
             # Skip one known duplicate case of "https://ofac.treasury.gov/recent-actions/20181127_33" under /recent-issues.
