@@ -49,7 +49,8 @@ http:
     - POST
 
 inputs:
-  - ann_graph_topics
+  # if this ever emits adjacent entities:
+  # - ann_graph_topics
   - sanctions
   - securities
   - ru_nsd_isin

@@ -42,7 +42,8 @@ publisher:
   url: https://www.lseg.com/en/about-us/what-we-do
 
 inputs:
-  - ann_graph_topics
+  # if this ever emits adjacent entities:
+  # - ann_graph_topics
   - au_dfat_sanctions
   - ca_dfatd_sema_sanctions
   - ch_seco_sanctions
