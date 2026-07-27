@@ -59,8 +59,9 @@ def crawl(context: Context) -> None:
         name="Member of the Parliament of Fiji",
         country="fj",
         wikidata_id="Q18145348",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -69,7 +70,7 @@ def crawl(context: Context) -> None:
         context,
         context.data_url,
         unblock_validator='.//img[contains(@src, "300x300")]',
-        cache_days=1,
+        cache_days=14,
     )
 
     for source_attr in h.xpath_strings(doc, "//img/@src"):
