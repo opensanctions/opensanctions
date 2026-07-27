@@ -43,10 +43,26 @@ def load_details(context: Context) -> dict[str, list[dict[str, str]]]:
     return details
 
 
+def detail_entity_id(
+    context: Context, measure: str, name: str, measure_names: set[str]
+) -> str | None:
+    """ID for an entity named in a detail row, coded on the raw source values.
+
+    A name that matches a measure's own table row (e.g. Huione Group owning
+    H-Pay Service PLC) resolves to that measure's main entity, so the two
+    measures share one entity instead of minting a duplicate. Otherwise the
+    entity is scoped to the raw name of the measure it was mined under.
+    """
+    if squash_spaces(name) in measure_names:
+        return context.make_id(name)
+    return context.make_id(measure, name)
+
+
 def crawl_detail(
     context: Context,
     detail: dict[str, str],
-    main: Entity,
+    main: Entity | None,
+    measure: str,
     measure_names: set[str],
     listing_date: str,
     start_date: str,
@@ -61,6 +77,7 @@ def crawl_detail(
         raise ValueError(f"Detail row without Source URL: {name!r}")
 
     if relationship == "self":
+        assert main is not None, name  # a skipped measure has no self facts
         main.add("alias", h.multi_split(detail.pop("Alias"), [";"]))
         main.add("country", detail.pop("Country"))
         main.add("address", detail.pop("Address"))
@@ -72,13 +89,7 @@ def crawl_detail(
         return
 
     entity = context.make(detail.pop("Type"))
-    if squash_spaces(name) in measure_names:
-        # The document links two measures' main entities (e.g. Huione Group
-        # owning H-Pay Service PLC): attach to the existing entity instead of
-        # minting a duplicate. Mirrors the main entity's ID construction.
-        entity.id = context.make_id(name)
-    else:
-        entity.id = context.make_id(main.id, name)
+    entity.id = detail_entity_id(context, measure, name, measure_names)
     entity.add("name", name)
     entity.add("alias", h.multi_split(detail.pop("Alias"), [";"]))
     entity.add("country", detail.pop("Country"))
@@ -102,23 +113,26 @@ def crawl_detail(
         for date in convert_date(end_date):
             h.apply_date(sanction, "endDate", date)
         context.emit(sanction)
-    elif relationship in ("subsidiary", "owner"):
-        owner, asset = (
-            (main, entity) if relationship == "subsidiary" else (entity, main)
-        )
-        ownership = context.make("Ownership")
-        ownership.id = context.make_id("ownership", owner.id, asset.id)
-        ownership.add("owner", owner.id)
-        ownership.add("asset", asset.id)
-        ownership.add("sourceUrl", source_url)
-        context.emit(ownership)
-    elif relationship == "related":
-        link = context.make("UnknownLink")
-        link.id = context.make_id("link", main.id, entity.id)
-        link.add("subject", main.id)
-        link.add("object", entity.id)
-        link.add("sourceUrl", source_url)
-        context.emit(link)
+    elif main is not None:
+        # A subsidiary / owner / related party links to the main entity; under a
+        # skipped measure there is none, so the party is emitted on its own.
+        if relationship in ("subsidiary", "owner"):
+            owner, asset = (
+                (main, entity) if relationship == "subsidiary" else (entity, main)
+            )
+            ownership = context.make("Ownership")
+            ownership.id = context.make_id("ownership", owner.id, asset.id)
+            ownership.add("owner", owner.id)
+            ownership.add("asset", asset.id)
+            ownership.add("sourceUrl", source_url)
+            context.emit(ownership)
+        elif relationship == "related":
+            link = context.make("UnknownLink")
+            link.id = context.make_id("link", main.id, entity.id)
+            link.add("subject", main.id)
+            link.add("object", entity.id)
+            link.add("sourceUrl", source_url)
+            context.emit(link)
 
     context.emit(entity)
     context.audit_data(detail)
@@ -130,60 +144,74 @@ def crawl_item(
     details: list[dict[str, str]],
     measure_names: set[str],
 ) -> list[str]:
-    """Emit the measure's main entity and its mined details; return the
-    document URLs linked from the table row."""
+    """Emit the measure's main entity (unless it is a non-representable class)
+    and its mined details; return the document URLs linked from the table row."""
     name = row.pop("name").text_content()
-    schema = context.lookup_value("target_type", name)
-    if schema is None:
-        schema = "Company"
-    entity = context.make(schema)
-    entity.id = context.make_id(name)
-    entity.add("name", name)
-    # Adjust the topic based on the presence of "final rule"
-    final_rule = collapse_spaces(row["final-rule"].text_content().strip().lower())
+
+    # Dates from the table row apply both to the measure's own sanction and to
+    # the sanctions of any `target` members, so compute them regardless.
+    finding_date = row["finding"].text_content()
+    nprm_date = row["notice-of-proposed-rulemaking"].text_content()
+    listing_date = finding_date if finding_date else nprm_date
+    final_rule_text = row["final-rule"].text_content()
+    start_date = final_rule_text if final_rule_text != "---" else ""
     rescinded_date = squash_spaces(row["rescinded"].text_content())
-    if (
-        final_rule
-        and final_rule != "---"
-        and (not rescinded_date or rescinded_date == "---")
-    ):
-        entity.add("topics", "sanction")
-    else:
-        entity.add("topics", "reg.warn")
+    end_date = rescinded_date if rescinded_date not in ("---", "") else ""
 
-    # Create and add details to the sanction
-    sanction = h.make_sanction(context, entity)
-
-    # Extract document links
+    # Document links from the table row, for provenance and for discovery.
     anchors = row["finding"].findall(".//a")
     anchors.extend(row["notice-of-proposed-rulemaking"].findall(".//a"))
     anchors.extend(row["rescinded"].findall(".//a"))
     anchors.extend(row["final-rule"].findall(".//a"))
     doc_urls = [url for a in anchors if (url := a.get("href")) is not None]
-    sanction.add("sourceUrl", doc_urls)
 
-    finding_date = row["finding"].text_content()
-    nprm_date = row["notice-of-proposed-rulemaking"].text_content()
-    listing_date = finding_date if finding_date else nprm_date
-    for date in convert_date(listing_date):
-        h.apply_date(sanction, "listingDate", date)
+    main: Entity | None = None
+    sanction: Entity | None = None
+    # A "class of transactions" measure (see the skip_entity lookup) names no
+    # entity we can represent, so emit no main entity or sanction — only the
+    # members named in the linked documents (details.csv rows).
+    if context.lookup_value("skip_entity", name) is None:
+        schema = context.lookup_value("target_type", name)
+        if schema is None:
+            schema = "Company"
+        main = context.make(schema)
+        main.id = context.make_id(name)
+        main.add("name", name)
+        # Adjust the topic based on the presence of "final rule"
+        final_rule = collapse_spaces(final_rule_text.strip().lower())
+        if (
+            final_rule
+            and final_rule != "---"
+            and (not rescinded_date or rescinded_date == "---")
+        ):
+            main.add("topics", "sanction")
+        else:
+            main.add("topics", "reg.warn")
 
-    final_rule_date = row["final-rule"].text_content()
-    start_date = final_rule_date if final_rule_date != "---" else ""
-    for date in convert_date(start_date):
-        h.apply_date(sanction, "startDate", date)
-
-    end_date = rescinded_date if rescinded_date not in ("---", "") else ""
-    for date in convert_date(end_date):
-        h.apply_date(sanction, "endDate", date)
+        sanction = h.make_sanction(context, main)
+        sanction.add("sourceUrl", doc_urls)
+        for date in convert_date(listing_date):
+            h.apply_date(sanction, "listingDate", date)
+        for date in convert_date(start_date):
+            h.apply_date(sanction, "startDate", date)
+        for date in convert_date(end_date):
+            h.apply_date(sanction, "endDate", date)
 
     for detail in details:
         crawl_detail(
-            context, detail, entity, measure_names, listing_date, start_date, end_date
+            context,
+            detail,
+            main,
+            name,
+            measure_names,
+            listing_date,
+            start_date,
+            end_date,
         )
 
-    context.emit(entity)
-    context.emit(sanction)
+    if main is not None and sanction is not None:
+        context.emit(main)
+        context.emit(sanction)
     return doc_urls
 
 
