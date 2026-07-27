@@ -29,7 +29,8 @@ def convert_excel_cell(book: Book, cell: Cell) -> str | None:
     """
     # https://xlrd.readthedocs.io/en/latest/api.html#xlrd.sheet.Cell
     if cell.ctype == XL_CELL_NUMBER:
-        return str(int(cell.value))
+        # Excel stores all numbers as floats; stringify keeps the fractional part.
+        return stringify(cell.value)
     elif cell.ctype in (XL_CELL_EMPTY, XL_CELL_ERROR, XL_CELL_BLANK):
         return None
     if cell.ctype == XL_CELL_DATE:
