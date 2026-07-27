@@ -7,15 +7,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
-# The Apache server returns 403 without a browser User-Agent and a same-site Referer.
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Referer": "https://www.assnat.ci/",
-}
-
 DATE_RE = re.compile(r"^\d{2}/\d{2}/\d{4}$")
 
 # The list is a fixed-column PDF. Each titular deputy row is anchored on a date-of-birth
@@ -40,16 +31,16 @@ def crawl(context: Context) -> None:
         name="Member of the National Assembly of Côte d'Ivoire",
         country="ci",
         wikidata_id="Q21295981",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
 
-    path = context.fetch_resource("deputies.pdf", context.data_url, headers=HEADERS)
+    path = context.fetch_resource("deputies.pdf", context.data_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    count = 0
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
             words = page.extract_words()
@@ -85,7 +76,3 @@ def crawl(context: Context) -> None:
                     continue
                 context.emit(occupancy)
                 context.emit(person)
-                count += 1
-
-    if count == 0:
-        raise ValueError("No deputies parsed from the National Assembly PDF")

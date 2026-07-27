@@ -32,6 +32,11 @@ data:
   url: https://www.assnat.ci/liste_des_depute_anci.pdf
   format: PDF
   lang: fra
+http:
+  # The Apache server returns 403 without a browser User-Agent.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/124.0.0.0 Safari/537.36
 
 dates:
   formats: ["%d/%m/%Y"]
