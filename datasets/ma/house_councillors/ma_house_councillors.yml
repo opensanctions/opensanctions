@@ -18,7 +18,8 @@ description: |
   the country's legislative power with the House of Representatives, including passing laws
   and approving the budget.
 
-  This dataset records each councillor with their name.
+  This dataset records each councillor with their name, the political party they ran
+  for (where applicable) and the region or electoral district they represent.
 url: https://www.chambredesconseillers.ma/
 publisher:
   name: Chambre des Conseillers
@@ -34,6 +35,11 @@ data:
   url: https://www.chambredesconseillers.ma/
   format: PDF
   lang: ara
+http:
+  # The site can reject non-browser clients, so present a browser User-Agent.
+  user_agent: >-
+    Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)
+    Chrome/124.0.0.0 Safari/537.36
 
 tags:
   - list.pep
