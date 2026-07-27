@@ -1,5 +1,4 @@
 import json
-import os
 import re
 from typing import Any
 
@@ -16,10 +15,10 @@ from zavod import helpers as h
 
 # The council site is a single-page app backed by a JSON API gated by a static
 # key shipped verbatim in its public JavaScript bundle; requests without it are
-# rejected. The key is not secret but is kept out of source and supplied via the
-# environment.
+# rejected. The key is not a secret credential — every site visitor receives it —
+# so it is hardcoded here rather than treated as deployment configuration.
 BASE_URL = "https://shura.bh/shura/api/shura-external"
-API_KEY = os.environ.get("OPENSANCTIONS_BH_SHURA_API_KEY")
+API_KEY = "CB4E1B37-EECCA601-972C6B68-189AB6FE-9A771D24-0FDEBFB1-A4D4C063-DB6F152A"
 
 # In place of a missing date the API returns a "1000-01-01" sentinel or the
 # literal string "Invalid date".
@@ -82,7 +81,6 @@ def fetch_api(
     large enough to hold the whole result and fail loudly if the source ever
     grows beyond one page, rather than silently dropping the overflow.
     """
-    assert API_KEY is not None, "OPENSANCTIONS_BH_SHURA_API_KEY not set."
     payload = context.fetch_json(
         f"{BASE_URL}/{endpoint}",
         method="POST",
