@@ -35,6 +35,14 @@ data:
   format: JSON
   lang: por
 
+lookups:
+  type.gender:
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female
+
 tags:
   - list.pep
 

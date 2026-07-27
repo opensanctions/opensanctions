@@ -6,7 +6,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-GENDERS = {"M": "male", "F": "female"}
 TOPICS = ["gov.national", "gov.legislative"]
 
 
@@ -23,7 +22,7 @@ def fetch_paginated(
     The API caps a page at 1000 items regardless of the requested `itens`, so a
     larger result set has to be walked page by page by following the `next` link.
     """
-    data = context.fetch_json(url, params={**params, "itens": 1000}, cache_days=1)
+    data = context.fetch_json(url, params={**params, "itens": 1000}, cache_days=14)
     yield from data["dados"]
     next_url = next_page_url(data)
     while next_url is not None:
@@ -50,7 +49,7 @@ def crawl_deputy(
     person.id = context.make_slug(str(deputy_id))
     person.add("name", status.pop("nome"), lang="por")
     person.add("name", detail.pop("nomeCivil"), lang="por")
-    person.add("gender", GENDERS.get(detail.pop("sexo")))
+    person.add("gender", detail.pop("sexo"))
     h.apply_date(person, "birthDate", detail.pop("dataNascimento"))
     h.apply_date(person, "deathDate", detail.pop("dataFalecimento"))
     municipality = detail.pop("municipioNascimento")
@@ -121,8 +120,9 @@ def crawl(context: Context) -> None:
         wikidata_id="Q20058725",
         topics=TOPICS,
         number_of_seats="513",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
