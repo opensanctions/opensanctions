@@ -54,13 +54,14 @@ def make_person(context: Context, declaration_id: int, data: dict[str, Any]) -> 
     last_name = data.pop("pavarde")
     person_id = data.pop("asmensKodas", None)  # this identifier is often missing
     birth_date = data.pop("gimimoData", None)  # often missing
-    # birth_date or declaration_id can be an int fallback; keeping it as-is
-    # preserves existing entity IDs (changing make_id args would re-key entities).
+    # birth_date or declaration_id can be an int fallback. make_entity_id str()s
+    # each part before hashing, so wrapping in str() here satisfies the signature
+    # without changing the hash, i.e. existing entity IDs are preserved.
     person.id = context.make_id(
         person_id,
         first_name,
         last_name,
-        birth_date or declaration_id,  # type: ignore[arg-type]
+        str(birth_date or declaration_id),
     )
     person.add("registrationNumber", person_id)
     h.apply_name(person, first_name=first_name, last_name=last_name)
