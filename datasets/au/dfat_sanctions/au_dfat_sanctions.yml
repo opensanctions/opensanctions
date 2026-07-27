@@ -147,10 +147,13 @@ lookups:
         value: UN-SC2713
       - match: "2127 (Central African Republic)"
         value: UN-SC2127
+      # The 751 Committee was renamed the 2713 Committee in December 2023;
+      # legacy committee strings route to the same Somalia program.
       - match:
           - "2093 (2013)"
           - "751 (Somalia and Eritrea)"
-          - "None"
+        value: UN-SC2713
+      - match: "None"
         value: null
       - match:
           - 2048 (Guinea-Bissau)

@@ -1,12 +1,22 @@
 id: 201
-title: Myanmar Sanctions Regime
+title: Myanmar sanctions framework
 key: AU-MYANMAR
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/myanmar-sanctions-regime
-summary: Australia imposes autonomous sanctions in relation to Myanmar in response
-  to the military's actions undermining democracy and committing human rights abuses.
-  These sanctions were first imposed in 2018 and have been extended in subsequent
-  years to include asset freezes, travel bans, and restrictions on financial services.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/myanmar-sanctions-framework
+summary: >
+  Targets members of Myanmar's military (the Tatmadaw) and military-linked
+  entities in response to serious human rights abuses, including against the
+  Rohingya, and to the February 2021 military coup. Designated persons and
+  entities are subject to an asset freeze, and declared persons are barred
+  from entering or transiting Australia. Australia also imposes a
+  country-wide arms embargo, prohibiting the supply of arms and related
+  matériel to Myanmar and the provision of related services.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (Myanmar)
 target_territories:
-- mm
+  - mm
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
