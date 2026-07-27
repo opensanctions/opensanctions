@@ -4,6 +4,7 @@ from itertools import count
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 MEMBER_HREF_RE = re.compile(r"/members/([0-9a-f]+)$")
@@ -22,7 +23,7 @@ def collect_member_ids(context: Context) -> list[str]:
     for page in count(1):
         if page > MAX_PAGES:
             raise ValueError("Council members directory exceeded the page cap")
-        doc = context.fetch_html(context.data_url, params={"page": page}, cache_days=1)
+        doc = context.fetch_html(context.data_url, params={"page": page}, cache_days=14)
         page_ids: list[str] = []
         for href in h.xpath_strings(doc, '//a[contains(@href, "/members/")]/@href'):
             match = MEMBER_HREF_RE.search(href)
@@ -86,6 +87,7 @@ def crawl_member(
     person = context.make("Person")
     person.id = context.make_slug(member_id)
     person.add("name", name, lang="ara")
+    apply_translit_full_name(context, person, "ara", name)
     person.add("political", party, lang="ara")
     person.add("sourceUrl", url)
     # Members must be of Algerian nationality: the elected two-thirds must be sitting
@@ -119,8 +121,9 @@ def crawl(context: Context) -> None:
         name="Member of the Council of the Nation of Algeria",
         country="dz",
         wikidata_id="Q21290885",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
