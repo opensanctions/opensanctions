@@ -27,6 +27,13 @@ that warning is in the `config.discovery` section of the dataset `.yml`.
     from the main entity.
   - `related` — creates the entity plus an UnknownLink; for parties the
     documents connect to the target without designating them.
+
+  When a table row names a *class of transactions* rather than an entity we can
+  represent (e.g. "Convertible Virtual Currency Mixing", "Mexican Gambling
+  Establishments"), it is listed in the `skip_entity` lookup in the dataset
+  `.yml`. The class itself is not emitted; only its `target` members are. A
+  `subsidiary`/`owner`/`related` row under such a measure has no main entity to
+  link to, so it is emitted on its own.
 - `Type` — FTM schema for non-`self` rows (Company, Organization, Person, …).
 - `Name`, `Alias` — verbatim from the document; `Alias` is `;`-separated.
   No cleaning, recasing or translation.
