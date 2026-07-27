@@ -68,7 +68,7 @@ def crawl(context: Context) -> None:
     # The page declares UTF-8 but is actually served as ISO-8859-1 (Latin-1); decoding
     # it as anything else mojibakes the accented names.
     doc = context.fetch_html(
-        context.data_url, encoding="latin-1", cache_days=1, absolute_links=True
+        context.data_url, encoding="latin-1", cache_days=14, absolute_links=True
     )
     for member in h.xpath_elements(doc, '//div[@class="membro"]'):
         crawl_member(context, member, position, categorisation)
