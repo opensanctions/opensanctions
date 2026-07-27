@@ -1,4 +1,4 @@
-title: Morocco House of Councillors
+title: Morocco Members of the House of Councillors
 name: ma_house_councillors
 prefix: ma-hoc
 entry_point: crawler.py
@@ -11,12 +11,14 @@ summary: >-
   Members of the House of Councillors, the upper chamber of the Moroccan
   parliament.
 description: |
-  The House of Councillors (Majlis al-Mustasharin) is the upper chamber of Morocco's
-  bicameral parliament. Its 120 members are indirectly elected for six-year terms by five
-  electoral colleges: regional councils, local and prefectural councils, professional
-  chambers, employers' organisations and employee (trade-union) representatives.
+  Current members of the House of Councillors (Majlis al-Mustasharin), the upper chamber of
+  Morocco's bicameral parliament. Its 120 members are indirectly elected for six-year terms
+  by five electoral colleges — regional councils, local and prefectural councils, professional
+  chambers, employers' organisations and employee (trade-union) representatives — and share
+  the country's legislative power with the House of Representatives, including passing laws
+  and approving the budget.
 
-  This dataset records each councillor by name, as published in the official members list.
+  This dataset records each councillor with their name.
 url: https://www.chambredesconseillers.ma/
 publisher:
   name: Chambre des Conseillers
