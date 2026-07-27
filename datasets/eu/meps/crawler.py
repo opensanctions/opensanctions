@@ -1,8 +1,10 @@
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
+
+from zavod import Context
+from zavod import helpers as h
 
 
 def split_name(name: str) -> tuple[str, str] | tuple[None, None]:
@@ -76,7 +78,11 @@ def crawl_node(
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.xml", context.data_url)
+    # The European Parliament put the MEP list endpoint behind an AWS WAF challenge
+    # (HTTP 202 with an empty body and an x-amzn-waf-action: challenge header), so a
+    # direct fetch returns an empty document. Route the request through Zyte, which
+    # solves the challenge and returns the XML.
+    _, _, _, path = zyte_api.fetch_resource(context, "source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 

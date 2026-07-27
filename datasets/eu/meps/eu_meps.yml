@@ -1,5 +1,6 @@
 title: European Parliament Members
 entry_point: crawler.py
+ci_test: false  # fetched via the Zyte API (europarl.europa.eu is behind an AWS WAF challenge)
 prefix: eu-meps
 coverage:
   frequency: weekly
