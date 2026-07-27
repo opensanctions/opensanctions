@@ -53,8 +53,10 @@ jobs:
       - name: Run prek pre-commit hooks on zavod/
         run: |
           set -euxo pipefail
-          # Use find + xargs to avoid hitting shell argument number limits with zavod/**/*
-          find zavod -type f | xargs -n 30 prek run --files
+          # Use git ls-files + xargs to avoid hitting shell argument number limits
+          # with zavod/**/* and to keep untracked artifacts (e.g. .ruff_cache)
+          # out of the hook run.
+          git ls-files -z zavod | xargs -0 -n 30 prek run --files
 
       - name: Run zavod tests
         working-directory: zavod
