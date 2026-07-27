@@ -1,5 +1,5 @@
 from functools import cache
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Set
 
 from followthemoney import registry
 from followthemoney.property import Property
@@ -65,12 +65,13 @@ def _is_publishable(entity_id: str, view: View, enrich_topics: frozenset[str]) -
 
 def check_publishability(
     expanded: Iterable[Entity], subject_view: View, enrich_topics: frozenset[str]
-) -> dict[str, bool]:
-    """Look up publishability once per entity ID that will need it.
+) -> set[str]:
+    """Look up publishability once per entity ID that will need it, returning
+    the set of publishable IDs.
 
     Non-edge supporting entities in the expansion are publishable by virtue of
     their schema, not due to risk topics, so they are seeded into the returned
-    map without a lookup in the subject view.
+    set without a lookup in the subject view.
 
     Non-supporting entities (the more common case - entities related via e.g.
     Ownership, Family) are looked up in the subject view where graph analyzer
@@ -79,7 +80,7 @@ def check_publishability(
     Edges (supporting and risk-connecting) are publishable if all their endpoints
     are publishable.
     """
-    publishable: dict[str, bool] = {}
+    publishable: set[str] = set()
     ids_to_check: set[str] = set()
     for entity in expanded:
         if entity.schema.edge:
@@ -87,16 +88,16 @@ def check_publishability(
         else:
             assert entity.id is not None
             if is_supporting_schema(entity.schema):
-                publishable[entity.id] = True
+                publishable.add(entity.id)
             else:
                 ids_to_check.add(entity.id)
     for eid in ids_to_check:
-        if eid not in publishable:
-            publishable[eid] = _is_publishable(eid, subject_view, enrich_topics)
+        if _is_publishable(eid, subject_view, enrich_topics):
+            publishable.add(eid)
     return publishable
 
 
-def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
+def should_promote(entity: Entity, publishable: Set[str]) -> bool:
     """Promote means emit as 'internal'.
 
     Non-edges are promotable if they are publishable.
@@ -105,13 +106,13 @@ def should_promote(entity: Entity, publishable: Mapping[str, bool]) -> bool:
         endpoints = endpoint_ids(entity)
         if not endpoints:
             return False
-        return all(publishable.get(eid, False) for eid in endpoints)
+        return endpoints <= publishable
     assert entity.id is not None
-    return publishable.get(entity.id, False)
+    return entity.id in publishable
 
 
 def prune_unpublishable_references(
-    context: Context, entity: Entity, publishable: Mapping[str, bool]
+    context: Context, entity: Entity, publishable: Set[str]
 ) -> list[tuple[Property, str]]:
     """Drop references from a non-edge entity to entities that will not be
     published (e.g. a security's issuer without a risk topic), so that the
@@ -130,7 +131,7 @@ def prune_unpublishable_references(
         if prop.type != registry.entity:
             continue
         for other_id in entity.get(prop):
-            if not publishable.get(other_id, False):
+            if other_id not in publishable:
                 entity.remove(prop, other_id)
                 pruned.append((prop, other_id))
                 context.log.info(
