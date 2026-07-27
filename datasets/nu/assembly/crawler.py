@@ -5,16 +5,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# The parliament site is served behind a CDN that rejects non-browser clients.
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-}
-
 
 def crawl_member(
     context: Context,
@@ -59,17 +49,16 @@ def crawl(context: Context) -> None:
         name="Member of the Niue Assembly",
         country="nu",
         wikidata_id="Q40011889",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
 
-    doc = context.fetch_html(context.data_url, headers=HEADERS, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=14)
     # Select every member card and let crawl_member's xpath_element calls raise if one
     # lacks a name or constituency, rather than filtering incomplete cards out silently.
     blocks = h.xpath_elements(doc, '//div[contains(@class, "cabinet-member")]')
-    if not blocks:
-        raise ValueError("No member blocks found on the Niue government page")
     for block in blocks:
         crawl_member(context, position, categorisation, block)

@@ -31,6 +31,11 @@ data:
   url: https://www.gov.nu/government
   format: HTML
   lang: eng
+http:
+  # The parliament site is served behind a CDN that can reject non-browser clients.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/124.0.0.0 Safari/537.36
 
 tags:
   - list.pep
