@@ -28,13 +28,12 @@ def crawl(context: Context) -> None:
         context, context.dataset.url, table_xpath, cache_days=1, absolute_links=True
     )
     table = h.xpath_element(doc, table_xpath)
-    link = h.xpath_strings(table, ".//a/@href")
-    assert len(link) == 1, "Expected exactly one link in the table"
+    link = h.xpath_string(table, ".//a/@href")
 
     # Expect
     # North Korea Sanctions & Enforcement Actions Advisory | 827.97 KB | 08/03/2018
     # Assert hash of linked PDF (hopefully less fickle than HTML)
-    _, _, _, pdf_path = fetch_resource(context, "source.pdf", link[0], PDF)
+    _, _, _, pdf_path = fetch_resource(context, "source.pdf", link, PDF)
     h.assert_file_hash(pdf_path, "cd9894479b1330bf0db3885ded3254e580af7acd")
 
     csv_path = context.fetch_resource("source.csv", context.data_url)
