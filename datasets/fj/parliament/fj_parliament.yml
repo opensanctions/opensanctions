@@ -1,4 +1,4 @@
-title: Fiji Parliament
+title: Fiji Members of Parliament
 name: fj_parliament
 prefix: fj-parl
 entry_point: crawler.py
@@ -10,14 +10,13 @@ ci_test: false
 summary: >-
   The sitting members of Fiji's unicameral Parliament.
 description: |
-  The Parliament of Fiji is the country's unicameral national legislature. Its members
-  serve four-year terms and are chosen through open-list proportional representation.
-  The whole country votes as a single national constituency rather than being carved into
-  local electoral districts, so every member answers to the entire electorate rather than
-  a home seat.
+  Current members of the Parliament of Fiji, the country's unicameral national legislature.
+  Its 55 members serve four-year terms and are chosen through open-list proportional
+  representation, with the whole country voting as a single national constituency rather than
+  local electoral districts, and hold the country's legislative power, including passing laws
+  and approving the budget.
 
-  This dataset records each sitting member of Parliament by name, drawn from Parliament's
-  official Members of Parliament page.
+  This dataset records each sitting member with their name.
 url: https://parliament.gov.fj/
 publisher:
   name: Parliament of the Republic of Fiji
