@@ -12,10 +12,10 @@ from rigour.time import iso_datetime
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import (
-    position_holders,
     wikidata_occupancy,
     wikidata_position,
 )
+from zavod.stateful.positions import categorised_position_qids
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -38,7 +38,6 @@ ALWAYS_PERSONS = ["Q21258544"]
 @dataclass
 class FoundRecord:
     from_categories: set[str] = field(default_factory=set)
-    from_positions: set[str] = field(default_factory=set)
     from_declarator: bool = False
 
 
@@ -51,6 +50,12 @@ class CrawlState:
         # a usable PEP position. Positions recur across the whole person set,
         # so each distinct QID is fetched and categorised only once per run.
         self.positions: dict[str, Entity | None] = {}
+        blocked = 0
+        for qid, is_pep in categorised_position_qids(context):
+            if not is_pep:
+                self.positions[qid] = None
+                blocked += 1
+        self.log.info("Preloaded rejected positions", blocked=blocked)
 
         self.persons: dict[str, FoundRecord] = defaultdict(FoundRecord)
         self.persons.update({qid: FoundRecord() for qid in ALWAYS_PERSONS})
@@ -216,48 +221,6 @@ def crawl_category(state: CrawlState, category_crawl_spec: dict[str, Any]) -> No
     state.context.flush()
 
 
-def crawl_position_holder(state: CrawlState, position_qid: str) -> set[str]:
-    persons: set[str] = set()
-
-    position = get_position(state, position_qid)
-    if position is None:
-        return persons
-    # Cheap re-fetch: get_position just pulled this item into the client LRU.
-    item = state.client.fetch_item(position_qid)
-    if item is None:
-        return persons
-
-    # find person QIDs such that person --( P39 position held )--> position_qid
-    holders = position_holders(state.client, item)
-    persons.update(holders.keys())
-    for person_qid, modified_at in holders.items():
-        if modified_at is not None:
-            state.person_modified_at[person_qid] = modified_at
-
-    # Crawl direct officeholders only after their modification dates can
-    # invalidate stale person items from the cache.
-    crawl_officeholders(state, item, position)
-
-    # find person QIDs such that position_qid --( P1308 officeholder )--> person
-    for claim in item.claims:
-        if claim.property == "P1308" and claim.qid is not None:  # officeholder
-            persons.add(claim.qid)
-
-    state.log.info(f"Found {len(persons)} holders of {item.label} [{position_qid}]")
-    return persons
-
-
-def crawl_igo_positions(state: CrawlState) -> None:
-    """Crawl holders of explicitly curated international-organisation roles."""
-    position_qids: list[str] = state.context.dataset.config.get("igo_positions", [])
-    state.log.info(f"Crawling {len(position_qids)} IGO positions")
-    for position_qid in position_qids:
-        for holder_qid in crawl_position_holder(state, position_qid):
-            state.persons[holder_qid].from_positions.add(position_qid)
-
-        state.context.flush()
-
-
 def crawl_declarator(state: CrawlState) -> None:
     # Import all profiles which have a Declarator ID, a reference to a Russian PEP
     # site containing profiles of all elected officials in Russia.
@@ -316,7 +279,7 @@ def crawl_persons(state: CrawlState) -> None:
 
         state.log.info(
             f"Crawled person {entity.id} "
-            f"(found in categories {found_record.from_categories}, positions {found_record.from_positions}): "
+            f"(found in categories {found_record.from_categories}): "
             f"{entity.caption} {entity.get('topics')}"
         )
 
@@ -339,7 +302,6 @@ def crawl_persons(state: CrawlState) -> None:
 def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
-    crawl_igo_positions(state)
     category_crawl_specs: list[dict[str, Any]] = context.dataset.config.get(
         "categories", []
     )
