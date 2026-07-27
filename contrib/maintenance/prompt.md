@@ -74,6 +74,7 @@ HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among ru
 {% else %}
 - NEVER modify any file other than {{ yaml_path }}.
 {% endif %}
+- To inspect PDF source documents (many findings and Federal Register rules are PDFs), `pdftotext -layout <file> -` is available; `pdftoppm -png` renders pages as images when the text layout is ambiguous.
 - It is fine to open a PR that fixes only some of the issues. Skip issues that are unclear.
 - If the correct fix for a value is genuinely uncertain — i.e. you cannot determine from context what it should be — skip that issue. Do not guess. A skipped issue gets human review later; a wrong fix ships incorrect data.
 - Do NOT open a PR if no fixes are needed.

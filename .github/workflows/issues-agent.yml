@@ -104,7 +104,11 @@ jobs:
       # aggregate_issues) that the prompt's diagnostic report points at.
       - name: Install maintenance tool dependencies
         if: ${{ !matrix.task.needs_zavod }}
-        run: pip install requests pyyaml
+        run: |
+          pip install requests pyyaml
+          # poppler-utils (pdftotext/pdftoppm) so the agent can read PDF source
+          # documents even for datasets whose task doesn't install zavod.
+          sudo apt-get install -y -qq poppler-utils
 
       - name: Install system dependencies
         if: ${{ matrix.task.needs_zavod }}
