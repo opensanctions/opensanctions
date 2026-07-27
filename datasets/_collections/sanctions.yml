@@ -106,6 +106,7 @@ children:
   - ro_onpcsb_sanctions
   - rs_apml_domestic
   - ru_mfa_sanctions
+  - sa_pcct_terrorism_list
   - sg_terrorists
   - th_designated_person
   - tn_cnlct
@@ -116,6 +117,7 @@ children:
   - un_1718_vessels
   - un_sc_sanctions
   - us_bis_denied
+  - us_bis_mieu
   - us_cbp_forced_labor
   - us_cuba_sanctions
   - us_dhs_uflpa

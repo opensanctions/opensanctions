@@ -4,7 +4,7 @@ prefix: ru-kremlin
 entry_point: crawler.py
 coverage:
   frequency: weekly
-  start: 2026-07-15
+  start: 2026-07-27
 load_statements: true
 ci_test: false
 summary: >-
