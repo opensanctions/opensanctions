@@ -1,4 +1,4 @@
-title: Ethiopia House of Peoples' Representatives
+title: Ethiopia Members of the House of Peoples' Representatives
 name: et_hopr
 prefix: et-hopr
 entry_point: crawler.py
@@ -11,13 +11,13 @@ summary: >-
   Members of the House of Peoples' Representatives, the lower chamber of the
   Ethiopian federal parliament.
 description: |
-  The House of Peoples' Representatives is the lower chamber of the Federal Parliamentary
-  Assembly of Ethiopia. It has up to 547 members directly elected from single-member
-  constituencies for five-year terms.
+  Current members of the House of Peoples' Representatives, the lower chamber of the Federal
+  Parliamentary Assembly of Ethiopia. Its up to 547 members are directly elected from
+  single-member constituencies for five-year terms and hold the country's legislative power,
+  including passing laws and approving the budget.
 
-  This dataset records each sitting member with their name, gender, regional state,
-  constituency, parliamentary term and political party as published in the House's members
-  directory.
+  This dataset records each sitting member with their name, gender, political party, and
+  constituency and regional state.
 url: https://www.hopr.gov.et/
 publisher:
   name: House of Peoples' Representatives
