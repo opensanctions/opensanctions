@@ -9,18 +9,29 @@ def crawl(context: Context) -> None:
         name="Senator of Cameroon",
         country="cm",
         wikidata_id="Q21295128",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
 
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    # fetch url from the "Les Sénateurs" menu link on the homepage, which is a stable anchor.
+    landing_page = context.fetch_html(context.data_url, cache_days=30)
+    # The label appears in more than one menu (e.g. desktop and mobile); they
+    # should all point to the same page.
+    senators_url = set(
+        h.xpath_strings(landing_page, '//a[normalize-space(.)="Les Sénateurs"]/@href')
+    )
+    if len(senators_url) != 1:
+        raise ValueError(
+            f"Expected one 'Les Sénateurs' link target, got {senators_url}"
+        )
+
+    doc = context.fetch_html(senators_url.pop(), cache_days=30)
     cards = h.xpath_elements(
         doc, '//div[contains(@class, "sptp-member") and contains(@class, "border-bg")]'
     )
-    if not cards:
-        raise ValueError("No senator cards found on the Senate page")
 
     seen: set[str] = set()
     for card in cards:

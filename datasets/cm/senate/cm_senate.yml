@@ -27,7 +27,7 @@ publisher:
   country: cm
   official: true
 data:
-  url: https://senat.cm/?page_id=869
+  url: https://senat.cm/
   format: HTML
   lang: fra
 
