@@ -1,5 +1,3 @@
-import re
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -15,14 +13,6 @@ GEOLOCATION = "au"
 # successfully unblocked.
 TABLE_XPATH = './/table[contains(@class, "table-striped")]'
 
-# Names carry the honorific "Hon." and use non-breaking spaces. The surname is written in
-# upper case; we keep the source casing since the matcher normalises it.
-HONORIFIC_RE = re.compile(r"^Hon\.\s*", re.IGNORECASE)
-
-
-def clean_name(raw: str) -> str:
-    return HONORIFIC_RE.sub("", " ".join(raw.split())).strip()
-
 
 def crawl_member(
     context: Context,
@@ -32,13 +22,16 @@ def crawl_member(
 ) -> None:
     raw_name = row.pop("name")
     assert raw_name is not None, "Missing member name"
-    name = clean_name(raw_name)
+    # Names carry the honorific "Hon." (declared under `names.prefixes_strip`) and use
+    # non-breaking spaces, which strip_name_titles normalises. The surname is written in
+    # upper case; we keep the source casing since the matcher normalises it.
+    name = h.strip_name_titles(context, raw_name)
     assert name, "Empty member name"
     constituency = row.pop("constituency")
 
     person = context.make("Person")
     person.id = context.make_id(name, constituency)
-    person.add("name", name)
+    person.add("name", name, original_value=raw_name if name != raw_name else None)
     person.add("political", row.pop("party"))
     # Every citizen of Vanuatu at least 25 years of age is eligible to stand for
     # Parliament (Constitution of Vanuatu, Chapter 4, Article 17(2)).
