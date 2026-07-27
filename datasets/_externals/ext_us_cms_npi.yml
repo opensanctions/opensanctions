@@ -52,6 +52,14 @@ assertions:
     schema_entities:
       Organization: 100
       Person: 100
+    property_fill_rate:
+      # Providers materialise as Person or Organization (from the primary
+      # npidata file). Bare LegalEntity entities only exist as a side effect:
+      # the othername file contributes secondary/DBA names keyed by NPI, which
+      # we attach as `alias` (not `name`) so they merge into the primary entity
+      # by shared id.
+      LegalEntity:
+        name: 0
 
 inputs:
   - ann_graph_topics
