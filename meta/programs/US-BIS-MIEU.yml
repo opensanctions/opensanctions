@@ -1,0 +1,19 @@
+id: 322
+title: BIS Military-Intelligence End Users (MIEU)
+key: US-BIS-MIEU
+url: https://www.ecfr.gov/current/title-15/subtitle-B/chapter-VII/subchapter-C/part-744/section-744.22
+summary: Names military intelligence organizations to which exports, reexports,
+  and in-country transfers of items subject to the Export Administration
+  Regulations require a license from the Bureau of Industry and Security,
+  reviewed with a presumption of denial. U.S. persons are separately restricted
+  from supporting these end users. For Belarus, Burma, Cambodia, China, Russia,
+  Venezuela, and countries in Country Groups E:1 and E:2 the named organizations
+  are illustrative and any military-intelligence end user is covered; for all
+  other countries the listing is exhaustive.
+issuer: us_bis
+dataset: us_bis_mieu
+aliases:
+  - MIEU
+  - Section 744.22 of the EAR
+measures:
+  - Export control
