@@ -1,0 +1,114 @@
+title: US BIS Military-Intelligence End Users
+entry_point: crawler.py
+prefix: us-bis-mieu
+coverage:
+  frequency: never
+  start: 2026-07-27
+deploy:
+  schedule: "30 7 * * *"
+manual_check:
+  last_checked: "2026-07-27"
+  interval: 90
+  message: >-
+    The eCFR monitor in this crawler catches amendments to 15 CFR 744.22 itself.
+    Separately check whether the July 2024 proposed rule (89 FR 60985) that would
+    redesignate the section as 744.24 and broaden it to civilian intelligence end
+    users has been finalized, and review BIS guidance for informal changes to the
+    military-intelligence end-user policy.
+load_statements: true
+summary: >-
+  Military intelligence agencies subject to strict licensing requirements
+  under the US Export Administration Regulations
+description: |
+  Section 744.22 of the U.S. Export Administration Regulations (EAR) prohibits
+  exporting, reexporting, or transferring items subject to the EAR without a
+  license from the Bureau of Industry and Security (BIS) when they are intended
+  for a military-intelligence end use or end user in Belarus, Burma, Cambodia,
+  China, Russia, Venezuela, or a country in Country Groups E:1 or E:2. License
+  applications are reviewed with a presumption of denial, and U.S. persons are
+  separately restricted from supporting these end users even for items not
+  subject to the EAR (§ 744.6(b)(5)).
+
+  This dataset covers the military intelligence organizations named in
+  paragraph (f)(2) of the regulation. Unlike the Entity List or the Military
+  End-User (MEU) List, these organizations are named in the regulation text
+  itself rather than on a published screening list, so they do not appear in
+  the [Consolidated Screening List](/datasets/us_trade_csl/).
+
+  **Note**: For the countries named above, the regulation identifies these
+  organizations as examples, and any organization meeting the functional
+  definition of a military-intelligence end user is covered. For all other
+  countries, the named organizations are an exhaustive listing.
+publisher:
+  name: Bureau of Industry and Security
+  acronym: BIS
+  description: |
+    BIS is part of the U.S. Department of Commerce, where it manages the intersection between
+    business and the foreign policy and security interests of the U.S.
+  url: https://www.bis.gov
+  country: us
+  official: true
+url: https://www.ecfr.gov/current/title-15/subtitle-B/chapter-VII/subchapter-C/part-744/section-744.22
+data:
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/bis_mieu/mieu.csv
+  format: CSV
+dates:
+  formats: ["%Y-%m-%d"]
+tags:
+  - list.export
+  - juris.us
+  - issuer.west
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 10
+  max:
+    schema_entities:
+      Organization: 30
+
+lookups:
+  sanction.program:
+    options:
+      - match: MIEU
+        value: US-BIS-MIEU
+
+config:
+  discovery:
+    # Handling "Unreviewed amendment to 15 CFR 744.22" warnings:
+    #
+    # 1. Fetch the warning's text_api_url (the eCFR full-text API for the new
+    #    amendment date) and diff paragraph (f)(2) against mieu.csv.
+    # 2. For each newly named organization, append one mieu.csv row: the name
+    #    verbatim from the regulation (acronym in Alias), Date set to the
+    #    effective date of the Federal Register rule that made the amendment,
+    #    and that rule's federalregister.gov URL as Source URL. Find the rule
+    #    via https://www.federalregister.gov/api/v1/documents.json with
+    #    conditions[cfr][title]=15&conditions[cfr][part]=744 and the
+    #    publication date near the amendment date.
+    # 3. For a removal, set the row's End date instead of deleting the row.
+    # 4. Append the amendment date to reviewed_versions below with a comment
+    #    saying what the amendment changed. This mutes the warning.
+    # 5. If the crawler warns that the section was redesignated or removed
+    #    (e.g. moved to 744.24 under the pending 2024 proposed rule), the
+    #    crawler's ECFR_VERSIONS_URL and this dataset's metadata need updating
+    #    by a maintainer — do not resolve that warning by muting.
+    reviewed_versions:
+      # Section reserved, then placeholder, prior to the MIEU rule.
+      - "2017-01-03"
+      - "2021-01-15"
+      # 86 FR 4865: initial military-intelligence end-user rule, effective
+      # 2021-03-16; named the nine organizations in Cuba, China, Iran, North
+      # Korea, Russia, Syria, and Venezuela.
+      - "2021-03-16"
+      # 86 FR 18433: added Burma (OCMSA and Directorate of Signal).
+      - "2021-04-09"
+      # 86 FR 70015: added Cambodia (GDRI).
+      - "2021-12-09"
+      # 87 FR 13048: added Belarus (Main Intelligence Directorate of the
+      # General Staff), effective 2022-03-02.
+      - "2022-03-08"
+      # 87 FR 57068: extended the prohibitions to the named end users
+      # wherever located and made (f)(2) an exhaustive listing for countries
+      # other than those named; no new organizations named.
+      - "2022-09-16"
