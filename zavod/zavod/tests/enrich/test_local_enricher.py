@@ -1,6 +1,7 @@
 import shutil
 from copy import deepcopy
 
+import pytest
 from nomenklatura.judgement import Judgement
 
 from zavod import settings
@@ -9,6 +10,7 @@ from zavod.archive import clear_data_path, dataset_state_path
 from zavod.context import Context
 from nomenklatura.db import make_session
 from zavod.crawl import crawl_dataset
+from zavod.exc import RunFailedException
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
@@ -214,9 +216,24 @@ def test_limit(vcontext: Context):
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
+def test_topic_gated_requires_topics(testdataset1: Dataset):
+    """topic_gated without `topics` is a config error: subjects wouldn't be
+    topic-filtered, so untagged matches could emit disconnected supporting
+    entities."""
+    crawl_dataset(testdataset1)
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
+    with pytest.raises(RunFailedException):
+        crawl_dataset(enricher_ds)
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
 def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
     """With topic_gated=True, the matched entity (which has a topic) is emitted
-    internal; adjacent entities not in the subject store are emitted external."""
+    internal; an adjacent untagged risk-target entity is emitted external. Once
+    that neighbour is tagged in the subject store, a subsequent run promotes
+    both the node and the connecting edge to internal."""
     clear_data_path(testdataset_enrich_subject.name)
     crawl_dataset(testdataset_enrich_subject)  # enriching this
     crawl_dataset(testdataset1)  # enriching against this

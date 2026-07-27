@@ -6,7 +6,7 @@ from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
-from zavod.runner.util import check_enrich_topics, is_analyzer_stub, should_promote
+from zavod.runner.util import check_publishability, is_analyzer_stub, should_promote
 from zavod.store import get_store, View
 
 
@@ -35,16 +35,16 @@ def save_match(
 
         # The first expansion result is the confirmed match itself. Keep it
         # visible; gate the graph context that follows it on risk topics assigned
-        # by the subject datasets and analyzers.
+        # by the subject datasets and analyzers or being supporting schemata.
         context.emit(expanded[0])
         adjacent = [e for e in expanded[1:] if not check_person_cutoff(e)]
-        topic_matches = check_enrich_topics(
+        publishable = check_publishability(
             adjacent, subject_view, frozenset(registry.topic.RISKS)
         )
         for adjacent_entity in adjacent:
             context.emit(
                 adjacent_entity,
-                external=not should_promote(adjacent_entity, topic_matches),
+                external=not should_promote(adjacent_entity, publishable),
             )
 
 
