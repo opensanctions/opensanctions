@@ -14,6 +14,11 @@ description: |
   They issue notices of proposed rulemaking for public comment, and measures
   imposing restrictions on banking services that may be offered to named entities
   or jurisdictions.
+
+  Beyond the targets listed in FinCEN's overview table, this dataset includes
+  the addresses, aliases and related entities — subsidiaries, owners, and the
+  individually named members of class-based measures — stated in the linked
+  rulemaking documents (findings, proposed rules and final rules).
 tags:
   - sector.banking
   - list.sanction
@@ -25,7 +30,7 @@ publisher:
   acronym: FinCEN
   official: true
   description: |
-    FinCEN, a bureau of the US Treasury, collects and analyzes financial transaction information to combat money laundering and 
+    FinCEN, a bureau of the US Treasury, collects and analyzes financial transaction information to combat money laundering and
     terrorist financing.
   country: us
   url: https://www.fincen.gov
@@ -48,9 +53,63 @@ lookups:
 assertions:
   min:
     schema_entities:
-      PublicBody: 4
-      Company: 20
+      PublicBody: 5
+      Company: 280
+      Person: 30
+      Organization: 10
   max:
     schema_entities:
-      PublicBody: 5
-      Company: 40
+      PublicBody: 25
+      Company: 400
+      Person: 70
+      Organization: 40
+
+config:
+  discovery:
+    # Handling "Unreviewed special measures document" warnings:
+    #
+    # The overview table links each measure's rulemaking documents (finding,
+    # NPRM, final rule, rescission). Their content — addresses, aliases,
+    # identifiers and named sub-entities — is mined by hand/agent into
+    # details.csv (see README.md); the crawler never fetches the documents.
+    # A warning means the table links a document that no details.csv row
+    # cites and that is not listed below.
+    #
+    # 1. Fetch the document. For federalregister.gov links, take the document
+    #    number from the URL and use the JSON API's raw_text_url
+    #    (https://www.federalregister.gov/api/v1/documents/<docnum>.json,
+    #    or .../public-inspection-documents/<docnum>.json for public-inspection
+    #    links). For fincen.gov / govinfo.gov PDFs, download and run
+    #    `pdftotext -layout <file> -`.
+    # 2. Extract facts into details.csv rows citing the document URL exactly
+    #    as it appears in the table — that marks the URL reviewed. Follow the
+    #    column semantics in README.md; copy names and addresses verbatim.
+    # 3. If the document names no addresses, aliases, identifiers or related
+    #    entities (procedural notices, withdrawals), add its URL below with a
+    #    one-line comment instead.
+    # 4. federalregister.gov public-inspection URLs are replaced by
+    #    /documents/ URLs once published: re-review the published version and
+    #    move any details.csv citations / list entry to the new URL.
+    reviewed_urls:
+      # Dead links on the FinCEN site (404); the 2013 NPRM content for both
+      # exchange houses is covered by their findings, which are mined.
+      - https://www.fincen.gov/system/files/shared/311--ExchHouse-H-NPRMFinal.pdf
+      - https://www.fincen.gov/system/files/shared/311--ExchHouse-R-NPRMFinal.pdf
+      # Procedural revocation of the Ukraine designation; names no details.
+      - http://edocket.access.gpo.gov/2003/pdf/03-9411.pdf
+      # Procedural extensions/amendments of the CIBanco/Intercam/Vector
+      # effective dates; name no addresses or related entities.
+      - https://www.federalregister.gov/documents/2025/08/22/2025-16080/imposition-of-special-measures-prohibiting-certain-transmittals-of-funds-involving-cibanco-sa
+      - https://www.federalregister.gov/public-inspection/2025-12973/imposition-of-special-measure-prohibiting-certain-transmittals-of-funds-cibanco-sa-institution-de
+      - https://www.federalregister.gov/public-inspection/2026-07416/imposition-of-special-measure-prohibiting-certain-transmittals-of-funds-cibanco-sa-institucion-de
+      # FBME supplement responding to comments on SAR data; no new details.
+      - https://www.fincen.gov/system/files/federal_register_notices/2016-12-01/2016-28752.pdf
+      # DPRK NPRM and final rule restate the jurisdiction-level finding and
+      # name no individual North Korean entities (those are in the finding).
+      - https://www.fincen.gov/system/files/shared/2016-13037(DPRK_NPRM).pdf
+      - https://www.fincen.gov/system/files/shared/2016-27049.pdf
+      # Procedural BPA fifth-special-measure NPRM; no details beyond BPA.
+      - https://www.fincen.gov/system/files/shared/BPA_NPRM.pdf
+      # Procedural withdrawals of the Nauru and Liberty Reserve findings.
+      - https://www.fincen.gov/system/files/shared/Section311_WithdrawalNauru.pdf
+      - https://www.fincen.gov/system/files/shared/Withdrawal_LR.pdf
