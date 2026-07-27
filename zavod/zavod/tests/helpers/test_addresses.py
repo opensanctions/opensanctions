@@ -55,6 +55,75 @@ def test_make_address_helper(vcontext: Context):
     assert "mz" in person.get("country")
 
 
+def test_make_address_state_not_duplicated(vcontext: Context):
+    # state used to be folded into state_district as well, so templates that
+    # render both slots printed the state twice ("PA, PA"):
+    addr = make_address(vcontext, city=None, state="PA", country_code="us")
+    assert addr is not None, addr
+    assert addr.first("full") == "PA"
+
+    addr = make_address(
+        vcontext,
+        street="1 Main St",
+        state="California",
+        region="Southern",
+        country="United States",
+    )
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full is not None
+    assert full.count("California") == 1, full
+    assert "Southern" in full, full
+
+
+def test_make_address_state_without_state_slot(vcontext: Context):
+    # Some country templates (e.g. ae, sy) render {{state_district or state}}
+    # and have no dedicated state slot. When region occupies that slot, the
+    # state must be folded back in rather than silently dropped:
+    addr = make_address(
+        vcontext, city="Dubai", state="Sharjah", region="Deira", country_code="ae"
+    )
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full == "Dubai, Deira, Sharjah", full
+    assert full.count("Sharjah") == 1, full
+
+    # Without a region, the template's own fallback renders the state:
+    addr = make_address(vcontext, city="Dubai", state="Sharjah", country_code="ae")
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full is not None
+    assert full.count("Sharjah") == 1, full
+    assert "Dubai" in full, full
+
+
+def test_make_address_region_equals_state(vcontext: Context):
+    # Identical region and state values (plausible when a source fills both
+    # from the same field) must not render twice ("Aleppo, Aleppo"):
+    addr = make_address(
+        vcontext, street="1 Main St", state="Aleppo", region="Aleppo", country_code="sy"
+    )
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full is not None
+    assert full.count("Aleppo") == 1, full
+
+
+def test_make_address_country_code_casing(vcontext: Context):
+    # The country code is hashed into the address entity ID, so its casing
+    # must be normalized for cross-dataset address dedup to work:
+    lower = make_address(
+        vcontext, street="123 Main St", city="Springfield", country_code="us"
+    )
+    upper = make_address(
+        vcontext, street="123 Main St", city="Springfield", country_code="US"
+    )
+    assert lower is not None, lower
+    assert upper is not None, upper
+    assert lower.id == upper.id
+    assert "us" in upper.get("country")
+
+
 def test_make_address_cleaning(vcontext: Context):
     addr = make_address(vcontext, full="Congo")
     assert addr is not None, addr
