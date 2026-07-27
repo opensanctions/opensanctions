@@ -1,4 +1,3 @@
-import re
 from typing import Any, NamedTuple
 
 from zavod import Context
@@ -71,30 +70,11 @@ IGNORE = [
     "name",  # top-level convenience copy of the "en" translation name
     "designation",
     "description",
+    # The source's dob field carries no calendar marker and mixes Bikram Sambat dates,
+    # Excel serials, Devanagari digits and placeholders, so it can't be converted to a
+    # Gregorian date without silent errors; birth dates are intentionally not emitted.
+    "dob",
 ]
-
-
-def parse_dob(raw: str | None) -> str | None:
-    """Best-effort Gregorian birth *year* from the ``dob`` field.
-
-    Every parseable member value is a Bikram Sambat (BS) date, so this always converts
-    from BS; only strict ``YYYY-MM-DD`` values are trusted (the field also carries Excel
-    serials, Devanagari digits and placeholders, which are dropped). BS runs ~57 years
-    ahead and its new year is in mid-April, so months 1–9 map to BS−57 and months 10–12
-    to BS−56. BS months don't align with Gregorian ones, so only the year is kept, and
-    only when it falls in a plausible adult birth range.
-    """
-    if raw is None:
-        return None
-    match = re.match(r"^(\d{4})-(\d{2})-\d{2}$", raw)
-    if match is None:
-        return None
-    year = int(match.group(1))
-    month = int(match.group(2))
-    greg_year = year - (56 if month >= 10 else 57)
-    if not (1930 <= greg_year <= 2006):  # plausible adult birth range
-        return None
-    return str(greg_year)
 
 
 def crawl_member(
@@ -135,7 +115,6 @@ def crawl_member(
     # Const. of Nepal art. 87(1)(a): membership of the Federal Parliament requires Nepali
     # citizenship. https://www.constituteproject.org/constitution/Nepal_2015
     person.add("citizenship", "np")
-    h.apply_date(person, "birthDate", parse_dob(record.pop("dob", None)))
     party = record.pop("political_party", None)
     if party is not None:
         person.add("political", party.get("party_name_en"))

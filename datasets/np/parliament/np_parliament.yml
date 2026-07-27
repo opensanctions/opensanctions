@@ -17,9 +17,8 @@ description: |
   years. Together the two chambers hold the country's legislative power, including passing
   laws and approving the budget.
 
-  This dataset records each member of either chamber with their name, gender, year of birth,
-  and political party. It covers both members currently in office and those who served in
-  earlier terms.
+  This dataset records each member of either chamber with their name, gender, and political
+  party. It covers both members currently in office and those who served in earlier terms.
 url: https://hr.parliament.gov.np/en/members
 publisher:
   name: Federal Parliament of Nepal
