@@ -20,16 +20,6 @@ FIELDS = {
     "party": "ContentPlaceHolder1_Label8",
 }
 
-# Membership types: individual-candidacy seat, closed-list seat, presidential appointee.
-MEMBERSHIP_TYPES = {"فردى", "قائمة", "معين"}
-
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    )
-}
-
 
 def field(doc: etree._Element, label_id: str) -> str | None:
     elements = h.xpath_elements(doc, f'//*[@id="{label_id}"]')
@@ -46,16 +36,18 @@ def crawl_member(
     member_id: int,
 ) -> None:
     url = f"{context.data_url}?id={member_id}"
-    doc = context.fetch_html(url, headers=HEADERS, cache_days=7)
+    doc = context.fetch_html(url, cache_days=7)
 
     full_name = field(doc, FIELDS["full_name"])
     if full_name is None:
         # Empty placeholder page: id beyond the chamber size or a vacant seat.
         return
 
-    membership_type = field(doc, FIELDS["membership_type"])
-    if membership_type is not None and membership_type not in MEMBERSHIP_TYPES:
-        context.log.warning("Unknown membership type", value=membership_type, url=url)
+    # How the member won their seat (individual candidacy, closed list, or
+    # presidential appointment), mapped from Arabic to an English label.
+    seat_type = context.lookup_value(
+        "membership_type", field(doc, FIELDS["membership_type"]), warn_unmatched=True
+    )
     governorate = field(doc, FIELDS["governorate"])
     constituency = field(doc, FIELDS["constituency"])
 
@@ -78,6 +70,7 @@ def crawl_member(
     )
     if occupancy is None:
         return
+    occupancy.add("summary", seat_type)
     if constituency is not None:
         occupancy.add("constituency", constituency, lang="ara")
     if governorate is not None:
@@ -93,8 +86,9 @@ def crawl(context: Context) -> None:
         name="Member of the House of Representatives of Egypt",
         country="eg",
         wikidata_id="Q21290857",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)

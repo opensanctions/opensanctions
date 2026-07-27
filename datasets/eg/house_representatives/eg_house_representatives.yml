@@ -34,9 +34,25 @@ data:
   url: https://www.parliament.gov.eg/MembersDetails.aspx
   format: HTML
   lang: ara
+http:
+  # The site is served behind a CDN that can reject non-browser clients.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/124.0.0.0 Safari/537.36
 
 tags:
   - list.pep
+
+lookups:
+  # How a member won their seat, mapped from the Arabic label to English.
+  membership_type:
+    options:
+      - match: فردى
+        value: Individual candidacy
+      - match: قائمة
+        value: Closed list
+      - match: معين
+        value: Presidential appointee
 
 assertions:
   min:
