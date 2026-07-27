@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -28,7 +29,7 @@ class PinregSession:
         self.context = context
         self._guest_token = f"c{GUEST_ID}"
 
-    def get_deklaracija_by_id(self, id: int) -> dict[any] | None:
+    def get_deklaracija_by_id(self, id: int) -> dict[str, Any] | None:
         id_str = f"{id:06d}"
         self.context.log.info(f"fetching declaration {id_str}")
         r = self.context.http.get(
@@ -43,17 +44,23 @@ class PinregSession:
             return None
         if r.status_code != 200:
             r.raise_for_status()
-        return r.json()
+        data: dict[str, Any] = r.json()
+        return data
 
 
-def make_person(context: Context, declaration_id: int, data: dict) -> Entity:
+def make_person(context: Context, declaration_id: int, data: dict[str, Any]) -> Entity:
     person = context.make("Person")
     first_name = data.pop("vardas")
     last_name = data.pop("pavarde")
     person_id = data.pop("asmensKodas", None)  # this identifier is often missing
     birth_date = data.pop("gimimoData", None)  # often missing
+    # birth_date or declaration_id can be an int fallback; keeping it as-is
+    # preserves existing entity IDs (changing make_id args would re-key entities).
     person.id = context.make_id(
-        person_id, first_name, last_name, birth_date or declaration_id
+        person_id,
+        first_name,
+        last_name,
+        birth_date or declaration_id,  # type: ignore[arg-type]
     )
     person.add("registrationNumber", person_id)
     h.apply_name(person, first_name=first_name, last_name=last_name)
@@ -76,8 +83,8 @@ def make_spouse(context: Context, person: Entity, spouse: Entity) -> Entity:
 
 
 def parse_affiliations(
-    context: Context, person: Entity, affiliations: list[dict]
-) -> list[tuple[Entity]]:
+    context: Context, person: Entity, affiliations: list[dict[str, Any]]
+) -> list[tuple[Entity, Entity]]:
     """
     Args:
         context (Context)
@@ -86,9 +93,8 @@ def parse_affiliations(
         is_pep (bool, optional): Defaults to True.
 
     Returns:
-        list[tuple[Entity]]: a flattened list of tuples, where each is
-        a position and occupancy. Occupancies that do not meet OpenSanctions criteria
-        are skipped.
+        list[tuple[Entity, Entity]]: a flattened list of (position, occupancy)
+        tuples. Occupancies that do not meet OpenSanctions criteria are skipped.
     """
     entities = []
     for affiliation in affiliations:
@@ -140,6 +146,7 @@ def parse_affiliations(
                 categorisation=categorisation,
                 status=status,
             )
+            assert occupancy is not None, (person, position_name)
             occupancy.add("description", ", ".join([position_name, entity_name]))
             context.audit_data(role)
             if occupancy:
@@ -204,7 +211,7 @@ def crawl(context: Context) -> None:
 
         # declarant data
         declarant = make_person(context, deklaracija_id, record.pop("teikejas"))
-        declarant_affiliations: list[dict] = record.pop("darbovietes")
+        declarant_affiliations: list[dict[str, Any]] = record.pop("darbovietes")
         declarant_offices = parse_affiliations(
             context, declarant, declarant_affiliations
         )
@@ -224,6 +231,7 @@ def crawl(context: Context) -> None:
                 if spouse_data
                 else None
             )
+            assert spouse is not None
             spouse.add("topics", "role.rca")
             marriage = make_spouse(context, declarant, spouse)
             context.emit(spouse)
