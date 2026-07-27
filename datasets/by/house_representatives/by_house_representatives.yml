@@ -32,6 +32,9 @@ data:
   format: HTML
   lang: eng
 
+dates:
+  formats: ["%B %d, %Y"]
+
 tags:
   - list.pep
 
