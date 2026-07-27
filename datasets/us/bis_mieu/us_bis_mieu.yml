@@ -67,12 +67,6 @@ assertions:
     schema_entities:
       Organization: 30
 
-lookups:
-  sanction.program:
-    options:
-      - match: MIEU
-        value: US-BIS-MIEU
-
 config:
   discovery:
     # Handling "Unreviewed amendment to 15 CFR 744.22" warnings:

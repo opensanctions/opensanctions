@@ -23,14 +23,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity.add("alias", row.pop("Alias").split(";"), lang="eng")
     entity.add("country", country)
     entity.add("topics", row.pop("Topics").split(";"))
-    program = row.pop("List")
-    sanction = h.make_sanction(
-        context,
-        entity,
-        program_name=program,
-        program_key=h.lookup_sanction_program_key(context, program),
-    )
-    sanction.set("authority", "Bureau of Industry and Security")
+    sanction = h.make_sanction(context, entity, program_key=row.pop("Program"))
     h.apply_date(sanction, "startDate", row.pop("Date"))
     h.apply_date(sanction, "endDate", row.pop("End date"))
     sanction.add("sourceUrl", row.pop("Source URL"))
