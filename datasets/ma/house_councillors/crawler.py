@@ -5,7 +5,9 @@ from rigour.mime.types import PDF
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import categorise
+from zavod.util import LangText
 
 # The members list is a dated PDF linked from the homepage as
 # docs/docs/conseillers<DDMMYYYY>.pdf; the filename date changes on each update.
@@ -194,6 +196,7 @@ def crawl(context: Context) -> None:
         person = context.make("Person")
         person.id = context.make_id(name, party, constituency)
         person.add("name", name, lang="ara")
+        apply_translit_full_name(context, person, LangText(name, "ara"))
         # The party the member ran for; trade-union affiliation (employees'
         # college) is not a political association and is not recorded.
         person.add("political", party, lang="ara")
