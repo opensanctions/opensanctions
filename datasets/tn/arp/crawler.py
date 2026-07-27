@@ -5,7 +5,9 @@ from lxml import html
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import categorise
+from zavod.util import LangText
 
 # The hemicycle endpoint is a JSON-RPC "call" that returns an HTML fragment of the seating
 # plan. mandat_id 105 is the current mandate under the 2022 constitution.
@@ -20,8 +22,9 @@ def crawl(context: Context) -> None:
         name="Member of the Assembly of the Representatives of the People of Tunisia",
         country="tn",
         wikidata_id="Q29169698",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -31,7 +34,7 @@ def crawl(context: Context) -> None:
         method="POST",
         headers={"Content-Type": "application/json"},
         data=json.dumps(RPC_BODY),
-        cache_days=1,
+        cache_days=14,
     )
     fragment = html.fromstring(response["result"])
 
@@ -53,6 +56,7 @@ def crawl(context: Context) -> None:
         person = context.make("Person")
         person.id = context.make_slug(deputy_id)
         person.add("name", name, lang="ara")
+        apply_translit_full_name(context, person, LangText(name, "ara"))
         # Candidacy for the Assembly is a right of every voter born to a Tunisian father
         # or mother (2022 Constitution, Article 58).
         # https://www.constituteproject.org/constitution/Tunisia_2022
