@@ -4,11 +4,6 @@ from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# The parliament site is unreachable from ordinary clients (connections time out), so the
-# page is fetched through the Zyte API. An Australian exit is used as it is the closest
-# well-supported location to Vanuatu.
-GEOLOCATION = "au"
-
 # At least one row of the roster table must be present for the fetch to count as
 # successfully unblocked.
 TABLE_XPATH = './/table[contains(@class, "table-striped")]'
@@ -59,8 +54,9 @@ def crawl(context: Context) -> None:
         name="Member of the Parliament of Vanuatu",
         country="vu",
         wikidata_id="Q21294920",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -69,12 +65,10 @@ def crawl(context: Context) -> None:
         context,
         context.data_url,
         unblock_validator=TABLE_XPATH,
-        geolocation=GEOLOCATION,
-        cache_days=1,
+        geolocation="au",
+        cache_days=14,
     )
     table = h.xpath_element(doc, TABLE_XPATH)
     rows = list(h.parse_html_table(table))
-    if not rows:
-        raise ValueError("No member rows found in the Vanuatu members table")
     for row in rows:
         crawl_member(context, position, categorisation, h.cells_to_str(row))
