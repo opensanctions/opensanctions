@@ -10,13 +10,13 @@ summary: >-
   Deputies of the National Assembly of the Democratic Republic of the Congo, the lower
   house of Parliament
 description: |
-  Deputies of the National Assembly (Assemblée nationale) of the Democratic Republic of
-  the Congo, the lower house of the bicameral Parliament. It has 500 deputies elected for
-  five-year terms in multi-member constituencies.
+  Current members of the National Assembly (Assemblée nationale), the lower house of the
+  bicameral Parliament of the Democratic Republic of the Congo. Its 500 deputies are elected
+  for five-year terms in multi-member constituencies and hold the country's legislative power,
+  including passing laws and approving the budget.
 
-  This dataset records each deputy of the current legislature with their name, political
-  group, electoral constituency and province, sourced from the National Assembly's
-  official website.
+  This dataset records each deputy of the current legislature with their name, electoral
+  constituency, and province.
 url: https://assembleenationale.cd/tous-les-deputes/
 publisher:
   name: Assemblée nationale de la République démocratique du Congo
