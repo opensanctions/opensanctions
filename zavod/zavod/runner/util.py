@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import cache
 from collections.abc import Iterable, Mapping
 
 from followthemoney import registry
@@ -26,7 +26,7 @@ def is_analyzer_stub(entity: Entity) -> bool:
     return entity.datasets.issubset(ANALYZER_DATASETS)
 
 
-@lru_cache(maxsize=None)
+@cache
 def is_supporting_schema(schema: Schema) -> bool:
     """Schemata that don't carry risk topics themselves but appear in expansion
     as attachments or context around risk targets — Addresses, Documents (Article,
