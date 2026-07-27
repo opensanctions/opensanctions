@@ -33,6 +33,10 @@ data:
   format: HTML
   lang: eng
 
+# Birth dates in the biography are written like "May 12, 1959".
+dates:
+  formats: ["%B %d, %Y"]
+
 # The site returns HTTP 403 to the default client; a browser User-Agent is accepted.
 http:
   user_agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 (zavod; opensanctions.org)"
