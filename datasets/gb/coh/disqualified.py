@@ -31,12 +31,13 @@ def http_get(
 ) -> dict[str, Any] | None:
     for attempt in count(1):
         try:
-            return context.fetch_json(
+            data: dict[str, Any] | None = context.fetch_json(
                 url,
                 params=params,
                 auth=AUTH,
                 cache_days=cache_days,
             )
+            return data
         except (RetryError, HTTPError) as err:
             if isinstance(err, RetryError) or err.response.status_code == 429:
                 if attempt > 5:
@@ -49,10 +50,11 @@ def http_get(
             else:
                 context.log.exception(f"Failed to fetch data: {url}")
                 return None
+    return None
 
 
 def build_address(
-    context: Context, full: str, address_data: dict[str, str | None]
+    context: Context, full: str | None, address_data: dict[str, str | None]
 ) -> Entity | None:
     address_components = {
         "street": address_data.get("address_line_1"),
@@ -96,13 +98,15 @@ def resolve_company_name_by_number(context: Context, company_number: str) -> str
     """If the company_number is found on Companies House, return its name, else None."""
     search_url = f"https://find-and-update.company-information.service.gov.uk/search?q={company_number}"
     doc = context.fetch_html(search_url, cache_days=7)
-    if len(doc.xpath(".//div[@id='no-results']")) > 0:
+    if len(h.xpath_elements(doc, ".//div[@id='no-results']")) > 0:
         return None
-    results = doc.xpath(".//ul[@class='results-list']//a")
+    results = h.xpath_elements(doc, ".//ul[@class='results-list']//a")
     assert len(results) > 0
     for link in results:
-        if f"/company/{company_number}" in link.get("href"):
-            return link.text_content().strip()
+        href = link.get("href")
+        assert href is not None
+        if f"/company/{company_number}" in href:
+            return h.element_text(link)
     return None
 
 
