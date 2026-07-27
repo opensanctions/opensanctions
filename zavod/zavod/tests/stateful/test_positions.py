@@ -7,6 +7,7 @@ from zavod.stateful.positions import (
     occupancy_status,
     OccupancyStatus,
     categorise,
+    categorised_position_qids,
 )
 from zavod.stateful.model import position_table
 from zavod.meta import Dataset
@@ -229,6 +230,48 @@ def test_categorise_flow(testdataset1: Dataset):
     categorisation = categorise(context, position2, default_is_pep=True)
     assert categorisation.is_pep is True
     assert categorisation.topics == ["gov.igo"]
+    context.close()
+
+
+def test_categorised_position_qids_returns_reviewed_verdicts(
+    testdataset1: Dataset,
+):
+    context = Context(testdataset1)
+    values = [
+        {
+            "entity_id": "Q100",
+            "caption": "Accepted position",
+            "countries": ["de"],
+            "topics": [],
+            "is_pep": True,
+            "dataset": "test",
+            "created_at": settings.RUN_TIME,
+        },
+        {
+            "entity_id": "Q200",
+            "caption": "Rejected position",
+            "countries": ["fr"],
+            "topics": [],
+            "is_pep": False,
+            "dataset": "test",
+            "created_at": settings.RUN_TIME,
+        },
+        {
+            "entity_id": "Q300",
+            "caption": "Unreviewed position",
+            "countries": ["gb"],
+            "topics": [],
+            "is_pep": None,
+            "dataset": "test",
+            "created_at": settings.RUN_TIME,
+        },
+    ]
+    context.db.execute(position_table.insert().values(values))
+
+    assert dict(categorised_position_qids(context)) == {
+        "Q100": True,
+        "Q200": False,
+    }
     context.close()
 
 

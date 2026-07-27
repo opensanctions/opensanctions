@@ -102,9 +102,20 @@ def query_occupation_positions(
 def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
     """Enumerate candidate position QIDs. Positions already categorised as PEP
     in the review database are always included, so a failing discovery query
-    can delay new positions but never drop known ones."""
-    candidates: set[str] = set(categorised_position_qids(context))
-    context.log.info(f"Loaded {len(candidates)} positions from the review database")
+    can delay new positions but never drop known ones. Positions reviewed as
+    non-PEP are excluded so classification can skip them entirely."""
+    candidates: set[str] = set()
+    blocked: set[str] = set()
+    for qid, is_pep in categorised_position_qids(context):
+        if is_pep:
+            candidates.add(qid)
+        else:
+            blocked.add(qid)
+    context.log.info(
+        "Loaded position verdicts from the review database",
+        accepted=len(candidates),
+        blocked=len(blocked),
+    )
     for territory in all_territories():
         context.log.info(f"Crawling territory: {territory.qid} ({territory.name})")
         try:
@@ -121,6 +132,7 @@ def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
                 error=str(exc),
             )
         context.flush()
+    candidates.difference_update(blocked)
     return candidates
 
 

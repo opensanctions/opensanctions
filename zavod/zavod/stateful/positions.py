@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import lru_cache
+from collections.abc import Iterator
 
 from rigour.dates import ended_before, starts_after
 from rigour.ids.wikidata import is_qid
@@ -127,18 +128,19 @@ def categorise_many(
     return categorisations
 
 
-def categorised_position_qids(context: Context) -> list[str]:
-    """Return a list of position QIDs that have been categorised."""
-    stmt = select(position_table.c.entity_id)
-    stmt = stmt.filter(position_table.c.is_pep.is_(True))
+def categorised_position_qids(context: Context) -> Iterator[tuple[str, bool]]:
+    """Yield reviewed Wikidata position QIDs and their PEP verdicts.
+
+    Use this to seed or exclude positions before doing expensive source-side
+    discovery and classification work.
+    """
+    stmt = select(position_table.c.entity_id, position_table.c.is_pep)
+    stmt = stmt.filter(position_table.c.is_pep.is_not(None))
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
     stmt = stmt.filter(position_table.c.entity_id.like("Q%"))
-    rows = context.db.execute(stmt).fetchall()
-    qids = []
-    for row in rows:
+    for row in context.db.execute(stmt):
         if is_qid(row.entity_id):
-            qids.append(row.entity_id)
-    return qids
+            yield row.entity_id, row.is_pep
 
 
 def get_after_office(topics: list[str]) -> timedelta:
