@@ -1,4 +1,4 @@
-title: Cameroon National Assembly
+title: Cameroon Members of the National Assembly
 name: cm_national_assembly
 prefix: cm-na
 entry_point: crawler.py
@@ -6,16 +6,17 @@ coverage:
   frequency: monthly
   start: 2026-07-24
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
   Members of the National Assembly of Cameroon, the lower house of Parliament.
 description: |
-  The National Assembly (Assemblée nationale) is the lower house of the Parliament of
-  Cameroon. Its 180 members are directly elected from the country's divisions for a
-  five-year term.
+  Current members of the National Assembly (Assemblée nationale), the lower house of
+  the bicameral Parliament of Cameroon. Its 180 members are directly elected from the
+  country's divisions for a five-year term and, together with the Senate, hold the
+  country's legislative power, including passing laws and approving the budget.
 
-  This dataset records each member of the current (10th) legislature with their name,
-  political party and region from the National Assembly's website.
+  This dataset records each sitting member with their name, political party, and the
+  region they represent.
 url: https://www.assnat.cm/
 publisher:
   name: Assemblée nationale du Cameroun
