@@ -1,4 +1,4 @@
-title: Cameroon Senate
+title: Cameroon Members of the Senate
 name: cm_senate
 prefix: cm-sen
 entry_point: crawler.py
@@ -10,12 +10,14 @@ ci_test: false
 summary: >-
   Members of the Senate of Cameroon, the upper house of Parliament.
 description: |
-  The Senate (Sénat) is the upper house of the Parliament of Cameroon. It has 100 members:
-  seven per region elected by regional and municipal councillors, plus 30 appointed by the
-  President, serving five-year terms.
+  Current members of the Senate (Sénat), the upper house of the bicameral Parliament of
+  Cameroon. Its 100 senators serve five-year terms — seven per region indirectly elected
+  by regional and municipal councillors, plus 30 appointed by the President — and,
+  together with the National Assembly, hold the country's legislative power, including
+  passing laws and approving the budget.
 
-  This dataset records each senator with their name and role from the Senate's official
-  website.
+  This dataset records each sitting senator with their name and their role within the
+  Senate.
 url: https://senat.cm/
 publisher:
   name: Sénat du Cameroun
