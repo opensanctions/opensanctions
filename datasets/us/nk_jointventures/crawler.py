@@ -23,10 +23,9 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     table_xpath = ".//table[@aria-label='Table of Files associated with page']"
-    dataset_url = context.dataset.url
-    assert dataset_url is not None
+    assert context.dataset.url is not None
     doc = fetch_html(
-        context, dataset_url, table_xpath, cache_days=1, absolute_links=True
+        context, context.dataset.url, table_xpath, cache_days=1, absolute_links=True
     )
     table = h.xpath_element(doc, table_xpath)
     link = h.xpath_strings(table, ".//a/@href")
