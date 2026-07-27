@@ -16,8 +16,8 @@ description: |
   from single- and multi-member constituencies for a five-year term and hold the country's
   legislative power, including passing laws and approving the budget.
 
-  This dataset records each titular deputy with their name, date and place of birth, and
-  political party.
+  This dataset records each titular deputy with their name, date and place of birth,
+  political party, and the constituency they represent.
 url: https://www.assnat.ci/
 publisher:
   name: Assemblée nationale de Côte d'Ivoire
@@ -40,6 +40,15 @@ http:
 
 dates:
   formats: ["%d/%m/%Y"]
+
+config:
+  header_labels:
+    constituency: CIRCONSCRIPTION
+    party: GRP/PARTI
+    last_name: NOM
+    first_name: PRENOMS
+    dob: DATE DE NAISSANCE
+    birth_place: LIEU DE NAISSANCE
 
 tags:
   - list.pep
