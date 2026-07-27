@@ -1,7 +1,6 @@
-# This discovers entities in three ways:
+# This discovers entities in two ways:
 #
 # - wikidata items with a Declarator.org ID
-# - wikidata items holding one of the explicitly curated IGO positions defined below
 # - wikidata items in specific Wikipedia categories defined below, using https://petscan.wmcloud.org
 #
 # # Categories
@@ -175,25 +174,6 @@ lookups:
         value: 1942-02
 
 config:
-  # Heads of international organisations for which Wikidata Q codes were found.
-  # These are crawled directly, without expanding their Wikidata subclasses.
-  igo_positions:
-    - "Q24558593" # Administrator of the United Nations Development Programme
-    - "Q65782205" # Director General of the International Atomic Energy Agency
-    - "Q66566041" # Director-General of the Food and Agriculture Organization
-    - "Q111363853" # Director-General of the International Labour Organization
-    - "Q108603609" # Director-General of the World Intellectual Property Organization
-    - "Q28784183" # Director-General of UNESCO
-    - "Q67199671" # Executive Director of UNICEF
-    - "Q123171287" # Executive Director of United Nations Office for Project Services
-    - "Q19926443" # President of the International Court of Justice
-    - "Q29511440" # President of the United Nations Economic and Social Council
-    - "Q4352360" # President of the United Nations Security Council
-    - "Q110970831" # President of the World Meteorological Organization
-    - "Q42591216" # Secretary-General of the International Maritime Organization
-    - "Q17389566" # Secretary-General of the International Telecommunication Union
-    - "Q27832358" # United Nations High Commissioner for Refugees
-    - "Q112963010" # UNRWA Commissioner-General
   # These are person QIDs that shouldn't be found. If they are, we're probably including
   # categories that are by definition generally not PEPs.
   exclusion_checks:
