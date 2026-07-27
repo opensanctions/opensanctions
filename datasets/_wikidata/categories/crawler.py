@@ -9,11 +9,9 @@ from urllib.parse import urlencode
 from nomenklatura.wikidata import Claim, Item
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.time import iso_datetime
-
-from zavod.shed.wikidata.client import create_wikidata_client, WIKIDATA_QUERY_CACHE
+from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import (
-    position_holders,
     wikidata_occupancy,
     wikidata_position,
 )
@@ -40,7 +38,6 @@ ALWAYS_PERSONS = ["Q21258544"]
 @dataclass
 class FoundRecord:
     from_categories: set[str] = field(default_factory=set)
-    from_positions: set[str] = field(default_factory=set)
     from_declarator: bool = False
 
 
@@ -53,6 +50,12 @@ class CrawlState:
         # a usable PEP position. Positions recur across the whole person set,
         # so each distinct QID is fetched and categorised only once per run.
         self.positions: dict[str, Entity | None] = {}
+        blocked = 0
+        for qid, is_pep in categorised_position_qids(context):
+            if not is_pep:
+                self.positions[qid] = None
+                blocked += 1
+        self.log.info("Preloaded rejected positions", blocked=blocked)
 
         self.persons: dict[str, FoundRecord] = defaultdict(FoundRecord)
         self.persons.update({qid: FoundRecord() for qid in ALWAYS_PERSONS})
@@ -218,62 +221,6 @@ def crawl_category(state: CrawlState, category_crawl_spec: dict[str, Any]) -> No
     state.context.flush()
 
 
-def crawl_position_holder(state: CrawlState, position_qid: str) -> set[str]:
-    persons: set[str] = set([])
-
-    position = get_position(state, position_qid)
-    if position is None:
-        return persons
-    # Cheap re-fetch: get_position just pulled this item into the client LRU.
-    item = state.client.fetch_item(position_qid)
-    if item is None:
-        return persons
-
-    # find person QIDs such that person --( P39 position held )--> position_qid
-    holders = position_holders(state.client, item)
-    persons.update(holders.keys())
-    for person_qid, modified_at in holders.items():
-        if modified_at is not None:
-            state.person_modified_at[person_qid] = modified_at
-
-    # Crawl direct officeholders only after their modification dates can
-    # invalidate stale person items from the cache.
-    crawl_officeholders(state, item, position)
-
-    # find person QIDs such that position_qid --( P1308 officeholder )--> person
-    for claim in item.claims:
-        if claim.property == "P1308":  # officeholder
-            if claim.qid is not None:
-                persons.add(claim.qid)
-
-    state.log.info(f"Found {len(persons)} holders of {item.label} [{position_qid}]")
-    return persons
-
-
-def crawl_position_seeds(state: CrawlState) -> None:
-    seeds: list[str] = state.context.dataset.config.get("seeds", [])
-    roles: set[str] = set(categorised_position_qids(state.context))
-    for seed in seeds:
-        query = f"""
-        SELECT ?role WHERE {{
-            ?role (wdt:P279|wdt:P31)+ wd:{seed}
-        }}
-        """
-        roles.add(seed)
-        response = state.client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
-        for result in response.results:
-            role = result.plain("role")
-            if role is not None:
-                roles.add(role)
-
-    state.log.info(f"Found {len(roles)} seed positions")
-    for role in roles:
-        for position_holder_qid in crawl_position_holder(state, role):
-            state.persons[position_holder_qid].from_positions.add(role)
-
-        state.context.flush()
-
-
 def crawl_declarator(state: CrawlState) -> None:
     # Import all profiles which have a Declarator ID, a reference to a Russian PEP
     # site containing profiles of all elected officials in Russia.
@@ -332,7 +279,7 @@ def crawl_persons(state: CrawlState) -> None:
 
         state.log.info(
             f"Crawled person {entity.id} "
-            f"(found in categories {found_record.from_categories}, positions {found_record.from_positions}): "
+            f"(found in categories {found_record.from_categories}): "
             f"{entity.caption} {entity.get('topics')}"
         )
 
@@ -355,7 +302,6 @@ def crawl_persons(state: CrawlState) -> None:
 def crawl(context: Context) -> None:
     state = CrawlState(context)
     crawl_declarator(state)
-    crawl_position_seeds(state)
     category_crawl_specs: list[dict[str, Any]] = context.dataset.config.get(
         "categories", []
     )
