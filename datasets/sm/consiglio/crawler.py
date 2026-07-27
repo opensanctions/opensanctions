@@ -32,7 +32,7 @@ def crawl_member(
     detail_url = h.xpath_string(heading, ".//a/@href")
     person.add("sourceUrl", detail_url)
 
-    detail = context.fetch_html(detail_url, encoding="latin-1", cache_days=1)
+    detail = context.fetch_html(detail_url, encoding="latin-1", cache_days=14)
     # Detail fields are "<span>label:</span> value" rows; the DOB is Italian
     # "<day> <month name> <year>", normalised via the dates config.
     dob = h.xpath_string(
