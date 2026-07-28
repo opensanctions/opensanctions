@@ -16,8 +16,8 @@ description: |
   elected by majority vote for eight-year terms and, together with the Chamber of Deputies,
   hold the country's legislative power, including passing laws and approving the budget.
 
-  This dataset records each senator currently in office with their name, gender, party, and
-  state.
+  This dataset records each senator currently in office with their name, gender, party,
+  state, and the eight-year term they were elected to.
 url: https://www.senado.leg.br/
 publisher:
   name: Senado Federal

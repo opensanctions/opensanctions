@@ -33,8 +33,14 @@ def crawl(context: Context) -> None:
         # Article 14 §3 I). https://www.constituteproject.org/constitution/Brazil_2017
         person.add("citizenship", "br")
 
+        mandate = senator["Mandato"]
         occupancy = h.make_occupancy(
-            context, person, position, categorisation=categorisation
+            context,
+            person,
+            position,
+            categorisation=categorisation,
+            start_date=mandate["PrimeiraLegislaturaDoMandato"]["DataInicio"],
+            end_date=mandate["SegundaLegislaturaDoMandato"]["DataFim"],
         )
         if occupancy is None:
             continue
