@@ -16,8 +16,10 @@ description: |
   the wilayas and from constituencies for Algerians abroad for a five-year term and hold the
   country's legislative power, including passing laws and approving the budget.
 
-  This dataset records each sitting deputy with their name.
-url: https://www.apn.dz/
+  This dataset records each sitting deputy with their name, political party and
+  the electoral district (wilaya, or an overseas voting zone for the diaspora)
+  they represent.
+url: https://www.apn.dz/API/serachInDepute
 publisher:
   name: People's National Assembly
   acronym: APN
@@ -28,9 +30,14 @@ publisher:
   country: dz
   official: true
 data:
-  url: https://www.apn.dz/deputes-liste
-  format: HTML
+  url: https://www.apn.dz/API/serachInDepute
+  format: JSON
   lang: fra
+http:
+  # The API returns 500 for a non-browser User-Agent.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/120.0 Safari/537.36
 
 tags:
   - list.pep

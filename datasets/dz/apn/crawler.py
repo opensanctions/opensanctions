@@ -1,47 +1,64 @@
-import re
+import json
+from itertools import count
+from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.extract import zyte_api
-from zavod.stateful.positions import PositionCategorisation, categorise
-from zavod.util import Element
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
 
+# The public /nuwab page is a JavaScript single-page app; the deputy roster is
+# loaded from this paginated JSON POST endpoint, PAGE_SIZE records per page.
+PAGE_SIZE = 100
 
-# Each deputy links to a detail page "/<id>-<slug>", e.g. "/1302-guend-nabil". This is
-# the stable anchor we key on; the slug carries the transliterated name.
-DEPUTY_HREF_RE = re.compile(r"^/?(\d+)-([a-z][a-z0-9-]+)$")
+# The API rejects the POST unless it carries a JSON Content-Type (415 otherwise) and
+# a French Accept-Language (400 otherwise); the browser User-Agent it also requires
+# (500 otherwise) is set via http.user_agent in the dataset metadata.
+HEADERS = {
+    "Accept-Language": "fr",
+    "Content-Type": "application/json",
+}
 
 
 def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    link: Element,
+    record: dict[str, Any],
 ) -> None:
-    match = DEPUTY_HREF_RE.match(h.xpath_string(link, "./@href"))
-    if match is None:
-        return
-    deputy_id, slug = match.group(1), match.group(2)
-
-    # Prefer the rendered link text (native spelling); fall back to the slug.
-    name = h.element_text(link) or slug.replace("-", " ").title()
+    full_name = record["fullName"]
+    district = record["wilaya"]
+    assert full_name is not None and district is not None
 
     person = context.make("Person")
-    # Deputies linked more than once on the page merge on this deterministic ID.
-    person.id = context.make_slug(deputy_id)
-    person.add("name", name)
-    person.add("sourceUrl", f"https://www.apn.dz/{deputy_id}-{slug}")
+    person.id = context.make_id(full_name, district)
+    person.add("name", full_name)
+    h.apply_name(
+        person,
+        first_name=record["prenom"],
+        last_name=record["nom"],
+        lang="eng",
+    )
+    if record["parti"]:
+        person.add("political", record["parti"])
     # A candidate for the APN must be of Algerian nationality (Organic Law 21-01 on
     # the electoral regime, Article 200; 2020 Constitution Article 128).
     # https://cour-constitutionnelle.dz/wp-content/uploads/2023/02/loi%20-electFR.pdf
     person.add("citizenship", "dz")
 
+    # A recorded seat vacancy (death, resignation or a declared incompatibility)
+    # means the deputy no longer sits; their occupancy has ended.
+    status = OccupancyStatus.ENDED if record["vacancesiege"] is not None else None
     occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
+        context, person, position, categorisation=categorisation, status=status
     )
     if occupancy is None:
         return
+    occupancy.add("constituency", district)
     context.emit(occupancy)
     context.emit(person)
 
@@ -59,13 +76,19 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    doc = zyte_api.fetch_html(
-        context,
-        context.data_url,
-        unblock_validator="//a[@href]",
-        geolocation="dz",
-        cache_days=14,
-    )
-
-    for link in h.xpath_elements(doc, "//a[@href]"):
-        crawl_member(context, position, categorisation, link)
+    # Fetch pages until the API returns an empty batch; the expected roster size is
+    # enforced by the dataset assertions.
+    for page in count():
+        payload = json.dumps({"size": PAGE_SIZE, "page": page})
+        data = context.fetch_json(
+            context.data_url,
+            method="POST",
+            data=payload,
+            headers=HEADERS,
+            cache_days=7,
+        )
+        rows = data["data"]
+        if len(rows) == 0:
+            break
+        for record in rows:
+            crawl_member(context, position, categorisation, record)
