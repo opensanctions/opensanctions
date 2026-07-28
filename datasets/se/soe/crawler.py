@@ -21,7 +21,7 @@ def check_updates(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url, absolute_links=True)
     report_2024_url = h.xpath_string(
         doc,
-        "//section[contains(@class, 'has-blockdivider')]//a[contains(text(), 'Verksamhetsberättelse för bolag med statligt ägande')]/@href",
+        "//a[contains(text(), 'Verksamhetsberättelse för bolag med statligt ägande')]/@href",
     )
     assert (
         report_2024_url
