@@ -31,8 +31,6 @@ publisher:
   country: dz
   official: true
 data:
-  # Slug-free canonical listing; the site also exposes it under volatile per-page
-  # slugs (…/الأعضاء/HNRWRhHG) that we avoid depending on.
   url: https://www.majliselouma.dz/ara/members
   format: HTML
   lang: ara
