@@ -1,9 +1,9 @@
-title: Brazil Federal Senate
+title: Brazil Members of the Federal Senate
 name: br_federal_senate
 prefix: br-sf
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-07-24
 load_statements: true
 ci_test: false
@@ -11,12 +11,13 @@ summary: >-
   Members of the Federal Senate of Brazil, the upper house of the National
   Congress.
 description: |
-  The Federal Senate (Senado Federal) is the upper house of the National Congress of
-  Brazil. Its 81 senators — three per state and the Federal District — are elected by
-  majority vote for eight-year terms.
+  Current members of the Federal Senate (Senado Federal), the upper house of the National
+  Congress of Brazil. Its 81 senators — three per state and the Federal District — are
+  elected by majority vote for eight-year terms and, together with the Chamber of Deputies,
+  hold the country's legislative power, including passing laws and approving the budget.
 
-  This dataset records each senator currently in office with their name, full name, party,
-  state and gender from the Senate's open-data service.
+  This dataset records each senator currently in office with their name, gender, party, and
+  state.
 url: https://www.senado.leg.br/
 publisher:
   name: Senado Federal
