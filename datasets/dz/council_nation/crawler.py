@@ -6,6 +6,7 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import LangText
 
 MEMBER_HREF_RE = re.compile(r"/members/([0-9a-f]+)$")
 
@@ -87,7 +88,7 @@ def crawl_member(
     person = context.make("Person")
     person.id = context.make_slug(member_id)
     person.add("name", name, lang="ara")
-    apply_translit_full_name(context, person, "ara", name)
+    apply_translit_full_name(context, person, LangText(name, "ara"))
     person.add("political", party, lang="ara")
     person.add("sourceUrl", url)
     # Members must be of Algerian nationality: the elected two-thirds must be sitting
