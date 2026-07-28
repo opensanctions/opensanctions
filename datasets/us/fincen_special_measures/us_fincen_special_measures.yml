@@ -50,6 +50,19 @@ lookups:
           - "Nauru"
           - "Ukraine"
         value: PublicBody
+  clean_name:
+    # Names in the overview table that carry inline annotations. The raw
+    # string stays the entity ID and the details.csv join key; these
+    # overrides only clean up the emitted properties. Trailing asterisk
+    # footnote markers (e.g. "Burma****") are stripped in code.
+    options:
+      - match: "Commercial Bank of Syria (Includes Syrian Lebanese Commercial Bank)*****"
+        name: "Commercial Bank of Syria"
+        notes: "Includes Syrian Lebanese Commercial Bank"
+      - match: "Infobank (Includes Belmetalnergo); renamed Trustbank ***"
+        name: "Infobank"
+        alias: "Trustbank"
+        notes: "Includes Belmetalnergo"
   skip_entity:
     # Rows that name a class of transactions, not an entity we can represent.
     # The class itself is not emitted; only the members named in the linked

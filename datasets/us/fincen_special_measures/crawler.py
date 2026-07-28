@@ -15,6 +15,9 @@ from zavod import helpers as h
 
 LOCAL_PATH = Path(__file__).parent
 REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
+# Trailing asterisks in the name column are footnote markers, not part of the name.
+REGEX_FOOTNOTE = re.compile(r"[\s*]+$")
+REGEX_ANNOTATION = re.compile(r"\b(includes|renamed|formerly)\b", re.IGNORECASE)
 RELATIONSHIPS = {"self", "target", "subsidiary", "owner", "related"}
 
 
@@ -176,7 +179,20 @@ def crawl_item(
             schema = "Company"
         main = context.make(schema)
         main.id = context.make_id(name)
-        main.add("name", name)
+        # The raw name keys the entity ID, the lookups and the details.csv
+        # join, but footnote markers and inline annotations ("(Includes ...)",
+        # "renamed ...") must not end up in the name property.
+        override = context.lookup("clean_name", name)
+        if override is not None:
+            main.add("name", override.name, original_value=name)
+            main.add("alias", override.alias)
+            main.add("notes", override.notes)
+        else:
+            clean_name = REGEX_FOOTNOTE.sub("", name)
+            if REGEX_ANNOTATION.search(clean_name) is not None:
+                context.log.warning("Measure name needs a clean_name lookup", name=name)
+            original = name if clean_name != name else None
+            main.add("name", clean_name, original_value=original)
         # Adjust the topic based on the presence of "final rule"
         final_rule = collapse_spaces(final_rule_text.strip().lower())
         if (
