@@ -23,18 +23,13 @@ lookups and what they do.
 
 ## 2. Check each field against the doc
 
-- `title` — starts with the country's short English name (or the international issuer's
-  name/acronym); never possessive; established acronyms kept.
-- `summary` — one plain fragment just above 50 chars, no trailing period, no title-word
-  repetition, no humor.
-- `description` — scope and institutional context only; no per-record field lists, no
-  ETL mechanics, no sourcing narration.
-- `coverage.frequency` — matches the house default for the dataset type (sanctions
-  `daily`, PEP `monthly`, registries `weekly`, frozen dumps `never` + schedule).
+- `title` — the doc's Title rules.
+- `summary` — length and style per the doc's Summary rules.
+- `description` — the doc's Description rules, including its keep-out list.
+- `coverage.frequency` — the doc's house default for the dataset type.
 - `tags` — present and plausible for list type and target countries.
-- `publisher` — `name`/`name_en` language split, `acronym`, `country`, `official` set
-  correctly; description explains the publisher to a foreign reader.
-- `data` — `url` fetchable, `format` set, `lang` set for single-language sources.
+- `publisher` — all subfields per the doc's Publisher section.
+- `data` — `url` fetchable; `format` and `lang` per the doc's Source data section.
 
 ## 3. Maintainer comments
 

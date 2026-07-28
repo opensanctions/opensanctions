@@ -38,11 +38,11 @@ For one chamber of a bicameral body, name the chamber
 (`Romania Members of the Chamber of Deputies`). Keep any established acronym the file
 already uses only if it reads naturally; prefer the plain form.
 
-## 3. Description — scope and context, not field lists
+## 3. Description — the legislature pattern
 
 Follow the `description` guidance in
-[`zavod/docs/metadata.md`](../../../zavod/docs/metadata.md). One short paragraph,
-optionally two:
+[`zavod/docs/metadata.md`](../../../zavod/docs/metadata.md), including its
+"Keep out of the description" rules. One short paragraph, optionally two:
 
 **Paragraph 1 — who the members are + institutional context.** Scope-prefixed
 ("Current members of …" / "Current and historical members of …"), naming the body
@@ -54,14 +54,7 @@ country's".
 
 **Optional paragraph 2 — scope notes.** Only when there is something substantive to
 say: deliberate exclusions ("alternates are not included"), current-only vs historical
-coverage, a bounded period. Do **not** enumerate per-member attributes (name, gender,
-date of birth, …) — that is visible from the data itself and drifts as the crawler
-changes.
-
-**Strip** — provenance and mechanics belong in `publisher` / `data.url`, not here:
-- "sourced from / as published on the official website / member API";
-- anti-bot, browser-proxy, pagination, join-key or rolling-window details;
-- PEP after-office cutoffs and other internal plumbing.
+coverage, a bounded period.
 
 ### Worked example
 

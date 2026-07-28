@@ -32,6 +32,7 @@ One to three short paragraphs describing the scope of the dataset. Write for a c
 - Open with what the dataset covers, and the institutional or legal context a reader from another country needs: what kind of body issues it, under what mandate, what inclusion on the list means.
 - Describe scope boundaries: what is included and excluded, current-only vs. historical coverage, any period the dataset is limited to.
 - Note significant limitations that affect how a reader should trust or interpret the data — for example a dataset maintained manually because the source is a PDF or behind an access block, or coverage that updates irregularly.
+- Write time-agnostic prose (in the `summary` too): describe the source's ongoing purpose ("Members of parliament, updated after each election"), not the current snapshot ("Members since the 2023 elections").
 
 Keep out of the description:
 
