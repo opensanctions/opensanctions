@@ -23,18 +23,17 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     table_xpath = ".//table[@aria-label='Table of Files associated with page']"
+    assert context.dataset.url is not None
     doc = fetch_html(
         context, context.dataset.url, table_xpath, cache_days=1, absolute_links=True
     )
-    table = doc.xpath(table_xpath)
-    assert len(table) == 1, "Expected exactly one table in the document"
-    link = table[0].xpath(".//a/@href")
-    assert len(link) == 1, "Expected exactly one link in the table"
+    table = h.xpath_element(doc, table_xpath)
+    link = h.xpath_string(table, ".//a/@href")
 
     # Expect
     # North Korea Sanctions & Enforcement Actions Advisory | 827.97 KB | 08/03/2018
     # Assert hash of linked PDF (hopefully less fickle than HTML)
-    _, _, _, pdf_path = fetch_resource(context, "source.pdf", link[0], PDF)
+    _, _, _, pdf_path = fetch_resource(context, "source.pdf", link, PDF)
     h.assert_file_hash(pdf_path, "cd9894479b1330bf0db3885ded3254e580af7acd")
 
     csv_path = context.fetch_resource("source.csv", context.data_url)
