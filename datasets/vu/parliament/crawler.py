@@ -4,10 +4,6 @@ from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# At least one row of the roster table must be present for the fetch to count as
-# successfully unblocked.
-TABLE_XPATH = './/table[contains(@class, "table-striped")]'
-
 
 def crawl_member(
     context: Context,
@@ -64,11 +60,12 @@ def crawl(context: Context) -> None:
     doc = zyte_api.fetch_html(
         context,
         context.data_url,
-        unblock_validator=TABLE_XPATH,
+        # The roster table must be present for the fetch to count as unblocked.
+        unblock_validator='.//table[contains(@class, "table-striped")]',
         geolocation="au",
         cache_days=14,
     )
-    table = h.xpath_element(doc, TABLE_XPATH)
+    table = h.xpath_element(doc, './/table[contains(@class, "table-striped")]')
     rows = list(h.parse_html_table(table))
     for row in rows:
         crawl_member(context, position, categorisation, h.cells_to_str(row))
