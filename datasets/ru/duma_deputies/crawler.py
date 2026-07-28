@@ -122,7 +122,7 @@ def crawl(context: Context) -> None:
     # Assembly of Russia.
     position = h.make_position(
         context,
-        name="Member of the State Duma",
+        name="Member of the State Duma of Russia",
         country="ru",
         wikidata_id="Q17276321",
         topics=["gov.national", "gov.legislative"],

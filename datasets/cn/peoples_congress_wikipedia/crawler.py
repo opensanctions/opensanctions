@@ -109,7 +109,7 @@ def crawl_item(
 
     position = h.make_position(
         context,
-        "Member of the National People's Congress",
+        "Member of the National People's Congress of China",
         country="cn",
         wikidata_id="Q10891456",
         lang="eng",

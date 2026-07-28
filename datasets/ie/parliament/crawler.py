@@ -9,7 +9,7 @@ POSITIONS = {
         "wikidata_id": "Q18043391",
     },
     "dail": {
-        "title": "Member of the Dáil",
+        "title": "Member of the Dáil of Ireland",
         "wikidata_id": "Q654291",
     },
 }

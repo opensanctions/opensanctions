@@ -128,7 +128,7 @@ def crawl_ls_member(
 def crawl_ls(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of the Lok Sabha",
+        name="Member of the Lok Sabha of India",
         wikidata_id="Q16556694",
         country="in",
         topics=["gov.legislative", "gov.national"],
@@ -227,7 +227,7 @@ def crawl_rs_member(context: Context, position: Entity, member: dict[str, Any]) 
 def crawl_rs(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of the Rajya Sabha",
+        name="Member of the Rajya Sabha of India",
         wikidata_id="Q17324844",
         country="in",
         topics=["gov.legislative", "gov.national"],

@@ -11,7 +11,7 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 
 CACHE_SHORT = 1
 CACHE_LONG = 30
-PEPS = set()
+PEPS: set[str] = set()
 
 
 def fetch_json_with_retry(context: Context, url: str, *, cache_days: int) -> Any:
@@ -53,6 +53,7 @@ def crawl_position(
         return
     context.emit(person)
     context.emit(occupancy)
+    assert person.id is not None
     PEPS.add(person.id)
 
 
@@ -92,6 +93,7 @@ def crawl_position_no_tenure(
     occupancy.add("description", f"Knesset {knesset['KnessetNumber']}")
     context.emit(person)
     context.emit(occupancy)
+    assert person.id is not None
     PEPS.add(person.id)
 
 
@@ -100,7 +102,7 @@ def crawl_positions(
 ) -> None:
     position = h.make_position(
         context,
-        "Knesset Member",
+        "Member of the Knesset of Israel",
         country="il",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q4047513",

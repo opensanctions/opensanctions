@@ -72,7 +72,7 @@ def crawl_person(context: Context, element: _Element, position: Entity) -> None:
 def crawl(context: Context) -> None:
     position = make_position(
         context,
-        name="Member of the House of Representatives",
+        name="Member of the House of Representatives of the Netherlands",
         country="nl",
         summary="Member of the lower house of the bicameral parliament of the Netherlands, the States General",
         wikidata_id="Q18887908",

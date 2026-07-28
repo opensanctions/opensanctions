@@ -36,7 +36,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
 
     position = h.make_position(
         context,
-        name="Member of the Senate",
+        name="Member of the Senate of the Italian Republic",
         wikidata_id="Q13653224",
         country="it",
         topics=["gov.legislative", "gov.national"],
