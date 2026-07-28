@@ -83,6 +83,8 @@ def crawl_row(
         name="Senator of the French Fifth Republic",
         country="fr",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q14828018",
+        lang="eng",
     )
     # is_pep=True because we expect all senators to be PEPs
     categorisation = categorise(context, position, default_is_pep=True)

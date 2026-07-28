@@ -125,6 +125,8 @@ def crawl_member(
         name="Member of the Legislative Council of Hong Kong",
         country="hk",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q27908372",
+        lang="eng",
     )
     if member.pop("is_president", "N") == "Y":
         position = h.make_position(
@@ -132,6 +134,8 @@ def crawl_member(
             name="President of the Legislative Council of Hong Kong",
             country="hk",
             topics=["gov.national", "gov.legislative"],
+            wikidata_id="Q3068969",
+            lang="eng",
         )
 
     occupancy = h.make_occupancy(
