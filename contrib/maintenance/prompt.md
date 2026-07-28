@@ -12,7 +12,7 @@ Your task is to fix as many of the reported issues as you confidently can and su
 ## Three kinds of fix
 
 1. **Lookups (preferred — always try this first).** Most value-level dirt (an unmapped country, an unparseable date, an unknown gender) is fixed by adding a lookup option to {{ yaml_path }}. Lookups are low-risk and reviewable, so reach for them whenever they can express the fix.
-2. **Crawler code changes.** When a warning cannot be expressed as a lookup — e.g. a parsing bug, a field read from the wrong column, a value that needs transforming before it is added — you may edit the crawler at {{ code_path }} instead. Keep the change as small and targeted as possible.
+2. **Crawler code changes.** When a warning cannot be expressed as a lookup — e.g. a parsing bug, a field read from the wrong column, a value that needs transforming before it is added — edit the crawler at {{ code_path }} instead. Keep the change as small and targeted as possible.
 3. **Static data fixes.** Some crawlers read a repository-owned data file, such as CSV or YAML, containing data extracted from sources that are difficult to automate. Update these files when a warning identifies new source data. Preserve the existing schema and follow any dataset-specific instructions in the metadata or crawler comments.
 {% else %}
 ## How to fix
@@ -40,7 +40,7 @@ Some issues are not dirty values but assertion failures (`min`-bound failures ar
 
     Assertion schema_entities failed for Security: 669973 is not <= threshold 418000
 
-These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The report's assertion table compares every declared threshold against the last successful run's statistics — use it to locate the entry to edit and to see which direction reality drifted. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
+These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The report's assertion table compares every declared threshold against the last successful run's statistics — use it to locate the entry to edit and to see which direction reality drifted. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. **Widen the envelope in the direction it drifted.** Never tighten a threshold toward the current value — that just re-breaks on the next run.
 
 Read the message as `<value> is not <op> threshold <threshold>` and edit the matching entry under `assertions.min.<metric>.<key>` or `assertions.max.<metric>.<key>` (the `<metric>`, e.g. `schema_entities`, and `<key>`, e.g. `Security`, come straight from the message):
 
@@ -59,12 +59,11 @@ Some issues are deliberate signals for a maintainer to investigate, not somethin
 - Transient infrastructure errors: database deadlocks, connection errors, timeouts. These are not fixable by editing the dataset.
 - Review-system backlog: `There are N unaccepted items for dataset ...`. These are cleared by a human in the review UI, not by editing the repository.
 
-HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among runtime failures: when the report shows the failure persisting across several runs, the source has likely moved the file or started blocking the crawler. If you can locate the new URL on the source's website, updating `data.url` in the metadata (or the fetch in the crawler) is a legitimate fix. If you cannot determine a fix, leave it for humans.
+HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among runtime failures: when the report shows the failure persisting across several runs, the source has likely moved the file or started blocking the crawler. Locate the new URL on the source's website and update `data.url` in the metadata (or the fetch in the crawler). If you cannot determine a fix, leave it for humans.
 
 ## Scope
 
 {% if code_path %}
-- Prefer lookups. Only change code when no lookup can express the fix.
 - Code changes must be minimal, targeted, and behavior-preserving: fix only the warning at hand, do not refactor, and do not change what the crawler emits beyond that fix.
 - Never change entity IDs — do not alter the values passed to `make_id` / `make_slug`, and never put PII into `make_slug`. Re-keying entities breaks downstream data.
 {% endif %}
@@ -75,7 +74,7 @@ HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among ru
 - NEVER modify any file other than {{ yaml_path }}.
 {% endif %}
 - To inspect PDF source documents (many findings and Federal Register rules are PDFs), `pdftotext -layout <file> -` is available; `pdftoppm -png` renders pages as images when the text layout is ambiguous.
-- It is fine to open a PR that fixes only some of the issues. Skip issues that are unclear.
+- It is fine to open a PR that fixes only some of the issues.
 - If the correct fix for a value is genuinely uncertain — i.e. you cannot determine from context what it should be — skip that issue. Do not guess. A skipped issue gets human review later; a wrong fix ships incorrect data.
 - Do NOT open a PR if no fixes are needed.
 
