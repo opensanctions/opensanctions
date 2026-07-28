@@ -49,6 +49,20 @@ assertions:
       LegalEntity: 1500
       Address: 1200
       Vessel: 100
+    # Set at roughly a quarter of the production fill rate: low enough that a
+    # shift in the shape of the source data doesn't hold up the release, high
+    # enough to catch a crawler that stopped parsing a field altogether.
+    property_fill_rate:
+      Person:
+        birthDate: 0.2
+        gender: 0.2
+      Vessel:
+        # Most SECO vessels carry no IMO number at all (~0.25 in production).
+        imoNumber: 0.06
+      Sanction:
+        program: 0.25
+        startDate: 0.25
+        listingDate: 0.25
   max:
     schema_entities:
       Person: 8500

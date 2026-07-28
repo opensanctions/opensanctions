@@ -84,6 +84,18 @@ assertions:
       Address: 1250
       Organization: 970
       Vessel: 1
+    # Set at roughly a quarter of the production fill rate: low enough that a
+    # shift in the shape of the source data doesn't hold up the release, high
+    # enough to catch a crawler that stopped parsing a field altogether.
+    property_fill_rate:
+      Person:
+        birthDate: 0.2
+      Organization:
+        country: 0.2
+      Sanction:
+        program: 0.25
+        startDate: 0.25
+        listingDate: 0.25
   max:
     schema_entities:
       Person: 8000

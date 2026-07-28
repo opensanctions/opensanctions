@@ -45,6 +45,18 @@ assertions:
       Person: 3060
       Organization: 890
       Vessel: 125
+    # Set at roughly a quarter of the production fill rate: low enough that a
+    # shift in the shape of the source data doesn't hold up the release, high
+    # enough to catch a crawler that stopped parsing a field altogether.
+    property_fill_rate:
+      Person:
+        birthDate: 0.2
+        nationality: 0.18
+      Vessel:
+        imoNumber: 0.25
+      Sanction:
+        program: 0.25
+        startDate: 0.25
   max:
     schema_entities:
       Person: 7200
