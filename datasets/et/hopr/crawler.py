@@ -105,48 +105,35 @@ def clean_value(value: str | None) -> str | None:
     return value
 
 
-def parse_card(card: Element) -> dict[str, str | None] | None:
-    """Extract the fields of a single member card.
+def crawl_member(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    term: Term,
+    card: Element,
+) -> None:
+    """Parse a single member card and emit the member as a PEP.
 
-    Returns ``None`` when the card lacks the MemberId that identifies the
-    member; every populated card carries one.
+    Cards without a MemberId are skipped; every populated card carries one.
     """
     # Both anchors (photo and name) carry the same MemberId, so the first is enough.
     hrefs = h.xpath_strings(card, './/a[contains(@href, "MemberId=")]/@href')
     match = re.search(r"MemberId=(\d+)", hrefs[0]) if hrefs else None
     name = h.element_text(h.xpath_element(card, './/a[@class="member-name"]'))
     if match is None or not name:
-        return None
+        return
     member_id = match.group(1)
 
-    party = h.xpath_string(card, './/p[@class="member-party"]/text()')
+    party = clean_value(h.xpath_string(card, './/p[@class="member-party"]/text()'))
 
     # The region sits in a leading <strong>; the constituency is the text after
     # the <br>, stays in Amharic even in the English view, and is sometimes blank.
     location = h.xpath_element(card, './/p[@class="member-location"]')
-    region = h.xpath_string(location, "./strong/text()")
-    constituency = " ".join(h.xpath_strings(location, "./br/following-sibling::text()"))
+    region = clean_value(h.xpath_string(location, "./strong/text()"))
+    constituency = clean_value(
+        " ".join(h.xpath_strings(location, "./br/following-sibling::text()"))
+    )
 
-    return {
-        "member_id": member_id,
-        "name": name,
-        "party": clean_value(party),
-        "region": clean_value(region),
-        "constituency": clean_value(constituency),
-    }
-
-
-def crawl_member(
-    context: Context,
-    position: Entity,
-    categorisation: PositionCategorisation,
-    term: Term,
-    card: dict[str, str | None],
-) -> None:
-    member_id = card["member_id"]
-    assert member_id is not None, card
-    name = card["name"]
-    assert name is not None, card
     clean_name = h.strip_name_titles(context, name)
     if clean_name is None:
         return
@@ -155,7 +142,7 @@ def crawl_member(
     person.id = context.make_id(member_id)
     original = name if clean_name != name else None
     person.add("name", clean_name, lang="eng", original_value=original)
-    person.add("political", card["party"], lang="eng")
+    person.add("political", party, lang="eng")
     # Every Ethiopian national has the right to be elected to any office (FDRE
     # Constitution, 1995, Article 38(1)(c)).
     # https://www.constituteproject.org/constitution/Ethiopia_1994
@@ -172,7 +159,7 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", [card["region"], card["constituency"]])
+    occupancy.add("constituency", [region, constituency])
     context.emit(occupancy)
     context.emit(person)
 
@@ -194,9 +181,7 @@ def crawl_term(
         if not cards:
             break
         for card in cards:
-            data = parse_card(card)
-            if data is not None:
-                crawl_member(context, position, categorisation, term, data)
+            crawl_member(context, position, categorisation, term, card)
     context.log.info("Crawled term", ordinal=term.ordinal, election_id=term.election_id)
 
 
@@ -210,7 +195,9 @@ def crawl(context: Context) -> None:
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        return
+        # The single position covering the whole dataset has been reviewed as
+        # not a PEP; that empties the dataset and needs human attention.
+        raise RuntimeError(f"Position is not categorised as a PEP: {position.id}")
     context.emit(position)
 
     # The bare members index lists the term switcher and defaults to the sitting

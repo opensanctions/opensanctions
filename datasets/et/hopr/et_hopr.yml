@@ -21,6 +21,20 @@ description: |
   and regional state they represent, along with the years of the term they served.
 url: https://www.hopr.gov.et/
 
+publisher:
+  name: House of Peoples' Representatives
+  acronym: HoPR
+  description: >
+    The House of Peoples' Representatives is the lower chamber of the Federal Parliamentary
+    Assembly of Ethiopia, whose members are elected from single-member constituencies.
+  url: https://www.hopr.gov.et/
+  country: et
+  official: true
+data:
+  url: https://www.hopr.gov.et/Members/Index
+  format: HTML
+  lang: eng
+
 names:
   prefixes_strip:
     - Honorable
@@ -40,19 +54,6 @@ names:
     - Major
     - Commissioner
     - Bi/General
-publisher:
-  name: House of Peoples' Representatives
-  acronym: HoPR
-  description: >
-    The House of Peoples' Representatives is the lower chamber of the Federal Parliamentary
-    Assembly of Ethiopia, whose members are elected from single-member constituencies.
-  url: https://www.hopr.gov.et/
-  country: et
-  official: true
-data:
-  url: https://www.hopr.gov.et/Members/Index
-  format: HTML
-  lang: eng
 
 tags:
   - list.pep
