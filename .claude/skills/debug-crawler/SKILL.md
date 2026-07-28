@@ -10,9 +10,9 @@ allowed-tools: Read, Edit, Glob, Grep, Bash, WebFetch
 The user has provided a dataset name or issues.json artifact URL: $ARGUMENTS
 (In an artifact URL, the dataset name is the path segment after `/artifacts/`.)
 
-Read `zavod/docs` as needed to understand how crawlers are normally written — the goal
-here is to fix the failing crawler in accordance with existing practices, not to
-refactor or standardise it.
+Fix the failing crawler. Do not refactor or standardise it.
+`.claude/docs/crawler-guide.md` is the hub for how crawlers are normally written, and
+links the relevant `zavod/docs` best-practice guides.
 
 ## Step 1: Get the diagnostic report
 
@@ -20,13 +20,9 @@ refactor or standardise it.
 python -m contrib.maintenance.diagnose <dataset_name>
 ```
 
-The report gives you the run verdict (failed since when, for how many runs), the
-dataset's resolved `.yml` and crawler paths, artifact links for the latest and last
-successful runs, the issues themselves (inlined, or grouped by pattern with the full
-issues.json linked), an assertions-vs-last-good-statistics drift table, and recent
-commits touching the dataset. Read the crawler's `.yml` and `crawler.py` from the
-paths it resolves, and note the **row data** on each issue — for source-value issues
-the keys are slugified column names, values are cell contents.
+Read the crawler's `.yml` and `crawler.py` from the paths the report resolves. Note
+the **row data** on each issue — for source-value issues the keys are slugified
+column names, values are cell contents.
 
 ## Step 2: Inspect the current source data
 
@@ -53,15 +49,11 @@ content = b64decode(resp.json()['httpResponseBody'])
 "
 ```
 
-Add `'geolocation': 'US'` (or the relevant country code) to the Zyte request when
-the source geo-restricts access — and add the matching `geolocation=` argument to
-the `fetch_resource` / `fetch_html` call in the crawler.
-
 If the fix is to move the crawler onto Zyte (the source is now blocked, geo-blocked,
 throttled, or behind a JavaScript challenge), see
 `zavod/docs/best_practices/http_operations.md` for choosing the right helper
 (`fetch_html` for browser rendering, `fetch_text` / `fetch_json` / `fetch_resource`
-otherwise) and remember to set `ci_test: false` on the dataset.
+otherwise) and set `ci_test: false` on the dataset.
 
 ## Step 3: Diagnose
 
@@ -73,17 +65,13 @@ Compare what the source actually contains against what the crawler expects.
 |---|---|---|
 | Expected field/column not found | Source renamed or restructured columns | Update the crawler to match the new structure |
 | First page parses fine, later pages fail | Per-page header handling no longer matches source | Adjust header-reading logic to match current source |
-| 403 / empty response from Zyte | Source geo-restricts content | Add `geolocation=` to the fetch call |
+| 403 / empty response from Zyte | Source geo-restricts content | Add `'geolocation': 'US'` (or the relevant country code) to the Zyte request, and the matching `geolocation=` to the crawler's `fetch_resource` / `fetch_html` call |
 | Assertion on entity count fails | Source grew or shrank | Verify the count is real — the report's assertion table shows the drift vs the last successful run; check the linked delta.json for what changed. Update `assertions:` bounds if changes can be explained by e.g. sanctions expiring, but never widen the envelope to fit a collapsed count (that's a broken crawl, not drift). |
 | Unexpected keys in `audit_data` | New columns added to source | Pop and handle (or explicitly ignore) the new fields |
 
 ## Step 4: Fix and verify
 
-After making code changes, delete the cached source file so the fresh copy is fetched:
-
 ```bash
-rm -f data/datasets/<dataset_name>/source.*
-
 zavod crawl datasets/<path>/<dataset_name>.yml
 ```
 
