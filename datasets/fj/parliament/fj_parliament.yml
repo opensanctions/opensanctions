@@ -1,0 +1,47 @@
+title: Fiji Members of Parliament
+name: fj_parliament
+prefix: fj-parl
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  The sitting members of Fiji's unicameral Parliament.
+description: |
+  Current members of the Parliament of Fiji, the country's unicameral national legislature.
+  Its 55 members serve four-year terms and are chosen through open-list proportional
+  representation, with the whole country voting as a single national constituency rather than
+  local electoral districts, and hold the country's legislative power, including passing laws
+  and approving the budget.
+
+  This dataset records each sitting member with their name.
+url: https://parliament.gov.fj/
+publisher:
+  name: Parliament of the Republic of Fiji
+  description: >
+    The Parliament of Fiji is the unicameral legislature of the Republic of Fiji, whose
+    members are elected nationally under proportional representation.
+  url: https://parliament.gov.fj/
+  country: fj
+  official: true
+data:
+  url: https://parliament.gov.fj/members-of-parliament/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 45
+      Position: 1
+    country_entities:
+      fj: 45
+  max:
+    schema_entities:
+      Person: 65
+      Position: 1
