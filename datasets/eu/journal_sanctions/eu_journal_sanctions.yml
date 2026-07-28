@@ -80,6 +80,12 @@ lookups:
       # journal spelling "Hamida Nabaggala" is not found as a contiguous string.
       - match: Hamida Nabaggala
         value: Hamidah Nabagala
+      # Consolidated act 02014R0833-20260717 still lists vessel entry 629 under
+      # its previous name "KRITI VIGOR" (IMO 9290397); Reg. 2026/1848 renamed it
+      # to "STORMBRINGER (ex KRITI VIGOR)" after that consolidation, so the
+      # journal name is not yet found as a contiguous string.
+      - match: STORMBRINGER
+        value: KRITI VIGOR
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)
