@@ -692,6 +692,7 @@ lookups:
         value: null
       - match: Moscow
         value: Moscow
+        # Mapped to itself to silence address to short warning.
       - match: Qom
         value: Qom
       - match: Eyl
@@ -714,6 +715,14 @@ lookups:
         value: Zug
       - match: Moa
         value: Moa
+      - match: DE
+        value: DE
+      - match: IL
+        value: IL
+      - match: TX
+        value: TX
+      - match: CA
+        value: CA
   type.country:
     lowercase: true
     normalize: true
