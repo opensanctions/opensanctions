@@ -1,9 +1,9 @@
-title: Chile Chamber of Deputies
+title: Chile Members of the Chamber of Deputies
 name: cl_chamber_deputies
 prefix: cl-cd
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-07-24
 load_statements: true
 ci_test: false
@@ -11,12 +11,14 @@ summary: >-
   Members of the Chamber of Deputies of Chile, the lower house of the National
   Congress.
 description: |
-  The Chamber of Deputies (Cámara de Diputadas y Diputados) is the lower house of the
-  National Congress of Chile. Its members are elected by proportional representation from
-  the country's electoral districts for a four-year term.
+  Current members of the Chamber of Deputies (Cámara de Diputadas y Diputados), the lower
+  house of the National Congress of Chile. Its 155 deputies are elected by proportional
+  representation from the country's electoral districts for a four-year term and, together
+  with the Senate, hold the country's legislative power, including passing laws and approving
+  the budget.
 
-  This dataset records each deputy of the current legislative period with their name,
-  gender, date of birth and current party from the Chamber's open-data service.
+  This dataset records each deputy of the current legislative period with their name, gender,
+  date of birth, and current party.
 url: https://www.camara.cl/
 publisher:
   name: Cámara de Diputadas y Diputados
