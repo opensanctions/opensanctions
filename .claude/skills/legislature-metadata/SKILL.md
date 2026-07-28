@@ -10,23 +10,22 @@ allowed-tools: Read, Edit, Glob, Grep
 Standardise the `title`, `description` and `coverage.frequency` of a PEP dataset that
 covers members of a national (or subnational) legislature. Target file: $ARGUMENTS
 
-Change **only** these three fields. Leave `summary`, `publisher`, `data`, `assertions`,
-`lookups` etc. untouched unless the user asks.
+General metadata rules live in [`zavod/docs/metadata.md`](../../../zavod/docs/metadata.md).
+This skill defines the legislature-specific pattern for `title`, `description` and
+`coverage.frequency` only. For every other field — `summary`, `publisher`, `data`,
+tags, maintainer comments — follow the `/dataset-metadata` skill; don't touch them
+here unless the user asked for a full metadata pass.
 
 ## 1. Read the crawler first
 
-Open the dataset's `entry_point` (usually `crawler.py` next to the `.yml`). The
-description's field list must match what the crawler *actually emits* — read the
-`person.add(...)`, `h.apply_name(...)`, `occupancy.add(...)` calls, not the source's
-raw columns. Emitting `constituency`, `politicalGroup`, `birthPlace` etc. only counts
-if it reaches an emitted entity.
-
-Also note from the crawler / `.yml`:
+Open the dataset's `entry_point` (usually `crawler.py` next to the `.yml`) and note the
+scope facts the description depends on:
 - unicameral vs bicameral, and (for a bicameral body) which chamber this is;
 - seat count, term length, and how members are elected (e.g. proportional
   representation, by district, appointed);
 - whether the dataset is current-only or also historical (look for
-  `earliest_term_start` / a PEP look-back cutoff → "Current and historical").
+  `earliest_term_start` / a PEP look-back cutoff → "Current and historical");
+- deliberate exclusions (e.g. alternates or substitutes skipped).
 
 ## 2. Title → `<Country> Members of <Parliament name>`
 
@@ -39,12 +38,11 @@ For one chamber of a bicameral body, name the chamber
 (`Romania Members of the Chamber of Deputies`). Keep any established acronym the file
 already uses only if it reads naturally; prefer the plain form.
 
-## 3. Description — two short paragraphs, content only
+## 3. Description — scope and context, not field lists
 
 Follow the `description` guidance in
-[`zavod/docs/metadata.md`](../../../zavod/docs/metadata.md) and the house pattern
-below. Describe **what is in the dataset** — the people and their data — not how it
-was fetched.
+[`zavod/docs/metadata.md`](../../../zavod/docs/metadata.md). One short paragraph,
+optionally two:
 
 **Paragraph 1 — who the members are + institutional context.** Scope-prefixed
 ("Current members of …" / "Current and historical members of …"), naming the body
@@ -54,12 +52,11 @@ role ("… and hold the country's legislative power, including passing laws and 
 the budget."). For an SAR or subnational body say "the region's" rather than "the
 country's".
 
-**Paragraph 2 — the per-member data.** "This dataset records each [member] with their
-…" then list exactly the attributes the crawler emits (name, gender, date/place of
-birth, party, parliamentary group, constituency, …). Keep genuinely substantive scope
-notes (e.g. "alternates are not included", "not every profile carries the full set of
-fields", "membership is treated as current on each run"). Give the original-language
-term in parentheses where the source uses one (e.g. parliamentary group (bancada)).
+**Optional paragraph 2 — scope notes.** Only when there is something substantive to
+say: deliberate exclusions ("alternates are not included"), current-only vs historical
+coverage, a bounded period. Do **not** enumerate per-member attributes (name, gender,
+date of birth, …) — that is visible from the data itself and drifts as the crawler
+changes.
 
 **Strip** — provenance and mechanics belong in `publisher` / `data.url`, not here:
 - "sourced from / as published on the official website / member API";
@@ -75,9 +72,6 @@ description: |
   legislature. Its 150 members are elected under proportional representation for a
   four-year term and hold the country's legislative power, including passing laws,
   approving the budget, and overseeing the government.
-
-  This dataset records each seated member with their name, gender, and date and place
-  of birth.
 ```
 
 ## 4. `coverage.frequency: monthly`
@@ -87,6 +81,9 @@ unchanged). If it is already `monthly`, leave it.
 
 ## Verify
 
-Re-read the edited fields. Confirm every attribute named in paragraph 2 is actually
-emitted by the crawler, the seat count / term / election method match the source, and
-no sourcing or mechanics language remains.
+Re-read the edited fields. Confirm the seat count / term / election method match the
+source, any scope note reflects what the crawler actually does, and no sourcing,
+mechanics, or per-field language remains.
+
+If the user asked for a full metadata pass, continue with the `/dataset-metadata`
+checklist for the remaining fields.
