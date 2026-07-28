@@ -1,5 +1,4 @@
 import re
-from itertools import count
 
 from zavod import Context
 from zavod import helpers as h
@@ -7,8 +6,6 @@ from zavod.entity import Entity
 from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import LangText
-
-MEMBER_HREF_RE = re.compile(r"/members/([0-9a-f]+)$")
 
 # Mandate lines read e.g. "العهدة التشريعية العاشرة 2025-2031 (19 مايو 2025 => ...)";
 # the "YYYY-YYYY" span gives the term's start and end years.
@@ -18,48 +15,42 @@ MANDATE_YEARS_RE = re.compile(r"(\d{4})-(\d{4})")
 MAX_PAGES = 40
 
 
-def collect_member_ids(context: Context) -> list[str]:
-    ids: list[str] = []
-    seen: set[str] = set()
-    for page in count(1):
-        if page > MAX_PAGES:
-            raise ValueError("Council members directory exceeded the page cap")
-        doc = context.fetch_html(context.data_url, params={"page": page}, cache_days=14)
-        page_ids: list[str] = []
-        for href in h.xpath_strings(doc, '//a[contains(@href, "/members/")]/@href'):
-            match = MEMBER_HREF_RE.search(href)
-            if match is not None:
-                page_ids.append(match.group(1))
+def collect_member_urls(context: Context) -> list[str]:
+    # Every profile link on the listing is a member; paginate until an empty page,
+    # keeping insertion order and dropping any repeats across pages.
+    urls: dict[str, None] = {}
+    for page in range(1, MAX_PAGES + 1):
+        doc = context.fetch_html(
+            context.data_url,
+            params={"page": page},
+            cache_days=14,
+            absolute_links=True,
+        )
+        page_urls = h.xpath_strings(doc, '//a[contains(@href, "/members/")]/@href')
         # A page with no member links marks the end of the directory.
-        if not page_ids:
-            break
-        for member_id in page_ids:
-            if member_id not in seen:
-                seen.add(member_id)
-                ids.append(member_id)
-    return ids
+        if not page_urls:
+            return list(urls)
+        urls.update(dict.fromkeys(page_urls))
+    raise ValueError("Council members directory exceeded the page cap")
 
 
-def latest_mandate(mandate_texts: list[str]) -> tuple[str, str] | None:
-    terms: list[tuple[int, int]] = []
-    for text in mandate_texts:
-        match = MANDATE_YEARS_RE.search(text)
-        if match is not None:
-            terms.append((int(match.group(1)), int(match.group(2))))
-    if not terms:
+def latest_mandate(text: str) -> tuple[str, str] | None:
+    # A member may list several terms; keep the "YYYY-YYYY" span running latest.
+    spans: list[tuple[str, str]] = MANDATE_YEARS_RE.findall(text)
+    if not spans:
         return None
-    start, end = max(terms, key=lambda t: t[1])
-    return str(start), str(end)
+    return max(spans, key=lambda span: int(span[1]))
 
 
 def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    member_id: str,
+    url: str,
 ) -> None:
-    url = f"https://www.majliselouma.dz/ara/members/{member_id}"
-    doc = context.fetch_html(url, cache_days=30)
+    member_id = url.rsplit("/", 1)[-1]
+    assert member_id, url
+    doc = context.fetch_html(url, cache_days=14)
 
     name = h.element_text(h.xpath_element(doc, '//h1[@class="title"]'))
     assert name, f"Missing name for member {member_id}"
@@ -76,14 +67,10 @@ def crawl_member(
         party = party_part.strip() or None
         wilaya = rest.split("(")[0].strip() or None
 
-    mandate_texts = [
-        " ".join(t.split())
-        for t in h.xpath_strings(
-            doc, '//*[contains(@class, "mbr-mandate")]//li//text()'
-        )
-        if t.strip()
-    ]
-    mandate = latest_mandate(mandate_texts)
+    mandate_text = " ".join(
+        h.xpath_strings(doc, '//*[contains(@class, "mbr-mandate")]//li//text()')
+    )
+    mandate = latest_mandate(mandate_text)
 
     person = context.make("Person")
     person.id = context.make_slug(member_id)
@@ -129,8 +116,5 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    member_ids = collect_member_ids(context)
-    if not member_ids:
-        raise ValueError("No members found in the Council directory")
-    for member_id in member_ids:
-        crawl_member(context, position, categorisation, member_id)
+    for url in collect_member_urls(context):
+        crawl_member(context, position, categorisation, url)
