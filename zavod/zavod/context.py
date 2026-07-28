@@ -174,11 +174,21 @@ class Context:
         """Flush the context to ensure all data is written to disk."""
         if self._db is not None:
             self._db.checkpoint()
-        # The statement writer is only opened on the first emit, so a crawl
-        # that emitted nothing would leave no statements file behind - and
-        # downstream stages would silently fall back to streaming a previous
-        # version's statements from the archive, republishing old data as a
-        # new successful run. Record the empty output explicitly instead.
+
+    def finalize_statements(self) -> None:
+        """Ensure a statements file exists even if the crawl emitted nothing.
+
+        The statement writer is only opened on the first emit, so a crawl
+        that emitted nothing would leave no statements file behind - and
+        downstream stages would silently fall back to streaming a previous
+        version's statements from the archive, republishing old data as a
+        new successful run. Record the empty output explicitly instead.
+
+        Only called once the crawl has completed successfully so that statements
+        file is never created earlier than it would by emitting entities.
+        This can be important while e.g. enrichers backfill from the most recent
+        statements file.
+        """
         if not self.dry_run and self._writer is None:
             self._writer_path.touch()
 
