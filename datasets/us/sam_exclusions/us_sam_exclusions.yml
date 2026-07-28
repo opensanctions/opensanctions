@@ -196,6 +196,48 @@ lookups:
         value: EYL
       - match: PEC
         value: PEC
+      # US state codes are all the address detail the source gives for these records.
+      # Mapped to themselves to silence the address-too-short warning.
+      - match: AL
+        value: AL
+      - match: AR
+        value: AR
+      - match: CA
+        value: CA
+      - match: FL
+        value: FL
+      - match: GA
+        value: GA
+      - match: IL
+        value: IL
+      - match: KS
+        value: KS
+      - match: MA
+        value: MA
+      - match: MN
+        value: MN
+      - match: MS
+        value: MS
+      - match: NC
+        value: NC
+      - match: NV
+        value: NV
+      - match: OH
+        value: OH
+      - match: OK
+        value: OK
+      - match: SC
+        value: SC
+      - match: SD
+        value: SD
+      - match: TX
+        value: TX
+      - match: WA
+        value: WA
+      - match: WV
+        value: WV
+      - match: AB # Possibly Alberta, but doesn't hurt to just keep.
+        value: AB
   type.identifier:
     lowercase: true
     options:
