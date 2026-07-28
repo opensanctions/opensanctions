@@ -1,0 +1,64 @@
+title: San Marino Members of the Grand and General Council
+name: sm_consiglio
+prefix: sm-cgg
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Grand and General Council (Consiglio Grande e Generale), the
+  unicameral legislature of San Marino.
+description: |
+  Current members of the Grand and General Council (Consiglio Grande e Generale), the
+  unicameral legislature of the Republic of San Marino. Its 60 members are directly
+  elected for a five-year term and hold the country's legislative power, including
+  passing laws and approving the budget; two of them serve at any time as the Captains
+  Regent, the joint heads of state.
+
+  This dataset records each councillor with their name and political party.
+url: https://www.consigliograndeegenerale.sm/on-line/home/composizione/elenco-consiglieri.html
+publisher:
+  name: Consiglio Grande e Generale
+  description: >
+    The Grand and General Council is the unicameral legislature of the Republic of San
+    Marino.
+  url: https://www.consigliograndeegenerale.sm/
+  country: sm
+  official: true
+data:
+  url: https://www.consigliograndeegenerale.sm/on-line/home/composizione/elenco-consiglieri.html
+  format: HTML
+  lang: ita
+
+dates:
+  formats: ["%d %m %Y", "%d/%m/%Y"]
+  months:
+    "01": gennaio
+    "02": febbraio
+    "03": marzo
+    "04": aprile
+    "05": maggio
+    "06": giugno
+    "07": luglio
+    "08": agosto
+    "09": settembre
+    "10": ottobre
+    "11": novembre
+    "12": dicembre
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Position: 1
+    country_entities:
+      sm: 50
+  max:
+    schema_entities:
+      Person: 70
+      Position: 1
