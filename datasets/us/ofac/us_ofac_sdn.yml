@@ -714,6 +714,16 @@ lookups:
         value: Zug
       - match: Moa
         value: Moa
+      # Locations where OFAC gives a US state code as the only address part,
+      # e.g. companies only known to be registered in Delaware:
+      - match: CA
+        value: CA
+      - match: DE
+        value: DE
+      - match: IL
+        value: IL
+      - match: TX
+        value: TX
   type.country:
     lowercase: true
     normalize: true
