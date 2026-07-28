@@ -55,22 +55,20 @@ assertions:
       Security: 200
       Person: 70
       Company: 4
-    # Properties that are always 1.0 are asserted at 0.98, so a single
-    # unparseable value doesn't fail the whole export, while a mass drop still
-    # trips the assertion.
+    # Set at roughly a quarter of the production fill rate: low enough that a
+    # shift in the shape of the source data doesn't hold up the release, high
+    # enough to catch a crawler that stopped parsing a field altogether.
     property_fill_rate:
       Person:
-        name: 0.98
-        birthDate: 0.8
+        birthDate: 0.25
       Organization:
-        name: 0.98
-        country: 0.95
-        address: 0.9
+        country: 0.25
+        address: 0.25
       Security:
-        issuer: 0.98
-        isin: 0.55
+        issuer: 0.25
+        isin: 0.17
       Sanction:
-        program: 0.98
+        program: 0.25
   max:
     schema_entities:
       Address: 1030

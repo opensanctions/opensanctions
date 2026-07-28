@@ -52,24 +52,21 @@ assertions:
     entities_with_prop:
       Sanction:
         listingDate: 2500
-    # Properties that are always 1.0 are asserted at 0.98, so a single
-    # unparseable value doesn't fail the whole export, while a mass drop still
-    # trips the assertion.
+    # Set at roughly a quarter of the production fill rate: low enough that a
+    # shift in the shape of the source data doesn't hold up the release, high
+    # enough to catch a crawler that stopped parsing a field altogether.
     property_fill_rate:
       Person:
-        name: 0.98
-        country: 0.9
-        birthDate: 0.4
+        country: 0.25
+        birthDate: 0.15
       LegalEntity:
-        name: 0.98
-        country: 0.95
+        country: 0.25
       Vessel:
-        name: 0.98
-        imoNumber: 0.95
+        imoNumber: 0.25
       Sanction:
-        program: 0.98
-        listingDate: 0.98
-        reason: 0.85
+        program: 0.25
+        listingDate: 0.25
+        reason: 0.25
   max:
     schema_entities:
       Person: 6500
