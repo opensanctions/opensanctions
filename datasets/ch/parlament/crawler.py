@@ -109,6 +109,7 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
             country="ch",
             topics=["gov.legislative", "gov.national"],
             wikidata_id=wikidata_id,
+            lang="eng",
         )
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:

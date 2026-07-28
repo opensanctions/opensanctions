@@ -94,6 +94,7 @@ def crawl(context: Context) -> None:
         name="Member of the National Assembly of Pakistan",
         country="pk",
         wikidata_id="Q20760546",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

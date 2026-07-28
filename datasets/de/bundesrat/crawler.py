@@ -85,10 +85,10 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
 
     position = h.make_position(
         context,
-        name="Mitglied des Bundesrates",
+        name="Member of the Bundesrat of Germany",
         country="de",
         topics=["gov.legislative", "gov.national"],
-        lang="deu",
+        lang="eng",
         wikidata_id="Q15835370",
     )
     categorisation = categorise(context, position, default_is_pep=True)

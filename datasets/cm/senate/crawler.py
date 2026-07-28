@@ -9,6 +9,7 @@ def crawl(context: Context) -> None:
         name="Senator of Cameroon",
         country="cm",
         wikidata_id="Q21295128",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

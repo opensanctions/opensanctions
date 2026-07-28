@@ -89,6 +89,7 @@ def crawl(context: Context) -> None:
         country="al",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q20177772",
+        lang="eng",
     )
     context.emit(position)
 

@@ -126,6 +126,7 @@ def crawl(context: Context) -> None:
         country="ru",
         wikidata_id="Q17276321",
         topics=["gov.national", "gov.legislative"],
+        lang="eng",
     )
 
     for record in data["persons"]:

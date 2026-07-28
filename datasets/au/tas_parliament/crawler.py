@@ -117,6 +117,7 @@ def crawl(context: Context) -> None:
         subnational_area="Tasmania",
         topics=["gov.state", "gov.legislative"],
         wikidata_id="Q19007285",
+        lang="eng",
     )
     ha_categorisation = categorise(context, ha_position, default_is_pep=True)
     context.emit(ha_position)
@@ -128,6 +129,7 @@ def crawl(context: Context) -> None:
         subnational_area="Tasmania",
         topics=["gov.state", "gov.legislative"],
         wikidata_id="Q19299542",
+        lang="eng",
     )
     lc_categorisation = categorise(context, lc_position, default_is_pep=True)
     context.emit(lc_position)

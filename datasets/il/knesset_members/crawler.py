@@ -104,6 +104,7 @@ def crawl_positions(
         country="il",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q4047513",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

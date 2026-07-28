@@ -60,6 +60,7 @@ def crawl_member(
         country="gb",
         topics=TOPICS,
         wikidata_id="Q16707842",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:

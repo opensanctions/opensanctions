@@ -90,6 +90,7 @@ def crawl(context: Context) -> None:
         country="au",
         subnational_area="Australian Capital Territory",
         wikidata_id="Q6814365",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)

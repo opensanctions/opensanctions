@@ -238,6 +238,7 @@ def crawl(context: Context) -> None:
         country="bh",
         wikidata_id="Q21328598",
         topics=["gov.national", "gov.legislative"],
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

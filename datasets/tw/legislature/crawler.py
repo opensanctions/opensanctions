@@ -146,6 +146,7 @@ def crawl(context: Context) -> None:
         country="tw",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q6310593",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

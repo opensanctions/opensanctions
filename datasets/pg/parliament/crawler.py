@@ -110,6 +110,7 @@ def crawl_member(
             country="pg",
             subnational_area=province_name,
             wikidata_id=wikidata_id,
+            lang="eng",
         )
         cat = categorise(context, position, default_is_pep=True)
         context.emit(position)
@@ -153,6 +154,7 @@ def crawl(context: Context) -> None:
         name="Member of the National Parliament of Papua New Guinea",
         country="pg",
         wikidata_id="Q21294916",
+        lang="eng",
     )
     mp_categorisation = categorise(context, mp_position, default_is_pep=True)
     context.emit(mp_position)

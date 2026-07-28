@@ -132,6 +132,7 @@ def crawl_ls(context: Context) -> None:
         wikidata_id="Q16556694",
         country="in",
         topics=["gov.legislative", "gov.national"],
+        lang="eng",
     )
     context.emit(position)
 
@@ -230,6 +231,7 @@ def crawl_rs(context: Context) -> None:
         wikidata_id="Q17324844",
         country="in",
         topics=["gov.legislative", "gov.national"],
+        lang="eng",
     )
     context.emit(position)
 

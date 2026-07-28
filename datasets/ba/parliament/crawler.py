@@ -180,12 +180,14 @@ def crawl(context: Context) -> None:
         name="Member of the House of Representatives of Bosnia and Herzegovina",
         country="ba",
         wikidata_id="Q21290855",
+        lang="eng",
     )
     hop = h.make_position(
         context,
         name="Member of the House of Peoples of Bosnia and Herzegovina",
         country="ba",
         wikidata_id="Q21328613",
+        lang="eng",
     )
     hor_cat = categorise(context, hor, default_is_pep=True)
     hop_cat = categorise(context, hop, default_is_pep=True)
