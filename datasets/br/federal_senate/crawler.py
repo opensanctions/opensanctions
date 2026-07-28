@@ -2,8 +2,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
-GENDERS = {"Masculino": "male", "Feminino": "female"}
-
 
 def crawl(context: Context) -> None:
     position = h.make_position(
@@ -11,29 +9,26 @@ def crawl(context: Context) -> None:
         name="Senator of Brazil",
         country="br",
         wikidata_id="Q18964326",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
 
-    # The endpoint serves XML by default; request JSON explicitly.
-    data = context.fetch_json(
-        context.data_url, headers={"Accept": "application/json"}, cache_days=1
-    )
+    data = context.fetch_json(context.data_url, cache_days=7)
     senators = data["ListaParlamentarEmExercicio"]["Parlamentares"]["Parlamentar"]
-    if not senators:
-        raise ValueError("Senate API returned no senators")
 
     for senator in senators:
         info = senator["IdentificacaoParlamentar"]
         person = context.make("Person")
         person.id = context.make_slug(info["CodigoParlamentar"])
-        person.add("name", info.get("NomeParlamentar"), lang="por")
-        person.add("name", info.get("NomeCompletoParlamentar"), lang="por")
-        person.add("gender", GENDERS.get(info.get("SexoParlamentar")))
-        person.add("political", info.get("SiglaPartidoParlamentar"), lang="por")
-        person.add("sourceUrl", info.get("UrlPaginaParlamentar"))
+        person.add("name", info.pop("NomeParlamentar"), lang="por")
+        person.add("name", info.pop("NomeCompletoParlamentar"), lang="por")
+        person.add("gender", info.pop("SexoParlamentar"))
+        person.add("email", info.pop("EmailParlamentar"))
+        person.add("political", info.pop("SiglaPartidoParlamentar"), lang="por")
+        person.add("sourceUrl", info.pop("UrlPaginaParlamentar"))
         # Senators must be Brazilian nationals (Constitution of Brazil 1988,
         # Article 14 §3 I). https://www.constituteproject.org/constitution/Brazil_2017
         person.add("citizenship", "br")

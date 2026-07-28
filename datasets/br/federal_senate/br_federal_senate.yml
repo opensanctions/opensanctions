@@ -27,12 +27,21 @@ publisher:
   country: br
   official: true
 data:
-  url: https://legis.senado.leg.br/dadosabertos/senador/lista/atual
+  # The endpoint serves XML by default; the .json suffix requests JSON.
+  url: https://legis.senado.leg.br/dadosabertos/senador/lista/atual.json
   format: JSON
   lang: por
 
 tags:
   - list.pep
+
+lookups:
+  type.gender:
+    options:
+      - match: Masculino
+        value: male
+      - match: Feminino
+        value: female
 
 assertions:
   min:
