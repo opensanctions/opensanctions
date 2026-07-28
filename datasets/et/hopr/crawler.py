@@ -1,7 +1,6 @@
 import re
 from dataclasses import dataclass
 from itertools import count
-from typing import Optional
 
 from normality import squash_spaces
 
@@ -42,7 +41,7 @@ class Term:
     election_id: int
     ordinal: int
     period_start: str
-    period_end: Optional[str]
+    period_end: str | None
 
 
 def fetch_page(context: Context, url: str) -> Element:
@@ -93,7 +92,7 @@ def discover_terms(context: Context, doc: Element) -> list[Term]:
     return sorted(terms.values(), key=lambda term: term.ordinal, reverse=True)
 
 
-def clean_value(value: Optional[str]) -> Optional[str]:
+def clean_value(value: str | None) -> str | None:
     """Trim a raw cell and drop the source's placeholders: the literal "Unknown"
     and punctuation-only cells (e.g. a lone "."), which carry no information."""
     if value is None:
@@ -106,7 +105,7 @@ def clean_value(value: Optional[str]) -> Optional[str]:
     return value
 
 
-def parse_card(card: Element) -> Optional[dict[str, Optional[str]]]:
+def parse_card(card: Element) -> dict[str, str | None] | None:
     """Extract the fields of a single member card.
 
     Returns ``None`` when the card lacks the MemberId that identifies the
@@ -142,7 +141,7 @@ def crawl_member(
     position: Entity,
     categorisation: PositionCategorisation,
     term: Term,
-    card: dict[str, Optional[str]],
+    card: dict[str, str | None],
 ) -> None:
     member_id = card["member_id"]
     assert member_id is not None, card
