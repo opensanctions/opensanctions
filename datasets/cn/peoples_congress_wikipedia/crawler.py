@@ -108,7 +108,11 @@ def crawl_item(
         entity.add("position", positions.text_content().split("\n"), lang="chi")
 
     position = h.make_position(
-        context, "Member of the National People’s Congress", country="cn"
+        context,
+        "Member of the National People's Congress",
+        country="cn",
+        wikidata_id="Q10891456",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
 
