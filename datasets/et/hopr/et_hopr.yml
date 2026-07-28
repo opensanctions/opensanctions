@@ -6,19 +6,40 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false
+ci_test: false  # Zyte
 summary: >-
   Members of the House of Peoples' Representatives, the lower chamber of the
   Ethiopian federal parliament.
 description: |
-  Current members of the House of Peoples' Representatives, the lower chamber of the Federal
-  Parliamentary Assembly of Ethiopia. Its up to 547 members are directly elected from
-  single-member constituencies for five-year terms and hold the country's legislative power,
-  including passing laws and approving the budget.
+  Members of the House of Peoples' Representatives, the lower chamber of the Federal
+  Parliamentary Assembly of Ethiopia, across its consecutive parliamentary terms. Its up
+  to 547 members are directly elected from single-member constituencies for five-year
+  terms and hold the country's legislative power, including passing laws and approving the
+  budget.
 
-  This dataset records each sitting member with their name, gender, political party, and
-  constituency and regional state.
+  Each member is recorded with their name, political party, and the constituency
+  and regional state they represent, along with the years of the term they served.
 url: https://www.hopr.gov.et/
+
+names:
+  prefixes_strip:
+    - Honorable
+    - Mr.
+    - Mrs.
+    - Mrs
+    - Ms.
+    - Dr.
+    - Pro.
+    - Pro
+    - Ass.
+    - Amba.
+    - Eng.
+    - Sheki
+    - Kes
+    - Haji
+    - Major
+    - Commissioner
+    - Bi/General
 publisher:
   name: House of Peoples' Representatives
   acronym: HoPR
@@ -29,7 +50,7 @@ publisher:
   country: et
   official: true
 data:
-  url: https://www.hopr.gov.et/listofmps
+  url: https://www.hopr.gov.et/Members/Index
   format: HTML
   lang: eng
 
@@ -39,11 +60,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 350
+      Person: 1500
       Position: 1
     country_entities:
-      et: 350
+      et: 1500
   max:
     schema_entities:
-      Person: 560
+      Person: 2500
       Position: 1
