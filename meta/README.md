@@ -143,32 +143,26 @@ than inferring them from a title or from common sanctions practice.
 
 ### Program status
 
-`status` records the legal status of the regime itself — whether the underlying
+`status` records the legal status of the regime itself: whether the underlying
 instruments are in force. It is contextual metadata that frames a designation;
-it says nothing about whether the source data currently carries entries (that is
-computable from the data and is not what this field tracks).
+it says nothing about whether the source data currently carries entries.
 
-- `active` — the regime is in force. This is the default; omit the field for
-  programs in force, including one whose list happens to be empty right now.
-- `legacy` — the grey zone in between: the regime is no longer fully in force —
-  its authority has wound down or only partly survives — yet designations made
-  under it persist and may still bind. This covers a composite regime where one
-  instrument lapsed while another still designates, and a wound-down authority
-  whose pre-existing blocks remain in force. Not fully alive, not gone.
-- `ended` — the regime is no longer in force at all, whether revoked, repealed,
-  expired, or sunset, with no remaining legal effect. A single neutral bucket;
-  the summary carries how and when it ended.
+- `active`: the regime is in force. This is the default; omit the field for
+  programs in force.
+- `legacy`: the grey zone. The authority has wound down or only partly
+  survives, but designations made under it persist and may still bind: a
+  composite regime where one instrument lapsed while another still designates,
+  or a wound-down authority whose earlier blocks remain in force.
+- `ended`: no longer in force at all (revoked, repealed, expired, or sunset),
+  with no remaining legal effect.
 
-The line between `legacy` and `ended` is whether anything still bites: if
-designations made under the regime still have legal effect, it is `legacy`; once
-the authority is gone and its designations no longer bind, it is `ended`, even if
-residual entries linger in the data for historical reference.
+The line between `legacy` and `ended` is whether anything still bites: while
+designations retain legal effect it is `legacy`; once they no longer bind it is
+`ended`, even if residual entries linger for historical reference.
 
-Setting `status` does not replace the summary: the vocabulary is deliberately
-coarse, so the summary must still narrate what happened and when (the revoking
-instrument, the sunset date, which half of a composite regime lapsed). Reserve
-`ended` for regimes that are genuinely no longer law — not for ones that are
-merely dormant, unused, or narrowed while still in force.
+`status` does not replace the summary, which must still narrate what happened and
+when. Reserve `ended` for regimes genuinely no longer law, not ones merely
+dormant, unused, or narrowed while still in force.
 
 ### Choosing the program URL
 
