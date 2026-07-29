@@ -34,7 +34,7 @@ corpus, are authoritative here.
 
 In addition to the general checks (fields, date formats, language, record count):
 
-- Is there a Wikidata ID for the position(s)? (See `zavod/docs/peps.md`; skip QIDs for per-municipality / per-region positions.)
+- Is there a Wikidata ID for the position(s)? (See `zavod/docs/peps.md`; skip QIDs for per-municipality / per-region positions.) Before using one, check on Wikidata that the item is `instance of (P31): position` and that its `applies to jurisdiction (P1001)` matches the country — a plausible label is not enough. The item's English label usually makes a good position name.
 - What are the position types (parliament, cabinet, judiciary, etc.)?
 - Current members only, or historical terms too?
 - Are start/end dates provided?
@@ -109,6 +109,14 @@ Build position names with `h.make_position`. Rules:
       (then `lang="eng"`) is fine instead — see the subnational variant in
       `examples.md`.
 - Include the role, the organisational body where relevant, and the geographic jurisdiction. For members of national parliaments, include `citizenship` (except UK Parliament).
+- A national position's name must be recognizable as belonging to that country when read
+  on its own — either a nationality adjective (`Member of the Swedish Riksdag`) or an
+  of-phrase (`Member of the Senate of the Italian Republic`).
+- **Pass `topics=`** for positions the crawler names itself (`["gov.national", "gov.legislative"]`,
+  `["gov.state", ...]` for sub-national, `gov.executive`/`gov.judicial` by branch). Omit them
+  for positions read out of the source data, where the review and classification system
+  decides. Vocabulary:
+  https://www.opensanctions.org/docs/pep/methodology/
 - Avoid: legislative term, an elected official's constituency, or the country for sub-national representatives.
 - `wikidata_id` becomes the position's entity ID, so never pass the same QID to multiple distinct positions — they'd collapse into one entity. Per-municipality/region positions usually omit `wikidata_id` (per-locality QIDs rarely exist on Wikidata) and rely on `subnational_area=...` to disambiguate; pass a QID only when each subnational position has its own unique Wikidata entry.
 
