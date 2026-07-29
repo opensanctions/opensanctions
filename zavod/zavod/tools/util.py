@@ -1,4 +1,4 @@
-from collections.abc import Generator
+from collections.abc import Generator, Iterable
 from followthemoney import Statement
 from nomenklatura.resolver import Linker
 
@@ -11,8 +11,11 @@ def iter_output_statements(
     scope: Dataset, linker: Linker[Entity], external: bool = True
 ) -> Generator[Statement, None, None]:
     """Return all the statements in the given dataset that are ready for
-    export. That means they are unique, have a valid ID, and their
-    canonical ID has been resolved.
+    export. That means they have a valid ID and their canonical ID has been
+    resolved.
+
+    Statement IDs are not guaranteed to be unique in this stream; wrap it in
+    `unique_statements` when writing to a sink that cannot reject duplicates.
 
     Args:
         dataset: The dataset to load from the archive.
@@ -22,12 +25,36 @@ def iter_output_statements(
         A generator of statements.
     """
     assert not scope.is_collection
-    seen_ids: set[str] = set()
     for stmt in iter_dataset_statements(scope, external=external):
         if stmt.entity_id is None:
             continue
 
         stmt = linker.apply_statement(stmt)
+        if stmt.id is None:
+            continue
+
+        yield stmt
+
+
+def unique_statements(
+    statements: Iterable[Statement],
+) -> Generator[Statement, None, None]:
+    """Drop statements whose ID has already been seen in the given stream.
+
+    Canonicalisation can collapse two source statements into one when both point
+    at entities that have since been merged, so a sink which cannot reject
+    duplicates itself - a file, mainly - needs this. Buffers every ID it has
+    seen, some 125 bytes per statement, so prefer a database-side conflict
+    clause where one is available.
+
+    Args:
+        statements: The statements to deduplicate.
+
+    Returns:
+        A generator of statements with distinct IDs.
+    """
+    seen_ids: set[str] = set()
+    for stmt in statements:
         if stmt.id is None or stmt.id in seen_ids:
             continue
 

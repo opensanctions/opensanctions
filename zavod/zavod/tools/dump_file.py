@@ -5,7 +5,7 @@ from nomenklatura.resolver import Linker
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
-from zavod.tools.util import iter_output_statements
+from zavod.tools.util import iter_output_statements, unique_statements
 
 log = get_logger(__name__)
 
@@ -30,7 +30,8 @@ def dump_dataset_to_file(
         writer = get_statement_writer(fh, format)
         total_count: int = 0
         for dataset in scope.leaves:
-            stmts = iter_output_statements(dataset, linker, external=external)
+            output = iter_output_statements(dataset, linker, external=external)
+            stmts = unique_statements(output)
             for idx, stmt in enumerate(stmts):
                 total_count += 1
                 writer.write(stmt)
