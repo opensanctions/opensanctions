@@ -149,6 +149,7 @@ def crawl_member(context: Context, url: str, name: str) -> None:
         context,
         name="Member of the National Assembly of Azerbaijan",
         country="az",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21269547",
         lang="eng",
     )

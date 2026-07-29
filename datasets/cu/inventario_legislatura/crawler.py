@@ -34,6 +34,7 @@ def crawl(context: Context) -> None:
         context,
         "Member of the National Assembly of People's Power of Cuba",
         country="cu",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21272829",
         lang="eng",
     )

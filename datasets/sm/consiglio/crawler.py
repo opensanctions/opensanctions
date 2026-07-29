@@ -56,6 +56,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Grand and General Council of San Marino",
         country="sm",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q20968670",
         lang="eng",
     )

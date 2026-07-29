@@ -68,6 +68,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the People's National Assembly of Algeria",
         country="dz",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21290886",
         lang="eng",
     )

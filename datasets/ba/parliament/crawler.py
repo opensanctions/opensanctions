@@ -179,6 +179,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Representatives of Bosnia and Herzegovina",
         country="ba",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21290855",
         lang="eng",
     )
@@ -186,6 +187,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Peoples of Bosnia and Herzegovina",
         country="ba",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21328613",
         lang="eng",
     )

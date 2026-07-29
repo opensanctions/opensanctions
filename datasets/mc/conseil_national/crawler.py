@@ -40,6 +40,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the National Council of Monaco",
         country="mc",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21328626",
         lang="eng",
     )

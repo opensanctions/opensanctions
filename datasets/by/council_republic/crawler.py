@@ -55,6 +55,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Council of the Republic of Belarus",
         country="by",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q15623433",
         lang="eng",
     )

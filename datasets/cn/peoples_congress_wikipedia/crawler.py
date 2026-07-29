@@ -111,6 +111,7 @@ def crawl_item(
         context,
         "Member of the National People's Congress of China",
         country="cn",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q10891456",
         lang="eng",
     )

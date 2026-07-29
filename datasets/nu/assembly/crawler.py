@@ -48,6 +48,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Niue Assembly",
         country="nu",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q40011889",
         lang="eng",
     )

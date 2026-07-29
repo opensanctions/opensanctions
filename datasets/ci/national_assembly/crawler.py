@@ -124,6 +124,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the National Assembly of Côte d'Ivoire",
         country="ci",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21295981",
         lang="eng",
     )

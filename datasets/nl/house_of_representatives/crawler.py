@@ -74,6 +74,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Representatives of the Netherlands",
         country="nl",
+        topics=["gov.national", "gov.legislative"],
         summary="Member of the lower house of the bicameral parliament of the Netherlands, the States General",
         wikidata_id="Q18887908",
         lang="eng",
