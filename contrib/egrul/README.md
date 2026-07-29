@@ -25,11 +25,21 @@ Run:
 	export LOCAL_BUCKET_CACHE_DIR="$HOME/internal-data"
 
 	# Run the job!
-	spark-submit --master 'local[*]' -c "spark.driver.memory=10g" --py-files contrib/egrul/egrul_xml.py,contrib/egrul/address.py,contrib/egrul/schema.py contrib/egrul/generate.py
+	spark-submit --master 'local[*]' -c "spark.driver.memory=10g" --py-files contrib/egrul/egrul_xml.py,contrib/egrul/address.py,contrib/egrul/parse_context.py,contrib/egrul/schema.py contrib/egrul/generate.py
 
 The checkpoint directory fills up quickly, don't know why yet.
 
 	rm -rf env/spark-checkpoint
+
+
+## Provenance
+
+Every row in the output CSVs has an `origin` field naming the source files it was
+built from, as `<archive zip name>/<XML file name within the zip>`, comma-separated
+if there is more than one. Combined with `seen_date` that's enough to find the file
+in the source bucket. Rows with several origins are the ones assembled from more
+than one archive: an ownership or directorship that ended carries both the archive
+that last listed it and the archive that stopped listing it.
 
 
 ## Copy finished data to internal-data bucket

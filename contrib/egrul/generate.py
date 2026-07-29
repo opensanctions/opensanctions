@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 import os
 from pathlib import Path
 import tempfile
-from typing import Generator, Optional, List, Iterable, Dict
+from typing import Generator, List, Iterable, Dict
 from zipfile import ZipFile
 from dataclasses import dataclass
 
@@ -13,6 +13,9 @@ from pyspark import Row, StorageLevel
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import (
+    array_distinct,
+    array_sort,
+    concat_ws,
     struct,
     udf,
     col,
@@ -23,6 +26,7 @@ from pyspark.sql.functions import (
 from google.cloud.storage import Client  # type: ignore
 
 from egrul_xml import parse_xml
+from parse_context import ParseContext
 from schema import company_record_schema
 from zavod import Context
 from zavod import Dataset
@@ -80,6 +84,9 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
 
     result = new
     data_date = new.legal_entity.seen_date
+    # The archive we're folding in is what causes ownerships and directorships it no
+    # longer lists to end, so it's part of the provenance of their end dates.
+    new_origin = list(new.legal_entity.origin)
 
     expired_ownerships = []
     new_ownership_ids = set([o.id for o in result.ownerships])
@@ -94,6 +101,7 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
             else:
                 o_dict = o.asDict()
                 o_dict["end_date"] = day_before(data_date)
+                o_dict["origin"] = list(o.origin) + new_origin
                 expired_ownerships.append(Row(**o_dict))
 
     expired_directorships = []
@@ -122,6 +130,7 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
                     )
                 else:
                     d_dict["end_date"] = day_before(data_date)
+                d_dict["origin"] = list(d.origin) + new_origin
                 expired_directorships.append(Row(**d_dict))
 
     if expired_directorships or expired_ownerships:
@@ -194,7 +203,7 @@ def get_local_archive_path(blob_url: BlobURL) -> Path:
 
 def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
     data_date = get_archive_date_from_blob_url(blob_url)
-    context = get_context(data_date)
+    context = get_context()
 
     local_archive_path = get_local_archive_path(blob_url)
     # TODO: Since we cache persistently locally (for running on Leon's machine),
@@ -217,8 +226,13 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
             for name in zip.namelist():
                 if not name.lower().endswith(".xml"):
                     continue
+                pc = ParseContext(
+                    origin="%s/%s" % (Path(blob_url.name).name, name),
+                    data_time=data_date,
+                    _context=context,
+                )
                 with zip.open(name, "r") as fh:
-                    for e in parse_xml(context, fh):
+                    for e in parse_xml(pc, fh):
                         yield e
     finally:
         # Don't clean up the temporary file, for now this is being run on Leon's machine and it's
@@ -251,6 +265,17 @@ def crawl_archives_for_date(
     df.unpersist()
 
     return spark.table(table_name)
+
+
+def flatten_origin(df: DataFrame) -> DataFrame:
+    """Join the origin array into one comma-separated field.
+
+    Origins never contain a comma, and the CSV writer can't write arrays anyway.
+    Sorting and deduplicating keeps the output stable across runs.
+    """
+    return df.withColumn(
+        "origin", concat_ws(",", array_sort(array_distinct(col("origin"))))
+    )
 
 
 def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
@@ -326,11 +351,19 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
 
     # This is what's required for the Python csv module to read the file with no further options
     csv_options = {"header": True, "escape": '"', "mode": "overwrite"}
-    ownerships_df.write.csv(str(path_prefix / "ownerships"), **csv_options)
-    directorships_df.write.csv(str(path_prefix / "directorships"), **csv_options)
-    successions_df.write.csv(str(path_prefix / "successions"), **csv_options)
-    persons_df.write.csv(str(path_prefix / "persons"), **csv_options)
-    all_legal_entities_df.write.csv(str(path_prefix / "legalentities"), **csv_options)
+    flatten_origin(ownerships_df).write.csv(
+        str(path_prefix / "ownerships"), **csv_options
+    )
+    flatten_origin(directorships_df).write.csv(
+        str(path_prefix / "directorships"), **csv_options
+    )
+    flatten_origin(successions_df).write.csv(
+        str(path_prefix / "successions"), **csv_options
+    )
+    flatten_origin(persons_df).write.csv(str(path_prefix / "persons"), **csv_options)
+    flatten_origin(all_legal_entities_df).write.csv(
+        str(path_prefix / "legalentities"), **csv_options
+    )
 
 
 def get_archive_date_from_blob_url(blob_url: BlobURL) -> date:
@@ -508,14 +541,9 @@ def crawl(context: Context) -> None:
     )
 
 
-def get_context(data_time: Optional[date] = None) -> Context:
+def get_context() -> Context:
     dataset = Dataset.from_path("datasets/ru/egrul/ru_egrul.yml")
-    context = Context(dataset)
-    if data_time is not None:
-        # TODO: This is very hacky, but that's how we pass "what archive are we in"
-        # down the stack right now
-        context.data_time = datetime.combine(data_time, datetime.min.time())
-    return context
+    return Context(dataset)
 
 
 def main() -> None:
