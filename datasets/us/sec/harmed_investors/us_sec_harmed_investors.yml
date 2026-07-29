@@ -1148,3 +1148,10 @@ lookups:
           - OnPassive LLC
           - Ashraf Mufareh
           - Asmahan Mufareh
+      - match: ameristar llc, ameristar mk ltd. liability company, fred w. freitag iv, and highline gold llc a/k/a highline gold corporation llc
+        names:
+          - AmeriStar LLC
+          - AmeriStar MK Ltd. Liability Company
+          - Fred W. Freitag IV
+          - Highline Gold LLC
+          - Highline Gold Corporation LLC
