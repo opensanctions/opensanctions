@@ -1,5 +1,8 @@
 import re
+from time import sleep
+from lxml import etree
 from lxml.html import HtmlElement
+from requests.exceptions import HTTPError
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -8,6 +11,45 @@ from zavod.extract.zyte_api import fetch_html
 
 DEPUTY_RE = re.compile(r"single-deputy/(\d+)")
 YEAR_RE = re.compile(r"^\d{4}$")
+# Zyte answers 421 /website/connection-error when its proxy cannot reach the
+# site at all. Connectivity to Turkmen government hosts is intermittent, and
+# zavod only retries 413/429/503/520 for Zyte requests, so without this a
+# single blip on one of the 125 sequential fetches aborts the whole run.
+CONNECTION_ERROR = 421
+CONNECTION_RETRIES = 3
+BACKOFF_FACTOR = 10
+
+
+def fetch_html_retrying(
+    context: Context,
+    url: str,
+    unblock_validator: str,
+    html_source: str = "browserHtml",
+    cache_days: int | None = None,
+) -> etree._Element:
+    """Fetch a page, retrying when Zyte cannot connect to the site."""
+    attempt = 0
+    while True:
+        try:
+            return fetch_html(
+                context,
+                url,
+                unblock_validator=unblock_validator,
+                html_source=html_source,
+                cache_days=cache_days,
+            )
+        except HTTPError as exc:
+            status = exc.response.status_code if exc.response is not None else None
+            if status != CONNECTION_ERROR or attempt >= CONNECTION_RETRIES:
+                raise
+            attempt += 1
+            pause = BACKOFF_FACTOR * 2**attempt
+            context.log.info(
+                f"Zyte could not connect to the site, sleeping {pause}s then retrying",
+                url=url,
+                attempt=attempt,
+            )
+            sleep(pause)
 
 
 def parse_deputy_ids(doc: HtmlElement) -> list[str]:
@@ -41,7 +83,7 @@ def crawl_deputy(
 ) -> None:
     url = f"https://mejlis.gov.tm/single-deputy/{deputy_id}"
     right_block_xpath = "//div[contains(@class, 'right_block')]"
-    doc = fetch_html(
+    doc = fetch_html_retrying(
         context,
         f"{url}?lang=en",
         unblock_validator=right_block_xpath,
@@ -94,7 +136,7 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    doc = fetch_html(
+    doc = fetch_html_retrying(
         context,
         f"{context.data_url}?lang=en",
         unblock_validator="//a[contains(@href, 'single-deputy/')]",
