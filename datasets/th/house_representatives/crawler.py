@@ -4,25 +4,13 @@ from typing import Any
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
-
-REFERER = "https://www.parliament.go.th/view/1/mpconnect/TH-TH"
-
-# Civilian honorifics prefixed (without a space) to the given name. Military, police and
-# academic titles are left in place as they are part of how the member is known.
-HONORIFICS = ("นางสาว", "นาย", "นาง")
+from zavod.util import LangText
 
 # partyType values: single-member constituency vs national party list.
 CONSTITUENCY = "แบบแบ่งเขต"
 PARTY_LIST = "แบบบัญชีรายชื่อ"
-
-
-def clean_name(raw: str) -> str:
-    name = " ".join(raw.split())
-    for honorific in HONORIFICS:
-        if name.startswith(honorific):
-            return name[len(honorific) :].strip()
-    return name
 
 
 def crawl_member(
@@ -32,15 +20,18 @@ def crawl_member(
     member: dict[str, Any],
 ) -> None:
     member_id = member.pop("ID_member")
-    name = clean_name(member.pop("name"))
-    assert name, f"Empty name for member {member_id}"
+    raw_name = member.pop("name")
+    clean_name = h.strip_name_titles(context, raw_name)
+    assert clean_name is not None
     party_type = member.pop("partyType")
     if party_type not in (CONSTITUENCY, PARTY_LIST):
         context.log.warning("Unknown party type", value=party_type, member=member_id)
 
     person = context.make("Person")
     person.id = context.make_slug(member_id)
-    person.add("name", name, lang="tha")
+    original_name = raw_name if clean_name != raw_name else None
+    person.add("name", clean_name, lang="tha", original_value=original_name)
+    apply_translit_full_name(context, person, LangText(clean_name, "tha"))
     person.add("political", member.pop("category_party"), lang="tha")
     # A candidate for the House of Representatives must be of Thai nationality by birth
     # (Constitution of Thailand 2017, Section 97(1)).
@@ -72,34 +63,24 @@ def crawl(context: Context) -> None:
         name="Member of the House of Representatives of Thailand",
         country="th",
         wikidata_id="Q21290865",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
 
-    seen: set[str] = set()
-    total: int | None = None
+    # Fetch pages until the API returns an empty batch; the expected roster size is
+    # enforced by the dataset assertions.
     for page in count(1):
         data = context.fetch_json(
             context.data_url,
             method="POST",
             params={"page": page},
-            headers={"Referer": REFERER},
-            cache_days=1,
+            cache_days=14,
         )
-        if total is None:
-            total = data["total"]
         members = data["arrdata"]
         if not members:
             break
         for member in members:
-            if member["ID_member"] in seen:
-                continue
-            seen.add(member["ID_member"])
             crawl_member(context, position, categorisation, member)
-        if len(seen) >= total:
-            break
-
-    if not seen:
-        raise ValueError("No members returned by the HoR endpoint")

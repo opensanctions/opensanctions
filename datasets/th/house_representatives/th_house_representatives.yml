@@ -1,9 +1,9 @@
-title: Thailand House of Representatives
+title: Thailand Members of the House of Representatives
 name: th_house_representatives
 prefix: th-hor
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-07-23
 load_statements: true
 ci_test: false
@@ -11,12 +11,14 @@ summary: >-
   Members of the House of Representatives of Thailand, the lower chamber of the
   National Assembly.
 description: |
-  The House of Representatives is the lower chamber of the National Assembly of Thailand.
-  It has 500 members: 400 elected from single-member constituencies and 100 from national
-  party lists, for a four-year term.
+  Current members of the House of Representatives, the lower chamber of the bicameral
+  National Assembly of Thailand. Its 500 members are directly elected for a four-year
+  term — 400 from single-member constituencies and 100 from national party lists — and,
+  together with the Senate, hold the country's legislative power, including passing laws
+  and approving the budget.
 
-  This dataset records each sitting member with their name, political party, province and
-  (for constituency members) electoral district, as published in the House's MP directory.
+  This dataset records each sitting member with their name, political party, province,
+  and (for constituency members) electoral district.
 url: https://www.parliament.go.th/view/1/mpconnect/TH-TH
 publisher:
   name: House of Representatives of Thailand
@@ -31,6 +33,12 @@ data:
   url: https://www.parliament.go.th/member/loaddata
   format: JSON
   lang: tha
+
+names:
+  prefixes_strip:
+    - นางสาว
+    - นาย
+    - นาง
 
 tags:
   - list.pep
