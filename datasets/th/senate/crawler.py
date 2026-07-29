@@ -6,7 +6,9 @@ from rigour.mime.types import CSV
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import LangText
 
 # The catalogue serves the CSV in Windows-874 / TIS-620, not UTF-8.
 ENCODING = "cp874"
@@ -29,6 +31,7 @@ def crawl_member(
     person.id = context.make_id(code, clean_name)
     original_name = raw_name if clean_name != raw_name else None
     person.add("name", clean_name, lang="tha", original_value=original_name)
+    apply_translit_full_name(context, person, LangText(clean_name, "tha"))
     # A candidate for the Senate must be of Thai nationality by birth (Constitution of
     # Thailand 2017, Section 108(1)).
     # https://www.constituteproject.org/constitution/Thailand_2017
@@ -68,8 +71,9 @@ def crawl(context: Context) -> None:
         name="Member of the Senate of Thailand",
         country="th",
         wikidata_id="Q21295152",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -79,7 +83,5 @@ def crawl(context: Context) -> None:
 
     with open(path, encoding=ENCODING) as fh:
         rows = list(csv.DictReader(fh))
-    if not rows:
-        raise ValueError("Senate CSV contained no rows")
     for row in rows:
         crawl_member(context, position, categorisation, row)
