@@ -55,7 +55,7 @@ def crawl_member(
         )
         if occupancy is None:
             continue
-        occupancy.add("constituency", senator.pop("REGION"), lang="spa")
+        occupancy.add("constituency", senator.pop("REGION", None), lang="spa")
         context.emit(occupancy)
         context.emit(person)
 
