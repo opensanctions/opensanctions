@@ -1,6 +1,7 @@
 title: Lithuania PEPs from the register of private interests
 entry_point: crawler.py
 prefix: lt-pinreg
+disabled: true
 coverage:
   frequency: monthly
   start: "2024-08-16"
