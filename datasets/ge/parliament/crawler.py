@@ -47,6 +47,7 @@ def crawl_member(
     context.audit_data(
         member,
         ignore=[
+            "fatherName",
             "avatar",
             "bureau",
             "colleagueStatus",
