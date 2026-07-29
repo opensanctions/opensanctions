@@ -3,6 +3,7 @@ from followthemoney.exc import MetadataException
 from followthemoney.model import Model
 from followthemoney.settings import USER_AGENT
 
+from zavod import settings
 from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.meta.assertion import Assertion
 from zavod.runtime.urls import make_published_url
@@ -88,6 +89,16 @@ def test_basic():
     assert test_ds.http.retry_methods == ["GET"]
     assert test_ds.http.backoff_factor == 0.5
     assert test_ds.http.user_agent == USER_AGENT
+    # Neither timeout is set above, so both fall back to their settings default.
+    # Zyte's is the longer one: it budgets for a whole proxied fetch.
+    assert test_ds.http.timeout == settings.HTTP_TIMEOUT
+    assert test_ds.http.zyte_timeout == settings.ZYTE_TIMEOUT
+    assert test_ds.http.zyte_timeout > test_ds.http.timeout
+    # Each can be overridden independently.
+    timeout_meta = {**TEST_DATASET, "http": {"timeout": 5, "zyte_timeout": 15}}
+    timeout_ds = catalog.make_dataset(timeout_meta)
+    assert timeout_ds.http.timeout == 5
+    assert timeout_ds.http.zyte_timeout == 15
 
     person_schema = Model.instance().get("Person")
     person_spec = test_ds.names.get_spec(person_schema)

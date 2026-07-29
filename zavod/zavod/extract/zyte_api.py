@@ -127,7 +127,7 @@ def fetch_resource(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     configure_session(context.http)
 
-    timeout = context.dataset.http.timeout
+    timeout = context.dataset.http.zyte_timeout
     api_response = context.http.post(
         ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),
@@ -272,7 +272,7 @@ def fetch(
     context.log.debug(f"Zyte API request: {zyte_request.url}", data=zyte_data)
     configure_session(context.http)
 
-    timeout = context.dataset.http.timeout
+    timeout = context.dataset.http.zyte_timeout
     api_response = context.http.post(
         ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),

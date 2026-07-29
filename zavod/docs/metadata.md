@@ -82,7 +82,8 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
 
 - `http`
     - `user_agent`: string, defaults to the value of the FTM_USER_AGENT setting. Set a custom value for the `User-Agent` header if needed.
-    - `timeout`: integer in seconds, default `60`. Connect and read timeout applied to both the context HTTP session and Zyte API requests. Increase it for sources that are slow to respond.
+    - `timeout`: integer in seconds, default `60`. Connect and read timeout for the context HTTP session. Increase it for sources that are slow to respond.
+    - `zyte_timeout`: integer in seconds, default `300`. Connect and read timeout for Zyte API requests, which is separate because the timeout covers a whole proxied fetch — exit node selection, browser rendering and Zyte's own ban retries — rather than a single request to the source. Lower it only to fail faster on a source known to be unreachable; timing out below Zyte's own budget discards work it has already done.
     - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
     - `max_retries`: integer in seconds, default `3`
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
