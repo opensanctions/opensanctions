@@ -16,8 +16,7 @@ Propagation rules are applied per (entity, adjacent) pair:
   through a curated set of edge schemata (Ownership, Directorship, Membership,
   Employment, Associate, Family, Succession); Securities issued by a
   sanctioned entity; and the issuer of a sanctioned Security — tagged
-  ``sanction.linked``. Non-transitive: walks exactly one broad-adjacency hop
-  from a directly sanctioned entity.
+  ``sanction.linked``.
 - ``rule_sanction_control_descent`` — an asset or organization controlled by a
   ``sanction`` or ``sanction.control`` entity (via ``Ownership`` owner→asset)
   is tagged ``sanction.control`` and co-emitted ``sanction.linked`` (so
@@ -35,9 +34,6 @@ Requirements and invariants that make this correct:
   descent rules (``rule_sanction_control_descent`` and
   ``rule_export_control_descent``), which read their emitted topics back from
   the store in order to walk one hop at a time.
-- **``sanction.linked`` is non-transitive.** It means *directly adjacent to
-  a 'sanction' tagged entity* (via broad edge or the direct Company↔Security relation),
-  plus every entity in a ``sanction.control`` chain.
 - **Iterative convergence.** Because ownership propagation advances a single
   hop per run, a multi-tier corporate hierarchy only materializes over
   successive runs. The dataset must be re-run for the graph to converge; a
@@ -299,8 +295,7 @@ def rule_export_control_descent(
     """Descend one ``Ownership`` hop and tag ``export.control.linked``.
 
     Ownership-only, downward-only (owner → asset), and self-observing so that
-    the tag advances one hop per run and converges across successive runs —
-    the ownership-only sibling of ``rule_sanction_control_descent``.
+    the tag advances one hop per run and converges across successive runs.
 
     NOTE on the asymmetric naming: ``export.control.linked`` carries the
     ownership-*descent* semantics — it is the export-control analogue of
