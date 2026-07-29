@@ -12,17 +12,18 @@ Install a JVM (on macOS):
 	brew install openjdk@21
 	export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 
-Get some new data. This must be done on rivne.
-
-	pushd ~/operations/workspace/; ./sync-egrul.sh; popd
+New source archives arrive in `gs://egrul.opensanctions.org` on their own: a systemd
+timer on the workspace VM (whose IP is allow-listed at the source) runs
+`operations/workspace/sync-egrul.sh` daily at 03:00, which mirrors any new zips from
+the source into the bucket.
 
 Run:
 
 	# Install pyspark
-	pip install -r contrib/egrul/requirements.txt
-	# Use a persistent local cache of the internal-data bucket
-	mkdir ~/internal-data
-	export LOCAL_BUCKET_CACHE_DIR="$HOME/internal-data"
+	uv pip install -r contrib/egrul/requirements.txt
+	# Use a persistent local cache of the source bucket
+	mkdir ~/egrul.opensanctions.org-cache
+	export LOCAL_BUCKET_CACHE_DIR="$HOME/egrul.opensanctions.org-cache"
 
 	# Run the job!
 	spark-submit --master 'local[*]' -c "spark.driver.memory=10g" --py-files contrib/egrul/egrul_xml.py,contrib/egrul/address.py,contrib/egrul/parse_context.py,contrib/egrul/schema.py contrib/egrul/generate.py
@@ -46,4 +47,4 @@ that last listed it and the archive that stopped listing it.
 
 Until this runs as a cronjobs, here is how:
 
-    gsutil cp -rZ ~/internal-data/ru_egrul/processed/current_2025_01_14 gs://internal-data.opensanctions.org/ru_egrul/processed_2025-01-14
+    gcloud storage cp -r --gzip-local-all ~/egrul.opensanctions.org-cache/ru_egrul/processed/current_2025_01_14 gs://internal-data.opensanctions.org/ru_egrul/processed_2025-01-14
