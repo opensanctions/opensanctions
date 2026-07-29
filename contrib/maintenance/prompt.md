@@ -84,9 +84,14 @@ HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among ru
 2. Work through the issue patterns in the report's Issues section. When the report shows only the grouped view, fetch the full issues.json it links to enumerate every occurrence of the patterns you are fixing.
 3. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}a crawler code change, or a static data update{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
 4. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, {{ code_path }}, and any directly referenced static data file required by the warning{% endif %}.
-{% if code_path %}
 5. Verify your changes:
-   - Any code change MUST pass the same checks CI runs, or the PR is dead on arrival: `mypy --strict {{ code_path }}` and `ruff check {{ code_path }}` (and `ruff format`). Note that raw lxml `.xpath()` returns `Any` and fails strict mode — use the typed `h.xpath_*` helpers. Do not open the PR if these fail.
+   - Your changes MUST pass the checks CI runs, or the PR is dead on arrival:
+
+         contrib/lint_dataset.sh {{ yaml_path }}
+
+     Fix what it reports and rerun until it prints `lint_dataset: OK`, then proceed. Note that it applies some formatting fixes in place.
+{% if code_path %}
+   - If mypy flags `Any` coming from a raw lxml `.xpath()` call, switch that call to the typed `h.xpath_*` helpers.
 {% if ci_test %}
    - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase. `jq` (for the JSON logs) and `qsv` (for spot-checking the emitted `data/datasets/{{ name }}/statements.pack`, e.g. `qsv frequency -s prop`) are available.
 {% else %}
@@ -97,5 +102,7 @@ HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among ru
 
 ## Submit
 
-- Commit to a branch. The branch name MUST be exactly `{{ branch }}` — do not invent your own name or add a slug.
-- Open a PR via `mcp__github__create_pull_request` from the `{{ branch }}` branch. The title MUST start with `[{{ name }}]` followed by a short headline, and the body must list the warning patterns being fixed{% if code_path %} and flag any crawler code changes separately from lookup changes{% endif %}.
+- Commit and push as soon as your fixes pass the verification above, before doing anything else. Do not keep investigating or looking for further issues while the work sits uncommitted.
+- The branch name MUST be exactly `{{ branch }}` — do not invent your own name or add a slug.
+- Then open a PR via `mcp__github__create_pull_request` from the `{{ branch }}` branch. The title MUST start with `[{{ name }}]` followed by a short headline, and the body must list the warning patterns being fixed{% if code_path %} and flag any crawler code changes separately from lookup changes{% endif %}.
+- If you find more fixable issues after pushing, add or amend commits on the same branch, push again, and update the PR body.
