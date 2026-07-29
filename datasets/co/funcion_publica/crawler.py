@@ -94,14 +94,9 @@ def crawl_sheet_row(context: Context, row: dict[str, str]) -> str | None:
             person.add("website", cv_url)
     else:
         context.log.warning("unknown cv url", url=cv_url)
-    person.add(
-        "notes",
-        (
-            "Find their declarations of assets and income, conflicts of interest"
-            " and income and complementary taxes (Law 2013 of 2019) at "
-            f"{row.pop('ENLACE_CONSULTA_LEY_2013_2019')}"
-        ),
-    )
+    # Declarations of assets and income, conflicts of interest, and income and
+    # complementary taxes (Law 2013 of 2019)
+    person.add("sourceUrl", row.pop("ENLACE_CONSULTA_LEY_2013_2019"))
 
     role = row.pop("DENOMINACION_CARGO")
     entity_name = row.pop("NOMBRE_ENTIDAD")
@@ -194,14 +189,9 @@ def crawl_table_row(
     links = h.links_to_dict(row.pop("enlaces_externos"))
 
     person.add("website", links.pop("consultar_hoja_de_vida", None))
-    person.add(
-        "notes",
-        (
-            "Find their declarations of assets and income, conflicts of interest"
-            " and income and complementary taxes (Law 2013 of 2019) at "
-            f"{links.pop('consultar_declaraciones_ley_2013_de_2019')}"
-        ),
-    )
+    # Declarations of assets and income, conflicts of interest, and income and
+    # complementary taxes (Law 2013 of 2019)
+    person.add("sourceUrl", links.pop("consultar_declaraciones_ley_2013_de_2019"))
 
     assert role and entity_name
     position = build_position(context, role=role, entity_name=entity_name)
