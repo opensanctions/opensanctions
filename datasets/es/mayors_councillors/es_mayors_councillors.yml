@@ -8,9 +8,9 @@ coverage:
 summary: >
   Individuals holding mayoral or municipal councillor positions in Spain.
 description: |
-  This dataset contains information on individuals currently serving as mayors or councillors 
-  in Spanish municipalities. It includes their names, roles, political affiliations, and 
-  relevant administrative details. The dataset reflects current officeholders and includes 
+  This dataset contains information on individuals currently serving as mayors or councillors
+  in Spanish municipalities. It includes their names, roles, political affiliations, and
+  relevant administrative details. The dataset reflects current officeholders and includes
   historical data from the 2019–2023 municipal term.
 publisher:
   name: Ministerio de Política Territorial y Memoria Democrática
@@ -18,13 +18,14 @@ publisher:
   acronym: MPT
   official: true
   description: |
-    The Ministry of Territorial Policy and Democratic Memory is the government department 
-    responsible for proposing and executing policy on relations and cooperation with 
+    The Ministry of Territorial Policy and Democratic Memory is the government department
+    responsible for proposing and executing policy on relations and cooperation with
     autonomous communities and local administrations.
   country: es
   url: https://mpt.gob.es/en/ministerio.html
 tags:
   - list.pep
+  - list.pep.bulk
 url: https://mptmd.gob.es/en/portal/politica-territorial/local/sistema_de_informacion_local_-sil-/alcaldes_y_concejales
 data:
   url: https://concejales.redsara.es/consulta/
@@ -41,7 +42,7 @@ assertions:
 lookups:
   positions:
     options:
-      - match: 
+      - match:
           - Alcalde
           - Alcalde en Funciones
         value: Mayor
@@ -55,33 +56,33 @@ lookups:
         value: Managing Councillor
   columns:
     options:
-      - match: 
+      - match:
           - NOMBRE
           - Nombre
         value: name
-      - match: 
+      - match:
           - PROVINCIA
           - Provincia
         value: province
-      - match: 
+      - match:
           - MUNICIPIO
           - Municipio
         value: municipality
-      - match: 
+      - match:
           - FECHA POSESIÓN
           - Fecha de Posesión
         value: start_date
       - match: FECHA BAJA
         value: end_date
-      - match: 
+      - match:
           - COMUNIDAD AUTÓNOMA
           - Comunidad Autónoma
         value: autonomous_community
-      - match: 
+      - match:
           - CÓDIGO INE
           - Código INE
         value: ine_code
-      - match: 
+      - match:
           - LISTA
           - Partido
         value: party

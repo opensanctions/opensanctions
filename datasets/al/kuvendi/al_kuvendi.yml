@@ -16,6 +16,8 @@ description: |
 
   This dataset records each sitting member with their name, date of birth (where
   available), email address, and political party.
+tags:
+  - list.pep
 publisher:
   name: Kuvendi i Shqipërisë
   name_en: Assembly of the Republic of Albania

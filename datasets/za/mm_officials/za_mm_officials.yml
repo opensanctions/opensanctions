@@ -25,6 +25,7 @@ publisher:
   url: https://www.treasury.gov.za/
 tags:
   - list.pep
+  - list.pep.bulk
 url: https://municipalmoney.gov.za/
 data:
   url: https://municipaldata.treasury.gov.za/api/cubes/officials/facts

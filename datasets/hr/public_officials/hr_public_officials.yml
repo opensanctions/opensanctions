@@ -24,6 +24,7 @@ http:
   additional_retry_statuses: [403, 415]
 tags:
   - list.pep
+  - list.pep.bulk
 publisher:
   name: Povjerenstvo za odlučivanje o sukobu interesa
   acronym: Sukobu Interesa

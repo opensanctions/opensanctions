@@ -51,6 +51,8 @@ Currently, tags cover the following dimensions:
 - sectors (e.g. `sector.financial`, `sector.maritime`)
 - risk themes (e.g. `risk.klepto`).
 
+Tag matching is by exact string, not by prefix: a dataset tagged only `list.pep.bulk` does not match `list.pep`. Sub-tags qualify a base tag and should be applied alongside it — `list.pep.bulk` marks PEP datasets (also tagged `list.pep`) that are excluded from broad PEP cross-referencing, such as declaration registries and sub-national officeholder lists.
+
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
 
 ### Publisher
