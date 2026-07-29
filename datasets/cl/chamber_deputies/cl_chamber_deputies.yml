@@ -32,6 +32,14 @@ data:
   format: XML
   lang: spa
 
+lookups:
+  type.gender:
+    options:
+      - match: Masculino
+        value: male
+      - match: Femenino
+        value: female
+
 tags:
   - list.pep
 

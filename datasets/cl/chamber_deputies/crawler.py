@@ -5,8 +5,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
-GENDERS = {"Masculino": "male", "Femenino": "female"}
-
 
 def current_party(deputy: etree._Element) -> str | None:
     """Return the party of the most recent (by start date) membership."""
@@ -27,8 +25,9 @@ def crawl(context: Context) -> None:
         name="Member of the Chamber of Deputies of Chile",
         country="cl",
         wikidata_id="Q18067639",
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -60,7 +59,7 @@ def crawl(context: Context) -> None:
         person = context.make("Person")
         person.id = context.make_slug(dip_id)
         h.apply_name(person, first_name=first, last_name=last, lang="spa")
-        person.add("gender", GENDERS.get(deputy.findtext("Sexo") or ""))
+        person.add("gender", deputy.findtext("Sexo"))
         birth = deputy.findtext("FechaNacimiento")
         h.apply_date(person, "birthDate", birth[:10] if birth else None)
         person.add("political", current_party(deputy), lang="spa")
