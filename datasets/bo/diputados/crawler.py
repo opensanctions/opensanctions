@@ -1,12 +1,10 @@
 from itertools import count
 
-from lxml.html import HtmlElement
-
 from zavod import Context
 from zavod import helpers as h
-from zavod.extract.zyte_api import fetch_json, fetch_html
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import Element
 
 # Roster lives in a WordPress "diputados" custom post type; data_url is its REST
 # collection endpoint. Each post links to a profile page whose structured fields
@@ -14,7 +12,7 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 PAGE_SIZE = 100
 
 
-def deputy_fields(doc: HtmlElement) -> dict[str, str]:
+def deputy_fields(doc: Element) -> dict[str, str]:
     """Map each profile's Elementor icon-box label to its value.
 
     Profiles render one icon-box per attribute, with the label in the box title and
@@ -43,14 +41,8 @@ def crawl_deputy(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    html_response = fetch_html(
-        context,
-        url,
-        ".//div[contains(@class, 'elementor-icon-box-content')]",
-        geolocation="bo",
-        cache_days=7,
-    )
-    fields = deputy_fields(html_response)
+    doc = context.fetch_html(url, cache_days=7)
+    fields = deputy_fields(doc)
 
     name = fields.pop("Nombre", "").strip()
     if len(name) == 0:
@@ -115,12 +107,7 @@ def crawl(context: Context) -> None:
 
     for page in count(1):
         url = f"{context.data_url}?per_page={PAGE_SIZE}&page={page}"
-        records = fetch_json(
-            context,
-            url,
-            cache_days=1,
-            geolocation="bo",
-        )
+        records = context.fetch_json(url, cache_days=1)
         for record in records:
             crawl_deputy(context, record["link"], position, categorisation)
         # The REST collection is paginated; the final page is short of PAGE_SIZE.
