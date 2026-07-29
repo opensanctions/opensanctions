@@ -1,7 +1,5 @@
-import csv
 from typing import Any
-
-from rigour.mime.types import CSV
+from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
@@ -10,25 +8,19 @@ from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import LangText
 
-# The catalogue serves the CSV in Windows-874 / TIS-620, not UTF-8.
-ENCODING = "cp874"
-
 
 def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    row: dict[str, Any],
+    record: dict[str, Any],
 ) -> None:
-    code = row.pop("MEMBER_CODE")
-    raw_name = row.pop("MEMBER_NAME")
+    raw_name = record.pop("MEMBER_NAME")
     clean_name = h.strip_name_titles(context, raw_name)
-    assert clean_name, f"Empty name for senator {code}"
+    assert clean_name
 
     person = context.make("Person")
-    # The code identifies the seat, not the person: a resigned senator and their
-    # replacement share a code, so key on code + name.
-    person.id = context.make_id(code, clean_name)
+    person.id = context.make_id(record.pop("MEMBER_CODE"), clean_name)
     original_name = raw_name if clean_name != raw_name else None
     person.add("name", clean_name, lang="tha", original_value=original_name)
     apply_translit_full_name(context, person, LangText(clean_name, "tha"))
@@ -37,28 +29,40 @@ def crawl_member(
     # https://www.constituteproject.org/constitution/Thailand_2017
     person.add("citizenship", "th")
 
+    start_date = record.pop("START_DATE", None) or record.pop("MEMBER_STARTDATE", None)
+    end_date = record.pop("END_DATE", None) or record.pop("MEMBER_ENDDATE", None)
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        start_date=row.pop("START_DATE") or None,
-        end_date=row.pop("END_DATE") or None,
+        start_date=start_date,
+        end_date=end_date,
         categorisation=categorisation,
     )
     if occupancy is None:
         return
-    group = row.pop("MEMBER_TYPE", None)
+    # current senators represent one of 20 occupational working groups
+    group = record.pop("MEMBER_TYPE", None)
     if group:
         occupancy.add("description", group, lang="tha")
 
     context.audit_data(
-        row,
+        record,
         ignore=[
+            "_id",
+            # Current-set columns
             "POSITION",
             "RESIGN",
+            "COUNCIL_MEMBER",
+            # Past-set columns
+            "MEMBER_END",
+            "COUNCIL_NAME",
+            "COUNCIL_START",
+            "COUNCIL_END",
+            "COUNCIL",
+            # Common
             "COUNCIL_YEAR",
             "COUNCIL_NO",
-            "COUNCIL_MEMBER",
         ],
     )
     context.emit(occupancy)
@@ -78,10 +82,24 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    path = context.fetch_resource("senators.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    # Crawl every Senate set it lists, current and past, from the datastore API. Each set is
+    # published as a CSV and an XLSX backed by the same datastore; read the CSV so we
+    # don't crawl the same records twice.
+    package = context.fetch_json(context.data_url, cache_days=7)
+    search_url = urljoin(context.data_url, "/api/3/action/datastore_search")
 
-    with open(path, encoding=ENCODING) as fh:
-        rows = list(csv.DictReader(fh))
-    for row in rows:
-        crawl_member(context, position, categorisation, row)
+    for resource in package["result"]["resources"]:
+        if (resource.get("format") or "").upper() != "CSV":
+            continue
+        # A Senate set has a few hundred members; one large page fetches them all.
+        result = context.fetch_json(
+            search_url,
+            params={"resource_id": resource["id"], "limit": 10000},
+            cache_days=14,
+        )["result"]
+        records = result["records"]
+        context.log.info(
+            "Crawling Senate set", name=resource["name"], members=len(records)
+        )
+        for record in records:
+            crawl_member(context, position, categorisation, record)
