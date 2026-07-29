@@ -17,8 +17,9 @@ description: |
   with the Senate, hold the country's legislative power, including passing laws and approving
   the budget.
 
-  This dataset records each deputy of the current legislative period with their name, gender,
-  date of birth, and current party.
+  This dataset records deputies of the current and recent legislative periods with their name,
+  gender, date of birth, and party affiliations, along with the term(s) each of them served.
+  For sitting deputies it additionally records their email and electoral district.
 url: https://www.camara.cl/
 publisher:
   name: Cámara de Diputadas y Diputados
@@ -28,7 +29,9 @@ publisher:
   country: cl
   official: true
 data:
-  url: https://opendata.camara.cl/camaradiputados/WServices/WSDiputado.asmx/retornarDiputadosPeriodoActual
+  # Entry point: the crawler enumerates legislative periods here, then fetches each
+  # period's roster from WSDiputado.asmx/retornarDiputadosXPeriodo.
+  url: https://opendata.camara.cl/camaradiputados/WServices/WSLegislativo.asmx/retornarPeriodosLegislativos
   format: XML
   lang: spa
 
@@ -46,11 +49,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 130
+      Person: 400
       Position: 1
     country_entities:
-      cl: 130
+      cl: 400
   max:
     schema_entities:
-      Person: 170
+      Person: 600
       Position: 1
