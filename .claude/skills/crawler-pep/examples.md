@@ -55,8 +55,9 @@ def crawl_member(
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of Parliament",
+        name="Member of the Parliament of Examplia",
         country="xx",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q...",
         lang="eng",  # crawler-supplied names are always English
     )
@@ -80,6 +81,8 @@ PEP status is determined by the UI review workflow, not the crawler.
 ```python
 def crawl_member(context: Context, row: dict[str, Any]) -> None:
     role = row.pop("role")  # source-supplied, in French
+    # No topics: the crawler doesn't know which position this is, so the review and
+    # classification system decides both PEP status and topics.
     position = h.make_position(
         context, name=role, country="fr", lang="fra", translate_name=True
     )
@@ -133,6 +136,7 @@ position = h.make_position(
     context,
     name=f"{res.value} of {commune_label}",   # English name + locality
     country="lu",
+    topics=["gov.muni", "gov.executive"],     # the role and tier are known; only the locality varies
     subnational_area=commune_label,           # NOT wikidata_id — per-locality
     lang="eng",                               # already English after the lookup
 )
@@ -160,12 +164,12 @@ For sources that list officials across known, enumerable position types:
 ```python
 POSITIONS: dict[str, dict[str, Any]] = {
     "dail": {
-        "name": "Member of Dail Eireann",
+        "name": "Member of the Dáil of Ireland",
         "wikidata_id": "Q654291",
     },
     "seanad": {
-        "name": "Senator of Seanad Eireann",
-        "wikidata_id": "Q1396622",
+        "name": "Senator of Ireland",
+        "wikidata_id": "Q18043391",
     },
 }
 
@@ -176,6 +180,7 @@ def crawl(context: Context) -> None:
             context,
             name=config["name"],
             country="ie",
+            topics=["gov.national", "gov.legislative"],
             wikidata_id=config.get("wikidata_id"),
             lang="eng",
         )

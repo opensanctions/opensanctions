@@ -47,6 +47,10 @@ def make_position(
         summary: A short summary of the position.
         description: A longer description of the position.
         country: The country or countries the position is in.
+        topics: The scope and role of the position, e.g. `["gov.national",
+            "gov.legislative"]`. Pass these for positions the crawler names itself;
+            omit them for positions read out of the source data, where the review and
+            classification system decides.
         subnational_area: The state or district the position is in.
         organization: The organization the position is a part of.
         inception_date: The date the position was created.
@@ -56,6 +60,8 @@ def make_position(
         source_url: The URL of the source the position was found in.
         lang: Override the dataset language when the position details are in a
             non-default language.
+        id_hash_prefix: Namespace the generated entity ID, so that positions built
+            from the same name in different contexts do not collide.
         translate_name: If True and the resolved source language is non-English,
             the position name is translated to English via an LLM and stored as
             the `name` (with the original kept as the value's original_value).
