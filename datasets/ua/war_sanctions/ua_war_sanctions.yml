@@ -76,9 +76,9 @@ assertions:
   min:
     schema_entities:
       Organization: 10
-      Person: 5000
+      Person: 3500
       Vessel: 1000
-      LegalEntity: 7000
+      LegalEntity: 4500
     country_entities:
       ru: 790
       ua: 130

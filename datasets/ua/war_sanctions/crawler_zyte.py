@@ -226,6 +226,37 @@ def emit_succession(
     context.emit(rel)
 
 
+def emit_holding_parent(
+    context: Context, subsidiary_id: str, url_id: str, name: str
+) -> None:
+    """Link a company to its immediate parent in the Rostec holding tree.
+
+    The parent is also emitted, as a stub carrying the name the chain link shows, the same way
+    `emit_succession` handles an assignee. Ancestors higher up the tree are not reliably
+    reachable from the crawled listings — the Rostec root sits at the tail of
+    sanctions/companies, whose oldest ids drop off the last listing page as the source grows —
+    and without the stub the Ownership edge points at an entity nobody emits. The stub merges
+    by id with the parent's own page whenever a listing does reach it, since every company page
+    keys off its trailing url id.
+    """
+    parent_id = context.make_slug("entity", url_id)
+    if parent_id is None:
+        return
+    parent = context.make("LegalEntity")
+    parent.id = parent_id
+    parent.add("name", name)
+    parent.add("sourceUrl", f"{context.data_url}/rostec/{url_id}")
+    if parent.has("name"):
+        context.emit(parent)
+
+    rel = context.make("Ownership")
+    rel.id = context.make_id(parent_id, "subsidiary of", subsidiary_id)
+    rel.add("owner", parent_id)
+    rel.add("asset", subsidiary_id)
+    rel.add("role", "subsidiary of")
+    context.emit(rel)
+
+
 def entity_label_map(doc: Element) -> dict[str, Element]:
     """Label -> value map for an entity (company) page: col-sm-8 value, prev-sibling label."""
     pairs: dict[str, Element] = {}
@@ -296,18 +327,21 @@ def crawl_entity_page(
     # so the full tree is built incrementally), mirroring the API's rostec/structure.
     structure_el = pairs.pop("Within the structure of Rostec", None)
     if structure_el is not None:
-        chain = h.xpath_strings(structure_el, ".//a/@href")
-        parents = [
-            m.group(1) for href in chain if (m := re.search(r"/rostec/(\d+)", href))
-        ]
-        if len(parents) >= 2:
-            parent_id = context.make_slug("entity", parents[1])
-            rel = context.make("Ownership")
-            rel.id = context.make_id(parent_id, "subsidiary of", entity_id)
-            rel.add("owner", parent_id)
-            rel.add("asset", entity_id)
-            rel.add("role", "subsidiary of")
-            context.emit(rel)
+        # Keep each link's text alongside its url id so the parent can be emitted as a named
+        # stub — the chain is the only place its name is visible from this page. Links are
+        # selected on their href alone, so the chain positions stay as they were.
+        chain: list[tuple[str, str]] = []
+        for link in h.xpath_elements(structure_el, ".//a"):
+            href = link.get("href")
+            if href is None:
+                continue
+            match = re.search(r"/rostec/(\d+)", href)
+            if match is None:
+                continue
+            chain.append((match.group(1), h.element_text(link)))
+        if len(chain) >= 2:
+            parent_url_id, parent_name = chain[1]
+            emit_holding_parent(context, entity_id, parent_url_id, parent_name)
 
     # Liquidated companies name their legal successor in an "Assignee" row.
     successor_el = pairs.pop("Assignee", None)
