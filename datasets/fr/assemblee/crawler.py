@@ -139,6 +139,8 @@ def crawl_acteur(context: Context, data: dict[str, Any]) -> None:
         "Member of the French National Assembly",
         country="fr",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q3044918",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

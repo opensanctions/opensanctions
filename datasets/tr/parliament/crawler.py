@@ -98,7 +98,11 @@ def crawl_item(context: Context, item: Element) -> None:
     entity.add("political", party)
 
     position = h.make_position(
-        context, "Member of the Grand National Assembly", country="tr"
+        context,
+        "Member of the Grand National Assembly of Turkey",
+        country="tr",
+        wikidata_id="Q21030356",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
 

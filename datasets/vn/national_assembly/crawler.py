@@ -143,6 +143,7 @@ def crawl_deputy(context: Context, url: str, province: str, deputy: str) -> None
         country="vn",
         topics=["gov.national"],
         wikidata_id="Q10841192",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     occupancy = h.make_occupancy(

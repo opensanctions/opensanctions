@@ -131,7 +131,13 @@ def crawl(context: Context) -> None:
     senators = fetch_json(context, senators_url, cache_days=1, geolocation="MX")
 
     # We first define the Mexico Senator Position
-    position = h.make_position(context, "Member of the Senate of Mexico", country="mx")
+    position = h.make_position(
+        context,
+        "Member of the Senate of Mexico",
+        country="mx",
+        wikidata_id="Q19971999",
+        lang="eng",
+    )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
 

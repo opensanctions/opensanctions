@@ -135,6 +135,7 @@ def crawl(context: Context) -> None:
         subnational_area="South Australia",
         wikidata_id="Q18220900",
         topics=["gov.state", "gov.legislative"],
+        lang="eng",
     )
     legislative_council = h.make_position(
         context,
@@ -143,6 +144,7 @@ def crawl(context: Context) -> None:
         subnational_area="South Australia",
         wikidata_id="Q18662245",
         topics=["gov.state", "gov.legislative"],
+        lang="eng",
     )
     context.emit(house_assembly)
     context.emit(legislative_council)

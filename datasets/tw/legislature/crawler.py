@@ -142,10 +142,11 @@ def crawl(context: Context) -> None:
     }
     position = h.make_position(
         context,
-        name="Member of the Legislative Yuan",
+        name="Member of the Legislative Yuan of Taiwan",
         country="tw",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q6310593",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

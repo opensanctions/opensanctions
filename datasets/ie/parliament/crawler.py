@@ -9,7 +9,7 @@ POSITIONS = {
         "wikidata_id": "Q18043391",
     },
     "dail": {
-        "title": "Teachta Dála",
+        "title": "Member of the Dáil of Ireland",
         "wikidata_id": "Q654291",
     },
 }
@@ -43,6 +43,7 @@ def crawl_member(context: Context, member: dict[str, Any]) -> None:
             topics=["gov.national", "gov.legislative"],
             country=["ie"],
             wikidata_id=wikidata_id,
+            lang="eng",
         )
 
         categorisation = categorise(context, position, default_is_pep=True)

@@ -252,7 +252,7 @@ def iter_member_links(context: Context, roster_url: str) -> Iterator[tuple[str, 
 def crawl_rakyat(context: Context) -> None:
     rakyat_position = h.make_position(
         context,
-        name="Member of the Dewan Rakyat",
+        name="Member of the Dewan Rakyat of Malaysia",
         country="my",
         topics=DEFAULT_PARLIAMENT_TOPICS,
         wikidata_id="Q21290861",
@@ -271,7 +271,7 @@ def crawl_rakyat(context: Context) -> None:
 def crawl_negara(context: Context) -> None:
     negara_position = h.make_position(
         context,
-        name="Member of the Dewan Negara",
+        name="Member of the Dewan Negara of Malaysia",
         country="my",
         topics=DEFAULT_PARLIAMENT_TOPICS,
         wikidata_id="Q21328606",

@@ -119,10 +119,11 @@ def crawl_member(
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of the Council of Representatives",
+        name="Member of the Council of Representatives of Bahrain",
         country="bh",
         wikidata_id="Q21328582",
         topics=["gov.national", "gov.legislative"],
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

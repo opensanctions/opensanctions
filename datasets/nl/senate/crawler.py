@@ -85,7 +85,7 @@ def crawl_member(context: Context, member_el: _Element) -> None:
 
     position = h.make_position(
         context,
-        name="Member of the Senate",
+        name="Member of the Senate of the Netherlands",
         country="nl",
         topics=["gov.legislative", "gov.national"],
         lang="eng",

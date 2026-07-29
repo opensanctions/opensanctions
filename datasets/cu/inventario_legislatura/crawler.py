@@ -32,9 +32,10 @@ def crawl(context: Context) -> None:
     term_start = "2023"
     position = h.make_position(
         context,
-        "Member of the National Assembly of People's Power",
+        "Member of the National Assembly of People's Power of Cuba",
         country="cu",
         wikidata_id="Q21272829",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)

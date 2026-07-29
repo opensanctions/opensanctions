@@ -101,6 +101,7 @@ def crawl(context: Context) -> None:
         country="au",
         subnational_area="Queensland",
         wikidata_id="Q18526194",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
