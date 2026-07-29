@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-24
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
   Members of the Senate of Chile, the upper house of the National Congress.
 description: |
@@ -15,7 +15,8 @@ description: |
   constituencies for an eight-year term and, together with the Chamber of Deputies, hold the
   country's legislative power, including passing laws and approving the budget.
 
-  This dataset records each sitting senator with their name, gender, party, and region.
+  This dataset records senators of the current and recent terms with their name, gender, party,
+  email, and region, along with the term(s) each of them served.
 url: https://www.senado.cl/
 publisher:
   name: Senado de la República de Chile
@@ -25,9 +26,17 @@ publisher:
   country: cl
   official: true
 data:
-  url: https://web-back.senado.cl/api/hemicycle?vigentes=1&camara=S&limit=100
+  url: https://web-back.senado.cl/api/hemicycle?camara=S&limit=1000
   format: JSON
   lang: spa
+
+lookups:
+  type.gender:
+    options:
+      - match: Hombre
+        value: male
+      - match: Mujer
+        value: female
 
 tags:
   - list.pep
@@ -35,11 +44,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 40
+      Person: 90
       Position: 1
     country_entities:
-      cl: 40
+      cl: 90
   max:
     schema_entities:
-      Person: 60
+      Person: 170
       Position: 1
