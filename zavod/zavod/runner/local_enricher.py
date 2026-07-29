@@ -223,7 +223,7 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     # The Context resolver is read-only here (save_match only reads judgements),
     # so its load commits as a no-op along with the cache via context.close().
     context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")

@@ -22,6 +22,8 @@ description: |
   which exposes the roster of each assembly and a per-member profile with biographical
   details and a full membership history.
 url: https://www.parliament.bg/en/MP
+tags:
+  - list.pep
 publisher:
   name: National Assembly of the Republic of Bulgaria
   acronym: NA

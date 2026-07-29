@@ -77,7 +77,7 @@ from followthemoney.statement import BASE_ID
 from nomenklatura.store.base import View as BaseView
 
 from zavod import Context, Entity
-from zavod.meta import Dataset, get_multi_dataset
+from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.constants import ANALYZER_DATASETS, ORIGIN_INFERRED
 from zavod.store import get_store
 from zavod.integration import get_dataset_linker
@@ -378,7 +378,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
 
 
 def crawl(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
     store.sync()
