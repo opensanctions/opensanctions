@@ -35,6 +35,12 @@ data:
 dates:
   formats: ["%d/%m/%Y"]
 
+names:
+  prefixes_strip:
+    - นางสาว
+    - นาย
+    - นาง
+
 tags:
   - list.pep
 

@@ -11,17 +11,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # The catalogue serves the CSV in Windows-874 / TIS-620, not UTF-8.
 ENCODING = "cp874"
 
-# Civilian honorifics prefixing the name; ranks and academic titles are kept.
-HONORIFICS = ("นางสาว", "นาย", "นาง")
-
-
-def clean_name(raw: str) -> str:
-    name = " ".join(raw.split())
-    for honorific in HONORIFICS:
-        if name.startswith(honorific):
-            return name[len(honorific) :].strip()
-    return name
-
 
 def crawl_member(
     context: Context,
@@ -30,14 +19,16 @@ def crawl_member(
     row: dict[str, Any],
 ) -> None:
     code = row.pop("MEMBER_CODE")
-    name = clean_name(row.pop("MEMBER_NAME"))
-    assert name, f"Empty name for senator {code}"
+    raw_name = row.pop("MEMBER_NAME")
+    clean_name = h.strip_name_titles(context, raw_name)
+    assert clean_name, f"Empty name for senator {code}"
 
     person = context.make("Person")
     # The code identifies the seat, not the person: a resigned senator and their
     # replacement share a code, so key on code + name.
-    person.id = context.make_id(code, name)
-    person.add("name", name, lang="tha")
+    person.id = context.make_id(code, clean_name)
+    original_name = raw_name if clean_name != raw_name else None
+    person.add("name", clean_name, lang="tha", original_value=original_name)
     # A candidate for the Senate must be of Thai nationality by birth (Constitution of
     # Thailand 2017, Section 108(1)).
     # https://www.constituteproject.org/constitution/Thailand_2017
