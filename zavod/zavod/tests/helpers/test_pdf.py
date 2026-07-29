@@ -77,11 +77,13 @@ def test_parse_pdf_table_multiple_pages(vcontext):
             vcontext, PDF_PATH, skiprows=1, page_settings=basic_settings_func
         )
     )
-    assert len(list(rows)) == 6, rows
+    # Page 2 repeats the header row ("Forenames"/"Surname"); it is skipped
+    # rather than emitted as a data row.
+    assert len(list(rows)) == 5, rows
     assert rows[0]["forenames"] == "Jon"
     assert rows[2]["forenames"] == "First\nName"
-    assert rows[3]["forenames"] == "Forenames"
-    assert rows[5]["forenames"] == "Frederica"
+    assert rows[3]["forenames"] == "Jane"
+    assert rows[4]["forenames"] == "Frederica"
 
 
 def test_parse_pdf_table_headers_per_page(vcontext):
