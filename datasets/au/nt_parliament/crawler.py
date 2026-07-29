@@ -77,6 +77,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Legislative Assembly of the Northern Territory",
         country="au",
+        topics=["gov.state", "gov.legislative"],
         subnational_area="Northern Territory",
         wikidata_id="Q26998278",
         lang="eng",

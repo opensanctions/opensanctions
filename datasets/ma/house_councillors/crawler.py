@@ -136,6 +136,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Councillors of Morocco",
         country="ma",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21328580",
         lang="eng",
     )

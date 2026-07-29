@@ -153,6 +153,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the National Parliament of Papua New Guinea",
         country="pg",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21294916",
         lang="eng",
     )

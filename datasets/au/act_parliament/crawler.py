@@ -88,6 +88,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Australian Capital Territory Legislative Assembly",
         country="au",
+        topics=["gov.state", "gov.legislative"],
         subnational_area="Australian Capital Territory",
         wikidata_id="Q6814365",
         lang="eng",

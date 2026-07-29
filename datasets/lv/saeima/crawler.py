@@ -47,6 +47,7 @@ def crawl_item(context: Context, unid: str) -> None:
         context,
         "Member of the Saeima of Latvia",
         country="lv",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21191589",
         lang="eng",
     )

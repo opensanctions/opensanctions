@@ -104,6 +104,7 @@ def crawl(context: Context) -> None:
             context,
             name=config["name"],
             country="au",
+            topics=["gov.state", "gov.legislative"],
             subnational_area="Western Australia",
             wikidata_id=config["wikidata_id"],
             lang="eng",

@@ -135,6 +135,7 @@ def crawl(context: Context) -> None:
         context,
         "Member of the Senate of Mexico",
         country="mx",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q19971999",
         lang="eng",
     )

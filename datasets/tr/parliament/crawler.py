@@ -101,6 +101,7 @@ def crawl_item(context: Context, item: Element) -> None:
         context,
         "Member of the Grand National Assembly of Turkey",
         country="tr",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21030356",
         lang="eng",
     )

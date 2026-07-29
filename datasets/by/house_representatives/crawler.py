@@ -100,6 +100,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Representatives of Belarus",
         country="by",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q14335901",
         lang="eng",
     )

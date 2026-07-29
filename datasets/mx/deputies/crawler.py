@@ -40,6 +40,7 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
         context,
         "Member of the Chamber of Deputies of Mexico",
         country="mx",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q18534310",
         lang="eng",
     )

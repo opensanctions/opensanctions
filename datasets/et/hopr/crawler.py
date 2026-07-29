@@ -184,6 +184,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Peoples' Representatives of Ethiopia",
         country="et",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21328614",
         lang="eng",
     )
