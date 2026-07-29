@@ -43,14 +43,25 @@ EXPORTERS: dict[str, type[Exporter]] = {
     DeltaExporter.FILE_NAME: DeltaExporter,
 }
 
-__all__ = ["export_dataset", "write_dataset_index"]
+__all__ = ["export_dataset", "write_dataset_index", "get_exporter_names"]
+
+
+def get_exporter_names(dataset: Dataset) -> set[str]:
+    """The file names of the exporters enabled for the given dataset.
+
+    A dataset which doesn't configure `exports:` runs the default set. The
+    statistics exporter always runs, because the dataset metadata is derived
+    from its output.
+    """
+    names = set(dataset.model.exports)
+    if not len(names):
+        names.update(DEFAULT_EXPORTERS)
+    names.add(StatisticsExporter.FILE_NAME)
+    return names
 
 
 def export_data(context: Context, view: View) -> None:
-    exporter_names = set(context.dataset.model.exports)
-    if not len(exporter_names):
-        exporter_names.update(DEFAULT_EXPORTERS)
-    exporter_names.add(StatisticsExporter.FILE_NAME)
+    exporter_names = get_exporter_names(context.dataset)
     exporters: list[Exporter] = []
     for name in exporter_names:
         clazz = EXPORTERS.get(name)
@@ -94,7 +105,13 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         context.close()
 
     # Export metadata and issues (after the context is closed & flushed)
-    write_delta_index(dataset)
-    write_dataset_index(dataset, DatasetVersionResult.SUCCESS)
+    # The delta index is built from archived delta exports, so it must only be
+    # written for datasets that still produce them - otherwise it would list
+    # versions from before the exporter was turned off
+    # (https://github.com/opensanctions/opensanctions/issues/5140).
+    delta_enabled = DeltaExporter.FILE_NAME in get_exporter_names(dataset)
+    if delta_enabled:
+        write_delta_index(dataset)
+    write_dataset_index(dataset, DatasetVersionResult.SUCCESS, delta_enabled)
     write_catalog(dataset)
     log.info(f"Exported dataset: {dataset.name}")

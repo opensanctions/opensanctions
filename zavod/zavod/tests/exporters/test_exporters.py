@@ -12,12 +12,14 @@ from zavod import Context, settings
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.store import get_store
-from zavod.exporters import export_dataset
+from zavod.exporters import DEFAULT_EXPORTERS, export_dataset, get_exporter_names
 from zavod.archive import clear_data_path, DATASETS
+from zavod.exporters.delta import DeltaExporter
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.statements import StatementsCSVExporter
+from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
@@ -408,3 +410,37 @@ def test_consolidate_names_never_remove_ofac_names():
     assert set(entities[0].get("name")) == {"John Doe", "The Tiger"}
     # "Tigger" is demoted (even though it's a name in xx_garbage) because it's a weakAlias in xx_garbage
     assert set(entities[0].get("weakAlias")) == {"Tigger", "The Tiger"}
+
+
+def test_get_exporter_names_config_shapes(testdataset1: Dataset) -> None:
+    """Pin how an `exports:` config resolves to the set of exporters that runs,
+    across every shape the config can take."""
+    stats = StatisticsExporter.FILE_NAME
+
+    # No exports: config at all - the dataset runs the default set, which
+    # includes both statistics and deltas.
+    testdataset1.model.exports = set()
+    assert get_exporter_names(testdataset1) == DEFAULT_EXPORTERS
+    assert stats in DEFAULT_EXPORTERS
+    assert DeltaExporter.FILE_NAME in DEFAULT_EXPORTERS
+
+    # An explicit config replaces the defaults entirely, but statistics is
+    # always added because the dataset metadata is derived from it.
+    testdataset1.model.exports = {FtMExporter.FILE_NAME}
+    assert get_exporter_names(testdataset1) == {FtMExporter.FILE_NAME, stats}
+
+    # Naming statistics explicitly makes no difference.
+    testdataset1.model.exports = {FtMExporter.FILE_NAME, stats}
+    assert get_exporter_names(testdataset1) == {FtMExporter.FILE_NAME, stats}
+
+    # A statistics-only config (as ext_us_ofac_press_releases has) resolves to
+    # statistics alone - notably without the delta exporter.
+    testdataset1.model.exports = {stats}
+    names = get_exporter_names(testdataset1)
+    assert names == {stats}
+    assert DeltaExporter.FILE_NAME not in names
+
+    # Resolving the names doesn't mutate the dataset config.
+    testdataset1.model.exports = {FtMExporter.FILE_NAME}
+    get_exporter_names(testdataset1).add(NamesExporter.FILE_NAME)
+    assert testdataset1.model.exports == {FtMExporter.FILE_NAME}

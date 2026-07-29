@@ -13,7 +13,8 @@ from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest
-from zavod.exporters import write_dataset_index
+from zavod.exporters import get_exporter_names, write_dataset_index
+from zavod.exporters.delta import DeltaExporter
 
 log = get_logger(__name__)
 
@@ -135,7 +136,8 @@ def archive_failure(dataset: Dataset) -> None:
     dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
 
-    write_dataset_index(dataset, DatasetVersionResult.FAILURE)
+    delta_enabled = DeltaExporter.FILE_NAME in get_exporter_names(dataset)
+    write_dataset_index(dataset, DatasetVersionResult.FAILURE, delta_enabled)
     path = dataset_resource_path(dataset.name, INDEX_FILE)
     if not path.is_file():
         log.error(f"Metadata file not found: {path}", dataset=dataset.name)

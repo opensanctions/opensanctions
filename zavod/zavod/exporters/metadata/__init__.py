@@ -84,8 +84,15 @@ def get_base_dataset_metadata(dataset: Dataset) -> dict[str, Any]:
     return meta
 
 
-def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
-    """Export dataset metadata to index.json."""
+def write_dataset_index(
+    dataset: Dataset, result: DatasetVersionResult, delta_enabled: bool
+) -> None:
+    """Export dataset metadata to index.json.
+
+    `delta_enabled` states whether the dataset runs the delta exporter, which
+    the caller knows from the exporters it set up. Only then does the index
+    advertise a `delta_url`.
+    """
     catalog = get_catalog()
     version = get_latest(dataset.name, backfill=True)
     if version is None:
@@ -124,24 +131,30 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
         dataset.name, version.id, STATISTICS_FILE
     )
 
-    delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
-    if delta_index_path.is_file():
-        # Only generated for successful exports:
-        meta["delta_url"] = make_artifact_url(
-            dataset.name, version.id, DELTA_INDEX_FILE
-        )
-    else:
-        # If the delta index is not available, try to find the newest delta index
-        # generate the URL from that:
-        for version in iter_dataset_versions(dataset.name):
-            object = get_artifact_object(
-                dataset.name, DELTA_EXPORT_FILE, version=version.id
+    # A dataset which doesn't run the delta exporter has no delta feed to offer.
+    # Without this check, a dataset that used to export deltas would keep
+    # advertising a delta_url whose newest entry is the last run before the
+    # exporter was turned off, i.e. a stale feed presented as current
+    # (https://github.com/opensanctions/opensanctions/issues/5140).
+    if delta_enabled:
+        delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
+        if delta_index_path.is_file():
+            # Only generated for successful exports:
+            meta["delta_url"] = make_artifact_url(
+                dataset.name, version.id, DELTA_INDEX_FILE
             )
-            if object is not None:
-                meta["delta_url"] = make_artifact_url(
-                    dataset.name, version.id, DELTA_INDEX_FILE
+        else:
+            # If the delta index is not available, try to find the newest delta index
+            # generate the URL from that:
+            for version in iter_dataset_versions(dataset.name):
+                object = get_artifact_object(
+                    dataset.name, DELTA_EXPORT_FILE, version=version.id
                 )
-                break
+                if object is not None:
+                    meta["delta_url"] = make_artifact_url(
+                        dataset.name, version.id, DELTA_INDEX_FILE
+                    )
+                    break
 
     # Validate against the published output contract before writing. The model
     # knows a failed run legitimately lacks statistics, so a degraded failure
