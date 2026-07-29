@@ -66,6 +66,8 @@ prohibitions, not low priorities.
 
 The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` property should ideally capture the position and its jurisdiction, but be no more specific than that.
 
+Pass `topics` for positions the crawler names itself, where it knows which position it is building. Omit them for positions read out of the source data, where the review and classification system decides. The vocabulary is described in the [PEP methodology](https://www.opensanctions.org/docs/pep/methodology/).
+
 !!! info "Supplying Wikidata QIDs"
     Most political positions in the world already exist in Wikidata. If your crawler emits only
     a small number of positions, it is best practice to look up the Wikidata QIDs for these
@@ -96,7 +98,11 @@ Do
   to English is an acceptable alternative.
 - include the role
 - include the organizational body where needed
-- include the specific geographic jurisdiction where relevant
+- include the specific geographic jurisdiction where relevant. A national position's
+  name should be recognizable as belonging to that country to someone reading the
+  name on its own — either construction works, a nationality adjective (`Member of
+  the Swedish Riksdag`) or an of-phrase (`Member of the Senate of the Italian
+  Republic`).
 - refer to [Wikidata EveryPolitician](https://www.wikidata.org/wiki/Wikidata:WikiProject_every_politician)
   for examples, specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871).
   Much careful work has been done there on defining positions in understandable
@@ -112,7 +118,7 @@ Avoid
 
 - Prefer `United States representative` over `Member of the House of Representatives` -
   while it's true that they're a member of the house of representatives, the
-  common generic term is United States representative.
+  common generic term is United States representative, and it names the country.
 - Prefer `Member of the Landtag of Mecklenburg-Vorpommern` over `Member of the Landtag of Mecklenburg-Vorpommern, Germany` -
   the country is already captured
   as a property of the entity.
