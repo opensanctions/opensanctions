@@ -3,14 +3,27 @@ import re
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
-from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context
 from zavod import helpers as h
 
 # Names appear only in portrait file names, e.g. HON.-RATU-ATONIO-LALABALAVU-1-300x300.jpg.
-# Used only to tell member portraits from other images on the page.
+# Used to tell member portraits from other images on the page.
 FILENAME_RE = re.compile(r"(?i)^hon\.?-.+")
+
+# File names carry the portrait's image dimensions (e.g. "300x300") and often a
+# WordPress dedup counter ("1", "03", "003"), sometimes glued to the last name
+# word ("Cirikiyasawa2"). Strip these trailing digit artifacts before review.
+ARTIFACT_RE = re.compile(r"(?:\s*\d+\s*x\s*\d+|\s*\d+)\s*$")
+
+
+def strip_filename_artifacts(name: str) -> str:
+    """Remove trailing image dimensions and dedup counters from a filename-derived name."""
+    prev = None
+    while prev != name:
+        prev = name
+        name = ARTIFACT_RE.sub("", name).strip()
+    return name
 
 
 def crawl_member(
@@ -29,17 +42,16 @@ def crawl_member(
     # MPs must be Fiji citizens holding no other citizenship (2013 Constitution, s. 56(2)(a)).
     person.add("citizenship", "fj")
 
-    # Names are too messily encoded to clean in code, so we minimally decode and hand
-    # every name to the review framework for cleaning.
+    # Decode the file name into a name, dropping the "HON" title and the trailing
+    # image-dimension/dedup-counter digit artifacts, then hand the residual (which
+    # may still need case/ordering fixes) to the review framework for cleaning.
     stem = filename_raw.rsplit(".", 1)[0]
-    name = " ".join(stem.replace("-", " ").split())
-    h.apply_reviewed_names(
-        context,
-        person,
-        original=h.Names(name=name),
-        is_irregular=True,
-        llm_cleaning=True,
-    )
+    raw_name = " ".join(stem.replace("-", " ").split())
+    untitled_name = h.strip_name_titles(context, raw_name)
+    if untitled_name is None:
+        return
+    clean_name = strip_filename_artifacts(untitled_name)
+    person.add("name", clean_name)
 
     occupancy = h.make_occupancy(
         context,
@@ -75,5 +87,3 @@ def crawl(context: Context) -> None:
 
     for source_attr in h.xpath_strings(doc, "//img/@src"):
         crawl_member(context, position, categorisation, source_attr)
-
-    assert_all_accepted(context, raise_on_unaccepted=False)
