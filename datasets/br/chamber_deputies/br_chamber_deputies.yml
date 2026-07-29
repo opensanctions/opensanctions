@@ -49,11 +49,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 450
+      Person: 1800
       Position: 1
     country_entities:
-      br: 450
+      br: 1800
   max:
     schema_entities:
-      Person: 560
+      Person: 2300
       Position: 1
