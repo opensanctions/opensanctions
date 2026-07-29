@@ -167,11 +167,11 @@ def test_analyzer(analyzer: Dataset, testdataset1: Dataset):
 
 def test_multi_dataset(analyzer: Dataset, testdataset1: Dataset):
     with pytest.raises(MetadataException):
-        get_multi_dataset(["xxxx"])
+        get_multi_dataset(get_catalog(), ["xxxx"])
 
-    ds = get_multi_dataset([analyzer.name])
+    ds = get_multi_dataset(get_catalog(), [analyzer.name])
     assert ds == analyzer
 
-    ds = get_multi_dataset([analyzer.name, testdataset1.name])
+    ds = get_multi_dataset(get_catalog(), [analyzer.name, testdataset1.name])
     assert analyzer in ds.children
     assert testdataset1 in ds.children
