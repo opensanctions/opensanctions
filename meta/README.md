@@ -72,6 +72,8 @@ from an earlier metadata system.
   the field when geography says nothing useful about the program.
 - `measures`: Use the controlled vocabulary to describe the operative legal
   effects of the program. See the measures policy below.
+- `status`: Record whether the program still designates. Defaults to `active`;
+  omit it for programs in force. See the status policy below.
 
 ### Writing a summary
 
@@ -139,6 +141,35 @@ The complete vocabulary and its definitions are maintained in the
 Verify measures against the program page or operative legal instrument rather
 than inferring them from a title or from common sanctions practice.
 
+### Program status
+
+`status` records the legal status of the regime itself — whether the underlying
+instruments are in force. It is contextual metadata that frames a designation;
+it says nothing about whether the source data currently carries entries (that is
+computable from the data and is not what this field tracks).
+
+- `active` — the regime is in force. This is the default; omit the field for
+  programs in force, including one whose list happens to be empty right now.
+- `legacy` — the grey zone in between: the regime is no longer fully in force —
+  its authority has wound down or only partly survives — yet designations made
+  under it persist and may still bind. This covers a composite regime where one
+  instrument lapsed while another still designates, and a wound-down authority
+  whose pre-existing blocks remain in force. Not fully alive, not gone.
+- `ended` — the regime is no longer in force at all, whether revoked, repealed,
+  expired, or sunset, with no remaining legal effect. A single neutral bucket;
+  the summary carries how and when it ended.
+
+The line between `legacy` and `ended` is whether anything still bites: if
+designations made under the regime still have legal effect, it is `legacy`; once
+the authority is gone and its designations no longer bind, it is `ended`, even if
+residual entries linger in the data for historical reference.
+
+Setting `status` does not replace the summary: the vocabulary is deliberately
+coarse, so the summary must still narrate what happened and when (the revoking
+instrument, the sunset date, which half of a composite regime lapsed). Reserve
+`ended` for regimes that are genuinely no longer law — not for ones that are
+merely dormant, unused, or narrowed while still in force.
+
 ### Choosing the program URL
 
 The URL must identify the program itself, not merely provide related context.
@@ -163,5 +194,5 @@ regime, link to the transposing authority's own program page or legal instrument
 Use `.yml`, two-space indentation, and indented sequence items. Keep field order
 consistent with the example and wrap prose to match nearby files. Loading
 `get_all_programs_by_key()` validates filenames, keys, territory codes, measure
-names, and duplicate keys; repository commit hooks also validate YAML syntax
-and style.
+names, status values, and duplicate keys; repository commit hooks also validate
+YAML syntax and style.
