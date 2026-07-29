@@ -105,7 +105,9 @@ jobs:
       - name: Install maintenance tool dependencies
         if: ${{ !matrix.task.needs_zavod }}
         run: |
-          pip install requests pyyaml
+          # prek + yamllint back contrib/lint_dataset.sh, which the agent runs to
+          # verify its edits; zavod[dev] supplies them on the crawler path.
+          pip install requests pyyaml prek yamllint
           # poppler-utils (pdftotext/pdftoppm) so the agent can read PDF source
           # documents even for datasets whose task doesn't install zavod.
           sudo apt-get install -y -qq poppler-utils
