@@ -7,12 +7,9 @@ from normality import squash_spaces
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
-
-UNBLOCK_VALIDATOR = './/a[contains(@href, "Members/Index?ElectionId=")]'
 # Terms have up to ~68 pages of eight members; this only guards against the
 # pagination never terminating.
 MAX_PAGES = 100
@@ -45,16 +42,11 @@ class Term:
 
 
 def fetch_page(context: Context, url: str) -> Element:
-    return zyte_api.fetch_html(
-        context,
+    return context.fetch_html(
         url,
-        unblock_validator=UNBLOCK_VALIDATOR,
-        geolocation="et",
         # English names, party and region are only served with this cookie;
         # without it the site responds in Amharic.
-        request_cookies=[
-            {"name": "language", "value": "en", "domain": "www.hopr.gov.et"}
-        ],
+        headers={"Cookie": "language=en"},
         cache_days=14,
     )
 
@@ -67,7 +59,9 @@ def discover_terms(context: Context, doc: Element) -> list[Term]:
     emitted with guessed dates.
     """
     terms: dict[int, Term] = {}
-    for link in h.xpath_elements(doc, UNBLOCK_VALIDATOR):
+    for link in h.xpath_elements(
+        doc, './/a[contains(@href, "Members/Index?ElectionId=")]'
+    ):
         href = h.xpath_string(link, "./@href")
         id_match = re.search(r"ElectionId=(\d+)", href)
         # The switcher labels read like "6th Term MP"; this also excludes the

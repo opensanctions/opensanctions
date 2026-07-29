@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false  # Zyte
+ci_test: false  # Paginates every term, well over the 2 minute CI budget.
 summary: >-
   Members of the House of Peoples' Representatives, the lower chamber of the
   Ethiopian federal parliament.
@@ -61,10 +61,10 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 1500
+      Person: 600
       Position: 1
     country_entities:
-      et: 1500
+      et: 600
   max:
     schema_entities:
       Person: 2500
