@@ -25,9 +25,11 @@ class HTTP:
                 "Both 'retry_statuses' and 'additional_retry_statuses' are set."
             )
 
-        # Connect and read timeout in seconds, adhered to by both the context
-        # HTTP session and Zyte API requests.
+        # Connect and read timeout in seconds for the context HTTP session.
         self.timeout: int = data.get("timeout", settings.HTTP_TIMEOUT)
+        # Zyte API requests get their own, longer budget: the timeout covers a
+        # full proxied fetch on Zyte's side, not just one request to the source.
+        self.zyte_timeout: int = data.get("zyte_timeout", settings.ZYTE_TIMEOUT)
         self.backoff_max: int = settings.HTTP_RETRY_BACKOFF_MAX
         self.retry_statuses: list[int] = list(statuses)
         retry_methods: list[str] = ensure_list(
