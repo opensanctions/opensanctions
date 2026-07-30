@@ -18,11 +18,17 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import lru_cache
 from itertools import islice
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any, Generator
 
 from . import session
 
+if TYPE_CHECKING:
+    from google.cloud.storage import Bucket  # type: ignore
+
 ARCHIVE_SITE = "https://data.opensanctions.org"
+# The GCS bucket the site serves: same object paths, but readable with
+# credentials rather than publicly. See enable_gcs.
+ARCHIVE_BUCKET = "data.opensanctions.org"
 # The scopes we maintain are published as separate catalogs with disjoint
 # dataset sets: default (sanctions/PEPs) and KYB (corporate registries).
 CATALOG_URLS = [
@@ -90,6 +96,39 @@ class VersionsInfo:
         return list(self.items)
 
 
+_bucket: "Bucket | None" = None
+
+
+def enable_gcs() -> None:
+    """Read JSON artifacts straight from the GCS bucket instead of over HTTPS.
+
+    The public site refuses some objects that do exist — old runs of datasets
+    that have since been removed answer 403, not 404 — which makes deep history
+    unreadable over HTTPS. Reading the bucket needs `google-cloud-storage`
+    (a zavod dependency, so already in the workspace venv) and credentials,
+    which the standalone contexts this package targets don't have; hence opt-in,
+    and hence the lazy import.
+
+    Call before the first fetch: fetch_json memoizes per URL, not per backend.
+    """
+    global _bucket
+    from google.cloud.storage import Client
+
+    _bucket = Client().bucket(ARCHIVE_BUCKET)
+
+
+def _fetch_gcs_json(url: str) -> Any | None:
+    """Read one archive URL's object from the bucket; None when it doesn't exist."""
+    from google.cloud.exceptions import NotFound
+
+    assert _bucket is not None
+    blob = _bucket.blob(url.removeprefix(f"{ARCHIVE_SITE}/"))
+    try:
+        return json.loads(blob.download_as_bytes())
+    except NotFound:
+        return None
+
+
 @lru_cache(maxsize=1024)
 def fetch_json(url: str) -> Any | None:
     """GET and parse a JSON document, memoized per URL for the process lifetime.
@@ -106,6 +145,8 @@ def fetch_json(url: str) -> Any | None:
     unparseable payloads raise, and are not cached, so a retry gets a fresh
     attempt.
     """
+    if _bucket is not None:
+        return _fetch_gcs_json(url)
     response = session.get(url)
     if response.status_code == 404:
         return None

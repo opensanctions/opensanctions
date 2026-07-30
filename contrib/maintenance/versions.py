@@ -9,14 +9,16 @@ a schema first appeared. Each row links its `index.json`, the entry point for
 digging into a single run.
 
 The archived version history comes in bounded windows, so `--start` resumes the
-walk at a version a previous invocation printed.
+walk at a version a previous invocation printed. Runs the public site answers
+403 for — typically old runs of since-removed datasets — are readable with
+`--use-gcs`, if you have Google Cloud credentials.
 """
 
 import argparse
 import sys
 from typing import Any
 
-from .archive import artifact_url, fetch_artifact, iter_versions
+from .archive import artifact_url, enable_gcs, fetch_artifact, iter_versions
 
 DEFAULT_COUNT = 20
 
@@ -135,7 +137,15 @@ def main() -> None:
         help="add a column with this schema's entity count, read from each run's "
         "statistics.json (repeatable, e.g. --schema Person --schema Company)",
     )
+    parser.add_argument(
+        "--use-gcs",
+        action="store_true",
+        help="read the archive bucket directly instead of the public site; needs "
+        "Google Cloud credentials, but reaches runs the site answers 403 for",
+    )
     args = parser.parse_args()
+    if args.use_gcs:
+        enable_gcs()
     try:
         table = build_table(
             args.name, count=args.count, start=args.start, schemata=args.schema
