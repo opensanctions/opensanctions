@@ -28,6 +28,7 @@ def http_get(
     url: str,
     params: dict[str, Any] | None = None,
     cache_days: int | None = None,
+    tolerate_404: bool = False,
 ) -> dict[str, Any] | None:
     for attempt in count(1):
         try:
@@ -47,6 +48,12 @@ def http_get(
                     error=str(err),
                 )
                 time.sleep(SLEEP)
+            elif tolerate_404 and err.response.status_code == 404:
+                # The search index keeps listing officers whose detail record has
+                # already been withdrawn from the API, e.g. once the disqualification
+                # has lapsed. There is nothing to emit for them.
+                context.log.info(f"Skipping officer with no detail record: {url}")
+                return None
             else:
                 context.log.exception(f"Failed to fetch data: {url}")
                 return None
@@ -113,7 +120,7 @@ def resolve_company_name_by_number(context: Context, company_number: str) -> str
 def crawl_item(context: Context, listing: dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
-    data = http_get(context, url, cache_days=45)
+    data = http_get(context, url, cache_days=45, tolerate_404=True)
     if data is None:
         return
 
