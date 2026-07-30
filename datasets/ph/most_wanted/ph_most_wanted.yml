@@ -13,6 +13,8 @@ description: |
   The dataset contains detailed information about individuals wanted by the police authorities in the Cordillera Region. It includes
   various categories of criminals and terrorists. The dataset includes each person's
   name, reward amount, offences, and case-control number (CC No.).
+tags:
+  - list.wanted
 publisher:
   name: Philippine National Police
   acronym: PNP
