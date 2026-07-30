@@ -53,7 +53,7 @@ assertions:
       Organization: 2240
       LegalEntity: 60
       Vessel: 80
-      Company: 240
+      Company: 320
 
 lookups:
   sanction.program:
@@ -208,6 +208,11 @@ lookups:
         value: BY
       - match: "ÉTAT DE PALESTINE"
         value: PS
+  type.date:
+    options:
+      # The year is truncated in the source and can't be recovered from it.
+      - match: "27.11.199"
+        value: null
   type.identifier:
     options:
       - match: "BMJIIRT"
@@ -6616,6 +6621,153 @@ lookups:
       - match: "Type d’entité: société par actions ouverte, raffinerie de pétrole"
         props:
           legalForm: "société par actions ouverte, raffinerie de pétrole"
+      # Values given before their label ("<value> - <label>"), which the segment
+      # splitter can't reassemble.
+      - match: "9721194461 - Numéro d'identification fiscale"
+        props:
+          taxNumber: "9721194461"
+      - match: "772301001 - KPP"
+        props:
+          kppCode: "772301001"
+      - match: "10.1.2023 - Date d'enregistrement"
+        props:
+          incorporationDate: 2023-01-10
+      - match: "7750004168 - Numéro d'identification fiscale"
+        props:
+          taxNumber: "7750004168"
+      - match: "4.8.1994 - Date d'enregistrement"
+        props:
+          incorporationDate: 1994-08-04
+      # "Code du motif d'enregistrement" is the Russian KPP.
+      - match: "Code du motif d'enregistrement: 345901001"
+        props:
+          kppCode: "345901001"
+      - match: "Code du motif d'enregistrement: 614201001"
+        props:
+          kppCode: "614201001"
+      - match: "Code du motif d'enregistrement: 631201001"
+        props:
+          kppCode: "631201001"
+      - match: "Code du motif d'enregistrement: 701701001"
+        props:
+          kppCode: "701701001"
+      - match: "Code du motif d'enregistrement: 770801001"
+        props:
+          kppCode: "770801001"
+      # Fax numbers, mapped to phone per the existing Télécopieur convention
+      - match: "Télécopieur: +7 (495) 203-86-06"
+        props:
+          phone: "+7 (495) 203-86-06"
+      - match: "Télécopieur: +7 (495) 784-69-05"
+        props:
+          phone: "+7 (495) 784-69-05"
+      - match: "Télécopieur: +7 (495) 959-29-59"
+        props:
+          phone: "+7 (495) 959-29-59"
+      # A local number without a country code, which the phone type can't clean.
+      - match: "Télécopieur: 988-17-94"
+        note: true
+      # Places of registration / principal establishment carrying a location the
+      # free-text splitter can't reduce to a single value.
+      - match: "Lieu d'enregistrement: Magadan, Russie"
+        props:
+          jurisdiction: ru
+          address: "Magadan, Russie"
+      - match: "Lieu d'enregistrement: Moscou"
+        props:
+          jurisdiction: ru
+          address: "Moscou"
+      - match: "Lieu d'enregistrement: 127254, Moscou,  Ogorodny Prospekt, Building 5, Structure 4,  Floor 3, Room 305"
+        props:
+          jurisdiction: ru
+          address: "127254, Moscou, Ogorodny Prospekt, Building 5, Structure 4, Floor 3, Room 305"
+      - match: "Lieu d'enregistrement: 634041, Fédération de  Russie, région de Tomsk, Tomsk, Kirov avenue, Building 51D"
+        props:
+          jurisdiction: ru
+          address: "634041, Fédération de Russie, région de Tomsk, Tomsk, Kirov avenue, Building 51D"
+      - match: "Lieu d'enregistrement: Room 2-502, Building  140, 130, Minjiang Lu, Shinan Qu, Qingdao,  Shandong, République populaire de Chine"
+        props:
+          jurisdiction: cn
+          address: "Room 2-502, Building 140, 130, Minjiang Lu, Shinan Qu, Qingdao, Shandong, République populaire de Chine"
+      - match: "Lieu d'enregistrement: 03-32, Nordic European  Centre 3, International Business Park  Singapore, République de Singapour, 609927"
+        props:
+          jurisdiction: sg
+          address: "03-32, Nordic European Centre 3, International Business Park, Singapore, République de Singapour, 609927"
+      - match: "Principal établissement: Volgograd, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Volgograd, Fédération de Russie"
+      # Simferopol lies in Crimea, the Ukrainian territory occupied by Russia.
+      - match: "Principal établissement: Fédération de Russie  Territoires temporairement occupés d'Ukraine  (Simferopol)"
+        props:
+          jurisdiction:
+            - ru
+            - ua-cri
+      # Vessel flag and last reported position.
+      - match: "Flag State: Cameroon"
+        props:
+          flag: Cameroon
+      - match: "As of 4 April 2026, the vessel was located near the anchorage area of the Benghazi Old Harbour, Libya"
+        note: true
+      # Associated entities and persons.
+      # BNK is the acronym of Belarusian Oil Company, not a separate entity.
+      - match: "Entités associées: OJSC Naftan; OJSC Mozyr Oil Refinery; State Production Association Belorusneft; Belarusian Oil Company (BNK)"
+        associates:
+          - OJSC Naftan
+          - OJSC Mozyr Oil Refinery
+          - State Production Association Belorusneft
+          - Belarusian Oil Company
+      - match: "Personnes associées: Aleksei Yuryevich  Manikin; Aleksandr Yuryevich Iljin; Aleksandr  Klukov"
+        associates:
+          - Aleksei Yuryevich Manikin
+          - Aleksandr Yuryevich Iljin
+          - Aleksandr Klukov
+      # OGRN, spelled "OGNR" in the source.
+      - match: "OGNR: 1027700285612"
+        props:
+          ogrnCode: "1027700285612"
+      - match: "Site internet:: бегет.рф"
+        props:
+          website: "бегет.рф"
+      - match: "Numéro d'identification fiscale: 0814135906)"
+        props:
+          taxNumber: "0814135906"
+      - match: "Date de création: 11.3.2001"
+        props:
+          incorporationDate: 2001-03-11
+      - match: "Date d'enregistrement: 24/10/1990"
+        props:
+          incorporationDate: 1990-10-24
+      # The source gives no label for this number, so it stays a generic registration
+      # number even though it looks like the INN paired with the KPP listed alongside.
+      - match: "7831001567"
+        props:
+          registrationNumber: "7831001567"
+      - match: "Numéro d’identification national: 10101431259"
+        props:
+          registrationNumber: "10101431259"
+      # Iran's "code économique" is issued by the tax administration.
+      - match: "Code économique: 411111477788"
+        props:
+          taxNumber: "411111477788"
+      # The remainder of the entity type describes the group's origin; kept as a note.
+      - match: "Type d’entité: milice armée ethnique; historiquement une émanation de l’Union nationale karen (KNU)"
+        note: true
+        props:
+          legalForm: "milice armée ethnique"
+      - match: "Type d’entité: entreprise de divertissement"
+        props:
+          legalForm: "entreprise de divertissement"
+      - match: "Principal établissement: État karen (de Kayin), Myanmar/Birmanie"
+        props:
+          jurisdiction: mm
+          address: "État karen (de Kayin), Myanmar/Birmanie"
+      - match: "Principal établissement: Phnom Penh, Cambodge; Sihanoukville, Cambodge"
+        props:
+          jurisdiction: kh
+          address:
+            - "Phnom Penh, Cambodge"
+            - "Sihanoukville, Cambodge"
   # =====================================
   #
   #  ADDRESSES
@@ -6780,3 +6932,18 @@ lookups:
         addresses:
           - "121471, ville de Moscou, Municipal District of the Intracity Territory, Mozhaysky, 2nd Peter Alekseev lane, building 2, structure 1"
           - "109028, Moscou, Serebryanichaya Embankment, 29"
+      - match: "Berezovaya st 17, Bodaibo, Fédération de Russie; Uritskogo st 97, Bodaibo, Fédération de Russie"
+        addresses:
+          - "Berezovaya st 17, Bodaibo, Fédération de Russie"
+          - "Uritskogo st 97, Bodaibo, Fédération de Russie"
+      - match: "Fédération de Russie, Tatarstan, Kazan, st. Karbysheva, 13, sq. 39; Fédération de Russie, Volgograd region, Kamyshin, st. Gorokhovskaya, territory in / h 74507"
+        addresses:
+          - "Fédération de Russie, Tatarstan, Kazan, st. Karbysheva, 13, sq. 39"
+          - "Fédération de Russie, Volgograd region, Kamyshin, st. Gorokhovskaya, territory in / h 74507"
+      - match: "12 Ozerkovskaya Naberezhnaya, Moscou, 115184, Russie; 13 Sevastopolskaya Street, Simferopol, 295011"
+        addresses:
+          - "12 Ozerkovskaya Naberezhnaya, Moscou, 115184, Russie"
+          - "13 Sevastopolskaya Street, Simferopol, 295011"
+      # A single address where ";" only separates its components.
+      - match: "Bureaux 1, 2; 4a Tenishevoy st., Smolensk, 21400, Russie"
+        addresses: "Bureaux 1, 2, 4a Tenishevoy st., Smolensk, 21400, Russie"
