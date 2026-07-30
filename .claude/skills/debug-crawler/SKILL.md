@@ -24,19 +24,6 @@ Read the crawler's `.yml` and `crawler.py` from the paths the report resolves. N
 the **row data** on each issue — for source-value issues the keys are slugified
 column names, values are cell contents.
 
-The report only covers the latest run and the last successful one. For an overview of
-what the crawler produced over time — when counts moved, since when runs have been
-failing, when a schema appeared — walk the archived history:
-
-```bash
-python -m contrib.maintenance.versions <dataset_name> -n 30
-```
-
-`.claude/docs/archive-investigation.md` covers digging into individual past runs from
-there. Only follow it in an interactive session with a human, who likely has the Google
-Cloud credentials it needs — in unattended runs stick to the command above, which works
-over plain HTTPS.
-
 ## Step 2: Inspect the current source data
 
 The source has likely changed. Use `OPENSANCTIONS_ZYTE_API_KEY` (already set in the
@@ -71,6 +58,24 @@ otherwise) and set `ci_test: false` on the dataset.
 ## Step 3: Diagnose
 
 Compare what the source actually contains against what the crawler expects.
+
+### If the question is "since when?"
+
+Only when the diagnosis actually turns on how the dataset changed over time — counts
+drifted outside the `assertions:` bounds, or you need to know since when runs have been
+failing to line it up against a source or crawler change. Don't walk the history as a
+matter of course; the diagnostic report already covers the latest run and the last
+successful one, which is what most failures need.
+
+```bash
+python -m contrib.maintenance.versions <dataset_name> -n 30
+```
+
+One row per archived run, newest first, with entity and target counts; add
+`--schema Person` (repeatable) to see where a count moved. `.claude/docs/archive-investigation.md`
+goes further, into individual past runs and deltas — follow it only in an interactive
+session with a human, who likely has the Google Cloud credentials it needs. The command
+above works over plain HTTPS.
 
 ### Common failures
 
