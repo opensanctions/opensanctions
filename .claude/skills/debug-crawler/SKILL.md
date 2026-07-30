@@ -33,7 +33,9 @@ python -m contrib.maintenance.versions <dataset_name> -n 30
 ```
 
 `.claude/docs/archive-investigation.md` covers digging into individual past runs from
-there.
+there. Only follow it in an interactive session with a human, who likely has the Google
+Cloud credentials it needs — in unattended runs stick to the command above, which works
+over plain HTTPS.
 
 ## Step 2: Inspect the current source data
 

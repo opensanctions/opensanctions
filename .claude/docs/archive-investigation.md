@@ -4,6 +4,13 @@ How to investigate past versions of a dataset using the data.opensanctions.org
 archive — why an entity count changed, when an entity appeared or disappeared,
 whether runs failed, and what a past run actually produced.
 
+**This requires Google Cloud credentials.** Pass `--use-gcs` to the commands
+below by default: the public site refuses some objects that do exist (old runs
+of since-removed datasets answer 403, not 404), and directory listings are only
+possible against the bucket. Without credentials you can still read any archive
+path you know the name of over plain HTTPS, but deep history will come back
+`unreadable`.
+
 First read the module docstring of `zavod/zavod/archive/__init__.py` — it
 contains the full, authoritative documentation of the archive layout: the
 `/artifacts/` and `/datasets/` prefixes, the root `versions.json` file and its
@@ -15,7 +22,7 @@ chronologically.
 ## Walking the run history
 
 ```bash
-python -m contrib.maintenance.versions <dataset_name> -n 30
+python -m contrib.maintenance.versions <dataset_name> -n 30 --use-gcs
 ```
 
 Prints one row per archived run, newest first: version ID, export timestamp,
@@ -25,10 +32,6 @@ run's `statistics.json`, so blank for failed runs), and `--start <version>` to
 resume the walk further back than the last row printed — the tool hops the
 per-run `versions.json` snapshots, so history goes back to the dataset's first
 run.
-
-Old runs of datasets that have since been removed answer 403 over HTTPS. Pass
-`--use-gcs` to read the bucket directly instead; this needs Google Cloud
-credentials, so only reach for it when a row comes back `unreadable`.
 
 ## Listing what a run produced
 
