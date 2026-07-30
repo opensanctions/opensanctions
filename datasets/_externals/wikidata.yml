@@ -350,6 +350,7 @@ lookups:
           - kathoey # third gender of Thai culture
           - faʻafafine # third gender of Samoan culture
           - diverse # German legally recognized third gender ("divers")
+          - third gender
         value: other
       - match:
           - MALE
