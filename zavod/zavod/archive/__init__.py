@@ -40,7 +40,13 @@ contains a `versions.json` snapshot whose window ends at that version. To walk
 the full history: read the root version file, iterate its items newest-first,
 then fetch `/artifacts/{dataset}/{oldest_item}/versions.json` and repeat until
 the window no longer extends further back. This is implemented in
-`iter_dataset_versions()`.
+`iter_dataset_versions()`, which needs a configured archive backend.
+
+To inspect the run history of a production dataset without one, use the
+maintenance tool, which walks the same snapshots over plain HTTPS and
+tabulates each run's `index.json`:
+
+    python -m contrib.maintenance.versions <dataset_name>
 
 Success and failure
 -------------------

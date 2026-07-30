@@ -24,6 +24,17 @@ Read the crawler's `.yml` and `crawler.py` from the paths the report resolves. N
 the **row data** on each issue — for source-value issues the keys are slugified
 column names, values are cell contents.
 
+The report only covers the latest run and the last successful one. For an overview of
+what the crawler produced over time — when counts moved, since when runs have been
+failing, when a schema appeared — walk the archived history:
+
+```bash
+python -m contrib.maintenance.versions <dataset_name> -n 30
+```
+
+`.claude/docs/archive-investigation.md` covers digging into individual past runs from
+there.
+
 ## Step 2: Inspect the current source data
 
 The source has likely changed. Use `OPENSANCTIONS_ZYTE_API_KEY` (already set in the
