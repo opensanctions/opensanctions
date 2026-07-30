@@ -137,14 +137,15 @@ def fetch_resource(
     api_response.raise_for_status()
 
     file_base64 = api_response.json()["httpResponseBody"]
-    with open(out_path, "wb") as fh:
-        fh.write(b64decode(file_base64))
     media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
 
     if expected_media_type:
         assert media_type == expected_media_type, (media_type, charset, url)
     if expected_charset:
         assert charset == expected_charset, (media_type, charset, url)
+
+    with open(out_path, "wb") as fh:
+        fh.write(b64decode(file_base64))
 
     return False, media_type, charset, out_path
 
@@ -413,7 +414,12 @@ def fetch_json(
         )
         raise AssertionError(msg)
 
-    doc = json.loads(zyte_result.response_text)
+    try:
+        doc = json.loads(zyte_result.response_text)
+    except json.JSONDecodeError:
+        # A truncated cache entry would otherwise raise on every run until it expires.
+        zyte_result.invalidate_cache(context)
+        raise
 
     if not zyte_result.from_cache and cache_days is not None:
         context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)
@@ -464,12 +470,16 @@ def fetch_html(
         cache_days=cache_days,
     )
 
-    doc = html.fromstring(zyte_result.response_text)
-    if absolute_links and isinstance(doc, html.HtmlElement):
-        cast(html.HtmlElement, doc).make_links_absolute(url)
+    doc: etree._Element | None = None
+    try:
+        doc = html.fromstring(zyte_result.response_text)
+    except etree.ParserError as exc:
+        context.log.debug("Response is not parseable HTML", url=url, error=str(exc))
 
-    matches = doc.xpath(unblock_validator)
-    if not isinstance(matches, list) or not len(matches) > 0:
+    # A response that doesn't parse at all — typically an empty body — is as
+    # unusable as one that wasn't unblocked, so both take the same path.
+    matches = doc.xpath(unblock_validator) if doc is not None else None
+    if doc is None or not isinstance(matches, list) or not len(matches) > 0:
         # If we've cached a response that no longer passes validation (likely because the code changed),
         # invalidate it so that we don't just get the same cached response on retry.
         zyte_result.invalidate_cache(context)
@@ -500,6 +510,9 @@ def fetch_html(
             )
         context.log.debug("Unblocking failed", url=url, html=zyte_result.response_text)
         raise UnblockFailedException(url, unblock_validator)
+
+    if absolute_links and isinstance(doc, html.HtmlElement):
+        cast(html.HtmlElement, doc).make_links_absolute(url)
 
     if not zyte_result.from_cache and cache_days is not None:
         context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)

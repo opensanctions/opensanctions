@@ -2,6 +2,7 @@ import pytest
 import requests_mock
 from base64 import b64encode
 
+from zavod.archive import dataset_data_path
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.extract.zyte_api import (
@@ -245,9 +246,11 @@ def test_fetch_resource(testdataset1: Dataset):
         with pytest.raises(AssertionError) as exc:
             fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
         assert "latin-1" in str(exc.value), exc.value
-        # Except when the file exists locally
-        fetch_resource(context, "source2.csv", url, expected_media_type="text/plain")
-        fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
+        # A rejected response isn't kept, so the next attempt fetches again rather
+        # than being handed back the file that was just turned down.
+        data_path = dataset_data_path(context.dataset.name)
+        assert not data_path.joinpath("source2.csv").exists()
+        assert not data_path.joinpath("source3.csv").exists()
     context.close()
 
 
