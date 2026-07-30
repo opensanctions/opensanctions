@@ -80,6 +80,12 @@ lookups:
       # journal spelling "Hamida Nabaggala" is not found as a contiguous string.
       - match: Hamida Nabaggala
         value: Hamidah Nabagala
+      # Regulation (EU) 2026/1848 of 23.7.2026 renamed entry 629 of Annex XLII to
+      # Regulation 833/2014 to "STORMBRINGER (ex KRITI VIGOR)". The consolidated
+      # act still lists the vessel (IMO 9290397) under its former name only, so
+      # look for that; it remains a substring once the rename is consolidated.
+      - match: STORMBRINGER
+        value: KRITI VIGOR
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)
