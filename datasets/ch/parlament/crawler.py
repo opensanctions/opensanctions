@@ -139,6 +139,9 @@ def crawl(context: Context) -> None:
             cache_days=14,
             zyte_request=zyte_api.ZyteAPIRequest(
                 url=context.data_url + f"?pageNumber={page}&lang=en&format=json",
+                # The API negotiates the format via the Accept header and ignores
+                # format=json; without this it serves an HTML page.
+                headers={"Accept": "application/json"},
             ),
         )
         if len(result.response_text) > 0 and result.status_code == 404:
