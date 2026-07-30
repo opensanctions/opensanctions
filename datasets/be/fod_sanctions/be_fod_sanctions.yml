@@ -317,3 +317,11 @@ lookups:
     options:
       - match: "N/A"
         value: null
+  type.url:
+    options:
+      # The source pasted the link title instead of the target URL. The three
+      # rows carrying it (DIKAEV, DJARDI, MAKHMOUDOV) were listed by the royal
+      # decree of 29 March 2024, published in the Moniteur Belge of 9 April 2024
+      # under numac 2024003416.
+      - match: "Moniteur Belge - Belgisch Staatsblad (fgov.be)"
+        value: "https://www.ejustice.just.fgov.be/cgi/article.pl?language=fr&sum_date=2024-04-09&lg_txt=f&numac_search=2024003416"
