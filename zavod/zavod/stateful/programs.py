@@ -81,6 +81,23 @@ Measure = Literal[
 ]
 
 
+ProgramStatus = Literal[
+    # The legal regime is in force. This is the default when `status` is omitted.
+    "active",
+    # The grey zone in between: the regime is no longer fully in force — its
+    # authority has wound down or only partly survives — yet designations made
+    # under it persist and may still bind (pre-existing blocks that remain, or
+    # one half of a composite regime that still designates). Not fully alive,
+    # not gone. The summary carries the specifics.
+    "legacy",
+    # The regime is no longer in force at all — revoked, repealed, expired, or
+    # sunset, with no remaining legal effect. A single neutral bucket rather than
+    # a legal taxonomy of how it ended; entries may linger in the data for
+    # historical reference but no longer bind.
+    "ended",
+]
+
+
 class Issuer(BaseModel):
     """An organization or governmental body that issues sanctions programs."""
 
@@ -158,6 +175,16 @@ class Program(BaseModel):
         default_factory=list,
         description="Sanctions measures imposed by the program, "
         "e.g. 'Asset freeze', 'Travel ban', 'Arms restrictions'.",
+    )
+    # Legal status of the regime. Defaults to 'active'; set 'legacy' when the
+    # regime has wound down but its designations still persist, or 'ended' once
+    # it is no longer in force at all. The summary should still narrate what
+    # happened in prose.
+    status: ProgramStatus = Field(
+        default="active",
+        description="Legal status of the regime: 'active' (in force, default), "
+        "'legacy' (wound down but designations persist), or 'ended' (no longer "
+        "in force).",
     )
 
 
