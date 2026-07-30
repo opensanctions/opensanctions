@@ -4,6 +4,9 @@ Archive semantics this module encodes:
 
 * `artifacts/{name}/versions.json` holds `{"items": [...], "last_successful"}`;
   `items[-1]` is the most recent run, successful or not.
+* The item window is bounded, but every run archives its own `versions.json`
+  snapshot, so older history is reachable by hopping snapshots — see
+  `iter_versions`.
 * Version IDs are `YYYYMMDDHHMMSS-xxx` — parseable run timestamps.
 * Failed runs still archive `index.json`, `issues.json` and `issues.log`, but
   `statistics.json`, `statements.pack`, `resources.json` and `delta.json` are
@@ -119,6 +122,38 @@ def get_versions(dataset_name: str) -> VersionsInfo | None:
         items=list(data.get("items", [])),
         last_successful=data.get("last_successful"),
     )
+
+
+def iter_versions(
+    dataset_name: str, start: str | None = None
+) -> Generator[str, None, None]:
+    """Yield a dataset's version IDs newest first, walking the whole history.
+
+    The root versions.json only lists a bounded window of recent runs. Each run
+    archives a snapshot of that window as it stood at the time, so the walk
+    continues at the snapshot of the oldest version seen so far and stops once
+    a window adds nothing new (genesis reached, or the snapshot is missing).
+
+    `start` resumes the walk at an archived version instead of the newest run,
+    reading that version's own snapshot — so consecutive walks can page through
+    a long history. Yields nothing if the dataset or the start version has no
+    versions.json.
+    """
+    url = f"{ARCHIVE_SITE}/artifacts/{dataset_name}/versions.json"
+    if start is not None:
+        url = artifact_url(dataset_name, start, "versions.json")
+    seen: set[str] = set()
+    while True:
+        data = fetch_json(url)
+        if data is None:
+            return
+        items = list(data.get("items", []))
+        fresh = [item for item in reversed(items) if item not in seen]
+        if not fresh:
+            return
+        yield from fresh
+        seen.update(fresh)
+        url = artifact_url(dataset_name, items[0], "versions.json")
 
 
 def head_artifact(
