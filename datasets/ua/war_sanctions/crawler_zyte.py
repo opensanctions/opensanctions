@@ -432,9 +432,7 @@ def crawl_vessel_page(context: Context, url: str) -> None:
 
 def fetch_listing(context: Context, path: str, page: int) -> Element:
     url = f"{context.data_url}/{path}?page={page}&per-page={LISTING_PER_PAGE}"
-    return fetch_html(
-        context, url, UNBLOCK, html_source="httpResponseBody", cache_days=CACHE_DAYS
-    )
+    return fetch_html(context, url, UNBLOCK, html_source="httpResponseBody")
 
 
 def listing_max_page(doc: Element) -> int:
