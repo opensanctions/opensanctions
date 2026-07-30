@@ -100,6 +100,10 @@ lookups:
         values:
           - 1960
           - 1975
+      - match: "Between 1959 and 1965"
+        values:
+          - 1959
+          - 1965
   type.identifier:
     options:
       - match:
