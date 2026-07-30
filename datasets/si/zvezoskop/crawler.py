@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from normality import slugify, stringify
 from openpyxl import load_workbook
 from pathlib import Path
@@ -10,15 +11,17 @@ from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 
 
-def make_person_id(context: Context, id: str) -> str:
+def make_person_id(context: Context, id: str) -> str | None:
     return context.make_slug("person", id)
 
 
-def crawl_person(context: Context, row: dict[str, str]) -> str:
+def crawl_person(
+    context: Context, row: dict[str, str | None]
+) -> tuple[str, Entity] | None:
     person = context.make("Person")
     zvezo_id = row.pop("id_gni_live")
     if not zvezo_id:
-        return
+        return None
     wikidata_id = row.pop("wikidata_id")
     wikidata_id = h.deref_wikidata_id(context, wikidata_id)
     if wikidata_id is not None:
@@ -57,13 +60,15 @@ def crawl_person(context: Context, row: dict[str, str]) -> str:
     return zvezo_id, person
 
 
-def en_label(institution_en: str, department_en: str, position_en: str) -> str:
-    if position_en.lower() == "minister" and institution_en.lower().startswith(
-        "ministry of"
-    ):
-        label = f"Minister of {institution_en}"
-        label = label.replace("Ministry of ", "")
-        return label
+def en_label(
+    institution_en: str | None, department_en: str | None, position_en: str
+) -> str:
+    if position_en.lower() == "minister":
+        assert institution_en is not None
+        if institution_en.lower().startswith("ministry of"):
+            label = f"Minister of {institution_en}"
+            label = label.replace("Ministry of ", "")
+            return label
     # acronymns, and often party in institution
     if position_en == "MP":
         return "Member of the National Assembly of Slovenia"
@@ -78,12 +83,18 @@ def en_label(institution_en: str, department_en: str, position_en: str) -> str:
     if "director" in position_en.lower() and department_en:
         label += f", {department_en}"
 
-    if institution_en and slugify(institution_en) not in slugify(label):
-        label += f", {institution_en}"
+    if institution_en:
+        inst_slug = slugify(institution_en)
+        label_slug = slugify(label)
+        assert inst_slug is not None and label_slug is not None
+        if inst_slug not in label_slug:
+            label += f", {institution_en}"
     return label
 
 
-def si_label(institution_si: str, department_si: str, position_si: str) -> str:
+def si_label(
+    institution_si: str | None, department_si: str | None, position_si: str
+) -> str:
     # Party in institution
     if position_si.lower() in {"poslanka", "poslanec"}:
         return "Poslanka/Poslanec"
@@ -99,9 +110,12 @@ def si_label(institution_si: str, department_si: str, position_si: str) -> str:
 
 
 def crawl_cv_entry(
-    context: Context, entities: dict[str, Entity], row: dict[str, str]
+    context: Context,
+    entities: dict[str, Entity],
+    row: dict[str, str | None],
 ) -> bool | None:
     svezo_id = row.pop("id_gni_live")
+    assert svezo_id is not None, "CV entry without a person id"
     person = entities[svezo_id]
 
     institution_en = row.pop("institution_en")
@@ -129,6 +143,7 @@ def crawl_cv_entry(
     position_en = row.pop("position_en")
     department_si = row.pop("institution_department_si")
     position_si = row.pop("position_si")
+    assert position_en is not None and position_si is not None
 
     label_si = si_label(institution_si, department_si, position_si)
     label_en = en_label(institution_en, department_en, position_en)
@@ -208,21 +223,25 @@ def crawl_cv_entry(
             ],
         )
         return True
+    return None
 
 
-def header_names(cells: list[str | None], expected_columns: int) -> list[str | None]:
-    headers = []
+def header_names(cells: list[Any], expected_columns: int) -> list[str]:
+    headers: list[str] = []
     for idx, cell in enumerate(cells):
         if cell is None:
             if idx < expected_columns:
                 raise ValueError(f"Missing header at column {idx}")
-        headers.append(slugify(cell, "_"))
+        slug = slugify(cell, "_")
+        if slug is None:
+            raise ValueError(f"Unusable header at column {idx}: {cell!r}")
+        headers.append(slug)
     return headers
 
 
 def excel_records(
     path: Path, sheet_name: str, expected_columns: int
-) -> Generator[dict[str, str], None, None]:
+) -> Generator[dict[str, str | None], None, None]:
     wb = load_workbook(filename=path, read_only=True)
     sheet = wb[sheet_name]
     headers = None
@@ -233,7 +252,7 @@ def excel_records(
         if headers is None:
             headers = header_names(cells, expected_columns)
             continue
-        record = {}
+        record: dict[str, str | None] = {}
         for header, value in zip(headers, cells):
             if isinstance(value, datetime):
                 value = value.date()
@@ -243,18 +262,21 @@ def excel_records(
 
 
 def crawl(context: Context) -> None:
-    entities = {}
-    all_zvezo_ids = set()
-    emitted = set()
+    entities: dict[str, Entity] = {}
+    all_zvezo_ids: set[str] = set()
+    emitted: set[str] = set()
     path = context.fetch_resource("zvezoskop.xlsx", context.data_url)
 
     for row in excel_records(path, "persons_live", 16):
-        svezo_id, entity = crawl_person(context, row)
+        result = crawl_person(context, row)
+        assert result is not None
+        svezo_id, entity = result
         entities[svezo_id] = entity
         all_zvezo_ids.add(svezo_id)
 
     for row in excel_records(path, "cv_live", 21):
         zvezo_id = row["id_gni_live"]
+        assert zvezo_id is not None, "CV entry without a person id"
         if crawl_cv_entry(context, entities, row):
             emitted.add(zvezo_id)
 
