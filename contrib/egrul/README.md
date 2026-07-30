@@ -43,6 +43,13 @@ than one archive: an ownership or directorship that ended carries both the archi
 that last listed it and the archive that stopped listing it.
 
 
+To see the source XML behind a record, feed an `origin` back to the debug tool:
+
+	python contrib/egrul/debug/extract_entity.py \
+		"$LOCAL_BUCKET_CACHE_DIR/egrul/EGRUL_408/15.03.2026/EGRUL408_2026-03-15_1.zip" \
+		2630027580
+
+
 ## Copy finished data to internal-data bucket
 
 Until this runs as a cronjobs, here is how:
