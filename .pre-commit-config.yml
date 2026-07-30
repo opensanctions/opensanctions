@@ -37,7 +37,7 @@ repos:
           (?x)^(
           zavod/zavod/tests|
           contrib/|
-          datasets/|
+          datasets/
           )
         args: ['--strict']
 
