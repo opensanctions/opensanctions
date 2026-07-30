@@ -53,7 +53,7 @@ assertions:
       Organization: 2240
       LegalEntity: 60
       Vessel: 80
-      Company: 190
+      Company: 240
 
 lookups:
   sanction.program:
@@ -221,6 +221,8 @@ lookups:
         prop: reason
       - match: "Date de désignation par les Nations unies: 28 avril 2026."
         prop: description
+  # Matched against one segment of a split identification field.
+  # If you are an agent: do not add options here, use identification_full below.
   identification_segment:
     lowercase: true
     normalize: true
@@ -1405,6 +1407,22 @@ lookups:
   #
   ####################################################################################################
   ####################################################################################################
+  # Matched against the whole identification field, bypassing the segment splitter, so
+  # the mapping is self-contained and can't shift meaning when the splitter's key list
+  # grows. This is the default place to fix an identification warning — the `full=` value
+  # logged with the warning is the string to match on.
+  #
+  # Rules for adding options here:
+  #
+  #   - If you are an agent: use this lookup, not identification_segment.
+  #   - Only use a scheme-specific identifier property (innCode, ogrnCode, kppCode,
+  #     imoNumber, ...) when the source names that scheme. Where the label is generic,
+  #     "Numéro d'enregistrement" is a registrationNumber and "Numéro d'identification
+  #     fiscale" is a taxNumber, however much the digits look like an INN.
+  #   - Comment an option only where mapping it took a judgement that needed context
+  #     beyond the field itself, such as a modelling choice or outside knowledge about
+  #     the entity. Do not comment on which parsing quirk sent the field here — that
+  #     the option exists says as much already.
   identification_full:
     lowercase: true
     normalize: true
@@ -6512,6 +6530,92 @@ lookups:
       - match: "Autres entités associées: Media Land LLC"
         associates:
           - Media Land LLC
+      - match: "7.7.1999 - Date d'enregistrement"
+        props:
+          incorporationDate: 1999-07-07
+      - match: "7703213534 - Numéro d'identification fiscale"
+        props:
+          taxNumber: "7703213534"
+      - match: "770501001- KPP"
+        props:
+          kppCode: "770501001"
+      - match: "28.9.1993 -Date d'enregistrement"
+        props:
+          incorporationDate: 1993-09-28
+      - match: "2312016641 - Numéro d'identification fiscale"
+        props:
+          taxNumber: "2312016641"
+      - match: "231001001-KPP"
+        props:
+          kppCode: "231001001"
+      - match: "11.3.2022 - Date d'enregistrement"
+        props:
+          incorporationDate: 2022-03-11
+      - match: "9703077050 - Numéro d'identification fiscale"
+        props:
+          taxNumber: "9703077050"
+      - match: "770301001 - KPP"
+        props:
+          kppCode: "770301001"
+      - match: "Numéro d'immatriculation OMI: 0138702"
+        props:
+          imoNumber: "0138702"
+      - match: "Numéro d'immatriculation OMI: 6509771"
+        props:
+          imoNumber: "6509771"
+      - match: "Numéro d'enregistrement (numéro OMI): 6038735"
+        props:
+          imoNumber: "6038735"
+      - match: "Entités associées: Comité des biens de l’État de Biélorussie, OJSC Naftan; State Production Association Belorusneft; OJSC Belarusian Oil Company (BNK), Belneftekhim; European Trading Company LLC (ETK)"
+        associates:
+          - Comité des biens de l'État de Biélorussie
+          - OJSC Naftan
+          - State Production Association Belorusneft
+          - OJSC Belarusian Oil Company (BNK)
+          - Belneftekhim
+          - European Trading Company LLC (ETK)
+      # Fax numbers, mapped to phone per the existing Télécopieur convention
+      - match: "Télécopieur: +7 (495) 745-70-10"
+        props:
+          phone: "+7 (495) 745-70-10"
+      - match: "Télécopieur: +7 (495) 937-07-36"
+        props:
+          phone: "+7 (495) 937-07-36"
+      - match: "Télécopieur: +7 (495) 490-65-09"
+        props:
+          phone: "+7 (495) 490-65-09"
+      - match: "Télécopieur: 8 (343) 251-42-22"
+        props:
+          phone: "8 (343) 251-42-22"
+      - match: "Télécopieur: +7 (495) 232-27-54;   +7 (495) 921-28-00"
+        props:
+          phone:
+            - "+7 (495) 232-27-54"
+            - "+7 (495) 921-28-00"
+      - match: "Personnes associées: Igor Ivanovich Sechin;  Dmitry Evgenevich Shugaev; Sergey  Georgievich Dregval"
+        associates:
+          - Igor Ivanovich Sechin
+          - Dmitry Evgenevich Shugaev
+          - Sergey Georgievich Dregval
+      - match: "Lieu d'enregistrement: Plast, Russie"
+        props:
+          jurisdiction: ru
+          address: "Plast, Russie"
+      - match: "Numéro de licence: 20122231458"
+        props:
+          registrationNumber: "20122231458"
+      # Looks like an INN/KPP pair, but the source doesn't name either scheme.
+      - match: "Numéro d'enregistrement: 5404154492 / 540501001"
+        props:
+          registrationNumber:
+            - "5404154492"
+            - "540501001"
+      - match: "Numéro d'enregistrement national principal (OGRN): 1027700003891"
+        props:
+          ogrnCode: "1027700003891"
+      - match: "Type d’entité: société par actions ouverte, raffinerie de pétrole"
+        props:
+          legalForm: "société par actions ouverte, raffinerie de pétrole"
   # =====================================
   #
   #  ADDRESSES
@@ -6520,6 +6624,18 @@ lookups:
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
+      - match: "Room 23N, Floor 8, House 64, Letter B, Malookhtinsky Prospekt, Saint-Pétersbourg, 195112, Fédération de Russie; 2nd Sovetskaya Street, 27/2, Liter A, Saint-Pétersbourg, 191024, Fédération de Russie"
+        addresses:
+          - "Room 23N, Floor 8, House 64, Letter B, Malookhtinsky Prospekt, Saint-Pétersbourg, 195112, Fédération de Russie"
+          - "2nd Sovetskaya Street, 27/2, Liter A, Saint-Pétersbourg, 191024, Fédération de Russie"
+      - match: "107589, Moscou, Golyanovo Municipal District, 4 Habarovskaya Street; 111033, Moscou, 32 Zolotrogozhsky Val Street, Office 35"
+        addresses:
+          - "107589, Moscou, Golyanovo Municipal District, 4 Habarovskaya Street"
+          - "111033, Moscou, 32 Zolotrogozhsky Val Street, Office 35"
+      - match: "196650 Saint-Pétersbourg, Izhora Plant ter., b. 40 c. 2, Fédération de Russie; Ulitsa Brat'yev Radchenko, Saint-Pétersbourg, Fédération de Russie, 196653"
+        addresses:
+          - "196650 Saint-Pétersbourg, Izhora Plant ter., b. 40 c. 2, Fédération de Russie"
+          - "Ulitsa Brat'yev Radchenko, Saint-Pétersbourg, Fédération de Russie, 196653"
       - match: "Moscou, 12 Tvadovskogo Street, building 3, apt. 263; Moscou, Lobnenskaya st. 2, apt. 128"
         addresses:
           - "Moscou, 12 Tvadovskogo Street, building 3, apt. 263"
