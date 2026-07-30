@@ -105,6 +105,11 @@ def make_affiliation_entities(
     )
 
     categorisation = categorise(context, position, default_is_pep=True)
+    # Some positions are reviewed as non-PEP in the position database, e.g. purely
+    # administrative or clerical roles which the source lists alongside officials.
+    if not categorisation.is_pep:
+        return []
+
     occupancy = h.make_occupancy(
         context,
         person,
