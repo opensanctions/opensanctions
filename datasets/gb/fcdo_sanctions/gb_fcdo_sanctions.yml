@@ -310,6 +310,39 @@ lookups:
     options:
       - match: "Unknown"
         value: null
+      - match:
+          - "Social Media: http://vk.com/kazak_nac_guard"
+          - "Social Media: Cossack National Guard http://vk.com/kazak_nac_guard"
+        value: http://vk.com/kazak_nac_guard
+      - match: "Social media: http://vk.com/sobolipress"
+        value: http://vk.com/sobolipress
+      - match: "Official web site: http://soboli.net"
+        value: http://soboli.net
+      - match: "Official web site: http://vvd2003.narod.ru/"
+        value: http://vvd2003.narod.ru/
+      - match: "Red Box Energy Services Pte Ltd | Redbox Energy Services (redboxgroup.com)"
+        value: redboxgroup.com
+      - match: "http:/crimeaport.com/"
+        value: http://crimeaport.com/
+      - match: "www.sasta.ru; www.sasta.ryazan.ru"
+        values:
+          - www.sasta.ru
+          - www.sasta.ryazan.ru
+      - match: "rybar.ru; restmedia.io"
+        values:
+          - rybar.ru
+          - restmedia.io
+      - match: "byex.com and 100ex.com"
+        values:
+          - byex.com
+          - 100ex.com
+      - match: "www.farhang gostar.net/gtb"
+        value: www.farhang-gostar.net/gtb
+      - match: "www.sbu canada.org"
+        value: www.sbu-canada.org
+      - match: "info@surena gc.com"
+        prop: email
+        value: info@surenagc.com
   type.identifier:
     options:
       - match: "Indonesia, number T710219 (issued in Sukoharjo, Central Java, Indonesia)"
