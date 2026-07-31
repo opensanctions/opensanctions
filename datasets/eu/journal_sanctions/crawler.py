@@ -1,5 +1,6 @@
 import csv
 import re
+from dataclasses import dataclass
 from functools import cache
 from datetime import timedelta, datetime
 
@@ -55,17 +56,28 @@ CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=90))
 GC_ROWS: list[int] = []
 
 
-def fetch_cellar_doc(context: Context, celex: str, cache_days: int) -> _Element:
+@dataclass(frozen=True)
+class ConsolidatedAct:
+    """The latest consolidated version of a framework act, and how we got there.
+
+    `url` and `query` are the exact requests that produced this act, so they can
+    be handed back to `context.clear_url` to evict either from the cache.
+    """
+
+    celex: str
+    url: str
+    query: bytes
+
+
+def fetch_cellar_doc(context: Context, url: str, cache_days: int) -> _Element:
     """Fetch and parse a CELEX document's English XHTML rendering from CELLAR.
 
     Use this for act metadata or consolidated text when the crawler needs the
     document body from the Publications Office repository.
     """
-    text = context.fetch_text(
-        CELLAR_URL.format(celex=celex), headers=CELLAR_HEADERS, cache_days=cache_days
-    )
+    text = context.fetch_text(url, headers=CELLAR_HEADERS, cache_days=cache_days)
     if text is None or len(text) == 0:
-        raise ValueError(f"Empty CELLAR document for CELEX {celex}")
+        raise ValueError(f"Empty CELLAR document at {url}")
     return html.fromstring(text.encode("utf-8"))
 
 
@@ -83,7 +95,8 @@ def extract_program_code(context: Context, source_url: str) -> str | None:
         context.log.warning(f"Could not find CELEX in source URL: {source_url}")
         return None
     program_xpath = "//div[@class='eli-main-title']/p[@class='oj-doc-ti']"
-    doc = fetch_cellar_doc(context, celex_match.group(1), cache_days=365)
+    url = CELLAR_URL.format(celex=celex_match.group(1))
+    doc = fetch_cellar_doc(context, url, cache_days=365)
     title_nodes = h.xpath_elements(doc, program_xpath)
     if len(title_nodes) == 0:
         context.log.warning(f"Could not find program for {source_url}")
@@ -101,8 +114,8 @@ def extract_program_code(context: Context, source_url: str) -> str | None:
 
 
 @cache
-def get_consolidated_celex(context: Context, source_url: str) -> str | None:
-    """Resolve a notice URL to the latest consolidated CELEX of its framework act.
+def get_consolidated_act(context: Context, source_url: str) -> ConsolidatedAct | None:
+    """Resolve a notice URL to the latest consolidated version of its framework act.
 
     Use this when checking whether a journal row still appears in the current
     consolidated regulation. The CELLAR graph provides both the amended framework
@@ -112,11 +125,13 @@ def get_consolidated_celex(context: Context, source_url: str) -> str | None:
     if celex_match is None:
         context.log.warning(f"Could not find CELEX in source URL: {source_url}")
         return None
-    query = CONSOLIDATED_CELEX_SPARQL.replace("CELEX_ID", celex_match.group(1))
+    query = CONSOLIDATED_CELEX_SPARQL.replace("CELEX_ID", celex_match.group(1)).encode(
+        "utf-8"
+    )
     result = context.fetch_json(
         SPARQL_ENDPOINT,
         method="POST",
-        data=query.encode("utf-8"),
+        data=query,
         headers=SPARQL_HEADERS,
         cache_days=1,
     )
@@ -145,34 +160,32 @@ def get_consolidated_celex(context: Context, source_url: str) -> str | None:
         )
         return None
     # Date-suffixed consolidated CELEX ids sort chronologically.
-    return max(consolidated)
+    celex = max(consolidated)
+    return ConsolidatedAct(celex=celex, url=CELLAR_URL.format(celex=celex), query=query)
 
 
-def get_consolidated_text(context: Context, consolidated_celex: str) -> str | None:
+def get_consolidated_text(context: Context, act: ConsolidatedAct) -> str | None:
     """Fetch the full text of a consolidated EU regulation from CELLAR.
 
-    Use this with a consolidated CELEX id such as `02012R0267-20260401` when the
-    crawler needs the regulation body for name-presence checks.
+    Use this when the crawler needs the regulation body for name-presence checks.
     """
-    doc = fetch_cellar_doc(context, consolidated_celex, cache_days=1)
+    doc = fetch_cellar_doc(context, act.url, cache_days=1)
     text = h.element_text(doc)
     if not text:
-        context.log.warning(
-            "Could not extract regulation text", celex=consolidated_celex
-        )
+        context.log.warning("Could not extract regulation text", celex=act.celex)
         return None
     return text
 
 
 @cache
-def _law_normalized(context: Context, consolidated_celex: str) -> str | None:
-    text = get_consolidated_text(context, consolidated_celex)
+def _law_normalized(context: Context, act: ConsolidatedAct) -> str | None:
+    text = get_consolidated_text(context, act)
     return normalize(text) if text is not None else None
 
 
 @cache
-def _law_ascii(context: Context, consolidated_celex: str) -> str | None:
-    text = get_consolidated_text(context, consolidated_celex)
+def _law_ascii(context: Context, act: ConsolidatedAct) -> str | None:
+    text = get_consolidated_text(context, act)
     return normalize(text, ascii=True) if text is not None else None
 
 
@@ -196,10 +209,10 @@ def check_in_consolidated_act_text(
         # may not have been updated yet.
         return
 
-    consolidated_celex = get_consolidated_celex(context, source_url)
-    if consolidated_celex is None:
+    act = get_consolidated_act(context, source_url)
+    if act is None:
         return
-    consolidated_act_text = _law_normalized(context, consolidated_celex)
+    consolidated_act_text = _law_normalized(context, act)
     if consolidated_act_text is None:
         return
     for name in names:
@@ -210,7 +223,7 @@ def check_in_consolidated_act_text(
 
         # Not found without asciifying — try again with diacritics stripped.
         ascii_name = normalize(name, ascii=True)
-        ascii_law = _law_ascii(context, consolidated_celex)
+        ascii_law = _law_ascii(context, act)
         if ascii_name and ascii_law and ascii_name in ascii_law:
             context.log.info(
                 "Name found in consolidated text only after asciifying",
@@ -218,16 +231,19 @@ def check_in_consolidated_act_text(
                 ascii_name=ascii_name,
                 row_id=row_id,
                 source_url=source_url,
-                consolidated_celex=consolidated_celex,
+                consolidated_celex=act.celex,
             )
         else:
+            # A newer consolidation than the one we cached may list the name.
+            context.clear_url(act.url)
+            context.clear_url(SPARQL_ENDPOINT, method="POST", data=act.query)
             context.log.warning(
                 "Name not found in consolidated regulation text",
                 name=name,
                 ascii_name=ascii_name,
                 row_id=row_id,
                 source_url=source_url,
-                consolidated_celex=consolidated_celex,
+                consolidated_celex=act.celex,
                 start_date=start_date,
             )
 
