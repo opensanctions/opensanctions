@@ -3,6 +3,7 @@ from itertools import count
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
@@ -41,7 +42,13 @@ def crawl_deputy(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    doc = context.fetch_html(url, cache_days=7)
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=".//div[contains(@class, 'elementor-icon-box-content')]",
+        html_source="httpResponseBody",
+        cache_days=7,
+    )
     fields = deputy_fields(doc)
 
     name = fields.pop("Nombre", "").strip()
@@ -107,7 +114,7 @@ def crawl(context: Context) -> None:
 
     for page in count(1):
         url = f"{context.data_url}?per_page={PAGE_SIZE}&page={page}"
-        records = context.fetch_json(url, cache_days=1)
+        records = zyte_api.fetch_json(context, url, cache_days=1)
         for record in records:
             crawl_deputy(context, record["link"], position, categorisation)
         # The REST collection is paginated; the final page is short of PAGE_SIZE.

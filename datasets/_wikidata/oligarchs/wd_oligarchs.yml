@@ -7,6 +7,7 @@ coverage:
 load_statements: true
 exports:
   - statistics.json
+  - entities.ftm.json
 summary: >
   A list of billionaires and oligarchs from CIS countries, most notably the Russian
   Federation.
