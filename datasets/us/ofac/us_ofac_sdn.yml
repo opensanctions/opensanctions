@@ -1,5 +1,6 @@
 title: US OFAC Specially Designated Nationals (SDN) List
 entry_point: ofac_advanced.py
+ci_test: false  # the source is fetched via Zyte, which needs an API key
 prefix: ofac
 coverage:
   frequency: daily

@@ -15,6 +15,7 @@ from followthemoney.schema import Schema
 from followthemoney.exc import InvalidData
 
 from zavod import Context, Entity, Dataset
+from zavod.extract import zyte_api
 from zavod.meta import load_dataset_from_path
 from zavod import helpers as h
 from zavod.util import ElementOrTree
@@ -806,7 +807,10 @@ def apply_feature(
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.xml", context.data_url)
+    # The sanctions list service (which the treasury.gov download URL redirects to)
+    # is behind an AWS WAF bot challenge since 2026-07-30: direct requests get a 403,
+    # or a 202 with an empty body, so the export is fetched via Zyte.
+    _, _, _, path = zyte_api.fetch_resource(context, "source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc_ = context.parse_resource_xml(path)
     doc = h.remove_namespace(doc_)
