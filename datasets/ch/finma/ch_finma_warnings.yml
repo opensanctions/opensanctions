@@ -151,8 +151,7 @@ lookups:
           - "wt-central.com"
           - "wtcentral.com"
       - match: "www. www.rothenburger.li"
-        values:
-          - "www. www.rothenburger.li"
+        value: "www.rothenburger.li"
       - match: "www.1apcoin.com, www.1apayment.com, www.1tus.io"
         values:
           - "www.1apcoin.com"
