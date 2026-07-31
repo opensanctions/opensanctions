@@ -1337,13 +1337,13 @@ lookups:
           phone:
             - "+7 (495) 404-91-81"
             - "+7 (499) 404-79-66"
-      # Codes we recognise but don't map to a property; keep as a note
       - match: "Code boursier (bourse de Shenzhen): 300910"
         schema: Company
         props:
           ticker: "300910"
       - match: "PPC: 504701001"
-        note: true
+        props:
+          registrationNumber: "504701001"
       - match: "Tél.: 15.6.20267 (34147) 4-27-53; 15.6.20267  (34147) 2-99-77"
         note: true
       # Places of registration / principal establishment carrying a location the
@@ -1424,6 +1424,7 @@ lookups:
   #     imoNumber, ...) when the source names that scheme. Where the label is generic,
   #     "Numéro d'enregistrement" is a registrationNumber and "Numéro d'identification
   #     fiscale" is a taxNumber, however much the digits look like an INN.
+  #   - A code whose scheme the source doesn't name is a registrationNumber, not a note.
   #   - Comment an option only where mapping it took a judgement that needed context
   #     beyond the field itself, such as a modelling choice or outside knowledge about
   #     the entity. Do not comment on which parsing quirk sent the field here — that
@@ -6636,17 +6637,21 @@ lookups:
       - match: "4.8.1994 - Date d'enregistrement"
         props:
           incorporationDate: 1994-08-04
-      # The source doesn't name the scheme these codes belong to.
       - match: "Code du motif d'enregistrement: 345901001"
-        note: true
+        props:
+          registrationNumber: "345901001"
       - match: "Code du motif d'enregistrement: 614201001"
-        note: true
+        props:
+          registrationNumber: "614201001"
       - match: "Code du motif d'enregistrement: 631201001"
-        note: true
+        props:
+          registrationNumber: "631201001"
       - match: "Code du motif d'enregistrement: 701701001"
-        note: true
+        props:
+          registrationNumber: "701701001"
       - match: "Code du motif d'enregistrement: 770801001"
-        note: true
+        props:
+          registrationNumber: "770801001"
       - match: "Télécopieur: +7 (495) 203-86-06"
         props:
           phone: "+7 (495) 203-86-06"
@@ -6732,7 +6737,8 @@ lookups:
         props:
           registrationNumber: "10101431259"
       - match: "Code économique: 411111477788"
-        note: true
+        props:
+          registrationNumber: "411111477788"
       # Neither entity type is a legal form.
       - match: "Type d’entité: milice armée ethnique; historiquement une émanation de l’Union nationale karen (KNU)"
         note: true
