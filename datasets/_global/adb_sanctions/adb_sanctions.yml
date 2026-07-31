@@ -45,7 +45,8 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1180
+      Company: 900
+      Person: 230
     country_entities:
       cn: 350
       id: 40
@@ -53,7 +54,8 @@ assertions:
     countries: 15
   max:
     schema_entities:
-      LegalEntity: 1800
+      Company: 1450
+      Person: 380
 
 dates:
   formats: ["%d/%b/%Y"]
