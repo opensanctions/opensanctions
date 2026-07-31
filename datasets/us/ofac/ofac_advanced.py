@@ -807,6 +807,11 @@ def apply_feature(
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
+    if path.stat().st_size == 0:
+        # The sanctions list service answers requests it considers bot traffic
+        # with an empty 202, which would otherwise surface as a confusing
+        # "Document is empty" XML parse error.
+        raise RuntimeError(f"Empty response from {context.data_url}")
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc_ = context.parse_resource_xml(path)
     doc = h.remove_namespace(doc_)

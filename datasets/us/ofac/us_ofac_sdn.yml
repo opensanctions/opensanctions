@@ -40,9 +40,14 @@ tags:
   - sector.maritime
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
-  url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
+  url: https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN_ADVANCED.XML
   format: XML
   lang: eng
+# OFAC's Sanctions List Service rejects requests whose User-Agent doesn't look
+# like a browser with a 403, see their technical notice of 2024-05-16:
+# https://ofac.treasury.gov/sdn-list-data-formats-data-schemas/ofac-technical-actions-in-reverse-chronological-order/20240516_44
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 (zavod; opensanctions.org)"
 
 assertions:
   min:
