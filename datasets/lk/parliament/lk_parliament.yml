@@ -15,7 +15,8 @@ description: |
   and hold the country's legislative power, including passing laws and approving the budget.
 
   This dataset records each sitting member with their name, political party, date of birth,
-  and electoral district.
+  electoral district, parliamentary email address, and — for those holding one — their
+  ministerial portfolio.
 url: https://www.parliament.lk/en/members-of-parliament/directory-of-members
 publisher:
   name: Parliament of Sri Lanka
@@ -63,6 +64,14 @@ assertions:
       Position: 1
     country_entities:
       lk: 180
+    # Everything below comes from the per-member profile pages, which are parsed by
+    # matching on field labels. Without these, that parse breaking would leave the
+    # member count intact and drop the attributes silently.
+    entities_with_prop:
+      Person:
+        birthDate: 150
+        email: 150
+        position: 30
   max:
     schema_entities:
       Person: 260
