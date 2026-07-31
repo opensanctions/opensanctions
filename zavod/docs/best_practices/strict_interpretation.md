@@ -59,7 +59,7 @@ Assert what must be true for the parse to be valid, so breakage fails at the off
 assert position_name is not None, entity.id
 ```
 
-See [data assertions](patterns.md#data-assertions). Dataset-level [assertions in the metadata](../metadata.md#data-assertions) are the outermost net: they catch a crawl that silently under-collects.
+See [data assertions](patterns.md#data-assertions). Dataset-level [assertions in the metadata](../metadata.md#data-assertions) are the outermost net: they catch a crawl that silently under-collects. Keep the two at their own altitude — assert in code what pins one selection or one record, and leave the *total* the crawl produced to the metadata block, which knows the expected range and needs no edit when the source grows.
 
 ## Key categorical fields need complete coverage
 
@@ -80,4 +80,5 @@ Column headings are categorical input too. Some non-English tabular crawlers map
 - `.get(key, default)` on a mandatory field.
 - A bare `else` or fallback schema for unknown categorical values.
 - Looping over a possibly-empty selection with no count guard, so the crawler silently emits nothing.
+- Conversely, a hand-rolled guard on the crawl's *total* record count (`if not seen: raise ...`), which duplicates the metadata `assertions` block and needs editing every time the source grows. Guard selections, assert totals in the YAML.
 - Packing out-of-scope facts into `notes` or `description` strings to "handle" them. Out of scope means left alone, not smuggled into free text.
