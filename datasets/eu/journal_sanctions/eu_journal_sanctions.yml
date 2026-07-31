@@ -53,7 +53,7 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
   format: CSV
 dates:
-  formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d %B %Y’", "%B %Y"]
+  formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d.%m.%Y'", "%d %B %Y’", "%B %Y"]
 
 assertions:
   min:
