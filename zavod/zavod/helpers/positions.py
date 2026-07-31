@@ -38,8 +38,8 @@ def make_position(
 ) -> Entity:
     """Creates a Position entity.
 
-    Position categorisation should then be fetched using zavod.logic.pep.categorise
-    and the result's is_pep checked.
+    Position categorisation should then be fetched using
+    zavod.stateful.positions.categorise and the result's is_pep checked.
 
     Args:
         context: The context to create the entity in.
