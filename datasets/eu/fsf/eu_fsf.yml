@@ -382,3 +382,64 @@ lookups:
         value: 60455
       - match: "-"
         value: null
+  type.url:
+    options:
+      # The source frequently mangles URLs: stray spaces are inserted, "--" is
+      # autocorrected to an en dash, several sites are crammed into one value,
+      # and some values keep a "Website:" label.
+      # казакнацгвард.рф
+      - match: "http://xn– 80aaaajfjszd7a3b0e.xn– p1ai/"
+        value: "http://xn--80aaaajfjszd7a3b0e.xn--p1ai/"
+      # гидроприбор.рф
+      - match: "https://xn-- 90addpb9acfhcd.xn--p1ai/"
+        value: "https://xn--90addpb9acfhcd.xn--p1ai/"
+      # рт-комплект.рф
+      - match: "https://xn----jtbobdfnjeui.xn-- p1ai/"
+        value: "https://xn----jtbobdfnjeui.xn--p1ai/"
+      - match: "http://www.moee.go v.mm/en/ignite/page /40"
+        value: "http://www.moee.gov.mm/en/ignite/page/40"
+      - match: "Website: http://uralvagonzavod.ru"
+        value: "http://uralvagonzavod.ru"
+      - match: "Website: www.cniitm.ru"
+        value: www.cniitm.ru
+      # Hyphenated domain confirmed by the same record's info@avangard-plastik.ru
+      - match: "www.avangard plastik.ru"
+        value: www.avangard-plastik.ru
+      # Hyphenated domain confirmed by the same record's info@zavod-plastmass.ru
+      - match: "https://www.zavod plastmass.ru"
+        value: "https://www.zavod-plastmass.ru"
+      - match: "https://pzsignal. ru/"
+        value: "https://pzsignal.ru/"
+      - match: "https ://oreestanki. ru/"
+        value: "https://oreestanki.ru/"
+      # Shandong OreeLaser Technology Co. Ltd
+      - match: "https://www.ore elaser.cn"
+        value: "https://www.oreelaser.cn"
+      - match: "https://chersone sos-sev.ru/"
+        value: "https://chersonesos-sev.ru/"
+      - match: "https://sibfire.com https://www.lveplant.ru"
+        values:
+          - "https://sibfire.com"
+          - "https://www.lveplant.ru"
+      - match: "Website: https://concern-kemz.ru/ - https://kizlyar-kemz.ru/"
+        values:
+          - "https://concern-kemz.ru/"
+          - "https://kizlyar-kemz.ru/"
+      - match: cge.evrazia.ru - cge.su
+        values:
+          - cge.evrazia.ru
+          - cge.su
+      - match: www.mbbru.com www.bmiru.com
+        values:
+          - www.mbbru.com
+          - www.bmiru.com
+      - match: i-soon.net isoon.net i-soon.com.cn isoonren.com
+        values:
+          - i-soon.net
+          - isoon.net
+          - i-soon.com.cn
+          - isoonren.com
+      - match: "https://center-orlyonok.ru https://orlyonok.ru"
+        values:
+          - "https://center-orlyonok.ru"
+          - "https://orlyonok.ru"
