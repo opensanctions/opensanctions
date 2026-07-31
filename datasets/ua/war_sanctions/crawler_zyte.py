@@ -535,7 +535,8 @@ def crawl_person_page(
     # The birth field carries the date then the place, usually as separate <br> lines
     # ("30.11.1979" / "Moscow, RSFSR, USSR") but sometimes on one line. A line with a leading
     # date contributes birthDate (+ any trailing place); a line without one is a place —
-    # except the first line, which is still the date slot (type.date lookups null odd values).
+    # except the first line, which is still the date slot unless it holds no digits at all
+    # and so cannot be a date in any form (type.date lookups null the remaining odd values).
     for label in PERSON_DOB_LABELS:
         for index, line in enumerate(take_lines(label)):
             # A "DD.MM.YYYY - DD.MM.YYYY" range encodes birth and death dates.
@@ -549,7 +550,7 @@ def crawl_person_page(
                 h.apply_date(person, "birthDate", match.group(1))
                 if match.group(2):
                     person.add("birthPlace", match.group(2))
-            elif index == 0:
+            elif index == 0 and any(char.isdigit() for char in line):
                 h.apply_date(person, "birthDate", line)
             else:
                 person.add("birthPlace", line)
