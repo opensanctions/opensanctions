@@ -6739,7 +6739,6 @@ lookups:
       - match: "Code économique: 411111477788"
         props:
           registrationNumber: "411111477788"
-      # Neither entity type is a legal form.
       - match: "Type d’entité: milice armée ethnique; historiquement une émanation de l’Union nationale karen (KNU)"
         note: true
       - match: "Type d’entité: entreprise de divertissement"
