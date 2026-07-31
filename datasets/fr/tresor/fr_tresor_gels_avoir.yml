@@ -6621,8 +6621,6 @@ lookups:
       - match: "Type d’entité: société par actions ouverte, raffinerie de pétrole"
         props:
           legalForm: "société par actions ouverte, raffinerie de pétrole"
-      # Values given before their label ("<value> - <label>"), which the segment
-      # splitter can't reassemble.
       - match: "9721194461 - Numéro d'identification fiscale"
         props:
           taxNumber: "9721194461"
@@ -6638,23 +6636,17 @@ lookups:
       - match: "4.8.1994 - Date d'enregistrement"
         props:
           incorporationDate: 1994-08-04
-      # "Code du motif d'enregistrement" is the Russian KPP.
+      # The source doesn't name the scheme these codes belong to.
       - match: "Code du motif d'enregistrement: 345901001"
-        props:
-          kppCode: "345901001"
+        note: true
       - match: "Code du motif d'enregistrement: 614201001"
-        props:
-          kppCode: "614201001"
+        note: true
       - match: "Code du motif d'enregistrement: 631201001"
-        props:
-          kppCode: "631201001"
+        note: true
       - match: "Code du motif d'enregistrement: 701701001"
-        props:
-          kppCode: "701701001"
+        note: true
       - match: "Code du motif d'enregistrement: 770801001"
-        props:
-          kppCode: "770801001"
-      # Fax numbers, mapped to phone per the existing Télécopieur convention
+        note: true
       - match: "Télécopieur: +7 (495) 203-86-06"
         props:
           phone: "+7 (495) 203-86-06"
@@ -6664,11 +6656,8 @@ lookups:
       - match: "Télécopieur: +7 (495) 959-29-59"
         props:
           phone: "+7 (495) 959-29-59"
-      # A local number without a country code, which the phone type can't clean.
       - match: "Télécopieur: 988-17-94"
         note: true
-      # Places of registration / principal establishment carrying a location the
-      # free-text splitter can't reduce to a single value.
       - match: "Lieu d'enregistrement: Magadan, Russie"
         props:
           jurisdiction: ru
@@ -6703,13 +6692,11 @@ lookups:
           jurisdiction:
             - ru
             - ua-cri
-      # Vessel flag and last reported position.
       - match: "Flag State: Cameroon"
         props:
           flag: Cameroon
       - match: "As of 4 April 2026, the vessel was located near the anchorage area of the Benghazi Old Harbour, Libya"
         note: true
-      # Associated entities and persons.
       # BNK is the acronym of Belarusian Oil Company, not a separate entity.
       - match: "Entités associées: OJSC Naftan; OJSC Mozyr Oil Refinery; State Production Association Belorusneft; Belarusian Oil Company (BNK)"
         associates:
@@ -6738,26 +6725,19 @@ lookups:
       - match: "Date d'enregistrement: 24/10/1990"
         props:
           incorporationDate: 1990-10-24
-      # The source gives no label for this number, so it stays a generic registration
-      # number even though it looks like the INN paired with the KPP listed alongside.
       - match: "7831001567"
         props:
           registrationNumber: "7831001567"
       - match: "Numéro d’identification national: 10101431259"
         props:
           registrationNumber: "10101431259"
-      # Iran's "code économique" is issued by the tax administration.
       - match: "Code économique: 411111477788"
-        props:
-          taxNumber: "411111477788"
-      # The remainder of the entity type describes the group's origin; kept as a note.
+        note: true
+      # Neither entity type is a legal form.
       - match: "Type d’entité: milice armée ethnique; historiquement une émanation de l’Union nationale karen (KNU)"
         note: true
-        props:
-          legalForm: "milice armée ethnique"
       - match: "Type d’entité: entreprise de divertissement"
-        props:
-          legalForm: "entreprise de divertissement"
+        note: true
       - match: "Principal établissement: État karen (de Kayin), Myanmar/Birmanie"
         props:
           jurisdiction: mm
