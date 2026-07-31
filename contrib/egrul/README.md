@@ -25,12 +25,34 @@ Run:
 	mkdir ~/egrul.opensanctions.org-cache
 	export LOCAL_BUCKET_CACHE_DIR="$HOME/egrul.opensanctions.org-cache"
 
-	# Run the job!
-	spark-submit --master 'local[*]' -c "spark.driver.memory=10g" --py-files contrib/egrul/egrul_xml.py,contrib/egrul/address.py,contrib/egrul/parse_context.py,contrib/egrul/schema.py contrib/egrul/generate.py
+	# Run the job! See the script for what the Spark tuning flags are for.
+	contrib/egrul/run.sh
 
-The checkpoint directory fills up quickly, don't know why yet.
 
-	rm -rf env/spark-checkpoint
+## How current state is assembled
+
+A yearly FULL archive lists every company; a daily archive lists only the companies that
+changed that day. So a company's absence from an archive says nothing, but an ownership or
+directorship absent from a record that *is* in that archive has ended — the registry
+described the company and didn't mention it.
+
+That makes end dates a per-company question, so the job doesn't fold archives into each
+other. Instead it:
+
+1. parses each archive date into its own table (`2026_03_11`),
+2. reduces all of them to skinny appearance tables — which companies, ownerships and
+   directorships each archive listed (`company_appearances`, `relationship_appearances`,
+   `directorship_successor_starts`). These are bucketed by company id, which is what lets
+   every later stage join, window and group without shuffling,
+3. groups those by company to find each relationship's *tenures*: runs of consecutive
+   appearances of its company that list it (`relationship_tenures`). The company's next
+   appearance after a tenure is the archive that ended it, and the day before that is the
+   end date,
+4. joins the tenures back onto the records to pick up each relationship as the last
+   archive that listed it described it, and writes `current_<last archive date>`.
+
+All of these are Hive tables, so a run can be interrupted and resumed, and intermediate
+state can be queried with SQL. Dropping a table recomputes it on the next run.
 
 
 ## Provenance
