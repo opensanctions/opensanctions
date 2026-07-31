@@ -13,11 +13,10 @@ PAGE_SIZE = 64
 
 def labelled_value(el: Element, label: str) -> str | None:
     """Return the text of the <p> following a <p><b>{label}</b></p> block."""
-    labels = h.xpath_elements(el, f".//p[b[normalize-space()='{label}']]")
-    if len(labels) == 0:
-        return None
-    sibling = labels[0].getnext()
-    return h.element_text(sibling) if sibling is not None else None
+    siblings = h.xpath_elements(
+        el, f".//p[b[normalize-space()='{label}']]/following-sibling::p[1]"
+    )
+    return h.element_text(siblings[0]) if siblings else None
 
 
 def crawl_member(
@@ -26,17 +25,12 @@ def crawl_member(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    hrefs = h.xpath_strings(card, ".//a[contains(@href, 'mp-profile/')]/@href")
-    if len(hrefs) == 0:
-        return
-    href = hrefs[0]
+    href = h.xpath_string(card, ".//a[contains(@href, 'mp-profile/')]/@href")
     # The profile path ends in a numeric member id, which is what the person is keyed on.
     slug = href.rstrip("/").split("/")[-1]
-
-    name_els = h.xpath_elements(card, ".//div[contains(@class, 'mp_name_div')]/p[1]/b")
-    if len(name_els) == 0:
-        return
-    raw_name = h.element_text(name_els[0])
+    raw_name = h.xpath_string(
+        card, ".//div[contains(@class, 'mp_name_div')]/p[1]/b/text()"
+    )
 
     person = context.make("Person")
     person.id = context.make_slug(slug)
@@ -50,17 +44,10 @@ def crawl_member(
     person.add("citizenship", "lk")
 
     profile = context.fetch_html(href, cache_days=7)
-    # The per-member profile page carries a clean ISO date of birth.
     h.apply_date(person, "birthDate", labelled_value(profile, "Date of Birth"))
-    # Only members holding a ministerial office have a portfolio. It is the office
-    # that carries the political exposure, so it is worth recording even though the
-    # crawler models a single Position for the seat itself.
     person.add("position", labelled_value(profile, "Portfolio"), lang="eng")
-    # A parliament.lk mailbox, not a private address.
     person.add("email", labelled_value(profile, "Email"))
     person.add("sourceUrl", href)
-    # Deliberately skipped: the profile also publishes each member's home address and
-    # telephone numbers, which we do not collect.
 
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
@@ -90,7 +77,7 @@ def crawl(context: Context) -> None:
         doc = context.fetch_html(
             context.data_url,
             params={"page": page, "itemCount": PAGE_SIZE},
-            cache_days=1,
+            cache_days=7,
             absolute_links=True,
         )
         cards = h.xpath_elements(doc, "//div[contains(@class, 'overlap_mt_30')]")
