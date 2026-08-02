@@ -138,6 +138,27 @@ lake (`contrib/zavodlake/exp1b_store.py`):
 
 Not yet done: batched prefetch in the nomenklatura xref loop, zavod integration.
 
+## Experiment 3 result: export-style full scan, LevelDB vs DuckDB store (2026-08-02)
+
+Replayed an export workload — `view.entities()`, every entity in scope assembled —
+against the `sanctions` scope (`contrib/zavodlake/exp3_export.py`, local NVMe):
+
+| backend | total | ent/s |
+| --- | --- | --- |
+| LevelDB store | 11.5 s | 33,340 |
+| DuckDB store, parquet glob | 14.1 s | 27,208 |
+| DuckDB store, materialized table (0.3 s build) | 14.0 s | 27,441 |
+
+All backends returned identical output: 384,880 entities, 4,273,447 statements.
+
+**The DuckDB store scan is ~22% slower than LevelDB.** As in exp2, the scan is not
+I/O-bound: per-row Python work (4.3M `Statement` constructions + assembly) dominates
+and every backend pays it, so materializing the table buys nothing and duckdb's
+`ORDER BY canonical_id` sort is noise. The end-to-end framing favours duckdb though:
+LevelDB needs a ~17 s sync before it can serve the 11.5 s scan, while the DuckDB
+store reads the parquet artifacts directly after a 0.14 s init — ~14 s vs ~28 s from
+cold statement artifacts.
+
 ## Alternative: materialize into a local duckdb table
 
 Another possible way to play some of the experiments: instead of querying the
