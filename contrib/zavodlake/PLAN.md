@@ -29,6 +29,9 @@ full statement set — towards re-usable, queryable artifacts.
 4. **Inverted-index parquet.** Can we generate a second set of parquet files containing a
    tokenized inverted index à la `nomenklatura.index`, usable to drive xref and enrichment
    straight from bucket artifacts?
+5. **Version deltas as anti-joins.** With two versioned statement parquets of the same
+   dataset, statement-level added/removed/changed is a sorted anti-join — one duckdb
+   query. Could this replace the delta export subsystem (`entities.delta.json`)?
 
 None of these necessarily intersect with the resolver — the entity queries involved can
 just be `entity_id IN (...)` lookups on source ids.

@@ -74,6 +74,53 @@ Takeaways: batched entity reads are competitive with a key-value store locally;
 per-entity glob lookups (~90 ms) are not — batch or consolidate. All numbers hide
 per-file network round trips, so remote (bucket) behaviour needs its own measurement.
 
+## Experiment 2 result: LevelDB build from parquet (2026-08-02)
+
+Built the same nomenklatura LevelDB store for the `sanctions` scope (4.35M statements,
+91 datasets) three ways (`contrib/zavodlake/exp2_leveldb.py`, local NVMe, warm files):
+
+| variant | write | compact | total |
+| --- | --- | --- | --- |
+| pack feed (Store.sync baseline) | 16.7 s | 0.2 s | 16.8 s |
+| parquet feed → Statement objects | 21.6 s | 0.5 s | 22.0 s |
+| parquet feed → raw sorted key/value bytes | 17.2 s | 0.5 s | 17.7 s |
+
+**Negative result: the build was never feed-bound.** CSV parsing is not the bottleneck;
+per-row Python work and LevelDB writes dominate and every variant pays them. The
+duckdb→arrow→pylist conversion is *slower* than the csv module, and even skipping
+Statement objects entirely with pre-sorted keys only reaches par. Extrapolated, a full
+`default` build is ~8–10 min regardless of feed. The parquet feed's value here is
+convenience (deduped, typed input), not speed.
+
+Fidelity note: the baseline store has 266 more `s:` keys than the parquet-fed ones —
+duplicate statement ids with differing schema/content survive as distinct keys under
+the pack feed, while the lake collapsed them at conversion time.
+
+## Experiment 1 precursor result: xref read replay (2026-08-02)
+
+Replayed an xref phase-2 read workload — 50k sampled entity ids, full entity assembly
+via the same `store.assemble()` in every variant — against the `sanctions` scope
+(`contrib/zavodlake/exp1_replay.py`, local NVMe):
+
+| backend | ms/entity |
+| --- | --- |
+| LevelDB store, single gets (status quo) | 0.04 |
+| parquet glob, single-id queries | 10.91 |
+| parquet glob, 1000-id batches | 0.12 |
+| duckdb table (indexed), single-id | 0.41 |
+| duckdb table (indexed), 1000-id batches | 0.06 |
+
+Materializing + indexing the 4.35M-statement scope into a duckdb table took **1.0 s**
+(the LevelDB build of the same data took 17 s). All backends returned identical entity
+counts.
+
+Conclusions: batched parquet reads are viable for xref (3× LevelDB, ~60 s per 500k
+entity reads — noise next to scoring); single-id glob access is not (280×). The
+materialize-on-init duckdb table is the sleeper: near-LevelDB batched reads, tolerable
+single reads, ~1 s startup per few million statements, no persistent store to sync —
+and the right shape for a stateless Cloud Run job (download → materialize → serve).
+At full-default scale (127M rows) the table wants a file-backed duckdb, not memory.
+
 ## Alternative: materialize into a local duckdb table
 
 Another possible way to play some of the experiments: instead of querying the
