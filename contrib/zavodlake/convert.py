@@ -98,13 +98,14 @@ def convert_dataset(
     copy_sql = f"""
         COPY (
             SELECT * FROM ({select})
-            -- Rows can share an id with differing content (the statement id hash
-            -- covers neither schema nor original_value); prefer the richest row
-            -- (original_value, lang, origin set), then break ties deterministically.
+            -- Rows can share an id with differing content: the statement id hash
+            -- covers dataset, entity_id, prop, value, lang and external, so only
+            -- schema, original_value, origin and the seen timestamps can differ
+            -- within an id. Prefer the richest row, then order for determinism.
             QUALIFY row_number() OVER (
                 PARTITION BY id
-                ORDER BY original_value NULLS LAST, lang NULLS LAST,
-                    origin NULLS LAST, prop, external, first_seen, last_seen
+                ORDER BY original_value NULLS LAST, origin NULLS LAST,
+                    "schema", first_seen, last_seen
             ) = 1
             ORDER BY entity_id
         ) TO '{_sql_str(tmp_path)}' (FORMAT parquet, COMPRESSION zstd)
