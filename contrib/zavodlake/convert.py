@@ -4,23 +4,6 @@ import duckdb
 
 from zavod import settings
 
-# Column order written by followthemoney's PackStatementWriter. Older, headerless
-# pack files use a different column set and are deliberately not supported.
-PACK_COLUMNS = [
-    "entity_id",
-    "prop",
-    "value",
-    "dataset",
-    "lang",
-    "original_value",
-    "origin",
-    "external",
-    "first_seen",
-    "last_seen",
-    "id",
-]
-PACK_HEADER = ",".join(PACK_COLUMNS)
-
 
 def dataset_parquet_path(dataset_name: str) -> Path:
     return settings.DATA_PATH / "lake" / dataset_name / "statements.parquet"
@@ -28,15 +11,6 @@ def dataset_parquet_path(dataset_name: str) -> Path:
 
 def _sql_str(value: Path) -> str:
     return str(value).replace("'", "''")
-
-
-def _check_pack_header(pack_path: Path) -> None:
-    with open(pack_path, "r", encoding="utf-8") as fh:
-        first_line = fh.readline().rstrip("\n")
-    if first_line != PACK_HEADER:
-        raise ValueError(
-            f"Unexpected statements.pack header in {pack_path}: {first_line!r}"
-        )
 
 
 def convert_dataset(
@@ -56,7 +30,6 @@ def convert_dataset(
     if not force and out_path.is_file():
         if out_path.stat().st_mtime >= pack_path.stat().st_mtime:
             return None
-    _check_pack_header(pack_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Pin the pack dialect (csv.unix_dialect) rather than letting duckdb sniff it:
