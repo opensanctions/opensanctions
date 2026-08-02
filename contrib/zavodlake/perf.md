@@ -121,6 +121,23 @@ single reads, ~1 s startup per few million statements, no persistent store to sy
 and the right shape for a stateless Cloud Run job (download → materialize → serve).
 At full-default scale (127M rows) the table wants a file-backed duckdb, not memory.
 
+## Experiment 1 result: nomenklatura DuckDBStore (2026-08-02)
+
+Implemented as `nomenklatura.store.duckdb_.DuckDBStore` (branch `pudo/duckdb-store` in
+nomenklatura): read-only store over a caller-provided duckdb relation, read-time
+canonicalisation from the Linker (`iter_pairs()` → canonical mapping table + resolved
+edge table at init), bulk `View.get_entities()`. Validated against the sanctions-scope
+lake (`contrib/zavodlake/exp1b_store.py`):
+
+- store init, incl. canonical + edge table build over 4.35M statements: **0.12 s**
+- `get_entities` batch-1000: **0.12 ms/entity** (exactly the exp1 raw-harness number —
+  the Store API adds no measurable overhead), 50k/50k found
+- `get_entity` singles: 10.4 ms/entity — bulk access is the contract
+- inverted lookup (edge-table probe) and synthetic same-schema merge verified on real
+  data; merges become visible by constructing a fresh store, no `update()` rewrite
+
+Not yet done: batched prefetch in the nomenklatura xref loop, zavod integration.
+
 ## Alternative: materialize into a local duckdb table
 
 Another possible way to play some of the experiments: instead of querying the
