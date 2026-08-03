@@ -71,6 +71,12 @@ url: https://www.eeas.europa.eu/eeas/european-union-sanctions_en#10710
 data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
+# The webgate endpoint generates the ~25MB XML on the fly and takes over a minute
+# to serve it. It intermittently answers with bursts of HTTP 500 that outlast the
+# default three retries, so back off further and for longer.
+http:
+  total_retries: 5
+  backoff_factor: 3
 
 names:
   suggest_weak_alias_person_single_token: true
@@ -367,6 +373,17 @@ lookups:
           - zanjani@sctbankers.com
       - match: "emo.xz@ chemplant.ru"
         value: emo.xz@chemplant.ru
+      - match: "natalya.s.gonchar enko@bspb.ru"
+        value: natalya.s.goncharenko@bspb.ru
+      - match: "merzlikind2009@ yandex.ru"
+        value: merzlikind2009@yandex.ru
+      - match: "merzlikind2009@ ya.ru"
+        value: merzlikind2009@ya.ru
+      - match: "mail@uralmash.r u"
+        value: mail@uralmash.ru
+      # Listed alongside canc@akbars.ru and kanc@akbars.ru; this is the bank's site.
+      - match: www.akbars.ru
+        prop: website
   type.gender:
     lowercase: true
     normalize: true
@@ -443,3 +460,16 @@ lookups:
         values:
           - "https://center-orlyonok.ru"
           - "https://orlyonok.ru"
+      # Listed next to www.uralmash.ru; the hyphenated domain is the one that resolves.
+      - match: "www.uralmash kartex.ru"
+        value: www.uralmash-kartex.ru
+      - match: "https://etcelectron ics.ru/"
+        value: "https://etcelectronics.ru/"
+      - match: "https://www.etcel ectronics.net/"
+        value: "https://www.etcelectronics.net/"
+      - match: "https://www.coal metbank.ru/"
+        value: "https://www.coalmetbank.ru/"
+      - match: "https://realistbank .ru/"
+        value: "https://realistbank.ru/"
+      - match: "htps://www.laggar-pro.ru/"
+        value: "https://www.laggar-pro.ru/"
