@@ -28,9 +28,6 @@ publisher:
 ci_test: false
 url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
 data:
-  # The old nevadamedicaid.nv.gov page 301-redirects here. We need the final URL
-  # because fetch_html resolves relative links against the requested URL, not the
-  # redirect target, and the PDF is only served from the omig.nv.gov host.
   url: https://www.omig.nv.gov/provider-enrollment--termination/provider-exclusions-sanctions-and-press-releases/
   format: PDF
   lang: eng
