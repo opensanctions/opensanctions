@@ -1,5 +1,6 @@
 import json
 import re
+from dataclasses import dataclass
 
 from pydantic import BaseModel, JsonValue
 from rigour.names import contains_split_phrase
@@ -67,10 +68,83 @@ class EntityExtractionResult(BaseModel):
     entities: list[EntityData]
 
 
-def apply_entity_data(entity: Entity, data: EntityData) -> None:
+@dataclass
+class RowFields:
+    """The row-level values shared by every entity extracted from one row."""
+
+    country: str
+    addresses: list[str]
+    grounds: str | None
+    sanction_type: str | None
+    start_date: str | None
+    end_date: str | None
+    modified_at: str | None
+
+
+def emit_sanctioned_entity(
+    context: Context, schema: str, data: EntityData, fields: RowFields
+) -> Entity:
+    entity = context.make(schema)
+    # TODO: add schema to the key so a Firm and an Individual of the same name
+    # can't collide — needs re-keying the whole dataset.
+    entity.id = context.make_id(data.name[0], fields.country)
     for prop in EntityData.model_fields:
         for val in getattr(data, prop):
             entity.add(prop, val)
+    entity.add("country", fields.country)
+    entity.add("address", fields.addresses)
+
+    sanction = h.make_sanction(context, entity)
+    sanction.add("reason", fields.grounds)
+    sanction.add("status", fields.sanction_type)
+    h.apply_date(sanction, "startDate", fields.start_date)
+    h.apply_date(sanction, "endDate", fields.end_date)
+    h.apply_date(sanction, "modifiedAt", fields.modified_at)
+
+    if h.is_active(sanction):
+        entity.add("topics", "debarment")
+
+    context.emit(entity)
+    context.emit(sanction)
+    return entity
+
+
+def extract_entities_data(
+    context: Context, full_name: str, other_name: str
+) -> list[EntityData]:
+    # Names that look regular are taken as-is; the rest go through LLM extraction
+    # and human review, yielding nothing while a review is still pending.
+    if not (
+        REGEX_IRREGULAR.search(full_name)
+        or REGEX_IRREGULAR.search(other_name)
+        or contains_split_phrase(full_name)
+        or contains_split_phrase(other_name)
+    ):
+        alias = [other_name] if other_name.strip() else []
+        return [EntityData(name=[full_name], alias=alias)]
+
+    source_data: JsonValue = {"name": full_name, "other_name": other_name}
+    source_value = JSONSourceValue(
+        key_parts=[full_name, "other_name", other_name],
+        label="entity extraction",
+        data=source_data,
+    )
+    result = run_typed_text_prompt(
+        context=context,
+        prompt=EXTRACT_PROMPT,
+        string=json.dumps(source_data, ensure_ascii=False),
+        response_type=EntityExtractionResult,
+        model=LLM_MODEL_VERSION,
+    )
+    review = review_extraction(
+        context=context,
+        source_value=source_value,
+        original_extraction=result,
+        origin=LLM_MODEL_VERSION,
+    )
+    if not review.accepted:
+        return []
+    return review.extracted_data.entities
 
 
 def crawl_row(context: Context, row: dict[str, str | None]) -> None:
@@ -86,82 +160,33 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     country = country.replace("Rep. of", "").strip()
     country = country.replace("*2", "").strip()
 
-    grounds = row.pop("grounds")
-    sanction_type = row.pop("sanctionType")
-    addresses = (row.pop("address") or "").split(";")
-    start_date = row.pop("effectiveDateOfSanction")
-    end_date = row.pop("lapseDateOfSanction")
-    modified_at = row.pop("changesMadeOn")
+    fields = RowFields(
+        country=country,
+        addresses=(row.pop("address") or "").split(";"),
+        grounds=row.pop("grounds"),
+        sanction_type=row.pop("sanctionType"),
+        start_date=row.pop("effectiveDateOfSanction"),
+        end_date=row.pop("lapseDateOfSanction"),
+        modified_at=row.pop("changesMadeOn"),
+    )
 
-    if (
-        REGEX_IRREGULAR.search(full_name)
-        or REGEX_IRREGULAR.search(other_name)
-        or contains_split_phrase(full_name)
-        or contains_split_phrase(other_name)
-    ):
-        source_data: JsonValue = {"name": full_name, "other_name": other_name}
-        source_value = JSONSourceValue(
-            key_parts=[full_name, "other_name", other_name],
-            label="entity extraction",
-            data=source_data,
-        )
-        result = run_typed_text_prompt(
-            context=context,
-            prompt=EXTRACT_PROMPT,
-            string=json.dumps(source_data, ensure_ascii=False),
-            response_type=EntityExtractionResult,
-            model=LLM_MODEL_VERSION,
-        )
-        review = review_extraction(
-            context=context,
-            source_value=source_value,
-            original_extraction=result,
-            origin=LLM_MODEL_VERSION,
-        )
-        if review.accepted:
-            entities_data = review.extracted_data.entities
-        else:
-            entities_data = []  # we loop over this later regardless
-    else:
-        alias = [other_name] if other_name.strip() else []
-        entities_data = [EntityData(name=[full_name], alias=alias)]
+    entities_data = extract_entities_data(context, full_name, other_name)
 
-    first_org = None
-    for entity_data in entities_data:
-        entity = context.make(schema)
-        # TODO: add schema to the key so a Firm and an Individual of the same name
-        # can't collide — needs re-keying the whole dataset.
-        entity.id = context.make_id(entity_data.name[0], country)
+    # entityType describes the subject of the row only. Any further entities the
+    # extraction pulls out of the name fields are parties co-mentioned in them,
+    # whose type the source doesn't state, so don't claim it.
+    if entities_data:
+        subject_data, *comentioned_data = entities_data
+        subject = emit_sanctioned_entity(context, schema, subject_data, fields)
+        for data in comentioned_data:
+            entity = emit_sanctioned_entity(context, "LegalEntity", data, fields)
 
-        apply_entity_data(entity, entity_data)
-        entity.add("country", country)
-        entity.add("address", addresses)
-
-        sanction = h.make_sanction(context, entity)
-        sanction.add("reason", grounds)
-        sanction.add("status", sanction_type)
-        h.apply_date(sanction, "startDate", start_date)
-        h.apply_date(sanction, "endDate", end_date)
-        h.apply_date(sanction, "modifiedAt", modified_at)
-
-        if h.is_active(sanction):
-            entity.add("topics", "debarment")
-
-        # create relation to preserve link
-        # when there is more than one org per row
-        if first_org is None:
-            first_org = entity
-        else:
+            # Preserve the link the source made by listing them in one row.
             rel = context.make("UnknownLink")
-            rel.id = context.make_id(
-                first_org.first("name"), entity_data.name[0], country
-            )
-            rel.add("subject", first_org)
+            rel.id = context.make_id(subject.first("name"), data.name[0], country)
+            rel.add("subject", subject)
             rel.add("object", entity)
             context.emit(rel)
-
-        context.emit(entity)
-        context.emit(sanction)
 
     context.audit_data(row)
 
