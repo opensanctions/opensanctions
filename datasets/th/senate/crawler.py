@@ -20,7 +20,7 @@ def crawl_member(
     assert clean_name
 
     person = context.make("Person")
-    person.id = context.make_id(record.pop("MEMBER_CODE"), clean_name)
+    person.id = context.make_id(record.pop("MEMBER_CODE"), raw_name)
     original_name = raw_name if clean_name != raw_name else None
     person.add("name", clean_name, lang="tha", original_value=original_name)
     apply_translit_full_name(context, person, LangText(clean_name, "tha"))
