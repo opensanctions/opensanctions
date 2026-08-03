@@ -473,3 +473,7 @@ lookups:
         value: "https://realistbank.ru/"
       - match: "htps://www.laggar-pro.ru/"
         value: "https://www.laggar-pro.ru/"
+      # Listed among Beget's other domains; beget-kz.com is registered on Beget's
+      # own nameservers (ns1.beget.com), while begetkz.com does not exist.
+      - match: "beget kz.com"
+        value: beget-kz.com
