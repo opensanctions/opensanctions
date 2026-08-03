@@ -158,41 +158,46 @@ lookups:
         value: Alderman
 ```
 
-## Pattern C: Multi-position crawler
+## Pattern C: Several positions in one crawler
 
-For sources that list officials across known, enumerable position types. `POSITIONS`
-here is an enumeration-as-data table, which is a legitimate module-level constant —
-unlike a per-record `dict` passed between functions, which reviewers reject: parse each
-record straight into its entity rather than into an intermediate `dict`.
+Where a position's definition belongs — a `position` lookup keyed on the source's own
+label, or arguments to `h.make_position` in the crawler — is decided in `zavod/docs/peps.md`
+→ "Where a position's definition belongs". Read that first; this is only the code shape
+for the lookup case.
+
+```yaml
+lookups:
+  position:
+    normalize: true
+    options:
+      - match: House of Representatives
+        name: United States representative
+        wikidata_id: Q13218630
+        topics: [gov.national, gov.legislative]
+      - match: Senate
+        name: United States senator
+        wikidata_id: Q4416090
+        topics: [gov.national, gov.legislative]
+      - match: Territorial delegation
+        value: null
+```
 
 ```python
-POSITIONS: dict[str, dict[str, Any]] = {
-    "dail": {
-        "name": "Member of the Dáil of Ireland",
-        "wikidata_id": "Q654291",
-    },
-    "seanad": {
-        "name": "Senator of Ireland",
-        "wikidata_id": "Q18043391",
-    },
-}
-
-def crawl(context: Context) -> None:
-    positions: dict[str, tuple[Entity, PositionCategorisation]] = {}
-    for key, config in POSITIONS.items():
-        position = h.make_position(
-            context,
-            name=config["name"],
-            country="ie",
-            topics=["gov.national", "gov.legislative"],
-            wikidata_id=config.get("wikidata_id"),
-            lang="eng",
-        )
-        categorisation = categorise(context, position)
-        context.emit(position)
-        positions[key] = (position, categorisation)
-
-    # Then match each record to the right position + categorisation
+res = context.lookup("position", row.pop("chamber"), warn_unmatched=True)
+if res is None or res.name is None:
+    return
+position = h.make_position(
+    context,
+    name=res.name,
+    country="us",
+    topics=res.topics,
+    wikidata_id=res.wikidata_id,
+    lang="eng",
+)
+categorisation = categorise(context, position)
+if not categorisation.is_pep:
+    return
+context.emit(position)
 ```
 
 ## Multi-term source
