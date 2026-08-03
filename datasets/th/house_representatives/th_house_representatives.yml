@@ -36,9 +36,30 @@ data:
 
 names:
   prefixes_strip:
+    # Civil honorifics. Thai attaches these directly to the given name with no
+    # space (นางกนกพร), and strip_name_titles only strips a bare-word prefix that
+    # is followed by whitespace, so these do not currently match. The same holds
+    # for the academic titles ศาสตราจารย์ and รองศาสตราจารย์, which is why five
+    # members keep them. Listed so they take effect once the helper can express a
+    # prefix in a script that does not separate words.
     - นางสาว
     - นาย
     - นาง
+    # Military and police ranks, which the source does separate with a space.
+    - จ่าอากาศเอก  # Flight Sergeant 1st Class
+    - จ่าเอก  # Chief Petty Officer 1st Class
+    - นาวาอากาศเอก  # Group Captain
+    - นาวาโท  # Commander
+    - พลตำรวจตรี  # Police Major General
+    - พลตำรวจเอก  # Police General
+    - พลตำรวจโท  # Police Lieutenant General
+    - พันตำรวจเอก  # Police Colonel
+    - พันเอก  # Colonel
+    - พันโท  # Lieutenant Colonel
+    - ร้อยตำรวจเอก  # Police Captain
+    - ร้อยเอก  # Captain
+    - ว่าที่ร้อยตรี  # Acting Sub-Lieutenant
+    - เรืออากาศโท  # Flight Lieutenant
 
 tags:
   - list.pep
