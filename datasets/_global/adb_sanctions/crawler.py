@@ -128,7 +128,14 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
 
     first_org = None
     for entity_data in entities_data:
-        entity = context.make(schema)
+        # entityType describes the subject of the row. Any further entities the
+        # extraction pulls out of the name fields are co-mentioned parties -
+        # typically the firm an individual is associated with - whose type the
+        # source doesn't state, so don't claim they are people, too.
+        if first_org is not None and schema == "Person":
+            entity = context.make("LegalEntity")
+        else:
+            entity = context.make(schema)
         # TODO: add schema to the key so a Firm and an Individual of the same name
         # can't collide — needs re-keying the whole dataset.
         entity.id = context.make_id(entity_data.name[0], country)
