@@ -84,7 +84,11 @@ def crawl_excel_url(context: Context) -> str:
     # Parse out the table data JSON embedded in the HTML
     start = txt.find("WPQ2ListData") + 15
     end = txt.find("WPQ2SchemaData") - 5
-    assert 15 < start < end, "Table data markers not found in page"
+    assert 15 < start < end, (
+        "Table data markers not found in page - the portal is likely "
+        "unavailable (it is down outside 07:00-19:00 ET, all weekend, "
+        "and on state holidays)"
+    )
     rows = json.loads(txt[start:end])["Row"]
     # Assert that the table is in descending date order (using ID as proxy for date)
     assert all(a["ID"] > b["ID"] for a, b in zip(rows, rows[1:])), "Not sorted desc"
