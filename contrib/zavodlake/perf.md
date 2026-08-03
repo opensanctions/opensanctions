@@ -201,6 +201,30 @@ Takeaways:
 - Single-file point reads (90–310 ms) are fine for the side-by-side web view use
   case without any server-side state.
 
+## Remote materialization: on-disk duckdb table from the mirror (2026-08-03)
+
+The stateless-service bootstrap path: a fresh file-backed duckdb pulls the
+sanctions scope (91 files, 149 MB parquet, 4.35M statements) straight off the
+mirror into a statements table, then indexes entity_id
+(`contrib/zavodlake/bench_materialize.py`):
+
+| step | CDN (remote) | local files |
+| --- | --- | --- |
+| materialize table | 7.9 s | 1.4 s |
+| index entity_id | 1.1 s | 1.0 s |
+| **total to queryable** | **9.0 s** | **2.4 s** |
+
+Identical output either way: 4,352,964 rows, 384,880 entities, ~415 MB on disk.
+
+The remote pull adds ~6.5 s of network — ~19 MB/s effective from a residential
+connection *including* the 91 per-file round trips. Unlike point lookups, the
+CTAS streams files in parallel, so per-file latency largely amortizes away.
+Nine seconds from nothing to an indexed store that serves batched reads at
+0.06 ms/entity (exp1) validates the download → materialize → serve shape for a
+stateless Cloud Run service. Extrapolated to the full default lake (3.9 GB,
+127M rows): ~3.5 min from here; from inside GCP it converges toward the
+compute-bound floor, roughly a minute plus index.
+
 ## Alternative: materialize into a local duckdb table
 
 Another possible way to play some of the experiments: instead of querying the
