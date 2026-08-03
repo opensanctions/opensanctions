@@ -29,7 +29,7 @@ def crawl_member(
     # https://www.constituteproject.org/constitution/Thailand_2017
     person.add("citizenship", "th")
 
-    start_date = record.pop("START_DATE", None) or record.pop("MEMBER_STARTDATE", None)
+    start_date = record.pop("START_DATE", record.pop("MEMBER_STARTDATE"))
     end_date = record.pop("END_DATE", None) or record.pop("MEMBER_ENDDATE", None)
     occupancy = h.make_occupancy(
         context,
