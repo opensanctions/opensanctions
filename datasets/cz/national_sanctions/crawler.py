@@ -1,7 +1,6 @@
 import csv
 import re
 
-from normality import slugify
 from rigour.mime.types import CSV
 from rigour.names import pick_name
 
@@ -20,40 +19,21 @@ STATUS_CANCELLED = "zrušen"
 
 
 def crawl_item(context: Context, row: dict[str, str]) -> None:
-    # Jméno fyzické osoby
-    # -> First name of the natural person
-
-    first_name_field = row.pop("jmeno_fyzicke_osoby").strip('"').strip()
+    first_name_field = row.pop("first_name").strip('"').strip()
     # Cleaning here rather than via type.string lookup because we assemble full
     # names from these.
     first_names = h.multi_split(first_name_field, ["/"])
 
-    # Příjmení fyzické osoby / Název právnické osoby / Označení nebo název entity
-    # -> Last name of the natural person / Name of the legal entity / Designation or name of the entity
-    name_field = row.pop(
-        "prijmeni_fyzicke_osoby_nazev_pravnicke_osoby_oznaceni_nebo_nazev_entity"
-    ).strip()
+    name_field = row.pop("last_name_or_entity_name").strip()
+    birth_date = row.pop("birth_date")
+    countries = row.pop("nationality_or_country")
+    provision = row.pop("eu_provision")
 
-    # Datum narození fyzické osoby
-    # -> Date of birth of the natural person
-    birth_date = row.pop("datum_narozeni_fyzicke_osoby")
-
-    # Státní příslušnost fyzické osoby / sídlo právnické osoby
-    # -> Nationality of the natural person / registered office of the legal entity
-    countries = row.pop("statni_prislusnost_fyzicke_osoby_sidlo_pravnicke_osoby")
-
-    # Ustanovení předpisu Evropské unie, jehož skutkovou podstatu subjekt jednáním naplnil
-    # -> Provision of the European Union regulation, the factual basis of which the subject fulfilled by action
-    provision = row.pop(
-        "ustanoveni_predpisu_evropske_unie_jehoz_skutkovou_podstatu_subjekt_jednanim_naplnil"
-    )
-
-    status = row.pop("stav_zapisu")
+    status = row.pop("entry_status")
     if status not in (STATUS_VALID, STATUS_AMENDED, STATUS_CANCELLED):
         context.log.warning("Unknown entry status", status=status, name=name_field)
 
-    # Poznámka ke stavu zápisu -> Note on the status of the entry
-    status_note = row.pop("poznamka_ke_stavu_zapisu").strip()
+    status_note = row.pop("entry_status_note").strip()
     # One note states the wrong year, so the dates pass through a lookup.
     status_dates = [
         context.lookup_value("status_note_dates", text, text)
@@ -97,8 +77,7 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
         program_key=h.lookup_sanction_program_key(context, provision),
     )
     sanction.add("program", provision, lang="ces")
-    # Datum zápisu či jeho změny -> Date of the entry or its amendment
-    h.apply_date(sanction, "startDate", row.pop("datum_zapisu_ci_jeho_zmeny"))
+    h.apply_date(sanction, "startDate", row.pop("entry_date"))
     sanction.add("status", status, lang="ces")
     sanction.add("summary", status_note, lang="ces")
     if status == STATUS_CANCELLED:
@@ -121,15 +100,10 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
     if h.is_active(sanction):
         entity.add("topics", "sanction")
 
-    # Popis postižitelného jednání -> Description of punishable conduct
-    sanction.add("reason", row.pop("popis_postizitelneho_jednani"), lang="ces")
-
-    # Uplatňovaná omezující opatření -> Restrictive measures applied
-    sanction.add("provisions", row.pop("uplatnovana_omezujici_opatreni"), lang="ces")
-
-    # Právní předpis zápisu
-    # -> Legal instrument of the entry (a government resolution)
-    sanction.add("recordId", row.pop("pravni_predpis_zapisu"), lang="ces")
+    sanction.add("reason", row.pop("conduct_description"), lang="ces")
+    sanction.add("provisions", row.pop("restrictive_measures"), lang="ces")
+    # The legal instrument of the entry, i.e. a government resolution.
+    sanction.add("recordId", row.pop("entry_legal_instrument"), lang="ces")
 
     context.emit(entity)
     context.emit(sanction)
@@ -153,14 +127,15 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
+    columns = context.get_lookup("columns")
     with open(path, encoding="utf-8") as fh:
         for record in csv.DictReader(fh):
             row = dict()
             for header, value in record.items():
-                key = slugify(header, "_")
-                if key is None:
-                    raise ValueError(f"Blank column heading: {header!r}")
-                if value is None:
-                    raise ValueError(f"Missing value for column {header!r}")
-                row[key] = value
+                # An unmapped heading is passed through under its source name, so
+                # the pops in crawl_item fail or audit_data warns about it. A row
+                # with fewer values than headings has None values.
+                column = columns.get_value(header, header)
+                assert column is not None and value is not None, record
+                row[column] = value
             crawl_item(context, row)
