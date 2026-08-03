@@ -85,7 +85,7 @@ def crawl(context: Context) -> None:
     # Crawl every Senate set it lists, current and past, from the datastore API. Each set is
     # published as a CSV and an XLSX backed by the same datastore; read the CSV so we
     # don't crawl the same records twice.
-    package = context.fetch_json(context.data_url, cache_days=7)
+    package = context.fetch_json(context.data_url, cache_days=1)
     search_url = urljoin(context.data_url, "/api/3/action/datastore_search")
 
     for resource in package["result"]["resources"]:
