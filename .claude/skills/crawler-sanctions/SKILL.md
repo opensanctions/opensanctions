@@ -43,14 +43,14 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 1000       # ~80% of expected count
+      Person: 1000       # band widths: see "Data assertions" in zavod/docs/metadata.md
       Organization: 200
       Sanction: 1000
     country_entities:
       cc: 100
   max:
     schema_entities:
-      Person: 5000       # ~150% of expected count
+      Person: 5000
       Organization: 1000
 ```
 

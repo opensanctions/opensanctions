@@ -100,22 +100,27 @@ tags:
   - list.pep
 ```
 
-- `frequency` matches source update cadence. PEP crawlers do not have to be monthly.
-- **`assertions`: derive the bands from your actual crawl, and keep them wide.** Do not
-  guess from the chamber's seat count — a crawler covering past terms holds several
-  times its seat count and grows every election (`et_hopr` runs `min: 600` /
-  `max: 2500` for a 547-seat chamber). Include `Position` counts when the crawler
-  creates multiple position types.
-- `ci_test: false` needs an inline comment saying why (Zyte, or a runtime over the
-  2-minute CI budget).
+- `coverage.frequency`: house default for PEP sources is `monthly` — see the frequency defaults in `zavod/docs/metadata.md`.
+- **`assertions`: base the bands on what the crawl actually emitted, not on the
+  chamber's seat count.** For the band widths themselves follow the rule of thumb in
+  `zavod/docs/metadata.md`; the PEP-specific trap is the expected number it applies
+  to. A crawler covering past terms holds several times the seat count and gains a
+  cohort every election, so take the expected count from the run, not the
+  constitution. Include `Position` counts when the crawler creates multiple position
+  types.
+- `ci_test: false` needs a comment saying why (Zyte, or a runtime over the 2-minute CI
+  budget) — see the maintainer-notes convention in `zavod/docs/metadata.md`.
 - Lookups rarely go past `type.*` for PEP crawlers. Non-English role labels are handled
   by `translate_name=True` in `make_position`; a `position` translation lookup is only
-  worth it when the source has very few distinct labels.
+  worth it when the source has very few distinct labels. A non-`type.*` lookup needs a
+  comment above it explaining what it matches and what the crawler does with the result.
 - **Constants belong in the YAML, not the crawler.** A gender map, request headers, a
   user agent, date formats or column labels go into `lookups` / `http` / `dates` /
   `config` — use `/crawler-constants-to-yml` if you have already written one in code.
 - For `title`, `description` and `coverage.frequency` on a legislature dataset, apply
-  `/legislature-metadata` rather than inventing a house style here.
+  `/legislature-metadata`, and `/dataset-metadata` for the remaining fields, rather
+  than inventing a house style here. Note that per-record field lists ("records each
+  member with their name, party and date of birth") do not belong in `description`.
 
 ## Step 3: Write the crawler module
 

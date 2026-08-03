@@ -70,12 +70,10 @@ assertions:
 
 Key rules:
 - Always set `load_statements: true`.
-- Set assertions to ~80% min / ~150% max of expected counts. Checked by
-  `zavod validate`, not by `zavod crawl`. See the "Data assertions" section of
-  `zavod/docs/metadata.md` for the metrics and comparison semantics.
-- Write `summary` and `description` to be **time-agnostic** — describe the source's
-  purpose and update cadence, not the current snapshot (e.g. "Members of parliament,
-  updated after each election" not "Members since the 2023 elections").
+- Set assertions on the counts you expect. They are checked by `zavod validate`, not by
+  `zavod crawl`. For the band widths, the metrics and the comparison semantics, follow
+  the "Data assertions" section of `zavod/docs/metadata.md`.
+- `title`, `summary` and `description` conventions live in `zavod/docs/metadata.md`.
 
 ## The crawler module
 
