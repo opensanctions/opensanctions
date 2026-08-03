@@ -41,8 +41,11 @@ def fetch_source(context: Context) -> Path:
         if "instrumentIdentifier" in header:
             return source_file
         # We got the HTML landing page (or some other non-CSV response).
-        # Drop the cached file so the next attempt re-fetches.
-        context.log.warn(
+        # Drop the cached file so the next attempt re-fetches. A handshake that
+        # recovers on a later attempt is not worth a warning - only the final,
+        # exhausted attempt is (it raises below).
+        log = context.log.warn if attempt == FETCH_ATTEMPTS else context.log.info
+        log(
             "ESMA export did not return CSV, session handshake likely failed",
             attempt=attempt,
             header=header[:200],
