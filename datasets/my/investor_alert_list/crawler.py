@@ -4,6 +4,20 @@ import re
 from zavod import Context
 from zavod import helpers as h
 
+# The website column lists several URLs per entry, separated by a pipe, a newline,
+# or both. A newline not followed by the start of a URL is a line wrap inside one.
+WEBSITE_SPLIT = re.compile(r"\s*\|\s*|[\r\n]+(?=https?://|www\.)", re.IGNORECASE)
+WEBSITE_WRAP = re.compile(r"[\r\n]+")
+
+
+def split_websites(value: str) -> list[str]:
+    websites: list[str] = []
+    for part in WEBSITE_SPLIT.split(value):
+        part = WEBSITE_WRAP.sub("", part).strip()
+        if len(part):
+            websites.append(part)
+    return websites
+
 
 def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     name = input_dict.pop("name")
@@ -24,8 +38,7 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     if potential_clone:
         entity.add("description", "Potential clone entity")
 
-    for website in input_dict.pop("website").split(" | "):
-        entity.add("website", website)
+    entity.add("website", split_websites(input_dict.pop("website")))
 
     context.emit(entity)
 
