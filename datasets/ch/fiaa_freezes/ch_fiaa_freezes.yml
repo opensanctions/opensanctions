@@ -76,6 +76,7 @@ dates:
   formats: ["%Y-%m-%d", "%Y-%m"]
 tags:
   - list.sanction
+  - risk.klepto
   - juris.ch
   - issuer.west
 
