@@ -134,7 +134,6 @@ children:
   - kz_mazhilis
   - kz_senate
   - li_landtag
-  - lt_pep_declarations
   - lt_seimas
   - lu_bourgmestres
   - lu_chamber
