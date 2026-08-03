@@ -29,8 +29,8 @@ def crawl_member(
     # https://www.constituteproject.org/constitution/Thailand_2017
     person.add("citizenship", "th")
 
-    start_date = record.pop("START_DATE", record.pop("MEMBER_STARTDATE"))
-    end_date = record.pop("END_DATE", record.pop("MEMBER_ENDDATE"))
+    start_date = record.pop("START_DATE", None) or record.pop("MEMBER_STARTDATE", None)
+    end_date = record.pop("END_DATE", None) or record.pop("MEMBER_ENDDATE", None)
     occupancy = h.make_occupancy(
         context,
         person,
@@ -69,6 +69,24 @@ def crawl_member(
     context.emit(person)
 
 
+def fetch_records(
+    context: Context, search_url: str, resource_id: str
+) -> list[dict[str, Any]]:
+    # datastore_search returns one page at a time; page through it by offset until we've
+    # read every record the API reports, so we never silently drop the tail of a set.
+    records: list[dict[str, Any]] = []
+    total = None
+    while total is None or len(records) < total:
+        result = context.fetch_json(
+            search_url,
+            params={"resource_id": resource_id, "offset": len(records)},
+            cache_days=14,
+        )["result"]
+        total = result["total"]
+        records.extend(result["records"])
+    return records
+
+
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
@@ -91,13 +109,7 @@ def crawl(context: Context) -> None:
     for resource in package["result"]["resources"]:
         if (resource.get("format") or "").upper() != "CSV":
             continue
-        # A Senate set has a few hundred members; one large page fetches them all.
-        result = context.fetch_json(
-            search_url,
-            params={"resource_id": resource["id"], "limit": 10000},
-            cache_days=14,
-        )["result"]
-        records = result["records"]
+        records = fetch_records(context, search_url, resource["id"])
         context.log.info(
             "Crawling Senate set", name=resource["name"], members=len(records)
         )
