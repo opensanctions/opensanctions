@@ -17,13 +17,13 @@ def crawl_member(
 ) -> None:
     raw_name = record.pop("MEMBER_NAME")
     clean_name = h.strip_name_titles(context, raw_name)
-    assert clean_name
 
     person = context.make("Person")
     person.id = context.make_id(record.pop("MEMBER_CODE"), raw_name)
     original_name = raw_name if clean_name != raw_name else None
     person.add("name", clean_name, lang="tha", original_value=original_name)
-    apply_translit_full_name(context, person, LangText(clean_name, "tha"))
+    if clean_name is not None:
+        apply_translit_full_name(context, person, LangText(clean_name, "tha"))
     # A candidate for the Senate must be of Thai nationality by birth (Constitution of
     # Thailand 2017, Section 108(1)).
     # https://www.constituteproject.org/constitution/Thailand_2017
