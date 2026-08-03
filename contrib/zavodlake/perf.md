@@ -159,6 +159,48 @@ LevelDB needs a ~17 s sync before it can serve the 11.5 s scan, while the DuckDB
 store reads the parquet artifacts directly after a 0.14 s init — ~14 s vs ~28 s from
 cold statement artifacts.
 
+## Remote latency: bucket mirror over HTTPS (2026-08-03)
+
+The full default lake (446 files) is synced to `contrib/zlake/` in the archive
+bucket (`python -m contrib.zavodlake.cli sync`). Queried the sanctions scope
+(91 files) from a laptop in DE via duckdb httpfs (`contrib/zavodlake/bench_remote.py`),
+over two transports: the public bunny.net CDN (`data.opensanctions.org`) and
+V4-signed raw GCS URLs (minted via IAM signBlob as the read-only crawler-team
+service account, `contrib/zavodlake/signing.py`), plus the same queries against
+the local lake files for scale:
+
+| query | CDN | signed GCS | local NVMe |
+| --- | --- | --- | --- |
+| glob 4-id, cold connection | 3.12 s | 3.01 s | 0.01 s |
+| glob 4-id, warm | 0.96 s | 1.37 s | 0.01 s |
+| glob 1000-id, warm | 1.59 s | 2.55 s | 0.01 s |
+| single file (us_ofac_sdn) 1-id, cold | 0.31 s | 0.51 s | <0.01 s |
+| single file 1-id, warm | 0.09 s | 0.12 s | <0.01 s |
+
+(Each transport is a separate run and the id sample is not deterministic across
+runs, so row counts differ slightly; the workload magnitude is identical.)
+
+Takeaways:
+
+- **Local files are 2–3 orders of magnitude faster than either transport** — the
+  remote cost is pure network round trips (~30 ms per footer/row-group fetch that
+  is sub-millisecond locally). Remote-in-place querying suits interactive,
+  low-request-count access; bulk consumers (xref, exports, store builds) should
+  download the parquet files and query locally. Measured from a residential
+  connection; in-GCP numbers would land in between.
+- **The CDN wins on every warm query** — raw GCS is 40–60% slower from here, and
+  signing added a 19 s setup (~0.21 s per sequential signBlob call, one per file).
+  Signed URLs also expire (6 h default), which sits badly with 8 h+ ETL runs and
+  with caching query plans/URL lists. No reason to bypass bunny for reads.
+- Cold cost is per-file footer fetches: ~34 ms/file on the 91-file scope; a full
+  default-lake (447 file) cold sweep extrapolates to ~15 s before any data reads.
+- Warm whole-scope queries have a ~1 s floor regardless of result size; batch-1000
+  lookups amortize to **1.6 ms/entity** (13× the local 0.12 ms) — a 500k-entity xref
+  prefetch straight off the bucket would be ~13 min, so remote reads want either a
+  local download-then-query step or a consolidated file.
+- Single-file point reads (90–310 ms) are fine for the side-by-side web view use
+  case without any server-side state.
+
 ## Alternative: materialize into a local duckdb table
 
 Another possible way to play some of the experiments: instead of querying the

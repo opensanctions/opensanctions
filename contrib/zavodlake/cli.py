@@ -5,10 +5,11 @@ import duckdb
 
 from zavod import settings
 from zavod.logs import configure_logging, get_logger
-from zavod.meta import load_directory_catalog
+from zavod.meta import Dataset, load_directory_catalog
 
-from contrib.zavodlake.convert import convert_dataset
+from contrib.zavodlake.convert import convert_dataset, dataset_parquet_path
 from contrib.zavodlake.fetch import fetch_dataset
+from contrib.zavodlake.sync import sync_dataset
 
 log = get_logger("zavodlake")
 
@@ -16,6 +17,29 @@ log = get_logger("zavodlake")
 # format (headerless, no id column). Skipped rather than crashing the build;
 # remove once they are re-exported or leave the scope collection.
 SKIP_DATASETS = {"lt_pep_declarations"}
+
+
+def _configure_archive() -> None:
+    if settings.ARCHIVE_BACKEND == "FileSystemBackend" and (
+        settings.ARCHIVE_BUCKET is None
+    ):
+        log.info("Archive not configured, defaulting to production bucket")
+        settings.ARCHIVE_BACKEND = "GoogleCloudBackend"
+        settings.ARCHIVE_BUCKET = "data.opensanctions.org"
+
+
+def _select_leaves(scope_name: str, datasets: tuple[str, ...]) -> list[Dataset]:
+    catalog = load_directory_catalog()
+    scope = catalog.require(scope_name)
+    leaves = sorted(scope.leaves, key=lambda d: d.name)
+    if len(datasets) > 0:
+        unknown = set(datasets) - {leaf.name for leaf in leaves}
+        if len(unknown) > 0:
+            raise click.BadParameter(
+                f"Not leaf datasets of {scope_name!r}: {', '.join(sorted(unknown))}"
+            )
+        leaves = [leaf for leaf in leaves if leaf.name in set(datasets)]
+    return leaves
 
 
 @click.group(help="Parquet statement lake prototyping workbench")
@@ -40,23 +64,8 @@ def cli() -> None:
 )
 def build(datasets: tuple[str, ...], scope_name: str, force: bool) -> None:
     configure_logging(level=logging.INFO)
-    if settings.ARCHIVE_BACKEND == "FileSystemBackend" and (
-        settings.ARCHIVE_BUCKET is None
-    ):
-        log.info("Archive not configured, defaulting to production bucket")
-        settings.ARCHIVE_BACKEND = "GoogleCloudBackend"
-        settings.ARCHIVE_BUCKET = "data.opensanctions.org"
-
-    catalog = load_directory_catalog()
-    scope = catalog.require(scope_name)
-    leaves = sorted(scope.leaves, key=lambda d: d.name)
-    if len(datasets) > 0:
-        unknown = set(datasets) - {leaf.name for leaf in leaves}
-        if len(unknown) > 0:
-            raise click.BadParameter(
-                f"Not leaf datasets of {scope_name!r}: {', '.join(sorted(unknown))}"
-            )
-        leaves = [leaf for leaf in leaves if leaf.name in set(datasets)]
+    _configure_archive()
+    leaves = _select_leaves(scope_name, datasets)
 
     conn = duckdb.connect()
     temp_path = settings.DATA_PATH / "lake" / ".duckdb_tmp"
@@ -93,6 +102,49 @@ def build(datasets: tuple[str, ...], scope_name: str, force: bool) -> None:
         fresh=fresh,
         missing=missing,
         skipped=skipped,
+    )
+
+
+@cli.command("sync", help="Upload lake parquet files to the bucket mirror")
+@click.argument("datasets", nargs=-1)
+@click.option(
+    "--scope",
+    "scope_name",
+    default="default",
+    show_default=True,
+    help="Collection whose leaf datasets are processed",
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    default=False,
+    help="Re-upload even if the remote pointer already has this version",
+)
+def sync(datasets: tuple[str, ...], scope_name: str, force: bool) -> None:
+    configure_logging(level=logging.INFO)
+    _configure_archive()
+    leaves = _select_leaves(scope_name, datasets)
+
+    conn = duckdb.connect()
+    uploaded, fresh, missing = 0, 0, 0
+    for leaf in leaves:
+        if not dataset_parquet_path(leaf.name).is_file():
+            log.warning("No lake parquet, skipping", dataset=leaf.name)
+            missing += 1
+            continue
+        version = sync_dataset(conn, leaf.name, force=force)
+        if version is None:
+            log.info("Remote pointer is up to date", dataset=leaf.name)
+            fresh += 1
+            continue
+        log.info("Synced to bucket", dataset=leaf.name, version=version)
+        uploaded += 1
+    log.info(
+        "Lake sync complete",
+        scope=scope_name,
+        uploaded=uploaded,
+        fresh=fresh,
+        missing=missing,
     )
 
 
