@@ -9,11 +9,14 @@ NumberValue = str | int | float | Decimal
 log = get_logger(__name__)
 
 
-def _float_str(float: float) -> str:
-    # TODO: move to ftm to standardize
-    if float.is_integer():
-        return str(int(float))
-    return f"{float:.2f}"
+def _float_str(value: float) -> str:
+    if value.is_integer():
+        return str(int(value))
+    return repr(value)
+
+
+def _decimal_str(value: Decimal) -> str:
+    return format(value.normalize(), "f")
 
 
 def apply_number(
@@ -54,7 +57,7 @@ def apply_number(
     elif isinstance(value, float):
         text = _float_str(value)
     elif isinstance(value, Decimal):
-        text = f"{value:.2f}"
+        text = _decimal_str(value)
     else:
         text = str(value)
     entity.unsafe_add(
