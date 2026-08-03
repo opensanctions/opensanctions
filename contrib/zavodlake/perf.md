@@ -219,6 +219,16 @@ Identical output either way: 4,352,964 rows, 384,880 entities, ~415 MB on disk.
 The remote pull adds ~6.5 s of network — ~19 MB/s effective from a residential
 connection *including* the 91 per-file round trips. Unlike point lookups, the
 CTAS streams files in parallel, so per-file latency largely amortizes away.
+
+The CTAS is automatically parallel (scan splits across files and row groups
+onto all threads; httpfs issues concurrent range requests): single-threaded it
+is 3× slower. One knob buys more: `SET preserve_insertion_order = false` lets
+the insert stage run parallel too instead of re-serializing scan output —
+2.5× faster locally (0.5 s → 0.2 s in-memory), ~20% remotely (8.5 s → 6.8 s,
+network-bound), and it is the documented fix for out-of-memory on very large
+loads (relevant at full-lake scale). Safe for us: statement order in the table
+is meaningless, everything reads via the entity_id index. A bootstrap service
+should always set it before materializing.
 Nine seconds from nothing to an indexed store that serves batched reads at
 0.06 ms/entity (exp1) validates the download → materialize → serve shape for a
 stateless Cloud Run service. Extrapolated to the full default lake (3.9 GB,
