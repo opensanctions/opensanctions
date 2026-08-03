@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta, UTC
 from structlog.testing import capture_logs
 
+from prefixdate import parse_format
+
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
 from zavod.meta.dates import DatesSpec
 from zavod.helpers.dates import extract_years, extract_date, backdate
 from zavod.helpers.dates import replace_months, apply_date, apply_dates
-from zavod.helpers.dates import within_max_age
+from zavod.helpers.dates import within_max_age, _apply_base_century
 from zavod.settings import RUN_TIME
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
@@ -125,6 +127,16 @@ def test_dates_spec_base_century() -> None:
     assert spec.base_century == 1930
     spec = DatesSpec(formats=["%d-%m-%Y"])
     assert spec.base_century is None
+
+
+def test_apply_base_century() -> None:
+    parsed = parse_format("16-07-68", "%d-%m-%y")
+    assert parsed.text == "2068-07-16"
+    assert _apply_base_century(parsed, 1900).text == "1968-07-16"
+    assert _apply_base_century(parsed, 1930).text == "1968-07-16"
+    assert _apply_base_century(parsed, 2000).text == "2068-07-16"
+    month = parse_format("07-68", "%m-%y")
+    assert _apply_base_century(month, 1900).text == "1968-07"
 
 
 def test_within_max_age(vcontext: Context):

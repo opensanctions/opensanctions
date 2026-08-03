@@ -1,7 +1,7 @@
 import re
 from functools import lru_cache
 from normality import stringify
-from prefixdate import parse_formats
+from prefixdate import parse_format, parse_formats, DatePrefix, Precision
 from rigour.dates import ended_before
 from datetime import datetime, date, timedelta, UTC
 from typing import TYPE_CHECKING
@@ -73,6 +73,17 @@ def replace_months(dataset: Dataset, text: str) -> str:
     return spec.months_re.sub(lambda m: spec.mappings[m.group().lower()], text)
 
 
+def _apply_base_century(parsed: DatePrefix, base_century: int) -> DatePrefix:
+    """Map the two-digit year of a parsed date into the century window
+    starting at ``base_century`` (e.g. 1900 -> 1900-1999, 1930 -> 1930-2029)."""
+    if parsed.dt is None:
+        return parsed
+    two_digit = parsed.dt.year % 100
+    year = base_century + ((two_digit - base_century) % 100)
+    dt = parsed.dt.replace(year=year)
+    return DatePrefix(dt, precision=parsed.precision)
+
+
 @lru_cache(maxsize=5000)
 def extract_date(
     dataset: Dataset,
@@ -99,9 +110,25 @@ def extract_date(
     replaced_text = replace_months(dataset, text)
     dataset_formats_ = dataset.dates.formats + ALWAYS_FORMATS
     formats_ = dataset_formats_ if formats is None else list(formats)
-    parsed = parse_formats(replaced_text, formats_)
-    if parsed.text is not None:
-        return [parsed.text]
+    parsed = None
+    matched_format = None
+    for fmt in formats_:
+        candidate = parse_format(replaced_text, fmt)
+        if candidate.precision != Precision.EMPTY:
+            parsed = candidate
+            matched_format = fmt
+            break
+    if parsed is not None and parsed.text is not None:
+        base_century = dataset.dates.base_century
+        if (
+            matched_format is not None
+            and "%y" in matched_format
+            and base_century is not None
+        ):
+            parsed = _apply_base_century(parsed, base_century)
+        text = parsed.text
+        assert text is not None
+        return [text]
     if dataset.dates.year_only:
         years = extract_years(text)
         if len(years):
