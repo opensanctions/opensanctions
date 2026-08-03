@@ -240,6 +240,9 @@ def parse_lei_record(
         proxy.add_schema("Company")
         proxy.add("topics", "corp.public")
         security = h.make_security(context, isin)
+        if security is None:
+            context.log.warn("Invalid ISIN", isin=isin, lei=lei)
+            continue
         security.add("issuer", proxy.id)
         security.add("country", entity.findtext("LegalJurisdiction"))
         context.emit(security)
