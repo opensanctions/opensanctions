@@ -23,7 +23,7 @@ export default function PositionTaggerForm({ searchParams, countries, datasets }
             name="q"
             type="text"
             defaultValue={searchParams.q || ""}
-            placeholder="Search position name"
+            placeholder="Search position name or exact ID"
             className="form-control"
           />
         </Col>
