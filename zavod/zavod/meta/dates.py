@@ -1,6 +1,6 @@
 import re
 from typing import Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from banal import ensure_list
 
 from zavod.logs import get_logger
@@ -17,6 +17,14 @@ class DatesSpec(BaseModel):
     months: dict[str | int, str | list[str]] = {}
     mappings: dict[str, str] = Field(default_factory=dict, exclude=True, init=False)
     months_re: re.Pattern[str] | None = Field(default=None, exclude=True, init=False)
+
+    @model_validator(mode="after")
+    def require_base_century_for_two_digit_years(self) -> "DatesSpec":
+        for fmt in self.formats:
+            if "%y" in fmt and self.base_century is None:
+                msg = f"Date format {fmt!r} uses %y, which requires a base_century"
+                raise ValueError(msg)
+        return self
 
     def model_post_init(self, _: Any) -> None:
         """Process months mapping after model initialization."""

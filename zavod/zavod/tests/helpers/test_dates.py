@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, UTC
 from structlog.testing import capture_logs
 
+import pytest
+from pydantic import ValidationError
 from prefixdate import parse_format
 
 from zavod.context import Context
@@ -144,6 +146,15 @@ def test_extract_date_base_century(testdataset_dates: Dataset) -> None:
     assert testdataset_dates.dates.base_century == 1900
     assert extract_date(testdataset_dates, "16-07-68") == ["1968-07-16"]
     assert extract_date(testdataset_dates, "01-01-05") == ["1905-01-01"]
+
+
+def test_dates_spec_requires_base_century_for_two_digit_years() -> None:
+    with pytest.raises(ValidationError):
+        DatesSpec(formats=["%d-%m-%y"])
+    spec = DatesSpec(formats=["%d-%m-%y"], base_century=1900)
+    assert spec.base_century == 1900
+    # %Y formats and ISO formats do not require base_century
+    DatesSpec(formats=["%d-%m-%Y", "%Y-%m-%d"])
 
 
 def test_within_max_age(vcontext: Context):
