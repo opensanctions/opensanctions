@@ -83,6 +83,19 @@ SANCTION_FEATURES = {
     "Listing Date (CMIC)": "listingDate",
 }
 IMO_RE = re.compile(r"IMO \d{6,9}")
+# Lists whose entries are keyed by their own program tag, because the list bundles
+# designations made under several unrelated legal authorities. `programId` names the
+# authority, so for these the tag is the key and list membership is only a delivery
+# mechanism. The other consolidated lists each correspond to a single authority, so
+# their list name already identifies it - and their entries carry the same tags as
+# SDN entries (e.g. UKRAINE-EO13662 appears on both SSI and NS-MBS), so the tag
+# alone cannot tell them apart. Each dataset maps the keys it can encounter in its
+# own sanction.program lookup. cf. #4980
+AUTHORITY_KEYED_LISTS = {
+    "SDN List",
+    "Non-SDN Menu-Based Sanctions List",
+    "CAPTA List",
+}
 
 
 def get_relation_schema(party_schema: Schema | None, range: Schema | None) -> Schema:
@@ -541,7 +554,14 @@ def parse_id_reg_document(
 
 
 def extract_sanctions_measure_name(entry: Element, refs: Element) -> str | None:
-    """Extract the source program tag from a sanctions entry."""
+    """Extract the source program tag from a sanctions entry.
+
+    An entry can carry several Program-type measures, i.e. name several legal
+    authorities at once. We take the first one, so the others survive only in
+    `provisions`. Which tag comes first is decided by OFAC's element order, so
+    the choice is arbitrary where the tags resolve to different programs.
+    Making `programId` multi-valued is tracked separately, cf. #4980.
+    """
     for measure in entry.findall("./SanctionsMeasure"):
         sanctions_type_id = measure.get("SanctionsTypeID")
         sanctions_type = get_ref_text(refs, "SanctionsType", sanctions_type_id)
@@ -566,17 +586,7 @@ def emit_sanctions_entry(
 
     dataset = context.dataset.name
     list_id = get_ref_text(refs, "List", entry.get("ListID"))
-    # For entries on the SDN list, the XML contains a more specific sanctions program designation
-    # For the various lists that are part of the Consolidated List, we use the list name as the program.
     source_program = extract_sanctions_measure_name(entry, refs)
-    program = source_program if list_id == "SDN List" else list_id
-    # HKAA entries are published on the multi-authority NS-MBS list. Use the
-    # source program tag for their program ID without changing how other
-    # consolidated-list entries are attributed.
-    # TODO(#4980): other CONS entries (SSI/CMIC/NS-PLC/NS-MBS) also carry Program-type
-    # source tags (e.g. RUSSIA-EO14024, CMIC-EO13959) but stay attributed to their list
-    # program. Generalize to prefer a resolvable source tag and drop this HKAA special case.
-    program_lookup_key = "HKAA" if source_program == "HKAA" else program
     # For us_ofac_sdn, only process entries with list_id 'SDN List'
     if dataset == "us_ofac_sdn" and list_id != "SDN List":
         return None
@@ -591,21 +601,32 @@ def emit_sanctions_entry(
         "SDN List",
     }:
         return None
+    if source_program is None:
+        context.log.warning(
+            "Sanctions entry has no program tag",
+            entry_id=entry.get("ID"),
+            list_id=list_id,
+        )
+    # `programId` identifies the legal authority under which the designation was
+    # made, while `program` keeps OFAC's own tag verbatim for source fidelity.
+    program_source_key = source_program if list_id in AUTHORITY_KEYED_LISTS else list_id
     sanction = h.make_sanction(
         context,
         proxy,
         key=entry.get("ID"),
-        program_name=program,
-        source_program_key=program_lookup_key,
-        # For entries on the SDN list, the XML contains a more specific sanctions program designation
-        # For the various lists that are part of the Consolidated List, we use the list name as the program.
+        program_name=source_program,
+        source_program_key=program_source_key,
         program_key=(
-            h.lookup_sanction_program_key(context, program_lookup_key)
-            if program_lookup_key
+            h.lookup_sanction_program_key(context, program_source_key)
+            if program_source_key
             else None
         ),
     )
     sanction.set("authorityId", entry.get("ProfileID"))
+    if dataset == "us_ofac_cons":
+        # FtM has no property for list membership, so which of the consolidated
+        # lists delivered the designation lives in free text. cf. #4980
+        sanction.add("summary", f"Source list: {list_id}")
 
     for event in entry.findall("./EntryEvent"):
         sanction.add("summary", event.findtext("./Comment"))
