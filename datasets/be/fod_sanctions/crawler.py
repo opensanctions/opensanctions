@@ -1,11 +1,30 @@
 from csv import DictReader
+from datetime import datetime
 
 from rigour.mime.types import CSV
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.review import assert_all_accepted
+
+
+def normalize_birth_date(value: str) -> str:
+    """Map a two-digit birth year into the past century.
+
+    ``strptime`` pivots ``%y`` years 00-68 into the 20xx range, so pre-1969
+    birth dates parse into the future. Birth dates can never be in the future,
+    so shift any future result back by 100 years.
+    """
+    if not value or not value.strip():
+        return value
+    try:
+        parsed = datetime.strptime(value, "%d-%m-%y")
+    except ValueError:
+        return value
+    if parsed.year > settings.RUN_TIME.year:
+        parsed = parsed.replace(year=parsed.year - 100)
+    return parsed.date().isoformat()
 
 
 # count of identifiers by number of parts (split on opening paren)
@@ -70,7 +89,8 @@ def crawl_row(
         entity.add("gender", row.pop("Gender"))
         entity.add("birthPlace", row.pop("Birth place"))
         entity.add("country", row.pop("Birth country"))
-        h.apply_dates(entity, "birthDate", row.pop("Birth date"))
+        birth_dates = [normalize_birth_date(d) for d in row.pop("Birth date")]
+        h.apply_dates(entity, "birthDate", birth_dates)
         entity.add("position", row.pop("Function"))
     else:
         # There's an organization with the following Firstname
