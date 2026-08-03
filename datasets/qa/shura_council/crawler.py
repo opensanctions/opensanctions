@@ -6,11 +6,6 @@ from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
-# Every member is rendered in a div.card. The class must be matched exactly:
-# contains(@class, "card") also matches the nested div.card-body and returns each
-# member twice.
-CARD = '//div[@class="card"]'
-
 # The roster's own name for plain membership, as opposed to the two leadership
 # offices its holders occupy in addition to their seat.
 MEMBER = "Member of the Shura Council of Qatar"
@@ -24,7 +19,7 @@ def member_cards(doc: Element) -> dict[str, Element]:
     is what lets the Arabic and English rosters be joined.
     """
     cards: dict[str, Element] = {}
-    for card in h.xpath_elements(doc, CARD):
+    for card in h.xpath_elements(doc, '//div[@class="card"]'):
         hrefs = h.xpath_strings(card, './/h3//a[contains(@href, "/Members/")]/@href')
         if len(hrefs) == 0:
             continue
@@ -54,8 +49,6 @@ def crawl_member(
     ar_card: Element | None,
 ) -> None:
     role = h.element_text(h.xpath_element(en_card, ".//h4"))
-    # required: true on the lookup, so a new role halts the crawl rather than being
-    # emitted as a plain membership.
     title = context.lookup_value("position", role)
     assert title is not None, role
 
