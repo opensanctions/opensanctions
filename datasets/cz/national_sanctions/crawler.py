@@ -12,10 +12,6 @@ REGEX_LAST_NAME = re.compile(r"^[\w\?]+( ?/\s*[\w\?]+)*$")
 # e.g. "Zápis byl zrušen ke dni 24. února 2025 v souladu s § 7 ...", sometimes
 # with a numeric month. The formats are handled by the dataset `dates` config.
 REGEX_STATUS_DATE = re.compile(r"ke dni\s+(\d{1,2}\.\s*\w+\.?\s*\d{4})")
-# Stav zápisu -> Status of the entry
-STATUS_VALID = "platný"
-STATUS_AMENDED = "změněn"
-STATUS_CANCELLED = "zrušen"
 
 
 def crawl_item(context: Context, row: dict[str, str]) -> None:
@@ -30,8 +26,7 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
     provision = row.pop("eu_provision")
 
     status = row.pop("entry_status")
-    if status not in (STATUS_VALID, STATUS_AMENDED, STATUS_CANCELLED):
-        context.log.warning("Unknown entry status", status=status, name=name_field)
+    status_key = context.lookup_value("entry_status", status, warn_unmatched=True)
 
     status_note = row.pop("entry_status_note").strip()
     # One note states the wrong year, so the dates pass through a lookup.
@@ -80,22 +75,24 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
     h.apply_date(sanction, "startDate", row.pop("entry_date"))
     sanction.add("status", status, lang="ces")
     sanction.add("summary", status_note, lang="ces")
-    if status == STATUS_CANCELLED:
+    if status_key == "cancelled":
         if len(status_dates) == 0:
             context.log.warning(
                 "No cancellation date in status note", note=status_note, name=name_field
             )
         h.apply_dates(sanction, "endDate", status_dates)
-    elif status == STATUS_AMENDED:
+    elif status_key == "amended":
         # An amended entry is superseded by a later, valid entry for the same
         # subject, so the dates state when it was amended, not when it ended.
         h.apply_dates(sanction, "date", status_dates)
-    elif len(status_dates) > 0:
-        context.log.warning(
-            "Unexpected date in the note of a valid entry",
-            note=status_note,
-            name=name_field,
-        )
+    else:
+        assert status_key == "valid", (status, status_key)
+        if len(status_dates) > 0:
+            context.log.warning(
+                "Unexpected date in the note of a valid entry",
+                note=status_note,
+                name=name_field,
+            )
 
     if h.is_active(sanction):
         entity.add("topics", "sanction")

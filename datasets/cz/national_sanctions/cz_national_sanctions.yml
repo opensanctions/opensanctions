@@ -103,6 +103,16 @@ lookups:
           - 'čl. 2 odst. 3 bod ii) nařízení Rady (ES) č. 2580/2001 ze dne 27. 12. 2021 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů, ve spojení s čl. 1 odst. 3 bodem iii) písm. k) společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů'
           - 'čl. 2 odst. 3 ve spojení s čl. 1 písm. i) bod iii) písm. k) nařízení Rady (EU) 2026/456 ze dne 26. února 2026, kterým se mění nařízení (ES) č. 2580/2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu a zrušuje prováděcí nařízení (EU) 2025/1578 a (EU) 2026/420, a čl. 2 odst. 1 ve spojení s čl. 1 odst. 1 bod iii) písm. k) rozhodnutí Rady (SZBP) 2026/455 ze dne 26. února 2026 o omezujících opatřeních k boji proti terorismu, o zrušení článků 2, 3 a 3a společného postoje 2001/931/SZBP o uplatnění zvláštních opatření k boji proti terorismu a o zrušení rozhodnutí (SZBP) 2025/1577 a (SZBP) 2026/421'
         value: EU-TERR
+  # Stav zápisu -> Status of the entry. The crawler raises on an unknown status.
+  entry_status:
+    normalize: true
+    options:
+      - match: platný
+        value: valid
+      - match: změněn
+        value: amended
+      - match: zrušen
+        value: cancelled
   # Dates parsed out of the note on the status of an entry.
   status_note_dates:
     normalize: true
