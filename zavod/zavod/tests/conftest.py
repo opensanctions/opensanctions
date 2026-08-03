@@ -34,6 +34,7 @@ DATASET_SECURITIES_YML = (
 DATASET_MARITIME_YML = (
     FIXTURES_PATH / "testdataset_maritime" / "testdataset_maritime.yml"
 )
+DATASET_DATES_YML = FIXTURES_PATH / "testdataset_dates" / "testdataset_dates.yml"
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 XML_DOC = FIXTURES_PATH / "doc.xml"
 
@@ -96,6 +97,13 @@ def testdataset_securities() -> Dataset:
 @pytest.fixture(scope="function")
 def testdataset_maritime() -> Dataset:
     dataset = load_dataset_from_path(DATASET_MARITIME_YML)
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def testdataset_dates() -> Dataset:
+    dataset = load_dataset_from_path(DATASET_DATES_YML)
     assert dataset is not None
     return dataset
 

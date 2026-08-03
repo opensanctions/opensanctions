@@ -1,0 +1,22 @@
+entry_point: testentrypoint1
+title: OpenSanctions Date Pivot Validation Dataset
+prefix: osd
+hidden: true
+resolve: false
+summary: >
+  Dataset used to validate base_century handling of two-digit date years.
+description: |
+  Fictional data. Used to test that %y dates pivot into the configured century.
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYliJOm1mk2PrsL0m_BVn2sEbpHIdQ2fuzavp0gqOLndgzCw7gtr9Npqwa_FerVrQBfYFiDeKuwfV-/pub?gid=0&single=true&output=csv
+  format: CSV
+dates:
+  formats: ["%d-%m-%y"]
+  base_century: 1900

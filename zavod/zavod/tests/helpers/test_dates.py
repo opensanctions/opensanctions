@@ -139,6 +139,13 @@ def test_apply_base_century() -> None:
     assert _apply_base_century(month, 1900).text == "1968-07"
 
 
+def test_extract_date_base_century(testdataset_dates: Dataset) -> None:
+    assert "%d-%m-%y" in testdataset_dates.dates.formats
+    assert testdataset_dates.dates.base_century == 1900
+    assert extract_date(testdataset_dates, "16-07-68") == ["1968-07-16"]
+    assert extract_date(testdataset_dates, "01-01-05") == ["1905-01-01"]
+
+
 def test_within_max_age(vcontext: Context):
     assert within_max_age(vcontext, RUN_TIME.date().isoformat())
     # A year-precision date whose year straddles the cutoff may be as late as
