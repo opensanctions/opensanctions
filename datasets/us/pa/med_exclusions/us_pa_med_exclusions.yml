@@ -46,7 +46,7 @@ lookups:
   # The CAO column only carries a Pennsylvania county, or an out-of-state marker
   # with a state code. Records with an empty CAO fall back to the bare state code
   # "PA", and the out-of-state markers without parentheses leave a bare state code
-  # too. These are real places, so they are curated here rather than dropped.
+  # too. These are real places, so they are allow-listed here rather than dropped.
   type.address:
     options:
       - match: PA
@@ -71,12 +71,11 @@ lookups:
         value: TX
       - match: WV
         value: WV
-      # "Out of State WVA" - non-standard abbreviation of West Virginia.
+      # From "Out of State WVA" and "Out of State -MO".
       - match: WVA
-        value: WV
-      # "Out of State -MO" - stray hyphen left over from the marker.
+        value: WVA
       - match: -MO
-        value: MO
+        value: -MO
   type.identifier:
     options:
       - match:
