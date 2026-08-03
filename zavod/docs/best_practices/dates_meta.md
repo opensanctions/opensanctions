@@ -43,3 +43,23 @@ dates:
 ```
 
 This will parse any string that contains a valid year, such as `Approximately 1960`, or `circa 2007`.
+
+## Two-digit years: the `base_century` option
+
+`%y` matches two-digit years, and Python pivots those on an arbitrary boundary
+(00-68 → 20xx, 69-99 → 19xx), which can mis-parse pre-1969 dates into the future.
+To make the pivot deterministic, declare the century window the source data
+belongs to:
+
+```yaml
+dates:
+    formats: ['%d-%m-%y']
+    base_century: 1900
+```
+
+Two-digit years are mapped into the 100-year window starting at `base_century`
+(`1900` → 1900–1999, `2000` → 2000–2099). A dataset mixing 19xx birth dates with
+20xx listing dates can use an intermediate floor such as `1930` (window 1930–2029).
+Whenever a configured format contains `%y`, `base_century` is required; if a source
+has values spanning multiple centuries, prefer handling them per-property in the
+crawler instead of a single dataset-wide window.
