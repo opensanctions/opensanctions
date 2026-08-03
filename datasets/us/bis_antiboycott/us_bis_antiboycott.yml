@@ -42,6 +42,7 @@ data:
   format: html
 dates:
   formats: ["%m/%d/%y"]
+  base_century: 1930
 
 assertions:
   min:

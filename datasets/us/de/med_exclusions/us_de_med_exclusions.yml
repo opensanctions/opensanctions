@@ -40,6 +40,7 @@ data:
 
 dates:
   formats: ["%m/%d/%Y", "%m/%d/%y", "Reinstated effective %m/%d/%Y"]
+  base_century: 2000
 
 assertions:
   min:

@@ -40,6 +40,7 @@ data:
   lang: eng
 dates:
   formats: ["%m.%d.%y", "%B %d, %Y", "%B %d,%Y", "%m/%d/%Y", "%m/%d/%y"]
+  base_century: 1930
 
 assertions:
   min:

@@ -30,6 +30,7 @@ data:
   lang: eng
 dates:
   formats: ["%m/%d/%Y", "%m/%d/%y"]
+  base_century: 2000
 assertions:
   min:
     schema_entities:

@@ -49,6 +49,7 @@ ci_test: false
 
 dates:
   formats: ["%m/%d/%y"]
+  base_century: 2000
 
 assertions:
   min:

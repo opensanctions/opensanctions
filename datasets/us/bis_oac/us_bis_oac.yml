@@ -41,6 +41,7 @@ data:
 
 dates:
   formats: ["%b-%y", "%B %Y"]
+  base_century: 1930
 
 assertions:
   min:
