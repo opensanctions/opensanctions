@@ -1,0 +1,165 @@
+title: Switzerland Asset Freezes of Foreign Politically Exposed Persons
+entry_point: crawler.py
+prefix: ch-fiaa
+coverage:
+  frequency: never
+  start: 2026-07-30
+deploy:
+  schedule: "45 7 * * *"
+manual_check:
+  last_checked: "2026-07-30"
+  interval: 90
+  message: >-
+    The Fedlex monitor in this crawler catches amendments to the known freeze
+    ordinances and new ordinances titled "Sperrung von Vermögenswerten".
+    Separately review https://www.eda.admin.ch/en/freezing-of-assets (blocked
+    for bots, open in a browser) for freezes imposed under other instruments
+    or titles, and for changes in the state of the confiscation proceedings
+    that continue the expired Ukraine freeze.
+load_statements: true
+summary: >-
+  Politically exposed foreign persons whose assets are frozen by the
+  Swiss Federal Council under the Foreign Illicit Assets Act
+description: |
+  When a foreign government falls and its leaders are suspected of having
+  looted state assets, the Swiss Federal Council can preventively freeze their
+  assets held in Switzerland. Since 2016, these freezes are ordered under the
+  Federal Act on the Freezing and the Restitution of Illicit Assets held by
+  Foreign Politically Exposed Persons (Foreign Illicit Assets Act, FIAA;
+  SR 196.1), which codified earlier freezes based directly on the Swiss
+  constitution. The freezes support the criminal proceedings and mutual legal
+  assistance requests of the origin countries, with the aim of eventually
+  returning illicit funds.
+
+  Each freeze is enacted as a Federal Council ordinance with an annex naming
+  the targeted politically exposed persons and their relatives and close
+  associates. This dataset covers the ordinances issued under the FIAA:
+
+  * **Venezuela** (Nicolás Maduro and entourage, since January 2026)
+  * **Syria** (Bashar al-Assad and entourage, since March 2025)
+  * **Ukraine** (Viktor Yanukovych and entourage, 2016 to February 2023, when
+    the freeze was superseded by administrative confiscation proceedings that
+    keep the assets blocked)
+  * **Tunisia** (Zine El Abidine Ben Ali and entourage, 2016 to January 2021,
+    when the ten-year statutory maximum duration was reached)
+  * **Egypt** (Hosni Mubarak and entourage, 2016 to December 2017, when the
+    Federal Council lifted the freeze)
+
+  Persons de-listed by an amendment before the end of an ordinance are
+  retained with the date of their removal. The freezes ordered against Libya
+  (2011) and initially against Syria were folded into the corresponding
+  [SECO sanctions regimes](/datasets/ch_seco_sanctions/) and are covered
+  there.
+
+  The named persons exist only in the ordinance annexes published on Fedlex,
+  the Swiss federal law portal, not in any machine-readable list. The data is
+  therefore maintained as a reviewed CSV file in the OpenSanctions repository,
+  and the crawler monitors Fedlex for new ordinances and unreviewed
+  amendments.
+publisher:
+  name: Federal Department of Foreign Affairs
+  acronym: FDFA
+  description: |
+    The FDFA is the foreign ministry of Switzerland. Its Directorate of
+    International Law runs the asset recovery policy for the assets of
+    politically exposed persons, while the freeze ordinances themselves are
+    enacted by the Federal Council, the Swiss federal government.
+  url: https://www.eda.admin.ch/
+  country: ch
+  official: true
+url: https://www.eda.admin.ch/en/freezing-of-assets
+data:
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/ch/fiaa_freezes/freezes.csv
+  format: CSV
+  lang: deu
+dates:
+  formats: ["%Y-%m-%d", "%Y-%m"]
+tags:
+  - list.sanction
+  - juris.ch
+  - issuer.west
+
+assertions:
+  min:
+    schema_entities:
+      Person: 130
+  max:
+    schema_entities:
+      Person: 250
+
+config:
+  discovery:
+    # Handling "Unreviewed version of an asset-freeze ordinance" warnings:
+    #
+    # 1. Open the warning's version_url and diff the annex against the rows of
+    #    freezes.csv for that ordinance's program. The version is also
+    #    available machine-readable at https://fedlex.data.admin.ch/filestore/
+    #    fedlex.data.admin.ch/eli/<eli>/<yyyymmdd>/de/xml/fedlex-data-admin-ch-
+    #    eli-<eli-with-dashes>-<yyyymmdd>-de-xml.xml.
+    # 2. For each newly listed person, append one freezes.csv row: names and
+    #    the German description verbatim from the annex (variants set in
+    #    italics become aliases), Listed set to the version date, and the
+    #    version_url as Source URL.
+    # 3. For a removed person, set the row's Delisted to the version date
+    #    instead of deleting the row.
+    # 4. Versions that only extend the ordinance's validity leave the annex
+    #    unchanged; they still need to be added to reviewed_versions.
+    # 5. Append the date to reviewed_versions below with a comment saying what
+    #    the version changed. This mutes the warning.
+    # 6. For a "New asset-freeze ordinance" warning, add rows for its annex, a
+    #    program (CH-FIAA-*) in meta/programs/, and an entry below. When an
+    #    ordinance changes its in-force status, update in_force below and set
+    #    Delisted on its remaining rows (expiry usually shows as a lapsed
+    #    validity period in Art. 4 rather than a new version).
+    ordinances:
+      # Egypt (Mubarak), repealed 2017-12-20.
+      cc/2016/323:
+        in_force: false
+        reviewed_versions:
+          - "2016-07-01"
+          - "2016-12-01"
+          - "2017-02-11"
+          - "2017-06-01"
+      # Tunisia (Ben Ali), expired 2021-01-18.
+      cc/2016/324:
+        in_force: false
+        reviewed_versions:
+          - "2016-07-01"
+          - "2017-01-19"
+          - "2018-01-19"
+          - "2018-02-21"
+          - "2019-01-19"
+          - "2020-01-19"
+          - "2020-03-16"
+      # Ukraine (Yanukovych), expired 2023-02-27 in favour of confiscation
+      # proceedings.
+      cc/2016/325:
+        in_force: false
+        reviewed_versions:
+          - "2016-07-01"
+          - "2016-09-01"
+          - "2016-11-22"
+          - "2017-02-28"
+          - "2018-02-28"
+          - "2019-02-28"
+          - "2019-09-25"
+          - "2020-02-28"
+          - "2020-03-16"
+          - "2021-01-01"
+          - "2021-02-28"
+          - "2022-01-03"
+          - "2022-02-28"
+          - "2022-09-15"
+          - "2022-11-30"
+      # Syria (al-Assad), in force since 2025-03-07.
+      cc/2025/157:
+        in_force: true
+        reviewed_versions:
+          - "2025-03-07"
+          # V des EDA of 2025-07-30: added Abdel Halim Bin Jamal Khaddam.
+          - "2025-07-31"
+      # Venezuela (Maduro), in force since 2026-01-05.
+      cc/2026/1:
+        in_force: true
+        reviewed_versions:
+          - "2026-01-05"
