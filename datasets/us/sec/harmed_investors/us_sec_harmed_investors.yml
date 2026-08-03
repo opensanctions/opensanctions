@@ -1155,3 +1155,10 @@ lookups:
           - Fred W. Freitag IV
           - Highline Gold LLC
           - Highline Gold Corporation LLC
+      - match: murray a. huberfeld, moshe aka “mark” feuer, scott a. taylor, david b. bodner, and sec et al. v. platinum management (ny) llc et al.
+        names:
+          - Murray A. Huberfeld
+          - Moshe “Mark” Feuer
+          - Scott A. Taylor
+          - David B. Bodner
+          - Platinum Management (NY) LLC
