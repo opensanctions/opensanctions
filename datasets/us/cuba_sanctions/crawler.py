@@ -10,7 +10,7 @@ ORIGINAL_ACCOMMODATIONS_URL = (
     "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list"
 )
 ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=1890354374&single=true&output=csv"
-ORIGINAL_RESTRICTED_ENTITIES_URL = "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"
+ORIGINAL_RESTRICTED_ENTITIES_URL = "https://www.state.gov/cuba-sanctions/cuba-restricted-list"
 RESTRICTED_ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
 CONTENT_XPATH = ".//div[@class='entry-content']"
 ACTIONS = [
@@ -63,6 +63,9 @@ def crawl_restricted_entities(context: Context) -> None:
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
     # xmllint --format --html --encode UTF-8
+    # TODO: recompute this hash from the new URL
+    # https://www.state.gov/cuba-sanctions/cuba-restricted-list
+    # via Zyte fetch (state.gov serves a Technical Difficulties page to curl).
     if not h.assert_dom_hash(node, "a146ff14f0a283a4a80afaaf0f46637574aa78c2"):
         context.log.warning("Restricted List content changed. Check for data updates")
 
