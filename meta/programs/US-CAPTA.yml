@@ -1,3 +1,14 @@
+# DEPRECATED — do not reference. This key described a list rather than a legal
+# authority: CAPTA entries are designated under separate country authorities
+# (North Korea, Iran, Hizballah, Russia), each of which has its own program.
+# Those entries are attributed by their per-entry program tag instead, with the
+# list name recorded in the sanction summary. Statements naming US-CAPTA will
+# age out of the published data.
+#
+# Those authority programs record the union of their operative measures, so the
+# correspondent-account restriction this key carried lives only in the
+# sanction's `provisions`, until a normalized `Sanction:measures` lands. The
+# receiving programs narrate the variation in their summaries. cf. #4980
 id: 271
 title: Correspondent Account or Payable-Through Account Sanctions List
 key: US-CAPTA
