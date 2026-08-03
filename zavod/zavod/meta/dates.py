@@ -13,6 +13,7 @@ class DatesSpec(BaseModel):
 
     year_only: bool = False
     formats: list[str] = []
+    base_century: int | None = None
     months: dict[str | int, str | list[str]] = {}
     mappings: dict[str, str] = Field(default_factory=dict, exclude=True, init=False)
     months_re: re.Pattern[str] | None = Field(default=None, exclude=True, init=False)

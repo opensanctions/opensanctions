@@ -4,6 +4,7 @@ from structlog.testing import capture_logs
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
+from zavod.meta.dates import DatesSpec
 from zavod.helpers.dates import extract_years, extract_date, backdate
 from zavod.helpers.dates import replace_months, apply_date, apply_dates
 from zavod.helpers.dates import within_max_age
@@ -117,6 +118,13 @@ def test_apply_date(testdataset1: Dataset):
 def test_backdate():
     assert backdate(datetime(2023, 8, 3), timedelta(days=0)) == "2023-08-03"
     assert backdate(datetime(2023, 8, 3), timedelta(days=182)) == "2023-02-02"
+
+
+def test_dates_spec_base_century() -> None:
+    spec = DatesSpec(formats=["%d-%m-%y"], base_century=1930)
+    assert spec.base_century == 1930
+    spec = DatesSpec(formats=["%d-%m-%Y"])
+    assert spec.base_century is None
 
 
 def test_within_max_age(vcontext: Context):
