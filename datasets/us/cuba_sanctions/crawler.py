@@ -7,7 +7,7 @@ from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
 
 ORIGINAL_ACCOMMODATIONS_URL = (
-    "https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/"
+    "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list"
 )
 ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=1890354374&single=true&output=csv"
 ORIGINAL_RESTRICTED_ENTITIES_URL = "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"
@@ -32,6 +32,9 @@ def crawl_accommodations(context: Context) -> None:
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
     # xmllint --format --html --encode UTF-8
+    # TODO: recompute this hash from the new URL
+    # https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list
+    # via Zyte fetch (state.gov serves a Technical Difficulties page to curl).
     if not h.assert_dom_hash(node, "6dc9087e0ccb2e13fc2389ba4176ab114996ad32"):
         context.log.warning("Accommodations page changed. Check for data updates.")
 
