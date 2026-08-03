@@ -24,8 +24,10 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     if potential_clone:
         entity.add("description", "Potential clone entity")
 
-    for website in input_dict.pop("website").split(" | "):
-        entity.add("website", website)
+    # Websites are pipe-delimited, but the whitespace around the pipes is
+    # inconsistent (sometimes a line break, sometimes nothing at all).
+    for website in input_dict.pop("website").split("|"):
+        entity.add("website", website.strip())
 
     context.emit(entity)
 

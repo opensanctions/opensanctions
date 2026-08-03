@@ -47,7 +47,26 @@ lookups:
           - N/A
           - all pages relating to Futurebarrel on facebook
           - Potential clone entity – ASNB (Amanah Saham Nasional Berhad) Telegram Group / ASNB Investment Malaysia
+          - Kakak safety Trader
+          # Query string orphaned from the preceding https://cresta-offer.com/bit-ai2/? URL
+          - lang=&ABtestName=ktteam&aff_sub=fdd2ke8t0mk&affiliate=&aff_sub6=2137888407.1739076551
         value: null
+      # Two URLs joined by a stray "I" typed instead of the "|" delimiter
+      - match: "https://webull-trade.com I https://www.hrudrt.com/"
+        normalize: true
+        values:
+          - https://webull-trade.com
+          - https://www.hrudrt.com/
+      - match: "https:islamicinc.asia/"
+        value: https://islamicinc.asia/
+      - match: "(https://telegram.org/k/#@pelaburanrakiyat25"
+        value: "https://telegram.org/k/#@pelaburanrakiyat25"
+      - match: http://www.xeraya-capital.com (clone website)
+        value: http://www.xeraya-capital.com
+      - match: www.cambridgecapitaltrading. comwww.dubalex.com
+        values:
+          - www.cambridgecapitaltrading.com
+          - www.dubalex.com
   type.address:
     options:
       - match: ","
