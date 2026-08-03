@@ -322,3 +322,11 @@ qsv search -s prop "^Person:id$" data/datasets/xx_foo/statements.pack | qsv coun
 ## Before merging
 
 See `zavod/docs/best_practices/merge_checklist.md` for the review criteria the team applies to new crawlers, and `zavod/docs/best_practices/priorities.md` for the Essential / Should / Could / Won't framing that governs what attributes a crawler should extract.
+
+A PR that adds a new crawler MUST carry the `new-source` GitHub label, and its title takes the house `[dataset_name]` prefix:
+
+```bash
+gh pr create --label new-source --title "[xx_foo] Add ... crawler"
+```
+
+Apply the label to an existing PR with `gh pr edit <number> --add-label new-source`.
