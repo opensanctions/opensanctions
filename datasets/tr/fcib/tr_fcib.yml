@@ -43,6 +43,7 @@ data:
   format: html
 dates:
   formats: ["%d.%m.%Y", "%m/%d/%Y", "%m/%d/%y", "%d %m %Y"]
+  base_century: 1930
   months:
     1: Ocak
     2: Şubat

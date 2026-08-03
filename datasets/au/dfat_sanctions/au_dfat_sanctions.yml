@@ -76,6 +76,7 @@ dates:
     - "/%m/%d%Y"
     - "%d %B %Y"
     - "%B %Y"
+  base_century: 1930
 
 lookups:
   sanction.program:

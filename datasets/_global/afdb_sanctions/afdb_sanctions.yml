@@ -43,6 +43,7 @@ data:
 
 dates:
   formats: ["%Y/%m/%d", "%d-%b-%Y", "%d-%m-%Y", "%d-%b-%y"]
+  base_century: 2000
   months:
     "Sep": "Sept"
 names:

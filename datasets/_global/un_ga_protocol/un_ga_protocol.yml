@@ -35,6 +35,7 @@ data:
   format: PDF
 dates:
   formats: ["%d-%b-%y"]
+  base_century: 2000
 
 assertions:
   min:

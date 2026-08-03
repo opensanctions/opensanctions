@@ -98,6 +98,7 @@ dates:
     - "REVOKED ON %d.%m.%Y  (AS INFORMED BY SEBI VIDE EMAIL)"
     - "DEBARMENT REVOKED VIDE SEBI ORDER DATED %d-%b-%y"
     - "REVOKED ON %d.%m.%Y IN CASE OF HIND AGRO OILS LTD"
+  base_century: 2000
 
 assertions:
   min:

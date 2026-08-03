@@ -43,6 +43,7 @@ data:
   format: XML
 dates:
   formats: ["%Y", "%d-%m-%Y", "%b-%y"]
+  base_century: 2000
 
 assertions:
   min:

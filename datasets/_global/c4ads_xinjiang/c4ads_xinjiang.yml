@@ -42,6 +42,7 @@ assertions:
 
 dates:
   formats: ["%m/%d/%y"]
+  base_century: 1930
 
 lookups:
   type.name:

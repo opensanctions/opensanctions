@@ -48,6 +48,7 @@ data:
   format: XLSX
 dates:
   formats: ["%d/%m/%y", "%d.%m.%Y."]
+  base_century: 1930
 
 assertions:
   min:

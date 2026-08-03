@@ -44,6 +44,7 @@ dates:
     - "%d %b %Y"
     - "%d %m %Y"
     - "%d %m %y"
+  base_century: 1930
   months:
     Mar: במרץ
     Apr: באפריל

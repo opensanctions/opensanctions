@@ -48,6 +48,7 @@ data:
   lang: eng
 dates:
   formats: ["%d-%b-%y"]
+  base_century: 2000
 tags:
   - list.sanction
   - sector.maritime

@@ -58,6 +58,7 @@ data:
   format: CSV
 dates:
   formats: ["%d.%m.%y", "%d.%m.%Y"]
+  base_century: 2000
 tags:
   - list.sanction.counter
   - list.export
