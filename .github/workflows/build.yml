@@ -20,28 +20,39 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     outputs:
-      zavod: ${{ steps.zavod.outputs.any_changed }}
-      datasets: ${{ steps.datasets.outputs.any_changed }}
+      zavod: ${{ steps.changed.outputs.zavod }}
+      datasets: ${{ steps.changed.outputs.datasets }}
     steps:
       - uses: actions/checkout@v7
-      # Deliberately an ignore list rather than `files: zavod/**`: Dockerfile,
-      # contrib/, .pre-commit-config.yml and the workflows themselves all affect
-      # the zavod build too. Running the suite unnecessarily is the cheap
-      # mistake; skipping it when it mattered is not.
-      - name: Check for zavod-affecting changes
-        id: zavod
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
         with:
-          files_ignore: |
-            datasets/**
-            ui/**
-            .claude/**
-            **/*.md
-      - name: Check for dataset changes
-        id: datasets
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
-        with:
-          files: "datasets/**"
+          # On pull_request the checked-out ref is the merge commit, so its two
+          # parents are the base and the head. Depth 2 reaches both, which is all
+          # a diff needs — no history walk.
+          fetch-depth: 2
+      # The zavod side is deliberately an ignore list rather than a zavod/ prefix:
+      # Dockerfile, contrib/, .pre-commit-config.yml and the workflows themselves
+      # all affect the zavod build too. Running the suite unnecessarily is the
+      # cheap mistake; skipping it when it mattered is not.
+      - name: Determine which halves of the build are affected
+        id: changed
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          # Non-PR events leave the list empty: main, schedule and
+          # workflow_dispatch force-run both jobs regardless.
+          if [ "$EVENT" = "pull_request" ]; then
+            git diff --name-only --diff-filter=d HEAD^1 HEAD^2 > changed.txt
+          else
+            : > changed.txt
+          fi
+          cat changed.txt
+          zavod=false
+          datasets=false
+          if grep -qvE '^(datasets|ui|\.claude)/|\.md$' changed.txt; then zavod=true; fi
+          if grep -qE '^datasets/' changed.txt; then datasets=true; fi
+          echo "zavod=$zavod" >> "$GITHUB_OUTPUT"
+          echo "datasets=$datasets" >> "$GITHUB_OUTPUT"
 
   zavod:
     # main, schedule and workflow_dispatch always run the full suite. The docker
@@ -136,6 +147,8 @@ jobs:
     needs: [changes]
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2  # see the note in the changes job
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
@@ -167,26 +180,34 @@ jobs:
       - name: Test crawlers with tests
         run: pytest datasets
 
+      # --diff-filter=d drops deletions: ci_datasets.py takes an existing path.
+      # The list goes to a file rather than a step output so that filenames — which
+      # a PR author controls — are never interpolated into a shell command.
       - name: Get any modified dataset files
-        id: changed-files
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
-        with:
-          files: "datasets/**"
-          separator: "\n"
-          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
-      - name: Crawl modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
+        id: changed
         env:
-          # For security reasons, pass possibly attacker-chosen filenames via
-          # env var (not direct ${{ }} interpolation into shell) to prevent
-          # command injection through crafted PR filenames containing shell
-          # metacharacters.
-          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "pull_request" ]; then
+            git diff --name-only --diff-filter=d HEAD^1 HEAD^2 \
+              | { grep -E '^datasets/' || true; } > datasets.txt
+          else
+            : > datasets.txt
+          fi
+          cat datasets.txt
+          if [ -s datasets.txt ]; then
+            echo "any=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "any=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Crawl modified datasets
+        if: ${{ steps.changed.outputs.any == 'true' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
           # Read into an array so each filename is passed as its own quoted argv
-          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
-          mapfile -t files <<< "$CHANGED_FILES"
+          # entry (a bare `for f in $(cat ...)` would word-split unsafely).
+          mapfile -t files < datasets.txt
           datasets=$(python contrib/ci_datasets.py "${files[@]}")
           echo "$datasets"
           for dataset in $datasets
@@ -195,16 +216,10 @@ jobs:
               zavod crawl --clear-data $dataset
           done
       - name: Validate modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
-        env:
-          # See note above: env var + quoted expansion avoids shell injection
-          # via filenames in PRs.
-          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        if: ${{ steps.changed.outputs.any == 'true' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
-          # Read into an array so each filename is passed as its own quoted argv
-          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
-          mapfile -t files <<< "$CHANGED_FILES"
+          mapfile -t files < datasets.txt
           datasets=$(python contrib/ci_datasets.py "${files[@]}")
           for dataset in $datasets
           do
@@ -212,16 +227,10 @@ jobs:
               zavod validate --rebuild-store $dataset
           done
       - name: Export modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
-        env:
-          # See note above: env var + quoted expansion avoids shell injection
-          # via filenames in PRs.
-          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        if: ${{ steps.changed.outputs.any == 'true' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
-          # Read into an array so each filename is passed as its own quoted argv
-          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
-          mapfile -t files <<< "$CHANGED_FILES"
+          mapfile -t files < datasets.txt
           datasets=$(python contrib/ci_datasets.py "${files[@]}")
           for dataset in $datasets
           do
