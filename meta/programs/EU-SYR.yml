@@ -1,12 +1,35 @@
 id: 87
-title: EU Restrictive Measures Against Syria
+title: EU Restrictive measures against Syria
 key: EU-SYR
 url: https://sanctionsmap.eu/#/main/details/32/
-summary: These sanctions target the Syrian government and entities involved in human
-  rights abuses, terrorism, and other destabilizing activities. The measures include
-  asset freezes, prohibitions on transactions, and restrictions on trade to pressure
-  Syria to comply with international norms and cease its destabilizing actions.
+summary: Targets persons and entities linked to the former al-Assad government
+  of Syria, including those responsible for the violent repression of the
+  civilian population, the Syrian chemical weapons programme, and the trade in
+  captagon and other illicit drugs, under Decision 2013/255/CFSP and
+  Regulation (EU) No 36/2012. Designated persons are subject to an asset
+  freeze and natural persons to a ban on entry into or transit through the EU;
+  the listings targeting the former regime were most recently renewed until
+  1 June 2027. After the fall of the Assad government, the EU lifted almost
+  all of its sectoral economic sanctions on Syria on 28 May 2025, including
+  the banking, energy and transport restrictions. A small set of
+  security-related measures remains in force, prohibiting the purchase or
+  import of arms from Syria and trade in Syrian cultural heritage goods, and
+  restricting exports of equipment usable for internal repression or for
+  telecommunications monitoring and interception.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) No 36/2012
+  - Decision 2013/255/CFSP
+  - Restrictive measures against Syria
+  - Council Decision concerning restrictive measures against Syria
+  - SYR
 target_territories:
-- sy
+  - sy
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms restrictions
+  - Export control
+  - Import restrictions
+  - Prohibition to satisfy claims
