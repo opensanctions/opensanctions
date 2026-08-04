@@ -70,6 +70,9 @@ assertions:
         flag: 0.25
       Sanction:
         program: 0.25
+        # Guards against a program mapping regression: `program` stays filled from
+        # the source tag even when no tag resolves to a program key.
+        programId: 0.25
   max:
     schema_entities:
       Address: 32280
@@ -224,15 +227,9 @@ lookups:
           - CAATSA - IRAN
           - CAATSA - RUSSIA
         value: US-CAATSA
-      - match:
-          - Non-SDN Palestinian Legislative Council List
-          - CAPTA List
-          - FSE List
-          - Non-SDN CMIC List
-          - Non-SDN Menu-Based Sanctions List
-          - Non-SDN Palestinian Legislative Council List
-          - Sectoral Sanctions Identifications List
-        value: null
+      # Consolidated-list names are not mapped here: this dataset only emits
+      # sanctions for SDN List entries, which are keyed by their program tag.
+      # us_ofac_cons maps the consolidated lists in its own config. cf. #4980
   script.lang:
     options:
       - match: Arab
