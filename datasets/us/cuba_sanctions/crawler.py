@@ -5,8 +5,9 @@ from pathlib import Path
 
 from normality import slugify
 from rigour.mime.types import CSV
+from zavod.extract.zyte_api import fetch_html
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 
 # Both lists are published as web pages only, so the entity data is transcribed by
@@ -14,11 +15,13 @@ from zavod import helpers as h
 # guards that transcription: each hash covers the text of the page's list, so a
 # revision upstream shows up as a warning. The runbook for reconciling one is in the
 # dataset YAML. Hashes are text-only on purpose: the markup around these lists changes
-# without the lists changing, and it makes a hash reproducible from any fetch of the
+# without the lists changing, and a text hash is reproducible from any fetch of the
 # page rather than only from a rendered one.
 #
-# state.gov answers a bare `curl/*` user agent with a "Technical Difficulties" page, but
-# serves the real page to zavod's own user agent, so these pages need no unblocking.
+# The pages need Zyte even though they are plain HTML: state.gov serves a
+# "Technical Difficulties" page instead of content to datacenter egress addresses,
+# which is what production runs from. A residential connection gets the real page, so
+# this cannot be reproduced by fetching from a laptop.
 LOCAL_PATH = Path(__file__).parent
 ACCOMMODATIONS_URL = (
     "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list"
@@ -42,6 +45,16 @@ WATCHED_PAGES = [
     ),
 ]
 CONTENT_XPATH = ".//div[@class='entry-content']"
+ACTIONS = [
+    {
+        "action": "waitForSelector",
+        "selector": {
+            "type": "xpath",
+            "value": CONTENT_XPATH,
+        },
+        "timeout": 15,
+    },
+]
 PAL_PROGRAM = "US-DOS-CU-PAL"
 REA_PROGRAM = "US-DOS-CU-REA"
 
@@ -84,15 +97,17 @@ def check_watched_pages(context: Context) -> None:
     The lists are only fetched to be compared, never to be parsed, so a fetch failure
     must not stop the dataset from publishing data that is already in the repository.
     """
+    if settings.ZYTE_API_KEY is None:
+        context.log.info("Skipping page change detection: no Zyte API key configured")
+        return
     for url, expected, message in WATCHED_PAGES:
         try:
-            matched = h.assert_html_url_hash(
-                context, url, expected, path=CONTENT_XPATH, text_only=True
-            )
+            doc = fetch_html(context, url, CONTENT_XPATH, actions=ACTIONS)
         except Exception as exc:
             context.log.warning("Could not fetch watched page", url=url, error=str(exc))
             continue
-        if not matched:
+        node = doc.find(CONTENT_XPATH)
+        if not h.assert_dom_hash(node, expected, text_only=True):
             context.log.warning(message, url=url)
 
 
