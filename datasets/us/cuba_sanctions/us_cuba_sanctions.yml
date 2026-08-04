@@ -57,6 +57,20 @@ tags:
 # The entity data lives in accommodations.csv and restricted_entities.csv in this
 # directory, transcribed from the State Department pages linked above.
 #
+#   accommodations.csv       Id, Name, City, Address, SourceURL
+#   restricted_entities.csv  Id, Company, Acronym, Sector, Category, Parent,
+#                            EffectiveDate, SourceURL
+#
+# `Id` is the entity ID without the `us-cuba-` prefix. NEVER change the `Id` of a row
+# that has already been published -- downstream screening systems reference it. Fix a
+# spelling or adopt a rename by editing `Name`/`Company` and leaving `Id` alone; keeping
+# the two independent is the whole reason the column exists, and the crawler rejects an
+# `Id` that is not already a slug. A genuinely new listing gets a new `Id`. Retiring one
+# needs a `context.rekey` call, per zavod/docs/best_practices/entity_id.md.
+#
+# `Parent` holds the parent's `Id`, not its name; the crawler raises if it does not name
+# a row in the same file.
+#
 # Handling "... list changed. Reconcile ..." warnings:
 #
 # 1. Open the URL from the warning and compare the list on the page against the CSV.

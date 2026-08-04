@@ -3,6 +3,7 @@ import shutil
 from collections.abc import Iterator
 from pathlib import Path
 
+from normality import slugify
 from rigour.mime.types import CSV
 
 from zavod import Context
@@ -57,6 +58,24 @@ def source_rows(context: Context, name: str) -> Iterator[dict[str, str]]:
         yield from csv.DictReader(fh)
 
 
+def row_id(context: Context, row: dict[str, str]) -> str:
+    """Resolve a row's `Id` column to an entity ID.
+
+    The column exists so that correcting a name never changes an entity's identity.
+    That only holds while the value is exactly the slug the ID is built from, so an
+    edit that would silently produce a different ID is rejected rather than emitted.
+    """
+    value = row.pop("Id").strip()
+    if not len(value):
+        raise ValueError("Row is missing an Id")
+    if value != slugify(value, sep="-"):
+        raise ValueError(f"Id is not a slug: {value!r}")
+    entity_id = context.make_slug(value)
+    if entity_id is None:
+        raise ValueError(f"Id does not yield an entity ID: {value!r}")
+    return entity_id
+
+
 def check_watched_pages(context: Context) -> None:
     """Warn when a watched page's list no longer matches the reviewed CSV files.
 
@@ -78,9 +97,8 @@ def check_watched_pages(context: Context) -> None:
 def crawl_accommodations(context: Context) -> None:
     for row in source_rows(context, "accommodations.csv"):
         proxy = context.make("Company")
-        name = row.pop("Name").strip()
-        proxy.id = context.make_slug(name)
-        proxy.add("name", name)
+        proxy.id = row_id(context, row)
+        proxy.add("name", row.pop("Name").strip())
         proxy.add("country", "Cuba")
         proxy.add("address", row.pop("Address"))
         proxy.add("sourceUrl", row.pop("SourceURL"))
@@ -92,11 +110,13 @@ def crawl_accommodations(context: Context) -> None:
 
 
 def crawl_restricted_entities(context: Context) -> None:
-    for row in source_rows(context, "restricted_entities.csv"):
+    rows = list(source_rows(context, "restricted_entities.csv"))
+    known_ids = {row["Id"].strip() for row in rows}
+    for row in rows:
         proxy = context.make("Company")
-        name = row.pop("Company").strip()
-        proxy.id = context.make_slug(name)
-        proxy.add("name", name)
+        parent = row.pop("Parent").strip()
+        proxy.id = row_id(context, row)
+        proxy.add("name", row.pop("Company").strip())
         proxy.add("country", "Cuba")
         proxy.add("alias", row.pop("Acronym"))
         proxy.add("sector", row.pop("Sector"))
@@ -108,10 +128,11 @@ def crawl_restricted_entities(context: Context) -> None:
         if h.is_active(sanction):
             proxy.add("topics", "sanction")
 
-        parent = row.pop("Parent").strip()
         if len(parent):
+            if parent not in known_ids:
+                raise ValueError(f"Parent is not a listed entity: {parent!r}")
             rel = context.make("Ownership")
-            rel.id = context.make_id(parent, "owns", name)
+            rel.id = context.make_id(parent, "owns", proxy.id)
             rel.add("owner", context.make_slug(parent))
             rel.add("asset", proxy.id)
             context.emit(rel)
