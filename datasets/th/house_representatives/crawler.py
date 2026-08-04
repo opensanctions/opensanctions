@@ -8,10 +8,6 @@ from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import LangText
 
-# partyType values: single-member constituency vs national party list.
-CONSTITUENCY = "แบบแบ่งเขต"
-PARTY_LIST = "แบบบัญชีรายชื่อ"
-
 
 def crawl_member(
     context: Context,
@@ -53,11 +49,11 @@ def crawl_member(
     party_type = member.pop("partyType")
     province = member.pop("province")
     district = member.pop("district")
-    if party_type == CONSTITUENCY:
+    if party_type == "แบบแบ่งเขต":
         # Constituency members represent a numbered district within a province.
         assert province and district, (member_id, province, district)
         occupancy.add("constituency", f"{province} {district}", lang="tha")
-    elif party_type == PARTY_LIST:
+    elif party_type == "แบบบัญชีรายชื่อ":
         # Party-list members are elected nationally, so they have no district.
         assert not province and district is None, (member_id, province, district)
     else:
