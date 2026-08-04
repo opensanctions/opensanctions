@@ -42,8 +42,6 @@ Rules:
   put them only in the relevant identifier field.
 """
 
-SCHEMATA = {"Firm": "Company", "Individual": "Person"}
-
 PATTERN_IRREGULAR = r"[;()\\/:]|Reg\b|\bNo\b|Registration|Register|Number|operating|also|\baka\b|CNPJ|known"
 REGEX_IRREGULAR = re.compile(PATTERN_IRREGULAR, re.IGNORECASE)
 REGEX_INTERNAL_URL = re.compile(
@@ -74,11 +72,6 @@ def apply_entity_data(entity: Entity, data: EntityData) -> None:
 
 
 def crawl_row(context: Context, row: dict[str, str | None]) -> None:
-    entity_type = row.pop("entityType")
-    schema = SCHEMATA.get(entity_type or "")
-    if schema is None:
-        raise ValueError(f"Unknown entityType: {entity_type!r}")
-
     full_name = row.pop("name") or ""
     other_name = (row.pop("otherName") or "").replace("\\", "")
     country = row.pop("nationality") or ""
@@ -128,9 +121,7 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
 
     first_org = None
     for entity_data in entities_data:
-        entity = context.make(schema)
-        # TODO: add schema to the key so a Firm and an Individual of the same name
-        # can't collide — needs re-keying the whole dataset.
+        entity = context.make("LegalEntity")
         entity.id = context.make_id(entity_data.name[0], country)
 
         apply_entity_data(entity, entity_data)
