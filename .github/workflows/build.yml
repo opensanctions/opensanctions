@@ -40,9 +40,15 @@ jobs:
           # the base branch *tip*, so everything the base gained since this branch
           # diverged shows up as a spurious change. Non-PR events leave the list
           # empty — main, schedule and workflow_dispatch force-run both jobs.
+          #
+          # Every status counts here, including removed, and renames contribute
+          # both paths: deleting zavod code must still run the zavod suite, and
+          # moving a file out of zavod/ affects zavod even though the new path
+          # does not. Filtering to paths that still exist belongs only where the
+          # list is consumed as paths — see the datasets job.
           if [ -n "${PR:-}" ]; then
             gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
-              --jq '.[] | select(.status != "removed") | .filename' > changed.txt
+              --jq '.[] | (.previous_filename // empty), .filename' > changed.txt
           else
             : > changed.txt
           fi
