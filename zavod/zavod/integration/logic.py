@@ -6,28 +6,6 @@ from zavod.entity import Entity
 
 log = get_logger(__name__)
 USER = "zavod/logic"
-UNIQUE_DATASETS = {"us_ofac_sdn", "eu_fsf", "un_sc_sanctions", "in_mha_banned"}
-
-
-def logic_unique(
-    resolver: Resolver[Entity],
-    common: Schema,
-    left: Entity,
-    right: Entity,
-    score: float,
-) -> float | None:
-    """We consider the legal entities on the given unique lists to be, de jure, different."""
-    if common.is_a("Address"):
-        return score
-    both = left.datasets.intersection(right.datasets)
-    uniques = both.intersection(UNIQUE_DATASETS)
-    if len(uniques) > 0:
-        if left.id is not None and right.id is not None:
-            scope = "|".join(sorted(uniques))
-            log.info(f"{scope} negative match: {left.id} <> {right.id}")
-            resolver.decide(left.id, right.id, Judgement.NEGATIVE, user=USER)
-            return None
-    return score
 
 
 def logic_vessel_match(
@@ -159,9 +137,6 @@ def logic_decide(
     if res_score is None:
         return None
     res_score = logic_identifiers(resolver, common, left, right, res_score)
-    if res_score is None:
-        return None
-    res_score = logic_unique(resolver, common, left, right, res_score)
     if res_score is None:
         return None
     res_score = logic_pkpro_ids(resolver, common, left, right, res_score)
