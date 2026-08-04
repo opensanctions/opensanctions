@@ -1,8 +1,13 @@
-# The roster page names the sitting term (.../members-of-14th-legislature). Once the
-# 15th is seated this page stops being the current roster; the site archives past terms
-# under .../mp-electorates/legislatures/, so both `url` and `data.url` need repointing.
+# Roster pages are discovered from the site navigation, so a newly elected parliament is
+# picked up on its own — but its election date has to be added to ELECTION_DATES in the
+# crawler before its term can be dated, and the crawl asserts rather than guessing.
 #
-# ci_test is off because the page is fetched through Zyte, which needs API credentials.
+# How far back the dataset reaches is decided by make_occupancy, not by the crawler: it
+# drops terms that ended longer ago than the after-office period for the position's
+# topics. That period is 20 years for `gov.national` and 5 years otherwise, so the entity
+# count depends on how this position is categorised — see the assertion note below.
+#
+# ci_test is off because the pages are fetched through Zyte, which needs API credentials.
 title: Vanuatu Members of Parliament
 name: vu_parliament
 prefix: vu-parl
@@ -15,16 +20,19 @@ ci_test: false
 summary: >-
   The unicameral national legislature of the Republic of Vanuatu
 description: |
-  Current members of the Parliament of Vanuatu, the country's unicameral national
-  legislature. Its 52 members are directly elected from multi- and single-member
+  Current and historical members of the Parliament of Vanuatu, the country's unicameral
+  national legislature. Its 52 members are directly elected from multi- and single-member
   constituencies for four-year terms — though the composition changes frequently through
   motions of no confidence and by-elections — and hold the country's legislative power,
   including passing laws and approving the budget.
 
-  This dataset records each sitting member with their name, political party, and
-  constituency. The ministerial, committee and presiding-officer roles the source lists
-  next to each member are not captured.
-url: https://parliament.gov.vu/index.php/mp-electorates/members-of-14th-legislature
+  This dataset records each member with their name, political party, and constituency,
+  reaching back over the terms in which service still implies political exposure. Members
+  who left partway through a term — by death, court sentence or electoral petition — are
+  included, with a note on the circumstance where the source gives one. The ministerial,
+  committee and presiding-officer roles the source lists next to each member are not
+  captured.
+url: https://parliament.gov.vu/
 publisher:
   name: Parliament of the Republic of Vanuatu
   description: >
@@ -35,7 +43,7 @@ publisher:
   country: vu
   official: true
 data:
-  url: https://parliament.gov.vu/index.php/mp-electorates/members-of-14th-legislature
+  url: https://parliament.gov.vu/
   format: HTML
   lang: eng
 
@@ -47,14 +55,18 @@ names:
 tags:
   - list.pep
 
+# The floor is set below the three terms an uncategorised position yields, so the first
+# run doesn't fail its export before the position has been reviewed. Once it carries
+# `gov.national` the crawl reaches seven terms and around 305 people; raise the minimum
+# to about 275 then.
 assertions:
   min:
     schema_entities:
-      Person: 40
+      Person: 140
       Position: 1
     country_entities:
-      vu: 40
+      vu: 140
   max:
     schema_entities:
-      Person: 65
+      Person: 650
       Position: 1
