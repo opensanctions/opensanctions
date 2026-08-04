@@ -222,7 +222,7 @@ def parse_location(context: Context, refs: Element, location: Element) -> Featur
 
 
 def parse_relation(
-    context: Context, refs: Element, el: Element, parties: dict[str, Schema]
+    context: Context, refs: Element, el: Element, parties: dict[str, Entity]
 ) -> None:
     type_id = el.get("RelationTypeID")
     type_ = get_ref_text(refs, "RelationType", type_id)
@@ -269,8 +269,8 @@ def parse_relation(
         raise ValueError(msg)
 
     try:
-        get_relation_schema(parties[from_id], from_prop.range)
-        get_relation_schema(parties[to_id], to_prop.range)
+        get_relation_schema(parties[from_id].schema, from_prop.range)
+        get_relation_schema(parties[to_id].schema, to_prop.range)
     except InvalidData:
         # HACK: Looks like OFAC just has some link in a direction that makes no
         # semantic sense, so we're flipping them here.
@@ -283,15 +283,14 @@ def parse_relation(
         # )
         from_id, to_id = to_id, from_id
 
-    from_party = context.make(get_relation_schema(parties[from_id], from_prop.range))
-    from_party.id = from_id
-    if not parties[from_id].is_a(from_party.schema) and len(from_party.properties):
-        context.emit(from_party)
+    # The relation implies the party is more specific than its PartySubType said:
+    # something that can be owned is a Company, not just an Organization. The
+    # parties are emitted after all relations are parsed, so this still applies.
+    from_party = parties[from_id]
+    from_party.add_schema(get_relation_schema(from_party.schema, from_prop.range))
 
-    to_party = context.make(get_relation_schema(parties[to_id], to_prop.range))
-    to_party.id = to_id
-    if not parties[to_id].is_a(to_party.schema) and len(to_party.properties):
-        context.emit(to_party)
+    to_party = parties[to_id]
+    to_party.add_schema(get_relation_schema(to_party.schema, to_prop.range))
 
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(from_prop, from_party)
@@ -379,7 +378,6 @@ def parse_distinct_party(
         for feat_value in values:
             apply_feature(context, proxy, feat_label, feat_value)
 
-    context.emit(proxy)
     return proxy
 
 
@@ -821,11 +819,16 @@ def crawl(context: Context) -> None:
     # with open(clean_path, "wb") as fh:
     #     fh.write(tostring(doc, pretty_print=True, encoding="utf-8"))
 
-    parties: dict[str, Schema] = {}
+    parties: dict[str, Entity] = {}
     for distinct_party in doc.findall("./DistinctParties/DistinctParty"):
         proxy = parse_distinct_party(context, doc, refs, distinct_party)
         if proxy.id is not None:
-            parties[proxy.id] = proxy.schema
+            parties[proxy.id] = proxy
 
+    # Parsing the relations can make a party's schema more specific, so the
+    # parties are only emitted once every relation has been seen.
     for relation in doc.findall(".//ProfileRelationship"):
         parse_relation(context, refs, relation, parties)
+
+    for proxy in parties.values():
+        context.emit(proxy)
