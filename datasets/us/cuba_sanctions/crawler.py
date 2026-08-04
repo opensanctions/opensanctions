@@ -42,6 +42,55 @@ WATCHED_PAGES = [
     ),
 ]
 CONTENT_XPATH = ".//div[@class='entry-content']"
+PAL_PROGRAM = "US-DOS-CU-PAL"
+REA_PROGRAM = "US-DOS-CU-REA"
+# One-shot migration for the IDs retired by moving alias names out of `Name`, and by
+# splitting the two Camagüey Plaza rows onto the hotel they both describe. Remove these
+# once the dataset has run in production, per zavod/docs/best_practices/entity_id.md.
+REKEYED = [
+    (
+        "blau-marina-varadero-resort-aka-fiesta-americana-punta-varadero-fiesta-club-adults-only",
+        "blau-marina-varadero-resort",
+    ),
+    ("hotel-kawama-aka-club-kawama", "hotel-kawama"),
+    (
+        "iberostar-bella-vista-aka-iberostar-selection-bella-vista-varadero",
+        "iberostar-bella-vista",
+    ),
+    ("playa-larga-aka-horizontes-playa-larga", "playa-larga"),
+    ("villa-guama-aka-horizontes-villa-guama", "villa-guama"),
+    ("melia-cayo-santa-maria-aka-sol-cayo-santa-maria", "melia-cayo-santa-maria"),
+    ("villa-la-granjita-aka-horizontes-la-granjita", "villa-la-granjita"),
+    ("villa-los-caneyes-aka-horizontes-los-caneyes", "villa-los-caneyes"),
+    (
+        "warwick-cayo-santa-maria-aka-labranda-cayo-santa-maria-hotel",
+        "warwick-cayo-santa-maria",
+    ),
+    ("ma-dolores-aka-horizontes-finca-ma-dolores", "ma-dolores"),
+    ("pestana-cayo-coco-aka-hotel-playa-paraiso", "pestana-cayo-coco"),
+    ("marea-del-portillo-aka-club-amigo-marea-del-portillo", "marea-del-portillo"),
+    (
+        "blau-costa-verde-beach-resort-aka-fiesta-americana-holguin-costa-verde",
+        "blau-costa-verde-beach-resort",
+    ),
+    ("villa-don-lino-also-hotel-don-lino", "villa-don-lino"),
+    (
+        "club-amigo-carisol-los-corales-aka-carisol-los-corales",
+        "club-amigo-carisol-los-corales",
+    ),
+    ("san-basilio-aka-hotel-e-san-basilio", "san-basilio"),
+    ("plaza-also-hotel-islazul-plaza-camaguey", "hotel-plaza-camaguey"),
+    ("also-fiesta-americana-punta-varadero", "blau-marina-varadero-resort"),
+    ("also-fiesta-club-adults-only", "blau-marina-varadero-resort"),
+    ("also-labranda-cayo-santa-maria-hotel", "warwick-cayo-santa-maria"),
+    ("also-fiesta-americana-holguin-costa-verde", "blau-costa-verde-beach-resort"),
+    ("also-hotel-playa-paraiso", "pestana-cayo-coco"),
+    (
+        "alias-empresa-de-certificacion-de-sistemas-de-seguridad-y-proteccion",
+        "agencia-de-certificacion-y-consultoria-de-seguridad-y-proteccion",
+    ),
+    ("alias-ais-remesas", "american-international-services"),
+]
 
 
 def source_rows(context: Context, name: str) -> Iterator[dict[str, str]]:
@@ -99,12 +148,13 @@ def crawl_accommodations(context: Context) -> None:
         proxy = context.make("Company")
         proxy.id = row_id(context, row)
         proxy.add("name", row.pop("Name").strip())
+        proxy.add("alias", row.pop("Alias").split(";"))
         proxy.add("country", "Cuba")
         proxy.add("address", row.pop("Address"))
         proxy.add("sourceUrl", row.pop("SourceURL"))
         proxy.add("topics", "sanction")
         context.emit(proxy)
-        sanction = h.make_sanction(context, proxy, program_key="US-DOS-CU-PAL")
+        sanction = h.make_sanction(context, proxy, program_key=PAL_PROGRAM)
         context.emit(sanction)
         context.audit_data(row, ignore=["City"])
 
@@ -119,11 +169,12 @@ def crawl_restricted_entities(context: Context) -> None:
         proxy.add("name", row.pop("Company").strip())
         proxy.add("country", "Cuba")
         proxy.add("alias", row.pop("Acronym"))
+        proxy.add("alias", row.pop("Alias").split(";"))
         proxy.add("sector", row.pop("Sector"))
         proxy.add("classification", row.pop("Category"))
         proxy.add("sourceUrl", row.pop("SourceURL").split(";"))
 
-        sanction = h.make_sanction(context, proxy, program_key="US-DOS-CU-REA")
+        sanction = h.make_sanction(context, proxy, program_key=REA_PROGRAM)
         sanction.add("startDate", row.pop("EffectiveDate"))
         if h.is_active(sanction):
             proxy.add("topics", "sanction")
@@ -143,6 +194,8 @@ def crawl_restricted_entities(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
+    for old_id, new_id in REKEYED:
+        context.rekey(context.make_slug(old_id), context.make_slug(new_id))
     crawl_accommodations(context)
     crawl_restricted_entities(context)
     check_watched_pages(context)
