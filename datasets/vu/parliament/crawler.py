@@ -1,29 +1,20 @@
 import re
 from urllib.parse import urljoin
 
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
-# A roster page exists per legislature, reachable only from the site navigation, and
-# their URLs don't share a shape: the 13th sits at .../legislatures/members-of-parliament
-# while the 14th sits outside the .../legislatures/ path the older ones use. The ordinal
-# in the link label is the one stable handle, so match on that and follow wherever it
-# points. Every label uses the "th" suffix, including "1th" and "2th".
-LEGISLATURE_LINK = re.compile(r"members?'?s? of (\d+)th legislature", re.I)
+from zavod import Context
+from zavod import helpers as h
 
-# General election dates, which the parliament doesn't publish alongside the rosters.
-# A legislature runs from its own election until the next one, so only the start is
-# recorded and the sitting legislature is the one with no successor here. Adding the
-# next election is what brings a newly elected legislature into the dataset.
-#
-# Terms are cut off at 1998 because members of anything older are past the after-office
-# period for a national legislator and no longer count as PEPs. Dates are taken from the
-# Wikipedia article on each Vanuatuan general election; the parliament's own pages carry
-# no term dates at all.
+# Roster URLs vary, so discover them by legislature number in the link text. The site
+# uses the "th" suffix for every ordinal, including "1th" and "2th".
+LEGISLATURE_LINK = re.compile(r"members?'?s? of (\d+)th legislature", re.IGNORECASE)
+
+# The parliament does not publish term dates. These come from Wikipedia's articles on
+# each general election; add the next date before crawling a new legislature.
 ELECTION_DATES = {
     6: "1998-03-06",
     7: "2002-05-02",
@@ -36,10 +27,7 @@ ELECTION_DATES = {
     14: "2025-01-16",
 }
 
-# Column labels drift between legislatures: the 7th heads its columns "Home
-# Island/Address" and "Affiliating Party", the 13th and 14th add a "Profile" link.
-# Mapping every known label onto one shape lets a single parser read every page, and an
-# unmapped label stops the crawl rather than quietly dropping a column.
+# Column labels vary by legislature; unknown or duplicate normalized columns fail.
 COLUMNS = {
     "name": "name",
     "constituency": "constituency",
@@ -51,16 +39,15 @@ COLUMNS = {
     "profile": "profile",
 }
 
-# The 7th legislature gives a home island and address in place of a constituency, naming
-# the constituency in a trailing parenthetical. Line breaks in the source run words
-# together ("Parliament Memberfor"), hence the tolerance for missing spaces.
+# The 7th legislature embeds the constituency in its home-island field, sometimes
+# without spaces between words.
 HOME_ISLAND_SEAT = re.compile(
-    r"\(\s*Parliament\s*Member\s*for\s*(.+?)\s*Constituency\s*\)", re.I | re.S
+    r"\(\s*Parliament\s*Member\s*for\s*(.+?)\s*Constituency\s*\)",
+    re.IGNORECASE | re.DOTALL,
 )
 
-# Members who left partway through a term are written as "Hon. Jerry Kanas -Deceased on
-# the 24th June 2019 ...", with the hyphen spaced inconsistently. Requiring whitespace on
-# one side of it keeps a hyphenated name from being read as a departure note.
+# Departure notes follow the name after an inconsistently spaced hyphen. Requiring
+# whitespace on one side preserves hyphenated names.
 DEPARTURE_NOTE = re.compile(r"\s+-\s*|\s*-\s+")
 
 
@@ -76,18 +63,10 @@ def normalise_columns(
     return normalised
 
 
-def split_departed(table: Element) -> list[Element]:
-    """Detach and return the rows listing members who left partway through the term.
+def detach_departed_rows(table: Element) -> list[Element]:
+    """Detach narrower rows appended for members who left mid-term.
 
-    The 10th and 11th legislature pages append sections headed "Decesased" (sic),
-    "Convicted for bribery" and "Electrol Petition" (sic) below the roster. These are
-    members in their own right — none of them are repeated in the roster above, having
-    been struck from it when they left — but they use a narrower set of columns, so the
-    first row that doesn't match the header width marks where the roster ends.
-
-    Measuring `td` rather than `th|td` also sheds the row of five empty header cells the
-    13th legislature's table ends with, which `parse_html_table` would otherwise read as
-    a member row with no cells in it.
+    The first width mismatch also removes the empty footer on the 13th legislature page.
     """
     rows = h.xpath_elements(table, ".//tr")
     if not rows:
@@ -115,14 +94,13 @@ def crawl_departed(
     members = 0
     for row in rows:
         cells = [h.element_text(cell) for cell in h.xpath_elements(row, "./th|./td")]
-        # Section headings carry a label rather than a member; every member is written
-        # with the "Hon." honorific the roster uses.
+        # Section headings do not start with the roster's "Hon." honorific.
         if not cells or not cells[0].startswith("Hon"):
             continue
         parts = DEPARTURE_NOTE.split(cells[0], maxsplit=1)
         assert len(parts) == 2, (legislature, cells[0])
         member: dict[str, str | None] = {"name": parts[0], "notes": parts[1]}
-        # Only the bribery section repeats the party and constituency columns.
+        # Only the bribery section repeats party and constituency.
         if len(cells) == 3:
             member["party"] = cells[1] or None
             member["constituency"] = cells[2] or None
@@ -140,9 +118,6 @@ def crawl_member(
 ) -> None:
     raw_name = row.pop("name")
     assert raw_name is not None, (legislature, row)
-    # Names carry the honorific "Hon." (declared under `names.prefixes_strip`) and use
-    # non-breaking spaces, which strip_name_titles normalises. The recent pages write the
-    # surname in upper case; we keep the source casing since the matcher normalises it.
     name = h.strip_name_titles(context, raw_name)
     assert name, (legislature, raw_name)
 
@@ -165,13 +140,9 @@ def crawl_member(
     person.add("name", name, original_value=raw_name if name != raw_name else None)
     person.add("political", row.pop("party", None))
     person.add("notes", row.pop("notes", None))
-    # Every citizen of Vanuatu at least 25 years of age is eligible to stand for
-    # Parliament (Constitution of Vanuatu, Chapter 4, Article 17(2)).
-    # https://www.constituteproject.org/constitution/Vanuatu_2013
     person.add("citizenship", "vu")
 
-    # The term is dated, the individual tenure isn't: a member can be elected at a
-    # by-election or leave early, so periodStart/periodEnd rather than startDate/endDate.
+    # Individual appointment dates are unavailable, so use the legislature's bounds.
     occupancy = h.make_occupancy(
         context,
         person,
@@ -180,8 +151,7 @@ def crawl_member(
         period_end=ELECTION_DATES.get(legislature + 1),
         categorisation=categorisation,
     )
-    # Sitting in a legislature that rose longer ago than the after-office period doesn't
-    # make someone a PEP today, and make_occupancy returns None for those terms.
+    # Old terms can fall outside the position's after-office period.
     if occupancy is None:
         return
     occupancy.add("constituency", constituency)
@@ -201,16 +171,14 @@ def crawl_legislature(
     doc = zyte_api.fetch_html(
         context,
         url,
-        # A roster table must be present for the fetch to count as unblocked.
         unblock_validator=".//table",
         geolocation="au",
         cache_days=14,
     )
     members = 0
-    # Ministers and backbenchers are listed in two separate tables on several of the
-    # older pages, so take every table on the page rather than only the first.
+    # Older pages split ministers and backbenchers across tables.
     for table in h.xpath_elements(doc, ".//table"):
-        departed = split_departed(table)
+        departed = detach_departed_rows(table)
         for row in h.parse_html_table(table):
             cells = normalise_columns(legislature, h.cells_to_str(row))
             crawl_member(context, position, categorisation, legislature, cells)
@@ -237,7 +205,6 @@ def crawl(context: Context) -> None:
     index = zyte_api.fetch_html(
         context,
         context.data_url,
-        # The navigation carrying the per-legislature links must have rendered.
         unblock_validator=".//a[contains(@href, 'legislature')]",
         geolocation="au",
         cache_days=14,
@@ -269,8 +236,7 @@ def crawl(context: Context) -> None:
             legislature,
             urljoin(context.data_url, href),
         )
-        # Parliament has had at least 46 seats since 1998, so a page yielding a handful
-        # of rows means a table was restructured rather than a term being short-handed.
+        # Fewer rows indicate that the page structure changed.
         assert members >= 45, (legislature, members)
 
     missing = set(ELECTION_DATES) - crawled
