@@ -9,7 +9,7 @@ from zavod.integration import get_dataset_linker
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
 from zavod.validators import (
-    DanglingReferencesValidator,
+    EntityReferenceValidator,
     SelfReferenceValidator,
     EmptyValidator,
 )
@@ -60,7 +60,7 @@ def emit_entity(ds: Dataset, schema: str, properties: dict[str, list[str]]) -> E
 
 def test_dangling_references(testdataset3) -> None:
     crawl_dataset(testdataset3)
-    validator, logs = run_validator(DanglingReferencesValidator, testdataset3)
+    validator, logs = run_validator(EntityReferenceValidator, testdataset3)
 
     assert logs == {
         (
@@ -71,6 +71,40 @@ def test_dangling_references(testdataset3) -> None:
             "warning",
             "td3-asset-of-nonexistent-co-ownership-nonexistent-co property owner references missing id td3-nonexistent-co",
         ),
+    }
+    assert validator.abort is False
+
+
+def test_property_range() -> None:
+    # All of these have to be emitted through one context: each context run
+    # replaces the dataset's statements rather than appending to them.
+    ds = Dataset({**BASE_DATASET_CONFIG, "name": "test_range"})
+    context = Context(ds)
+    context.begin()
+
+    def make(schema: str, properties: dict[str, list[str]]) -> Entity:
+        entity = Entity.from_data(
+            context.dataset,
+            {"schema": schema, "id": str(uuid.uuid4()), "properties": properties},
+        )
+        context.emit(entity)
+        return entity
+
+    owner = make("Person", {"name": ["Wile E. Coyote"]})
+    # A Company is an Asset, so this ownership is in range and stays quiet.
+    company = make("Company", {"name": ["Acme Inc"]})
+    make("Ownership", {"owner": [owner.id], "asset": [company.id]})
+    # An Organization is not an Asset - the case reported in #2550.
+    org = make("Organization", {"name": ["Acme Foundation"]})
+    make("Ownership", {"owner": [owner.id], "asset": [org.id]})
+    context.close()
+
+    validator, logs = run_validator(EntityReferenceValidator, ds)
+    assert logs == {
+        (
+            "warning",
+            "Ownership:asset should reference Asset, but 1 references point at Organization",
+        )
     }
     assert validator.abort is False
 
