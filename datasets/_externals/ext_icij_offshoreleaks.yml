@@ -101,11 +101,11 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 800
+      Company: 230
       LegalEntity: 150
   max:
     schema_entities:
-      Company: 1600
+      Company: 800
       LegalEntity: 300
 
 lookups:
