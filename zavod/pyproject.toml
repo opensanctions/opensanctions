@@ -100,6 +100,10 @@ branch = true
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.mypy]
+strict = true
+exclude = ["zavod/tests"]
+
 [tool.isort]
 profile = "black"
 use_parentheses = false
