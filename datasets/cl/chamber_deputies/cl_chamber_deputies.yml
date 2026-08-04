@@ -6,23 +6,28 @@ coverage:
   frequency: monthly
   start: 2026-07-24
 load_statements: true
+# Sitting deputies' email and district come from Cloudflare-protected profile pages
+# fetched via Zyte, which CI has no credentials for. Run this crawler locally when
+# changing it — CI will not exercise it.
 ci_test: false
 summary: >-
-  Members of the Chamber of Deputies of Chile, the lower house of the National
-  Congress.
+  Current and recent deputies of the lower house of the National Congress of Chile.
 description: |
-  Current members of the Chamber of Deputies (Cámara de Diputadas y Diputados), the lower
-  house of the National Congress of Chile. Its 155 deputies are elected by proportional
-  representation from the country's electoral districts for a four-year term and, together
-  with the Senate, hold the country's legislative power, including passing laws and approving
-  the budget.
+  Current and historical members of the Chamber of Deputies (Cámara de Diputadas y
+  Diputados), the lower house of the National Congress of Chile. Its 155 deputies are
+  elected by proportional representation from the country's electoral districts for a
+  four-year term and, together with the Senate, hold the country's legislative power,
+  including passing laws and approving the budget.
 
-  This dataset records deputies of the current and recent legislative periods with their name,
-  gender, date of birth, and party affiliations, along with the term(s) each of them served.
-  For sitting deputies it additionally records their email and electoral district.
+  This dataset records each deputy with their name, gender, date of birth, and party
+  affiliations, along with the legislative period or periods they served. Email and
+  electoral district are recorded for sitting deputies only, since the profile pages
+  they come from reflect the present term. Deputies whose terms all ended long enough
+  ago that they are no longer treated as politically exposed are not included.
 url: https://www.camara.cl/
 publisher:
   name: Cámara de Diputadas y Diputados
+  name_en: Chamber of Deputies
   description: >
     The Chamber of Deputies is the lower house of the National Congress of Chile.
   url: https://www.camara.cl/

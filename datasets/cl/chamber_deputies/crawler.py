@@ -3,14 +3,16 @@ import re
 from lxml import etree
 from rigour.mime.types import XML
 
-from zavod import Context, settings
+from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
 
-
-POSITION_TOPICS = ["gov.national", "gov.legislative"]
 
 # The Chamber's open-data SOAP service. The dataset's `data.url` enumerates the
 # legislative periods; we then fetch each period's roster here
@@ -56,13 +58,18 @@ def crawl_detail(
         context, url, unblock_validator='.//p[contains(., "Distrito:")]', cache_days=14
     )
     email = extract_email(doc)
-    if email is not None:
+    if email is None:
+        context.log.warning("No email on deputy profile", url=url)
+    else:
         person.add("email", email)
 
-    match = DISTRICT_RE.search(
-        h.xpath_string(doc, './/p/text()[contains(., "Distrito:")]')
-    )
-    if match is not None:
+    # Match the whole paragraph's text, like the unblock validator does: the label and
+    # the number are not guaranteed to sit in the same text node.
+    paragraphs = h.xpath_elements(doc, './/p[contains(., "Distrito:")]')
+    match = DISTRICT_RE.search(" ".join(h.element_text(p) for p in paragraphs))
+    if match is None:
+        context.log.warning("No district on deputy profile", url=url)
+    else:
         occupancy.add("constituency", match.group(1))
 
 
@@ -92,7 +99,6 @@ def crawl_member(
     deputy: etree._Element,
     period_start: str,
     period_end: str,
-    is_current: bool,
 ) -> None:
     dip_id = h.xpath_string(deputy, "Id/text()")
     first = " ".join(
@@ -113,7 +119,8 @@ def crawl_member(
     h.apply_name(person, first_name=first, last_name=last, lang="spa")
     person.add("gender", deputy.findtext("Sexo"))
     birth = deputy.findtext("FechaNacimiento")
-    h.apply_date(person, "birthDate", birth[:10] if birth else None)
+    if birth is not None:
+        h.apply_date(person, "birthDate", birth[:10])
     for party in parties(deputy):
         person.add("political", party, lang="spa")
     # Deputies must be citizens with the right to vote (Constitution of Chile,
@@ -137,7 +144,7 @@ def crawl_member(
         return
     # Only current members' profile pages are fetched: the page reflects the present
     # term's district and email, which would be wrong to attach to a past occupancy.
-    if is_current:
+    if OccupancyStatus.CURRENT.value in occupancy.get("status"):
         crawl_detail(context, person, occupancy, dip_id)
     context.emit(occupancy)
     context.emit(person)
@@ -148,7 +155,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Chamber of Deputies of Chile",
         country="cl",
-        topics=POSITION_TOPICS,
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q18067639",
         lang="eng",
     )
@@ -167,7 +174,7 @@ def crawl(context: Context) -> None:
         period_start = h.xpath_string(period, "FechaInicio/text()")[:10]
         period_end = h.xpath_string(period, "FechaTermino/text()")[:10]
 
-        if period_start < h.earliest_term_start(POSITION_TOPICS):
+        if period_start < h.earliest_term_start(position.get("topics")):
             continue
 
         deputies_root = fetch_xml(
@@ -179,15 +186,7 @@ def crawl(context: Context) -> None:
         deputies = deputies_root.findall(".//Diputado")
         if not deputies:
             raise ValueError(f"No deputies found for period {name!r}")
-        # The ongoing term is the one whose end lies in the future.
-        is_current = period_end > settings.RUN_TIME.date().isoformat()
         for deputy in deputies:
             crawl_member(
-                context,
-                position,
-                categorisation,
-                deputy,
-                period_start,
-                period_end,
-                is_current,
+                context, position, categorisation, deputy, period_start, period_end
             )
