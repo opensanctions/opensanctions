@@ -140,6 +140,10 @@ lookups:
         values:
           - ua
           - ru
+      # The EU's standard designation for Myanmar. Drop this once a rigour
+      # release resolves the slash form on its own.
+      - match: Myanmar/Burma
+        value: mm
   type.email:
     options:
       - match: "general@angstrem.r"
