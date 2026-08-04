@@ -1,10 +1,18 @@
 from zavod.meta.dataset import Dataset
+from zavod.meta.names import NamesSpec
 from zavod.entity import Entity
 
 from zavod.helpers import (
     is_name_irregular,
     check_name_regularity,
 )
+
+
+def test_default_person_spec_rejects_mixed_scripts() -> None:
+    spec = NamesSpec().schema_rules["Person"]
+    assert spec.reject_mixed_scripts is True
+    spec = NamesSpec().schema_rules["LegalEntity"]
+    assert spec.reject_mixed_scripts is False
 
 
 def test_is_name_irregular(testdataset1: Dataset):

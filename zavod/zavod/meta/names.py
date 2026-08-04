@@ -49,6 +49,11 @@ class CleaningSpec(BaseModel):
     """If True, names starting with a digit are flagged as irregular. Off by default.
     Useful where leading digits are irregular, e.g. numbering artifacts.
     Some organisation names really have leading digits in the name."""
+    reject_mixed_scripts: bool = False
+    """If True, names that mix a dense script (Han/Hiragana/Katakana/Hangul) with a
+    non-dense script (e.g. Latin) are flagged as irregular. This catches CJK names
+    with a glued-on Latin romanization, while allowing legitimate intra-Japanese
+    kana+kanji names."""
 
     @cached_property
     def reject_chars_consolidated(self) -> set[str]:
@@ -67,6 +72,7 @@ _DEFAULT_SCHEMA_RULES: dict[str, CleaningSpec] = {
     "Person": CleaningSpec(
         reject_chars_baseline=";\\/()[]<>{}:",
         require_space=True,
+        reject_mixed_scripts=True,
     ),
     "LegalEntity": CleaningSpec(
         reject_chars_baseline="/;",
