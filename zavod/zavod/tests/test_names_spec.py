@@ -20,6 +20,11 @@ def test_wrong_type_in_default_schema_override_raises():
         )
 
 
+def test_non_dict_default_schema_override_raises_validation_error():
+    with pytest.raises(ValidationError):
+        NamesSpec.model_validate({"schema_rules": {"Person": None}})
+
+
 def test_typo_in_new_schema_raises():
     with pytest.raises(ValidationError):
         NamesSpec.model_validate(
