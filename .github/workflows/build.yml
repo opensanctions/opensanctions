@@ -17,18 +17,13 @@ jobs:
   # crawler-only PR doesn't pay for the zavod test suite (and vice versa).
   changes:
     permissions:
-      contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     outputs:
       zavod: ${{ steps.changed.outputs.zavod }}
       datasets: ${{ steps.changed.outputs.datasets }}
     steps:
-      - uses: actions/checkout@v7
-        with:
-          # On pull_request the checked-out ref is the merge commit, so its two
-          # parents are the base and the head. Depth 2 reaches both, which is all
-          # a diff needs — no history walk.
-          fetch-depth: 2
+      # No checkout: this job only reads the API and greps a text file.
       # The zavod side is deliberately an ignore list rather than a zavod/ prefix:
       # Dockerfile, contrib/, .pre-commit-config.yml and the workflows themselves
       # all affect the zavod build too. Running the suite unnecessarily is the
@@ -36,13 +31,18 @@ jobs:
       - name: Determine which halves of the build are affected
         id: changed
         env:
-          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          # Non-PR events leave the list empty: main, schedule and
-          # workflow_dispatch force-run both jobs regardless.
-          if [ "$EVENT" = "pull_request" ]; then
-            git diff --name-only --diff-filter=d HEAD^1 HEAD^2 > changed.txt
+          # Ask GitHub for the file list rather than deriving it locally. A diff
+          # would need the merge base: on the pull_request merge ref, HEAD^1 is
+          # the base branch *tip*, so everything the base gained since this branch
+          # diverged shows up as a spurious change. Non-PR events leave the list
+          # empty — main, schedule and workflow_dispatch force-run both jobs.
+          if [ -n "${PR:-}" ]; then
+            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+              --jq '.[] | select(.status != "removed") | .filename' > changed.txt
           else
             : > changed.txt
           fi
@@ -139,6 +139,7 @@ jobs:
       || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
+      pull-requests: read
     env:
       OPENSSL_CONF: "contrib/openssl.cnf"
       FTM_USER_AGENT: "Mozilla/5.0 (compatible; github-actions-zavod/0.8; tech@opensanctions.org)"
@@ -147,8 +148,6 @@ jobs:
     needs: [changes]
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 2  # see the note in the changes job
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
@@ -180,17 +179,19 @@ jobs:
       - name: Test crawlers with tests
         run: pytest datasets
 
-      # --diff-filter=d drops deletions: ci_datasets.py takes an existing path.
+      # Skipping "removed" matters here: ci_datasets.py takes an existing path.
       # The list goes to a file rather than a step output so that filenames — which
       # a PR author controls — are never interpolated into a shell command.
       - name: Get any modified dataset files
         id: changed
         env:
-          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          if [ "$EVENT" = "pull_request" ]; then
-            git diff --name-only --diff-filter=d HEAD^1 HEAD^2 \
+          if [ -n "${PR:-}" ]; then
+            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+              --jq '.[] | select(.status != "removed") | .filename' \
               | { grep -E '^datasets/' || true; } > datasets.txt
           else
             : > datasets.txt

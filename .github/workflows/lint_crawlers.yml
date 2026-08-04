@@ -1,6 +1,7 @@
 name: lint_crawlers
 permissions:
   contents: read
+  pull-requests: read  # read the PR's file list; see the changed step below
 
 on:
   push:
@@ -15,22 +16,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          # On pull_request the checked-out ref is the merge commit, so its two
-          # parents are the base and the head. Depth 2 reaches both, which is all
-          # a diff needs — no history walk.
-          fetch-depth: 2
       # The lists go to files rather than step outputs so that filenames — which a
       # PR author controls — are never interpolated into a shell command.
-      # --diff-filter=d drops deletions, which have nothing left to lint.
+      # Deletions are skipped, having nothing left to lint. See build.yml for why
+      # this asks the API instead of diffing locally.
       - name: Get modified dataset files
         id: changed
         env:
-          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          if [ "$EVENT" = "pull_request" ]; then
-            git diff --name-only --diff-filter=d HEAD^1 HEAD^2 \
+          if [ -n "${PR:-}" ]; then
+            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+              --jq '.[] | select(.status != "removed") | .filename' \
               | { grep -E '^datasets/' || true; } > dataset_files.txt
           else
             : > dataset_files.txt
