@@ -59,6 +59,24 @@ otherwise) and set `ci_test: false` on the dataset.
 
 Compare what the source actually contains against what the crawler expects.
 
+### If the question is "since when?"
+
+Only when the diagnosis actually turns on how the dataset changed over time — counts
+drifted outside the `assertions:` bounds, or you need to know since when runs have been
+failing to line it up against a source or crawler change. Don't walk the history as a
+matter of course; the diagnostic report already covers the latest run and the last
+successful one, which is what most failures need.
+
+```bash
+python -m contrib.maintenance.versions <dataset_name> -n 30
+```
+
+One row per archived run, newest first, with entity and target counts; add
+`--schema Person` (repeatable) to see where a count moved. `.claude/docs/archive-investigation.md`
+goes further, into individual past runs and deltas — follow it only in an interactive
+session with a human, who likely has the Google Cloud credentials it needs. The command
+above works over plain HTTPS.
+
 ### Common failures
 
 | Symptom | Cause | Fix |

@@ -47,6 +47,7 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 * Standardising a dataset's metadata: use the `/dataset-metadata` skill
 * General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
 * Filing a dataset issue or marking a source outage — only when a human asks for it in an interactive session, never in an automated run: `.claude/docs/issue-filing.md`
+* Investigating past versions of dataset runs on the https://data.opensanctions.org archive (entity counts over time, when an entity disappeared, failed runs): `.claude/docs/archive-investigation.md`
 
 ## Coding hints
 
