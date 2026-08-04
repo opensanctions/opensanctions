@@ -22,7 +22,7 @@ jobs:
           files: 'datasets/**/*.y*ml'
           separator: "\n"
           safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
-      - name: Lint modiied dataset yamls
+      - name: Lint modified dataset yamls
         if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
         env:
           # For security reasons, pass possibly attacker-chosen filenames via
