@@ -151,3 +151,16 @@ jobs:
           claude_args: "--model ${{ matrix.task.model }} --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
 
+      # The agent opens its PR via mcp__github__create_pull_request, which takes no
+      # labels. The branch name is deterministic, so label it here rather than trusting
+      # the agent to do it. Fails harmlessly when no PR was opened (no fixes needed).
+      - name: Label the PR
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit "${{ matrix.task.branch }}" \
+            --repo "${{ github.repository }}" \
+            --add-label daily-issues
+

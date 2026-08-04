@@ -317,3 +317,9 @@ lookups:
     options:
       - match: "N/A"
         value: null
+  type.url:
+    options:
+      # The source pasted the link title instead of the target URL, so the only
+      # location it actually states is the domain.
+      - match: "Moniteur Belge - Belgisch Staatsblad (fgov.be)"
+        value: "https://fgov.be"

@@ -54,7 +54,7 @@ assertions:
       Organization: 1000
 ```
 
-- Sanctions lists typically use `frequency: daily` with a cron `schedule:`.
+- `coverage.frequency: daily` (house default for sanctions — see `zavod/docs/metadata.md`). Don't add a cron `schedule:` unless the run must follow the source's own publication time.
 - Assert Sanction entity counts alongside Person/Organization counts.
 
 ### Sanctions-specific lookups

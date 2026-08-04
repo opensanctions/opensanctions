@@ -44,7 +44,9 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 * Writing a PEP crawler: use the `/crawler-pep` skill
 * Writing a sanctions crawler: use the `/crawler-sanctions` skill
 * Debugging a failing crawler: use the `/debug-crawler` skill
+* Standardising a dataset's metadata: use the `/dataset-metadata` skill
 * General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
+* Filing a dataset issue or marking a source outage — only when a human asks for it in an interactive session, never in an automated run: `.claude/docs/issue-filing.md`
 
 ## Coding hints
 

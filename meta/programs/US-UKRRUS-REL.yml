@@ -12,7 +12,10 @@ summary: Targets persons responsible for undermining Ukraine's sovereignty and
   imports from them, and exports of goods, services, and technology to them.
   Related restrictions on major Russian financial, energy, and defence
   companies are maintained through the separate Sectoral Sanctions
-  Identifications List.
+  Identifications List. Not every designation is blocking; some persons are
+  subject only to the sectoral directives selected in their individual
+  determination, which restrict dealings in their new debt and equity and in
+  certain energy-sector goods and services.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
@@ -38,6 +41,7 @@ target_territories:
   - ua-lpr
 measures:
   - Asset freeze
+  - Financial restrictions
   - Investment ban
   - Import restrictions
   - Export control

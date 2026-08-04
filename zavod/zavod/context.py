@@ -341,16 +341,7 @@ class Context:
             url, auth=auth, method=method, data=data, encoding=encoding
         )
         if cache_days is not None:
-            text = None
-
-            if method == "GET" and encoding is None:
-                # keeping the old caching keys that was GET requests only
-                text = self.cache.get(url, max_age=cache_days)
-
-            if text is None:
-                # if the old cache is empty, try to get the cache by fingerprint
-                text = self.cache.get(fingerprint, max_age=cache_days)
-
+            text = self.cache.get(fingerprint, max_age=cache_days)
             if text is not None:
                 self.log.debug("HTTP cache hit", url=url, fingerprint=fingerprint)
                 return text

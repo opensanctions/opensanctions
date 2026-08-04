@@ -42,6 +42,19 @@ data:
 dates:
   formats: ["%b-%y", "%B %Y"]
 
+lookups:
+  columns:
+    required: true
+    options:
+      - match: REQUESTER
+        value: requester
+      - match:
+          - REQUESTING COUNTRY
+          - LOCATION OF REQUESTER
+        value: country
+      - match: DATE LISTED
+        value: date_listed
+
 assertions:
   min:
     schema_entities:

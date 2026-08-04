@@ -13,11 +13,11 @@
   "dependencies": {
     "@codemirror/lang-json": "^6.0.2",
     "@codemirror/lang-markdown": "^6.5.1",
-    "@opensanctions/followthemoney": "^4.10.0",
+    "@opensanctions/followthemoney": "^4.10.1",
     "@uiw/react-codemirror": "^4.25.11",
     "bootstrap": "^5.3.8",
     "codemirror-json-schema": "^0.8.1",
-    "jose": "^6.2.4",
+    "jose": "^6.2.7",
     "json-schema-library": "^11.6.2",
     "kysely": "^0.29.4",
     "next": "16.2.12",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^26",
-    "@types/pg": "^8.20.0",
+    "@types/pg": "^8.20.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/turndown": "^5.0.6",

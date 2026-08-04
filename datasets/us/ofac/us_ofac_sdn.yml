@@ -764,6 +764,11 @@ lookups:
         value: female
       - match: MALE
         value: male
+  type.url:
+    options:
+      # Missing slash in the scheme separator:
+      - match: https:/keremetbank.kg
+        value: https://keremetbank.kg
   type.text:
     options:
       - match: <Head Office>;

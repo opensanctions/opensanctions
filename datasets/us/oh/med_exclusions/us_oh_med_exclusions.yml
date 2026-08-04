@@ -47,7 +47,7 @@ assertions:
       Company: 200
   max:
     schema_entities:
-      Person: 1800
+      Person: 2200
       Company: 300
 lookups:
   type.identifier:

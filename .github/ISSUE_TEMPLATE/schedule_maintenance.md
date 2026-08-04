@@ -1,6 +1,6 @@
 ---
 title: Data review reminder for {{ date | date('MMMM YYYY') }}
-labels: daily_issues
+labels: daily-issues
 ---
 
 Please manually check and update the **data** for the following crawlers:

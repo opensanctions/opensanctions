@@ -1,3 +1,14 @@
+# DEPRECATED — do not reference. This key described a list rather than a legal
+# authority: NS-MBS entries are designated under several unrelated authorities
+# (CAATSA, the Hong Kong Autonomy Act, EO 14024, and others), each of which has
+# its own program. Those entries are attributed by their per-entry program tag
+# instead, with the list name recorded in the sanction summary. Statements
+# naming US-NS-MBS will age out of the published data.
+#
+# Those authority programs record the union of their operative measures, so the
+# menu-based/blocking distinction this key carried lives only in the
+# sanction's `provisions`, until a normalized `Sanction:measures` lands. The
+# receiving programs narrate the variation in their summaries. cf. #4980
 id: 277
 title: Non-SDN Menu-Based Sanctions List (NS-MBS List)
 key: US-NS-MBS

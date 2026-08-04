@@ -7,27 +7,25 @@ load_statements: true
 entry_point: crawler.py
 ci_test: false
 summary: >-
-  Current and recent Members of the German Federal Parliament; mostly teachers and lawyers
+  Current and recently serving lawmakers in the federal parliament
 description: |
-  Members of the German Bundestag (German: Deutscher Bundestag), the legislative body
-  of the Federal Republic of Germany.
+  Current and recent members of the German Bundestag (Deutscher Bundestag), the
+  federal parliament of Germany. Its 630 members are elected for four-year terms
+  under a mixed-member proportional system and hold the country's legislative
+  power, including passing laws, electing the Chancellor, approving the budget,
+  and overseeing the government.
 
-  Parties must receive at least 5% of the second votes nationwide or win 
-  three direct constituency seats to enter the Bundestag, with exceptions for parties
-  representing recognized national minorities. 
-
-  The data is sourced from the official open data provided by the German Bundestag
-  administration, containing comprehensive biographical and mandate information for
-  all current members.
+  Deceased members are not included.
 url: https://www.bundestag.de/abgeordnete/biografien
 tags:
   - list.pep
 publisher:
-  name: German Bundestag
+  name: Deutscher Bundestag
+  name_en: German Bundestag
   description: |
-    The German Bundestag provides open data about its members on its official
-    website. The Bundestag exercises legislative power, elects the Chancellor, approves
-    the budget, and oversees the government.
+    The Bundestag is the federal parliament of the Federal Republic of Germany,
+    elected directly by the German people. It exercises legislative power, elects
+    the Chancellor, approves the budget, and oversees the government.
   country: de
   url: https://www.bundestag.de/en/
   official: true
