@@ -1,4 +1,4 @@
-title: Kiribati Maneaba ni Maungatabu
+title: Kiribati Members of the Maneaba ni Maungatabu
 name: ki_maneaba
 prefix: ki-mnb
 entry_point: crawler.py
@@ -11,17 +11,18 @@ summary: >-
   Members of the Maneaba ni Maungatabu, the unicameral House of Assembly of
   Kiribati.
 description: |
-  The Maneaba ni Maungatabu is the unicameral House of Assembly of Kiribati. Members
-  are directly elected from the island constituencies for four-year terms; the President
-  of Kiribati is also a sitting member. The Speaker is elected from outside the House and
-  the Attorney General serves ex officio (non-voting); neither appears on the members
-  listing crawled here.
+  Current members of the Maneaba ni Maungatabu (House of Assembly), the unicameral
+  national legislature of Kiribati. Members are directly elected from the island
+  constituencies for a four-year term, joined by a nominated representative of the
+  Banaban community, and hold the country's legislative power, including passing laws
+  and approving the budget. The President of Kiribati is also a sitting member.
 
-  This dataset records each sitting member with their name, the island constituency they
-  represent, and their political party where the source states one.
+  The Speaker is elected from outside the Maneaba and the Attorney-General serves ex
+  officio (non-voting); neither appears in the members listing crawled here.
 url: https://www.parliament.gov.ki/
 publisher:
   name: Maneaba ni Maungatabu
+  name_en: House of Assembly of Kiribati
   acronym: Maneaba
   description: >
     The Maneaba ni Maungatabu is the House of Assembly of Kiribati, the country's
@@ -36,6 +37,15 @@ data:
 
 tags:
   - list.pep
+
+names:
+  prefixes_strip:
+    - Hon.
+    - "Hon "
+    - "H.E "
+    - H.E.
+    - Dr.
+    - "Dr "
 
 assertions:
   min:

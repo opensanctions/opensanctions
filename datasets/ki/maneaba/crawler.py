@@ -1,23 +1,7 @@
-import re
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
-
-# Names carry honorific prefixes: "Hon." for members, "H.E" for the President, and
-# occasionally "Dr". Strip them (repeatedly, e.g. "Hon. Dr ...") so the emitted name is
-# the person's actual name. The matcher normalises case anyway.
-HONORIFIC_RE = re.compile(r"^\s*(?:Hon|H\.E|Dr)\.?\s*", re.IGNORECASE)
-
-
-def clean_name(raw: str) -> str:
-    name = raw
-    while True:
-        stripped = HONORIFIC_RE.sub("", name)
-        if stripped == name:
-            return stripped.strip()
-        name = stripped
 
 
 def crawl_member(
@@ -28,14 +12,17 @@ def crawl_member(
 ) -> None:
     raw_name = row.pop("member")
     assert raw_name is not None, "Missing member name"
-    name = clean_name(raw_name)
-    assert name, "Empty member name"
+    # Members carry the honorific "Hon.", the President "H.E", and some also "Dr";
+    # strip the affixes declared under `names.prefixes_strip` in the metadata, keeping
+    # the raw value as provenance.
+    name = h.strip_name_titles(context, raw_name)
+    assert name, f"Empty member name from {raw_name!r}"
     constituency = row.pop("constituency")
     assert constituency is not None, "Missing constituency"
 
     person = context.make("Person")
     person.id = context.make_id(name, constituency)
-    person.add("name", name)
+    person.add("name", name, original_value=raw_name if name != raw_name else None)
     person.add("political", row.pop("party"))
     # A member of the Maneaba ni Maungatabu must be a citizen of Kiribati under
     # Chapter V, Section 55(a) of the Constitution of Kiribati.
