@@ -5,8 +5,9 @@ from pathlib import Path
 
 from normality import slugify
 from rigour.mime.types import CSV
+from zavod.extract.zyte_api import fetch_html
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 
 # Both lists are published as web pages only, so the entity data is transcribed by
@@ -14,11 +15,13 @@ from zavod import helpers as h
 # guards that transcription: each hash covers the text of the page's list, so a
 # revision upstream shows up as a warning. The runbook for reconciling one is in the
 # dataset YAML. Hashes are text-only on purpose: the markup around these lists changes
-# without the lists changing, and it makes a hash reproducible from any fetch of the
+# without the lists changing, and a text hash is reproducible from any fetch of the
 # page rather than only from a rendered one.
 #
-# state.gov answers a bare `curl/*` user agent with a "Technical Difficulties" page, but
-# serves the real page to zavod's own user agent, so these pages need no unblocking.
+# The pages need Zyte even though they are plain HTML: state.gov serves a
+# "Technical Difficulties" page instead of content to datacenter egress addresses,
+# which is what production runs from. A residential connection gets the real page, so
+# this cannot be reproduced by fetching from a laptop.
 LOCAL_PATH = Path(__file__).parent
 ACCOMMODATIONS_URL = (
     "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list"
@@ -42,55 +45,18 @@ WATCHED_PAGES = [
     ),
 ]
 CONTENT_XPATH = ".//div[@class='entry-content']"
+ACTIONS = [
+    {
+        "action": "waitForSelector",
+        "selector": {
+            "type": "xpath",
+            "value": CONTENT_XPATH,
+        },
+        "timeout": 15,
+    },
+]
 PAL_PROGRAM = "US-DOS-CU-PAL"
 REA_PROGRAM = "US-DOS-CU-REA"
-# One-shot migration for the IDs retired by moving alias names out of `Name`, and by
-# splitting the two Camagüey Plaza rows onto the hotel they both describe. Remove these
-# once the dataset has run in production, per zavod/docs/best_practices/entity_id.md.
-REKEYED = [
-    (
-        "blau-marina-varadero-resort-aka-fiesta-americana-punta-varadero-fiesta-club-adults-only",
-        "blau-marina-varadero-resort",
-    ),
-    ("hotel-kawama-aka-club-kawama", "hotel-kawama"),
-    (
-        "iberostar-bella-vista-aka-iberostar-selection-bella-vista-varadero",
-        "iberostar-bella-vista",
-    ),
-    ("playa-larga-aka-horizontes-playa-larga", "playa-larga"),
-    ("villa-guama-aka-horizontes-villa-guama", "villa-guama"),
-    ("melia-cayo-santa-maria-aka-sol-cayo-santa-maria", "melia-cayo-santa-maria"),
-    ("villa-la-granjita-aka-horizontes-la-granjita", "villa-la-granjita"),
-    ("villa-los-caneyes-aka-horizontes-los-caneyes", "villa-los-caneyes"),
-    (
-        "warwick-cayo-santa-maria-aka-labranda-cayo-santa-maria-hotel",
-        "warwick-cayo-santa-maria",
-    ),
-    ("ma-dolores-aka-horizontes-finca-ma-dolores", "ma-dolores"),
-    ("pestana-cayo-coco-aka-hotel-playa-paraiso", "pestana-cayo-coco"),
-    ("marea-del-portillo-aka-club-amigo-marea-del-portillo", "marea-del-portillo"),
-    (
-        "blau-costa-verde-beach-resort-aka-fiesta-americana-holguin-costa-verde",
-        "blau-costa-verde-beach-resort",
-    ),
-    ("villa-don-lino-also-hotel-don-lino", "villa-don-lino"),
-    (
-        "club-amigo-carisol-los-corales-aka-carisol-los-corales",
-        "club-amigo-carisol-los-corales",
-    ),
-    ("san-basilio-aka-hotel-e-san-basilio", "san-basilio"),
-    ("plaza-also-hotel-islazul-plaza-camaguey", "hotel-plaza-camaguey"),
-    ("also-fiesta-americana-punta-varadero", "blau-marina-varadero-resort"),
-    ("also-fiesta-club-adults-only", "blau-marina-varadero-resort"),
-    ("also-labranda-cayo-santa-maria-hotel", "warwick-cayo-santa-maria"),
-    ("also-fiesta-americana-holguin-costa-verde", "blau-costa-verde-beach-resort"),
-    ("also-hotel-playa-paraiso", "pestana-cayo-coco"),
-    (
-        "alias-empresa-de-certificacion-de-sistemas-de-seguridad-y-proteccion",
-        "agencia-de-certificacion-y-consultoria-de-seguridad-y-proteccion",
-    ),
-    ("alias-ais-remesas", "american-international-services"),
-]
 
 
 def source_rows(context: Context, name: str) -> Iterator[dict[str, str]]:
@@ -131,15 +97,17 @@ def check_watched_pages(context: Context) -> None:
     The lists are only fetched to be compared, never to be parsed, so a fetch failure
     must not stop the dataset from publishing data that is already in the repository.
     """
+    if settings.ZYTE_API_KEY is None:
+        context.log.info("Skipping page change detection: no Zyte API key configured")
+        return
     for url, expected, message in WATCHED_PAGES:
         try:
-            matched = h.assert_html_url_hash(
-                context, url, expected, path=CONTENT_XPATH, text_only=True
-            )
+            doc = fetch_html(context, url, CONTENT_XPATH, actions=ACTIONS)
         except Exception as exc:
             context.log.warning("Could not fetch watched page", url=url, error=str(exc))
             continue
-        if not matched:
+        node = doc.find(CONTENT_XPATH)
+        if not h.assert_dom_hash(node, expected, text_only=True):
             context.log.warning(message, url=url)
 
 
@@ -198,8 +166,6 @@ def crawl_restricted_entities(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    for old_id, new_id in REKEYED:
-        context.rekey(context.make_slug(old_id), context.make_slug(new_id))
     crawl_accommodations(context)
     crawl_restricted_entities(context)
     check_watched_pages(context)
