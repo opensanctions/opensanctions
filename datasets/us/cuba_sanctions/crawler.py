@@ -6,18 +6,38 @@ from pathlib import Path
 from rigour.mime.types import CSV
 from zavod.extract.zyte_api import fetch_html
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 
 # Both lists are published as web pages only, so the entity data is transcribed by
-# hand into the CSV files next to this crawler and reviewed in git. The hashes below
-# watch the pages so a change upstream surfaces as a warning; the runbook for
-# reconciling one is in the dataset YAML.
+# hand into the CSV files next to this crawler and reviewed in git. WATCHED_PAGES
+# guards that transcription: each hash covers the text of the page's list, so a
+# revision upstream shows up as a warning. The runbook for reconciling one is in the
+# dataset YAML. Hashes are text-only on purpose -- the markup around these lists
+# changes without the lists changing, and a rendered DOM does not serialise
+# identically to a raw HTTP response.
 LOCAL_PATH = Path(__file__).parent
-ORIGINAL_ACCOMMODATIONS_URL = (
-    "https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/"
+ACCOMMODATIONS_URL = (
+    "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list"
 )
-ORIGINAL_RESTRICTED_ENTITIES_URL = "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"
+RESTRICTED_ENTITIES_URL = "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"
+WATCHED_PAGES = [
+    (
+        "https://www.state.gov/cuba-sanctions/",
+        "1c0b7848505ace0d1871710834faf885d59ef6b6",
+        "Landing page changed. Check for added/removed lists.",
+    ),
+    (
+        ACCOMMODATIONS_URL,
+        "0e37bcfcc69cf7381a48ad28d881722c69e41415",
+        "Accommodations list changed. Reconcile accommodations.csv.",
+    ),
+    (
+        RESTRICTED_ENTITIES_URL,
+        "2d5cd6154e8bdd793d7ddaff2c48ba3253edfb36",
+        "Restricted list changed. Reconcile restricted_entities.csv.",
+    ),
+]
 CONTENT_XPATH = ".//div[@class='entry-content']"
 ACTIONS = [
     {
@@ -45,14 +65,27 @@ def source_rows(context: Context, name: str) -> Iterator[dict[str, str]]:
         yield from csv.DictReader(fh)
 
 
-def crawl_accommodations(context: Context) -> None:
-    doc = fetch_html(
-        context, ORIGINAL_ACCOMMODATIONS_URL, CONTENT_XPATH, actions=ACTIONS
-    )
-    node = doc.find(CONTENT_XPATH)
-    if not h.assert_dom_hash(node, "6dc9087e0ccb2e13fc2389ba4176ab114996ad32"):
-        context.log.warning("Accommodations page changed. Check for data updates.")
+def check_watched_pages(context: Context) -> None:
+    """Warn when a watched page's list no longer matches the reviewed CSV files.
 
+    The lists are only fetched to be compared, never to be parsed, so a fetch failure
+    must not stop the dataset from publishing data that is already in the repository.
+    """
+    if settings.ZYTE_API_KEY is None:
+        context.log.info("Skipping page change detection: no Zyte API key configured")
+        return
+    for url, expected, message in WATCHED_PAGES:
+        try:
+            doc = fetch_html(context, url, CONTENT_XPATH, actions=ACTIONS)
+        except Exception as exc:
+            context.log.warning("Could not fetch watched page", url=url, error=str(exc))
+            continue
+        node = doc.find(CONTENT_XPATH)
+        if not h.assert_dom_hash(node, expected, text_only=True):
+            context.log.warning(message, url=url)
+
+
+def crawl_accommodations(context: Context) -> None:
     for row in source_rows(context, "accommodations.csv"):
         proxy = context.make("Company")
         name = row.pop("Name").strip()
@@ -69,13 +102,6 @@ def crawl_accommodations(context: Context) -> None:
 
 
 def crawl_restricted_entities(context: Context) -> None:
-    doc = fetch_html(
-        context, ORIGINAL_RESTRICTED_ENTITIES_URL, CONTENT_XPATH, actions=ACTIONS
-    )
-    node = doc.find(CONTENT_XPATH)
-    if not h.assert_dom_hash(node, "a146ff14f0a283a4a80afaaf0f46637574aa78c2"):
-        context.log.warning("Restricted List content changed. Check for data updates")
-
     for row in source_rows(context, "restricted_entities.csv"):
         proxy = context.make("Company")
         name = row.pop("Company").strip()
@@ -106,11 +132,6 @@ def crawl_restricted_entities(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    assert context.dataset.url is not None
-    doc = fetch_html(context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS)
-    node = doc.find(CONTENT_XPATH)
-    if not h.assert_dom_hash(node, "0355144d3d290c3c617b2dd0077582a3136679f7"):
-        context.log.warning("Landing page changed. Check for added/removed lists.")
-
     crawl_accommodations(context)
     crawl_restricted_entities(context)
+    check_watched_pages(context)

@@ -2,20 +2,33 @@ title: US State Department Cuba Sanctions
 entry_point: crawler.py
 prefix: us-cuba
 coverage:
-  frequency: never
+  frequency: monthly
   start: "2023-03-22"
-  end: "2023-04-27"
 deploy:
   schedule: "0 6 * * 1"
+manual_check:
+  last_checked: "2026-08-04"
+  interval: 90
+  message: >-
+    The page hashes in this crawler catch revisions to the two known lists and to the
+    Cuba Sanctions landing page that links them. Separately check whether the State
+    Department has published a Cuba list that the landing page does not link, and
+    whether either list has moved to a new URL, which would surface as a fetch failure
+    rather than a hash mismatch.
 load_statements: true
 summary: >
-  Several lists of Cuban companies and hotels that are blocked by the US State 
+  Several lists of Cuban companies and hotels that are blocked by the US State
   Department separately from the sanctions lists maintained by the Treasury.
 description: |
   This includes:
 
-  * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/)
+  * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list)
   * [List of Restricted Entities and Subentities Associated With Cuba](https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list)
+
+  The State Department publishes both lists as web pages only. OpenSanctions
+  transcribes them into
+  [CSV files](https://github.com/opensanctions/opensanctions/tree/main/datasets/us/cuba_sanctions)
+  maintained in the crawler repository, so that every change to the data is reviewed.
 publisher:
   name: US State Department
   acronym: State
@@ -30,20 +43,46 @@ publisher:
   official: true
 url: https://www.state.gov/cuba-sanctions/
 data:
-  url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/cuba_sanctions/accommodations.csv
   format: CSV
   lang: eng
-ci_test: false
 tags:
   - list.sanction
   - target.cu
   - juris.us
   - issuer.west
 
+# Maintaining the two list files
+#
+# The entity data lives in accommodations.csv and restricted_entities.csv in this
+# directory, transcribed from the State Department pages linked above.
+#
+# Handling "... list changed. Reconcile ..." warnings:
+#
+# 1. Open the URL from the warning and compare the list on the page against the CSV.
+#    The page carries an "As of <date>" line stating when State last revised it.
+# 2. Add a row per new listing, with the name exactly as the page writes it -- no
+#    case normalisation, no expanding abbreviations. Cite the page in `SourceURL`.
+# 3. Adopt renames in `Name`/`Company`; put a superseded name in `Alias`/`Acronym`
+#    where the column exists.
+# 4. Recompute the hash from the same page and update WATCHED_PAGES in the crawler.
+#    Use `h.assert_dom_hash(node, ..., text_only=True)` against the rendered page, or
+#    equivalently the text of a saved copy -- text-only hashes agree across fetch
+#    methods, which raw-markup hashes do not.
+#
+# A page disappearing or being removed from the landing page is NOT a delisting. Keep
+# the rows and their `SourceURL`, and only remove a listing when the current list no
+# longer names it.
+
 assertions:
   min:
     schema_entities:
-      Company: 480
+      Company: 540
+    country_entities:
+      cu: 540
+    entities_with_prop:
+      Company:
+        address: 380
   max:
     schema_entities:
-      Company: 1100
+      Company: 620
