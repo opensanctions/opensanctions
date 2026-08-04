@@ -1,12 +1,11 @@
 name: lint_crawlers
 permissions:
   contents: read
-  pull-requests: read  # read the PR's file list; see the changed step below
+  pull-requests: read
 
 on:
   push:
-    # Branch pushes are covered by the pull_request trigger. Without this filter
-    # every commit on a PR branch runs this workflow twice.
+    # Avoid duplicate push and pull_request runs on PR branches.
     branches: [main]
   pull_request: {}
   workflow_dispatch: {}
@@ -16,10 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      # The lists go to files rather than step outputs so that filenames — which a
-      # PR author controls — are never interpolated into a shell command.
-      # Deletions are skipped, having nothing left to lint. See build.yml for why
-      # this asks the API instead of diffing locally.
+      # Pass only existing paths through files to avoid interpolating PR filenames.
       - name: Get modified dataset files
         id: changed
         env:
@@ -48,29 +44,23 @@ jobs:
         if: ${{ steps.changed.outputs.yamls == 'true' }}
         run: |
           set -euo pipefail
-          # Read into an array so each filename is passed as its own quoted argv
-          # entry (a bare `for f in $(cat ...)` would word-split unsafely).
+          # Preserve each filename as a quoted argument.
           mapfile -t files < dataset_yamls.txt
           yamllint "${files[@]}"
-      # Only needed by the ruff/prek steps below, both of which no-op when no
-      # dataset files changed — don't pay ~2min to lint nothing on a zavod PR.
       - name: Install system dependencies
         if: ${{ steps.changed.outputs.files == 'true' }}
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # Needed to build pyicu and plyvel, neither of which publishes a cp313
-          # wheel. Previously implicit: pyicu built against the runner image's
-          # own ICU headers, which is not something to rely on.
+          # Python 3.13 requires building pyicu and plyvel from source.
           sudo apt-get install -y -qq libicu-dev libleveldb-dev
       - uses: actions/setup-python@v7
         if: ${{ steps.changed.outputs.files == 'true' }}
         with:
           python-version: '3.13'
           cache: 'pip'
-          # Must match build.yml so both workflows share one correctly-keyed
-          # cache. See the longer note there on why the default glob is wrong.
+          # The default requirements glob only finds unrelated contrib files.
           cache-dependency-path: zavod/pyproject.toml
       - name: Install python linting dependencies
         if: ${{ steps.changed.outputs.files == 'true' }}
@@ -87,8 +77,7 @@ jobs:
             ruff format --check --diff --config zavod/pyproject.toml "$dataset"
           done < dataset_python.txt
       - name: Run prek pre-commit hooks on modified files
-        # Gated on the full dataset list, matching what prek is handed: a PR that
-        # only touches dataset .yml files still needs the yaml hooks run.
+        # Include non-Python files handled by pre-commit hooks.
         if: ${{ steps.changed.outputs.files == 'true' }}
         run: |
           set -euxo pipefail

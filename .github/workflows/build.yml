@@ -3,8 +3,7 @@ name: build
 on:
   workflow_dispatch: {}
   push:
-    # Branch pushes are covered by the pull_request trigger. Without this filter
-    # every commit on a PR branch runs this workflow twice.
+    # Avoid duplicate push and pull_request runs on PR branches.
     branches: [main]
   pull_request: {}
   schedule:
@@ -13,8 +12,7 @@ on:
 permissions: {} # Default to no permissions. Enable as needed for specific jobs.
 
 jobs:
-  # Decide which halves of the build are relevant to this change, so that a
-  # crawler-only PR doesn't pay for the zavod test suite (and vice versa).
+  # Avoid running unrelated test suites for narrowly scoped PRs.
   changes:
     permissions:
       pull-requests: read
@@ -23,11 +21,7 @@ jobs:
       zavod: ${{ steps.changed.outputs.zavod }}
       datasets: ${{ steps.changed.outputs.datasets }}
     steps:
-      # No checkout: this job only reads the API and greps a text file.
-      # The zavod side is deliberately an ignore list rather than a zavod/ prefix:
-      # Dockerfile, contrib/, .pre-commit-config.yml and the workflows themselves
-      # all affect the zavod build too. Running the suite unnecessarily is the
-      # cheap mistake; skipping it when it mattered is not.
+      # Changes outside datasets, UI, Claude config, and Markdown may affect zavod.
       - name: Determine which halves of the build are affected
         id: changed
         env:
@@ -35,17 +29,7 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          # Ask GitHub for the file list rather than deriving it locally. A diff
-          # would need the merge base: on the pull_request merge ref, HEAD^1 is
-          # the base branch *tip*, so everything the base gained since this branch
-          # diverged shows up as a spurious change. Non-PR events leave the list
-          # empty — main, schedule and workflow_dispatch force-run both jobs.
-          #
-          # Every status counts here, including removed, and renames contribute
-          # both paths: deleting zavod code must still run the zavod suite, and
-          # moving a file out of zavod/ affects zavod even though the new path
-          # does not. Filtering to paths that still exist belongs only where the
-          # list is consumed as paths — see the datasets job.
+          # Include old rename paths so removals and moves trigger the affected suite.
           if [ -n "${PR:-}" ]; then
             gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
               --jq '.[] | (.previous_filename // empty), .filename' > changed.txt
@@ -61,8 +45,7 @@ jobs:
           echo "datasets=$datasets" >> "$GITHUB_OUTPUT"
 
   zavod:
-    # main, schedule and workflow_dispatch always run the full suite. The docker
-    # job below depends on this one, so the main-branch term must stay.
+    # Main must run both suites because the docker job depends on them.
     if: >-
       needs.changes.outputs.zavod == 'true'
       || github.ref == 'refs/heads/main'
@@ -83,27 +66,20 @@ jobs:
         with:
           python-version: "3.13"
           cache: "pip"
-          # Must be set explicitly: setup-python's default glob for pip is
-          # **/requirements.txt, which here only matches the contrib/* files.
-          # Those never change, so the cache key never changes, and a cache that
-          # hits its primary key is never re-saved — permanently freezing
-          # whatever was stored the first time.
+          # The default requirements glob only finds unrelated contrib files.
           cache-dependency-path: zavod/pyproject.toml
       - name: Install system dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # libicu-dev builds pyicu and libleveldb-dev builds plyvel: neither
-          # publishes a cp313 wheel, so both compile from sdist. poppler-utils is
-          # a runtime dependency of zavod.helpers.pdf.
+          # Python 3.13 requires building pyicu and plyvel from source.
           sudo apt-get install -y -qq libicu-dev libleveldb-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
           python -m pip install --upgrade pip wheel
-          # No --no-cache-dir: pyicu ships no wheels and is compiled from source
-          # here, and pip keeps the built wheel in ~/.cache/pip/wheels.
+          # Retain locally built wheels for source-only dependencies.
           pip install -q -e ".[dev]"
           pip freeze
 
@@ -116,13 +92,11 @@ jobs:
         run: |
           make lint
 
-      # TODO: This should eventually replace mypy/ruff, but for now just running both is safe.
+      # TODO: Replace mypy and ruff once prek provides equivalent coverage.
       - name: Run prek pre-commit hooks on zavod/
         run: |
           set -euxo pipefail
-          # Use git ls-files + xargs to avoid hitting shell argument number limits
-          # with zavod/**/* and to keep untracked artifacts (e.g. .ruff_cache)
-          # out of the hook run.
+          # Batch tracked files to stay within shell argument limits.
           git ls-files -z zavod | xargs -0 -n 30 prek run --files
 
       - name: Run zavod tests
@@ -135,8 +109,7 @@ jobs:
           python3 -m build --wheel
 
   datasets:
-    # Also runs on zavod changes, so that the dataset-level tests keep guarding
-    # against zavod regressions. See the note on the zavod job about main.
+    # Dataset tests also guard against zavod regressions.
     if: >-
       needs.changes.outputs.datasets == 'true'
       || needs.changes.outputs.zavod == 'true'
@@ -159,35 +132,26 @@ jobs:
         with:
           python-version: "3.13"
           cache: "pip"
-          # Must be set explicitly: setup-python's default glob for pip is
-          # **/requirements.txt, which here only matches the contrib/* files.
-          # Those never change, so the cache key never changes, and a cache that
-          # hits its primary key is never re-saved — permanently freezing
-          # whatever was stored the first time.
+          # The default requirements glob only finds unrelated contrib files.
           cache-dependency-path: zavod/pyproject.toml
       - name: Install system dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # libicu-dev builds pyicu and libleveldb-dev builds plyvel: neither
-          # publishes a cp313 wheel, so both compile from sdist. poppler-utils is
-          # a runtime dependency of zavod.helpers.pdf.
+          # Python 3.13 requires building pyicu and plyvel from source.
           sudo apt-get install -y -qq libicu-dev libleveldb-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
           python -m pip install --upgrade pip wheel
-          # No --no-cache-dir: pyicu ships no wheels and is compiled from source
-          # here, and pip keeps the built wheel in ~/.cache/pip/wheels.
+          # Retain locally built wheels for source-only dependencies.
           pip install -q -e ".[dev]"
           pip freeze
       - name: Test crawlers with tests
         run: pytest datasets
 
-      # Skipping "removed" matters here: ci_datasets.py takes an existing path.
-      # The list goes to a file rather than a step output so that filenames — which
-      # a PR author controls — are never interpolated into a shell command.
+      # Pass only existing paths through a file to avoid interpolating PR filenames.
       - name: Get any modified dataset files
         id: changed
         env:
@@ -212,8 +176,7 @@ jobs:
         if: ${{ steps.changed.outputs.any == 'true' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
-          # Read into an array so each filename is passed as its own quoted argv
-          # entry (a bare `for f in $(cat ...)` would word-split unsafely).
+          # Preserve each filename as a quoted argument.
           mapfile -t files < datasets.txt
           datasets=$(python contrib/ci_datasets.py "${files[@]}")
           echo "$datasets"
@@ -276,8 +239,7 @@ jobs:
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
           cache-from: type=gha
-          # mode=min, not max: caching every intermediate layer had grown to
-          # ~7GB of the repo's 10GB Actions cache budget, evicting the pip cache.
+          # Keep intermediate layers from exhausting the shared cache budget.
           cache-to: type=gha,mode=min
 
   # GitHub App requirements for workflow dispatch to trigger ETL deploy in operations repo:
