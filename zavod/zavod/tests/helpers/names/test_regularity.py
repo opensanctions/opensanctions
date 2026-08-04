@@ -139,3 +139,20 @@ def test_reject_leading_digit(testdataset1: Dataset, testdataset2: Dataset) -> N
         testdataset2, {"id": "b", "schema": "Organization", "properties": {}}
     )
     assert not is_name_irregular(org_no_flag, "1 Some Organization")
+
+
+def test_mixed_scripts_irregular(testdataset1: Dataset):
+    person_data = {"id": "jon", "schema": "Person", "properties": {}}
+    person = Entity(testdataset1, person_data)
+
+    # Han + Latin romanization glued together -> irregular
+    assert is_name_irregular(person, "鄭天財Sra Kacaw")
+    assert is_name_irregular(person, "簡東明Uliw．Qaljupayare")
+
+    # Pure Han -> regular
+    assert not is_name_irregular(person, "习近平")
+    # Japanese kanji + kana (all dense) -> regular
+    assert not is_name_irregular(person, "安倍晋三")
+    assert not is_name_irregular(person, "さとうたろう")
+    # Latin + digits/punctuation (Common excluded) -> regular
+    assert not is_name_irregular(person, "John Smith 2nd")

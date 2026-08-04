@@ -9,6 +9,7 @@ from pydantic import JsonValue
 from rigour.names import contains_split_phrase, remove_person_prefixes
 from rigour.text import is_nullword
 from rigour.text.scripts import is_dense_script
+from rigour.text.scripts import DENSE_SCRIPTS, text_scripts
 
 from zavod import settings
 from zavod.constants import ORIGIN_INFERRED
@@ -432,6 +433,12 @@ def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Regularity | No
     # spec.reject_leading_digit
     if spec.reject_leading_digit and string[0].isdigit():
         return Regularity(is_irregular=True)
+
+    # spec.reject_mixed_scripts
+    if spec.reject_mixed_scripts:
+        scripts = text_scripts(string)
+        if scripts & DENSE_SCRIPTS and scripts - DENSE_SCRIPTS:
+            return Regularity(is_irregular=True)
 
     return None
 
