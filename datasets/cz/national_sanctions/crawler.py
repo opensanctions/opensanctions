@@ -1,6 +1,9 @@
 import csv
 import re
+from pathlib import PurePath
+from urllib.parse import urlparse
 
+from banal import ensure_list
 from rigour.mime.types import CSV
 from rigour.names import pick_name
 
@@ -8,10 +11,6 @@ from zavod import Context, helpers as h
 
 # detect anything more complex than word/word/word (and handle question mark woopsie)
 REGEX_LAST_NAME = re.compile(r"^[\w\?]+( ?/\s*[\w\?]+)*$")
-# The note on a cancelled or amended entry states the effective date(s) in prose,
-# e.g. "Zápis byl zrušen ke dni 24. února 2025 v souladu s § 7 ...", sometimes
-# with a numeric month. The formats are handled by the dataset `dates` config.
-REGEX_STATUS_DATE = re.compile(r"ke dni\s+(\d{1,2}\.\s*\w+\.?\s*\d{4})")
 
 
 def crawl_item(context: Context, row: dict[str, str]) -> None:
@@ -22,18 +21,36 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
 
     name_field = row.pop("last_name_or_entity_name").strip()
     birth_date = row.pop("birth_date")
-    countries = row.pop("nationality_or_country")
+    countries = row.pop("nationality_or_registered_office")
     provision = row.pop("eu_provision")
 
     status = row.pop("entry_status")
     status_key = context.lookup_value("entry_status", status, warn_unmatched=True)
 
+    # The note on a cancelled or amended entry states the date(s) on which that
+    # took effect in Czech prose, e.g. "Zápis byl zrušen ke dni 24. února 2025
+    # v souladu s § 7 ...". The dates are extracted by hand in the lookup so
+    # that none of the dates in a note are missed or misinterpreted.
     status_note = row.pop("entry_status_note").strip()
-    # One note states the wrong year, so the dates pass through a lookup.
-    status_dates = [
-        context.lookup_value("status_note_dates", text, text)
-        for text in REGEX_STATUS_DATE.findall(status_note)
-    ]
+    end_dates: list[str] = []
+    amendment_dates: list[str] = []
+    if len(status_note) > 0:
+        note_res = context.lookup("status_note", status_note)
+        if note_res is None:
+            context.log.warning(
+                "Extract the dates of this note into the status_note lookup",
+                note=status_note,
+                name=name_field,
+            )
+        else:
+            end_dates = ensure_list(note_res.end_dates)
+            amendment_dates = ensure_list(note_res.amendment_dates)
+    if status_key == "cancelled" and len(end_dates) == 0:
+        context.log.warning(
+            "No cancellation date for a cancelled entry",
+            note=status_note,
+            name=name_field,
+        )
 
     if REGEX_LAST_NAME.match(name_field):
         names = h.multi_split(name_field, ["/"])
@@ -72,35 +89,21 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
         program_key=h.lookup_sanction_program_key(context, provision),
     )
     sanction.add("program", provision, lang="ces")
-    h.apply_date(sanction, "startDate", row.pop("entry_date"))
+    h.apply_date(sanction, "startDate", row.pop("entry_or_amendment_date"))
     sanction.add("status", status, lang="ces")
     sanction.add("summary", status_note, lang="ces")
-    if status_key == "cancelled":
-        if len(status_dates) == 0:
-            context.log.warning(
-                "No cancellation date in status note", note=status_note, name=name_field
-            )
-        h.apply_dates(sanction, "endDate", status_dates)
-    elif status_key == "amended":
-        # An amended entry is superseded by a later, valid entry for the same
-        # subject, so the dates state when it was amended, not when it ended.
-        h.apply_dates(sanction, "date", status_dates)
-    else:
-        assert status_key == "valid", (status, status_key)
-        if len(status_dates) > 0:
-            context.log.warning(
-                "Unexpected date in the note of a valid entry",
-                note=status_note,
-                name=name_field,
-            )
+    h.apply_dates(sanction, "endDate", end_dates)
+    # An amended entry is superseded by a later, valid entry for the same
+    # subject, so its dates state when it was amended, not when it ended.
+    h.apply_dates(sanction, "modifiedAt", amendment_dates)
 
     if h.is_active(sanction):
         entity.add("topics", "sanction")
 
     sanction.add("reason", row.pop("conduct_description"), lang="ces")
     sanction.add("provisions", row.pop("restrictive_measures"), lang="ces")
-    # The legal instrument of the entry, i.e. a government resolution.
-    sanction.add("recordId", row.pop("entry_legal_instrument"), lang="ces")
+    # The legal act which made the entry, i.e. a government resolution.
+    sanction.add("description", row.pop("entry_legal_regulation"), lang="ces")
 
     context.emit(entity)
     context.emit(sanction)
@@ -118,9 +121,35 @@ def crawl_data_url(context: Context) -> str:
     )
 
 
+def check_in_sync_with_pdf(context: Context, data_url: str) -> None:
+    """Warn if the CSV on the open data page lags the PDF on the list page.
+
+    Both files are published under a name which ends in the date of the version,
+    e.g. Vnitrostatni_sankcni_seznam_2026_07_23. The open data version of the
+    list has gone stale for a long time in the past, so make sure it keeps being
+    updated along with the PDF, which is the primary publication of the list.
+    """
+    assert context.dataset.url is not None
+    doc = context.fetch_html(context.dataset.url, absolute_links=True)
+    pdf_url = h.xpath_string(
+        doc,
+        '//a[contains(@href, ".pdf")]'
+        '/span[contains(text(), "Vnitrostátní sankční seznam")]/../@href',
+    )
+    pdf_name = PurePath(urlparse(pdf_url).path).stem
+    csv_name = PurePath(urlparse(data_url).path).stem
+    if pdf_name != csv_name:
+        context.log.warning(
+            "The CSV and the PDF version of the list are out of sync",
+            pdf_url=pdf_url,
+            csv_url=data_url,
+        )
+
+
 def crawl(context: Context) -> None:
     # First we find the link to the CSV file
     data_url = crawl_data_url(context)
+    check_in_sync_with_pdf(context, data_url)
     path = context.fetch_resource("source.csv", data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 

@@ -33,20 +33,9 @@ data:
   format: CSV
 
 dates:
-  formats: ["%d. %m %Y", "%d. %m. %Y", "%d.%m.%Y"]
-  months:
-    "01": "ledna"
-    "02": "února"
-    "03": "března"
-    "04": "dubna"
-    "05": "května"
-    "06": "června"
-    "07": "července"
-    "08": "srpna"
-    "09": "září"
-    "10": "října"
-    "11": "listopadu"
-    "12": "prosince"
+  # All dates in the CSV columns are numeric. The dates stated in Czech prose in
+  # the note on the status of an entry are extracted via the status_note lookup.
+  formats: ["%d. %m. %Y", "%d.%m.%Y"]
 assertions:
   min:
     schema_entities:
@@ -71,11 +60,11 @@ lookups:
       - match: 'Datum narození fyzické osoby '
         value: birth_date
       - match: 'Státní příslušnost fyzické osoby /sídlo právnické osoby '
-        value: nationality_or_country
+        value: nationality_or_registered_office
       - match: Datum zápisu či jeho změny
-        value: entry_date
+        value: entry_or_amendment_date
       - match: Právní předpis zápisu
-        value: entry_legal_instrument
+        value: entry_legal_regulation
       - match: 'Ustanovení předpisu Evropské unie, jehož skutkovou podstatu subjekt jednáním naplnil '
         value: eu_provision
       - match: 'Popis postižitelného jednání '
@@ -103,7 +92,7 @@ lookups:
           - 'čl. 2 odst. 3 bod ii) nařízení Rady (ES) č. 2580/2001 ze dne 27. 12. 2021 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů, ve spojení s čl. 1 odst. 3 bodem iii) písm. k) společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů'
           - 'čl. 2 odst. 3 ve spojení s čl. 1 písm. i) bod iii) písm. k) nařízení Rady (EU) 2026/456 ze dne 26. února 2026, kterým se mění nařízení (ES) č. 2580/2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu a zrušuje prováděcí nařízení (EU) 2025/1578 a (EU) 2026/420, a čl. 2 odst. 1 ve spojení s čl. 1 odst. 1 bod iii) písm. k) rozhodnutí Rady (SZBP) 2026/455 ze dne 26. února 2026 o omezujících opatřeních k boji proti terorismu, o zrušení článků 2, 3 a 3a společného postoje 2001/931/SZBP o uplatnění zvláštních opatření k boji proti terorismu a o zrušení rozhodnutí (SZBP) 2025/1577 a (SZBP) 2026/421'
         value: EU-TERR
-  # Stav zápisu -> Status of the entry. The crawler raises on an unknown status.
+  # Stav zápisu -> Status of the entry. The crawler warns about an unknown status.
   entry_status:
     normalize: true
     options:
@@ -113,15 +102,41 @@ lookups:
         value: amended
       - match: zrušen
         value: cancelled
-  # Dates parsed out of the note on the status of an entry.
-  status_note_dates:
+  # Poznámka ke stavu zápisu -> Note on the status of the entry. It states the
+  # dates on which an entry was cancelled (end_dates) or amended
+  # (amendment_dates) in Czech prose, so they are extracted by hand rather than
+  # parsed. The crawler warns about a note that isn't matched here.
+  status_note:
     normalize: true
     options:
+      - match: 'Zápis byl zrušen ke dni 24. února 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/388.'
+        end_dates: ["2025-02-24"]
+      - match: 'Zápis byl zrušen ke dni  23. července 2026 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2026/1845.'
+        end_dates: ["2026-07-23"]
+      - match: 'Zápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871.'
+        end_dates: ["2023-12-18"]
+      - match: 'Zápis byl zrušen ke dni 27. května 2024 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2024/1508.'
+        end_dates: ["2024-05-27"]
+      - match: 'Zápis byl zrušen ke dni 20. května 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/966.'
+        end_dates: ["2025-05-20"]
+      - match: 'Zápis byl zrušen ke dni 15. července 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/1443.'
+        end_dates: ["2025-07-15"]
+      # The note mentions the date twice: once as the date of the cancellation,
+      # and once as the date of the EU decision that prompted it.
+      - match: 'Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036 ze dne 23. října 2025, kterým se mění rozhodnutí 2014/145/SZBP o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
+        end_dates: ["2025-10-23"]
       # Rogach's entry says it was cancelled in 2025, but it cites EU decision
-      # 2026/1364 and the entry itself only dates from 2026-03-30, so the year
-      # is a source typo.
-      - match: "15. června 2025"
-        value: "2026-06-15"
+      # 2026/1364, the entry itself only dates from 2026-03-30, and the PDF
+      # version of the list says 2026, so the year is a typo in the CSV.
+      - match: 'Zápis byl zrušen ke dni 15. června 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2026/1364.'
+        end_dates: ["2026-06-15"]
+      - match: 'V souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), byl zápis pozměněn ke dni 25. 10. 2023 vzhledem k námitkovému řízení zahájeném podle § 9 sankčního zákona. Aktuální znění zápisu je uvedeno v platném zápisu.'
+        amendment_dates: ["2023-10-25"]
+      - match: 'V souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon) byl zápis pozměněn ke dni 27. května 2024 a ke dni 26. června 2024, vzhledem k zařazení subjektu na sankční seznamy Evropské unie rozhodnutím Rady (SZBP) 2024/1508 a rozhodnutím Rady (SZBP) 2024/1770, a to s ohledem na skutečnost, že původní zápis obsahuje takové omezující opatření, které vůči subjektu není v důsledku jeho zařazení na sankční seznam Evropské unie uplatňováno.'
+        amendment_dates: ["2024-05-27", "2024-06-26"]
+      # An amendment without a date. The date of the amendment is the date of
+      # the entry which supersedes this one.
+      - match: 'Zápis byl změněn z důvodu potřeby formální úpravy odkazů na ustanovení předpisu Evropské unie, jehož skutkovou podstatu subjekt jednáním naplnil a odkazu na ustanovení o uplatňovaných omezujících opatřeních, včetně relevantní úpravy odkazů na ustanovení v popisu postižitelného jednání.'
   type.country:
     lowercase: true
     normalize: true
