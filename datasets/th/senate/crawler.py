@@ -31,6 +31,13 @@ def crawl_member(
 
     start_date = record.pop("START_DATE", None) or record.pop("MEMBER_STARTDATE", None)
     end_date = record.pop("END_DATE", None) or record.pop("MEMBER_ENDDATE", None)
+    # Both sets state why a membership ended, in differently-named columns.
+    end_reason = record.pop("RESIGN", None) or record.pop("MEMBER_END", None)
+    # For a member who died in office, the membership ends on the date of death. Set it
+    # before make_occupancy, which reads it to decide whether exposure still applies.
+    if end_reason == "เสียชีวิต":  # deceased
+        h.apply_date(person, "deathDate", end_date)
+
     occupancy = h.make_occupancy(
         context,
         person,
@@ -41,10 +48,20 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    # current senators represent one of 20 occupational working groups
+    # A stated reason for leaving without a usable date leaves the occupancy looking
+    # current, so surface it rather than publishing them as a sitting senator.
+    if end_reason is not None and not occupancy.has("endDate"):
+        context.log.warning(
+            "Membership ended but no end date could be parsed",
+            name=raw_name,
+            reason=end_reason,
+            end_date=end_date,
+        )
+    # Current senators are selected by their peers within one of 20 occupational
+    # groups, which stands in for a geographic constituency.
     group = record.pop("MEMBER_TYPE", None)
     if group:
-        occupancy.add("description", group, lang="tha")
+        occupancy.add("constituency", group, lang="tha")
 
     context.audit_data(
         record,
@@ -52,10 +69,8 @@ def crawl_member(
             "_id",
             # Current-set columns
             "POSITION",
-            "RESIGN",
             "COUNCIL_MEMBER",
             # Past-set columns
-            "MEMBER_END",
             "COUNCIL_NAME",
             "COUNCIL_START",
             "COUNCIL_END",
@@ -83,7 +98,13 @@ def fetch_records(
             cache_days=14,
         )["result"]
         total = result["total"]
-        records.extend(result["records"])
+        page = result["records"]
+        if len(page) == 0:
+            raise RuntimeError(
+                f"Datastore returned an empty page at offset {len(records)} "
+                f"of {total} for resource {resource_id}"
+            )
+        records.extend(page)
     return records
 
 
@@ -92,6 +113,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Senate of Thailand",
         country="th",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21295152",
         lang="eng",
     )

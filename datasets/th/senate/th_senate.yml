@@ -137,10 +137,8 @@ names:
 lookups:
   type.date:
     options:
-      # The datastore uses "0/0/0" (and blanks) as a null placeholder for open terms.
-      - match:
-          - "0/0/0"
-          - ""
+      # The datastore uses "0/0/0" as a null placeholder for open terms.
+      - match: "0/0/0"
         value: null
 
 tags:
