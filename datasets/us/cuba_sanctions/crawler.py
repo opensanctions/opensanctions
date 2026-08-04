@@ -32,10 +32,7 @@ def crawl_accommodations(context: Context) -> None:
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
     # xmllint --format --html --encode UTF-8
-    # TODO: recompute this hash from the new URL
-    # https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list
-    # via Zyte fetch (state.gov serves a Technical Difficulties page to curl).
-    if not h.assert_dom_hash(node, "6dc9087e0ccb2e13fc2389ba4176ab114996ad32"):
+    if not h.assert_dom_hash(node, "cde71ba89a1b51b1b1d8d780d4902f72ca1d384c"):
         context.log.warning("Accommodations page changed. Check for data updates.")
 
     path = context.fetch_resource("accommodations.csv", ACCOMMODATIONS_URL)
@@ -63,10 +60,7 @@ def crawl_restricted_entities(context: Context) -> None:
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
     # xmllint --format --html --encode UTF-8
-    # TODO: recompute this hash from the new URL
-    # https://www.state.gov/cuba-sanctions/cuba-restricted-list
-    # via Zyte fetch (state.gov serves a Technical Difficulties page to curl).
-    if not h.assert_dom_hash(node, "a146ff14f0a283a4a80afaaf0f46637574aa78c2"):
+    if not h.assert_dom_hash(node, "60164794c60c5efe021094ebab28b338ad526e1e"):
         context.log.warning("Restricted List content changed. Check for data updates")
 
     path = context.fetch_resource("restricted_entities.csv", RESTRICTED_ENTITIES_URL)
