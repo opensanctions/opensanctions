@@ -43,7 +43,7 @@ publisher:
   url: https://www.parlament.ch/de/%C3%BCber-das-parlament/fakten-und-zahlen/open-data-web-services
   official: true
 data:
-  url: http://ws-old.parlament.ch/councillors/historic
+  url: https://ws-old.parlament.ch/councillors/historic
   format: JSON
 
 assertions:
