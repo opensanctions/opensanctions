@@ -1,3 +1,8 @@
+# The roster page names the sitting term (.../members-of-14th-legislature). Once the
+# 15th is seated this page stops being the current roster; the site archives past terms
+# under .../mp-electorates/legislatures/, so both `url` and `data.url` need repointing.
+#
+# ci_test is off because the page is fetched through Zyte, which needs API credentials.
 title: Vanuatu Members of Parliament
 name: vu_parliament
 prefix: vu-parl
@@ -8,8 +13,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Parliament of the Republic of Vanuatu, the unicameral national
-  legislature.
+  The unicameral national legislature of the Republic of Vanuatu
 description: |
   Current members of the Parliament of Vanuatu, the country's unicameral national
   legislature. Its 52 members are directly elected from multi- and single-member
@@ -18,13 +22,15 @@ description: |
   including passing laws and approving the budget.
 
   This dataset records each sitting member with their name, political party, and
-  constituency.
-url: https://parliament.gov.vu/
+  constituency. The ministerial, committee and presiding-officer roles the source lists
+  next to each member are not captured.
+url: https://parliament.gov.vu/index.php/mp-electorates/members-of-14th-legislature
 publisher:
   name: Parliament of the Republic of Vanuatu
   description: >
-    The Parliament of Vanuatu is the unicameral legislature of the Republic of Vanuatu,
-    made up of members elected from constituencies across the archipelago.
+    The Parliament of Vanuatu is the country's supreme legislative body, elected from
+    constituencies across the archipelago. It publishes the roster of each legislature
+    on its own website, alongside the bills and committee work of the sitting term.
   url: https://parliament.gov.vu/
   country: vu
   official: true
