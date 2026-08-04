@@ -46,6 +46,21 @@ class SelfReferenceValidator(BaseValidator):
                     )
 
 
+class PersonGenderValidator(BaseValidator):
+    """Warn when a Person entity has more than one distinct gender value."""
+
+    def feed(self, entity: Entity) -> None:
+        if not entity.schema.is_a("Person"):
+            return
+        genders = {str(g).lower() for g in entity.get("gender")}
+        if len(genders) > 1:
+            self.context.log.warning(
+                f"Person has multiple genders: {entity.id}",
+                entity=entity.id,
+                genders=sorted(genders),
+            )
+
+
 class EmptyValidator(BaseValidator):
     """Warn if no entities are validated."""
 
@@ -64,6 +79,7 @@ class EmptyValidator(BaseValidator):
 VALIDATORS: list[type[BaseValidator]] = [
     DanglingReferencesValidator,
     SelfReferenceValidator,
+    PersonGenderValidator,
     StatisticsAssertionsValidator,
     EmptyValidator,
 ]

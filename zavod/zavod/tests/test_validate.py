@@ -11,6 +11,7 @@ from zavod.store import get_store
 from zavod.validators import (
     DanglingReferencesValidator,
     SelfReferenceValidator,
+    PersonGenderValidator,
     EmptyValidator,
 )
 from zavod.validators.assertions import (
@@ -193,6 +194,17 @@ def test_default_property_fill_rate_company() -> None:
         "Assertion property_fill_rate failed for Company.name: 0.0 is not >= threshold 0.95",
     ) in logs
     assert validator.abort is True
+
+
+def test_person_gender_validator(testdataset3) -> None:
+    emit_entity(
+        testdataset3,
+        "Person",
+        {"name": ["Jane Doe"], "gender": ["female", "male"]},
+    )
+    validator, logs = run_validator(PersonGenderValidator, testdataset3)
+    assert any("multiple genders" in event for _, event in logs), logs
+    assert validator.abort is False
 
 
 def test_no_entities_warning() -> None:
