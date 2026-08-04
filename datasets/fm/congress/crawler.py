@@ -14,15 +14,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # "<N>th Congress Members" and take the one with the highest ordinal.
 TITLE_RE = re.compile(r"(\d+)(?:st|nd|rd|th)\s+Congress\s+Members\s*$", re.IGNORECASE)
 
-# Member names carry the honorific "T.H." ("The Honorable"). Strip it so the emitted
-# name is the person's actual name.
-HONORIFIC_RE = re.compile(r"^T\.H\.\s+", re.IGNORECASE)
-
-# The four states of the Federated States of Micronesia. A member's description on the
-# listing page is either "State of <one of these>" or one of the leadership roles below.
-STATES = {"Chuuk", "Pohnpei", "Yap", "Kosrae"}
-LEADERSHIP_ROLES = {"SPEAKER", "VICE SPEAKER", "FLOOR LEADER"}
-
 
 def find_current_page(context: Context) -> dict[str, Any]:
     pages = context.fetch_json(
@@ -55,29 +46,26 @@ def crawl_member(
     title_el = h.xpath_element(
         box, './/*[contains(@class, "elementor-image-box-title")]'
     )
-    name = HONORIFIC_RE.sub("", h.element_text(title_el)).strip()
+    raw_name = h.element_text(title_el)
+    name = h.strip_name_titles(context, raw_name)
     assert name, "Empty member name"
 
+    # Either the state the member represents ("State of Chuuk") or, for the three
+    # chamber officers, their role in Congress ("SPEAKER").
     description = h.element_text(
         h.xpath_element(
             box, './/*[contains(@class, "elementor-image-box-description")]'
         )
     )
-    # Validate the description against the known vocabulary so a layout or content change
-    # (e.g. a fifth state, a new leadership label) fails loudly instead of being dropped.
-    state: str | None = None
-    if description in LEADERSHIP_ROLES:
-        pass
-    elif description.startswith("State of "):
-        state = description.removeprefix("State of ").strip()
-        if state not in STATES:
-            raise ValueError(f"Unexpected state for {name!r}: {description!r}")
-    else:
-        raise ValueError(f"Unexpected member description for {name!r}: {description!r}")
 
     person = context.make("Person")
     person.id = context.make_id(name)
-    person.add("name", name)
+    person.add(
+        "name",
+        name,
+        lang="eng",
+        original_value=raw_name if name != raw_name else None,
+    )
     # A short biography PDF is linked from the member's name where available.
     source_urls = h.xpath_strings(title_el, ".//a/@href")
     person.add("sourceUrl", source_urls[0] if source_urls else None)
@@ -94,8 +82,10 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    if state is not None:
-        occupancy.add("constituency", f"State of {state}")
+    if description.startswith("State of "):
+        occupancy.add("constituency", description)
+    else:
+        occupancy.add("description", description)
 
     context.emit(occupancy)
     context.emit(person)

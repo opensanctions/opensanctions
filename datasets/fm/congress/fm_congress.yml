@@ -1,4 +1,4 @@
-title: Federated States of Micronesia Congress
+title: Federated States of Micronesia Members of Congress
 name: fm_congress
 prefix: fm-cong
 entry_point: crawler.py
@@ -8,8 +8,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Congress of the Federated States of Micronesia, the national
-  unicameral legislature.
+  Senators of the Congress of the Federated States of Micronesia
 description: |
   The Congress of the Federated States of Micronesia is the country's unicameral
   national legislature. It has fourteen seats: four at-large senators (one per state,
@@ -37,6 +36,11 @@ data:
 
 tags:
   - list.pep
+
+names:
+  prefixes_strip:
+    # "The Honorable", prefixed to every member name on the listing page.
+    - T.H.
 
 assertions:
   min:
