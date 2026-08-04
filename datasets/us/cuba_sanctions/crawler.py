@@ -170,7 +170,7 @@ def crawl_restricted_entities(context: Context) -> None:
         proxy.id = row_id(context, row)
         proxy.add("name", row.pop("Company").strip())
         proxy.add("country", "Cuba")
-        proxy.add("alias", row.pop("Acronym"))
+        proxy.add("abbreviation", row.pop("Acronym"))
         proxy.add("alias", row.pop("Alias").split(";"))
         proxy.add("sector", row.pop("Sector"))
         proxy.add("classification", row.pop("Category"))
