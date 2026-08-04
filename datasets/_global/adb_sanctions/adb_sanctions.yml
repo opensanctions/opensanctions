@@ -61,6 +61,19 @@ dates:
   formats: ["%d/%b/%Y"]
 
 lookups:
+  # Rows the source labels "Firm" although the name is that of a natural person
+  # who the list also carries as an "Individual" - a sole proprietorship held
+  # under the owner's own name. Correcting the type keeps the person from being
+  # both a Company and a Person.
+  entity_type:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Md. Akhter Hossain Talukder
+          - Md. Bodiuzzaman (MBZ)
+          - "Md. Zahidul Islam (Faruk) [also known as M/s Zahidul Islam Faruque and M/s Zahidul Islam (Faruk)]"
+        value: Individual
   type.address:
     lowercase: true
     normalize: true

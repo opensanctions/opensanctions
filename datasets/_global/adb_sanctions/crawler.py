@@ -148,12 +148,16 @@ def extract_entities_data(
 
 
 def crawl_row(context: Context, row: dict[str, str | None]) -> None:
-    entity_type = row.pop("entityType")
+    full_name = row.pop("name") or ""
+    # The source types some sole proprietorships held under their owner's personal
+    # name as a Firm, while listing the same person as an Individual elsewhere in
+    # the list. Both rows then describe one entity that claims Company and Person
+    # at once, so the mistyped rows are corrected via a lookup.
+    entity_type = context.lookup_value("entity_type", full_name, row.pop("entityType"))
     schema = SCHEMATA.get(entity_type or "")
     if schema is None:
         raise ValueError(f"Unknown entityType: {entity_type!r}")
 
-    full_name = row.pop("name") or ""
     other_name = (row.pop("otherName") or "").replace("\\", "")
     country = row.pop("nationality") or ""
     country = country.replace("Non ADB Member Country", "")
