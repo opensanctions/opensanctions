@@ -2065,13 +2065,6 @@ config:
       language: fi
 
     # country: Lithuania
-    #
-    # Replaces the coverage of lt_pep_declarations, whose source (the VTEK
-    # register of private interests) started requiring API authentication in
-    # April 2025. lt.wikipedia categorises Lithuanian office-holders by office
-    # much more completely than en.wikipedia. A position is only asserted where
-    # the category is specific to one office; ambassadors and mayors vary by
-    # posting or municipality, so those only get the topic.
     - category: Lietuvos_politikai
       language: lt
       country: lt
