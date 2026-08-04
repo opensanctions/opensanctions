@@ -64,7 +64,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           cache: "pip"
           # Must be set explicitly: setup-python's default glob for pip is
           # **/requirements.txt, which here only matches the contrib/* files.
@@ -77,7 +77,10 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          sudo apt-get install -y -qq libicu-dev poppler-utils
+          # libicu-dev builds pyicu and libleveldb-dev builds plyvel: neither
+          # publishes a cp313 wheel, so both compile from sdist. poppler-utils is
+          # a runtime dependency of zavod.helpers.pdf.
+          sudo apt-get install -y -qq libicu-dev libleveldb-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
@@ -136,7 +139,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           cache: "pip"
           # Must be set explicitly: setup-python's default glob for pip is
           # **/requirements.txt, which here only matches the contrib/* files.
@@ -149,7 +152,10 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          sudo apt-get install -y -qq libicu-dev poppler-utils
+          # libicu-dev builds pyicu and libleveldb-dev builds plyvel: neither
+          # publishes a cp313 wheel, so both compile from sdist. poppler-utils is
+          # a runtime dependency of zavod.helpers.pdf.
+          sudo apt-get install -y -qq libicu-dev libleveldb-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |

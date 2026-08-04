@@ -52,10 +52,20 @@ jobs:
           safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
       # Only needed by the ruff/prek steps below, both of which no-op when no
       # dataset files changed — don't pay ~2min to lint nothing on a zavod PR.
+      - name: Install system dependencies
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          # Needed to build pyicu and plyvel, neither of which publishes a cp313
+          # wheel. Previously implicit: pyicu built against the runner image's
+          # own ICU headers, which is not something to rely on.
+          sudo apt-get install -y -qq libicu-dev libleveldb-dev
       - uses: actions/setup-python@v7
         if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         with:
-          python-version: '3.12'
+          python-version: '3.13'
           cache: 'pip'
           # Must match build.yml so both workflows share one correctly-keyed
           # cache. See the longer note there on why the default glob is wrong.
