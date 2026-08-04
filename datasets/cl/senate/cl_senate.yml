@@ -8,18 +8,21 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  Members of the Senate of Chile, the upper house of the National Congress.
+  Current and recent senators of the upper house of the National Congress of Chile.
 description: |
-  Current members of the Senate (Senado), the upper house of the National Congress of Chile.
-  Its 50 senators are elected by proportional representation from the country's regional
-  constituencies for an eight-year term and, together with the Chamber of Deputies, hold the
-  country's legislative power, including passing laws and approving the budget.
+  Current and historical members of the Senate (Senado), the upper house of the National
+  Congress of Chile. Its 50 senators are elected by proportional representation from the
+  country's regional constituencies for an eight-year term and, together with the Chamber
+  of Deputies, hold the country's legislative power, including passing laws and approving
+  the budget.
 
-  This dataset records senators of the current and recent terms with their name, gender, party,
-  email, and region, along with the term(s) each of them served.
+  This dataset records each senator with their name, gender, party, email, and region
+  (constituency), along with the term or terms they served. Senators whose terms all ended
+  long enough ago that they are no longer treated as politically exposed are not included.
 url: https://www.senado.cl/
 publisher:
   name: Senado de la República de Chile
+  name_en: Senate of the Republic of Chile
   description: >
     The Senate is the upper house of the National Congress of Chile.
   url: https://www.senado.cl/

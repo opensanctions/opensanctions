@@ -6,9 +6,6 @@ from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 
-POSITION_TOPICS = ["gov.national", "gov.legislative"]
-
-
 def crawl_member(
     context: Context,
     position: Entity,
@@ -30,6 +27,8 @@ def crawl_member(
     # Senators must be citizens with the right to vote (Constitution of Chile,
     # Article 50). https://www.constituteproject.org/constitution/Chile_2021
     person.add("citizenship", "cl")
+    # The source gives one region per senator, not one per term.
+    region = senator.pop("REGION", None)
 
     for period in senator.get("PERIODOS") or []:
         # A member's PERIODOS list covers their whole parliamentary career, so it also
@@ -37,25 +36,26 @@ def crawl_member(
         # dataset. Only Senate terms are relevant here.
         if period.get("CAMARA") != "S":
             continue
+        # PERIODOS gives term boundaries as years only.
         start, end = period.pop("DESDE"), period.pop("HASTA")
-        if int(start) < int(h.earliest_term_start(POSITION_TOPICS)[:4]):
+        if int(start) < int(h.earliest_term_start(position.get("topics"))[:4]):
             continue
 
         occupancy = h.make_occupancy(
             context,
             person,
             position,
-            # PERIODOS gives term boundaries as years only. The Chilean Congress is installed on
-            # 11 March, so we anchor the term to that date — otherwise a term ending in the
-            # current year (e.g. 2022-2026) is indistinguishable from an ongoing one and would be
-            # misclassified as current. https://www.constituteproject.org/constitution/Chile_2021
-            period_start=f"{start}{'-03-11'}",
-            period_end=f"{end}{'-03-11'}",
+            period_start=start,
+            # The Chilean Congress is installed on 11 March, so the end year is anchored to
+            # that date: a bare year only counts as elapsed once it is over, which would
+            # leave a term ending in the current year (e.g. 2022-2026) indistinguishable
+            # from an ongoing one. https://www.constituteproject.org/constitution/Chile_2021
+            period_end=f"{end}-03-11",
             categorisation=categorisation,
         )
         if occupancy is None:
             continue
-        occupancy.add("constituency", senator.pop("REGION", None), lang="spa")
+        occupancy.add("constituency", region, lang="spa")
         context.emit(occupancy)
         context.emit(person)
 
@@ -65,7 +65,7 @@ def crawl(context: Context) -> None:
         context,
         name="Senator of Chile",
         country="cl",
-        topics=POSITION_TOPICS,
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q18882653",
         lang="eng",
     )
