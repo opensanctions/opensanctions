@@ -1,4 +1,4 @@
-title: Singapore Parliament
+title: Singapore Members of Parliament
 name: sg_parliament
 prefix: sg-parl
 entry_point: crawler.py
@@ -8,16 +8,20 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Parliament of Singapore, the unicameral national legislature.
+  Current and former members of the Parliament of Singapore, the unicameral national
+  legislature.
 description: |
   The Parliament of Singapore is the country's unicameral legislature. It comprises elected
   members from Group Representation Constituencies (GRCs) and Single Member Constituencies
   (SMCs), Non-Constituency Members (NCMPs) drawn from the best-performing losing candidates,
   and Nominated Members (NMPs) appointed by the President.
 
-  This dataset records each sitting member with their name and constituency (or NCMP/NMP
-  designation) as published in the official list of current MPs.
-url: https://www.parliament.gov.sg/mps/list-of-current-mps
+  Members of the sitting Parliament are recorded with their constituency, or with their seat
+  type where they are Nominated or Non-Constituency Members, as well as their party
+  affiliation and year of birth. Former members are recorded with the party they sat for and
+  with one term per Parliament they were a member of, dated to the duration of that
+  Parliament, or to their resignation where they left before it was dissolved.
+url: https://www.parliament.gov.sg/history/list-of-mps-by-parliament
 publisher:
   name: Parliament of Singapore
   description: >
@@ -26,21 +30,83 @@ publisher:
   country: sg
   official: true
 data:
-  url: https://www.parliament.gov.sg/mps/list-of-current-mps
+  # Every member since 1965, grouped by the Parliament they sat in, including the
+  # sitting one.
+  url: https://www.parliament.gov.sg/history/list-of-mps-by-parliament
   format: HTML
   lang: eng
 
 tags:
   - list.pep
 
+dates:
+  # Term date ranges read "(10.10.2011 - 25.08.2015)" and resignation notes
+  # "7 August 2017".
+  formats: ["%d.%m.%Y", "%d %B %Y"]
+
+names:
+  suffixes_strip:
+    - ", Assoc Prof"
+    - ", Dr"
+    - ", Haji"
+    - ", Mdm"
+    - ", Prof"
+  schema_rules:
+    Person:
+      # "Yeo Yong-Boon, George" is George Yeo Yong-Boon: members who go by a Western
+      # given name have it published after their full name. Which part goes first is
+      # a judgement call, so those names are flagged for review rather than
+      # rearranged by the crawler.
+      reject_chars: ","
+
+lookups:
+  party:
+    # Normalising folds the curly-apostrophe, trailing-tab and leading-space variants
+    required: true
+    normalize: true
+    lowercase: true
+    options:
+      - match: People's Action Party
+        value: People's Action Party
+      - match: Workers' Party
+        value: Workers' Party
+      - match: Barisan Sosialis
+        value: Barisan Sosialis
+      - match: Progress Singapore Party
+        value: Progress Singapore Party
+      - match: Singapore Democratic Party
+        value: Singapore Democratic Party
+      - match: Singapore Democratic Alliance
+        value: Singapore Democratic Alliance
+      - match: Singapore People's Party
+        value: Singapore People's Party
+      - match: Independent Singapore Party Alliance
+        value: Independent Singapore Party Alliance
+      - match: People's Action Party, Barisan Sosialis
+        values:
+          - People's Action Party
+          - Barisan Sosialis
+      # Not parties but seat types
+      - match:
+          - Nominated Member of Parliament
+          - Non-Constituency Member of Parliament
+          - NA
+        value: null
+
 assertions:
   min:
     schema_entities:
-      Person: 90
+      Person: 200
       Position: 1
     country_entities:
-      sg: 90
+      sg: 200
+    entities_with_prop:
+      Occupancy:
+        constituency: 90
+        periodEnd: 300
+      Person:
+        birthDate: 50
   max:
     schema_entities:
-      Person: 130
+      Person: 400
       Position: 1
