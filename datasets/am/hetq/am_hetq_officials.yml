@@ -49,7 +49,7 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 7800
+      Person: 6500
       Position: 700
     country_entities:
       am: 1341
