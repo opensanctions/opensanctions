@@ -32,7 +32,7 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
     """Fetch and process detailed profile for a single councillor."""
     data = zyte_api.fetch_json(
         context,
-        url=f"http://ws-old.parlament.ch/councillors/{councillor_id}?lang=en&format=json",
+        url=f"https://ws-old.parlament.ch/councillors/{councillor_id}?lang=en&format=json",
         cache_days=1,
     )
 
