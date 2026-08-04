@@ -3,9 +3,12 @@ permissions:
   contents: read
 
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+    # Branch pushes are covered by the pull_request trigger. Without this filter
+    # every commit on a PR branch runs this workflow twice.
+    branches: [main]
+  pull_request: {}
+  workflow_dispatch: {}
 
 jobs:
   lint:
@@ -47,11 +50,18 @@ jobs:
           files: 'datasets/**'
           separator: "\n"
           safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
+      # Only needed by the ruff/prek steps below, both of which no-op when no
+      # dataset files changed — don't pay ~2min to lint nothing on a zavod PR.
       - uses: actions/setup-python@v7
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         with:
           python-version: '3.12'
           cache: 'pip'
+          # Must match build.yml so both workflows share one correctly-keyed
+          # cache. See the longer note there on why the default glob is wrong.
+          cache-dependency-path: zavod/pyproject.toml
       - name: Install python linting dependencies
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         working-directory: zavod
         run: |
           pip install -q -e ".[dev]"
@@ -70,7 +80,9 @@ jobs:
             ruff format --check --diff --config zavod/pyproject.toml "$dataset"
           done <<< "$CHANGED_FILES"
       - name: Run prek pre-commit hooks on modified files
-        if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
+        # Gated on changed-files, matching the list actually passed to prek: a PR
+        # that only touches dataset .yml files still needs the yaml hooks run.
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         env:
           # See note above: env var + quoted expansion avoids shell injection
           # via filenames in PRs.
