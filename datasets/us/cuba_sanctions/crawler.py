@@ -154,7 +154,9 @@ def crawl_accommodations(context: Context) -> None:
         proxy.add("sourceUrl", row.pop("SourceURL"))
         proxy.add("topics", "sanction")
         context.emit(proxy)
-        sanction = h.make_sanction(context, proxy, program_key=PAL_PROGRAM)
+        sanction = h.make_sanction(
+            context, proxy, key=PAL_PROGRAM, program_key=PAL_PROGRAM
+        )
         context.emit(sanction)
         context.audit_data(row, ignore=["City"])
 
@@ -174,7 +176,9 @@ def crawl_restricted_entities(context: Context) -> None:
         proxy.add("classification", row.pop("Category"))
         proxy.add("sourceUrl", row.pop("SourceURL").split(";"))
 
-        sanction = h.make_sanction(context, proxy, program_key=REA_PROGRAM)
+        sanction = h.make_sanction(
+            context, proxy, key=REA_PROGRAM, program_key=REA_PROGRAM
+        )
         sanction.add("startDate", row.pop("EffectiveDate"))
         if h.is_active(sanction):
             proxy.add("topics", "sanction")
