@@ -11,6 +11,7 @@ from zavod.store import get_store
 from zavod.validators import (
     DanglingReferencesValidator,
     SelfReferenceValidator,
+    OwnershipAssetValidator,
     EmptyValidator,
 )
 from zavod.validators.assertions import (
@@ -193,6 +194,35 @@ def test_default_property_fill_rate_company() -> None:
         "Assertion property_fill_rate failed for Company.name: 0.0 is not >= threshold 0.95",
     ) in logs
     assert validator.abort is True
+
+
+def test_ownership_asset_validator() -> None:
+    ds = Dataset(BASE_DATASET_CONFIG)
+    context = Context(ds)
+    context.begin()
+    org = Entity.from_data(
+        context.dataset,
+        {
+            "schema": "Organization",
+            "id": uuid.uuid4(),
+            "properties": {"name": ["Acme Corp"]},
+        },
+    )
+    context.emit(org)
+    ownership = Entity.from_data(
+        context.dataset,
+        {
+            "schema": "Ownership",
+            "id": uuid.uuid4(),
+            "properties": {"owner": [str(org.id)], "asset": [str(org.id)]},
+        },
+    )
+    context.emit(ownership)
+    context.close()
+
+    validator, logs = run_validator(OwnershipAssetValidator, ds)
+    assert any("is not an Asset" in event for _, event in logs), logs
+    assert validator.abort is False
 
 
 def test_no_entities_warning() -> None:

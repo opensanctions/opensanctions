@@ -46,6 +46,25 @@ class SelfReferenceValidator(BaseValidator):
                     )
 
 
+class OwnershipAssetValidator(BaseValidator):
+    """Warn when an Ownership entity's asset is not an Asset."""
+
+    def feed(self, entity: Entity) -> None:
+        if not entity.schema.is_a("Ownership"):
+            return
+        for asset_id in entity.get("asset"):
+            target = self.view.get_entity(asset_id)
+            if target is None:
+                continue
+            if not target.schema.is_a("Asset"):
+                self.context.log.warning(
+                    f"Ownership.asset is not an Asset: {entity.id}",
+                    entity=entity.id,
+                    asset=asset_id,
+                    asset_schema=target.schema.name,
+                )
+
+
 class EmptyValidator(BaseValidator):
     """Warn if no entities are validated."""
 
@@ -64,6 +83,7 @@ class EmptyValidator(BaseValidator):
 VALIDATORS: list[type[BaseValidator]] = [
     DanglingReferencesValidator,
     SelfReferenceValidator,
+    OwnershipAssetValidator,
     StatisticsAssertionsValidator,
     EmptyValidator,
 ]
