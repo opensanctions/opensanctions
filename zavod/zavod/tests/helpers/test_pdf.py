@@ -1,7 +1,12 @@
+import pytest
+
 from zavod import helpers as h
 from zavod.tests.conftest import FIXTURES_PATH
 
+# Both PDFs are generated from the .docx of the same name in the fixtures
+# directory: `soffice --headless --convert-to pdf <name>.docx`
 PDF_PATH = FIXTURES_PATH / "test_pdf.pdf"
+DUPLICATE_HEADERS_PDF_PATH = FIXTURES_PATH / "test_pdf_duplicate_headers.pdf"
 PAGE_SETTINGS = {"join_y_tolerance": 100}
 
 
@@ -77,13 +82,25 @@ def test_parse_pdf_table_multiple_pages(vcontext):
             vcontext, PDF_PATH, skiprows=1, page_settings=basic_settings_func
         )
     )
-    # Page 2 repeats the header row ("Forenames"/"Surname"); it is skipped
-    # rather than emitted as a data row.
     assert len(list(rows)) == 5, rows
     assert rows[0]["forenames"] == "Jon"
+    # This is just documenting how skiprows doesn't skip on subsequent pages
+    # if headers_per_page is False. The fixture just has two different sets of
+    # header rows for different cases. In practice there's sometimes one or more
+    # comment rows, then a header row, then data. Sometimes this is all repeated
+    # on each page.
     assert rows[2]["forenames"] == "First\nName"
+    # Page 2 repeats the header row ("Forenames"/"Surname"); it is skipped
+    # rather than emitted as a data row.
     assert rows[3]["forenames"] == "Jane"
     assert rows[4]["forenames"] == "Frederica"
+
+
+def test_parse_pdf_table_duplicate_headers(vcontext):
+    # Headers that collide after slugification would silently drop the earlier
+    # column's cell ({"name": "latin script", "dob": "1970"}).
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(h.parse_pdf_table(vcontext, DUPLICATE_HEADERS_PDF_PATH))
 
 
 def test_parse_pdf_table_headers_per_page(vcontext):
