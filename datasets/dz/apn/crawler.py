@@ -1,4 +1,5 @@
 import json
+import re
 from itertools import count
 from typing import Any
 
@@ -23,6 +24,11 @@ HEADERS = {
     "Content-Type": "application/json",
 }
 
+# Seats whose holder the APN does not disclose are listed with a row of dashes
+# instead of a name (`nom`, `prenom` and `fullName` are all `-----`). There is no
+# person to record for those rows.
+PLACEHOLDER_NAME = re.compile(r"^[\s-]+$")
+
 
 def crawl_member(
     context: Context,
@@ -33,6 +39,8 @@ def crawl_member(
     full_name = record["fullName"]
     district = record["wilaya"]
     assert full_name is not None and district is not None
+    if PLACEHOLDER_NAME.match(full_name):
+        return
 
     person = context.make("Person")
     person.id = context.make_id(full_name, district)
