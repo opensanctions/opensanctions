@@ -51,10 +51,10 @@ assertions:
   min:
     schema_entities:
       Address: 440
-      Organization: 300
+      Organization: 67
       Security: 200
       Person: 70
-      Company: 4
+      Company: 241
     # Set at roughly a quarter of the production fill rate: low enough that a
     # shift in the shape of the source data doesn't hold up the release, high
     # enough to catch a crawler that stopped parsing a field altogether.
@@ -78,7 +78,7 @@ assertions:
       Organization: 720
       Security: 460
       Person: 160
-      Company: 50
+      Company: 568
 
 # Consolidated List
 # SDN List
