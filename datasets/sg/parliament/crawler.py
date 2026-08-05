@@ -51,11 +51,15 @@ def fetch_flight_document(context: Context, url: str) -> str:
         except json.JSONDecodeError:
             # The framework also pushes runtime values, e.g. `push([0])`.
             continue
-        if isinstance(pushed, list) and len(pushed) == 2 and pushed[0] == 1:
-            if isinstance(pushed[1], str):
-                chunks.append(pushed[1])
+        if (
+            isinstance(pushed, list)
+            and len(pushed) == 2
+            and pushed[0] == 1
+            and isinstance(pushed[1], str)
+        ):
+            chunks.append(pushed[1])
     if len(chunks) == 0:
-        raise ValueError("No flight document chunks found: %s" % url)
+        raise ValueError(f"No flight document chunks found: {url}")
     return "".join(chunks)
 
 
@@ -67,11 +71,9 @@ def decode_flight_value(document: str, key: str) -> Any:
     single occurrence means the page no longer ships the data this crawler reads
     from it, or ships it more than once and the right copy is ambiguous.
     """
-    marker = '"%s":' % key
+    marker = f'"{key}":'
     if document.count(marker) != 1:
-        raise ValueError(
-            "Flight document has %d %r values" % (document.count(marker), key)
-        )
+        raise ValueError(f"Flight document has {document.count(marker)} {key!r} values")
     value, _ = json.JSONDecoder().raw_decode(
         document, document.find(marker) + len(marker)
     )
@@ -84,9 +86,7 @@ def decode_roster(document: str, key: str) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = roster["data"]
     reported: int = roster["meta"]["filter_count"]
     if len(records) != reported:
-        raise ValueError(
-            "Roster %r holds %d of %d records" % (key, len(records), reported)
-        )
+        raise ValueError(f"Roster {key!r} holds {len(records)} of {reported} records")
     return records
 
 
@@ -106,10 +106,10 @@ def parse_terms(context: Context, options: list[dict[str, Any]]) -> dict[str, Te
         if content is not None:
             match = REGEX_TERM_RANGE.match(squash_spaces(content))
             if match is None:
-                raise ValueError("Unexpected %s date range: %r" % (title, content))
+                raise ValueError(f"Unexpected {title} date range: {content!r}")
             start, end = match.group("start"), match.group("end")
         elif index != len(options) - 1:
-            raise ValueError("Parliament without a date range: %r" % title)
+            raise ValueError(f"Parliament without a date range: {title!r}")
         term = Term(title=title, start=start, end=end)
         for session_id in option.pop("parliament_sessions"):
             sessions[session_id] = term
@@ -128,7 +128,7 @@ def parse_name(published_name: str) -> tuple[str, str | None, str | None]:
     match = REGEX_RESIGNED.search(published_name)
     if match is None:
         if "(" in published_name or ")" in published_name:
-            raise ValueError("Unhandled annotation in name: %r" % published_name)
+            raise ValueError(f"Unhandled annotation in name: {published_name!r}")
         return published_name, None, None
     return published_name[: match.start()], match.group("date"), match.group("term")
 
@@ -173,7 +173,7 @@ def crawl_member(
     for reference in record.pop("parliament_session"):
         session_id = reference["parliament_sessions_id"]
         if session_id not in sessions:
-            raise ValueError("Unknown parliamentary session: %r" % session_id)
+            raise ValueError(f"Unknown parliamentary session: {session_id!r}")
         # Members are listed once per session, so several references resolve to the
         # same Parliament.
         terms.add(sessions[session_id])
