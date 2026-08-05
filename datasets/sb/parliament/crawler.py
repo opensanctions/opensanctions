@@ -1,9 +1,10 @@
 import re
 
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 # The parliament site returns HTTP 403 to the default client; it serves the page to a
 # standard browser User-Agent.
