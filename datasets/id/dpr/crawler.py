@@ -1,10 +1,11 @@
 import re
 
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 # The site is Akamai-protected and client-rendered, so each electoral-district (dapil) page
 # is fetched through the Zyte API (browser rendering) with an Indonesian exit.
