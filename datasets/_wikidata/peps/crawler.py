@@ -9,6 +9,7 @@ from rigour.territories.territory import Territory
 from zavod.entity import Entity
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.igo import INTL_ORGS
 from zavod.shed.wikidata.position import (
     POSITION_ABOLISHED_CUTOFF,
     position_holders,
@@ -99,6 +100,23 @@ def query_occupation_positions(
     return collect_positions(context, client, query)
 
 
+def query_igo_positions(context: Context, client: WikidataClient) -> set[str]:
+    """Positions in use at registered international bodies, linked via P2389
+    (organization directed by the office) or P361 (part of). These bodies have
+    no territory, so the per-territory sweeps never see their positions."""
+    values = " ".join(f"wd:{qid}" for qid in sorted(INTL_ORGS))
+    query = f"""
+    SELECT DISTINCT ?position ?abolished WHERE {{
+        ?position wdt:P2389|wdt:P361 ?org .
+        VALUES ?org {{ {values} }}
+        {{ ?holder wdt:P39 ?position . ?holder wdt:P31 wd:Q5 . }}
+        UNION {{ ?position wdt:P1308 ?officeholder . }}
+        {ABOLISHED_CLAUSE}
+    }}
+    """
+    return collect_positions(context, client, query)
+
+
 def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
     """Enumerate candidate position QIDs. Positions already categorised as PEP
     in the review database are always included, so a failing discovery query
@@ -116,6 +134,12 @@ def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
         accepted=len(candidates),
         blocked=len(blocked),
     )
+    try:
+        candidates.update(query_igo_positions(context, client))
+    except Exception as exc:  # noqa: BLE001
+        context.log.warning(
+            "International-body position discovery failed", error=str(exc)
+        )
     for territory in all_territories():
         context.log.info(f"Crawling territory: {territory.qid} ({territory.name})")
         try:
