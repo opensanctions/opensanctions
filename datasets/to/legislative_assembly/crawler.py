@@ -79,7 +79,9 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Legislative Assembly of Tonga",
         country="to",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21328621",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
