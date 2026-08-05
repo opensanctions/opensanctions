@@ -1,10 +1,9 @@
 from urllib.parse import unquote
 
-from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
-
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
+from zavod.stateful.positions import PositionCategorisation, categorise
 
 # The Lao word for "electoral constituency" appears in each per-constituency page URL.
 CONSTITUENCY_MARKER = "ເຂດເລືອກຕັ້ງ"
