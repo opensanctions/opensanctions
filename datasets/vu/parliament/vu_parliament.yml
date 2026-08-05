@@ -9,7 +9,7 @@ load_statements: true
 # Zyte fetching requires API credentials unavailable in CI.
 ci_test: false
 summary: >-
-  Unicameral national legislature, 52 seats with frequent mid-term change
+  Unicameral national legislature, 52 members elected for four-year terms
 description: |
   Current and historical members of the Parliament of Vanuatu, the country's unicameral
   national legislature. Its 52 members are directly elected from multi- and single-member

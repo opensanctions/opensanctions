@@ -1,4 +1,4 @@
-title: Algeria Members of the People's National Assembly (APN)
+title: Algeria Members of the People's National Assembly
 name: dz_apn
 prefix: dz-apn
 entry_point: crawler.py

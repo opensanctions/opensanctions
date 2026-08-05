@@ -1,4 +1,4 @@
-title: Tunisia Members of the Assembly of the Representatives of the People (ARP)
+title: Tunisia Members of the Assembly of the Representatives of the People
 name: tn_arp
 prefix: tn-arp
 entry_point: crawler.py
