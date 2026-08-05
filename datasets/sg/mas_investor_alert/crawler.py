@@ -9,6 +9,7 @@ from rigour.mime.types import JSON
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.stateful.review import assert_all_accepted
 
 IGNORE = [
     "score",
@@ -28,9 +29,22 @@ IGNORE = [
     # A link to a MAS site search for the entity name, not a per-record page.
     "url",
 ]
-OWNERSHIP_KEYWORDS = ["owned ", "managed ", "operates ", "operated "]
-WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:", "http:", "www.", ".sg", ".co"]
 NAME_SPLITTERS = [";", " / "]
+# A handful of records describe who runs the listed operation instead of just naming
+# it. A lookup maps each of those to the entity's own name and its owner(s).
+OWNERSHIP_PATTERN = re.compile(r"\b(owned|managed|operates|operated)\b", re.IGNORECASE)
+# Legal-entity suffixes that would otherwise read as a domain where the source omits
+# the space after the abbreviating dot, as in "Endowus Singapore Pte.Ltd". None of
+# these are in use as a top-level domain in this source.
+NOT_TLD = "ltd|limited|inc|llc|llp|plc|pte|corp|co"
+# Bare domains are as common as full URLs in the name field, so the scheme can't be
+# required. Trailing punctuation is excluded because the name field wraps URLs in
+# brackets and separates them with commas.
+URL_PATTERN = re.compile(
+    r"(?:https?://|www\.)[^\s,;)\]]+"
+    rf"|(?:[\w-]+\.)+(?!(?:{NOT_TLD})\b)[a-z]{{2,}}(?:/[^\s,;)\]]*)?",
+    re.IGNORECASE,
+)
 # Distinct addresses are separated by a blank line. Single newlines are line breaks
 # inside one address, which the address type cleaner joins up with commas.
 ADDRESS_SPLITTER = re.compile(r"\n\s*\n")
@@ -53,7 +67,9 @@ def emit_ownership(context: Context, entity: Entity, name: str) -> None:
             own.add("owner", owner)
             context.emit(own)
     else:
-        context.log.warning("Name needs to be remapped", value=name)
+        context.log.warning(
+            "Ownership prose in the name field needs a lookup", value=name
+        )
 
 
 def emit_relationship(
@@ -76,14 +92,45 @@ def emit_relationship(
         context.emit(rel)
 
 
-def add_lookup_items(context: Context, entity: Entity, name: str) -> None:
-    res = context.lookup("names", name)
-    if res is not None:
-        # This lookup may return either a 'name', a 'website', or both.
-        for lookup_item in res.items:
-            entity.add(lookup_item["prop"], lookup_item["value"])
-    else:
-        context.log.warning("Name needs to be remapped", value=name)
+def apply_source_names(
+    context: Context,
+    entity: Entity,
+    unregulated_persons: list[str],
+    alternative_names: list[str],
+    former_names: list[str],
+) -> None:
+    """Map the three name fields, peeling off the values that aren't names.
+
+    The name field doubles as a website field and occasionally describes ownership in
+    prose. Websites are extracted here rather than left to the name review framework,
+    which has no website property to move them to, and ownership prose is resolved
+    through a lookup into an Ownership entity. Everything else is handed to the review
+    framework, which decides how to split and categorise it.
+    """
+    names: list[str] = []
+    # Names that are, or contain, a website read as regular to the review framework's
+    # punctuation-based checks, so they have to be flagged as needing cleaning here.
+    has_url = False
+    for name in h.multi_split(unregulated_persons, NAME_SPLITTERS):
+        entity.add("website", [m.group(0) for m in URL_PATTERN.finditer(name)])
+        if OWNERSHIP_PATTERN.search(name):
+            emit_ownership(context, entity, name)
+            continue
+        has_url = has_url or URL_PATTERN.search(name) is not None
+        names.append(name)
+
+    original = h.Names(
+        name=names,
+        alias=h.multi_split(alternative_names, NAME_SPLITTERS),
+        previousName=former_names,
+    )
+    h.apply_reviewed_names(
+        context,
+        entity,
+        original=original,
+        is_irregular=has_url,
+        llm_cleaning=True,
+    )
 
 
 class CrawlItemResult(NamedTuple):
@@ -104,16 +151,13 @@ def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(source_id)
-    names = h.multi_split(item.pop("unregulatedpersons_t"), NAME_SPLITTERS)
-    for name in names:
-        if any(keyword in name for keyword in WEBSITE_KEYWORDS):
-            add_lookup_items(context, entity, name)
-        elif any(keyword in name for keyword in OWNERSHIP_KEYWORDS):
-            emit_ownership(context, entity, name)
-        else:
-            entity.add("name", name)
-    entity.add("alias", h.multi_split(item.pop("alternativename_t"), NAME_SPLITTERS))
-    entity.add("previousName", item.pop("formername_t"))
+    apply_source_names(
+        context,
+        entity,
+        item.pop("unregulatedpersons_t"),
+        item.pop("alternativename_t"),
+        item.pop("formername_t"),
+    )
     # Each of these fields lists several values to a line, separated by newlines on
     # top of punctuation. Without splitting on the newline, distinct values get
     # concatenated into one nonsense value.
@@ -188,3 +232,5 @@ def crawl(context: Context) -> None:
             dangling=len(dangling_ids),
             related=len(related_ids),
         )
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

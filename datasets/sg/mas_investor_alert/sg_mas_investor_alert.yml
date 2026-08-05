@@ -44,266 +44,28 @@ assertions:
     schema_entities:
       LegalEntity: 1400
 
+names:
+  schema_rules:
+    LegalEntity:
+      # MAS annotates the names it lists rather than publishing them plain: an
+      # impersonation marker or a disclaimer in brackets, a short form in quotes,
+      # a former or parallel name after "known as", or a social media platform and
+      # handle in place of a name. All of it needs cleaning, so the punctuation and
+      # phrases that mark it flag the name string for review. Parentheses that are
+      # genuinely part of a legal name ("Quantum Securities (Singapore) Pte. Ltd")
+      # get caught too, and are kept as-is on review.
+      reject_chars: "()[]{}<>:\"“”@"
+      reject_strings:
+        - impersonated
+        - not affiliated
+        - known as
+        - telegram
+        - tiktok
+        - facebook
+        - instagram
+        - whatsapp
+
 lookups:
-  names:
-    options:
-      - match: EFA Investments (https://efainvestments.com/en/?dl=dh)
-        items:
-          - prop: name
-            value: EFA Investments
-          - prop: website
-            value: https://efainvestments.com/en/?dl=d
-      - match: eXcentral (www.excentral-int.com
-        items:
-          - prop: name
-            value: eXcentral
-          - prop: website
-            value: www.excentral-int.com
-      - match: Coinex Foundation Ltd. (Coinex.com) 
-        items:
-          - prop: name
-            value: Coinex Foundation Ltd.
-          - prop: website
-            value: Coinex.com
-      - match: Guardian Project on https://riegling.click
-        items:
-          - prop: name
-            value: Guardian Project
-          - prop: website
-            value: https://riegling.click
-      - match: Guardian Project on https://traoe.cc
-        items:
-          - prop: name
-            value: Guardian Project
-          - prop: website
-            value: https://traoe.cc
-      - match: DKG Group Ltd (www.cofinancial.net)
-        items:
-          - prop: name
-            value: DKG Group Ltd
-          - prop: website
-            value: www.cofinancial.net
-      - match: ZB.com
-        items:
-          - prop: website
-            value: ZB.com
-      - match: thdahp.com
-        items:
-          - prop: website
-            value: thdahp.com
-      - match: www.etornso.com
-        items:
-          - prop: website
-            value: www.etornso.com
-      - match: https://sinovaccapital.com 
-        items:
-          - prop: website
-            value: https://sinovaccapital.com
-      - match: https://www.resonamerchantsbank.com/
-        items:
-          - prop: website
-            value: https://www.resonamerchantsbank.com/
-      - match: https://www.facebook.com/iCapitalHoldings
-        items:
-          - prop: website
-            value: https://www.facebook.com/iCapitalHoldings
-      - match: https://yknluxintpte.com/ 
-        items:
-          - prop: website
-            value: https://yknluxintpte.com/
-      - match: https://intcityholdings.com 
-        items:
-          - prop: website
-            value: https://intcityholdings.com
-      - match: https://www.global-fh.com/
-        items:
-          - prop: website
-            value: https://www.global-fh.com/
-      - match: www.rs-im.com
-        items:
-          - prop: website
-            value: www.rs-im.com  
-      - match: https://savio-management.com 
-        items:
-          - prop: website
-            value: https://savio-management.com
-      - match: https://www.precept-sg.com/
-        items:
-          - prop: website
-            value: https://www.precept-sg.com/
-      - match: Kuailiandp.com
-        items:
-          - prop: website
-            value: Kuailiandp.com
-      - match: www.ladyhillcapital.com
-        items:
-          - prop: website
-            value: www.ladyhillcapital.com
-      - match: https://www.reardonpte-ltd.com/ 
-        items:
-          - prop: website
-            value: https://www.reardonpte-ltd.com/
-      - match: https://www.amcorinspte.com/
-        items:
-          - prop: website
-            value: https://www.amcorinspte.com/
-      - match: https://castlepacificinsurance.com/ 
-        items:
-          - prop: website
-            value: https://castlepacificinsurance.com/
-      - match: https://steelcapins.com/
-        items:
-          - prop: website
-            value: https://steelcapins.com/
-      - match: https://www.odeoninsurancepte.com/
-        items:
-          - prop: website
-            value: https://www.odeoninsurancepte.com/
-      - match: www.oecd-oe.com/dist/#/ 
-        items:
-          - prop: website
-            value: www.oecd-oe.com/dist/#/
-      - match: https://asbicinvestment.com/
-        items:
-          - prop: website
-            value: https://asbicinvestment.com/
-      - match: https://spp6c8jale-www.anewwayoffriday.com 
-        items:
-          - prop: website
-            value: https://spp6c8jale-www.anewwayoffriday.com
-      - match: www.spp655.com
-        items:
-          - prop: website
-            value: www.spp655.com
-      - match: www.binance.com
-        items:
-          - prop: website
-            value: www.binance.com
-      - match: Titantrade.com
-        items:  
-          - prop: website
-            value: Titantrade.com
-      - match: https://trade.cryptodealsfx.com
-        items:
-          - prop: website
-            value: https://trade.cryptodealsfx.com
-      - match: www.singaporepassiveincome.com
-        items:
-          - prop: website
-            value: www.singaporepassiveincome.com
-      - match: Opteck.com
-        items:
-          - prop: website
-            value: Opteck.com
-      - match: http://icapitalsg.net/
-        items:
-          - prop: website
-            value: http://icapitalsg.net/
-      - match: masguardian.org and projectguardian.digital on https://t.me/QuantumStellarInitiative/36040
-        items:
-          - prop: website
-            value: masguardian.org
-          - prop: website
-            value: projectguardian.digital
-          - prop: website
-            value: https://t.me/QuantumStellarInitiative/36040
-      - match: Projectguardian.digital on https://stellar.expert/explorer/public/account/GB2Z42DRDOLLRLH62JFM3EC35DHD2KPETP6KKMX7EYKLFZEUXGGXG7L6
-        items:
-          - prop: website
-            value: projectguardian.digital
-          - prop: website
-            value: https://stellar.expert/explorer/public/account/GB2Z42DRDOLLRLH62JFM3EC35DHD2KPETP6KKMX7EYKLFZEUXGGXG7L6
-      - match: https://t.me/masofficialchannel and https://t.me/StellarMAS
-        items:
-          - prop: website
-            value: https://t.me/masofficialchannel
-          - prop: website
-            value: https://t.me/StellarMAS
-      - match: https://www.tigerbrokers.asia/#
-        items:
-          - prop: website
-            value: https://www.tigerbrokers.asia/#
-      - match: https://diegria.ink
-        items:
-          - prop: website
-            value: https://diegria.ink
-      - match: https://down.afehp.xyz/
-        items:
-          - prop: website
-            value: https://down.afehp.xyz/
-      - match: https://down.afeapp.info/
-        items:
-          - prop: website
-            value: https://down.afeapp.info/
-      - match: https://www.eztfpo.cn
-        items:
-          - prop: website
-            value: https://www.eztfpo.cn
-      - match: https://Krx.today
-        items:
-          - prop: website
-            value: https://Krx.today
-      - match: https://excentral-int.net/), operated by OM Bridge (Pty) Ltd
-        items:
-          - prop: website
-            value: https://excentral-int.net/
-      - match: www.saccapitalvn.pro
-        items:
-          - prop: website
-            value: www.saccapitalvn.pro
-      - match: www.exmo.xyz/download.aspx
-        items:
-          - prop: website
-            value: www.exmo.xyz/download.aspx
-      - match: www.pictetcrypto.org
-        items:
-          - prop: website
-            value: www.pictetcrypto.org
-      - match: www.ag1in.com
-        items:
-          - prop: website
-            value: www.ag1in.com
-      - match: www.kucoin.com
-        items:
-          - prop: website
-            value: www.kucoin.com
-      - match: https://howdenfund.asia/
-        items:
-          - prop: website
-            value: https://howdenfund.asia/
-      - match: Investico.com
-        items:
-          - prop: website
-            value: Investico.com
-      - match: agginvest.com
-        items:
-          - prop: website
-            value: agginvest.com
-      - match: https://derwentinv.com/
-        items:
-          - prop: website
-            value: https://derwentinv.com/
-      - match: https://hlmfund.com
-        items:
-          - prop: website
-            value: https://hlmfund.com
-      - match: https://arqcap.com
-        items:
-          - prop: website
-            value: https://arqcap.com
-      - match: https://gtrmamtechtrading.com/en/login
-        items:
-          - prop: website
-            value: https://gtrmamtechtrading.com/en/login
-      - match: Asiaboxfp.com
-        items:
-          - prop: website
-            value: Asiaboxfp.com
-      - match: Financial.org
-        # I don't think it should be a name but that's all we have in this case
-        items:
-          - prop: name
-            value: Financial.org
   ownership:
     options:
       - match: RI Markets (owned by Fcorp Services Ltd)
@@ -348,29 +110,12 @@ lookups:
       - match: Openblock (operated by DSSQ Pte. Ltd)
         owner_name: [DSSQ Pte. Ltd]
         entity_name: Openblock
-  type.name:
-    normalize: true
-    options:
-      # Several names in one value. The source states which of them are former names,
-      # but a lookup can only write to one property, so they all land as names.
-      - match: 'Britam Realty Pte Ltd, Magnetron Insurance & Financial Services Pte Ltd, Magnetron International Insurance Brokers Pte Ltd, TMI Management Services (Pte) Ltd'
-        values:
-          - Britam Realty Pte Ltd
-          - Magnetron Insurance & Financial Services Pte Ltd
-          - Magnetron International Insurance Brokers Pte Ltd
-          - TMI Management Services (Pte) Ltd
-      - match: 'PixelTrade Technologies Pte. Ltd. (Formerly known as Forex Adaptive System Pte. Ltd. and WSAI Pte. Ltd.)'
-        values:
-          - PixelTrade Technologies Pte. Ltd.
-          - Forex Adaptive System Pte. Ltd.
-          - WSAI Pte. Ltd.
-      - match: 'Zuen Capital Pte. Ltd. (formerly known as Zue Zuen Ge Buddhism Cultural Artifacts Centre Pte. Ltd.)'
-        values:
-          - Zuen Capital Pte. Ltd.
-          - Zue Zuen Ge Buddhism Cultural Artifacts Centre Pte. Ltd.
-      # A website listed in the alternative name field.
-      - match: 'https://www.facebook.com/PAFAFinancialAdvisoryPteLtd/'
-        prop: website
+      - match: Fastrading (Operated by TLM Global Services Ltd)
+        owner_name: [TLM Global Services Ltd]
+        entity_name: Fastrading
+      - match: Ainvestments (Operated by ESOS International Ltd. and Kadeky International S.R.O.)
+        owner_name: ["ESOS International Ltd.", "Kadeky International S.R.O."]
+        entity_name: Ainvestments
   type.url:
     normalize: true
     options:
