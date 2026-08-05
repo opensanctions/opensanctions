@@ -1,5 +1,4 @@
 import csv
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data
@@ -18,7 +17,13 @@ def crawl(context: Context) -> None:
             entity.add("name", name_zho, lang="zho")
             entity.add("name", row.pop("Company_Name_English"), lang="eng")
             entity.add("country", "cn")
-            h.apply_date(entity, "incorporationDate", row.pop("Date_of_Establishment"))
+            h.apply_date(
+                entity,
+                "incorporationDate",
+                row.pop("Date_of_Establishment"),
+                # The XPCC was founded in 1954, so no company is older.
+                two_digit_year_base=1950,
+            )
             entity.add("sector", row.pop("Industry"), lang="zho")
             entity.add("address", addr_zho, lang="zho")
             entity.add("topics", "export.risk")

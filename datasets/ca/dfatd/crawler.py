@@ -92,7 +92,16 @@ def parse_entry(context: Context, node: Element) -> None:
     elif given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
-        h.apply_date(entity, "birthDate", dob, original_value=dob_original)
+        h.apply_date(
+            entity,
+            "birthDate",
+            dob,
+            original_value=dob_original,
+            # The list holds birth dates from 1924, before the default 100-year
+            # window. A sanctioned person is old enough to have acted, so their
+            # birth date can be another 15 years back.
+            two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE - 15,
+        )
         entity.add("title", title)
     elif entity_name is not None:
         entity.add("name", split_name(entity_name))

@@ -143,7 +143,13 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_dates(sanction, "modifiedAt", clean_date(row.pop("israel_update_date")))
+    h.apply_dates(
+        sanction,
+        "modifiedAt",
+        clean_date(row.pop("israel_update_date")),
+        # No designation on the list predates 2000.
+        two_digit_year_base=2000,
+    )
     h.apply_dates(sanction, "startDate", clean_date(row.pop("isreal_adoption_date")))
 
     context.emit(entity)

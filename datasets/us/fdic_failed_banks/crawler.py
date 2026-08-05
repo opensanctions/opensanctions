@@ -37,7 +37,13 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity.add("registrationNumber", row.get("Cert", "").strip())
     # entity.add("notes", f"Cert: {row.get('Cert', '')}")
     # entity.add("notes", f"Fund: {row.get('Fund', '')}")
-    h.apply_date(entity, "dissolutionDate", closing_date)
+    h.apply_date(
+        entity,
+        "dissolutionDate",
+        closing_date,
+        # The FDIC list covers bank failures since October 2000.
+        two_digit_year_base=2000,
+    )
 
     # FIXME: Remove acquiring institution handling for now because it
     # emits a lot of single-property entities that clutter the dataset and

@@ -38,8 +38,21 @@ Finally, some datasets are just too messy to fully parse all contained dates. In
 
 ```yaml
 dates:
-    formats: ['%m %y']
+    formats: ['%m %Y']
     year_only: true
 ```
 
 This will parse any string that contains a valid year, such as `Approximately 1960`, or `circa 2007`.
+
+## Two-digit years
+
+A `%y` format needs a `two_digit_year_base`. The two-digit year is read as the first matching year that is not before that year. `h.apply_date`, `h.apply_dates` and `h.extract_date` accept the argument, and warn if a `%y` format matches without it.
+
+```python
+# Birth date: 100 years ago.
+h.apply_date(
+    person, "birthDate", "16-07-68", two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE
+)
+# Case date: the earliest possible event year.
+h.apply_date(sanction, "startDate", "16-07-68", two_digit_year_base=2000)
+```

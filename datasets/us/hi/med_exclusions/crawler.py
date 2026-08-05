@@ -6,6 +6,11 @@ from normality import squash_spaces
 
 from zavod.extract import zyte_api
 
+
+# Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
+# Amendments, and can end in the future.
+TWO_DIGIT_EXCLUSION_YEAR_BASE = 1977
+
 AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
 
 
@@ -48,8 +53,18 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("exclusion_date"))
-    h.apply_date(sanction, "endDate", row.pop("reinstatement_date"))
+    h.apply_date(
+        sanction,
+        "startDate",
+        row.pop("exclusion_date"),
+        two_digit_year_base=TWO_DIGIT_EXCLUSION_YEAR_BASE,
+    )
+    h.apply_date(
+        sanction,
+        "endDate",
+        row.pop("reinstatement_date"),
+        two_digit_year_base=TWO_DIGIT_EXCLUSION_YEAR_BASE,
+    )
 
     is_debarred = h.is_active(sanction)
     if is_debarred:
