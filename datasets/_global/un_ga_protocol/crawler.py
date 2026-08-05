@@ -72,15 +72,13 @@ def crawl(context: Context) -> None:
                 topics=["gov.national"],
             )
             start_date = start_date if len(start_date) < 18 else None
-            if start_date is not None:
-                start_date = h.extract_date(
-                    context.dataset,
-                    start_date,
-                    # The UN was founded in 1945, so no appointment is older.
-                    two_digit_year_base=1945,
-                )[0]
             occupancy = h.make_occupancy(
-                context, entity, position, start_date=start_date
+                context,
+                entity,
+                position,
+                start_date=start_date,
+                # The UN was founded in 1945, so no appointment is older.
+                two_digit_year_base=1945,
             )
 
             # entity.add("date_of_appointment", )

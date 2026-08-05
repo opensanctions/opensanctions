@@ -143,6 +143,7 @@ def make_occupancy(
     categorisation: PositionCategorisation | None = None,
     status: OccupancyStatus | None = None,
     key_prefix: str | None = None,
+    two_digit_year_base: int | None = None,
 ) -> Entity | None:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the `role.pep` topic
@@ -178,6 +179,10 @@ def make_occupancy(
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
         status: Overrides determining PEP occupancy status
+        two_digit_year_base: The earliest year a two-digit year may denote, applied to
+            all of the dates. Pass this rather than parsing the dates in the crawler,
+            because the occupancy ID is derived from the date strings as given. See
+            `apply_date`.
     """
     assert person.schema.is_a("Person")
     assert position.schema.is_a("Position")
@@ -201,11 +206,15 @@ def make_occupancy(
     occupancy.add("holder", person)
     occupancy.add("post", position)
 
-    h.apply_date(occupancy, "startDate", start_date)
-    h.apply_date(occupancy, "endDate", end_date)
-    h.apply_date(occupancy, "periodStart", period_start)
-    h.apply_date(occupancy, "periodEnd", period_end)
-    h.apply_date(occupancy, "electionDate", election_date)
+    dates = {
+        "startDate": start_date,
+        "endDate": end_date,
+        "periodStart": period_start,
+        "periodEnd": period_end,
+        "electionDate": election_date,
+    }
+    for prop, value in dates.items():
+        h.apply_date(occupancy, prop, value, two_digit_year_base=two_digit_year_base)
 
     if categorisation is not None and not categorisation.is_pep:
         context.log.warning(

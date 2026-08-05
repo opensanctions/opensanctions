@@ -56,3 +56,14 @@ h.apply_date(
 # Case date: the earliest possible event year.
 h.apply_date(sanction, "startDate", "16-07-68", two_digit_year_base=2000)
 ```
+
+Helpers that apply dates themselves take the argument too, and you should prefer that
+over parsing the date before calling them. `h.make_occupancy` keys the occupancy ID on
+the date strings as given, so pre-parsing them silently renumbers every occupancy in
+the dataset.
+
+```python
+h.make_occupancy(
+    context, person, position, start_date="16-Jul-68", two_digit_year_base=1945
+)
+```
