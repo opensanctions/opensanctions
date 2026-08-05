@@ -1,9 +1,10 @@
 from typing import Any
 
-from zavod import Context
-from zavod import helpers as h
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 # The API host sits behind a WAF that rejects ordinary egress, so it is fetched through the
 # Zyte API with an Indonesian exit.
