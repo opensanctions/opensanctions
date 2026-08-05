@@ -2,8 +2,21 @@ id: 222
 title: UK sanctions relating to cyber activity
 key: GB-CYB
 url: https://www.gov.uk/government/collections/uk-cyber-sanctions
-summary: Sanctions addressing malicious cyber activities.
-issuer: gb_ofsi
+summary: Targets individuals and entities involved in cyber activity that
+  undermines the integrity, prosperity or security of the United Kingdom or any
+  other country, causes economic loss, interferes with international
+  organisations, or affects a significant number of people in an indiscriminate
+  manner. Designated persons are subject to an asset freeze, and designated
+  individuals are barred from entering or transiting the United Kingdom.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Cyber
+  - SI 2020/597
+  - The Cyber (Sanctions) (EU Exit) Regulations 2020
 target_territories:
-- zz
+  # rigour pseudo-territory for cyberspace, cf. zz for global
+  - ip
+measures:
+  - Asset freeze
+  - Travel ban

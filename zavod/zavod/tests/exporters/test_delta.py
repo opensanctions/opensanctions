@@ -1,7 +1,7 @@
 import json
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from followthemoney.dataset import Version
 from nomenklatura.judgement import Judgement
@@ -26,7 +26,7 @@ ENTITY_CX = {
 ENTITY_D = {"id": "ED", "schema": "Person", "properties": {"name": ["Dory"]}}
 
 
-def _assert_delta_index_matches_expected(path: Path, expected_versions: List[str]):
+def _assert_delta_index_matches_expected(path: Path, expected_versions: list[str]):
     index = json.loads(path.read_text())
 
     # Check the "versions" key
@@ -53,7 +53,7 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
     store = get_store(testdataset1, resolver)
 
-    def e(data: Dict[str, Any]) -> Entity:
+    def e(data: dict[str, Any]) -> Entity:
         return resolver.apply(Entity.from_data(testdataset1, data))
 
     version = Version.new("aaa")
@@ -70,7 +70,7 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     export_dataset(testdataset1, view)
 
     assert dataset_path.joinpath(DELTA_EXPORT_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
+    with open(dataset_path.joinpath(DELTA_EXPORT_FILE)) as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 4, objects
         for data in objects:
@@ -97,7 +97,7 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
 
     export_dataset(testdataset1, view)
     assert dataset_path.joinpath(DELTA_EXPORT_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
+    with open(dataset_path.joinpath(DELTA_EXPORT_FILE)) as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 3, [o["entity"]["id"] for o in objects]
         for data in objects:
@@ -132,7 +132,7 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
 
     export_dataset(testdataset1, view)
     assert dataset_path.joinpath(DELTA_EXPORT_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
+    with open(dataset_path.joinpath(DELTA_EXPORT_FILE)) as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 3, [o["entity"]["id"] for o in objects]
         for data in objects:

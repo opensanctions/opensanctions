@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 import ijson  # type: ignore[import-untyped]  # ijson has no type stubs
 import zipfile
 from urllib.parse import urljoin
@@ -19,7 +19,7 @@ def get_download_url(context: Context) -> str:
     raise ValueError("No download link found")
 
 
-def crawl_item(context: Context, item: Dict[str, Any]) -> None:
+def crawl_item(context: Context, item: dict[str, Any]) -> None:
     ror_uri = item.pop("id")
     entity = context.make("Organization")
     entity.id = context.make_slug(ror_uri.rsplit("/", 1)[-1])

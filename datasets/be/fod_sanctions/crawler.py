@@ -1,5 +1,4 @@
 from csv import DictReader
-from typing import Dict, List
 
 from rigour.mime.types import CSV
 
@@ -38,7 +37,7 @@ def apply_identifier(context: Context, entity: Entity, id_number_line: str) -> N
 
 
 def crawl_row(
-    context: Context, entity_id: str | None, row: Dict[str, List[str]]
+    context: Context, entity_id: str | None, row: dict[str, list[str]]
 ) -> None:
     schema = context.lookup_value(
         "subject_type",
@@ -97,7 +96,7 @@ def crawl_row(
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r", encoding="utf-8-sig") as fh:
+    with open(path, encoding="utf-8-sig") as fh:
         reader = DictReader(fh, delimiter=";")
         for row in reader:
             # Use raw values before any splitting/replacing for entity id

@@ -122,6 +122,8 @@ lookups:
         value: ru
       - match: RF, ASTRAKHAN RERION
         value: ru
+      - match: AVUSTRYA
+        value: at
   type.date:
     lowercase: true
     normalize: true
@@ -389,7 +391,10 @@ lookups:
         value: listing_date
       - match: Diğer Bilgiler
         value: other_information
-      - match: Tüzel Kuruluş/Organizasyon Ünvanı
+      - match:
+          - Tüzel Kuruluş/Organizasyon Ünvanı
+          # Renamed in the 29.07.2026 revision of the D (3A3B) file, same contents
+          - KURULUŞ YAPISI
         value: legal_entity_name
       - match:
           - ADI SOYADI-ÜNVANI
@@ -430,6 +435,7 @@ lookups:
       - match:
           - KULLANDIĞI BİLİNEN DİĞER İSİMLERİ
           - Kullandığı Bilinen Diğer İsmler
+          - KULLANDIĞI BİLİNEN DİĞER İSİMLER
         value: alias
       - match:
           - TABİ OLDUĞU DİĞER UYRUKLAR

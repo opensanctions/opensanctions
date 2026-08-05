@@ -12,14 +12,22 @@ LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
 # Debug mode
 DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
 
-# Default paths
-_META_RESOURCE_DEFAULT = Path(__file__).parent.parent.parent / "meta"
+# Default paths. Repository-relative defaults assume zavod is installed
+# editable from its checkout inside the opensanctions repository.
+_REPO_ROOT = Path(__file__).parent.parent.parent
 META_RESOURCE_PATH = Path(
-    env.get("ZAVOD_META_RESOURCE_PATH") or _META_RESOURCE_DEFAULT
+    env.get("ZAVOD_META_RESOURCE_PATH") or _REPO_ROOT / "meta"
 ).resolve()
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 DATA_PATH.mkdir(parents=True, exist_ok=True)
+
+# Directory tree containing all dataset YAML specifications (the opensanctions
+# repository's datasets/ folder). Used to build the full dataset universe for
+# evaluating dataset queries.
+DATASETS_PATH = Path(
+    env.get("ZAVOD_DATASETS_PATH") or _REPO_ROOT / "datasets"
+).resolve()
 
 # Per-run timestamp
 RUN_VERSION = Version.from_env("ZAVOD_VERSION")
@@ -56,10 +64,16 @@ ARCHIVE_BACKFILL_STATEMENTS = as_bool(
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # HTTP settings
-# Connect and read timeout in seconds, applied to both the context HTTP session
-# and Zyte API requests. Can be overridden per-dataset via the `http.timeout`
-# metadata option.
+# Connect and read timeout in seconds for the context HTTP session. Can be
+# overridden per-dataset via the `http.timeout` metadata option.
 HTTP_TIMEOUT = 60
+# A Zyte API request wraps a whole proxied fetch — picking an exit node, browser
+# rendering, and Zyte's own retries against bans — so a healthy one routinely
+# takes minutes, far longer than a direct request to the same page. Timing out
+# below Zyte's own budget just burns the work it already did and, because
+# configure_session retries the POST, multiplies one slow page into a long stall.
+# Overridable per-dataset via the `http.zyte_timeout` metadata option.
+ZYTE_TIMEOUT = int(env.get("ZAVOD_ZYTE_TIMEOUT", 300))
 HTTP_RETRY_TOTAL = int(env.get("ZAVOD_HTTP_RETRY_TOTAL", 3))
 HTTP_RETRY_BACKOFF_FACTOR = float(env.get("ZAVOD_HTTP_RETRY_BACKOFF_FACTOR", 1.0))
 # urllib.util.Retry.DEFAULT_BACKOFF_MAX is 120

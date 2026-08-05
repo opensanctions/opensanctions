@@ -1,4 +1,6 @@
 import re
+from time import sleep
+from lxml import etree
 from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
@@ -6,24 +8,56 @@ from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
+NAME_XPATH = ".//h2[@class='senators_title']//span"
+PROFILE_ATTEMPTS = 3
+
+
+def fetch_profile(context: Context, profile_url: str) -> HtmlElement | None:
+    """Fetch a senator profile page, tolerating empty response bodies.
+
+    council.gov.ru occasionally closes the connection without sending any body,
+    which makes lxml raise `ParserError: Document is empty` and aborts the whole
+    crawl. The unblocking retry loop in `zyte_api.fetch_html` doesn't cover this
+    because parsing happens before validation, so retry here instead.
+
+    Returns:
+        The parsed profile page, or None if it stayed empty across all attempts.
+    """
+    for attempt in range(PROFILE_ATTEMPTS):
+        try:
+            doc: HtmlElement = zyte_api.fetch_html(
+                context,
+                profile_url,
+                unblock_validator=NAME_XPATH,
+                html_source="httpResponseBody",
+            )
+            return doc
+        except etree.ParserError:
+            context.log.debug(
+                "Empty profile page response, retrying",
+                url=profile_url,
+                attempt=attempt + 1,
+            )
+            sleep(2**attempt)
+    return None
+
 
 def crawl_person(
     context: Context,
     position: Entity,
     profile_url: str,
 ) -> None:
-    name_xpath = ".//h2[@class='senators_title']//span"
-    doc: HtmlElement = zyte_api.fetch_html(
-        context,
-        profile_url,
-        unblock_validator=name_xpath,
-        html_source="httpResponseBody",
-    )
+    doc = fetch_profile(context, profile_url)
+    if doc is None:
+        context.log.warning(
+            "Skipping senator: profile page response was empty", url=profile_url
+        )
+        return
 
     person_id = profile_url.rstrip("/").rsplit("/", 1)[-1]
     person = context.make("Person")
     person.id = context.make_slug(person_id)
-    name = h.element_text(h.xpath_element(doc, name_xpath))
+    name = h.element_text(h.xpath_element(doc, NAME_XPATH))
     person.add("name", name, lang="eng")
 
     info_paras = h.xpath_elements(
@@ -86,6 +120,7 @@ def crawl(context: Context) -> None:
         country="ru",
         wikidata_id="Q4516946",
         topics=["gov.national", "gov.legislative"],
+        lang="eng",
     )
     context.emit(position)
 

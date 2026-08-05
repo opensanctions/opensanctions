@@ -1,6 +1,6 @@
 import orjson
 from pathlib import Path
-from typing import Any, Dict, BinaryIO
+from typing import Any, BinaryIO
 
 from zavod.context import Context
 
@@ -52,7 +52,7 @@ SCHEME_PROPS = {
 }
 
 
-def parse_statement(context: Context, data: Dict[str, Any]) -> None:
+def parse_statement(context: Context, data: dict[str, Any]) -> None:
     statement_type = data.pop("statementType")
     statement_id = data.pop("statementID")
     proxy_id = context.make_slug(statement_id)
@@ -175,7 +175,7 @@ def parse_bods_fh(context: Context, fh: BinaryIO) -> None:
         parse_statement(context, data)
         index += 1
         if index > 0 and index % 10000 == 0:
-            context.log.info("BODS statements: %d..." % index)
+            context.log.info(f"BODS statements: {index}...")
 
 
 def parse_bods_file(context: Context, file_name: Path) -> None:

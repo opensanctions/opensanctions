@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta, date, timezone
+from datetime import datetime, timedelta, date, timezone, UTC
 from typing import Any
 
 from zavod import Context, helpers as h
@@ -50,7 +50,7 @@ def parse_ms_date(ms_date: str | None) -> date | None:
     ms = int(match.group(1))
     tz_str = match.group(2)
     # Parse the UTC timestamp
-    dt_utc = datetime.fromtimestamp(ms / 1000, tz=timezone.utc)
+    dt_utc = datetime.fromtimestamp(ms / 1000, tz=UTC)
     # If there's an offset, convert to that local timezone to get the local date
     if tz_str:
         sign = 1 if tz_str[0] == "+" else -1

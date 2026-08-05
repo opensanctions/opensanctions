@@ -1,6 +1,7 @@
 import os
 import csv
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 from normality import squash_spaces
 from rigour.names import replace_org_types_display
 from followthemoney.types import registry
@@ -170,7 +171,7 @@ def emit_csv(context: Context, emit_fn: Callable[..., None], blob_name: str) -> 
     local_path = context.get_resource_path(blob_name)
     fetch_internal_data(blob_name, local_path)
 
-    with open(local_path, "r", newline="") as fh:
+    with open(local_path, newline="") as fh:
         for row in csv.DictReader(fh):
             emit_fn(context, row)
 

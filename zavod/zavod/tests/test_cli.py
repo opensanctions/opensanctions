@@ -85,7 +85,7 @@ def test_run_dataset(testdataset1: Dataset):
     assert latest_path.joinpath("index.json").exists()
     assert latest_path.joinpath("entities.ftm.json").exists()
     # Validation issues in a published run are published
-    with open(artifacts_path / "issues.json", "r") as f:
+    with open(artifacts_path / "issues.json") as f:
         assert "This is a test warning" in f.read()
     shutil.rmtree(latest_path)
 
@@ -112,7 +112,7 @@ def test_run_validation_failed(testdataset3: Dataset):
     assert result.exit_code != 0, result.output
     # Validation issues in an aborted run are published
     assert "Assertion countries failed" in result.output, result.output
-    with open(artifacts_path / "issues.json", "r") as f:
+    with open(artifacts_path / "issues.json") as f:
         assert "Assertion countries failed" in f.read()
     shutil.rmtree(settings.DATA_PATH)
 

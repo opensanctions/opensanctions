@@ -14,7 +14,8 @@ import io
 import csv
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any, Generator, Tuple
+from typing import Any
+from collections.abc import Generator
 from zipfile import ZipFile
 from urllib.parse import urljoin
 from rigour.mime.types import ZIP
@@ -26,13 +27,13 @@ DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
 
 
-def parse_date(date: Optional[str]) -> str | None:
+def parse_date(date: str | None) -> str | None:
     if date in ("", "Indefinite", None):
         return None
     return date
 
 
-def clean_address_part(part: Any) -> Optional[str]:
+def clean_address_part(part: Any) -> str | None:
     if part is None:
         return None
     cleaned: str = str(part).strip()
@@ -41,7 +42,7 @@ def clean_address_part(part: Any) -> Optional[str]:
     return cleaned
 
 
-def read_rows(zip_path: Path) -> Generator[Tuple[str, Dict[str, str]], None, None]:
+def read_rows(zip_path: Path) -> Generator[tuple[str, dict[str, str]], None, None]:
     with ZipFile(zip_path, "r") as zip:
         for file_name in zip.namelist():
             with zip.open(file_name) as zfh:
@@ -65,13 +66,13 @@ def crawl_data_url(context: Context) -> str:
 
 def us_fed_excl_id(
     context: Context,
-    full_name: Optional[str],
-    first_name: Optional[str],
-    middle_name: Optional[str],
-    last_name: Optional[str],
-    zip_code: Optional[str],
-    city: Optional[str],
-) -> Optional[str]:
+    full_name: str | None,
+    first_name: str | None,
+    middle_name: str | None,
+    last_name: str | None,
+    zip_code: str | None,
+    city: str | None,
+) -> str | None:
     id_name = h.make_name(
         full=full_name,
         first_name=first_name,
@@ -92,15 +93,15 @@ def us_fed_excl_id(
 
 def usgsa_id(
     context: Context,
-    uei: Optional[str],
-    full_name: Optional[str],
-    first_name: Optional[str],
-    middle_name: Optional[str],
-    last_name: Optional[str],
-    zip_code: Optional[str],
-    city: Optional[str],
-    country: Optional[str],
-) -> Optional[str]:
+    uei: str | None,
+    full_name: str | None,
+    first_name: str | None,
+    middle_name: str | None,
+    last_name: str | None,
+    zip_code: str | None,
+    city: str | None,
+    country: str | None,
+) -> str | None:
     id_name = h.make_name(
         full=full_name,
         first_name=first_name,
@@ -131,7 +132,7 @@ def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
-    schemata: Dict[str, str] = {}
+    schemata: dict[str, str] = {}
     for row_number, (filename, row) in enumerate(read_rows(path)):
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)

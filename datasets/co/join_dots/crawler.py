@@ -129,13 +129,13 @@ def crawl(context: Context) -> None:
     peps: dict[str, Entity] = {}
     dupes = set()
 
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             name_slug, entity = crawl_row(context, row)
             if name_slug in peps:
                 context.log.info("Dropping name with duplicate entry", name=name_slug)
                 dupes.add(name_slug)
-                peps.pop((name_slug))
+                peps.pop(name_slug)
             else:
                 if name_slug not in dupes:
                     peps[name_slug] = entity

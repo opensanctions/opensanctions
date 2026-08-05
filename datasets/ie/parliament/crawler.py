@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -9,13 +9,13 @@ POSITIONS = {
         "wikidata_id": "Q18043391",
     },
     "dail": {
-        "title": "Teachta Dála",
+        "title": "Member of the Dáil of Ireland",
         "wikidata_id": "Q654291",
     },
 }
 
 
-def crawl_member(context: Context, member: Dict[str, Any]) -> None:
+def crawl_member(context: Context, member: dict[str, Any]) -> None:
     person = context.make("Person")
     person.id = context.make_id(member.pop("memberCode"))
     h.apply_name(
@@ -43,6 +43,7 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
             topics=["gov.national", "gov.legislative"],
             country=["ie"],
             wikidata_id=wikidata_id,
+            lang="eng",
         )
 
         categorisation = categorise(context, position, default_is_pep=True)

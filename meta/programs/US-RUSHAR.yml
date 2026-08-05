@@ -13,7 +13,9 @@ summary: Targets persons responsible for or supporting specified harmful
   Russia, on exports of luxury goods, and on providing accounting, management
   consulting, and certain other professional services to Russia. Directives
   further restrict dealings in Russian sovereign debt and transactions with
-  major Russian financial institutions, including the Central Bank.
+  major Russian financial institutions, including the Central Bank. Some
+  persons are designated under those directives alone rather than being
+  blocked.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:

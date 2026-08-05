@@ -14,6 +14,7 @@ def create_emit_position(context: Context) -> Entity:
         country="de",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q1939555",
+        lang="eng",
     )
     context.emit(position)
     return position

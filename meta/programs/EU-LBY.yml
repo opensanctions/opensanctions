@@ -1,12 +1,31 @@
 id: 74
-title: EU Restrictive Measures In View Of The Situation In Libya
+title: EU Restrictive measures in view of the situation in Libya
 key: EU-LBY
 url: https://sanctionsmap.eu/#/main/details/23/
-summary: These sanctions target individuals and entities involved in the ongoing conflict
-  and human rights abuses in Libya. The measures include asset freezes, travel bans,
-  and restrictions on trade to promote peace, security, and democratic governance
-  in Libya.
+summary: Targets persons and entities that threaten Libya's peace, security or
+  stability, obstruct its political transition, or are responsible for human
+  rights abuses, under Council Decision (CFSP) 2015/1333 and Council Regulation
+  (EU) 2016/44. The regime implements the UN measures adopted under Security
+  Council Resolution 1970 (2011) and successor resolutions, and adds
+  EU-autonomous listings alongside the UN-designated ones. Designated persons
+  and entities are subject to an asset freeze, and listed natural persons to an
+  entry ban. Designation-level measures combine with a country-wide arms
+  embargo, export controls on internal-repression equipment and on goods usable
+  for migrant smuggling, and restrictions on flights and on listed vessels.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2016/44
+  - Decision (CFSP) 2015/1333
+  - UNSCR 1970
+  - UNSCR 1973
+  - LBY
 target_territories:
-- ly
+  - ly
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Export control
+  - Prohibition to satisfy claims
+  - Transportation restrictions
+  - Travel ban

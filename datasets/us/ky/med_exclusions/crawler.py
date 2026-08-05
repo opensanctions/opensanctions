@@ -1,11 +1,31 @@
 import re
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_resource
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
+# First cell of the header row, used to skip the notes above the table.
+HEADER_FIRST_CELL = "First Name"
+# The notes above the table have never been more than a handful of rows.
+MAX_PREAMBLE_ROWS = 10
+
+
+def count_preamble_rows(sheet: Worksheet) -> int:
+    """Count the rows preceding the header row of the table.
+
+    The source publishes a varying number of notes rows above the table, so the
+    header is located by its first cell rather than assumed at a fixed offset.
+    """
+    for index, row in enumerate(
+        sheet.iter_rows(max_row=MAX_PREAMBLE_ROWS, values_only=True)
+    ):
+        cell = row[0]
+        if isinstance(cell, str) and cell.strip() == HEADER_FIRST_CELL:
+            return index
+    raise ValueError(f"Could not find header row starting with {HEADER_FIRST_CELL!r}")
 
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
@@ -81,7 +101,8 @@ def crawl(context: Context) -> None:
     sheet_names = wb.sheetnames
 
     assert wb.active is not None
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
+    skiprows = count_preamble_rows(wb.active)
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=skiprows):
         crawl_item(item, context)
 
     sheet_names.remove(wb.active.title)

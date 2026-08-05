@@ -94,6 +94,51 @@ lookups:
         details:
           - id_num: 911-10-77
             notes: "Central African Republic armed forces (FACA) Military identificationnumber 911-10-77"
+      - match: "Central African Republic armed forces (FACA) Military identification number 911-10-77"
+        details:
+          - id_num: "911-10-77"
+            notes: "Central African Republic armed forces (FACA) Military identification number 911-10-77"
+      - match: "5430312277059 note:fraudulently obtained and since cancelled by the Government of Pakistan"
+        details:
+          - id_num: "5430312277059"
+            notes: "5430312277059 note:fraudulently obtained and since cancelled by the Government of Pakistan"
+      - match: "note:Indonesian National Identity Card number 1127083101740003 under name Abdul Rosyid Ridho Ba’asyir"
+        details:
+          - name: Abdul Rosyid Ridho Ba’asyir
+            id_num: "1127083101740003"
+            notes: "note:Indonesian National Identity Card number 1127083101740003 under name Abdul Rosyid Ridho Ba’asyir"
+      - match: "note:Tunisian national identity number W334061 issued on 9 Mar. 2011"
+        details:
+          - id_num: "W334061"
+            notes: "note:Tunisian national identity number W334061 issued on 9 Mar. 2011"
+      - match: "French national identity card number 101127200129  note:issued by the Sous-Préfecture of Bernay, France and expires 4 Nov. 2020"
+        details:
+          - id_num: "101127200129"
+            notes: "French national identity card number 101127200129  note:issued by the Sous-Préfecture of Bernay, France and expires 4 Nov. 2020"
+      - match: "note:issued in Lashkar Gah District, Helmand Province, Afghanistan"
+        details:
+          - notes: "note:issued in Lashkar Gah District, Helmand Province, Afghanistan"
+      - match: "national identity card number 5802098444 note:on 15 Apr. 2010, expired on 14 Apr. 2016"
+        details:
+          - id_num: "5802098444"
+            notes: "national identity card number 5802098444 note:on 15 Apr. 2010, expired on 14 Apr. 2016"
+      - match: "French national identity card number 050456101445 note:issued by the sous-prefecture of police of Lorient, France"
+        details:
+          - id_num: "050456101445"
+            notes: "French national identity card number 050456101445 note:issued by the sous-prefecture of police of Lorient, France"
+      - match: "French identity card number 0205561020089 note:issued under name Emilie Edwige Konig"
+        details:
+          - name: Emilie Edwige Konig
+            id_num: "0205561020089"
+            notes: "French identity card number 0205561020089 note:issued under name Emilie Edwige Konig"
+      - match: "9103314932 note:issued by Department of the Federal Migration Service of the Russian Federation for the Republic Karachayevo-Cherkessia"
+        details:
+          - id_num: "9103314932"
+            notes: "9103314932 note:issued by Department of the Federal Migration Service of the Russian Federation for the Republic Karachayevo-Cherkessia"
+      - match: "660603-05-5267 note:issued by National Registration Department of Malaysia"
+        details:
+          - id_num: "660603-05-5267"
+            notes: "660603-05-5267 note:issued by National Registration Department of Malaysia"
       - match: "Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         details:
           - address: "Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan"

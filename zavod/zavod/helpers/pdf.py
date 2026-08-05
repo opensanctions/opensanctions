@@ -2,7 +2,8 @@ import logging
 import subprocess
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable, Generator
 
 import pdfplumber
 from normality import squash_spaces, slugify
@@ -21,7 +22,7 @@ class IgnoredWarnings(logging.Filter):
 logging.getLogger("pdfminer.pdfpage").addFilter(IgnoredWarnings())
 
 
-def make_pdf_page_images(pdf_path: Path) -> List[Path]:
+def make_pdf_page_images(pdf_path: Path) -> list[Path]:
     """Split a PDF file into PNG images of its pages.
 
     This requires `pdftoppm` to be installed on the system, which is
@@ -54,11 +55,11 @@ def parse_pdf_table(
     path: Path,
     headers_per_page: bool = False,
     preserve_header_newlines: bool = False,
-    start_page: Optional[int] = None,
-    end_page: Optional[int] = None,
+    start_page: int | None = None,
+    end_page: int | None = None,
     skiprows: int = 0,
-    page_settings: Optional[Callable[[Page], Tuple[Page, Dict[str, Any]]]] = None,
-) -> Generator[Dict[str, Optional[str]], None, None]:
+    page_settings: Callable[[Page], tuple[Page, dict[str, Any]]] | None = None,
+) -> Generator[dict[str, str | None], None, None]:
     """
     Parse the largest table on each page of a PDF file and yield their rows as dictionaries.
 

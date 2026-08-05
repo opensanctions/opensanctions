@@ -1,0 +1,20 @@
+title: Ordinance on the Freezing of Assets in Connection with Tunisia (SR 196.127.58)
+key: CH-FIAA-TN
+url: https://www.fedlex.admin.ch/eli/cc/2016/324/de
+summary: >
+  Froze the Swiss-held assets of former Tunisian president Zine El Abidine Ben
+  Ali and members of his family and entourage under the Foreign Illicit Assets
+  Act, in support of Tunisian criminal proceedings and mutual legal assistance.
+  The freeze, first imposed in January 2011, expired on 18 January 2021 when it
+  reached the statutory maximum duration of ten years.
+issuer: ch_fdfa
+dataset: ch_fiaa_freezes
+aliases:
+  - Tunesien-Verordnung
+  - O-Tunisie
+  - SR 196.127.58
+target_territories:
+  - tn
+measures:
+  - Asset freeze
+status: ended
