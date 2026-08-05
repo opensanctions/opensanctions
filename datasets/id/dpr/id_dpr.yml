@@ -1,4 +1,4 @@
-title: Indonesia People's Representative Council (DPR)
+title: Indonesia Members of the People's Representative Council (DPR)
 name: id_dpr
 prefix: id-dpr
 entry_point: crawler.py
@@ -8,15 +8,12 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the People's Representative Council (DPR), the lower chamber of the
-  Indonesian parliament.
+  Lower chamber of the Indonesian parliament, elected from 84 electoral districts
 description: |
-  The People's Representative Council (Dewan Perwakilan Rakyat, DPR) is the lower chamber of
-  Indonesia's parliament. Its 580 members are elected from 84 electoral districts (dapil)
-  across the provinces for a five-year term. The current term is 2024–2029.
-
-  This dataset records each member by name and electoral district, from the Council's
-  official member directory.
+  Current members of the People's Representative Council (Dewan Perwakilan Rakyat, DPR),
+  the lower chamber of Indonesia's bicameral parliament. Its 580 members are elected from
+  84 electoral districts (dapil) across the provinces for a five-year term and hold the
+  country's legislative power, including passing laws and approving the budget.
 url: https://www.dpr.go.id/anggota
 publisher:
   name: Dewan Perwakilan Rakyat Republik Indonesia
