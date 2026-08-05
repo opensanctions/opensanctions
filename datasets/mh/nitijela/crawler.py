@@ -69,9 +69,11 @@ def crawl_member(
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of the Nitijela",
+        name="Member of the Nitijela of the Marshall Islands",
         country="mh",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21328624",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
