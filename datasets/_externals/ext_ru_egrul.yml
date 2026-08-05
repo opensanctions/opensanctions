@@ -75,11 +75,9 @@ inputs:
 config:
   index_options:
     max_candidates: 200
-    match_batch: 300
     memory: 3500
   threshold: 0.7
   limit: 100
-  max_bin: 14
   algorithm: regression-v1
   topics:
     - role.pep
