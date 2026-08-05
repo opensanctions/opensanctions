@@ -1,3 +1,7 @@
+# HISTORICAL — regime revoked effective July 1, 2025, when EO 14312 rescinded
+# the underlying executive orders; the Caesar Act was subsequently repealed.
+# Retained for designations issued while the program was in force; current
+# Syria-related designations live under US-SYR-REL (PAARSS).
 id: 35
 title: Syria Sanctions
 key: US-SYR
@@ -15,6 +19,7 @@ summary: The comprehensive US sanctions program on Syria was revoked effective
   under the separate PAARSS program.
 issuer: us_ofac
 dataset: us_ofac_sdn
+status: ended
 aliases:
   - Syrian Sanctions Regulations
   - SySR

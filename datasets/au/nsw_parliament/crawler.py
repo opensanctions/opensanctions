@@ -1,3 +1,6 @@
+import re
+from typing import Any
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -5,15 +8,29 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
 BASE_URL = "https://www.parliament.nsw.gov.au"
+MEMBER_URL = BASE_URL + "/members-and-electorates/members-and-ministers/members-details"
+# The members listing is rendered client-side from this Funnelback search index.
+# `query` is the match-nothing-in-particular sentinel the site itself sends to
+# retrieve the unfiltered member list; `SF` picks the metadata fields returned
+# (without it the response carries base64 portrait photos and no gender).
+SEARCH_PARAMS = {
+    "collection": "pon1~sp-members",
+    "profile": "members-current",
+    "query": "!FunDoesNotExist:padrenull",
+    "num_ranks": "500",
+    "SF": "[memberName,lastName,gender,houseName,party,electorate]",
+}
+# The index URL of each result is the only place the member's numeric ID appears.
+INDEX_URL_PK = re.compile(r"/member/(\d+)$")
 
 POSITIONS: dict[str, dict[str, str]] = {
-    "LA": {
+    "Legislative Assembly": {
         "name": "Member of the New South Wales Legislative Assembly",
         "wikidata_id": "Q19202748",
         # The chamber word as it appears in the detail-page position tables.
         "chamber": "Assembly",
     },
-    "LC": {
+    "Legislative Council": {
         "name": "Member of the New South Wales Legislative Council",
         "wikidata_id": "Q18810377",
         "chamber": "Council",
@@ -25,9 +42,8 @@ def extract_term_start(detail: Element, chamber: str) -> str | None:
     """Return the date the member's current term in the given chamber began.
 
     The start date lives in the member's current-positions table on their
-    profile page. That table's accent colour differs between the two chambers
-    (Assembly vs. Council), so we match on its header columns rather than the
-    CSS class.
+    profile page. The prior-positions table on the same page has the same CSS
+    class, so we match on the header columns instead.
     """
     target = f"Member of the NSW Legislative {chamber}"
     for table in h.xpath_elements(detail, "//table"):
@@ -38,7 +54,8 @@ def extract_term_start(detail: Element, chamber: str) -> str | None:
         if header[:3] != ["Position", "Start", "Notes"]:
             continue
         for row in rows[1:]:
-            cells = h.xpath_elements(row, "./td")
+            # The position name is a row header, the remaining columns are cells.
+            cells = h.xpath_elements(row, "./th | ./td")
             if len(cells) < 2:
                 continue
             if h.element_text(cells[0]) == target:
@@ -53,13 +70,15 @@ def extract_biography(detail: Element) -> str | None:
     etc.); empty or hidden sections are skipped.
     """
     sections: list[str] = []
-    xpath = "//div[contains(@class, 'biography')]//div[contains(@class, 'biopar')]"
+    xpath = "//div[contains(@class, 'pims-member-biography')]//section[contains(@class, 'pims-member-biography__block')]"
     for par in h.xpath_elements(detail, xpath):
-        # Items within a paragraph are separated by <br>, which text_content()
+        # Items within a section are separated by <br>, which text_content()
         # would otherwise run together ("...present.1992..."); insert spacing.
         for br in h.xpath_elements(par, ".//br"):
             br.tail = " " + (br.tail or "")
-        titles = h.xpath_elements(par, ".//span[contains(@class, 'spn-bio-title')]")
+        titles = h.xpath_elements(
+            par, ".//*[contains(@class, 'pims-member-biography__subheading')]"
+        )
         title = h.element_text(titles[0]) if titles else ""
         body = " ".join(
             h.element_text(p) for p in h.xpath_elements(par, ".//p")
@@ -75,36 +94,32 @@ def extract_biography(detail: Element) -> str | None:
 def crawl_member(
     context: Context,
     house_positions: dict[str, tuple[Entity, PositionCategorisation, str]],
-    row: Element,
+    result: dict[str, Any],
 ) -> None:
-    cells = h.xpath_elements(row, "./td")
-    if len(cells) < 8:
+    meta = result["listMetadata"]
+    index_url = result["indexUrl"]
+    match = INDEX_URL_PK.search(index_url)
+    if match is None:
+        context.log.warning("Unexpected member index URL", index_url=index_url)
         return
+    pk = match.group(1)
+    profile_url = f"{MEMBER_URL}?memberId={pk}"
 
-    # Name cell contains an anchor with "Surname, FirstName" text
-    raw_name = h.element_text(cells[0])
-    if "," not in raw_name:
-        context.log.warning("Unexpected name format", name=raw_name)
+    # The listing carries the full name and the surname, but not the given name.
+    full_name = meta["memberName"][0]
+    last_name = meta["lastName"][0]
+    if not full_name.endswith(last_name):
+        context.log.warning(
+            "Surname is not a suffix of the full name",
+            name=full_name,
+            last_name=last_name,
+        )
         return
-    last_name, first_name = raw_name.split(",", 1)
-    last_name = last_name.strip()
-    first_name = first_name.strip()
+    first_name = full_name[: -len(last_name)].strip()
 
-    # Profile link pk is used as the stable entity ID
-    hrefs = h.xpath_strings(cells[0], ".//a/@href")
-    if not hrefs:
-        context.log.warning("No profile link in name cell", name=raw_name)
-        return
-    href = hrefs[0]
-    if "pk=" not in href:
-        context.log.warning("Unexpected profile link format", href=href)
-        return
-    pk = href.split("pk=", 1)[1]
-    profile_url = href if href.startswith("http") else BASE_URL + href
-
-    house = h.element_text(cells[4])
-    party = h.element_text(cells[6]) or None
-    gender = h.element_text(cells[7]) or None
+    house = meta["houseName"][0]
+    party = meta["party"][0] if meta.get("party") else None
+    gender = meta["gender"][0] if meta.get("gender") else None
 
     if house not in house_positions:
         context.log.warning("Unknown house code", house=house)
@@ -112,14 +127,10 @@ def crawl_member(
 
     position, categorisation, chamber = house_positions[house]
 
-    # Extract electorate from Position column (LA members only; LC members are
-    # elected statewide and have no single electorate).
-    constituency: str | None = None
-    for li in h.xpath_elements(cells[1], ".//li"):
-        li_text = h.element_text(li)
-        if li_text.startswith("Member for "):
-            constituency = li_text.removeprefix("Member for ").strip()
-            break
+    # Electorate is only listed for Legislative Assembly members; Legislative
+    # Council members are elected statewide and have no single electorate.
+    electorates = meta.get("electorate", [])
+    constituency = electorates[0] if electorates else None
 
     # The listing has no term dates or biography; both live on the profile page.
     detail = context.fetch_html(profile_url, cache_days=14)
@@ -154,20 +165,25 @@ def crawl_member(
 
 def crawl(context: Context) -> None:
     house_positions: dict[str, tuple[Entity, PositionCategorisation, str]] = {}
-    for house_code, config in POSITIONS.items():
+    for house_name, config in POSITIONS.items():
         position = h.make_position(
             context,
             name=config["name"],
             country="au",
             wikidata_id=config["wikidata_id"],
             topics=["gov.state", "gov.legislative"],
+            lang="eng",
         )
         categorisation = categorise(context, position)
         context.emit(position)
-        house_positions[house_code] = (position, categorisation, config["chamber"])
+        house_positions[house_name] = (position, categorisation, config["chamber"])
 
-    doc = context.fetch_html(context.data_url, absolute_links=True)
-    table = h.xpath_element(doc, "//table[@id='prlMembers']")
-    # Header is in <thead>; direct ./tr children are all data rows.
-    for row in h.xpath_elements(table, "./tr"):
-        crawl_member(context, house_positions, row)
+    data = context.fetch_json(context.data_url, params=SEARCH_PARAMS)
+    packet = data["response"]["resultPacket"]
+    results = packet["results"]
+    # Guard against the listing being silently truncated by the page size.
+    total = packet["resultsSummary"]["totalMatching"]
+    if total != len(results):
+        raise ValueError(f"Got {len(results)} of {total} members from the listing")
+    for result in results:
+        crawl_member(context, house_positions, result)

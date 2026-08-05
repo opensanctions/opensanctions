@@ -1,6 +1,5 @@
 from itertools import chain
 from lxml.etree import _Element
-from typing import Dict
 
 from nomenklatura.resolver import Linker
 
@@ -13,7 +12,7 @@ MAX_AGE_DAYS = 15
 
 
 def crawl_entity_notice(
-    context: Context, row: Dict[str, _Element], row_index: int
+    context: Context, row: dict[str, _Element], row_index: int
 ) -> None:
     str_row = h.cells_to_str(row)
     listing_date = str_row.pop("date")
@@ -97,7 +96,7 @@ def crawl_entity_notice(
 
 
 def crawl_vessel(
-    context: Context, row: Dict[str, _Element], linker: Linker[Entity]
+    context: Context, row: dict[str, _Element], linker: Linker[Entity]
 ) -> None:
     str_row = h.cells_to_str(row)
     imo_number = str_row.pop("ship_imo_number")

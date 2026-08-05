@@ -12,7 +12,7 @@ Your task is to fix as many of the reported issues as you confidently can and su
 ## Three kinds of fix
 
 1. **Lookups (preferred — always try this first).** Most value-level dirt (an unmapped country, an unparseable date, an unknown gender) is fixed by adding a lookup option to {{ yaml_path }}. Lookups are low-risk and reviewable, so reach for them whenever they can express the fix.
-2. **Crawler code changes.** When a warning cannot be expressed as a lookup — e.g. a parsing bug, a field read from the wrong column, a value that needs transforming before it is added — you may edit the crawler at {{ code_path }} instead. Keep the change as small and targeted as possible.
+2. **Crawler code changes.** When a warning cannot be expressed as a lookup — e.g. a parsing bug, a field read from the wrong column, a value that needs transforming before it is added — edit the crawler at {{ code_path }} instead. Keep the change as small and targeted as possible.
 3. **Static data fixes.** Some crawlers read a repository-owned data file, such as CSV or YAML, containing data extracted from sources that are difficult to automate. Update these files when a warning identifies new source data. Preserve the existing schema and follow any dataset-specific instructions in the metadata or crawler comments.
 {% else %}
 ## How to fix
@@ -40,7 +40,7 @@ Some issues are not dirty values but assertion failures (`min`-bound failures ar
 
     Assertion schema_entities failed for Security: 669973 is not <= threshold 418000
 
-These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The report's assertion table compares every declared threshold against the last successful run's statistics — use it to locate the entry to edit and to see which direction reality drifted. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
+These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The report's assertion table compares every declared threshold against the last successful run's statistics — use it to locate the entry to edit and to see which direction reality drifted. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. **Widen the envelope in the direction it drifted.** Never tighten a threshold toward the current value — that just re-breaks on the next run.
 
 Read the message as `<value> is not <op> threshold <threshold>` and edit the matching entry under `assertions.min.<metric>.<key>` or `assertions.max.<metric>.<key>` (the `<metric>`, e.g. `schema_entities`, and `<key>`, e.g. `Security`, come straight from the message):
 
@@ -59,12 +59,11 @@ Some issues are deliberate signals for a maintainer to investigate, not somethin
 - Transient infrastructure errors: database deadlocks, connection errors, timeouts. These are not fixable by editing the dataset.
 - Review-system backlog: `There are N unaccepted items for dataset ...`. These are cleared by a human in the review UI, not by editing the repository.
 
-HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among runtime failures: when the report shows the failure persisting across several runs, the source has likely moved the file or started blocking the crawler. If you can locate the new URL on the source's website, updating `data.url` in the metadata (or the fetch in the crawler) is a legitimate fix. If you cannot determine a fix, leave it for humans.
+HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among runtime failures: when the report shows the failure persisting across several runs, the source has likely moved the file or started blocking the crawler. Locate the new URL on the source's website and update `data.url` in the metadata (or the fetch in the crawler). If you cannot determine a fix, leave it for humans.
 
 ## Scope
 
 {% if code_path %}
-- Prefer lookups. Only change code when no lookup can express the fix.
 - Code changes must be minimal, targeted, and behavior-preserving: fix only the warning at hand, do not refactor, and do not change what the crawler emits beyond that fix.
 - Never change entity IDs — do not alter the values passed to `make_id` / `make_slug`, and never put PII into `make_slug`. Re-keying entities breaks downstream data.
 {% endif %}
@@ -74,7 +73,8 @@ HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among ru
 {% else %}
 - NEVER modify any file other than {{ yaml_path }}.
 {% endif %}
-- It is fine to open a PR that fixes only some of the issues. Skip issues that are unclear.
+- To inspect PDF source documents (many findings and Federal Register rules are PDFs), `pdftotext -layout <file> -` is available; `pdftoppm -png` renders pages as images when the text layout is ambiguous.
+- It is fine to open a PR that fixes only some of the issues.
 - If the correct fix for a value is genuinely uncertain — i.e. you cannot determine from context what it should be — skip that issue. Do not guess. A skipped issue gets human review later; a wrong fix ships incorrect data.
 - Do NOT open a PR if no fixes are needed.
 
@@ -84,9 +84,14 @@ HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among ru
 2. Work through the issue patterns in the report's Issues section. When the report shows only the grouped view, fetch the full issues.json it links to enumerate every occurrence of the patterns you are fixing.
 3. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}a crawler code change, or a static data update{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
 4. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, {{ code_path }}, and any directly referenced static data file required by the warning{% endif %}.
-{% if code_path %}
 5. Verify your changes:
-   - Any code change MUST pass the same checks CI runs, or the PR is dead on arrival: `mypy --strict {{ code_path }}` and `ruff check {{ code_path }}` (and `ruff format`). Note that raw lxml `.xpath()` returns `Any` and fails strict mode — use the typed `h.xpath_*` helpers. Do not open the PR if these fail.
+   - Your changes MUST pass the checks CI runs, or the PR is dead on arrival:
+
+         contrib/lint_dataset.sh {{ yaml_path }}
+
+     Fix what it reports and rerun until it prints `lint_dataset: OK`, then proceed. Note that it applies some formatting fixes in place.
+{% if code_path %}
+   - If mypy flags `Any` coming from a raw lxml `.xpath()` call, switch that call to the typed `h.xpath_*` helpers.
 {% if ci_test %}
    - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase. `jq` (for the JSON logs) and `qsv` (for spot-checking the emitted `data/datasets/{{ name }}/statements.pack`, e.g. `qsv frequency -s prop`) are available.
 {% else %}
@@ -97,5 +102,7 @@ HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among ru
 
 ## Submit
 
-- Commit to a branch. The branch name MUST be exactly `{{ branch }}` — do not invent your own name or add a slug.
-- Open a PR via `mcp__github__create_pull_request` from the `{{ branch }}` branch. The title MUST start with `[{{ name }}]` followed by a short headline, and the body must list the warning patterns being fixed{% if code_path %} and flag any crawler code changes separately from lookup changes{% endif %}.
+- Commit and push as soon as your fixes pass the verification above, before doing anything else. Do not keep investigating or looking for further issues while the work sits uncommitted.
+- The branch name MUST be exactly `{{ branch }}` — do not invent your own name or add a slug.
+- Then open a PR via `mcp__github__create_pull_request` from the `{{ branch }}` branch. The title MUST start with `[{{ name }}]` followed by a short headline, and the body must list the warning patterns being fixed{% if code_path %} and flag any crawler code changes separately from lookup changes{% endif %}.
+- If you find more fixable issues after pushing, add or amend commits on the same branch, push again, and update the PR body.

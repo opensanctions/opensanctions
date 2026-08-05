@@ -56,6 +56,7 @@ def crawl(context: Context) -> None:
         name="Member of the Jogorku Kenesh of the Kyrgyz Republic",
         country="kg",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q21091853",
         lang="eng",
     )
     categorisation = categorise(context, position)

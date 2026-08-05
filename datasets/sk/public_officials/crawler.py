@@ -1,7 +1,7 @@
 import re
 from lxml import etree
 from lxml.etree import _Element as Element
-from typing import Any, Dict, List
+from typing import Any
 
 from zavod.stateful.positions import OccupancyStatus, categorise
 
@@ -28,7 +28,7 @@ def parse_details(context: Context, link_el: Element) -> None:
         context.log.info(f"Table not found for {name_raw}")
         return
 
-    data: Dict[str, str | List[str]] = {}
+    data: dict[str, str | list[str]] = {}
 
     label: str | None = None
     for row in table.findall(".//tr"):
@@ -58,10 +58,10 @@ def parse_details(context: Context, link_el: Element) -> None:
 
 
 def crawl_person(
-    context: Context, data: Dict[str, Any], href: str, name_raw: str
+    context: Context, data: dict[str, Any], href: str, name_raw: str
 ) -> None:
     year = data.pop("oznámenie za rok")
-    position_slk: List[str] = data.pop(
+    position_slk: list[str] = data.pop(
         "vykonávaná verejná funkcia"
     )  # "Public office held"
     int_id = data.pop("Interné číslo")

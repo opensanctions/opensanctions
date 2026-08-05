@@ -1,4 +1,3 @@
-from typing import Optional
 from zavod import Context
 from zavod import helpers as h
 from lxml.html import HtmlElement
@@ -16,7 +15,7 @@ class MissingDataFile(Exception):
     pass
 
 
-def xlsx_url(doc: HtmlElement) -> Optional[str]:
+def xlsx_url(doc: HtmlElement) -> str | None:
     for link in doc.iterlinks():
         ext = link[2].split(".")[-1]
         if "xlsx" in ext:

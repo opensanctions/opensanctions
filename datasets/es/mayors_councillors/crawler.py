@@ -1,6 +1,5 @@
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from typing import Dict, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -25,9 +24,9 @@ COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 
 def crawl_item(
     context: Context,
-    row: Dict[str, str | None],
+    row: dict[str, str | None],
     period_start: str,
-    period_end: Optional[str],
+    period_end: str | None,
 ) -> None:
     start_date = row.pop("start_date")
     end_date = row.pop("end_date", None)
@@ -116,7 +115,7 @@ def process_excel(
     title: str,
     skiprows: int,
     period_start: str,
-    period_end: Optional[str],
+    period_end: str | None,
 ) -> None:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, XLSX, title=title)

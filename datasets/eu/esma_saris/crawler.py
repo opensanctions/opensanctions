@@ -36,7 +36,7 @@ def fetch_source(context: Context) -> Path:
         # Set the session cookie used by the export endpoint.
         context.http.post(SEARCH_URL, json=data)
         source_file = context.fetch_resource("source.csv", context.data_url)
-        with open(source_file, "r") as f:
+        with open(source_file) as f:
             header = f.readline()
         if "instrumentIdentifier" in header:
             return source_file
@@ -58,7 +58,7 @@ def fetch_source(context: Context) -> Path:
 
 def crawl(context: Context) -> None:
     source_file = fetch_source(context)
-    with open(source_file, "r") as f:
+    with open(source_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             isin = row.pop("instrumentIdentifier")

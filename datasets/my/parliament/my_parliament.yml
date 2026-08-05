@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: my-parl
 coverage:
   frequency: monthly
-  start: 2026-07-17
+  start: 2026-07-27
 load_statements: true
 ci_test: false
 summary: >-
@@ -107,11 +107,11 @@ lookups:
     lowercase: true
     options:
       - match: Yang di-Pertua Dewan Rakyat
-        name: Speaker of the Dewan Rakyat
+        name: Speaker of the Dewan Rakyat of Malaysia
         topics: [gov.legislative, gov.national]
         wikidata_id: Q7574262
       - match: Timbalan Yang di-Pertua Dewan Rakyat
-        name: Deputy Speaker of the Dewan Rakyat
+        name: Deputy Speaker of the Dewan Rakyat of Malaysia
         topics: [gov.legislative, gov.national]
         wikidata_id: Q126361900
       - match: Ketua Majlis
@@ -124,11 +124,11 @@ lookups:
         name: Secretary of the Dewan Rakyat
         topics: [gov.admin, gov.national]
       - match: Yang di-Pertua Dewan Negara
-        name: President of the Dewan Negara
+        name: President of the Dewan Negara of Malaysia
         topics: [gov.legislative, gov.national]
         wikidata_id: Q7241319
       - match: Timbalan Yang di-Pertua Dewan Negara
-        name: Deputy President of the Dewan Negara
+        name: Deputy President of the Dewan Negara of Malaysia
         topics: [gov.legislative, gov.national]
         wikidata_id: Q134572656
       # Ordinary members and blanks — not a presiding office.

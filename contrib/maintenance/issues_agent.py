@@ -39,8 +39,8 @@ from .issues import is_issue_ignored, issues_checksum
 # Match compute to task difficulty. Lookup/assertion edits on YAML are mechanical,
 # so a mid-tier model with few turns suffices. Datasets with a crawler may need an
 # actual code fix — stronger reasoning, plus turns to run mypy, crawl, and iterate.
-MODEL_LOOKUP = "claude-sonnet-4-6"
-MODEL_CODE = "claude-opus-4-8"
+MODEL_LOOKUP = "claude-sonnet-5"
+MODEL_CODE = "claude-opus-5"
 MAX_TURNS_LOOKUP = 30
 MAX_TURNS_CODE_VERIFIABLE = 100  # ci_test true: edit, then crawl-verify and iterate
 MAX_TURNS_CODE_BLIND = 60  # ci_test false: edit + mypy/ruff, no crawl loop

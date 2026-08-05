@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: bt-pa
 coverage:
   frequency: monthly
-  start: 2026-06-25
+  start: 2026-07-27
 load_statements: true
 summary: >-
   Current and former members of both chambers of Bhutan's Parliament.

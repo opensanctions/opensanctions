@@ -1,16 +1,33 @@
 id: 68
-title: EU Restrictive Measures In View Of The Situation In Haiti
+title: EU Restrictive measures in view of the situation in Haiti
 key: EU-HTI
 url: https://sanctionsmap.eu/#/main/details/54/
-summary: These sanctions target individuals and entities in Haiti involved in human
-  rights abuses, corruption, and actions undermining democracy. The measures include
-  asset freezes, travel bans, and restrictions on trade to promote democratic governance
-  and respect for human rights in Haiti.
+summary: Targets persons and entities engaging in or supporting criminal
+  activities and violence involving armed groups and criminal networks that
+  threaten the peace, security or stability of Haiti, including gang leaders
+  responsible for killings, kidnappings and sexual violence. Decision (CFSP)
+  2022/2319 and Regulation (EU) 2022/2309 implement the UN sanctions
+  established by Security Council Resolution 2653 (2022); since July 2023 a
+  complementary EU-autonomous strand also allows the EU to designate persons
+  undermining democracy or the rule of law in Haiti. Designated persons and
+  entities are subject to an asset freeze and a prohibition on making funds
+  or economic resources available to them, and designated natural persons
+  are barred from entering or transiting EU territory. These
+  designation-level measures combine with an embargo on small arms, light
+  weapons and ammunition applying to the whole territory of Haiti,
+  implementing UN Security Council Resolution 2700 (2023).
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2022/2309
+  - Decision (CFSP) 2022/2319
+  - UNSCR 2653
+  - UNSCR 2700
+  - Restrictive measures in view of the situation in Haiti
+  - HTI
 target_territories:
-- ht
+  - ht
 measures:
-- Arms restrictions
-- Asset freeze
-- Travel ban
+  - Arms embargo
+  - Asset freeze
+  - Travel ban

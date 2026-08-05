@@ -435,7 +435,10 @@ export async function getPositions(filters: IPositionFilters = {}): Promise<IPos
     query = query.where('dataset', '=', dataset);
   }
   if (q !== undefined) {
-    query = query.where('caption', 'ilike', `%${q}%`);
+    query = query.where((eb) => eb.or([
+      eb('caption', 'ilike', `%${q}%`),
+      eb('entity_id', '=', q),
+    ]));
   }
   if (is_pep !== undefined) {
     if (is_pep === null) {

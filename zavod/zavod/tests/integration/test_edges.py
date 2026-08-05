@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pytest
 from nomenklatura import Resolver, Store
 from nomenklatura.db import Session
@@ -26,9 +24,9 @@ def e(
     dataset: Dataset,
     schema: str,
     id: str,
-    start: Optional[str] = None,
-    end: Optional[str] = None,
-    properties: Optional[dict[str, str | list[str] | None]] = None,
+    start: str | None = None,
+    end: str | None = None,
+    properties: dict[str, str | list[str] | None] | None = None,
 ) -> Entity:
     assert type(start) is str or start is None
     assert type(end) is str or end is None

@@ -1,5 +1,4 @@
 from csv import DictReader
-from typing import Dict, List
 from rigour.mime.types import CSV
 
 from zavod import Context
@@ -34,7 +33,7 @@ IGNORE_COLUMNS = [
 ]
 
 
-def crawl_row(context: Context, row: Dict[str, List[str]]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     name = h.multi_split(row.pop("LEGAL NAME"), NAME_SPLITS)
     street = row.pop("STREET ADDRESS")
     city = row.pop("CITY")
@@ -48,7 +47,8 @@ def crawl_row(context: Context, row: Dict[str, List[str]]) -> None:
     country = country or "USA"
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name, street, listing_date, city, state)
+    # `name` is a list[str] here; keep it as-is to preserve existing entity IDs.
+    entity.id = context.make_id(name, street, listing_date, city, state)  # type: ignore[arg-type]
     entity.add("name", name)
     entity.add(
         "alias",

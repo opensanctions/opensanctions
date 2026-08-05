@@ -19,6 +19,8 @@ description: |
   their name, year of birth and death, gender, the electorate they represented, and
   their party affiliation across each parliamentary term.
 url: https://catalogue.data.govt.nz/dataset/members-of-parliament
+tags:
+  - list.pep
 publisher:
   name: New Zealand Parliament
   description: |

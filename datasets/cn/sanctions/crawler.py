@@ -4,7 +4,8 @@ import shutil
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Any, Mapping, cast
+from typing import Any, cast
+from collections.abc import Mapping
 from urllib.parse import urljoin, urlparse
 
 import requests

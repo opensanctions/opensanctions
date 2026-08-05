@@ -1,7 +1,7 @@
 import xlrd
 import re
 
-from typing import List, Optional, NamedTuple
+from typing import NamedTuple
 from pathlib import Path
 from normality import collapse_spaces, squash_spaces
 from rigour.mime.types import XLS
@@ -25,8 +25,8 @@ DATES = [
 
 def parse_row(
     context: Context,
-    headers: List[HeaderSpec],
-    row: List[Optional[str]],
+    headers: list[HeaderSpec],
+    row: list[str | None],
     sanctioned: bool,
 ) -> None:
     entity_id = context.make_id(*row)
@@ -141,7 +141,7 @@ def parse_excel(context: Context, path: Path) -> None:
             for r in range(rlo, rhi)
             for c in range(clo, chi)
         }
-        headers: Optional[List[HeaderSpec]] = None
+        headers: list[HeaderSpec] | None = None
         for r in range(1, sheet.nrows):
             row = []
             for c in range(sheet.ncols):

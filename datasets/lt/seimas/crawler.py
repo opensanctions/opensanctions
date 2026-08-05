@@ -19,7 +19,7 @@ def make_seimas_position(context: Context) -> Entity:
     # split into two entities for the same role.
     return h.make_position(
         context,
-        name="Member of the Seimas",
+        name="Member of the Seimas of Lithuania",
         wikidata_id="Q18507240",
         country="lt",
         topics=POSITION_TOPICS,
