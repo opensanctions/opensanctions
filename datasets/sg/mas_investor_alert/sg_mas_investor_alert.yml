@@ -54,10 +54,8 @@ names:
       # name, "@" before a handle, "." inside a domain. The dot also catches ordinary
       # "Pte. Ltd." names, which a reviewer accepts unchanged.
       reject_chars: "()[]{}<>:\"“”@."
-      # Redundant against that punctuation today, but these catch the same annotations
-      # written without it, and flag no legitimate name in this source.
       reject_strings:
-        - and
+        - " and "
         - impersonated
         - not affiliated
         - known as
