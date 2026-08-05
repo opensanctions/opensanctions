@@ -47,14 +47,14 @@ assertions:
 names:
   schema_rules:
     LegalEntity:
-      # MAS annotates the names it lists rather than publishing them plain: an
-      # impersonation marker or a disclaimer in brackets, a short form in quotes,
-      # a former or parallel name after "known as", or a social media platform and
-      # handle in place of a name. All of it needs cleaning, so the punctuation and
-      # phrases that mark it flag the name string for review. Parentheses that are
-      # genuinely part of a legal name ("Quantum Securities (Singapore) Pte. Ltd")
-      # get caught too, and are kept as-is on review.
-      reject_chars: "()[]{}<>:\"“”@"
+      # MAS annotates its names rather than publishing them plain, and uses the name
+      # field for websites too. Punctuation is what marks a value as needing review:
+      # brackets and quotes around annotations and short forms, ":" after a platform
+      # name, "@" before a handle, "." inside a domain. The dot also catches ordinary
+      # "Pte. Ltd." names, which a reviewer accepts unchanged.
+      reject_chars: "()[]{}<>:\"“”@."
+      # Redundant against that punctuation today, but these catch the same annotations
+      # written without it, and flag no legitimate name in this source.
       reject_strings:
         - impersonated
         - not affiliated
@@ -116,12 +116,15 @@ lookups:
       - match: Ainvestments (Operated by ESOS International Ltd. and Kadeky International S.R.O.)
         owner_name: ["ESOS International Ltd.", "Kadeky International S.R.O."]
         entity_name: Ainvestments
+      # Dropping the parent's abbreviation ("IIFSP").
+      - match: VNSMART (subsidiary of Intelligence Investment Financial Services PLC or “IIFSP”)
+        owner_name: [Intelligence Investment Financial Services PLC]
+        entity_name: VNSMART
   type.url:
     normalize: true
     options:
-      # The website field is free text: the source packs captions, annotations and
-      # space-separated lists of sites into a single line. Splitting on the newline
-      # and semicolon separators it uses leaves these to be resolved by hand.
+      # The website field is free text: captions, annotations and space-separated lists
+      # of sites share a line, and the newline and semicolon splits leave these behind.
       # Captions for the URL on the following line, carrying no address of their own.
       - match:
           - 'Pro Markets:'

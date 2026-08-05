@@ -4,19 +4,24 @@ import re
 from typing import Any, NamedTuple
 
 from followthemoney.types import registry
+from pydantic import BaseModel
 from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.review import assert_all_accepted
+from zavod.extract.llm import run_typed_text_prompt
+from zavod.stateful.review import (
+    JSONSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
 
 IGNORE = [
     "score",
     "approveddate_dt",
     "approveddate_s",
-    # The API renders every date and multi-valued field a second time as a display
-    # string. We read the `_dt`/`_t` originals, which agree with these throughout.
+    # Display copies of the `_dt`/`_t` fields we read, which they agree with throughout.
     "date_s",
     "modifieddate_s",
     "last_updated_at",
@@ -24,37 +29,78 @@ IGNORE = [
     "alternativename_s",
     "formername_s",
     "relatedunregulatedpersons_s",
-    # Constant "Investor Alert List" - this API only serves that list.
+    # Always "Investor Alert List" - this API serves no other.
     "agency_custom_categories",
-    # A link to a MAS site search for the entity name, not a per-record page.
+    # A MAS site search link, not a per-record page.
     "url",
 ]
 NAME_SPLITTERS = [";", " / "]
-# A handful of records describe who runs the listed operation instead of just naming
-# it. A lookup maps each of those to the entity's own name and its owner(s).
-OWNERSHIP_PATTERN = re.compile(r"\b(owned|managed|operates|operated)\b", re.IGNORECASE)
-# Legal-entity suffixes that would otherwise read as a domain where the source omits
-# the space after the abbreviating dot, as in "Endowus Singapore Pte.Ltd". None of
-# these are in use as a top-level domain in this source.
-NOT_TLD = "ltd|limited|inc|llc|llp|plc|pte|corp|co"
-# Bare domains are as common as full URLs in the name field, so the scheme can't be
-# required. Trailing punctuation is excluded because the name field wraps URLs in
-# brackets and separates them with commas.
-URL_PATTERN = re.compile(
-    r"(?:https?://|www\.)[^\s,;)\]]+"
-    rf"|(?:[\w-]+\.)+(?!(?:{NOT_TLD})\b)[a-z]{{2,}}(?:/[^\s,;)\]]*)?",
-    re.IGNORECASE,
-)
-# Distinct addresses are separated by a blank line. Single newlines are line breaks
-# inside one address, which the address type cleaner joins up with commas.
+# Prose naming whoever is behind the operation, resolved through a lookup. Keywords keep
+# their preposition: bare "managed" also matches the 74 "Asset Management" names here.
+# "affiliated with" is excluded - the source only uses it to disclaim a resemblance.
+RELATIONSHIP_KEYWORDS = [
+    "owned by",
+    "operated by",
+    "managed by",
+    "controlled by",
+    "run by",
+    "subsidiary of",
+    "division of",
+    "branch of",
+]
+# Distinct addresses are separated by a blank line; single newlines break lines within one.
 ADDRESS_SPLITTER = re.compile(r"\n\s*\n")
+LLM_MODEL_VERSION = "gpt-5.4"
+EXTRACT_PROMPT = """Extract structured entity data from an entry on the Monetary
+Authority of Singapore's Investor Alert List.
+
+Input: JSON with "name", "alias" and "previousName" as the source categorised them. Any
+of them may hold several distinct names, a website or social media account in place of a
+name, or an annotation MAS added to describe the listing.
+
+Extract:
+  name         - primary legal name(s)
+  alias        - alternative or also-known-as names
+  weakAlias    - short or partial names too generic to identify the entity alone
+  previousName - former legal names, introduced by "formerly known as"
+  abbreviation - acronyms and initialisms, usually in quotes or brackets: ("AFSCD"), ["B&A"]
+  website      - URLs, bare domains and handles, even where listed as a name
+
+Rules:
+- Preserve original text exactly (no spelling corrections, no title-casing).
+- Do not invent or expand names not present in the input.
+- Split a value holding several names, separated by a slash, a comma or "and".
+- Keep parentheses belonging to the legal name: "Quantum Securities (Singapore) Pte. Ltd"
+  is one name.
+- Discard an "(Impersonated)" marker, and a disclaimer such as "(not affiliated with
+  "MariBank Singapore Private Limited")" together with the institution it names.
+- Strip a platform prefix, keeping what identifies the account: 'Telegram Group: "Pictet
+  Official Channel"' names the channel.
+"""
+
+
+class EntityData(BaseModel):
+    """Websites are packed in with the names, so a reviewer needs to move values between
+    them in one pass."""
+
+    name: list[str] = []
+    alias: list[str] = []
+    weakAlias: list[str] = []
+    previousName: list[str] = []
+    abbreviation: list[str] = []
+    website: list[str] = []
+
+
+def apply_entity_data(entity: Entity, data: EntityData) -> None:
+    for prop in EntityData.model_fields:
+        for val in getattr(data, prop):
+            entity.add(prop, val)
 
 
 def emit_ownership(context: Context, entity: Entity, name: str) -> None:
     result = context.lookup("ownership", name)
     if result is not None:
         entity.add("name", result.entity_name)
-        # Mostly we have only one owner, but sometimes we have multiple
         for owner_name in result.owner_name:
             owner = context.make("LegalEntity")
             owner.id = context.make_id("named", owner_name)
@@ -76,13 +122,11 @@ def emit_relationship(
     context: Context, entity: Entity, related_ids: list[str], root_seen_ids: set[str]
 ) -> None:
     for rel_id in related_ids:
+        # Dangling: the relation has no record of its own at the root level.
         if rel_id not in root_seen_ids:
-            # The relations described here should have a peer at the root level, otherwise they are dangling.
-            # Skip those dangling ones here.
             continue
 
-        # No need to emit related entities since they're already included
-        # at the root level of the response
+        # The related entity is emitted from its own record.
         related_entity_id = context.make_id(rel_id)
 
         rel = context.make("UnknownLink")
@@ -99,38 +143,53 @@ def apply_source_names(
     alternative_names: list[str],
     former_names: list[str],
 ) -> None:
-    """Map the three name fields, peeling off the values that aren't names.
-
-    The name field doubles as a website field and occasionally describes ownership in
-    prose. Websites are extracted here rather than left to the name review framework,
-    which has no website property to move them to, and ownership prose is resolved
-    through a lookup into an Ownership entity. Everything else is handed to the review
-    framework, which decides how to split and categorise it.
-    """
+    """Map the three name fields: relationship prose through a lookup, anything else
+    needing cleaning through review."""
     names: list[str] = []
-    # Names that are, or contain, a website read as regular to the review framework's
-    # punctuation-based checks, so they have to be flagged as needing cleaning here.
-    has_url = False
     for name in h.multi_split(unregulated_persons, NAME_SPLITTERS):
-        entity.add("website", [m.group(0) for m in URL_PATTERN.finditer(name)])
-        if OWNERSHIP_PATTERN.search(name):
+        if any(keyword in name.lower() for keyword in RELATIONSHIP_KEYWORDS):
             emit_ownership(context, entity, name)
-            continue
-        has_url = has_url or URL_PATTERN.search(name) is not None
-        names.append(name)
+        else:
+            names.append(name)
+    aliases = h.multi_split(alternative_names, NAME_SPLITTERS)
+    previous_names = h.multi_split(former_names, NAME_SPLITTERS)
 
-    original = h.Names(
-        name=names,
-        alias=h.multi_split(alternative_names, NAME_SPLITTERS),
-        previousName=former_names,
-    )
-    h.apply_reviewed_names(
-        context,
-        entity,
-        original=original,
-        is_irregular=has_url,
-        llm_cleaning=True,
-    )
+    source = EntityData(name=names, alias=aliases, previousName=previous_names)
+    if any(
+        h.is_name_irregular(entity, name) for name in names + aliases + previous_names
+    ):
+        source_data = source.model_dump()
+        source_value = JSONSourceValue(
+            key_parts=[
+                *names,
+                "alias",
+                *aliases,
+                "previousName",
+                *previous_names,
+            ],
+            label="names extraction",
+            data=source_data,
+        )
+        result = run_typed_text_prompt(
+            context=context,
+            prompt=EXTRACT_PROMPT,
+            string=json.dumps(source_data, ensure_ascii=False),
+            response_type=EntityData,
+            model=LLM_MODEL_VERSION,
+        )
+        review = review_extraction(
+            context=context,
+            source_value=source_value,
+            original_extraction=result,
+            origin=LLM_MODEL_VERSION,
+        )
+        review.link_entity(context, entity)
+        # Nothing is applied until an analyst accepts; the crawl warns about the rest.
+        entity_data = review.extracted_data if review.accepted else EntityData()
+    else:
+        entity_data = source
+
+    apply_entity_data(entity, entity_data)
 
 
 class CrawlItemResult(NamedTuple):
@@ -158,19 +217,16 @@ def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
         item.pop("alternativename_t"),
         item.pop("formername_t"),
     )
-    # Each of these fields lists several values to a line, separated by newlines on
-    # top of punctuation. Without splitting on the newline, distinct values get
-    # concatenated into one nonsense value.
+    # These fields put several values on a line, separated by newlines as well as
+    # punctuation. Without the newline they concatenate into one nonsense value.
     entity.add("website", h.multi_split(item.pop("website_s"), [";", ",", "\n"]))
     for phone in h.multi_split(item.pop("phonenumber_s"), ["/ ", "; ", ",", ":", "\n"]):
-        # Numbers are labelled with a country or with Tel/Fax on their own line.
-        # Unlike a phone number, a label carries no digits. Phone values are never
-        # rejected by the cleaner, so these have to be dropped here.
+        # Country and Tel/Fax labels sit on their own line and carry no digits. The
+        # phone cleaner rejects nothing, so they have to be dropped here.
         if any(char.isdigit() for char in phone):
             entity.add("phone", phone)
-    # Several addresses for one entity are separated by a blank line. Older records
-    # aren't consistent about that, so where a type.address lookup splits the whole
-    # value by hand, leave it to do the job.
+    # Older records don't use the blank-line separator consistently, so where a
+    # type.address lookup splits a value by hand, leave it to.
     address_s = item.pop("address_s")
     if context.lookup("type.address", address_s) is not None:
         entity.add("address", address_s)
@@ -180,11 +236,10 @@ def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
     entity.add("notes", item.pop("notes_s"))
     entity.add("topics", ["fin", "reg.warn"])
     h.apply_date(entity, "modifiedAt", item.pop("modifieddate_dt"))
-    # None of these separators can occur inside an email address, and the field also
-    # carries country labels ("Singapore: a@b.com") and space-separated lists.
+    # None of these can occur inside an address, and the field also carries country
+    # labels ("Singapore: a@b.com") and space-separated lists.
     for email in h.multi_split(item.pop("email_s"), [";", ",", ":", "/", " ", "\n"]):
-        # Splitting that aggressively leaves fragments of the surrounding free text,
-        # so only keep the ones that are actually email addresses.
+        # Splitting that aggressively leaves fragments of the surrounding free text.
         email_clean = registry.email.clean(email)
         if email_clean is not None:
             entity.add("email", email_clean)
@@ -209,8 +264,8 @@ def crawl(context: Context) -> None:
 
     response = data["response"]
     docs = response["docs"]
-    # The data URL asks for a fixed number of rows and the crawler doesn't paginate,
-    # so a total larger than what came back means the tail of the list is missing.
+    # The URL asks for a fixed row count and doesn't paginate, so a larger total means
+    # the tail of the list is missing.
     num_found = response["numFound"]
     assert num_found == len(docs), (num_found, len(docs))
 
