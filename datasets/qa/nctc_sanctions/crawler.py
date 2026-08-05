@@ -17,7 +17,7 @@ def crawl(context: Context) -> None:
         context, "source.json", context.data_url, expected_media_type=HTML
     )
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         response = fh.read()
         try:
             data = json.loads(response)

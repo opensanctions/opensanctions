@@ -40,6 +40,21 @@ lookups:
     options:
       - match: betwinner3com
         value: betwinner3.com
+      - match: www.betspin.com, www.guts.com, rizk.com, www.metalcasino.com
+        values:
+          - www.betspin.com
+          - www.guts.com
+          - rizk.com
+          - www.metalcasino.com
+      - match: 1xbet.com 1-x-bet.com 1x-bet.com
+        values:
+          - 1xbet.com
+          - 1-x-bet.com
+          - 1x-bet.com
+      - match: lt.playmillion.com; playmillion.com
+        values:
+          - lt.playmillion.com
+          - playmillion.com
 
 assertions:
   min:

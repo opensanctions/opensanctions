@@ -1,8 +1,7 @@
 import re
 from time import sleep
-from typing import List, Literal, Optional
+from typing import Literal
 
-from lxml.html import HtmlElement
 from pydantic import BaseModel, Field
 from zavod.context import Context
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
@@ -11,6 +10,7 @@ from zavod.stateful.review import (
     assert_all_accepted,
     review_extraction,
 )
+from zavod.util import Element
 
 from zavod import helpers as h
 
@@ -54,51 +54,47 @@ Status = Literal[
     "Other",
 ]
 
-schema_field = Field(
-    description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
-)
-address_field = Field(
-    default=[],
-    description=(
-        "The addresses or even just the districts/states of the defendant, only if "
-        "an address or location is specifically about the defendant. This is not "
-        "for the district of the court."
-    ),
-)
-status_field = Field(
-    description=(
-        "The status of the enforcement action notice."
-        " If `Other`, add the text used as the status in the source to `notes`. "
-        "Never use gendered pronouns when the source text used they/them. Use the "
-        "source text verbatim rather than rewriting it to fit the association with "
-        "a single entity."
-    )
-)
-notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
-aliases_field = Field(
-    default=[],
-    description=(
-        "ONLY extract aliases that follow an explicit indication of an "
-        '_alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". '
-        "Otherwise the aliases field should just be an empty array. Acronyms or otherwise "
-        "shortened forms of their name in parentheses used to refer to the entity in the "
-        "rest of the article are NOT aliases and should be left out."
-    ),
-)
-
 
 class Defendant(BaseModel):
-    entity_schema: Schema = schema_field
+    entity_schema: Schema = Field(
+        description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
+    )
     name: str
-    aliases: List[str] = aliases_field
-    address: List[str] = address_field
-    country: List[str] = []
-    status: Status = status_field
-    notes: Optional[str] = notes_field
+    aliases: list[str] = Field(
+        default=[],
+        description=(
+            "ONLY extract aliases that follow an explicit indication of an "
+            '_alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". '
+            "Otherwise the aliases field should just be an empty array. Acronyms or otherwise "
+            "shortened forms of their name in parentheses used to refer to the entity in the "
+            "rest of the article are NOT aliases and should be left out."
+        ),
+    )
+    address: list[str] = Field(
+        default=[],
+        description=(
+            "The addresses or even just the districts/states of the defendant, only if "
+            "an address or location is specifically about the defendant. This is not "
+            "for the district of the court."
+        ),
+    )
+    country: list[str] = []
+    status: Status = Field(
+        description=(
+            "The status of the enforcement action notice."
+            " If `Other`, add the text used as the status in the source to `notes`. "
+            "Never use gendered pronouns when the source text used they/them. Use the "
+            "source text verbatim rather than rewriting it to fit the association with "
+            "a single entity."
+        )
+    )
+    notes: str | None = Field(
+        default=None, description="Only used if `status` is `Other`."
+    )
 
 
 class Defendants(BaseModel):
-    defendants: List[Defendant]
+    defendants: list[Defendant]
 
 
 PROMPT = f"""
@@ -108,32 +104,35 @@ NEVER infer, assume, or generate values that are not directly stated in the sour
 
 Instructions for specific fields:
 
-- entity_schema: {schema_field.description}
-- address: {address_field.description}
+- entity_schema: {Defendant.model_fields["entity_schema"].description}
+- address: {Defendant.model_fields["address"].description}
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in.
-- status: {status_field.description}
-- notes: {notes_field.description}
-- aliases: {aliases_field.description}
+- status: {Defendant.model_fields["status"].description}
+- notes: {Defendant.model_fields["notes"].description}
+- aliases: {Defendant.model_fields["aliases"].description}
 """
 
 
-def strip_non_body_content(article_element: HtmlElement) -> None:
-    for el in article_element.xpath(
-        ".//*[text()='U.S. SECURITIES AND EXCHANGE COMMISSION']"
+def strip_non_body_content(article_element: Element) -> None:
+    for el in h.xpath_elements(
+        article_element, ".//*[text()='U.S. SECURITIES AND EXCHANGE COMMISSION']"
     ):
-        el.getparent().remove(el)
+        parent = el.getparent()
+        assert parent is not None
+        parent.remove(el)
 
 
-def get_title(url: str, article_element: HtmlElement) -> str:
-    titles = article_element.xpath(".//h1[contains(@class, 'page-title__heading')]")
-    assert len(titles) == 1, (len(titles), url)
-    return titles[0].text_content()
+def get_title(url: str, article_element: Element) -> str:
+    title = h.xpath_element(
+        article_element, ".//h1[contains(@class, 'page-title__heading')]"
+    )
+    return h.element_text(title, squash=False)
 
 
-def get_case_numbers(article_element: HtmlElement) -> List[str]:
+def get_case_numbers(article_element: Element) -> list[str]:
     case_numbers = []
-    for h3 in article_element.xpath(".//h3"):
-        h3_text = h3.text_content().strip()
+    for h3 in h.xpath_elements(article_element, ".//h3"):
+        h3_text = h.element_text(h3, squash=False).strip()
         if "No." in h3_text and "v." in h3_text:
             case_numbers.append(h3_text)
     return case_numbers
@@ -147,14 +146,14 @@ def get_release_id(url: str) -> str:
 
 
 def crawl_release(
-    context: Context, date: str, url: str, see_also_urls: List[str]
+    context: Context, date: str, url: str, see_also_urls: list[str]
 ) -> None:
     sleep(SLEEP)
     doc = context.fetch_html(url, headers=HEADERS, cache_days=15, absolute_links=True)
     article_xpath = (
         ".//div[contains(@class, 'node-details-layout__main-region__content')]"
     )
-    article_element = doc.xpath(article_xpath)[0]
+    article_element = h.xpath_elements(doc, article_xpath)[0]
     case_numbers = get_case_numbers(article_element)
     strip_non_body_content(article_element)
     release_id = get_release_id(url)
@@ -179,7 +178,10 @@ def crawl_release(
 
     for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
-        entity.id = context.make_id(item.name, item.address, item.country)
+        # address and country are lists; make_id stringifies each part into the hash.
+        # Keep the arguments as-is rather than reshaping them to fit the str | None
+        # signature, which would change the hash and re-key existing entities.
+        entity.id = context.make_id(item.name, item.address, item.country)  # type: ignore[arg-type]
         entity.add("name", item.name, origin=review.origin)
         if item.address != item.country:
             entity.add("address", item.address, origin=review.origin)
@@ -193,7 +195,7 @@ def crawl_release(
         # but sometimes more, in which case sanction id might not be consistent between releases.
         # The id might also differ if the entity id differs based on differing address details
         # between releases.
-        sanction = h.make_sanction(context, entity, key=case_numbers)
+        sanction = h.make_sanction(context, entity, key=str(case_numbers))
         h.apply_date(sanction, "date", date)
         sanction.add("sourceUrl", url)
         sanction.add("sourceUrl", see_also_urls)
@@ -212,25 +214,24 @@ def crawl_release(
         context.emit(documentation)
 
 
-def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
+def crawl_index_page(context: Context, doc: Element) -> bool:
     """Returns false if we should stop crawling."""
     table_xpath = ".//table[contains(@class, 'views-view-table')]"
-    tables = doc.xpath(table_xpath)
-    assert len(tables) == 1
-    for row in h.parse_html_table(tables[0]):
-        enforcement_date = row["date_sort_descending"].text_content().strip()
+    table = h.xpath_element(doc, table_xpath)
+    for row in h.parse_html_table(table):
+        enforcement_date = h.element_text(
+            row["date_sort_descending"], squash=False
+        ).strip()
         if not h.within_max_age(context, enforcement_date):
             return False
         action_cell = row["respondents"]
         action_link_xpath = (
             ".//div[contains(@class, 'release-view__respondents')]//a/@href"
         )
-        urls = action_cell.xpath(action_link_xpath)
-        assert len(urls) == 1
-        url = urls[0]
-        if "see also" in action_cell.text_content().lower():
+        url = h.xpath_strings(action_cell, action_link_xpath, expect_exactly=1)[0]
+        if "see also" in h.element_text(action_cell, squash=False).lower():
             see_also_xpath = ".//span[contains(@class, 'media--view-mode-release-see-also-files')]//a/@href"
-            see_also_urls = action_cell.xpath(see_also_xpath)
+            see_also_urls = h.xpath_strings(action_cell, see_also_xpath)
             assert len(see_also_urls) > 0
         else:
             see_also_urls = []
@@ -239,13 +240,13 @@ def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
 
 
 def crawl(context: Context) -> None:
-    next_url: Optional[str] = context.data_url
+    next_url: str | None = context.data_url
     while next_url:
         context.log.info("Crawling index page", url=next_url)
         sleep(SLEEP)
         doc = context.fetch_html(next_url, headers=HEADERS, absolute_links=True)
-        next_urls = doc.xpath(
-            ".//a[contains(@class, 'usa-pagination__next-page')]/@href"
+        next_urls = h.xpath_strings(
+            doc, ".//a[contains(@class, 'usa-pagination__next-page')]/@href"
         )
         assert len(next_urls) <= 1
         if next_urls:

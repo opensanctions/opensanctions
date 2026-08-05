@@ -1,5 +1,5 @@
 import re
-from typing import Iterator
+from collections.abc import Iterator
 from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h

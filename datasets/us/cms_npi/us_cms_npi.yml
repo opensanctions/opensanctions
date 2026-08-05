@@ -53,20 +53,26 @@ assertions:
   min:
     schema_entities:
       LegalEntity: 100000
+    property_fill_rate:
+      # Providers materialise as Person or Organization (from the primary
+      # npidata file). Bare LegalEntity entities only exist as a side effect:
+      # the othername file contributes secondary/DBA names keyed by NPI, which
+      # we attach as `alias` (not `name`) so they merge into the primary entity
+      # by shared id.
+      LegalEntity:
+        name: 0
 
 lookups:
   type.name:
     options:
-      # Drop values that are not real names: nullwords, plus anything made up
-      # entirely of digits, whitespace and punctuation (bare dashes, phone
-      # numbers, dates, tax numbers, ...). A real name in any script contains
-      # at least one letter, so `^[\d\s\W]+$` never matches a genuine name.
+      # Drop anything made up entirely of digits, whitespace and punctuation
+      # (bare dashes, phone numbers, dates, tax numbers, ...). A real name in
+      # any script contains at least one letter, so `^[\d\s\W]+$` never matches
+      # a genuine name. Placeholder words (N/A, NONE, UNKNOWN, ...) are dropped
+      # upstream by clean_name via rigour's is_nullword.
       - match:
           - null
           - ""
-          - N/A
-          - NONE
-          - UNKNOWN
         regex: '^[\d\s\W]+$'
         value: null
   # Some source rows carry a whole military/PO-box address in the postal code

@@ -39,14 +39,14 @@ The contents of the new metadata file should look something like this. This is a
 
 ```yaml
 name: eu_fsf_demo
-title: "Financial Sanctions Files (FSF)"
+title: "EU Financial Sanctions Files (FSF)"
 url: https://eeas.europa.eu/
 load_statements: true
 coverage:
     frequency: daily
     start: 2024-03-19
 
-# The description should be extensive, and can use markdown for formatting:
+# See the Description guidance in metadata.md:
 description: >
     As part of the Common Foreign Security Policy thr European Union publishes
     a sanctions list that is implemented by all member states.

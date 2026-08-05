@@ -135,3 +135,7 @@ lookups:
         names:
           - name_clean: Antifa Ost
             alias: ["Hammerbande"]
+      - match: "Juarez Cartel, aka La Linea"
+        names:
+          - name_clean: Juarez Cartel
+            alias: ["La Linea"]

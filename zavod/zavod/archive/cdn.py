@@ -36,6 +36,6 @@ def invalidate_archive_cache(path: str) -> None:
     try:
         response = _session.post(purge_url, headers=headers, params=params)
         response.raise_for_status()
-        log.info("Invalidated archive CDN cache: %s" % path)
+        log.info(f"Invalidated archive CDN cache: {path}")
     except requests.RequestException as e:
         log.error("Failed to invalidate archive CDN cache", path=path, error=str(e))

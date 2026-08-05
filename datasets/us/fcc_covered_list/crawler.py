@@ -1,6 +1,5 @@
 import csv
 from rigour.mime.types import CSV
-from typing import Dict
 from pathlib import Path
 
 from zavod import Context, helpers as h
@@ -9,7 +8,7 @@ from zavod.extract import zyte_api
 PROGRAM_KEY = "US-FCC"
 
 
-def crawl_item(context: Context, input_dict: Dict[str, str]) -> None:
+def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
     name = input_dict.pop("Entity Name")
     description = input_dict.pop("Covered Equipment or Services")
 
@@ -69,8 +68,14 @@ def crawl(context: Context) -> None:
         writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
         writer.writeheader()
         writer.writerows(rows)
-    # Run locally and check the diff on table.csv to see what changed.
-    h.assert_dom_hash(table, "db093d17d2bd763ed527363ed4351b5e617d1383", text_only=True)
+    # The FCC only publishes the Covered List as an HTML table, so the actual data is a
+    # hand-curated Google Sheet (the dataset's data_url) mirroring it. To update it when the
+    # FCC list changes:
+    #   1. Run the crawler locally. It rewrites table.csv from the FCC page and logs a
+    #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
+    #   2. Edit the Google Sheet to match (that edit lives in Google Drive, not the PR).
+    #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
+    h.assert_dom_hash(table, "7cd3d182782e7720ae6a9c0de2214eb9d2f2bc84", text_only=True)
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)

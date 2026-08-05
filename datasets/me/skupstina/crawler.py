@@ -53,6 +53,7 @@ def make_member_position(context: Context) -> Entity:
         country="me",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21328576",
+        lang="eng",
     )
 
 

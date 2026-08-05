@@ -2,12 +2,25 @@ id: 24
 title: Libya Sanctions
 key: US-LIBYA
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/libya-sanctions
-summary: These sanctions target individuals and entities involved in the ongoing conflict
-  and human rights abuses in Libya. The measures include asset freezes and prohibitions
-  on transactions to promote peace, security, and democratic governance in Libya.
+summary: Targets persons who threaten the peace, security, or stability of
+  Libya, including through the illicit exploitation of Libyan petroleum,
+  attacks on Libyan state facilities, obstruction of the UN-facilitated
+  political transition, or the misappropriation of Libyan state assets, as well
+  as senior members of the former Qadhafi regime and their supporters.
+  Designated persons are subject to a US asset freeze and are barred from entry
+  into the United States. The program operates alongside the related UN Security
+  Council sanctions on Libya.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13726, EO 13566
+  - EO 13566
+  - EO 13726
+  - LIBYA2
+  - LIBYA3
+  - Libyan Sanctions Regulations
+  - 31 CFR Part 570
 target_territories:
-- ly
+  - ly
+measures:
+  - Asset freeze
+  - Travel ban

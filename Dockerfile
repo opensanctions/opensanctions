@@ -34,8 +34,8 @@ RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
     locales apt-transport-https ca-certificates gnupg \
-    tzdata curl python3-pip python3-venv poppler-utils poppler-data \
-    libicu78 libleveldb1d \
+    tzdata curl git python3-pip python3-venv poppler-utils poppler-data \
+    libicu78 libleveldb1d postgresql-client \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

@@ -64,9 +64,7 @@ inputs:
 config:
   topic_gated: true
   index_options:
-    match_batch: 300
     memory: 3000
-  max_bin: 14
   threshold: 0.6
   algorithm: logic-v1
   topics:
@@ -92,6 +90,12 @@ assertions:
     schema_entities:
       Security: 10
       Organization: 220
+    property_fill_rate:
+      # FIRDS provides issuers only as LEI reference stubs (leiCode, no name);
+      # names are resolved downstream via GLEIF. Disable the default 0.95
+      # Organization.name fill-rate assertion, which does not apply here.
+      Organization:
+        name: 0
   max:
     schema_entities:
       Security: 500

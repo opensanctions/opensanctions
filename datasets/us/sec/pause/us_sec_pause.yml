@@ -130,7 +130,83 @@ lookups:
           - None
           - None provided
           - No website found
+          - None found.
         value: null
+      # Several URLs listed in one field
+      - match: https://apexglobalf.com / https://apexglobalx.com
+        values:
+          - https://apexglobalf.com
+          - https://apexglobalx.com
+      - match: www.athenscapitalmanagement.com / www.athenscapitalinvestments.com
+        values:
+          - www.athenscapitalmanagement.com
+          - www.athenscapitalinvestments.com
+      - match: http://www.blackswanmorgan.net, http://www.blackswanmorgan.com
+        values:
+          - http://www.blackswanmorgan.net
+          - http://www.blackswanmorgan.com
+      - match: www.bintst.org and www.gov.bintst.org
+        values:
+          - www.bintst.org
+          - www.gov.bintst.org
+      - match: http://www.gmwny.net (prior address of www.gmwny.com)
+        values:
+          - http://www.gmwny.net
+          - www.gmwny.com
+      - match: www.maeconinvestmentsgroup.com / www.maeconinvestments.com
+        values:
+          - www.maeconinvestmentsgroup.com
+          - www.maeconinvestments.com
+      - match: "www.nyfinanceltd.com (resolves to: http://wpress.nyfinanceltd.com/)"
+        values:
+          - www.nyfinanceltd.com
+          - http://wpress.nyfinanceltd.com/
+      - match: http://sbregistry.com and http://www.rsbta.com/ (Access Forbidden)
+        values:
+          - http://sbregistry.com
+          - http://www.rsbta.com/
+      - match:
+          http://www.sgrw-inc.com and http://www.sgrw-llc.com (The websites are
+          no longer accessible.)
+        values:
+          - http://www.sgrw-inc.com
+          - http://www.sgrw-llc.com
+      # URL with an editorial comment appended
+      - match: http://www.blueridgefinancialgroup.com (The website is not accessible.)
+        value: http://www.blueridgefinancialgroup.com
+      - match: http://www.clarksonblack.com (The website is no longer accessible.)
+        value: http://www.clarksonblack.com
+      - match: http://cottonwoodst.com (The website is not accessible.)
+        value: http://cottonwoodst.com
+      - match: http://www.dragonmergers.com (The website is no longer accessible.)
+        value: http://www.dragonmergers.com
+      - match: http://www.finamgtinc.com (The website is no longer accessible.)
+        value: http://www.finamgtinc.com
+      - match: http://www.fundinvestorsincllc.com (The website is no longer accessible.)
+        value: http://www.fundinvestorsincllc.com
+      - match: www.griffinadvisorsltd.com (The website may no longer be accessible)
+        value: www.griffinadvisorsltd.com
+      - match: http://henricksondickson.com (The website is not accessible.)
+        value: http://henricksondickson.com
+      - match: "(now offline): http://kal-ny.com/"
+        value: http://kal-ny.com/
+      - match: http://microglobalmgmt.com (The website is no longer accessible.)
+        value: http://microglobalmgmt.com
+      - match: http://www.stocktransfers.us (The website is no longer accessible.)
+        value: http://www.stocktransfers.us
+      - match: http://www.strikecommodities.com (The website is no longer accessible.)
+        value: http://www.strikecommodities.com
+      - match: http://thorntonwilson.com (The website is no longer accessible.)
+        value: http://thorntonwilson.com
+      # Stray punctuation/whitespace
+      - match: "https://fxdigitalequitymarket.com;"
+        value: https://fxdigitalequitymarket.com
+      - match: www.intsb.org<
+        value: www.intsb.org
+      - match: http://www. severnfundingninvestment.com
+        value: http://www.severnfundingninvestment.com
+      - match: ". www.us-ota.org"
+        value: www.us-ota.org
   type.phone:
     options:
       - match:

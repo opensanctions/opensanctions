@@ -44,11 +44,11 @@ def crawl_member(
     leave_flag = row.pop("leaveFlag")
     leave_date = row.pop("leaveDate") or None
     if leave_flag not in ("否", "是"):
-        raise ValueError("Unexpected leaveFlag: %r" % leave_flag)
+        raise ValueError(f"Unexpected leaveFlag: {leave_flag!r}")
     end_date: str | None
     if leave_flag == "是":
         if leave_date is None:
-            raise ValueError("Departed member without leaveDate: %r" % name)
+            raise ValueError(f"Departed member without leaveDate: {name!r}")
         end_date = leave_date
     else:
         end_date = next_start[term]
@@ -142,10 +142,11 @@ def crawl(context: Context) -> None:
     }
     position = h.make_position(
         context,
-        name="Member of the Legislative Yuan",
+        name="Member of the Legislative Yuan of Taiwan",
         country="tw",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q6310593",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

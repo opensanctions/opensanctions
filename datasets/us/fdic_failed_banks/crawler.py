@@ -3,10 +3,9 @@ from rigour.mime.types import CSV
 
 from zavod import Context
 from zavod import helpers as h
-from typing import Dict
 
 
-def clean_row(row: Dict[str, str]) -> Dict[str, str]:
+def clean_row(row: dict[str, str]) -> dict[str, str]:
     """Clean non-standard spaces from row keys and values."""
     return {
         k.replace("\xa0", " ").strip(): v.replace("\xa0", " ").strip()
@@ -14,7 +13,7 @@ def clean_row(row: Dict[str, str]) -> Dict[str, str]:
     }
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     row = clean_row(row)  # Clean the row before processing
 
     # Ensure the row contains necessary data
@@ -81,7 +80,7 @@ def crawl(context: Context) -> None:
 
     # Attempt to open the CSV file with different encodings
 
-    with open(source_path, "r", encoding="latin-1") as csvfile:
+    with open(source_path, encoding="latin-1") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             crawl_row(context, row)

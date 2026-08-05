@@ -1,7 +1,7 @@
 import random
 import time
 from datetime import datetime
-from datetime import timezone
+from datetime import UTC
 from typing import Any
 from urllib.parse import urlencode
 
@@ -115,7 +115,7 @@ def crawl(context: Context) -> None:
         "Referer": context.data_url,
         "Origin": context.data_url,
     }
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     year = START_YEAR
     month = START_MONTH
     while (year, month) <= (now.year, now.month):

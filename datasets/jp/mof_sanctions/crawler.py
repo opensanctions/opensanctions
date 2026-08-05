@@ -2,7 +2,6 @@ import re
 import string
 from datetime import date, datetime
 from itertools import chain
-from typing import Dict, List
 from urllib.parse import urljoin
 
 import xlrd
@@ -19,8 +18,8 @@ from zavod import helpers as h
 # Match non-brackets inside an opening and closing pair of brackets
 BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
 
-SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
-SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
+SPLITS = [f"({char})" for char in string.ascii_lowercase]
+SPLITS = SPLITS + [f"（{char}）" for char in string.ascii_lowercase]
 # WTF full-width brackets!
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)"]
@@ -45,7 +44,7 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def note_long_ids(entity: Entity, identifiers: List[str]) -> None:
+def note_long_ids(entity: Entity, identifiers: list[str]) -> None:
     for identifier in identifiers:
         if len(identifier) > IdentifierType.max_length:
             entity.add("notes", identifier)
@@ -59,11 +58,18 @@ def str_cell(cell: Cell | MergedCell) -> str | None:
         return value.isoformat()
     if isinstance(value, bool):
         return str(value).lower()
-    return stringify(value)
+    text = stringify(value)
+    if text is None:
+        return None
+    # `_x000D_` is the OOXML escape for a carriage return (0x0D). openpyxl surfaces
+    # it verbatim instead of un-escaping it, so cells with in-cell line breaks arrive
+    # carrying the literal artifact. Turn it back into a newline so the `\n` token in
+    # SPLITS separates multi-value cells cleanly (rather than leaving it in the text).
+    return text.replace("_x000D_", "\n")
 
 
-def parse_date(text: List[str]) -> List[str]:
-    dates: List[str] = []
+def parse_date(text: list[str]) -> list[str]:
+    dates: list[str] = []
     for date_ in h.multi_split(text, DATE_SPLITS):
         parsed = h.convert_excel_date(date_)
         if parsed is not None:
@@ -77,7 +83,7 @@ def parse_date(text: List[str]) -> List[str]:
     return dates
 
 
-def parse_names(names: List[str]) -> List[str]:
+def parse_names(names: list[str]) -> list[str]:
     cleaned = []
     # We split on numbering e.g. (a), (b) when reading the rows of the excel file
     # so we might have split a cell-wide opening and closing parenthesis
@@ -113,18 +119,7 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def split_english_names(names: List[str]) -> tuple[List[str], List[str]]:
-    """Split the English-column values into truly-English names and others.
-
-    The source's English name column sometimes appends the original-script name
-    (e.g. the Arabic script version) after the English transliteration. Only the
-    first value is reliably in English; the remainder are language-undetermined
-    and should not be tagged as English.
-    """
-    return names[:1], names[1:]
-
-
-def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
+def parse_notes(context: Context, entity: Entity, notes: list[str]) -> None:
     for note in notes:
         cryptos = h.extract_cryptos(note)
         for key, curr in cryptos.items():
@@ -137,7 +132,8 @@ def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
             context.emit(wallet)
 
         clean = h.clean_note(note)
-        entity.add("notes", clean)
+        # other_information / details are MoF's own Japanese free-text columns.
+        entity.add("notes", clean, lang="jpn")
 
 
 def fetch_excel_url(context: Context) -> str:
@@ -151,7 +147,7 @@ def fetch_excel_url(context: Context) -> str:
 
 
 def emit_row(
-    context: Context, sheet: str, section: str, row: Dict[str, List[str]]
+    context: Context, sheet: str, section: str, row: dict[str, list[str]]
 ) -> None:
     schema = context.lookup_value("schema", section, warn_unmatched=True)
     if schema is None:
@@ -175,18 +171,14 @@ def emit_row(
     raw_old_name = row.pop("old_name", [])
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
-    english_first, english_rest = split_english_names(name_english)
-    entity.add("name", parse_names(english_first), lang="eng")
-    entity.add("name", parse_names(english_rest))
-    entity.add("name", parse_names(name_japanese))
+    entity.add("name", parse_names(name_english))
+    entity.add("name", parse_names(name_japanese), lang="jpn")
     entity.add("alias", parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)))
     entity.add("alias", parse_names(raw_known_alias))
     entity.add("previousName", parse_names(raw_past_alias))
     entity.add("previousName", parse_names(raw_old_name))
     original = h.Names()
-    for n in english_first:
-        original.add("name", n, lang="eng")
-    for n in english_rest:
+    for n in name_english:
         original.add("name", n)
     for n in name_japanese:
         original.add("name", n, lang="jpn")
@@ -197,9 +189,7 @@ def emit_row(
     for n in chain(raw_weak_alias, raw_nickname):
         original.add("weakAlias", n)
     suggested = h.Names()
-    for n in parse_names(english_first):
-        suggested.add("name", n, lang="eng")
-    for n in parse_names(english_rest):
+    for n in parse_names(name_english):
         suggested.add("name", n)
     for n in parse_names(name_japanese):
         suggested.add("name", n, lang="jpn")
@@ -223,13 +213,15 @@ def emit_row(
         suggested=suggested,
         is_irregular=is_irregular,
         # Only auto-accept clean names. Names still flagged as irregular (e.g. ones that
-        # contain brackets, colons or an _x000D_ carriage-return artifact) are held back
-        # for human review instead of being locked in as accepted. The weak_alias and
+        # contain brackets or colons) are held back for human review instead of being
+        # locked in as accepted. The weak_alias and
         # nickname fields often hold notes/descriptions rather than names, so they are
         # held back too.
         default_accepted=not is_irregular and not (raw_weak_alias or raw_nickname),
     )
-    entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
+    # The position column mixes Japanese and Latin-script values, so it carries
+    # no language tag rather than a blanket (and often wrong) eng/jpn label.
+    entity.add_cast("Person", "position", row.pop("position", []))
 
     birth_date = parse_date(row.pop("birth_date", []))
     if birth_date != []:
@@ -276,9 +268,10 @@ def emit_row(
     entity.add("country", row.pop("activity_area", []))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("program", section)
-    sanction.add("reason", row.pop("root_nomination", None))
-    sanction.add("reason", row.pop("reason_res1483", None))
+    # section and the designation-basis reasons are MoF's own Japanese text.
+    sanction.add("program", section, lang="jpn")
+    sanction.add("reason", row.pop("root_nomination", None), lang="jpn")
+    sanction.add("reason", row.pop("reason_res1483", None), lang="jpn")
     sanction.add("authorityId", row.pop("notification_number", None))
     sanction.add("unscId", row.pop("unsc_id", None))
     h.apply_dates(sanction, "startDate", parse_date(row.pop("designated_date_un", [])))
@@ -293,7 +286,7 @@ def emit_row(
     context.audit_data(row)
 
 
-def trim_rightmost_blank(values: List[str | None], keep: int = 0) -> List[str | None]:
+def trim_rightmost_blank(values: list[str | None], keep: int = 0) -> list[str | None]:
     """
     Remove rightmost contiguous falsy values from a list, keeping at least `keep` values.
 
@@ -377,7 +370,7 @@ def crawl_sheets(
             # after a header is found, read normal data:
             if headers is not None:
                 assert len(row) == len(headers), (len(row), len(headers), row)
-                data: Dict[str, List[str]] = {}
+                data: dict[str, list[str]] = {}
                 for header, cell in zip(headers, row):
                     if header is None:
                         continue
@@ -416,5 +409,5 @@ def crawl(context: Context) -> None:
     elif url.endswith(".xls"):
         sheets = read_xls_sheets(context, url)
     else:
-        raise ValueError("Unknown file type: %s" % url)
+        raise ValueError(f"Unknown file type: {url}")
     crawl_sheets(context, sheets)

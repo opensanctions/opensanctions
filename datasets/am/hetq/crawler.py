@@ -5,7 +5,7 @@ Crawler for PEP data downloaded from data.hetq.am
 import itertools
 import json
 import re
-from typing import Dict, List, Literal, Any, Optional, Tuple, Union
+from typing import Literal, Any
 from zipfile import ZipFile
 
 from lxml.html import document_fromstring, HtmlElement
@@ -60,7 +60,7 @@ def fix_trans_spill(text: str) -> str:
 
 def get_birth_info(
     context: Context, zipfh: ZipFile, person_id: int
-) -> Tuple[Union[None, str], Union[None, str]]:
+) -> tuple[None | str, None | str]:
     """Get birth date and place from person page."""
     # We might have valid HTML, but we might also have an incomplete
     # page with a "Parse Error".  In any case we are really just
@@ -98,8 +98,8 @@ def crawl_person(
     context: Context,
     zipfh: ZipFile,
     person_id: int,
-    data: Dict[str, Any],
-) -> Optional[Entity]:
+    data: dict[str, Any],
+) -> Entity | None:
     """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
     name_en = data.get("name_en", "").strip()
@@ -167,8 +167,8 @@ def crawl_person(
 
 def crawl_list(
     context: Context,
-    peps: Dict[int, Dict[str, Any]],
-    data: List[Dict[str, Any]],
+    peps: dict[int, dict[str, Any]],
+    data: list[dict[str, Any]],
     year: int,
     lang: SupportedLanguage,
 ) -> None:
@@ -206,8 +206,8 @@ def crawl_list(
 def crawl_missing_pois(
     context: Context,
     zipfh: ZipFile,
-    missing_pois: Dict[int, Any],
-    persons: Dict[int, Dict[str, Any]],
+    missing_pois: dict[int, Any],
+    persons: dict[int, dict[str, Any]],
 ) -> None:
     """Create an entity for a person of interest not named in the
     front-page list of PEPs."""
@@ -223,7 +223,7 @@ def crawl_missing_pois(
 
 
 def crawl_relations(
-    context: Context, zipfh: ZipFile, persons: Dict[int, Dict[str, Any]], person_id: int
+    context: Context, zipfh: ZipFile, persons: dict[int, dict[str, Any]], person_id: int
 ) -> None:
     """Read relation graph and create entities."""
     # There should always be a person / entity for the source
@@ -293,7 +293,7 @@ def crawl_relations(
 def crawl_lists(context: Context, zipfh: ZipFile) -> None:
     """Read lists of persons for each year covered, matching names and
     accumulating years in which the person was active."""
-    persons: Dict[int, Dict[str, Any]] = {}
+    persons: dict[int, dict[str, Any]] = {}
     for info in zipfh.infolist():
         # zipfile.Path would be good for this but it may not work
         # correctly in all versions of Python

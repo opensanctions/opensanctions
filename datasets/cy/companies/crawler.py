@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-from typing import Dict, Generator, Iterable, Optional
+from collections.abc import Generator, Iterable
 
 from followthemoney.util import join_text
 from normality.cleaning import remove_unsafe_chars, squash_spaces
@@ -11,7 +11,7 @@ from zavod import helpers as h
 TYPES = {"C": "HE", "P": "S", "O": "AE", "N": "BN", "B": "B"}
 
 
-def company_id(org_type: str, reg_nr: Optional[str]) -> Optional[str]:
+def company_id(org_type: str, reg_nr: str | None) -> str | None:
     if reg_nr is None:
         return None
     org_type_oc = TYPES.get(org_type)
@@ -20,8 +20,8 @@ def company_id(org_type: str, reg_nr: Optional[str]) -> Optional[str]:
     return f"oc-companies-cy-{org_type_oc}{reg_nr}".lower()
 
 
-def iter_rows(path: Path) -> Generator[Dict[str, str], None, None]:
-    with open(path, "r") as fh:
+def iter_rows(path: Path) -> Generator[dict[str, str], None, None]:
+    with open(path) as fh:
         fh.read(1)  # bom
         for row in csv.DictReader(fh):
             data = {}
@@ -33,7 +33,7 @@ def iter_rows(path: Path) -> Generator[Dict[str, str], None, None]:
 
 
 def parse_organisations(
-    context: Context, rows: Iterable[Dict[str, str]], addresses: Dict[str, str]
+    context: Context, rows: Iterable[dict[str, str]], addresses: dict[str, str]
 ) -> None:
     for row in rows:
         org_type = row.pop("ORGANISATION_TYPE_CODE", None)
@@ -78,7 +78,7 @@ def parse_organisations(
         context.audit_data(row, ignore=["NAME_STATUS_CODE", "NAME_STATUS"])
 
 
-def parse_officials(context: Context, rows: Iterable[Dict[str, str]]) -> None:
+def parse_officials(context: Context, rows: Iterable[dict[str, str]]) -> None:
     org_types = list(TYPES.keys())
     for row in rows:
         org_type = row.pop("ORGANISATION_TYPE_CODE", None)
@@ -110,8 +110,8 @@ def parse_officials(context: Context, rows: Iterable[Dict[str, str]]) -> None:
         context.emit(link)
 
 
-def load_addresses(rows: Iterable[Dict[str, str]]) -> Dict[str, str]:
-    addresses: Dict[str, str] = {}
+def load_addresses(rows: Iterable[dict[str, str]]) -> dict[str, str]:
+    addresses: dict[str, str] = {}
     for row in rows:
         seq_no = row.pop("ADDRESS_SEQ_NO")
         if seq_no is None:
@@ -129,7 +129,7 @@ def load_addresses(rows: Iterable[Dict[str, str]]) -> Dict[str, str]:
     return addresses
 
 
-def get_path(file_paths: Dict[str, Path], prefix: str) -> Path:
+def get_path(file_paths: dict[str, Path], prefix: str) -> Path:
     matched_files = [
         path for name, path in file_paths.items() if name.startswith(prefix)
     ]
@@ -141,7 +141,7 @@ def crawl(context: Context) -> None:
     headers = {"Accept": "application/json"}
     meta = context.fetch_json(context.data_url, headers=headers)
 
-    files: Dict[str, Path] = {}
+    files: dict[str, Path] = {}
     for dist in meta["dcat:Distribution"]:
         dist_url = dist["dcat:downloadURL"]["@rdf:resource"]
         file_name = dist_url.rsplit("/")[-1]
@@ -150,7 +150,7 @@ def crawl(context: Context) -> None:
 
     office_path = get_path(files, "registered_office_")
     addresses = load_addresses(iter_rows(office_path))
-    context.log.info("Loaded %d addresses" % len(addresses))
+    context.log.info(f"Loaded {len(addresses)} addresses")
 
     org_path = get_path(files, "organisations_")
     parse_organisations(context, iter_rows(org_path), addresses)

@@ -1,10 +1,8 @@
-from typing import Optional
-
 from normality import slugify
 from rigour.ids import IMO
 
 
-def _imo_id_key(value: Optional[str]) -> Optional[str]:
+def _imo_id_key(value: str | None) -> str | None:
     """Derive the IMO portion of an entity id from a raw IMO string.
 
     A valid IMO is reduced to its canonical seven digits. A present-but-invalid one (bad
@@ -20,7 +18,7 @@ def _imo_id_key(value: Optional[str]) -> Optional[str]:
     return slugify(value)
 
 
-def make_vessel_imo_id(value: Optional[str]) -> Optional[str]:
+def make_vessel_imo_id(value: str | None) -> str | None:
     """Build a stable entity id for a vessel from its IMO number.
 
     Reach for this when keying vessels so that records describing the same ship across
@@ -33,7 +31,7 @@ def make_vessel_imo_id(value: Optional[str]) -> Optional[str]:
     return None if key is None else f"imo-vsl-{key}"
 
 
-def make_org_imo_id(value: Optional[str]) -> Optional[str]:
+def make_org_imo_id(value: str | None) -> str | None:
     """Build a stable entity id for an organisation from its IMO company number.
 
     The maritime equivalent of a company register id: registered owners, managers and other

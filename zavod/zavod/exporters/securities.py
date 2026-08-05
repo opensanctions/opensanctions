@@ -31,7 +31,7 @@ securities universe.
 """
 
 import csv
-from typing import Set, Iterable
+from collections.abc import Iterable
 from normality import squash_spaces
 from followthemoney import registry
 from rigour.boolean import bool_text
@@ -68,7 +68,7 @@ log = get_logger(__name__)
 
 
 def join_cell(texts: Iterable[str], sep: str = ";") -> str:
-    values: Set[str] = set()
+    values: set[str] = set()
     for value in texts:
         if value is None:
             continue
@@ -93,15 +93,15 @@ class SecuritiesExporter(Exporter):
         self._count_isins = 0
         self._count_leis = 0
 
-    def _get_isins(self, entity: Entity, view: ExportView) -> Set[str]:
+    def _get_isins(self, entity: Entity, view: ExportView) -> set[str]:
         isins = set(entity.get("isinCode", quiet=True))
         for _, adjacent in view.get_adjacent(entity):
             if adjacent.schema.is_a("Security"):
                 isins.update(adjacent.get("isin"))
         return isins
 
-    def _get_aliases(self, entity: Entity) -> Set[str]:
-        names: Set[str] = set()
+    def _get_aliases(self, entity: Entity) -> set[str]:
+        names: set[str] = set()
         for name in entity.get_type_values(registry.name, matchable=True):
             name_ = squash_spaces(name)
             if len(name_) > 0:

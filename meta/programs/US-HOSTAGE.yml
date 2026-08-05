@@ -2,11 +2,18 @@ id: 20
 title: Hostages And Wrongfully Detained U.S. Nationals Sanctions
 key: US-HOSTAGE
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/hostages-and-wrongfully-detained-us-nationals-sanctions
-summary: These sanctions target foreign individuals and entities responsible for or
-  complicit in the wrongful detention of U.S. nationals abroad. The measures include
-  asset freezes and prohibitions on transactions to secure the release of hostages
-  and deter future wrongful detentions.
+summary: Targets foreign persons responsible for or complicit in the
+  hostage-taking of US nationals or the wrongful detention of US nationals
+  abroad, including leaders and officials of entities engaged in such conduct
+  and persons who materially support them. Designated persons have their
+  assets within US jurisdiction blocked, and designated individuals are
+  barred from entry into the United States.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 14078
+  - EO 14078
+  - HOSTAGES-EO14078
+  - Robert Levinson Hostage Recovery and Hostage-taking Accountability Act
+measures:
+  - Asset freeze
+  - Travel ban

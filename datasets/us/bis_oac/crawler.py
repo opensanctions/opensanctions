@@ -8,12 +8,12 @@ from zavod import helpers as h
 
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
-    requester = row.pop("REQUESTER").strip()
+    requester = row.pop("requester").strip()
     # Skip the footer
     if "this list is provided to assist" in requester.lower():
         return
-    requesting_country = row.pop("REQUESTING COUNTRY").strip()
-    date_listed = row.pop("DATE LISTED").strip()
+    requesting_country = row.pop("country").strip()
+    date_listed = row.pop("date_listed").strip()
     if not requester and not requesting_country and not date_listed:
         return
     if not requester or not requesting_country:
@@ -43,7 +43,17 @@ def crawl_csv(context: Context, path: Path, encoding: str) -> None:
     # lines[2]: Requester List
     # lines[3]: (Updated March 31, 2026)",,
     assert lines[3].startswith("(Updated")
-    for row in DictReader(lines[4:]):
+    reader = DictReader(lines[4:])
+    assert reader.fieldnames is not None, "CSV file has no header row"
+    # The source renames its column headers from time to time, so map them
+    # onto stable keys. The lookup is required, i.e. an unknown header raises.
+    fieldnames: list[str] = []
+    for header in reader.fieldnames:
+        column = context.lookup_value("columns", header)
+        assert column is not None, header
+        fieldnames.append(column)
+    reader.fieldnames = fieldnames
+    for row in reader:
         crawl_row(context, row)
 
 
@@ -65,5 +75,5 @@ def crawl(context: Context) -> None:
         crawl_csv(context, path, "utf-8-sig")
     except UnicodeDecodeError as e:
         context.log.info(f"Failed to decode CSV file as utf-8-sig: {e}")
-        # https://en.wikipedia.org/wiki/%C3%9C as 9A
-        crawl_csv(context, path, "CP437")
+        # https://en.wikipedia.org/wiki/%C3%9C as DC
+        crawl_csv(context, path, "cp1252")

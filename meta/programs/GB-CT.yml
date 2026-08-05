@@ -1,9 +1,20 @@
 id: 221
 title: UK sanctions relating to domestic counter-terrorism
 key: GB-CT
-url: https://www.gov.uk/government/collections/uk-international-counter-terrorism-sanctions
-summary: Measures targeting domestic terrorist activities.
+url: https://www.gov.uk/government/collections/uk-counter-terrorism-sanctions
+summary: Provides for the designation of persons involved in terrorist activity
+  in order to prevent terrorism in the United Kingdom or elsewhere and to
+  protect UK national security interests, giving effect to UN Security Council
+  Resolution 1373. Designations under the regime are made by HM Treasury.
+  Designated persons are subject to an asset freeze, and designated individuals
+  can also be excluded from entering or transiting the United Kingdom.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - SI 2019/577
+  - The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019
 target_territories:
-- gb
+  - gb
+measures:
+  - Asset freeze
+  - Travel ban

@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict
 import csv
 
 from zavod.context import Context
@@ -7,7 +6,7 @@ from zavod.context import Context
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]):
     entity = context.make("Company")
     id = row.pop("id")
     entity.id = context.make_slug(id)
@@ -29,6 +28,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    with open(LOCAL_PATH, "r") as fh:
+    with open(LOCAL_PATH) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

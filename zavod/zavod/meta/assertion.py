@@ -1,6 +1,8 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Generator
+from typing import Any
+from collections.abc import Generator
 
 
 class Metric(Enum):
@@ -62,7 +64,25 @@ class Assertion:
         )
 
 
-def parse_assertions(config: Dict[str, Any]) -> Generator[Assertion, None, None]:
+def merge_assertions_config(
+    base: dict[str, Any], override: dict[str, Any]
+) -> dict[str, Any]:
+    """Deep-merge two assertion config dicts, with `override` winning at the leaf.
+
+    Nested dicts (comparison -> metric -> schema -> property) are merged
+    recursively; any non-dict value in `override` replaces the base value.
+    """
+    result = deepcopy(base)
+    for key, value in override.items():
+        existing = result.get(key)
+        if isinstance(existing, dict) and isinstance(value, dict):
+            result[key] = merge_assertions_config(existing, value)
+        else:
+            result[key] = deepcopy(value)
+    return result
+
+
+def parse_assertions(config: dict[str, Any]) -> Generator[Assertion, None, None]:
     for key, metrics_config in config.items():
         match key:
             case "min":

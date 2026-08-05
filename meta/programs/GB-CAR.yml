@@ -2,8 +2,24 @@ id: 233
 title: UK sanctions relating to the Central African Republic
 key: GB-CAR
 url: https://www.gov.uk/government/collections/uk-sanctions-on-the-central-african-republic
-summary: Sanctions against entities and individuals in the Central African Republic.
-issuer: gb_ofsi
+summary: Gives effect in the United Kingdom to the UN Security Council's
+  Central African Republic sanctions regime established by Resolution 2127,
+  targeting people and entities engaged in or supporting acts that undermine
+  the peace, stability or security of the CAR. Designated persons are subject
+  to an asset freeze, and designated individuals are banned from entering or
+  transiting the UK. The supply of military goods and technology, and related
+  services, to armed groups operating in the CAR and associated individuals is
+  prohibited.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Resolution 2127
+  - SI 2020/616
+  - The Central African Republic (Sanctions) (EU Exit) Regulations 2020
+  - UNSCR 2127
 target_territories:
-- cf
+  - cf
+measures:
+  - Arms restrictions
+  - Asset freeze
+  - Travel ban

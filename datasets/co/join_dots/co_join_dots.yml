@@ -16,9 +16,9 @@ description: |
 
   From the project site:
 
-  > "Joining the Dots with PEPs" makes available to the public information on 
+  > "Joining the Dots with PEPs" makes available to the public information on
   > public officials’ Financial Declarations, government procurement and
-  > contracting, and contracts and tenders of companies in the extractive 
+  > contracting, and contracts and tenders of companies in the extractive
   > sector, with the aim of identifying possible conflicts of interest,
   > corruption or misuse of public office.
   >
@@ -32,6 +32,7 @@ description: |
   ownership information added as notes to these political office-holders.
 tags:
   - list.pep
+  - list.pep.bulk
 publisher:
   name: Directorio Legislativo/EITI
   description: |

@@ -1,5 +1,5 @@
 from normality import stringify
-from typing import Dict, Any, Optional
+from typing import Any
 
 from zavod import Context, helpers as h
 
@@ -7,14 +7,14 @@ from zavod import Context, helpers as h
 # https://portal.emsa.europa.eu/o/portlet-public/rest/ban/getBanShips.json?banSituationIds=VALIDATED&page=1&start=0&limit=200
 
 
-def clean(value: Optional[str]) -> Optional[str]:
+def clean(value: str | None) -> str | None:
     value_str = stringify(value)
     if value_str and value_str.lower() in ("n/a", "unknown", "any"):
         return None
     return value_str
 
 
-def crawl_vessel(context: Context, item: Dict[str, Any]) -> None:
+def crawl_vessel(context: Context, item: dict[str, Any]) -> None:
     ship_id = item.pop("id")
     vessel = context.make("Vessel")
     vessel.id = context.make_slug("vessel", ship_id)

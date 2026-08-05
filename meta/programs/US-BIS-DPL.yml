@@ -2,10 +2,17 @@ id: 43
 title: BIS Denied Persons List (DPL)
 key: US-BIS-DPL
 url: https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl
-summary: This list is maintained by BIS, includes includes individuals and entities
-  that have been denied export privileges due to violations of export control laws.
-  The denial of export privileges means these parties are prohibited from participating
-  in transactions involving items subject to the Export Administration Regulations
-  (EAR), helping to enforce compliance with export control regulations.
+summary: Lists individuals and companies whose export privileges have been denied
+  by the Bureau of Industry and Security, usually following an enforcement action
+  for violations of US export control law. Denied persons may not participate,
+  directly or indirectly, in transactions involving items subject to the Export
+  Administration Regulations, and others are prohibited from dealing with them in
+  such transactions. The scope and duration of each denial are set out in the
+  individual denial order.
 issuer: us_bis
 dataset: us_trade_csl
+aliases:
+  - DPL
+  - Denied Persons List
+measures:
+  - Export control

@@ -23,6 +23,7 @@ from datetime import date
 from typing import NamedTuple
 
 from nomenklatura import Resolver
+from nomenklatura.db import Session
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 from normality import slugify
@@ -321,20 +322,33 @@ def props_compatible(entities: list[Entity]) -> bool:
 
 
 def group_edges(view: View) -> list[list[str]]:
-    """Group edge IDs that should become positive resolver decisions."""
-    buckets: dict[BucketKey, list[Entity]] = defaultdict(list)
+    """Group edge IDs that should become positive resolver decisions.
+
+    Buckets hold entity IDs rather than entities: keeping every hydrated edge
+    entity in memory scales with the size of the whole graph. Multi-member
+    buckets are re-fetched from the view one bucket at a time.
+    """
+    buckets: dict[BucketKey, list[str]] = defaultdict(list)
     groups: list[list[str]] = []
 
     for idx, entity in enumerate(view.entities()):
         if idx > 0 and idx % 100000 == 0:
-            log.info("Keyed %s entities..." % idx)
+            log.info(f"Keyed {idx} entities...")
 
         key = bucket_key(entity)
         if key is None:
             continue
-        buckets[key].append(entity)
+        assert entity.id is not None
+        buckets[key].append(entity.id)
 
-    for entities in buckets.values():
+    for ids in buckets.values():
+        if len(ids) < 2:
+            continue
+        entities: list[Entity] = []
+        for entity_id in ids:
+            member = view.get_entity(entity_id)
+            assert member is not None
+            entities.append(member)
         for group in temporal_candidate_groups(entities):
             if not props_compatible(group):
                 continue
@@ -344,11 +358,20 @@ def group_edges(view: View) -> list[list[str]]:
 
 
 def merge_groups(
-    resolver: Resolver[Entity], view: View, groups: list[list[str]]
+    resolver: Resolver[Entity],
+    session: Session,
+    view: View,
+    groups: list[list[str]],
+    commit_every: int = 500,
 ) -> None:
-    """Write positive resolver decisions for deduped edge groups."""
+    """Write positive resolver decisions for deduped edge groups.
+
+    Decisions are committed in batches of ``commit_every`` so a large run does
+    not hold one long-lived transaction; the caller's final commit persists the
+    remainder."""
     merged_count = 0
     cluster_count = 0
+    uncommitted = 0
     dataset_counts: dict[str, int] = defaultdict(int)
 
     for values in groups:
@@ -370,7 +393,7 @@ def merge_groups(
             other = view.get_entity(other_id)
             assert other is not None
 
-            log.info("Merge edge: %s (%s -> %s)" % (other, other_canon, canonical))
+            log.info(f"Merge edge: {other} ({other_canon} -> {canonical})")
             canonical = resolver.decide(
                 canonical,
                 other_canon,
@@ -379,16 +402,21 @@ def merge_groups(
             ).id
 
             merged_count += 1
+            uncommitted += 1
             for dataset in other.datasets:
                 dataset_counts[dataset] += 1
 
         cluster_count += 1
-    log.info("Merged %s edge entities into %s clusters" % (merged_count, cluster_count))
+        if uncommitted >= commit_every:
+            session.checkpoint()
+            log.info(f"Committed {merged_count} merge decisions...")
+            uncommitted = 0
+    log.info(f"Merged {merged_count} edge entities into {cluster_count} clusters")
     for dataset, count in dataset_counts.items():
-        log.info("Merged %s edges in dataset %s" % (count, dataset))
+        log.info(f"Merged {count} edges in dataset {dataset}")
 
 
-def dedupe_edges(resolver: Resolver[Entity], view: View) -> None:
+def dedupe_edges(resolver: Resolver[Entity], session: Session, view: View) -> None:
     """Deduplicate edge entities from a store view into resolver decisions."""
     groups = group_edges(view)
-    merge_groups(resolver, view, groups)
+    merge_groups(resolver, session, view, groups)

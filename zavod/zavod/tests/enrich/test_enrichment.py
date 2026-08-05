@@ -1,4 +1,4 @@
-from typing import Generator
+from collections.abc import Generator
 
 from followthemoney import SE
 from nomenklatura.enrich import Enricher

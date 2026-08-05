@@ -56,6 +56,8 @@ lookups:
     options:
       - match: "and"
         value: null
+      - match: "12356692534"
+        value: null
       - match: "1639354478"
         prop: idNumber
   type.date:

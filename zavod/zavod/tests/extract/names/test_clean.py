@@ -61,3 +61,22 @@ def test_names_simplified():
 
     # Empty list simplifies to None
     assert Names(name=[]).simplified().name is None
+
+
+def test_names_tolerates_unknown_keys_on_validation():
+    """Stored review payloads are re-validated with the current model, and
+    reviewer-edited or legacy payloads can carry keys that are not (or no
+    longer) fields — loading them must not raise. Fail-loud protection against
+    typo'd keys lives at the dynamic construction sites instead, e.g.
+    apply_reviewed_name_string."""
+    # A reviewer-edited payload with an unknown key.
+    names = Names.model_validate({"name": ["John Doe"], "fullName": ["J. Doe"]})
+    assert names.name == ["John Doe"]
+
+    # A legacy payload keyed with fields that no longer exist on the model.
+    names = Names.model_validate({"name": ["John Doe"], "firstName": "John"})
+    assert names.name == ["John Doe"]
+
+    # A stored-review-shaped dump round-trips.
+    names = Names(name=["John Doe"], alias="Johnny")
+    assert Names.model_validate(names.model_dump()) == names

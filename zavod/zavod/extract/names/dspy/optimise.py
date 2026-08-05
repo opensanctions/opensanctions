@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from normality import slugify
 from zavod.extract.names.dspy.clean import init_module
@@ -24,8 +24,8 @@ def metric_with_feedback(
 
 
 def metric_with_feedback_dict(
-    example: Dict[str, List[str]],
-    pred: Dict[str, List[str]],
+    example: dict[str, list[str]],
+    pred: dict[str, list[str]],
 ) -> dspy.Prediction:
     feedback = ""
     score = 0.0
@@ -60,7 +60,7 @@ def optimise_single_entity(
     examples_path: Path,
     program_path: Path,
     level: str = "heavy",
-    threads: Optional[int] = 32,
+    threads: int | None = 32,
 ) -> None:
     train_set, val_set, _test_set = load_data(examples_path)
 
