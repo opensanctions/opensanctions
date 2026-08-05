@@ -60,6 +60,10 @@ lookups:
           - www.dubalex.com
       - match: "(https://telegram.org/k/#@pelaburanrakiyat25"
         value: "https://telegram.org/k/#@pelaburanrakiyat25"
+      - match: "(https://t.me/ASBMALAYSIA1"
+        value: https://t.me/ASBMALAYSIA1
+      - match: "(https://t.me/XMBROKERSUCCES27"
+        value: https://t.me/XMBROKERSUCCES27
       - match: "https:islamicinc.asia/"
         value: https://islamicinc.asia/
       - match: "http://www.xeraya-capital.com (clone website)"
