@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 from rigour.mime.types import XLSX
 from rigour.names.org_types import extract_org_types
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
-from zavod.extract import zyte_api
 from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,
@@ -252,19 +251,20 @@ def crawl_row(
 
 def crawl_data_url(context: Context) -> str:
     file_xpath = "//a[contains(., 'Excel Version')]"
-    doc = zyte_api.fetch_html(
-        context, context.data_url, unblock_validator=file_xpath, absolute_links=True
-    )
+    doc = context.fetch_html(context.data_url, absolute_links=True)
     url = h.xpath_string(doc, file_xpath + "/@href")
     assert url is not None, "Could not find XLSX URL"
     return url
 
 
 def crawl(context: Context) -> None:
+    # medicaid.alabama.gov serves the leaf certificate but omits the GlobalSign
+    # intermediate, so the chain can't be verified. Zyte refuses the site outright
+    # ("Certificate Issue", HTTP 421), so we fetch it directly and skip verification.
+    # The site serves us fine over a plain request as long as a user agent is set.
+    context.http.verify = False
     url = crawl_data_url(context)
-    _, _, _, path = zyte_api.fetch_resource(
-        context, "source.xlsx", url, expected_media_type=XLSX
-    )
+    path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     filename = url.split("/")[-1]
     assert ".xlsx" in filename, filename
