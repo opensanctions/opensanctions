@@ -91,9 +91,12 @@ def test_parse_html_table_nested_table():
     doc = html.fromstring(NESTED_TABLE_HTML)
     table = doc.xpath(".//table")[0]
     rows = list(h.parse_html_table(table))
+    # Nested table row is not an additional row.
     assert len(rows) == 1, rows
     str_row = h.cells_to_str(rows[0])
     assert str_row["name"] == "Alice", str_row
+    # Nested table is extracted as value where it is nested.
+    assert rows[0]["info"].find("./table/tr/td").text == "inner1", str_row
 
 
 def test_element_text():
