@@ -91,10 +91,12 @@ class EntityData(BaseModel):
     website: list[str] = []
 
 
-def apply_entity_data(entity: Entity, data: EntityData) -> None:
+def apply_entity_data(
+    entity: Entity, data: EntityData, origin: str | None = None
+) -> None:
     for prop in EntityData.model_fields:
         for val in getattr(data, prop):
-            entity.add(prop, val)
+            entity.add(prop, val, origin=origin)
 
 
 def emit_ownership(context: Context, entity: Entity, name: str) -> None:
@@ -158,14 +160,17 @@ def apply_source_names(
     if any(
         h.is_name_irregular(entity, name) for name in names + aliases + previous_names
     ):
-        source_data = source.model_dump()
+        # Sorted and limited to the populated props, so that reordering at the source
+        # doesn't invalidate an accepted review, and adding a property to EntityData
+        # later doesn't reset every one of them.
+        source_data: dict[str, Any] = {
+            prop: sorted(vals) for prop, vals in source.model_dump().items() if vals
+        }
         source_value = JSONSourceValue(
             key_parts=[
-                *names,
-                "alias",
-                *aliases,
-                "previousName",
-                *previous_names,
+                part
+                for prop in sorted(source_data)
+                for part in (prop, *source_data[prop])
             ],
             label="names extraction",
             data=source_data,
@@ -184,12 +189,14 @@ def apply_source_names(
             origin=LLM_MODEL_VERSION,
         )
         review.link_entity(context, entity)
-        # Nothing is applied until an analyst accepts; the crawl warns about the rest.
-        entity_data = review.extracted_data if review.accepted else EntityData()
+        if not review.accepted:
+            # The crawl warns about what's still outstanding once every record is read.
+            return
+        if not review.extracted_data.name:
+            context.log.warning("Accepted extraction has no name", entity_id=entity.id)
+        apply_entity_data(entity, review.extracted_data, origin=review.origin)
     else:
-        entity_data = source
-
-    apply_entity_data(entity, entity_data)
+        apply_entity_data(entity, source)
 
 
 class CrawlItemResult(NamedTuple):

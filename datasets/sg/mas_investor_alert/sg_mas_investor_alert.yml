@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2025-03-28
 load_statements: true
+ci_test: false
 summary: >
   The Investor Alert List contains entities that may have been wrongly perceived as licensed, 
   authorized, or regulated by MAS, or have made misleading investment offers.
