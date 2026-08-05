@@ -96,6 +96,10 @@ lookups:
         values:
           - "https://ict.webcrafton.com"
           - "https://ictrobots.com"
+      - match: "https://lmccglobal.com / https://lmcc-global.com"
+        values:
+          - "https://lmccglobal.com"
+          - "https://lmcc-global.com"
       - match: "https://luxenrise.com / https://luxenrise.net"
         values:
           - "https://luxenrise.com"
@@ -402,6 +406,10 @@ lookups:
         values:
           - "www.mftreasury.com"
           - "www.mftreasury.io"
+      - match: "www.mirante-fund-management.com; www.mirante-fund-management.co"
+        values:
+          - "www.mirante-fund-management.com"
+          - "www.mirante-fund-management.co"
       - match: "www.mit-ic.com / www.mit-ic.net"
         values:
           - "www.mit-ic.com"
