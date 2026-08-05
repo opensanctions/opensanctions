@@ -57,6 +57,10 @@ INTL_ORGS: dict[str, IntlOrg] = {
         "United Nations Office for West Africa and the Sahel", country="un"
     ),
     "Q160805": IntlOrg("United Nations Interim Force in Lebanon", country="un"),
+    "Q2671637": IntlOrg("UN Department of Economic and Social Affairs", country="un"),
+    # WFP has no leadership position items on Wikidata yet (2026-08-05);
+    # registered so they enroll as soon as someone creates and links them.
+    "Q204344": IntlOrg("World Food Programme", country="un"),
     # UN specialized agencies (the Bretton Woods institutions are deliberately
     # "zz": they operate as global bodies, not as UN organs):
     "Q7817": IntlOrg("World Health Organization", country="un"),
@@ -82,7 +86,9 @@ INTL_ORGS: dict[str, IntlOrg] = {
     "Q10749015": IntlOrg("Bureau of the European Parliament", country="eu"),
     "Q8880": IntlOrg("European Commission", country="eu"),
     "Q1501921": IntlOrg("Secretariat-General of the European Commission", country="eu"),
+    "Q2983826": IntlOrg("College of Commissioners", country="eu"),
     "Q8886": IntlOrg("European Council", country="eu"),
+    "Q8896": IntlOrg("Council of the European Union", country="eu"),
     "Q2067116": IntlOrg("General Secretariat of the Council of the EU", country="eu"),
     "Q973809": IntlOrg("Foreign Affairs Council", country="eu"),
     "Q149964": IntlOrg("Eurogroup", country="eu"),
@@ -93,7 +99,12 @@ INTL_ORGS: dict[str, IntlOrg] = {
     "Q657898": IntlOrg("European Systemic Risk Board", country="eu"),
     "Q220893": IntlOrg("European Ombudsman", country="eu"),
     "Q672941": IntlOrg("European External Action Service", country="eu"),
+    # The generic class item for EU diplomatic missions; heads of delegation
+    # (EU ambassadors) link their position to it via P361:
+    "Q130417640": IntlOrg("Delegation of the European Union", country="eu"),
+    "Q4398720": IntlOrg("Secretariat of the European Parliament", country="eu"),
     "Q205203": IntlOrg("European Committee of the Regions", country="eu"),
+    "Q331024": IntlOrg("European Economic and Social Committee", country="eu"),
     "Q1134173": IntlOrg("European Defence Agency", country="eu"),
     "Q5413070": IntlOrg("European Public Prosecutor's Office", country="eu"),
     "Q516521": IntlOrg("European Food Safety Authority", country="eu"),
@@ -102,8 +113,16 @@ INTL_ORGS: dict[str, IntlOrg] = {
     "Q8908": IntlOrg("Council of Europe"),
     "Q939743": IntlOrg("Parliamentary Assembly of the Council of Europe"),
     "Q1251615": IntlOrg("Congress of Local and Regional Authorities"),
+    "Q2735723": IntlOrg("Committee of Ministers of the Council of Europe"),
     # Other intergovernmental organizations:
     "Q7184": IntlOrg("NATO"),
+    "Q944947": IntlOrg("North Atlantic Council"),
+    "Q1959817": IntlOrg("NATO Military Committee"),
+    "Q1432908": IntlOrg("Supreme Headquarters Allied Powers Europe"),
+    "Q55858714": IntlOrg("Allied Command Operations"),
+    "Q2001035": IntlOrg("Allied Command Transformation"),
+    "Q13417611": IntlOrg("NATO Standardization Agency"),
+    "Q81299": IntlOrg("Organization for Security and Co-operation in Europe"),
     "Q8475": IntlOrg("Interpol"),
     "Q41550": IntlOrg("OECD"),
     "Q7825": IntlOrg("World Trade Organization"),
@@ -111,9 +130,11 @@ INTL_ORGS: dict[str, IntlOrg] = {
     "Q7795": IntlOrg("OPEC"),
     "Q41984": IntlOrg("International Atomic Energy Agency"),
     "Q7159": IntlOrg("African Union"),
+    "Q2362881": IntlOrg("African Union Commission"),
     "Q191703": IntlOrg("Organisation of African Unity"),
     "Q193272": IntlOrg("Economic Community of West African States"),
     "Q337456": IntlOrg("East African Community"),
+    "Q5327657": IntlOrg("East African Legislative Assembly"),
     "Q1115631": IntlOrg("Indian Ocean Commission"),
     "Q294278": IntlOrg("Organisation of African, Caribbean and Pacific States"),
     "Q7172": IntlOrg("League of Arab States"),
@@ -138,6 +159,7 @@ INTL_ORGS: dict[str, IntlOrg] = {
     # are persons of interest, not government officials:
     "Q253414": IntlOrg("FIFA", topics=SPORT),
     "Q40970": IntlOrg("International Olympic Committee", topics=SPORT),
+    "Q47472719": IntlOrg("IOC Ethics Commission", topics=SPORT),
     "Q35572": IntlOrg("UEFA", topics=SPORT),
     "Q46199": IntlOrg("International Basketball Federation", topics=SPORT),
     "Q58733": IntlOrg("CONMEBOL", topics=SPORT),
