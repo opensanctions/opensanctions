@@ -1,0 +1,20 @@
+title: Ordinance on the Freezing of Assets in Connection with Syria (SR 196.127.27)
+key: CH-FIAA-SY
+url: https://www.fedlex.admin.ch/eli/cc/2025/157/de
+summary: >
+  Freezes the Swiss-held assets of former Syrian president Bashar al-Assad and
+  members of his family and entourage under the Foreign Illicit Assets Act,
+  imposed after the fall of the Assad government. The freeze operates
+  independently of the SECO sanctions regime on Syria and ensures the funds
+  cannot leave Switzerland before a judicial review of their origin, with a
+  view to returning illicit assets for the benefit of the Syrian population.
+issuer: ch_fdfa
+dataset: ch_fiaa_freezes
+aliases:
+  - Syrien-Verordnung
+  - O-Syrie
+  - SR 196.127.27
+target_territories:
+  - sy
+measures:
+  - Asset freeze

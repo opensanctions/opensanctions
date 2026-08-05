@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, Optional, Set
+from typing import Any
 from urllib.parse import urljoin, unquote
 from followthemoney.helpers import post_summary
 
@@ -45,7 +45,7 @@ def crawl(context: Context) -> None:
     for country in data:
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
-            context.log.info("Country: %s" % code)
+            context.log.info(f"Country: {code}")
             crawl_legislature(context, code, legislature)
 
 
@@ -57,7 +57,7 @@ def crawl_legislature(
     # this isn't being updated, hence long interval:
     data = context.fetch_json(url, cache_days=30)
 
-    organizations: Dict[str, Optional[str]] = {}
+    organizations: dict[str, str | None] = {}
     for org in data.pop("organizations", []):
         org_id = org.pop("id", None)
         org_id = context.lookup_value("org_id", org_id, org_id)
@@ -70,8 +70,8 @@ def crawl_legislature(
     events = data.pop("events", [])
     events = {e.get("id"): e for e in events}
 
-    birth_dates: Dict[str, str] = {}
-    death_dates: Dict[str, str] = {}
+    birth_dates: dict[str, str] = {}
+    death_dates: dict[str, str] = {}
     for person in data.get("persons"):
         death_date = person.get("death_date", None)
         if death_date is not None:
@@ -80,7 +80,7 @@ def crawl_legislature(
         if birth_date is not None:
             birth_dates[person.get("id")] = birth_date
 
-    peps: Set[str] = set()
+    peps: set[str] = set()
     for membership in data.pop("memberships"):
         person_id = parse_membership(
             context,
@@ -165,11 +165,11 @@ def parse_membership(
     context: Context,
     country: str,
     data: dict[str, Any],
-    organizations: Dict[str, Optional[str]],
+    organizations: dict[str, str | None],
     events: dict[str | None, Any],
-    birth_dates: Dict[str, str],
-    death_dates: Dict[str, str],
-) -> Optional[str]:
+    birth_dates: dict[str, str],
+    death_dates: dict[str, str],
+) -> str | None:
     person_id: str | None = data.pop("person_id", None)
     org_name = organizations.get(data.pop("organization_id", None))
 

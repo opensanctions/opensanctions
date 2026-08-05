@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from zavod.stateful.positions import categorise
 
@@ -60,7 +60,7 @@ WHERE {{
 """
 
 
-def build_request_query(legislature: int) -> Dict[str, str]:
+def build_request_query(legislature: int) -> dict[str, str]:
     return {"query": QUERY.format(legislature=legislature), "format": "json"}
 
 
@@ -87,7 +87,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
 
     position = h.make_position(
         context,
-        name="Member of the Chamber of Deputies",
+        name="Member of the Chamber of Deputies of the Italian Republic",
         wikidata_id="Q18558478",
         country="it",
         topics=["gov.legislative", "gov.national"],

@@ -19,6 +19,7 @@ description: |
   current position and recent roles, which are used to determine PEP status.
 tags:
   - list.pep
+  - list.pep.bulk
 publisher:
   name: Ministerstvo spravedlnosti České republiky
   name_en: Ministry of Justice of the Czech Republic

@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-from typing import Optional, List, Tuple
 
 import click
 from followthemoney import Dataset as FTMDataset
@@ -28,13 +27,13 @@ from zavod.store import get_store
 @click.option("-t", "--threshold", type=float, default=None)
 @click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
 def xref(
-    dataset_paths: List[Path],
+    dataset_paths: list[Path],
     rebuild_store: bool,
     limit: int,
-    threshold: Optional[float],
+    threshold: float | None,
     algorithm: str,
-    focus: Tuple[str, ...] = tuple(),
-    schema: Optional[str] = None,
+    focus: tuple[str, ...] = tuple(),
+    schema: str | None = None,
     discount_internal: float = 1.0,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
@@ -72,7 +71,7 @@ def xref_prune() -> None:
 @cli.command("dedupe", help="Interactively decide xref candidates")
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
+def dedupe(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     with make_session() as session:
         resolver = get_resolver(session)
@@ -100,11 +99,11 @@ def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     help="QuickStatements output path (default: <dataset state>/wikidata.qs)",
 )
 def wikidata_reconcile(
-    dataset_paths: List[Path],
+    dataset_paths: list[Path],
     rebuild_store: bool = False,
     aliases: bool = True,
     algorithm: str = DedupeAlgorithm.NAME,
-    output: Optional[Path] = None,
+    output: Path | None = None,
 ) -> None:
     """Interactively reconcile dataset persons against Wikidata.
 
@@ -119,7 +118,7 @@ def wikidata_reconcile(
     dataset = _load_datasets(dataset_paths)
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
-        raise click.UsageError("Unknown algorithm: %s" % algorithm)
+        raise click.UsageError(f"Unknown algorithm: {algorithm}")
     if output is None:
         output = dataset_state_path(dataset.name) / "wikidata.qs"
 
@@ -130,7 +129,7 @@ def wikidata_reconcile(
     store.sync(clear=rebuild_store)
 
     # Cite the dataset itself when an entity carries no sourceUrl/retrieved date.
-    retrieved: Optional[str] = None
+    retrieved: str | None = None
     if dataset.model.updated_at is not None:
         retrieved = dataset.model.updated_at.date().isoformat()
 
@@ -165,7 +164,7 @@ def wikidata_reconcile(
     if len(text):
         text += "\n"
     output.write_text(text)
-    log.info("Wrote %d QuickStatements commands: %s" % (len(commands), output))
+    log.info(f"Wrote {len(commands)} QuickStatements commands: {output}")
 
 
 @cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")
@@ -180,21 +179,21 @@ def explode(canonical_id: str) -> None:
 @cli.command("merge-cluster", help="Merge multiple entities as duplicates")
 @click.argument("entity_ids", type=str, nargs=-1)
 @click.option("-f", "--force", is_flag=True, default=False)
-def merge(entity_ids: List[str], force: bool = False) -> None:
+def merge(entity_ids: list[str], force: bool = False) -> None:
     try:
         with make_session() as session:
             resolver = get_resolver(session)
             resolver.load_into_memory()
             merge_entities(resolver, entity_ids, force=force)
     except ValueError as ve:
-        log.error("Cannot merge: %s" % ve)
+        log.error(f"Cannot merge: {ve}")
         sys.exit(1)
 
 
 @cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
+def dedupe_edges(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
     from zavod.integration import edges
 
     dataset = _load_datasets(dataset_paths)
@@ -206,5 +205,5 @@ def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None
             store.sync(clear=rebuild_store)
             edges.dedupe_edges(resolver, session, store.view(dataset, external=True))
     except Exception:
-        log.exception("Failed to dedupe edge entities: %r" % dataset_paths)
+        log.exception(f"Failed to dedupe edge entities: {dataset_paths!r}")
         sys.exit(1)

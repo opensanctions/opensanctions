@@ -10,7 +10,7 @@ def crawl(context: Context) -> None:
     xml_url = h.xpath_string(html_doc, ".//a[contains(text(), 'XML')]/@href")
     path = context.fetch_resource("source.xml", xml_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         doc = etree.parse(fh)
     # date = doc.getroot().get("dateGenerated")
     # if date is None:
@@ -46,7 +46,7 @@ def crawl(context: Context) -> None:
             lang="eng",
         )
         if ind.findtext("FOURTH_NAME"):
-            context.log.warn("Fourth name found in individual: %s" % data_id)
+            context.log.warn(f"Fourth name found in individual: {data_id}")
 
         entity.add("birthDate", ind.findtext("./INDIVIDUAL_DATE_OF_BIRTH/DATE"))
         entity.add("country", "az")

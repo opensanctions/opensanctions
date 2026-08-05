@@ -49,7 +49,7 @@ def latest_report_url(context: Context) -> str:
             latest_key = key
             latest_path = entry["ServerRelativeUrl"]
     if latest_path is None:
-        raise ValueError("No monthly salary report found in %s" % SALARY_FOLDER)
+        raise ValueError(f"No monthly salary report found in {SALARY_FOLDER}")
     # ServerRelativeUrl contains spaces and accented characters; percent-encode the path.
     return SITE + quote(latest_path)
 
@@ -69,7 +69,7 @@ def crawl_deputy(
         return
     # Every real row should be a deputy; fail loudly if the role column is unexpected.
     if clase not in ("Diputado", "Diputada"):
-        raise ValueError("Unexpected role %r for %r" % (clase, name))
+        raise ValueError(f"Unexpected role {clase!r} for {name!r}")
 
     person = context.make("Person")
     person.id = context.make_id("cr-diputado", name)

@@ -1,9 +1,10 @@
 import shutil
 import warnings
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from functools import cache
 from pathlib import Path
-from typing import Dict, Iterator, Optional, TextIO, Type, cast
+from typing import TextIO, cast
+from collections.abc import Iterator
 
 from google.cloud.storage import Blob, Client  # type: ignore
 
@@ -18,7 +19,7 @@ warnings.filterwarnings(
 )
 
 
-class ArchiveObject(object):
+class ArchiveObject:
     def __init__(self, name: str) -> None:
         self.name = name
 
@@ -37,12 +38,12 @@ class ArchiveObject(object):
     def publish(
         self,
         source: Path,
-        mime_type: Optional[str] = None,
-        ttl: Optional[int] = False,
+        mime_type: str | None = None,
+        ttl: int | None = False,
     ) -> None:
         raise NotImplementedError
 
-    def republish(self, source: str, ttl: Optional[int] = None) -> None:
+    def republish(self, source: str, ttl: int | None = None) -> None:
         """Copy the object inside the archive, avoid re-uploads"""
         pass
 
@@ -50,7 +51,7 @@ class ArchiveObject(object):
         raise NotImplementedError
 
 
-class ArchiveBackend(object):
+class ArchiveBackend:
     def get_object(self, name: str) -> ArchiveObject:
         raise NotImplementedError
 
@@ -70,10 +71,10 @@ class GoogleCloudObject(ArchiveObject):
     def __init__(self, backend: "GoogleCloudBackend", name: str) -> None:
         self.backend = backend
         self.name = name
-        self._blob: Optional[Blob] = None
+        self._blob: Blob | None = None
 
     @property
-    def blob(self) -> Optional[Blob]:
+    def blob(self) -> Blob | None:
         if self._blob is None:
             self._blob = self.backend.bucket.get_blob(self.name)
         return self._blob
@@ -88,27 +89,27 @@ class GoogleCloudObject(ArchiveObject):
 
     def updated_at(self) -> datetime:
         if self.blob is None:
-            raise RuntimeError("Object does not exist: %s" % self.name)
+            raise RuntimeError(f"Object does not exist: {self.name}")
         updated = self.blob.updated
         assert updated is not None
         return cast(datetime, updated)
 
     def open(self) -> TextIO:
         if self.blob is None:
-            raise RuntimeError("Object does not exist: %s" % self.name)
+            raise RuntimeError(f"Object does not exist: {self.name}")
         self.blob.reload()
         return cast(TextIO, self.blob.open(mode="r", chunk_size=BLOB_CHUNK))
 
     def backfill(self, dest: Path) -> None:
         if self.blob is None:
-            raise RuntimeError("Object does not exist: %s" % self.name)
+            raise RuntimeError(f"Object does not exist: {self.name}")
         self.blob.download_to_filename(dest)
 
     def publish(
         self,
         source: Path,
-        mime_type: Optional[str] = None,
-        ttl: Optional[int] = None,
+        mime_type: str | None = None,
+        ttl: int | None = None,
     ) -> None:
         self._blob = self.backend.bucket.blob(self.name)
         if ttl is not None:
@@ -116,10 +117,10 @@ class GoogleCloudObject(ArchiveObject):
         log.info(f"Uploading blob: {source.name}", blob_name=self.name, max_age=ttl)
         self._blob.upload_from_filename(source, content_type=mime_type)
 
-    def republish(self, source: str, ttl: Optional[int] = None) -> None:
+    def republish(self, source: str, ttl: int | None = None) -> None:
         source_blob = self.backend.bucket.get_blob(source)
         if source_blob is None:
-            raise RuntimeError("Object does not exist: %s" % source)
+            raise RuntimeError(f"Object does not exist: {source}")
         # TODO: add if_generation_match
         log.info(f"Copying blob: {self.name}", source=source, max_age=ttl)
         self._blob = self.backend.bucket.copy_blob(
@@ -172,10 +173,10 @@ class FileSystemObject(ArchiveObject):
         return self.path.stat().st_size
 
     def updated_at(self) -> datetime:
-        return datetime.fromtimestamp(self.path.stat().st_mtime, tz=timezone.utc)
+        return datetime.fromtimestamp(self.path.stat().st_mtime, tz=UTC)
 
     def open(self) -> TextIO:
-        return open(self.path, "r", buffering=BLOB_CHUNK)
+        return open(self.path, buffering=BLOB_CHUNK)
 
     def backfill(self, dest: Path) -> None:
         log.info(
@@ -189,7 +190,7 @@ class FileSystemObject(ArchiveObject):
         self,
         source: Path,
         mime_type: str | None = None,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> None:
         log.info(
             f"Copying file: {self.path.name} to archive",
@@ -199,7 +200,7 @@ class FileSystemObject(ArchiveObject):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, self.path)
 
-    def republish(self, source: str, ttl: Optional[int] = None) -> None:
+    def republish(self, source: str, ttl: int | None = None) -> None:
         source_path = settings.ARCHIVE_PATH / source
         log.info(
             f"Copying file: {self.path.name} to archive",
@@ -225,7 +226,7 @@ class FileSystemBackend(ArchiveBackend):
                 )
 
 
-backends: Dict[str, Type[ArchiveBackend]] = {
+backends: dict[str, type[ArchiveBackend]] = {
     "GoogleCloudBackend": GoogleCloudBackend,
     "FileSystemBackend": FileSystemBackend,
 }
@@ -234,6 +235,6 @@ backends: Dict[str, Type[ArchiveBackend]] = {
 @cache
 def get_archive_backend() -> ArchiveBackend:
     if settings.ARCHIVE_BACKEND not in backends:
-        msg = "Invalid archive backend: %s" % settings.ARCHIVE_BACKEND
+        msg = f"Invalid archive backend: {settings.ARCHIVE_BACKEND}"
         raise ConfigurationException(msg)
     return backends[settings.ARCHIVE_BACKEND]()

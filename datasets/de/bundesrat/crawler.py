@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 from datapatch import Lookup
 from lxml.etree import _Element
@@ -18,7 +17,7 @@ NO_DETAILS_LIST = [
 ]
 
 
-def extract_dob(context: Context, lookup: Lookup, text: str) -> Optional[str]:
+def extract_dob(context: Context, lookup: Lookup, text: str) -> str | None:
     """Try to extract a date from text using regex, fallback to context lookup, log if missing."""
     match = DOB_REGEX.search(text)
     if match:
@@ -35,7 +34,7 @@ def extract_dob(context: Context, lookup: Lookup, text: str) -> Optional[str]:
 
 def extract_position_and_memberships(
     context: Context, details: _Element, url: str
-) -> tuple[Optional[str], list[str]]:
+) -> tuple[str | None, list[str]]:
     position_el = details.find(".//h2")
     memberships_els = details.findall(".//ul/li")
     if position_el is None and not memberships_els:
@@ -86,10 +85,10 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
 
     position = h.make_position(
         context,
-        name="Mitglied des Bundesrates",
+        name="Member of the Bundesrat of Germany",
         country="de",
         topics=["gov.legislative", "gov.national"],
-        lang="deu",
+        lang="eng",
         wikidata_id="Q15835370",
     )
     categorisation = categorise(context, position, default_is_pep=True)

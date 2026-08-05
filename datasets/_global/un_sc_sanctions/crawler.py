@@ -1,5 +1,4 @@
 import re
-from typing import Optional, List, Dict
 from normality import squash_spaces
 from lxml.etree import _Element as Element
 
@@ -8,7 +7,7 @@ from zavod import helpers as h
 from zavod.shed.un_sc import get_legal_entities, get_persons
 
 
-NAME_QUALITY: Dict[str, Optional[str]] = {
+NAME_QUALITY: dict[str, str | None] = {
     "Low": "weakAlias",
     "Good": "alias",
     "a.k.a.": "alias",
@@ -17,7 +16,7 @@ NAME_QUALITY: Dict[str, Optional[str]] = {
 }
 
 
-def values(node: Optional[Element]) -> List[str]:
+def values(node: Element | None) -> list[str]:
     if node is None:
         return []
     return [c.text for c in node.findall("./VALUE") if c.text is not None]
@@ -34,7 +33,7 @@ def parse_alias(entity: Entity, node: Element) -> None:
         entity.add(name_prop, squash_spaces(name))
 
 
-def parse_address(context: Context, node: Element) -> Optional[Entity]:
+def parse_address(context: Context, node: Element) -> Entity | None:
     post_code = node.findtext("./ZIP_CODE")
     state_province = node.findtext("./STATE_PROVINCE")
     if post_code and not re.search(r"\d", post_code):
@@ -146,7 +145,7 @@ def parse_common(context: Context, entity: Entity, node: Element) -> Entity:
     return sanction
 
 
-def crawl_index(context: Context) -> Optional[str]:
+def crawl_index(context: Context) -> str | None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     for link in doc.findall(".//a"):
         href = link.get("href")

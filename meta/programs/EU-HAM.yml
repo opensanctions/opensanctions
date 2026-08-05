@@ -1,14 +1,25 @@
 id: 90
-title: EU Restrictive Measures Against Supporters Of Hamas And The Palestinian Islamic
-  Jihad
+title: EU Restrictive measures against supporters of Hamas and the Palestinian
+  Islamic Jihad
 key: EU-HAM
 url: https://sanctionsmap.eu/#/main/details/60/
-summary: These sanctions target individuals and entities that support, facilitate,
-  or enable violent actions by Hamas and the Palestinian Islamic Jihad. The measures
-  include asset freezes, travel bans, and restrictions on financial transactions to
-  prevent the financing and support of terrorist activities by these groups.
+summary: Targets those who support, facilitate or enable violent actions by Hamas
+  and the Palestinian Islamic Jihad, under the dedicated framework of Decision
+  (CFSP) 2024/385 and Regulation (EU) 2024/386 adopted in response to the
+  attacks of 7 October 2023 against Israel. Since May 2026, the framework also
+  covers members of the Political Bureau of Hamas who promote, defend or
+  justify such violent actions. Designated persons and entities are subject to
+  an asset freeze and a prohibition on making funds or economic resources
+  available to them, and designated natural persons are barred from entering
+  or transiting EU territory.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2024/386
+  - Decision (CFSP) 2024/385
+  - Restrictive measures against those who support, facilitate or enable violent
+    actions by Hamas and the Palestinian Islamic Jihad
+  - HAM
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

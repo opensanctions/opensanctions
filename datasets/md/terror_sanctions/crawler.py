@@ -1,5 +1,4 @@
 import re
-from typing import List, Tuple
 from lxml import html
 from rigour.mime.types import HTML
 
@@ -30,7 +29,7 @@ def clean_name(string: str) -> str:
     return name
 
 
-def parse_names(string: str) -> Tuple[str, List[str]]:
+def parse_names(string: str) -> tuple[str, list[str]]:
     parts = string.split("alias")
     name = clean_name(parts[0])
     aliases = parts[1:] if len(parts) > 1 else []
@@ -41,7 +40,7 @@ def parse_names(string: str) -> Tuple[str, List[str]]:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         doc = html.parse(fh)
 
     table = doc.find(".//table")

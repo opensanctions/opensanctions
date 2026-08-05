@@ -1,6 +1,5 @@
 import csv
 from pathlib import Path
-from typing import Dict
 
 from zavod.extract import zyte_api
 
@@ -10,7 +9,7 @@ from zavod import helpers as h
 PROGRAM_KEY = "OHCHR-BHR"
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     name = row.pop("Business enterprise").strip()
     activities = row.pop("Sub-paragraph of listed activity (2020 report)").strip()
     country = row.pop("State concerned").strip()
@@ -77,7 +76,7 @@ def crawl(context: Context) -> None:
 
     # Crawl the CSV version of the database
     path = context.fetch_resource("ohchr_database.csv", context.data_url)
-    with open(path, "rt") as infh:
+    with open(path) as infh:
         reader = csv.DictReader(infh)
         for row in reader:
             crawl_row(context, row)

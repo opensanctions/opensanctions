@@ -1,5 +1,5 @@
 import re
-from typing import Callable
+from collections.abc import Callable
 
 from zavod import Context, helpers as h
 from zavod.util import Element

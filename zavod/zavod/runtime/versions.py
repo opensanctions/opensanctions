@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 from followthemoney.dataset import Version, VersionHistory
 
 from zavod.meta import Dataset
@@ -41,7 +40,7 @@ def set_last_successful_version(dataset: Dataset, version: Version) -> None:
         raise RuntimeError(
             f"Version history file does not exist for dataset {dataset.name}"
         )
-    with open(path, "r") as fh:
+    with open(path) as fh:
         history = VersionHistory.from_json(fh.read())
     if version not in history.items:
         raise RuntimeError(
@@ -57,11 +56,11 @@ def get_history(dataset_name: str, backfill: bool = True) -> VersionHistory:
     path = get_dataset_artifact(dataset_name, VERSIONS_FILE, backfill=backfill)
     if not path.exists():
         return VersionHistory([])
-    with open(path, "r") as fh:
+    with open(path) as fh:
         return VersionHistory.from_json(fh.read())
 
 
-def get_latest(dataset_name: str, backfill: bool = True) -> Optional[Version]:
+def get_latest(dataset_name: str, backfill: bool = True) -> Version | None:
     """Get the latest version for a dataset."""
     history = get_history(dataset_name, backfill=backfill)
     return history.latest

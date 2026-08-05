@@ -1,10 +1,10 @@
 import csv
-from typing import Iterator, Optional, Dict
+from collections.abc import Iterator
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
-Item = Dict[str, str]
+Item = dict[str, str]
 
 TYPES = {
     "FOREIGN_ENTITY": "LegalEntity",
@@ -15,9 +15,7 @@ TYPES = {
 }
 
 
-def company_id(
-    context: Context, reg_nr: str, name: Optional[str] = None
-) -> Optional[str]:
+def company_id(context: Context, reg_nr: str, name: str | None = None) -> str | None:
     if reg_nr:
         return f"oc-companies-lv-{reg_nr}".lower()
     if name is not None:
@@ -26,7 +24,7 @@ def company_id(
     return None
 
 
-def person_id(context: Context, row: Item) -> Optional[str]:
+def person_id(context: Context, row: Item) -> str | None:
     name = h.make_name(
         full=row.get("name"),
         first_name=row.get("forename"),
@@ -190,8 +188,7 @@ def parse_csv(context: Context, path: str) -> Iterator[Item]:
     data_path = context.fetch_resource(file_name, url)
     with open(data_path) as fh:
         reader = csv.DictReader(fh, delimiter=";")
-        for row in reader:
-            yield row
+        yield from reader
 
 
 def crawl(context: Context) -> None:

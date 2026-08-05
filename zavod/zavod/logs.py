@@ -5,7 +5,8 @@ import sys
 import banal
 from rigour.env import TZ_NAME
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 
 import structlog
 from followthemoney.proxy import EntityProxy
@@ -52,7 +53,7 @@ class RedactingProcessor:
     it needs to recurse into and modify nested structures and structlog's copy is shallow.
     """
 
-    def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
+    def __init__(self, replace_patterns: dict[str, str | Callable[[str], str]]) -> None:
         self.repl_regexes = {re.compile(p): r for p, r in replace_patterns.items()}
 
     def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
@@ -89,7 +90,7 @@ class RedactingProcessor:
             dict_[key] = value
         return dict_
 
-    def redact_list(self, list_: List[Any]) -> List[Any]:
+    def redact_list(self, list_: list[Any]) -> list[Any]:
         for ix, value in enumerate(list_):
             if isinstance(value, dict):
                 value = self.redact_dict(value)
@@ -121,7 +122,7 @@ def configure_redactor() -> Callable[[Any, str, Event], Event]:
     Configure a redacting processor redacting env var values with some variable
     that contained that value.
     """
-    pattern_map: Dict[str, str | Callable[[str], str]] = dict()
+    pattern_map: dict[str, str | Callable[[str], str]] = dict()
     env_vars_longest_first = sorted(
         os.environ.items(),
         key=lambda kv: len(kv[1]),
@@ -145,7 +146,7 @@ def set_logging_context_dataset_name(dataset_name: str) -> None:
 def configure_logging(level: int = logging.DEBUG) -> logging.Logger:
     """Configure log levels and structured logging."""
 
-    base_processors: List[Processor] = [
+    base_processors: list[Processor] = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         structlog.processors.StackInfoRenderer(),
@@ -155,8 +156,8 @@ def configure_logging(level: int = logging.DEBUG) -> logging.Logger:
         structlog.processors.UnicodeDecoder(),
     ]
 
-    emitting_processors: List[Processor] = [log_issue]
-    formatting_processors: List[Processor]
+    emitting_processors: list[Processor] = [log_issue]
+    formatting_processors: list[Processor]
 
     if settings.LOG_JSON:
         formatting_processors = [
@@ -170,7 +171,7 @@ def configure_logging(level: int = logging.DEBUG) -> logging.Logger:
             )
         ]
 
-    processors: List[Processor] = (
+    processors: list[Processor] = (
         base_processors
         + [configure_redactor()]
         + emitting_processors
@@ -266,9 +267,9 @@ def issue_event_value(value: Any) -> Any:
 
 
 def log_issue(_: Any, __: str, event_dict: Event) -> Event:
-    data: Dict[str, Any] = dict(event_dict)
+    data: dict[str, Any] = dict(event_dict)
     context = data.pop("context", None)
-    level: Optional[str] = data.get("level")
+    level: str | None = data.get("level")
     if level is not None:
         level_num = getattr(logging, level.upper(), logging.ERROR)
         if level_num > logging.INFO and context is not None:

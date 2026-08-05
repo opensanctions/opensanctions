@@ -43,6 +43,39 @@ assertions:
       Person: 6000
 
 lookups:
+  # The CAO column only carries a Pennsylvania county, or an out-of-state marker
+  # with a state code. Records with an empty CAO fall back to the bare state code
+  # "PA", and the out-of-state markers without parentheses leave a bare state code
+  # too. These are real places, so they are allow-listed here rather than dropped.
+  type.address:
+    options:
+      - match: PA
+        value: PA
+      - match: NJ
+        value: NJ
+      - match: DE
+        value: DE
+      - match: FL
+        value: FL
+      - match: GA
+        value: GA
+      - match: IL
+        value: IL
+      - match: MD
+        value: MD
+      - match: MO
+        value: MO
+      - match: NY
+        value: NY
+      - match: TX
+        value: TX
+      - match: WV
+        value: WV
+      # From "Out of State WVA" and "Out of State -MO".
+      - match: WVA
+        value: WVA
+      - match: -MO
+        value: -MO
   type.identifier:
     options:
       - match:

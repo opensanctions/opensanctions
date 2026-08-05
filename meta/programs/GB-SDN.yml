@@ -2,8 +2,24 @@ id: 252
 title: UK sanctions relating to Sudan
 key: GB-SDN
 url: https://www.gov.uk/government/collections/uk-sanctions-on-sudan
-summary: Sanctions against entities and individuals in Sudan.
-issuer: gb_ofsi
+summary: Gives effect in the United Kingdom to the UN Security Council's
+  Sudan sanctions regime established by Resolution 1591, and additionally
+  provides for autonomous UK designations, used since 2023 to target
+  commercial entities funding the warring parties in Sudan's civil war.
+  Designated persons are subject to an asset freeze, and designated
+  individuals are banned from entering or transiting the UK. A country-wide
+  arms embargo prohibits the supply of military goods and technology to, or
+  for use in, Sudan.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Resolution 1591
+  - SI 2020/753
+  - The Sudan (Sanctions) (EU Exit) Regulations 2020
+  - UNSCR 1591
 target_territories:
-- sd
+  - sd
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Travel ban

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import helpers as h
@@ -8,9 +6,9 @@ from zavod import helpers as h
 def make_article(
     context: Context,
     url: str,
-    key_extra: Optional[str] = None,
-    title: Optional[str] = None,
-    published_at: Optional[str] = None,
+    key_extra: str | None = None,
+    title: str | None = None,
+    published_at: str | None = None,
 ) -> Entity:
     """
     Create an article entity based on the URL where it was published.
@@ -36,8 +34,8 @@ def make_documentation(
     context: Context,
     entity: Entity,
     article: Entity,
-    key_extra: Optional[str] = None,
-    date: Optional[str] = None,
+    key_extra: str | None = None,
+    date: str | None = None,
 ) -> Entity:
     """
     Creates a documentation entity to link an article to a related entity.

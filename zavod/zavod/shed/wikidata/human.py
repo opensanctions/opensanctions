@@ -1,4 +1,3 @@
-from typing import Optional
 from datetime import timedelta
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient
@@ -13,7 +12,7 @@ BLOCKED_PERSONS = {"Q1045488"}
 
 def wikidata_basic_human(
     context: Context, client: WikidataClient, item: Item, strict: bool = False
-) -> Optional[Entity]:
+) -> Entity | None:
     if item.id in BLOCKED_PERSONS:
         return None
     types = item.types

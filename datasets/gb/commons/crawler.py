@@ -56,10 +56,11 @@ def crawl_member(
 
     position = h.make_position(
         context,
-        name="Member of the House of Commons",
+        name="Member of the House of Commons of the United Kingdom",
         country="gb",
         topics=TOPICS,
         wikidata_id="Q16707842",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:

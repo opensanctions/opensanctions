@@ -1,5 +1,6 @@
 import re
-from typing import Dict, Generator, List, Optional, Set, cast
+from typing import cast
+from collections.abc import Generator
 
 from lxml.html import HtmlElement
 from normality import slugify, squash_spaces
@@ -58,10 +59,10 @@ def parse_html_table(
     table: Element,
     header_tag: str = "th",
     skiprows: int = 0,
-    ignore_colspan: Optional[Set[str]] = None,
+    ignore_colspan: set[str] | None = None,
     slugify_headers: bool = True,
     index_empty_headers: bool = False,
-) -> Generator[Dict[str, Element], None, None]:
+) -> Generator[dict[str, Element], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
 
@@ -87,7 +88,7 @@ def parse_html_table(
         if headers is None:
             headers = []
             for colnum, el in enumerate(row.findall(f"./{header_tag}")):
-                header_text: Optional[str] = element_text(el)
+                header_text: str | None = element_text(el)
                 if slugify_headers:
                     header_text = slugify(header_text, sep="_")
                 if index_empty_headers and not header_text:
@@ -110,7 +111,7 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def cells_to_str(row: Dict[str, Element]) -> Dict[str, str | None]:
+def cells_to_str(row: dict[str, Element]) -> dict[str, str | None]:
     """
     Return the string value of each HtmlElement value in the passed dictionary
 
@@ -123,7 +124,7 @@ def cells_to_str(row: Dict[str, Element]) -> Dict[str, str | None]:
     }
 
 
-def links_to_dict(el: Element) -> Dict[str | None, str | None]:
+def links_to_dict(el: Element) -> dict[str | None, str | None]:
     """
     Return a dictionary of the text content and href of each anchor element in the
     passed HtmlElement
@@ -136,8 +137,8 @@ def links_to_dict(el: Element) -> Dict[str | None, str | None]:
 
 
 def xpath_elements(
-    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
-) -> List[Element]:
+    el: Element, xpath: str, *, expect_exactly: int | None = None
+) -> list[Element]:
     """
     Evaluate an XPath expression and return matching elements as a typed list.
 
@@ -179,8 +180,8 @@ def xpath_element(el: Element, xpath: str) -> Element:
 
 
 def xpath_strings(
-    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
-) -> List[str]:
+    el: Element, xpath: str, *, expect_exactly: int | None = None
+) -> list[str]:
     """
     Evaluate an XPath expression and return matching strings as a typed list.
 
@@ -213,7 +214,7 @@ def xpath_string(el: Element, xpath: str) -> str:
     return xpath_strings(el, xpath, expect_exactly=1)[0]
 
 
-def split_html_newline_tags(string: str) -> List[str]:
+def split_html_newline_tags(string: str) -> list[str]:
     """
     Split a string on HTML <br> and <p> tags, returning a list of strings.
 

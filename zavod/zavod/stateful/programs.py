@@ -1,6 +1,6 @@
 import functools
 import yaml
-from typing import Literal, Optional
+from typing import Literal
 from pydantic import BaseModel, Field
 
 from zavod import settings
@@ -81,21 +81,38 @@ Measure = Literal[
 ]
 
 
+ProgramStatus = Literal[
+    # The legal regime is in force. This is the default when `status` is omitted.
+    "active",
+    # The grey zone in between: the regime is no longer fully in force — its
+    # authority has wound down or only partly survives — yet designations made
+    # under it persist and may still bind (pre-existing blocks that remain, or
+    # one half of a composite regime that still designates). Not fully alive,
+    # not gone. The summary carries the specifics.
+    "legacy",
+    # The regime is no longer in force at all — revoked, repealed, expired, or
+    # sunset, with no remaining legal effect. A single neutral bucket rather than
+    # a legal taxonomy of how it ended; entries may linger in the data for
+    # historical reference but no longer bind.
+    "ended",
+]
+
+
 class Issuer(BaseModel):
     """An organization or governmental body that issues sanctions programs."""
 
-    id: Optional[int] = None  # from Directus, drop after migration
+    id: int | None = None  # from Directus, drop after migration
     name: str = Field(
         description="Name of the organization (e.g., 'UN Security Council', 'Office of Foreign Asset Control')"
     )
-    acronym: Optional[str] = Field(
+    acronym: str | None = Field(
         default=None, description="Abbreviation (e.g., 'DFAT', 'UNSC', 'OFAC')"
     )
-    organisation: Optional[str] = Field(
+    organisation: str | None = Field(
         default=None,
         description="Parent organization (e.g., 'United Nations', 'Government of Australia')",
     )
-    territory: Optional[str] = Field(
+    territory: str | None = Field(
         default=None,
         description="ISO alpha-2 country code (e.g., 'au', 'us', 'ae'), null for international bodies",
     )
@@ -104,7 +121,7 @@ class Issuer(BaseModel):
 class Program(BaseModel):
     """A sanctions regime."""
 
-    id: Optional[int] = None  # from Directus, drop after migration
+    id: int | None = None  # from Directus, drop after migration
     # Convention: {ISSUER}-{TARGET} or {ISSUER}-{SHORTNAME}. Uppercase,
     # alphanumeric with hyphens only.
     key: str = Field(
@@ -115,24 +132,24 @@ class Program(BaseModel):
     title: str = Field(
         description="Official or near-official English title of the program."
     )
-    url: Optional[str] = Field(
+    url: str | None = Field(
         default=None,
         description="Authoritative public-facing page at the issuing authority, "
         "e.g. SECO program page, EU sanctions map entry, UN SC committee page.",
     )
     # Two to four sentences, consistent with the measures field.
-    summary: Optional[str] = Field(
+    summary: str | None = Field(
         default=None,
         description="Plain-language description: who the program targets, why, "
         "and what measures it imposes.",
     )
     # Some programs are covered by multiple datasets; pick one as the primary.
-    dataset: Optional[str] = Field(
+    dataset: str | None = Field(
         default=None,
         description="Related OpenSanctions dataset that ingests data from this "
         "program, e.g. eu_fsf, ch_seco_sanctions.",
     )
-    issuer: Optional[Issuer] = Field(
+    issuer: Issuer | None = Field(
         default=None,
         description="Issuing authority from the controlled vocabulary, "
         "e.g. eu_council, ch_seco, zz_unsc, us_ofac.",
@@ -158,6 +175,16 @@ class Program(BaseModel):
         default_factory=list,
         description="Sanctions measures imposed by the program, "
         "e.g. 'Asset freeze', 'Travel ban', 'Arms restrictions'.",
+    )
+    # Legal status of the regime. Defaults to 'active'; set 'legacy' when the
+    # regime has wound down but its designations still persist, or 'ended' once
+    # it is no longer in force at all. The summary should still narrate what
+    # happened in prose.
+    status: ProgramStatus = Field(
+        default="active",
+        description="Legal status of the regime: 'active' (in force, default), "
+        "'legacy' (wound down but designations persist), or 'ended' (no longer "
+        "in force).",
     )
 
 
@@ -217,5 +244,5 @@ def get_all_programs_by_key() -> dict[str, Program]:
     return by_key
 
 
-def get_program_by_key(program_key: str) -> Optional[Program]:
+def get_program_by_key(program_key: str) -> Program | None:
     return get_all_programs_by_key().get(program_key, None)

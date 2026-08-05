@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 import re
 from lxml import html
 from time import sleep
@@ -32,7 +32,7 @@ def get_callback_pagination_params(page: int) -> str:
     return f"c0:KV|2;[];GB|20;12|PAGERONCLICK3|PN{page};"
 
 
-def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
+def fetch_form_params(context: Context, section: str) -> dict[str, Any]:
     """
     This is a helper function to make the first request and get the form params
     for ASP.NET form.
@@ -42,7 +42,7 @@ def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
     Returns:
         The form params as a dict.
     """
-    params: Dict[str, str] = {}
+    params: dict[str, str] = {}
 
     response = context.fetch_html(
         BASE_URL.format(section=section), cache_days=CACHE_DAYS
@@ -106,7 +106,7 @@ def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
 def crawl_page(
     context: Context,
     section: str,
-    params: Dict[str, str],
+    params: dict[str, str],
     page_number: int,
     retries: int,
 ) -> int:
@@ -194,7 +194,7 @@ def crawl_page(
         value = re.sub(r"\\[rnt]", "", value)
         headers.append(context.lookup_value("headers", value))
     if not all(headers):
-        raise ValueError("Failed to translate some header: %s" % headers)
+        raise ValueError(f"Failed to translate some header: {headers}")
     data_rows = h.xpath_elements(
         dom,
         "descendant-or-self::*[@id = 'ASPxGridView1_DXMainTable']/"

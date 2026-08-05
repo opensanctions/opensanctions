@@ -1,6 +1,5 @@
 import shutil
 import plyvel  # type: ignore
-from typing import List, Optional
 from followthemoney.exc import InvalidData
 from followthemoney import Statement
 from nomenklatura.resolver import Linker
@@ -34,7 +33,7 @@ class Store(LevelDBStore[Dataset, Entity]):
     def view(self, scope: Dataset, external: bool = False) -> View:
         return LevelDBView(self, scope, external=external)
 
-    def assemble(self, statements: List[Statement]) -> Optional[Entity]:
+    def assemble(self, statements: list[Statement]) -> Entity | None:
         """Build an entity proxy from a set of cached statements, considering
         only those statements that belong to the given sources."""
         try:
@@ -43,14 +42,14 @@ class Store(LevelDBStore[Dataset, Entity]):
             dbg_stmts = [
                 [s.dataset, s.entity_id, s.schema, s.prop, s.value] for s in statements
             ]
-            log.error("Assemble error: %s" % inv, statements=dbg_stmts)
+            log.error(f"Assemble error: {inv}", statements=dbg_stmts)
             return None
         return entity
 
     def sync(self, clear: bool = False) -> None:
         if clear:
             self.clear()
-        ds_key = f"dataset:{self.dataset.name}".encode("utf-8")
+        ds_key = f"dataset:{self.dataset.name}".encode()
         if self.db.get(ds_key):
             return
         log.info("Building local LevelDB aggregator...", scope=self.dataset.name)

@@ -1,10 +1,9 @@
 from collections import defaultdict
-from typing import Dict, Set, Optional
 
 from zavod import Context, Entity
 from zavod.constants import ORIGIN_INFERRED
 from zavod.integration import get_dataset_linker
-from zavod.meta import get_multi_dataset
+from zavod.meta import get_catalog, get_multi_dataset
 from zavod.stateful.positions import OccupancyStatus, categorise_many
 from zavod.store import get_store
 
@@ -37,7 +36,7 @@ def get_best_occupancy_status(occupancy: Entity) -> OccupancyStatus:
     return OccupancyStatus.UNKNOWN
 
 
-def get_best_influence_status(statuses: Set[OccupancyStatus]) -> OccupancyStatus:
+def get_best_influence_status(statuses: set[OccupancyStatus]) -> OccupancyStatus:
     """Get the best status from all occupancies for a given influence level."""
 
     # If any of the occupancies at this influence level is CURRENT, we prefer that
@@ -57,7 +56,7 @@ def get_best_influence_status(statuses: Set[OccupancyStatus]) -> OccupancyStatus
     return OccupancyStatus.UNKNOWN
 
 
-def format_influence_label(topic: str, status: OccupancyStatus) -> Optional[str]:
+def format_influence_label(topic: str, status: OccupancyStatus) -> str | None:
     level_label = INFLUENCE_TOPIC_LABELS.get(topic, None)
     status_label = OCCUPANCY_STATUS_LABELS.get(status, None)
     # If it's not an influence topic, we don't want it
@@ -68,7 +67,7 @@ def format_influence_label(topic: str, status: OccupancyStatus) -> Optional[str]
 
 
 def build_consolidated_influence_labels(
-    topic_to_seen_statuses: dict[str, Set[OccupancyStatus]],
+    topic_to_seen_statuses: dict[str, set[OccupancyStatus]],
 ) -> list[str]:
     """For a mapping of influence topics to sets of seen statuses for their occupancies,
     build human-readable influence labels for each of them."""
@@ -79,9 +78,9 @@ def build_consolidated_influence_labels(
     return [f for f in formatted if f is not None]
 
 
-def analyze_position(context: Context, entity: Entity) -> Set[str]:
+def analyze_position(context: Context, entity: Entity) -> set[str]:
     """Analyze a position entity and emit the categorisation."""
-    topics: Set[str] = set()
+    topics: set[str] = set()
 
     # Skip if this is the only dataset containing this Position. This should be implicit
     # from other conditions, but let's be sure this dataset doesn't feed itself
@@ -110,7 +109,7 @@ def analyze_position(context: Context, entity: Entity) -> Set[str]:
 
 
 def crawl(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
     store.sync()
@@ -119,7 +118,7 @@ def crawl(context: Context) -> None:
 
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 10000 == 0:
-            context.log.info("Processed %s entities" % entity_idx)
+            context.log.info(f"Processed {entity_idx} entities")
 
         if not entity.schema.is_a("Person") or "role.pep" not in entity.get("topics"):
             continue
@@ -132,9 +131,9 @@ def crawl(context: Context) -> None:
 
         pep_count += 1
         if pep_count > 0 and pep_count % 10000 == 0:
-            context.log.info("Processed %s PEPs" % pep_count)
+            context.log.info(f"Processed {pep_count} PEPs")
 
-        topic_to_seen_statuses: Dict[str, Set[OccupancyStatus]] = defaultdict(set)
+        topic_to_seen_statuses: dict[str, set[OccupancyStatus]] = defaultdict(set)
 
         for prop, adjacent in view.get_adjacent(entity):
             if prop.name != "positionOccupancies":

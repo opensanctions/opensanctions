@@ -1,8 +1,7 @@
-from typing import Dict
 from zavod import Context, helpers as h
 
 
-def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
+def crawl_item(context: Context, row: dict[str, str | None]) -> None:
     entity = context.make("Person")
 
     # The last row of the table is empty
