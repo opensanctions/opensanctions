@@ -1,4 +1,4 @@
-title: Marshall Islands Nitijela
+title: Marshall Islands Members of the Nitijela
 name: mh_nitijela
 prefix: mh-nit
 entry_point: crawler.py
@@ -8,16 +8,13 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Nitijela, the unicameral legislature of the Marshall Islands.
+  Unicameral legislature that elects the President from among its members
 description: |
-  The Nitijela is the unicameral legislature of the Republic of the Marshall Islands.
-  Members are elected for four-year terms; the President is elected by and from among the
-  members, and cabinet ministers are likewise drawn from the membership, so the President,
-  Speaker and ministers all sit as members of the Nitijela alongside the backbench
-  senators.
-
-  This dataset records each sitting member with their name and the role (President,
-  Speaker, Vice Speaker, minister or senator) under which the source lists them.
+  Current members of the Nitijela, the unicameral legislature of the Republic of the Marshall
+  Islands. Its members are elected for four-year terms and hold the country's legislative
+  power, including passing laws and approving the budget. The President is elected by and from
+  among the members, and cabinet ministers are likewise drawn from the membership, so the
+  President, Speaker and ministers all sit as members alongside the backbench senators.
 url: https://www.rmiparliament.org/
 publisher:
   name: Nitijela of the Marshall Islands
