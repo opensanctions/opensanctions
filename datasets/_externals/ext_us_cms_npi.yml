@@ -68,7 +68,6 @@ inputs:
 config:
   index_options:
     max_candidates: 50
-    match_batch: 200
     memory: 4000
   topics:
     - debarment

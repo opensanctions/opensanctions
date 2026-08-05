@@ -76,7 +76,6 @@ config:
   topic_gated: true
   index_options:
     max_candidates: 25
-    match_batch: 300
     memory: 4000
   threshold: 0.5
   algorithm: regression-v1
