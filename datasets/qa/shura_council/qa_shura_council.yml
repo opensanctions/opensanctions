@@ -8,17 +8,15 @@ coverage:
 load_statements: true
 ci_test: false  # The site returns 403 to non-browser user agents.
 summary: >-
-  Members of the Shura Council of Qatar, the country's legislative body.
+  National legislative body, part elected and part appointed by the Emir
 description: |
   Current members of the Shura Council (Majlis al-Shura), the national legislative body of
   the State of Qatar. Its members — elected and appointed by the Emir — serve four-year
   terms and hold the country's legislative authority, including approving the general
   budget and passing laws.
 
-  This dataset records each member with their name in Arabic and English, a link to their
-  profile, and whether they hold the office of Speaker or Deputy Speaker alongside their
-  seat. Only the sitting session's roster is published in a form that carries dates, so
-  earlier sessions are not included.
+  Only the sitting session's roster is published in a form that carries dates, so earlier
+  sessions are not included.
 url: https://www.shura.qa/
 publisher:
   name: Shura Council of Qatar
