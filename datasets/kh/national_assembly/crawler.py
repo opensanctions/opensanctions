@@ -1,6 +1,7 @@
+from zavod.stateful.positions import categorise
+
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
 
 # Khmer digits U+17E0..U+17E9 -> ASCII, so a row's ordinal cell can be recognised without
 # embedding Khmer numerals in the source.
