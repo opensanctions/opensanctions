@@ -1,20 +1,31 @@
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
+from functools import reduce
 import os
 from pathlib import Path
 import tempfile
-from typing import Generator, Optional, List, Iterable, Dict
+from typing import Generator, List, Iterable, Dict
 from zipfile import ZipFile
 from dataclasses import dataclass
 
 import numpy as np
 import pandas
-from pyspark import Row, StorageLevel
-from pyspark.sql import SparkSession
+from pyspark import StorageLevel
+from pyspark.sql import Column, SparkSession, Window
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import (
-    struct,
-    udf,
+    array_distinct,
+    array_sort,
+    collect_list,
+    concat,
+    concat_ws,
+    date_sub,
+    lit,
+    max as spark_max,
+    min as spark_min,
+    row_number,
+    transform,
+    when,
     col,
     coalesce,
     explode_outer,
@@ -23,6 +34,7 @@ from pyspark.sql.functions import (
 from google.cloud.storage import Client  # type: ignore
 
 from egrul_xml import parse_xml
+from parse_context import ParseContext
 from schema import company_record_schema
 from zavod import Context
 from zavod import Dataset
@@ -69,103 +81,6 @@ class BlobURL:
         return self.url
 
 
-def day_before(d: date) -> date:
-    return d - timedelta(days=1)
-
-
-def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row:
-    """Enriches a company with information from a previous version."""
-    # Doing this in Python is too expensive, we use a Spark join
-    assert old is not None and new is not None, "Both old and new must be present"
-
-    result = new
-    data_date = new.legal_entity.seen_date
-
-    expired_ownerships = []
-    new_ownership_ids = set([o.id for o in result.ownerships])
-    for o in old.ownerships:
-        # Ownership.id is built from (owner, asset, shares_count, role), so if any of these changes,
-        # we'll add an expired Ownership
-        if o.id not in new_ownership_ids:
-            # If we already have an end date, use that. It might have been set by
-            # a previous run of this function when the new directorship first appeared.
-            if o.end_date:
-                expired_ownerships.append(o)
-            else:
-                o_dict = o.asDict()
-                o_dict["end_date"] = day_before(data_date)
-                expired_ownerships.append(Row(**o_dict))
-
-    expired_directorships = []
-    new_directorship_ids = set([o.id for o in result.directorships])
-    for d in old.directorships:
-        # Directorship.id is built from (company, director, role), so if any of these changes,
-        # we'll add an expired Directorship
-        if d.id not in new_directorship_ids:
-            # If we already have an end date, use that. It might have been set by
-            # a previous run of this function when the new directorship first appeared.
-            if d.end_date:
-                expired_directorships.append(d)
-            else:
-                # We try to find a new directorship with the same role, and if it has a start_date,
-                # we use that as a better end_date for the previous directorship than just the day we saw it.
-                new_directorship_same_role = [
-                    new_d for new_d in result.directorships if new_d.role == d.role
-                ]
-                d_dict = d.asDict()
-                if (
-                    len(new_directorship_same_role) > 0
-                    and new_directorship_same_role[0].start_date is not None
-                ):
-                    d_dict["end_date"] = day_before(
-                        new_directorship_same_role[0].start_date
-                    )
-                else:
-                    d_dict["end_date"] = day_before(data_date)
-                expired_directorships.append(Row(**d_dict))
-
-    if expired_directorships or expired_ownerships:
-        result_dict = result.asDict()
-        # context.log.info(
-        #     "Adding %d ended ownerships and %d ended directorships to %s"
-        #     % (len(expired_ownerships), len(expired_directorships), result_dict["id"])
-        # )
-        result_dict["ownerships"].extend(expired_ownerships)
-        result_dict["directorships"].extend(expired_directorships)
-        result = Row(**result_dict)
-    return result
-
-
-def update_companies_from_new_companies(
-    context: Context, old: DataFrame, new: DataFrame
-) -> DataFrame:
-    """Update a dataframe of companies with information from a new version."""
-    context.log.info("Merging %d new" % new.count())
-    old = old.alias("old")
-    new = new.alias("new")
-
-    # We run the python code only on rows where both old and new are present because it's expensive
-    to_merge = old.join(new, on="id", how="inner")
-
-    merge_fn = udf(
-        lambda old, new: update_company_from_new_company(context, old, new),
-        company_record_schema,
-    )
-    merged = (
-        to_merge.withColumn(
-            "merged", merge_fn(struct(col("old.*")), struct(col("new.*")))
-        )
-        # The select at the end "flattens" the company struct back into the root of the dataframe
-        # (instead of being nested in a "new", "old" or "merged" column)
-        .select("merged.*")
-    )
-
-    not_to_merge_old = old.join(new, on="id", how="left_anti")
-    not_to_merge_new = new.join(old, on="id", how="left_anti")
-
-    return merged.union(not_to_merge_old).union(not_to_merge_new)
-
-
 def merge_duplicate_company_records(df: DataFrame) -> DataFrame:
     """Deduplicate companies that have the same ID in the given DataFrame."""
 
@@ -194,7 +109,7 @@ def get_local_archive_path(blob_url: BlobURL) -> Path:
 
 def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
     data_date = get_archive_date_from_blob_url(blob_url)
-    context = get_context(data_date)
+    context = get_context()
 
     local_archive_path = get_local_archive_path(blob_url)
     # TODO: Since we cache persistently locally (for running on Leon's machine),
@@ -217,8 +132,13 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
             for name in zip.namelist():
                 if not name.lower().endswith(".xml"):
                     continue
+                pc = ParseContext(
+                    origin="%s/%s" % (Path(blob_url.name).name, name),
+                    data_time=data_date,
+                    _context=context,
+                )
                 with zip.open(name, "r") as fh:
-                    for e in parse_xml(context, fh):
+                    for e in parse_xml(pc, fh):
                         yield e
     finally:
         # Don't clean up the temporary file, for now this is being run on Leon's machine and it's
@@ -227,12 +147,16 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
         pass
 
 
+def archive_table_name(archive_date: date) -> str:
+    return archive_date.isoformat().replace("-", "_")
+
+
 def crawl_archives_for_date(
     spark: SparkSession,
     archive_date: date,
     archives: List[BlobURL],
 ) -> DataFrame:
-    table_name = archive_date.isoformat().replace("-", "_")
+    table_name = archive_table_name(archive_date)
     if spark.catalog.tableExists(table_name):
         return spark.table(table_name)
 
@@ -251,6 +175,404 @@ def crawl_archives_for_date(
     df.unpersist()
 
     return spark.table(table_name)
+
+
+# === Assembling current state out of the archives ===
+#
+# Every archive is a set of company records, each listing that company's ownerships and
+# directorships at that point in time. A yearly FULL archive lists every company; a daily
+# archive lists only the companies that changed that day. So:
+#
+#   - A company missing from an archive means nothing at all.
+#   - An ownership or directorship missing from a record that *is* in the archive has
+#     ended: the registry described the company and didn't mention it.
+#
+# That makes "when did this end?" a question about the company's own appearances, never
+# about other companies. We therefore don't build current state by folding archives into
+# each other; we group by company instead. Each ownership and directorship gets one
+# "tenure" per run of consecutive appearances of its company that list it, and the
+# company's next appearance after a tenure is the archive that ended it.
+#
+# The grouping runs over "appearance" tables a few strings wide, so the nested records are
+# only touched again at the end, to pick up the winning version of each relationship.
+
+# The nested relationship arrays inside a company record, both handled identically.
+RELATIONSHIP_ARRAY_COLUMNS = ("ownerships", "directorships")
+
+COMPANY_APPEARANCES_TABLE = "company_appearances"
+RELATIONSHIP_APPEARANCES_TABLE = "relationship_appearances"
+DIRECTORSHIP_SUCCESSOR_STARTS_TABLE = "directorship_successor_starts"
+RELATIONSHIP_TENURES_TABLE = "relationship_tenures"
+
+# Every stage after the appearance tables joins, windows or groups by company id, so the
+# tables are bucketed on it and Spark can do all of that without shuffling.
+NUM_BUCKETS = 200
+
+
+def write_company_bucketed_table(
+    df: DataFrame, table_name: str, sort_by: List[str]
+) -> None:
+    """Write a table bucketed and sorted by company id.
+
+    The repartition uses the same hash as Spark's bucketing, so each task writes exactly
+    one bucket; without it every task writes a file into every bucket.
+    """
+    (
+        df.repartition(NUM_BUCKETS, col("id"))
+        .write.mode("overwrite")
+        .bucketBy(NUM_BUCKETS, "id")
+        .sortBy(*sort_by)
+        .saveAsTable(table_name)
+    )
+
+
+def read_archive_records(
+    spark: SparkSession, archive_dates: List[date], columns: List[str]
+) -> DataFrame:
+    """Read the per-archive-date tables as one DataFrame tagged with `archive_date`.
+
+    Deliberately lazy and column-projected: callers ask for the few columns they need so
+    Spark's Parquet reader skips the rest. That matters a lot, because the nested
+    ownership and directorship arrays dwarf everything else in a record.
+    """
+    return reduce(
+        DataFrame.unionByName,
+        [
+            spark.table(archive_table_name(d))
+            .select(*columns)
+            .withColumn("archive_date", lit(d))
+            for d in archive_dates
+        ],
+    )
+
+
+def build_appearance_tables(
+    spark: SparkSession, archive_dates: List[date]
+) -> tuple[DataFrame, DataFrame]:
+    """Materialise which companies, ownerships and directorships each archive listed.
+
+    This is the only place the full set of records is scanned for the end-date logic, and
+    it reduces them to a few skinny columns that everything downstream groups by.
+    """
+    if not spark.catalog.tableExists(COMPANY_APPEARANCES_TABLE):
+        # One row per (company, archive date) already, because the per-date tables are
+        # deduplicated by company id. The company's own origin is kept here so that when
+        # this archive ends a relationship, we can name it as the source of that end date.
+        companies = read_archive_records(
+            spark, archive_dates, ["id", "legal_entity.origin"]
+        )
+        write_company_bucketed_table(
+            companies, COMPANY_APPEARANCES_TABLE, ["id", "archive_date"]
+        )
+
+    if not spark.catalog.tableExists(RELATIONSHIP_APPEARANCES_TABLE):
+        relationships = reduce(
+            DataFrame.unionByName,
+            [
+                read_archive_records(spark, archive_dates, ["id", kind]).select(
+                    "id",
+                    lit(kind).alias("kind"),
+                    # A record can list the same relationship twice, and the window
+                    # functions downstream need one row per appearance. Deduplicating
+                    # within the array does that without a shuffle, and it's enough:
+                    # only ids from the same array can collide, because the per-date
+                    # tables are already deduplicated by company.
+                    explode(
+                        array_distinct(transform(col(kind), lambda r: r["id"]))
+                    ).alias("relationship_id"),
+                    "archive_date",
+                )
+                for kind in RELATIONSHIP_ARRAY_COLUMNS
+            ],
+        )
+        write_company_bucketed_table(
+            relationships, RELATIONSHIP_APPEARANCES_TABLE, ["id", "archive_date"]
+        )
+
+    return (
+        spark.table(COMPANY_APPEARANCES_TABLE),
+        spark.table(RELATIONSHIP_APPEARANCES_TABLE),
+    )
+
+
+def build_successor_start_table(
+    spark: SparkSession, archive_dates: List[date]
+) -> DataFrame:
+    """Collect the earliest directorship start date per company, archive and role.
+
+    Where the archive that dropped a directorship names a successor in the same role, that
+    successor's start date is a sharper end date than the archive date: the registry's own
+    record date can predate the archive that publishes it.
+    """
+    if not spark.catalog.tableExists(DIRECTORSHIP_SUCCESSOR_STARTS_TABLE):
+        starts = (
+            read_archive_records(spark, archive_dates, ["id", "directorships"])
+            .select(
+                "id",
+                "archive_date",
+                explode(col("directorships")).alias("directorship"),
+            )
+            .groupBy("id", "archive_date", col("directorship.role").alias("role"))
+            .agg(spark_min("directorship.start_date").alias("successor_start_date"))
+        )
+        write_company_bucketed_table(
+            starts, DIRECTORSHIP_SUCCESSOR_STARTS_TABLE, ["id", "archive_date"]
+        )
+
+    return spark.table(DIRECTORSHIP_SUCCESSOR_STARTS_TABLE)
+
+
+def number_company_appearances(company_appearances: DataFrame) -> DataFrame:
+    """Number each company's own appearances consecutively, oldest first.
+
+    Absence from an archive is only evidence about a company that is in that archive, so
+    all our reasoning is against the company's own list of appearances rather than the
+    calendar. This sequence number is what makes "consecutive" and "the next one" mean
+    that.
+    """
+    return company_appearances.select("id", "archive_date").withColumn(
+        "seq", row_number().over(Window.partitionBy("id").orderBy("archive_date"))
+    )
+
+
+def build_relationship_tenures(
+    spark: SparkSession,
+    company_appearances: DataFrame,
+    relationship_appearances: DataFrame,
+) -> DataFrame:
+    """Find each relationship's runs of consecutive appearances and what ended each.
+
+    A relationship that disappears and comes back later gets one tenure per run, so a
+    directorship held twice reads as two directorships rather than one long one.
+
+    The closing archive is null for the tenure that is still listed in the company's
+    latest record: that relationship is current, and gets no end date.
+    """
+    if not spark.catalog.tableExists(RELATIONSHIP_TENURES_TABLE):
+        appearances = number_company_appearances(company_appearances)
+        dated = relationship_appearances.join(
+            appearances, on=["id", "archive_date"], how="inner"
+        )
+
+        # Across a run of consecutive seq values, seq minus a counter over the same rows
+        # stays constant, which is what identifies the run.
+        tenure_id = col("seq") - row_number().over(
+            Window.partitionBy("id", "kind", "relationship_id").orderBy("seq")
+        )
+        tenures = (
+            dated.withColumn("tenure_id", tenure_id)
+            .groupBy("id", "kind", "relationship_id", "tenure_id")
+            .agg(spark_max("seq").alias("last_seq"))
+        )
+
+        last_seen = appearances.select(
+            "id",
+            col("seq").alias("last_seq"),
+            col("archive_date").alias("last_archive_date"),
+        )
+        closing = appearances.select(
+            "id",
+            (col("seq") - 1).alias("last_seq"),
+            col("archive_date").alias("closing_archive_date"),
+        )
+        resolved = (
+            tenures.join(last_seen, on=["id", "last_seq"], how="inner")
+            .join(closing, on=["id", "last_seq"], how="left")
+            .select(
+                "id",
+                "kind",
+                "relationship_id",
+                "last_archive_date",
+                "closing_archive_date",
+            )
+        )
+        write_company_bucketed_table(resolved, RELATIONSHIP_TENURES_TABLE, ["id"])
+
+    return spark.table(RELATIONSHIP_TENURES_TABLE)
+
+
+def join_winning_relationship_versions(
+    spark: SparkSession,
+    archive_dates: List[date],
+    tenures: DataFrame,
+    company_appearances: DataFrame,
+    kind: str,
+) -> DataFrame:
+    """Attach each tenure to the relationship as its last archive described it.
+
+    The last archive listing a relationship holds the registry's final word on it, so
+    that's the version we keep. This is the one join that touches the nested records, and
+    it's keyed by company, as is the aggregation that follows.
+    """
+    relationships = (
+        read_archive_records(spark, archive_dates, ["id", kind])
+        .select("id", "archive_date", explode(col(kind)).alias("relationship"))
+        .withColumn("relationship_id", col("relationship.id"))
+    )
+    ends = tenures.where(col("kind") == kind).select(
+        "id",
+        "relationship_id",
+        col("last_archive_date").alias("archive_date"),
+        "closing_archive_date",
+    )
+    closing_origins = company_appearances.select(
+        "id",
+        col("archive_date").alias("closing_archive_date"),
+        col("origin").alias("closing_origin"),
+    )
+    return relationships.join(
+        ends, on=["id", "archive_date", "relationship_id"], how="inner"
+    ).join(
+        # Left join: a tenure with no closing archive is still current.
+        closing_origins,
+        on=["id", "closing_archive_date"],
+        how="left",
+    )
+
+
+def collect_resolved_relationships(
+    tenures: DataFrame, end_date: Column, output_column: str
+) -> DataFrame:
+    """Stamp end date and closing origin onto each relationship, then group by company.
+
+    A relationship the source itself gave an end date keeps that date, and keeps its
+    origin untouched: we only claim the closing archive as provenance for end dates we
+    derived from it.
+    """
+    ends_here = (
+        col("relationship.end_date").isNull() & col("closing_archive_date").isNotNull()
+    )
+    resolved = (
+        col("relationship")
+        .withField(
+            "end_date",
+            when(ends_here, end_date).otherwise(col("relationship.end_date")),
+        )
+        .withField(
+            "origin",
+            when(
+                ends_here, concat(col("relationship.origin"), col("closing_origin"))
+            ).otherwise(col("relationship.origin")),
+        )
+    )
+    return (
+        tenures.select("id", resolved.alias("relationship"))
+        .groupBy("id")
+        .agg(collect_list("relationship").alias(output_column))
+    )
+
+
+def resolve_ownerships(
+    spark: SparkSession,
+    archive_dates: List[date],
+    tenures: DataFrame,
+    company_appearances: DataFrame,
+) -> DataFrame:
+    """Build the final ownerships array per company."""
+    ownerships = join_winning_relationship_versions(
+        spark, archive_dates, tenures, company_appearances, "ownerships"
+    )
+    # The company was described without this ownership on the closing date, so the last
+    # day it can have held is the day before.
+    return collect_resolved_relationships(
+        ownerships, date_sub(col("closing_archive_date"), 1), "ownerships"
+    )
+
+
+def resolve_directorships(
+    spark: SparkSession,
+    archive_dates: List[date],
+    tenures: DataFrame,
+    company_appearances: DataFrame,
+    successor_starts: DataFrame,
+) -> DataFrame:
+    """Build the final directorships array per company, ending each at its successor."""
+    directorships = join_winning_relationship_versions(
+        spark, archive_dates, tenures, company_appearances, "directorships"
+    )
+    successor_starts = successor_starts.select(
+        "id",
+        col("archive_date").alias("closing_archive_date"),
+        "role",
+        "successor_start_date",
+    )
+    directorships = (
+        directorships.alias("tenure")
+        .join(
+            successor_starts.alias("successor"),
+            on=[
+                col("tenure.id") == col("successor.id"),
+                col("tenure.closing_archive_date")
+                == col("successor.closing_archive_date"),
+                # Null-safe so that untitled directorships match each other rather than
+                # dropping out of the comparison.
+                col("tenure.relationship.role").eqNullSafe(col("successor.role")),
+            ],
+            how="left",
+        )
+        .select(
+            col("tenure.id").alias("id"),
+            col("tenure.relationship").alias("relationship"),
+            col("tenure.archive_date").alias("last_archive_date"),
+            col("tenure.closing_archive_date").alias("closing_archive_date"),
+            col("tenure.closing_origin").alias("closing_origin"),
+            col("successor.successor_start_date").alias("successor_start_date"),
+        )
+    )
+    # Only trust the successor's start date if it falls after we last saw this
+    # directorship; otherwise the registry is describing something we can't reconcile and
+    # the archive date is the only date we can defend.
+    successor_end_date = when(
+        col("successor_start_date") > col("last_archive_date"),
+        date_sub(col("successor_start_date"), 1),
+    )
+    return collect_resolved_relationships(
+        directorships,
+        coalesce(successor_end_date, date_sub(col("closing_archive_date"), 1)),
+        "directorships",
+    )
+
+
+def assemble_company_records(
+    spark: SparkSession,
+    archive_dates: List[date],
+    company_appearances: DataFrame,
+    ownerships: DataFrame,
+    directorships: DataFrame,
+) -> DataFrame:
+    """Combine each company's latest record with its resolved ownerships and directorships.
+
+    Everything that isn't an ownership or directorship (the company itself, its
+    successions) is simply taken from the latest record we have for the company; the
+    registry restates all of it on every appearance.
+
+    Companies with no ownerships or directorships at all get a null array rather than an
+    empty one, which the CSV writer's explode treats the same way.
+    """
+    latest = company_appearances.groupBy("id").agg(
+        spark_max("archive_date").alias("archive_date")
+    )
+    return (
+        read_archive_records(
+            spark, archive_dates, ["id", "legal_entity", "successions"]
+        )
+        .join(latest, on=["id", "archive_date"], how="inner")
+        .drop("archive_date")
+        .join(ownerships, on="id", how="left")
+        .join(directorships, on="id", how="left")
+        .select("id", "legal_entity", "successions", "ownerships", "directorships")
+    )
+
+
+def flatten_origin(df: DataFrame) -> DataFrame:
+    """Join the origin array into one comma-separated field.
+
+    Origins never contain a comma, and the CSV writer can't write arrays anyway.
+    Sorting and deduplicating keeps the output stable across runs.
+    """
+    return df.withColumn(
+        "origin", concat_ws(",", array_sort(array_distinct(col("origin"))))
+    )
 
 
 def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
@@ -326,11 +648,19 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
 
     # This is what's required for the Python csv module to read the file with no further options
     csv_options = {"header": True, "escape": '"', "mode": "overwrite"}
-    ownerships_df.write.csv(str(path_prefix / "ownerships"), **csv_options)
-    directorships_df.write.csv(str(path_prefix / "directorships"), **csv_options)
-    successions_df.write.csv(str(path_prefix / "successions"), **csv_options)
-    persons_df.write.csv(str(path_prefix / "persons"), **csv_options)
-    all_legal_entities_df.write.csv(str(path_prefix / "legalentities"), **csv_options)
+    flatten_origin(ownerships_df).write.csv(
+        str(path_prefix / "ownerships"), **csv_options
+    )
+    flatten_origin(directorships_df).write.csv(
+        str(path_prefix / "directorships"), **csv_options
+    )
+    flatten_origin(successions_df).write.csv(
+        str(path_prefix / "successions"), **csv_options
+    )
+    flatten_origin(persons_df).write.csv(str(path_prefix / "persons"), **csv_options)
+    flatten_origin(all_legal_entities_df).write.csv(
+        str(path_prefix / "legalentities"), **csv_options
+    )
 
 
 def get_archive_date_from_blob_url(blob_url: BlobURL) -> date:
@@ -368,34 +698,9 @@ def list_archives(bucket_name: str, prefix: str) -> List[BlobURL]:
     ]
 
 
-def merge_company_record_dfs(
-    context: Context, records: Iterable[DataFrame]
-) -> DataFrame:
-    """Merge company records using update_companies_from_new_companies."""
-    result = None
-    for record in records:
-        # First iteration, set result to the first crawled DataFrame
-        if result is None:
-            result = record
-            continue
-
-        result = update_companies_from_new_companies(context, result, record)
-        # Reduce number of partitions, otherwise it will explode with every iteration (don't ask me why)
-        # and eventually grind everything to a halt.
-        result = result.coalesce(16)
-        # Checkpoint cuts the lineage of the DataFrame, so we don't
-        # end up with a huge execution plan
-        result = result.checkpoint()
-
-        context.log.info("Updated state has %d company records" % result.count())
-
-    return result
-
-
 def crawl(context: Context) -> None:
     # .enableHiveSupport() is required to use tables in spark.catalog
     spark = SparkSession.builder.appName("ru_egrul").enableHiveSupport().getOrCreate()
-    spark.sparkContext.setCheckpointDir("env/spark-checkpoint")
     spark.sparkContext.setLogLevel("WARN")
 
     archives_406 = [
@@ -425,97 +730,50 @@ def crawl(context: Context) -> None:
         if date(2022, 1, 1) <= d
     ]
 
-    # Process the archives first to have them ready in the warehouse for the
-    # iterative join later.
+    # Parse every archive into its own table first, so the rest of the job is pure SQL
+    # over the warehouse and can be interrupted and resumed.
     for archive_date, archives in archives_by_date:
         context.log.info("Processing %s" % archive_date)
         crawl_archives_for_date(spark, archive_date, archives)
 
-    # The general idea is that we continously fold new data into the existing data, starting at the full dump
-    # at 2022-01-01. Because updating the full dataset with every new incremental update takes too long
-    # (~90s per join on my M4, depending a bit on the size of the new data), we exploit the fact that the operation is
-    # associative (but it's not commutative!). So, we first merge all the months, then fold these into one
-    # yearly partial update, and finally merge that into the full dump, to get the state at the end of the year.
-    # We do this for every year and then merge the years. We could also do chunks of 20 or whatever, it doesn't matter.
-    # What does matter is to reduce the number of joins with very large datasets.
-    # Saving to partial_ tables is not strictly required, but quite useful to interrupt and resume the process when
-    # running locally and running sql queries on it.
-    year_dfs = []
-    for year in [2022, 2023, 2024, 2025, 2026]:
-        year_archives = [
-            (archive_date, archives)
-            for archive_date, archives in archives_by_date
-            if archive_date.year == year
-        ]
-        full_archive = year_archives[0]
-        partial_archives = year_archives[1:]
+    archive_dates = [archive_date for archive_date, _ in archives_by_date]
 
-        year_table_name = "partial_%d" % year
-        if spark.catalog.tableExists(year_table_name):
-            context.log.info("Reading %d from table" % year)
-            year_dfs.append(spark.table(year_table_name))
-            continue
+    context.log.info("Collecting company and relationship appearances")
+    company_appearances, relationship_appearances = build_appearance_tables(
+        spark, archive_dates
+    )
 
-        month_dfs = []
-        for month in range(1, 13):
-            month_table_name = "partial_%d_%02d" % (year, month)
-            if spark.catalog.tableExists(month_table_name):
-                context.log.info("Reading %d-%d from table" % (year, month))
-                month_dfs.append(spark.table(month_table_name))
-                continue
+    successor_starts = build_successor_start_table(spark, archive_dates)
 
-            context.log.info("Processing %d-%d" % (year, month))
-            day_archives = [
-                x for x in partial_archives if x[0].year == year and x[0].month == month
-            ]
-            day_dfs = [crawl_archives_for_date(spark, x[0], x[1]) for x in day_archives]
-            context.log.info("Merging day records for %d-%d" % (year, month))
-            if len(day_dfs) == 0:
-                continue
+    context.log.info("Finding ownership and directorship tenures")
+    tenures = build_relationship_tenures(
+        spark, company_appearances, relationship_appearances
+    )
 
-            month_df = merge_company_record_dfs(context, day_dfs)
-            context.log.info("%d-%d has %d records" % (year, month, month_df.count()))
+    context.log.info("Resolving current ownerships and directorships")
+    ownerships = resolve_ownerships(spark, archive_dates, tenures, company_appearances)
+    directorships = resolve_directorships(
+        spark, archive_dates, tenures, company_appearances, successor_starts
+    )
+    final_df = assemble_company_records(
+        spark, archive_dates, company_appearances, ownerships, directorships
+    )
 
-            month_df.write.saveAsTable(month_table_name)
-            month_df = month_df.persist(StorageLevel.DISK_ONLY)
-            month_dfs.append(month_df)
-
-        context.log.info("Merging partial monthly records for %d" % year)
-        partial_year_df = merge_company_record_dfs(context, month_dfs)
-        full_df = crawl_archives_for_date(spark, full_archive[0], full_archive[1])
-        context.log.info("Merging full and partial daily records for %d" % year)
-        year_df = merge_company_record_dfs(context, [full_df, partial_year_df])
-        # We've computed year_df now, we won't need month_dfs anymore.
-        for month_df in month_dfs:
-            month_df.unpersist()
-        context.log.info("%d has %d records" % (year, year_df.count()))
-
-        # Persist to make sure that Spark doesn't get the idea to throw away and recompute this.
-        year_df = year_df.persist(StorageLevel.DISK_ONLY)
-        year_df.write.saveAsTable(year_table_name, mode="overwrite")
-        year_dfs.append(year_df)
-
-    context.log.info("Merging yearly records")
-    # Each of these (join of ~12M on ~12M records with merge UDF in Python) takes around 8min on M4 10 cores
-    final_df = merge_company_record_dfs(context, year_dfs)
-
-    last_date = archives_by_date[-1][0]
+    last_date = archive_dates[-1]
     final_table_name = "current_" + last_date.isoformat().replace("-", "_")
-    final_df.write.saveAsTable(final_table_name)
+    final_df.write.saveAsTable(final_table_name, mode="overwrite")
 
+    # Read the result back rather than reusing final_df, which would compute the whole
+    # pipeline a second time to write the CSVs.
     write_companies_df_to_csv(
-        final_df, LOCAL_BUCKET_CACHE_DIR / PROCESSESED_PREFIX / final_table_name
+        spark.table(final_table_name),
+        LOCAL_BUCKET_CACHE_DIR / PROCESSESED_PREFIX / final_table_name,
     )
 
 
-def get_context(data_time: Optional[date] = None) -> Context:
+def get_context() -> Context:
     dataset = Dataset.from_path("datasets/ru/egrul/ru_egrul.yml")
-    context = Context(dataset)
-    if data_time is not None:
-        # TODO: This is very hacky, but that's how we pass "what archive are we in"
-        # down the stack right now
-        context.data_time = datetime.combine(data_time, datetime.min.time())
-    return context
+    return Context(dataset)
 
 
 def main() -> None:
