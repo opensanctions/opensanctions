@@ -4,7 +4,7 @@ PEP entities for its members.
 """
 
 import re
-from typing import Iterator
+from collections.abc import Iterator
 from urllib.parse import parse_qs, urlparse
 
 from zavod import Context, Entity
@@ -120,6 +120,7 @@ def crawl_member(
         country="Venezuela",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q20011182",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:

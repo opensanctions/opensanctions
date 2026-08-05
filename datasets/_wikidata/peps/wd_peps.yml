@@ -6,9 +6,10 @@ coverage:
   frequency: daily
   start: 2022-12-27
 deploy:
-  memory: "1500Mi"
-  memory_limit: "2500Mi"
+  memory: "2000Mi"
+  memory_limit: "5000Mi"
   schedule: "0 0 * * 2,4,6"
+  premium: true
 load_statements: true
 exports:
   - entities.ftm.json
@@ -101,6 +102,8 @@ lookups:
         value: 2011-02
       - match: "1949-02-29"
         value: 1949-02
+      - match: "1942-02-29"
+        value: 1942-02
       - match: "2018-02-29"
         value: 2018-02
       - match: "1999-02-31"
@@ -127,6 +130,8 @@ lookups:
         value: 2011-02
       - match: "1999-06-31"
         value: 1999-06
+      - match: "1951-06-31"
+        value: 1951-06
       - match: "2006-09-31"
         value: 2006-09
       - match: "2016-06-31"

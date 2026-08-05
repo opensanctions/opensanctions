@@ -1,16 +1,37 @@
 id: 89
-title: EU Restrictive Measures With Respect To ISIL (Da'esh) And Al-Qaida (ISIL/Daesh
-  & Al-Qaida)
+title: EU Restrictive measures with respect to ISIL (Da'esh) and Al-Qaida
 key: EU-TAQA-EUAQ
 url: https://sanctionsmap.eu/#/main/details/5/
-summary: These sanctions target individuals and entities associated with ISIL (Da'esh)
-  and Al-Qaida. The measures include asset freezes, travel bans, and restrictions
-  on financial transactions to disrupt the operations and funding of these terrorist
-  organizations and enhance global security.
+summary: Targets persons, groups, undertakings and entities associated with ISIL
+  (Da'esh) and Al-Qaida. It combines two lists under one regime, the EU
+  implementation of the UN Security Council's ISIL (Da'esh) and Al-Qaida
+  sanctions list under Regulation (EC) No 881/2002, derived from the UNSCR 1267
+  (1999), 1989 (2011) and 2253 (2015) line of resolutions, and the EU's
+  autonomous designations under Decision (CFSP) 2016/1693 and Regulation (EU)
+  2016/1686, which allow the Council to list associated persons on its own
+  initiative. Designated persons and entities are subject to an asset freeze
+  and to a prohibition on supplying them with arms and related assistance, and
+  designated natural persons are barred from entering or transiting EU
+  territory. Claims by designated persons in connection with contracts affected
+  by the measures may not be satisfied.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EC) No 881/2002
+  - Regulation (EU) 2016/1686
+  - Decision (CFSP) 2016/1693
+  - Common Position 2002/402/CFSP
+  - Restrictive measures with respect to ISIL (Da'esh) and Al-Qaida
+  - UN ISIL (Da'esh) and Al-Qaida Sanctions List
+  - UNSCR 1267
+  - UNSCR 1989
+  - UNSCR 2253
+  - TAQA
+  - EUAQ
+target_territories:
+  - zz
 measures:
-- Arms restrictions
-- Asset freeze
-- Prohibition to satisfy claims
-- Travel ban
+  - Arms restrictions
+  - Asset freeze
+  - Prohibition to satisfy claims
+  - Travel ban

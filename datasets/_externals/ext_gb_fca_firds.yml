@@ -52,10 +52,8 @@ inputs:
 config:
   topic_gated: true
   index_options:
-    match_batch: 300
     memory: 3000
   limit: 100
-  max_bin: 14
   threshold: 0.7
   algorithm: regression-v1
   topics:
@@ -83,6 +81,12 @@ assertions:
     schema_entities:
       Security: 50
       Organization: 200
+    property_fill_rate:
+      # Issuer Organizations enriched from FIRDS are keyed by LEI and only carry
+      # a leiCode; FIRDS provides no issuer name, so the default name fill-rate
+      # does not apply. Mirrors the override on the gb_fca_firds source dataset.
+      Organization:
+        name: 0
   max:
     schema_entities:
       Security: 1000

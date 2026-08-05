@@ -27,6 +27,10 @@ The easiest way to run zavod is to use Docker. [See the documentation](https://z
 
 If you want to make changes to the code or debug an issues, you'll want to set up a development environment. Read more about how to install zavod in a local Python virtual environment in [the documentation](https://zavod.opensanctions.org/install/#python-virtual-environment)
 
+## Review UI
+
+Crawlers that use [Data Reviews](https://zavod.opensanctions.org/data_reviews/) need human review of extracted data. See [`ui/README.md`](ui/README.md) for how to run the review UI locally.
+
 
 ## Associated Repositories
 

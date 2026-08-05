@@ -1,7 +1,11 @@
 """GitHub-side state: the outage board and existing autofix pull requests."""
 
+import argparse
 import os
 import re
+import sys
+from enum import StrEnum
+from typing import Any
 
 from . import session
 
@@ -10,12 +14,42 @@ from . import session
 # dataset the item is about) and `Status` (whether it's a passing "Issue" or an
 # active "Outage"). Field ids are stable and mirror site/lib/github.ts.
 GITHUB_API = "https://api.github.com"
+GITHUB_GRAPHQL = "https://api.github.com/graphql"
 GITHUB_REPO = os.environ.get("GITHUB_REPOSITORY", "opensanctions/opensanctions")
 PROJECT_ORG = "opensanctions"
 PROJECT_NUMBER = 6
 FIELD_DATASET = 271254866
 FIELD_STATUS = 271254605
-OUTAGE_STATUS = "Outage"
+
+
+class BoardStatus(StrEnum):
+    """The `Status` values the board distinguishes.
+
+    `ISSUE` is breakage that is ours to fix — a source redesign, newly added bot
+    protection — and unlikely to resolve itself. `OUTAGE` is a source that is
+    merely down and expected back, which suppresses the issues agent (see
+    `get_outage_datasets`). `DONE` is resolved.
+    """
+
+    ISSUE = "Issue"
+    OUTAGE = "Outage"
+    DONE = "Done"
+
+
+OUTAGE_STATUS = BoardStatus.OUTAGE
+
+# Writing to the board goes through GraphQL, which addresses the project and its
+# fields by node id — a different id space from the numeric REST ids above, so the
+# two are not interchangeable. Single-select values are set by option id, not by
+# name, hence the mapping.
+PROJECT_NODE_ID = "PVT_kwDOBRLMhs4BTbYq"
+FIELD_DATASET_NODE_ID = "PVTF_lADOBRLMhs4BTbYqzhArBVI"
+FIELD_STATUS_NODE_ID = "PVTSSF_lADOBRLMhs4BTbYqzhArBE0"
+STATUS_OPTION_IDS = {
+    BoardStatus.ISSUE: "f75ad846",
+    BoardStatus.OUTAGE: "47fc9ee4",
+    BoardStatus.DONE: "98236657",
+}
 
 
 def get_outage_datasets() -> set[str]:
@@ -137,3 +171,181 @@ def has_closed_pr_for_branch(branch: str) -> bool:
     count = response.json().get("total_count", 0)
     assert isinstance(count, int), f"Unexpected search response: {count!r}"
     return count > 0
+
+
+def search_dataset_issues(name: str, state: str = "all") -> list[dict[str, Any]]:
+    """Return issues mentioning a dataset, newest first, for finding prior art.
+
+    Recurring breakage is the norm, so a new report should reference what is
+    already on record. Returns the raw search items (`number`, `title`, `state`,
+    `html_url`, `created_at`, ...) rather than a narrowed shape, since what is
+    worth quoting differs case by case.
+    """
+    query = f"repo:{GITHUB_REPO} is:issue {name}"
+    if state != "all":
+        query = f"{query} is:{state}"
+    response = session.get(
+        f"{GITHUB_API}/search/issues",
+        params={"q": query, "sort": "created", "order": "desc", "per_page": "20"},
+        headers=_github_headers(),
+    )
+    response.raise_for_status()
+    items = response.json().get("items", [])
+    assert isinstance(items, list), f"Unexpected search response: {items!r}"
+    return items
+
+
+def _graphql(query: str, variables: dict[str, Any]) -> dict[str, Any]:
+    """Run a GraphQL request against the GitHub API and return its `data`.
+
+    Board writes always need a token — unlike the read path, which relies on the
+    project being public. GraphQL reports application-level failures as an
+    `errors` array alongside HTTP 200, so those are checked explicitly.
+    """
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        raise RuntimeError("GITHUB_TOKEN is required to write to the project board")
+    response = session.post(
+        GITHUB_GRAPHQL,
+        json={"query": query, "variables": variables},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    response.raise_for_status()
+    payload = response.json()
+    errors = payload.get("errors")
+    if errors:
+        messages = "; ".join(error.get("message", str(error)) for error in errors)
+        raise RuntimeError(f"GraphQL error: {messages}")
+    data = payload.get("data")
+    assert isinstance(data, dict), f"Unexpected GraphQL response: {payload!r}"
+    return data
+
+
+def get_issue_node_id(number: int) -> str:
+    """Return the GraphQL node id of an issue, which the board mutations take."""
+    data = _graphql(
+        """
+        query ($owner: String!, $repo: String!, $number: Int!) {
+          repository(owner: $owner, name: $repo) {
+            issue(number: $number) { id }
+          }
+        }
+        """,
+        {
+            "owner": GITHUB_REPO.split("/")[0],
+            "repo": GITHUB_REPO.split("/")[1],
+            "number": number,
+        },
+    )
+    issue = (data.get("repository") or {}).get("issue")
+    if issue is None:
+        raise RuntimeError(f"No such issue: {GITHUB_REPO}#{number}")
+    node_id = issue["id"]
+    assert isinstance(node_id, str), f"Unexpected issue id: {node_id!r}"
+    return node_id
+
+
+def add_issue_to_board(issue_node_id: str) -> str:
+    """Put an issue on the board and return its project item id.
+
+    Idempotent: an issue already on the board yields its existing item id, so
+    this is safe to call when re-marking an item whose status went stale.
+    """
+    data = _graphql(
+        """
+        mutation ($project: ID!, $content: ID!) {
+          addProjectV2ItemById(input: {projectId: $project, contentId: $content}) {
+            item { id }
+          }
+        }
+        """,
+        {"project": PROJECT_NODE_ID, "content": issue_node_id},
+    )
+    item_id = data["addProjectV2ItemById"]["item"]["id"]
+    assert isinstance(item_id, str), f"Unexpected item id: {item_id!r}"
+    return item_id
+
+
+def _set_board_field(item_id: str, field_id: str, value: dict[str, Any]) -> None:
+    """Set one custom field on a board item."""
+    _graphql(
+        """
+        mutation ($project: ID!, $item: ID!, $field: ID!,
+                  $value: ProjectV2FieldValue!) {
+          updateProjectV2ItemFieldValue(input: {
+            projectId: $project, itemId: $item, fieldId: $field, value: $value
+          }) { projectV2Item { id } }
+        }
+        """,
+        {
+            "project": PROJECT_NODE_ID,
+            "item": item_id,
+            "field": field_id,
+            "value": value,
+        },
+    )
+
+
+def mark_issue_on_board(number: int, dataset: str, status: BoardStatus) -> str:
+    """Add an issue to the board with its dataset and status set, returning the item id.
+
+    Both fields matter for `OUTAGE`: `get_outage_datasets` keys on `dataset`, so
+    leaving it unset means the status is recorded but the issues agent is never
+    actually suppressed. That filter also only considers open issues, so marking
+    a closed issue has no effect until it is reopened.
+    """
+    item_id = add_issue_to_board(get_issue_node_id(number))
+    _set_board_field(item_id, FIELD_DATASET_NODE_ID, {"text": dataset})
+    _set_board_field(
+        item_id,
+        FIELD_STATUS_NODE_ID,
+        {"singleSelectOptionId": STATUS_OPTION_IDS[status]},
+    )
+    return item_id
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Inspect and update the Crawler Issues Page board."
+    )
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    mark = commands.add_parser("mark", help="set an issue's board status")
+    mark.add_argument("number", type=int, help="issue number to mark")
+    mark.add_argument("dataset", help="dataset name the issue is about")
+    mark.add_argument(
+        "status",
+        type=BoardStatus,
+        choices=list(BoardStatus),
+        help="Outage for a source expected back, Issue for breakage that is ours",
+    )
+
+    commands.add_parser(
+        "outages", help="list datasets with an active outage, which the agent skips"
+    )
+
+    search = commands.add_parser(
+        "search", help="find past issues for a dataset, newest first"
+    )
+    search.add_argument("dataset", help="dataset name to search for")
+
+    args = parser.parse_args()
+    try:
+        if args.command == "mark":
+            item_id = mark_issue_on_board(args.number, args.dataset, args.status)
+            print(
+                f"{GITHUB_REPO}#{args.number}: {args.status} ({args.dataset}) -> {item_id}"
+            )
+        elif args.command == "search":
+            for issue in search_dataset_issues(args.dataset):
+                print(f"{issue['number']}\t{issue['state']}\t{issue['title']}")
+        else:
+            for dataset in sorted(get_outage_datasets()):
+                print(dataset)
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

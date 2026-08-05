@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: bo-dip
 coverage:
   frequency: monthly
-  start: 2026-06-24
+  start: 2026-07-27
 load_statements: true
 ci_test: false
 summary: >-
@@ -35,10 +35,6 @@ data:
   url: https://diputados.gob.bo/wp-json/wp/v2/diputados
   format: JSON
   lang: spa
-
-http:
-  # The site 403s the default crawler user agent; send a browser-like one.
-  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 
 dates:
   formats: ["%d/%m/%Y"]

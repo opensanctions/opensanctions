@@ -72,6 +72,8 @@ from an earlier metadata system.
   the field when geography says nothing useful about the program.
 - `measures`: Use the controlled vocabulary to describe the operative legal
   effects of the program. See the measures policy below.
+- `status`: Record whether the program still designates. Defaults to `active`;
+  omit it for programs in force. See the status policy below.
 
 ### Writing a summary
 
@@ -139,6 +141,29 @@ The complete vocabulary and its definitions are maintained in the
 Verify measures against the program page or operative legal instrument rather
 than inferring them from a title or from common sanctions practice.
 
+### Program status
+
+`status` records the legal status of the regime itself: whether the underlying
+instruments are in force. It is contextual metadata that frames a designation;
+it says nothing about whether the source data currently carries entries.
+
+- `active`: the regime is in force. This is the default; omit the field for
+  programs in force.
+- `legacy`: the grey zone. The authority has wound down or only partly
+  survives, but designations made under it persist and may still bind: a
+  composite regime where one instrument lapsed while another still designates,
+  or a wound-down authority whose earlier blocks remain in force.
+- `ended`: no longer in force at all (revoked, repealed, expired, or sunset),
+  with no remaining legal effect.
+
+The line between `legacy` and `ended` is whether anything still bites: while
+designations retain legal effect it is `legacy`; once they no longer bind it is
+`ended`, even if residual entries linger for historical reference.
+
+`status` does not replace the summary, which must still narrate what happened and
+when. Reserve `ended` for regimes genuinely no longer law, not ones merely
+dormant, unused, or narrowed while still in force.
+
 ### Choosing the program URL
 
 The URL must identify the program itself, not merely provide related context.
@@ -163,5 +188,5 @@ regime, link to the transposing authority's own program page or legal instrument
 Use `.yml`, two-space indentation, and indented sequence items. Keep field order
 consistent with the example and wrap prose to match nearby files. Loading
 `get_all_programs_by_key()` validates filenames, keys, territory codes, measure
-names, and duplicate keys; repository commit hooks also validate YAML syntax
-and style.
+names, status values, and duplicate keys; repository commit hooks also validate
+YAML syntax and style.

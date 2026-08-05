@@ -42,7 +42,9 @@ def crawl_member(
         context,
         name="Member of the House of Lords",
         country="gb",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q18952564",
+        lang="eng",
     )
     # hereditary, life peer, etc:
     position.add("notes", membership["membershipFrom"])

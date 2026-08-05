@@ -82,7 +82,7 @@ def crawl(context: Context) -> None:
     # The source exports as Windows-1252, not UTF-8. Automatic detection is unreliable
     # here: byte 0xe8 is valid in several single-byte codepages, so a detector mistakes
     # the French/Luxembourgish text for cp1250 and yields mojibake.
-    with open(path, "r", encoding="cp1252") as fh:
+    with open(path, encoding="cp1252") as fh:
         rows = list(csv.DictReader(fh))
         # The Chamber has 60 seats.
         assert len(rows) >= 55, len(rows)

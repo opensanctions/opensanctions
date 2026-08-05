@@ -136,7 +136,7 @@ def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         data = json.load(fh)
 
     check_num_found(context, data)

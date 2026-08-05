@@ -25,8 +25,7 @@ def parse_members(doc: _Element) -> list[tuple[str, str]]:
     ]
     if len(names) != len(roles):
         raise ValueError(
-            "Member name/role count mismatch: %d names, %d roles"
-            % (len(names), len(roles))
+            f"Member name/role count mismatch: {len(names)} names, {len(roles)} roles"
         )
     return list(zip(names, roles))
 
@@ -104,7 +103,7 @@ def crawl_senators(context: Context) -> None:
     senate_doc = context.fetch_html(context.data_url + "senate/", cache_days=1)
     senators = parse_members(senate_doc)
     if len(senators) < 10:
-        raise ValueError("Expected at least 10 senators, found %d" % len(senators))
+        raise ValueError(f"Expected at least 10 senators, found {len(senators)}")
     pres_pos, pres_cat = make_chamber_position(
         context, "President of the Senate of Belize", "Q6594868"
     )

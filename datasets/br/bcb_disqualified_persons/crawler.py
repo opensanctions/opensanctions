@@ -1,5 +1,6 @@
 import itertools
-from typing import Any, Iterable, Tuple
+from typing import Any
+from collections.abc import Iterable
 
 from zavod import Context
 from zavod import helpers as h
@@ -32,7 +33,7 @@ def crawl_person(context: Context, name: str, lines: Iterable[dict[str, Any]]) -
         # The ID of the process
         sanction.add(
             "description",
-            "Administrative Sanctioning Process Number: {}".format(pas_number),
+            f"Administrative Sanctioning Process Number: {pas_number}",
         )
 
         # The duration is always in years
@@ -73,7 +74,7 @@ def crawl(context: Context) -> None:
         return
     data = response["value"]
 
-    lines_by_name: Iterable[Tuple[str, Iterable[dict[str, Any]]]] = itertools.groupby(
+    lines_by_name: Iterable[tuple[str, Iterable[dict[str, Any]]]] = itertools.groupby(
         data, lambda line: line["Nome"]
     )
 

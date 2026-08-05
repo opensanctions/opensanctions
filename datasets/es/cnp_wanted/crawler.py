@@ -1,18 +1,18 @@
 from lxml import html
 from normality import slugify
-from typing import Any, Dict, List
+from typing import Any
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 # The site redirects to a cookies-consent page until this cookie is set.
-CONSENT_COOKIES: List[Dict[str, Any]] = [
+CONSENT_COOKIES: list[dict[str, Any]] = [
     {"name": "cookiesPoliciaNacional", "value": "aceptada", "domain": ".policia.es"},
 ]
 
 
-def crawl_item(context: Context, row: Dict[str, str]) -> None:
+def crawl_item(context: Context, row: dict[str, str]) -> None:
     # Create the entity based on the schema
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
@@ -59,7 +59,7 @@ def crawl_item(context: Context, row: Dict[str, str]) -> None:
 
 def parse_link_element(
     link_element: html.HtmlElement, context: Context
-) -> Dict[str, str]:
+) -> dict[str, str]:
     # Extract link directly
     link = urljoin(context.data_url, link_element.attrib["href"])
 

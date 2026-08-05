@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 from normality import collapse_spaces
 from openpyxl import load_workbook
@@ -30,7 +30,7 @@ def arabic_to_latin(arabic_date: str) -> str:
     return arabic_date.translate(transtable)
 
 
-def clean_date(date_str: str) -> List[str]:
+def clean_date(date_str: str) -> list[str]:
     if not date_str:
         return []
     latin_date = arabic_to_latin(date_str)

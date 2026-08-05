@@ -9,7 +9,9 @@ summary: Targets foreign individuals and entities involved in international
   behalf. Property of designated persons under US jurisdiction is blocked, and
   US persons are generally prohibited from transactions with them. Designation
   under some authorities also suspends a natural person's entry into the
-  United States.
+  United States. Some persons receive non-blocking sanctions instead, such as
+  a prohibition on US financial institutions making loans or extending credit
+  to them.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
@@ -22,4 +24,5 @@ aliases:
   - ILLICIT-DRUGS-EO14059
 measures:
   - Asset freeze
+  - Financial restrictions
   - Travel ban

@@ -36,6 +36,13 @@ assertions:
     schema_entities:
       Person: 31
       Organization: 2
+    # This dataset emits Wikidata QID stubs; names come from Wikidata enrichment,
+    # so the default name fill-rate assertion does not apply here.
+    property_fill_rate:
+      Person:
+        name: 0
+      Organization:
+        name: 0
   max:
     schema_entities:
       Person: 35

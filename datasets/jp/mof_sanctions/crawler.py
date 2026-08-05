@@ -2,7 +2,6 @@ import re
 import string
 from datetime import date, datetime
 from itertools import chain
-from typing import Dict, List
 from urllib.parse import urljoin
 
 import xlrd
@@ -19,8 +18,8 @@ from zavod import helpers as h
 # Match non-brackets inside an opening and closing pair of brackets
 BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
 
-SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
-SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
+SPLITS = [f"({char})" for char in string.ascii_lowercase]
+SPLITS = SPLITS + [f"（{char}）" for char in string.ascii_lowercase]
 # WTF full-width brackets!
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)"]
@@ -45,7 +44,7 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def note_long_ids(entity: Entity, identifiers: List[str]) -> None:
+def note_long_ids(entity: Entity, identifiers: list[str]) -> None:
     for identifier in identifiers:
         if len(identifier) > IdentifierType.max_length:
             entity.add("notes", identifier)
@@ -69,8 +68,8 @@ def str_cell(cell: Cell | MergedCell) -> str | None:
     return text.replace("_x000D_", "\n")
 
 
-def parse_date(text: List[str]) -> List[str]:
-    dates: List[str] = []
+def parse_date(text: list[str]) -> list[str]:
+    dates: list[str] = []
     for date_ in h.multi_split(text, DATE_SPLITS):
         parsed = h.convert_excel_date(date_)
         if parsed is not None:
@@ -84,7 +83,7 @@ def parse_date(text: List[str]) -> List[str]:
     return dates
 
 
-def parse_names(names: List[str]) -> List[str]:
+def parse_names(names: list[str]) -> list[str]:
     cleaned = []
     # We split on numbering e.g. (a), (b) when reading the rows of the excel file
     # so we might have split a cell-wide opening and closing parenthesis
@@ -120,7 +119,7 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
+def parse_notes(context: Context, entity: Entity, notes: list[str]) -> None:
     for note in notes:
         cryptos = h.extract_cryptos(note)
         for key, curr in cryptos.items():
@@ -148,7 +147,7 @@ def fetch_excel_url(context: Context) -> str:
 
 
 def emit_row(
-    context: Context, sheet: str, section: str, row: Dict[str, List[str]]
+    context: Context, sheet: str, section: str, row: dict[str, list[str]]
 ) -> None:
     schema = context.lookup_value("schema", section, warn_unmatched=True)
     if schema is None:
@@ -287,7 +286,7 @@ def emit_row(
     context.audit_data(row)
 
 
-def trim_rightmost_blank(values: List[str | None], keep: int = 0) -> List[str | None]:
+def trim_rightmost_blank(values: list[str | None], keep: int = 0) -> list[str | None]:
     """
     Remove rightmost contiguous falsy values from a list, keeping at least `keep` values.
 
@@ -371,7 +370,7 @@ def crawl_sheets(
             # after a header is found, read normal data:
             if headers is not None:
                 assert len(row) == len(headers), (len(row), len(headers), row)
-                data: Dict[str, List[str]] = {}
+                data: dict[str, list[str]] = {}
                 for header, cell in zip(headers, row):
                     if header is None:
                         continue
@@ -410,5 +409,5 @@ def crawl(context: Context) -> None:
     elif url.endswith(".xls"):
         sheets = read_xls_sheets(context, url)
     else:
-        raise ValueError("Unknown file type: %s" % url)
+        raise ValueError(f"Unknown file type: {url}")
     crawl_sheets(context, sheets)

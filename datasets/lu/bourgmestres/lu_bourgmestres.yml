@@ -35,6 +35,7 @@ dates:
 
 tags:
   - list.pep
+  - list.pep.bulk
 
 assertions:
   min:

@@ -128,7 +128,7 @@ def crawl_additional_lists(context: Context) -> None:
     assert len(OTHER_MEASURES_HASHES) == 0, OTHER_MEASURES_HASHES.keys()
 
     path = context.fetch_resource("source.csv", ADDITIONAL_LISTS_DATA_URL)
-    with open(path, "r") as f:
+    with open(path) as f:
         for row in DictReader(f):
             name = row.pop("name")
             country = row.pop("country")

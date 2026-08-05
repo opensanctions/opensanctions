@@ -1,5 +1,4 @@
 import json
-from typing import Dict
 
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
@@ -13,7 +12,7 @@ EXCEL_FILENAME = "PI0008-PM%20Monthly%20Exclusion%20Report.xlsx"
 BASE_URL = "https://mainecare.maine.gov/PrvExclRpt"
 
 
-def crawl_item(row: Dict[str, str | None], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if first_name := row.pop("provider_first_name"):
         last_name = row.pop("provider_last_name")
         middle_initial = row.pop("provider_mi")

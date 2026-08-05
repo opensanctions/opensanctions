@@ -203,7 +203,7 @@ def crawl(context: Context) -> None:
         if name_slug in pep_ids:
             context.log.info("Dropping name with duplicate entry", name=name_slug)
             dupes.add(name_slug)
-            pep_ids.pop((name_slug))
+            pep_ids.pop(name_slug)
         else:
             if name_slug not in dupes:
                 pep_ids[name_slug] = entity_id

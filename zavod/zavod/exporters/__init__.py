@@ -1,5 +1,3 @@
-from typing import List, Dict, Type, Set
-
 from zavod.exporters.consolidate import consolidate_entity
 from zavod.logs import get_logger
 from zavod.store import View
@@ -23,7 +21,7 @@ from zavod.exporters.metadata import write_catalog, write_delta_index
 
 log = get_logger(__name__)
 
-DEFAULT_EXPORTERS: Set[str] = {
+DEFAULT_EXPORTERS: set[str] = {
     StatisticsExporter.FILE_NAME,
     FtMExporter.FILE_NAME,
     NestedTargetsJSONExporter.FILE_NAME,
@@ -32,7 +30,7 @@ DEFAULT_EXPORTERS: Set[str] = {
     SenzingExporter.FILE_NAME,
     DeltaExporter.FILE_NAME,
 }
-EXPORTERS: Dict[str, Type[Exporter]] = {
+EXPORTERS: dict[str, type[Exporter]] = {
     StatisticsExporter.FILE_NAME: StatisticsExporter,
     FtMExporter.FILE_NAME: FtMExporter,
     NestedTargetsJSONExporter.FILE_NAME: NestedTargetsJSONExporter,
@@ -53,7 +51,7 @@ def export_data(context: Context, view: View) -> None:
     if not len(exporter_names):
         exporter_names.update(DEFAULT_EXPORTERS)
     exporter_names.add(StatisticsExporter.FILE_NAME)
-    exporters: List[Exporter] = []
+    exporters: list[Exporter] = []
     for name in exporter_names:
         clazz = EXPORTERS.get(name)
         if clazz is None:
@@ -70,7 +68,7 @@ def export_data(context: Context, view: View) -> None:
 
     for idx, entity in enumerate(view.entities()):
         if idx > 0 and idx % 10000 == 0:
-            log.info("Exported %s entities..." % idx, scope=context.dataset.name)
+            log.info(f"Exported {idx} entities...", scope=context.dataset.name)
 
         # feed_unconsolidated must be called before consolidate_entity, because
         # consolidate_entity mutates the entity in place.
@@ -99,4 +97,4 @@ def export_dataset(dataset: Dataset, view: View) -> None:
     write_delta_index(dataset)
     write_dataset_index(dataset, DatasetVersionResult.SUCCESS)
     write_catalog(dataset)
-    log.info("Exported dataset: %s" % dataset.name)
+    log.info(f"Exported dataset: {dataset.name}")

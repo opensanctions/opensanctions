@@ -2,6 +2,7 @@ import pytest
 import requests_mock
 from base64 import b64encode
 
+from zavod.archive import dataset_data_path
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.extract.zyte_api import (
@@ -59,7 +60,7 @@ def test_fetch_html_http_response_body(testdataset1: Dataset):
             "https://api.zyte.com/v1/extract",
             json={
                 "httpResponseBody": b64encode(
-                    "<html><h1>Hello, World!</h1></html>".encode()
+                    b"<html><h1>Hello, World!</h1></html>"
                 ).decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/html; charset=iso-8859-1"}
@@ -205,9 +206,7 @@ def test_fetch_resource(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode(
-                    "name,surname\nSally,Sue".encode()
-                ).decode(),
+                "httpResponseBody": b64encode(b"name,surname\nSally,Sue").decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/csv; charset=latin-1"}
                 ],
@@ -247,9 +246,11 @@ def test_fetch_resource(testdataset1: Dataset):
         with pytest.raises(AssertionError) as exc:
             fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
         assert "latin-1" in str(exc.value), exc.value
-        # Except when the file exists locally
-        fetch_resource(context, "source2.csv", url, expected_media_type="text/plain")
-        fetch_resource(context, "source3.csv", url, expected_charset="UTF-8")
+        # A rejected response isn't kept, so the next attempt fetches again rather
+        # than being handed back the file that was just turned down.
+        data_path = dataset_data_path(context.dataset.name)
+        assert not data_path.joinpath("source2.csv").exists()
+        assert not data_path.joinpath("source3.csv").exists()
     context.close()
 
 
@@ -260,7 +261,7 @@ def test_fetch_text(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode("Hello, World!".encode()).decode(),
+                "httpResponseBody": b64encode(b"Hello, World!").decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/plain; charset=utf-8"}
                 ],
@@ -287,7 +288,7 @@ def test_fetch_json(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode('{"name": "Sally"}'.encode()).decode(),
+                "httpResponseBody": b64encode(b'{"name": "Sally"}').decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "application/json; charset=utf-8"}
                 ],
@@ -317,7 +318,7 @@ def test_fetch_json_expect_json(testdataset1: Dataset):
         m.post(
             "https://api.zyte.com/v1/extract",
             json={
-                "httpResponseBody": b64encode("Go away".encode()).decode(),
+                "httpResponseBody": b64encode(b"Go away").decode(),
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/html; charset=utf-8"}
                 ],

@@ -76,7 +76,7 @@ def fetch_doc(context: Context, url: str, cache_days: int) -> Element:
     """
     text = context.fetch_text(url, cache_days=cache_days)
     if text is None or len(text) == 0:
-        raise ValueError("Empty document: %s" % url)
+        raise ValueError(f"Empty document: {url}")
     return html.fromstring(text.encode("latin-1"))
 
 
@@ -163,6 +163,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q14552828",
         country="jp",
         topics=["gov.legislative", "gov.national"],
+        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

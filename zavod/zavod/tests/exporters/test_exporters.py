@@ -1,5 +1,4 @@
 from csv import DictReader
-from typing import Optional
 import uuid
 from followthemoney.cli.util import path_entities
 from followthemoney import Statement, ValueEntity
@@ -39,7 +38,7 @@ default_exports = {
 def emit_entity(
     ds: Dataset,
     schema: str,
-    id_: Optional[str] = None,
+    id_: str | None = None,
     properties: dict[str, list[str]] = {},
 ) -> Entity:
     context = Context(ds)

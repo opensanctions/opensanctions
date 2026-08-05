@@ -1,16 +1,15 @@
+from collections.abc import Generator
 from datetime import datetime
 from functools import lru_cache
-from typing import Dict, Generator, Optional, Set
 
+from nomenklatura.wikidata import WikidataClient
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
 from rigour.territories.territory import Territory
-from nomenklatura.wikidata import WikidataClient
-
-from zavod import Context
 from zavod.entity import Entity
-from zavod.shed.wikidata.client import create_wikidata_client, WIKIDATA_QUERY_CACHE
+from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.igo import INTL_ORGS
 from zavod.shed.wikidata.position import (
     POSITION_ABOLISHED_CUTOFF,
     position_holders,
@@ -18,6 +17,8 @@ from zavod.shed.wikidata.position import (
     wikidata_position,
 )
 from zavod.stateful.positions import categorised_position_qids
+
+from zavod import Context
 
 # Positions are discovered by evidence of use — someone holds them via P39
 # (position held), or they name an officeholder via P1308 — rather than by
@@ -28,6 +29,7 @@ from zavod.stateful.positions import categorised_position_qids
 ABOLISHED_CLAUSE = """
     OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
 """
+POSITION_CACHE_SIZE = 250_000
 
 
 def all_territories() -> Generator[Territory, None, None]:
@@ -42,8 +44,8 @@ def all_territories() -> Generator[Territory, None, None]:
         yield territory
 
 
-def collect_positions(context: Context, client: WikidataClient, query: str) -> Set[str]:
-    positions: Set[str] = set()
+def collect_positions(context: Context, client: WikidataClient, query: str) -> set[str]:
+    positions: set[str] = set()
     response = client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
     for bind in response.results:
         position_qid = bind.plain("position")
@@ -59,7 +61,7 @@ def collect_positions(context: Context, client: WikidataClient, query: str) -> S
 
 def query_usage_positions(
     context: Context, client: WikidataClient, territory: Territory
-) -> Set[str]:
+) -> set[str]:
     """Positions in use that are tied to the territory via jurisdiction (P1001)
     or country (P17): they either have a human holder (P39 inverse) or name an
     officeholder themselves (P1308).
@@ -82,7 +84,7 @@ def query_usage_positions(
 
 def query_occupation_positions(
     context: Context, client: WikidataClient, territory: Territory
-) -> Set[str]:
+) -> set[str]:
     """Positions held by politicians, diplomats and judges who are citizens of
     the country. This catches positions with no country/jurisdiction statement
     of their own, including diplomatic postings and foreign or IGO offices."""
@@ -98,12 +100,46 @@ def query_occupation_positions(
     return collect_positions(context, client, query)
 
 
-def discover_candidates(context: Context, client: WikidataClient) -> Set[str]:
+def query_igo_positions(context: Context, client: WikidataClient) -> set[str]:
+    """Positions in use at registered international bodies, linked via P2389
+    (organization directed by the office) or P361 (part of). These bodies have
+    no territory, so the per-territory sweeps never see their positions."""
+    values = " ".join(f"wd:{qid}" for qid in sorted(INTL_ORGS))
+    query = f"""
+    SELECT DISTINCT ?position ?abolished WHERE {{
+        ?position wdt:P2389|wdt:P361 ?org .
+        VALUES ?org {{ {values} }}
+        {{ ?holder wdt:P39 ?position . ?holder wdt:P31 wd:Q5 . }}
+        UNION {{ ?position wdt:P1308 ?officeholder . }}
+        {ABOLISHED_CLAUSE}
+    }}
+    """
+    return collect_positions(context, client, query)
+
+
+def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
     """Enumerate candidate position QIDs. Positions already categorised as PEP
     in the review database are always included, so a failing discovery query
-    can delay new positions but never drop known ones."""
-    candidates: Set[str] = set(categorised_position_qids(context))
-    context.log.info(f"Loaded {len(candidates)} positions from the review database")
+    can delay new positions but never drop known ones. Positions reviewed as
+    non-PEP are excluded so classification can skip them entirely."""
+    candidates: set[str] = set()
+    blocked: set[str] = set()
+    for qid, is_pep in categorised_position_qids(context):
+        if is_pep:
+            candidates.add(qid)
+        else:
+            blocked.add(qid)
+    context.log.info(
+        "Loaded position verdicts from the review database",
+        accepted=len(candidates),
+        blocked=len(blocked),
+    )
+    try:
+        candidates.update(query_igo_positions(context, client))
+    except Exception as exc:  # noqa: BLE001
+        context.log.warning(
+            "International-body position discovery failed", error=str(exc)
+        )
     for territory in all_territories():
         context.log.info(f"Crawling territory: {territory.qid} ({territory.name})")
         try:
@@ -112,7 +148,7 @@ def discover_candidates(context: Context, client: WikidataClient) -> Set[str]:
                 candidates.update(
                     query_occupation_positions(context, client, territory)
                 )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             context.log.warning(
                 "Position discovery query failed",
                 territory=territory.qid,
@@ -120,16 +156,13 @@ def discover_candidates(context: Context, client: WikidataClient) -> Set[str]:
                 error=str(exc),
             )
         context.flush()
+    candidates.difference_update(blocked)
     return candidates
 
 
-@lru_cache(maxsize=5000)
-def get_position(
-    context: Context, client: WikidataClient, qid: str
-) -> Optional[Entity]:
-    """Build (or rebuild) the Position entity for a QID. Bounded cache: evicted
-    entries are reconstructed from the SQL-cached item data, so run-level memory
-    does not grow with the number of accepted positions."""
+@lru_cache(maxsize=POSITION_CACHE_SIZE)
+def get_position(context: Context, client: WikidataClient, qid: str) -> Entity | None:
+    """Retain evaluated FtM positions across every phase of a PEP crawl."""
     item = client.fetch_item(qid)
     if item is None:
         return None
@@ -139,16 +172,16 @@ def get_position(
 def crawl_person(
     context: Context,
     client: WikidataClient,
-    accepted: Set[str],
-    aliases: Dict[str, str],
+    accepted: set[str],
+    aliases: dict[str, str],
     person_qid: str,
-    modified_at: Optional[datetime],
-) -> Set[str]:
+    modified_at: datetime | None,
+) -> set[str]:
     """Emit a person and one occupancy for every P39 claim that points to an
     accepted position — not just the position that discovered them. Returns the
     QIDs of the positions this person occupies; the Position entities themselves
     are emitted at the end of the run, once it's known they have holders."""
-    occupied_positions: Set[str] = set()
+    occupied_positions: set[str] = set()
     if not is_qid(person_qid):
         return occupied_positions
     item = client.fetch_item(person_qid, modified_at=modified_at)
@@ -188,8 +221,8 @@ def crawl(context: Context) -> None:
 
     # Classification must complete over all territories before any person is
     # processed, so that occupancies are built against the final accepted set.
-    accepted: Set[str] = set()
-    aliases: Dict[str, str] = {}
+    accepted: set[str] = set()
+    aliases: dict[str, str] = {}
     for idx, qid in enumerate(sorted(candidates)):
         item = client.fetch_item(qid)
         if item is None:
@@ -209,8 +242,8 @@ def crawl(context: Context) -> None:
     # One pass over the holders of every accepted position. Each person is
     # fetched and emitted exactly once, with occupancies for all their accepted
     # positions; only QID-keyed bookkeeping is retained across the run.
-    done_persons: Set[str] = set()
-    has_holders: Set[str] = set()
+    done_persons: set[str] = set()
+    has_holders: set[str] = set()
     for idx, position_qid in enumerate(sorted(accepted)):
         position_item = client.fetch_item(position_qid)
         if position_item is None:
@@ -218,7 +251,7 @@ def crawl(context: Context) -> None:
         position = get_position(context, client, position_qid)
         if position is None:
             continue
-        context.log.info("Position [%s]: %s" % (position.id, position.caption))
+        context.log.info(f"Position [{position.id}]: {position.caption}")
         for person_qid, modified_at in position_holders(client, position_item).items():
             if person_qid in done_persons:
                 continue
@@ -241,4 +274,13 @@ def crawl(context: Context) -> None:
     context.flush()
     context.log.info(
         f"Emitted {len(has_holders)} positions and {len(done_persons)} candidate persons"
+    )
+    cache_info = get_position.cache_info()
+    context.log.info(
+        "Position entity cache",
+        hits=cache_info.hits,
+        misses=cache_info.misses,
+        evictions=max(0, cache_info.misses - cache_info.currsize),
+        size=cache_info.currsize,
+        maxsize=cache_info.maxsize,
     )

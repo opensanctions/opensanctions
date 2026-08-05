@@ -80,7 +80,7 @@ def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     tables = h.xpath_elements(doc, ".//table")
     # We expect 2 current and 2 historical tables
-    assert len(tables) == 4, "Expected 4 tables, found %d" % len(tables)
+    assert len(tables) == 4, f"Expected 4 tables, found {len(tables)}"
 
     for table in tables:
         for row in h.parse_html_table(table, header_tag="td"):

@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 from banal import as_bool
 from followthemoney import registry
@@ -19,7 +18,7 @@ REGEX_LEADER_ALIAS = re.compile(r"led by .+ alias")
 LETTER_SPLITS = ["(a)", "(b)", "(c)", "(d)", "(e)"]
 
 
-def parse_country(node: Element) -> Optional[str]:
+def parse_country(node: Element) -> str | None:
     description = node.get("countryDescription")
     if description == "UNKNOWN":
         return None
@@ -32,7 +31,7 @@ def parse_country(node: Element) -> Optional[str]:
     return code
 
 
-def parse_address(context: Context, el: Element) -> Optional[Entity]:
+def parse_address(context: Context, el: Element) -> Entity | None:
     country = el.get("countryDescription")
     if country == "UNKNOWN":
         country = None

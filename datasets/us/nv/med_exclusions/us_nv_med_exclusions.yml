@@ -28,7 +28,7 @@ publisher:
 ci_test: false
 url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
 data:
-  url: https://www.nevadamedicaid.nv.gov/providers/provider-exclusions-sanctions-and-press-releases/
+  url: https://www.omig.nv.gov/provider-enrollment--termination/provider-exclusions-sanctions-and-press-releases/
   format: PDF
   lang: eng
 
