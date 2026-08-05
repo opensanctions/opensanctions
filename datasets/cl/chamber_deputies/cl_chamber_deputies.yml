@@ -11,7 +11,7 @@ load_statements: true
 # changing it — CI will not exercise it.
 ci_test: false
 summary: >-
-  Current and recent deputies of the lower house of the National Congress of Chile.
+  Lower house of the National Congress, elected by district for four-year terms
 description: |
   Current and historical members of the Chamber of Deputies (Cámara de Diputadas y
   Diputados), the lower house of the National Congress of Chile. Its 155 deputies are
@@ -19,11 +19,8 @@ description: |
   four-year term and, together with the Senate, hold the country's legislative power,
   including passing laws and approving the budget.
 
-  This dataset records each deputy with their name, gender, date of birth, and party
-  affiliations, along with the legislative period or periods they served. Email and
-  electoral district are recorded for sitting deputies only, since the profile pages
-  they come from reflect the present term. Deputies whose terms all ended long enough
-  ago that they are no longer treated as politically exposed are not included.
+  Deputies whose terms all ended long enough ago that they are no longer treated as
+  politically exposed are not included.
 url: https://www.camara.cl/
 publisher:
   name: Cámara de Diputadas y Diputados

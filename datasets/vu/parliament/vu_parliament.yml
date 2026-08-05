@@ -9,7 +9,7 @@ load_statements: true
 # Zyte fetching requires API credentials unavailable in CI.
 ci_test: false
 summary: >-
-  The unicameral national legislature of the Republic of Vanuatu
+  Unicameral national legislature, 52 members elected for four-year terms
 description: |
   Current and historical members of the Parliament of Vanuatu, the country's unicameral
   national legislature. Its 52 members are directly elected from multi- and single-member
@@ -17,12 +17,10 @@ description: |
   motions of no confidence and by-elections — and hold the country's legislative power,
   including passing laws and approving the budget.
 
-  This dataset records each member with their name, political party, and constituency,
-  reaching back over the terms in which service still implies political exposure. Members
-  who left partway through a term — by death, court sentence or electoral petition — are
-  included, with a note on the circumstance where the source gives one. The ministerial,
-  committee and presiding-officer roles the source lists next to each member are not
-  captured.
+  Coverage reaches back over the terms in which service still implies political exposure.
+  Members who left partway through a term — by death, court sentence or electoral petition —
+  are included, with a note on the circumstance where the source gives one. The ministerial,
+  committee and presiding-officer roles the source lists beside each member are not captured.
 url: https://parliament.gov.vu/
 publisher:
   name: Parliament of the Republic of Vanuatu

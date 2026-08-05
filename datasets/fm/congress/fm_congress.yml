@@ -8,16 +8,13 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Senators of the Congress of the Federated States of Micronesia
+  Unicameral national legislature of fourteen senators from four states
 description: |
-  The Congress of the Federated States of Micronesia is the country's unicameral
-  national legislature. It has fourteen seats: four at-large senators (one per state,
-  serving four-year terms) and ten senators elected from single-member districts for
-  two-year terms. The four states are Chuuk, Pohnpei, Yap and Kosrae.
-
-  This dataset records each sitting member of the current Congress with their name and,
-  where the source indicates it, the state they represent or their leadership role
-  (Speaker, Vice Speaker or Floor Leader).
+  Current members of the Congress of the Federated States of Micronesia, the country's
+  unicameral national legislature. It has fourteen seats: four at-large senators, one for
+  each of the states of Chuuk, Pohnpei, Yap and Kosrae, serving four-year terms, and ten
+  senators elected from single-member districts for two-year terms. Together they hold the
+  country's legislative power, including passing laws and approving the budget.
 url: https://www.cfsm.gov.fm/
 publisher:
   name: Congress of the Federated States of Micronesia

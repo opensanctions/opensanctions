@@ -8,8 +8,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Council of the Nation, the upper chamber of the Algerian
-  parliament.
+  Upper chamber of the Algerian parliament, half renewed every three years
 description: |
   Current members of the Council of the Nation (Majlis al-Umma), the upper chamber of
   Algeria's bicameral parliament. Its 144 members — two-thirds indirectly elected by the
@@ -17,9 +16,6 @@ description: |
   six-year terms, with half the chamber renewed every three years, and share the country's
   legislative power with the People's National Assembly, including passing laws and approving
   the budget.
-
-  This dataset records each member with their name, political affiliation, the province
-  (wilaya) they represent, and their mandate period.
 url: https://www.majliselouma.dz/
 publisher:
   name: Council of the Nation

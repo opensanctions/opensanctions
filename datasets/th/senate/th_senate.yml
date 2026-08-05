@@ -8,15 +8,16 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Senate of Thailand, the upper chamber of the National Assembly.
+  Upper chamber of the National Assembly, selected across 20 occupational groups
 description: |
-  Members of the Senate, the upper chamber of the bicameral National Assembly of Thailand,
-  across its consecutive sets. The current set's 200 senators are indirectly selected across
-  20 occupational groups for a five-year term and, together with the House of Representatives,
-  hold the country's legislative power, including passing laws and approving the budget.
+  Current and historical members of the Senate (วุฒิสภา), the upper chamber of the
+  bicameral National Assembly of Thailand. Its 200 senators are indirectly selected across
+  20 occupational groups for a five-year term and, together with the House of
+  Representatives, hold the country's legislative power, including passing laws and
+  approving the budget.
 
-  This dataset records each senator with their name, the occupational group they represent
-  (where the set records one), and the dates their term began and (where applicable) ended.
+  Coverage spans the chamber's consecutive sets, so senators of earlier sets are included
+  alongside the sitting one.
 url: https://datacatalog.senate.go.th/dataset/sec_03_1101
 publisher:
   name: Secretariat of the Senate

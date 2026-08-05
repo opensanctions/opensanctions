@@ -11,7 +11,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  The 500-seat lower chamber of Thailand's bicameral National Assembly
+  Lower chamber of the National Assembly, 400 constituency and 100 list seats
 description: |
   Current members of the House of Representatives (สภาผู้แทนราษฎร), the lower chamber of
   the bicameral National Assembly of Thailand. Its 500 members are directly elected for a
@@ -19,10 +19,7 @@ description: |
   lists — and, together with the Senate, hold the country's legislative power, including
   passing laws and approving the budget.
 
-  This dataset records each sitting member with their name in Thai and Latin script and
-  their political party, and, for constituency members, the province and numbered
-  district they represent. Seats standing vacant pending a by-election or a party-list
-  replacement are not included.
+  Seats standing vacant pending a by-election or a party-list replacement are not included.
 url: https://www.parliament.go.th/view/1/mpconnect/TH-TH
 publisher:
   name: สภาผู้แทนราษฎร
