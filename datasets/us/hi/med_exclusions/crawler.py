@@ -6,7 +6,6 @@ from normality import squash_spaces
 
 from zavod.extract import zyte_api
 
-
 # Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
 # Amendments, and can end in the future.
 TWO_DIGIT_EXCLUSION_YEAR_BASE = 1977

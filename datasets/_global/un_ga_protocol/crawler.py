@@ -1,5 +1,4 @@
 from urllib.parse import urljoin
-
 from rigour.mime.types import PDF
 from rigour.names import remove_person_prefixes
 

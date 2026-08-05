@@ -1,4 +1,5 @@
 from csv import DictReader
+
 from rigour.mime.types import CSV
 
 from zavod import Context
