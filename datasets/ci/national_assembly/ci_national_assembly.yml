@@ -8,16 +8,14 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Deputies of the National Assembly of Côte d'Ivoire, the lower chamber of the
-  bicameral parliament.
+  Lower chamber of Parliament, 255 titular deputies elected for five-year terms
 description: |
   Current members of the National Assembly (Assemblée nationale), the lower chamber of the
   bicameral Parliament of Côte d'Ivoire. Its 255 titular deputies (titulaires) are elected
   from single- and multi-member constituencies for a five-year term and hold the country's
   legislative power, including passing laws and approving the budget.
 
-  This dataset records each titular deputy with their name, date and place of birth,
-  political party, and the constituency they represent.
+  Only titular deputies are included; their substitutes (suppléants) are not.
 url: https://www.assnat.ci/
 publisher:
   name: Assemblée nationale de Côte d'Ivoire

@@ -8,8 +8,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the House of Councillors, the upper chamber of the Moroccan
-  parliament.
+  Upper chamber elected for six years by five colleges of regional and trade bodies
 description: |
   Current members of the House of Councillors (Majlis al-Mustasharin), the upper chamber of
   Morocco's bicameral parliament. Its 120 members are indirectly elected for six-year terms
@@ -17,9 +16,6 @@ description: |
   chambers, employers' organisations and employee (trade-union) representatives — and share
   the country's legislative power with the House of Representatives, including passing laws
   and approving the budget.
-
-  This dataset records each councillor with their name, the political party they ran
-  for (where applicable) and the region or electoral district they represent.
 url: https://www.chambredesconseillers.ma/
 publisher:
   name: Chambre des Conseillers

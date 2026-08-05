@@ -8,16 +8,13 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the House of Representatives, the lower chamber of the National
-  Assembly of Belarus.
+  Lower chamber of the National Assembly, elected from single-member constituencies
 description: |
   Current members of the House of Representatives (Палата представителей), the lower
   chamber of the bicameral National Assembly of Belarus. Its 110 members are directly
   elected from single-member constituencies for a four-year term and, together with the
   Council of the Republic, hold the country's legislative power, including passing laws
   and approving the budget.
-
-  This dataset records each sitting member by name.
 url: https://house.gov.by/en/deputies-en/
 publisher:
   name: House of Representatives of the National Assembly of Belarus

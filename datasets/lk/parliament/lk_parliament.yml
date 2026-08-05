@@ -1,5 +1,6 @@
 title: Sri Lanka Members of Parliament
 entry_point: crawler.py
+name: lk_parliament
 prefix: lk-parl
 coverage:
   frequency: monthly
@@ -7,16 +8,13 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  Members of the Parliament of Sri Lanka, the country's unicameral legislature
+  Unicameral national legislature, 225 members elected for five-year terms
 description: |
   Current members of the Parliament of Sri Lanka, the country's unicameral national
   legislature. Its 225 members are elected for five-year terms, most from multi-member
   electoral districts by proportional representation and the rest from national party
   lists, and hold the country's legislative power, including passing laws and approving
   the budget.
-
-  This dataset records each sitting member with their name, party, electoral district,
-  date of birth, email address, and ministerial portfolio where they hold one.
 url: https://www.parliament.lk/en/members-of-parliament/directory-of-members
 publisher:
   name: Parliament of Sri Lanka
