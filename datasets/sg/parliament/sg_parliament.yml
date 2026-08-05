@@ -8,19 +8,16 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Current and former members of the Parliament of Singapore, the unicameral national
-  legislature.
+  Unicameral legislature, with elected, non-constituency and nominated seats
 description: |
-  The Parliament of Singapore is the country's unicameral legislature. It comprises elected
-  members from Group Representation Constituencies (GRCs) and Single Member Constituencies
-  (SMCs), Non-Constituency Members (NCMPs) drawn from the best-performing losing candidates,
-  and Nominated Members (NMPs) appointed by the President.
+  Current and historical members of the Parliament of Singapore, the country's unicameral
+  legislature. It comprises members elected from Group Representation Constituencies (GRCs)
+  and Single Member Constituencies (SMCs), Non-Constituency Members (NCMPs) drawn from the
+  best-performing losing candidates, and Nominated Members (NMPs) appointed by the President.
 
-  Members of the sitting Parliament are recorded with their constituency, or with their seat
-  type where they are Nominated or Non-Constituency Members, as well as their party
-  affiliation and year of birth. Former members are recorded with the party they sat for and
-  with one term per Parliament they were a member of, dated to the duration of that
-  Parliament, or to their resignation where they left before it was dissolved.
+  Coverage reaches back over earlier Parliaments. A former member holds one term per
+  Parliament they sat in, dated to that Parliament's duration, or to their resignation
+  where they left before it was dissolved.
 url: https://www.parliament.gov.sg/history/list-of-mps-by-parliament
 publisher:
   name: Parliament of Singapore
