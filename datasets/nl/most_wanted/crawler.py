@@ -33,6 +33,8 @@ FIELDS = {
     "hair": "hairColor",
     "hair_color": "hairColor",
     "haircolor": "hairColor",
+    # Derived from the date of birth and the current date, so not stable data.
+    "current_age": None,
     "case": None,
     "police_region": None,
     "speaks": None,

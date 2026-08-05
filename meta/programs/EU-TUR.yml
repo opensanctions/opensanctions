@@ -1,16 +1,27 @@
 id: 92
-title: EU Restrictive Measures In View Of Turkey's Unauthorized Drilling In The Eastern
-  Mediterranean
+title: EU Restrictive measures in view of Türkiye's unauthorised drilling
+  activities in the Eastern Mediterranean
 key: EU-TUR
 url: https://sanctionsmap.eu/#/main/details/49/
-summary: These sanctions target individuals and entities involved in Turkey's unauthorized
-  drilling activities in the Eastern Mediterranean. The measures include asset freezes
-  and travel bans to pressure Turkey to cease its illegal drilling operations and
-  respect the sovereignty and territorial integrity of neighboring countries.
+summary: Provides for restrictive measures against natural and legal persons
+  responsible for or involved in unauthorised drilling for hydrocarbons in the
+  Eastern Mediterranean, notably in the territorial sea or exclusive economic
+  zone of Cyprus, under Council Decision (CFSP) 2019/1894 and Council
+  Regulation (EU) 2019/1890. Designated persons are subject to an asset freeze
+  and a prohibition on making funds or economic resources available to them,
+  and natural persons to an entry ban. The framework remains in force, but the
+  two Turkish Petroleum Corporation officials designated in 2020 have since
+  been delisted and no persons are currently designated.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2019/1890
+  - Decision (CFSP) 2019/1894
+  - Restrictive measures in view of Türkiye's unauthorised drilling activities
+    in the Eastern Mediterranean
+  - TUR
 target_territories:
-- tr
+  - tr
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

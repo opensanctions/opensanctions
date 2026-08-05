@@ -29,7 +29,6 @@ url: https://www.thaigov.go.th/en/cabinet/minister
 data:
   url: https://www.thaigov.go.th/en/cabinet/minister
   format: HTML
-
 assertions:
   min:
     schema_entities:

@@ -67,7 +67,7 @@ def parse_owner(context: Context, company_id: str, unique_id: str, el: Element) 
 def parse_uo(context: Context, fh: IO[bytes]) -> None:
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag="RECORD")):
         if idx > 0 and idx % 10000 == 0:
-            context.log.info("Parse UO records: %d..." % idx)
+            context.log.info(f"Parse UO records: {idx}...")
         # print(tag_text(el))
 
         company = context.make("Company")
@@ -143,7 +143,7 @@ def parse_uo(context: Context, fh: IO[bytes]) -> None:
 def crawl(context: Context) -> None:
     path = context.get_resource_path("source.zip")
     fetch_internal_data("ua_edr/23022022.zip", path)
-    context.log.info("Parsing: %s" % path)
+    context.log.info(f"Parsing: {path}")
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             if not name.lower().endswith(".xml"):

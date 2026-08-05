@@ -1,5 +1,4 @@
 import re
-from typing import Dict, Optional
 from urllib.parse import urljoin
 
 from normality import squash_spaces
@@ -47,7 +46,7 @@ def crawl_pdf_url(context: Context) -> str:
     raise ValueError("No PDF found")
 
 
-def transform_headers(row: Dict[str, Optional[str]]) -> Dict[str, Optional[str]]:
+def transform_headers(row: dict[str, str | None]) -> dict[str, str | None]:
     if HEADERS.keys() != row.keys():
         raise Exception(f"Unexpected headers {row.keys()} in row {row!r}")
     return {HEADERS[key]: value for key, value in row.items()}

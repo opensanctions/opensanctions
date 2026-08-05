@@ -80,7 +80,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r", encoding="latin-1") as fh:
+    with open(path, encoding="latin-1") as fh:
         # Skip garbage at beginning of file
         while True:
             prev_pos = fh.tell()

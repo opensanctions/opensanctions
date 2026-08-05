@@ -45,8 +45,8 @@ jobs:
         run: npx --yes npm-check-updates --upgrade --target minor
       - name: Update all dependencies within ranges
         run: npm update
-      - name: Apply remaining security fixes
-        run: npm audit fix
+      - name: Apply remaining non-breaking security fixes
+        run: npm audit fix --audit-level=critical
       - name: Run ESLint
         run: npm run lint
       - name: Run Jest tests

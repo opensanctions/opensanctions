@@ -1,5 +1,3 @@
-from typing import List
-
 from rigour.mime.types import JSON
 
 from zavod.archive.backend import get_archive_backend
@@ -37,7 +35,7 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
     for resource in DatasetResources(dataset).all():
         path = dataset_resource_path(dataset.name, resource.name)
         if not path.is_file():
-            log.error("Resource not found: %s" % path, dataset=dataset.name)
+            log.error(f"Resource not found: {path}", dataset=dataset.name)
             continue
         archive_artifact(
             path,
@@ -73,7 +71,7 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     """
 
     extra_artifacts = []
-    all_published_files: List[str] = [
+    all_published_files: list[str] = [
         r.name
         for r in DatasetResources(dataset).all()
         if r.name not in UNLISTED_RESOURCES
@@ -140,7 +138,7 @@ def archive_failure(dataset: Dataset) -> None:
     write_dataset_index(dataset, DatasetVersionResult.FAILURE)
     path = dataset_resource_path(dataset.name, INDEX_FILE)
     if not path.is_file():
-        log.error("Metadata file not found: %s" % path, dataset=dataset.name)
+        log.error(f"Metadata file not found: {path}", dataset=dataset.name)
         return
     _archive_artifacts(dataset)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)

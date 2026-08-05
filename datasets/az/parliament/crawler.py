@@ -149,7 +149,9 @@ def crawl_member(context: Context, url: str, name: str) -> None:
         context,
         name="Member of the National Assembly of Azerbaijan",
         country="az",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21269547",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     occupancy = h.make_occupancy(

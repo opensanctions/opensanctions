@@ -129,9 +129,11 @@ def crawl_member(
 
     position = h.make_position(
         context,
-        "Member of the State Great Khural",
+        "Member of the State Great Khural of Mongolia",
         country="mn",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q21328637",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

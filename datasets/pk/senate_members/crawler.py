@@ -96,7 +96,9 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Senate of Pakistan",
         country="pk",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q20081441",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

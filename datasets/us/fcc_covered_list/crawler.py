@@ -1,6 +1,5 @@
 import csv
 from rigour.mime.types import CSV
-from typing import Dict
 from pathlib import Path
 
 from zavod import Context, helpers as h
@@ -9,7 +8,7 @@ from zavod.extract import zyte_api
 PROGRAM_KEY = "US-FCC"
 
 
-def crawl_item(context: Context, input_dict: Dict[str, str]) -> None:
+def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
     name = input_dict.pop("Entity Name")
     description = input_dict.pop("Covered Equipment or Services")
 

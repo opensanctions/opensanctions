@@ -15,7 +15,7 @@ IGNORE = [
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, "r", encoding="utf-8-sig") as fh:
+    with open(path, encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             agency_name = row.pop("AgencyName")

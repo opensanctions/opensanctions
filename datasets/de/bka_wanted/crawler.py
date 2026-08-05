@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import cast
 
 from lxml import html
 from lxml.etree import _Element
@@ -8,7 +8,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def get_element_text(doc: _Element, xpath_value: str, join_str: str = " ") -> List[str]:
+def get_element_text(doc: _Element, xpath_value: str, join_str: str = " ") -> list[str]:
     """Extract text from from an xpath
 
     Args:

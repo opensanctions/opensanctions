@@ -1,6 +1,6 @@
 import orjson
 from rigour.mime.types import JSON
-from typing import Any, Dict, NamedTuple
+from typing import Any, NamedTuple
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -39,7 +39,7 @@ def get_member_detail(
     )
 
 
-def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> None:
+def crawl_member(context: Context, position: Entity, node: dict[str, Any]) -> None:
     member_id = node.pop("id")
     assert member_id is not None
 

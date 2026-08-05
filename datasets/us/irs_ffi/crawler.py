@@ -7,7 +7,7 @@ from zavod import Context
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             giin = row.pop("GIIN")
             name = row.pop("FINm")

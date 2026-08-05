@@ -43,7 +43,14 @@ def crawl_item(context: Context, unid: str) -> None:
     )
     entity.add("email", h.element_text(email_el))
 
-    position = h.make_position(context, "deputy of Saeima", country="lv")
+    position = h.make_position(
+        context,
+        "Member of the Saeima of Latvia",
+        country="lv",
+        topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q21191589",
+        lang="eng",
+    )
     categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(

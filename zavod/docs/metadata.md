@@ -4,54 +4,76 @@ Excellent dataset metadata is a relatively low-effort way to demonstrate the tra
 
 Remember to give the context that people from different countries need to make sense of systems they are not entirely familiar with. Share what you learned when figuring out what a source dataset represents.
 
+Metadata fields are user-facing prose. Knowledge addressed to future maintainers of the crawler — failure modes, source quirks, the purpose of a lookup — belongs in [YAML comments](#maintainer-notes-yaml-comments) instead.
+
 Use the `.yml` extension.
 
-## Properties:
+## Title
+
+As close as possible to an official title for what this dataset contains, starting with the name readers use to find it in a sorted list:
+
+- Start with the short English name of the issuing country, never possessive: `Canada Members of Parliament`, not "Members of the Canadian Parliament" or "Canada's Members of Parliament".
+- Datasets issued by international bodies start with the issuer's name or established acronym instead: `EU Financial Sanctions Files (FSF)`, `UN Security Council Consolidated Sanctions`, `INTERPOL Red Notices`.
+- Keep the agency acronym directly after the country when it identifies the list (`US OFAC Specially Designated Nationals (SDN) List`, `US SEC Litigation Releases`), and keep established list acronyms or original-language names in parentheses (`Mongolia Members of the State Great Khural`, `Slovakia Public Sector Partners Register (Register partnerov verejného sektora)`).
+- If the dataset is a subset of its source data, try to capture that: e.g. `Plural Legislators` if the Plural portal includes committees but the dataset only captures the legislators.
+
+## Summary
+
+A short line (50–90 characters — aim just above the lower bound) shown with the title in search results and listings.
+
+- One plain sentence or fragment, no trailing period.
+- Complement the title: add what it doesn't already convey (kind of measure, scope, legal basis) rather than repeating title words.
+- No humor, no editorializing.
+
+## Description
+
+One to three short paragraphs describing the scope of the dataset. Write for a compliance or domain-expert reader, not an engineer.
+
+- Open with what the dataset covers, and the institutional or legal context a reader from another country needs: what kind of body issues it, under what mandate, what inclusion on the list means.
+- Describe scope boundaries: what is included and excluded, current-only vs. historical coverage, any period the dataset is limited to.
+- Note significant limitations that affect how a reader should trust or interpret the data — for example a dataset maintained manually because the source is a PDF or behind an access block, or coverage that updates irregularly.
+- Write time-agnostic prose (in the `summary` too): describe the source's ongoing purpose ("Members of parliament, updated after each election"), not the current snapshot ("Members since the 2023 elections").
+
+Keep out of the description:
+
+- Per-record field listings ("records each person with their name, gender and date of birth") — that is visible from the data and its statistics, and drifts as the crawler changes.
+- Routine ETL mechanics: fetching, parsing, pagination, lookups.
+- Sourcing narration ("the data is sourced from the official website") — that is what `publisher` and `data.url` convey.
+
+## Maintainer notes (YAML comments)
+
+Document technical knowledge about the crawler as `#` comments in the `.yml`, adjacent to the thing they explain:
+
+- A top-of-file comment block for crawler-level notes: known failure modes and how to handle them, source publication quirks, runbooks for recurring warnings.
+- A short comment above each lookup that is not a plain type lookup (`type.country`, `type.date`, …), explaining its structure and purpose: what raw values it matches, and what the crawler does with the result.
+
+Comments record known facts — observed failures, documented source behaviour, decisions that were made — never speculation. Good examples: `datasets/cn/sanctions/cn_sanctions.yml` (a runbook for handling designation-notice warnings), `datasets/fr/tresor/fr_tresor_gels_avoir.yml` (one-line annotations on the groups within a large lookup).
+
+## Properties
 
 ### Basics
 
-- `title` - As close as possible to an official title for what this dataset contains. If it is a subset of its source data, try to capture that. e.g. `Plural Legislators` - if the Plural portal includes committees but the dataset only captures the legislators. Prefix the dataset's name with the country name as `Country` (and not `Country's`).
 - `entry_point` e.g. `crawler.py:crawl_peps` - the file name, optionally followed by a method name called by the zavod `crawl` command. Defaults to the `crawler.py:crawl` calling an entry point in the dataset directory.
 - `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys. See the [entity ID guide](best_practices/entity_id.md) for the shape and stability rules that apply to IDs.
-- `summary` - A short (50-90 char) line that complements the title to identify the source. Add detail the title doesn't already convey rather than repeating it. Shown in search results, so keep it to one clear line.
-- `description` - One to three paragraphs describing the characteristics of the source and the dataset: what it contains, what it includes or excludes, and the context a reader needs to make sense of it. Write for a compliance or domain-expert reader, not an engineer. Describe the source, not the routine ETL mechanics; don't narrate fetching, parsing, or lookups. Note significant limitations that affect how a reader should trust or interpret the data, such as a dataset maintained manually because the source is a PDF or behind an access block, or coverage that updates irregularly. Skip minor field-level gaps such as missing dates of birth; those belong in the data itself, not the prose.
 - `url` - the home page or most authoritative place where someone can read about this particular dataset at its source. E.g If a source publishes 5 different datasets, try to link to the page describing the data actually contained in this dataset.
+- `disabled` - boolean, default `false`. Set to `true` for sources that are not available any more or should not be crawled at the moment: no crawl job is deployed and the coverage frequency is forced to `never`, but the metadata still gets published.
+- `hidden` - boolean, default `false`. Set to `true` to keep the dataset out of the website and other user interfaces while still running and publishing it.
 
 ### Data Coverage
 
 - `coverage`
-    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined.
+    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and is used to derive a crawling schedule unless one is defined explicitly. House defaults by dataset type:
+        - sanctions and wanted lists: `daily`
+        - PEP sources (legislatures, governments): `monthly`
+        - company registries and other bulk sources: `weekly`
+        - frozen one-off dumps: `never`, with an explicit `schedule` (usually `@monthly`) so exports stay consistent with FollowTheMoney updates.
     - `start` - The date the dataset was first included in the `default` collection — i.e. the date the crawler was added to OpenSanctions. Use today's date when scaffolding a new crawler. A string in the format `YYYY-MM-DD`. Do **not** set this to the date the source data begins covering (e.g. an election date or the start of a parliamentary term).
     - `end` - The end date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`. Future dates imply an expected end to the maintenance and coverage period of the dataset. Past end dates result in the datasets last_change date being fixed to that date, while its last_exported date remains unchanged.
-    - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
-    - Data sources that don't receive updates are marked `never` and must have their schedule defined otherwise (e.g. usually `coverage.schedule: @monthly` just to keep consistent with FTM updates). You may want to set `disabled: true` for sources that are not available any more so that the metadata can get published without attempting to crawl the source.
-
-### Deployment
-
-- `deploy`
-    - `premium` - `boolean` - whether its compute instance may be evicted, restarting the job. Set to `true` for jobs running for several hours.
-
-### Continuous Integration
-
-- `ci_test` - boolean, default `true`. If true, the crawler is run when its python or yaml is modified in CI. Set to false for extremely slow crawlers, or those that require credentials, and then take extra care when modifying them.
-
-### Exports
-
-- `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
-- `load_statements` - Whether the statements should be loaded to a SQL table after the run. Usually `false` for collections and enrichment targets like company registries, and true for normal datasets and enrichers.
-
-### Tags
-
-`tags` are a controlled vocabulary used to categorize datasets by shared attributes such as legal basis, list type, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
-
-Currently, tags cover the following dimensions:
-- list type (e.g. `list.sanction`, `list.pep`);
-- issuer and jurisdiction (e.g. `issuer.west`, `juris.eu`);
-- target countries (e.g. `target.ru`, `target.us`)
-- sectors (e.g. `sector.financial`, `sector.maritime`)
-- risk themes (e.g. `risk.klepto`).
-
-You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
+    - `schedule` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`. The deployed schedule is resolved as `coverage.schedule`, then `deploy.schedule`, then the mapping of `frequency` (falling back to daily); the minute is randomized per dataset to spread load, so only pin an exact time when it matters (e.g. right after the source's own publication time).
+- `manual_check` - for datasets that need periodic human re-verification, e.g. manually maintained data or a source that changes without machine-readable signals. A maintenance script reports datasets whose check is due and bumps `last_checked`.
+    - `last_checked` - quoted string `"YYYY-MM-DD"` (the exact format is required for the automatic update).
+    - `interval` - number of days between checks.
+    - `message` - what the reviewer should verify.
 
 ### Publisher
 
@@ -69,6 +91,44 @@ You can find a full overview of available tags [here](https://www.opensanctions.
 - `data`
     - `url`- The link to a bulk download or API base URL or endpoint - ideally something you can use within the crawler via `context.data_url` to request the data, and which ideally returns a useful response when followed by dataset users. It's not the end of the world if you make other requests to expand the data available to the crawler.
     - `format` a string defining the format of the data at that URL, e.g. `JSON`, `HTML`, `XML`. A Zip file containing thousands of YAML files might be more usefully annoted with `YAML` than `ZIP` because it conveys the structural syntax of the data.
+    - `lang` - ISO 639-3 code (e.g. `deu`, `slk`) of the source's primary language. It is applied as the default language of every statement the crawler emits, so set it when the source is predominantly in one non-English language.
+
+### Tags
+
+`tags` are a controlled vocabulary used to categorize datasets by shared attributes such as legal basis, list type, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
+
+Currently, tags cover the following dimensions:
+- list type (e.g. `list.sanction`, `list.pep`);
+- issuer and jurisdiction (e.g. `issuer.west`, `juris.eu`);
+- target countries (e.g. `target.ru`, `target.us`)
+- sectors (e.g. `sector.financial`, `sector.maritime`)
+- risk themes (e.g. `risk.klepto`).
+
+Tag matching is by exact string, not by prefix: a dataset tagged only `list.pep.bulk` does not match `list.pep`. Sub-tags qualify a base tag and should be applied alongside it — `list.pep.bulk` marks PEP datasets (also tagged `list.pep`) that are excluded from broad PEP cross-referencing, such as declaration registries and sub-national officeholder lists.
+
+You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
+
+### Deployment
+
+The `deploy` section configures the Kubernetes job that runs the crawler in production. It is consumed by the deployment tooling, not by zavod itself. Override the defaults only when a crawler demonstrably needs it:
+
+- `deploy`
+    - `memory` / `memory_limit` - memory request and limit (defaults `700Mi` / `1600Mi`), e.g. `2000Mi` for crawlers that hold large source files in memory.
+    - `cpu` / `cpu_limit` - CPU request and limit (defaults `200m` / `1600m`).
+    - `disk` / `disk_limit` - scratch disk (default `9Gi`) for crawlers that download large source archives.
+    - `premium` - `boolean` - whether its compute instance may be evicted, restarting the job. Set to `true` for jobs running for several hours.
+    - `schedule` - cron schedule; only consulted when `coverage.schedule` is not set.
+
+### Continuous Integration
+
+- `ci_test` - boolean, default `true`. If true, the crawler is run when its python or yaml is modified in CI. Set to false for extremely slow crawlers, or those that require credentials, and then take extra care when modifying them.
+
+### Exports
+
+- `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
+- `load_statements` - Whether the statements should be loaded to a SQL table after the run. Usually `false` for collections and enrichment targets like company registries, and true for normal datasets and enrichers.
+- `resolve` - boolean, default `true`. Whether entities are resolved to canonical (deduplicated) IDs. Set to `false` only for special-purpose datasets that must retain their local IDs.
+- `full_dataset` - the name of the complete dataset a subset is derived from; required for datasets used as local enrichment targets, so that matches can be expanded from the full data.
 
 ### Date formatting
 
@@ -82,7 +142,8 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
 
 - `http`
     - `user_agent`: string, defaults to the value of the FTM_USER_AGENT setting. Set a custom value for the `User-Agent` header if needed.
-    - `timeout`: integer in seconds, default `60`. Connect and read timeout applied to both the context HTTP session and Zyte API requests. Increase it for sources that are slow to respond.
+    - `timeout`: integer in seconds, default `60`. Connect and read timeout for the context HTTP session. Increase it for sources that are slow to respond.
+    - `zyte_timeout`: integer in seconds, default `300`. Connect and read timeout for Zyte API requests, which is separate because the timeout covers a whole proxied fetch — exit node selection, browser rendering and Zyte's own ban retries — rather than a single request to the source. Lower it only to fail faster on a source known to be unreachable; timing out below Zyte's own budget discards work it has already done.
     - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
     - `max_retries`: integer in seconds, default `3`
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`

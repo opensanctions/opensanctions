@@ -23,7 +23,7 @@ def crawl_item(context: Context, url: str) -> None:
         html = context.fetch_html(url, cache_days=60)
     except RequestException as re:
         time.sleep(10)
-        context.log.error("HTTP error: %r" % re, url=url)
+        context.log.error(f"HTTP error: {re!r}", url=url)
         return
     table = html.findall('.//td[@class="content"]//table')
     if len(table) != 1:

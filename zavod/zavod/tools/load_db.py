@@ -29,6 +29,9 @@ def load_dataset_to_db(
     """
     engine = get_engine()
     for dataset in scope.leaves:
+        # Duplicate statement IDs are left to the upsert in insert_statements,
+        # which keeps the first row of a conflict just like an in-process
+        # dedupe would - without buffering every ID that has been seen.
         insert_statements(
             engine,
             statement_table,

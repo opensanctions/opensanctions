@@ -1,5 +1,6 @@
 import csv
-from typing import Any, Iterator
+from typing import Any
+from collections.abc import Iterator
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
@@ -103,7 +104,7 @@ def crawl(context: Context) -> None:
         source_file = context.fetch_resource(fname, url)
         context.export_resource(source_file, CSV, context.SOURCE_TITLE)
 
-        with open(source_file, "r", encoding="latin-1") as f:
+        with open(source_file, encoding="latin-1") as f:
             reader = csv.DictReader(f)
             for item in reader:
                 # Each csv has a slightly different name for each attribute

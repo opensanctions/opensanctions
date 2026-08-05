@@ -47,6 +47,7 @@ description: |
   we could clearly identify as positions which exist in those countries.
 tags:
   - list.pep
+  - list.pep.bulk
 publisher:
   name: Official Journal of the European Union
   acronym: OJEU

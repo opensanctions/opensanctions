@@ -2,7 +2,7 @@ import io
 import re
 from csv import DictReader
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from zipfile import BadZipFile, ZipFile
 
 from zavod.stateful.positions import OccupancyStatus, categorise
@@ -13,8 +13,8 @@ from zavod import helpers as h
 
 def fetch_latest_filing(
     context: Context,
-    dates: List[Dict[str, Any]],
-) -> Tuple[Optional[str], Optional[Path]]:
+    dates: list[dict[str, Any]],
+) -> tuple[str | None, Path | None]:
     if not dates:
         return None, None
 
@@ -120,7 +120,7 @@ def emit_affiliated_position(
     *,
     person: Entity,
     function: str,
-    affiliation_data: Dict[str, str],
+    affiliation_data: dict[str, str],
     filing_date: str,
 ) -> None:
     """Creates Position and Occupancy after categorization.
@@ -181,7 +181,7 @@ def emit_affiliated_position(
 # and FUNKCIONER_PREZIME roughly equals PREZIME_CLANA_PORODICE (last name)
 def split_official_and_relatives(
     rows: list[dict[str, Any]],
-) -> Tuple[Optional[Dict[str, str]], List[Dict[str, str]]]:
+) -> tuple[dict[str, str] | None, list[dict[str, str]]]:
     """Split family rows into the relatives and the official."""
     # SRODSTVO contains Funkcioner for the official, else the family relationship.
     officials = [row for row in rows if row.get("SRODSTVO") == "Funkcioner"]
@@ -196,7 +196,7 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
     Returns true if a ZIP was read."""
     full_name = person_data.pop("imeIPrezime")
     dates = person_data.pop("izvjestajImovine")
-    function_labels: List[str] = person_data.pop("nazivFunkcije")
+    function_labels: list[str] = person_data.pop("nazivFunkcije")
     filing_date, zip_path = fetch_latest_filing(context, dates)
 
     family_rows = []

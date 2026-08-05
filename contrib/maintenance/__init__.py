@@ -3,6 +3,7 @@
 Modules in this package are invoked from the repository root, e.g.:
 
     python -m contrib.maintenance.diagnose <dataset_name>
+    python -m contrib.maintenance.versions <dataset_name>
     python -m contrib.maintenance.issues_agent
 
 They deliberately avoid importing zavod so they start fast and run with just

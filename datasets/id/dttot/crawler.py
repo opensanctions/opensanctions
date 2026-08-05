@@ -1,6 +1,5 @@
 import re
 import openpyxl
-from typing import Dict
 from normality import squash_spaces
 from rigour.mime.types import XLSX
 
@@ -27,7 +26,7 @@ def clean_addresses(raw_addresses: str) -> list[str]:
     return cleaned
 
 
-def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     item_id = row.pop("id")
     res = context.lookup("type", row.pop("type"), warn_unmatched=True)
     assert res and res.value

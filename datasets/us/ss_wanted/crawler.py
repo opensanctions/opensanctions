@@ -1,21 +1,23 @@
-from xml.etree import ElementTree
+from typing import Any, cast
+
 from normality import squash_spaces
 
 from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import Element
 
 
-def get_element_text(
-    doc: ElementTree, xpath_value: str, to_remove: list[str] = []
-) -> str:
+def get_element_text(doc: Element, xpath_value: str, to_remove: list[str] = []) -> str:
     """Extract text from from an xpath
 
     Args:
-        doc (ElementTree): HTML Tree
+        doc (Element): HTML Tree
         xpath_value (str):  xpath to extract text from
         to_remove (list, optional): string to remove in the extracted text.
     """
-    element_tags = doc.xpath(xpath_value)
+    # The xpath expressions passed here return either elements or text nodes,
+    # which the try/except below distinguishes at runtime.
+    element_tags = cast(list[Any], doc.xpath(xpath_value))
 
     tag_list = []
     for tag in element_tags:
@@ -42,8 +44,7 @@ def crawl(context: Context) -> None:
         absolute_links=True,
     )
 
-    for person_node in doc.xpath(person_xpath):
-        url = person_node.get("href")
+    for url in h.xpath_strings(doc, person_xpath + "/@href"):
         crawl_person(context, url)
 
 
@@ -67,13 +68,11 @@ def crawl_person(context: Context, url: str) -> None:
     )
     nationality = get_element_text(
         doc, ".//strong[contains(text(),'NATION')]/following-sibling::text()[1]"
-    )
-    nationality = nationality.split("/")
+    ).split("/")
 
     citizenship = get_element_text(
         doc, ".//strong[contains(text(),'CITIZENSHIP')]/following-sibling::text()[1]"
-    )
-    citizenship = citizenship.split("/")
+    ).split("/")
 
     height = get_element_text(
         doc, ".//strong[contains(text(),'HEIGHT')]/following-sibling::text()[1]"
@@ -91,12 +90,9 @@ def crawl_person(context: Context, url: str) -> None:
         doc, '//h2[contains(text(), "CASE")]//following-sibling::p'
     )
 
-    links = [
-        tag.get("href")
-        for tag in doc.xpath(
-            './/h2[contains(text(), "CASE")]//following-sibling::ul//a'
-        )
-    ]
+    links = h.xpath_strings(
+        doc, './/h2[contains(text(), "CASE")]//following-sibling::ul//a/@href'
+    )
 
     person_id = url.split("/")[-1]
 

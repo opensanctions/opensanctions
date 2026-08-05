@@ -73,7 +73,7 @@ def crawl(context: Context) -> None:
     elif ".csv" in url:
         context.log.info("Reading as CSV", url=url)
         path = path.rename(path.with_suffix(".csv"))
-        with open(path, "rt", encoding="utf-8-sig") as infh:
+        with open(path, encoding="utf-8-sig") as infh:
             reader = csv.DictReader(infh)
             fieldnames = reader.fieldnames
         norm_fieldnames = []
@@ -81,7 +81,7 @@ def crawl(context: Context) -> None:
             field = field.lower().replace(" ", "_")
             field = context.lookup_value("columns", field, field)
             norm_fieldnames.append(field)
-        with open(path, "rt", encoding="utf-8-sig") as infh:
+        with open(path, encoding="utf-8-sig") as infh:
             reader = csv.DictReader(infh, fieldnames=norm_fieldnames)
             next(reader)  # Skip header row
             rows = list(reader)

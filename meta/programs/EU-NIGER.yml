@@ -1,14 +1,24 @@
 id: 81
-title: EU Restrictive Measures In View Of The Situation In Niger
+title: EU Restrictive measures in view of the situation in Niger
 key: EU-NIGER
 url: https://sanctionsmap.eu/#/main/details/58/
-summary: These sanctions target individuals and entities in Niger involved in actions
-  that undermine peace, security, and stability. The measures include asset freezes,
-  travel bans, and restrictions on trade to promote stability and security in Niger.
+summary: EU-autonomous framework adopted in October 2023 in response to the
+  military coup d'etat of 26 July 2023 in Niger and the detention of the
+  democratically elected President, Mohamed Bazoum. It provides for an asset
+  freeze on individuals and entities, and a travel ban on individuals,
+  responsible for actions that threaten the peace, stability and security of
+  Niger, undermine its constitutional order, democracy or the rule of law, or
+  constitute serious human rights violations or abuses. The framework has been
+  renewed through October 2026, but no persons or entities have been
+  designated under it to date.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2023/2406
+  - Decision (CFSP) 2023/2287
+  - Restrictive measures in view of the situation in Niger
 target_territories:
-- ne
+  - ne
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

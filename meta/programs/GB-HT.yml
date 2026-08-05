@@ -1,9 +1,25 @@
 id: 239
-title: UK Sanctions relating to Haiti
+title: UK sanctions relating to Haiti
 key: GB-HT
 url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-haiti
-summary: Sanctions against entities and individuals in Haiti.
-issuer: gb_ofsi
+summary: Gives effect to the United Nations sanctions regime on Haiti
+  established by UN Security Council Resolution 2653, targeting people and
+  entities engaged in or supporting criminal activities and violence involving
+  armed groups and criminal networks that threaten the peace, security or
+  stability of Haiti. Designated persons are subject to an asset freeze, and
+  designated individuals are barred from entering or transiting the United
+  Kingdom. The regime also imposes a country-wide embargo on arms and other
+  military goods destined for Haiti.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Resolution 2653
+  - SI 2022/1281
+  - The Haiti (Sanctions) Regulations 2022
+  - UNSCR 2653
 target_territories:
-- ht
+  - ht
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Travel ban

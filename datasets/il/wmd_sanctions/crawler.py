@@ -1,5 +1,5 @@
 from rigour.mime.types import XLSX
-from typing import Any, Optional
+from typing import Any
 from zavod import helpers as h
 import openpyxl
 import re
@@ -52,7 +52,7 @@ def apply_identifiers(entity: Entity, text: str, *, default_prop: str) -> None:
         entity.add(default_prop, item.strip())
 
 
-def extract_n_pop_address(text: str) -> tuple[Optional[str], Optional[str]]:
+def extract_n_pop_address(text: str) -> tuple[str | None, str | None]:
     """
     Extract address and update the text by removing the extracted address.
     """
