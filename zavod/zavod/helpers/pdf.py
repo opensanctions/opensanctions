@@ -128,9 +128,17 @@ def parse_pdf_table(
             ]
             if row_slugs == headers:
                 # Tables that repeat their header row on every page would
-                # otherwise emit the repeated headers as a data row.
-                context.log.info(
-                    f"Skipping repeated header row on page {page.page_number}"
+                # otherwise emit the repeated headers as a data row. Warn
+                # rather than skip silently: the table probably wants
+                # headers_per_page (and skiprows) so that any rows above the
+                # repeated header, e.g. comments, are skipped too.
+                context.log.warning(
+                    (
+                        "Skipping repeated header row. Consider headers_per_page "
+                        "in case comment rows need skipping on each page."
+                    ),
+                    page=page.page_number,
+                    row=row,
                 )
                 continue
             yield dict(zip(headers, row))
