@@ -1,5 +1,8 @@
+import pytest
 import xlrd  # type: ignore
-from openpyxl import load_workbook
+from xlrd import XL_CELL_TEXT  # type: ignore
+from xlrd.sheet import Cell  # type: ignore
+from openpyxl import Workbook, load_workbook
 from zavod.context import Context
 from zavod.helpers.excel import (
     convert_excel_cell,
@@ -80,3 +83,47 @@ def test_parse_xlsx_sheet(vcontext: Context):
         "text_url": "http://example.com/hello",
         "column_4": "blank_header_value",
     }
+
+
+class StubXlsSheet:
+    """Just enough of xlrd.sheet.Sheet for parse_xls_sheet — xlrd cannot
+    write files, so a duplicate-header .xls fixture cannot be generated."""
+
+    book = None
+    hyperlink_map: dict = {}
+
+    def __init__(self, rows):
+        self._rows = rows
+
+    def __iter__(self):
+        return iter(self._rows)
+
+
+def test_parse_xls_sheet_duplicate_headers(vcontext: Context):
+    # Headers that collide after slugification would silently drop the
+    # earlier column's cell ({"name": "latin", "dob": "1970"}).
+    sheet = StubXlsSheet(
+        [
+            [
+                Cell(XL_CELL_TEXT, "Name"),
+                Cell(XL_CELL_TEXT, "Name"),
+                Cell(XL_CELL_TEXT, "DOB"),
+            ],
+            [
+                Cell(XL_CELL_TEXT, "original"),
+                Cell(XL_CELL_TEXT, "latin"),
+                Cell(XL_CELL_TEXT, "1970"),
+            ],
+        ]
+    )
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(parse_xls_sheet(vcontext, sheet))
+
+
+def test_parse_xlsx_sheet_duplicate_headers(vcontext: Context):
+    book = Workbook()
+    sheet = book.active
+    sheet.append(["Name", "Name", "DOB"])
+    sheet.append(["original", "latin", "1970"])
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(parse_xlsx_sheet(vcontext, sheet))
