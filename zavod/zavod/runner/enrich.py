@@ -3,7 +3,7 @@ from followthemoney.helpers import check_person_cutoff
 from nomenklatura.judgement import Judgement
 from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 
-from zavod.meta import Dataset, get_multi_dataset
+from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.runner.util import check_publishability, is_analyzer_stub, should_promote
@@ -49,7 +49,7 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")
     store = get_store(scope, context.resolver)
     # Commit the resolver's load-time read so no transaction is held open across

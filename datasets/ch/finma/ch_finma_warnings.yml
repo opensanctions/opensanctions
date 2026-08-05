@@ -72,3 +72,479 @@ lookups:
         value: http://goldos.co2g.de
       - match: "www.http://swiss-wealth.com"
         value: http://swiss-wealth.com
+      - match: "http://capitalstrategies.biz (der Link soll inaktiv sein)"
+        values:
+          - "http://capitalstrategies.biz"
+      - match: "http://westminstersureties.webs.com, http://www.westminstersureties.com/ und http://westminstersureties.webstarts.com/"
+        values:
+          - "http://westminstersureties.webs.com"
+          - "http://www.westminstersureties.com/"
+          - "http://westminstersureties.webstarts.com/"
+      - match: "http://www.ccaoe-investmentclubs.com,  http://www.ccaoe.com/de/"
+        values:
+          - "http://www.ccaoe-investmentclubs.com"
+          - "http://www.ccaoe.com/de/"
+      - match: "http://www.gts.solutions; https://cryptocapital.co"
+        values:
+          - "http://www.gts.solutions"
+          - "https://cryptocapital.co"
+      - match: "https://bitswiss365.com ; https://www.bitswiss365.online/"
+        values:
+          - "https://bitswiss365.com"
+          - "https://www.bitswiss365.online/"
+      - match: "https://ict.webcrafton.com; https://ictrobots.com"
+        values:
+          - "https://ict.webcrafton.com"
+          - "https://ictrobots.com"
+      - match: "https://lmccglobal.com / https://lmcc-global.com"
+        values:
+          - "https://lmccglobal.com"
+          - "https://lmcc-global.com"
+      - match: "https://luxenrise.com / https://luxenrise.net"
+        values:
+          - "https://luxenrise.com"
+          - "https://luxenrise.net"
+      - match: "https://orvelin-invest.net / https://orvelin-invest.pro/"
+        values:
+          - "https://orvelin-invest.net"
+          - "https://orvelin-invest.pro/"
+      - match: "https://swisscapital.fm; https://swiss-capital.fm"
+        values:
+          - "https://swisscapital.fm"
+          - "https://swiss-capital.fm"
+      - match: "https://www.cryptolords.co; https://sublaunch.com/zybach"
+        values:
+          - "https://www.cryptolords.co"
+          - "https://sublaunch.com/zybach"
+      - match: "https://www.highapexplanning.com ; https://highapexplanning.net"
+        values:
+          - "https://www.highapexplanning.com"
+          - "https://highapexplanning.net"
+      - match: "https://www.swissenergycity.website, www.secam9.ch"
+        values:
+          - "https://www.swissenergycity.website"
+          - "www.secam9.ch"
+      - match: "https://www.tassoinvest.com / https://www.tassoinvest.ch / https://www.tasso-invest.com"
+        values:
+          - "https://www.tassoinvest.com"
+          - "https://www.tassoinvest.ch"
+          - "https://www.tasso-invest.com"
+      - match: "https://www.tradeblocklondon.com; https://dipali.org/"
+        values:
+          - "https://www.tradeblocklondon.com"
+          - "https://dipali.org/"
+      - match: "https://zinsfox.com; www.zins-fox.com; www.zinsfox.eu"
+        values:
+          - "https://zinsfox.com"
+          - "www.zins-fox.com"
+          - "www.zinsfox.eu"
+      - match: "josefhopfinger-pcft.com / josef-hopfinger-pcft.com"
+        values:
+          - "josefhopfinger-pcft.com"
+          - "josef-hopfinger-pcft.com"
+      - match: "miningtoken.com / miningtoken.org"
+        values:
+          - "miningtoken.com"
+          - "miningtoken.org"
+      - match: "swissholding.com / swiss-holding.co"
+        values:
+          - "swissholding.com"
+          - "swiss-holding.co"
+      - match: "wt-central.com / wtcentral.com"
+        values:
+          - "wt-central.com"
+          - "wtcentral.com"
+      - match: "www. www.rothenburger.li"
+        value: "www.rothenburger.li"
+      - match: "www.1apcoin.com, www.1apayment.com, www.1tus.io"
+        values:
+          - "www.1apcoin.com"
+          - "www.1apayment.com"
+          - "www.1tus.io"
+      - match: "www.1swiss.com / www.1swiss.co"
+        values:
+          - "www.1swiss.com"
+          - "www.1swiss.co"
+      - match: "www.adler-ch.com; www.adler-ch.net."
+        values:
+          - "www.adler-ch.com"
+          - "www.adler-ch.net."
+      - match: "www.admiral-trade.com / admiral-trade.ai"
+        values:
+          - "www.admiral-trade.com"
+          - "admiral-trade.ai"
+      - match: "www.allfinanzregulierung.ch, www.shz-schuldenhilfe.de"
+        values:
+          - "www.allfinanzregulierung.ch"
+          - "www.shz-schuldenhilfe.de"
+      - match: "www.alpenstark.online / www.alpenstark.com"
+        values:
+          - "www.alpenstark.online"
+          - "www.alpenstark.com"
+      - match: "www.altrafinportal.com / www.altrafin-portal.com"
+        values:
+          - "www.altrafinportal.com"
+          - "www.altrafin-portal.com"
+      - match: "www.apifx.asia; www.api-fx.com; www.apipfx.com"
+        values:
+          - "www.apifx.asia"
+          - "www.api-fx.com"
+          - "www.apipfx.com"
+      - match: "www.app-descartes.com; www.descartes-financeapp.com"
+        values:
+          - "www.app-descartes.com"
+          - "www.descartes-financeapp.com"
+      - match: "www.arvestlimited.com / www.arvestltd.com"
+        values:
+          - "www.arvestlimited.com"
+          - "www.arvestltd.com"
+      - match: "www.azeta-sa.company / https://user.azeta-sa.com / https://trade.azeta-sa.com"
+        values:
+          - "www.azeta-sa.company"
+          - "https://user.azeta-sa.com"
+          - "https://trade.azeta-sa.com"
+      - match: "www.bam-beag.com / www.bam-beta.com"
+        values:
+          - "www.bam-beag.com"
+          - "www.bam-beta.com"
+      - match: "www.bciic.ch / www.bciic.org"
+        values:
+          - "www.bciic.ch"
+          - "www.bciic.org"
+      - match: "www.belesta-ag.ch / www.belesta-ag.com"
+        values:
+          - "www.belesta-ag.ch"
+          - "www.belesta-ag.com"
+      - match: "www.bergmann-finance.ch; www.bergmann-finance.com"
+        values:
+          - "www.bergmann-finance.ch"
+          - "www.bergmann-finance.com"
+      - match: "www.berguesinvest.com / www.hkhostbox.com/berguesinvest.com"
+        values:
+          - "www.berguesinvest.com"
+          - "www.hkhostbox.com/berguesinvest.com"
+      - match: "www.bggatepx.vip, www.bcgatig.vip, www.bggates.vip, www.bggaten.vip"
+        values:
+          - "www.bggatepx.vip"
+          - "www.bcgatig.vip"
+          - "www.bggates.vip"
+          - "www.bggaten.vip"
+      - match: "www.bibox.com / www.bibox.cc"
+        values:
+          - "www.bibox.com"
+          - "www.bibox.cc"
+      - match: "www.bitbinvest.co; www.bitbinvest.net"
+        values:
+          - "www.bitbinvest.co"
+          - "www.bitbinvest.net"
+      - match: "www.bloombexonline.com, www.bloombex-options.com"
+        values:
+          - "www.bloombexonline.com"
+          - "www.bloombex-options.com"
+      - match: "www.bti-ic.com / www.bti-ic.net"
+        values:
+          - "www.bti-ic.com"
+          - "www.bti-ic.net"
+      - match: "www.bullwaypro.com / www.bulsweypro.com"
+        values:
+          - "www.bullwaypro.com"
+          - "www.bulsweypro.com"
+      - match: "www.capitaltradehouse.com und www.cthbinary.com"
+        values:
+          - "www.capitaltradehouse.com"
+          - "www.cthbinary.com"
+      - match: "www.chiyoda-trust.ch / www.chiyoda-trust.com"
+        values:
+          - "www.chiyoda-trust.ch"
+          - "www.chiyoda-trust.com"
+      - match: "www.cpw-management.ch / www.cpw-management.org"
+        values:
+          - "www.cpw-management.ch"
+          - "www.cpw-management.org"
+      - match: "www.creditnetbank.com / www.creditnetbankinternationale.com"
+        values:
+          - "www.creditnetbank.com"
+          - "www.creditnetbankinternationale.com"
+      - match: "www.defi.ch; www.de-fi.ch"
+        values:
+          - "www.defi.ch"
+          - "www.de-fi.ch"
+      - match: "www.delmont-wm.com / www.delmont-wm.ch"
+        values:
+          - "www.delmont-wm.com"
+          - "www.delmont-wm.ch"
+      - match: "www.dukasbance.com / www.dukasbance.io"
+        values:
+          - "www.dukasbance.com"
+          - "www.dukasbance.io"
+      - match: "www.dv8-investments.com / www.dv8-investments.net"
+        values:
+          - "www.dv8-investments.com"
+          - "www.dv8-investments.net"
+      - match: "www.ecurex.com / www.ecurex.ch"
+        values:
+          - "www.ecurex.com"
+          - "www.ecurex.ch"
+      - match: "www.emasan-ag.com; www.emasanag.com"
+        values:
+          - "www.emasan-ag.com"
+          - "www.emasanag.com"
+      - match: "www.evolution-zenith.co; www.molanio.com"
+        values:
+          - "www.evolution-zenith.co"
+          - "www.molanio.com"
+      - match: "www.finanzenbrokers.de; www.finanzen-brokers.de; www.finanzen-broker.network"
+        values:
+          - "www.finanzenbrokers.de"
+          - "www.finanzen-brokers.de"
+          - "www.finanzen-broker.network"
+      - match: "www.finassetrust-ag.com, https://fatrust.com/ und https://www.sfam-trust.ch/"
+        values:
+          - "www.finassetrust-ag.com"
+          - "https://fatrust.com/"
+          - "https://www.sfam-trust.ch/"
+      - match: "www.finflow-x.com / www.finflow-x.io / www.finflow-x.net"
+        values:
+          - "www.finflow-x.com"
+          - "www.finflow-x.io"
+          - "www.finflow-x.net"
+      - match: "www.firstgeneva.eu / www.firstgeneva.biz"
+        values:
+          - "www.firstgeneva.eu"
+          - "www.firstgeneva.biz"
+      - match: "www.genf-vw.com und www.genfer-vw.com"
+        values:
+          - "www.genf-vw.com"
+          - "www.genfer-vw.com"
+      - match: "www.gfxcapital.ch / www.gfxadmin.com/contact"
+        values:
+          - "www.gfxcapital.ch"
+          - "www.gfxadmin.com/contact"
+      - match: "www.global-icm.com; www.global-icm.net"
+        values:
+          - "www.global-icm.com"
+          - "www.global-icm.net"
+      - match: "www.globally-invest.ai / www.globally-invest.co"
+        values:
+          - "www.globally-invest.ai"
+          - "www.globally-invest.co"
+      - match: "www.globalonemarkets.com / www.globalonemarkets.net"
+        values:
+          - "www.globalonemarkets.com"
+          - "www.globalonemarkets.net"
+      - match: "www.grandslam.li / www.goldenslam.li"
+        values:
+          - "www.grandslam.li"
+          - "www.goldenslam.li"
+      - match: "www.gublerfinance.com / www.gublerfinancegroup.com"
+        values:
+          - "www.gublerfinance.com"
+          - "www.gublerfinancegroup.com"
+      - match: "www.heerandpartner.com ; www.heerundpartner.com ; www.heeradvokatur.com ; www.heerandpartners.partners"
+        values:
+          - "www.heerandpartner.com"
+          - "www.heerundpartner.com"
+          - "www.heeradvokatur.com"
+          - "www.heerandpartners.partners"
+      - match: "www.housefinance.ch / www.house-of-finance.ch"
+        values:
+          - "www.housefinance.ch"
+          - "www.house-of-finance.ch"
+      - match: "www.immediate-neon.com / www.immediateneon.com"
+        values:
+          - "www.immediate-neon.com"
+          - "www.immediateneon.com"
+      - match: "www.incore-fund.com / www.incore-private.com/"
+        values:
+          - "www.incore-fund.com"
+          - "www.incore-private.com/"
+      - match: "www.investiswiss.ch; www.investiswiss.com"
+        values:
+          - "www.investiswiss.ch"
+          - "www.investiswiss.com"
+      - match: "www.investride.com & www.invstride.com"
+        values:
+          - "www.investride.com"
+          - "www.invstride.com"
+      - match: "www.invictusasset.com; www.invictusroyal.com"
+        values:
+          - "www.invictusasset.com"
+          - "www.invictusroyal.com"
+      - match: "www.ktf-financeag.com ; www.ktf-finance.odoo.com"
+        values:
+          - "www.ktf-financeag.com"
+          - "www.ktf-finance.odoo.com"
+      - match: "www.kygxs.com / www.kahyxcapital.com / www.kahyxcapitalsarl.com / www.kahyxcapitalholdings.com"
+        values:
+          - "www.kygxs.com"
+          - "www.kahyxcapital.com"
+          - "www.kahyxcapitalsarl.com"
+          - "www.kahyxcapitalholdings.com"
+      - match: "www.locstein.com / www.locsteinprivatebanking.com"
+        values:
+          - "www.locstein.com"
+          - "www.locsteinprivatebanking.com"
+      - match: "www.lst-ic.com / www.lst-inc.org"
+        values:
+          - "www.lst-ic.com"
+          - "www.lst-inc.org"
+      - match: "www.luyesteiner.com / www.luye.ch"
+        values:
+          - "www.luyesteiner.com"
+          - "www.luye.ch"
+      - match: "www.magos.ai / www.aio.network"
+        values:
+          - "www.magos.ai"
+          - "www.aio.network"
+      - match: "www.mcc-capitalgroup.com; www.mccoilgas.com; www.mcc-holding.com; www.mccgva.ch"
+        values:
+          - "www.mcc-capitalgroup.com"
+          - "www.mccoilgas.com"
+          - "www.mcc-holding.com"
+          - "www.mccgva.ch"
+      - match: "www.mftreasury.com / www.mftreasury.io"
+        values:
+          - "www.mftreasury.com"
+          - "www.mftreasury.io"
+      - match: "www.mirante-fund-management.com; www.mirante-fund-management.co"
+        values:
+          - "www.mirante-fund-management.com"
+          - "www.mirante-fund-management.co"
+      - match: "www.mit-ic.com / www.mit-ic.net"
+        values:
+          - "www.mit-ic.com"
+          - "www.mit-ic.net"
+      - match: "www.myaqua.jubileeace.com, https://app-54576867-101.worldsoft-wbs.com/page/1"
+        values:
+          - "www.myaqua.jubileeace.com"
+          - "https://app-54576867-101.worldsoft-wbs.com/page/1"
+      - match: "www.newvisionromandie.ch / www.schweiz-beraten.ch"
+        values:
+          - "www.newvisionromandie.ch"
+          - "www.schweiz-beraten.ch"
+      - match: "www.oakhillassetmgt.com / www.oakhillassetmgtsa.com"
+        values:
+          - "www.oakhillassetmgt.com"
+          - "www.oakhillassetmgtsa.com"
+      - match: "www.prosperity-im.com / www.prosperityinvestmentmanagement.com"
+        values:
+          - "www.prosperity-im.com"
+          - "www.prosperityinvestmentmanagement.com"
+      - match: "www.provinvest.org / www.provinvest24.com"
+        values:
+          - "www.provinvest.org"
+          - "www.provinvest24.com"
+      - match: "www.rivobanc.com / www.rivobanc.io"
+        values:
+          - "www.rivobanc.com"
+          - "www.rivobanc.io"
+      - match: "www.robintrov.com / www.robintrov.io"
+        values:
+          - "www.robintrov.com"
+          - "www.robintrov.io"
+      - match: "www.rubelliuscap.com und www.rubellius-cap.com"
+        values:
+          - "www.rubelliuscap.com"
+          - "www.rubellius-cap.com"
+      - match: "www.sardona-ag.com / www.sardonagroup.com"
+        values:
+          - "www.sardona-ag.com"
+          - "www.sardonagroup.com"
+      - match: "www.schelkredit.com / www.schelllkredit.com"
+        values:
+          - "www.schelkredit.com"
+          - "www.schelllkredit.com"
+      - match: "www.splendidplan.com und www.splendidplan.net"
+        values:
+          - "www.splendidplan.com"
+          - "www.splendidplan.net"
+      - match: "www.stakingcap.io / www.stakingcap.co"
+        values:
+          - "www.stakingcap.io"
+          - "www.stakingcap.co"
+      - match: "www.statefunds.com ; www.statefunds.vip"
+        values:
+          - "www.statefunds.com"
+          - "www.statefunds.vip"
+      - match: "www.swissalpinum.com / www.swissalpinium.com / www.swissalpin.eu"
+        values:
+          - "www.swissalpinum.com"
+          - "www.swissalpinium.com"
+          - "www.swissalpin.eu"
+      - match: "www.swissapexai.com / www.trading-area.swissapexfx.me"
+        values:
+          - "www.swissapexai.com"
+          - "www.trading-area.swissapexfx.me"
+      - match: "www.swissassetsmanagement.ch / https://swissassetsmanagement.eu/"
+        values:
+          - "www.swissassetsmanagement.ch"
+          - "https://swissassetsmanagement.eu/"
+      - match: "www.swissgbank.com, www.swiss-gb.com"
+        values:
+          - "www.swissgbank.com"
+          - "www.swiss-gb.com"
+      - match: "www.swissmine.world und www.swissmine.club"
+        values:
+          - "www.swissmine.world"
+          - "www.swissmine.club"
+      - match: "www.swisswealthm.com / www.swisswealthm.net / www.swisswealthm.ai"
+        values:
+          - "www.swisswealthm.com"
+          - "www.swisswealthm.net"
+          - "www.swisswealthm.ai"
+      - match: "www.tcsuisse.com / www.capitaltcs.com"
+        values:
+          - "www.tcsuisse.com"
+          - "www.capitaltcs.com"
+      - match: "www.tellidex.com / www.tellidex.io"
+        values:
+          - "www.tellidex.com"
+          - "www.tellidex.io"
+      - match: "www.terri-finance.com / www.terri-finance.net"
+        values:
+          - "www.terri-finance.com"
+          - "www.terri-finance.net"
+      - match: "www.toro-banc.org / www.toro-banc.io / www.toro-banc.net"
+        values:
+          - "www.toro-banc.org"
+          - "www.toro-banc.io"
+          - "www.toro-banc.net"
+      - match: "www.tradewavesam.com, www.gtlforex.com"
+        values:
+          - "www.tradewavesam.com"
+          - "www.gtlforex.com"
+      - match: "www.tristar-companygroup.com / www.tristar-tekstil.com / www.euroconsultone.com"
+        values:
+          - "www.tristar-companygroup.com"
+          - "www.tristar-tekstil.com"
+          - "www.euroconsultone.com"
+      - match: "www.tritonecapital.com / www.3ton.io"
+        values:
+          - "www.tritonecapital.com"
+          - "www.3ton.io"
+      - match: "www.virium.net / www.virium.globaltectrades.com"
+        values:
+          - "www.virium.net"
+          - "www.virium.globaltectrades.com"
+      - match: "www.vourteige.com / www.vourteige.co / www.vourteige.capital"
+        values:
+          - "www.vourteige.com"
+          - "www.vourteige.co"
+          - "www.vourteige.capital"
+      - match: "www.wginternationalcapital.com / www.iiubrokers.com"
+        values:
+          - "www.wginternationalcapital.com"
+          - "www.iiubrokers.com"
+      - match: "www.wittfinance.com; www.wittfinanceglobal.com"
+        values:
+          - "www.wittfinance.com"
+          - "www.wittfinanceglobal.com"
+      - match: "www.zehan-invest.ch / https://zehan-invest.com/"
+        values:
+          - "www.zehan-invest.ch"
+          - "https://zehan-invest.com/"
+      - match: "www.zentilleon-ag.ch, www.zentilleon-ag.com und www.zentilleonag.com"
+        values:
+          - "www.zentilleon-ag.ch"
+          - "www.zentilleon-ag.com"
+          - "www.zentilleonag.com"

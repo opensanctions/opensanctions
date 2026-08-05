@@ -1,5 +1,4 @@
 import logging
-from decimal import Decimal
 from collections.abc import Generator, Iterator
 from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
@@ -35,31 +34,20 @@ class LocalEnricher(BaseEnricher[Dataset]):
     """
     Uses a local index to look up entities in a given dataset.
 
-    Candidates are selected for matching using search index. Candidates are then scored
-    by the matching algorithm to determine if they are a match.
-
-    Entities that have the same rounded score from the blocking index can be
-    considered to be binned together. Many match candidates with very similar names
-    might score the same, or similarly and only one or a small number might eventually be
-    considered a match.
-
-    You don't want to cut off scoring too early using `index_options.max_candidates`,
-    so use `max_bin` to configure the number of bins to step through before halting
-    a given search.
-
-    e.g. if the second 116 in index scores 118, 118, 118, 116, 116, 107 is the
-    positive match, cutting off at rank 4 would miss it out, but cutting off at bin 2
-    means all 116s are considered, the positive match is included. Other cases where
-    index scores are more spread out would score a smaller number of items.
+    The blocking index selects candidates for each subject entity, returning a
+    ranked list already trimmed inside its matching query: at most
+    `index_options.max_candidates` (default 75) candidates per subject, each
+    scoring at least `index_options.min_score_ratio` (default 0.1) of that
+    subject's best candidate. Every candidate in the list is then scored by the
+    matching algorithm, so those two options directly set the matcher CPU cost
+    per subject.
 
     Args:
         `config`: a dictionary of configuration options.
           `dataset`: `str` - the name of the dataset to enrich against.
           `cutoff`: `float` - (default 0.5) the minimum score required to be a match.
-          `limit`: `int` - (default 5) the maximum number of top scoring matches
+          `limit`: `int` - (default 10) the maximum number of top scoring matches
             to return.
-          `max_bin`: `int` - (default 10) the maximum number of rounded index score
-            bins to consider from a given search result.
           `algorithm`: `str` (default logic-v1) - the name of the algorithm
               to use for matching.
           `index_options`: `dict` - options to pass to the index.
@@ -90,7 +78,6 @@ class LocalEnricher(BaseEnricher[Dataset]):
         self._algorithm_config = _algorithm.default_config()
         self._cutoff = float(config.get("cutoff", 0.5))
         self._limit = int(config.get("limit", 10))
-        self._max_bin = int(config.get("max_bin", 10))
 
     def close(self) -> None:
         self.target_store.close()
@@ -115,17 +102,7 @@ class LocalEnricher(BaseEnricher[Dataset]):
             yield same_id_match
 
         scores: list[tuple[float, Entity]] = []
-        last_rounded_score = None
-        bin = 0
-
-        for match_id, index_score in candidates:
-            rounded_score = round(Decimal(index_score), 0)
-            if rounded_score != last_rounded_score:
-                bin += 1
-                last_rounded_score = rounded_score
-            if bin >= self._max_bin:
-                break
-
+        for match_id, _index_score in candidates:
             match = self.target_view.get_entity(match_id.id)
             if match is None:
                 continue
@@ -223,7 +200,7 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     # The Context resolver is read-only here (save_match only reads judgements),
     # so its load commits as a no-op along with the cache via context.close().
     context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")

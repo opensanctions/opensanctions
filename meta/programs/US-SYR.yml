@@ -19,6 +19,7 @@ summary: The comprehensive US sanctions program on Syria was revoked effective
   under the separate PAARSS program.
 issuer: us_ofac
 dataset: us_ofac_sdn
+status: ended
 aliases:
   - Syrian Sanctions Regulations
   - SySR

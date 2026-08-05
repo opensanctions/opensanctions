@@ -4,19 +4,16 @@ prefix: ge-parl
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-23
+  start: 2026-07-29
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Parliament of Georgia, the unicameral national legislature.
+  Unicameral national legislature, 150 members elected by proportional vote
 description: |
   Current members of the Parliament of Georgia, the country's unicameral national
   legislature. Its 150 members are elected under proportional representation for a
   four-year term and hold the country's legislative power, including passing laws,
   approving the budget, and overseeing the government.
-
-  This dataset records each seated member with their name, gender, and date and place
-  of birth.
 url: https://parliament.ge/en/parliament-members
 publisher:
   name: Parliament of Georgia

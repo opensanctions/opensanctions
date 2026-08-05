@@ -154,7 +154,14 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
         context.emit(entity)
         context.emit(sanction)
 
-    context.audit_data(row)
+    # The source gives an entityType of "Firm" or "Individual", but we ignore it and
+    # emit LegalEntity. We get many of the same entities from the other development
+    # bank sources. If one of those sources gets the schema wrong, we get an assembly
+    # error. LegalEntity is compatible with both schemata, so it is the safe choice.
+    # We might do it the right way in the future: split the name fields into a name,
+    # aliases and separate related entities, and then use entityType for the subject
+    # of each row. For now, that is not worth the effort.
+    context.audit_data(row, ignore=["entityType"])
 
 
 def crawl(context: Context) -> None:

@@ -69,6 +69,9 @@ assertions:
         isin: 0.17
       Sanction:
         program: 0.25
+        # Guards against a program mapping regression: `program` stays filled from
+        # the source tag even when no tag resolves to a program key.
+        programId: 0.25
   max:
     schema_entities:
       Address: 1030
@@ -80,24 +83,42 @@ assertions:
 # Consolidated List
 # SDN List
 lookups:
+  # Programs identify the legal authority, not the list that delivered the
+  # designation. The single-authority lists are keyed by list name, because their
+  # entries carry the same tags as SDN entries and the tag alone cannot tell them
+  # apart. The multi-authority lists (NS-MBS, CAPTA) are keyed by the per-entry
+  # program tag. An unmapped tag warns and leaves programId unset, so newly
+  # introduced authorities surface in the logs. cf. #4980
   sanction.program:
     options:
-      - match: CAPTA List
-        value: US-CAPTA
-      - match: FSE List
-        value: US-FSE
-      - match: Non-SDN CMIC List
-        value: US-NS-CMIC
-      - match: Non-SDN Menu-Based Sanctions List
-        value: US-NS-MBS
-      - match: Non-SDN Palestinian Legislative Council List
-        value: US-NS-PLC
+      # Single-authority lists: the list name already names the authority.
       - match: Sectoral Sanctions Identifications List
         value: US-SSI
+      - match: Non-SDN CMIC List
+        value: US-NS-CMIC
+      - match: Non-SDN Palestinian Legislative Council List
+        value: US-NS-PLC
+      - match: FSE List
+        value: US-FSE
+      # Authority tags carried by NS-MBS and CAPTA entries.
       - match: HKAA
         # Hong Kong Autonomy Act designations moved to the NS-MBS list when the
         # EO 13936 national emergency expired in July 2026; the authority stays US-HONGKONG.
         value: US-HONGKONG
+      - match: RUSSIA-EO14024
+        value: US-RUSHAR
+      - match: UKRAINE-EO13662
+        value: US-UKRRUS-REL
+      - match: CAATSA - RUSSIA
+        value: US-CAATSA
+      - match: BURMA-EO14014
+        value: US-BURMA
+      - match: ILLICIT-DRUGS-EO14059
+        value: US-NARCO
+      - match: "561-Related"
+        # Foreign financial institutions restricted under the Iranian Financial
+        # Sanctions Regulations, 31 CFR 561.
+        value: US-IRAN
   script.lang:
     options:
       # - match: Arab

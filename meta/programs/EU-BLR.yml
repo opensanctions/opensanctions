@@ -1,13 +1,37 @@
 id: 58
-title: EU Restrictive measures in view of the situation in Belarus and the involvement
-  of Belarus in the Russian aggression against Ukraine
+title: EU Restrictive measures in view of the situation in Belarus and the
+  involvement of Belarus in the Russian aggression against Ukraine
 key: EU-BLR
 url: https://sanctionsmap.eu/#/main/details/2/
-summary: These sanctions target individuals and entities in Belarus involved in human
-  rights abuses, undermining democracy, and supporting Russia's aggression against
-  Ukraine. The measures include asset freezes, travel bans, and trade restrictions
-  to pressure Belarus to respect international norms and support Ukraine's sovereignty.
+summary: Targets those responsible for the repression of civil society and the
+  democratic opposition in Belarus, persons and entities benefiting from or
+  supporting the Lukashenka government, and those supporting Belarus's
+  involvement in Russia's aggression against Ukraine. Designations under
+  Council Decision 2012/642/CFSP and Regulation (EC) No 765/2006 result in an
+  asset freeze, a prohibition on making funds or economic resources available,
+  and, for individuals, a ban on entry into or transit through the EU. These
+  designation-level measures combine with wide-ranging country-level
+  restrictions that largely mirror the EU's sanctions on Russia, including an
+  arms embargo, export controls on dual-use, advanced-technology and
+  industrial goods, import bans on commodities such as potash, wood, steel,
+  gold and diamonds, financial-sector and investment restrictions, a
+  prohibition on professional services to Belarusian public bodies, and
+  airspace and road-transport bans.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EC) No 765/2006
+  - Decision 2012/642/CFSP
+  - BLR
 target_territories:
-- by
+  - by
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control
+  - Import restrictions
+  - Financial restrictions
+  - Investment ban
+  - Services ban
+  - Transportation restrictions

@@ -8,7 +8,7 @@ from followthemoney.statement import FORMATS
 import requests
 from zavod import settings
 from zavod.logs import configure_logging, get_logger, set_logging_context_dataset_name
-from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
+from zavod.meta import load_dataset_from_path, get_catalog, get_multi_dataset, Dataset
 from zavod.stateful.model import create_db
 
 log = get_logger(__name__)
@@ -50,7 +50,7 @@ def _load_datasets(paths: list[Path]) -> Dataset:
     inputs: list[str] = []
     for path in paths:
         inputs.append(_load_dataset(path).name)
-    return get_multi_dataset(inputs)
+    return get_multi_dataset(get_catalog(), inputs)
 
 
 @click.group(help="Zavod data factory")

@@ -2064,17 +2064,173 @@ config:
     - category: Suomen_hallinto
       language: fi
 
+    # country: Lithuania
     - category: Lietuvos_politikai
       language: lt
       country: lt
-    - category: Lietuvos_parlamentų_nariai
+
+    - category: Lietuvos_prezidentai
       language: lt
       country: lt
       topic: role.pep
+      position:
+        name: President of Lithuania
+        wikidata_id: Q878222
+        country: lt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Lietuvos_ministrai_pirmininkai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Prime Minister of Lithuania
+        wikidata_id: Q845439
+        country: lt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Lietuvos_vicepremjerai
+      language: lt
+      country: lt
+      topic: role.pep
+    # Excluded: ministers of polities other than the present-day republic, being
+    # the Soviet LSSR and the 1941 Provisional Government.
     - category: Lietuvos_ministrai
       language: lt
       country: lt
       topic: role.pep
+      negcats: |
+        Lietuvos_TSR_ministrai
+        Lietuvos_laikinosios_vyriausybės_ministrai
+    - category: Lietuvos_viceministrai
+      language: lt
+      country: lt
+      topic: role.pep
+      negcats: |
+        Lietuvos_TSR_viceministrai
+
+    # Lietuvos_parlamentų_nariai spans every parliament back to the Grand Duchy,
+    # so no one position fits it. Seimo_nariai is the Seimas of the restored
+    # republic; the QID is the one lt_seimas uses, so it's the same entity.
+    - category: Lietuvos_parlamentų_nariai
+      language: lt
+      country: lt
+      topic: role.pep
+    - category: Seimo_nariai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Member of the Seimas of Lithuania
+        wikidata_id: Q18507240
+        country: lt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: LR_Seimo_pirmininkai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Speaker of the Seimas of Lithuania
+        wikidata_id: Q12663218
+        country: lt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Europos_Parlamento_nariai_(Lietuva)
+      language: lt
+      country: lt
+      topic: role.pep
+
+    # Courts of final instance only - Court of Appeal decisions can still be
+    # appealed to the Supreme Court, so its judges aren't PEPs by definition.
+    - category: LR_Konstitucinio_Teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Justice of the Constitutional Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_Aukščiausiojo_Teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Judge of the Supreme Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_vyriausiojo_administracinio_teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Judge of the Supreme Administrative Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_generaliniai_prokurorai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Prosecutor General of Lithuania
+        wikidata_id: Q132068652
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: LR_generalinio_prokuroro_pavaduotojai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Deputy Prosecutor General of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+
+    - category: Lietuvos_banko_vadovai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Governor of the Bank of Lithuania
+        wikidata_id: Q109496871
+        country: lt
+        topics:
+          - gov.financial
+          - gov.national
+    - category: Lietuvos_kariuomenės_vadai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Chief of Defence of Lithuania
+        wikidata_id: Q55607326
+        country: lt
+        topics:
+          - gov.security
+          - gov.national
+
+    # Lietuvos_diplomatai as a whole also holds consuls and junior diplomats,
+    # so only the ambassadors are marked.
+    - category: Lietuvos_ambasadoriai
+      language: lt
+      country: lt
+      topic: role.pep
+
+    # Deputy mayors are left out: lt isn't in MUNI_COUNTRIES in
+    # zavod.shed.wikidata.position, so LT municipal positions get dropped.
     - category: Lietuvos_apskričių_viršininkai
       language: lt
       country: lt

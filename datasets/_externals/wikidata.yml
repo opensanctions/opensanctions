@@ -318,6 +318,12 @@ lookups:
         value: 1942-02
       - match: "1951-06-31"
         value: 1951-06
+  type.url:
+    options:
+      - match: "http://www.alston.com%20www.alston.com%5D"
+        value: "http://www.alston.com"
+      - match: "http://www.%20janetlaurence.com"
+        value: "http://www.janetlaurence.com"
   type.gender:
     lowercase: true
     normalize: true
@@ -350,6 +356,7 @@ lookups:
           - kathoey # third gender of Thai culture
           - faʻafafine # third gender of Samoan culture
           - diverse # German legally recognized third gender ("divers")
+          - third gender
         value: other
       - match:
           - MALE

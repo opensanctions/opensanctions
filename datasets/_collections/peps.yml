@@ -58,15 +58,20 @@ children:
   - bh_shura_council
   - bo_diputados
   - bo_senado
+  - br_chamber_deputies
+  - br_federal_senate
   - br_pep
   - bt_parliament
+  - by_council_republic
   - bz_national_assembly
   - ca_commons
   - ca_foreign_reps
   - ca_senate
   - ch_parlament
+  - ci_national_assembly
   - ci_senate
   - cl_info_probidad
+  - cm_national_assembly
   - cm_senate
   - cn_npc
   - cn_peoples_congress_wikipedia
@@ -80,14 +85,19 @@ children:
   - de_bundesrat
   - de_bundestag
   - dk_pep
+  - dz_apn
+  - dz_council_nation
   - ee_riigikogu
+  - eg_house_representatives
   - es_mayors_councillors
   - es_parliament
+  - et_hopr
   - eu_cor_members
   - eu_meps
   - eu_public_functions
   - everypolitician
   - fi_eduskunta
+  - fj_parliament
   - fr_assemblee
   - fr_hatvp_declarations
   - fr_maires
@@ -95,6 +105,7 @@ children:
   - gb_commons
   - gb_lords
   - ge_declarations
+  - ge_parliament
   - gh_parliament
   - gr_parliament
   - gt_congress
@@ -128,6 +139,7 @@ children:
   - lu_bourgmestres
   - lu_chamber
   - lv_saeima
+  - ma_house_councillors
   - ma_representatives
   - mc_conseil_national
   - me_acp_peps
@@ -147,6 +159,8 @@ children:
   - nl_senate
   - no_brreg
   - no_storting
+  - np_parliament
+  - nu_assembly
   - nz_parliament
   - om_parliament
   - pa_asamblea
@@ -175,12 +189,14 @@ children:
   - si_zvezoskop
   - sk_nrsr_poslanci
   - sk_public_officials
+  - sm_consiglio
   - sn_assembly
   - sr_national_assembly
   - sv_legislature
   - th_cabinet
   - tj_majlisi_milli
   - tm_mejlis
+  - tn_arp
   - tr_parliament
   - tw_legislature
   - tz_bunge

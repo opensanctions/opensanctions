@@ -4,7 +4,7 @@ from logging import getLogger
 
 from followthemoney import Model
 from followthemoney.schema import Schema
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 log = getLogger(__name__)
 
@@ -108,28 +108,22 @@ class NamesSpec(BaseModel):
     suggested as abbreviation rather than name.
     """
 
+    @field_validator("schema_rules", mode="before")
     @classmethod
-    def model_validate(cls, obj: Any, **kwargs: Any) -> "NamesSpec":
-        """Merge provided schema_rules values with defaults."""
-        if isinstance(obj, dict):
-            schema_rules_dict = obj.pop("schema_rules", {})
+    def merge_schema_rules(cls, supplied: Any) -> Any:
+        """Merge schema-specific overrides into defaults before validation."""
+        if not isinstance(supplied, dict):
+            return supplied
 
-            instance = super().model_validate(obj, **kwargs)
-
-            for schema_name, spec in schema_rules_dict.items():
-                if schema_name in instance.schema_rules:
-                    schema = Model.instance().get(schema_name)
-                    assert schema is not None, schema_name
-                    # Merge with default
-                    default_spec = instance.schema_rules[schema_name]
-                    merged_spec = default_spec.model_copy(update=spec)
-                    instance.schema_rules[schema_name] = merged_spec
-                else:
-                    instance.schema_rules[schema_name] = CleaningSpec.model_validate(
-                        spec
-                    )
-            return instance
-        raise TypeError(f"object must be a dict, got {type(obj)}")
+        merged: dict[str, Any] = {
+            name: spec.model_dump() for name, spec in _DEFAULT_SCHEMA_RULES.items()
+        }
+        for schema_name, spec in supplied.items():
+            if schema_name in merged and isinstance(spec, dict):
+                merged[schema_name] = {**merged[schema_name], **spec}
+            else:
+                merged[schema_name] = spec
+        return merged
 
     def get_spec(self, schema: Schema) -> CleaningSpec | None:
         """Returns the spec for the most specific schema that matches the entity."""

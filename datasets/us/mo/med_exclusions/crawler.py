@@ -41,6 +41,7 @@ def crawl(context: Context) -> None:
         context,
         context.data_url,
         unblock_validator=excel_xpath,
+        absolute_links=True,
     )
     excel_url = h.xpath_string(landing_page, excel_xpath)
     _, _, _, path = zyte_api.fetch_resource(

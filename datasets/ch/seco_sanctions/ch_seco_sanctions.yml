@@ -224,6 +224,10 @@ lookups:
         value: male
       - match: Female
         value: female
+  type.url:
+    options:
+      - match: https:/vk.com/5ombroplot
+        value: https://vk.com/5ombroplot
   type.identifier:
     options:
       - match:

@@ -4,21 +4,16 @@ prefix: dz-apn
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-23
+  start: 2026-07-29
 load_statements: true
 ci_test: false
 summary: >-
-  Deputies of the People's National Assembly (APN), the lower chamber of the
-  Algerian parliament.
+  Lower chamber of the Algerian parliament, elected from the wilayas and abroad
 description: |
   Current members of the People's National Assembly (Assemblée populaire nationale, APN), the
   lower chamber of Algeria's bicameral parliament. Its 407 deputies are directly elected from
   the wilayas and from constituencies for Algerians abroad for a five-year term and hold the
   country's legislative power, including passing laws and approving the budget.
-
-  This dataset records each sitting deputy with their name, political party and
-  the electoral district (wilaya, or an overseas voting zone for the diaspora)
-  they represent.
 url: https://www.apn.dz/API/serachInDepute
 publisher:
   name: People's National Assembly

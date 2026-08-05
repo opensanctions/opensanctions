@@ -1,4 +1,4 @@
-title: Pakistan Members of Senate
+title: Pakistan Members of the Senate
 name: pk_senate_members
 prefix: pk-sen
 entry_point: crawler.py
@@ -8,17 +8,13 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Senate of Pakistan, the indirectly-elected
-  upper house of the Parliament.
+  Upper house of Parliament, indirectly elected with equal provincial representation
 description: |
   Current members of the Senate, the upper house of the bicameral Majlis-e-Shoora
   (Parliament) of Pakistan. Senators are elected by the members of the provincial
   assemblies and the National Assembly to six-year terms, with roughly half the seats
   contested every three years. The Senate provides equal provincial representation and
   shares legislative power with the National Assembly.
-
-  This dataset records each sitting senator with their name, political party, province,
-  and the date they took their oath of office.
 url: https://senate.gov.pk/en/current_members.php
 publisher:
   name: Senate of Pakistan

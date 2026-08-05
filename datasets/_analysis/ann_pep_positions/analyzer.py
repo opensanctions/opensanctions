@@ -3,7 +3,7 @@ from collections import defaultdict
 from zavod import Context, Entity
 from zavod.constants import ORIGIN_INFERRED
 from zavod.integration import get_dataset_linker
-from zavod.meta import get_multi_dataset
+from zavod.meta import get_catalog, get_multi_dataset
 from zavod.stateful.positions import OccupancyStatus, categorise_many
 from zavod.store import get_store
 
@@ -109,7 +109,7 @@ def analyze_position(context: Context, entity: Entity) -> set[str]:
 
 
 def crawl(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
     store.sync()

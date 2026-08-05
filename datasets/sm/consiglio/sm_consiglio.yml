@@ -4,20 +4,17 @@ prefix: sm-cgg
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-23
+  start: 2026-07-29
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the Grand and General Council (Consiglio Grande e Generale), the
-  unicameral legislature of San Marino.
+  Unicameral legislature of San Marino, which elects the two Captains Regent
 description: |
   Current members of the Grand and General Council (Consiglio Grande e Generale), the
   unicameral legislature of the Republic of San Marino. Its 60 members are directly
   elected for a five-year term and hold the country's legislative power, including
   passing laws and approving the budget; two of them serve at any time as the Captains
   Regent, the joint heads of state.
-
-  This dataset records each councillor with their name and political party.
 url: https://www.consigliograndeegenerale.sm/on-line/home/composizione/elenco-consiglieri.html
 publisher:
   name: Consiglio Grande e Generale

@@ -62,7 +62,7 @@ assertions:
 ```
 
 - Include `Position` counts in assertions when the crawler creates multiple position types.
-- `frequency` matches source update cadence (daily/weekly/monthly). PEP crawlers do not have to be monthly.
+- `coverage.frequency`: house default for PEP sources is `monthly` — see the frequency defaults in `zavod/docs/metadata.md`.
 - Lookups rarely go past `type.*` for PEP crawlers. (Non-English role labels are handled by `translate_name=True` in `make_position`; a `position` translation lookup is only worth it when the source has very few distinct labels.)
 
 ## Step 3: Write the crawler module

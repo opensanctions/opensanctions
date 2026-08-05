@@ -2,7 +2,9 @@ import shutil
 from copy import deepcopy
 
 import pytest
+from nomenklatura.blocker.index import BlockingMatches
 from nomenklatura.judgement import Judgement
+from nomenklatura.resolver import Identifier
 from structlog.testing import capture_logs
 
 from zavod import settings
@@ -185,6 +187,27 @@ def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     assert internals[2].schema.name == "Security"
     assert internals[1].id != internals[2].id
     assert internals[1].id[:-1] == internals[2].id[:-1] == "osv-isin-"
+
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_full_candidate_list_scored(vcontext: Context):
+    """The blocker hands over a ranked, pre-trimmed candidate list; every entry
+    in it gets matcher-scored. A true match at the tail of the list, behind a
+    long run of widely-spread higher index scores, must still be found (the
+    former max_bin walk would have halted before reaching it)."""
+    crawl_dataset(vcontext.dataset)
+    enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
+    entity = Entity.from_data(vcontext.dataset, UMBRELLA_CORP)
+
+    candidates: BlockingMatches = [
+        (Identifier.get(f"osv-no-such-entity-{i}"), 130.0 - i * 10.0) for i in range(12)
+    ]
+    candidates.append((Identifier.get("osv-umbrella-corp"), 3.0))
+
+    results = list(enricher.match_candidates(entity, candidates))
+    assert len(results) == 1, results
+    assert str(results[0].id) == "osv-umbrella-corp", results[0]
 
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 

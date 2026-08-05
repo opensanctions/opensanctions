@@ -108,6 +108,8 @@ def crawl_regime(context: Context) -> None:
 
 def crawl_vessels(context: Context) -> None:
     path = context.fetch_resource("vessels.xlsx", VESSELS_URL)
+    # read_only is not just an optimisation here: the full parser silently discards
+    # any row containing a cached formula error, and dozens of rows have #REF! dates.
     workbook: openpyxl.Workbook = openpyxl.load_workbook(
         path, read_only=True, data_only=True
     )

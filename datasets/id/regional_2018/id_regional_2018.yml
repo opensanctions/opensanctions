@@ -20,6 +20,7 @@ description: |
   offline.
 tags:
   - list.pep
+  - list.pep.bulk
 publisher:
   name: Komisi Pemilihan Umum
   name_en: General Elections Commission

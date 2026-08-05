@@ -2,6 +2,22 @@ from functools import lru_cache
 from nomenklatura.wikidata import WikidataClient, LangText
 from rigour.territories import get_territory_by_qid
 
+# Places we refuse to derive a country from, because their P17 claims name every
+# state they span. Cultural and supranational regions only, plus historical
+# territories `is_historical_country` misses - contested subdivisions keep all of
+# their claimants deliberately.
+SKIP_PLACES: set[str] = {
+    "Q234",  # Flanders (cultural region: BE, FR, NL)
+    "Q210718",  # Asia
+    "Q4412",  # West Africa
+    "Q52062",  # Nordic countries
+    "Q7785",  # Commonwealth of Nations
+    "Q4264",  # Mercosur
+    "Q18348382",  # Colony of New South Wales
+    "Q2334526",  # Province of North Carolina
+    "Q1070529",  # Colony of Virginia
+}
+
 
 @lru_cache(maxsize=5000)
 def is_historical_country(client: WikidataClient, qid: str) -> bool:
@@ -31,6 +47,8 @@ def item_countries(client: WikidataClient, qid: str) -> set[LangText]:
 def _crawl_item_countries(
     client: WikidataClient, qid: str, seen: tuple[str, ...]
 ) -> set[LangText]:
+    if qid in SKIP_PLACES:
+        return set()
     item = client.fetch_item(qid)
     if item is None:
         return set()
