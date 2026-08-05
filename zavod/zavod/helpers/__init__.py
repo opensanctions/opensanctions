@@ -92,6 +92,7 @@ from zavod.helpers.names import (
     check_names_regularity,
     split_comma_names,
 )
+from zavod.helpers.measurements import convert_height_to_cm
 from zavod.helpers.numbers import apply_number
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
 from zavod.helpers.positions import make_occupancy, make_position, earliest_term_start
@@ -132,6 +133,7 @@ __all__ = [
     "replace_months",
     "backdate",
     "within_max_age",
+    "convert_height_to_cm",
     "apply_number",
     "convert_excel_cell",
     "convert_excel_date",
