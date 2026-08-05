@@ -1,9 +1,10 @@
 import re
 
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 # Each member is a heading "<n>. <role> - <honorific> <name>", e.g.
 # "17. Senator - Honorable Daisy Alik Momotaro".
