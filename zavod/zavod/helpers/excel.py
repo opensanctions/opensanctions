@@ -83,6 +83,7 @@ def parse_xls_sheet(
     Cells with links are included as keys with _url appended to the original key.
     """
     headers: list[str] | None = None
+    headers_validated = False
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
             continue
@@ -120,6 +121,15 @@ def parse_xls_sheet(
                         cell = f"column_{idx}"
                     headers.append(slugify_text(cell, "_") or "")
             continue
+
+        if not headers_validated:
+            # Headers are final once the first data row is reached (they may
+            # span several rows via join_header_rows). Records are built by
+            # zipping headers with cells, so a duplicate header would silently
+            # drop the earlier column's cell.
+            duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+            assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
+            headers_validated = True
 
         for header, value in zip(headers, cells):
             record[header] = stringify(value)
@@ -171,6 +181,10 @@ def parse_xlsx_sheet(
                 if header_slug is None and header is not None:
                     header_slug = f"column_{idx}"
                 headers.append(header_slug)
+            duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+            # Records are built by zipping headers with cells, so a duplicate
+            # header would silently drop the earlier column's cell.
+            assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
             continue
 
         record: dict[str, str | None] = {}

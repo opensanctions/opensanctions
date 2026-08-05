@@ -81,7 +81,20 @@ def parse_html_table(
       - `zavod.helpers.links_to_dict`
     """
     headers = None
-    for rownum, row in enumerate(table.findall(".//tr")):
+    rows = table.findall(".//tr")
+    child_rows = [
+        row
+        for row in rows
+        # A descendant search also matches rows of tables nested inside a
+        # cell; only rows whose nearest <table> ancestor is the target table
+        # belong to it.
+        if next(row.iterancestors("table"), None) in (table, None)
+    ]
+    if len(rows) != len(child_rows):
+        # TODO: Turn warning into just ignoring a week or so after releasing
+        # the warning. https://github.com/opensanctions/opensanctions/issues/5322
+        log.warning("Nested table rows to be dropped.")
+    for rownum, row in enumerate(rows):
         if rownum < skiprows:
             continue
 
@@ -95,6 +108,10 @@ def parse_html_table(
                     header_text = f"column_{colnum}"
                 assert header_text is not None, "No table header text"
                 headers.append(header_text)
+            duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+            # Rows are built with dict(zip(headers, cells)), so a duplicate
+            # header would silently drop the earlier column's cell.
+            assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
             continue
 
         cells = row.findall("./td")
