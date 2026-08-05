@@ -1,9 +1,8 @@
 from typing import Any
 
-from zavod.stateful.positions import categorise
-
 from zavod import Context
 from zavod import helpers as h
+from zavod.stateful.positions import categorise
 
 # The senator directory is populated by this AJAX endpoint; session 5 is the current
 # (5th) legislature.
