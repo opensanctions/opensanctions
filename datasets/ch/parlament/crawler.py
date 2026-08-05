@@ -32,7 +32,7 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
     """Fetch and process detailed profile for a single councillor."""
     data = zyte_api.fetch_json(
         context,
-        url=f"http://ws-old.parlament.ch/councillors/{councillor_id}?lang=en&format=json",
+        url=f"https://ws-old.parlament.ch/councillors/{councillor_id}?lang=en&format=json",
         cache_days=1,
     )
 
@@ -109,6 +109,7 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
             country="ch",
             topics=["gov.legislative", "gov.national"],
             wikidata_id=wikidata_id,
+            lang="eng",
         )
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
@@ -138,6 +139,9 @@ def crawl(context: Context) -> None:
             cache_days=14,
             zyte_request=zyte_api.ZyteAPIRequest(
                 url=context.data_url + f"?pageNumber={page}&lang=en&format=json",
+                # The API negotiates the format via the Accept header and ignores
+                # format=json; without this it serves an HTML page.
+                headers={"Accept": "application/json"},
             ),
         )
         if len(result.response_text) > 0 and result.status_code == 404:

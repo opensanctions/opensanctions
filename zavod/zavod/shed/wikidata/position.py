@@ -1,29 +1,30 @@
 from datetime import datetime
-from typing import Dict, Optional, Set
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
 from nomenklatura.wikidata.lang import MULTI_LANG
 from nomenklatura.wikidata.value import clean_wikidata_name
-from rigour.territories import get_territory_by_qid
+from rigour.territories import get_territory, get_territory_by_qid
 from rigour.time import iso_datetime
 
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
 from zavod.shed.trans import translate_position_name
+from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE
 from zavod.util import LangText
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import categorise, categorise_many
 from zavod.shed.wikidata.country import is_historical_country, item_countries
+from zavod.shed.wikidata.igo import INTL_ORGS, IntlOrg
 
 
-POSITION_BASICS: Set[str] = {
+POSITION_BASICS: set[str] = {
     "Q4164871",  # position
     "Q29645880",  # ambassador of a country
     "Q29645886",  # ambassador to a country
     "Q707492",  # military chief of staff
 }
-SUB_TYPES: Dict[str, Set[str]] = {
+SUB_TYPES: dict[str, set[str]] = {
     "Q30185": {"role.pep", "gov.executive", "gov.muni"},  # mayor
     "Q17279032": {"role.pep"},  # elective office
     "Q109862464": {"gov.executive", "gov.muni"},  # lord mayor
@@ -71,16 +72,45 @@ SUB_TYPES: Dict[str, Set[str]] = {
     "Q707492": {"role.pep", "gov.national", "gov.security"},  # military chief of staff
 }
 
-IGNORE_TYPES: Set[str] = {
+# Positions dissolved before this date never confer PEP status; the cutoff
+# marks the internationally recognized end of history. Positions abolished
+# *after* it still matter — living former holders remain PEPs.
+POSITION_ABOLISHED_CUTOFF = "1990-12-26"
+
+# Ancestor classes (matched against the item's full P31/P279 closure) whose
+# descendants are categorically never PEP positions. Exclusion is silent —
+# candidates hit by it never reach holder collection or the review UI — so
+# the bar for adding entries is high: only classes that are unambiguously
+# non-PEP-conferring belong here. When in doubt, leave the candidate to the
+# review workflow, where the decision is recorded and reversible.
+EXCLUDE_TYPES: set[str] = {
     "Q114962596",  # historical position
     "Q193622",  # order
     "Q60754876",  # grade of an order
     "Q618779",  # award
+    "Q13424289",  # honorary title (e.g. "national hero" designations)
     "Q4240305",  # cross
     "Q120560",  # minor basilica?
     "Q2977",  # cathedral
     "Q3320743",  # title of honor
+    "Q42603",  # priest
+    "Q11773926",  # ecclesiastical occupation
+    "Q63187345",  # religious occupation
 }
+
+# Types that keep an item in the candidate set even when its ancestry hits
+# EXCLUDE_TYPES or misses POSITION_BASICS (allow beats exclude; a reviewed
+# position DB row beats both — see the `vetted` flag on wikidata_position).
+ALLOW_TYPES: set[str] = {
+    # Members of the College of Cardinals are recognised by the Holy See as
+    # PEPs, despite their religious-occupation ancestry:
+    "Q45722",  # cardinal
+    "Q1729113",  # cardinal-bishop
+    "Q2033341",  # cardinal priest
+    "Q2361374",  # cardinal-deacon
+    "Q19808790",  # Episcopal Co-Prince (joint head of state of Andorra)
+}
+ALLOW_TYPES.update(SUB_TYPES.keys())
 
 # TEMP: We're starting to include municipal PEPs for specific countries
 MUNI_COUNTRIES = {
@@ -117,16 +147,97 @@ MUNI_COUNTRIES = {
 
 def wikidata_position(
     context: Context, client: WikidataClient, item: Item
-) -> Optional[Entity]:
+) -> Entity | None:
+    # Precedence: a position DB verdict beats the type-based heuristics below,
+    # and ALLOW_TYPES beats EXCLUDE_TYPES. The DB check also runs first so a
+    # reviewed-rejected position skips the more expensive work (country
+    # lookups, translation).
+    existing = categorise_many(context, [item.id])
+    if len(existing) > 0 and existing[0].is_pep is False:
+        return None
+    db_is_pep = len(existing) > 0 and existing[0].is_pep is True
+
     types = item.types
-    if len(types.intersection(POSITION_BASICS)) == 0:
-        return None
-    if len(types.intersection(IGNORE_TYPES)) > 0:
-        return None
+    if not db_is_pep and types.isdisjoint(ALLOW_TYPES):
+        if types.isdisjoint(POSITION_BASICS):
+            return None
+        if not types.isdisjoint(EXCLUDE_TYPES):
+            return None
 
     position = context.make("Position")
     position.id = item.id
     position.add("wikidataId", item.id)
+
+    # Positions at registered international bodies (P2389 "organization
+    # directed by the office" / P361 "part of" into INTL_ORGS) carry the
+    # registry's pseudo-country instead of their own country claims.
+    intl_org: IntlOrg | None = None
+    for claim in item.claims:
+        if claim.property in ("P2389", "P361") and claim.qid is not None:
+            intl_org = INTL_ORGS.get(claim.qid)
+            if intl_org is not None:
+                break
+
+    for claim in item.claims:
+        if intl_org is None:
+            if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
+                # Stale associations — ended claims and historical polities —
+                # contribute no country, but they don't kill the position: a
+                # legacy "P1001: RSFSR" must not hide the current Russian
+                # office next to it. Positions belonging *only* to dead states
+                # end up country-less and drop at the gate below.
+                if claim.is_ended() or is_historical_country(client, claim.qid):
+                    continue
+                for country in item_countries(client, claim.qid):
+                    country.apply(position, "country")
+
+            # jurisdiction:
+            if claim.property == "P1001":
+                territory = get_territory_by_qid(claim.qid)
+                if territory is None or not territory.is_country:
+                    claim.text.apply(position, "subnationalArea")
+
+        # inception:
+        if claim.property == "P571":
+            claim.text.apply(position, "inceptionDate")
+
+        # abolished date:
+        if claim.property == "P576":
+            claim.text.apply(position, "dissolutionDate")
+
+    # Second round:
+    for claim in item.claims:
+        # start date:
+        if claim.property == "P580" and not position.has("inceptionDate"):
+            claim.text.apply(position, "inceptionDate")
+
+        # end date:
+        if claim.property == "P582" and not position.has("dissolutionDate"):
+            claim.text.apply(position, "dissolutionDate")
+
+    if intl_org is not None:
+        position.add("country", intl_org.country)
+
+    # If no explicit country/jurisdiction is found, try to traverse more obscure
+    # properties, like capital of, part of, jurisdiction, etc.
+    if not position.has("country"):
+        for country in item_countries(client, item.id):
+            country.apply(position, "country")
+
+    # Skip all positions that cannot be linked to a country — unless a
+    # reviewer explicitly marked the position PEP-conferring, which must
+    # stay effective as a manual rescue channel for cases the registry and
+    # the traversal both miss.
+    if not position.has("country") and not db_is_pep:
+        return None
+
+    # Positions dissolved before the cutoff are dropped — unless the position
+    # DB explicitly marks them as PEP-conferring (living former holders can
+    # remain PEPs regardless of when their position was abolished):
+    end_date = max(position.get("dissolutionDate"), default=None)
+    if end_date is not None and end_date < POSITION_ABOLISHED_CUTOFF and not db_is_pep:
+        return None
+
     if item.label is not None and item.label.text is not None:
         # item.label is picked from the available labels in PREFERRED_WD_LANGS order
         # (English first, then "mul"/multilingual, then the next-best preferred
@@ -144,7 +255,7 @@ def wikidata_position(
                     context,
                     LangText(text=item.label.text, lang=item.label.lang),
                 )
-                translated = result.get_english()
+                translated = result.get_preferred_language()
                 # if for some reason the translation fails, fall back to the original
                 if translated is None:
                     item.label.apply(position, "name", clean=clean_wikidata_name)
@@ -157,61 +268,19 @@ def wikidata_position(
                         origin=result.origin,
                     )
 
-    for claim in item.claims:
-        if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
-            if is_historical_country(client, claim.qid):
-                return None
-            for country in item_countries(client, claim.qid):
-                country.apply(position, "country")
-
-        # jurisdiction:
-        if claim.property == "P1001":
-            territory = get_territory_by_qid(claim.qid)
-            if territory is None or not territory.is_country:
-                claim.text.apply(position, "subnationalArea")
-
-        # inception:
-        if claim.property == "P571":
-            claim.text.apply(position, "inceptionDate")
-
-        if claim.property == "P580":
-            claim.text.apply(position, "inceptionDate")
-
-        # abolished date:
-        if claim.property == "P576":
-            claim.text.apply(position, "dissolutionDate")
-
-    # Second round:
-    for claim in item.claims:
-        # start date:
-        if claim.property == "P580" and not position.has("inceptionDate"):
-            claim.text.apply(position, "inceptionDate")
-
-        # end date:
-        if claim.property == "P582" and not position.has("dissolutionDate"):
-            claim.text.apply(position, "dissolutionDate")
-
-    # If no explicit country/jurisdiction is found, try to traverse more obscure
-    # properties, like capital of, part of, jurisdiction, etc.
-    if not position.has("country"):
-        for country in item_countries(client, item.id):
-            country.apply(position, "country")
-
-    # Skip all positions that cannot be linked to a country.
-    if not position.has("country"):
-        return None
-
-    # Check for the intl. recognized end of history:
-    end_date = max(position.get("dissolutionDate"), default=None)
-    if end_date is not None and end_date < "1990-12-26":
-        return None
-
-    topics: Set[str] = set()
+    topics: set[str] = set()
     for sub_type, type_topics in SUB_TYPES.items():
         if sub_type in types:
             topics.update(type_topics)
+    if intl_org is not None:
+        topics.update(intl_org.topics)
 
-    is_pep = "role.pep" in topics
+    is_pep: bool | None = "role.pep" in topics
+    if intl_org is not None and is_pep is False:
+        # International-body positions surface in the review UI as undecided
+        # instead of being auto-rejected: registry membership vouches for the
+        # org, a human vouches for the position.
+        is_pep = None
     topics.discard("role.pep")
 
     if "gov.state" in topics:
@@ -239,14 +308,14 @@ def wikidata_position(
     return position
 
 
-def position_holders(
-    client: WikidataClient, item: Item
-) -> Dict[str, Optional[datetime]]:
-    """Find persons who have held the position defined by `item`. This performs
-    the inverted lookup on property P39 (position held). Independently, the crawler
-    should check property P1308 (officeholder) on the position item itself.
+def position_holders(client: WikidataClient, item: Item) -> dict[str, datetime | None]:
+    """Find persons who have held the position defined by `item`, combining the
+    inverted lookup on property P39 (position held) with the position item's own
+    P1308 (officeholder) claims.
 
-    Returns a dict mapping person QID → schema:dateModified timestamp (ISO 8601).
+    Returns a dict mapping person QID → schema:dateModified timestamp (ISO 8601);
+    the timestamp is None for holders known only via P1308, so their cached item
+    expires on the regular schedule instead of being refreshed on change.
     """
     query = f"""
     SELECT ?person ?modifiedAt WHERE {{
@@ -255,23 +324,30 @@ def position_holders(
         ?person schema:dateModified ?modifiedAt .
     }}
     """
-    holders: Dict[str, Optional[datetime]] = {}
-    response = client.query(query, client.CACHE_SHORT)
+    holders: dict[str, datetime | None] = {}
+    # Holder lists (and the dateModified values that drive person cache
+    # invalidation) change slowly; at 1 day, every crawl re-runs tens of
+    # thousands of WDQS queries.
+    response = client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
     for result in response.results:
         person_qid = result.plain("person")
         modified_at = result.plain("modifiedAt")
         if person_qid is not None:
             holders[person_qid] = iso_datetime(modified_at)
 
+    for claim in item.claims:
+        if claim.property == "P1308" and claim.qid is not None:
+            holders.setdefault(claim.qid, None)
+
     return holders
 
 
 def wikidata_occupancy(
     context: Context, person: Entity, position: Entity, claim: Claim
-) -> Optional[Entity]:
+) -> Entity | None:
     """Create an Occupancy entity for the given person and position based on the claim,
     which identifies relevant qualifiers."""
-    start_date: Optional[str] = None
+    start_date: str | None = None
     for qual in claim.get_qualifier("P580"):
         qual_date = qual.text.text
         if qual_date is not None:
@@ -280,7 +356,7 @@ def wikidata_occupancy(
             else:
                 start_date = min(start_date, qual_date)
 
-    end_date: Optional[str] = None
+    end_date: str | None = None
     for qual in claim.get_qualifier("P582"):
         qual_date = qual.text.text
         if qual_date is not None:
@@ -307,10 +383,14 @@ def wikidata_occupancy(
 
     # Wikidata persons frequently lack their own citizenship statement, so we
     # associate confirmed PEPs with the position's country. Diplomatic posts
-    # (role.diplo) name the receiving country rather than the person's, so those
+    # (role.diplo) name the receiving country rather than the person's, and
+    # pseudo-countries ("zz", "un", "eu") say nothing about the holder — both
     # are left out.
     if "role.diplo" not in position.get("topics"):
         for country in position.get("country"):
+            territory = get_territory(country)
+            if territory is None or not territory.is_country:
+                continue
             if country not in person.get_type_values(registry.country, matchable=True):
                 person.add("country", country, origin=ORIGIN_INFERRED)
 

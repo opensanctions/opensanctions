@@ -1,11 +1,36 @@
 id: 202
-title: Russia Sanctions Regime
+title: Russia sanctions framework
 key: AU-RUSSIA
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/russia-sanctions-regime
-summary: Australia imposes autonomous sanctions in relation to Russia in response
-  to the Russian threat to the sovereignty and territorial integrity of Ukraine. They
-  were first imposed in 2014 and extended in 2015, 2022 and 2023.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/russia-sanctions-framework
+summary: >
+  Targets persons and entities of economic or strategic significance to
+  Russia, current or former Russian government ministers and senior
+  officials, and their immediate family members, in response to the Russian
+  threat to the sovereignty and territorial integrity of Ukraine. Designated
+  persons and entities are subject to an asset freeze, and declared persons
+  are barred from entering or transiting Australia. Country-wide measures
+  prohibit supplying arms and related matériel to Russia, exporting
+  aluminium ores, luxury goods, machinery and oil-exploration equipment,
+  importing Russian-origin arms, oil, gas, coal and gold, financing or
+  dealing in the financial instruments of specified Russian banks, military
+  companies and oil companies, and providing related services, including
+  drilling and well-testing services for certain Russian oil projects.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (Russia)
+  - Autonomous Sanctions (Russia, Crimea and Sevastopol) Specification 2015
+  - Autonomous Sanctions (Designated Persons and Entities and Declared
+    Persons – Russia and Ukraine) List 2014
+  - Autonomous Sanctions (Import Sanctioned Goods—Russia) Designation 2022
+  - Autonomous Sanctions (Export Sanctioned Goods—Russia) Designation 2022
 target_territories:
-- ru
+  - ru
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control
+  - Import restrictions
+  - Financial restrictions
+  - Services ban

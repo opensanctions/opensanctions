@@ -1,7 +1,6 @@
-from typing import Optional
-
 import pytest
 from nomenklatura import Resolver, Store
+from nomenklatura.db import Session
 from nomenklatura.store import SimpleMemoryStore
 
 from zavod.entity import Entity
@@ -25,9 +24,9 @@ def e(
     dataset: Dataset,
     schema: str,
     id: str,
-    start: Optional[str] = None,
-    end: Optional[str] = None,
-    properties: Optional[dict[str, str | list[str] | None]] = None,
+    start: str | None = None,
+    end: str | None = None,
+    properties: dict[str, str | list[str] | None] | None = None,
 ) -> Entity:
     assert type(start) is str or start is None
     assert type(end) is str or end is None
@@ -59,7 +58,9 @@ def assert_not_merged(resolver: Resolver, *ids: str) -> None:
     assert len(canonicals) == len(ids), canonicals
 
 
-def test_directed_edges_preserve_direction(store: Store, resolver: Resolver):
+def test_directed_edges_preserve_direction(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "Directorship",
@@ -74,11 +75,13 @@ def test_directed_edges_preserve_direction(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2")
 
 
-def test_undirected_edges_canonicalize_endpoints(store: Store, resolver: Resolver):
+def test_undirected_edges_canonicalize_endpoints(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "UnknownLink",
@@ -93,11 +96,13 @@ def test_undirected_edges_canonicalize_endpoints(store: Store, resolver: Resolve
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
-def test_multi_ended_edges_are_skipped(store: Store, resolver: Resolver):
+def test_multi_ended_edges_are_skipped(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "Ownership",
@@ -112,11 +117,13 @@ def test_multi_ended_edges_are_skipped(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2")
 
 
-def test_different_schemata_do_not_merge(store: Store, resolver: Resolver):
+def test_different_schemata_do_not_merge(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "Ownership",
@@ -131,11 +138,13 @@ def test_different_schemata_do_not_merge(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2")
 
 
-def test_same_temporal_extent_merges(store: Store, resolver: Resolver):
+def test_same_temporal_extent_merges(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "UnknownLink",
@@ -154,11 +163,13 @@ def test_same_temporal_extent_merges(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
-def test_missing_dates_are_temporally_compatible(store: Store, resolver: Resolver):
+def test_missing_dates_are_temporally_compatible(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset, "Ownership", "e1", None, None, {"owner": "a", "asset": "b"}
     )
@@ -167,11 +178,11 @@ def test_missing_dates_are_temporally_compatible(store: Store, resolver: Resolve
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
-def test_partial_dates_overlap(store: Store, resolver: Resolver):
+def test_partial_dates_overlap(store: Store, resolver: Resolver, session: Session):
     entity1 = e(
         store.dataset,
         "Directorship",
@@ -190,11 +201,13 @@ def test_partial_dates_overlap(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
-def test_incompatible_dates_do_not_merge(store: Store, resolver: Resolver):
+def test_incompatible_dates_do_not_merge(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "Directorship",
@@ -213,11 +226,13 @@ def test_incompatible_dates_do_not_merge(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2")
 
 
-def test_ambiguous_temporal_bridge_is_skipped(store: Store, resolver: Resolver):
+def test_ambiguous_temporal_bridge_is_skipped(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "Directorship",
@@ -244,12 +259,12 @@ def test_ambiguous_temporal_bridge_is_skipped(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2, entity3])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2", "e3")
 
 
 def test_ambiguous_bridge_does_not_block_unambiguous_merge(
-    store: Store, resolver: Resolver
+    store: Store, resolver: Resolver, session: Session
 ):
     # An ambiguous bridge (2025 overlaps both exact dates) and a conflicting edge
     # share a bucket with an identical, unambiguous pair. The bridge must not pull
@@ -261,13 +276,13 @@ def test_ambiguous_bridge_does_not_block_unambiguous_merge(
     conflict = e(store.dataset, "Directorship", "conflict", "2025-12-31", None, base)
     add_entities(store, [bridge, pair1, conflict, pair2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "pair1", "pair2")
     assert_not_merged(resolver, "bridge", "conflict", "pair1")
 
 
 def test_protected_props_match_on_shared_normalized_value(
-    store: Store, resolver: Resolver
+    store: Store, resolver: Resolver, session: Session
 ):
     entity1 = e(
         store.dataset,
@@ -291,11 +306,13 @@ def test_protected_props_match_on_shared_normalized_value(
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
-def test_protected_props_conflict_on_disjoint_values(store: Store, resolver: Resolver):
+def test_protected_props_conflict_on_disjoint_values(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "UnknownLink",
@@ -310,11 +327,13 @@ def test_protected_props_conflict_on_disjoint_values(store: Store, resolver: Res
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2")
 
 
-def test_empty_protected_props_do_not_block_merge(store: Store, resolver: Resolver):
+def test_empty_protected_props_do_not_block_merge(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "Directorship",
@@ -329,11 +348,13 @@ def test_empty_protected_props_do_not_block_merge(store: Store, resolver: Resolv
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
-def test_unprotected_props_do_not_block_merge(store: Store, resolver: Resolver):
+def test_unprotected_props_do_not_block_merge(
+    store: Store, resolver: Resolver, session: Session
+):
     entity1 = e(
         store.dataset,
         "Directorship",
@@ -358,12 +379,12 @@ def test_unprotected_props_do_not_block_merge(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
 def test_payment_protected_props_allow_matching_payments(
-    store: Store, resolver: Resolver
+    store: Store, resolver: Resolver, session: Session
 ):
     entity1 = e(
         store.dataset,
@@ -395,12 +416,12 @@ def test_payment_protected_props_allow_matching_payments(
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_merged(resolver, "e1", "e2")
 
 
 def test_payment_protected_props_block_distinct_transactions(
-    store: Store, resolver: Resolver
+    store: Store, resolver: Resolver, session: Session
 ):
     entity1 = e(
         store.dataset,
@@ -430,11 +451,13 @@ def test_payment_protected_props_block_distinct_transactions(
     )
     add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2")
 
 
-def test_occupancy_period_regression(store: Store, resolver: Resolver):
+def test_occupancy_period_regression(
+    store: Store, resolver: Resolver, session: Session
+):
     entities = [
         e(
             store.dataset,
@@ -461,5 +484,5 @@ def test_occupancy_period_regression(store: Store, resolver: Resolver):
     ]
     add_entities(store, entities)
 
-    dedupe_edges(resolver, store.default_view())
+    dedupe_edges(resolver, session, store.default_view())
     assert_not_merged(resolver, "e1", "e2", "e3", "e4", "e5")

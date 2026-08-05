@@ -81,6 +81,22 @@ lookups:
           - "-"
           - 1.9.1984
         value: null
+      # Genuine company names that use angle/guillemet brackets as stylisation.
+      - match: "<beat>app, s.r.o."
+        value: "<beat>app, s.r.o."
+        silence_warnings: [xss-html-smell]
+      - match: "<IRL> z.s."
+        value: "<IRL> z.s."
+        silence_warnings: [xss-html-smell]
+      - match: "<< G & K group s.r.o. >> v likvidaci"
+        value: "<< G & K group s.r.o. >> v likvidaci"
+        silence_warnings: [xss-html-smell]
+      - match: "<<DAYUR Company>>, s.r.o."
+        value: "<<DAYUR Company>>, s.r.o."
+        silence_warnings: [xss-html-smell]
+      - match: "Relax centre <<Dhara>> s.r.o. v likvidaci"
+        value: "Relax centre <<Dhara>> s.r.o. v likvidaci"
+        silence_warnings: [xss-html-smell]
   type.string:
     options:
       - match:
@@ -94,10 +110,37 @@ lookups:
         value: null
   type.address:
     options:
-      - match: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej úradnej ES E0007207504, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky:urad@odbory.org, EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adr"
+      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko\r\nčíslo SR štátnej úradnej ES E0007207504, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky:urad@odbory.org; EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adr"
         value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej úradnej ES E0007207504
-      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej ES E000720505, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky: urad@odbory.org, EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adrese Dvor"
+      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko\r\nčíslo SR štátnej ES E000720505, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky: urad@odbory.org; EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adrese Dvor"
         value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej ES E000720505
+      # Short but real Czech municipality / place names, curated to mark them reviewed.
+      - match: "Aš"
+        value: "Aš"
+      - match: "AŠ"
+        value: "AŠ"
+      - match: "Lom"
+        value: "Lom"
+      - match: "Luh"
+        value: "Luh"
+      - match: "Hať"
+        value: "Hať"
+      - match: "Háj"
+        value: "Háj"
+      - match: "Buš"
+        value: "Buš"
+      - match: "Kly"
+        value: "Kly"
+      - match: "Spy"
+        value: "Spy"
+      # Short country references used as an address value.
+      - match: "USA"
+        value: "USA"
+      - match: "ČR"
+        value: "ČR"
+      # Junk placeholder address, dropped.
+      - match: ","
+        value: null
   type.date:
     options:
       - match:

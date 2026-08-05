@@ -8,7 +8,7 @@
 import re
 from itertools import product
 from pprint import pprint  # noqa
-from typing import Any, Dict
+from typing import Any
 
 from followthemoney import registry
 from rigour.ids.wikidata import is_qid
@@ -34,7 +34,7 @@ SOURCE_NAME_OVERRIDES = {
 }
 
 
-def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
+def push(obj: dict[str, Any], section: str, value: dict[str, Any]) -> None:
     if section not in obj:
         obj[section] = []
     for item in obj[section]:
@@ -44,14 +44,14 @@ def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
 
 
 def map(
-    entity: Entity, prop: str, obj: Dict[str, Any], section: str, attr: str
+    entity: Entity, prop: str, obj: dict[str, Any], section: str, attr: str
 ) -> None:
     for value in entity.get(prop, quiet=True):
         push(obj, section, {attr: value})
 
 
-def clean(obj: Dict[str, Any]) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+def clean(obj: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {}
     for k, v in obj.items():
         if v is not None:
             out[k] = v
@@ -104,7 +104,7 @@ class SenzingExporter(Exporter):
         elif entity.schema.is_a("Address"):
             return None
 
-        record: Dict[str, Any] = {
+        record: dict[str, Any] = {
             "DATA_SOURCE": self.source_name,
             "RECORD_ID": entity.id,
             "RECORD_TYPE": record_type,

@@ -1,6 +1,5 @@
 import json
 import re
-from typing import Dict
 
 from pydantic import BaseModel, JsonValue
 from rigour.names import contains_split_phrase
@@ -72,7 +71,7 @@ def apply_entity_data(entity: Entity, data: EntityData) -> None:
             entity.add(prop, val)
 
 
-def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     full_name = row.pop("name") or ""
     other_name = (row.pop("otherName") or "").replace("\\", "")
     country = row.pop("nationality") or ""
@@ -155,7 +154,14 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         context.emit(entity)
         context.emit(sanction)
 
-    context.audit_data(row)
+    # The source gives an entityType of "Firm" or "Individual", but we ignore it and
+    # emit LegalEntity. We get many of the same entities from the other development
+    # bank sources. If one of those sources gets the schema wrong, we get an assembly
+    # error. LegalEntity is compatible with both schemata, so it is the safe choice.
+    # We might do it the right way in the future: split the name fields into a name,
+    # aliases and separate related entities, and then use entityType for the subject
+    # of each row. For now, that is not worth the effort.
+    context.audit_data(row, ignore=["entityType"])
 
 
 def crawl(context: Context) -> None:

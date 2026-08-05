@@ -1,13 +1,12 @@
 import csv
 from pathlib import Path
-from typing import Dict
 
 from zavod.context import Context
 
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]):
     schema = row.pop("type")
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("id"))
@@ -25,6 +24,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    with open(LOCAL_PATH, "r") as fh:
+    with open(LOCAL_PATH) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

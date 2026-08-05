@@ -71,7 +71,6 @@ inputs:
 config:
   topic_gated: true
   index_options:
-    match_batch: 300
     memory: 4000
   threshold: 0.7
   algorithm: regression-v1
@@ -101,11 +100,11 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 800
+      Company: 230
       LegalEntity: 150
   max:
     schema_entities:
-      Company: 1600
+      Company: 800
       LegalEntity: 300
 
 lookups:

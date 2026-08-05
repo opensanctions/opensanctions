@@ -12,7 +12,7 @@ def parse_party_names(doc: Element) -> dict[str, str]:
         guid = checkbox.get("value")
         if guid is None:
             continue
-        label = h.xpath_element(doc, ".//label[@for='%s']" % guid)
+        label = h.xpath_element(doc, f".//label[@for='{guid}']")
         names[guid] = h.element_text(label)
     return names
 

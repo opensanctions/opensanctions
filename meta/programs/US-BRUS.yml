@@ -2,13 +2,21 @@ id: 7
 title: Belarus Sanctions
 key: US-BRUS
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/belarus-sanctions
-summary: These sanctions target the Belarusian government and individuals responsible
-  for undermining democratic processes, human rights abuses, and corruption. The executive
-  orders enable the U.S. to freeze assets and block transactions to pressure the Belarusian
-  government to respect democratic norms and human rights.
+summary: Targets Belarusian officials, state bodies, and their supporters over
+  the undermining of democratic processes, electoral fraud, human rights
+  abuses, and public corruption in Belarus, as well as persons operating in
+  specified sectors of the Belarusian economy, such as the defence and
+  security sector. Designated persons have their US assets frozen, and US
+  persons are barred from transactions with them.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 14038, EO 13405
+  - EO 14038
+  - EO 13405
+  - BELARUS
+  - BELARUS-EO14038
+  - 31 CFR Part 548
 target_territories:
-- by
+  - by
+measures:
+  - Asset freeze

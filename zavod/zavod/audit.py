@@ -1,12 +1,12 @@
 from lxml.etree import _Element, tostring
 from pprint import pformat
-from typing import Any, Optional
+from typing import Any
 from datapatch import Result
 
 from followthemoney.proxy import EntityProxy
 
 
-def inspect(obj: Any) -> Optional[str]:
+def inspect(obj: Any) -> str | None:
     """Deep-view an object for debug purposes."""
     if isinstance(obj, _Element):
         return tostring(obj, encoding="utf-8", pretty_print=True).decode("utf-8")

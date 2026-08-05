@@ -32,7 +32,7 @@ def load_db(
             external=external,
         )
     except Exception:
-        log.exception("Failed to load dataset into database: %s" % dataset_path)
+        log.exception(f"Failed to load dataset into database: {dataset_path}")
         sys.exit(1)
 
 
@@ -55,7 +55,7 @@ def dump_file(
             external=external,
         )
     except Exception:
-        log.exception("Failed to dump dataset to file: %s" % dataset_path)
+        log.exception(f"Failed to dump dataset to file: {dataset_path}")
         sys.exit(1)
 
 
@@ -66,5 +66,5 @@ def clear(dataset_path: Path) -> None:
         dataset = _load_dataset(dataset_path)
         clear_data_path(dataset.name)
     except Exception:
-        log.exception("Failed to clear dataset: %s" % dataset_path)
+        log.exception(f"Failed to clear dataset: {dataset_path}")
         sys.exit(1)

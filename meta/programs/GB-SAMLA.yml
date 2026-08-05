@@ -1,14 +1,20 @@
+# DEPRECATED — do not reference. This key served as a stopgap for designations
+# under the Global Irregular Migration and Trafficking in Persons Sanctions
+# Regulations 2025, which have their own program (GB-MIGR) as of July 2026.
+# Every UK regime now has a dedicated key; statements naming GB-SAMLA will age
+# out of the published data.
 id: 180
 title: Sanctions and Anti-Money Laundering Act 2018
 key: GB-SAMLA
-url: https://www.gov.uk/government/publications/the-uk-sanctions-list
-summary: This list includes individuals and entities subject to UK sanctions imposed
-  by the Foreign, Commonwealth & Development Office (FCDO). The measures include asset
-  freezes, travel bans, and trade restrictions to address issues such as human rights
-  violations, terrorism, and international conflicts.
+url: https://www.legislation.gov.uk/ukpga/2018/13
+summary: The framework act under which the United Kingdom makes its autonomous
+  sanctions regulations and implements United Nations sanctions. Regulations made
+  under the act designate individuals, entities and ships, which are published on
+  the UK Sanctions List maintained by the Foreign, Commonwealth & Development
+  Office. The measures vary by regime and typically include asset freezes for
+  designated persons and travel bans for designated individuals.
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
-- Sanctions Act
-target_territories:
-- zz
+  - SAMLA
+  - Sanctions Act

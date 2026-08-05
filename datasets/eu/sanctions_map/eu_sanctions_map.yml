@@ -80,12 +80,16 @@ lookups:
       - match:
           - 09346732 # Invalid IMO
         prop: registrationNumber
+  # The journal column sometimes contains the hyperlink's display text instead of its
+  # address. The values below are the link targets of the corresponding cells.
   type.url:
     options:
       - match: Regulation - EU - 2025/2618 - EN - EUR-Lex
         value: https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=oj:L_202502618
       - match: Regulation - EU - 2026/506 - EN - EUR-Lex
         value: https://eur-lex.europa.eu/eli/reg/2026/506/oj/eng
+      - match: Regulation - 2026/1848 - EN - EUR-Lex
+        value: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202601848
   type.date:
     options:
       - match: "#REF!"

@@ -1,10 +1,10 @@
 from functools import cached_property
-from typing import Any, Dict, Optional, Set
+from typing import Any
 from logging import getLogger
 
 from followthemoney import Model
 from followthemoney.schema import Schema
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 log = getLogger(__name__)
 
@@ -51,7 +51,7 @@ class CleaningSpec(BaseModel):
     Some organisation names really have leading digits in the name."""
 
     @cached_property
-    def reject_chars_consolidated(self) -> Set[str]:
+    def reject_chars_consolidated(self) -> set[str]:
         """Get the full set of characters to reject for this spec."""
         baseline = set(self.reject_chars_baseline)
         reject_extra = set(self.reject_chars)
@@ -59,7 +59,7 @@ class CleaningSpec(BaseModel):
         return (baseline | reject_extra) - allow
 
 
-_DEFAULT_SCHEMA_RULES: Dict[str, CleaningSpec] = {
+_DEFAULT_SCHEMA_RULES: dict[str, CleaningSpec] = {
     ###################
     # Beware that when introducing defaults for more specific schemata, these could take
     # precedence over extensions to the existing defaults in some datasets' metadata.
@@ -80,7 +80,7 @@ _DEFAULT_SCHEMA_RULES: Dict[str, CleaningSpec] = {
 class NamesSpec(BaseModel):
     """Name cleaning requirements and heuristics for a dataset."""
 
-    schema_rules: Dict[str, CleaningSpec] = dict(_DEFAULT_SCHEMA_RULES)
+    schema_rules: dict[str, CleaningSpec] = dict(_DEFAULT_SCHEMA_RULES)
     """Name cleaning requirements by schema. All matching schema configurations will apply."""
 
     prefixes_strip: list[str] = []
@@ -95,43 +95,37 @@ class NamesSpec(BaseModel):
     are suggested as weakAlias rather than name.
     """
 
-    suggest_abbreviation_uppercase_org_single_token_shorter_than: Optional[int] = None
+    suggest_abbreviation_uppercase_org_single_token_shorter_than: int | None = None
     """
     If set, Organization names that are all-uppercase, contain no spaces, and are
     shorter than this threshold are suggested as abbreviation rather than name.
     """
 
-    suggest_abbreviation_non_person_single_token_shorter_than: Optional[int] = None
+    suggest_abbreviation_non_person_single_token_shorter_than: int | None = None
     """
     If set, LegalEntity-but-not-Person names (i.e. companies, organisations, vessels, etc.)
     that are all-uppercase, contain no spaces, and are shorter than this threshold are
     suggested as abbreviation rather than name.
     """
 
+    @field_validator("schema_rules", mode="before")
     @classmethod
-    def model_validate(cls, obj: Any, **kwargs: Any) -> "NamesSpec":
-        """Merge provided schema_rules values with defaults."""
-        if isinstance(obj, dict):
-            schema_rules_dict = obj.pop("schema_rules", {})
+    def merge_schema_rules(cls, supplied: Any) -> Any:
+        """Merge schema-specific overrides into defaults before validation."""
+        if not isinstance(supplied, dict):
+            return supplied
 
-            instance = super().model_validate(obj, **kwargs)
+        merged: dict[str, Any] = {
+            name: spec.model_dump() for name, spec in _DEFAULT_SCHEMA_RULES.items()
+        }
+        for schema_name, spec in supplied.items():
+            if schema_name in merged and isinstance(spec, dict):
+                merged[schema_name] = {**merged[schema_name], **spec}
+            else:
+                merged[schema_name] = spec
+        return merged
 
-            for schema_name, spec in schema_rules_dict.items():
-                if schema_name in instance.schema_rules:
-                    schema = Model.instance().get(schema_name)
-                    assert schema is not None, schema_name
-                    # Merge with default
-                    default_spec = instance.schema_rules[schema_name]
-                    merged_spec = default_spec.model_copy(update=spec)
-                    instance.schema_rules[schema_name] = merged_spec
-                else:
-                    instance.schema_rules[schema_name] = CleaningSpec.model_validate(
-                        spec
-                    )
-            return instance
-        raise TypeError(f"object must be a dict, got {type(obj)}")
-
-    def get_spec(self, schema: Schema) -> Optional[CleaningSpec]:
+    def get_spec(self, schema: Schema) -> CleaningSpec | None:
         """Returns the spec for the most specific schema that matches the entity."""
         matching_specs = [
             (Model.instance().get(name), spec)

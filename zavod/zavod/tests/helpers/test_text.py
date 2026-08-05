@@ -51,6 +51,19 @@ def test_remove_bracketed():
     assert out, text
     assert out.strip() == "banana"
 
+    # Multiple bracket groups: text between the groups must be preserved
+    out = remove_bracketed("John (aka Jack) Smith (born 1970)")
+    assert out is not None
+    assert out.split() == ["John", "Smith"]
+    out = remove_bracketed("Acme Corp (Cayman) Ltd (in liquidation)")
+    assert out is not None
+    assert out.split() == ["Acme", "Corp", "Ltd"]
+
+    # Single groups keep being removed entirely
+    out = remove_bracketed("Russia (former USSR)")
+    assert out is not None
+    assert out.strip() == "Russia"
+
 
 def test_is_empty():
     assert is_empty(None) is True
@@ -65,3 +78,8 @@ def test_clean_note():
     assert clean_note(None) == []
     assert clean_note(["hello"]) == ["hello"]
     assert clean_note(["hello", None]) == ["hello"]
+
+    # INTERPOL URL removal stops at a newline instead of swallowing the
+    # start of the next line
+    note = "See https://www.interpol.int/en/notice/123\nSubject is armed"
+    assert clean_note(note) == ["See Subject is armed"]

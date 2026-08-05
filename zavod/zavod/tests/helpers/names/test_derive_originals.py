@@ -14,6 +14,27 @@ def test_derive_original_values_single_original():
     }
 
 
+def test_derive_original_values_identical_single_original():
+    """An extracted value identical to the sole original gets no original_value."""
+    original = Names(name="Jim Doe")
+    extracted = Names(name="Jim Doe")
+
+    result = derive_original_values(original, extracted)
+
+    assert result == {}
+
+
+def test_derive_original_values_single_original_partial_exact_match():
+    """With one original, only extracted values that differ from it get an original_value."""
+    original = Names(name="Jim Doe")
+    extracted = Names(name="Jim Doe", alias="Jim")
+
+    result = derive_original_values(original, extracted)
+
+    # "Jim Doe" matches the original exactly, so only "Jim" gets an original_value.
+    assert result == {"Jim": "Jim Doe"}
+
+
 def test_derive_original_values_exact_match():
     """When an extracted value exactly matches an original, no mapping is needed."""
     original = Names(name=["John/Jon .. Doe", "John Doe"])

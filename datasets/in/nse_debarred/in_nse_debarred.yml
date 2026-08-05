@@ -150,6 +150,20 @@ lookups:
         value: https://archives.nseindia.com/content/circulars/INVG47751.zip
       - match: hhttps://archives.nseindia.com/content/circulars/INVG47784.zip
         value: https://archives.nseindia.com/content/circulars/INVG47784.zip
+      # The source workbook links some circulars via the file paths they had on
+      # the publisher's own machine, instead of their public URL.
+      - match: ../SEBI Order -24-07-2026/Circulars/INVG75388/INVG75388.zip
+        value: https://archives.nseindia.com/content/circulars/INVG75388.zip
+      - match: ../SEBI Order -24-07-2026/Circulars/INVG75399/INVG75399.zip
+        value: https://archives.nseindia.com/content/circulars/INVG75399.zip
+      - match: ../SEBI Order -24-07-2026/Circulars/INVG75403/INVG75403.zip
+        value: https://archives.nseindia.com/content/circulars/INVG75403.zip
+      - match: b'Circulars\\2\\INVG75492.zip'
+        value: https://archives.nseindia.com/content/circulars/INVG75492.zip
+      - match: b'Circulars\\3\\INVG75529.zip'
+        value: https://archives.nseindia.com/content/circulars/INVG75529.zip
+      - match: b'Circulars\\4\\INVG75531.zip'
+        value: https://archives.nseindia.com/content/circulars/INVG75531.zip
   type.identifier:
     options:
       - match: NA

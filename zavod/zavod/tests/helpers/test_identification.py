@@ -26,3 +26,21 @@ def test_make_identification_helper(vcontext: Context):
     )
     assert ident is not None
     assert ident.schema.name == "Passport"
+
+
+def test_make_identification_origin(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+    ident = make_identification(
+        vcontext,
+        person,
+        number="1234567",
+        doc_type="passport",
+        passport=True,
+        origin="some-model",
+    )
+    assert ident is not None
+    number_stmt = next(s for s in ident.statements if s.prop == "number")
+    assert number_stmt.origin == "some-model"
+    holder_stmt = next(s for s in person.statements if s.prop == "passportNumber")
+    assert holder_stmt.origin == "some-model"

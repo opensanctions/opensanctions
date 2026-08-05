@@ -1,0 +1,19 @@
+title: Ordinance on the Freezing of Assets in Connection with Venezuela (SR 196.127.85)
+key: CH-FIAA-VE
+url: https://www.fedlex.admin.ch/eli/cc/2026/1/de
+summary: >
+  Freezes the Swiss-held assets of former Venezuelan president Nicolás Maduro
+  and members of his family and entourage under the Foreign Illicit Assets Act,
+  imposed after the end of the Maduro government in January 2026. The freeze
+  supports future mutual legal assistance cooperation with Venezuela on the
+  recovery of illicitly acquired assets.
+issuer: ch_fdfa
+dataset: ch_fiaa_freezes
+aliases:
+  - Venezuela-Verordnung
+  - O-Venezuela
+  - SR 196.127.85
+target_territories:
+  - ve
+measures:
+  - Asset freeze

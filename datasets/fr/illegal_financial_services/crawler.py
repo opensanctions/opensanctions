@@ -39,7 +39,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for record in csv.DictReader(fh, delimiter=";"):
             row_ = {slugify(k, "_"): str(v) for k, v in record.items() if v is not None}
             row = {k: v for k, v in row_.items() if k is not None}

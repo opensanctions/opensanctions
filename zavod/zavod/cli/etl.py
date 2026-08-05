@@ -38,7 +38,7 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -
 def validate(dataset_path: Path, rebuild_store: bool = True) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
-        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        log.info(f"Dataset is disabled, skipping: {dataset.name}")
         sys.exit(0)
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
@@ -46,7 +46,7 @@ def validate(dataset_path: Path, rebuild_store: bool = True) -> None:
         store.sync(clear=rebuild_store)
         validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
-        log.exception("Validation failed for %r" % dataset_path)
+        log.exception(f"Validation failed for {dataset_path!r}")
         store.close()
         sys.exit(1)
 
@@ -57,7 +57,7 @@ def validate(dataset_path: Path, rebuild_store: bool = True) -> None:
 def export(dataset_path: Path, rebuild_store: bool = True) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
-        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        log.info(f"Dataset is disabled, skipping: {dataset.name}")
         sys.exit(0)
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
@@ -65,7 +65,7 @@ def export(dataset_path: Path, rebuild_store: bool = True) -> None:
         store.sync(clear=rebuild_store)
         export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
-        log.exception("Failed to export: %s" % dataset_path)
+        log.exception(f"Failed to export: {dataset_path}")
         sys.exit(1)
 
 
@@ -78,7 +78,7 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
     try:
         publish_dataset(dataset, republish_to_latest=latest)
     except Exception:
-        log.exception("Failed to publish: %s" % dataset_path)
+        log.exception(f"Failed to publish: {dataset_path}")
         sys.exit(1)
 
 
@@ -102,7 +102,7 @@ def run(
         clear_data_path(dataset.name)
 
     if dataset.model.disabled:
-        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        log.info(f"Dataset is disabled, skipping: {dataset.name}")
         archive_failure(dataset)
         sys.exit(0)
     # crawl if it's a dataset, just create a new version if it's a collection
@@ -125,7 +125,7 @@ def run(
         if not dataset.is_collection:
             validate_dataset(dataset, view)
     except Exception:
-        log.exception("Validation failed for %r" % dataset.name)
+        log.exception(f"Validation failed for {dataset.name!r}")
         archive_failure(dataset)
         store.close()
         sys.exit(1)
@@ -136,7 +136,7 @@ def run(
         # Set the version as successful in the version file, which will be archived by publish_dataset.
         set_last_successful_version(dataset, settings.RUN_VERSION)
     except Exception:
-        log.exception("Failed to export: %s" % dataset_path)
+        log.exception(f"Failed to export: {dataset_path}")
         archive_failure(dataset)
         store.close()
         sys.exit(1)
@@ -150,5 +150,5 @@ def run(
             load_dataset_to_db(dataset, linker, external=False)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
-        log.exception("Failed to publish %r" % dataset.name)
+        log.exception(f"Failed to publish {dataset.name!r}")
         sys.exit(1)

@@ -3,11 +3,15 @@ title: Section 154 of the United States National Defense Authorization Act for F
   Year 2024
 key: US-NDAA-154
 url: https://www.congress.gov/118/plaws/publ31/PLAW-118publ31.pdf
-summary: Section 154 of the National Defense Authorization Act (NDAA) for Fiscal Year
-  2024 prohibits the Department of Defense (DoD) from procuring certain batteries.
-  This provision aims to limit the DOD's reliance on Chinese-produced batteries, particularly
-  in military applications.
+summary: Prohibits the US Department of Defense from using appropriated funds
+  to procure batteries produced by certain named Chinese battery manufacturers
+  or their successors, beginning on 1 October 2027. A battery is covered when
+  a listed entity assembles or manufactures the final product or provides a
+  majority of its components; the Secretary of Defense may waive the
+  prohibition.
 issuer: us_congress
 dataset: us_special_leg
+aliases:
+  - NDAA FY2024 Section 154
 measures:
-- Export control
+  - Debarment

@@ -1,83 +1,85 @@
 name: lint_crawlers
 permissions:
   contents: read
+  pull-requests: read
 
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+    # Avoid duplicate push and pull_request runs on PR branches.
+    branches: [main]
+  pull_request: {}
+  workflow_dispatch: {}
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Get modified dataset yamls
-        id: changed-yamls
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
-        with:
-          files: 'datasets/**/*.y*ml'
-          separator: "\n"
-          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
-      - name: Lint modiied dataset yamls
-        if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
+      # Pass only existing paths through files to avoid interpolating PR filenames.
+      - name: Get modified dataset files
+        id: changed
         env:
-          # For security reasons, pass possibly attacker-chosen filenames via
-          # env var (not direct ${{ }} interpolation into shell) to prevent
-          # command injection through crafted PR filenames containing shell
-          # metacharacters.
-          CHANGED_FILES: ${{ steps.changed-yamls.outputs.all_changed_files }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          # Read into an array so each filename is passed as its own quoted argv
-          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
-          mapfile -t files <<< "$CHANGED_FILES"
+          if [ -n "${PR:-}" ]; then
+            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+              --jq '.[] | select(.status != "removed") | .filename' \
+              | { grep -E '^datasets/' || true; } > dataset_files.txt
+          else
+            : > dataset_files.txt
+          fi
+          { grep -E '\.ya?ml$' dataset_files.txt || true; } > dataset_yamls.txt
+          { grep -E '\.py$'    dataset_files.txt || true; } > dataset_python.txt
+          wc -l dataset_files.txt dataset_yamls.txt dataset_python.txt
+          for f in files yamls python; do
+            if [ -s "dataset_$f.txt" ]; then
+              echo "$f=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "$f=false" >> "$GITHUB_OUTPUT"
+            fi
+          done
+      - name: Lint modified dataset yamls
+        if: ${{ steps.changed.outputs.yamls == 'true' }}
+        run: |
+          set -euo pipefail
+          # Preserve each filename as a quoted argument.
+          mapfile -t files < dataset_yamls.txt
           yamllint "${files[@]}"
-      - name: Get modified dataset python
-        id: changed-python
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
+      - name: Install system dependencies
+        if: ${{ steps.changed.outputs.files == 'true' }}
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          # Python 3.13 requires building pyicu and plyvel from source.
+          sudo apt-get install -y -qq libicu-dev libleveldb-dev
+      - uses: actions/setup-python@v7
+        if: ${{ steps.changed.outputs.files == 'true' }}
         with:
-          files: 'datasets/**/*.py'
-          separator: "\n"
-          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
-      - name: Get all modified files
-        id: changed-files
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
-        with:
-          files: 'datasets/**'
-          separator: "\n"
-          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
+          python-version: '3.13'
           cache: 'pip'
+          # The default requirements glob only finds unrelated contrib files.
+          cache-dependency-path: zavod/pyproject.toml
       - name: Install python linting dependencies
+        if: ${{ steps.changed.outputs.files == 'true' }}
         working-directory: zavod
         run: |
           pip install -q -e ".[dev]"
       - name: Lint modified dataset python
-        if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
-        env:
-          # See note above: env var + quoted expansion avoids shell injection
-          # via filenames in PRs.
-          CHANGED_FILES: ${{ steps.changed-python.outputs.all_changed_files }}
+        if: ${{ steps.changed.outputs.python == 'true' }}
         run: |
           set -euxo pipefail
           while IFS= read -r dataset; do
-            [ -z "$dataset" ] && continue
             echo Linting "$dataset"
-            ruff check "$dataset"
-            ruff format --check --diff "$dataset"
-          done <<< "$CHANGED_FILES"
+            ruff check --config zavod/pyproject.toml "$dataset"
+            ruff format --check --diff --config zavod/pyproject.toml "$dataset"
+          done < dataset_python.txt
       - name: Run prek pre-commit hooks on modified files
-        if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
-        env:
-          # See note above: env var + quoted expansion avoids shell injection
-          # via filenames in PRs.
-          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        # Include non-Python files handled by pre-commit hooks.
+        if: ${{ steps.changed.outputs.files == 'true' }}
         run: |
           set -euxo pipefail
-          # Read into an array so each filename is passed as its own quoted argv
-          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
-          mapfile -t files <<< "$CHANGED_FILES"
+          mapfile -t files < dataset_files.txt
           prek run --files "${files[@]}"

@@ -48,6 +48,14 @@ assertions:
       Person: 800
       CryptoWallet: 1200
       LegalEntity: 1
+    property_fill_rate:
+      # The source identifies a minority of sanctioned persons by government ID or
+      # passport number only, with no name. We deliberately emit these (see the
+      # id_no/passport_no branch in the crawler), so the Person.name fill rate sits
+      # below the 0.95 default. Lower the floor while still catching a regression
+      # where name extraction breaks entirely.
+      Person:
+        name: 0.9
   max:
     schema_entities:
       Person: 1500

@@ -1,9 +1,26 @@
 id: 272
 title: Nonproliferation Sanctions (ISN)
 key: US-DOS-ISN
-url: https://www.state.gov/bureau-of-international-security-and-nonproliferation/nonproliferation-sanctions
-summary: The United States imposes sanctions under various legal authorities against
-  foreign individuals, private entities, and governments that engage in proliferation
-  activities.
+url: https://www.state.gov/bureau-of-arms-control-and-nonproliferation/nonproliferation-sanctions
+summary: Covers sanctions determinations by the US State Department against
+  foreign individuals, entities, and governments that engage in the
+  proliferation of weapons of mass destruction, missile technology, or
+  destabilizing conventional weapons. Determinations are made under a range of
+  nonproliferation statutes and executive orders and are published in the
+  Federal Register. Measures vary by authority and can include bans on US
+  government procurement and assistance, denial of arms and dual-use export
+  licenses, import bans, and the blocking of assets.
 issuer: us_state
 dataset: us_trade_csl
+aliases:
+  - INKSNA
+  - Iran, North Korea, and Syria Nonproliferation Act
+  - EO 13382
+  - EO 12938
+measures:
+  - Asset freeze
+  - Debarment
+  - Aid suspension
+  - Arms restrictions
+  - Export control
+  - Import restrictions

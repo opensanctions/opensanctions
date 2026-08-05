@@ -1,14 +1,20 @@
 id: 52
-title: Palestinian Legislative Council
+title: Non-SDN Palestinian Legislative Council List (NS-PLC List)
 key: US-NS-PLC
-url: https://ofac.treasury.gov/consolidated-sanctions-list/non-sdn-palestinian-legislative-council-ns-plc-list
-summary: This list, maintained by OFAC, includes members of the Palestinian Legislative
-  Council designated for their involvement in terrorism-related activities. The sanctions
-  include asset freezes and prohibitions on transactions with U.S. persons to prevent
-  these individuals from accessing financial resources and support for terrorist activities.
+url: https://ofac.treasury.gov/other-ofac-sanctions-lists
+summary: Lists members of the Palestinian Legislative Council who were elected
+  on the party slate of Hamas or another designated terrorist organization but
+  are not themselves named on the SDN List. US financial institutions are
+  required to reject transactions involving listed individuals rather than
+  block their assets; a general license otherwise authorizes US persons to
+  engage in transactions with the Palestinian Legislative Council. Listing
+  does not itself freeze a person's property.
 issuer: us_ofac
 dataset: us_ofac_cons
 aliases:
-- NS-PLC
+  - NS-PLC
+  - Non-SDN Palestinian Legislative Council List
 target_territories:
-- ps
+  - ps
+measures:
+  - Financial restrictions

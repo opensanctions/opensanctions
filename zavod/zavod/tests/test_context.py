@@ -118,7 +118,7 @@ def test_context_get_fetchers(testdataset1: Dataset):
         m.get("/bla", text=long)
         path = context.fetch_resource("world.txt", "https://test.com/bla")
     assert path.stem == "world"
-    with open(path, "r") as fh:
+    with open(path) as fh:
         assert fh.read() == long
 
     with requests_mock.Mocker() as m:
@@ -131,12 +131,12 @@ def test_context_get_fetchers(testdataset1: Dataset):
         )
     assert path.stem == "world-post"
     assert m.request_history[0].body == "foo=bar"
-    with open(path, "r") as fh:
+    with open(path) as fh:
         assert fh.read() == long
 
     path = context.get_resource_path("doc.xml")
     with open(path, "w") as fh:
-        with open(XML_DOC, "r") as src:
+        with open(XML_DOC) as src:
             fh.write(src.read())
     xml_doc = context.parse_resource_xml("doc.xml")
     assert "MyAddress" in xml_doc.getroot().tag
@@ -153,7 +153,7 @@ def test_context_get_fetchers(testdataset1: Dataset):
 def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
     context = Context(testdataset1)
     url = "https://test.com/encoding"
-    body = "商务部".encode("utf-8")
+    body = "商务部".encode()
 
     with requests_mock.Mocker() as m:
         m.get(url, content=body, headers={"Content-Type": "text/html"})
@@ -344,6 +344,25 @@ def test_crawl_dataset_wrapper(testdataset1: Dataset):
     testdataset1.data.format = "FAIL"
     with pytest.raises(RunFailedException):
         crawl_dataset(testdataset1)
+
+
+def test_crawl_dataset_empty(testdataset1: Dataset):
+    """A crawl that completes without emitting anything still writes an
+    (empty) statements file, so that downstream stages read this run's output
+    instead of falling back to a previous version from the archive."""
+    path = dataset_resource_path(testdataset1.name, STATEMENTS_FILE)
+    assert testdataset1.data is not None
+    testdataset1.data.format = "EMPTY"
+
+    stats = crawl_dataset(testdataset1, dry_run=True)
+    assert stats.statements == 0
+    assert not path.exists()
+
+    stats = crawl_dataset(testdataset1)
+    assert stats.statements == 0
+    assert path.is_file()
+    assert path.stat().st_size == 0
+    assert len(list(iter_dataset_statements(testdataset1))) == 0
 
 
 def test_dataset_sink(testdataset1: Dataset):

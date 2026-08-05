@@ -35,6 +35,7 @@ publisher:
   official: false
 tags:
   - list.pep
+  - list.pep.bulk
 url: https://peps.directoriolegislativo.org/nigeria/open-data
 data:
   url: https://peps.directoriolegislativo.org/

@@ -13,7 +13,6 @@
 
 import csv
 from pathlib import Path
-from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
 import click
@@ -49,7 +48,7 @@ def extract_identifying(identifying_information: str) -> dict[str, str]:
 @click.command()
 @click.option("--url", type=str)
 @click.option("--path", type=InPath)
-def extract_tables(url: Optional[str], path: Optional[Path]) -> None:
+def extract_tables(url: str | None, path: Path | None) -> None:
     """
     Args:
         url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=...
@@ -62,7 +61,7 @@ def extract_tables(url: Optional[str], path: Optional[Path]) -> None:
         query_params = parse_qs(urlparse(url).query)
         doc_reference = query_params.get("uri")[0].replace(":", "_")
     else:
-        with open(path, "r") as f:
+        with open(path) as f:
             html_content = f.read()
         doc_reference = path.stem.replace(":", "_").replace(" ", "_")
 

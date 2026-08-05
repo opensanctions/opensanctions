@@ -1,6 +1,5 @@
 import csv
 from pathlib import Path
-from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod.context import Context
@@ -9,7 +8,7 @@ from zavod.helpers.addresses import make_address
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]):
     schema = row.pop("type")
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("id"))
@@ -57,7 +56,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 def crawl(context: Context):
     data_path = context.get_resource_path("source.csv")
-    with open(LOCAL_PATH, "r") as fh:
+    with open(LOCAL_PATH) as fh:
         with open(data_path, "w") as out:
             out.write(fh.read())
 
@@ -65,8 +64,12 @@ def crawl(context: Context):
         # Used by tests to trigger a runner failure.
         raise RuntimeError("Pipeline is broken")
 
+    if context.dataset.data is not None and context.dataset.data.format == "EMPTY":
+        # Used by tests to simulate a crawl that completes without emitting anything.
+        return
+
     context.export_resource(data_path, CSV, title=context.SOURCE_TITLE)
-    with open(data_path, "r") as fh:
+    with open(data_path) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)
 

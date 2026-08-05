@@ -103,7 +103,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("data.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
 
-    with open(path, "r") as fh:
+    with open(path) as fh:
         data = json.load(fh)
 
     for item in data["entities"]:
