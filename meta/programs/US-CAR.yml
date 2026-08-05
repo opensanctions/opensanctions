@@ -2,13 +2,25 @@ id: 9
 title: Central African Republic Sanctions
 key: US-CAR
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/central-african-republic-sanctions
-summary: These sanctions are imposed on individuals and entities contributing to the
-  conflict in the Central African Republic, including those involved in armed groups,
-  illicit resource exploitation, and human rights abuses. The sanctions include asset
-  freezes and travel bans to promote peace, security, and stability in the region.
+summary: Targets people and entities contributing to the conflict in the
+  Central African Republic, including through violence against civilians,
+  attacks on peacekeeping missions, recruitment of child soldiers,
+  obstruction of humanitarian assistance, arms supplies to armed groups, or
+  the illicit trade in natural resources that supports them, reflecting the
+  criteria of the UN Security Council's Central African Republic sanctions
+  regime alongside US-specific grounds. Designated persons have their US
+  assets frozen and US persons are barred from transactions with them;
+  designated individuals are also barred from entry into the United States.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13667
+  - EO 13667
+  - CAR
+  - 31 CFR Part 553
+  - Resolution 2127
+  - Resolution 2134
 target_territories:
-- cf
+  - cf
+measures:
+  - Asset freeze
+  - Travel ban

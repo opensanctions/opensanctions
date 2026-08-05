@@ -1,12 +1,11 @@
 import csv
-from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     qid_raw = row.get("qid", "").strip()
     qid = h.deref_wikidata_id(context, qid_raw)
     if qid is None:
@@ -25,6 +24,6 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

@@ -23,11 +23,9 @@ title: Full Human-Readable Title
 prefix: xx-short        # unique, ≤ 10 chars, used for entity IDs
 entry_point: crawler.py
 coverage:
-  frequency: daily      # daily | weekly | monthly | never
-  schedule: "0 */2 * * *"  # cron, only for daily
+  frequency: daily      # house defaults per dataset type: see metadata.md
   start: 2024-01-01
 load_statements: true   # always true for production datasets
-ci_test: false          # true only for fast, small datasets
 
 summary: >-
   One sentence description.
@@ -73,9 +71,6 @@ Key rules:
 - Set assertions to ~80% min / ~150% max of expected counts. Checked by
   `zavod validate`, not by `zavod crawl`. See the "Data assertions" section of
   `zavod/docs/metadata.md` for the metrics and comparison semantics.
-- Write `summary` and `description` to be **time-agnostic** — describe the source's
-  purpose and update cadence, not the current snapshot (e.g. "Members of parliament,
-  updated after each election" not "Members since the 2023 elections").
 
 ## The crawler module
 
@@ -175,6 +170,8 @@ full = h.make_name(full=row.get("fullname"), first_name=first, last_name=last)
 ```
 
 Use `h.apply_name()` for Person entities. For name-only: `entity.add("name", ...)`.
+
+When source names carry a fixed set of honorifics or post-nominals (`Hon.`, `Dr.`, `, MP`), strip them deterministically via dataset config rather than the review system — see `zavod/docs/best_practices/name_titles.md`.
 
 ### Dates
 
@@ -291,6 +288,10 @@ entity.add("name", latin_name, lang="eng")         # override
 - Use `context.fetch_*`, never `requests`.
 - Use `rigour.mime.types` constants, never string literals.
 - Keep `crawl()` thin; delegate to per-record helpers.
+- No single-use module-level constants: inline a literal at its only call site
+  instead of hoisting it to the top of the file. Named constants are for
+  precompiled regexes, values used at 2+ sites, and enumerations-as-data
+  (e.g. a `POSITIONS` table). See `zavod/docs/best_practices/patterns.md`.
 
 ## Running and testing
 
@@ -316,3 +317,11 @@ qsv search -s prop "^Person:id$" data/datasets/xx_foo/statements.pack | qsv coun
 ## Before merging
 
 See `zavod/docs/best_practices/merge_checklist.md` for the review criteria the team applies to new crawlers, and `zavod/docs/best_practices/priorities.md` for the Essential / Should / Could / Won't framing that governs what attributes a crawler should extract.
+
+A PR that adds a new crawler MUST carry the `new-source` GitHub label, and its title takes the house `[dataset_name]` prefix:
+
+```bash
+gh pr create --label new-source --title "[xx_foo] Add ... crawler"
+```
+
+Apply the label to an existing PR with `gh pr edit <number> --add-label new-source`.

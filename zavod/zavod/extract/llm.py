@@ -6,7 +6,7 @@ import mimetypes
 from functools import cache
 from hashlib import sha1
 from pathlib import Path
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
 from openai import OpenAI
 from pydantic import BaseModel
@@ -32,7 +32,7 @@ def get_client() -> OpenAI:
     return OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
-def encode_file(file: Path, mime_type: Optional[str] = None) -> str:
+def encode_file(file: Path, mime_type: str | None = None) -> str:
     """Encode a file as a base64 data URL."""
     if mime_type is None:
         mime_type, _ = mimetypes.guess_type(file.name)
@@ -58,9 +58,9 @@ def run_image_prompt(
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info("GPT cache hit: %s" % image_path.name)
+        log.info(f"GPT cache hit: {image_path.name}")
         return cached_data
-    log.info("Prompting %r for: %s" % (model, image_path.name))
+    log.info(f"Prompting {model!r} for: {image_path.name}")
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -83,11 +83,11 @@ def run_image_prompt(
     return data
 
 
-def run_typed_image_prompt(
+def run_typed_image_prompt[ResponseType: BaseModel](
     context: Context,
     prompt: str,
     image_path: Path,
-    response_type: Type[ResponseType],
+    response_type: type[ResponseType],
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = DEFAULT_MODEL,
@@ -102,9 +102,9 @@ def run_typed_image_prompt(
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info("GPT cache hit: %s" % image_path.name)
+        log.info(f"GPT cache hit: {image_path.name}")
         return response_type.model_validate(cached_data)
-    log.info("Prompting %r for: %s" % (model, image_path.name))
+    log.info(f"Prompting {model!r} for: {image_path.name}")
     response = client.chat.completions.parse(
         model=model,
         messages=[
@@ -156,9 +156,9 @@ def run_text_prompt(
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info("GPT cache hit: %s" % string[:50])
+        log.info(f"GPT cache hit: {string[:50]}")
         return TextPromptResponse(content=cached_data, cache_key=cache_key)
-    log.info("Prompting %r for: %s" % (model, string[:50]))
+    log.info(f"Prompting {model!r} for: {string[:50]}")
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -182,11 +182,11 @@ def run_text_prompt(
     return TextPromptResponse(content=content, cache_key=cache_key)
 
 
-def run_typed_text_prompt(
+def run_typed_text_prompt[ResponseType: BaseModel](
     context: Context,
     prompt: str,
     string: str,
-    response_type: Type[ResponseType],
+    response_type: type[ResponseType],
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = DEFAULT_MODEL,
@@ -200,9 +200,9 @@ def run_typed_text_prompt(
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info("GPT cache hit: %s" % string[:50])
+        log.info(f"GPT cache hit: {string[:50]}")
         return response_type.model_validate(cached_data)
-    log.info("Prompting %r for: %s" % (model, string[:50]))
+    log.info(f"Prompting {model!r} for: {string[:50]}")
     response = client.chat.completions.parse(
         model=model,
         messages=[

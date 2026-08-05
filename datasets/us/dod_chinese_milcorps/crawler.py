@@ -36,7 +36,7 @@ def crawl(context: Context) -> None:
     # DOD Releases List of Chinese Military Companies in Accordance With Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
 
     source_file = context.fetch_resource("source.csv", context.data_url)
-    with open(source_file, "r") as f:
+    with open(source_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             entity = context.make("Company")

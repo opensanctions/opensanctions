@@ -178,7 +178,9 @@ lookups:
       - match: RN757358/
         value: RN757358
         prop: registrationNumber
-      - match: "10\n93379521"
+      - match:
+          - "10\n93379521"
+          - "1\n093379521"
         value: "1093379521"
 
   license_numbers:
@@ -269,3 +271,27 @@ lookups:
         values: ["RN757358", "PN270730"]
       - match: "2\n54128(OH)"
         values: ["254128"]
+      - match: "PROMIS#001400491\nMA049957"
+        values:
+          - PROMIS# 001400491
+          - MA049957
+      - match: "4\n4294(HI)R149156(MD)"
+        values: ["44294", "R149156"]
+      - match: "140646(\nNC)"
+        values: ["140646"]
+      - match: "R0065074(OK\n)"
+        values: ["R0065074"]
+      - match: "0001158032(\nVA)"
+        values: ["0001158032"]
+      - match: "P\nN305385"
+        values: ["PN305385"]
+      - match: "RN708529 (PA) DH067595\n(PA)"
+        values: ["RN708529", "DH067595"]
+      - match: "RN691829\n(PA)"
+        values: ["RN691829"]
+      - match: "RN598766\n(PA)"
+        values: ["RN598766"]
+      - match: "AJ008885\n(PA)"
+        values: ["AJ008885"]
+      - match: "PN310619\n(PA)"
+        values: ["PN310619"]

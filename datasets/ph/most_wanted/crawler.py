@@ -1,9 +1,8 @@
 import csv
-from typing import Dict
 from zavod import Context
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     full_name = row.get("name")
     offense = row.get("offense")
     case_number = row.get("case number")
@@ -21,7 +20,7 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             crawl_row(context, row)

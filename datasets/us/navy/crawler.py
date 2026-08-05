@@ -1,5 +1,6 @@
 from collections import namedtuple
-from typing import Any, Mapping, Optional
+from typing import Any
+from collections.abc import Mapping
 from lxml import html, etree
 from urllib.parse import urljoin
 import orjson
@@ -77,7 +78,7 @@ def crawl_person(context: Context, item_html: str) -> None:
 
 def parse_json_or_xml(
     context: Context, url: str, data: str
-) -> Optional[Mapping[str, Any]]:
+) -> Mapping[str, Any] | None:
     try:
         root = etree.fromstring(data)
         html_data = h.xpath_string(root, ".//*[local-name() = 'data']/text()")
@@ -117,14 +118,17 @@ def process_page(context: Context, page_number: int) -> ProcessPageResult:
         return ProcessPageResult(success=False, done=False)
 
     if not resp.response_text:
-        context.log.error(f"No data found for page {page_number}")
+        # The source's cache is flaky and sometimes serves empty/broken data; this
+        # is recoverable via the retry in crawl(), so log at info here and let crawl()
+        # emit the definitive error only when the retry also fails.
+        context.log.info(f"No data found for page {page_number}")
         resp.invalidate_cache(context)
         return ProcessPageResult(success=False, done=False)
 
     doc = parse_json_or_xml(context, url, resp.response_text)
 
     if not doc:
-        context.log.error(f"No parseable data found for page {page_number}")
+        context.log.info(f"No parseable data found for page {page_number}")
         resp.invalidate_cache(context)
         return ProcessPageResult(success=False, done=False)
 

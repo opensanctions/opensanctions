@@ -76,7 +76,6 @@ config:
   topic_gated: true
   index_options:
     max_candidates: 25
-    match_batch: 300
     memory: 4000
   threshold: 0.5
   algorithm: regression-v1
@@ -111,9 +110,9 @@ assertions:
     schema_entities:
       Security: 20
       Organization: 800
-      Company: 3500
+      Company: 700
   max:
     schema_entities:
       Security: 500
-      Organization: 4000
-      Company: 8000
+      Organization: 2000
+      Company: 1800

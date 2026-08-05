@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
 from zavod.stateful.positions import categorise
@@ -31,12 +30,12 @@ def emit_pep_entities(
     person: Entity,
     position_name: str,
     lang: str,
-    start_date: Optional[str],
-    end_date: Optional[str],
-    constituency: Optional[str] = None,
-    political_group: Optional[str] = None,
+    start_date: str | None,
+    end_date: str | None,
+    constituency: str | None = None,
+    political_group: str | None = None,
     is_pep: bool,
-    wikidata_id: Optional[str] = None,
+    wikidata_id: str | None = None,
     translate_name: bool = False,
 ) -> bool:
     person.add("position", position_name)

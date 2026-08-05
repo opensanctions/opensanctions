@@ -1,6 +1,7 @@
 from functools import cache
 from pathlib import Path
-from typing import Any, Generator, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Generator, Sequence
 import json
 
 from pydantic import BaseModel
@@ -17,7 +18,7 @@ EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
 class LangText(BaseModel):
     text: str
-    lang: Optional[str]
+    lang: str | None
     """ISO 639-2 (3-letter) language code, or None if not known"""
 
     def __hash__(self) -> int:
@@ -39,6 +40,12 @@ class Names(BaseModel):
 
     Cleaning might include splitting or re-combining parts, and stripping punctuation
     which does not form part of the name.
+
+    Unknown keys are deliberately tolerated on validation (pydantic's default
+    ``extra="ignore"``): stored review payloads are re-validated with the current
+    model, and reviewer-edited or legacy payloads can carry keys that are not
+    (or no longer) fields. Construction sites that build a Names from dynamic
+    keys must validate them against ``Names.model_fields`` instead.
     """
 
     name: NamesValues = None
@@ -80,7 +87,7 @@ class Names(BaseModel):
             return False
         return True
 
-    def as_langtexts(self) -> Generator[Tuple[str, list[LangText]], None, None]:
+    def as_langtexts(self) -> Generator[tuple[str, list[LangText]], None, None]:
         """
         Generator yielding each property and a list of any associated non-empty name values.
 
@@ -102,9 +109,7 @@ class Names(BaseModel):
                 if nonempty_values:
                     yield key, nonempty_values
 
-    def add(
-        self, prop: str, value: Optional[str], *, lang: Optional[str] = None
-    ) -> None:
+    def add(self, prop: str, value: str | None, *, lang: str | None = None) -> None:
         """
         Add a value to a property. If set as a single value, the values are added to a list.
         Value is wrapped in LangText if lang is provided.
@@ -215,7 +220,7 @@ def _to_lang_text(value: str | LangText) -> LangText:
     return value
 
 
-def is_empty_string(text: Optional[str | LangText]) -> bool:
+def is_empty_string(text: str | LangText | None) -> bool:
     if text is None:
         return True
     if isinstance(text, LangText):

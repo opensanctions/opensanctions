@@ -1,5 +1,3 @@
-from typing import Optional
-
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.context import Context
@@ -11,16 +9,17 @@ log = get_logger(__name__)
 def make_identification(
     context: Context,
     entity: Entity,
-    number: Optional[str],
-    doc_type: Optional[str] = None,
-    country: Optional[str] = None,
-    summary: Optional[str] = None,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    authority: Optional[str] = None,
-    key: Optional[str] = None,
+    number: str | None,
+    doc_type: str | None = None,
+    country: str | None = None,
+    summary: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    authority: str | None = None,
+    key: str | None = None,
     passport: bool = False,
-) -> Optional[Entity]:
+    origin: str | None = None,
+) -> Entity | None:
     """Create an `Identification` or `Passport` object linked to a passport holder.
 
     Args:
@@ -35,6 +34,8 @@ def make_identification(
         authority: The issuing authority.
         key: An optional key to be included in the ID of the identification.
         passport: Whether the identification is a passport or not.
+        origin: An optional origin to attribute the emitted statements to, e.g.
+            the model behind a reviewed extraction.
 
     Returns:
         A new entity of type `Identification` or `Passport`.
@@ -46,7 +47,7 @@ def make_identification(
     assert holder_prop.range is not None
     if not entity.schema.is_a(holder_prop.range):
         log.warning(
-            "Holder is not a valid type for %s" % schema,
+            f"Holder is not a valid type for {schema}",
             entity_schema=entity.schema,
             entity_id=entity.id,
             number=number,
@@ -55,18 +56,20 @@ def make_identification(
 
     if number is None:
         return None
+    # It is very unlikely that two countries issue the same person a document
+    # with the same number.
     proxy.id = context.make_id(entity.id, number, doc_type, key)
-    proxy.add("holder", entity.id)
-    proxy.add("number", number)
-    proxy.add("type", doc_type)
-    proxy.add("country", country)
-    proxy.add("authority", authority)
-    proxy.add("summary", summary)
+    proxy.add("holder", entity.id, origin=origin)
+    proxy.add("number", number, origin=origin)
+    proxy.add("type", doc_type, origin=origin)
+    proxy.add("country", country, origin=origin)
+    proxy.add("authority", authority, origin=origin)
+    proxy.add("summary", summary, origin=origin)
     apply_date(proxy, "startDate", start_date)
     apply_date(proxy, "endDate", end_date)
     # context.inspect(proxy.to_dict())
     if passport:
-        entity.add("passportNumber", number)
+        entity.add("passportNumber", number, origin=origin)
     else:
-        entity.add("idNumber", number)
+        entity.add("idNumber", number, origin=origin)
     return proxy

@@ -24,7 +24,6 @@ reported in the run summary, so gaps are visible rather than silently dropped.
 import csv
 import re
 from pathlib import Path
-from typing import Optional
 
 import click
 import requests
@@ -197,7 +196,7 @@ def fetch_from_cellar(celex: str) -> HtmlElement:
     return html.fromstring(response.content)
 
 
-def categorized_tables(doc: HtmlElement) -> list[tuple[Optional[str], HtmlElement]]:
+def categorized_tables(doc: HtmlElement) -> list[tuple[str | None, HtmlElement]]:
     """Pair each annex table with the "Persons"/"Entities" heading above it.
 
     The headings are plain spans preceding their table in document order, so we
@@ -205,8 +204,8 @@ def categorized_tables(doc: HtmlElement) -> list[tuple[Optional[str], HtmlElemen
     heading above it keeps None and is classified later from its content.
     """
     tables = set(doc.xpath("//table[contains(@class, 'oj-table')]"))
-    current: Optional[str] = None
-    result: list[tuple[Optional[str], HtmlElement]] = []
+    current: str | None = None
+    result: list[tuple[str | None, HtmlElement]] = []
     for element in doc.iter():
         text = (element.text or "").strip()
         if text in ("Persons", "Entities"):

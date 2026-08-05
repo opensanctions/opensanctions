@@ -1,4 +1,3 @@
-from typing import Set
 from normality import squash_spaces
 from followthemoney import registry
 
@@ -14,7 +13,7 @@ class NamesExporter(Exporter):
     def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "w")
-        self.seen_hashes: Set[int] = set()
+        self.seen_hashes: set[int] = set()
 
     def feed(self, entity: Entity, view: ExportView) -> None:
         for name in entity.get_type_values(registry.name):

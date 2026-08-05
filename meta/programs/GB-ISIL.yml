@@ -2,8 +2,26 @@ id: 226
 title: UK sanctions relating to ISIL (Da’esh) and Al-Qaida
 key: GB-ISIL
 url: https://www.gov.uk/government/collections/uk-sanctions-on-isil-daesh-and-al-qaida
-summary: Targeting ISIL and Al-Qaida terrorist organizations.
-issuer: gb_ofsi
+summary: Implements the UN Security Council's ISIL (Da'esh) and Al-Qaida
+  sanctions regime in UK law, targeting individuals and entities associated
+  with the two organisations wherever they are located. Designated persons are
+  subject to an asset freeze and to bans on the supply of military goods and
+  military technology to them or for their benefit, including related technical
+  assistance, financing and brokering services.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019
+  - Resolution 1267
+  - Resolution 1989
+  - Resolution 2253
+  - SI 2019/466
+  - The ISIL (Da'esh) and Al-Qaida (United Nations Sanctions) (EU Exit) Regulations 2019
+  - UNSCR 1267
+  - UNSCR 1989
+  - UNSCR 2253
 target_territories:
-- zz
+  - zz
+measures:
+  - Arms restrictions
+  - Asset freeze

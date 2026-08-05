@@ -2,13 +2,23 @@ id: 27
 title: Mali-Related Sanctions
 key: US-MALI
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/mali-related-sanctions
-summary: These sanctions target individuals and entities involved in the conflict
-  and destabilizing activities in Mali, including terrorism and human rights abuses.
-  The measures include asset freezes and prohibitions on transactions to support peace,
-  security, and governance in Mali.
+summary: Targets people and entities responsible for actions that threaten
+  the peace, security, or stability of Mali, including obstructing the 2015
+  Agreement on Peace and Reconciliation in Mali, attacking peacekeepers or
+  Malian security forces, obstructing humanitarian assistance, committing
+  serious human rights abuses, recruiting child soldiers, trafficking in
+  narcotics, arms, or persons, or engaging in corruption involving Malian
+  public assets. Designated persons have their US assets frozen and US
+  persons are barred from transactions with them; designated individuals are
+  also barred from entry into the United States.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13882
+  - EO 13882
+  - MALI-EO13882
+  - 31 CFR Part 555
 target_territories:
-- ml
+  - ml
+measures:
+  - Asset freeze
+  - Travel ban

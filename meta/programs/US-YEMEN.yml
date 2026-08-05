@@ -2,13 +2,22 @@ id: 40
 title: Yemen-Related Sanctions (EO 13611)
 key: US-YEMEN
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/yemen-related-sanctions
-summary: These sanctions target major transnational criminal organizations and their
-  supporters. The measures include asset freezes and prohibitions on transactions
-  to disrupt the financial networks of these organizations and combat their involvement
-  in drug trafficking, human trafficking, money laundering, and other illicit activities.
+summary: Targets persons who engage in acts that directly or indirectly threaten
+  the peace, security, or stability of Yemen, including obstructing the 2011
+  agreement on a peaceful transition of power or the political process in Yemen,
+  as well as political and military leaders of entities engaged in such acts and
+  those who support or act for designated persons. Designated persons are
+  subject to a US asset freeze, and US persons are prohibited from dealing with
+  them. Terrorism-related designations of the Houthis are made under separate US
+  counterterrorism authorities.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13611
+  - EO 13611
+  - YEMEN
+  - Yemen Sanctions Regulations
+  - 31 CFR Part 552
 target_territories:
-- ye
+  - ye
+measures:
+  - Asset freeze

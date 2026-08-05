@@ -229,7 +229,7 @@ def generate(scope: str, outdir: Path) -> Dict[str, Any]:
     dataset_scope = get_catalog().require(scope)
     datasets = [d for d in dataset_scope.datasets if d.name not in IGNORE_DATASETS]
     datasets = [d for d in datasets if not d.is_collection]
-    dataset = get_multi_dataset([d.name for d in datasets])
+    dataset = get_multi_dataset(get_catalog(), [d.name for d in datasets])
 
     store = get_store(dataset, Linker({}))
     store.sync()

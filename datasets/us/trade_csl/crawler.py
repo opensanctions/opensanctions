@@ -1,5 +1,6 @@
 import json
-from typing import Any, Dict, List, Optional, Generator
+from typing import Any
+from collections.abc import Generator
 from banal import ensure_list
 from rigour.mime.types import JSON
 from followthemoney.types import registry
@@ -34,7 +35,7 @@ from zavod import helpers as h
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
-def lookup_topic(context: Context, program_name: Optional[str]) -> Optional[str]:
+def lookup_topic(context: Context, program_name: str | None) -> str | None:
     """Lookup the topic based on the sanction program."""
     res = context.lookup("sanction.program", program_name)
     if res is None:
@@ -50,7 +51,7 @@ def emit_relationship(
     entity_id: str,
     *,
     related_name: str,
-    list_entry: Dict[str, Any],
+    list_entry: dict[str, Any],
     source_program: str,
 ) -> None:
     related_entity = context.make("LegalEntity")
@@ -73,7 +74,7 @@ def emit_relationship(
 
 
 def make_and_emit_sanction(
-    context: Context, entity: Entity, *, source_program: str, list_entry: Dict[str, Any]
+    context: Context, entity: Entity, *, source_program: str, list_entry: dict[str, Any]
 ) -> None:
     sanction = h.make_sanction(
         context,
@@ -103,7 +104,7 @@ def make_and_emit_sanction(
 
 
 def parse_addresses(
-    context: Context, addresses: List[Dict[str, str]]
+    context: Context, addresses: list[dict[str, str]]
 ) -> Generator[Entity, None, None]:
     for address in addresses:
         country_code = registry.country.clean(address.get("country"))
@@ -149,14 +150,14 @@ def parse_addresses(
                 yield addr
 
 
-def clean_authority(value: Optional[str]) -> Optional[List[str]]:
+def clean_authority(value: str | None) -> list[str] | None:
     if value is None:
         return None
     value = REGEX_AUTHORITY_ID_SEP.sub(r", \1", value)
     return h.multi_split(value, [";", ", "])
 
 
-def parse_list_entry(context: Context, list_entry: Dict[str, Any]) -> None:
+def parse_list_entry(context: Context, list_entry: dict[str, Any]) -> None:
     for k, v in list(list_entry.items()):
         if isinstance(v, str) and len(v.strip()) == 0:
             list_entry.pop(k)
@@ -300,7 +301,7 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as file:
+    with open(path) as file:
         data = json.load(file)
         for list_entry in data.get("results"):
             parse_list_entry(context, list_entry)

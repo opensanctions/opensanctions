@@ -1,3 +1,5 @@
+import structlog.testing
+
 from zavod.context import Context
 from zavod.helpers import strip_name_titles
 from zavod.meta.names import NamesSpec
@@ -89,6 +91,46 @@ def test_strip_leaves_unknown_comma_tail_visible(vcontext: Context) -> None:
     assert strip_name_titles(vcontext, "Jane Doe, CBS, Party Leader") == (
         "Jane Doe, CBS, Party Leader"
     )
+
+
+def test_strip_bare_prefix_requires_word_boundary(vcontext: Context) -> None:
+    # ug_parliament's production config: an unbounded "Hon" term must not
+    # truncate names that merely start with those letters.
+    configure_titles(vcontext, prefixes=["Hon.", "Hon"])
+
+    assert strip_name_titles(vcontext, "Honorata Nabakooza") == "Honorata Nabakooza"
+    assert strip_name_titles(vcontext, "Hon. Honey Kaggwa") == "Honey Kaggwa"
+    assert strip_name_titles(vcontext, "Hon Rebecca Kadaga") == "Rebecca Kadaga"
+    assert strip_name_titles(vcontext, "Hon. Hon Honorata Doe") == "Honorata Doe"
+
+
+def test_strip_bare_suffix_requires_word_boundary(vcontext: Context) -> None:
+    configure_titles(vcontext, suffixes=["MP"])
+
+    assert strip_name_titles(vcontext, "Jane Kamp") == "Jane Kamp"
+    assert strip_name_titles(vcontext, "Jane Doe MP") == "Jane Doe"
+
+
+def test_strip_stacked_titles(vcontext: Context) -> None:
+    configure_titles(vcontext, prefixes=["Hon.", "Hon", "Dr."])
+
+    assert strip_name_titles(vcontext, "Hon. Dr. Jane Doe") == "Jane Doe"
+    assert strip_name_titles(vcontext, "Hon Dr. Honorata Doe") == "Honorata Doe"
+
+
+def test_strip_all_title_name_warns_and_returns_none(vcontext: Context) -> None:
+    configure_titles(vcontext, prefixes=["Hon.", "Hon"], suffixes=[", MP"])
+
+    with structlog.testing.capture_logs() as caplogs:
+        assert strip_name_titles(vcontext, "Hon. Hon") is None
+    assert {
+        "event": "Name consists only of title affixes",
+        "name": "Hon. Hon",
+        "log_level": "warning",
+    } in caplogs
+
+    # An empty input string was never a name; it passes through unchanged.
+    assert strip_name_titles(vcontext, "") == ""
 
 
 def test_strip_is_idempotent_for_unmatched_names(vcontext: Context) -> None:

@@ -46,6 +46,7 @@ def crawl_parliament(context: Context, parl_name: str, url: str) -> None:
             topics=["gov.national", "gov.legislative"],
             country=["pt"],
             wikidata_id="Q19953703",
+            lang="eng",
         )
         categorisation = categorise(context, position, default_is_pep=True)
 

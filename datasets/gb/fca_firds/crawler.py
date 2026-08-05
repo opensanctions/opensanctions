@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
-from typing import Iterator
+from collections.abc import Iterator
 
 from zavod import Context
 from zavod.shed.firds import latest_full_set, parse_xml_file
@@ -33,6 +33,6 @@ def get_recent_full_dump_urls(context: Context) -> Iterator[tuple[str, str]]:
 
 def crawl(context: Context) -> None:
     for file_name, url in latest_full_set(context, get_recent_full_dump_urls(context)):
-        context.log.info("Fetching %s" % file_name, url=url)
+        context.log.info(f"Fetching {file_name}", url=url)
         path = context.fetch_resource(file_name, url)
         parse_xml_file(context, path)

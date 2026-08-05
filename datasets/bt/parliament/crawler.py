@@ -92,6 +92,7 @@ def crawl_chamber(context: Context, chamber: Chamber) -> None:
         country="bt",
         topics=["gov.national", "gov.legislative"],
         wikidata_id=chamber.wikidata_id,
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

@@ -1,0 +1,157 @@
+title: Thailand Members of the Senate
+name: th_senate
+prefix: th-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Senate of Thailand, the upper chamber of the National Assembly.
+description: |
+  Members of the Senate, the upper chamber of the bicameral National Assembly of Thailand,
+  across its consecutive sets. The current set's 200 senators are indirectly selected across
+  20 occupational groups for a five-year term and, together with the House of Representatives,
+  hold the country's legislative power, including passing laws and approving the budget.
+
+  This dataset records each senator with their name, the occupational group they represent
+  (where the set records one), and the dates their term began and (where applicable) ended.
+url: https://datacatalog.senate.go.th/dataset/sec_03_1101
+publisher:
+  name: Secretariat of the Senate
+  acronym: Senate
+  description: >
+    The Secretariat of the Senate publishes the roster of the Senate of Thailand, the
+    upper chamber of the National Assembly, through its open-data catalogue.
+  url: https://www.senate.go.th/
+  country: th
+  official: true
+data:
+  # CKAN package keyed on the dataset's stable slug (sec_03_1101). The crawler reads
+  # every Senate set listed in its resources straight from the datastore API, so
+  # neither a resource-ID nor a filename change breaks fetching.
+  url: https://datacatalog.senate.go.th/api/3/action/package_show?id=sec_03_1101
+  format: JSON
+  lang: tha
+
+dates:
+  formats: ["%d/%m/%Y", "%Y-%m-%dT%H:%M:%S"]
+
+names:
+  prefixes_strip:
+    # Civil
+    - นางสาว
+    - นาย
+    - นาง
+    # Flag officers (army / navy / air force / police)
+    - พลเอก
+    - พลโท
+    - พลตรี
+    - พลเรือเอก
+    - พลเรือโท
+    - พลเรือตรี
+    - พลอากาศเอก
+    - พลอากาศโท
+    - พลอากาศตรี
+    - พลตำรวจเอก
+    - พลตำรวจโท
+    - พลตำรวจตรี
+    # Field officers
+    - พันเอก
+    - พันโท
+    - พันตรี
+    - นาวาเอก
+    - นาวาโท
+    - นาวาตรี
+    - นาวาอากาศเอก
+    - นาวาอากาศโท
+    - นาวาอากาศตรี
+    - พันตำรวจเอก
+    - พันตำรวจโท
+    - พันตำรวจตรี
+    # Company officers
+    - ร้อยเอก
+    - ร้อยโท
+    - ร้อยตรี
+    - เรือเอก
+    - เรือโท
+    - เรือตรี
+    - เรืออากาศเอก
+    - เรืออากาศโท
+    - เรืออากาศตรี
+    - ร้อยตำรวจเอก
+    - ร้อยตำรวจโท
+    - ร้อยตำรวจตรี
+    # Female rank variants, marked by a trailing หญิง
+    - พลเอกหญิง
+    - พลโทหญิง
+    - พลตรีหญิง
+    - พลตำรวจโทหญิง
+    - พลตำรวจตรีหญิง
+    - พันเอกหญิง
+    - พันโทหญิง
+    - พันตรีหญิง
+    - พันตำรวจเอกหญิง
+    - พันตำรวจโทหญิง
+    - พันตำรวจตรีหญิง
+    - ร้อยเอกหญิง
+    - ร้อยตำรวจเอกหญิง
+    # Acting rank
+    - ว่าที่พันเอก
+    - ว่าที่พันโท
+    - ว่าที่พันตรี
+    - ว่าที่ร้อยเอก
+    - ว่าที่ร้อยโท
+    - ว่าที่ร้อยตรี
+    # Senior police NCO
+    - ดาบตำรวจ
+    - จ่าสิบตำรวจ
+    # Academic
+    - ศาสตราจารย์
+    - ศาสตราจารย์พิเศษ
+    - ศาสตราจารย์เกียรติคุณ
+    - ศาสตราจารย์กิตติคุณ
+    - ศาสตราจารย์คลินิก
+    - ศาสตราจารย์คลินิกเกียรติคุณ
+    - รองศาสตราจารย์
+    - รองศาสตราจารย์พิเศษ
+    - ผู้ช่วยศาสตราจารย์
+    - ผู้ช่วยศาสตราจารย์พิเศษ
+    # Medical and other professional
+    - นายแพทย์
+    - แพทย์หญิง
+    - ทันตแพทย์
+    - ทันตแพทย์หญิง
+    - สัตวแพทย์
+    - สัตวแพทย์หญิง
+    - เภสัชกร
+    - เภสัชกรหญิง
+    # Royal descent and conferred titles
+    - หม่อมหลวง
+    - หม่อมราชวงศ์
+    - หม่อมเจ้า
+    - คุณหญิง
+    - ท่านผู้หญิง
+
+lookups:
+  type.date:
+    options:
+      # The datastore uses "0/0/0" as a null placeholder for open terms.
+      - match: "0/0/0"
+        value: null
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Position: 1
+    country_entities:
+      th: 400
+  max:
+    schema_entities:
+      Person: 600
+      Position: 1

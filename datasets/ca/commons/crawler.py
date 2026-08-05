@@ -42,6 +42,7 @@ def crawl_member(context: Context, el: etree._Element) -> None:
         wikidata_id="Q15964890",
         country="ca",
         topics=["gov.legislative", "gov.national"],
+        lang="eng",
     )
     context.emit(position)
     # <FromDateTime>2025-04-28T00:00:00</FromDateTime>

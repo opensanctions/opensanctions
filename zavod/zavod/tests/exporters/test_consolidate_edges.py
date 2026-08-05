@@ -1,9 +1,9 @@
-from typing import Dict, Any
+from typing import Any
 from followthemoney import StatementEntity
 from zavod.exporters.consolidate import _simplify_undirected
 
 
-def _e(schema: str, **props: Dict[str, Any]) -> StatementEntity:
+def _e(schema: str, **props: dict[str, Any]) -> StatementEntity:
     data = {"schema": schema, "properties": props, "id": "test"}
     return StatementEntity.from_dict(data)
 

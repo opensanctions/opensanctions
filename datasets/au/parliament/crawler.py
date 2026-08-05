@@ -178,6 +178,7 @@ def crawl(context: Context) -> None:
         country="au",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q18912794",
+        lang="eng",
     )
     senate = h.make_position(
         context,
@@ -185,6 +186,7 @@ def crawl(context: Context) -> None:
         country="au",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q6814428",
+        lang="eng",
     )
     positions: dict[str, tuple[Entity, PositionCategorisation]] = {}
     for chamber, position in (("Member", house), ("Senator", senate)):

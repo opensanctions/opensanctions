@@ -2,8 +2,28 @@ id: 250
 title: UK sanctions relating to Somalia
 key: GB-SOM
 url: https://www.gov.uk/government/collections/uk-sanctions-on-somalia
-summary: Measures addressing conflict and issues in Somalia.
-issuer: gb_ofsi
+summary: Gives effect in the United Kingdom to the UN Security Council's
+  Somalia sanctions regime established by Resolution 751, which centres on
+  Al-Shabaab and other terrorist or armed groups operating in Somalia.
+  Designated persons are subject to an asset freeze and a targeted arms
+  embargo, and designated individuals are banned from entering or transiting
+  the UK. The regime also prohibits the export to Somalia of military goods
+  and of components used in improvised explosive devices, and bans the
+  import, purchase and transport of Somali charcoal.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Resolution 2713
+  - Resolution 751
+  - SI 2020/642
+  - The Somalia (Sanctions) (EU Exit) Regulations 2020
+  - UNSCR 2713
+  - UNSCR 751
 target_territories:
-- so
+  - so
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Export control
+  - Import restrictions
+  - Travel ban

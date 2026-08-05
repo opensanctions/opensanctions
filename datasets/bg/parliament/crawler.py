@@ -197,6 +197,8 @@ def crawl(context: Context) -> None:
         name="Member of the National Assembly of Bulgaria",
         country="bg",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q18924508",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

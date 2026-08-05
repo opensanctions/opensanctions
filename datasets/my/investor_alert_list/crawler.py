@@ -4,6 +4,20 @@ import re
 from zavod import Context
 from zavod import helpers as h
 
+# The website column lists several URLs per entry, separated by a pipe, whitespace,
+# or both. Whitespace only separates where the next URL begins, because long URLs
+# are wrapped across lines mid-query.
+WEBSITE_SPLIT = re.compile(r"\s*\|\s*|\s+(?=https?://|www\.)", re.IGNORECASE)
+
+
+def split_websites(value: str) -> list[str]:
+    websites: list[str] = []
+    for part in WEBSITE_SPLIT.split(value):
+        part = part.strip()
+        if len(part):
+            websites.append(part)
+    return websites
+
 
 def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     name = input_dict.pop("name")
@@ -24,8 +38,7 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     if potential_clone:
         entity.add("description", "Potential clone entity")
 
-    for website in input_dict.pop("website").split(" | "):
-        entity.add("website", website)
+    entity.add("website", split_websites(input_dict.pop("website")))
 
     context.emit(entity)
 

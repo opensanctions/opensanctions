@@ -1,7 +1,6 @@
 import re
 import csv
 import html
-from typing import Optional, List
 
 from rigour.mime.types import CSV
 from zavod.util import ElementOrTree
@@ -75,7 +74,7 @@ def apply_reg_number(context: Context, entity: Entity, reg_number: str) -> None:
         )
 
 
-def parse_company_names(context: Context, value: Optional[str]) -> List[str]:
+def parse_company_names(context: Context, value: str | None) -> list[str]:
     if not value:
         return []
     result = context.lookup("companies", value, warn_unmatched=True)
@@ -427,10 +426,10 @@ def csv_make_ship(context: Context, row: dict[str, str], entity: Entity) -> None
 def get_name_prop(
     context: Context,
     entity: Entity,
-    name: Optional[str],
+    name: str | None,
     name_type: str,
     alias_strength: str,
-) -> Optional[str]:
+) -> str | None:
     if name is None:
         return None
 
@@ -469,7 +468,7 @@ def crawl_csv(context: Context) -> None:
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         # Skip the first metadata row
         next(fh)
         for row in csv.DictReader(fh):
