@@ -53,7 +53,7 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
   format: CSV
 dates:
-  formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d %B %Y’", "%B %Y"]
+  formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d.%m.%Y'", "%d %B %Y’", "%B %Y"]
 
 assertions:
   min:
@@ -100,6 +100,10 @@ lookups:
         values:
           - 1960
           - 1975
+      - match: "Between 1959 and 1965"
+        values:
+          - 1959
+          - 1965
   type.identifier:
     options:
       - match:
@@ -124,6 +128,10 @@ lookups:
         value: ua-lpr
       - match: "so-called “Donetsk People’s Republic”"
         value: ua-dpr
+      - match: "Russia’s occupied part of the Donbass region"
+        values:
+          - ua-dpr
+          - ua-lpr
       - match:
           - "Russian-occupied regions of Zaporizhzhia and Kherson"
           - Moscow, Russian Federation
@@ -132,6 +140,10 @@ lookups:
         values:
           - ua
           - ru
+      # The EU's standard designation for Myanmar. Drop this once a rigour
+      # release resolves the slash form on its own.
+      - match: Myanmar/Burma
+        value: mm
   type.email:
     options:
       - match: "general@angstrem.r"
@@ -172,13 +184,19 @@ lookups:
           - 269/2014
           - 208/2014
         value: EU-UKR
-      - match: 765/2006
+      - match:
+          - 765/2006
+          - 2012/642
         value: EU-BLR
       - match:
           - 2018/1542
           - 2018/1544
         value: EU-CHEM
-      - match: 881/2002
+      - match:
+          - 881/2002
+          # autonomous ISIL/Al-Qaida track of the same program
+          - 2016/1686
+          - 2016/1693
         value: EU-TAQA-EUAQ
       - match: 2022/2319
         value: EU-HTI
@@ -199,6 +217,9 @@ lookups:
       - match:
           - 2001/931
           - 2580/2001
+          # Decision (CFSP) 2026/455 replaced the operative articles of
+          # Common Position 2001/931 in February 2026
+          - 2026/455
         value: EU-TERR
       - match: 1210/2003
         value: EU-IRQ

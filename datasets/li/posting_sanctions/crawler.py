@@ -1,5 +1,5 @@
 import re
-from typing import Any, Optional
+from typing import Any
 from pdfplumber.page import Page
 
 from zavod import Context, Entity
@@ -31,7 +31,7 @@ TITLE_GENDER = {
 PROGRAM_KEY = "LI-ENTSG"
 
 
-def parse_address(context: Context, addr: str) -> Optional[Entity]:
+def parse_address(context: Context, addr: str) -> Entity | None:
     addr = addr.replace("‐", "-")
     addr = context.lookup_value("address_override", addr) or addr
     parts = [p.strip() for p in addr.split(",")]
@@ -55,11 +55,11 @@ def parse_address(context: Context, addr: str) -> Optional[Entity]:
 def crawl_named(
     context: Context,
     name: str,
-    address: Optional[Entity],
+    address: Entity | None,
     date: str,
     url: str,
     type: str,
-) -> Optional[Entity]:
+) -> Entity | None:
     """
     Parses the subjects named in the list. If a company name is split from a
     persons, we emit the person and their relationship, and return the company.

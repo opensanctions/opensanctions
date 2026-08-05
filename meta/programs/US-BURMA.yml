@@ -10,7 +10,8 @@ summary: Targets persons responsible for the February 2021 military coup in
   persons may not deal with them; designated individuals are also barred from
   entry into the United States. A directive additionally prohibits US persons
   from providing financial services to or for the benefit of the state-owned
-  Myanma Oil and Gas Enterprise.
+  Myanma Oil and Gas Enterprise, which is restricted by that directive rather
+  than blocked.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:

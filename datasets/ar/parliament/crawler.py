@@ -8,7 +8,7 @@ from zavod.stateful.positions import categorise
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             person = context.make("Person")
             person.id = context.make_slug(row.pop("ID"))

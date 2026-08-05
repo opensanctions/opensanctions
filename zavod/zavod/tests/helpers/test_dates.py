@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 from structlog.testing import capture_logs
 
 from zavod.context import Context
@@ -94,7 +94,7 @@ def test_apply_date(testdataset1: Dataset):
     # datetime
 
     now = datetime.now()
-    bd = now.astimezone(timezone.utc).date().isoformat()
+    bd = now.astimezone(UTC).date().isoformat()
     with capture_logs() as cap_logs:
         apply_date(person, "birthDate", now)
     assert bd in person.pop("birthDate")

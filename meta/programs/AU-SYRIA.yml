@@ -1,13 +1,27 @@
 id: 194
-title: Syria Sanctions Regime
+title: Syria sanctions framework
 key: AU-SYRIA
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/syria-sanctions-regime
-summary: Since 2011, Australia has imposed autonomous sanctions in relation to Syria
-  to reflect Australia’s grave concern at the Syrian regime’s deeply disturbing and
-  unacceptable use of violence against its people. Australia also gives effect to
-  United Nations Security Council (UNSC) Resolution 2199, which prohibits the trade
-  in cultural property that has been illegally removed from Syria.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/syria-sanctions-framework
+summary: >
+  Targets persons and entities that provided support to the former Assad
+  government or are responsible for human rights abuses in Syria, in
+  response to the regime's violent repression of the Syrian population since
+  2011. Designated persons and entities are subject to an asset freeze, and
+  declared persons are barred from entering or transiting Australia.
+  Country-wide measures prohibit supplying arms and related matériel,
+  communications-interception equipment, luxury goods and other listed goods
+  to Syria. In November 2025, Australia eased sanctions on Syria's financial
+  and energy sectors to support the post-Assad transition, while maintaining
+  targeted financial sanctions on former members of the Assad regime.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - Autonomous (Syria)
 target_territories:
-- sy
+  - sy
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control
+  - Import restrictions

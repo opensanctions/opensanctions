@@ -1,7 +1,7 @@
 from hashlib import sha1
 import shutil
 import plyvel  # type: ignore
-from typing import Optional, Generator, Tuple
+from collections.abc import Generator
 from followthemoney.dataset import Version
 
 from zavod.logs import get_logger
@@ -14,11 +14,11 @@ from zavod.runtime.versions import get_latest
 log = get_logger(__name__)
 
 
-class HashDelta(object):
+class HashDelta:
     def __init__(self, dataset: Dataset):
         self.dataset = dataset
         self.curr = get_latest(dataset.name, backfill=False)
-        self.prev: Optional[Version] = None
+        self.prev: Version | None = None
         self.curr_path = dataset_resource_path(dataset.name, HASH_FILE)
         self.fh = self.curr_path.open("w")
         self.db_path = dataset_state_path(dataset.name) / "hashes"
@@ -38,7 +38,7 @@ class HashDelta(object):
             with obj.open() as fh:
                 for line in fh:
                     entity_id, entity_hash = line.strip().split(":", 1)
-                    key = f"{entity_id}:{version.id}".encode("utf-8")
+                    key = f"{entity_id}:{version.id}".encode()
                     self.db.put(key, entity_hash.encode("utf-8"))
             return
         log.info("No previous hash data found.")
@@ -59,20 +59,20 @@ class HashDelta(object):
         #     f"Hash mismatch for {entity.id}: {entity_hash} != {digest.hexdigest()}"
         # )
         self.fh.write(f"{entity.id}:{entity_hash}\n")
-        key = f"{entity.id}:{self.curr.id}".encode("utf-8")
+        key = f"{entity.id}:{self.curr.id}".encode()
         self.db.put(key, entity_hash.encode("utf-8"))
 
     def _collect(
         self,
-    ) -> Generator[Tuple[str, Optional[str], Optional[str]], None, None]:
+    ) -> Generator[tuple[str, str | None, str | None], None, None]:
         # Use entity_id:version key ordering to set prev_hash if available and
         # compare with curr_hash in the final iteration for that entity_id.
         # More efficient than random access.
 
         with self.db.iterator(include_key=True, fill_cache=False) as it:
-            entity_id: Optional[str] = None
-            prev_hash: Optional[str] = None
-            curr_hash: Optional[str] = None
+            entity_id: str | None = None
+            prev_hash: str | None = None
+            curr_hash: str | None = None
             for key, value in it:
                 new_id, version_id = key.decode("utf-8").split(":", 1)
                 hash = value.decode("utf-8")
@@ -90,7 +90,7 @@ class HashDelta(object):
             if entity_id is not None:
                 yield entity_id, prev_hash, curr_hash
 
-    def generate(self) -> Generator[Tuple[str, str], None, None]:
+    def generate(self) -> Generator[tuple[str, str], None, None]:
         for entity_id, prev_hash, curr_hash in self._collect():
             if prev_hash == curr_hash:
                 continue

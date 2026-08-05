@@ -1,4 +1,5 @@
-from typing import Any, Generator
+from typing import Any
+from collections.abc import Generator
 from zavod.entity import Entity
 from zavod.archive import DELTA_EXPORT_FILE
 from zavod.exporters.common import Exporter, ExportView

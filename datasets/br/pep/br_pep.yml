@@ -27,6 +27,7 @@ publisher:
   country: "br"
 tags:
   - list.pep
+  - list.pep.bulk
 url: https://portaldatransparencia.gov.br/download-de-dados/pep
 data:
   url: https://portaldatransparencia.gov.br/download-de-dados/pep

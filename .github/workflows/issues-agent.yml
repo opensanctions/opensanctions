@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -89,7 +89,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: "pip"
@@ -104,7 +104,13 @@ jobs:
       # aggregate_issues) that the prompt's diagnostic report points at.
       - name: Install maintenance tool dependencies
         if: ${{ !matrix.task.needs_zavod }}
-        run: pip install requests pyyaml
+        run: |
+          # prek + yamllint back contrib/lint_dataset.sh, which the agent runs to
+          # verify its edits; zavod[dev] supplies them on the crawler path.
+          pip install requests pyyaml prek yamllint
+          # poppler-utils (pdftotext/pdftoppm) so the agent can read PDF source
+          # documents even for datasets whose task doesn't install zavod.
+          sudo apt-get install -y -qq poppler-utils
 
       - name: Install system dependencies
         if: ${{ matrix.task.needs_zavod }}
@@ -144,4 +150,17 @@ jobs:
           prompt: ${{ env.TASK_PROMPT }}
           claude_args: "--model ${{ matrix.task.model }} --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
+
+      # The agent opens its PR via mcp__github__create_pull_request, which takes no
+      # labels. The branch name is deterministic, so label it here rather than trusting
+      # the agent to do it. Fails harmlessly when no PR was opened (no fixes needed).
+      - name: Label the PR
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit "${{ matrix.task.branch }}" \
+            --repo "${{ github.repository }}" \
+            --add-label daily-issues
 

@@ -2,7 +2,7 @@ import os
 import re
 import string
 from itertools import count
-from typing import Dict, Any, Optional
+from typing import Any
 from urllib.parse import urljoin
 
 from requests.exceptions import HTTPError, RetryError
@@ -26,17 +26,19 @@ SLEEP = 315
 def http_get(
     context: Context,
     url: str,
-    params: Optional[Dict[str, Any]] = None,
-    cache_days: Optional[int] = None,
-) -> Optional[Dict[str, Any]]:
+    params: dict[str, Any] | None = None,
+    cache_days: int | None = None,
+    tolerate_404: bool = False,
+) -> dict[str, Any] | None:
     for attempt in count(1):
         try:
-            return context.fetch_json(
+            data: dict[str, Any] | None = context.fetch_json(
                 url,
                 params=params,
                 auth=AUTH,
                 cache_days=cache_days,
             )
+            return data
         except (RetryError, HTTPError) as err:
             if isinstance(err, RetryError) or err.response.status_code == 429:
                 if attempt > 5:
@@ -46,14 +48,21 @@ def http_get(
                     error=str(err),
                 )
                 time.sleep(SLEEP)
-            else:
-                context.log.exception("Failed to fetch data: %s" % url)
+            elif tolerate_404 and err.response.status_code == 404:
+                # The search index keeps listing officers whose detail record has
+                # already been withdrawn from the API, e.g. once the disqualification
+                # has lapsed. There is nothing to emit for them.
+                context.log.info(f"Skipping officer with no detail record: {url}")
                 return None
+            else:
+                context.log.exception(f"Failed to fetch data: {url}")
+                return None
+    return None
 
 
 def build_address(
-    context: Context, full: str, address_data: dict[str, Optional[str]]
-) -> Optional[Entity]:
+    context: Context, full: str | None, address_data: dict[str, str | None]
+) -> Entity | None:
     address_components = {
         "street": address_data.get("address_line_1"),
         "street2": address_data.get("premises"),
@@ -92,26 +101,26 @@ def build_address(
     return h.make_address(context, **cleaned_address_components)
 
 
-def resolve_company_name_by_number(
-    context: Context, company_number: str
-) -> Optional[str]:
+def resolve_company_name_by_number(context: Context, company_number: str) -> str | None:
     """If the company_number is found on Companies House, return its name, else None."""
     search_url = f"https://find-and-update.company-information.service.gov.uk/search?q={company_number}"
     doc = context.fetch_html(search_url, cache_days=7)
-    if len(doc.xpath(".//div[@id='no-results']")) > 0:
+    if len(h.xpath_elements(doc, ".//div[@id='no-results']")) > 0:
         return None
-    results = doc.xpath(".//ul[@class='results-list']//a")
+    results = h.xpath_elements(doc, ".//ul[@class='results-list']//a")
     assert len(results) > 0
     for link in results:
-        if f"/company/{company_number}" in link.get("href"):
-            return link.text_content().strip()
+        href = link.get("href")
+        assert href is not None
+        if f"/company/{company_number}" in href:
+            return h.element_text(link)
     return None
 
 
-def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
+def crawl_item(context: Context, listing: dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
-    data = http_get(context, url, cache_days=45)
+    data = http_get(context, url, cache_days=45, tolerate_404=True)
     if data is None:
         return
 
@@ -237,7 +246,7 @@ def crawl(context: Context) -> None:
                 data = http_get(context, context.data_url, params=params, cache_days=1)
                 if data is None:
                     break
-                context.log.info("Search: %s" % letter, start_index=start_index)
+                context.log.info(f"Search: {letter}", start_index=start_index)
                 for item in data.pop("items", []):
                     crawl_item(context, item)
                 start_index = data["start_index"] + data["items_per_page"]

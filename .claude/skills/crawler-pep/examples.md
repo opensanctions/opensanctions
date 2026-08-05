@@ -55,9 +55,11 @@ def crawl_member(
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of Parliament",
+        name="Member of the Parliament of Examplia",
         country="xx",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q...",
+        lang="eng",  # crawler-supplied names are always English
     )
     categorisation = categorise(context, position, default_is_pep=True)
     # Gate even with default_is_pep=True: the position may have been un-flagged
@@ -78,8 +80,12 @@ PEP status is determined by the UI review workflow, not the crawler.
 
 ```python
 def crawl_member(context: Context, row: dict[str, Any]) -> None:
-    role = row.pop("role")
-    position = h.make_position(context, name=role, country="fr")
+    role = row.pop("role")  # source-supplied, in French
+    # No topics: the crawler doesn't know which position this is, so the review and
+    # classification system decides both PEP status and topics.
+    position = h.make_position(
+        context, name=role, country="fr", lang="fra", translate_name=True
+    )
     # default_is_pep=None: defers PEP determination to the UI
     categorisation = categorise(context, position, default_is_pep=None)
 
@@ -116,7 +122,10 @@ Key differences from Pattern A:
 Same `default_is_pep=None` shape as Pattern B, but used for sources where each record names
 a sub-national position (e.g. mayor of municipality X). Two extras:
 
-- Translate the role label to English via a `position` lookup.
+- Translate the role label to English via a `position` lookup. This is only
+  applicable when the source has very few distinct position names (a handful of
+  role labels shared across all municipalities). Otherwise, pass the
+  source-language label with `lang=` and `translate_name=True` as in Pattern B.
 - Pass `subnational_area=...` and **omit `wikidata_id`** — a Wikidata ID would
   collapse every municipality into the same entity.
 
@@ -127,8 +136,9 @@ position = h.make_position(
     context,
     name=f"{res.value} of {commune_label}",   # English name + locality
     country="lu",
+    topics=["gov.muni", "gov.executive"],     # the role and tier are known; only the locality varies
     subnational_area=commune_label,           # NOT wikidata_id — per-locality
-    lang="fra",
+    lang="eng",                               # already English after the lookup
 )
 categorisation = categorise(context, position, default_is_pep=None)
 if not categorisation.is_pep:
@@ -154,12 +164,12 @@ For sources that list officials across known, enumerable position types:
 ```python
 POSITIONS: dict[str, dict[str, Any]] = {
     "dail": {
-        "name": "Member of Dail Eireann",
+        "name": "Member of the Dáil of Ireland",
         "wikidata_id": "Q654291",
     },
     "seanad": {
-        "name": "Senator of Seanad Eireann",
-        "wikidata_id": "Q1396622",
+        "name": "Senator of Ireland",
+        "wikidata_id": "Q18043391",
     },
 }
 
@@ -170,7 +180,9 @@ def crawl(context: Context) -> None:
             context,
             name=config["name"],
             country="ie",
+            topics=["gov.national", "gov.legislative"],
             wikidata_id=config.get("wikidata_id"),
+            lang="eng",
         )
         categorisation = categorise(context, position, default_is_pep=True)
         context.emit(position)

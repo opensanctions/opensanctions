@@ -11,6 +11,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q18524027",
         country="ca",
         topics=["gov.legislative", "gov.national"],
+        lang="eng",
     )
     context.emit(position)
     doc = context.fetch_html(context.data_url)

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 from normality import slugify, squash_spaces
 from zavod.stateful.positions import categorise
@@ -33,8 +33,8 @@ def crawl_leader(
     context: Context,
     country: str,
     source_url: str,
-    section: Optional[str],
-    leader: Dict[str, Any],
+    section: str | None,
+    leader: dict[str, Any],
 ) -> None:
     name = squash_spaces(leader["name"])
     name = name.replace("(Acting)", "")
@@ -96,7 +96,7 @@ def crawl_leader(
 
 
 def crawl_country(context: Context, country: str) -> None:
-    context.log.debug("Crawling country: %s" % country)
+    context.log.debug(f"Crawling country: {country}")
     country_slug = slugify(country.replace("'", ""), sep="-")
     data_url = DATA_URL % country_slug
     source_url = WEB_URL % country_slug

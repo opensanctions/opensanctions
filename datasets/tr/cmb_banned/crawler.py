@@ -1,5 +1,4 @@
 import json
-from typing import Dict
 import re
 
 from rigour.mime.types import JSON
@@ -9,7 +8,7 @@ from zavod import Context, helpers as h
 REGEX_MASK = re.compile(r"(\d+)\*+")
 
 
-def crawl_item(row: Dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str], context: Context) -> None:
     name = row.pop("unvan")
     if not name:
         return
@@ -56,7 +55,7 @@ def crawl_item(row: Dict[str, str], context: Context) -> None:
     context.emit(sanction)
 
     if row.get("davaBilgisi") and row.get("davaBilgisi") not in ["Yok", "Var"]:
-        context.log.warning("Dava bilgisi var: %s" % row)
+        context.log.warning(f"Dava bilgisi var: {row}")
     context.audit_data(
         row,
         ignore=[
@@ -71,7 +70,7 @@ def crawl_item(row: Dict[str, str], context: Context) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as file:
+    with open(path) as file:
         data = json.load(file)
     for item in data:
         crawl_item(item, context)

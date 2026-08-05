@@ -41,7 +41,7 @@ tags:
 names:
   schema_rules:
     Person:
-      reject_chars: [",", ";"]
+      reject_chars: ",;"
 
 assertions:
   min:

@@ -27,7 +27,11 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
     doc = context.fetch_html(person_url, cache_days=7)
 
     # Article
-    article = doc.find('.//div[@itemprop="articleBody"]').find(".//p")
+    article_body = doc.find('.//div[@itemprop="articleBody"]')
+    assert article_body is not None
+    article = article_body.find(".//p")
+    assert article is not None
+    assert article.text is not None
     person.add("notes", article.text.strip())
     # Fields
     for field_name in FIELD_NAMES:
@@ -41,12 +45,14 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
         values = column.findall('./span[@class="field-value "]')
 
         for label, value in dict(zip(labels, values)).items():
+            assert value.text is not None
             label_text = slugify(label.text)
             if label_text == "sex":
                 person.add("gender", value.text.strip())
             elif label_text == "ethnic-appearance":
                 person.add("ethnicity", value.text.strip())
             elif label_text == "additional-information":
+                assert article.text is not None
                 person.add("notes", [article.text.strip(), value.text.strip()])
             elif label_text == "height":
                 person.add("height", value.text.strip())

@@ -26,6 +26,7 @@ data:
   format: HTML
 tags:
   - list.pep
+  - list.pep.bulk
 publisher:
   name: ანტიკორუფციული ბიურო
   name_en: Anti-Corruption bureau of Georgia

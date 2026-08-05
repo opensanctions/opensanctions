@@ -1,5 +1,6 @@
 import re
-from typing import Optional, Dict, Any, Generator
+from typing import Any
+from collections.abc import Generator
 from rigour.ids import LEI
 from lxml import html
 
@@ -8,8 +9,8 @@ from zavod import Context, helpers as h
 
 def get_json(
     context: Context, batch_size: int
-) -> Generator[Dict[str, Any], None, None]:
-    params: Dict[str, Any] = {
+) -> Generator[dict[str, Any], None, None]:
+    params: dict[str, Any] = {
         "q": "*",
         "rows": batch_size,
         "start": 0,
@@ -18,13 +19,12 @@ def get_json(
     cont = True
     while cont:
         resp = context.fetch_json(context.data_url, params=params)
-        for doc in resp["response"]["docs"]:
-            yield doc
+        yield from resp["response"]["docs"]
         params["start"] += batch_size
         cont = resp["response"]["numFound"] >= params["start"]
 
 
-def parse_name(name_markup: str) -> Optional[str]:
+def parse_name(name_markup: str) -> str | None:
     """
     Remove markup from name if present.
     """

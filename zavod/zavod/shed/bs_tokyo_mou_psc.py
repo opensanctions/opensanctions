@@ -15,17 +15,16 @@ This module is shared between two MoU crawlers:
 
 import re
 from lxml import html
-from typing import Optional, Dict
 from urllib3 import Retry
 
 from zavod import Context, helpers as h
 
 
-def make_search_data(page: int, search_data: Dict[str, str]) -> Dict[str, str]:
+def make_search_data(page: int, search_data: dict[str, str]) -> dict[str, str]:
     return {**search_data, "Page": str(page)}
 
 
-def parse_total_pages(tree: html.HtmlElement) -> Optional[int]:
+def parse_total_pages(tree: html.HtmlElement) -> int | None:
     found_li = tree.xpath(
         "//ul[@class='navigate']/li[starts-with(normalize-space(.), 'Found')]"
     )
@@ -50,7 +49,7 @@ def emit_unknown_link(
 
 
 def crawl_vessel_row(
-    context: Context, str_row: Dict[str, str | None], inspection_date: str
+    context: Context, str_row: dict[str, str | None], inspection_date: str
 ) -> str:
     ship_name = str_row.pop("ship_name")
     imo = str_row.pop("imo_number")
@@ -101,7 +100,7 @@ def crawl_vessel_row(
     return vessel.id
 
 
-def crawl_company_details(context: Context, str_row: Dict[str, str | None]) -> str:
+def crawl_company_details(context: Context, str_row: dict[str, str | None]) -> str:
     company_name = str_row.pop("name")
     company_imo = str_row.pop("imo_number")
     company = context.make("Company")
@@ -122,7 +121,7 @@ def crawl_company_details(context: Context, str_row: Dict[str, str | None]) -> s
 def crawl_vessel_page(
     context: Context,
     shipuid: str,
-    headers: Dict[str, str],
+    headers: dict[str, str],
     getships_url: str,
 ) -> None:
     context.log.debug(f"Processing shipuid: {shipuid}")
@@ -193,8 +192,8 @@ def crawl_vessel_page(
 def crawl_psc_records(
     context: Context,
     *,
-    headers: Dict[str, str],
-    search_data: Dict[str, str],
+    headers: dict[str, str],
+    search_data: dict[str, str],
     getinspection_url: str,
     getships_url: str,
 ) -> None:

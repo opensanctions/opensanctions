@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
@@ -12,7 +12,7 @@ STATUS = {
 }
 
 
-def crawl_person(context: Context, item: Dict[str, Any]) -> None:
+def crawl_person(context: Context, item: dict[str, Any]) -> None:
     person_id = item.pop("id")
     person = context.make("Person")
     person.id = context.make_slug(person_id)
@@ -24,10 +24,10 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         last_name=item.pop("lastName"),
     )
 
-    country: Dict[str, str] = item.pop("country", {})
+    country: dict[str, str] = item.pop("country", {})
     person.add("citizenship", country.pop("value"))
 
-    function: Dict[str, str] = item.pop("memberFunction")
+    function: dict[str, str] = item.pop("memberFunction")
     function_name = function.pop("value")
     position_name = f"{function_name} of the European Committee of the Regions"
     position = h.make_position(

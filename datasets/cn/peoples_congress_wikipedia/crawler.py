@@ -1,13 +1,15 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Generator, cast
+from typing import cast
+from collections.abc import Generator
 from normality import squash_spaces
 from lxml.html import HtmlElement
 import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
-from zavod.shed.trans import ENGLISH, apply_translit_full_name
+from zavod.shed.trans import apply_translit_full_name
+from zavod.util import LangText
 
 
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
@@ -37,7 +39,6 @@ IGNORE_DUPES = {
     # https://zh.wikipedia.org/wiki/%E7%8E%8B%E6%B0%B8%E7%BA%A2
     "cn-npc-wik-86fc6c8c076a7e4ed86efaec46620d13ea327908",
 }
-TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def clean_text(text: str) -> str:
@@ -92,7 +93,7 @@ def crawl_item(
     entity.add("citizenship", "cn")
 
     entity.add("name", name, lang="chi")
-    apply_translit_full_name(context, entity, "chi", name, TRANSLIT_OUTPUT)
+    apply_translit_full_name(context, entity, LangText(name, "chi"))
     entity.add("gender", gender)
     entity.add("ethnicity", ethnicity, lang="chi")
     h.apply_date(entity, "birthDate", birth_date)
@@ -107,7 +108,12 @@ def crawl_item(
         entity.add("position", positions.text_content().split("\n"), lang="chi")
 
     position = h.make_position(
-        context, "Member of the National People’s Congress", country="cn"
+        context,
+        "Member of the National People's Congress of China",
+        country="cn",
+        topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q10891456",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
 
@@ -196,7 +202,7 @@ def expand_rowspan_cells(
 
 def parse_table(
     context: Context, table: HtmlElement
-) -> Generator[Dict[str, HtmlElement], None, None]:
+) -> Generator[dict[str, HtmlElement], None, None]:
     headers = None
     rowspans: dict[int, PendingRowspan] = {}
     for row in table.findall(".//tr"):

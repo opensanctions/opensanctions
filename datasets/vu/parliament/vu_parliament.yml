@@ -1,0 +1,60 @@
+title: Vanuatu Members of Parliament
+name: vu_parliament
+prefix: vu-parl
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-17
+load_statements: true
+# Zyte fetching requires API credentials unavailable in CI.
+ci_test: false
+summary: >-
+  The unicameral national legislature of the Republic of Vanuatu
+description: |
+  Current and historical members of the Parliament of Vanuatu, the country's unicameral
+  national legislature. Its 52 members are directly elected from multi- and single-member
+  constituencies for four-year terms — though the composition changes frequently through
+  motions of no confidence and by-elections — and hold the country's legislative power,
+  including passing laws and approving the budget.
+
+  This dataset records each member with their name, political party, and constituency,
+  reaching back over the terms in which service still implies political exposure. Members
+  who left partway through a term — by death, court sentence or electoral petition — are
+  included, with a note on the circumstance where the source gives one. The ministerial,
+  committee and presiding-officer roles the source lists next to each member are not
+  captured.
+url: https://parliament.gov.vu/
+publisher:
+  name: Parliament of the Republic of Vanuatu
+  description: >
+    The Parliament of Vanuatu is the country's supreme legislative body, elected from
+    constituencies across the archipelago. It publishes the roster of each legislature
+    on its own website, alongside the bills and committee work of the sitting term.
+  url: https://parliament.gov.vu/
+  country: vu
+  official: true
+data:
+  url: https://parliament.gov.vu/
+  format: HTML
+  lang: eng
+
+names:
+  prefixes_strip:
+    - "Hon "
+    - Hon.
+
+tags:
+  - list.pep
+
+# Raise the minimum to about 275 once the position is categorised as `gov.national`.
+assertions:
+  min:
+    schema_entities:
+      Person: 140
+      Position: 1
+    country_entities:
+      vu: 140
+  max:
+    schema_entities:
+      Person: 650
+      Position: 1

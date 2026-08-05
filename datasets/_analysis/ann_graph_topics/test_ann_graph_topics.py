@@ -6,8 +6,6 @@ that captures emitted patches, and asserts on the set of ``(target_id, topic)``
 pairs that came out.
 """
 
-from typing import Dict, List, Optional, Tuple
-
 from nomenklatura.resolver import Linker
 from nomenklatura.store.memory import MemoryStore
 from zavod import Context, Dataset, Entity
@@ -31,13 +29,13 @@ class FakeContext(Context):
     def __init__(self, dataset: Dataset = GRAPH) -> None:
         self.dataset = dataset
         self.log = get_logger(dataset.name)
-        self.emitted: List[Tuple[Entity, bool]] = []
+        self.emitted: list[tuple[Entity, bool]] = []
 
     def emit(
         self,
         entity: Entity,
         external: bool = False,
-        origin: Optional[str] = None,
+        origin: str | None = None,
     ) -> None:
         self.emitted.append((entity, external))
 
@@ -45,17 +43,22 @@ class FakeContext(Context):
 def _entity(
     schema: str,
     id: str,
-    properties: Optional[Dict[str, List[str]]] = None,
+    properties: dict[str, list[str]] | None = None,
     dataset: Dataset = SOURCE,
+    external: bool = False,
 ) -> Entity:
-    return Entity.from_data(
+    entity = Entity.from_data(
         dataset,
         {"schema": schema, "id": id, "properties": properties or {}},
     )
+    if external:
+        for stmt in entity.statements:
+            stmt._external = True
+    return entity
 
 
 def _store(
-    entities: List[Entity], scope: Dataset = SOURCE
+    entities: list[Entity], scope: Dataset = SOURCE
 ) -> MemoryStore[Dataset, Entity]:
     linker: Linker[Entity] = Linker({})
     store: MemoryStore[Dataset, Entity] = MemoryStore(scope, linker)
@@ -69,9 +72,9 @@ def _store(
     return store
 
 
-def _emits(ctx: FakeContext) -> List[Tuple[str, str]]:
+def _emits(ctx: FakeContext) -> list[tuple[str, str]]:
     """Flatten captured emits to ``(target_id, topic)`` pairs."""
-    out: List[Tuple[str, str]] = []
+    out: list[tuple[str, str]] = []
     for entity, _external in ctx.emitted:
         assert entity.id is not None
         for topic in entity.get("topics"):
@@ -79,7 +82,7 @@ def _emits(ctx: FakeContext) -> List[Tuple[str, str]]:
     return out
 
 
-def _analyze(entities: List[Entity], source_id: str) -> FakeContext:
+def _analyze(entities: list[Entity], source_id: str) -> FakeContext:
     store = _store(entities)
     view = store.view(SOURCE, external=True)
     source = view.get_entity(source_id)
@@ -184,12 +187,14 @@ def test_sanction_linked_skipped_if_target_already_seed() -> None:
     assert _emits(ctx) == []
 
 
-# ---- rule_ownership_descent ---------------------------------------------
+# ---- sanction.linked is non-transitive ---------------------------------
 
 
-def test_ownership_descent_emits_on_asset() -> None:
-    # An owner already tagged sanction.linked (as if from a prior run) pushes
-    # the tag one hop further to its asset.
+def test_sanction_linked_does_not_propagate_transitively() -> None:
+    # An entity carrying only sanction.linked (not a sanction seed, not in
+    # a sanction.control chain) must not push sanction.linked to its asset.
+    # Multi-tier reach for sanction.linked comes exclusively from the
+    # sanction.control co-emit.
     ctx = _analyze(
         [
             _entity("Company", "parent", {"topics": ["sanction.linked"]}),
@@ -201,40 +206,6 @@ def test_ownership_descent_emits_on_asset() -> None:
             _entity("Company", "child"),
         ],
         source_id="parent",
-    )
-    assert ("child", "sanction.linked") in _emits(ctx)
-
-
-def test_ownership_descent_does_not_ascend() -> None:
-    # From the asset side, the rule must not push the tag up to the owner.
-    ctx = _analyze(
-        [
-            _entity("Company", "parent"),
-            _entity(
-                "Ownership",
-                "own",
-                {"owner": ["parent"], "asset": ["child"]},
-            ),
-            _entity("Company", "child", {"topics": ["sanction.linked"]}),
-        ],
-        source_id="child",
-    )
-    assert _emits(ctx) == []
-
-
-def test_ownership_descent_ignores_non_ownership_edges() -> None:
-    # Directorship is out of scope for the descent rule.
-    ctx = _analyze(
-        [
-            _entity("Person", "director", {"topics": ["sanction.linked"]}),
-            _entity(
-                "Directorship",
-                "dir",
-                {"director": ["director"], "organization": ["co"]},
-            ),
-            _entity("Company", "co"),
-        ],
-        source_id="director",
     )
     assert _emits(ctx) == []
 
@@ -551,6 +522,59 @@ def test_emit_patch_preserves_non_legalentity_schema() -> None:
     )
     patches = {e.id: e for e, _ in ctx.emitted}
     assert patches["sec1"].schema.name == "Security"
+
+
+# ---- emit_patch external-ness --------------------------------------------
+
+
+def _patch_external(ctx: FakeContext, target_id: str) -> bool:
+    flags = {ext for entity, ext in ctx.emitted if entity.id == target_id}
+    assert len(flags) == 1, flags
+    return flags.pop()
+
+
+def test_patch_internal_for_published_target() -> None:
+    # The spouse has internal source statements, so the derived topic is
+    # published along with them.
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity("Family", "fam", {"person": ["pep"], "relative": ["spouse"]}),
+            _entity("Person", "spouse", {"name": ["Jane Doe"]}),
+        ],
+        source_id="pep",
+    )
+    assert _patch_external(ctx, "spouse") is False
+
+
+def test_patch_external_for_passenger_target() -> None:
+    # The spouse only exists as an external enrichment passenger; tagging it
+    # must not, on its own, pull it into the published export.
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity("Family", "fam", {"person": ["pep"], "relative": ["spouse"]}),
+            _entity("Person", "spouse", {"name": ["Jane Doe"]}, external=True),
+        ],
+        source_id="pep",
+    )
+    assert _patch_external(ctx, "spouse") is True
+
+
+def test_patch_external_despite_prior_own_patch() -> None:
+    # A previously emitted internal patch must not keep the target internal
+    # once its source data has been demoted to external: analyzer statements
+    # are discounted when judging published substance.
+    ctx = _analyze(
+        [
+            _entity("Person", "pep", {"topics": ["role.pep"]}),
+            _entity("Family", "fam", {"person": ["pep"], "relative": ["spouse"]}),
+            _entity("Person", "spouse", {"name": ["Jane Doe"]}, external=True),
+            _entity("Person", "spouse", {"topics": ["role.rca"]}, dataset=GRAPH),
+        ],
+        source_id="pep",
+    )
+    assert _patch_external(ctx, "spouse") is True
 
 
 # ---- non_graph_topics ---------------------------------------------------

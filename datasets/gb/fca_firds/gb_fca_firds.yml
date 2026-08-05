@@ -51,6 +51,11 @@ assertions:
     schema_entities:
       Organization: 30_000
       Security: 5_000_000
+    property_fill_rate:
+      # Issuer Organizations are keyed by LEI and only carry a leiCode; FIRDS
+      # provides no issuer name, so the default name fill-rate does not apply.
+      Organization:
+        name: 0
   max:
     schema_entities:
       Organization: 70_000

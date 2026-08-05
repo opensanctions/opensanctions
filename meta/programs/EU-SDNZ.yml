@@ -1,16 +1,25 @@
 id: 85
-title: EU Restrictive Measures In View Of Activities Undermining The Stability And
-  The Political Transition Of Sudan
+title: EU Restrictive measures in view of activities undermining the stability
+  and the political transition of Sudan
 key: EU-SDNZ
 url: https://sanctionsmap.eu/#/main/details/57/
-summary: These sanctions target individuals and entities in Sudan involved in actions
-  that undermine stability and the political transition. The measures include asset
-  freezes, travel bans, and restrictions on trade to support Sudan's transition to
-  a stable and democratic governance.
+summary: An EU-autonomous framework adopted in October 2023 in response to the
+  armed conflict between the Sudanese Armed Forces and the Rapid Support Forces.
+  It targets persons and entities responsible for activities undermining the
+  stability and the political transition of Sudan, including obstruction of the
+  peace process and serious human rights violations, under Council Decision
+  (CFSP) 2023/2135 and Regulation (EU) 2023/2147. Designated persons and
+  entities are subject to an asset freeze, and natural persons to a ban on
+  entry into or transit through the EU. The regime operates alongside the older
+  EU framework on Sudan that implements the UN Darfur measures.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EU) 2023/2147
+  - Decision (CFSP) 2023/2135
+  - SDNZ
 target_territories:
-- sd
+  - sd
 measures:
-- Asset freeze
-- Travel ban
+  - Asset freeze
+  - Travel ban

@@ -3,8 +3,9 @@ from functools import lru_cache
 from normality import stringify
 from prefixdate import parse_formats
 from rigour.dates import ended_before
-from datetime import datetime, date, timedelta, timezone
-from typing import Tuple, Union, Iterable, Set, Optional, List, TYPE_CHECKING
+from datetime import datetime, date, timedelta, UTC
+from typing import TYPE_CHECKING
+from collections.abc import Iterable
 from followthemoney import registry
 
 from zavod.logs import get_logger
@@ -19,7 +20,7 @@ log = get_logger(__name__)
 NUMBERS = re.compile(r"\b\d+\b")
 # We always want to accept ISO prefix dates.
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
-DateValue = Union[str, date, datetime, None]
+DateValue = str | date | datetime | None
 MAX_ENFORCEMENT_DAYS = 365 * 5
 
 __all__ = [
@@ -33,7 +34,7 @@ __all__ = [
 ]
 
 
-def extract_years(text: str) -> List[str]:
+def extract_years(text: str) -> list[str]:
     """Try to locate year numbers in a string such as 'circa 1990'. This will fail if
     any numbers that don't look like years are found in the string, a strong indicator
     that a more precise date is encoded (e.g. '1990 Mar 03').
@@ -46,7 +47,7 @@ def extract_years(text: str) -> List[str]:
     Returns:
         a set of year strings.
     """
-    years: Set[str] = set()
+    years: set[str] = set()
     for match in NUMBERS.finditer(text):
         year = match.group()
         number = int(year)
@@ -76,9 +77,9 @@ def replace_months(dataset: Dataset, text: str) -> str:
 def extract_date(
     dataset: Dataset,
     text: DateValue,
-    formats: Optional[Tuple[str]] = None,
+    formats: tuple[str] | None = None,
     fallback_to_original: bool = True,
-) -> List[str]:
+) -> list[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.
     If the text doesn't match any format, returns the original text.
@@ -89,7 +90,7 @@ def extract_date(
         return [text.isoformat()]
     elif isinstance(text, datetime):
         if text.tzinfo is not None:
-            text = text.astimezone(timezone.utc)
+            text = text.astimezone(UTC)
         iso = text.date().isoformat()
         return [iso]
     elif isinstance(text, str):
@@ -114,8 +115,8 @@ def apply_date(
     entity: Entity,
     prop: str,
     text: DateValue,
-    formats: Optional[Tuple[str]] = None,
-    original_value: Optional[str] = None,
+    formats: tuple[str] | None = None,
+    original_value: str | None = None,
 ) -> None:
     """Apply a date value to an entity, parsing it if necessary and cleaning it up.
 
@@ -132,7 +133,7 @@ def apply_date(
     """
     prop_ = entity.schema.get(prop)
     if prop_ is None or prop_.type != registry.date:
-        log.warning("Property is not a date: %s" % prop, text=text)
+        log.warning(f"Property is not a date: {prop}", text=text)
         return
 
     if not isinstance(text, str):

@@ -164,7 +164,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.dataset.data.url)
     json_path = dataset_data_path(context.dataset.name) / "source.json"
 
-    with open(path, "r") as fh:
+    with open(path) as fh:
         html = fh.read()
     match = REGEX_DATOS.search(html)
     assert match is not None, "Could not find `var datos = ...` in source HTML"

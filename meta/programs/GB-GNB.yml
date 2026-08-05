@@ -2,8 +2,24 @@ id: 238
 title: UK sanctions relating to the Republic of Guinea-Bissau
 key: GB-GNB
 url: https://www.gov.uk/government/collections/uk-sanctions-on-the-republic-of-guinea-bissau
-summary: Measures targeting entities and individuals in Guinea-Bissau.
-issuer: gb_ofsi
+summary: Targets people and entities involved in actions that undermine the
+  peace, security or stability of the Republic of Guinea-Bissau, continuing
+  measures the EU imposed after the April 2012 military coup. Designated
+  persons are subject to an asset freeze, and designated individuals are barred
+  from entering or transiting the United Kingdom. Persons subject to the UN
+  travel ban under Security Council resolution 2048 (2012) are separately
+  excluded under UK immigration rules; the regime imposes no goods or services
+  sanctions.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Republic of Guinea-Bissau
+  - Resolution 2048
+  - SI 2019/554
+  - The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019
+  - UNSCR 2048
 target_territories:
-- gw
+  - gw
+measures:
+  - Asset freeze
+  - Travel ban
