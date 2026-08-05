@@ -1,10 +1,9 @@
 import re
 
-from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
-
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
+from zavod.stateful.positions import PositionCategorisation, categorise
 
 # The two member listings that together make up the Legislative Assembly.
 MEMBER_SECTIONS = ("peoples-representatives", "nobles-representatives")
