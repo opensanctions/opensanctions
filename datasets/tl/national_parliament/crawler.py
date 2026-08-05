@@ -1,9 +1,10 @@
 import re
 
-from zavod import Context
-from zavod import helpers as h
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 # The site is unreachable from ordinary egress (TCP timeout — geo/host-restricted), so it
 # is fetched through the Zyte API with browser rendering.
