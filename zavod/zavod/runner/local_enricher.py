@@ -1,6 +1,5 @@
 import logging
-from decimal import Decimal
-from typing import Generator, Iterator, List, Tuple
+from collections.abc import Generator, Iterator
 from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
 
@@ -18,7 +17,13 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
-from zavod.runner.util import check_enrich_topics, should_promote
+from zavod.runner.util import (
+    check_publishability,
+    emit_external_reference_stub,
+    is_analyzer_stub,
+    prune_unpublishable_references,
+    should_promote,
+)
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
@@ -29,31 +34,20 @@ class LocalEnricher(BaseEnricher[Dataset]):
     """
     Uses a local index to look up entities in a given dataset.
 
-    Candidates are selected for matching using search index. Candidates are then scored
-    by the matching algorithm to determine if they are a match.
-
-    Entities that have the same rounded score from the blocking index can be
-    considered to be binned together. Many match candidates with very similar names
-    might score the same, or similarly and only one or a small number might eventually be
-    considered a match.
-
-    You don't want to cut off scoring too early using `index_options.max_candidates`,
-    so use `max_bin` to configure the number of bins to step through before halting
-    a given search.
-
-    e.g. if the second 116 in index scores 118, 118, 118, 116, 116, 107 is the
-    positive match, cutting off at rank 4 would miss it out, but cutting off at bin 2
-    means all 116s are considered, the positive match is included. Other cases where
-    index scores are more spread out would score a smaller number of items.
+    The blocking index selects candidates for each subject entity, returning a
+    ranked list already trimmed inside its matching query: at most
+    `index_options.max_candidates` (default 75) candidates per subject, each
+    scoring at least `index_options.min_score_ratio` (default 0.1) of that
+    subject's best candidate. Every candidate in the list is then scored by the
+    matching algorithm, so those two options directly set the matcher CPU cost
+    per subject.
 
     Args:
         `config`: a dictionary of configuration options.
           `dataset`: `str` - the name of the dataset to enrich against.
           `cutoff`: `float` - (default 0.5) the minimum score required to be a match.
-          `limit`: `int` - (default 5) the maximum number of top scoring matches
+          `limit`: `int` - (default 10) the maximum number of top scoring matches
             to return.
-          `max_bin`: `int` - (default 10) the maximum number of rounded index score
-            bins to consider from a given search result.
           `algorithm`: `str` (default logic-v1) - the name of the algorithm
               to use for matching.
           `index_options`: `dict` - options to pass to the index.
@@ -84,7 +78,6 @@ class LocalEnricher(BaseEnricher[Dataset]):
         self._algorithm_config = _algorithm.default_config()
         self._cutoff = float(config.get("cutoff", 0.5))
         self._limit = int(config.get("limit", 10))
-        self._max_bin = int(config.get("max_bin", 10))
 
     def close(self) -> None:
         self.target_store.close()
@@ -92,8 +85,10 @@ class LocalEnricher(BaseEnricher[Dataset]):
 
     def candidates(
         self, subjects: Iterator[Entity]
-    ) -> Generator[Tuple[Identifier, BlockingMatches], None, None]:
-        entity_generator = (e for e in subjects if self._filter_entity(e))
+    ) -> Generator[tuple[Identifier, BlockingMatches], None, None]:
+        entity_generator = (
+            e for e in subjects if self._filter_entity(e) and not is_analyzer_stub(e)
+        )
         yield from self._index.match_entities(entity_generator)
 
     def match_candidates(
@@ -106,18 +101,8 @@ class LocalEnricher(BaseEnricher[Dataset]):
         if same_id_match is not None:
             yield same_id_match
 
-        scores: List[Tuple[float, Entity]] = []
-        last_rounded_score = None
-        bin = 0
-
-        for match_id, index_score in candidates:
-            rounded_score = round(Decimal(index_score), 0)
-            if rounded_score != last_rounded_score:
-                bin += 1
-                last_rounded_score = rounded_score
-            if bin >= self._max_bin:
-                break
-
+        scores: list[tuple[float, Entity]] = []
+        for match_id, _index_score in candidates:
             match = self.target_view.get_entity(match_id.id)
             if match is None:
                 continue
@@ -136,7 +121,7 @@ class LocalEnricher(BaseEnricher[Dataset]):
             yield proxy
 
     def _traverse_nested(
-        self, entity: Entity, path: List[str] = []
+        self, entity: Entity, path: list[str] = []
     ) -> Generator[Entity, None, None]:
         """Expand starting from a match, recursing to related non-edge entities"""
         assert entity.id is not None
@@ -164,6 +149,10 @@ class LocalEnricher(BaseEnricher[Dataset]):
     def expand_wrapped(
         self, entity: Entity, match: Entity
     ) -> Generator[Entity, None, None]:
+        """Yield the confirmed match itself, followed by entities related to
+        it in the external source (e.g. officers, owners, family members).
+
+        Only yields if ``entity`` passes the filter."""
         if not self._filter_entity(entity):
             return
         yield from self.expand(match)
@@ -190,34 +179,45 @@ def save_match(
     # Store previously confirmed matches to the database and make
     # them visible:
     if judgement == Judgement.POSITIVE:
-        context.log.info("Enrich [%s]: %r" % (entity, match))
+        context.log.info(f"Enrich [{entity}]: {match!r}")
         expanded = list(enricher.expand_wrapped(entity, match))
         expanded = [adj for adj in expanded if not check_person_cutoff(adj)]
 
         if topic_gated:
-            topic_matches = check_enrich_topics(expanded, subject_view, enrich_topics)
+            # The first expansion result is the confirmed match itself. Keep it
+            # visible; gate the graph context that follows it on risk topics assigned
+            # by the subject datasets and analyzers or being supporting schemata.
+            publishable = check_publishability(expanded, subject_view, enrich_topics)
             for adj in expanded:
-                context.emit(adj, external=not should_promote(adj, topic_matches))
+                external = not should_promote(adj, publishable)
+                if not external:
+                    pruned = prune_unpublishable_references(context, adj, publishable)
+                    emit_external_reference_stub(context, adj, pruned)
+                context.emit(adj, external=external)
         else:
             for adj in expanded:
                 context.emit(adj, external=False)
 
 
 def enrich(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     # The Context resolver is read-only here (save_match only reads judgements),
     # so its load commits as a no-op along with the cache via context.close().
-    context.log.info(
-        "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
-    )
+    context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")
 
     config = dict(context.dataset.config)
     topic_gated: bool = bool(config.get("topic_gated", False))
     enricher = LocalEnricher(context.dataset, context.cache, config)
-    enrich_topics: frozenset[str] = frozenset(enricher._filter_topics)
+    # The same resolved set gates expansion context (check_publishability) and
+    # filters which subject entities are matched and expanded at all
+    # (BaseEnricher._filter_entity). That coupling guarantees the confirmed match
+    # always passes the gate, so supporting entities never publish disconnected.
+    enrich_topics: frozenset[str] = frozenset(enricher.filter_topics)
     if topic_gated and not enrich_topics:
-        context.log.warning(
-            "topic_gated=True but no topics configured; all expanded entities will be external"
+        raise ValueError(
+            "topic_gated=True requires `topics` to be configured: without a "
+            "subject topic filter, expansion of untagged matches would emit "
+            "disconnected supporting entities."
         )
 
     subject_store = get_store(scope, context.resolver)
@@ -226,6 +226,9 @@ def enrich(context: Context) -> None:
     # resolver is in-memory after the load.
     context.flush()
     subject_store.sync()
+    # When topic-gated, read the subject store including external statements so
+    # the analyzer's topic patches on ingested-but-untagged neighbours are
+    # visible.
     subject_view = subject_store.view(scope, external=topic_gated)
 
     reset_caches()
@@ -241,10 +244,10 @@ def enrich(context: Context) -> None:
             if entity_idx > 0 and entity_idx % 100 == 0:
                 context.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
-                context.log.info("Enriched %s entities..." % entity_idx)
+                context.log.info(f"Enriched {entity_idx} entities...")
             subject_entity = subject_view.get_entity(entity_id.id)
             if subject_entity is None:
-                context.log.error("Missing entity: %r" % entity_id)
+                context.log.error(f"Missing entity: {entity_id!r}")
                 continue
             try:
                 for match in enricher.match_candidates(subject_entity, candidate_set):
@@ -258,9 +261,7 @@ def enrich(context: Context) -> None:
                         enrich_topics,
                     )
             except EnrichmentException as exc:
-                context.log.error(
-                    "Enrichment error %r: %s" % (subject_entity, str(exc))
-                )
+                context.log.error(f"Enrichment error {subject_entity!r}: {str(exc)}")
         context.log.info("Enrichment process complete.")
     finally:
         enricher.close()

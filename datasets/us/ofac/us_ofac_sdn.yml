@@ -56,6 +56,23 @@ assertions:
       Company: 20
       Security: 5
       LegalEntity: 3
+    # Set at roughly a quarter of the production fill rate: low enough that a
+    # shift in the shape of the source data doesn't hold up the release, high
+    # enough to catch a crawler that stopped parsing a field altogether.
+    property_fill_rate:
+      Person:
+        birthDate: 0.25
+        nationality: 0.18
+      Organization:
+        country: 0.25
+      Vessel:
+        imoNumber: 0.25
+        flag: 0.25
+      Sanction:
+        program: 0.25
+        # Guards against a program mapping regression: `program` stays filled from
+        # the source tag even when no tag resolves to a program key.
+        programId: 0.25
   max:
     schema_entities:
       Address: 32280
@@ -210,15 +227,9 @@ lookups:
           - CAATSA - IRAN
           - CAATSA - RUSSIA
         value: US-CAATSA
-      - match:
-          - Non-SDN Palestinian Legislative Council List
-          - CAPTA List
-          - FSE List
-          - Non-SDN CMIC List
-          - Non-SDN Menu-Based Sanctions List
-          - Non-SDN Palestinian Legislative Council List
-          - Sectoral Sanctions Identifications List
-        value: null
+      # Consolidated-list names are not mapped here: this dataset only emits
+      # sanctions for SDN List entries, which are keyed by their program tag.
+      # us_ofac_cons maps the consolidated lists in its own config. cf. #4980
   script.lang:
     options:
       - match: Arab
@@ -692,6 +703,7 @@ lookups:
         value: null
       - match: Moscow
         value: Moscow
+        # Mapped to itself to silence address to short warning.
       - match: Qom
         value: Qom
       - match: Eyl
@@ -714,6 +726,14 @@ lookups:
         value: Zug
       - match: Moa
         value: Moa
+      - match: DE
+        value: DE
+      - match: IL
+        value: IL
+      - match: TX
+        value: TX
+      - match: CA
+        value: CA
   type.country:
     lowercase: true
     normalize: true
@@ -741,6 +761,11 @@ lookups:
         value: female
       - match: MALE
         value: male
+  type.url:
+    options:
+      # Missing slash in the scheme separator:
+      - match: https:/keremetbank.kg
+        value: https://keremetbank.kg
   type.text:
     options:
       - match: <Head Office>;

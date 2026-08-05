@@ -21,6 +21,8 @@ description: |
 
   This dataset currently includes the following projects:
   - [The Aliyev Empire](https://atlas.thesentry.org/azerbaijan-aliyev-empire/)
+tags:
+  - risk.klepto
 publisher:
   name: The Sentry
   acronym: Sentry

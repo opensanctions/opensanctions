@@ -1,13 +1,25 @@
 id: 97
-title: EU Measures Protecting Against The Effects Of The Extra-Territorial Application
-  Of Certain US Legislation
+title: EU Measures protecting against the effects of the extra-territorial
+  application of certain US legislation
 key: EU-US-LEG
 url: https://sanctionsmap.eu/#/main/details/38/
-summary: These measures aim to protect EU individuals and entities from the effects
-  of the extra-territorial application of certain US laws. The measures include blocking
-  statutes and other regulations to shield EU businesses from penalties and restrictions
-  imposed by US legislation that affects international trade and investment.
+summary: The EU Blocking Statute, Regulation (EC) No 2271/96, protects EU
+  operators against the extra-territorial application of the third-country
+  laws listed in its annex, currently US sanctions legislation concerning
+  Cuba and Iran. It is not a restrictive-measures regime and designates no
+  persons or entities; instead it prohibits EU operators from complying with
+  the listed US laws unless authorised by the European Commission, bars the
+  recognition or enforcement in the EU of foreign judgments giving effect to
+  them, and allows EU operators to recover damages caused by their
+  application.
 issuer: eu_council
 dataset: eu_fsf
+aliases:
+  - Regulation (EC) No 2271/96
+  - EU Blocking Statute
+  - Blocking Statute
+  - Joint Action 96/668/CFSP
+  - Measures protecting against the effects of the extra-territorial
+    application of certain legislation adopted by the US
 target_territories:
-- us
+  - us

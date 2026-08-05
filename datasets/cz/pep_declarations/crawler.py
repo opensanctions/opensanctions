@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 from requests.exceptions import HTTPError
 
@@ -37,7 +37,7 @@ IGNORE = [
 ]
 
 
-def crawl_person(context: Context, item: Dict[str, Any]) -> None:
+def crawl_person(context: Context, item: dict[str, Any]) -> None:
     person_id = item.pop("id")
     first_name = item.pop("firstName")
     last_name = item.pop("lastName")

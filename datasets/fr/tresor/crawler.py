@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Any, Dict, Optional
+from typing import Any
 
 from banal import ensure_list
 from datapatch import Lookup
@@ -85,7 +85,7 @@ TEXT_KEYS = {
 }
 
 
-def clean_key(key: str) -> Optional[str]:
+def clean_key(key: str) -> str | None:
     return slugify(key)
 
 
@@ -168,9 +168,15 @@ def identifier_value_is_single_value(context: Context, value: str) -> bool:
 def parse_identification(
     context: Context,
     entity: Entity,
-    value: Dict[str, str],
+    value: dict[str, str],
 ) -> None:
-    """Parse the identification field and add the appropriate properties to the entity."""
+    """Parse the identification field and add the appropriate properties to the entity.
+
+    The field is free text following a loose "<label>: <value>" convention, so the
+    segment splitting below is heuristic and regularly needs per-value overrides.
+    Warnings emitted here are fixed by adding an option to the `identification_full`
+    lookup, whose leading comment holds the rules for doing so.
+    """
     comment = value.pop("Commentaire")
     content = value.pop("Identification")
     full = f"{comment}: {content}".strip(SEPARATORS)
@@ -194,8 +200,10 @@ def parse_identification(
                 prop_value = segment[len(key) :].strip(SEPARATORS)
 
                 if not identifier_value_is_single_value(context, prop_value):
-                    # Likely multiple values, which we don't auto-parse.
-                    # Add an override to identification_segment (or identification_full if the splitting doesn't make sense) or a type.country datapatch.
+                    # Likely multiple values, which we don't auto-parse. Fix with an
+                    # option under the `identification_full` lookup in
+                    # fr_tresor_gels_avoir.yml (read the comment above that lookup
+                    # first), or a type.country datapatch.
                     context.log.warning(
                         "Cannot reliably parse value.",
                         value=prop_value,
@@ -221,11 +229,9 @@ def parse_identification(
                 # We found what this key means, no need to try other keys.
                 break
         else:
-            # When processing this as part of daily issues, here are some options:
-            # a) add a new key to TEXT_KEYS if it seems like it might be/become common
-            # b) add a new lookup to identification_segment to map the segment
-            # c) add a new lookup to identification_full if the splitting failed or you want to match the full segment
-            #      for some other reason
+            # Fix with an option under the `identification_full` lookup in
+            # fr_tresor_gels_avoir.yml (read the comment above that lookup first), or,
+            # if you are a human, with a new TEXT_KEYS key.
             context.log.warning(
                 f'Failed to parse identification segment: "{segment}"',
                 segment=segment,
@@ -238,7 +244,7 @@ def apply_prop(
     entity: Entity,
     sanction: Entity,
     field: str,
-    value: Dict[str, Any],
+    value: dict[str, Any],
 ) -> None:
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"), lang="fra")
@@ -301,7 +307,7 @@ def apply_prop(
         )
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
+def crawl_entity(context: Context, data: dict[str, Any]) -> None:
     # context.inspect(data)
     nature = data.pop("Nature")
     reg_id = data.pop("IdRegistre")
@@ -364,7 +370,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url, headers=HEADERS)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         data = json.load(fh)
 
     publications = data.get("Publications")

@@ -26,6 +26,7 @@ def make_member_position(context: Context, substitute: bool) -> Entity:
         topics=["gov.national", "gov.legislative"],
         # Only the full member position has a dedicated Wikidata item.
         wikidata_id=None if substitute else "Q21328607",
+        lang="eng",
     )
 
 

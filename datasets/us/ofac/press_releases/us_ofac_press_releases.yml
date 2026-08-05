@@ -69,3 +69,5 @@ lookups:
         values:
           - eg
           - mt
+      - match: U.S. National
+        value: us

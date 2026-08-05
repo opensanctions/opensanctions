@@ -1,8 +1,10 @@
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract.zyte_api import ZyteAPIRequest, ZyteScrapeType, fetch as zyte_fetch
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
+
+from zavod import Context
+from zavod import helpers as h
 
 
 def split_name(name: str) -> tuple[str, str] | tuple[None, None]:
@@ -25,7 +27,7 @@ def crawl_node(
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
-    url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id
+    url = f"http://www.europarl.europa.eu/meps/en/{mep_id}"
     person.add("sourceUrl", url)
     name = node.findtext(".//fullName")
     assert name is not None
@@ -76,6 +78,22 @@ def crawl_node(
 
 
 def crawl(context: Context) -> None:
+    # The European Parliament put the MEP list endpoint behind an AWS WAF
+    # JavaScript challenge (HTTP 202 with an x-amzn-waf-action: challenge
+    # header), which neither a direct fetch nor Zyte's plain HTTP mode can
+    # pass. Solve the challenge in a Zyte browser session, then reuse the
+    # issued aws-waf-token cookie for the actual XML fetch.
+    page_result = zyte_fetch(
+        context,
+        ZyteAPIRequest(
+            url=context.data_url,
+            scrape_type=ZyteScrapeType.BROWSER_HTML,
+            response_cookies=True,
+        ),
+    )
+    for cookie in page_result.cookies or []:
+        context.http.cookies[cookie["name"]] = cookie["value"]
+
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)

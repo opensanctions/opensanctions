@@ -1,8 +1,9 @@
 from abc import ABC
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from hashlib import sha1
 from logging import getLogger
-from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Optional, TypeVar
+from collections.abc import Callable
 
 import orjson
 from lxml.html import fromstring, tostring
@@ -34,19 +35,19 @@ MODIFIED_BY_CRAWLER = "zavod"
 class SchemaGenerator(GenerateJsonSchema):
     def generate(
         self, schema: CoreSchema, mode: JsonSchemaMode = "validation"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         json_schema = super().generate(schema, mode=mode)
         json_schema["$schema"] = self.schema_dialect
         return json_schema
 
 
-class Review(BaseModel, Generic[ModelType]):
+class Review[ModelType: BaseModel](BaseModel):
     """
     A review is the smallest unit of data that's convenient to extract data from and review,
     along with info about the source data, whether it's been accepted, and by who.
     """
 
-    id: Optional[int] = None
+    id: int | None = None
     key: str
     """A SHA1 hash derived from key_parts that uniquely and consistently identifies
     the review within the dataset."""
@@ -61,12 +62,12 @@ class Review(BaseModel, Generic[ModelType]):
     source_label: str
     """Used to indicate the context of the source value to the reviewer,
     e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"."""
-    source_url: Optional[str] = None
-    data_model: Type[ModelType]
+    source_url: str | None = None
+    data_model: type[ModelType]
     crawler_version: int
     _original_extraction: JsonValue = PrivateAttr()
     """Only to be edited by the crawler"""
-    origin: Optional[str] = None
+    origin: str | None = None
     _extracted_data: JsonValue = PrivateAttr()
     """Editable by the reviewer"""
     accepted: bool
@@ -74,7 +75,7 @@ class Review(BaseModel, Generic[ModelType]):
     """The crawl version that last saw this review key"""
     modified_at: datetime
     modified_by: str
-    deleted_at: Optional[datetime] = None
+    deleted_at: datetime | None = None
 
     # Lazily validating the pydantic model fields lets us populate the Review
     # and check self.crawler_version before validating the data, which is useful
@@ -111,7 +112,7 @@ class Review(BaseModel, Generic[ModelType]):
     def load(
         cls,
         session: Session,
-        data_model: Type[ModelType],
+        data_model: type[ModelType],
         stmt: Select,  # type: ignore
     ) -> Optional["Review[ModelType]"]:
         res = session.execute(stmt)
@@ -128,7 +129,7 @@ class Review(BaseModel, Generic[ModelType]):
 
     @classmethod
     def by_key(
-        cls, session: Session, data_model: Type[ModelType], dataset: str, key: str
+        cls, session: Session, data_model: type[ModelType], dataset: str, key: str
     ) -> Optional["Review[ModelType]"]:
         select_stmt = select(review_table).where(
             review_table.c.dataset == dataset,
@@ -160,7 +161,7 @@ class Review(BaseModel, Generic[ModelType]):
                 session.execute(
                     update(review_table)
                     .where(review_table.c.id == self.id)
-                    .values(deleted_at=datetime.now(timezone.utc))
+                    .values(deleted_at=datetime.now(UTC))
                 )
             ins = insert(review_table).values(**values)
             result = session.execute(ins)
@@ -220,11 +221,11 @@ class SourceValue(ABC):
     re-review.
     """
 
-    key_parts: str | List[str]
+    key_parts: str | list[str]
     """Parts that are SHA1-hashed to produce the review key."""
     mime_type: str
     label: str
-    url: Optional[str]
+    url: str | None
     value_string: str
 
     def matches(self, review: Review[ModelType]) -> bool:
@@ -236,10 +237,10 @@ class TextSourceValue(SourceValue):
 
     def __init__(
         self,
-        key_parts: str | List[str],
+        key_parts: str | list[str],
         label: str,
         text: str,
-        url: Optional[str] = None,
+        url: str | None = None,
     ):
         """
         Args:
@@ -273,10 +274,10 @@ class JSONSourceValue(SourceValue):
 
     def __init__(
         self,
-        key_parts: str | List[str],
+        key_parts: str | list[str],
         label: str,
         data: JsonValue,
-        url: Optional[str] = None,
+        url: str | None = None,
     ):
         """
         Args:
@@ -303,7 +304,7 @@ class HtmlSourceValue(SourceValue):
 
     def __init__(
         self,
-        key_parts: str | List[str],
+        key_parts: str | list[str],
         label: str,
         element: Element,
         url: str,
@@ -334,7 +335,7 @@ class HtmlSourceValue(SourceValue):
         return element_text_hash(seen_element) == element_text_hash(self.element)
 
 
-def review_key(parts: str | List[str]) -> str:
+def review_key(parts: str | list[str]) -> str:
     """Generates a stable 40-char SHA1 key for a review.
     String normalization should be no more aggressive than source value matching,
     so that two source values don't match as keys but appear to be changing source values.
@@ -350,7 +351,7 @@ def review_key(parts: str | List[str]) -> str:
     return digest.hexdigest()
 
 
-def review_extraction(
+def review_extraction[ModelType: BaseModel](
     context: Context,
     source_value: SourceValue,
     original_extraction: ModelType,
@@ -389,7 +390,7 @@ def review_extraction(
 
     data_model = type(original_extraction)
     schema = data_model.model_json_schema(schema_generator=SchemaGenerator)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     review = Review[ModelType].by_key(
         context.db, data_model, dataset=context.dataset.name, key=key_slug

@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from normality import collapse_spaces
 
@@ -6,7 +6,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
+def crawl_entity(context: Context, data: dict[str, Any]) -> None:
     name_raw = data.pop("title")
     if not name_raw:
         return

@@ -1,12 +1,19 @@
 id: 205
-title: Significant Cyber Incidents Sanctions Regime
+title: Significant cyber incidents sanctions framework
 key: AU-CYB
-url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/significant-cyber-incidents-sanctions-regime
-summary: Australia established a thematic autonomous sanctions regime in relation
-  to significant cyber incidents on 21 December 2021. Unlike a country-specific autonomous
-  sanctions regime, a thematic autonomous sanctions regime applies to sanctionable
-  conduct wherever it occurs in the world.
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/significant-cyber-incidents-sanctions-framework
+summary: Targets persons and entities that have caused, attempted to cause, assisted
+  with, or otherwise been complicit in a significant cyber incident, meaning a
+  cyber-enabled event that results in or seeks to cause harm to Australia or another
+  country, wherever in the world the conduct occurs. Designated persons and entities
+  are subject to an asset freeze, and declared natural persons are barred from
+  entering or transiting through Australia.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - "Autonomous (Thematic - Cyber)"
 target_territories:
-- ip
+  - ip
+measures:
+  - Asset freeze
+  - Travel ban

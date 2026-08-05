@@ -265,6 +265,7 @@ def get_position(
             country="om",
             topics=["gov.national", "gov.legislative"],
             wikidata_id=chamber.position_qids.get(kind),
+            lang="eng",
         )
         categorisation = categorise(context, position, default_is_pep=True)
         context.emit(position)

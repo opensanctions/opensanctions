@@ -66,6 +66,8 @@ prohibitions, not low priorities.
 
 The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` property should ideally capture the position and its jurisdiction, but be no more specific than that.
 
+Pass `topics` for positions the crawler names itself, where it knows which position it is building. Omit them for positions read out of the source data, where the review and classification system decides. The vocabulary is described in the [PEP methodology](https://www.opensanctions.org/docs/pep/methodology/).
+
 !!! info "Supplying Wikidata QIDs"
     Most political positions in the world already exist in Wikidata. If your crawler emits only
     a small number of positions, it is best practice to look up the Wikidata QIDs for these
@@ -75,15 +77,32 @@ The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` 
 
 Do
 
-- write the position in English. Use the standard English term for the role
-  (e.g. `Mayor`, not `Bourgmestre`). Preserve native-language terminology only for
-  proper nouns of specific institutions where translation would obscure the
-  reference (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
-  When the source labels roles in another language, declare a `position` lookup
-  in the YAML to translate each label before passing it to `h.make_position`.
+- write the position in English when the crawler supplies the name itself. Use
+  the standard English term for the role (e.g. `Mayor`, not `Bourgmestre`).
+  Preserve native-language terminology only for proper nouns of specific
+  institutions where translation would obscure the reference
+  (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
+- always pass `lang=` to `h.make_position` declaring the language of the name you
+  pass. `lang=` describes the position name specifically, and if you omit it the
+  helper falls back to the dataset's `data.lang` (`lang or context.lang`) — both to
+  label the stored name and to decide whether to translate. So when the crawler
+  supplies an English name (the standard case) over a source whose `data.lang` is
+  another language, pass `lang="eng"` explicitly, e.g. a `data.lang: spa` source
+  whose crawler emits `Member of the Congress of the Republic` must pass
+  `lang="eng"` — otherwise the English name is treated as Spanish (and, with
+  `translate_name=True`, wrongly sent to the translator). When the position name
+  comes from the source in a non-English language, pass it unmodified with
+  `translate_name=True` — the helper translates it to English and derives the
+  entity ID from the untranslated name, keeping IDs stable. When the source has
+  only very few distinct labels, a `position` lookup in the YAML translating them
+  to English is an acceptable alternative.
 - include the role
 - include the organizational body where needed
-- include the specific geographic jurisdiction where relevant
+- include the specific geographic jurisdiction where relevant. A national position's
+  name should be recognizable as belonging to that country to someone reading the
+  name on its own — either construction works, a nationality adjective (`Member of
+  the Swedish Riksdag`) or an of-phrase (`Member of the Senate of the Italian
+  Republic`).
 - refer to [Wikidata EveryPolitician](https://www.wikidata.org/wiki/Wikidata:WikiProject_every_politician)
   for examples, specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871).
   Much careful work has been done there on defining positions in understandable
@@ -99,7 +118,7 @@ Avoid
 
 - Prefer `United States representative` over `Member of the House of Representatives` -
   while it's true that they're a member of the house of representatives, the
-  common generic term is United States representative.
+  common generic term is United States representative, and it names the country.
 - Prefer `Member of the Landtag of Mecklenburg-Vorpommern` over `Member of the Landtag of Mecklenburg-Vorpommern, Germany` -
   the country is already captured
   as a property of the entity.

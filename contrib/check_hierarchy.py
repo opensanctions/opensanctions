@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Set
 
 from zavod.logs import get_logger, configure_logging
-from zavod.meta import Dataset, get_catalog
+from zavod.meta import Dataset, load_directory_catalog
 
 log = get_logger("check_hierarchy")
 
@@ -12,12 +12,10 @@ InDir = click.Path(dir_okay=True, readable=True, file_okay=False, path_type=Path
 
 
 @click.command()
-@click.argument("datasets_path", type=InDir)
-def main(datasets_path: Path):
+@click.argument("datasets_path", type=InDir, required=False)
+def main(datasets_path: Path | None):
     configure_logging(level=logging.INFO)
-    catalog = get_catalog()
-    for path in datasets_path.glob("**/*.y*ml"):
-        catalog.load_yaml(path)
+    catalog = load_directory_catalog(datasets_path)
 
     collections: Set[Dataset] = set()
     children: Set[Dataset] = set()

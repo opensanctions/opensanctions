@@ -1,7 +1,6 @@
 import re
 import math
 from itertools import count
-from typing import Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -86,7 +85,7 @@ def crawl_person(context: Context, url: str) -> None:
                 if len(date) > 1:
                     h.apply_date(person, "birthDate", date)
         elif key in IGNORE_FIELDS:
-            note = "%s: %s" % (key, value)
+            note = f"{key}: {value}"
             person.add("notes", note)
         else:
             context.log.warn("Unknown field in table", key=key, value=value)
@@ -111,14 +110,14 @@ def crawl_person(context: Context, url: str) -> None:
 
 
 def crawl_type(context: Context, *, query_type: str, query_id: str) -> None:
-    total_pages: Optional[int] = None
+    total_pages: int | None = None
     total_xpath = './/div[@class="row top-total"]//p'
     for page in count(1):
         if total_pages is not None and page > total_pages:
             break
         url = FBI_URL % (query_type, query_id, page)
         # print(url)
-        context.log.info("Fetching %s" % url)
+        context.log.info(f"Fetching {url}")
         doc = fetch_html(context, url, total_xpath)
 
         if total_pages is None:

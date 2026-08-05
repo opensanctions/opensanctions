@@ -3,7 +3,8 @@ from pathlib import Path
 from rigour.time import utc_now, datetime_iso
 from banal import is_mapping, hash_data
 from datetime import datetime
-from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
+from typing import Any, TypedDict, BinaryIO, cast
+from collections.abc import Generator
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path, get_dataset_artifact
@@ -14,22 +15,22 @@ class Issue(TypedDict):
     id: int
     timestamp: datetime
     level: str
-    module: Optional[str]
+    module: str | None
     dataset: str
-    message: Optional[str]
-    entity_id: Optional[str]
-    entity_schema: Optional[str]
-    data: Dict[str, Any]
+    message: str | None
+    entity_id: str | None
+    entity_schema: str | None
+    data: dict[str, Any]
 
 
-class DatasetIssues(object):
+class DatasetIssues:
     """A log of issues that occurred during the running and export of a dataset."""
 
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-        self.fh: Optional[BinaryIO] = None
+        self.fh: BinaryIO | None = None
 
-    def write(self, event: Dict[str, Any]) -> None:
+    def write(self, event: dict[str, Any]) -> None:
         if self.fh is None:
             path = dataset_resource_path(self.dataset.name, ISSUES_LOG)
             self.fh = open(path, "ab")
@@ -87,16 +88,16 @@ class DatasetIssues(object):
             for line in fh:
                 yield cast(Issue, orjson.loads(line))
 
-    def by_level(self) -> Dict[str, int]:
+    def by_level(self) -> dict[str, int]:
         """Count the number of issues by severity level."""
-        levels: Dict[str, int] = {}
+        levels: dict[str, int] = {}
         for issue in self.all():
             level = issue.get("level")
             if level is not None:
                 levels[level] = levels.get(level, 0) + 1
         return levels
 
-    def export(self, path: Optional[Path] = None) -> None:
+    def export(self, path: Path | None = None) -> None:
         """Export the issues log to a consolidated file."""
         if path is None:
             path = dataset_resource_path(self.dataset.name, ISSUES_FILE)

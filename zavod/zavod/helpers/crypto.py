@@ -1,5 +1,4 @@
 import re
-from typing import Optional, Dict
 
 # Credit: https://gist.github.com/MBrassey/623f7b8d02766fa2d826bf9eca3fe005
 
@@ -27,7 +26,7 @@ CRYPTOS = {
 CRYPTOS_RE = {k: re.compile(v) for k, v in CRYPTOS.items()}
 
 
-def extract_cryptos(text: Optional[str]) -> Dict[str, str]:
+def extract_cryptos(text: str | None) -> dict[str, str]:
     """Extract cryptocurrency addresses from text.
 
     Args:
@@ -36,7 +35,7 @@ def extract_cryptos(text: Optional[str]) -> Dict[str, str]:
     Returns:
         A set of cryptocurrency IDs, with currency code.
     """
-    out: Dict[str, str] = {}
+    out: dict[str, str] = {}
     if text is None:
         return out
     for currency, v in CRYPTOS_RE.items():

@@ -1,7 +1,11 @@
 import shutil
 from copy import deepcopy
 
+import pytest
+from nomenklatura.blocker.index import BlockingMatches
 from nomenklatura.judgement import Judgement
+from nomenklatura.resolver import Identifier
+from structlog.testing import capture_logs
 
 from zavod import settings
 from zavod.entity import Entity
@@ -9,6 +13,7 @@ from zavod.archive import clear_data_path, dataset_state_path
 from zavod.context import Context
 from nomenklatura.db import make_session
 from zavod.crawl import crawl_dataset
+from zavod.exc import RunFailedException
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
@@ -186,6 +191,27 @@ def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
+def test_full_candidate_list_scored(vcontext: Context):
+    """The blocker hands over a ranked, pre-trimmed candidate list; every entry
+    in it gets matcher-scored. A true match at the tail of the list, behind a
+    long run of widely-spread higher index scores, must still be found (the
+    former max_bin walk would have halted before reaching it)."""
+    crawl_dataset(vcontext.dataset)
+    enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
+    entity = Entity.from_data(vcontext.dataset, UMBRELLA_CORP)
+
+    candidates: BlockingMatches = [
+        (Identifier.get(f"osv-no-such-entity-{i}"), 130.0 - i * 10.0) for i in range(12)
+    ]
+    candidates.append((Identifier.get("osv-umbrella-corp"), 3.0))
+
+    results = list(enricher.match_candidates(entity, candidates))
+    assert len(results) == 1, results
+    assert str(results[0].id) == "osv-umbrella-corp", results[0]
+
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
 def test_cutoff(vcontext: Context):
     """We don't match an entity if its score is lower than the cutoff."""
     crawl_dataset(vcontext.dataset)
@@ -214,9 +240,90 @@ def test_limit(vcontext: Context):
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
+def test_topic_gated_requires_topics(testdataset1: Dataset):
+    """topic_gated without `topics` is a config error: subjects wouldn't be
+    topic-filtered, so untagged matches could emit disconnected supporting
+    entities."""
+    crawl_dataset(testdataset1)
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
+    with pytest.raises(RunFailedException):
+        crawl_dataset(enricher_ds)
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_topic_gated_prunes_unpublishable_references(
+    testdataset_securities: Dataset, testdataset_enrich_subject: Dataset
+):
+    """A promoted entity referencing an entity that isn't published internally
+    (e.g. a security whose issuer has no risk topic) is emitted without that
+    reference, so the published dataset has no dangling references."""
+    clear_data_path(testdataset_enrich_subject.name)
+    crawl_dataset(testdataset_securities)  # enriching against this
+
+    # The subject store holds a security with a gating topic, but no issuer.
+    subject_security = {
+        "schema": "Security",
+        "id": "sub-isin-a",
+        "properties": {"name": ["AAA USD ISK"], "topics": ["reg.warn"]},
+    }
+    subject_ctx = Context(testdataset_enrich_subject)
+    subject_ctx.emit(Entity.from_data(testdataset_enrich_subject, subject_security))
+    subject_ctx.close()
+
+    # Confirm the match (committed on block exit, before the enrich crawl)
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        canon_id = resolver.decide("osv-isin-a", "sub-isin-a", Judgement.POSITIVE)
+
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    dataset_data["config"]["topics"] = ["reg.warn"]
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset_securities.name)
+    clear_data_path(enricher_ds.name)
+    with capture_logs() as cap_logs:
+        crawl_dataset(enricher_ds)
+    assert {
+        "event": "Demoting reference to unpublishable entity to external",
+        "log_level": "info",
+        "entity_id": "osv-isin-a",
+        "prop": "issuer",
+        "ref": "osv-lei-a",
+    } in cap_logs
+
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(enricher_ds, resolver)
+        store.sync(clear=True)
+        view_internal = store.view(enricher_ds, external=False)
+        view_all = store.view(enricher_ds, external=True)
+
+        # The matched security is published, without the dangling issuer ref.
+        security = view_internal.get_entity(canon_id)
+        assert security is not None
+        assert security.get("issuer") == [], security.get("issuer")
+
+        # The issuer has no gating topic in the subject store → external only.
+        assert view_internal.get_entity("osv-lei-a") is None
+        assert view_all.get_entity("osv-lei-a") is not None
+
+        # The pruned reference is kept in an external stub so the graph
+        # analyzer can still discover the relationship and tag the issuer.
+        security_all = view_all.get_entity(canon_id)
+        assert security_all is not None
+        assert "osv-lei-a" in security_all.get("issuer")
+        store.close()
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
 def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
     """With topic_gated=True, the matched entity (which has a topic) is emitted
-    internal; adjacent entities not in the subject store are emitted external."""
+    internal; an adjacent untagged risk-target entity is emitted external. Once
+    that neighbour is tagged in the subject store, a subsequent run promotes
+    both the node and the connecting edge to internal."""
     clear_data_path(testdataset_enrich_subject.name)
     crawl_dataset(testdataset_enrich_subject)  # enriching this
     crawl_dataset(testdataset1)  # enriching against this

@@ -2,8 +2,26 @@ id: 253
 title: UK sanctions relating to Syria
 key: GB-SYR
 url: https://www.gov.uk/government/collections/uk-sanctions-on-syria
-summary: Measures addressing conflict and issues in Syria.
-issuer: gb_ofsi
+summary: Targets persons involved in repressing the civilian population in
+  Syria, in chemical weapons activities, or in undermining democracy, the rule
+  of law or a peaceful transition in Syria. Designated persons are subject to
+  an asset freeze, a travel ban and director disqualification. Country-wide
+  measures prohibit exporting to Syria military goods, chemical and biological
+  weapons-related items, and goods usable for internal repression or for
+  interception and monitoring, and prohibit importing military goods from
+  Syria; most sectoral energy, transport and financial restrictions aimed at
+  the Assad government have been revoked, though dealing in bonds it issued
+  remains prohibited.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - SI 2019/792
+  - The Syria (Sanctions) (EU Exit) Regulations 2019
 target_territories:
-- sy
+  - sy
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Export control
+  - Financial restrictions
+  - Travel ban

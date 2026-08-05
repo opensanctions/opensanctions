@@ -99,8 +99,10 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Legislative Assembly of Queensland",
         country="au",
+        topics=["gov.state", "gov.legislative"],
         subnational_area="Queensland",
         wikidata_id="Q18526194",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)

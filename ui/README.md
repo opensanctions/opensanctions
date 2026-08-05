@@ -20,20 +20,26 @@ See [Data Reviews](../zavod/docs/data_reviews.md)
 
 At this point you'll want to start using Postgres for development.
 
-See [the documentation on how to install `zavod`](../zavod/docs/install.md) to bring up a local database.
-
 Zavod uses sqlite by default. The review UI doesn't support sqlite because the querybuilder doesn't support both sqlite and postgres out of the box, and once you're working with reviews, you'll often want both zavod and the review UI connected to the database concurrently, while sqlite doesn't support multiple processes using the same database file concurrently.
+
+`docker-compose.dev.yml` in the repo root has a `db` service for local development. See [the documentation on how to install `zavod`](../zavod/docs/install.md#running-a-database) for details, or just:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d db
+```
 
 Set environment variables, e.g. via .env.local file
 
 ```
+ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
 ZAVOD_ALLOW_UNAUTHENTICATED=true  # Unsafe if an untrusted network can reach this
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
-Then run
+Then, from this `ui/` directory, with the Node version we run in production (see `FROM node:...` in [`Dockerfile`](Dockerfile), e.g. via `nvm use 24`):
 
 ```bash
+npm install
 npm run dev
 ```
 

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from rigour.dates import ended_before, starts_after
 
 from zavod import helpers as h
@@ -12,9 +10,7 @@ from zavod.stateful import programs
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 
 
-def lookup_sanction_program_key(
-    context: Context, source_key: Optional[str]
-) -> Optional[str]:
+def lookup_sanction_program_key(context: Context, source_key: str | None) -> str | None:
     """Lookup the sanction program key based on the source key."""
     res = context.lookup("sanction.program", source_key)
     if res is None:
@@ -26,12 +22,12 @@ def lookup_sanction_program_key(
 def make_sanction(
     context: Context,
     entity: Entity,
-    key: Optional[str] = None,
-    program_name: Optional[str] = None,
-    source_program_key: Optional[str] = None,
-    program_key: Optional[str] = None,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
+    key: str | None = None,
+    program_name: str | None = None,
+    source_program_key: str | None = None,
+    program_key: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
 ) -> Entity:
     """Create and return a sanctions object derived from the dataset metadata.
 

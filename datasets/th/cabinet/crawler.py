@@ -70,7 +70,7 @@ def crawl(context: Context) -> None:
         page_links = h.xpath_strings(
             doc, "//ul[contains(@class,'pagination')]//a[@class='page-link']/text()"
         )
-        max_page = max((int(p) for p in page_links if p.strip().isdigit()))
+        max_page = max(int(p) for p in page_links if p.strip().isdigit())
         assert max_page is not None
         if page >= max_page:
             break

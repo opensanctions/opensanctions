@@ -1,0 +1,21 @@
+title: Ordinance on the Freezing of Assets in Connection with Ukraine (SR 196.127.67)
+key: CH-FIAA-UA
+url: https://www.fedlex.admin.ch/eli/cc/2016/325/de
+summary: >
+  Froze the Swiss-held assets of former Ukrainian president Viktor Yanukovych
+  and members of his entourage under the Foreign Illicit Assets Act, in support
+  of Ukrainian criminal proceedings and mutual legal assistance. The ordinance
+  expired on 27 February 2023 after the Federal Council opened administrative
+  confiscation proceedings covering over CHF 130 million in assets frozen in
+  Switzerland, which keep those assets blocked pending the courts' decision.
+issuer: ch_fdfa
+dataset: ch_fiaa_freezes
+aliases:
+  - Ukraine-Verordnung
+  - O-Ukraine
+  - SR 196.127.67
+target_territories:
+  - ua
+measures:
+  - Asset freeze
+status: legacy

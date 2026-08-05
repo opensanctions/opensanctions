@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import cast
 import re
 
 from zavod import Context
@@ -47,13 +47,13 @@ def crawl_item(card: Element, context: Context) -> None:
     else:
         res = context.lookup("subtitle_to_names", subtitle)
         if res:
-            names = cast("List[str]", res.names)
+            names = cast("list[str]", res.names)
         else:
             # Try to look up based on the detail URL
             url_to_name_res = context.lookup("url_to_names", detail_url)
 
             if url_to_name_res:
-                names = cast("List[str]", url_to_name_res.names)
+                names = cast("list[str]", url_to_name_res.names)
             else:
                 context.log.warning(
                     "Can't find the name of the company in subtitle, skipping",
