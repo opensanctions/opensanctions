@@ -10,10 +10,14 @@ ci_test: true
 summary: >-
   Lower chamber of Parliament, 125 members elected by proportional vote
 description: |
-  Current members of the National Assembly, the lower chamber of the Parliament of
-  Cambodia. Its 125 members are directly elected from the provinces under proportional
-  representation for a five-year term and hold the country's legislative power, including
-  passing laws and approving the budget.
+  Current and historical members of the National Assembly, the lower chamber of the
+  Parliament of Cambodia. Its 125 members are directly elected from the provinces under
+  proportional representation for a five-year term and hold the country's legislative
+  power, including passing laws and approving the budget.
+
+  Coverage starts with the fifth legislature, elected in 2013, the earliest one whose
+  membership the Assembly publishes as text rather than as scanned images. Members are
+  dated by the years of the legislature they served, which are the only dates published.
 url: https://nac.org.kh/group-article/117
 publisher:
   name: National Assembly of Cambodia
@@ -25,6 +29,10 @@ publisher:
   country: kh
   official: true
 data:
+  # The page of the sitting (7th) legislature. Its navigation carries the switcher listing
+  # every legislature, which is where the crawler discovers the other terms. Each new
+  # legislature is published under a new group-article id, and the crawler fails until this
+  # URL is updated to the newest one.
   url: https://nac.org.kh/group-article/117
   format: HTML
   lang: khm
@@ -32,14 +40,73 @@ data:
 tags:
   - list.pep
 
+# Members are listed with an honorific, and the honorific a member is styled with changes
+# over their career (a doctorate, or elevation to Samdech), so it has to come off the name
+# for a member serving several legislatures to resolve to one person. These are the exact
+# forms the rosters use; `honorific_roots` below catches any form not listed here.
+names:
+  prefixes_strip:
+    - ឯកឧត្តម
+    - លោកជំទាវ
+    - ឯកឧត្តមបណ្ឌិត
+    - ឯកឧត្តមកិត្តិសេដ្ឋាបណ្ឌិត
+    - សម្តេចក្រឡាហោម
+    - សម្តេចពិជ័យសេនា
+    - សម្តេចអគ្គមហាពញាចក្រី
+    - ឯកឧត្តមកិត្តិនីតិកោសលបណ្ឌិត
+    - លោកជំទាវកិត្តិសង្គហបណ្ឌិត
+    - សម្តេចចៅហ្វាវាំងវរវៀងជ័យអធិបតីស្រឹង្គារ
+    - សម្តេចអគ្គមហាសេនាបតីតេជោ
+    - ឯកឧត្តមកិត្តិបណ្ឌិត
+    - ឯកឧត្តមអគ្គបណ្ឌិតសភាចារ្យ
+    - ព្រះអង្គម្ចាស់
+    - សម្តេចកិត្តិសង្គហបណ្ឌិត
+    - សម្តេចក្រុមព្រះ
+    - សម្តេចមហាបវរធិបតី
+    - សម្តេចមហារដ្ឋសភាធិការធិបតី
+    - ឯកឧត្តមបណ្ឌិតរដ្ឋ
+    - ឯកឧត្តមសន្តិបណ្ឌិត
+    - ឯកឧត្តមសាស្រ្តាចារ្យ
+    - ឯកឧត្តមអភិសន្តិបណ្ឌិត
+
+config:
+  # The roster table's column headings, in order: number, name, constituency, party. The
+  # crawler reads the cells by position and checks the headings against this list, so a
+  # renamed or reordered column fails the crawl instead of mixing up properties.
+  roster_columns:
+    - ល.រ
+    - នាម និង គោត្តនាម
+    - មណ្ឌល
+    - គណបក្សនយោបាយ
+  # Every honorific the rosters use starts with one of these words. A name that still
+  # starts with one of them after `names.prefixes_strip` has run carries a form the
+  # dataset has not seen, and needs adding to that list.
+  honorific_roots:
+    - ឯកឧត្តម
+    - លោកជំទាវ
+    - សម្តេច
+    - ព្រះអង្គម្ចាស់
+  # Legislatures whose members cannot be read off the site. The 1st, 2nd and 4th publish
+  # their rosters only as scanned images (e.g. https://nac.org.kh/Images/NA4_name1.jpg),
+  # and https://nac.org.kh/group-article/49 publishes no member names at all for the 3rd,
+  # only the list of its constituencies. This is a closed set: every other legislature in
+  # the switcher must publish a roster table, or the crawl fails.
+  legislatures_without_roster:
+    - 1
+    - 2
+    - 3
+    - 4
+
+# 228 members across the 5th, 6th and 7th legislatures. Each election adds a cohort, so
+# the maximum leaves room for several more legislatures.
 assertions:
   min:
     schema_entities:
-      Person: 100
+      Person: 205
       Position: 1
     country_entities:
-      kh: 100
+      kh: 205
   max:
     schema_entities:
-      Person: 150
+      Person: 460
       Position: 1
