@@ -33,6 +33,25 @@ data:
 tags:
   - list.pep
 
+lookups:
+  type.gender:
+    options:
+      - match: 0
+        value: male
+      - match: 1
+        value: female
+  type.email:
+    options:
+      # Placeholder for a missing address.
+      - match: "--"
+        value: null
+      # Trailing separator left over from data entry.
+      - match: marthin.billa@dpd.go.id;
+        value: marthin.billa@dpd.go.id
+      # Space where the source's dot convention (firstname.lastname) belongs.
+      - match: siti aseanti@dpd.go.id
+        value: siti.aseanti@dpd.go.id
+
 assertions:
   min:
     schema_entities:
