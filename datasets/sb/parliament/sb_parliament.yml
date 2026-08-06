@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-17
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
   Unicameral legislature, elected from single-member constituencies
 description: |
@@ -28,6 +28,15 @@ data:
   url: https://parliament.gov.sb/members/themembers/
   format: HTML
   lang: eng
+http:
+  # The site returns HTTP 403 to the default zavod User-Agent; a browser one works.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
+    (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+
+names:
+  prefixes_strip:
+    - Hon.
 
 tags:
   - list.pep
