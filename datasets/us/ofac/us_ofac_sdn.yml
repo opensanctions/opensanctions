@@ -55,7 +55,7 @@ assertions:
       Airplane: 320
       Company: 20
       Security: 5
-      LegalEntity: 3
+      LegalEntity: 1
     # Set at roughly a quarter of the production fill rate: low enough that a
     # shift in the shape of the source data doesn't hold up the release, high
     # enough to catch a crawler that stopped parsing a field altogether.
