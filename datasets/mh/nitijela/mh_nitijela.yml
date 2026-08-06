@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-17
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
   Unicameral legislature that elects the President from among its members
 description: |
@@ -29,6 +29,19 @@ data:
   url: https://www.rmiparliament.org/cms/members.html
   format: HTML
   lang: eng
+
+names:
+  # Members are listed as "<role> - <honorific> <name>". The honorifics stack, e.g.
+  # "Her Excellency Dr. Hilda C. Heine" and "Honorable Minister Bremity Lakjohn", so
+  # each form is listed separately and stripping repeats until none matches.
+  prefixes_strip:
+    - Her Excellency
+    - His Excellency
+    - Honorable
+    - Hon.
+    - Minister
+    - Senator
+    - Dr.
 
 tags:
   - list.pep
