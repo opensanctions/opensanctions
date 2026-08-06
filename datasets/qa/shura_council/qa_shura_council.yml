@@ -1,0 +1,73 @@
+title: Qatar Members of the Shura Council
+name: qa_shura_council
+prefix: qa-shura
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-24
+load_statements: true
+ci_test: true
+summary: >-
+  National legislative body, part elected and part appointed by the Emir
+description: |
+  Current members of the Shura Council (Majlis al-Shura), the national legislative body of
+  the State of Qatar. Of its 45 members, 30 are elected by direct ballot for a four-year
+  term and 15 are appointed by the Emir, and together they hold the country's legislative
+  authority, including passing laws and approving the general budget.
+
+  Only the sitting session's roster is published in a form that carries dates, so earlier
+  sessions are not included.
+url: https://www.shura.qa/
+publisher:
+  name: Shura Council of Qatar
+  description: >
+    The Shura Council is the legislative body of the State of Qatar.
+  url: https://www.shura.qa/
+  country: qa
+  official: true
+data:
+  # The English roster; the crawler also reads the /ar-QA/ locale for Arabic names.
+  # SessionNumber selects the annual sitting — the site exposes sessions 1-54, but
+  # only the current one can be dated, so the crawler reads the latest.
+  url: https://www.shura.qa/en/Pages/About-Council/President-and-Members?SessionNumber=54
+  format: HTML
+  lang: eng
+http:
+  # The site returns 403 without a browser user agent.
+  user_agent: >-
+    Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)
+    Chrome/124.0.0.0 Safari/537.36
+
+names:
+  prefixes_strip:
+    - H.E. Mr.
+    - H.E. Mrs.
+    - H.E. Ms.
+    - H.E. Dr.
+    - H.E.
+
+tags:
+  - list.pep
+
+lookups:
+  position:
+    required: true
+    options:
+      - match: Member of the Shura Council
+        value: Member of the Shura Council of Qatar
+      - match: The Shura Speaker
+        value: Speaker of the Shura Council of Qatar
+      - match: The Deputy Speaker
+        value: Deputy Speaker of the Shura Council of Qatar
+
+assertions:
+  min:
+    schema_entities:
+      Person: 35
+      Position: 3
+    country_entities:
+      qa: 35
+  max:
+    schema_entities:
+      Person: 80
+      Position: 3
