@@ -207,6 +207,10 @@ lookups:
         values:
           - "www.bam-beag.com"
           - "www.bam-beta.com"
+      - match: "www.bankingcircle.org; https://bccorp.ltd/"
+        values:
+          - "www.bankingcircle.org"
+          - "https://bccorp.ltd/"
       - match: "www.bciic.ch / www.bciic.org"
         values:
           - "www.bciic.ch"
