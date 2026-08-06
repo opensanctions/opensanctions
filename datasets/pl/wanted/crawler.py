@@ -9,7 +9,10 @@ ATTRIBUTES = [
     # crawl_person skips the person instead (see below).
     (False, "birth_date", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
     (True, "full_name", "//div[@class='head']/h2/text()"),
-    (True, "gender", "//p[contains(text(), 'Płeć:')]/strong/text()"),
+    # The gender is occasionally given as '-' in an otherwise well-formed profile.
+    # It is not required here so that a single such profile doesn't abort the crawl;
+    # the property is simply left unset for that person.
+    (False, "gender", "//p[contains(text(), 'Płeć:')]/strong/text()"),
     (False, "middle_name", "//p[contains(text(), 'Drugie imię:')]/strong/text()"),
     (False, "alias", "//p[contains(text(), 'Pseudonim:')]/strong/text()"),
     (False, "birth_place", "//p[contains(text(), 'Miejsce urodzenia:')]/strong/text()"),
