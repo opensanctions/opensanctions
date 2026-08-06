@@ -28,7 +28,10 @@ def crawl_member(
         return
 
     person = context.make("Person")
-    person.id = context.make_id(name, constituency)
+    # Keyed on the name as published, not the title-stripped one: an ID must not depend
+    # on the `names.prefixes_strip` config, or editing that list would mutate every ID
+    # derived from it. See zavod/docs/best_practices/entity_id.md.
+    person.id = context.make_id(raw_name, constituency)
     person.add("name", name, original_value=raw_name if name != raw_name else None)
     # A member of the National Parliament must be a citizen of Solomon Islands under
     # Chapter VI, Section 48(1)(a) of the Constitution of Solomon Islands.
