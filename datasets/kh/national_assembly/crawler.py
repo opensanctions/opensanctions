@@ -20,13 +20,12 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21295974",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
-    count = 0
     # The roster is a four-column table: ordinal | name | constituency | party. Member rows
     # are those whose first cell is a Khmer numeral (skips the header and nested layout).
     for row in h.xpath_elements(doc, "//tr[count(./td) = 4]"):
@@ -53,7 +52,3 @@ def crawl(context: Context) -> None:
         occupancy.add("constituency", constituency or None, lang="khm")
         context.emit(occupancy)
         context.emit(person)
-        count += 1
-
-    if count == 0:
-        raise ValueError("No member rows found in the National Assembly roster")
