@@ -5,12 +5,19 @@ from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
 # The senator directory is populated by this AJAX endpoint; session 5 is the current
-# (5th) legislature.
+# (5th) legislature. A new session lands under a new number, so an empty response is the
+# structural signal that this constant needs bumping.
 SESSION = "5"
+
+# The endpoint only answers to an in-page XHR: neither header has an `http` metadata
+# field, so both stay on the fetch call.
 HEADERS = {
     "X-Requested-With": "XMLHttpRequest",
     "Referer": "https://senate.gov.kh/search-senator-all/",
 }
+
+# The source uses an all-zero date as its "no date of birth" placeholder.
+DOB_PLACEHOLDER = "0000-00-00"
 
 
 def crawl(context: Context) -> None:
@@ -22,7 +29,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21295127",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -35,7 +42,9 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
     if not records:
-        raise ValueError("Senate AJAX endpoint returned no senators")
+        raise ValueError(
+            f"No senators for session {SESSION} — a new session may have started"
+        )
 
     for record in records:
         str_id = record.pop("str_id")
@@ -46,7 +55,8 @@ def crawl(context: Context) -> None:
         person.id = context.make_slug(str_id)
         person.add("name", name, lang="khm")
         person.add("gender", record.pop("gender", None))
-        h.apply_date(person, "birthDate", record.pop("dob", None))
+        dob = record.pop("dob", None)
+        h.apply_date(person, "birthDate", None if dob == DOB_PLACEHOLDER else dob)
         person.add("political", record.pop("party", None), lang="khm")
         person.add("sourceUrl", record.pop("biography", None))
         # Senators must be Khmer citizens (Constitution of Cambodia, Article 34 (New)).
