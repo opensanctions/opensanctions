@@ -9,6 +9,12 @@ older slice of the (shifting) list, so records skip or duplicate across pages.
 
 Mitigations:
 
+- We sort by case ID (an unexposed but accepted sort key) instead of the
+  default newest-first action date. Case IDs are near-unique, so the origin's
+  unstable ordering among sort-key ties (which reshuffles rows across page
+  boundaries between fetches under the date sort) has almost nothing to act
+  on, and new cases get the highest IDs so they append at the end of the
+  listing instead of shifting every page.
 - Every request carries a per-run `cache_bust` query parameter so Varnish
   treats each page URL as unique and fetches fresh from origin.
 - The Zyte fetch validator requires a populated table and rejects the
@@ -20,7 +26,7 @@ Mitigations:
 
 from lxml.etree import _Element
 from secrets import token_urlsafe
-from urllib.parse import parse_qs, urljoin, urlparse
+from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -50,7 +56,7 @@ def crawl_item(context: Context, row: dict[str, _Element]) -> None:
     source_url = case_id_el.get("href")
     if source_url is not None:
         source_url = urljoin(context.data_url, source_url)
-    date = h.element_text(row.pop("action_date_sort_ascending"))
+    date = h.element_text(row.pop("action_date"))
 
     for name in names:
         entity = context.make("LegalEntity")
@@ -104,7 +110,13 @@ def crawl(context: Context) -> None:
     cache_bust = token_urlsafe(8)
     while max_page is None or page_num <= max_page:
         context.log.info(f"Crawling page {page_num} of {max_page}")
-        url = f"{context.data_url}?page={page_num}&cache_bust={cache_bust}"
+        params = {
+            "order": "field_fda_case_id_txt",
+            "sort": "asc",
+            "page": page_num,
+            "cache_bust": cache_bust,
+        }
+        url = f"{context.data_url}?{urlencode(params)}"
         # Zyte because occasional cloudflare javascript challenge.
         response = zyte_api.fetch_html(
             context, url, RESULT_ROW_VALIDATOR, absolute_links=True
