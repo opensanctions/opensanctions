@@ -3,7 +3,7 @@ prefix: ba-reg
 disabled: false
 entry_point: crawler
 coverage:
-  frequency: monthly
+  frequency: weekly
   start: 2023-03-21
 exports:
   - statistics.json
@@ -36,6 +36,14 @@ description: |
   Company record has an information on the founders (persons and legal entities), managers as well
   as the information on company registration number, unique number, address and optional additional
   address, short and long name of the company, status and the date of the latest change.
+
+assertions:
+  min:
+    schema_entities:
+      # Only a floor to catch a run that emitted nothing at all: the crawler
+      # walks the register city by city, so a partial listing failure shows up
+      # in the delta rather than here.
+      Company: 1
 
 url: https://bizreg.pravosudje.ba
 publisher:
