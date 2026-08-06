@@ -83,6 +83,7 @@ lookups:
           - "<br />"
           - "<br /> <br />"
           - "<br /> <br /> <br /> <br />"
+          - "<br /> <br /> <br /> <br /> <br />"
         entities: []
       - match: La société Traditia<br /> Monsieur Philippe Le Gouz de Saint Seine
         entities:
