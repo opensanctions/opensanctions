@@ -34,7 +34,10 @@ def crawl_member(
         return
 
     person = context.make("Person")
-    person.id = context.make_id(name, role)
+    # Keyed on the name as published, not the title-stripped one: an ID must not depend
+    # on the `names.prefixes_strip` config, or editing that list would mutate every ID
+    # derived from it. See zavod/docs/best_practices/entity_id.md.
+    person.id = context.make_id(raw_name, role)
     person.add("name", name, original_value=raw_name if name != raw_name else None)
     # A member of the Nitijela must be a citizen of the Republic: candidacy is limited to
     # qualified voters (Constitution Art. IV §4), and only citizens may vote (Art. IV §3).
