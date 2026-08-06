@@ -82,6 +82,12 @@ def crawl_page(context: Context, page_number: int) -> int:
             director = context.make("Person")
             director.id = context.make_id("DIRECTOR", entity.id, item["director"])
             director.add("name", item["director"], lang="rus")
+            # The source uses placeholders like "-" where it has no director on
+            # file. Those are nulled by the type.name lookup, so check after the
+            # add: emitting the person anyway would leave an empty entity and a
+            # directorship pointing at an ID that was never written.
+            if not director.has("name"):
+                continue
             context.emit(director)
 
             link = context.make("Directorship")
@@ -92,12 +98,11 @@ def crawl_page(context: Context, page_number: int) -> int:
             link.add("role", "director", lang="eng")
             link.add("role", "директор", lang="rus")
 
-            context.emit(director)
             context.emit(link)
 
     total_pages = data.get("totalPages", 1)
     if not isinstance(total_pages, int):
-        raise ValueError(f"Expected int for totalPages, got {type(total_pages)}")
+        raise TypeError(f"Expected int for totalPages, got {type(total_pages)}")
     return total_pages
 
 
