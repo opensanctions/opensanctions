@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-17
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
   Unicameral legislature of People's and Nobles' Representatives
 description: |
@@ -30,6 +30,21 @@ data:
   url: https://www.parliament.gov.to/en/members/peoples-representatives
   format: HTML
   lang: eng
+http:
+  # The site returns HTTP 406 to the default zavod User-Agent; a browser one works.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
+    (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+
+names:
+  # People's Representatives are listed as "Hon. <name>", sometimes with a "Dr"/"Dr."
+  # after it; the one noble carrying "HSH" (His Serene Highness) keeps his "Prince"
+  # title, which is part of how he is identified.
+  prefixes_strip:
+    - Hon.
+    - Dr.
+    - Dr
+    - HSH
 
 tags:
   - list.pep
