@@ -22,8 +22,12 @@ NUMBERS = re.compile(r"\b\d+\b")
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 DateValue = str | date | datetime | None
 MAX_ENFORCEMENT_DAYS = 365 * 5
+# Birth dates are always before now, so a two-digit year denotes the most recent
+# 100 years. Pass this as `two_digit_year_base` when parsing birth dates.
+TWO_DIGIT_BIRTH_YEAR_BASE = RUN_TIME.year - 100
 
 __all__ = [
+    "TWO_DIGIT_BIRTH_YEAR_BASE",
     "extract_date",
     "parse_formats",
     "extract_years",
@@ -79,10 +83,21 @@ def extract_date(
     text: DateValue,
     formats: tuple[str] | None = None,
     fallback_to_original: bool = True,
+    two_digit_year_base: int | None = None,
 ) -> list[str]:
     """
     Extract a date from the provided text using predefined `formats` in the metadata.
     If the text doesn't match any format, returns the original text.
+
+    Args:
+        dataset: The dataset which contains a date format specification.
+        text: The date value to be parsed.
+        formats: A list of date formats to use for parsing, overriding dataset defaults.
+        fallback_to_original: Return the original text if no format matches, instead
+            of raising a `ValueError`.
+        two_digit_year_base: The earliest year a two-digit year may denote. A date
+            parsed from a `%y` format is moved into the century which places it in
+            the 100 years from this year. See `apply_date`.
     """
     if text is None:
         return []
@@ -99,7 +114,9 @@ def extract_date(
     replaced_text = replace_months(dataset, text)
     dataset_formats_ = dataset.dates.formats + ALWAYS_FORMATS
     formats_ = dataset_formats_ if formats is None else list(formats)
-    parsed = parse_formats(replaced_text, formats_)
+    parsed = parse_formats(
+        replaced_text, formats_, two_digit_year_base=two_digit_year_base
+    )
     if parsed.text is not None:
         return [parsed.text]
     if dataset.dates.year_only:
@@ -117,6 +134,7 @@ def apply_date(
     text: DateValue,
     formats: tuple[str] | None = None,
     original_value: str | None = None,
+    two_digit_year_base: int | None = None,
 ) -> None:
     """Apply a date value to an entity, parsing it if necessary and cleaning it up.
 
@@ -130,6 +148,10 @@ def apply_date(
         original_value: If provided, recorded as the entity's original value for
             this property instead of ``text``. Use when ``text`` has already been
             transformed.
+        two_digit_year_base: The earliest year a two-digit year may denote. A date
+            parsed from a `%y` format is moved into the century which places it in
+            the 100 years from this year. Use `TWO_DIGIT_BIRTH_YEAR_BASE` for a
+            birth date, and the earliest possible event year for a case date.
     """
     prop_ = entity.schema.get(prop)
     if prop_ is None or prop_.type != registry.date:
@@ -143,20 +165,40 @@ def apply_date(
 
     if original_value is None:
         original_value = text
-    dates = extract_date(entity.dataset, text, formats=formats)
+    dates = extract_date(
+        entity.dataset,
+        text,
+        formats=formats,
+        two_digit_year_base=two_digit_year_base,
+    )
     return entity.add(prop_, dates, original_value=original_value)
 
 
-def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
+def apply_dates(
+    entity: Entity,
+    prop: str,
+    texts: Iterable[DateValue],
+    formats: tuple[str] | None = None,
+    two_digit_year_base: int | None = None,
+) -> None:
     """Apply a list of date values to an entity, parsing them if necessary and cleaning them up.
 
     Args:
         entity: The entity to which the date will be applied.
         prop: The property to which the date will be applied.
         texts: The iterable of date values to be applied.
+        formats: A list of date formats to use for parsing, overriding dataset defaults.
+        two_digit_year_base: The earliest year a two-digit year may denote. See
+            `apply_date`.
     """
     for text in texts:
-        apply_date(entity, prop, text)
+        apply_date(
+            entity,
+            prop,
+            text,
+            formats=formats,
+            two_digit_year_base=two_digit_year_base,
+        )
 
 
 def backdate(date: datetime, delta: timedelta) -> str:

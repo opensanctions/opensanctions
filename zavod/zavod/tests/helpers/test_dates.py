@@ -1,4 +1,7 @@
+import logging
 from datetime import datetime, timedelta, UTC
+
+import pytest
 from structlog.testing import capture_logs
 
 from zavod.context import Context
@@ -31,6 +34,54 @@ def test_extract_date(testdataset1: Dataset):
     # Check always-accepted formats
     assert "%Y-%m" not in testdataset1.dates.formats
     assert extract_date(testdataset1, "2023-01") == ["2023-01"]
+
+
+def test_extract_date_two_digit_year(
+    testdataset1: Dataset, caplog: pytest.LogCaptureFixture
+) -> None:
+    # The base date selects the century.
+    assert extract_date(
+        testdataset1,
+        "16-07-68",
+        formats=("%d-%m-%y",),
+        two_digit_year_base=1926,
+    ) == ["1968-07-16"]
+    assert extract_date(
+        testdataset1,
+        "16-07-68",
+        formats=("%d-%m-%y",),
+        two_digit_year_base=2000,
+    ) == ["2068-07-16"]
+
+    # Without a base year, the fixed strptime window applies and prefixdate warns.
+    # The warning reaches the dataset issue log through the standard logging chain.
+    with caplog.at_level(logging.WARNING, logger="prefixdate.formats"):
+        assert extract_date(testdataset1, "23-10-64", formats=("%d-%m-%y",)) == [
+            "2064-10-23"
+        ]
+    assert "two-digit year format" in caplog.text, caplog.text
+
+
+def test_apply_date_two_digit_year(testdataset1: Dataset):
+    data = {"id": "doe", "schema": "Person", "properties": {"name": ["John Doe"]}}
+    person = Entity(testdataset1, data)
+    apply_date(
+        person,
+        "birthDate",
+        "16-07-68",
+        formats=("%d-%m-%y",),
+        two_digit_year_base=1926,
+    )
+    assert person.pop("birthDate") == ["1968-07-16"]
+
+    apply_dates(
+        person,
+        "birthDate",
+        ["16-07-68", "23-10-64"],
+        formats=("%d-%m-%y",),
+        two_digit_year_base=1926,
+    )
+    assert sorted(person.pop("birthDate")) == ["1964-10-23", "1968-07-16"]
 
 
 def test_replace_months(testdataset1: Dataset):

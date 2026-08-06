@@ -102,7 +102,12 @@ def crawl_csv_row(context: Context, row: dict[str, str]) -> None:
         person = context.make("Person")
         person.id = context.make_id(row.get("id_no") or row.get("passport_no") or name)
         h.apply_name(person, full=name, lang="eng")
-        h.apply_date(person, "birthDate", squash_spaces(row.pop("dob")))
+        h.apply_date(
+            person,
+            "birthDate",
+            squash_spaces(row.pop("dob")),
+            two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE,
+        )
         person.add("email", row.pop("email").split(";"))
         person.add("phone", row.pop("phone"))
         for alias in row.pop("alias").split(";"):

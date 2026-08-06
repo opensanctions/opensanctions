@@ -225,6 +225,36 @@ def test_make_occupancy(testdataset1: Dataset):
     context.close()
 
 
+def test_make_occupancy_two_digit_year(testdataset1: Dataset):
+    """The base year picks the century, but the ID keys on the date string as it was
+    given, so adopting a base year does not renumber a dataset's occupancies."""
+    context = Context(testdataset1)
+    pos = make_position(context, name="A position", country="ls")
+    person = context.make("Person")
+    person.id = "thabo"
+
+    def make(base):
+        occupancy = make_occupancy(
+            context,
+            person=person,
+            position=pos,
+            current_time=datetime(2000, 1, 3),
+            start_date="16-Jul-68",
+            two_digit_year_base=base,
+        )
+        assert occupancy is not None
+        return occupancy
+
+    based = make(1945)
+    assert based.get("startDate") == ["1968-07-16"]
+
+    # Without a base year, strptime's fixed window puts it in the next century.
+    unbased = make(None)
+    assert unbased.get("startDate") == ["2068-07-16"]
+    assert unbased.id == based.id
+    context.close()
+
+
 def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
     """Test that an occupancy with the same start but no end, and one with the
     same end but no start, don't end up with the same ID. This occurs in the wild

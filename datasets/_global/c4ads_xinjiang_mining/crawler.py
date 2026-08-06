@@ -27,7 +27,13 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     own.add("owner", owner.id)
     own.add("asset", entity.id)
     own.add("recordId", row.pop("Permit_Number"))
-    h.apply_date(own, "endDate", row.pop("Permit_Expiration_Date"))
+    h.apply_date(
+        own,
+        "endDate",
+        row.pop("Permit_Expiration_Date"),
+        # No permit on the list predates 1990, and permits expire in the future.
+        two_digit_year_base=1990,
+    )
 
     context.emit(entity)
     context.emit(owner)

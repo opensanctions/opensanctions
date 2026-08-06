@@ -75,7 +75,14 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     assert (authority := row.pop("oig_medicaid_sanction")) is not None
     sanction.set("authority", squash_spaces(authority))
 
-    h.apply_date(sanction, "startDate", row.pop("effective_date"))
+    h.apply_date(
+        sanction,
+        "startDate",
+        row.pop("effective_date"),
+        # Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
+        # Amendments.
+        two_digit_year_base=1977,
+    )
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)
 
