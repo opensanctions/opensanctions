@@ -108,6 +108,8 @@ def crawl(context: Context) -> None:
     # A single token for the whole crawl bypasses Varnish's stale per-page
     # entries without varying between our own pages within one run.
     cache_bust = token_urlsafe(8)
+    prev_case_id = ""
+    ordering_warned = False
     while max_page is None or page_num <= max_page:
         context.log.info(f"Crawling page {page_num} of {max_page}")
         params = {
@@ -138,6 +140,20 @@ def crawl(context: Context) -> None:
         assert table is not None, "Validated FINRA page did not contain a table"
 
         for row in h.parse_html_table(table):
+            # Duplicate IDs are legitimate (one row per document of a case),
+            # so equality is fine; only a decrease means the sort parameters
+            # are no longer being respected.
+            case_id = h.element_text(row["case_id"])
+            if case_id < prev_case_id and not ordering_warned:
+                context.log.warning(
+                    "Case IDs are no longer in ascending order — is the "
+                    "sort parameter still respected?",
+                    case_id=case_id,
+                    previous_case_id=prev_case_id,
+                    page=page_num,
+                )
+                ordering_warned = True
+            prev_case_id = case_id
             crawl_item(context, row)
 
         page_num += 1
