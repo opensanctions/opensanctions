@@ -107,11 +107,10 @@ def parse_roster(context: Context, doc: Element) -> list[tuple[str, str, str]] |
 
 
 def clean_member_name(context: Context, name: str) -> str:
-    """Strip the honorific a member is styled with.
+    """Strip the honorific a member is styled with, which is not part of their name.
 
-    The honorific changes over a member's career, as they take a doctorate or are
-    elevated to Samdech, so it has to come off for the name to identify them across
-    legislatures.
+    Only the `name` property is cleaned. The entity id keeps the raw published name, so
+    extending the configured list of honorifics never mutates an id.
     """
     clean_name = h.strip_name_titles(context, name)
     # strip_name_titles warns and returns None only for a value that is all honorifics.
@@ -130,18 +129,25 @@ def crawl_member(
     position: Entity,
     categorisation: PositionCategorisation,
     legislature: Legislature,
-    clean_name: str,
     name: str,
     constituency: str,
     party: str,
 ) -> None:
+    clean_name = clean_member_name(context, name)
     person = context.make("Person")
-    # Keyed on the name alone: a member's constituency changes between legislatures, as a
-    # province is split or they stand elsewhere, so including it would split them into one
-    # entity per legislature. Names are unique within each list of members, and the caller
-    # fails if that stops holding, because two members of one legislature sharing a name
-    # cannot be told apart by anything else the source publishes.
-    person.id = context.make_id(clean_name)
+    # The raw published name, as required by best_practices/entity_id.md: keying on the
+    # stripped name would silently mutate every affected id whenever an honorific is added
+    # to names.prefixes_strip. The constituency is left out because it changes between
+    # legislatures, when a province is split or a member stands elsewhere.
+    #
+    # The consequence is that a member styled with a different honorific in a later
+    # legislature - they take a doctorate, or are elevated to Samdech - fragments into one
+    # Person entity per form, which deduplication has to merge. That is the accepted
+    # trade-off: duplicate records can be merged after publication, an unstable id cannot
+    # be fixed. Names are unique within each list of members, and the caller fails if that
+    # stops holding, because two members of one legislature sharing a name cannot be told
+    # apart by anything else the source publishes.
+    person.id = context.make_id(name)
     person.add(
         "name",
         clean_name,
@@ -197,21 +203,15 @@ def crawl_legislature(
 
     names: set[str] = set()
     for name, constituency, party in members:
-        clean_name = clean_member_name(context, name)
-        if clean_name in names:
+        # The raw name is the person's entity id, so two members of one legislature
+        # sharing one would silently become a single entity.
+        if name in names:
             raise ValueError(
                 f"Two members of legislature {legislature.ordinal} are named {name}"
             )
-        names.add(clean_name)
+        names.add(name)
         crawl_member(
-            context,
-            position,
-            categorisation,
-            legislature,
-            clean_name,
-            name,
-            constituency,
-            party,
+            context, position, categorisation, legislature, name, constituency, party
         )
 
 

@@ -40,10 +40,10 @@ data:
 tags:
   - list.pep
 
-# Members are listed with an honorific, and the honorific a member is styled with changes
-# over their career (a doctorate, or elevation to Samdech), so it has to come off the name
-# for a member serving several legislatures to resolve to one person. These are the exact
-# forms the rosters use; `honorific_roots` below catches any form not listed here.
+# Members are listed with an honorific, which is not part of the name and hurts matching.
+# These are the exact forms the rosters use; `honorific_roots` below warns about any form
+# not listed here. Entity ids are built from the raw name, not the stripped one, so adding
+# a form here changes no id - it only cleans up the name property.
 names:
   prefixes_strip:
     - ឯកឧត្តម
@@ -97,16 +97,18 @@ config:
     - 3
     - 4
 
-# 228 members across the 5th, 6th and 7th legislatures. Each election adds a cohort, so
-# the maximum leaves room for several more legislatures.
+# 228 members across the 5th, 6th and 7th legislatures, held as 242 entities: 12 of them
+# are styled with a different honorific in a later legislature, and the entity id is built
+# from the raw name, so those fragment for deduplication to merge. Each election adds a
+# cohort, so the maximum leaves room for several more legislatures.
 assertions:
   min:
     schema_entities:
-      Person: 205
+      Person: 218
       Position: 1
     country_entities:
-      kh: 205
+      kh: 218
   max:
     schema_entities:
-      Person: 460
+      Person: 490
       Position: 1
