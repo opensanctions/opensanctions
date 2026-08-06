@@ -1,0 +1,64 @@
+title: Cambodia Members of the Senate
+name: kh_senate
+prefix: kh-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: true
+summary: >-
+  Upper chamber of Parliament, indirectly elected and appointed for six years
+description: |
+  Current and historical members of the Senate, the upper chamber of the Parliament of
+  Cambodia, from its first legislature in 1999 onwards. Its 62 members serve six-year
+  terms — most indirectly elected by commune councillors and the National Assembly
+  across eight regions, the rest appointed by the King and the National Assembly — and
+  share the country's legislative power with the National Assembly, including passing
+  laws and approving the budget.
+url: https://senate.gov.kh/search-senator-all/
+publisher:
+  name: Senate of Cambodia
+  description: >
+    The Senate is the upper chamber of the Parliament of Cambodia, whose members are
+    indirectly elected and appointed for six-year terms.
+  url: https://senate.gov.kh/
+  country: kh
+  official: true
+data:
+  url: https://senate.gov.kh/wp-content/themes/senate/ajax/generalsearch.php
+  format: JSON
+  lang: khm
+
+tags:
+  - list.pep
+
+names:
+  # Khmer honorifics and honorary titles the source stores as part of the name. Both
+  # spellings of ឯកឧត្តម (His Excellency) occur.
+  prefixes_strip:
+    - សម្តេចអគ្គមហាធម្មពោធិសាល
+    - សម្តេចអគ្គមហាសេនាបតីតេជោ
+    - សម្តេចវិបុលសេនាភក្តី
+    - សម្តេចរាជបុត្រីព្រះរៀម
+    - សម្តេចរាជបុត្រីព្រះអនុជ
+    - សម្តេច
+    - ព្រះអង្គម្ចាស់
+    - អ្នកម្នាង
+    - ឯកឧត្តម
+    - ឯកឧត្ដម
+    - លោកជំទាវ
+    - កិត្តិសង្គហបណ្ឌិត
+    - កិត្តិនីតិកោសលបណ្ឌិត
+
+assertions:
+  min:
+    schema_entities:
+      Person: 155
+      Position: 1
+    country_entities:
+      kh: 155
+  max:
+    schema_entities:
+      Person: 345
+      Position: 1
