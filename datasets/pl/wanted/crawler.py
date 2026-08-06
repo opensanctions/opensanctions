@@ -1,3 +1,7 @@
+import time
+
+from zavod.util import Element
+
 from zavod import Context
 from zavod import helpers as h
 
@@ -27,20 +31,58 @@ ATTRIBUTES = [
 ]
 
 
-def crawl_person(context: Context, url: str) -> None:
-    doc = context.fetch_html(url, cache_days=7)
+def extract_attributes(doc: Element, url: str) -> dict[str, str]:
+    """Read the labelled fields off a profile page, without judging completeness.
 
-    info = dict()
-    for required, key, xpath in ATTRIBUTES:
+    Fields the source gives as '-' come back as empty strings. Required fields are
+    deliberately not enforced here: on a shell page every field is missing at once,
+    and that has to be told apart from a real profile with a gap in it, so the
+    `required` flag is checked by the caller once the page is known to have rendered.
+    """
+    info: dict[str, str] = {}
+    for _, key, xpath in ATTRIBUTES:
         matches = h.xpath_strings(doc, xpath)
         text = ""
-        if required or matches:
+        if matches:
             assert len(matches) == 1, (key, url, matches)
             text = matches[0].strip()
-        text = "" if text == "-" else text
+        info[key] = "" if text == "-" else text
+    return info
+
+
+def fetch_person(context: Context, url: str) -> tuple[Element, dict[str, str]] | None:
+    """Fetch a profile page, returning None if the source never rendered the record.
+
+    The site intermittently serves a shell page: every field reads '-', the photo and
+    physical-description blocks are absent, and only the name survives because it is
+    drawn from the page title. Since responses are cached for a week, a single such
+    response would keep breaking the crawl for days, so the cache entry is evicted and
+    the request retried before the profile is given up on.
+    """
+    for attempt in range(4):
+        if attempt:
+            time.sleep(2**attempt)
+        doc = context.fetch_html(url, cache_days=7)
+        info = extract_attributes(doc, url)
+        # A real profile always states at least one of these, so all three being
+        # blank means the record body didn't render rather than being unknown.
+        if any(info[key] for key in ("birth_date", "gender", "citizenship")):
+            return doc, info
+        context.clear_url(url)
+        context.log.info("Profile did not render, evicted it from the cache", url=url)
+    context.log.warning("Skipping profile the source failed to render", url=url)
+    return None
+
+
+def crawl_person(context: Context, url: str) -> None:
+    fetched = fetch_person(context, url)
+    if fetched is None:
+        return
+    doc, info = fetched
+
+    for required, key, _ in ATTRIBUTES:
         if required:
-            assert text, (key, url)
-        info[key] = text
+            assert info[key], (key, url)
 
     if not info["birth_date"]:
         # The birth date is what distinguishes namesakes in the entity ID, so without
@@ -87,7 +129,7 @@ def crawl_person(context: Context, url: str) -> None:
         "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul[1]//li",
     )
     if not crimes:
-        context.log.warn("No crimes found for person", entity_id=person.id, url=url)
+        context.log.warning("No crimes found for person", entity_id=person.id, url=url)
     for crime in crimes:
         person.add("notes", h.element_text(crime))
 
