@@ -93,6 +93,7 @@ lookups:
           - Not Known
           - Unknown
           - Not Disclosed
+          - African
         value: null
       - match: Botswanan
         value: BW

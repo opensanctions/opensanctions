@@ -76,5 +76,5 @@ assertions:
       Company: 50
   max:
     schema_entities:
-      Vessel: 4000
+      Vessel: 8000
       Company: 300

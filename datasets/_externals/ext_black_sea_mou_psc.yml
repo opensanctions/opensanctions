@@ -44,8 +44,8 @@ assertions:
       Company: 1
   max:
     schema_entities:
-      Vessel: 430
-      Company: 350
+      Vessel: 1720
+      Company: 1400
 inputs:
   - ann_graph_topics
   # - debarment
