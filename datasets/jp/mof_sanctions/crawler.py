@@ -18,6 +18,8 @@ from zavod.stateful.review import assert_all_accepted
 
 # Cells throughout the sheet pack multiple values into one cell, numbered or
 # newline-separated, so every cell is split on SPLITS when the rows are read.
+# Names thus reach review already split, not as the raw cell. Kept anyway:
+# undoing it takes the crawler back to square one.
 SPLITS = [f"({char})" for char in string.ascii_lowercase]
 SPLITS = SPLITS + [f"（{char}）" for char in string.ascii_lowercase]
 # WTF full-width brackets!
@@ -134,9 +136,8 @@ def emit_row(
     raw_old_name = row.pop("old_name", [])
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
-    # The source columns are passed on unsplit and uncleaned: names.schema_rules in
-    # the dataset YAML decide what needs review, and the analyst decides how a value
-    # is split and categorised.
+    # Uncleaned beyond the sheet-wide SPLITS: names.schema_rules decides what needs
+    # review, the analyst decides categorisation.
     original = h.Names()
     for n in name_english:
         original.add("name", n)
