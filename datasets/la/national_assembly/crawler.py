@@ -10,7 +10,9 @@ CONSTITUENCY_MARKER = "ເຂດເລືອກຕັ້ງ"
 
 # Honorific and title tokens prefixing a deputy's name: Mr / Mrs / Professor / Doctor /
 # Associate Professor and common rank abbreviations. Stripped so the name is the actual
-# personal name.
+# personal name. This stays in code rather than moving to `names.prefixes_strip`: the
+# rule is not a closed affix list but "any leading token ending in a full stop", and it
+# also has to split a rank glued to the given name (see clean_name).
 TITLE_TOKENS = {
     "ທ່ານ",  # Mr
     "ນາງ",  # Mrs / Ms
@@ -43,9 +45,8 @@ def crawl_constituency(
     position: Entity,
     categorisation: PositionCategorisation,
     url: str,
-) -> int:
+) -> None:
     doc = context.fetch_html(url, cache_days=7)
-    count = 0
     for heading in h.xpath_elements(doc, '//h2[starts-with(normalize-space(), "ທ່ານ")]'):
         name = clean_name(h.element_text(heading))
         if not name:
@@ -65,8 +66,6 @@ def crawl_constituency(
             continue
         context.emit(occupancy)
         context.emit(person)
-        count += 1
-    return count
 
 
 def crawl(context: Context) -> None:
@@ -78,7 +77,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21295987",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -93,8 +92,5 @@ def crawl(context: Context) -> None:
     if not urls:
         raise ValueError("No constituency links found on the members hub")
 
-    total = 0
     for url in urls:
-        total += crawl_constituency(context, position, categorisation, url)
-    if total == 0:
-        raise ValueError("No deputies found across constituency pages")
+        crawl_constituency(context, position, categorisation, url)

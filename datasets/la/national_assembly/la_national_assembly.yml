@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
   Unicameral legislature, deputies elected from provincial constituencies
 description: |
