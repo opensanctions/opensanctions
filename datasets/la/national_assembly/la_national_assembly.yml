@@ -1,0 +1,44 @@
+title: Laos Members of the National Assembly
+name: la_national_assembly
+prefix: la-na
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: true
+summary: >-
+  Unicameral legislature, deputies elected from provincial constituencies
+description: |
+  Current members of the National Assembly (Sapha Heng Saht), the unicameral legislature
+  of the Lao People's Democratic Republic. Its deputies are elected from provincial
+  constituencies for a five-year term and hold the country's legislative power, including
+  passing laws and approving the budget.
+url: https://na.gov.la/members/?lang=en
+publisher:
+  name: National Assembly of the Lao PDR
+  description: >
+    The National Assembly is the unicameral legislature of the Lao People's Democratic
+    Republic, whose deputies are elected from provincial constituencies.
+  url: https://na.gov.la/
+  country: la
+  official: true
+data:
+  url: https://na.gov.la/members/?lang=en
+  format: HTML
+  lang: lao
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 1
+    country_entities:
+      la: 120
+  max:
+    schema_entities:
+      Person: 200
+      Position: 1
