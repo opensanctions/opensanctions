@@ -74,7 +74,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21328632",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -82,5 +82,3 @@ def crawl(context: Context) -> None:
     seen: set[str] = set()
     for dapil in range(1, DAPIL_COUNT + 1):
         crawl_dapil(context, position, categorisation, dapil, seen)
-    if not seen:
-        raise ValueError("No DPR members found across the electoral districts")

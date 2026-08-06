@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false
+ci_test: false  # 84 Zyte browser-rendered fetches, well over the CI budget.
 summary: >-
   Lower chamber of the Indonesian parliament, elected from 84 electoral districts
 description: |
