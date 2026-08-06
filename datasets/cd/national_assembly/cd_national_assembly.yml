@@ -14,6 +14,9 @@ description: |
   bicameral Parliament of the Democratic Republic of the Congo. Its 500 deputies are elected
   for five-year terms in multi-member constituencies and hold the country's legislative power,
   including passing laws and approving the budget.
+
+  Only deputies of the sitting legislature whose mandate is in progress are included;
+  those whose mandate has ended or been suspended are not.
 url: https://assembleenationale.cd/tous-les-deputes/
 publisher:
   name: Assemblée nationale de la République démocratique du Congo
