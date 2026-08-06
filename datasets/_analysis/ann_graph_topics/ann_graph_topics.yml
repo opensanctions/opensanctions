@@ -23,11 +23,28 @@ summary: >
   Automatically generated graph-based topic annotations
 description: |
   This data sources stores annotations of entities which are adjacent to other
-  risk-linked entities. For example, a person linked via a family bond to a PEP
-  is considered a "relative or close associate" (RCA). Similarly, entities
-  linked to sanctioned entities (especially subsidiaries) are tagges as
-  "sanction-linked".
-url: https://opensanctions.org/datasets/graphtopics
+  risk-linked entities
+
+  Derived risk topics, computed by walking the resolved entity graph. Each
+  annotation is a patch carrying only a `topics` value; it is merged into the
+  target entity, which takes its name and other properties from its own sources.
+
+  * `role.rca` — a person on the other side of a family relationship from a
+    `role.pep` entity.
+  * `sanction.linked` — an entity one relationship away from a sanctioned
+    entity, via ownership, directorship, membership, employment, association,
+    family or succession; a security issued by a sanctioned entity; and the
+    issuer of a sanctioned security. Also applied to every `sanction.control`
+    entity.
+  * `sanction.control` — an entity owned by a sanctioned or `sanction.control`
+    entity, down the full ownership chain, regardless of the size of the stake.
+  * `export.control.linked` — an entity owned by an `export.control` or
+    `export.control.linked` entity, down the full ownership chain, regardless of
+    the size of the stake.
+
+  Relationships carrying an end date are ignored, so a former director or
+  ex-spouse does not carry derived risk topics.
+url: https://www.opensanctions.org/docs/topics/
 publisher:
   name: OpenSanctions
   description: |
@@ -47,8 +64,16 @@ assertions:
       LegalEntity: 65000
       Security: 150
       Vessel: 15
+    # This is a patch dataset: its rules emit minimal patches carrying only the
+    # `topics` property (see analyzer.py module docstring), so emitted
+    # LegalEntity entities legitimately have no `name`. Disable the default
+    # `min.property_fill_rate.LegalEntity.name` (0.95) which would otherwise
+    # fail the run at a fill rate of 0.0.
+    property_fill_rate:
+      LegalEntity:
+        name: 0
   max:
     schema_entities:
       LegalEntity: 130000
-      Security: 400
+      Security: 12000
       Vessel: 900

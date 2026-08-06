@@ -1,10 +1,10 @@
 import csv
-from typing import Iterator, Optional, Dict
+from collections.abc import Iterator
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
-Item = Dict[str, str]
+Item = dict[str, str]
 
 TYPES = {
     "FOREIGN_ENTITY": "LegalEntity",
@@ -15,9 +15,7 @@ TYPES = {
 }
 
 
-def company_id(
-    context: Context, reg_nr: str, name: Optional[str] = None
-) -> Optional[str]:
+def company_id(context: Context, reg_nr: str, name: str | None = None) -> str | None:
     if reg_nr:
         return f"oc-companies-lv-{reg_nr}".lower()
     if name is not None:
@@ -26,7 +24,7 @@ def company_id(
     return None
 
 
-def person_id(context: Context, row: Item) -> Optional[str]:
+def person_id(context: Context, row: Item) -> str | None:
     name = h.make_name(
         full=row.get("name"),
         first_name=row.get("forename"),
@@ -134,6 +132,11 @@ def parse_beneficial_owners(context: Context, row: Item) -> None:
     officer = make_officer(context, row)
     officer.add("nationality", row["nationality"])
     officer.add("country", row["residence"])
+    if not officer.properties:
+        # Name-only officer whose name was dropped by the type.name lookup and
+        # with no other identifying data: skip to avoid an empty entity and a
+        # relationship referencing a missing owner.
+        return
     cid = company_id(context, row["legal_entity_registration_number"])
     rel = context.make("Ownership")
     rel.id = context.make_slug("OWNER", officer.id, cid)
@@ -153,6 +156,11 @@ def parse_members(context: Context, row: Item) -> None:
         rel.id = context.make_slug("OWNER", row["id"])
     else:
         officer = make_officer(context, row)
+        if not officer.properties:
+            # Name-only officer whose name was dropped by the type.name lookup
+            # and with no other identifying data: skip to avoid an empty entity
+            # and a relationship referencing a missing owner.
+            return
         rel.id = context.make_slug("OWNER", officer.id, cid)
         rel.add("owner", officer)
         context.emit(officer)
@@ -180,8 +188,7 @@ def parse_csv(context: Context, path: str) -> Iterator[Item]:
     data_path = context.fetch_resource(file_name, url)
     with open(data_path) as fh:
         reader = csv.DictReader(fh, delimiter=";")
-        for row in reader:
-            yield row
+        yield from reader
 
 
 def crawl(context: Context) -> None:

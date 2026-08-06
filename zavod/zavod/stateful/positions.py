@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import lru_cache
-from typing import List, Optional
+from collections.abc import Iterator
 
+from rigour.dates import ended_before, starts_after
 from rigour.ids.wikidata import is_qid
 from sqlalchemy import select
 
@@ -29,15 +30,15 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
-class PositionCategorisation(object):
-    is_pep: Optional[bool]
+class PositionCategorisation:
+    is_pep: bool | None
     """Whether the position denotes a politically exposed person or not"""
-    topics: List[str]
+    topics: list[str]
     """The topics linked to the position, as a list"""
 
     __slots__ = ["topics", "is_pep"]
 
-    def __init__(self, topics: List[str], is_pep: Optional[bool]):
+    def __init__(self, topics: list[str], is_pep: bool | None):
         self.topics = topics
         self.is_pep = is_pep
 
@@ -47,7 +48,7 @@ def categorise(
     context: Context,
     position: Entity,
     *,
-    default_is_pep: Optional[bool] = True,
+    default_is_pep: bool | None = True,
 ) -> PositionCategorisation:
     """Return the reviewed categorisation (topics, is_pep) for a position.
 
@@ -108,8 +109,8 @@ def categorise(
 
 
 def categorise_many(
-    contextL: Context, position_ids: List[str]
-) -> List[PositionCategorisation]:
+    contextL: Context, position_ids: list[str]
+) -> list[PositionCategorisation]:
     """Categorise multiple positions at once. This is a performance optimisation to
     avoid multiple database queries."""
     stmt = position_table.select()
@@ -127,21 +128,22 @@ def categorise_many(
     return categorisations
 
 
-def categorised_position_qids(context: Context) -> List[str]:
-    """Return a list of position QIDs that have been categorised."""
-    stmt = select(position_table.c.entity_id)
-    stmt = stmt.filter(position_table.c.is_pep.is_(True))
+def categorised_position_qids(context: Context) -> Iterator[tuple[str, bool]]:
+    """Yield reviewed Wikidata position QIDs and their PEP verdicts.
+
+    Use this to seed or exclude positions before doing expensive source-side
+    discovery and classification work.
+    """
+    stmt = select(position_table.c.entity_id, position_table.c.is_pep)
+    stmt = stmt.filter(position_table.c.is_pep.is_not(None))
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
     stmt = stmt.filter(position_table.c.entity_id.like("Q%"))
-    rows = context.db.execute(stmt).fetchall()
-    qids = []
-    for row in rows:
+    for row in context.db.execute(stmt):
         if is_qid(row.entity_id):
-            qids.append(row.entity_id)
-    return qids
+            yield row.entity_id, row.is_pep
 
 
-def get_after_office(topics: List[str]) -> timedelta:
+def get_after_office(topics: list[str]) -> timedelta:
     if "gov.national" in topics:
         if "gov.head" in topics:
             return NO_EXPIRATION
@@ -159,10 +161,10 @@ def occupancy_status(
     occupancy: Entity,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
-    birth_date: Optional[str] = None,
-    death_date: Optional[str] = None,
-    categorisation: Optional[PositionCategorisation] = None,
-) -> Optional[OccupancyStatus]:
+    birth_date: str | None = None,
+    death_date: str | None = None,
+    categorisation: PositionCategorisation | None = None,
+) -> OccupancyStatus | None:
     """Determine the occupancy status of a person in a position given a set of dates.
 
     Dates are extracted from the occupancy entity. The effective start date is
@@ -173,18 +175,21 @@ def occupancy_status(
     - ``periodEnd`` (term/period end): past implies ENDED, future implies UNKNOWN
       (e.g. a parliamentary term may still be running but the person may have left)
 
+    A death date in the past caps the status at ENDED: a deceased person is never
+    emitted as a CURRENT or UNKNOWN office-holder.
+
     If the person should not be considered a PEP, return None.
     """
-    from zavod import helpers as h
-
-    current_iso = current_time.isoformat()
-    if death_date is not None and death_date < h.backdate(current_time, AFTER_DEATH):
+    if death_date is not None and ended_before(death_date, current_time - AFTER_DEATH):
         # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None
 
-    if birth_date is not None and birth_date < h.backdate(current_time, MAX_AGE):
+    if birth_date is not None and ended_before(birth_date, current_time - MAX_AGE):
         # If they're unrealistically old, assume they're not a PEP.
         return None
+
+    # A death date entirely in the future is a data error and is ignored here.
+    died = death_date is not None and not starts_after(death_date, current_time)
 
     # Determine effective start date (most specific first)
     effective_start_date = max(occupancy.get("startDate"), default=None)
@@ -216,8 +221,8 @@ def occupancy_status(
 
     # Individual end date is the most specific signal
     if end_date is not None:
-        if end_date < current_iso:  # end_date is in the past
-            if end_date < h.backdate(current_time, after_office):
+        if ended_before(end_date, current_time):  # end_date is in the past
+            if ended_before(end_date, current_time - after_office):
                 # end_date is beyond after-office threshold
                 return None
             else:
@@ -226,7 +231,7 @@ def occupancy_status(
         elif (
             context.dataset.model.coverage
             and context.dataset.model.coverage.end
-            and context.dataset.model.coverage.end < current_iso
+            and ended_before(context.dataset.model.coverage.end, current_time)
         ):  # end_date is in the future and dataset is beyond its coverage.
             # Don't trust future end dates beyond the known coverage date of the dataset
             context.log.warning(
@@ -236,15 +241,15 @@ def occupancy_status(
                 position=position.id,
                 end_date=end_date,
             )
-            return OccupancyStatus.UNKNOWN
+            return OccupancyStatus.ENDED if died else OccupancyStatus.UNKNOWN
         else:  # end_date is in the future and coverage is unspecified or active
-            return OccupancyStatus.CURRENT
+            return OccupancyStatus.ENDED if died else OccupancyStatus.CURRENT
 
     # Period end date: less specific — a future period end does not imply the person
     # is still in office. An MP could leave a term early
     if period_end is not None:
-        if period_end < current_iso:  # period_end is in the past
-            if period_end < h.backdate(current_time, after_office):
+        if ended_before(period_end, current_time):  # period_end is in the past
+            if ended_before(period_end, current_time - after_office):
                 # period_end is beyond after-office threshold
                 return None
             else:
@@ -254,16 +259,22 @@ def occupancy_status(
     # No end date of any kind
     dis_date = max(position.get("dissolutionDate"), default=None)
     # dissolution date is in the past:
-    if dis_date is not None and dis_date < current_iso:
-        if dis_date > h.backdate(current_time, after_office):
-            return OccupancyStatus.ENDED
-        else:
+    if dis_date is not None and ended_before(dis_date, current_time):
+        if ended_before(dis_date, current_time - after_office):
             return None
+        else:
+            return OccupancyStatus.ENDED
 
-    max_office_threshold = h.backdate(current_time, MAX_OFFICE)
-    if effective_start_date is not None and effective_start_date < max_office_threshold:
+    if effective_start_date is not None and ended_before(
+        effective_start_date, current_time - MAX_OFFICE
+    ):
         # start_date is older than MAX_OFFICE threshold - probably not a PEP
         return None
+
+    if died:
+        # A deceased person no longer holds the position, even if the source
+        # hasn't recorded an end date.
+        return OccupancyStatus.ENDED
 
     if no_end_implies_current:
         # This is for sources we are really confident will provide an end date or

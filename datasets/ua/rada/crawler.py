@@ -52,6 +52,7 @@ def crawl_member(
         country="ua",
         topics=TOPICS,
         wikidata_id="Q12132454",
+        lang="eng",
     )
     position.add("subnationalArea", row.pop("region_name", None))
     categorisation = categorise(context, position)

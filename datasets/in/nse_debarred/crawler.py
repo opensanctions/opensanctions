@@ -1,7 +1,8 @@
 import shutil
 import zipfile
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
+from collections.abc import Iterator
 
 import xlrd
 
@@ -116,7 +117,14 @@ def crawl_item(context: Context, input_dict: dict[str, str | None]) -> None:
         sanction.add("duration", period)
         sanction.add("sourceUrl", urls)
         if is_revoked:
-            h.apply_date(sanction, "endDate", period)
+            h.apply_date(
+                sanction,
+                "endDate",
+                period,
+                # No debarment on the list predates 1990, and debarments can end
+                # in the future.
+                two_digit_year_base=1990,
+            )
 
         context.emit(entity)
         context.emit(sanction)

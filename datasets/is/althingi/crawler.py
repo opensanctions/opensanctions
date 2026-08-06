@@ -73,10 +73,11 @@ def crawl_item(
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        "Member of the Althing",
+        "Member of the Althing of Iceland",
         wikidata_id="Q21272959",
         topics=["gov.legislative", "gov.national"],
         country="is",
+        lang="eng",
     )
     context.emit(position)
 

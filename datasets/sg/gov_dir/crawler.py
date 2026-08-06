@@ -1,10 +1,9 @@
 import re
-from typing import Optional
+from typing import cast
 
 from followthemoney.types import registry
-from lxml import etree
 from lxml.html import HtmlElement
-from normality import collapse_spaces
+from normality import squash_spaces
 from requests.exceptions import HTTPError
 from zavod.stateful.positions import categorise
 
@@ -80,11 +79,11 @@ POSITION_REPLACEMENTS = [
 ]
 
 
-class CrawlState(object):
+class CrawlState:
     """Track what's seen and categorised to help validate the crawl"""
 
-    seen_urls = set()
-    uncategorised = set()
+    seen_urls: set[str] = set()
+    uncategorised: set[str] = set()
 
 
 def make_position_name(
@@ -103,17 +102,17 @@ def make_position_name(
         position = f"{position}, ({hierarchy})"
     for regex, replacement in POSITION_REPLACEMENTS:
         position = regex.sub(replacement, position)
-    return collapse_spaces(position)
+    return squash_spaces(position)
 
 
 def is_pep(context: Context, rank: str) -> bool | None:
     res = context.lookup("rank_default_pep_status", rank)
     if res:
-        return res.is_pep
+        return cast(bool | None, res.is_pep)
     return None
 
 
-def make_hierarchy(breadcrumbs: HtmlElement) -> Optional[str]:
+def make_hierarchy(breadcrumbs: HtmlElement) -> str | None:
     """
     A string like "PEC, IPOS, MINLAW" if the depth is > 1
 
@@ -171,7 +170,7 @@ def crawl_person(
     public_body: str,
     agency: str,
     section_name: str,
-    hierarchy: Optional[str],
+    hierarchy: str | None,
 ) -> bool:
     """Returns true if the crawled person is a PEP based on the provided position info"""
 
@@ -181,13 +180,17 @@ def crawl_person(
     if not full_name.strip().strip("-"):
         return False
     email_elem = official.find(".//div[@class='email info-contact']")
+    email: str | None
     if email_elem is not None:
         email = email_elem.text_content().strip()
     else:
-        # For spokepersons, the email is in a different format
-        email = official.xpath(
-            ".//div[@class='name']//span[@class='fas fa-envelope']/following-sibling::text()"
-        )[0]
+        # For spokepersons, the email is in a different format. Some entries have
+        # no email at all, so the following-sibling text can be missing.
+        email_texts = h.xpath_strings(
+            official,
+            ".//div[@class='name']//span[@class='fas fa-envelope']/following-sibling::text()",
+        )
+        email = email_texts[0] if email_texts else None
 
     pep_status = is_pep(context, rank)
     position_name = make_position_name(
@@ -198,7 +201,7 @@ def crawl_person(
         hierarchy=hierarchy,
     )
     # Override status and position name for MPs
-    if collapse_spaces(section_name.lower()) == "members of parliament":
+    if squash_spaces(section_name.lower()) == "members of parliament":
         pep_status = True
         position_name = "Member of Parliament"
     match = TITLE_REGEX.match(full_name)
@@ -261,31 +264,28 @@ def crawl_body(context: Context, state: CrawlState, url: str) -> None:
             return
         raise
 
-    org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
-    for br in org_name_elem.xpath(".//br"):
-        if br.tail is None:
-            br.tail = "\n"
-        else:
-            br.tail = "\n" + br.tail
-    org_name = org_name_elem.text_content()
+    org_name_elem = h.xpath_element(board_doc, ".//div[@id='agencyName']/h1")
+    for br in h.xpath_elements(org_name_elem, ".//br"):
+        br.tail = "\n" + (br.tail or "")
+    org_name = h.element_text(org_name_elem, squash=False)
     org_parts = org_name.split("\n")
     public_body = org_parts[0].strip() if len(org_parts) > 0 else ""
     agency = org_parts[1].strip() if len(org_parts) > 1 else ""
     hierarchy = make_hierarchy(board_doc.find(".//span[@class='breadcrumbs']"))
 
     # Officials in headed sections
-    sections = board_doc.xpath(".//div[contains(@class, 'section-toggle')]")
+    sections = h.xpath_elements(board_doc, ".//div[contains(@class, 'section-toggle')]")
     for section in sections:
-        headers = section.xpath(".//*[contains(@class, 'section-header')]")
-        assert len(headers) == 1, etree.tostring(headers)
-        if "porto-subtitle" in headers[0].get("class"):
+        header = h.xpath_element(section, ".//*[contains(@class, 'section-header')]")
+        if "porto-subtitle" in (header.get("class") or ""):
             # Skip portfolio: a list of legislation related to the body
             continue
-        section_name = headers[0].text_content().strip()
+        section_name = h.element_text(header)
         # Identify positions related to the current section
-        section_bodies = section.xpath(".//*[contains(@class, 'section-body')]")
-        assert len(section_bodies) == 1, etree.tostring(section_bodies)
-        officials = section_bodies[0].findall(".//li[@id]")
+        section_body = h.xpath_element(
+            section, ".//*[contains(@class, 'section-body')]"
+        )
+        officials = section_body.findall(".//li[@id]")
         for official in officials:
             official_count += 1
             is_pep = crawl_person(
@@ -325,19 +325,22 @@ def crawl_body(context: Context, state: CrawlState, url: str) -> None:
         pep_count=pep_count,
         expectations=expectations,
     )
-    subdivision_links = board_doc.xpath(".//div[contains(@class, 'tab-content')]//a")
-    for subdivision_link in subdivision_links:
-        crawl_body(context, state, subdivision_link.get("href"))
+    subdivision_hrefs = h.xpath_strings(
+        board_doc, ".//div[contains(@class, 'tab-content')]//a/@href"
+    )
+    for subdivision_href in subdivision_hrefs:
+        crawl_body(context, state, subdivision_href)
 
 
 def crawl_spokespersons(context: Context, state: CrawlState) -> None:
     """Crawl the root page to find all spokesperson links and process them."""
     main_doc = context.fetch_html(SPOKEPERSONS_URL, cache_days=1)
 
-    for list_item in main_doc.xpath(".//ul[@class='contact-list']//a"):
+    for list_item in h.xpath_elements(main_doc, ".//ul[@class='contact-list']//a"):
         # Extract the public body from the text within an <a> element
         url = list_item.get("href")
-        public_body = list_item.text_content().strip()
+        assert url is not None
+        public_body = h.element_text(list_item, squash=False).strip()
         crawl_subpage(context, state, url, public_body=public_body)
 
 
@@ -355,7 +358,7 @@ def crawl_subpage(
     state.seen_urls.add(url)
     subpage_doc = context.fetch_html(url)
     # Main subpage
-    for person in subpage_doc.xpath("//div[@class='section-info']//li"):
+    for person in h.xpath_elements(subpage_doc, "//div[@class='section-info']//li"):
         crawl_person(
             context,
             state,
@@ -367,11 +370,11 @@ def crawl_subpage(
             hierarchy=None,
         )
     # Subsections
-    for subsection_el in subpage_doc.xpath(
-        ".//div[@class='tab-content']//ul[@class='section-listing']//a"
+    for subsection_el in h.xpath_elements(
+        subpage_doc, ".//div[@class='tab-content']//ul[@class='section-listing']//a"
     ):
         sub_url = subsection_el.get("href")
-        agency = subsection_el.text_content().strip()
+        agency = h.element_text(subsection_el, squash=False).strip()
         if sub_url:
             crawl_subpage(
                 context, state, sub_url, public_body=public_body, agency=agency
@@ -394,15 +397,15 @@ def crawl(context: Context) -> None:
             ".//div[@class='directory-list']//ul[@class='ministries']//li//a"
         )
         for board in bodies:
-            url = board.get("href")
-            org_name = board.text_content().strip()
-            if url is None:
+            href = board.get("href")
+            org_name = h.element_text(board, squash=False).strip()
+            if href is None:
                 context.log.warning("No link found", org_name=org_name)
                 continue
             if org_name == "":
-                context.log.warning("No org name found", url=url)
+                context.log.warning("No org name found", url=href)
                 continue
-            crawl_body(context, state, url)
+            crawl_body(context, state, href)
     # Crawl spokespersons pages
     crawl_spokespersons(context, state)
     expected = set(PAGE_EXPECTATIONS.keys())

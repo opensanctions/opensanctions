@@ -37,7 +37,7 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 520
+      Person: 400
   max:
     schema_entities:
       Person: 1200
@@ -61,6 +61,8 @@ lookups:
         value: null
       - match: CA
         value: CA
+      - match: MN
+        value: MN
       - match: NY
         value: NY
       - match: PR

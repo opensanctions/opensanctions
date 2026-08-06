@@ -1,6 +1,6 @@
 from collections import defaultdict
 import time
-from typing import Dict, Any, List, Optional, Set
+from typing import Any
 from requests.exceptions import HTTPError
 from rigour.text import is_nullword
 
@@ -21,8 +21,8 @@ IGNORE_FIELDS = [
     # "eyes_colors_id",
 ]
 MAX_RESULTS = 160
-SEEN_URLS: Set[str] = set()
-SEEN_IDS: Set[str] = set()
+SEEN_URLS: set[str] = set()
+SEEN_IDS: set[str] = set()
 COUNTRIES_URL = "https://www.interpol.int/en/notices/data/countries"
 GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
@@ -48,20 +48,20 @@ HEADERS = {
 PROGRAM_KEY = "INTERPOL-RN"
 
 
-def get_countries(context: Context) -> List[str]:
+def get_countries(context: Context) -> list[str]:
     doc = context.fetch_json(COUNTRIES_URL, cache_days=CACHE_VSHORT, headers=HEADERS)
     return [v["value"] for v in doc]
 
 
-def patch(query: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
+def patch(query: dict[str, Any], update: dict[str, Any]) -> dict[str, Any]:
     new = query.copy()
     new.update(update)
     return new
 
 
-def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
-    _links: Dict[str, Any] = notice.pop("_links", {})
-    url: Optional[str] = _links.get("self", {}).get("href")
+def crawl_notice(context: Context, notice: dict[str, Any]) -> None:
+    _links: dict[str, Any] = notice.pop("_links", {})
+    url: str | None = _links.get("self", {}).get("href")
     if url in SEEN_URLS or url is None:
         return
     SEEN_URLS.add(url)
@@ -121,7 +121,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     context.emit(entity, origin=url)
 
 
-def crawl_query(context: Context, query: Dict[str, Any]) -> int:
+def crawl_query(context: Context, query: dict[str, Any]) -> int:
     context.log.info(f"Running query: {query}", query=query)
     params = query.copy()
     params["resultPerPage"] = MAX_RESULTS
@@ -213,4 +213,4 @@ def crawl(context: Context) -> None:
     )
 
     if any([key > 200 for key in STATUSES.keys()]):
-        raise RuntimeError("non-200 HTTP statuse codes %r" % STATUSES)
+        raise RuntimeError(f"non-200 HTTP statuse codes {STATUSES!r}")

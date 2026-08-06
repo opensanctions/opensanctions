@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-from typing import Dict, cast
+from typing import cast
 from lxml.html import HtmlElement
 
 from normality import squash_spaces
@@ -67,7 +67,7 @@ ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
 LOCAL_PATH = Path(__file__).parent
 
 
-def remove_zero_width_space(row: Dict[str, str]) -> Dict[str, str]:
+def remove_zero_width_space(row: dict[str, str]) -> dict[str, str]:
     return {
         k: (v.replace("\u200b", "") if isinstance(v, str) else v)
         for k, v in row.items()
@@ -89,7 +89,7 @@ def write_csv_for_manual_diff(table: HtmlElement, path: Path) -> None:
             writer.writerow(cells)
 
 
-def crawl_csv_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_csv_row(context: Context, row: dict[str, str]) -> None:
     person = None
     entity = None
     country = None
@@ -102,7 +102,12 @@ def crawl_csv_row(context: Context, row: Dict[str, str]) -> None:
         person = context.make("Person")
         person.id = context.make_id(row.get("id_no") or row.get("passport_no") or name)
         h.apply_name(person, full=name, lang="eng")
-        h.apply_date(person, "birthDate", squash_spaces(row.pop("dob")))
+        h.apply_date(
+            person,
+            "birthDate",
+            squash_spaces(row.pop("dob")),
+            two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE,
+        )
         person.add("email", row.pop("email").split(";"))
         person.add("phone", row.pop("phone"))
         for alias in row.pop("alias").split(";"):
@@ -220,7 +225,7 @@ def crawl(context: Context) -> None:
     # so we maintain the data manually in a google sheet, but dump the table to csv
     # to be able to see what changed quickly.
     src = context.fetch_resource("source.csv", context.data_url)
-    with open(src, "r") as f:
+    with open(src) as f:
         reader = csv.DictReader(f)
         for row in reader:
             row = remove_zero_width_space(row)

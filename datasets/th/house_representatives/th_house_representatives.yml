@@ -1,0 +1,79 @@
+# ci_test is off because the crawler transliterates every member name with an LLM
+# call — around 500 of them, ~9 minutes on a cold cache, and API credentials are
+# needed to make them at all.
+title: Thailand Members of the House of Representatives
+name: th_house_representatives
+prefix: th-hor
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false
+summary: >-
+  Lower chamber of the National Assembly, 400 constituency and 100 list seats
+description: |
+  Current members of the House of Representatives (สภาผู้แทนราษฎร), the lower chamber of
+  the bicameral National Assembly of Thailand. Its 500 members are directly elected for a
+  four-year term — 400 from single-member constituencies and 100 from national party
+  lists — and, together with the Senate, hold the country's legislative power, including
+  passing laws and approving the budget.
+
+  Seats standing vacant pending a by-election or a party-list replacement are not included.
+url: https://www.parliament.go.th/view/1/mpconnect/TH-TH
+publisher:
+  name: สภาผู้แทนราษฎร
+  name_en: House of Representatives of Thailand
+  description: >
+    The House of Representatives is the elected lower chamber of Thailand's National
+    Assembly. Its Secretariat runs the parliamentary web portal, publishing the roster
+    of sitting members alongside the chamber's agendas and proceedings.
+  url: https://www.parliament.go.th/
+  country: th
+  official: true
+data:
+  url: https://www.parliament.go.th/member/loaddata
+  format: JSON
+  lang: tha
+
+names:
+  prefixes_strip:
+    # Civil honorifics. Thai attaches these directly to the given name with no
+    # space (นางกนกพร), and strip_name_titles only strips a bare-word prefix that
+    # is followed by whitespace, so these do not currently match. The same holds
+    # for the academic titles ศาสตราจารย์ and รองศาสตราจารย์, which is why five
+    # members keep them. Listed so they take effect once the helper can express a
+    # prefix in a script that does not separate words.
+    - นางสาว
+    - นาย
+    - นาง
+    # Military and police ranks, which the source does separate with a space.
+    - จ่าอากาศเอก  # Flight Sergeant 1st Class
+    - จ่าเอก  # Chief Petty Officer 1st Class
+    - นาวาอากาศเอก  # Group Captain
+    - นาวาโท  # Commander
+    - พลตำรวจตรี  # Police Major General
+    - พลตำรวจเอก  # Police General
+    - พลตำรวจโท  # Police Lieutenant General
+    - พันตำรวจเอก  # Police Colonel
+    - พันเอก  # Colonel
+    - พันโท  # Lieutenant Colonel
+    - ร้อยตำรวจเอก  # Police Captain
+    - ร้อยเอก  # Captain
+    - ว่าที่ร้อยตรี  # Acting Sub-Lieutenant
+    - เรืออากาศโท  # Flight Lieutenant
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Position: 1
+    country_entities:
+      th: 400
+  max:
+    schema_entities:
+      Person: 550
+      Position: 1

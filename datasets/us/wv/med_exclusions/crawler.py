@@ -52,7 +52,12 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(
-        sanction, "startDate", (row.pop("action_date") or "").replace("\n", "")
+        sanction,
+        "startDate",
+        (row.pop("action_date") or "").replace("\n", ""),
+        # Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
+        # Amendments.
+        two_digit_year_base=1977,
     )
     sanction.add("reason", flat(row.pop("reason_for_exclusion_termination")))
     sanction.add("provisions", flat(row.pop("excluded_terminated")))

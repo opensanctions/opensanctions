@@ -38,6 +38,40 @@ http:
 dates:
   formats: ["%d/%m/%Y"]
 
+lookups:
+  type.name:
+    options:
+      # Registered company names that legitimately contain angle brackets:
+      # Greek-style << >> quotation marks or bracketed qualifiers. Keep the name
+      # intact and silence the HTML/XSS smell warning.
+      - match: "PHOENIX TECHNICAL SUPPLIES & SERVICES <CYPRUS> LIMITED"
+        value: "PHOENIX TECHNICAL SUPPLIES & SERVICES <CYPRUS> LIMITED"
+        silence_warnings: [xss-html-smell]
+      - match: "<ΑΠΑΛΟΣ> ΠΟΛΙΤΙΣΜΟΣ ΛΙΜΙΤΕΔ"
+        value: "<ΑΠΑΛΟΣ> ΠΟΛΙΤΙΣΜΟΣ ΛΙΜΙΤΕΔ"
+        silence_warnings: [xss-html-smell]
+      - match: "<<ΕΚΔΟΣΕΙΣ ΠΑΒΕΛ ΛΙΜΙΤΕΔ>>"
+        value: "<<ΕΚΔΟΣΕΙΣ ΠΑΒΕΛ ΛΙΜΙΤΕΔ>>"
+        silence_warnings: [xss-html-smell]
+      - match: "A.I.P. PROPERTIES <4> ALL LIMITED"
+        value: "A.I.P. PROPERTIES <4> ALL LIMITED"
+        silence_warnings: [xss-html-smell]
+      - match: "ΚΑΦΕΝΕΙΟ <<ΤΟ ΜΠΑΚΑΛΙΚΟ ΤΟΥ ΧΑΨΗ>> ΛΙΜΙΤΕΔ"
+        value: "ΚΑΦΕΝΕΙΟ <<ΤΟ ΜΠΑΚΑΛΙΚΟ ΤΟΥ ΧΑΨΗ>> ΛΙΜΙΤΕΔ"
+        silence_warnings: [xss-html-smell]
+      - match: "ΓΕΝΙΚΟ ΕΜΠΟΡΙΟ & ΕΠΙΔΙΟΡΘΩΣΕΙΣ ΑΚΙΝΗΤΩΝ <<Ι.Π.>> ΛΤΔ"
+        value: "ΓΕΝΙΚΟ ΕΜΠΟΡΙΟ & ΕΠΙΔΙΟΡΘΩΣΕΙΣ ΑΚΙΝΗΤΩΝ <<Ι.Π.>> ΛΤΔ"
+        silence_warnings: [xss-html-smell]
+      - match: "ΕΝΩΣΗ ΔΑΝΕΙΟΛΗΠΤΩΝ << ΕΥΝΟΜΙΑ>> ΛΤΔ"
+        value: "ΕΝΩΣΗ ΔΑΝΕΙΟΛΗΠΤΩΝ << ΕΥΝΟΜΙΑ>> ΛΤΔ"
+        silence_warnings: [xss-html-smell]
+      - match: "<<ΓΑΙΑ>> ΕΤΑΙΡΕΙΑ ΠΡΟΩΘΗΣΗΣ ΣΥΜΦΕΡΟΝΤΩΝ ΑΓΡΟΤΩΝ, ΚΑΛΛΙΕΡΓΗΤΩΝ ΚΑΙ ΚΤΗΝΟΤΡΟΦΩΝ ΛΤΔ"
+        value: "<<ΓΑΙΑ>> ΕΤΑΙΡΕΙΑ ΠΡΟΩΘΗΣΗΣ ΣΥΜΦΕΡΟΝΤΩΝ ΑΓΡΟΤΩΝ, ΚΑΛΛΙΕΡΓΗΤΩΝ ΚΑΙ ΚΤΗΝΟΤΡΟΦΩΝ ΛΤΔ"
+        silence_warnings: [xss-html-smell]
+      # A phone number that landed in the officials name column - drop it.
+      - match: "4518 567521"
+        value: null
+
 assertions:
   min:
     schema_entities:

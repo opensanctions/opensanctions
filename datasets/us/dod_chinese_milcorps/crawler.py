@@ -18,8 +18,10 @@ def crawl(context: Context) -> None:
     )
     search_result = h.xpath_element(doc, results_xpath)
     h.assert_dom_hash(
-        search_result, "d300482bac726d5b45fc0696bf99cdca69478a5f", text_only=True
+        search_result, "646c3ba9b4d41eeac34d828e9694ca4f50d88481", text_only=True
     )
+    # June 30, 2026
+    # Department of War Launches New Website to Help Industry Partners Navigate Section 805 Supply Chain Requirements
     # June 8, 2026
     # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
     # Jan. 8, 2026
@@ -34,7 +36,7 @@ def crawl(context: Context) -> None:
     # DOD Releases List of Chinese Military Companies in Accordance With Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
 
     source_file = context.fetch_resource("source.csv", context.data_url)
-    with open(source_file, "r") as f:
+    with open(source_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             entity = context.make("Company")

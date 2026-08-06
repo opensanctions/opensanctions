@@ -50,6 +50,7 @@ from zavod.helpers.change import (
 )
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.dates import (
+    TWO_DIGIT_BIRTH_YEAR_BASE,
     apply_date,
     apply_dates,
     backdate,
@@ -132,6 +133,7 @@ __all__ = [
     "replace_months",
     "backdate",
     "within_max_age",
+    "TWO_DIGIT_BIRTH_YEAR_BASE",
     "apply_number",
     "convert_excel_cell",
     "convert_excel_date",

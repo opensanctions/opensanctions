@@ -1,43 +1,57 @@
 from urllib.parse import urljoin
 
 from lxml import etree
-from lxml.html import HtmlElement
 from normality import slugify
-
-from zavod import Context, Entity, helpers as h
 from zavod.extract.zyte_api import fetch_html
 from zavod.util import Element
 
+from zavod import Context, Entity
+from zavod import helpers as h
 
-def parse_facts_list(container: HtmlElement) -> dict[str, list[HtmlElement]]:
+
+def parse_facts_list(container: Element) -> dict[str, list[Element]]:
     """
-    Parse a list of facts into a dictionary.
+    Parse the company page's facts list into a dict keyed by slugified label.
 
-    Args:
-        container: The HtmlElement containing the description list rows
-
-    Returns:
-        Dictionary where the slugified text content of each data list label is the key,
-          and the value element is the value.
+    Values are the raw `<span>` cell elements so callers can extract text or
+    links as appropriate for each field.
     """
-    rows_xpath = './/div[contains(@class, "c-full-node__info--row")]'
-    key_xpath = './/label[contains(@class, "field__label")]'
-    values_xpath = "./span"
-    data: dict[str, list[HtmlElement]] = {}
-    for row in container.xpath(rows_xpath):
-        key_els = row.xpath(key_xpath)
-        assert len(key_els) == 1, (key_xpath, row.text_content())
-        label = key_els[0].text_content()
-        key = slugify(label, sep="_")
-        assert key
+    data: dict[str, list[Element]] = {}
+    rows = h.xpath_elements(
+        container, './/div[contains(@class, "c-full-node__info--row")]'
+    )
+    for row in rows:
+        label = h.xpath_element(row, './/label[contains(@class, "field__label")]')
+        key = slugify(h.element_text(label), sep="_")
+        assert key, h.element_text(label)
         assert key not in data, (key, data)
-        value_els = row.xpath(values_xpath)
-        data[key] = value_els
+        data[key] = h.xpath_elements(row, "./span")
     return data
 
 
+def emit_related_company(context: Context, cell: Element) -> Entity:
+    """Emit a Company referenced by name and link(s) in a facts-list cell."""
+    # squash=False + strip() preserves the exact strings previously produced by
+    # text_content().strip() — these feed make_id, so squashing internal
+    # whitespace would change entity IDs.
+    name = h.element_text(cell, squash=False).strip()
+    # Some links on the source page are relative (e.g. /company/fortis-bank-sanv);
+    # resolve them against the data URL so the url type cleaner accepts them and
+    # entity IDs stay consistent. urljoin is a no-op on already-absolute URLs.
+    urls = [
+        urljoin(context.data_url, url) for url in h.xpath_strings(cell, ".//a/@href")
+    ]
+    company = context.make("Company")
+    company.id = context.make_id(name, *urls, prefix="ir-br-co")
+    assert company.id
+    company.add("name", name)
+    company.add("sourceUrl", urls)
+    context.emit(company)
+    return company
+
+
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) -> None:
-    context.log.info(f"Starting to crawl company page: {url}")
+    context.log.info("Crawling company page", url=url)
     # In the past we've gotten an error message
     # "The website encountered an unexpected error. Try again later."
     # In that case this validator doesn't match.
@@ -48,6 +62,8 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) ->
     # to the unblock validator and then invalidate the cache and log the error.
     # BEWARE skipping pages with this error means intermittent data loss
     # and we've had complaints about that on this dataset in the past.
+    # An exact @class match is deliberate here (and for the facts list below):
+    # contains() would also match the c-full-node__info--row divs.
     validator_xpath = './/div[@class="c-full-node__info"]'
     doc = fetch_html(
         context,
@@ -62,33 +78,27 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) ->
     facts = parse_facts_list(facts_list)
 
     for industry in facts.pop("industry", []):
-        entity.add("sector", industry.text_content().strip())
+        entity.add("sector", h.element_text(industry, squash=False).strip())
 
     for sources in facts.pop("sources", []):
-        for source in sources.xpath(".//p"):
+        for source in sources.findall(".//p"):
             # Sometimes, the tree contains some weird CSS elements
             # with something that looks like an HTML comment - get rid of those.
             etree.strip_elements(source, "style", "script")
-            source_text = source.text_content()
+            # squash=False: the type.text lookups in the .yml match the raw
+            # text, non-breaking spaces included.
+            source_text = h.element_text(source, squash=False)
             if "initWindowFocus" in source_text:
                 continue
-            for a in source.xpath(".//a"):
-                source_url = a.get("href")
-                if source_url:
-                    source_text += f" ({source_url})"
+            for source_url in h.xpath_strings(source, ".//a/@href"):
+                source_text += f" ({source_url})"
             entity.add("notes", source_text)
 
     for website in facts.pop("website", []):
-        entity.add("website", website.xpath(".//a/@href"))
+        entity.add("website", h.xpath_strings(website, ".//a/@href"))
 
     for owner in facts.pop("parent_company", []):
-        parent_company = owner.text_content().strip()
-        parent_urls = owner.xpath(".//a/@href")
-        parent = context.make("Company")
-        parent.id = context.make_id(parent_company, *parent_urls, prefix="ir-br-co")
-        parent.add("name", parent_company)
-        parent.add("sourceUrl", parent_urls)
-        context.emit(parent)
+        parent = emit_related_company(context, owner)
         ownership = context.make("Ownership")
         ownership.id = context.make_id(entity_id, parent.id, prefix="ir-br-own")
         ownership.add("asset", entity.id)
@@ -98,16 +108,8 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) ->
     # Most of the time this is the subsidiary, but JX Nippon Oil & Energy
     # and Japan Energy Corporation are only affiliates
     for affiliate in facts.pop("affiliates_subsidiaries", []):
-        affiliate_name = affiliate.text_content().strip()
-        affiliates_urls = affiliate.xpath(".//a/@href")
-        subsidiary = context.make("Company")
-        subsidiary.id = context.make_id(
-            affiliate_name, *affiliates_urls, prefix="ir-br-co"
-        )
+        subsidiary = emit_related_company(context, affiliate)
         assert subsidiary.id
-        subsidiary.add("name", affiliate_name)
-        subsidiary.add("sourceUrl", affiliates_urls)
-        context.emit(subsidiary)
 
         link = context.make("UnknownLink")
         left = min(entity_id, subsidiary.id)
@@ -131,19 +133,27 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) ->
 
 
 def get_end_page(doc: Element) -> int:
-    last_page_xpath = ".//li[@class='c-pager__item c-pager__last']/a/@href"
+    last_page_xpath = ".//li[contains(@class, 'c-pager__last')]/a/@href"
     last_page_link = h.xpath_string(doc, last_page_xpath)
     last_page_num = int(last_page_link.split("=")[-1])
     return last_page_num
 
 
-def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
+def crawl_row(context: Context, row: dict[str, Element]) -> None:
     str_row = h.cells_to_str(row)
 
     # skip entities that have been withdrawn
-    withdrawn_elem = row.pop("withdrawn")
-    is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
-    if is_withdrawn is True:
+    withdrawn_cell = row.pop("withdrawn")
+    withdrawn_text = str_row.pop("withdrawn")
+    withdrawn_marker = h.xpath_elements(
+        withdrawn_cell, './/div[contains(@class, "featured")]'
+    )
+    is_withdrawn = len(withdrawn_marker) > 0
+    # Withdrawn status is only conveyed by the empty marker div, never as cell
+    # text; if the cell starts carrying text, the column semantics have changed
+    # and the marker check needs review.
+    assert withdrawn_text is None, withdrawn_text
+    if is_withdrawn:
         return
 
     company_elem = row.pop("company_sort_descending")

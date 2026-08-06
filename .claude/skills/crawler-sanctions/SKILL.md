@@ -43,18 +43,18 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 1000       # ~80% of expected count
+      Person: 1000       # band widths: see "Data assertions" in zavod/docs/metadata.md
       Organization: 200
       Sanction: 1000
     country_entities:
       cc: 100
   max:
     schema_entities:
-      Person: 5000       # ~150% of expected count
+      Person: 5000
       Organization: 1000
 ```
 
-- Sanctions lists typically use `frequency: daily` with a cron `schedule:`.
+- `coverage.frequency: daily` (house default for sanctions — see `zavod/docs/metadata.md`). Don't add a cron `schedule:` unless the run must follow the source's own publication time.
 - Assert Sanction entity counts alongside Person/Organization counts.
 
 ### Sanctions-specific lookups

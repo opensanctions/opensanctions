@@ -1,10 +1,16 @@
-from datetime import datetime, timedelta, timezone
+import logging
+from datetime import datetime, timedelta, UTC
+
+import pytest
 from structlog.testing import capture_logs
 
+from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
 from zavod.helpers.dates import extract_years, extract_date, backdate
 from zavod.helpers.dates import replace_months, apply_date, apply_dates
+from zavod.helpers.dates import within_max_age
+from zavod.settings import RUN_TIME
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
 
@@ -28,6 +34,54 @@ def test_extract_date(testdataset1: Dataset):
     # Check always-accepted formats
     assert "%Y-%m" not in testdataset1.dates.formats
     assert extract_date(testdataset1, "2023-01") == ["2023-01"]
+
+
+def test_extract_date_two_digit_year(
+    testdataset1: Dataset, caplog: pytest.LogCaptureFixture
+) -> None:
+    # The base date selects the century.
+    assert extract_date(
+        testdataset1,
+        "16-07-68",
+        formats=("%d-%m-%y",),
+        two_digit_year_base=1926,
+    ) == ["1968-07-16"]
+    assert extract_date(
+        testdataset1,
+        "16-07-68",
+        formats=("%d-%m-%y",),
+        two_digit_year_base=2000,
+    ) == ["2068-07-16"]
+
+    # Without a base year, the fixed strptime window applies and prefixdate warns.
+    # The warning reaches the dataset issue log through the standard logging chain.
+    with caplog.at_level(logging.WARNING, logger="prefixdate.formats"):
+        assert extract_date(testdataset1, "23-10-64", formats=("%d-%m-%y",)) == [
+            "2064-10-23"
+        ]
+    assert "two-digit year format" in caplog.text, caplog.text
+
+
+def test_apply_date_two_digit_year(testdataset1: Dataset):
+    data = {"id": "doe", "schema": "Person", "properties": {"name": ["John Doe"]}}
+    person = Entity(testdataset1, data)
+    apply_date(
+        person,
+        "birthDate",
+        "16-07-68",
+        formats=("%d-%m-%y",),
+        two_digit_year_base=1926,
+    )
+    assert person.pop("birthDate") == ["1968-07-16"]
+
+    apply_dates(
+        person,
+        "birthDate",
+        ["16-07-68", "23-10-64"],
+        formats=("%d-%m-%y",),
+        two_digit_year_base=1926,
+    )
+    assert sorted(person.pop("birthDate")) == ["1964-10-23", "1968-07-16"]
 
 
 def test_replace_months(testdataset1: Dataset):
@@ -91,7 +145,7 @@ def test_apply_date(testdataset1: Dataset):
     # datetime
 
     now = datetime.now()
-    bd = now.astimezone(timezone.utc).date().isoformat()
+    bd = now.astimezone(UTC).date().isoformat()
     with capture_logs() as cap_logs:
         apply_date(person, "birthDate", now)
     assert bd in person.pop("birthDate")
@@ -114,3 +168,14 @@ def test_apply_date(testdataset1: Dataset):
 def test_backdate():
     assert backdate(datetime(2023, 8, 3), timedelta(days=0)) == "2023-08-03"
     assert backdate(datetime(2023, 8, 3), timedelta(days=182)) == "2023-02-02"
+
+
+def test_within_max_age(vcontext: Context):
+    assert within_max_age(vcontext, RUN_TIME.date().isoformat())
+    # A year-precision date whose year straddles the cutoff may be as late as
+    # Dec 31 of that year, so it stays within the age window.
+    cutoff_year = (RUN_TIME - timedelta(days=5 * 365)).year
+    assert within_max_age(vcontext, str(cutoff_year))
+    # The year before the cutoff year has fully elapsed.
+    assert not within_max_age(vcontext, str(cutoff_year - 1))
+    assert not within_max_age(vcontext, "1999-01-01")

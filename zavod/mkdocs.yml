@@ -56,6 +56,7 @@ nav:
       - best_practices/caching.md
       - best_practices/patterns.md
       - best_practices/addresses.md
+      - best_practices/name_titles.md
       - best_practices/datapatch_lookups.md
       - best_practices/dates_meta.md
       - best_practices/entity_id.md

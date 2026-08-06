@@ -1,5 +1,5 @@
 import csv
-from typing import Set, Iterable
+from collections.abc import Iterable
 from followthemoney import registry
 
 from normality import squash_spaces
@@ -27,7 +27,7 @@ log = get_logger(__name__)
 
 
 def join_cell(texts: Iterable[str], sep: str = ";") -> str:
-    values: Set[str] = set()
+    values: set[str] = set()
     for value in texts:
         if value is None:
             continue
@@ -51,8 +51,8 @@ class MaritimeExporter(Exporter):
         self._count_vessels = 0
         self._count_orgs = 0
 
-    def _get_aliases(self, entity: Entity) -> Set[str]:
-        names: Set[str] = set()
+    def _get_aliases(self, entity: Entity) -> set[str]:
+        names: set[str] = set()
         for name in entity.get_type_values(registry.name, matchable=True):
             if name == entity.caption:
                 continue

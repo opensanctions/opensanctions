@@ -182,10 +182,14 @@ def process_entry(context: Context, entry: dict[str, Any]) -> None:
         entity.add("registrationNumber", entity_data.pop("registration_number"))
         entity.add("legalForm", entity_type)
         dob = entity_data.pop("dob")
+        # `title_prefix` only occurs for individual entrepreneurs. Pop it in all
+        # cases so it doesn't trip audit_data, but only keep it as a `title` when
+        # the record is cast to a Person below (`title` doesn't exist on LegalEntity).
+        title_prefix = entity_data.pop("title_prefix", "")
         # Overwrite the schema when the record is an individual entrepreneur
         if dob and entity_type == "FyzickaOsobaPodnikatel":
             entity.add_cast("Person", "birthDate", dob)
-            entity.add_cast("Person", "title", entity_data.pop("title_prefix", ""))
+            entity.add_cast("Person", "title", title_prefix)
 
     if legal_form := entity_data.pop("legal_form"):
         legal_form = rename_headers(context, legal_form)

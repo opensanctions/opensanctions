@@ -21,14 +21,12 @@ from zavod.extract.zyte_api import fetch_html
 # NAME, and Subsidiaries
 
 REGEX_NAME_STRUCTURE = re.compile(
-    (
-        r"^"
-        r"(?P<main>[\w.,/&\(\) -]+?) ?"
-        r"(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
-        r"(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
-        r"(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
-        r"$"
-    )
+    r"^"
+    r"(?P<main>[\w.,/&\(\) -]+?) ?"
+    r"(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
+    r"(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
+    r"(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
+    r"$"
 )
 SPLITTERS = [" and formerly known as ", ", and ", "; and ", ", ", "; "]
 

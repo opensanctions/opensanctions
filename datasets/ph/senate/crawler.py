@@ -122,6 +122,7 @@ def crawl(context: Context) -> None:
         country="ph",
         topics=TOPICS,
         wikidata_id="Q18579098",
+        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

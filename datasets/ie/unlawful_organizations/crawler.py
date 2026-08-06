@@ -1,10 +1,10 @@
-from typing import Any, Dict, List
+from typing import Any
 import requests
 from zavod import Context, helpers as h
 
 QUERY_URL = " https://www.irishstatutebook.ie/solr/all_leg_title/select?q=unlawful+organisation&rows=10&hl.maxAnalyzedChars=-1&sort=year+desc&facet=true&facet.field=year&facet.field=type&facet.limit=300&facet.mincount=1&json.nl=map&wt=json"
 
-HARD_CODED_DATA: List[Dict[str, Any]] = [
+HARD_CODED_DATA: list[dict[str, Any]] = [
     {
         "url": "https://www.irishstatutebook.ie/eli/1983/si/7/made/en/print?q=unlawful+organisation&search_type=all",
         "title": "S.I. No. 7/1983 - Unlawful Organisation (Suppression) Order, 1983.",

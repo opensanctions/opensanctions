@@ -1,0 +1,20 @@
+title: Ordinance on the Freezing of Assets in Connection with Egypt (SR 196.123.21)
+key: CH-FIAA-EG
+url: https://www.fedlex.admin.ch/eli/cc/2016/323/de
+summary: >
+  Froze the Swiss-held assets of former Egyptian president Hosni Mubarak and
+  members of his family and entourage under the Foreign Illicit Assets Act, in
+  support of Egyptian criminal proceedings and mutual legal assistance. After
+  the Egyptian judiciary dropped the underlying criminal cases, the Federal
+  Council lifted the freeze on 20 December 2017.
+issuer: ch_fdfa
+dataset: ch_fiaa_freezes
+aliases:
+  - Ägypten-Verordnung
+  - O-Egypte
+  - SR 196.123.21
+target_territories:
+  - eg
+measures:
+  - Asset freeze
+status: ended

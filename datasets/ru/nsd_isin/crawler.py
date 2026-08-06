@@ -23,7 +23,7 @@ def crawl_item(context: Context, url: str) -> None:
         html = context.fetch_html(url, cache_days=60)
     except RequestException as re:
         time.sleep(10)
-        context.log.error("HTTP error: %r" % re, url=url)
+        context.log.error(f"HTTP error: {re!r}", url=url)
         return
     table = html.findall('.//td[@class="content"]//table')
     if len(table) != 1:
@@ -58,7 +58,7 @@ def crawl_item(context: Context, url: str) -> None:
         return
     security = h.make_security(context, isin_code)
     security.add("sourceUrl", url)
-    security.add("topics", "sanction")
+    security.add("topics", "invest.ban")
     for prop, prop_val in values["security"].items():
         if prop in ["issueDate", "maturityDate", "createdAt"]:
             parsed = [parse_date(p) for p in prop_val]
@@ -66,7 +66,7 @@ def crawl_item(context: Context, url: str) -> None:
         else:
             security.add(prop, prop_val)
 
-    issuer = context.make("LegalEntity")
+    issuer = context.make("Organization")
     inn_code = first(values["issuer"].get("innCode", []))
     is_inn_code = INN.is_valid(inn_code) if inn_code is not None else False
     if inn_code is not None and is_inn_code:

@@ -1,7 +1,6 @@
-# This discovers entities in three ways:
+# This discovers entities in two ways:
 #
 # - wikidata items with a Declarator.org ID
-# - wikidata items holding one of the "seed" positions defined below
 # - wikidata items in specific Wikipedia categories defined below, using https://petscan.wmcloud.org
 #
 # # Categories
@@ -45,8 +44,8 @@ coverage:
   start: 2024-09-10
 deploy:
   cpu: "800m"
-  memory: "2300Mi"
-  memory_limit: "3000Mi"
+  memory: "2800Mi"
+  memory_limit: "4000Mi"
   schedule: "0 0 * * 0,1,3,5"
   # This job takes 7 hours. Restarting it for scale-down is probably not worth it.
   premium: true
@@ -85,9 +84,9 @@ data:
 assertions:
   min:
     country_entities:
-      ir: 1000
+      ir: 750
       il: 800
-      sa: 300
+      sa: 220
       eg: 300
       iq: 300
 lookups:
@@ -169,79 +168,12 @@ lookups:
         value: 2020-09
       - match: "2026-06-31"
         value: 2026-06
+      - match: "1951-06-31"
+        value: 1951-06
+      - match: "1942-02-29"
+        value: 1942-02
 
 config:
-  seeds:
-    - "Q109862464" # lord mayor
-    - "Q2285706" # head of government
-    - "Q48352" # head of state
-    - "Q183318" # dictator
-    - "Q7645115" # supreme leader
-    - "Q3099723" # minister-president
-    - "Q4175034" # legislator
-    - "Q486839" # member of parliament
-    - "Q83307" # minister
-    - "Q7330070" # foreign minister
-    - "Q14212" # prime minister
-    - "Q877955" # deputy prime minister
-    - "Q15966511" # state minister
-    - "Q26204040" # deputy minister
-    - "Q16163440" # chief minister
-    - "Q46403368" # deputy at the national level
-    - "Q7603534" # state senator
-    - "Q132050" # governor
-    - "Q380782" # commander in chief
-    - "Q599151" # official
-    - "Q294414" # public office
-    - "Q42841" # incumbent
-    - "Q766504" # undersecretary
-    - "Q20086425" # shadow minister
-    - "Q2998914" # county executive
-    - "Q108290289" # senior government officials
-    - "Q108289363" # legislators and senior officials
-    - "Q372436" # statesperson
-    - "Q6635529" # provincial leader of the People's Republic of China
-    - "Q117826617" # supreme court judge
-    - "Q55736868" # national sup court judge
-    - "Q13554447" # chief judge
-    - "Q1501926" # attorney general
-    - "Q3368517" # public prosecutor general
-    - "Q7574852" # special prosecutor
-    - "Q109607046" # deputy public prosecutor general
-    - "Q107363151" # central bank governor
-    - "Q1553195" # party leader
-    - "Q2746259" # party chair
-    - "Q836971" # party secretary
-    - "Q193391" # diplomat
-    - "Q29645880" # ambassador of a country
-    - "Q29645886" # ambassador to a country
-    - "Q29918335" # class of ambassador to a country
-    - "Q116182667" # diplomat to a country
-    - "Q707492" # military chief of staff
-    - "Q105434600" # high civil servant
-    - "Q17279032" # elective office
-    - "Q16060143" # elected person
-    - "Q131981747" # -elect
-    - "Q220098" # warlord
-    # skip:
-    # - "Q30185" # mayor
-    # Heads of international organisations for which Wikidata Q codes were found
-    - "Q24558593" # Administrator of the United Nations Development Programme
-    - "Q65782205" # Director General of the International Atomic Energy Agency
-    - "Q66566041" # Director-General of the Food and Agriculture Organization
-    - "Q111363853" # Director-General of the International Labour Organization
-    - "Q108603609" # Director-General of the World Intellectual Property Organization
-    - "Q28784183" # Director-General of UNESCO
-    - "Q67199671" # Executive Director of UNICEF
-    - "Q123171287" # Executive Director of United Nations Office for Project Services
-    - "Q19926443" # President of the International Court of Justice
-    - "Q29511440" # President of the United Nations Economic and Social Council
-    - "Q4352360" # President of the United Nations Security Council
-    - "Q110970831" # President of the World Meteorological Organization
-    - "Q42591216" # Secretary-General of the International Maritime Organization
-    - "Q17389566" # Secretary-General of the International Telecommunication Union
-    - "Q27832358" # United Nations High Commissioner for Refugees
-    - "Q112963010" # UNRWA Commissioner-General
   # These are person QIDs that shouldn't be found. If they are, we're probably including
   # categories that are by definition generally not PEPs.
   exclusion_checks:
@@ -306,6 +238,7 @@ config:
       country: sa
       position:
         name: Crown Prince of Saudi Arabia
+        wikidata_id: Q12251224
         country: sa
     - category: Government_ministers_of_Bahrain
       topic: role.pep
@@ -445,6 +378,7 @@ config:
       country: kp
       position:
         name: Member of the Supreme People's Assembly
+        wikidata_id: Q21328639
         country: kp
         topics:
           - gov.legislative
@@ -554,6 +488,7 @@ config:
       topic: role.pep
       position:
         name: Secretary-General of the United Nations
+        wikidata_id: Q81066
         country: zz
         topics:
           - gov.igo
@@ -561,6 +496,7 @@ config:
       topic: role.pep
       position:
         name: Under-Secretary-General of the United Nations
+        wikidata_id: Q2932400
         country: zz
         topics:
           - gov.igo
@@ -568,6 +504,7 @@ config:
       topic: role.pep
       position:
         name: Secretary General of the OSCE
+        wikidata_id: Q110934652
         country: zz
         topics:
           - gov.igo
@@ -582,6 +519,7 @@ config:
       topic: role.pep
       position:
         name: Secretary General of the Council of Europe
+        wikidata_id: Q2942251
         country: eu
         topics:
           - gov.igo
@@ -589,6 +527,7 @@ config:
       topic: role.pep
       position:
         name: President of the International Criminal Court
+        wikidata_id: Q7241113
         country: zz
         topics:
           - gov.igo
@@ -596,6 +535,7 @@ config:
       topic: role.pep
       position:
         name: Judge at the International Criminal Court
+        wikidata_id: Q965043
         country: zz
         topics:
           - role.judge
@@ -604,6 +544,7 @@ config:
       topic: role.pep
       position:
         name: Prosecutor of the International Criminal Court
+        wikidata_id: Q7250572
         country: zz
         topics:
           - gov.igo
@@ -617,6 +558,7 @@ config:
       topic: role.pep
       position:
         name: President of the World Bank Group
+        wikidata_id: Q4166474
         country: zz
         topics:
           - gov.igo
@@ -624,6 +566,7 @@ config:
       topic: role.pep
       position:
         name: Managing Director of the International Monetary Fund
+        wikidata_id: Q20054152
         country: zz
         topics:
           - gov.igo
@@ -635,6 +578,7 @@ config:
       topic: role.pep
       position:
         name: Director-General of the World Health Organization
+        wikidata_id: Q62070236
         country: zz
         topics:
           - gov.igo
@@ -642,12 +586,14 @@ config:
       topic: role.pep
       position:
         name: Secretary General of OPEC
+        wikidata_id: Q6596647
         topics:
           - gov.igo
     - category: NATO_Supreme_Allied_Commanders
       topic: role.pep
       position:
         name: NATO Supreme Allied Commander
+        wikidata_id: Q1640949
         topics:
           - gov.igo
           - mil
@@ -655,6 +601,7 @@ config:
       topic: role.pep
       position:
         name: Secretary General of NATO
+        wikidata_id: Q167662
         topics:
           - gov.igo
           - mil
@@ -662,12 +609,14 @@ config:
       topic: role.pep
       position:
         name: Chairperson of the African Union Commission
+        wikidata_id: Q2571270
         topics:
           - gov.igo
     - category: Secretaries_general_of_the_Organization_of_American_States
       topic: role.pep
       position:
         name: Secretary General of the Organization of American States
+        wikidata_id: Q6123153
         topics:
           - gov.igo
     - category: Organization_of_American_States_people
@@ -682,6 +631,7 @@ config:
       topic: role.pep
       position:
         name: Secretary General of the Arab League
+        wikidata_id: Q12180685
         country: zz
         topics:
           - gov.igo
@@ -689,6 +639,7 @@ config:
       topic: role.pep
       position:
         name: Secretary General of the Gulf Cooperation Council
+        wikidata_id: Q104127429
         country: zz
         topics:
           - gov.igo
@@ -696,6 +647,7 @@ config:
       topic: role.pep
       position:
         name: President of Interpol
+        wikidata_id: Q19698214
         country: zz
         topics:
           - gov.igo
@@ -703,6 +655,7 @@ config:
       topic: role.pep
       position:
         name: President of the Inter-American Development Bank
+        wikidata_id: Q58281251
         country: zz
         topics:
           - gov.igo
@@ -718,6 +671,7 @@ config:
       topic: role.pep
       position:
         name: President of the United Nations General Assembly
+        wikidata_id: Q1161813
         country: zz
         topics:
           - gov.igo
@@ -731,6 +685,7 @@ config:
       topic: poi
       position:
         name: President of FIFA
+        wikidata_id: Q22955080
         country: zz
         topics:
           - gov.igo
@@ -738,6 +693,7 @@ config:
       topic: poi
       position:
         name: President of the International Olympic Committee
+        wikidata_id: Q7241513
         country: zz
         topics:
           - gov.igo
@@ -785,6 +741,7 @@ config:
       country: us
       position:
         name: Justice of the Supreme Court of the United States
+        wikidata_id: Q20706330
         country: us
         topics:
           - role.judge
@@ -794,6 +751,7 @@ config:
       country: us
       position:
         name: President of the United States
+        wikidata_id: Q11696
         country: us
         topics:
           - gov.head
@@ -802,6 +760,7 @@ config:
       country: us
       position:
         name: Chief Justice of the United States
+        wikidata_id: Q11147
         country: us
         topics:
           - role.judge
@@ -816,6 +775,7 @@ config:
       country: us
       position:
         name: White House Counsel
+        wikidata_id: Q1296423
         country: us
         topics:
           - role.lawyer
@@ -980,6 +940,7 @@ config:
       topic: role.pep
       position:
         name: President of the European Commission
+        wikidata_id: Q8882
         country: eu
         topics:
           - gov.igo
@@ -992,6 +953,7 @@ config:
       country: eu
       position:
         name: President of the European Council
+        wikidata_id: Q735587
         country: eu
         topics:
           - gov.igo
@@ -1008,6 +970,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q18534310
         country: mx
         topics:
           - gov.legislative
@@ -1017,6 +980,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q18534310
         country: mx
         topics:
           - gov.legislative
@@ -1026,6 +990,7 @@ config:
       topic: role.pep
       position:
         name: Members of the Senate of the Republic
+        wikidata_id: Q19971999
         country: mx
         topics:
           - gov.legislative
@@ -1035,6 +1000,7 @@ config:
       topic: role.pep
       position:
         name: Members of the Senate of the Republic
+        wikidata_id: Q19971999
         country: mx
         topics:
           - gov.legislative
@@ -1079,6 +1045,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q21295982
         country: ec
         topics:
           - gov.legislative
@@ -1088,6 +1055,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Congress
+        wikidata_id: Q22230757
         country: ec
         topics:
           - gov.legislative
@@ -1097,6 +1065,7 @@ config:
       topic: role.pep
       position:
         name: President of the National Assembly
+        wikidata_id: Q6085548
         country: ec
         topics:
           - gov.legislative
@@ -1124,6 +1093,7 @@ config:
       topic: role.pep
       position:
         name: President of Ecuador
+        wikidata_id: Q732562
         country: ec
         topics:
           - gov.head
@@ -1133,6 +1103,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Ecuador
+        wikidata_id: Q4261569
         country: ec
         topics:
           - gov.executive
@@ -1149,6 +1120,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q21295982
         country: ec
         topics:
           - gov.legislative
@@ -1169,6 +1141,7 @@ config:
       topic: role.pep
       position:
         name: President of Ecuador
+        wikidata_id: Q732562
         country: ec
         topics:
           - gov.head
@@ -1179,6 +1152,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Ecuador
+        wikidata_id: Q4261569
         country: ec
         topics:
           - gov.executive
@@ -1211,6 +1185,7 @@ config:
       depth: 0
       position:
         name: President of Colombia
+        wikidata_id: Q853475
         country: co
         topics:
           - gov.head
@@ -1223,6 +1198,7 @@ config:
       topic: role.pep
       position:
         name: Mayor of Bogotá
+        wikidata_id: Q21994938
         country: co
         topics:
           - gov.muni
@@ -1236,6 +1212,7 @@ config:
       topic: role.pep
       position:
         name: Senator
+        wikidata_id: Q19254253
         country: co
         topics:
           - gov.legislative
@@ -1251,6 +1228,7 @@ config:
       depth: 0
       position:
         name: President of Colombia
+        wikidata_id: Q853475
         country: co
         topics:
           - gov.head
@@ -1261,6 +1239,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Colombia
+        wikidata_id: Q17104133
         country: co
         topics:
           - gov.executive
@@ -1277,6 +1256,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q20011182
         country: ve
         topics:
           - gov.legislative
@@ -1288,6 +1268,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Senate of Venezuela
+        wikidata_id: Q20081434
         country: ve
         topics:
           - gov.legislative
@@ -1299,6 +1280,7 @@ config:
       topic: role.pep
       position:
         name: President of Venezuela
+        wikidata_id: Q11942698
         country: ve
         topics:
           - gov.head
@@ -1310,6 +1292,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Venezuela
+        wikidata_id: Q3556895
         country: ve
         topics:
           - gov.executive
@@ -1331,6 +1314,7 @@ config:
       topic: role.pep
       position:
         name: Deputy of Venezuela
+        wikidata_id: Q20011182
         country: ve
         topics:
           - gov.legislative
@@ -1343,6 +1327,7 @@ config:
       topic: role.pep
       position:
         name: President of Venezuela
+        wikidata_id: Q11942698
         country: ve
         topics:
           - gov.head
@@ -1375,6 +1360,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q18616113
         country: ni
         topics:
           - gov.legislative
@@ -1384,6 +1370,7 @@ config:
       topic: role.pep
       position:
         name: President of Nicaragua
+        wikidata_id: Q852448
         country: ni
         topics:
           - gov.head
@@ -1393,6 +1380,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Nicaragua
+        wikidata_id: Q3649507
         country: ni
         topics:
           - gov.executive
@@ -1405,6 +1393,7 @@ config:
       topic: role.pep
       position:
         name: Mayor of Managua
+        wikidata_id: Q104881755
         country: ni
         topics:
           - gov.muni
@@ -1417,6 +1406,7 @@ config:
       topic: role.pep
       position:
         name: President of Nicaragua
+        wikidata_id: Q852448
         country: ni
         topics:
           - gov.head
@@ -1450,6 +1440,7 @@ config:
       topic: role.pep
       position:
         name: President of Guatemala
+        wikidata_id: Q6085537
         country: gt
         topics:
           - gov.head
@@ -1459,6 +1450,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Guatemala
+        wikidata_id: Q5340773
         country: gt
         topics:
           - gov.executive
@@ -1471,6 +1463,7 @@ config:
       topic: role.pep
       position:
         name: Mayor of Guatemala City
+        wikidata_id: Q116790781
         country: gt
         topics:
           - gov.muni
@@ -1480,6 +1473,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Congress of Guatemala
+        wikidata_id: Q18277108
         country: gt
         topics:
           - gov.legislative
@@ -1493,6 +1487,7 @@ config:
       topic: role.pep
       position:
         name: President of Guatemala
+        wikidata_id: Q6085537
         country: gt
         topics:
           - gov.head
@@ -1503,6 +1498,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Guatemala
+        wikidata_id: Q5340773
         country: gt
         topics:
           - gov.executive
@@ -1517,6 +1513,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Congress of Guatemala
+        wikidata_id: Q18277108
         country: gt
         topics:
           - gov.legislative
@@ -1551,6 +1548,7 @@ config:
       topic: role.pep
       position:
         name: Prime Minister
+        wikidata_id: Q12379704
         country: by
         topics:
           - gov.executive
@@ -1560,6 +1558,7 @@ config:
       topic: role.pep
       position:
         name: Deputy Prime Minister
+        wikidata_id: Q18690228
         country: by
         topics:
           - gov.executive
@@ -1569,6 +1568,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Foreign Affairs
+        wikidata_id: Q2045068
         country: by
         topics:
           - gov.executive
@@ -1578,6 +1578,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Defence
+        wikidata_id: Q44035369
         country: by
         topics:
           - gov.executive
@@ -1587,6 +1588,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Finance
+        wikidata_id: Q106510813
         country: by
         topics:
           - gov.executive
@@ -1596,6 +1598,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Internal Affairs
+        wikidata_id: Q100699741
         country: by
         topics:
           - gov.executive
@@ -1605,6 +1608,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Justice
+        wikidata_id: Q106510814
         country: by
         topics:
           - gov.executive
@@ -1614,6 +1618,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Health Care
+        wikidata_id: Q89775465
         country: by
         topics:
           - gov.executive
@@ -1623,6 +1628,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Transport and Communications
+        wikidata_id: Q60676745
         country: by
         topics:
           - gov.executive
@@ -1632,6 +1638,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Telecommunications and Informatisation
+        wikidata_id: Q28598480
         country: by
         topics:
           - gov.executive
@@ -1641,6 +1648,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Industry
+        wikidata_id: Q106508605
         country: by
         topics:
           - gov.executive
@@ -1650,6 +1658,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Information
+        wikidata_id: Q106399613
         country: by
         topics:
           - gov.executive
@@ -1660,6 +1669,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Sejm
+        wikidata_id: Q19269361
         country: pl
         topics:
           - gov.legislative
@@ -1669,6 +1679,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Sejm
+        wikidata_id: Q19269361
         country: pl
         topics:
           - gov.legislative
@@ -1678,6 +1689,7 @@ config:
       topic: role.pep
       position:
         name: Senator of the Republic of Poland
+        wikidata_id: Q81747225
         country: pl
         topics:
           - gov.legislative
@@ -1687,6 +1699,7 @@ config:
       topic: role.pep
       position:
         name: Senator of the Republic of Poland
+        wikidata_id: Q81747225
         country: pl
         topics:
           - gov.legislative
@@ -1779,6 +1792,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q19803234
         country: cz
         topics:
           - gov.legislative
@@ -1787,6 +1801,7 @@ config:
       country: cz
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q19803234
         country: cz
         topics:
           - gov.legislative
@@ -1794,6 +1809,7 @@ config:
       country: cz
       position:
         name: Senator of the Czech Republic
+        wikidata_id: Q18941264
         country: cz
         topics:
           - gov.legislative
@@ -1801,6 +1817,7 @@ config:
       country: cz
       position:
         name: President of the Czech Republic
+        wikidata_id: Q1819381
         country: cz
         topics:
           - gov.head
@@ -1809,6 +1826,7 @@ config:
       topic: role.pep
       position:
         name: Minister of the Czech Republic
+        wikidata_id: Q68081922
         country: cz
         topics:
           - gov.executive
@@ -1830,6 +1848,7 @@ config:
       country: cz
       position:
         name: Judge of the Constitutional Court of the Czech Republic
+        wikidata_id: Q59773473
         country: cz
         topics:
           - gov.judicial
@@ -1844,6 +1863,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Council
+        wikidata_id: Q19967563
         country: sk
         topics:
           - gov.legislative
@@ -1853,6 +1873,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Council
+        wikidata_id: Q19967563
         country: sk
         topics:
           - gov.legislative
@@ -1872,6 +1893,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly of Hungary
+        wikidata_id: Q17590876
         country: hu
         topics:
           - gov.legislative
@@ -1881,6 +1903,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly of Hungary
+        wikidata_id: Q17590876
         country: hu
         topics:
           - gov.legislative
@@ -1909,6 +1932,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Congress of Deputies
+        wikidata_id: Q18171345
         country: es
         topics:
           - gov.legislative
@@ -1918,6 +1942,7 @@ config:
       topic: role.pep
       position:
         name: Senator of Spain
+        wikidata_id: Q19323171
         country: es
         topics:
           - gov.legislative
@@ -1927,6 +1952,7 @@ config:
       topic: role.pep
       position:
         name: President of the Congress of Deputies
+        wikidata_id: Q17014422
         country: es
         topics:
           - gov.legislative
@@ -1936,6 +1962,7 @@ config:
       topic: role.pep
       position:
         name: President of the Senate of Spain
+        wikidata_id: Q1335465
         country: es
         topics:
           - gov.legislative
@@ -1945,6 +1972,7 @@ config:
       topic: role.pep
       position:
         name: Prime Minister of Spain
+        wikidata_id: Q844587
         country: es
         topics:
           - gov.head
@@ -1954,6 +1982,7 @@ config:
       topic: role.pep
       position:
         name: Deputy Prime Minister of Spain
+        wikidata_id: Q3113035
         country: es
         topics:
           - gov.executive
@@ -1963,6 +1992,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Spain
+        wikidata_id: Q20899145
         country: es
         topics:
           - gov.executive
@@ -1987,6 +2017,7 @@ config:
       topic: role.pep
       position:
         name: Mayor (Spain)
+        wikidata_id: Q5663900
         country: es
         topics:
           - gov.head
@@ -2004,6 +2035,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Senate
+        wikidata_id: Q19305384
         country: nl
         topics:
           - gov.legislative
@@ -2013,6 +2045,7 @@ config:
       topic: role.pep
       position:
         name: Member of the House of Representatives
+        wikidata_id: Q18887908
         country: nl
         topics:
           - gov.legislative
@@ -2027,6 +2060,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Bundestag
+        wikidata_id: Q1939555
         country: de
         topics:
           - gov.legislative
@@ -2036,6 +2070,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Bundesrat
+        wikidata_id: Q15835370
         country: de
         topics:
           - gov.legislative
@@ -2132,17 +2167,173 @@ config:
     - category: Suomen_hallinto
       language: fi
 
+    # country: Lithuania
     - category: Lietuvos_politikai
       language: lt
       country: lt
-    - category: Lietuvos_parlamentų_nariai
+
+    - category: Lietuvos_prezidentai
       language: lt
       country: lt
       topic: role.pep
+      position:
+        name: President of Lithuania
+        wikidata_id: Q878222
+        country: lt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Lietuvos_ministrai_pirmininkai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Prime Minister of Lithuania
+        wikidata_id: Q845439
+        country: lt
+        topics:
+          - gov.head
+          - gov.national
+    - category: Lietuvos_vicepremjerai
+      language: lt
+      country: lt
+      topic: role.pep
+    # Excluded: ministers of polities other than the present-day republic, being
+    # the Soviet LSSR and the 1941 Provisional Government.
     - category: Lietuvos_ministrai
       language: lt
       country: lt
       topic: role.pep
+      negcats: |
+        Lietuvos_TSR_ministrai
+        Lietuvos_laikinosios_vyriausybės_ministrai
+    - category: Lietuvos_viceministrai
+      language: lt
+      country: lt
+      topic: role.pep
+      negcats: |
+        Lietuvos_TSR_viceministrai
+
+    # Lietuvos_parlamentų_nariai spans every parliament back to the Grand Duchy,
+    # so no one position fits it. Seimo_nariai is the Seimas of the restored
+    # republic; the QID is the one lt_seimas uses, so it's the same entity.
+    - category: Lietuvos_parlamentų_nariai
+      language: lt
+      country: lt
+      topic: role.pep
+    - category: Seimo_nariai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Member of the Seimas of Lithuania
+        wikidata_id: Q18507240
+        country: lt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: LR_Seimo_pirmininkai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Speaker of the Seimas of Lithuania
+        wikidata_id: Q12663218
+        country: lt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Europos_Parlamento_nariai_(Lietuva)
+      language: lt
+      country: lt
+      topic: role.pep
+
+    # Courts of final instance only - Court of Appeal decisions can still be
+    # appealed to the Supreme Court, so its judges aren't PEPs by definition.
+    - category: LR_Konstitucinio_Teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Justice of the Constitutional Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_Aukščiausiojo_Teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Judge of the Supreme Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_vyriausiojo_administracinio_teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Judge of the Supreme Administrative Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_generaliniai_prokurorai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Prosecutor General of Lithuania
+        wikidata_id: Q132068652
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: LR_generalinio_prokuroro_pavaduotojai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Deputy Prosecutor General of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+
+    - category: Lietuvos_banko_vadovai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Governor of the Bank of Lithuania
+        wikidata_id: Q109496871
+        country: lt
+        topics:
+          - gov.financial
+          - gov.national
+    - category: Lietuvos_kariuomenės_vadai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Chief of Defence of Lithuania
+        wikidata_id: Q55607326
+        country: lt
+        topics:
+          - gov.security
+          - gov.national
+
+    # Lietuvos_diplomatai as a whole also holds consuls and junior diplomats,
+    # so only the ambassadors are marked.
+    - category: Lietuvos_ambasadoriai
+      language: lt
+      country: lt
+      topic: role.pep
+
+    # Deputy mayors are left out: lt isn't in MUNI_COUNTRIES in
+    # zavod.shed.wikidata.position, so LT municipal positions get dropped.
     - category: Lietuvos_apskričių_viršininkai
       language: lt
       country: lt
@@ -2166,6 +2357,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Saeima
+        wikidata_id: Q21191589
         country: lv
         topics:
           - gov.legislative
@@ -2176,6 +2368,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Saeima
+        wikidata_id: Q21191589
         country: lv
         topics:
           - gov.legislative
@@ -2318,6 +2511,7 @@ config:
       country: au
       position:
         name: Member of the Australian Parliament
+        wikidata_id: Q18912794
         country: au
         topics:
           - gov.legislative
@@ -2330,6 +2524,7 @@ config:
       country: au
       position:
         name: Australian Senator
+        wikidata_id: Q6814428
         country: au
         topics:
           - gov.legislative
@@ -2572,6 +2767,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Hellenic Parliament
+        wikidata_id: Q18915989
         country: gr
         topics:
           - gov.legislative
@@ -2619,6 +2815,7 @@ config:
       language: ru
       position:
         name: Head of the Administration of the President of Russia
+        wikidata_id: Q4488944
         country: ru
         topics:
           - gov.executive
@@ -2631,6 +2828,7 @@ config:
       language: ru
       position:
         name: Prime Minister of the Russian Federation
+        wikidata_id: Q842386
         country: ru
         topics:
           - gov.head
@@ -2642,6 +2840,7 @@ config:
       language: ru
       position:
         name: First Deputy Prime Minister of the Russian Federation
+        wikidata_id: Q1965788
         country: ru
         topics:
           - gov.executive
@@ -2652,6 +2851,7 @@ config:
       country: ru
       position:
         name: Deputy Prime Minister of the Russian Federation
+        wikidata_id: Q14805701
         country: ru
         topics:
           - gov.executive
@@ -2662,6 +2862,7 @@ config:
       country: ru
       position:
         name: Head of the Apparatus of the Government of the Russian Federation
+        wikidata_id: Q107883642
         country: ru
         topics:
           - gov.executive
@@ -2727,6 +2928,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Duma of the Russian Federation
+        wikidata_id: Q17276321
         country: ru
         topics:
           - gov.legislative
@@ -2737,6 +2939,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Duma of the Russian Federation
+        wikidata_id: Q17276321
         country: ru
         topics:
           - gov.legislative
@@ -2747,6 +2950,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Duma of the Russian Federation
+        wikidata_id: Q17276321
         country: ru
         topics:
           - gov.legislative
@@ -2769,6 +2973,7 @@ config:
       language: ru
       position:
         name: Deputy of the Federation Council of Russia
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
@@ -2779,6 +2984,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council of Russia
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
@@ -2789,6 +2995,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council of Russia
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
@@ -2799,6 +3006,7 @@ config:
       language: ru
       position:
         name: Chairman of the Federation Council of Russia
+        wikidata_id: Q4376672
         country: ru
         topics:
           - gov.legislative
@@ -2819,6 +3027,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
@@ -2829,6 +3038,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         topics:
           - gov.legislative
           - gov.national
@@ -2837,6 +3047,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         country: ua-cri
         topics:
           - gov.legislative
@@ -2847,6 +3058,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         topics:
           - gov.legislative
           - gov.national
@@ -2856,6 +3068,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         topics:
           - gov.legislative
           - gov.national
@@ -2865,6 +3078,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         topics:
           - gov.legislative
           - gov.national
@@ -2889,6 +3103,7 @@ config:
       language: ru
       position:
         name: Chairman of the Supreme Court of the Russian Federation
+        wikidata_id: Q4431732
         country: ru
         topics:
           - gov.judicial
@@ -2957,6 +3172,7 @@ config:
       country: ua-cri
       position:
         name: Deputy of the State Council of Crimea
+        wikidata_id: Q133268428
         country: ua-cri
         topics:
           - gov.legislative
@@ -2967,6 +3183,7 @@ config:
       country: ua-cri
       position:
         name: Deputy of the Legislative Assembly of Sevastopol
+        wikidata_id: Q133268430
         country: ua-cri
         topics:
           - gov.legislative
@@ -2986,6 +3203,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Republic of Adygea
+        wikidata_id: Q133268354
         country: ru
         topics:
           - gov.legislative
@@ -2996,6 +3214,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Altai Republic
+        wikidata_id: Q133268350
         country: ru
         topics:
           - gov.legislative
@@ -3006,6 +3225,7 @@ config:
       language: ru
       position:
         name: Deputy of the Altai Krai Legislative Assembly
+        wikidata_id: Q133268339
         country: ru
         topics:
           - gov.legislative
@@ -3016,6 +3236,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Amur Oblast
+        wikidata_id: Q133268365
         country: ru
         topics:
           - gov.legislative
@@ -3026,6 +3247,7 @@ config:
       language: ru
       position:
         name: Deputy of the Arkhangelsk Region Assembly of Deputies
+        wikidata_id: Q133268342
         country: ru
         topics:
           - gov.legislative
@@ -3036,6 +3258,7 @@ config:
       language: ru
       position:
         name: Deputy of the Duma of Astrakhan Oblast
+        wikidata_id: Q133268349
         country: ru
         topics:
           - gov.legislative
@@ -3046,6 +3269,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Republic of Bashkortostan
+        wikidata_id: Q133268352
         country: ru
         topics:
           - gov.legislative
@@ -3056,6 +3280,7 @@ config:
       language: ru
       position:
         name: Deputy of the Belgorod Oblast Duma
+        wikidata_id: Q133268343
         country: ru
         topics:
           - gov.legislative
@@ -3066,6 +3291,7 @@ config:
       language: ru
       position:
         name: Deputy of the Bryansk Oblast Duma
+        wikidata_id: Q133268434
         country: ru
         topics:
           - gov.legislative
@@ -3076,6 +3302,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Hural of the Republic of Buryatia
+        wikidata_id: Q133268401
         country: ru
         topics:
           - gov.legislative
@@ -3086,6 +3313,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Vladimir Oblast
+        wikidata_id: Q133268370
         country: ru
         topics:
           - gov.legislative
@@ -3096,6 +3324,7 @@ config:
       language: ru
       position:
         name: Deputy of the Volgograd Oblast Duma
+        wikidata_id: Q101483020
         country: ru
         topics:
           - gov.legislative
@@ -3106,6 +3335,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Vologda Oblast
+        wikidata_id: Q133268362
         country: ru
         topics:
           - gov.legislative
@@ -3116,6 +3346,7 @@ config:
       language: ru
       position:
         name: Deputy of the Voronezh Oblast Duma
+        wikidata_id: Q133268348
         country: ru
         topics:
           - gov.legislative
@@ -3126,6 +3357,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Assembly of the Republic of Dagestan
+        wikidata_id: Q115242140
         country: ru
         topics:
           - gov.legislative
@@ -3136,6 +3368,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Jewish Autonomous Oblast
+        wikidata_id: Q133268367
         country: ru
         topics:
           - gov.legislative
@@ -3146,6 +3379,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Trans-Baikal Territory
+        wikidata_id: Q133268368
         country: ru
         topics:
           - gov.legislative
@@ -3156,6 +3390,7 @@ config:
       language: ru
       position:
         name: Deputy of the Ivanovo Oblast Duma
+        wikidata_id: Q133268390
         country: ru
         topics:
           - gov.legislative
@@ -3166,6 +3401,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Assembly of the Republic of Ingushetia
+        wikidata_id: Q133268422
         country: ru
         topics:
           - gov.legislative
@@ -3176,6 +3412,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Irkutsk Oblast
+        wikidata_id: Q133268426
         country: ru
         topics:
           - gov.legislative
@@ -3186,6 +3423,7 @@ config:
       language: ru
       position:
         name: Deputy of the Parliament of Kabardino-Balkarian Republic
+        wikidata_id: Q133268405
         country: ru
         topics:
           - gov.legislative
@@ -3196,6 +3434,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kaliningrad Oblast
+        wikidata_id: Q133268391
         country: ru
         topics:
           - gov.legislative
@@ -3206,6 +3445,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Hural of the Republic of Kalmykia
+        wikidata_id: Q133268400
         country: ru
         topics:
           - gov.legislative
@@ -3216,6 +3456,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kaluga Oblast
+        wikidata_id: Q133268372
         country: ru
         topics:
           - gov.legislative
@@ -3226,6 +3467,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kamchatka Krai
+        wikidata_id: Q133268373
         country: ru
         topics:
           - gov.legislative
@@ -3236,6 +3478,7 @@ config:
       language: ru
       position:
         name: Deputy of the  People's Assembly of the Karachay-Cherkess Republic
+        wikidata_id: Q133268399
         country: ru
         topics:
           - gov.legislative
@@ -3246,6 +3489,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Republic of Karelia
+        wikidata_id: Q133268366
         country: ru
         topics:
           - gov.legislative
@@ -3256,6 +3500,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kemerovo Oblast
+        wikidata_id: Q133268417
         country: ru
         topics:
           - gov.legislative
@@ -3266,6 +3511,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kirov Oblast
+        wikidata_id: Q133268371
         country: ru
         topics:
           - gov.legislative
@@ -3276,6 +3522,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Komi Republic
+        wikidata_id: Q111236573
         country: ru
         topics:
           - gov.legislative
@@ -3296,6 +3543,7 @@ config:
       language: ru
       position:
         name: Deputy of the Kostroma Oblast Duma
+        wikidata_id: Q133268393
         country: ru
         topics:
           - gov.legislative
@@ -3306,6 +3554,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Krasnodar Krai
+        wikidata_id: Q133268363
         country: ru
         topics:
           - gov.legislative
@@ -3316,6 +3565,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Krasnoyarsk Krai
+        wikidata_id: Q133268376
         country: ru
         topics:
           - gov.legislative
@@ -3326,6 +3576,7 @@ config:
       language: ru
       position:
         name: Deputy of the Kurgan Oblast Duma
+        wikidata_id: Q133268421
         country: ru
         topics:
           - gov.legislative
@@ -3336,6 +3587,7 @@ config:
       language: ru
       position:
         name: Deputy of the Kursk Oblast Duma
+        wikidata_id: Q133268394
         country: ru
         topics:
           - gov.legislative
@@ -3346,6 +3598,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Leningrad Oblast
+        wikidata_id: Q133268377
         country: ru
         topics:
           - gov.legislative
@@ -3356,6 +3609,7 @@ config:
       language: ru
       position:
         name: Deputy of the Lipetsk Oblast Council of Deputies
+        wikidata_id: Q133268395
         country: ru
         topics:
           - gov.legislative
@@ -3366,6 +3620,7 @@ config:
       language: ru
       position:
         name: Deputy of the Magadan Oblast Duma
+        wikidata_id: Q133268396
         country: ru
         topics:
           - gov.legislative
@@ -3376,6 +3631,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Mari El Republic
+        wikidata_id: Q133268424
         country: ru
         topics:
           - gov.legislative
@@ -3386,6 +3642,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Republic of Mordovia
+        wikidata_id: Q133268353
         country: ru
         topics:
           - gov.legislative
@@ -3396,6 +3653,7 @@ config:
       language: ru
       position:
         name: Deputy of the Moscow City Duma
+        wikidata_id: Q96324124
         country: ru
         topics:
           - gov.legislative
@@ -3406,6 +3664,7 @@ config:
       language: ru
       position:
         name: Deputy of the Moscow Oblast Duma
+        wikidata_id: Q110805962
         country: ru
         topics:
           - gov.legislative
@@ -3416,6 +3675,7 @@ config:
       language: ru
       position:
         name: Deputy of the Murmansk Oblast Duma
+        wikidata_id: Q133268397
         country: ru
         topics:
           - gov.legislative
@@ -3426,6 +3686,7 @@ config:
       language: ru
       position:
         name: Deputy of the Assembly of Deputies of the Nenets Autonomous Okrug
+        wikidata_id: Q133268415
         country: ru
         topics:
           - gov.legislative
@@ -3436,6 +3697,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Nizhny Novgorod Oblast
+        wikidata_id: Q133268374
         country: ru
         topics:
           - gov.legislative
@@ -3446,6 +3708,7 @@ config:
       language: ru
       position:
         name: Deputy of the Novgorod Oblast Duma
+        wikidata_id: Q133268402
         country: ru
         topics:
           - gov.legislative
@@ -3456,6 +3719,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Novosibirsk Oblast
+        wikidata_id: Q133268380
         country: ru
         topics:
           - gov.legislative
@@ -3466,6 +3730,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Omsk Oblast
+        wikidata_id: Q133268379
         country: ru
         topics:
           - gov.legislative
@@ -3476,6 +3741,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Orenburg Oblast
+        wikidata_id: Q111242479
         country: ru
         topics:
           - gov.legislative
@@ -3486,6 +3752,7 @@ config:
       language: ru
       position:
         name: Deputy of the Oryol Oblast Council of People's Deputies
+        wikidata_id: Q133268404
         country: ru
         topics:
           - gov.legislative
@@ -3496,6 +3763,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Penza Oblast
+        wikidata_id: Q133268378
         country: ru
         topics:
           - gov.legislative
@@ -3506,6 +3774,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Perm Krai
+        wikidata_id: Q133268384
         country: ru
         topics:
           - gov.legislative
@@ -3516,6 +3785,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Primorsky Krai
+        wikidata_id: Q133268382
         country: ru
         topics:
           - gov.legislative
@@ -3526,6 +3796,7 @@ config:
       language: ru
       position:
         name: Deputy of the Pskov Oblast Assembly of Deputies
+        wikidata_id: Q133268408
         country: ru
         topics:
           - gov.legislative
@@ -3536,6 +3807,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Rostov Oblast
+        wikidata_id: Q133268385
         country: ru
         topics:
           - gov.legislative
@@ -3546,6 +3818,7 @@ config:
       language: ru
       position:
         name: Deputy of the Ryazan Oblast Duma
+        wikidata_id: Q133268409
         country: ru
         topics:
           - gov.legislative
@@ -3556,6 +3829,7 @@ config:
       language: ru
       position:
         name: Deputy of the Samara Regional Duma
+        wikidata_id: Q133268410
         country: ru
         topics:
           - gov.legislative
@@ -3566,6 +3840,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of St. Petersburg
+        wikidata_id: Q111242469
         country: ru
         topics:
           - gov.legislative
@@ -3576,6 +3851,7 @@ config:
       language: ru
       position:
         name: Deputy of the Saratov Oblast Duma
+        wikidata_id: Q133268412
         country: ru
         topics:
           - gov.legislative
@@ -3586,6 +3862,7 @@ config:
       language: ru
       position:
         name: Deputy of the Sakhalin Oblast Duma
+        wikidata_id: Q133268413
         country: ru
         topics:
           - gov.legislative
@@ -3596,6 +3873,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Sverdlovsk Oblast
+        wikidata_id: Q133268383
         country: ru
         topics:
           - gov.legislative
@@ -3616,6 +3894,7 @@ config:
       language: ru
       position:
         name: Deputy of the Parliament of the Republic of North Ossetia — Alania
+        wikidata_id: Q133268406
         country: ru
         topics:
           - gov.legislative
@@ -3626,6 +3905,7 @@ config:
       language: ru
       position:
         name: Deputy of the Smolensk Oblast Duma
+        wikidata_id: Q133268414
         country: ru
         topics:
           - gov.legislative
@@ -3636,6 +3916,7 @@ config:
       language: ru
       position:
         name: Deputy of the Duma of Stavropol Krai
+        wikidata_id: Q133268359
         country: ru
         topics:
           - gov.legislative
@@ -3646,6 +3927,7 @@ config:
       language: ru
       position:
         name: Deputy of the Tambov Oblast Duma
+        wikidata_id: Q133268432
         country: ru
         topics:
           - gov.legislative
@@ -3656,6 +3938,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Republic of Tatarstan
+        wikidata_id: Q133268355
         country: ru
         topics:
           - gov.legislative
@@ -3666,6 +3949,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Tver Oblast
+        wikidata_id: Q133268388
         country: ru
         topics:
           - gov.legislative
@@ -3676,6 +3960,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Duma of Tomsk Oblast
+        wikidata_id: Q133268360
         country: ru
         topics:
           - gov.legislative
@@ -3686,6 +3971,7 @@ config:
       language: ru
       position:
         name: Deputy of the Tula Oblast Duma
+        wikidata_id: Q133268418
         country: ru
         topics:
           - gov.legislative
@@ -3696,6 +3982,7 @@ config:
       language: ru
       position:
         name: Deputy of the Great Khural of the Tuva Republic
+        wikidata_id: Q133268346
         country: ru
         topics:
           - gov.legislative
@@ -3706,6 +3993,7 @@ config:
       language: ru
       position:
         name: Deputy of the Tyumen Oblast Duma
+        wikidata_id: Q62653950
         country: ru
         topics:
           - gov.legislative
@@ -3716,6 +4004,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Udmurt Republic
+        wikidata_id: Q108610448
         country: ru
         topics:
           - gov.legislative
@@ -3726,6 +4015,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Ulyanovsk Oblast
+        wikidata_id: Q133268389
         country: ru
         topics:
           - gov.legislative
@@ -3736,6 +4026,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Duma of Khabarovsk Krai
+        wikidata_id: Q133268361
         country: ru
         topics:
           - gov.legislative
@@ -3746,6 +4037,7 @@ config:
       language: ru
       position:
         name: Deputy of the Supreme Council of the Republic of Khakassia
+        wikidata_id: Q133268344
         country: ru
         topics:
           - gov.legislative
@@ -3756,6 +4048,7 @@ config:
       language: ru
       position:
         name: Deputy of the Duma of Khanty-Mansi Autonomous Okrug — Yugra
+        wikidata_id: Q124755389
         country: ru
         topics:
           - gov.legislative
@@ -3766,6 +4059,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Chelyabinsk Oblast
+        wikidata_id: Q133268386
         country: ru
         topics:
           - gov.legislative
@@ -3776,6 +4070,7 @@ config:
       language: ru
       position:
         name: Deputy of the Parliament of the Chechen Republic
+        wikidata_id: Q133268407
         country: ru
         topics:
           - gov.legislative
@@ -3786,6 +4081,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Chuvash Republic
+        wikidata_id: Q133268356
         country: ru
         topics:
           - gov.legislative
@@ -3796,6 +4092,7 @@ config:
       language: ru
       position:
         name: Deputy of the Duma of the Chukotka Autonomous Okrug
+        wikidata_id: Q133268427
         country: ru
         topics:
           - gov.legislative
@@ -3816,6 +4113,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly (Il Tumen) of the Republic of Sakha (Yakutia)
+        wikidata_id: Q133268316
         country: ru
         topics:
           - gov.legislative
@@ -3826,6 +4124,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Yamalo-Nenets Autonomous Okrug
+        wikidata_id: Q133268431
         country: ru
         topics:
           - gov.legislative
@@ -3836,6 +4135,7 @@ config:
       language: ru
       position:
         name: Deputy of the Yaroslavl Oblast Duma
+        wikidata_id: Q133268420
         country: ru
         topics:
           - gov.legislative
@@ -3848,6 +4148,7 @@ config:
       language: ru
       position:
         name: Mayor of Moscow
+        wikidata_id: Q1837906
         country: ru
         topics:
           - gov.head
@@ -3861,6 +4162,7 @@ config:
       language: ru
       position:
         name: Head of a municipality
+        wikidata_id: Q4139102
         country: ru
         topics:
           - gov.head
@@ -3872,6 +4174,7 @@ config:
       language: ru
       position:
         name: Head of a district
+        wikidata_id: Q4139102
         country: ru
         topics:
           - gov.head

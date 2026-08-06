@@ -1,7 +1,14 @@
+import pytest
+from structlog.testing import capture_logs
+
 from zavod import helpers as h
 from zavod.tests.conftest import FIXTURES_PATH
 
+# Both PDFs are generated from the .docx of the same name in the fixtures
+# directory: `soffice --headless --convert-to pdf <name>.docx`
 PDF_PATH = FIXTURES_PATH / "test_pdf.pdf"
+DUPLICATE_HEADERS_PDF_PATH = FIXTURES_PATH / "test_pdf_duplicate_headers.pdf"
+SKIPROWS_PDF_PATH = FIXTURES_PATH / "test_pdf_skiprows.pdf"
 PAGE_SETTINGS = {"join_y_tolerance": 100}
 
 
@@ -72,23 +79,45 @@ def test_parse_pdf_table_skiprows(vcontext):
 
 
 def test_parse_pdf_table_multiple_pages(vcontext):
-    rows = list(
-        h.parse_pdf_table(
-            vcontext, PDF_PATH, skiprows=1, page_settings=basic_settings_func
+    with capture_logs() as cap_logs:
+        rows = list(
+            h.parse_pdf_table(
+                vcontext,
+                SKIPROWS_PDF_PATH,
+                skiprows=1,
+                page_settings=basic_settings_func,
+            )
         )
-    )
-    assert len(list(rows)) == 6, rows
+    assert len(list(rows)) == 5, rows
     assert rows[0]["forenames"] == "Jon"
-    assert rows[2]["forenames"] == "First\nName"
-    assert rows[3]["forenames"] == "Forenames"
-    assert rows[5]["forenames"] == "Frederica"
+    # Sometimes there's one or more row of comments before headers.
+    # skiprows only takes effect on every page if headers_per_page is True.
+    assert rows[2]["forenames"] == "This is our data"
+    # Page 2 repeats the header row ("Forenames"/"Surname"); it is skipped
+    # rather than emitted as a data row, but we warn so that we can enable
+    # headers_per_page
+    assert rows[3]["forenames"] == "Jane"
+    assert rows[4]["forenames"] == "Frederica"
+
+    warnings = [log for log in cap_logs if log["log_level"] == "warning"]
+    assert len(warnings) == 1, cap_logs
+    assert warnings[0]["event"].startswith("Skipping repeated header row."), warnings[0]
+    assert warnings[0]["page"] == 2, warnings[0]
+    assert warnings[0]["row"] == ["Forenames", "Surname"], warnings[0]
+
+
+def test_parse_pdf_table_duplicate_headers(vcontext):
+    # Headers that collide after slugification would silently drop the earlier
+    # column's cell ({"name": "latin script", "dob": "1970"}).
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(h.parse_pdf_table(vcontext, DUPLICATE_HEADERS_PDF_PATH))
 
 
 def test_parse_pdf_table_headers_per_page(vcontext):
     rows = list(
         h.parse_pdf_table(
             vcontext,
-            PDF_PATH,
+            SKIPROWS_PDF_PATH,
             headers_per_page=True,
             skiprows=1,
             page_settings=basic_settings_func,

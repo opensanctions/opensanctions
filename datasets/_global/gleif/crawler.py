@@ -2,7 +2,8 @@ import csv
 from contextlib import contextmanager
 from io import TextIOWrapper
 from pathlib import Path
-from typing import IO, Dict, Generator, List, Optional, Tuple, Union
+from typing import IO
+from collections.abc import Generator
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
@@ -22,7 +23,7 @@ BIC_URL = "https://mapping.gleif.org/api/v2/bic-lei/latest/download"
 ISIN_URL = "https://mapping.gleif.org/api/v2/isin-lei/latest/download"
 OC_URL = "https://mapping.gleif.org/api/v2/oc-lei/latest/download"
 
-RELATIONSHIPS: Dict[str, Tuple[str, str, str]] = {
+RELATIONSHIPS: dict[str, tuple[str, str, str]] = {
     "IS_FUND-MANAGED_BY": ("Directorship", "organization", "director"),
     "IS_SUBFUND_OF": ("Directorship", "organization", "director"),
     "IS_DIRECTLY_CONSOLIDATED_BY": ("Ownership", "asset", "owner"),
@@ -32,7 +33,7 @@ RELATIONSHIPS: Dict[str, Tuple[str, str, str]] = {
 }
 
 
-ADDRESS_PARTS: Dict[str, str] = {
+ADDRESS_PARTS: dict[str, str] = {
     # map paths to zavod.parse.format_address input
     "City": "city",
     "Region": "state",
@@ -43,10 +44,10 @@ ADDRESS_PARTS: Dict[str, str] = {
 }
 
 
-def parse_address(entity: Entity, el: Optional[Element]) -> None:
+def parse_address(entity: Entity, el: Element | None) -> None:
     if el is None:
         return
-    parts: Dict[str, Union[str, None]] = {}  # FirstAddressLine
+    parts: dict[str, str | None] = {}  # FirstAddressLine
     for tag, key in ADDRESS_PARTS.items():
         parts[key] = el.findtext(tag)
     country_code = parts.get("country_code")
@@ -62,7 +63,7 @@ def parse_address(entity: Entity, el: Optional[Element]) -> None:
         entity.add("address", address, lang=el.get("lang"))
 
 
-def load_elfs() -> Dict[str, str]:
+def load_elfs() -> dict[str, str]:
     names = {}
     # https://www.gleif.org/en/about-lei/code-lists/iso-20275-entity-legal-forms-code-list#
     elf_path = Path(__file__).parent / "ref" / "elf-codes-1.4.1.csv"
@@ -80,13 +81,13 @@ def lei_id(lei: str) -> str:
     return f"lei-{lei}"
 
 
-def parse_date(text: Optional[str]) -> Optional[str]:
+def parse_date(text: str | None) -> str | None:
     if text is None:
         return None
     return text.split("T")[0]
 
 
-def fetch_cat_file(context: Context, url_part: str, name: str) -> Optional[Path]:
+def fetch_cat_file(context: Context, url_part: str, name: str) -> Path | None:
     doc = context.fetch_html(CAT_URL)
     for link in doc.findall(".//a"):
         url = urljoin(CAT_URL, link.get("href"))
@@ -114,14 +115,14 @@ def fetch_rr_file(context: Context) -> Path:
 def read_zip_file(context: Context, path: Path) -> Generator[IO[bytes], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
-            context.log.info("Reading: %s in %s" % (name, path))
+            context.log.info(f"Reading: {name} in {path}")
             with zip.open(name, "r") as fh:
                 yield fh
 
 
-def load_bic_mapping(context: Context) -> Dict[str, List[str]]:
+def load_bic_mapping(context: Context) -> dict[str, list[str]]:
     zip_path = context.fetch_resource("bic_lei.zip", BIC_URL)
-    mapping: Dict[str, List[str]] = {}
+    mapping: dict[str, list[str]] = {}
     with read_zip_file(context, zip_path) as fh:
         textfh = TextIOWrapper(fh, encoding="utf-8")
         for row in csv.DictReader(textfh):
@@ -135,9 +136,9 @@ def load_bic_mapping(context: Context) -> Dict[str, List[str]]:
     return mapping
 
 
-def load_oc_mapping(context: Context) -> Dict[str, List[str]]:
+def load_oc_mapping(context: Context) -> dict[str, list[str]]:
     zip_path = context.fetch_resource("oc_lei.zip", OC_URL)
-    mapping: Dict[str, List[str]] = {}
+    mapping: dict[str, list[str]] = {}
     with read_zip_file(context, zip_path) as fh:
         textfh = TextIOWrapper(fh, encoding="utf-8")
         for row in csv.DictReader(textfh):
@@ -152,9 +153,9 @@ def load_oc_mapping(context: Context) -> Dict[str, List[str]]:
     return mapping
 
 
-def load_isin_mapping(context: Context) -> Dict[str, List[str]]:
+def load_isin_mapping(context: Context) -> dict[str, list[str]]:
     zip_path = context.fetch_resource("isin_lei.zip", ISIN_URL)
-    mapping: Dict[str, List[str]] = {}
+    mapping: dict[str, list[str]] = {}
     with read_zip_file(context, zip_path) as fh:
         textfh = TextIOWrapper(fh, encoding="utf-8")
         for row in csv.DictReader(textfh):
@@ -172,10 +173,10 @@ def parse_lei_record(
     context: Context,
     el: Element,
     *,
-    bics: Dict[str, List[str]],
-    ocurls: Dict[str, List[str]],
-    isins: Dict[str, List[str]],
-    elfs: Dict[str, str],
+    bics: dict[str, list[str]],
+    ocurls: dict[str, list[str]],
+    isins: dict[str, list[str]],
+    elfs: dict[str, str],
 ) -> None:
     elc = h.remove_namespace(el)
     proxy = context.make("Organization")
@@ -279,9 +280,9 @@ def parse_lei_file(context: Context, fh: IO[bytes]) -> None:
     isins = load_isin_mapping(context)
 
     idx = 0
-    for idx, (_, el) in enumerate(etree.iterparse(fh, tag="{%s}LEIRecord" % LEI)):
+    for idx, (_, el) in enumerate(etree.iterparse(fh, tag=f"{{{LEI}}}LEIRecord")):
         if idx > 0 and idx % 10000 == 0:
-            context.log.info("Parse LEIRecord: %d..." % idx)
+            context.log.info(f"Parse LEIRecord: {idx}...")
         parse_lei_record(context, el, bics=bics, ocurls=ocurls, isins=isins, elfs=elfs)
         el.clear()
 
@@ -359,11 +360,11 @@ def parse_relationship_record(context: Context, el: etree._Element) -> None:
 
 
 def parse_rr_file(context: Context, fh: IO[bytes]) -> None:
-    tag = "{%s}RelationshipRecord" % RR
+    tag = f"{{{RR}}}RelationshipRecord"
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
         if idx > 0 and idx % 10000 == 0:
-            context.log.info("Parse RelationshipRecord: %d..." % idx)
+            context.log.info(f"Parse RelationshipRecord: {idx}...")
         parse_relationship_record(context, el)
         el.clear()
 

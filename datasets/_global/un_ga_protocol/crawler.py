@@ -57,7 +57,7 @@ def crawl(context: Context) -> None:
             entity.add("topics", "role.pep")
             if norm_name != holder.get("person_name"):
                 context.log.debug(
-                    "Modified name: %r" % holder.get("person_name"),
+                    "Modified name: {!r}".format(holder.get("person_name")),
                     clean=norm_name,
                 )
             entity.add("name", norm_name)
@@ -73,7 +73,13 @@ def crawl(context: Context) -> None:
             )
             start_date = start_date if len(start_date) < 18 else None
             occupancy = h.make_occupancy(
-                context, entity, position, start_date=start_date
+                context,
+                entity,
+                position,
+                start_date=start_date,
+                # As of 2026, longest current head started tenure 1982 (Teodoro Mbasogo).
+                # https://www.guinnessworldrecords.com/world-records/65343-longest-serving-president-current
+                two_digit_year_base=1980,
             )
 
             # entity.add("date_of_appointment", )

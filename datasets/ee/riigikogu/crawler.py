@@ -39,9 +39,11 @@ def crawl_item(member_url: str, context: Context) -> None:
 
     position = h.make_position(
         context,
-        "Member of the Riigikogu",
+        "Member of the Riigikogu of Estonia",
         country="ee",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q21100241",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:

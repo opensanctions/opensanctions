@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import IO, Dict, Generator, List, Tuple
+from typing import IO
+from collections.abc import Generator
 from lxml import etree
 from zipfile import ZipFile
 
@@ -7,19 +8,19 @@ from zavod import Context
 from zavod import helpers as h
 
 ODS = "application/vnd.oasis.opendocument.spreadsheet"
-CellValue = Tuple[str, str, str]
+CellValue = tuple[str, str, str]
 PROGRAM_KEY = "NL-UNSC1373"
 
 
 def read_table(
     fh: IO[bytes], sheet_name: str
-) -> Generator[List[CellValue], None, None]:
+) -> Generator[list[CellValue], None, None]:
     doc = etree.parse(fh)
     doc = h.remove_namespace(doc)
     for sheet in doc.findall(f"/body/spreadsheet/table[@name='{sheet_name}']"):
         for row in sheet.findall(".//table-row"):
             # print(inspect(row))
-            cells: List[CellValue] = []
+            cells: list[CellValue] = []
             for cell in row.findall("./table-cell"):
                 value = text = str(cell.xpath("string()")) or ""
                 type_ = cell.get("value-type") or "empty"
@@ -37,7 +38,7 @@ def read_table(
             yield cells
 
 
-def parse_sheet(path: Path) -> Generator[Dict[str, CellValue], None, None]:
+def parse_sheet(path: Path) -> Generator[dict[str, CellValue], None, None]:
     # ods is a bunch of xmls in a zip
     with ZipFile(path, "r") as zipfh:
         for name in zipfh.namelist():
@@ -80,7 +81,7 @@ def crawl(context: Context) -> None:
         sanction.add("sourceUrl", link_offical_notification[1])
         sanction.add("authorityId", link_offical_notification[2])
 
-        name = "%s %s" % (first_name, surname)
+        name = f"{first_name} {surname}"
         name = name.strip()
         if not len(name):
             context.log.warning("No name", entity=entity, name=name)

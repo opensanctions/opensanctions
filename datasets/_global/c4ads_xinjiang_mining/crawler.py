@@ -1,11 +1,10 @@
 import csv
-from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     mine_name = row.pop("Mine_Name_English")
     mine_name_zh = row.pop("Mine_Name_Chinese")
     company_name = row.pop("Company_Name_English")
@@ -28,7 +27,13 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
     own.add("owner", owner.id)
     own.add("asset", entity.id)
     own.add("recordId", row.pop("Permit_Number"))
-    h.apply_date(own, "endDate", row.pop("Permit_Expiration_Date"))
+    h.apply_date(
+        own,
+        "endDate",
+        row.pop("Permit_Expiration_Date"),
+        # No permit on the list predates 1990, and permits expire in the future.
+        two_digit_year_base=1990,
+    )
 
     context.emit(entity)
     context.emit(owner)
@@ -39,6 +44,6 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r", encoding="utf-8-sig") as fh:
+    with open(path, encoding="utf-8-sig") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

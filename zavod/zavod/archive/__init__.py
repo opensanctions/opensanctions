@@ -1,19 +1,64 @@
 """
 The archive is the place where we store the outputs of zavod runs
-beyond beyond their local scratch space.
-
-`/artifacts/{dataset}/{version}/` is the canonical, immutable location for all
-outputs of a given run, and is what we point to in the metadata.
-
-`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
-can be found for the latest successful run on a given day.
-
-`/datasets/latest/{dataset}/` is where the the metadata and listed resources can
-be found for the latest successful run.
+beyond their local scratch space.
 
 See archive backends for operating on the archive - in OpenSanctions production
-this is the Google Cloud Storage bucket data.opensanctions.org.
-A local filesystem path can be used in development and testing.
+this is the Google Cloud Storage bucket served at
+https://data.opensanctions.org. A local filesystem path can be used in
+development and testing.
+
+Layout
+------
+
+`/artifacts/{dataset}/{version}/` is the canonical, immutable location for all
+outputs of a given run, and is what we point to in the metadata. It holds both
+the listed resources (e.g. `entities.ftm.json`) and run artifacts such as
+`index.json`, `statistics.json`, `issues.json`, `statements.pack`,
+`entities.delta.json`, `delta.json` and a `versions.json` snapshot.
+
+`/artifacts/{dataset}/versions.json` is the root version file: a window of the
+most recent version IDs of the dataset (oldest first, up to
+`VersionHistory.LENGTH`) plus the ID of the last successful run, e.g.
+`{"items": ["20260629141001-mek", ...], "last_successful": "20260707123218-hai"}`.
+It is updated on every run, including failed ones.
+
+`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
+can be found for the latest successful run on a given day (server-side copies
+of the `/artifacts/` objects).
+
+`/datasets/latest/{dataset}/` is the same for the latest successful run
+overall. `/datasets/latest/{dataset}/index.json` is the stable URL for the
+latest metadata of a dataset.
+
+Walking versions
+----------------
+
+Version IDs (see `followthemoney.dataset.versions.Version`) are opaque
+strings, but they sort chronologically. The root
+version file only holds a bounded window, but every run's artifact directory
+contains a `versions.json` snapshot whose window ends at that version. To walk
+the full history: read the root version file, iterate its items newest-first,
+then fetch `/artifacts/{dataset}/{oldest_item}/versions.json` and repeat until
+the window no longer extends further back. This is implemented in
+`iter_dataset_versions()`, which needs a configured archive backend.
+
+To inspect the run history of a production dataset without one, use the
+maintenance tool, which walks the same snapshots over plain HTTPS and
+tabulates each run's `index.json`:
+
+    python -m contrib.maintenance.versions <dataset_name>
+
+Success and failure
+-------------------
+
+Each run's `index.json` has a `result` field, either "success" or "failure".
+Failed runs are archived to `/artifacts/` too (with issues, but without data
+resources), but never published to `/datasets/` - so `/datasets/latest/` always
+reflects the last successful run. `last_successful` in the root `versions.json`
+keeps pointing at the newest version whose run succeeded.
+
+Terminology
+-----------
 
 When storing in /artifacts we use the verb "archive".
 When storing in /datasets we use the verb "publish".
@@ -24,7 +69,8 @@ import shutil
 from pathlib import Path
 from functools import lru_cache
 from typing import TYPE_CHECKING
-from typing import Optional, Generator, TextIO, Set
+from typing import TextIO
+from collections.abc import Generator
 from rigour.mime.types import JSON
 from followthemoney import Statement
 from followthemoney.statement.serialize import read_pack_statements_decoded
@@ -110,7 +156,7 @@ def get_dataset_artifact(
     dataset_name: str,
     resource: str,
     backfill: bool = True,
-    version: Optional[str] = None,
+    version: str | None = None,
 ) -> Path:
     path = dataset_resource_path(dataset_name, resource)
     if path.exists():
@@ -132,9 +178,7 @@ def get_dataset_artifact(
 # The right thing to do might be to have two functions, one to get the "root" version file
 # at artifacts/{dataset_name}/versions.json, and one to get the version file for a specific version.
 @lru_cache(maxsize=1000)
-def get_versions_data(
-    dataset_name: str, version: Optional[str] = None
-) -> Optional[str]:
+def get_versions_data(dataset_name: str, version: str | None = None) -> str | None:
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     if version is not None:
@@ -148,7 +192,7 @@ def get_versions_data(
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
     """Iterate over all versions of a given dataset."""
     data = get_versions_data(dataset_name)
-    seen: Set[str] = set()
+    seen: set[str] = set()
     while True:
         if data is None:
             break
@@ -163,8 +207,8 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
 
 
 def get_artifact_object(
-    dataset_name: str, resource: str, version: Optional[str] = None
-) -> Optional[ArchiveObject]:
+    dataset_name: str, resource: str, version: str | None = None
+) -> ArchiveObject | None:
     backend = get_archive_backend()
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
@@ -206,7 +250,7 @@ def archive_artifact(
     dataset_name: str,
     version: Version,
     resource: str,
-    mime_type: Optional[str] = None,
+    mime_type: str | None = None,
 ) -> None:
     """Publish a file in the given versions artifact directory of the dataset."""
     assert path.relative_to(dataset_data_path(dataset_name))
@@ -266,7 +310,7 @@ def iter_local_statements(dataset: "Dataset", external: bool = True) -> Statemen
         get_dataset_artifact(dataset.name, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
-    with open(path, "r") as fh:
+    with open(path) as fh:
         yield from _read_fh_statements(fh, external)
 
 
@@ -291,7 +335,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
 
 
 def iter_previous_statements(
-    dataset: "Dataset", external: bool = True, version: Optional[str] = None
+    dataset: "Dataset", external: bool = True, version: str | None = None
 ) -> StatementGen:
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""

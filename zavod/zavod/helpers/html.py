@@ -1,5 +1,6 @@
 import re
-from typing import Dict, Generator, List, Optional, Set, cast
+from typing import cast
+from collections.abc import Generator
 
 from lxml.html import HtmlElement
 from normality import slugify, squash_spaces
@@ -11,7 +12,7 @@ from zavod.util import Element
 log = get_logger(__name__)
 
 
-BR_RE = re.compile(r"<(br|p)\s*/?>", re.IGNORECASE)
+BR_RE = re.compile(r"</?(?:br|p)\s*/?>", re.IGNORECASE)
 
 
 def element_text(el: Element | None, squash: bool = True) -> str:
@@ -58,10 +59,10 @@ def parse_html_table(
     table: Element,
     header_tag: str = "th",
     skiprows: int = 0,
-    ignore_colspan: Optional[Set[str]] = None,
+    ignore_colspan: set[str] | None = None,
     slugify_headers: bool = True,
     index_empty_headers: bool = False,
-) -> Generator[Dict[str, Element], None, None]:
+) -> Generator[dict[str, Element], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
 
@@ -80,20 +81,37 @@ def parse_html_table(
       - `zavod.helpers.links_to_dict`
     """
     headers = None
-    for rownum, row in enumerate(table.findall(".//tr")):
+    rows = table.findall(".//tr")
+    child_rows = [
+        row
+        for row in rows
+        # A descendant search also matches rows of tables nested inside a
+        # cell; only rows whose nearest <table> ancestor is the target table
+        # belong to it.
+        if next(row.iterancestors("table"), None) in (table, None)
+    ]
+    if len(rows) != len(child_rows):
+        # TODO: Turn warning into just ignoring a week or so after releasing
+        # the warning. https://github.com/opensanctions/opensanctions/issues/5322
+        log.warning("Nested table rows to be dropped.")
+    for rownum, row in enumerate(rows):
         if rownum < skiprows:
             continue
 
         if headers is None:
             headers = []
             for colnum, el in enumerate(row.findall(f"./{header_tag}")):
-                header_text: Optional[str] = element_text(el)
+                header_text: str | None = element_text(el)
                 if slugify_headers:
                     header_text = slugify(header_text, sep="_")
                 if index_empty_headers and not header_text:
                     header_text = f"column_{colnum}"
                 assert header_text is not None, "No table header text"
                 headers.append(header_text)
+            duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+            # Rows are built with dict(zip(headers, cells)), so a duplicate
+            # header would silently drop the earlier column's cell.
+            assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
             continue
 
         cells = row.findall("./td")
@@ -110,7 +128,7 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def cells_to_str(row: Dict[str, Element]) -> Dict[str, str | None]:
+def cells_to_str(row: dict[str, Element]) -> dict[str, str | None]:
     """
     Return the string value of each HtmlElement value in the passed dictionary
 
@@ -123,7 +141,7 @@ def cells_to_str(row: Dict[str, Element]) -> Dict[str, str | None]:
     }
 
 
-def links_to_dict(el: Element) -> Dict[str | None, str | None]:
+def links_to_dict(el: Element) -> dict[str | None, str | None]:
     """
     Return a dictionary of the text content and href of each anchor element in the
     passed HtmlElement
@@ -136,8 +154,8 @@ def links_to_dict(el: Element) -> Dict[str | None, str | None]:
 
 
 def xpath_elements(
-    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
-) -> List[Element]:
+    el: Element, xpath: str, *, expect_exactly: int | None = None
+) -> list[Element]:
     """
     Evaluate an XPath expression and return matching elements as a typed list.
 
@@ -179,8 +197,8 @@ def xpath_element(el: Element, xpath: str) -> Element:
 
 
 def xpath_strings(
-    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
-) -> List[str]:
+    el: Element, xpath: str, *, expect_exactly: int | None = None
+) -> list[str]:
     """
     Evaluate an XPath expression and return matching strings as a typed list.
 
@@ -213,10 +231,10 @@ def xpath_string(el: Element, xpath: str) -> str:
     return xpath_strings(el, xpath, expect_exactly=1)[0]
 
 
-def split_html_newline_tags(string: str) -> List[str]:
+def split_html_newline_tags(string: str) -> list[str]:
     """
-    Split a string on HTML <br> tags, returning a list of strings.
+    Split a string on HTML <br> and <p> tags, returning a list of strings.
 
-    Non-empty strings will not be returned.
+    Empty and whitespace-only strings are dropped from the result.
     """
     return [s for s in BR_RE.split(string) if s.strip()]

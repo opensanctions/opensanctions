@@ -46,6 +46,24 @@ assertions:
       Company: 800_000
 
 lookups:
+  type.country:
+    options:
+      - match: IL;RU
+        values:
+          - IL
+          - RU
+      - match: RU;MD
+        values:
+          - RU
+          - MD
+      - match: US;LV
+        values:
+          - US
+          - LV
+      - match: IL;LV
+        values:
+          - IL
+          - LV
   type.name:
     options:
       - match:

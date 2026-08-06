@@ -4,7 +4,8 @@ import shutil
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Any, Mapping, cast
+from typing import Any, cast
+from collections.abc import Mapping
 from urllib.parse import urljoin, urlparse
 
 import requests
@@ -15,6 +16,8 @@ from zavod import helpers as h
 
 
 LOCAL_PATH = Path(__file__).parent
+# China started to publish counter-sanctions in 2019.
+TWO_DIGIT_SANCTION_YEAR_BASE = 2010
 INDEX_CACHE_DAYS = 2
 MFA_INDEX_URL = "https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/"
 MOFCOM_INDEX_URL = "https://www.mofcom.gov.cn/zcfb/blgg/gg/{year}/index.html"
@@ -313,8 +316,18 @@ def crawl(context: Context) -> None:
             program_key=h.lookup_sanction_program_key(context, program),
         )
         sanction.set("authority", row.pop("Body", None))
-        h.apply_date(sanction, "startDate", row.pop("Date", None))
-        h.apply_date(sanction, "endDate", row.pop("End date", None))
+        h.apply_date(
+            sanction,
+            "startDate",
+            row.pop("Date", None),
+            two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
+        )
+        h.apply_date(
+            sanction,
+            "endDate",
+            row.pop("End date", None),
+            two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
+        )
         sanction.add("sourceUrl", row.pop("Source URL", None))
         context.emit(sanction)
         context.emit(entity)

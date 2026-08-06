@@ -66,24 +66,66 @@ prohibitions, not low priorities.
 
 The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` property should ideally capture the position and its jurisdiction, but be no more specific than that.
 
+Pass `topics` for positions the crawler names itself, where it knows which position it is building. Omit them for positions read out of the source data, where the review and classification system decides. The vocabulary is described in the [PEP methodology](https://www.opensanctions.org/docs/pep/methodology/).
+
 !!! info "Supplying Wikidata QIDs"
     Most political positions in the world already exist in Wikidata. If your crawler emits only
     a small number of positions, it is best practice to look up the Wikidata QIDs for these
     and supply them to the `h.make_position` helper so that reconciliation is automatic.
 
+### Where a position's definition belongs
+
+A crawler covering more than one position — the chambers of a bicameral parliament, a
+roster plus its presiding offices — can define them in the crawler or in the dataset
+YAML. Which one depends on whether the source names the position:
+
+- **The source labels it.** Key a `position` [lookup](best_practices/datapatch_lookups.md)
+  on the label the source itself uses, and let the result carry the position's `name`,
+  `topics` and `wikidata_id`. See
+  [mapping to richer concepts](best_practices/datapatch_lookups.md#mapping-to-richer-concepts)
+  for the mechanism. This keeps the definitions reviewable as data instead of burying
+  them in code, and because the match is on the source's own wording, a renamed or newly
+  added chamber shows up as an unmatched value rather than quietly losing its position.
+- **The crawler knows them outright.** When there is no label to match on — two chambers
+  fetched from separate URLs, say — call `h.make_position` for each and pass the name,
+  topics and QID as arguments. A module-level table adds nothing here.
+
+Position labels are categorical input, so the lookup owes
+[complete coverage](best_practices/strict_interpretation.md#key-categorical-fields-need-complete-coverage):
+pass `warn_unmatched=True`, and give labels that are *not* positions an option with
+`value: null` and no `name`. An unmatched label is then a signal to maintain the lookup,
+while a matched one with no `name` is a label already known not to denote a position.
+
 ### Selecting a position name
 
 Do
 
-- write the position in English. Use the standard English term for the role
-  (e.g. `Mayor`, not `Bourgmestre`). Preserve native-language terminology only for
-  proper nouns of specific institutions where translation would obscure the
-  reference (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
-  When the source labels roles in another language, declare a `position` lookup
-  in the YAML to translate each label before passing it to `h.make_position`.
+- write the position in English when the crawler supplies the name itself. Use
+  the standard English term for the role (e.g. `Mayor`, not `Bourgmestre`).
+  Preserve native-language terminology only for proper nouns of specific
+  institutions where translation would obscure the reference
+  (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
+- always pass `lang=` to `h.make_position` declaring the language of the name you
+  pass. `lang=` describes the position name specifically, and if you omit it the
+  helper falls back to the dataset's `data.lang` (`lang or context.lang`) — both to
+  label the stored name and to decide whether to translate. So when the crawler
+  supplies an English name (the standard case) over a source whose `data.lang` is
+  another language, pass `lang="eng"` explicitly, e.g. a `data.lang: spa` source
+  whose crawler emits `Member of the Congress of the Republic` must pass
+  `lang="eng"` — otherwise the English name is treated as Spanish (and, with
+  `translate_name=True`, wrongly sent to the translator). When the position name
+  comes from the source in a non-English language, pass it unmodified with
+  `translate_name=True` — the helper translates it to English and derives the
+  entity ID from the untranslated name, keeping IDs stable. When the source has
+  only very few distinct labels, a `position` lookup in the YAML translating them
+  to English is an acceptable alternative.
 - include the role
 - include the organizational body where needed
-- include the specific geographic jurisdiction where relevant
+- include the specific geographic jurisdiction where relevant. A national position's
+  name should be recognizable as belonging to that country to someone reading the
+  name on its own — either construction works, a nationality adjective (`Member of
+  the Swedish Riksdag`) or an of-phrase (`Member of the Senate of the Italian
+  Republic`).
 - refer to [Wikidata EveryPolitician](https://www.wikidata.org/wiki/Wikidata:WikiProject_every_politician)
   for examples, specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871).
   Much careful work has been done there on defining positions in understandable
@@ -99,7 +141,7 @@ Avoid
 
 - Prefer `United States representative` over `Member of the House of Representatives` -
   while it's true that they're a member of the house of representatives, the
-  common generic term is United States representative.
+  common generic term is United States representative, and it names the country.
 - Prefer `Member of the Landtag of Mecklenburg-Vorpommern` over `Member of the Landtag of Mecklenburg-Vorpommern, Germany` -
   the country is already captured
   as a property of the entity.
@@ -140,11 +182,12 @@ and the PEP duration of its scope.
 To allow newly discovered positions to be added to the database, and to use the
 `is_pep` value from the database, call `zavod.stateful.positions:categorise` with the Position.
 If the data source is known to only include PEP positions, or if the crawler only
-attempts to create positions known to be PEPs, the `default_is_pep` argument should be `True`.
-Otherwise it should be `None`, denoting that it should be categorized manually
-in the database.
+attempts to create positions known to be PEPs, `default_is_pep` should be `True` — which
+is the parameter's default, so plain `categorise(context, position)` is the idiomatic
+call and passing `default_is_pep=True` is redundant. Pass `default_is_pep=None`
+explicitly when the position should instead be categorized manually in the database.
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
-See example below.
+See the example below.
 
 With `default_is_pep=None`, a not-yet-reviewed position returns `is_pep=None` and
 its holders are not emitted. A new crawler against an uncategorized source then
@@ -235,7 +278,7 @@ for role in person_data.pop("roles"):
         country="us",
         subnational_area=province
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         continue
     occupancy = h.make_occupancy(

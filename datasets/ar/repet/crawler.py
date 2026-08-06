@@ -100,9 +100,9 @@ def parse_address(context: Context, data: dict[str, str]) -> Entity | None:
 
 
 def fetch(context: Context, part: str) -> Any:
-    path = context.fetch_resource("%s.json" % part, URL % part)
+    path = context.fetch_resource(f"{part}.json", URL % part)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         return json.load(fh)
 
 

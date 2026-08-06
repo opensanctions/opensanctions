@@ -1,26 +1,24 @@
-from xml.etree import ElementTree
-
 from normality import squash_spaces
 
 from zavod import Context
+from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import Element
 
 
-def get_element_text(
-    doc: ElementTree, xpath_value: str, to_remove: list[str] = []
-) -> str:
+def get_element_text(doc: Element, xpath_value: str, to_remove: list[str] = []) -> str:
     """Extract text from each child nodes of an xpath and joins them together
 
     Args:
-        doc (ElementTree): HTML Tree
+        doc (Element): HTML Tree
         xpath_value (str):  xpath to extract text from
         to_remove (list, optional): string to remove in the extracted text.
     """
-    element_tags = doc.xpath(xpath_value)
+    element_tags = h.xpath_elements(doc, xpath_value)
 
     tag_list = []
     for tag in element_tags:
-        tag_list.append(tag.text_content())
+        tag_list.append(h.element_text(tag))
 
     element_text = " ".join(tag_list)
 
@@ -156,7 +154,10 @@ def crawl(context: Context) -> None:
         absolute_links=True,
     )
 
-    for person_node in doc.xpath('.//ul[contains(@class, "usa-card-group")]//li//a'):
+    for person_node in h.xpath_elements(
+        doc, './/ul[contains(@class, "usa-card-group")]//li//a'
+    ):
         url = person_node.get("href")
-        wanted_for = person_node.xpath(wanted_xpath)[0].text_content()
+        assert url is not None
+        wanted_for = h.element_text(h.xpath_elements(person_node, wanted_xpath)[0])
         crawl_person(context, url, wanted_for)

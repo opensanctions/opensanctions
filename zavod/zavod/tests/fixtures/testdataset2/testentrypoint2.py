@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict
 import csv
 from datetime import datetime
 
@@ -9,7 +8,7 @@ from zavod import helpers as h
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]):
     person = context.make("Person")
     name = row.pop("name")
     person.id = context.make_slug(name)
@@ -35,6 +34,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    with open(LOCAL_PATH, "r") as fh:
+    with open(LOCAL_PATH) as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

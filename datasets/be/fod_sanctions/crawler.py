@@ -1,5 +1,4 @@
 from csv import DictReader
-from typing import Dict, List
 
 from rigour.mime.types import CSV
 
@@ -38,7 +37,7 @@ def apply_identifier(context: Context, entity: Entity, id_number_line: str) -> N
 
 
 def crawl_row(
-    context: Context, entity_id: str | None, row: Dict[str, List[str]]
+    context: Context, entity_id: str | None, row: dict[str, list[str]]
 ) -> None:
     schema = context.lookup_value(
         "subject_type",
@@ -71,7 +70,15 @@ def crawl_row(
         entity.add("gender", row.pop("Gender"))
         entity.add("birthPlace", row.pop("Birth place"))
         entity.add("country", row.pop("Birth country"))
-        h.apply_dates(entity, "birthDate", row.pop("Birth date"))
+        h.apply_dates(
+            entity,
+            "birthDate",
+            row.pop("Birth date"),
+            # The list holds birth dates from 1925, before the default 100-year
+            # window. A sanctioned person is old enough to have acted, so their
+            # birth date can be another 15 years back.
+            two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE - 15,
+        )
         entity.add("position", row.pop("Function"))
     else:
         # There's an organization with the following Firstname
@@ -82,7 +89,13 @@ def crawl_row(
 
     sanction = h.make_sanction(context, entity)
     for listing_date in row.pop("Publication date"):
-        h.apply_date(sanction, "listingDate", listing_date)
+        h.apply_date(
+            sanction,
+            "listingDate",
+            listing_date,
+            # The oldest measures implement UN Security Council Resolution 1267 (1999).
+            two_digit_year_base=1990,
+        )
     for embargo in row.pop("Embargos"):
         program_id = h.lookup_sanction_program_key(context, embargo)
         sanction.add("programId", program_id)
@@ -97,7 +110,7 @@ def crawl_row(
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r", encoding="utf-8-sig") as fh:
+    with open(path, encoding="utf-8-sig") as fh:
         reader = DictReader(fh, delimiter=";")
         for row in reader:
             # Use raw values before any splitting/replacing for entity id

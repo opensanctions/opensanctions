@@ -2,7 +2,8 @@ import logging
 import subprocess
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable, Generator
 
 import pdfplumber
 from normality import squash_spaces, slugify
@@ -21,7 +22,7 @@ class IgnoredWarnings(logging.Filter):
 logging.getLogger("pdfminer.pdfpage").addFilter(IgnoredWarnings())
 
 
-def make_pdf_page_images(pdf_path: Path) -> List[Path]:
+def make_pdf_page_images(pdf_path: Path) -> list[Path]:
     """Split a PDF file into PNG images of its pages.
 
     This requires `pdftoppm` to be installed on the system, which is
@@ -54,11 +55,11 @@ def parse_pdf_table(
     path: Path,
     headers_per_page: bool = False,
     preserve_header_newlines: bool = False,
-    start_page: Optional[int] = None,
-    end_page: Optional[int] = None,
+    start_page: int | None = None,
+    end_page: int | None = None,
     skiprows: int = 0,
-    page_settings: Optional[Callable[[Page], Tuple[Page, Dict[str, Any]]]] = None,
-) -> Generator[Dict[str, Optional[str]], None, None]:
+    page_settings: Callable[[Page], tuple[Page, dict[str, Any]]] | None = None,
+) -> Generator[dict[str, str | None], None, None]:
     """
     Parse the largest table on each page of a PDF file and yield their rows as dictionaries.
 
@@ -115,8 +116,31 @@ def parse_pdf_table(
                 headers = [
                     header_slug(cell or "", preserve_header_newlines) for cell in row
                 ]
+                duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+                # Rows are built with dict(zip(headers, row)), so a duplicate
+                # header (e.g. two empty header cells, which both slugify to
+                # "") would silently drop the earlier column's cell.
+                assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
                 continue
             assert len(headers) == len(row), (headers, row)
+            row_slugs = [
+                header_slug(cell or "", preserve_header_newlines) for cell in row
+            ]
+            if row_slugs == headers:
+                # Tables that repeat their header row on every page would
+                # otherwise emit the repeated headers as a data row. Warn
+                # rather than skip silently: the table probably wants
+                # headers_per_page (and skiprows) so that any rows above the
+                # repeated header, e.g. comments, are skipped too.
+                context.log.warning(
+                    (
+                        "Skipping repeated header row. Consider headers_per_page "
+                        "in case comment rows need skipping on each page."
+                    ),
+                    page=page.page_number,
+                    row=row,
+                )
+                continue
             yield dict(zip(headers, row))
 
         page.close()

@@ -32,6 +32,15 @@ assertions:
       Company: 170
       Security: 10
       Person: 4
+    # This is a corrections/errata dataset: some entities are patched with only
+    # a few properties (e.g. dates, citizenship) while their name lives in the
+    # source dataset being corrected. Relax the default name fill-rate floors
+    # for the schemata where such patch-only entities occur.
+    property_fill_rate:
+      Person:
+        name: 0.5
+      Organization:
+        name: 0.0
   max:
     schema_entities:
       Company: 175

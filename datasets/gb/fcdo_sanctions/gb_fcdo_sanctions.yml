@@ -45,6 +45,18 @@ assertions:
       Person: 3060
       Organization: 890
       Vessel: 125
+    # Set at roughly a quarter of the production fill rate: low enough that a
+    # shift in the shape of the source data doesn't hold up the release, high
+    # enough to catch a crawler that stopped parsing a field altogether.
+    property_fill_rate:
+      Person:
+        birthDate: 0.2
+        nationality: 0.18
+      Vessel:
+        imoNumber: 0.25
+      Sanction:
+        program: 0.25
+        startDate: 0.25
   max:
     schema_entities:
       Person: 7200
@@ -55,7 +67,7 @@ lookups:
   sanction.program:
     options:
       - match: The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
-        value: GB-SAMLA
+        value: GB-MIGR
       - match: The Global Human Rights Sanctions Regulations 2020
         value: GB-HR
       - match: The Global Anti-Corruption Sanctions Regulations 2021
@@ -298,12 +310,51 @@ lookups:
     options:
       - match: "Unknown"
         value: null
+      - match:
+          - "Social Media: http://vk.com/kazak_nac_guard"
+          - "Social Media: Cossack National Guard http://vk.com/kazak_nac_guard"
+        value: http://vk.com/kazak_nac_guard
+      - match: "Social media: http://vk.com/sobolipress"
+        value: http://vk.com/sobolipress
+      - match: "Official web site: http://soboli.net"
+        value: http://soboli.net
+      - match: "Official web site: http://vvd2003.narod.ru/"
+        value: http://vvd2003.narod.ru/
+      - match: "Red Box Energy Services Pte Ltd | Redbox Energy Services (redboxgroup.com)"
+        value: redboxgroup.com
+      - match: "http:/crimeaport.com/"
+        value: http://crimeaport.com/
+      - match: "www.sasta.ru; www.sasta.ryazan.ru"
+        values:
+          - www.sasta.ru
+          - www.sasta.ryazan.ru
+      - match: "rybar.ru; restmedia.io"
+        values:
+          - rybar.ru
+          - restmedia.io
+      - match: "byex.com and 100ex.com"
+        values:
+          - byex.com
+          - 100ex.com
+      - match: "www.farhang gostar.net/gtb"
+        value: www.farhang-gostar.net/gtb
+      - match: "www.sbu canada.org"
+        value: www.sbu-canada.org
+      - match: "info@surena gc.com"
+        prop: email
+        value: info@surenagc.com
   type.identifier:
     options:
       - match: "Indonesia, number T710219 (issued in Sukoharjo, Central Java, Indonesia)"
         value: "T710219"
   reg_number:
     options:
+      - match: " Unknown commercial register ID: 1489833Unknown chamber of commerce ID: 337486Cedar Rose internal identifier: AEC222397594Alternative Cedar rose number: 0119786794"
+        props:
+          registrationNumber: ["1489833", "337486", "AEC222397594", "0119786794"]
+      - match: "Unknown Chamber of commerce ID: 327399 Unknown Commercial register ID: 1563678 Orbis ID: 482272018 "
+        props:
+          registrationNumber: ["1563678", "327399", "482272018"]
       - match: "Registration Number: J8AQG9ZH6CA3"
         props:
           registrationNumber: "J8AQG9ZH6CA3"
@@ -1454,6 +1505,8 @@ lookups:
           - "5610083568"
           - "1521418"
           - "97947 "
+          - "40411"
+          - "5219"
         value: SAME
       - match: "'0012021"
         props:
@@ -2327,6 +2380,7 @@ lookups:
           - Kurdos Shipping Inc
           - Linghong Shipping Ltd
           - Mei Zhou Dao Shipmanagement
+          - Nazar Maritime SA
           - Ocean Dolphin Ship Management
           - Peng Hu Wan Shipmanagement Co
           - Radar Shipping Ltd-HKG
@@ -2338,6 +2392,10 @@ lookups:
         values:
           - Organisation for Technological Industries (OTI)
           - Syrian Ministry of Defence
+      - match: 82% owned by Rida Engineering and 18% owned by the state-owned Sudamin Mining Company.
+        values:
+          - Rida Engineering
+          - Sudamin Mining Company
       - match: "Carrier Tanker Inc, Fornax Ship Management"
         values:
           - Carrier Tanker Inc

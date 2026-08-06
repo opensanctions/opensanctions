@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from email.message import Message
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, cast
 
 from lxml import html, etree
 from normality import predict_encoding
@@ -28,7 +28,7 @@ class UnblockFailedException(RuntimeError):
         )
 
 
-def get_content_type(headers: List[Dict[str, str]]) -> Tuple[str | None, str | None]:
+def get_content_type(headers: list[dict[str, str]]) -> tuple[str | None, str | None]:
     context_type_headers = [
         h["value"] for h in headers if h["name"].lower() == "content-type"
     ]
@@ -62,13 +62,13 @@ def fetch_resource(
     context: Context,
     filename: str,
     url: str,
-    expected_media_type: Optional[str] = None,
-    expected_charset: Optional[str] = None,
-    geolocation: Optional[str] = None,
-    method: Optional[str] = None,
-    body: Optional[bytes] = None,
-    headers: Optional[Dict[str, str]] = None,
-) -> Tuple[bool, str | None, str | None, Path]:
+    expected_media_type: str | None = None,
+    expected_charset: str | None = None,
+    geolocation: str | None = None,
+    method: str | None = None,
+    body: bytes | None = None,
+    headers: dict[str, str] | None = None,
+) -> tuple[bool, str | None, str | None, Path]:
     """
     Fetch a resource using Zyte API and save to filesystem.
 
@@ -108,7 +108,7 @@ def fetch_resource(
     # a text response or a base64-encoded response to text, whereas here we want to
     # save the raw bytes to a file. Letting fetch cover both cases seems more complex than
     # just constructing the right request here.
-    zyte_data: Dict[str, Any] = {
+    zyte_data: dict[str, Any] = {
         "httpResponseBody": True,
         "httpResponseHeaders": True,
     }
@@ -127,7 +127,7 @@ def fetch_resource(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     configure_session(context.http)
 
-    timeout = context.dataset.http.timeout
+    timeout = context.dataset.http.zyte_timeout
     api_response = context.http.post(
         ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),
@@ -137,14 +137,15 @@ def fetch_resource(
     api_response.raise_for_status()
 
     file_base64 = api_response.json()["httpResponseBody"]
-    with open(out_path, "wb") as fh:
-        fh.write(b64decode(file_base64))
     media_type, charset = get_content_type(api_response.json()["httpResponseHeaders"])
 
     if expected_media_type:
         assert media_type == expected_media_type, (media_type, charset, url)
     if expected_charset:
         assert charset == expected_charset, (media_type, charset, url)
+
+    with open(out_path, "wb") as fh:
+        fh.write(b64decode(file_base64))
 
     return False, media_type, charset, out_path
 
@@ -159,17 +160,17 @@ class ZyteAPIRequest:
     """Container dataclass for possible arguments to the Zyte API."""
 
     url: str
-    method: Optional[str] = None  # Defaults to GET server-side
-    body: Optional[bytes] = None
+    method: str | None = None  # Defaults to GET server-side
+    body: bytes | None = None
 
     scrape_type: ZyteScrapeType = ZyteScrapeType.HTTP_RESPONSE_BODY
-    actions: Optional[List[Dict[str, Any]]] = None
-    headers: Optional[Dict[str, str]] = None
-    geolocation: Optional[str] = None
+    actions: list[dict[str, Any]] | None = None
+    headers: dict[str, str] | None = None
+    geolocation: str | None = None
     # Forces JavaScript execution on a browser request to be enabled
-    javascript: Optional[bool] = None
+    javascript: bool | None = None
     # Cookies sent with the request, e.g. [{"name": "x", "value": "y", "domain": ".example.com"}]
-    request_cookies: Optional[List[Dict[str, Any]]] = None
+    request_cookies: list[dict[str, Any]] | None = None
     # Request that response cookies be included in the ZyteResult
     response_cookies: bool = False
 
@@ -181,23 +182,23 @@ class ZyteResult:
     response_text: str
 
     # If the response is served from the cache, status_code is None
-    status_code: Optional[int]
+    status_code: int | None
 
     # The cache fingerprint
     cache_fingerprint: str
     from_cache: bool
 
     # As returned in the Content-Type header
-    media_type: Optional[str] = None
-    charset: Optional[str] = None
+    media_type: str | None = None
+    charset: str | None = None
     # Cookies returned by the server, populated when response_cookies=True
-    cookies: Optional[List[Dict[str, Any]]] = None
+    cookies: list[dict[str, Any]] | None = None
 
     def invalidate_cache(self, context: Context) -> None:
         context.cache.delete(self.cache_fingerprint)
 
 
-def get_cache_fingerprint(request_data: Dict[str, Any]) -> str:
+def get_cache_fingerprint(request_data: dict[str, Any]) -> str:
     # Slight abuse of the cache key to produce keys of the usual style.
     # Technically this isn't the data that's sent
     # to the target server (url), but technically we're not caching the response
@@ -210,7 +211,7 @@ def get_cache_fingerprint(request_data: Dict[str, Any]) -> str:
 def fetch(
     context: Context,
     zyte_request: ZyteAPIRequest,
-    cache_days: Optional[int] = None,
+    cache_days: int | None = None,
 ) -> ZyteResult:
     """
     Fetch using the Zyte API.
@@ -229,7 +230,7 @@ def fetch(
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
 
-    zyte_data: Dict[str, Any] = {
+    zyte_data: dict[str, Any] = {
         "url": zyte_request.url,
         "httpResponseHeaders": True,
     }
@@ -272,7 +273,7 @@ def fetch(
     context.log.debug(f"Zyte API request: {zyte_request.url}", data=zyte_data)
     configure_session(context.http)
 
-    timeout = context.dataset.http.timeout
+    timeout = context.dataset.http.zyte_timeout
     api_response = context.http.post(
         ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),
@@ -314,11 +315,11 @@ def fetch(
 def fetch_text(
     context: Context,
     url: str,
-    geolocation: Optional[str] = None,
-    cache_days: Optional[int] = None,
-    expected_media_type: Optional[str] = None,
-    expected_charset: Optional[str] = None,
-) -> Tuple[bool, str | None, str | None, str]:
+    geolocation: str | None = None,
+    cache_days: int | None = None,
+    expected_media_type: str | None = None,
+    expected_charset: str | None = None,
+) -> tuple[bool, str | None, str | None, str]:
     """
     Fetch a text document using the Zyte API.
 
@@ -379,9 +380,9 @@ def fetch_text(
 def fetch_json(
     context: Context,
     url: str,
-    cache_days: Optional[int] = None,
-    expected_media_type: Optional[str] = "application/json",
-    geolocation: Optional[str] = None,
+    cache_days: int | None = None,
+    expected_media_type: str | None = "application/json",
+    geolocation: str | None = None,
 ) -> Any:
     """
     Returns:
@@ -413,7 +414,12 @@ def fetch_json(
         )
         raise AssertionError(msg)
 
-    doc = json.loads(zyte_result.response_text)
+    try:
+        doc = json.loads(zyte_result.response_text)
+    except json.JSONDecodeError:
+        # A truncated cache entry would otherwise raise on every run until it expires.
+        zyte_result.invalidate_cache(context)
+        raise
 
     if not zyte_result.from_cache and cache_days is not None:
         context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)
@@ -424,12 +430,12 @@ def fetch_html(
     context: Context,
     url: str,
     unblock_validator: str,
-    actions: list[Dict[str, Any]] = [],
+    actions: list[dict[str, Any]] = [],
     html_source: str = "browserHtml",
-    javascript: Optional[bool] = None,
-    geolocation: Optional[str] = None,
-    request_cookies: Optional[List[Dict[str, Any]]] = None,
-    cache_days: Optional[int] = None,
+    javascript: bool | None = None,
+    geolocation: str | None = None,
+    request_cookies: list[dict[str, Any]] | None = None,
+    cache_days: int | None = None,
     retries: int = 3,
     backoff_factor: int = 3,
     previous_retries: int = 0,
@@ -464,12 +470,16 @@ def fetch_html(
         cache_days=cache_days,
     )
 
-    doc = html.fromstring(zyte_result.response_text)
-    if absolute_links and isinstance(doc, html.HtmlElement):
-        cast(html.HtmlElement, doc).make_links_absolute(url)
+    doc: etree._Element | None = None
+    try:
+        doc = html.fromstring(zyte_result.response_text)
+    except etree.ParserError as exc:
+        context.log.debug("Response is not parseable HTML", url=url, error=str(exc))
 
-    matches = doc.xpath(unblock_validator)
-    if not isinstance(matches, list) or not len(matches) > 0:
+    # A response that doesn't parse at all — typically an empty body — is as
+    # unusable as one that wasn't unblocked, so both take the same path.
+    matches = doc.xpath(unblock_validator) if doc is not None else None
+    if doc is None or not isinstance(matches, list) or not len(matches) > 0:
         # If we've cached a response that no longer passes validation (likely because the code changed),
         # invalidate it so that we don't just get the same cached response on retry.
         zyte_result.invalidate_cache(context)
@@ -490,14 +500,19 @@ def fetch_html(
                 actions,
                 html_source=html_source,
                 javascript=javascript,
+                geolocation=geolocation,
                 request_cookies=request_cookies,
                 cache_days=cache_days,
                 retries=retries,
                 backoff_factor=backoff_factor,
                 previous_retries=previous_retries + 1,
+                absolute_links=absolute_links,
             )
         context.log.debug("Unblocking failed", url=url, html=zyte_result.response_text)
         raise UnblockFailedException(url, unblock_validator)
+
+    if absolute_links and isinstance(doc, html.HtmlElement):
+        cast(html.HtmlElement, doc).make_links_absolute(url)
 
     if not zyte_result.from_cache and cache_days is not None:
         context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)

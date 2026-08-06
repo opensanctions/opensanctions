@@ -2,8 +2,26 @@ id: 251
 title: UK sanctions relating to South Sudan
 key: GB-SSD
 url: https://www.gov.uk/government/collections/uk-sanctions-on-south-sudan
-summary: Targeting entities and individuals in South Sudan.
-issuer: gb_ofsi
+summary: Gives effect to the UN Security Council's South Sudan sanctions regime,
+  established by resolution 2206 (2015) and extended by resolution 2428 (2018),
+  targeting persons who threaten the peace, stability or security of South
+  Sudan. Designated persons are subject to an asset freeze, and designated
+  individuals are barred from entering or transiting the United Kingdom. The
+  regime also imposes a country-wide embargo on the export of military goods
+  and technology to South Sudan.
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
+aliases:
+  - Resolution 2206
+  - Resolution 2428
+  - SI 2019/438
+  - South Sudan
+  - The South Sudan (Sanctions) (EU Exit) Regulations 2019
+  - UNSCR 2206
+  - UNSCR 2428
 target_territories:
-- ss
+  - ss
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Travel ban

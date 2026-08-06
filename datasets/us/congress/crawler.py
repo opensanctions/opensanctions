@@ -49,6 +49,7 @@ def crawl_positions(
             country="us",
             topics=res.topics,
             wikidata_id=res.wikidata_id,
+            lang="eng",
         )
         categorisation = categorise(context, position)
         if categorisation.is_pep:

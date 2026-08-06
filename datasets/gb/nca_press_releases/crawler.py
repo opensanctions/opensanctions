@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
@@ -22,13 +22,13 @@ schema_field = Field(
 class Offender(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] = []
-    address: List[str] = []
-    country: List[str] = []
+    aliases: list[str] = []
+    address: list[str] = []
+    country: list[str] = []
 
 
 class Offenders(BaseModel):
-    offenders: List[Offender]
+    offenders: list[Offender]
 
 
 PROMPT = f"""
@@ -51,8 +51,9 @@ Specific fields:
 def get_date(context: Context, url: str, article_doc: Element) -> str | None:
     # The last <p><strong> in the article body usually contains the date,
     # but some articles don't have a date at all.
-    dates = article_doc.xpath(
-        "//div[@itemprop='articleBody']/p[strong][last()]/strong[last()]/text()"
+    dates = h.xpath_strings(
+        article_doc,
+        "//div[@itemprop='articleBody']/p[strong][last()]/strong[last()]/text()",
     )
     assert len(dates) <= 1
     if dates != []:
@@ -70,17 +71,15 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_doc = context.fetch_html(url, cache_days=7, absolute_links=True)
     if article_doc is None:
         return
-    article_name = article_doc.xpath("//h1[@itemprop='headline']/text()")[0]
+    article_name = h.xpath_strings(article_doc, "//h1[@itemprop='headline']/text()")[0]
     assert article_name, "Article name not found"
-    article_content = article_doc.xpath("//div[@itemprop='articleBody']")
-    assert len(article_content) == 1
-    article_element = article_content[0]
+    article_element = h.xpath_element(article_doc, "//div[@itemprop='articleBody']")
 
     # Extract topics and look them up
-    raw_topics: List[str] = article_doc.xpath("//li[@itemprop='keywords']/a/text()")
-    topics: List[str] = []
-    for topic in raw_topics:
-        res = context.lookup("topics", topic.strip(), warn_unmatched=True)
+    raw_topics = h.xpath_strings(article_doc, "//li[@itemprop='keywords']/a/text()")
+    topics: list[str | None] = []
+    for raw_topic in raw_topics:
+        res = context.lookup("topics", raw_topic.strip(), warn_unmatched=True)
         if res is not None:
             topics.append(res.value)
 
@@ -147,7 +146,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    index_url = context.data_url
+    index_url: str | None = context.data_url
     seen: set[str] = set()
     while index_url:
         # Avoid infinite loops in case of pagination issues
@@ -156,13 +155,14 @@ def crawl(context: Context) -> None:
             break
         seen.add(index_url)
         doc = context.fetch_html(index_url, absolute_links=True)
-        links = doc.xpath(
-            "//div[@class='blog news-page']/div[@class='row-fluid']//div[@class='page-header']//a/@href"
+        links = h.xpath_strings(
+            doc,
+            "//div[@class='blog news-page']/div[@class='row-fluid']//div[@class='page-header']//a/@href",
         )
         for link in links:
             crawl_enforcement_action(context, link)
         # Find the link to the next page (pagination)
-        next_links = doc.xpath("//a[@aria-label='Go to next > page']/@href")
+        next_links = h.xpath_strings(doc, "//a[@aria-label='Go to next > page']/@href")
         assert len(next_links) <= 1
         index_url = next_links[0] if next_links else None
 

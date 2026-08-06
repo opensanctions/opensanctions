@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterable, List, Optional
+from collections.abc import Iterable
 
 from banal import ensure_list
 
@@ -21,25 +21,25 @@ from zavod.stateful.positions import (
 def make_position(
     context: Context,
     name: str,
-    summary: Optional[str] = None,
-    description: Optional[str] = None,
-    country: Optional[str | Iterable[str]] = None,
-    topics: Optional[List[str]] = None,
-    subnational_area: Optional[str] = None,
-    organization: Optional[Entity] = None,
-    inception_date: Optional[Iterable[str]] = None,
-    dissolution_date: Optional[Iterable[str]] = None,
-    number_of_seats: Optional[str] = None,
-    wikidata_id: Optional[str] = None,
-    source_url: Optional[str] = None,
-    lang: Optional[str] = None,
-    id_hash_prefix: Optional[str] = None,
+    summary: str | None = None,
+    description: str | None = None,
+    country: str | Iterable[str] | None = None,
+    topics: list[str] | None = None,
+    subnational_area: str | None = None,
+    organization: Entity | None = None,
+    inception_date: Iterable[str] | None = None,
+    dissolution_date: Iterable[str] | None = None,
+    number_of_seats: str | None = None,
+    wikidata_id: str | None = None,
+    source_url: str | None = None,
+    lang: str | None = None,
+    id_hash_prefix: str | None = None,
     translate_name: bool = False,
 ) -> Entity:
     """Creates a Position entity.
 
-    Position categorisation should then be fetched using zavod.logic.pep.categorise
-    and the result's is_pep checked.
+    Position categorisation should then be fetched using
+    zavod.stateful.positions.categorise and the result's is_pep checked.
 
     Args:
         context: The context to create the entity in.
@@ -47,6 +47,10 @@ def make_position(
         summary: A short summary of the position.
         description: A longer description of the position.
         country: The country or countries the position is in.
+        topics: The scope and role of the position, e.g. `["gov.national",
+            "gov.legislative"]`. Pass these for positions the crawler names itself;
+            omit them for positions read out of the source data, where the review and
+            classification system decides.
         subnational_area: The state or district the position is in.
         organization: The organization the position is a part of.
         inception_date: The date the position was created.
@@ -56,6 +60,8 @@ def make_position(
         source_url: The URL of the source the position was found in.
         lang: Override the dataset language when the position details are in a
             non-default language.
+        id_hash_prefix: Namespace the generated entity ID, so that positions built
+            from the same name in different contexts do not collide.
         translate_name: If True and the resolved source language is non-English,
             the position name is translated to English via an LLM and stored as
             the `name` (with the original kept as the value's original_value).
@@ -67,7 +73,7 @@ def make_position(
 
     position = context.make("Position")
 
-    parts: List[str] = [name]
+    parts: list[str] = [name]
     if country is not None:
         parts.extend(ensure_list(country))
     if inception_date is not None:
@@ -94,7 +100,7 @@ def make_position(
         from zavod.shed.trans import translate_position_name
 
         result = translate_position_name(context, LangText(text=name, lang=source_lang))
-        translated = result.get_english()
+        translated = result.get_preferred_language()
         if translated is not None:
             position.add(
                 "name",
@@ -129,15 +135,16 @@ def make_occupancy(
     position: Entity,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    period_start: Optional[str] = None,
-    period_end: Optional[str] = None,
-    election_date: Optional[str] = None,
-    categorisation: Optional[PositionCategorisation] = None,
-    status: Optional[OccupancyStatus] = None,
-    key_prefix: Optional[str] = None,
-) -> Optional[Entity]:
+    start_date: str | None = None,
+    end_date: str | None = None,
+    period_start: str | None = None,
+    period_end: str | None = None,
+    election_date: str | None = None,
+    categorisation: PositionCategorisation | None = None,
+    status: OccupancyStatus | None = None,
+    key_prefix: str | None = None,
+    two_digit_year_base: int | None = None,
+) -> Entity | None:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the `role.pep` topic
     to the person if an Occupancy is returned.
@@ -172,6 +179,10 @@ def make_occupancy(
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
         status: Overrides determining PEP occupancy status
+        two_digit_year_base: The earliest year a two-digit year may denote, applied to
+            all of the dates. Pass this rather than parsing the dates in the crawler,
+            because the occupancy ID is derived from the date strings as given. See
+            `apply_date`.
     """
     assert person.schema.is_a("Person")
     assert position.schema.is_a("Position")
@@ -195,11 +206,15 @@ def make_occupancy(
     occupancy.add("holder", person)
     occupancy.add("post", position)
 
-    h.apply_date(occupancy, "startDate", start_date)
-    h.apply_date(occupancy, "endDate", end_date)
-    h.apply_date(occupancy, "periodStart", period_start)
-    h.apply_date(occupancy, "periodEnd", period_end)
-    h.apply_date(occupancy, "electionDate", election_date)
+    dates = {
+        "startDate": start_date,
+        "endDate": end_date,
+        "periodStart": period_start,
+        "periodEnd": period_end,
+        "electionDate": election_date,
+    }
+    for prop, value in dates.items():
+        h.apply_date(occupancy, prop, value, two_digit_year_base=two_digit_year_base)
 
     if categorisation is not None and not categorisation.is_pep:
         context.log.warning(
@@ -233,7 +248,7 @@ def make_occupancy(
     return occupancy
 
 
-def earliest_term_start(topics: List[str] = ["gov.national"]) -> str:
+def earliest_term_start(topics: list[str] = ["gov.national"]) -> str:
     """Returns a date that can be used as a cut-off date for parliamentary or government terms
     when crawling historical data. For example, if a dataset is known to include data from the
     inception of a country, but we only want to consider people as PEPs if they held a position

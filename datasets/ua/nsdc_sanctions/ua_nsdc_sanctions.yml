@@ -759,6 +759,15 @@ lookups:
         value: 1086145000193
       - match: 10277001322195
         value: 1027700132195
+  type.url:
+    options:
+      - match: '"rtr-planeta.com", "russia.tv", "vesti.ru", "tvkultura.ru", "digitalrussia.tv"'
+        values:
+          - rtr-planeta.com
+          - russia.tv
+          - vesti.ru
+          - tvkultura.ru
+          - digitalrussia.tv
   attributes:
     options:
       - match:

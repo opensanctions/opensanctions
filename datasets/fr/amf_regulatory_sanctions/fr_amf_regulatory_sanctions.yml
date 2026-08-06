@@ -83,6 +83,7 @@ lookups:
           - "<br />"
           - "<br /> <br />"
           - "<br /> <br /> <br /> <br />"
+          - "<br /> <br /> <br /> <br /> <br />"
         entities: []
       - match: La société Traditia<br /> Monsieur Philippe Le Gouz de Saint Seine
         entities:
@@ -1067,3 +1068,13 @@ lookups:
         entities:
           - Ytane Mamou
           - Elie Houri
+      - match: "<br /> <br /> La société Uzès Gestion<br /> M. Jean-Marie Godet<br /> M. Christian Maugey"
+        entities:
+          - Uzès Gestion
+          - Jean-Marie Godet
+          - Christian Maugey
+      - match: "La société Financière Fonds Privés<br /> M. Pierre-Michel Deléglise<br /> M. Thierry de Chambure"
+        entities:
+          - Financière Fonds Privés
+          - Pierre-Michel Deléglise
+          - Thierry de Chambure

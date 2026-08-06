@@ -55,11 +55,11 @@ assertions:
   min:
     schema_entities:
       Security: 15300
-      LegalEntity: 5300
+      Organization: 5300
   max:
     schema_entities:
       Security: 36100
-      LegalEntity: 12500
+      Organization: 12500
 
 lookups:
   type.name:

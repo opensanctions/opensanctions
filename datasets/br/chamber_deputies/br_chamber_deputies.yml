@@ -1,0 +1,55 @@
+title: Brazil Members of the Chamber of Deputies
+name: br_chamber_deputies
+prefix: br-cd
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-29
+load_statements: true
+ci_test: false
+summary: >-
+  Lower house of the National Congress, 513 deputies elected by proportional vote
+description: |
+  Current and historical members of the Chamber of Deputies (Câmara dos Deputados), the
+  lower house of the National Congress of Brazil. Its 513 federal deputies are elected by
+  open-list proportional representation from the states and the Federal District for a
+  four-year term and, together with the Federal Senate, hold the country's legislative
+  power, including passing laws and approving the budget.
+
+  Coverage spans the recent legislative terms, so former deputies are included, among them
+  substitutes (suplentes) who held a seat during a legislature but have since left it.
+url: https://www.camara.leg.br/
+publisher:
+  name: Câmara dos Deputados
+  description: >
+    The Chamber of Deputies is the lower house of the National Congress of Brazil.
+  url: https://www.camara.leg.br/
+  country: br
+  official: true
+data:
+  url: https://dadosabertos.camara.leg.br/api/v2
+  format: JSON
+  lang: por
+
+lookups:
+  type.gender:
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1800
+      Position: 1
+    country_entities:
+      br: 1800
+  max:
+    schema_entities:
+      Person: 2300
+      Position: 1

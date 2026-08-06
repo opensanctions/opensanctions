@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -7,7 +6,7 @@ from zavod.extract import zyte_api
 from zavod import helpers as h
 
 
-def crawl_item(row: Dict[str, str | None], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity = context.make("LegalEntity")
     entity.id = context.make_id(row.get("provider_name"), row.get("npi"))
     entity.add("name", row.pop("provider_name"))
@@ -24,7 +23,14 @@ def crawl_item(row: Dict[str, str | None], context: Context) -> None:
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("term_date"))
+    h.apply_date(
+        sanction,
+        "startDate",
+        row.pop("term_date"),
+        # Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
+        # Amendments.
+        two_digit_year_base=1977,
+    )
     h.apply_date(sanction, "date", row.pop("letter_date"))
     sanction.add("reason", row.pop("termination_reason"))
 
@@ -42,6 +48,7 @@ def crawl(context: Context) -> None:
         context,
         context.data_url,
         unblock_validator=excel_xpath,
+        absolute_links=True,
     )
     excel_url = h.xpath_string(landing_page, excel_xpath)
     _, _, _, path = zyte_api.fetch_resource(

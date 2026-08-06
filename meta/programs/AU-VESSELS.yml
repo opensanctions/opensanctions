@@ -1,10 +1,17 @@
 id: 318
-title: Sanctioned Vessels Regime
+title: Sanctioned vessels framework
 key: AU-VESSELS
 url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctioned-vessels-framework
-summary: Australia has imposed sanctions on vessels in response to situations of international
-  concern, including in response to Russia's invasion of Ukraine and to increase pressure
-  on the Democratic People's Republic of Korea (DPRK) to comply with its nonproliferation
-  obligations.
+summary: Covers vessels designated as sanctioned vessels under Australia's autonomous
+  sanctions law in response to situations of international concern, including
+  Russia's invasion of Ukraine and the DPRK's non-compliance with its nonproliferation
+  obligations; vessels flagged to or registered in the DPRK are designated as a
+  class. A sanctioned vessel may be directed to leave Australia by a designated
+  route or barred from entering Australian ports, and a vessel that fails to comply
+  with such a direction is forfeited to the Commonwealth.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+aliases:
+  - "Autonomous (Vessels)"
+measures:
+  - Transportation restrictions

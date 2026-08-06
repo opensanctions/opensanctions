@@ -3,13 +3,13 @@ import logging
 from dataclasses import dataclass
 from lxml import etree
 from functools import cache
-from typing import Optional, Union, IO, Any, Dict
+from typing import IO, Any
 from normality import slugify
 from followthemoney.util import ENTITY_ID_LEN
 
 log = logging.getLogger(__name__)
 Element = etree._Element
-ElementOrTree = Union[etree._Element, etree._ElementTree]
+ElementOrTree = etree._Element | etree._ElementTree
 ID_SEP = "-"
 
 
@@ -22,20 +22,20 @@ class LangText:
     """
 
     text: str
-    lang: Optional[str]
+    lang: str | None
     """ISO 639-2 (3-letter) language code, or None if not known."""
 
 
 @cache
-def slugify_prefix(prefix: Optional[str]) -> Optional[str]:
+def slugify_prefix(prefix: str | None) -> str | None:
     return slugify(prefix, sep=ID_SEP)
 
 
 def join_slug(
-    *parts: Optional[str],
-    prefix: Optional[str] = None,
+    *parts: str | None,
+    prefix: str | None = None,
     strict: bool = True,
-) -> Optional[str]:
+) -> str | None:
     """Make a text-based ID which is strongly normalized."""
     sections = [slugify(p, sep=ID_SEP) for p in parts]
     if strict and None in sections:
@@ -66,7 +66,7 @@ def json_default(obj: Any) -> Any:
     raise TypeError
 
 
-def write_json(data: Dict[str, Any], fh: IO[bytes]) -> None:
+def write_json(data: dict[str, Any], fh: IO[bytes]) -> None:
     """Write a JSON object to the given open file handle."""
     opt = orjson.OPT_APPEND_NEWLINE | orjson.OPT_NON_STR_KEYS
     fh.write(orjson.dumps(data, option=opt, default=json_default))

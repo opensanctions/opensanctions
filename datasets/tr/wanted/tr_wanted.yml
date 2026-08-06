@@ -11,11 +11,11 @@ summary: >
   List of people considered wanted for terrorism by the Türkiye Ministry of Interior
 description: |
   Türkiye has published a list of its most wanted terrorists, which includes
-  details such as names, birth years, and places of birth. 
+  details such as names, birth years, and places of birth.
 
   These individuals are classified into five color-coded categories,
   ranging from red (kırmızı) — indicating the most wanted — to blue (mavi),
-  green (yeşil), orange (turuncu), and grey (gri). 
+  green (yeşil), orange (turuncu), and grey (gri).
 
   Each category corresponds to a different reward amount for information
   that leads to the capture of these wanted individuals.
@@ -27,6 +27,8 @@ description: |
 
   See [Turkey’s terror list: An attack on lawyers and human
   rights](https://lawyersforlawyers.org/en/turkeys-terror-list-an-attack-on-lawyers-and-human-rights/)
+tags:
+  - list.wanted
 publisher:
   name: Türkiye Ministry of Interior
   country: tr

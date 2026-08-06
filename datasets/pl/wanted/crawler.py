@@ -4,7 +4,10 @@ from zavod import helpers as h
 # Extract details using XPath based on the provided HTML structure
 # required, key, xpath
 ATTRIBUTES = [
-    (True, "birth_date", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
+    # The birth date is occasionally missing from an otherwise well-formed profile.
+    # It is not required here so that a single such profile doesn't abort the crawl;
+    # crawl_person skips the person instead (see below).
+    (False, "birth_date", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
     (True, "full_name", "//div[@class='head']/h2/text()"),
     (True, "gender", "//p[contains(text(), 'Płeć:')]/strong/text()"),
     (False, "middle_name", "//p[contains(text(), 'Drugie imię:')]/strong/text()"),
@@ -38,6 +41,12 @@ def crawl_person(context: Context, url: str) -> None:
         if required:
             assert text, (key, url)
         info[key] = text
+
+    if not info["birth_date"]:
+        # The birth date is what distinguishes namesakes in the entity ID, so without
+        # it we would risk merging distinct people into one entity.
+        context.log.warning("Skipping person without a birth date", url=url)
+        return
 
     person = context.make("Person")
     person.id = context.make_id(info.get("full_name"), info.get("birth_date"))

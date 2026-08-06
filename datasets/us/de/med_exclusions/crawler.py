@@ -40,8 +40,10 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity.add_cast("Person", "position", position)
     entity.add("alias", alias)
     entity.add("country", "us")
-    dea = row.pop("dea")
-    if dea != "-" and dea != "N/A":
+    # In July 2026 the source replaced the "DEA #" column with "Taxonomy #".
+    # Keep reading DEA numbers in case the column returns.
+    dea = row.pop("dea", None)
+    if dea is not None and dea != "-" and dea != "N/A":
         entity.add("idNumber", dea)
     entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
 
@@ -73,7 +75,14 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     assert (authority := row.pop("oig_medicaid_sanction")) is not None
     sanction.set("authority", squash_spaces(authority))
 
-    h.apply_date(sanction, "startDate", row.pop("effective_date"))
+    h.apply_date(
+        sanction,
+        "startDate",
+        row.pop("effective_date"),
+        # Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
+        # Amendments.
+        two_digit_year_base=1977,
+    )
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)
 
@@ -95,7 +104,9 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["year"])
+    # `taxonomy` holds NUCC provider taxonomy codes, which classify the kind of
+    # provider rather than identifying this specific one, so we don't emit them.
+    context.audit_data(row, ignore=["year", "taxonomy"])
 
 
 def crawl(context: Context) -> None:

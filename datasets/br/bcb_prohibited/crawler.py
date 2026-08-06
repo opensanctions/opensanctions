@@ -1,4 +1,4 @@
-from typing import Any, List, cast
+from typing import Any, cast
 
 from zavod.entity import Entity
 
@@ -6,7 +6,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def fetch_data(context: Context) -> List[dict[str, Any]]:
+def fetch_data(context: Context) -> list[dict[str, Any]]:
     """
     Fetches data from the website, or raises an exception on failure.
 
@@ -17,7 +17,7 @@ def fetch_data(context: Context) -> List[dict[str, Any]]:
     if "value" not in response:
         context.log.error("Value not found in JSON")
         return []
-    return cast(List[dict[str, Any]], response["value"])
+    return cast(list[dict[str, Any]], response["value"])
 
 
 def create_entity(input_dict: dict[str, Any], context: Context) -> Entity:
@@ -83,7 +83,7 @@ def create_sanction(
     # The ID of the process
     sanction.add(
         "description",
-        "Administrative Sanctioning Process Number: {}".format(pas),
+        f"Administrative Sanctioning Process Number: {pas}",
     )
 
     # The duration is always in years

@@ -22,11 +22,12 @@ description: |
 url: https://www.state.gov/biographies-list/
 tags:
   - list.pep
+  - list.pep.bulk
 publisher:
   name: US State Department
   acronym: State
   description: |
-    The U.S. State Department's stated mission is to protect and promote U.S. 
+    The U.S. State Department's stated mission is to protect and promote U.S.
     security, prosperity, and democratic values and shape an international
     environment in which all Americans can thrive.
   country: us

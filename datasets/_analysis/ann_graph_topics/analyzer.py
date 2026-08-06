@@ -8,28 +8,30 @@ capture that derived risk so the affected entities become visible to screening
 (and eligible for further enrichment). It implements the "risk propagation"
 step of the enrichment pipeline.
 
-Four propagation rules are applied per (entity, adjacent) pair:
+Propagation rules are applied per (entity, adjacent) pair:
 
 - ``rule_pep_family_to_rca`` — a Person reachable via a ``Family`` edge from a
   ``role.pep`` is tagged as a relative or close associate (``role.rca``).
 - ``rule_sanction_adjacency`` — an entity adjacent to a ``sanction`` entity
   through a curated set of edge schemata (Ownership, Directorship, Membership,
-  Employment, Associate, Family, Succession), plus Securities issued by a
-  sanctioned entity, is tagged as ``sanction.linked``.
-- ``rule_ownership_descent`` — an asset owned by an already ``sanction.linked``
-  owner is itself tagged ``sanction.linked``, pushing the tag one ownership hop
-  further per run.
+  Employment, Associate, Family, Succession); Securities issued by a
+  sanctioned entity; and the issuer of a sanctioned Security — tagged
+  ``sanction.linked``.
+- ``rule_sanction_control_descent`` — an asset or organization controlled by a
+  ``sanction`` or ``sanction.control`` entity (via ``Ownership`` owner→asset)
+  is tagged ``sanction.control`` and co-emitted ``sanction.linked`` (so
+  ``sanction.linked`` is a superset of ``sanction.control``). No 50% ownership
+  threshold is applied; one hop per run, converging across successive runs.
 - ``rule_export_control_descent`` — an asset owned by an ``export.control`` or
-  ``export.control.linked`` entity is itself tagged ``export.control.linked``,
-  the export-control analogue of the BIS Affiliates Rule / 50% ownership
-  restriction. Ownership-only, downward-only, one hop per run.
+  ``export.control.linked`` entity is itself tagged ``export.control.linked``.
+    Ownership-only, downward-only, one hop per run.
 
 Requirements and invariants that make this correct:
 
 - **Self-exclusion.** ``non_graph_topics`` ignores topic statements contributed
   by this dataset itself, so a tag this analyzer emits does not, on its own,
   re-trigger the rules that produced it. The deliberate exceptions are the
-  ownership-descent rules (``rule_ownership_descent`` and
+  descent rules (``rule_sanction_control_descent`` and
   ``rule_export_control_descent``), which read their emitted topics back from
   the store in order to walk one hop at a time.
 - **Iterative convergence.** Because ownership propagation advances a single
@@ -45,14 +47,17 @@ Requirements and invariants that make this correct:
   analyzer reads the store with ``external=True`` precisely so it can *see*
   those passengers and apply the rules to them; with an internal-only view it
   would be blind to exactly the entities it needs to evaluate.
-- **Patches inherit the related entity's external-ness.** A patch is emitted
-  internal iff the related entity already has at least one internal statement
-  (``Entity.external`` is true only when *every* statement is external),
-  otherwise external. So a derived topic on a genuinely published entity is
-  published, while a topic on a purely-external passenger stays external.
-  Either way the topic is visible in the ``external=True`` view and continues
-  to feed the next ownership hop — but tagging a passenger does not, on its
-  own, force it into the published export.
+- **Patch external-ness tracks published source data.** A patch is emitted
+  internal iff the related entity has at least one internal statement from a
+  non-analyzer dataset (``ANALYZER_DATASETS``), otherwise external. So a
+  derived topic on a genuinely published entity is published, while a topic
+  on a purely-external passenger stays external. Discounting the analyzers'
+  own statements is what keeps this from becoming self-sustaining: without
+  it, one internal patch would keep an entity "internal" forever — even
+  after its source data was demoted to external — publishing nameless,
+  topic-only stubs. Either way the topic is visible in the ``external=True``
+  view and continues to feed the next ownership hop — but tagging a
+  passenger does not, on its own, force it into the published export.
 - **Edge end dates terminate propagation.** Relationships carrying an
   ``endDate`` are skipped: a former director or ex-spouse does not propagate
   risk. Checked once in ``analyze_entity`` before rule dispatch.
@@ -62,15 +67,16 @@ Requirements and invariants that make this correct:
   target entities downstream rather than replacing them.
 """
 
-from typing import Iterator, Set, Tuple
+from collections.abc import Iterator
 
 from followthemoney import registry
 from followthemoney.property import Property
+from followthemoney.statement import BASE_ID
 from nomenklatura.store.base import View as BaseView
 
 from zavod import Context, Entity
-from zavod.meta import Dataset, get_multi_dataset
-from zavod.constants import ORIGIN_INFERRED
+from zavod.meta import Dataset, get_catalog, get_multi_dataset
+from zavod.constants import ANALYZER_DATASETS, ORIGIN_INFERRED
 from zavod.store import get_store
 from zavod.integration import get_dataset_linker
 
@@ -97,12 +103,16 @@ SANCTION_ADJACENCY_EDGES = frozenset(
 # Topics that mean "already sanction-linked" — used to skip re-tagging.
 SANCTION_SEEDS = frozenset({"sanction", "sanction.linked"})
 
+# Topics that mean "already sanction-controlled" — both seed the descent and
+# suppress redundant re-tagging on downstream assets.
+SANCTION_CONTROL_SEEDS = frozenset({"sanction", "sanction.control"})
+
 # Topics that mean "already export-controlled" — both seed the descent and
 # suppress redundant re-tagging on downstream assets.
 EXPORT_CONTROL_SEEDS = frozenset({"export.control", "export.control.linked"})
 
 
-def non_graph_topics(context: Context, entity: Entity) -> Set[str]:
+def non_graph_topics(context: Context, entity: Entity) -> set[str]:
     """Return topics on ``entity`` that were contributed by other datasets.
 
     Used to decide whether a candidate target is *already* tagged without
@@ -113,13 +123,31 @@ def non_graph_topics(context: Context, entity: Entity) -> Set[str]:
     return {s.value for s in topic_stmts if s.dataset != context.dataset.name}
 
 
+def has_published_substance(entity: Entity) -> bool:
+    """Return whether the entity has published source data of its own.
+
+    Decides patch external-ness — see the ``Patch external-ness`` invariant
+    in the module docstring: analyzer statements are discounted so a prior
+    patch cannot keep an otherwise-unpublished entity internal. BASE_ID
+    checksum statements are skipped: they are synthesized at read time with
+    a meaningless external flag.
+    """
+    for stmt in entity.statements:
+        if stmt.prop == BASE_ID:
+            continue
+        if not stmt.external and stmt.dataset not in ANALYZER_DATASETS:
+            return True
+    return False
+
+
 def emit_patch(
     context: Context,
     risk_source: Entity,
     related_entity: Entity,
     topic: str,
-    existing_topics: Set[str],
+    existing_topics: set[str],
 ) -> None:
+    """Emit a minimal patch entity to add ``topic`` to ``related_entity``."""
     context.log.info(
         f"Adding topic: {topic}",
         risk_source=risk_source.caption,
@@ -135,12 +163,12 @@ def emit_patch(
     patch = context.make(schema_name)
     patch.id = related_entity.id
     patch.add("topics", topic, origin=ORIGIN_INFERRED)
-    context.emit(patch, external=related_entity.external)
+    context.emit(patch, external=not has_published_substance(related_entity))
 
 
 def walk_edge(
     view: View, edge: Entity, prop: Property
-) -> Iterator[Tuple[Entity, Property]]:
+) -> Iterator[tuple[Entity, Property]]:
     """Yield ``(other_end, counterpart_prop)`` pairs across an edge entity.
 
     ``prop`` is the property on the *source* entity that reached ``edge``. The
@@ -166,7 +194,7 @@ def rule_pep_family_to_rca(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
@@ -190,7 +218,7 @@ def rule_sanction_adjacency(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
@@ -198,19 +226,19 @@ def rule_sanction_adjacency(
 
     Two topologies:
 
-    - Company → Security via the direct ``securities`` property (no
-      intermediate edge entity).
+    - Company ↔ Security via the direct ``securities`` / ``issuer``
+      properties (no intermediate edge entity). Both directions emit: a
+      sanctioned Company tags its Security, and a sanctioned Security tags
+      its issuer.
     - Curated broad edge schemata (``SANCTION_ADJACENCY_EDGES``) walked to the
       counterpart node.
     """
     if "sanction" not in source_topics:
         return
-    # A sanctioned Security itself does not propagate — sanctions on a security
-    # don't inherently taint the whole issuer graph.
-    if source.schema.is_a("Security"):
-        return
-    # Direct Company → Security relation. The adjacent entity *is* the target.
-    if prop.name == "securities" and adjacent.schema.is_a("Security"):
+    # Direct Company ↔ Security relation. The adjacent entity *is* the target.
+    if (prop.name == "issuer" and source.schema.is_a("Security")) or (
+        prop.name == "securities" and adjacent.schema.is_a("Security")
+    ):
         target_topics = non_graph_topics(context, adjacent)
         if not target_topics & SANCTION_SEEDS:
             emit_patch(context, source, adjacent, "sanction.linked", target_topics)
@@ -227,35 +255,32 @@ def rule_sanction_adjacency(
         emit_patch(context, source, target, "sanction.linked", target_topics)
 
 
-def rule_ownership_descent(
+def rule_sanction_control_descent(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
-    """Descend one ``Ownership`` hop from a ``sanction.linked`` owner.
+    """Descend one control hop from a ``sanction`` or ``sanction.control`` seed.
 
-    This rule *does* observe ``sanction.linked`` values emitted by this
-    analyzer in prior runs — that is how the tag advances one hop per run and
-    converges over successive runs. See ``Iterative convergence`` in the
-    module docstring.
+    Walks one step downward along ``Ownership``: ``owner → asset``.
     """
-    if "sanction.linked" not in source_topics:
+    if source_topics.isdisjoint(SANCTION_CONTROL_SEEDS):
         return
-    if not adjacent.schema.is_a("Ownership"):
+    if prop.reverse is None:
         return
-    # ``prop`` is the property on ``source`` that reached the Ownership edge;
-    # ``prop.reverse`` is the Ownership property pointing back at ``source``.
-    # "owner" means ``source`` sits on the owner side and we should walk to
-    # the asset. We never descend upward from an asset to its owner.
-    if prop.reverse is None or prop.reverse.name != "owner":
+    if adjacent.schema.name != "Ownership" or prop.reverse.name != "owner":
         return
     for target, _ in walk_edge(view, adjacent, prop):
         target_topics = non_graph_topics(context, target)
+        if target_topics & SANCTION_CONTROL_SEEDS:
+            continue
+        emit_patch(context, source, target, "sanction.control", target_topics)
         if target_topics & SANCTION_SEEDS:
             continue
+        # Anything that's under sanctioned control is also sanction-linked.
         emit_patch(context, source, target, "sanction.linked", target_topics)
 
 
@@ -263,14 +288,13 @@ def rule_export_control_descent(
     context: Context,
     view: View,
     source: Entity,
-    source_topics: Set[str],
+    source_topics: set[str],
     prop: Property,
     adjacent: Entity,
 ) -> None:
     """Descend one ``Ownership`` hop and tag ``export.control.linked``.
 
-    Structurally the export-control twin of ``rule_ownership_descent``:
-    ownership-only, downward-only (owner → asset), and self-observing so that
+    Ownership-only, downward-only (owner → asset), and self-observing so that
     the tag advances one hop per run and converges across successive runs.
 
     NOTE on the asymmetric naming: ``export.control.linked`` carries the
@@ -299,13 +323,13 @@ def rule_export_control_descent(
 RULES = (
     rule_pep_family_to_rca,
     rule_sanction_adjacency,
-    rule_ownership_descent,
+    rule_sanction_control_descent,
     rule_export_control_descent,
 )
 
 
 def analyze_entity(context: Context, view: View, entity: Entity) -> None:
-    source_topics: Set[str] = set(entity.get_type_values(registry.topic))
+    source_topics: set[str] = set(entity.get_type_values(registry.topic))
     for prop, adjacent in view.get_adjacent(entity):
         if len(adjacent.get("endDate", quiet=True)) > 0:
             context.log.info(
@@ -320,7 +344,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
 
 
 def crawl(context: Context) -> None:
-    scope = get_multi_dataset(context.dataset.inputs)
+    scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
     store.sync()
@@ -328,5 +352,5 @@ def crawl(context: Context) -> None:
 
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 1000 == 0:
-            context.log.info("Processed %s entities" % entity_idx)
+            context.log.info(f"Processed {entity_idx} entities")
         analyze_entity(context, view, entity)

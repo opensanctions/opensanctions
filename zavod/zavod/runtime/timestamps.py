@@ -1,6 +1,6 @@
 import plyvel  # type: ignore
 import shutil
-from typing import Dict, Iterable
+from collections.abc import Iterable
 from rigour.env import ENCODING as E
 from followthemoney import Statement
 
@@ -11,7 +11,7 @@ from zavod.archive import dataset_state_path, iter_previous_statements
 log = get_logger(__name__)
 
 
-class TimeStampIndex(object):
+class TimeStampIndex:
     BUFFER = 10 * 1024 * 1024
 
     def __init__(self, dataset: Dataset) -> None:
@@ -55,8 +55,8 @@ class TimeStampIndex(object):
         index.index(iter_previous_statements(dataset, external=False))
         return index
 
-    def get(self, entity_id: str) -> Dict[str, str]:
-        timestamps: Dict[str, str] = {}
+    def get(self, entity_id: str) -> dict[str, str]:
+        timestamps: dict[str, str] = {}
         prefix = f"{entity_id}:".encode(E)
         with self.db.iterator(prefix=prefix) as it:
             for key, value in it:

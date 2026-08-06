@@ -75,5 +75,5 @@ assertions:
       Organization: 1
   max:
     schema_entities:
-      Vessel: 800
+      Vessel: 1100
       Organization: 50

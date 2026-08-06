@@ -1,3 +1,4 @@
+import pytest
 from lxml import html
 from rigour.text import text_hash
 
@@ -51,6 +52,54 @@ def test_parse_html_table(testdataset1: Dataset):
     assert links_dict["extra"] == "/james-bond-extra", links_dict
 
 
+DUPLICATE_HEADERS_HTML = """
+<html>
+  <table>
+    <tr><th>Name</th><th>Name</th><th>DOB</th></tr>
+    <tr><td>original script</td><td>latin script</td><td>1970</td></tr>
+  </table>
+</html>
+"""
+
+NESTED_TABLE_HTML = """
+<html>
+  <table>
+    <tr><th>Name</th><th>Info</th></tr>
+    <tr>
+      <td>Alice</td>
+      <td>
+        <table><tr><td>inner1</td><td>inner2</td></tr></table>
+      </td>
+    </tr>
+  </table>
+</html>
+"""
+
+
+def test_parse_html_table_duplicate_headers():
+    # Headers that collide after slugification would silently drop the earlier
+    # column's cell ({"name": "latin script", "dob": "1970"}).
+    doc = html.fromstring(DUPLICATE_HEADERS_HTML)
+    table = doc.xpath(".//table")[0]
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(h.parse_html_table(table))
+
+
+# https://github.com/opensanctions/opensanctions/issues/5322
+# def test_parse_html_table_nested_table():
+#     # Rows of a table nested inside a cell must not be emitted as rows of the
+#     # outer table.
+#     doc = html.fromstring(NESTED_TABLE_HTML)
+#     table = doc.xpath(".//table")[0]
+#     rows = list(h.parse_html_table(table))
+#     # Nested table row is not an additional row.
+#     assert len(rows) == 1, rows
+#     str_row = h.cells_to_str(rows[0])
+#     assert str_row["name"] == "Alice", str_row
+#     # Nested table is extracted as value where it is nested.
+#     assert rows[0]["info"].find("./table/tr/td").text == "inner1", str_row
+
+
 def test_element_text():
     doc = html.fromstring("<span>&nbsp; </span>")
     assert h.element_text(doc) == "", doc
@@ -70,3 +119,17 @@ def test_element_text_hash():
     assert h.element_text_hash(doc) == hash, (doc, hash)
     doc = html.fromstring("<span> HELLO, <div>WORLD</div> &nbsp;</span>")
     assert h.element_text_hash(doc) == hash, (doc, hash)
+
+
+def test_split_html_newline_tags():
+    split = h.split_html_newline_tags
+    assert split("John Smith<br>Jane Doe") == ["John Smith", "Jane Doe"]
+    assert split("<p>Ground one</p><p>Ground two</p>") == ["Ground one", "Ground two"]
+    # Self-closing and upper-case variants
+    assert split("one<br/>two") == ["one", "two"]
+    assert split("one<BR>two") == ["one", "two"]
+    assert split("one<br />two") == ["one", "two"]
+    # Empty and whitespace-only chunks are dropped
+    assert split("one<br>  <br>two") == ["one", "two"]
+    assert split("") == []
+    assert split("no tags here") == ["no tags here"]

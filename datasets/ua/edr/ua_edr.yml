@@ -487,4 +487,20 @@ lookups:
           - "00000 00000"
           - '12"'
           - "16"
+          - '45"'
+          - '" 2000 "'
+          - '" "'
         value: null
+      # Company names that use angle brackets instead of quotes around a brand
+      # name; curated identity lookups mark them as reviewed to silence the
+      # HTML/XSS smell warning.
+      - match: 'ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НАУКОВО-ВИРОБНИЧЕ ПІДПРИЄМСТВО <МЕДИРЕНТ>"'
+        value: 'ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НАУКОВО-ВИРОБНИЧЕ ПІДПРИЄМСТВО <МЕДИРЕНТ>"'
+      - match: 'Т.О.В. "НВП" <МЕДИРЕНТ>"'
+        value: 'Т.О.В. "НВП" <МЕДИРЕНТ>"'
+  type.text:
+    options:
+      # Founder note repeating a company name written with angle brackets;
+      # curated to silence the HTML/XSS smell warning.
+      - match: 'ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НАУКОВО-ВИРОБНИЧЕ ПІДПРИЄМСТВО <МЕДИРЕНТ>", розмір частки - 500,00 грн.'
+        value: 'ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НАУКОВО-ВИРОБНИЧЕ ПІДПРИЄМСТВО <МЕДИРЕНТ>", розмір частки - 500,00 грн.'

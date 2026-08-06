@@ -1,5 +1,5 @@
 from rigour.mime.types import XLSX
-from typing import Any, Optional
+from typing import Any
 from zavod import helpers as h
 import openpyxl
 import re
@@ -52,7 +52,7 @@ def apply_identifiers(entity: Entity, text: str, *, default_prop: str) -> None:
         entity.add(default_prop, item.strip())
 
 
-def extract_n_pop_address(text: str) -> tuple[Optional[str], Optional[str]]:
+def extract_n_pop_address(text: str) -> tuple[str | None, str | None]:
     """
     Extract address and update the text by removing the extracted address.
     """
@@ -143,7 +143,13 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_dates(sanction, "modifiedAt", clean_date(row.pop("israel_update_date")))
+    h.apply_dates(
+        sanction,
+        "modifiedAt",
+        clean_date(row.pop("israel_update_date")),
+        # No designation on the list predates 2000.
+        two_digit_year_base=2000,
+    )
     h.apply_dates(sanction, "startDate", clean_date(row.pop("isreal_adoption_date")))
 
     context.emit(entity)

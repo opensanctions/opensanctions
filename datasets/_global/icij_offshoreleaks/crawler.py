@@ -1,6 +1,6 @@
 import io
 from pathlib import Path
-from typing import Iterator
+from collections.abc import Iterator
 from csv import DictReader
 from zipfile import ZipFile
 from normality import stringify
@@ -9,6 +9,8 @@ from followthemoney import model
 from zavod import Context, Entity
 from zavod import helpers as h
 
+# The oldest officer relationships in the leaked registers are from the 1950s.
+TWO_DIGIT_RELATIONSHIP_YEAR_BASE = 1950
 SCHEMATA: dict[str, str] = {}
 ADDRESSES_FULL: dict[str, list[str | None]] = {}
 ADDRESSES_COUNTRIES: dict[str, list[str] | None] = {}
@@ -175,7 +177,7 @@ def make_row_relationship(context: Context, row: dict[str, str | None]) -> None:
     try:
         res = context.lookup("relationships", link)
     except Exception:
-        context.log.exception("Unknown link: %s" % link)
+        context.log.exception(f"Unknown link: {link}")
         return
 
     if start_ent is None or end_ent is None:
@@ -215,8 +217,18 @@ def make_row_relationship(context: Context, row: dict[str, str | None]) -> None:
     if res.schema is not None:
         rel = context.make(res.schema)
         rel.id = context.make_slug(_start, _end, link)
-        h.apply_date(rel, "startDate", row.pop("start_date"))
-        h.apply_date(rel, "endDate", row.pop("end_date"))
+        h.apply_date(
+            rel,
+            "startDate",
+            row.pop("start_date"),
+            two_digit_year_base=TWO_DIGIT_RELATIONSHIP_YEAR_BASE,
+        )
+        h.apply_date(
+            rel,
+            "endDate",
+            row.pop("end_date"),
+            two_digit_year_base=TWO_DIGIT_RELATIONSHIP_YEAR_BASE,
+        )
         rel.add(res.status, row.pop("status"))
         rel.add(res.link, link)
         rel.add("publisher", source_id)

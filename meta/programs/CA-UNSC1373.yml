@@ -1,12 +1,18 @@
 id: 313
-title: Canada Counter-Terrorism (Criminal Code) Sanctions Regime
+title: Canada Criminal Code List of Terrorist Entities
 key: CA-UNSC1373
-url: https://laws-lois.justice.gc.ca/eng/acts/A-11.7/index.html
-summary: Canada's Criminal Code terrorist entity list was enacted through the Anti-Terrorism
-  Act of 2001 in response to UN Security Council Resolution 1373, which required all
-  UN Member States to suppress terrorism financing following the September 11 attacks.
-  The Governor in Council may list individuals, groups, trusts, partnerships, funds,
-  or unincorporated organizations that have knowingly carried out, participated in,
-  or facilitated terrorist activities.
+url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/index-en.aspx
+summary: >
+  Identifies individuals and organizations that knowingly carried out, attempted,
+  participated in, or facilitated terrorist activity, or acted on behalf of such
+  an entity. Listing is not itself a criminal offence, but listed property may be
+  restrained, seized, or forfeited, and financial institutions must not allow a
+  listed entity to access or deal with its property.
 issuer: ca_ps
 dataset: ca_listed_terrorists
+aliases:
+  - Criminal Code section 83.05
+  - UN Security Council Resolution 1373
+  - UNSCR 1373
+measures:
+  - Asset freeze

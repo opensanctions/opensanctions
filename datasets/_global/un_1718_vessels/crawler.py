@@ -39,7 +39,7 @@ def crawl(context: Context) -> None:
     # Fetch the CSV file, no need for Zyte since it's from Google Sheets
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
+    with open(path) as fh:
         for row in csv.DictReader(fh):
             int_id = row.pop("#")
             name = row.pop("vessel_name")
@@ -58,7 +58,13 @@ def crawl(context: Context) -> None:
             vessel.add("type", row.pop("type"))
             # Create the sanction
             sanction = h.make_sanction(context, vessel, program_key=PROGRAM_KEY)
-            h.apply_date(sanction, "startDate", row.pop("date_of_designation"))
+            h.apply_date(
+                sanction,
+                "startDate",
+                row.pop("date_of_designation"),
+                # The 1718 Committee was established in 2006.
+                two_digit_year_base=2000,
+            )
             for program in PROGRAMS:
                 value = row.pop(program).strip()
                 if value and value.lower() != "na":

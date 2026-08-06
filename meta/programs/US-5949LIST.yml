@@ -1,19 +1,21 @@
 id: 55
 title: James M. Inhofe National Defense Authorization Act (5949 List)
 key: US-5949LIST
-url: https://www.congress.gov/117/bills/hr7776/BILLS-117hr7776enr.pdf
-summary: This act includes provisions for identifying and sanctioning entities that
-  pose threats to U.S. national security. The list associated with this act targets
-  individuals and entities involved in activities such as cyber threats, foreign interference,
-  and other actions that compromise U.S. defense capabilities. The measures include
-  prohibitions on transactions and other restrictions to enhance national security.
+url: https://www.congress.gov/117/plaws/publ263/PLAW-117publ263.pdf
+summary: Prohibits US federal executive agencies from procuring or obtaining
+  electronic parts, products, or services that include semiconductor products or
+  services from named Chinese chipmakers, their subsidiaries and affiliates, or
+  other entities determined to be owned or controlled by, or connected to, the
+  government of a foreign country of concern. Agencies are also barred from
+  contracting with entities that use such covered semiconductors in the products
+  they supply to the government. The prohibitions take effect in December 2027.
 issuer: us_congress
 dataset: us_special_leg
 aliases:
-- 5949 List
+  - 5949 List
+  - Section 5949
+  - Public Law 117-263
 target_territories:
-- cn
+  - cn
 measures:
-- Arms restrictions
-- Export control
-- Financial restrictions
+  - Debarment
