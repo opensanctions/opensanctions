@@ -54,11 +54,11 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 150
+      Person: 155
       Position: 1
     country_entities:
-      kh: 150
+      kh: 155
   max:
     schema_entities:
-      Person: 340
+      Person: 345
       Position: 1
