@@ -115,9 +115,13 @@ def crawl_senator(
     person = context.make("Person")
     # The source's row ids are per-legislature: a senator who served several
     # legislatures gets a fresh `str_id` in each, so keying the person on it would
-    # split them into one entity per term. Their name and date of birth identify them
-    # across legislatures instead.
-    person.id = context.make_id(name, dob)
+    # split them into one entity per term. The published name and date of birth
+    # identify them across legislatures instead — raw, as `entity_id.md` requires, so
+    # that revising the honorifics in `names.prefixes_strip` cannot mutate an ID that
+    # has already been published. The source writes a senator's honorifics
+    # inconsistently between legislatures, so a returning senator whose title or
+    # spacing changed splits into one entity per spelling, which deduplication merges.
+    person.id = context.make_id(raw_name, dob)
     person.add(
         "name",
         name,
