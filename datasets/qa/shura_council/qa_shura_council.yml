@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-24
 load_statements: true
-ci_test: false  # The site returns 403 to non-browser user agents.
+ci_test: true
 summary: >-
   National legislative body, part elected and part appointed by the Emir
 description: |
