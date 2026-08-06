@@ -48,12 +48,21 @@ def crawl_constituency(
 ) -> None:
     doc = context.fetch_html(url, cache_days=7)
     for heading in h.xpath_elements(doc, '//h2[starts-with(normalize-space(), "ທ່ານ")]'):
-        name = clean_name(h.element_text(heading))
+        raw_name = h.element_text(heading)
+        name = clean_name(raw_name)
         if not name:
             continue
         person = context.make("Person")
-        person.id = context.make_id(name, url)
-        person.add("name", name, lang="lao")
+        # Keyed on the name as published, not the title-stripped one: an ID must not
+        # depend on clean_name, or revising the title tokens would mutate every ID
+        # derived from it. See zavod/docs/best_practices/entity_id.md.
+        person.id = context.make_id(raw_name, url)
+        person.add(
+            "name",
+            name,
+            lang="lao",
+            original_value=raw_name if name != raw_name else None,
+        )
         person.add("sourceUrl", url)
         # The right to stand for election is reserved to Lao citizens (Constitution of the
         # Lao PDR, Article 36). https://www.constituteproject.org/constitution/Laos_2015
