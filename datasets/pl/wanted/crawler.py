@@ -19,15 +19,13 @@ ATTRIBUTES = [
     (False, "birth_place", "//p[contains(text(), 'Miejsce urodzenia:')]/strong/text()"),
     (False, "citizenship", "//p[contains(text(), 'Obywatelstwo:')]/strong/text()"),
     (False, "eye_color", "//p[contains(text(), 'Kolor oczu:')]/strong/text()"),
-    (False, "father_name", "//p[contains(text(), 'Imię ojca:')]/strong/text()"),
     (False, "height", "//p[contains(text(), 'Wzrost:')]/strong/text()"),
-    (
-        False,
-        "mother_maiden_name",
-        "//p[contains(text(), 'Nazwisko panieńskie matki:')]/strong/text()",
-    ),
-    (False, "mother_name", "//p[contains(text(), 'Imię matki:')]/strong/text()"),
     (False, "hair_color", "//li[contains(text(), 'WŁOSY:')]/text()"),
+    # The source also gives the father's given name and the mother's given and maiden
+    # names. Those are deliberately not extracted: they are personal data of people the
+    # register asserts nothing about, and they add nothing to matching that full name,
+    # birth date and birth place don't already carry. See
+    # https://github.com/opensanctions/opensanctions/issues/5336
 ]
 
 
@@ -103,9 +101,6 @@ def crawl_person(context: Context, url: str) -> None:
     person.add("birthPlace", info.pop("birth_place", None))
     person.add("gender", info.pop("gender"))
     person.add("alias", info.pop("alias", None))
-    person.add("fatherName", info.pop("father_name", None))
-    person.add("motherName", info.pop("mother_name", None))
-    person.add("motherName", info.pop("mother_maiden_name", None))
     person.add("height", info.pop("height", None))
     person.add("eyeColor", info.pop("eye_color", None))
     person.add("hairColor", info.pop("hair_color", "").replace("WŁOSY:", ""))
