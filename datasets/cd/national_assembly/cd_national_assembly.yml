@@ -1,3 +1,11 @@
+# The crawler walks the source's `legislature` taxonomy newest-first and crawls every
+# legislature within the PEP relevance window. Only the sitting legislature
+# ("2024 - 2028") actually has deputy records; all thirteen earlier legislature terms
+# exist in the taxonomy but return no deputies, so historical rosters only appear here if
+# the source publishes them. Former members of the Bureau (the chamber's leadership) are
+# published separately under the `anciens-membres` post type, newest cohort 2003-2006,
+# without dates or the name of the body they served in; they are not crawled.
+# The crawler fails if the sitting legislature returns no deputies.
 title: DR Congo Members of the National Assembly
 entry_point: crawler.py
 name: cd_national_assembly
@@ -10,13 +18,12 @@ ci_test: true
 summary: >-
   Lower house of Parliament, 500 deputies from multi-member constituencies
 description: |
-  Current members of the National Assembly (Assemblée nationale), the lower house of the
-  bicameral Parliament of the Democratic Republic of the Congo. Its 500 deputies are elected
-  for five-year terms in multi-member constituencies and hold the country's legislative power,
-  including passing laws and approving the budget.
-
-  Only deputies of the sitting legislature whose mandate is in progress are included;
-  those whose mandate has ended or been suspended are not.
+  Current and former members of the National Assembly (Assemblée nationale), the lower house
+  of the bicameral Parliament of the Democratic Republic of the Congo. Its 500 deputies are
+  elected for five-year terms in multi-member constituencies and hold the country's legislative
+  power, including passing laws and approving the budget. Substitutes who have taken up a seat,
+  and deputies whose mandate has ended or been suspended, are included alongside the sitting
+  members.
 url: https://assembleenationale.cd/tous-les-deputes/
 publisher:
   name: Assemblée nationale de la République démocratique du Congo
@@ -34,14 +41,29 @@ data:
 tags:
   - list.pep
 
+# The state of a deputy's mandate, from the source's `mandats` taxonomy, mapped to the
+# occupancy status it implies. The source never dates a mandate, so this is what tells a
+# sitting deputy apart from one who has left. "Suspendu" (a deputy who has taken up an
+# office incompatible with the mandate, or is subject to proceedings) is neither running
+# nor ended and maps to unknown. An unmatched value fails the crawl.
+lookups:
+  mandate_status:
+    options:
+      - match: En cours
+        value: current
+      - match: Terminé
+        value: ended
+      - match: Suspendu
+        value: unknown
+
 assertions:
   min:
     schema_entities:
-      Person: 400
+      Person: 490
       Position: 1
     country_entities:
-      cd: 400
+      cd: 490
   max:
     schema_entities:
-      Person: 560
+      Person: 1100
       Position: 1
