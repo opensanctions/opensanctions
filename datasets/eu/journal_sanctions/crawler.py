@@ -53,7 +53,18 @@ SELECT DISTINCT ?fwk_celex ?cons_celex WHERE {
 # Recent journal notices can appear before the consolidated act is refreshed.
 CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=90))
 
-GC_ROWS: list[int] = []
+# Canonical EU feeds a journal row can graduate into, keyed by entity ID prefix.
+CANONICAL_FEEDS = {
+    "eu-fsf-": "FSF XML",
+    "eu-sancmap-": "EU Sanctions map",
+    "eu-tb-": "EU Travel Bans",
+}
+# Presence in the travel bans list alone does not mean the designation reached the
+# consolidated file, so those rows are reported but not proposed for removal.
+RETIRE_FEEDS = frozenset({"eu-fsf-", "eu-sancmap-"})
+
+# Sheet rows that can be deleted, mapped to their name for the end-of-run summary.
+GC_ROWS: dict[int, str] = {}
 
 
 @dataclass(frozen=True)
@@ -190,7 +201,7 @@ def _law_ascii(context: Context, act: ConsolidatedAct) -> str | None:
 
 
 def check_in_consolidated_act_text(
-    context: Context, start_date: str, names: list[str], row_id: str, source_url: str
+    context: Context, start_date: str, names: list[str], list_id: str, source_url: str
 ) -> None:
     """Warn if any name in `names` is absent from the consolidated regulation text.
 
@@ -229,7 +240,7 @@ def check_in_consolidated_act_text(
                 "Name found in consolidated text only after asciifying",
                 name=name,
                 ascii_name=ascii_name,
-                row_id=row_id,
+                list_id=list_id,
                 source_url=source_url,
                 consolidated_celex=act.celex,
             )
@@ -241,11 +252,58 @@ def check_in_consolidated_act_text(
                 "Name not found in consolidated regulation text",
                 name=name,
                 ascii_name=ascii_name,
-                row_id=row_id,
+                list_id=list_id,
                 source_url=source_url,
                 consolidated_celex=act.celex,
                 start_date=start_date,
             )
+
+
+def check_canonical_feeds(
+    context: Context,
+    linker: Linker[Entity],
+    entity_id: str,
+    row_idx: int,
+    list_id: str,
+    name: str,
+    entity_type: str,
+    country: str,
+) -> bool:
+    """Report every canonical EU feed a journal row has already graduated into.
+
+    Use this to find rows that can be retired from the sheet. Returns True when the
+    designation has reached a feed that supersedes this dataset, so all referents are
+    inspected rather than stopping at the first one that happens to match.
+    """
+    canonical_id = linker.get_canonical(entity_id)
+    found: dict[str, str] = {}
+    for other_id in linker.get_referents(canonical_id):
+        for prefix in CANONICAL_FEEDS:
+            if other_id.startswith(prefix):
+                found.setdefault(prefix, other_id)
+    for prefix, other_id in sorted(found.items()):
+        context.log.warning(
+            f"Row {row_idx} is also present in {CANONICAL_FEEDS[prefix]}: {other_id}",
+            row_idx=row_idx,
+            list_id=list_id,
+            other_id=other_id,
+            name=name,
+            entity_type=entity_type,
+            country=country,
+        )
+    return not RETIRE_FEEDS.isdisjoint(found)
+
+
+def report_gc_range(context: Context, first_row: int, last_row: int) -> None:
+    """Report a contiguous run of sheet rows that can be deleted."""
+    context.log.warning(
+        f"Rows {first_row}:{last_row} are in other datasets",
+        first_row=first_row,
+        last_row=last_row,
+        names=[
+            GC_ROWS[idx] for idx in range(first_row, last_row + 1) if idx in GC_ROWS
+        ],
+    )
 
 
 def crawl_unconsolidated_row(
@@ -256,7 +314,7 @@ def crawl_unconsolidated_row(
     Use this for the current journal spreadsheet, where rows should eventually
     disappear once their entities are available in the canonical EU sources.
     """
-    row_id = row.pop("List ID").strip(" \t.")
+    list_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
     name = row.pop("Name").strip()
     country = row.pop("Country").strip()
@@ -266,57 +324,28 @@ def crawl_unconsolidated_row(
 
     context.log.debug(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
-    entity.id = context.make_id(row_id, name, country)
+    entity.id = context.make_id(list_id, name, country)
     if entity.id is None:
         context.log.warning(
             f"Could not generate unique ID for row {row_idx}: {name}",
-            row_id=row_id,
+            row_idx=row_idx,
+            list_id=list_id,
             name=name,
             entity_type=entity_type,
             country=country,
         )
-        GC_ROWS.append(row_idx)
+        GC_ROWS[row_idx] = name
         return
     context.log.debug(f"Unique ID {entity.id}")
 
     start_date = row.pop("startDate")
     names = h.multi_split(name, ";")
-    check_in_consolidated_act_text(context, start_date, names, row_id, source_url)
+    check_in_consolidated_act_text(context, start_date, names, list_id, source_url)
 
-    canonical_id = linker.get_canonical(entity.id)
-    for other_id in linker.get_referents(canonical_id):
-        if other_id.startswith("eu-fsf-"):
-            context.log.warning(
-                f"Row {row_idx} is also present in FSF XML: {other_id}",
-                row_id=row_id,
-                other_id=other_id,
-                name=name,
-                entity_type=entity_type,
-                country=country,
-            )
-            GC_ROWS.append(row_idx)
-            break
-        if other_id.startswith("eu-sancmap-"):
-            context.log.warning(
-                f"Row {row_idx} is also present in EU Sanctions map: {other_id}",
-                row_id=row_id,
-                other_id=other_id,
-                name=name,
-                entity_type=entity_type,
-                country=country,
-            )
-            GC_ROWS.append(row_idx)
-            break
-        if other_id.startswith("eu-tb-"):
-            context.log.warning(
-                f"Row {row_idx} is also present in EU Travel Bans: {other_id}",
-                row_id=row_id,
-                other_id=other_id,
-                name=name,
-                entity_type=entity_type,
-                country=country,
-            )
-            break
+    if check_canonical_feeds(
+        context, linker, entity.id, row_idx, list_id, name, entity_type, country
+    ):
+        GC_ROWS[row_idx] = name
 
     dob = row.pop("DOB")
     if entity.schema.is_a("Organization"):
@@ -394,7 +423,7 @@ def crawl_unconsolidated_row(
 
 def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> None:
     """Emit a context-only entity for rows already covered by canonical EU feeds."""
-    row_id = row.pop("List ID").strip(" \t.")
+    list_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
     name = row.pop("Name").strip()
     country = row.pop("Country").strip()
@@ -403,7 +432,7 @@ def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> No
 
     context.log.debug(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
-    entity.id = context.make_id(row_id, name, country)
+    entity.id = context.make_id(list_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
 
     dob = row.pop("DOB")
@@ -463,15 +492,15 @@ def crawl(context: Context) -> None:
         for idx, row in enumerate(csv.DictReader(infh)):
             crawl_context_row(context, idx + 2, row)
 
-    # Warn about rows that are also in other datasets
+    # Collapse retirable rows into contiguous runs so they can be deleted in one go.
     seq_start = 0
     seq_max = 0
-    for row_idx in sorted(set(GC_ROWS)):
+    for row_idx in sorted(GC_ROWS):
         if row_idx != seq_max + 1:
             if seq_start != 0:
-                context.log.warn(f"Row {seq_start}:{seq_max} is in other datasets")
+                report_gc_range(context, seq_start, seq_max)
             seq_start = row_idx
         seq_max = row_idx
 
     if seq_start != 0:
-        context.log.warn(f"Row {seq_start}:{seq_max} is in other datasets")
+        report_gc_range(context, seq_start, seq_max)
