@@ -106,12 +106,17 @@ lookups:
       - match: "30 Ekim 1973 tarihinde doğdu. Anne adı Gülseren, baba adı Ali Rıza’dır."
         birth_place: null
         birth_date: "1973-10-30"
+      # from source: https://www.tbmm.gov.tr/milletvekili/milletvekilidetay?DonemId=134155f0-c3d6-4d24-893b-f3a2ef695ae7&Id=7cd11f05-11ce-4197-9902-01886bd8fe95
+      - match: "23 Ekim 1961’de Ordu’da doğdu. Baba adı Hasan, anne adı Mükerrem’dir."
+        birth_place: Ordu
+        birth_date: "1961-10-23"
       - match:
           - ""
           - "Öğretim Üyesi; Boğaziçi Üniversitesi İİBF Siyaset Bilimi ve Uluslararası İlişkiler Bölümünü bitirdi. Aynı üniversitede yüksek lisans ve doktora yaptı."
           - "Sosyal Bilimci, Girişimci; İstanbul Üniversitesi İşletme Fakültesini bitirdi. Boğaziçi Üniversitesinde Bilgisayar Programcılığı sertifika programını tamamladı. İstanbul Üniversitesi Sosyal Bilimler Enstitüsünde sivil toplum kuruluşları ve sosyal sorumluluk yönetimi alanında yüksek lisans yaptı. Avrupa Birliği Proje ve Fon Yönetimi ve Girişimcilik sertifika programlarını tamamladı."
           - "Lise eğitimini Çamlıca Kız Lisesi’nde tamamlayan M.P. Tuba Durgut, 1995 yılında Marmara Üniversitesi Eczacılık Fakültesi’nden mezun oldu. Ardından Indiana University School of Public Health’te Halk Sağlığı alanında yüksek lisansını, Sağlık Bilimleri Üniversitesi’nde ise Halk Sağlığı doktora programını tamamlayarak doktor unvanını aldı. Tütün kontrolü, stratejik iletişim ve savunuculuk alanlarında Johns Hopkins University Bloomberg School of Public Health’te eğitim gördü."
           - "Ziraat Mühendisi ve sanayicidir."
+          - "Hukukçu"
           - "Zeynel, Nurten. İş İnsanı; Lise mezunudur."
           - "Avukat; ilkokul ve ortaokulu Karaman’da, liseyi Konya’da okudu. Lisans öğrenimini Selçuk Üniversitesi Hukuk Fakültesi’nde tamamladı. Tarım ve Orman Bakanlığı taşra teşkilatlarında 13 yıl görev yaptıktan sonra 2004 yılında memuriyetten istifa etti. Avukatlık stajını tamamlayarak Karaman Barosu’na kayıtlı serbest avukat olarak çalıştı. Baro Yönetim Kurulu üyeliği yaptı."
         birth_place: null
