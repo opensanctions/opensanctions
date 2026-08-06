@@ -1,0 +1,44 @@
+title: Timor-Leste Members of the National Parliament
+name: tl_national_parliament
+prefix: tl-pn
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false  # The source is only reachable via the Zyte API.
+summary: >-
+  Unicameral legislature, 65 members elected in one nationwide constituency
+description: |
+  Current members of the National Parliament (Parlamento Nacional), the unicameral
+  legislature of Timor-Leste. Its 65 members are elected from a single nationwide
+  constituency under closed-list proportional representation for a five-year term and
+  hold the country's legislative power, including passing laws and approving the budget.
+url: https://www.parlamento.tl/legislatura-2023---2028
+publisher:
+  name: Parlamento Nacional de Timor-Leste
+  description: >
+    The National Parliament is the unicameral legislature of the Democratic Republic of
+    Timor-Leste, whose members are elected under nationwide proportional representation.
+  url: https://www.parlamento.tl/
+  country: tl
+  official: true
+data:
+  url: https://www.parlamento.tl/legislatura-2023---2028
+  format: HTML
+  lang: por
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Position: 1
+    country_entities:
+      tl: 50
+  max:
+    schema_entities:
+      Person: 80
+      Position: 1
