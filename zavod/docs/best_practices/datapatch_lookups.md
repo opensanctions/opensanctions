@@ -263,7 +263,7 @@ Each entry in the `options:` list:
 | `prop` | (`type.*` lookups only) Re-route the value to a different property. |
 | `weight` | Integer to disambiguate when multiple options match the same input. |
 | `normalize` / `lowercase` / `asciify` | Override the lookup-level setting. |
-| `silence_warnings` | List of warning types to suppress. Currently the only recognized value is `xss-html-smell`. |
+| `silence_warnings` | List of warning types to suppress. Currently the only recognized value is `xss-html-smell`. Always pair it with a `value:` echoing the input — an option with no `value:` drops the property. |
 | any other key | Available as an attribute on the `Result` object (e.g. `schema`, `start`, `end`, `link`, `is_alias`, `document_schema`). |
 
 
