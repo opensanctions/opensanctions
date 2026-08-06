@@ -73,6 +73,29 @@ Pass `topics` for positions the crawler names itself, where it knows which posit
     a small number of positions, it is best practice to look up the Wikidata QIDs for these
     and supply them to the `h.make_position` helper so that reconciliation is automatic.
 
+### Where a position's definition belongs
+
+A crawler covering more than one position — the chambers of a bicameral parliament, a
+roster plus its presiding offices — can define them in the crawler or in the dataset
+YAML. Which one depends on whether the source names the position:
+
+- **The source labels it.** Key a `position` [lookup](best_practices/datapatch_lookups.md)
+  on the label the source itself uses, and let the result carry the position's `name`,
+  `topics` and `wikidata_id`. See
+  [mapping to richer concepts](best_practices/datapatch_lookups.md#mapping-to-richer-concepts)
+  for the mechanism. This keeps the definitions reviewable as data instead of burying
+  them in code, and because the match is on the source's own wording, a renamed or newly
+  added chamber shows up as an unmatched value rather than quietly losing its position.
+- **The crawler knows them outright.** When there is no label to match on — two chambers
+  fetched from separate URLs, say — call `h.make_position` for each and pass the name,
+  topics and QID as arguments. A module-level table adds nothing here.
+
+Position labels are categorical input, so the lookup owes
+[complete coverage](best_practices/strict_interpretation.md#key-categorical-fields-need-complete-coverage):
+pass `warn_unmatched=True`, and give labels that are *not* positions an option with
+`value: null` and no `name`. An unmatched label is then a signal to maintain the lookup,
+while a matched one with no `name` is a label already known not to denote a position.
+
 ### Selecting a position name
 
 Do
@@ -159,11 +182,12 @@ and the PEP duration of its scope.
 To allow newly discovered positions to be added to the database, and to use the
 `is_pep` value from the database, call `zavod.stateful.positions:categorise` with the Position.
 If the data source is known to only include PEP positions, or if the crawler only
-attempts to create positions known to be PEPs, the `default_is_pep` argument should be `True`.
-Otherwise it should be `None`, denoting that it should be categorized manually
-in the database.
+attempts to create positions known to be PEPs, `default_is_pep` should be `True` — which
+is the parameter's default, so plain `categorise(context, position)` is the idiomatic
+call and passing `default_is_pep=True` is redundant. Pass `default_is_pep=None`
+explicitly when the position should instead be categorized manually in the database.
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
-See example below.
+See the example below.
 
 With `default_is_pep=None`, a not-yet-reviewed position returns `is_pep=None` and
 its holders are not emitted. A new crawler against an uncategorized source then
@@ -254,7 +278,7 @@ for role in person_data.pop("roles"):
         country="us",
         subnational_area=province
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         continue
     occupancy = h.make_occupancy(
