@@ -90,7 +90,6 @@ def mandate_status(
     if status == "ended":
         return OccupancyStatus.ENDED
     if status == "unknown":
-        # A suspended mandate is neither running nor ended: leave it undetermined.
         return None
     raise ValueError(f"Unexpected mandate_status lookup result: {status!r}")
 
@@ -125,10 +124,6 @@ def crawl_member(
         categorisation=categorisation,
         period_start=term.period_start,
         period_end=term.period_end,
-        # The source marks a departed deputy "Terminé" instead of removing them, and
-        # names an end year for every legislature including the sitting one, so a
-        # record without an end signal must not be read as a mandate in progress. The
-        # per-record signal is the mandate status passed as `status`.
         no_end_implies_current=False,
         status=mandate_status(context, term, mandates[0] if mandates else None),
     )
@@ -183,17 +178,12 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    cutoff = h.earliest_term_start(TOPICS)
     terms = crawl_terms(context)
     counts: dict[str, int] = {}
     for index, term in enumerate(terms):
-        # ISO strings compare correctly here, including year-only term bounds. Newest
-        # first, so the first legislature outside the window ends the loop instead of
-        # walking the rest of the archive.
-        if term.period_end < cutoff:
+        if term.period_end < h.earliest_term_start(TOPICS):
             context.log.info(
                 "Legislatures predate the PEP window; skipping",
-                cutoff=cutoff,
                 legislatures=[skipped.name for skipped in terms[index:]],
             )
             break
