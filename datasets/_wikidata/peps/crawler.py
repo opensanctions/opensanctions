@@ -2,7 +2,7 @@ from collections.abc import Generator
 from datetime import datetime
 from functools import lru_cache
 
-from nomenklatura.wikidata import WikidataClient
+from nomenklatura.wikidata import Item, WikidataClient
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
 from rigour.territories.territory import Territory
@@ -160,6 +160,29 @@ def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
     return candidates
 
 
+def fetch_position_holders(
+    context: Context, client: WikidataClient, item: Item
+) -> dict[str, datetime | None]:
+    """Look up the holders of one position, tolerating a failed WDQS query.
+
+    A truncated or otherwise unparseable SPARQL response aborts the whole run
+    otherwise. The client drops such a response from the cache before raising,
+    so one immediate retry re-fetches it and usually succeeds; if it doesn't,
+    the position is skipped for this run rather than failing the crawl - the
+    same degradation the discovery queries apply."""
+    for retry in (False, True):
+        try:
+            return position_holders(client, item)
+        except Exception as exc:  # noqa: BLE001
+            context.log.warning(
+                "Position holder query failed",
+                position=item.id,
+                retried=retry,
+                error=str(exc),
+            )
+    return {}
+
+
 @lru_cache(maxsize=POSITION_CACHE_SIZE)
 def get_position(context: Context, client: WikidataClient, qid: str) -> Entity | None:
     """Retain evaluated FtM positions across every phase of a PEP crawl."""
@@ -252,7 +275,8 @@ def crawl(context: Context) -> None:
         if position is None:
             continue
         context.log.info(f"Position [{position.id}]: {position.caption}")
-        for person_qid, modified_at in position_holders(client, position_item).items():
+        holders = fetch_position_holders(context, client, position_item)
+        for person_qid, modified_at in holders.items():
             if person_qid in done_persons:
                 continue
             done_persons.add(person_qid)
