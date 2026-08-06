@@ -68,7 +68,7 @@ lookups:
       - match: 'Ustanovení předpisu Evropské unie, jehož skutkovou podstatu subjekt jednáním naplnil '
         value: eu_provision
       - match: 'Popis postižitelného jednání '
-        value: conduct_description
+        value: offence_description
       - match: 'Uplatňovaná omezující opatření '
         value: restrictive_measures
   sanction.program:

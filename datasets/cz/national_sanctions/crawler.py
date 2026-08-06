@@ -100,7 +100,7 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
     if h.is_active(sanction):
         entity.add("topics", "sanction")
 
-    sanction.add("reason", row.pop("conduct_description"), lang="ces")
+    sanction.add("reason", row.pop("offence_description"), lang="ces")
     sanction.add("provisions", row.pop("restrictive_measures"), lang="ces")
     # The legal act which made the entry, i.e. a government resolution.
     sanction.add("description", row.pop("entry_legal_regulation"), lang="ces")
