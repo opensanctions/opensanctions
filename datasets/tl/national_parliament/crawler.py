@@ -21,7 +21,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q19966812",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -34,7 +34,6 @@ def crawl(context: Context) -> None:
     )
     table = h.xpath_element(doc, UNBLOCK_VALIDATOR)
 
-    count = 0
     for row in h.xpath_elements(table, ".//tr[td]"):
         cells = h.xpath_elements(row, "./td")
         if len(cells) < 4:
@@ -67,7 +66,3 @@ def crawl(context: Context) -> None:
             occupancy.add("description", role, lang="por")
         context.emit(occupancy)
         context.emit(person)
-        count += 1
-
-    if count == 0:
-        raise ValueError("No deputies parsed from the legislature roster table")
