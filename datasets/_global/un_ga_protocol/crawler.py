@@ -77,8 +77,9 @@ def crawl(context: Context) -> None:
                 entity,
                 position,
                 start_date=start_date,
-                # The UN was founded in 1945, so no appointment is older.
-                two_digit_year_base=1945,
+                # As of 2026, longest current head started tenure 1982 (Teodoro Mbasogo).
+                # https://www.guinnessworldrecords.com/world-records/65343-longest-serving-president-current
+                two_digit_year_base=1980,
             )
 
             # entity.add("date_of_appointment", )
