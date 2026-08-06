@@ -91,7 +91,7 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
     index_main = h.xpath_element(index_doc, ".//main")
-    h.assert_dom_hash(index_main, "73a409804f5bc0d84cc145859b010bf6a223199e")
+    h.assert_dom_hash(index_main, "805d897c7675f0f1df5d15f2daa5a1ef7c7962ff")
     # LIST OF LEGAL ENTITIES OR OTHER ORGANIZATIONS WITHOUT LEGAL PERSONAL STATUS THAT ARE OWNED
     # OR CONTROLLED BY A SANCTIONED ENTITY
     crawl_page(
