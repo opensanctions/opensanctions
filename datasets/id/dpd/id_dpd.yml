@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false
+ci_test: false  # The API is only reachable through the Zyte API.
 summary: >-
   Upper chamber seating four non-partisan senators from each of 38 provinces
 description: |

@@ -36,7 +36,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21328635",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
@@ -45,9 +45,6 @@ def crawl(context: Context) -> None:
         context, context.data_url, geolocation=GEOLOCATION, cache_days=1
     )
     members = member_list(payload)
-    if not members:
-        raise ValueError("DPD API returned no members")
-
     for member in members:
         name = member.get("fullName")
         assert name, f"Member without a name: {member!r}"
