@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false
+ci_test: false  # Name cleaning needs LLM credentials, which CI does not have.
 summary: >-
   Unicameral legislature, with elected, non-constituency and nominated seats
 description: |
