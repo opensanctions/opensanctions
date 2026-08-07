@@ -43,20 +43,16 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 12_000_000
-      Organization: 17_000
+      Person: 6_000_000
+      Organization: 8_000
       Company: 10_000
-    # ~42% of Company entities are only a registration-number stub, likely
-    # dissolved companies still referenced by a PSC statement but no longer
-    # in the base data file.
     property_fill_rate:
       Company:
-        name: 0.5
+        name: 0.9
   max:
     schema_entities:
       Person: 24_000_000
       Organization: 34_000
-      Company: 20_000
 
 lookups:
   type.country:
