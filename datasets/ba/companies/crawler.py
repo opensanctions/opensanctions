@@ -80,6 +80,19 @@ def roughly_valid_regno(regno: str) -> bool:
     return bool(REGEX_ROUGH_REGNO.match(regno))
 
 
+def apex_url(url: str) -> str:
+    """Percent-encode ampersands inside the APEX `f?p=` parameter value.
+
+    The registry embeds the company name in the `p=` parameter, so a name
+    containing "&" splits the query string when the URL is re-encoded on its
+    way to the server, and the request comes back as a 400.
+    """
+    prefix, sep, checksum = url.rpartition("&cs=")
+    if not sep:
+        return url
+    return f"{prefix.replace('&', '%26')}{sep}{checksum}"
+
+
 def get_secret_param(context: Context) -> str:
     """
     Goes through the chain of redirects to get the secret param.
@@ -215,7 +228,7 @@ def parse_city(
         record["date_of_last_decision"] = row[4].text
         detail_hrefs = h.xpath_strings(row, ".//td/a/@href")
         record["details_url"] = (
-            urljoin(BASE_URL, detail_hrefs[0]) if detail_hrefs else None
+            apex_url(urljoin(BASE_URL, detail_hrefs[0])) if detail_hrefs else None
         )
 
         records.append(record)
@@ -405,7 +418,6 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
 
         entity.add("sourceUrl", record["details_url"])
         entity.add("modifiedAt", record["date_of_last_decision"])
-        entity.add("retrievedAt", datetime.datetime.now().isoformat())
         context.emit(entity)
 
         for person in founders_people:
@@ -414,6 +426,13 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
             founder = context.make("Person")
             founder.id = context.make_id("BAFounder", entity.id, person["name"])
             founder.add("name", person["name"], lang="bos")
+            if not founder.has("name"):
+                context.log.info(
+                    "Skipping founder without a usable name",
+                    name=person["name"],
+                    url=record["details_url"],
+                )
+                continue
             context.emit(founder)
 
             own = context.make("Ownership")
@@ -442,6 +461,13 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
                 "BAFounderCompany", entity.id, comp["name"]
             )
             founder_company.add("name", comp["name"], lang="bos")
+            if not founder_company.has("name"):
+                context.log.info(
+                    "Skipping founder company without a usable name",
+                    name=comp["name"],
+                    url=record["details_url"],
+                )
+                continue
             if comp.get("country"):
                 founder_company.add("country", comp["country"], lang="bos")
 
@@ -465,6 +491,13 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
             director = context.make("Person")
             director.id = context.make_id("BAdirector", entity.id, manager["name"])
             director.add("name", manager["name"], lang="bos")
+            if not director.has("name"):
+                context.log.info(
+                    "Skipping director without a usable name",
+                    name=manager["name"],
+                    url=record["details_url"],
+                )
+                continue
             context.emit(director)
 
             rel = context.make("Directorship")
