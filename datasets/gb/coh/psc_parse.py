@@ -1,5 +1,5 @@
 import csv
-import json
+import orjson
 import re
 import yaml
 from typing import Any, cast
@@ -204,12 +204,13 @@ def get_psc_data_url(context: Context) -> str:
 
 
 def read_psc_data(path: PathLike) -> Generator[dict[str, Any], None, None]:
+    # Fed the raw bytes: orjson decodes UTF-8 itself, so wrapping the zip
+    # member in a TextIOWrapper would only add a decode pass over ~15M lines.
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
-                with TextIOWrapper(fh) as fhtext:
-                    for line in fhtext:
-                        yield json.loads(line)
+                for line in fh:
+                    yield cast(dict[str, Any], orjson.loads(line))
 
 
 def parse_psc_data(context: Context, company_numbers: set[str]) -> None:
