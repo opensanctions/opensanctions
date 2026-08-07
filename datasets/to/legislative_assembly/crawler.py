@@ -1,4 +1,3 @@
-from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
@@ -33,7 +32,7 @@ def crawl_section(
         if name is None:
             continue
         person = context.make("Person")
-        person.id = context.make_slug(slug)
+        person.id = context.make_id(raw_name)
         person.add("name", name, original_value=raw_name if name != raw_name else None)
         person.add("sourceUrl", f"{url}/{slug}")
         # A member of the Legislative Assembly must be a Tongan subject: candidacy is
