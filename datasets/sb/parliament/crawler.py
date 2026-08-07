@@ -72,9 +72,9 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
-  
+
     cards = h.xpath_elements(
         doc, '//*[contains(@class, "card")][.//h5[@class="card-title"]]'
     )
-    for card in cards:   
+    for card in cards:
         parse_member(context, position, categorisation, card)
