@@ -494,8 +494,11 @@ def person_label_map(doc: Element) -> dict[str, Element]:
     for label_el in h.xpath_elements(doc, xpath):
         label = h.element_text(label_el)
         value_el = label_el.getnext()
-        if label and value_el is not None:
-            pairs.setdefault(label, value_el)
+        if not label or value_el is None:
+            continue
+        if len(value_el) == 0 and not (value_el.text or "").strip():
+            continue
+        pairs.setdefault(label, value_el)
     return pairs
 
 
