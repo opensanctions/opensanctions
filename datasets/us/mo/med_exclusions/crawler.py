@@ -41,8 +41,14 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
+    # The publisher varies the capitalisation of the upload file name
+    # (Sanction-List-... vs sanction-list-...), so match case-insensitively.
+    href_lower = (
+        "translate(@href, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')"
+    )
     excel_xpath = (
-        ".//a[contains(@href, 'Sanction-List') and contains(@href, '.xlsx')]/@href"
+        f".//a[contains({href_lower}, 'sanction-list')"
+        f" and contains({href_lower}, '.xlsx')]/@href"
     )
     landing_page = zyte_api.fetch_html(
         context,
