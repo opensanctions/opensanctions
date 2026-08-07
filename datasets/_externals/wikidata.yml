@@ -365,6 +365,7 @@ lookups:
           - cisgender man
           - transmasculine
           - intersex man
+          - intersex trans man
           - male organism
           - non-binary man
         value: male
