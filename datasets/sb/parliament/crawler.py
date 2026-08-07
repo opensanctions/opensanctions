@@ -1,4 +1,5 @@
 import re
+from lxml.html import HtmlElement
 
 from zavod import Context
 from zavod import helpers as h
@@ -11,13 +12,17 @@ CONSTITUENCY_RE = re.compile(
 )
 
 
-def crawl_member(
+def parse_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    raw_name: str,
-    subtitle: str,
+    card: HtmlElement,
 ) -> None:
+
+    raw_name = h.element_text(h.xpath_element(card, './/h5[@class="card-title"]'))
+    subtitle = h.element_text(h.xpath_element(card, './/p[@class="card-text"]'))
+    assert raw_name, "Empty member name"
+
     match = CONSTITUENCY_RE.match(subtitle)
     if match is None:
         raise ValueError(f"Unexpected member subtitle for {raw_name!r}: {subtitle!r}")
@@ -67,18 +72,9 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
-    # The responsive layout repeats each member's card several times; dedupe on
-    # (name, subtitle).
-    seen: set[tuple[str, str]] = set()
+  
     cards = h.xpath_elements(
         doc, '//*[contains(@class, "card")][.//h5[@class="card-title"]]'
     )
-    for card in cards:
-        raw_name = h.element_text(h.xpath_element(card, './/h5[@class="card-title"]'))
-        subtitle = h.element_text(h.xpath_element(card, './/p[@class="card-text"]'))
-        assert raw_name, "Empty member name"
-        key = (raw_name, subtitle)
-        if key in seen:
-            continue
-        seen.add(key)
-        crawl_member(context, position, categorisation, raw_name, subtitle)
+    for card in cards:   
+        parse_member(context, position, categorisation, card)
