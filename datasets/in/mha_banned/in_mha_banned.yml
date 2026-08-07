@@ -21,10 +21,8 @@ publisher:
   url: https://www.mha.gov.in/en/page/about-ministry
   official: true
 url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
+ci_test: false  # Zyte
 data:
-  # The canonical URL. The crawler rewrites this — and every link it follows —
-  # onto the ministry's Hindi IDN host, which the runner can resolve while
-  # www.mha.gov.in cannot. See the host note at the top of crawler.py.
   url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
   format: HTML
 http:
