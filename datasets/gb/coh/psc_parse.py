@@ -122,18 +122,27 @@ def read_base_data_csv(path: PathLike) -> Generator[dict[str, str], None, None]:
                         yield {k.strip(): v for (k, v) in row.items()}
 
 
-def parse_base_data(context: Context) -> None:
+def parse_base_data(context: Context) -> set[str]:
+    """Emit a Company for every entry on the live UK register.
+
+    Returns the set of company numbers seen, which the PSC pass uses to
+    discard statements about companies that have since been dissolved. The
+    base data snapshot only covers companies still on the register, so a
+    company number absent from it is a company that no longer exists.
+    """
     base_data_url = get_base_data_url(context)
     if base_data_url is None:
         raise RuntimeError("Base data zip URL not found!")
     data_path = context.fetch_resource("base_data.zip", base_data_url)
 
+    company_numbers: set[str] = set()
     context.log.info(f"Loading: {data_path}")
     for idx, row in enumerate(read_base_data_csv(data_path)):
         if idx > 0 and idx % 100_000 == 0:
             context.log.info(f"Base data: {idx}...")
             context.flush()
         company_nr = row.pop("CompanyNumber")
+        company_numbers.add(company_nr)
         entity = context.make("Company")
         entity.id = company_id(company_nr)
         entity.add("name", row.pop("CompanyName"))
@@ -182,6 +191,7 @@ def parse_base_data(context: Context) -> None:
         context.emit(entity)
 
     data_path.unlink()
+    return company_numbers
 
 
 def get_psc_data_url(context: Context) -> str:
@@ -202,13 +212,14 @@ def read_psc_data(path: PathLike) -> Generator[dict[str, Any], None, None]:
                         yield json.loads(line)
 
 
-def parse_psc_data(context: Context) -> None:
+def parse_psc_data(context: Context, company_numbers: set[str]) -> None:
     short_descriptions = fetch_psc_short_descriptions(context)
     psc_data_url = get_psc_data_url(context)
     if psc_data_url is None:
         raise RuntimeError("PSC data zip URL not found!")
     data_path = context.fetch_resource("psc_data.zip", psc_data_url)
     context.log.info(f"Loading: {data_path}")
+    dissolved = 0
     for idx, row in enumerate(read_psc_data(data_path)):
         if idx > 0 and idx % 100_000 == 0:
             context.log.info(f"PSC statements: {idx}...")
@@ -218,6 +229,13 @@ def parse_psc_data(context: Context) -> None:
         company_nr = row.pop("company_number", None)
         if company_nr is None:
             context.log.warning(f"No company number: {row!r}")
+            continue
+        # The snapshot keeps PSC statements long after a company leaves the
+        # register. Nothing on the statement itself marks that — ceased_on
+        # refers to the PSC's own tenure — so absence from the base data is
+        # the only available signal, and those statements are dropped.
+        if company_nr not in company_numbers:
+            dissolved += 1
             continue
         data = row.pop("data")
         data.pop("etag", None)
@@ -297,14 +315,6 @@ def parse_psc_data(context: Context) -> None:
         # if len(ident):
         #     pprint(ident)
         asset_id = company_id(company_nr)
-
-        # Generate at least a stub of a company for dissolved companies which
-        # aren't in the base data.
-        asset = context.make("Company")
-        asset.id = asset_id
-        asset.add("registrationNumber", company_nr)
-        asset.add("jurisdiction", "gb")
-
         natures = data.pop("natures_of_control", None) or []
         notified_on = data.pop("notified_on")
         ceased_on = data.pop("ceased_on", None)
@@ -363,11 +373,11 @@ def parse_psc_data(context: Context) -> None:
             ],
         )
         context.emit(psc)
-        context.emit(asset)
 
+    context.log.info(f"Skipped {dissolved} PSC statements on dissolved companies")
     data_path.unlink()
 
 
 def crawl(context: Context) -> None:
-    parse_base_data(context)
-    parse_psc_data(context)
+    company_numbers = parse_base_data(context)
+    parse_psc_data(context, company_numbers)
