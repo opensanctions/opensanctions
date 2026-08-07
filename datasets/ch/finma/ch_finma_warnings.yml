@@ -241,6 +241,10 @@ lookups:
         values:
           - "www.bitbinvest.co"
           - "www.bitbinvest.net"
+      - match: "www.blazerusholdings.com; www.blazerusholdings.net"
+        values:
+          - "www.blazerusholdings.com"
+          - "www.blazerusholdings.net"
       - match: "www.bloombexonline.com, www.bloombex-options.com"
         values:
           - "www.bloombexonline.com"
