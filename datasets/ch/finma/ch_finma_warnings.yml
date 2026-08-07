@@ -552,3 +552,7 @@ lookups:
           - "www.zentilleon-ag.ch"
           - "www.zentilleon-ag.com"
           - "www.zentilleonag.com"
+      - match: "www.blazerusholdings.com; www.blazerusholdings.net"
+        values:
+          - "www.blazerusholdings.com"
+          - "www.blazerusholdings.net"
