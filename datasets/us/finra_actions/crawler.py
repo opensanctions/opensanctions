@@ -31,11 +31,6 @@ from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
-RESULT_ROW_VALIDATOR = (
-    ".//table[not(ancestor-or-self::*//div"
-    "[contains(concat(' ', normalize-space(@class), ' '), ' view-empty ')])]//tr[td]"
-)
-
 
 def crawl_item(context: Context, row: dict[str, _Element]) -> None:
     names = []
@@ -99,30 +94,48 @@ def get_max_page(response: _Element) -> int | None:
     return int(params["page"][0])
 
 
+def fetch_page(context: Context, page_num: int, retries: int = 2) -> _Element:
+    """Fetch given page number.
+
+    Each request uses a new cache busting token.
+
+    Retries also use a new cache busting token, since non-matching pages might
+    be cached on their side."""
+    # We've seen blank results pages which wouldn't match this validator
+
+    result_row_xpath = (
+        ".//table[not(ancestor-or-self::*//div"
+        "[contains(concat(' ', normalize-space(@class), ' '), ' view-empty ')])]//tr[td]"
+    )
+    params = {
+        "order": "field_fda_case_id_txt",
+        "sort": "asc",
+        "page": page_num,
+        "cache_bust": token_urlsafe(8),
+    }
+    url = f"{context.data_url}?{urlencode(params)}"
+    try:
+        # Zyte because occasional cloudflare javascript challenge.
+        return zyte_api.fetch_html(context, url, result_row_xpath, absolute_links=True)
+    except zyte_api.UnblockFailedException as e:
+        if retries > 0:
+            context.log.info(f"Retrying page {page_num} after {e}")
+            return fetch_page(context, page_num=page_num, retries=retries - 1)
+        else:
+            raise
+
+
 def crawl(context: Context) -> None:
     # Each page only displays 15 rows at a time. We determine the last page from
     # the pagination buttons because intermediate pages may report no results even
     # when later pages still have data.
     page_num = 0
     max_page = None
-    # A single token for the whole crawl bypasses Varnish's stale per-page
-    # entries without varying between our own pages within one run.
-    cache_bust = token_urlsafe(8)
     prev_case_id = ""
     ordering_warned = False
     while max_page is None or page_num <= max_page:
         context.log.info(f"Crawling page {page_num} of {max_page}")
-        params = {
-            "order": "field_fda_case_id_txt",
-            "sort": "asc",
-            "page": page_num,
-            "cache_bust": cache_bust,
-        }
-        url = f"{context.data_url}?{urlencode(params)}"
-        # Zyte because occasional cloudflare javascript challenge.
-        response = zyte_api.fetch_html(
-            context, url, RESULT_ROW_VALIDATOR, absolute_links=True
-        )
+        response = fetch_page(context, page_num)
 
         # Check the page count each iteration in case pagination changes.
         new_max = get_max_page(response)
