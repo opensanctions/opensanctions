@@ -43,11 +43,16 @@ def filter_logs(cap_logs: list[dict], levels: tuple[str, ...]) -> list[dict]:
     return [log for log in cap_logs if log.get("log_level") in levels]
 
 
-def test_publish_dataset(testdataset1: Dataset):
+def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
     """Effectively a 'zavod run' on a dataset, first without --latest, then with.
 
-    Checking that the the files expected to be archived and published are present
-    in the right locations in each case."""
+    Checking that the files expected to be archived are present, that nothing
+    is copied into /datasets/ (those URLs are served as redirects into
+    /artifacts/, operations#2641), and that the right /datasets/ URLs get
+    their CDN cache purged in each case."""
+
+    purged: list[str] = []
+    monkeypatch.setattr("zavod.archive.invalidate_archive_cache", purged.append)
 
     linker = get_dataset_linker(testdataset1)
     artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
@@ -90,25 +95,22 @@ def test_publish_dataset(testdataset1: Dataset):
         # CATALOG_FILE,
     } | STANDARD_EXPORTS  # fmt: skip
 
-    # Only index and real resources get published.
-    release_artifacts = {str(p.name) for p in release_path.glob("*")}
-    assert release_artifacts == {
-        INDEX_FILE,
-        "source.csv",
-    } | STANDARD_EXPORTS  # fmt: skip
-    # Nothing's published to 'latest'
-    latest_artifacts = {str(p.name) for p in latest_path.glob("*")}
-    assert latest_artifacts == set()
+    # Nothing gets copied into /datasets/.
+    assert len(list(release_path.glob("*"))) == 0
+    assert len(list(latest_path.glob("*"))) == 0
+
+    # Without --latest, only the /datasets/{RELEASE}/ URLs get purged.
+    release_index = f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{INDEX_FILE}"
+    latest_index = f"{DATASETS}/latest/{testdataset1.name}/{INDEX_FILE}"
+    assert release_index in purged
+    assert latest_index not in purged
 
     publish_dataset(testdataset1, republish_to_latest=True)
-    assert latest_path.joinpath(INDEX_FILE).exists()
+    assert len(list(release_path.glob("*"))) == 0
+    assert len(list(latest_path.glob("*"))) == 0
+    assert latest_index in purged
 
     artifact_index = artifact_path.joinpath(INDEX_FILE).read_bytes()
-    assert release_path.joinpath(INDEX_FILE).read_bytes() == artifact_index
-    assert latest_path.joinpath(INDEX_FILE).read_bytes() == artifact_index
-    artifact_entities = artifact_path.joinpath("entities.ftm.json").read_bytes()
-    assert release_path.joinpath("entities.ftm.json").read_bytes() == artifact_entities
-    assert latest_path.joinpath("entities.ftm.json").read_bytes() == artifact_entities
 
     # URLs in the index.json point at the canonical artifacts/{dataset}/{vsn}/ path.
     index = json.loads(artifact_index)
@@ -175,18 +177,9 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
         # ISSUES_LOG
     } | STANDARD_EXPORTS  # fmt: skip
 
-    release_artifacts = {str(p.name) for p in release_path.glob("*")}
-    # Only index, catalog, and real resources get published.
-    # Artifact-only files don't leak into /datasets/.
-    assert release_artifacts == {
-        INDEX_FILE,
-        CATALOG_FILE,
-    } | STANDARD_EXPORTS  # fmt: skip
-    latest_artifacts = {str(p.name) for p in latest_path.glob("*")}
-    assert latest_artifacts == {
-        INDEX_FILE,
-        CATALOG_FILE,
-    } | STANDARD_EXPORTS  # fmt: skip
+    # Nothing gets copied into /datasets/.
+    assert len(list(release_path.glob("*"))) == 0
+    assert len(list(latest_path.glob("*"))) == 0
 
 
 def test_empty_crawl_does_not_resurrect_archived_statements(

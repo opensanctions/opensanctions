@@ -81,21 +81,20 @@ def test_run_dataset(testdataset1: Dataset):
     assert result.exit_code != 0, result.output
     result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    assert latest_path.exists()
-    assert latest_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("entities.ftm.json").exists()
+    # Nothing gets copied into /datasets/ - the CDN serves those URLs as
+    # redirects into /artifacts/ (operations#2641).
+    assert not latest_path.exists()
+    assert artifacts_path.joinpath("index.json").exists()
+    assert artifacts_path.joinpath("entities.ftm.json").exists()
     # Validation issues in a published run are published
     with open(artifacts_path / "issues.json") as f:
         assert "This is a test warning" in f.read()
-    shutil.rmtree(latest_path)
 
     result = runner.invoke(cli, ["publish", "/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(cli, ["publish", "--latest", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    assert latest_path.exists()
-    assert latest_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("entities.ftm.json").exists()
+    assert not latest_path.exists()
     # shutil.rmtree(settings.DATA_PATH)
 
 

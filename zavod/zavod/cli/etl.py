@@ -89,7 +89,7 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
     "--latest",
     is_flag=True,
     default=False,
-    help="Whether to re-publish to /datasets/latest/, in addition to the timestamped/versioned prefixes.",
+    help="Whether to purge the cached /datasets/latest/ URLs, in addition to the timestamped ones.",
 )
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
