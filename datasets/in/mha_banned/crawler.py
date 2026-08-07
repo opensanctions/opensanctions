@@ -1,52 +1,18 @@
 from rigour.mime.types import HTML
 import re
-from urllib.parse import urlparse, urlunparse
 from lxml import html
 
 from zavod import Context
 from zavod.entity import Entity
 from zavod import helpers as h
 from zavod.util import Element
-
-
-# The ministry serves the same site under two hostnames: the canonical
-# www.mha.gov.in and the Hindi IDN गृहमंत्रालय.भारत. Since 2026-07-31,
-# www.mha.gov.in has been fronted by an Akamai CNAME chain that the production
-# runner cannot resolve — every run fails with NameResolutionError before a
-# socket is opened, while the host resolves fine elsewhere. The IDN host has an
-# unrelated DNS path (a direct A record at NIC) and serves identical content, so
-# fetch everything from it.
-CANONICAL_HOST = "www.mha.gov.in"
-FETCH_HOST = "xn--i1b5bzbybhfo5c8b4bxh.xn--11b7cb3a6a.xn--h2brj9c"
-KNOWN_HOSTS = {CANONICAL_HOST, FETCH_HOST}
-
-
-def _with_host(url: str, host: str) -> str:
-    parsed = urlparse(url)
-    if parsed.hostname not in KNOWN_HOSTS:
-        raise ValueError(f"Unexpected host in MHA URL: {url}")
-    return urlunparse(parsed._replace(netloc=host))
-
-
-def fetch_url(url: str) -> str:
-    """Point a URL at the host the runner can actually resolve."""
-    return _with_host(url, FETCH_HOST)
-
-
-def canonical_url(url: str) -> str:
-    """Point a URL at the canonical host, for publication in sourceUrl.
-
-    The ministry's own pages link to both hostnames — some links are absolute on
-    www.mha.gov.in, others relative and so inherited from whichever host served
-    the page. Normalising here keeps sourceUrl stable and human-readable no
-    matter which host a given link came from.
-    """
-    return _with_host(url, CANONICAL_HOST)
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
 ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 ORGANISATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+UNBLOCK_VALIDATOR = f".//td[contains(text(), '{ASSOCIATIONS_LABEL}')]"
 
 REGEX_ACRONYM_PARENS = re.compile(r"^(?P<name>.+?)(?P<acronym>\s+\([A-Z-]+\))?$")
 REGEX_NUM_NAME = re.compile(r"(\d+)\.\s*")
@@ -168,51 +134,37 @@ def crawl_common(
 def crawl_organisations(
     context: Context, url: str, filename: str, program: str
 ) -> None:
-    path = context.fetch_resource(filename, fetch_url(url))
+    _, _, _, path = fetch_resource(context, filename, url, expected_media_type=HTML)
     context.export_resource(path, HTML, filename)
     with open(path, "rb") as fh:
         doc = html.fromstring(fh.read())
     # lxml HTML elements support make_links_absolute; lxml-stubs types this as _Element
-    doc.make_links_absolute(fetch_url(url))  # type: ignore[attr-defined]
+    doc.make_links_absolute(url)  # type: ignore[attr-defined]
 
-    source_url = canonical_url(url)
     table = h.xpath_elements(doc, ".//table", expect_exactly=1)[0]
     for row in h.parse_html_table(table):
         authority_id = h.xpath_string(row.pop("sr_no"), ".//text()")
         names = h.xpath_string(row.pop("title"), ".//text()")
-        detail_url = canonical_url(
-            h.xpath_string(row.pop("download_link"), ".//a/@href")
-        )
+        detail_url = h.xpath_string(row.pop("download_link"), ".//a/@href")
         crawl_common(
-            context,
-            "Organization",
-            names,
-            program,
-            authority_id,
-            source_url,
-            detail_url,
+            context, "Organization", names, program, authority_id, url, detail_url
         )
 
 
 def crawl_individuals(context: Context, url: str, filename: str, program: str) -> None:
-    path = context.fetch_resource(filename, fetch_url(url))
+    _, _, _, path = fetch_resource(context, filename, url, expected_media_type=HTML)
     context.export_resource(path, HTML, filename)
     with open(path, "rb") as fh:
         doc = html.fromstring(fh.read())
     # lxml HTML elements support make_links_absolute; lxml-stubs types this as _Element
-    doc.make_links_absolute(fetch_url(url))  # type: ignore[attr-defined]
+    doc.make_links_absolute(url)  # type: ignore[attr-defined]
 
-    source_url = canonical_url(url)
     table = h.xpath_elements(doc, ".//table", expect_exactly=1)[0]
     for row in h.parse_html_table(table):
         authority_id = h.xpath_string(row.pop("sr_no"), ".//text()")
         names = h.xpath_string(row.pop("title"), ".//text()").strip().rstrip(".")
-        detail_url = canonical_url(
-            h.xpath_string(row.pop("download_link"), ".//a/@href")
-        )
-        crawl_common(
-            context, "Person", names, program, authority_id, source_url, detail_url
-        )
+        detail_url = h.xpath_string(row.pop("download_link"), ".//a/@href")
+        crawl_common(context, "Person", names, program, authority_id, url, detail_url)
 
 
 def get_link_by_label(doc: Element, label: str) -> str | None:
@@ -235,8 +187,14 @@ def parse_names(field: str) -> list[str]:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(
-        fetch_url(context.data_url), cache_days=1, absolute_links=True
+    # the runner cannot resolve the site (NameResolutionError), fetch through Zyte
+    doc = fetch_html(
+        context,
+        context.data_url,
+        UNBLOCK_VALIDATOR,
+        html_source="httpResponseBody",
+        cache_days=1,
+        absolute_links=True,
     )
 
     associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
