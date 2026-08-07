@@ -52,7 +52,7 @@ def crawl_fr_notices(context: Context) -> None:
     # If the hash changes, review the updated fr_notices.csv for new entries and
     # update the us_special_leg Google Sheet accordingly. Then commit the updated
     # fr_notices.csv and update the hash in this function.
-    h.assert_url_hash(context, FR_API_URL, "21e269f2618a887ef361b29afb49fdf51c7d91dd")
+    h.assert_url_hash(context, FR_API_URL, "9ee76295f4ac089fe7382bf6f33b947dae5f9eb0")
     rows: list[list[str]] = []
     url = FR_API_URL
     while url:

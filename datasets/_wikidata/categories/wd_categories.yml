@@ -172,6 +172,26 @@ lookups:
         value: 1951-06
       - match: "1942-02-29"
         value: 1942-02
+      - match: "1930-02-30"
+        value: 1930-02
+      - match: "1945-06-31"
+        value: 1945-06
+      - match: "1993-11-31"
+        value: 1993-11
+      - match: "1996-11-31"
+        value: 1996-11
+      - match: "2005-09-31"
+        value: 2005-09
+      - match: "2006-09-31"
+        value: 2006-09
+      - match: "2015-04-31"
+        value: 2015-04
+      - match: "2022-06-31"
+        value: 2022-06
+      - match: "2022-11-31"
+        value: 2022-11
+      - match: "2029-09-31"
+        value: 2029-09
 
 config:
   # These are person QIDs that shouldn't be found. If they are, we're probably including
