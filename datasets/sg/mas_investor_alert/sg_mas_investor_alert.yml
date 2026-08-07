@@ -5,17 +5,18 @@ coverage:
   frequency: daily
   start: 2025-03-28
 load_statements: true
+ci_test: false
 summary: >
-  The Investor Alert List contains entities that may have been wrongly perceived as licensed, 
+  The Investor Alert List contains entities that may have been wrongly perceived as licensed,
   authorized, or regulated by MAS, or have made misleading investment offers.
 description: |
-   > The Investor Alert List provides a list of persons who, based on information available 
+   > The Investor Alert List provides a list of persons who, based on information available
    > to MAS,
-   > - may be or may have been wrongly perceived as being licensed or in any other way authorised 
+   > - may be or may have been wrongly perceived as being licensed or in any other way authorised
    > or regulated by MAS;
-   > - have made an offer of units in a business trust or collective investment scheme which 
+   > - have made an offer of units in a business trust or collective investment scheme which
    > may be or may have been wrongly perceived as being authorised, recognised or registered by MAS;
-   > - have made an offer of investment which may be or may have been wrongly perceived as being 
+   > - have made an offer of investment which may be or may have been wrongly perceived as being
    > made in or accompanied by a document lodged or registered with MAS.
    >
    > This list is not exhaustive and is based on what was known to MAS at the time of publication.
@@ -23,7 +24,7 @@ publisher:
   name: Monetary Authority of Singapore
   acronym: MAS
   description: |
-    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and integrated 
+    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and integrated
     financial regulator.
   url: https://www.mas.gov.sg/who-we-are
   country: sg
@@ -44,222 +45,27 @@ assertions:
     schema_entities:
       LegalEntity: 1400
 
+names:
+  schema_rules:
+    LegalEntity:
+      # MAS annotates its names rather than publishing them plain, and uses the name
+      # field for websites too. Punctuation is what marks a value as needing review:
+      # brackets and quotes around annotations and short forms, ":" after a platform
+      # name, "@" before a handle, "." inside a domain. The dot also catches ordinary
+      # "Pte. Ltd." names, which a reviewer accepts unchanged.
+      reject_chars: "()[]{}<>:\"“”@."
+      reject_strings:
+        - " and "
+        - impersonated
+        - not affiliated
+        - known as
+        - telegram
+        - tiktok
+        - facebook
+        - instagram
+        - whatsapp
+
 lookups:
-  names:
-    options:
-      - match: EFA Investments (https://efainvestments.com/en/?dl=dh)
-        items:
-          - prop: name
-            value: EFA Investments
-          - prop: website
-            value: https://efainvestments.com/en/?dl=d
-      - match: eXcentral (www.excentral-int.com
-        items:
-          - prop: name
-            value: eXcentral
-          - prop: website
-            value: www.excentral-int.com
-      - match: Coinex Foundation Ltd. (Coinex.com) 
-        items:
-          - prop: name
-            value: Coinex Foundation Ltd.
-          - prop: website
-            value: Coinex.com
-      - match: Guardian Project on https://riegling.click
-        items:
-          - prop: name
-            value: Guardian Project
-          - prop: website
-            value: https://riegling.click
-      - match: Guardian Project on https://traoe.cc
-        items:
-          - prop: name
-            value: Guardian Project
-          - prop: website
-            value: https://traoe.cc
-      - match: DKG Group Ltd (www.cofinancial.net)
-        items:
-          - prop: name
-            value: DKG Group Ltd
-          - prop: website
-            value: www.cofinancial.net
-      - match: ZB.com
-        items:
-          - prop: website
-            value: ZB.com
-      - match: thdahp.com
-        items:
-          - prop: website
-            value: thdahp.com
-      - match: www.etornso.com
-        items:
-          - prop: website
-            value: www.etornso.com
-      - match: https://sinovaccapital.com 
-        items:
-          - prop: website
-            value: https://sinovaccapital.com
-      - match: https://www.resonamerchantsbank.com/
-        items:
-          - prop: website
-            value: https://www.resonamerchantsbank.com/
-      - match: https://www.facebook.com/iCapitalHoldings
-        items:
-          - prop: website
-            value: https://www.facebook.com/iCapitalHoldings
-      - match: https://yknluxintpte.com/ 
-        items:
-          - prop: website
-            value: https://yknluxintpte.com/
-      - match: https://intcityholdings.com 
-        items:
-          - prop: website
-            value: https://intcityholdings.com
-      - match: https://www.global-fh.com/
-        items:
-          - prop: website
-            value: https://www.global-fh.com/
-      - match: www.rs-im.com
-        items:
-          - prop: website
-            value: www.rs-im.com  
-      - match: https://savio-management.com 
-        items:
-          - prop: website
-            value: https://savio-management.com
-      - match: https://www.precept-sg.com/
-        items:
-          - prop: website
-            value: https://www.precept-sg.com/
-      - match: Kuailiandp.com
-        items:
-          - prop: website
-            value: Kuailiandp.com
-      - match: www.ladyhillcapital.com
-        items:
-          - prop: website
-            value: www.ladyhillcapital.com
-      - match: https://www.reardonpte-ltd.com/ 
-        items:
-          - prop: website
-            value: https://www.reardonpte-ltd.com/
-      - match: https://www.amcorinspte.com/
-        items:
-          - prop: website
-            value: https://www.amcorinspte.com/
-      - match: https://castlepacificinsurance.com/ 
-        items:
-          - prop: website
-            value: https://castlepacificinsurance.com/
-      - match: https://steelcapins.com/
-        items:
-          - prop: website
-            value: https://steelcapins.com/
-      - match: https://www.odeoninsurancepte.com/
-        items:
-          - prop: website
-            value: https://www.odeoninsurancepte.com/
-      - match: www.oecd-oe.com/dist/#/ 
-        items:
-          - prop: website
-            value: www.oecd-oe.com/dist/#/
-      - match: https://asbicinvestment.com/
-        items:
-          - prop: website
-            value: https://asbicinvestment.com/
-      - match: https://spp6c8jale-www.anewwayoffriday.com 
-        items:
-          - prop: website
-            value: https://spp6c8jale-www.anewwayoffriday.com
-      - match: www.spp655.com
-        items:
-          - prop: website
-            value: www.spp655.com
-      - match: www.binance.com
-        items:
-          - prop: website
-            value: www.binance.com
-      - match: Titantrade.com
-        items:  
-          - prop: website
-            value: Titantrade.com
-      - match: https://trade.cryptodealsfx.com
-        items:
-          - prop: website
-            value: https://trade.cryptodealsfx.com
-      - match: www.singaporepassiveincome.com
-        items:
-          - prop: website
-            value: www.singaporepassiveincome.com
-      - match: Opteck.com
-        items:
-          - prop: website
-            value: Opteck.com
-      - match: http://icapitalsg.net/
-        items:
-          - prop: website
-            value: http://icapitalsg.net/
-      - match: masguardian.org and projectguardian.digital on https://t.me/QuantumStellarInitiative/36040
-        items:
-          - prop: website
-            value: masguardian.org
-          - prop: website
-            value: projectguardian.digital
-          - prop: website
-            value: https://t.me/QuantumStellarInitiative/36040
-      - match: Projectguardian.digital on https://stellar.expert/explorer/public/account/GB2Z42DRDOLLRLH62JFM3EC35DHD2KPETP6KKMX7EYKLFZEUXGGXG7L6
-        items:
-          - prop: website
-            value: projectguardian.digital
-          - prop: website
-            value: https://stellar.expert/explorer/public/account/GB2Z42DRDOLLRLH62JFM3EC35DHD2KPETP6KKMX7EYKLFZEUXGGXG7L6
-      - match: https://t.me/masofficialchannel and https://t.me/StellarMAS
-        items:
-          - prop: website
-            value: https://t.me/masofficialchannel
-          - prop: website
-            value: https://t.me/StellarMAS
-      - match: https://www.tigerbrokers.asia/#
-        items:
-          - prop: website
-            value: https://www.tigerbrokers.asia/#
-      - match: https://diegria.ink
-        items:
-          - prop: website
-            value: https://diegria.ink
-      - match: https://down.afehp.xyz/
-        items:
-          - prop: website
-            value: https://down.afehp.xyz/
-      - match: https://down.afeapp.info/
-        items:
-          - prop: website
-            value: https://down.afeapp.info/
-      - match: https://www.eztfpo.cn
-        items:
-          - prop: website
-            value: https://www.eztfpo.cn
-      - match: https://Krx.today
-        items:
-          - prop: website
-            value: https://Krx.today
-      - match: https://excentral-int.net/), operated by OM Bridge (Pty) Ltd
-        items:
-          - prop: website
-            value: https://excentral-int.net/
-      - match: www.saccapitalvn.pro
-        items:
-          - prop: website
-            value: www.saccapitalvn.pro
-      - match: www.exmo.xyz/download.aspx
-        items:
-          - prop: website
-            value: www.exmo.xyz/download.aspx
-      - match: Financial.org
-        # I don't think it should be a name but that's all we have in this case
-        items:
-          - prop: name
-            value: Financial.org
   ownership:
     options:
       - match: RI Markets (owned by Fcorp Services Ltd)
@@ -304,113 +110,97 @@ lookups:
       - match: Openblock (operated by DSSQ Pte. Ltd)
         owner_name: [DSSQ Pte. Ltd]
         entity_name: Openblock
+      - match: Fastrading (Operated by TLM Global Services Ltd)
+        owner_name: [TLM Global Services Ltd]
+        entity_name: Fastrading
+      - match: Ainvestments (Operated by ESOS International Ltd. and Kadeky International S.R.O.)
+        owner_name: ["ESOS International Ltd.", "Kadeky International S.R.O."]
+        entity_name: Ainvestments
+      # Dropping the parent's abbreviation ("IIFSP").
+      - match: VNSMART (subsidiary of Intelligence Investment Financial Services PLC or “IIFSP”)
+        owner_name: [Intelligence Investment Financial Services PLC]
+        entity_name: VNSMART
   type.url:
     normalize: true
     options:
-      - match: 'www.indexgb.com http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html  https://www.facebook.com/IndexGB-348924791855465/'
+      # The website field is free text: captions, annotations and space-separated lists
+      # of sites share a line, and the newline and semicolon splits leave these behind.
+      # Captions for the URL on the following line, carrying no address of their own.
+      - match:
+          - 'Pro Markets:'
+          - 'Primecapitec:'
+          - 'Poseidon Financial Group:'
+          - 'Poseidon FX Trading Co. Ltd.:'
+          - 'Urbannet'
+          - 'Company com'
+        value: null
+      # Descriptions of an account or app rather than a link to it.
+      - match:
+          - 'CallistoFx (@callistofxtrade) | TikTok'
+          - 'Web-based application: KyberSwap - Limitless Access To DeFi'
+          - 'X: @KyberNetwork'
+        value: null
+      # A platform name prefixed to the URL.
+      - match: 'LinkedIn: https://www.linkedin.com/company/kybernetwork/'
+        value: 'https://www.linkedin.com/company/kybernetwork/'
+      - match: 'Reddit: reddit.com/r/kybernetwork'
+        value: 'reddit.com/r/kybernetwork'
+      - match: 'Slack: slack.kyber.network'
+        value: 'slack.kyber.network'
+      - match: 'Github: github.com/kyberNetwork'
+        value: 'github.com/kyberNetwork'
+      - match: 'Medium: blog.kyber.network'
+        value: 'blog.kyber.network'
+      - match: 'Telegram: t.me/kybernetwork'
+        value: 't.me/kybernetwork'
+      - match: 'Discord: discord.gg/NB3vc8J9uv'
+        value: 'discord.gg/NB3vc8J9uv'
+      # Numbered list items.
+      - match: '1) https://www.jys.husa.pro'
+        value: 'https://www.jys.husa.pro'
+      - match: '2) https://jys.husa.pro'
+        value: 'https://jys.husa.pro'
+      - match: '3) http://demoosssde.com'
+        value: 'http://demoosssde.com'
+      - match: '1. h5.exswap.net'
+        value: 'h5.exswap.net'
+      - match: '2. www.zoneswap.org'
+        value: 'www.zoneswap.org'
+      - match: '3. https://www.facebook.com/profile.php?id=100070046448065'
+        value: 'https://www.facebook.com/profile.php?id=100070046448065'
+      # Annotations appended to the URL.
+      - match: 'https://www.superfitmax.com (previously at'
+        value: 'https://www.superfitmax.com'
+      - match: 'https://www.superfitex.com)'
+        value: 'https://www.superfitex.com'
+      - match: 'http://www.tradingteck.co (updated 17 Dec 2020)'
+        value: 'http://www.tradingteck.co'
+      # Mistyped schemes.
+      - match: 'https:/www.bitforex.com/'
+        value: 'https://www.bitforex.com/'
+      - match: 'https:/www.pipholdings.com/'
+        value: 'https://www.pipholdings.com/'
+      - match: 'https:// www.mentorshiptradegroup.com/'
+        value: 'https://www.mentorshiptradegroup.com/'
+      # Several sites on one line, separated only by whitespace.
+      - match: 'www.btsave.io / www.btsave.net'
         values:
-          - 'www.indexgb.com'
-          - 'http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html'
-          - 'https://www.facebook.com/IndexGB-348924791855465/'
-      - match: 'www.excentral-int.com https://excentral-int.net/'
+          - 'www.btsave.io'
+          - 'www.btsave.net'
+      - match: 'www.vfortuness.com www.vtreess.com'
         values:
-          - 'www.excentral-int.com'
-          - 'https://excentral-int.net/'
-      - match: 'Pro Markets: www.promarketsonline.com Primecapitec: www.primecapitec.com'
+          - 'www.vfortuness.com'
+          - 'www.vtreess.com'
+      - match: 'www.Swisscash.biz                 www.swissfund.biz'
         values:
-          - 'www.promarketsonline.com'
-          - 'www.primecapitec.com'
-      - match: "www.globalixs.com www.globalix.com www.globalix.co www.global-x.io"
-        values:
-          - 'www.globalixs.com'
-          - 'www.globalix.com'
-          - 'www.globalix.co'
-          - 'www.global-x.io'
-      - match: "www.leafgreeninv.com www.petrainv.com"
-        values:
-          - 'http://www.leafgreeninv.com'
-          - 'www.petrainv.com'
-      - match: http://www.fm-fx.com http://www.fmtrader.com
-        values:
-          - 'http://www.fm-fx.com'
-          - 'http://www.fmtrader.com'
-      - match: http://www.ideal-fx.com/ https://www.facebook.com/Ideal-FX-140091152842160 https://www.linkedin.com/company/3803741 https://twitter.com/Ideal_FX
-        values:
-          - 'http://www.ideal-fx.com/'
-          - 'https://www.facebook.com/Ideal-FX-140091152842160'
-          - 'https://www.linkedin.com/company/3803741'
-          - 'https://twitter.com/Ideal_FX'
-      - match: "Opteck.com http://www.opteck.com/"
-        values:
-          - 'http://Opteck.com'
-          - 'http://www.opteck.com/'
-      - match: http://iconsolutions.eu/about/, http://www.itraonline.com/, http://www.realtyaccess.global/portfolio/
-        values:
-          - 'http://iconsolutions.eu/about/'
-          - 'http://www.itraonline.com/'
-          - 'http://www.realtyaccess.global/portfolio/'
-      - match: "http://oneplantationholdings.com/Investment http://oneplantationholdings.com/Company http://www.oneplantation.asia/ www.facebook.com/oneplantationimpactinvestment/"
-        values:
-          - 'http://oneplantationholdings.com/Investment'
-          - 'http://oneplantationholdings.com/Company'
-          - 'http://www.oneplantation.asia/'
-          - 'www.facebook.com/oneplantationimpactinvestment/'
-      - match: https://www.finnciti.com/ https://www.facebook.com/finnciti.egame http://finnciti.blogspot.sg/p/blog-page.html
-        values:
-          - 'https://www.finnciti.com/'
-          - 'https://www.facebook.com/finnciti.egame'
-          - 'http://finnciti.blogspot.sg/p/blog-page.html'
-      - match: http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html https://www.facebook.com/IndexGB-348924791855465/www.indexgb.com
-        values:
-          - 'http://dedydollar.blogspot.sg/2013/10/penawaran-saham-perdana-pra-ipo-www.html'
-          - 'https://www.facebook.com/IndexGB-348924791855465/'
-          - 'www.indexgb.com'
-      - match: http://sixcapital.sg/ https://www.playtagg.com/
-        values:
-          - 'http://sixcapital.sg/'
-          - 'https://www.playtagg.com/'
-      - match: http://www.suisse.com.sg/ http://suissecollection.com/
-        values:
-          - 'http://www.suisse.com.sg/'
-          - 'http://suissecollection.com/'
-      - match: http://www.w-h-capital.com/http://www.dndci.net/whc/http://www.wh-ci.com/http://www.pe18.com/
-        values:
-          - 'http://www.w-h-capital.com/'
-          - 'http://www.dndci.net/whc/'
-          - 'http://www.wh-ci.com/'
-          - 'http://www.pe18.com/'
-      - match: http://www.dreamkaya.myswisscash.com/ http://www.myswisscash.com/www.Swisscash.biz                 www.swissfund.biz
-        values:
-          - 'http://www.dreamkaya.myswisscash.com/'
-          - 'http://www.myswisscash.com/'
           - 'www.Swisscash.biz'
           - 'www.swissfund.biz'
-      - match: "www.apollo_fc.com www.eagle-star.cc/apollo/main.asp"
+      - match: 'www.binaryonline.com www.facebook.com/binaryonline www.linkedin.com/company/binaryonline www.twitter.com/binary_online'
         values:
-          - 'www.apollo_fc.com'
-          - 'www.eagle-star.cc/apollo/main.asp'
-      - match: "www.sterlingcapitalcorporation.com www.sterlingcall.com"
-        values:
-          - 'www.sterlingcapitalcorporation.com'
-          - 'www.sterlingcall.com/'
-      - match: http://sixcap.co https://www.playtagg.com
-        values:
-          - 'http://sixcap.co'
-          - 'https://www.playtagg.com'
-      - match: https://www.portablefund.com/support-system/ https://www.portablefund.com/index.php
-        values:
-          - 'https://www.portablefund.com/support-system/'
-          - 'https://www.portablefund.com/index.php'
-      - match: "https://www.uuex.com/ https://www.usdt.com/ https://www.facebook.com/UU_exchange/ https://www.linkedin.com/company/uuex/ https://uuex.medium.com/what-is-uuex-learn-about-uuex-exchange-in-3-minutes-ae2d4f9efb0b https://x.com/UUExchange"
-        values:
-          - 'https://www.uuex.com/'
-          - 'https://www.usdt.com/'
-          - 'https://www.facebook.com/UU_exchange/'
-          - 'https://www.linkedin.com/company/uuex/'
-          - 'https://uuex.medium.com/what-is-uuex-learn-about-uuex-exchange-in-3-minutes-ae2d4f9efb0b'
-          - 'https://x.com/UUExchange'
-      - match: Company com
-        value: null
+          - 'www.binaryonline.com'
+          - 'www.facebook.com/binaryonline'
+          - 'www.linkedin.com/company/binaryonline'
+          - 'www.twitter.com/binary_online'
   type.address:
     normalize: true
     options:
