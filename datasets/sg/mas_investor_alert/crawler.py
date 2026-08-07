@@ -48,6 +48,10 @@ RELATIONSHIP_KEYWORDS = [
     "division of",
     "branch of",
 ]
+# MAS marks the party being impersonated, not the impersonator. The marked name is a
+# legitimate business, and the rest of the record - the contact details, the notes, the
+# listing itself - describes whoever is impersonating it.
+IMPERSONATED = re.compile(r"\s*\(impersonated\)", re.IGNORECASE)
 # Distinct addresses are separated by a blank line; single newlines break lines within one.
 ADDRESS_SPLITTER = re.compile(r"\n\s*\n")
 LLM_MODEL_VERSION = "gpt-5.4"
@@ -72,8 +76,8 @@ Rules:
 - Split a value holding several names, separated by a slash, a comma or "and".
 - Keep parentheses belonging to the legal name: "Quantum Securities (Singapore) Pte. Ltd"
   is one name.
-- Discard an "(Impersonated)" marker, and a disclaimer such as "(not affiliated with
-  "MariBank Singapore Private Limited")" together with the institution it names.
+- Discard a disclaimer such as "(not affiliated with "MariBank Singapore Private
+  Limited")" together with the institution it names.
 - Strip a platform prefix, keeping what identifies the account: 'Telegram Group: "Pictet
   Official Channel"' names the channel.
 """
@@ -120,6 +124,26 @@ def emit_ownership(context: Context, entity: Entity, name: str) -> None:
         )
 
 
+def emit_impersonated(context: Context, entity: Entity, name: str) -> None:
+    """Emit the business being impersonated, and link the listed entity to it.
+
+    It gets no topics and no sanction: those describe the impersonator, which is the
+    record's subject and keeps everything else the record says.
+    """
+    impersonated_name = IMPERSONATED.sub("", name)
+    impersonated = context.make("LegalEntity")
+    impersonated.id = context.make_id("named", impersonated_name)
+    impersonated.add("name", impersonated_name)
+    context.emit(impersonated)
+
+    link = context.make("UnknownLink")
+    link.id = context.make_id(entity.id, "impersonated", impersonated.id)
+    link.add("subject", impersonated)
+    link.add("object", entity)
+    link.add("role", "Impersonated by")
+    context.emit(link)
+
+
 def emit_relationship(
     context: Context, entity: Entity, related_ids: list[str], root_seen_ids: set[str]
 ) -> None:
@@ -149,7 +173,9 @@ def apply_source_names(
     needing cleaning through review."""
     names: list[str] = []
     for name in h.multi_split(unregulated_persons, NAME_SPLITTERS):
-        if any(keyword in name.lower() for keyword in RELATIONSHIP_KEYWORDS):
+        if IMPERSONATED.search(name):
+            emit_impersonated(context, entity, name)
+        elif any(keyword in name.lower() for keyword in RELATIONSHIP_KEYWORDS):
             emit_ownership(context, entity, name)
         else:
             names.append(name)
