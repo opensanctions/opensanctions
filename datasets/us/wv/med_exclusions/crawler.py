@@ -29,12 +29,6 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     npi = row.pop("npi")
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
-    # Header is sometimes on the second row
-    # Setting 'headers_per_page=False' takes the header only from the first page
-    # For each page we skip the header row with this check
-    # Please remove this check if the header is always on the first row
-    if "last name" in (last_name or "").lower():
-        return
 
     if first_name:
         entity = context.make("Person")
@@ -93,7 +87,8 @@ def crawl(context: Context) -> None:
     for item in h.parse_pdf_table(
         context,
         path,
-        headers_per_page=False,
+        # The header row is repeated as the first row of the table on every page.
+        headers_per_page=True,
         page_settings=lambda page: (page, {"text_x_tolerance": 1}),
     ):
         crawl_item(item, context)
