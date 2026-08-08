@@ -2,7 +2,12 @@
 name: Issues agent
 
 "on":
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Run only this dataset; empty means all eligible datasets"
+        required: false
+        type: string
   schedule:
     - cron: "0 3 * * 1-5"
     # 12:00 UTC = 14:00 CEST (summer) / 13:00 CET (winter). GHA cron is always
@@ -35,8 +40,13 @@ jobs:
         id: gen
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_DATASET: ${{ inputs.dataset }}
         run: |
-          MATRIX=$(python -m contrib.maintenance.issues_agent --prompts-dir task-prompts)
+          args=(--prompts-dir task-prompts)
+          if [ -n "$TARGET_DATASET" ]; then
+            args+=(--dataset "$TARGET_DATASET")
+          fi
+          MATRIX=$(python -m contrib.maintenance.issues_agent "${args[@]}")
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
       # The prompts travel as an artifact, not inside the matrix output: they
@@ -163,4 +173,3 @@ jobs:
           gh pr edit "${{ matrix.task.branch }}" \
             --repo "${{ github.repository }}" \
             --add-label daily-issues
-
