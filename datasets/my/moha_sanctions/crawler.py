@@ -27,6 +27,19 @@ def rename_headers(
     return result
 
 
+def header_key(header: str) -> str:
+    """Reduce a slugged, newline-preserving header cell to its column key.
+
+    Header cells hold a column number and a label, spread over one or more
+    lines, e.g. "5\\nother\\nname". Drop the leading number line and join the
+    remaining label lines; cells holding only a column number are kept as-is.
+    """
+    lines = [line.strip() for line in header.split("\n") if line.strip()]
+    if len(lines) > 1 and lines[0].isdigit():
+        lines = lines[1:]
+    return "_".join(lines).lower()
+
+
 def clean_value(v: str | None) -> str | None:
     if not v:
         return v
@@ -83,6 +96,10 @@ def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
         "vertical_strategy": "lines",
         "horizontal_strategy": "lines",
         "text_tolerance": 1,
+        # The group table pages draw their cell borders as double rules ~5pt
+        # apart. Without snapping those together, each border yields a sliver
+        # column with an empty header, shifting values into the wrong column.
+        "snap_x_tolerance": 6,
     }
     return cropped, settings
 
@@ -114,11 +131,7 @@ def crawl(context: Context) -> None:
         skiprows=0,
         page_settings=page_settings,
     ):
-        row = {
-            k.split("\n")[-1].strip().lower(): clean_value(v)
-            for k, v in row.items()
-            if k and k.split("\n")[-1].strip()
-        }
+        row = {header_key(k): clean_value(v) for k, v in row.items() if header_key(k)}
         # Decide schema based on number of columns in header
         num_cols = len(row.keys())
         if num_cols == 13:
