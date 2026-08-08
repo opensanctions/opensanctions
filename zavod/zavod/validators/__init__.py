@@ -1,4 +1,5 @@
-from followthemoney import registry
+from collections import Counter, defaultdict
+from followthemoney import registry, Property, Schema
 
 from zavod.archive import dataset_data_path
 from zavod.context import Context
@@ -11,20 +12,61 @@ from zavod.validators.assertions import (
 )
 from zavod.validators.common import BaseValidator
 
+# How many offending references to name per property/schema combination. Some
+# datasets get this wrong thousands of times over; a handful of ids is enough to
+# find the crawler code responsible.
+MAX_RANGE_EXAMPLES = 5
 
-class DanglingReferencesValidator(BaseValidator):
-    """Warns if an entity references an entity that is not in the store."""
+
+class EntityReferenceValidator(BaseValidator):
+    """Warn if an entity reference doesn't resolve, or points at the wrong kind
+    of entity.
+
+    Every entity-type property declares a `range`: the schema its target is
+    supposed to have (an `Ownership:asset` must be an `Asset`, an
+    `Occupancy:holder` must be a `Person`). Nothing can enforce that while the
+    crawler runs, because the referenced entity usually doesn't exist yet when
+    the reference is made. Once the whole dataset is in the store, it becomes
+    checkable - a company emitted as an `Organization` rather than a `Company`
+    shows up here.
+    """
+
+    def __init__(self, context: Context, view: View) -> None:
+        super().__init__(context, view)
+        self.out_of_range: Counter[tuple[Property, Schema]] = Counter()
+        self.examples: dict[tuple[Property, Schema], list[str]] = defaultdict(list)
 
     def feed(self, entity: Entity) -> None:
         for prop in entity.iterprops():
             if prop.type != registry.entity:
                 continue
             for other_id in entity.get(prop):
-                if self.view.has_entity(other_id):
+                other = self.view.get_entity(other_id)
+                if other is None:
+                    self.context.log.warning(
+                        f"{entity.id} property {prop.name} references missing id {other_id}"
+                    )
                     continue
-                self.context.log.warning(
-                    f"{entity.id} property {prop.name} references missing id {other_id}"
-                )
+                if prop.range is None or other.schema.is_a(prop.range):
+                    continue
+                key = (prop, other.schema)
+                self.out_of_range[key] += 1
+                examples = self.examples[key]
+                if len(examples) < MAX_RANGE_EXAMPLES:
+                    examples.append(f"{entity.id} -> {other_id}")
+
+    def finish(self) -> None:
+        for (prop, schema), count in self.out_of_range.most_common():
+            assert prop.range is not None
+            self.context.log.warning(
+                f"{prop.qname} should reference {prop.range.name}, "
+                f"but {count} references point at {schema.name}",
+                prop=prop.qname,
+                range=prop.range.name,
+                referenced_schema=schema.name,
+                count=count,
+                examples=self.examples[(prop, schema)],
+            )
 
 
 # FollowTheMoney prevents direct self-references so we check 1 level deep
@@ -62,7 +104,7 @@ class EmptyValidator(BaseValidator):
 
 
 VALIDATORS: list[type[BaseValidator]] = [
-    DanglingReferencesValidator,
+    EntityReferenceValidator,
     SelfReferenceValidator,
     StatisticsAssertionsValidator,
     EmptyValidator,
