@@ -31,6 +31,13 @@ QUERY = {
     "search_max_results": 1000,
     "sortorder": "ascending",
 }
+# PetScan parameters a category spec may override. Everything else in a spec
+# configures our own behaviour and must be removed before the remainder is
+# merged into the query: the request URL is the cache key, so a stray key makes
+# an edit to unrelated metadata (a position name, say) silently re-fetch the
+# category. PetScan ignores parameters it doesn't know, so the leak is invisible
+# in the results.
+PETSCAN_KEYS = {"depth", "language", "negcats", "search_max_results"}
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
 
@@ -162,14 +169,18 @@ def crawl_category(state: CrawlState, category_crawl_spec: dict[str, Any]) -> No
     if "topic" in category_crawl_spec:
         topics.append(category_crawl_spec.pop("topic"))
     country: str | None = category_crawl_spec.pop("country", None)
+    cat: str = category_crawl_spec.pop("category", "")
+    position_data: dict[str, Any] = category_crawl_spec.pop("position", {})
+
+    unknown = sorted(set(category_crawl_spec) - PETSCAN_KEYS)
+    if len(unknown):
+        raise ValueError(f"Unknown keys in category spec {cat!r}: {unknown}")
 
     query = dict(QUERY)
-    cat: str = category_crawl_spec.pop("category", "")
     query["categories"] = cat.strip()
     query.update(category_crawl_spec)
     state.log.info(f"Crawl category: {cat}")
 
-    position_data: dict[str, Any] = category_crawl_spec.pop("position", {})
     position: Entity | None = None
     if "name" in position_data:
         position = h.make_position(
