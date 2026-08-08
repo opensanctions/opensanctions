@@ -34,7 +34,7 @@ dependencies = [
     "orjson == 3.11.9",
     "ijson > 3.2, < 4.0",
     "pdfplumber == 0.11.10",
-    "prefixdate == 0.6.0",
+    "prefixdate == 0.6.1",
     "psycopg2-binary",
     "pyicu == 2.16.2",
     "openai >= 1.33.0, < 3.0.0",
