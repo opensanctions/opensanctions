@@ -64,6 +64,8 @@ PERSON_POSITION_LABELS = [
     "Positions or membership in the governance bodies of the russian MIC",
     "Other positions",
     "Former position in the management bodies of the Russian military-industrial complex",
+    # Left untranslated by the /en site: "Former positions".
+    "Колишні посади",
 ]
 
 PERSON_LINK_LABELS = ["Links", "Archive links"]
