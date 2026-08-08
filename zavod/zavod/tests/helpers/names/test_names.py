@@ -140,6 +140,61 @@ def test_split_comma_names(vcontext: Context, caplog):
     assert "warning: Not sure how to split on comma or and." in logs
 
 
+def test_split_comma_names_single_person(vcontext: Context):
+    """Realistic "Lastname(s), Firstname" shapes are one name and don't warn."""
+    with capture_logs() as cap_logs:
+        assert split_comma_names(vcontext, "Smith, John") == ["Smith, John"]
+        assert split_comma_names(vcontext, "Smith-Jones, Mary") == ["Smith-Jones, Mary"]
+        assert split_comma_names(vcontext, "O'Brien, John") == ["O'Brien, John"]
+        assert split_comma_names(vcontext, "Van Der Berg, Jan") == ["Van Der Berg, Jan"]
+        assert split_comma_names(vcontext, "Smith, Jane B.") == ["Smith, Jane B."]
+        assert split_comma_names(vcontext, "de la Cruz, Maria") == ["de la Cruz, Maria"]
+    warnings = [e for e in cap_logs if e["log_level"] == "warning"]
+    assert warnings == []
+
+
+def test_split_comma_names_multiple_full_names(vcontext: Context):
+    """Strings that are plausibly lists of full names are not treated as one person."""
+    # Two full names: confident comma split, as before.
+    assert split_comma_names(vcontext, "John Smith, Mary Jones") == [
+        "John Smith",
+        "Mary Jones",
+    ]
+    # A list of "Lastname, Firstname" shaped names joined by "and" remains
+    # ambiguous and warns so it can be patched via the comma_names lookup.
+    with capture_logs() as cap_logs:
+        assert split_comma_names(vcontext, "Smith, John and Jones, Mary") == [
+            "Smith, John and Jones, Mary"
+        ]
+    logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
+    assert "warning: Not sure how to split on comma or and." in logs
+
+
+def test_split_comma_names_aka_parens(vcontext: Context):
+    """Parenthesised alias markers don't produce a bogus split-off name."""
+    assert split_comma_names(vcontext, "John Smith, (A/K/A Smitty)") == [
+        "John Smith (A/K/A Smitty)"
+    ]
+    assert split_comma_names(vcontext, "John Smith, A/K/A Smitty") == [
+        "John Smith A/K/A Smitty"
+    ]
+    assert split_comma_names(vcontext, "Acme Trading Corp, (F.K.A Acme Inc)") == [
+        "Acme Trading Corp (F.K.A Acme Inc)"
+    ]
+
+
+def test_split_comma_names_empty_fragments(vcontext: Context):
+    """Double or trailing commas don't yield empty names."""
+    assert split_comma_names(vcontext, "John Smith,, Mary Jones") == [
+        "John Smith",
+        "Mary Jones",
+    ]
+    assert split_comma_names(vcontext, "John Smith, Mary Jones,") == [
+        "John Smith",
+        "Mary Jones",
+    ]
+
+
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)  # For validity
 def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     """The original name is used."""
