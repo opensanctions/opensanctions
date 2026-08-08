@@ -192,6 +192,12 @@ lookups:
         value: 2022-11
       - match: "2029-09-31"
         value: 2029-09
+      - match: "1904-04-31"
+        value: 1904-04
+      - match: "1858-06-31"
+        value: 1858-06
+      - match: "1585-02-30"
+        value: 1585-02
 
 config:
   # These are person QIDs that shouldn't be found. If they are, we're probably including
