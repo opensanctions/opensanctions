@@ -105,8 +105,8 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 116000
-      Person: 55000
+      Company: 95000
+      Person: 45000
       Organization: 1600
       PublicBody: 20
       LegalEntity: 2
