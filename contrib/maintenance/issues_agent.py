@@ -4,6 +4,9 @@ Invoked by .github/workflows/issues-agent.yml as:
 
     python -m contrib.maintenance.issues_agent
 
+Pass ``--dataset <name>`` to consider only one dataset. This is used for
+human-triggered runs; scheduled runs omit it and retain the full scan.
+
 Emits the matrix JSON on stdout and writes each task's prompt to
 <prompts-dir>/<dataset>.md; everything human-readable goes to stderr. The
 prompts travel to the run-tasks job as a workflow artifact rather than inside
@@ -63,15 +66,19 @@ def log(message: str) -> None:
     print(message, file=sys.stderr)
 
 
-def index_jobs(prompts_dir: Path) -> None:
+def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
     outage_datasets = get_outage_datasets()
     open_autofix_branches = get_open_autofix_branches()
     tasks: list[Any] = []
+    target_found = False
 
     for dataset in iter_catalog_datasets():
         name = dataset.get("name")
         if not name:
             continue
+        if dataset_name is not None and name != dataset_name:
+            continue
+        target_found = True
         # The catalogs are only a discovery index: a cheap pre-filter for
         # which datasets are worth a look. The authoritative issue contents
         # and counts come from the latest run in versions.json below — the
@@ -169,6 +176,8 @@ def index_jobs(prompts_dir: Path) -> None:
             }
         )
 
+    if dataset_name is not None and not target_found:
+        log(f"Dataset not found in catalog: {dataset_name}")
     print(json.dumps(tasks))
 
 
@@ -182,6 +191,10 @@ if __name__ == "__main__":
         default=Path("task-prompts"),
         help="directory to write one <dataset>.md prompt file per task into",
     )
+    parser.add_argument(
+        "--dataset",
+        help="consider only this dataset; omit to scan every eligible dataset",
+    )
     args = parser.parse_args()
     args.prompts_dir.mkdir(parents=True, exist_ok=True)
-    index_jobs(args.prompts_dir)
+    index_jobs(args.prompts_dir, dataset_name=args.dataset)
