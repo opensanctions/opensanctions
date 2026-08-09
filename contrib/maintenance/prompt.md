@@ -9,7 +9,7 @@ The diagnostic report below is the source of runtime facts. It resolves the data
 ## Choose the correct kind of fix
 
 - **Datapatch lookup — preferred for source-specific exceptions.** Use a lookup when known source values or classes of values can be corrected with exact, `contains` or regex matching. Prefer this to accumulating literal branches and regular expressions in crawler code. Before editing a lookup, read `zavod/docs/best_practices/datapatch_lookups.md` and follow its warning recipes, result-consolidation rules and existing conventions in {{ yaml_path }}.
-- **Assertion bound.** Change an assertion only when the report and source history support legitimate drift. For count metrics, lower a failing minimum to a sensible round value near 80% of the observed count, or raise a failing maximum to roughly twice the observed count. Do not accommodate collapsed, explosive or unexplained output. For fill rates, use a small margin within 0–1. The shared rules are in `zavod/docs/metadata.md#maintaining-assertion-bounds`.
+- **Assertion bound.** Unless the report shows collapsed or explosive output or evidence of a crawler or source-access failure, propose a bounded assertion update for human review even when you cannot determine whether the drift is legitimate. State that uncertainty and the available evidence in the PR. For count metrics, lower a failing minimum to a sensible round value near 80% of the observed count, or raise a failing maximum to roughly twice the observed count. For fill rates, use a small margin within 0–1. The shared rules are in `zavod/docs/metadata.md#maintaining-assertion-bounds`.
 - **Metadata correction.** Correct a source URL or other dataset configuration when the report and current source show that the metadata is wrong.
 {% if code_path %}
 - **Crawler code.** Change {{ code_path }} when the problem is systematic parsing or transformation logic that should work for unseen values, rather than an enumerable set of source exceptions. Search `zavod/docs` for the specific helper or best-practice guide relevant to the change.
@@ -40,7 +40,7 @@ You may modify {{ yaml_path }}, {{ code_path }} and directly related static data
 No dataset-local crawler code is available. Modify only {{ yaml_path }} and skip issues that require crawler or shared-framework changes.
 {% endif %}
 
-Investigate every reported pattern, but change only what you can resolve confidently from the report, source data and documentation. A partial fix is valid. Do not guess, and do not open a PR when nothing warrants a repository change.
+Investigate every reported pattern, but change only what you can resolve confidently from the report, source data and documentation, except for the explicitly reviewable assertion-bound proposals above. A partial fix is valid. Do not guess, and do not open a PR when nothing warrants a repository change.
 
 ## Verify
 
