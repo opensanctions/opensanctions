@@ -16,23 +16,23 @@ coverage:
 summary: >
   Entities and individuals registered under the Foreign Agents Registration Act (FARA).
 description: |
-  The Foreign Agents Registration Act (FARA) was established in 1938. FARA mandates that 
-  certain agents of foreign principals engaged in political or other specified activities 
-  must regularly disclose their relationship with the foreign principal, as well as their 
-  activities, finances, and expenditures related to those activities. This disclosure allows 
-  the government and the American people to assess the activities of these individuals as 
+  The Foreign Agents Registration Act (FARA) was established in 1938. FARA mandates that
+  certain agents of foreign principals engaged in political or other specified activities
+  must regularly disclose their relationship with the foreign principal, as well as their
+  activities, finances, and expenditures related to those activities. This disclosure allows
+  the government and the American people to assess the activities of these individuals as
   foreign agents.
 publisher:
   name: United States Department of Justice
   acronym: DOJ
   official: true
   description: |
-    The United States Department of Justice is a federal executive department of the U.S. 
-    government tasked with the enforcement of federal law and administration of justice in 
-    the United States. It's led by the U.S. Attorney General, is dedicated to upholding the 
-    rule of law, ensuring safety, and protecting civil rights. With over 115,000 employees and 
-    more than 40 component organizations, the Department operates from its headquarters in 
-    Washington, D.C., and maintains field offices across all U.S. states and territories, as 
+    The United States Department of Justice is a federal executive department of the U.S.
+    government tasked with the enforcement of federal law and administration of justice in
+    the United States. It's led by the U.S. Attorney General, is dedicated to upholding the
+    rule of law, ensuring safety, and protecting civil rights. With over 115,000 employees and
+    more than 40 component organizations, the Department operates from its headquarters in
+    Washington, D.C., and maintains field offices across all U.S. states and territories, as
     well as in over 50 countries worldwide.
   country: us
   url: https://www.justice.gov/
@@ -109,3 +109,50 @@ lookups:
     options:
       - match: 5480
         value: null
+  type.address:
+    # Identity lookups which mark these very short addresses as curated, so that
+    # they bypass the "looks too short for an address" smell check. In each case
+    # the source record supplies only a single address component, and the value
+    # is a real place rather than a parsing artefact.
+    options:
+      # Foreign principal/registrant rows where State is the only populated
+      # address field. These are US state and territory postal codes.
+      - match: "CA"
+        value: "CA"
+      - match: "CT"
+        value: "CT"
+      - match: "DC"
+        value: "DC"
+      - match: "DE"
+        value: "DE"
+      - match: "FL"
+        value: "FL"
+      - match: "GA"
+        value: "GA"
+      - match: "MD"
+        value: "MD"
+      - match: "MI"
+        value: "MI"
+      - match: "NC"
+        value: "NC"
+      - match: "NJ"
+        value: "NJ"
+      - match: "NY"
+        value: "NY"
+      - match: "PR"
+        value: "PR"
+      - match: "TX"
+        value: "TX"
+      - match: "WA"
+        value: "WA"
+      # Rows where Address_1 holds only a city name.
+      - match: "Ayr"  # Town in South Ayrshire, Scotland.
+        value: "Ayr"
+      - match: "Fez"  # City in Morocco.
+        value: "Fez"
+      - match: "Ufa"  # Capital of Bashkortostan, Russia.
+        value: "Ufa"
+      - match: "Ulm"  # City in Baden-Württemberg, Germany.
+        value: "Ulm"
+      - match: "Zug"  # Town and canton in Switzerland.
+        value: "Zug"
