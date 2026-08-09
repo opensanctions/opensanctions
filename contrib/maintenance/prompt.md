@@ -49,14 +49,14 @@ Run the exact static checks used by dataset CI:
     contrib/lint_dataset.sh {{ yaml_path }}
 
 It may apply formatting fixes. Resolve every finding and rerun it until it prints `lint_dataset: OK`.
-{% if ci_test %}
+{% if code_path and ci_test %}
 Run a clean crawl when the change is significant enough that end-to-end behavior needs verification; routine lookup and assertion fixes generally need only lint.
 
     zavod crawl --clear-data {{ yaml_path }}
 
 When you crawl, read `data/datasets/{{ name }}/issues.log`. The issues you targeted must be gone and no new warnings or errors may have appeared. Do not open the PR if the crawl fails or makes the issue set worse.
 {% else %}
-This dataset cannot be crawled in CI; lint is the available verification. Do not attempt a crawl.
+This agent run has lint-only verification. Do not attempt a crawl.
 {% endif %}
 
 ## Submit
