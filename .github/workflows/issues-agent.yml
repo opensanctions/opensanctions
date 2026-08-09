@@ -118,22 +118,17 @@ jobs:
           # prek + yamllint back contrib/lint_dataset.sh, which the agent runs to
           # verify its edits; zavod[dev] supplies them on the crawler path.
           pip install requests pyyaml prek yamllint
-          # poppler-utils (pdftotext/pdftoppm) so the agent can read PDF source
-          # documents even for datasets whose task doesn't install zavod.
-          sudo apt-get install -y -qq poppler-utils
 
       - name: Install system dependencies
-        if: ${{ matrix.task.needs_zavod }}
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # libicu-dev/poppler-utils for zavod; jq + xmllint for the agent to
-          # inspect JSON issue logs and XML source documents while debugging.
+          # Give every agent the same source-inspection tools. libicu-dev backs
+          # zavod's ICU dependency when the full package is installed.
           sudo apt-get install -y -qq libicu-dev poppler-utils jq libxml2-utils
 
       - name: Install qsv
-        if: ${{ matrix.task.needs_zavod }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

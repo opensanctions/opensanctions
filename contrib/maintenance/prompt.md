@@ -27,6 +27,8 @@ For PDFs, start with `pdftotext -layout <file> -`; use `pdftoppm -png <file> <pr
 
 `There are N unaccepted items for dataset ...` is review-system backlog, cleared outside this repository. Do not make a repository change for that warning alone.
 
+`jq` is available for inspecting JSON issue logs, and `qsv` for checking `statements.pack`, for example `qsv frequency -s prop <file>`.
+
 ## Execution boundary
 
 {% if code_path %}
@@ -34,7 +36,6 @@ You may modify {{ yaml_path }}, {{ code_path }} and directly related static data
 
 - Keep crawler changes minimal and limit output differences to those justified by the reported issues.
 - Preserve entity IDs: do not change inputs to `make_id` or `make_slug`, and never put PII into `make_slug`.
-- `jq` is available for inspecting JSON issue logs, and `qsv` for checking `statements.pack`, for example `qsv frequency -s prop <file>`.
 {% else %}
 No dataset-local crawler code is available. Modify only {{ yaml_path }} and skip issues that require crawler or shared-framework changes.
 {% endif %}
