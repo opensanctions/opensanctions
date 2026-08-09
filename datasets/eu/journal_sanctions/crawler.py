@@ -1,17 +1,18 @@
 import csv
 import re
 from dataclasses import dataclass
+from datetime import timedelta
 from functools import cache
-from datetime import timedelta, datetime
 
 from lxml import html
 from lxml.etree import _Element
-from normality import normalize
 from nomenklatura.resolver import Linker
+from normality import normalize
 from rigour.ids.ogrn import OGRN
-
 from zavod.integration import get_dataset_linker
-from zavod import Context, Entity, helpers as h
+
+from zavod import Context, Entity, settings
+from zavod import helpers as h
 
 # Some Russia-related entries are sourced from the consolidated regulation text.
 SPECIAL_CASE_URL = (
@@ -51,7 +52,7 @@ SELECT DISTINCT ?fwk_celex ?cons_celex WHERE {
 }
 """
 # Recent journal notices can appear before the consolidated act is refreshed.
-CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=90))
+CHECK_CONSOLIDATED_DATE = h.backdate(settings.RUN_TIME, timedelta(days=90))
 
 # Canonical EU feeds a journal row can graduate into, keyed by entity ID prefix.
 CANONICAL_FEEDS = {
