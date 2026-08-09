@@ -4,8 +4,8 @@ Invoked by .github/workflows/issues-agent.yml as:
 
     python -m contrib.maintenance.issues_agent
 
-Pass ``--dataset <name>`` to consider only one dataset. This is used for
-human-triggered runs; scheduled runs omit it and retain the full scan.
+Pass ``--dataset <name>`` to run one dataset regardless of the eligibility
+filters used by the scheduled scan.
 
 Emits the matrix JSON on stdout and writes each task's prompt to
 <prompts-dir>/<dataset>.md; everything human-readable goes to stderr. The
@@ -22,10 +22,12 @@ PR dedup. The shared mechanics live in the sibling modules of this package.
 import argparse
 import json
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 from jinja2 import Template
+from requests import RequestException
 
 from .archive import MAX_ISSUES, get_issues, get_versions, iter_catalog_datasets
 from .datasets import get_code_path, get_path_from_name, read_dataset_meta
@@ -66,60 +68,100 @@ def log(message: str) -> None:
     print(message, file=sys.stderr)
 
 
-def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
-    outage_datasets = get_outage_datasets()
-    open_autofix_branches = get_open_autofix_branches()
-    tasks: list[Any] = []
-    target_found = False
+def should_spawn_agent(
+    dataset: dict[str, Any],
+    outage_datasets: set[str],
+    open_autofix_branches: set[str],
+) -> bool:
+    """Apply the eligibility policy used by unfiltered scans."""
+    name = dataset.get("name")
+    if not name:
+        return False
+    if dataset.get("type") == "collection":
+        return False
 
-    for dataset in iter_catalog_datasets():
+    levels = dataset.get("issue_levels", {})
+    if levels.get("warning", 0) + levels.get("error", 0) == 0:
+        return False
+    if name in outage_datasets:
+        log(f"Documented outage: {name}")
+        return False
+    if dataset_has_open_pr(name, open_autofix_branches):
+        log(f"Open PR exists: {name}")
+        return False
+
+    versions = get_versions(name)
+    if versions is None or versions.latest is None:
+        log(f"No archived runs: {name}")
+        return False
+    issues = get_issues(name, versions.latest) or []
+    if len(issues) > MAX_ISSUES:
+        log(f"Fubar: {name} ({MAX_ISSUES}+ issues in latest run)")
+        return False
+    if not any(i.get("level") in ("warning", "error") for i in issues):
+        log(f"Latest run is clean: {name}")
+        return False
+    # Don't spawn an agent when a run produced nothing anyone can act on.
+    # Mixed runs (an ignored infrastructure error alongside real issues)
+    # still get a task.
+    if all(is_issue_ignored(i) for i in issues):
+        log(f"Only transient infrastructure issues: {name}")
+        return False
+
+    checksum = issues_checksum(issues)
+    branch = f"{branch_prefix(name)}{checksum[:10]}"
+    if has_closed_pr_for_branch(branch):
+        log(f"Already handled (closed PR): {name} ({branch})")
+        return False
+    return True
+
+
+def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
+    tasks: list[Any] = []
+    datasets: Iterable[dict[str, Any]]
+
+    if dataset_name is not None:
+        # A targeted run should not depend on any of the remote policy inputs.
+        datasets = [{"name": dataset_name}]
+        outage_datasets: set[str] = set()
+        open_autofix_branches: set[str] = set()
+    else:
+        datasets = iter_catalog_datasets()
+        outage_datasets = get_outage_datasets()
+        open_autofix_branches = get_open_autofix_branches()
+
+    for dataset in datasets:
         name = dataset.get("name")
         if not name:
             continue
-        if dataset_name is not None and name != dataset_name:
-            continue
-        target_found = True
         # The catalogs are only a discovery index: a cheap pre-filter for
         # which datasets are worth a look. The authoritative issue contents
         # and counts come from the latest run in versions.json below — the
         # same run the embedded diagnostic report describes, which can be
         # fresher than the catalog snapshot.
-        levels = dataset.get("issue_levels", {})
-        if levels.get("warning", 0) + levels.get("error", 0) == 0:
-            continue
-        if name in outage_datasets:
-            log(f"Documented outage: {name}")
+        if dataset_name is None and not should_spawn_agent(
+            dataset, outage_datasets, open_autofix_branches
+        ):
             continue
 
-        if dataset_has_open_pr(name, open_autofix_branches):
-            log(f"Open PR exists: {name}")
-            continue
-
-        versions = get_versions(name)
-        if versions is None or versions.latest is None:
-            log(f"No archived runs: {name}")
-            continue
-        issues = get_issues(name, versions.latest) or []
-        if len(issues) > MAX_ISSUES:
-            log(f"Fubar: {name} ({MAX_ISSUES}+ issues in latest run)")
-            continue
+        # Targeted manual runs deliberately bypass eligibility. Missing or
+        # unavailable archive state becomes diagnostic context for the agent
+        # instead of preventing the task from being created.
+        try:
+            versions = get_versions(name)
+            issues = (
+                get_issues(name, versions.latest) or []
+                if versions is not None and versions.latest is not None
+                else []
+            )
+        except (RequestException, json.JSONDecodeError) as exc:
+            log(f"Could not load latest issues for {name}: {exc}")
+            issues = []
         errors = sum(1 for i in issues if i.get("level") == "error")
         warnings = sum(1 for i in issues if i.get("level") == "warning")
-        if warnings + errors == 0:
-            log(f"Latest run is clean: {name}")
-            continue
-        # Don't spawn an agent when a run produced nothing anyone can act on.
-        # Mixed runs (an ignored infrastructure error alongside real issues)
-        # still get a task.
-        if all(is_issue_ignored(i) for i in issues):
-            log(f"Only transient infrastructure issues: {name}")
-            continue
 
         checksum = issues_checksum(issues)
         branch = f"{branch_prefix(name)}{checksum[:10]}"
-        if has_closed_pr_for_branch(branch):
-            log(f"Already handled (closed PR): {name} ({branch})")
-            continue
 
         path = get_path_from_name(name)
         crawler_dir = Path(path).parent.as_posix()
@@ -163,7 +205,8 @@ def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
             for n, label in ((errors, "error"), (warnings, "warning"))
             if n > 0
         ]
-        title = f"[{name}]: {', '.join(counts)}"
+        summary = ", ".join(counts) if counts else "targeted run"
+        title = f"[{name}]: {summary}"
         (prompts_dir / f"{name}.md").write_text(prompt)
         tasks.append(
             {
@@ -176,8 +219,6 @@ def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
             }
         )
 
-    if dataset_name is not None and not target_found:
-        log(f"Dataset not found in catalog: {dataset_name}")
     print(json.dumps(tasks))
 
 
@@ -193,7 +234,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--dataset",
-        help="consider only this dataset; omit to scan every eligible dataset",
+        help="always run this dataset; omit to scan every eligible dataset",
     )
     args = parser.parse_args()
     args.prompts_dir.mkdir(parents=True, exist_ok=True)

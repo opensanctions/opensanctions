@@ -5,7 +5,7 @@ name: Issues agent
   workflow_dispatch:
     inputs:
       dataset:
-        description: "Run only this dataset; empty means all eligible datasets"
+        description: "Always run this dataset; empty scans all eligible datasets"
         required: false
         type: string
   schedule:
