@@ -27,7 +27,7 @@ For PDFs, start with `pdftotext -layout <file> -`; use `pdftoppm -png <file> <pr
 
 `There are N unaccepted items for dataset ...` is review-system backlog, cleared outside this repository. Do not make a repository change for that warning alone.
 
-`jq` is available for inspecting JSON issue logs, and `qsv` for checking `statements.pack`, for example `qsv frequency -s prop <file>`.
+`jq` is available for inspecting JSON issue logs, and `qsv` for inspecting CSV files such as `statements.pack`, for example `qsv frequency -s prop <file>`.
 
 ## Execution boundary
 
