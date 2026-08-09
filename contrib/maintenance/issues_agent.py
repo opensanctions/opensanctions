@@ -15,8 +15,8 @@ GitHub silently drops a job output when it spots anything resembling a secret
 in it ("Skip output 'matrix' since it may contain secret"), which breaks the
 fromJson() strategy expression downstream.
 
-This module holds only agent policy — model/turn selection, branch naming and
-PR dedup. The shared mechanics live in the sibling modules of this package.
+This module holds only agent policy — turn budgets, branch naming and PR dedup.
+The shared mechanics live in the sibling modules of this package.
 """
 
 import argparse
@@ -41,17 +41,10 @@ from .github import (
 )
 from .issues import is_issue_ignored, issues_checksum
 
-# Match compute to task difficulty. Lookup/assertion edits on YAML are mechanical,
-# so a mid-tier model with few turns suffices. Datasets with a crawler may need an
-# actual code fix — stronger reasoning, plus turns to run mypy, crawl, and iterate.
-MODEL_LOOKUP = "claude-sonnet-5"
-MODEL_CODE = "claude-opus-5"
-MAX_TURNS_LOOKUP = 30
-MAX_TURNS_CODE_VERIFIABLE = 100  # ci_test true: edit, then crawl-verify and iterate
-MAX_TURNS_CODE_BLIND = 60  # ci_test false: edit + mypy/ruff, no crawl loop
-# Rendered per dataset with the diagnostic context (paths, branch, ci_test) so
-# the prompt can branch between lookup-only and code-fix instructions. autoescape
-# stays off (default) so markdown and YAML examples pass through untouched.
+DEFAULT_MAX_TURNS = 80
+# Rendered per dataset with the diagnostic context (paths, branch, ci_test) so the
+# prompt can state its edit scope and whether end-to-end verification is available.
+# Autoescape stays off (default) so Markdown and YAML examples pass through untouched.
 PROMPT = Template(
     (Path(__file__).parent / "prompt.md").read_text(),
     trim_blocks=True,
@@ -170,21 +163,11 @@ def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
         ci_test = dataset_meta.get("ci_test", True)
         code_path = get_code_path(path, entry_point)
 
-        # Only crawler datasets can require code, so only they need zavod
-        # installed (for mypy and crawling) and the heavier model/turn budget.
-        if code_path is not None:
-            model = MODEL_CODE
-            max_turns = MAX_TURNS_CODE_VERIFIABLE if ci_test else MAX_TURNS_CODE_BLIND
-            needs_zavod = True
-        else:
-            model = MODEL_LOOKUP
-            max_turns = MAX_TURNS_LOOKUP
-            needs_zavod = False
-
+        # Local crawler code needs zavod's development dependencies for linting and
+        # type-checking even when ci_test is false and the crawler cannot run in CI.
+        needs_zavod = code_path is not None
         deploy_config = dataset_meta.get("deploy", {})
-        max_turns = deploy_config.get("issues_turns", max_turns)
-        if max_turns > MAX_TURNS_CODE_VERIFIABLE:
-            model = MODEL_CODE
+        max_turns = deploy_config.get("issues_turns", DEFAULT_MAX_TURNS)
 
         # The report is the prompt's single source of runtime facts (run
         # verdict, artifact links, the issues themselves); the template only
@@ -213,7 +196,6 @@ def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
                 "dataset": name,
                 "name": title,
                 "branch": branch,
-                "model": model,
                 "max_turns": max_turns,
                 "needs_zavod": needs_zavod,
             }

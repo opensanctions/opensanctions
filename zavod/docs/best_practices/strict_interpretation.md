@@ -47,9 +47,10 @@ context.audit_data(row, ignore=["hair_colour", "committee_memberships"])
 Extract the in-scope fields with selections that fail when the page no longer matches expectations, and leave the rest of the page alone:
 
 - [`h.xpath_element`][zavod.helpers.xpath_element] raises on zero or multiple matches; `expect_exactly=` pins a known count; open-ended selections get an `assert len(items) > 0, items`.
-- [`h.assert_dom_hash`][zavod.helpers.assert_dom_hash] warns when a hand-parsed page region drifts.
+- A [change detector](change_detection.md) warns when hand-parsed or manually
+  maintained source content drifts.
 
-See [XPath and HTML](xpath_and_html.md) for the full toolkit and selector-quality guidance.
+See [XPath and HTML](xpath_and_html.md) for selector-quality guidance.
 
 ## Assert the invariants of a valid parse
 
