@@ -157,6 +157,9 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Watchful dispatches maintainer-requested /zavod-fix runs. Keep this
+          # allowlist exact so other bots cannot start an agent implicitly.
+          allowed_bots: opensanctions-watchful
           prompt: ${{ env.TASK_PROMPT }}
           claude_args: "--model ${{ matrix.task.model }} --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
