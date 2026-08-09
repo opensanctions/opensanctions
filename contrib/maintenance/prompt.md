@@ -51,12 +51,16 @@ The same logic applies to the other count metrics (`entity_count`, `countries`, 
 
 Exception: when the failing value has collapsed far below the last-good value in the report's assertion table (say, hundreds down to near zero), the crawl or the source is broken — do not widen the envelope to fit a broken run. {% if code_path %}Investigate the crawler instead, or skip it.{% else %}Skip it.{% endif %} For ordinary drift, if you cannot tell whether it is legitimate or a sign the crawler broke, still open the PR with the widened threshold — a reviewer can close it if the envelope should not move.
 
+## Hash-change warnings
+
+Investigate `DOM hash changed`, `URL hash changed`, and `File hash changed` warnings. Hash monitors are often used when data is published in an unstructured page or document that cannot be extracted deterministically. Inspect the changed source and determine what substantive data changed. You may extract that information using inference, then update the dataset's checked-in static data or crawler logic as appropriate.
+
+Update the expected hash only in the same change that incorporates the changed source content into the dataset. Never submit a hash-only change merely to silence the warning. If you cannot confidently incorporate the source change — including when it requires editing an external system unavailable to you — leave the old hash in place and skip the issue.
+
 ## Leave these for humans
 
 Some issues are deliberate signals for a maintainer to investigate, not something to auto-fix. Skip them — do not edit anything in response to:
 
-- Change-detection tripwires: `DOM hash changed`, `URL hash changed`, `File hash changed`. These flag that a source page or file changed and a human needs to check whether the crawler still parses it correctly. "Fixing" the hash would just hide the change.
-- Transient infrastructure errors: database deadlocks, connection errors, timeouts. These are not fixable by editing the dataset.
 - Review-system backlog: `There are N unaccepted items for dataset ...`. These are cleared by a human in the review UI, not by editing the repository.
 
 HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among runtime failures: when the report shows the failure persisting across several runs, the source has likely moved the file or started blocking the crawler. Locate the new URL on the source's website and update `data.url` in the metadata (or the fetch in the crawler). If you cannot determine a fix, leave it for humans.
