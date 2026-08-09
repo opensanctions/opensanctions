@@ -8,6 +8,24 @@ The mechanism comes from the [datapatch](https://pypi.org/project/datapatch/) li
     Avoid using lookups to express something not evident in the data. For example, do not make a date more precise than it is in the data, even if you know your version to be true.
 
 
+## Prefer data mappings over special-case code
+
+Use a lookup when a correction can be expressed as an enumerable set or class of source
+values. Exact matches, substring matches and regular expressions all belong in the
+dataset metadata when they encode exceptions such as known misspellings, source labels,
+placeholder values or malformed identifiers.
+
+Prefer this even when an `if` statement or regex in the crawler could produce the same
+result. Source-specific branches accumulate into deep, hard-to-review decision trees;
+lookups keep those decisions declarative, grouped and visible to reviewers.
+
+Use crawler code when the rule is a general part of parsing or transformation rather than
+a collection of known cases: selecting the correct column, splitting a structured field,
+following pagination, or applying an algorithm that should work for unseen values. A
+growing chain of literal comparisons or regexes added one warning at a time is a signal
+that the rule belongs in a lookup.
+
+
 ## Two ways lookups get invoked
 
 Lookups appear under the `lookups:` key in the dataset YAML. Each named lookup is invoked in one of two ways:
@@ -201,7 +219,7 @@ Pass `warn_unmatched=True` to log a warning when a value matches no option — t
 For lookups where any unmatched value should halt the crawl, set `required: true` on the lookup itself. A miss then raises `LookupException`.
 
 
-## Common runtime warnings and the lookup that fixes them
+## Common runtime warnings involving lookups
 
 Several warnings emitted by `zavod` are best fixed by adding a lookup option. Each row below names the warning, what triggered it, and the lookup recipe.
 
@@ -213,6 +231,8 @@ Several warnings emitted by `zavod` are best fixed by adding a lookup option. Ea
 | `HTML/XSS suspicion in property value: <value>` | The value contains HTML tags or entity references — usually leftover markup from extraction. | Map the dirty value to its cleaned text via a `type.<type>` lookup. If the markup is genuinely intended (rare), add `silence_warnings: [xss-html-smell]` to the option. |
 | `Property value for <prop> exceeds type length: <value>` | The value is longer than the type's `max_length`. `zavod` warns but does not truncate. | `type.<type>` lookup with a shorter `value:`. |
 | `Failed to validate <format> identifier: <value>` | The value did not validate against a known identifier format (`bic`, `isin`, `lei`, `iban`, `inn`, `ogrn`, `npi`, `uei`, `qid`, `uscc`, `imo`). | `type.identifier` lookup with `match: <value>` and a corrected `value:`, or `value: null`. |
+| `No matching lookup found.` | A named lookup called with `warn_unmatched=True` has no option for the source value. | Add an option to that named lookup after determining the value's meaning. If it represents a new structural category, update the crawler's modelling as well. |
+| `Invalid type lookup property re-write` | An existing `prop:` result names a property unavailable on the entity's schema. | Correct the destination property or split the option by schema. Do not silence the warning: the value otherwise falls back to its original property. |
 
 ### Property name to type lookup
 

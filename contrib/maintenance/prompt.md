@@ -1,112 +1,79 @@
-You are a data engineer tasked with fixing the warnings and errors produced by a dataset's latest run in an ETL workflow. The dataset is `{{ name }}`.
+Fix the warnings and errors from the latest run of the `{{ name }}` dataset and submit one combined PR containing the fixes you can support with evidence.
 
-A diagnostic report of the dataset's current runtime state follows below: it resolves the relevant file paths, links each run's artifacts on data.opensanctions.org, and contains the issues to fix — inlined in full when there are few, or as grouped message patterns with one example each when there are many. Work from the report; only fetch the issues.json linked in it when the report shows the grouped view and you need every occurrence of a pattern (e.g. all distinct unmapped values).
-
-Your task is to fix as many of the reported issues as you confidently can and submit a single combined PR.
+The diagnostic report below is the source of runtime facts. It resolves the dataset files, links the run artifacts and shows the issues in full or grouped by message pattern. When it shows grouped issues, fetch the linked issues.json only if you need to enumerate every value in a pattern.
 
 ## Diagnostic report
 
 {{ report }}
 
-{% if code_path %}
-## Three kinds of fix
+## Choose the correct kind of fix
 
-1. **Lookups (preferred — always try this first).** Most value-level dirt (an unmapped country, an unparseable date, an unknown gender) is fixed by adding a lookup option to {{ yaml_path }}. Lookups are low-risk and reviewable, so reach for them whenever they can express the fix.
-2. **Crawler code changes.** When a warning cannot be expressed as a lookup — e.g. a parsing bug, a field read from the wrong column, a value that needs transforming before it is added — edit the crawler at {{ code_path }} instead. Keep the change as small and targeted as possible.
-3. **Static data fixes.** Some crawlers read a repository-owned data file, such as CSV or YAML, containing data extracted from sources that are difficult to automate. Update these files when a warning identifies new source data. Preserve the existing schema and follow any dataset-specific instructions in the metadata or crawler comments.
+- **Datapatch lookup — preferred for source-specific exceptions.** Use a lookup when known source values or classes of values can be corrected with exact, `contains` or regex matching. Prefer this to accumulating literal branches and regular expressions in crawler code. Before editing a lookup, read `zavod/docs/best_practices/datapatch_lookups.md` and follow its warning recipes, result-consolidation rules and existing conventions in {{ yaml_path }}.
+- **Assertion bound.** Change an assertion only when the report and source history support legitimate drift. For count metrics, lower a failing minimum to a sensible round value near 80% of the observed count, or raise a failing maximum to roughly twice the observed count. Do not accommodate collapsed, explosive or unexplained output. For fill rates, use a small margin within 0–1. The shared rules are in `zavod/docs/metadata.md#maintaining-assertion-bounds`.
+- **Metadata correction.** Correct a source URL or other dataset configuration when the report and current source show that the metadata is wrong.
+{% if code_path %}
+- **Crawler code.** Change {{ code_path }} when the problem is systematic parsing or transformation logic that should work for unseen values, rather than an enumerable set of source exceptions. Search `zavod/docs` for the specific helper or best-practice guide relevant to the change.
+- **Static data.** Update repository-owned CSV, YAML or other static data in {{ crawler_dir }} when it contains a maintained extraction of source information.
+{% endif %}
+{% if code_path %}
+## Change-detection warnings
+
+For `DOM hash changed`, `URL hash changed` and `File hash changed`, follow `zavod/docs/best_practices/change_detection.md`. Inspect and understand the changed source; inference-based extraction from an unstructured page or document is allowed.
+
+- If source data changed, incorporate it into the dataset before accepting the new hash.
+- If the change is demonstrably cosmetic, the new hash may be accepted, but the PR must explain what changed and why dataset output is unaffected. Improve the monitor scope when the same noise is likely to recur.
+- If the impact is unresolved, retain the old hash and skip the issue.
+{% endif %}
+
+`There are N unaccepted items for dataset ...` is review-system backlog, cleared outside this repository. Do not make a repository change for that warning alone.
+
+## Execution boundary
+
+{% if code_path %}
+This task has Zavod installed. You may modify {{ yaml_path }}, {{ code_path }} and directly related static data inside {{ crawler_dir }}. Do not modify files outside {{ crawler_dir }}.
+
+- Keep crawler changes minimal and limit output differences to those justified by the reported issues.
+- Preserve entity IDs: do not change inputs to `make_id` or `make_slug`, and never put PII into `make_slug`.
 {% else %}
-## How to fix
-
-This dataset has no dataset-local crawler code (see the report), so the only thing you can change is the metadata YAML. Warnings are fixed by adding lookup options to {{ yaml_path }}. A lookup maps a dirty source value (an unmapped country, an unparseable date, an unknown gender) to a clean one. They are low-risk and reviewable.
+This task deliberately runs without Zavod or the wider OpenSanctions application dependencies installed. Modify only {{ yaml_path }}. Do not run `zavod`, `ftm`, or Python commands that import Zavod application modules, and do not edit crawler or shared framework code. Available fixes are lookups, assertion bounds and evidence-backed metadata corrections; skip issues that require anything else.
 {% endif %}
 
-## Reference
+Investigate every reported pattern, but change only what you can resolve confidently from the report, source data and documentation. A partial fix is valid. Do not guess, and do not open a PR when nothing warrants a repository change.
 
-Datapatch lookups — the YAML structure, matching modes, result fields, the property-name → type-lookup mapping, and the recipe for each fixable warning — are documented at:
+## Verify
 
-`zavod/docs/best_practices/datapatch_lookups.md`
+Run the exact static checks used by dataset CI:
 
-The "Common runtime warnings and the lookup that fixes them" and "Property name to type lookup" sections on that page are the primary reference. Use them to translate each warning into a lookup option.
+    contrib/lint_dataset.sh {{ yaml_path }}
 
-The full FollowTheMoney property listing, when a warning mentions a property not covered by the mapping table, is at: https://www.opensanctions.org/reference/
+It may apply formatting fixes. Resolve every finding and rerun it until it prints `lint_dataset: OK`.
 {% if code_path %}
 
-When a fix needs a crawler code change, `.claude/docs/crawler-guide.md` is the hub: it covers the common patterns and links the relevant `zavod/docs` best-practice guides (dates, addresses, HTML/XPath, entity IDs, helpers). Read it, then the specific guide matching the warning.
-{% endif %}
-
-## Assertion failures
-
-Some issues are not dirty values but assertion failures (`min`-bound failures are errors that fail the whole run; `max`-bound failures are warnings), e.g.:
-
-    Assertion schema_entities failed for Security: 669973 is not <= threshold 418000
-
-These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The report's assertion table compares every declared threshold against the last successful run's statistics — use it to locate the entry to edit and to see which direction reality drifted. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. **Widen the envelope in the direction it drifted.** Never tighten a threshold toward the current value — that just re-breaks on the next run.
-
-Read the message as `<value> is not <op> threshold <threshold>` and edit the matching entry under `assertions.min.<metric>.<key>` or `assertions.max.<metric>.<key>` (the `<metric>`, e.g. `schema_entities`, and `<key>`, e.g. `Security`, come straight from the message):
-
-- `is not <= threshold` — a `max:` bound was exceeded (the count grew). Raise that `max:` entry to a round number comfortably **above** `<value>` (roughly +15–20%). Example: value 5200 over a max of 4000 → set the max to `6000`.
-- `is not >= threshold` — a `min:` bound was undercut (the count shrank). Lower that `min:` entry to a round number comfortably **below** `<value>` (roughly −15–20%, never below 0). Example: value 117 under a min of 130 → set the min to `100`.
-
-The same logic applies to the other count metrics (`entity_count`, `countries`, `country_entities`). For `property_fill_rate` the threshold is a 0–1 rate, so widen by a small decimal margin instead of rounding.
-
-Exception: when the failing value has collapsed far below the last-good value in the report's assertion table (say, hundreds down to near zero), the crawl or the source is broken — do not widen the envelope to fit a broken run. {% if code_path %}Investigate the crawler instead, or skip it.{% else %}Skip it.{% endif %} For ordinary drift, if you cannot tell whether it is legitimate or a sign the crawler broke, still open the PR with the widened threshold — a reviewer can close it if the envelope should not move.
-
-## Hash-change warnings
-
-Investigate `DOM hash changed`, `URL hash changed`, and `File hash changed` warnings. Hash monitors are often used when data is published in an unstructured page or document that cannot be extracted deterministically. Inspect the changed source and determine what substantive data changed. You may extract that information using inference, then update the dataset's checked-in static data or crawler logic as appropriate.
-
-Update the expected hash only in the same change that incorporates the changed source content into the dataset. Never submit a hash-only change merely to silence the warning. If you cannot confidently incorporate the source change — including when it requires editing an external system unavailable to you — leave the old hash in place and skip the issue.
-
-## Leave these for humans
-
-Some issues are deliberate signals for a maintainer to investigate, not something to auto-fix. Skip them — do not edit anything in response to:
-
-- Review-system backlog: `There are N unaccepted items for dataset ...`. These are cleared by a human in the review UI, not by editing the repository.
-
-HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among runtime failures: when the report shows the failure persisting across several runs, the source has likely moved the file or started blocking the crawler. Locate the new URL on the source's website and update `data.url` in the metadata (or the fetch in the crawler). If you cannot determine a fix, leave it for humans.
-
-## Scope
-
-{% if code_path %}
-- Code changes must be minimal, targeted, and behavior-preserving: fix only the warning at hand, do not refactor, and do not change what the crawler emits beyond that fix.
-- Never change entity IDs — do not alter the values passed to `make_id` / `make_slug`, and never put PII into `make_slug`. Re-keying entities breaks downstream data.
-{% endif %}
-- When adding lookups, NEVER define new YAML options or structures beyond what the datapatch reference describes. Editing existing `assertions:` thresholds is allowed, as described above.
-{% if code_path %}
-- NEVER modify files outside {{ crawler_dir }}.
-{% else %}
-- NEVER modify any file other than {{ yaml_path }}.
-{% endif %}
-- To inspect PDF source documents (many findings and Federal Register rules are PDFs), `pdftotext -layout <file> -` is available; `pdftoppm -png` renders pages as images when the text layout is ambiguous.
-- It is fine to open a PR that fixes only some of the issues.
-- If the correct fix for a value is genuinely uncertain — i.e. you cannot determine from context what it should be — skip that issue. Do not guess. A skipped issue gets human review later; a wrong fix ships incorrect data.
-- Do NOT open a PR if no fixes are needed.
-
-## Workflow
-
-1. Read `zavod/docs/best_practices/datapatch_lookups.md` in full before producing any fixes. The lookup YAML format and the warning-to-recipe mapping in that file are authoritative; do not rely on memory or invent syntax.
-2. Work through the issue patterns in the report's Issues section. When the report shows only the grouped view, fetch the full issues.json it links to enumerate every occurrence of the patterns you are fixing.
-3. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}a crawler code change, or a static data update{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
-4. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, {{ code_path }}, and any directly referenced static data file required by the warning{% endif %}.
-5. Verify your changes:
-   - Your changes MUST pass the checks CI runs, or the PR is dead on arrival:
-
-         contrib/lint_dataset.sh {{ yaml_path }}
-
-     Fix what it reports and rerun until it prints `lint_dataset: OK`, then proceed. Note that it applies some formatting fixes in place.
-{% if code_path %}
-   - If mypy flags `Any` coming from a raw lxml `.xpath()` call, switch that call to the typed `h.xpath_*` helpers.
+If assertions are the only change, assess them from the report and skip the crawl: `zavod crawl` does not evaluate assertion bounds.
 {% if ci_test %}
-   - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase. `jq` (for the JSON logs) and `qsv` (for spot-checking the emitted `data/datasets/{{ name }}/statements.pack`, e.g. `qsv frequency -s prop`) are available.
+For any other change, run a clean end-to-end crawl:
+
+    zavod crawl --clear-data {{ yaml_path }}
+
+Read `data/datasets/{{ name }}/issues.log`. The issues you targeted must be gone and no new warnings or errors may have appeared. Do not open the PR if the crawl fails or makes the issue set worse.
 {% else %}
-   - This crawler CANNOT run in CI (it needs credentials we don't have here, or is too slow), so you cannot verify the fix by crawling. State clearly in the PR body that the code change is unverified and needs human review before merge.
+This crawler cannot run in CI because it needs unavailable credentials or exceeds the CI runtime budget. Do not attempt to crawl it. For crawler-code or static-data changes, state clearly in the PR that the change is unverified and needs human review before merge.
 {% endif %}
-   - Assertion-threshold changes need no verification — a widened bound is taken on trust and reviewed by a human. Do not try to crawl to confirm it.
+{% else %}
+
+Do not attempt an end-to-end crawl. The lint command above is the complete verification available in this non-Zavod task.
 {% endif %}
 
 ## Submit
 
-- Commit and push as soon as your fixes pass the verification above, before doing anything else. Do not keep investigating or looking for further issues while the work sits uncommitted.
-- The branch name MUST be exactly `{{ branch }}` — do not invent your own name or add a slug.
-- Then open a PR via `mcp__github__create_pull_request` from the `{{ branch }}` branch. The title MUST start with `[{{ name }}]` followed by a short headline, and the body must list the warning patterns being fixed{% if code_path %} and flag any crawler code changes separately from lookup changes{% endif %}.
-- If you find more fixable issues after pushing, add or amend commits on the same branch, push again, and update the PR body.
+After investigating all patterns and verifying all intended changes:
+
+1. Commit and push the changes on the branch named exactly `{{ branch }}`.
+2. Open one PR using `mcp__github__create_pull_request` from that branch. The title must start with `[{{ name }}]` followed by a short headline.
+{% if code_path %}
+3. In the body, list the warning patterns addressed and the evidence for each fix. Separate lookup, assertion, metadata, crawler and static-data changes as applicable. For an accepted cosmetic hash change, explain why it has no data impact; for an unverified non-CI code change, flag the missing crawl verification.
+{% else %}
+3. In the body, list the warning patterns addressed and the evidence for each lookup, assertion or metadata fix.
+{% endif %}
+
+If no repository change is justified, do not commit or open a PR.

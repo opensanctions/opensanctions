@@ -151,13 +151,31 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
 
 ### Data assertions
 
-Data assertions are intended to "smoke test" the data. Assertions are checked on export. If assertions aren't met, warnings are emitted.
+Data assertions smoke-test the exported dataset against its expected shape. They run
+during `zavod run`; `zavod validate` applies them to a development run. A failed `min`
+assertion is an error and prevents export, while a failed `max` assertion emits a warning.
 
-Data assertions are checked when running `zavod run` (and `zavod validate` is useful when developing a crawler).
+When creating count assertions, base them on a known healthy crawl. Set minima roughly
+10–20% below the expected value to allow normal variation, unless the source has a known
+hard minimum. Set maxima around twice the expected value to leave room for ordinary
+growth while still catching duplication and runaway parsing.
 
-Data assertions are useful to communicate our expectations about what's in a dataset. `min` validations set a baseline for what should be in the dataset and are fatal to the export if they fail. `max` validations emit a warning when the dataset has grown beyond the validity of our earlier baseline (or if something's gone horribly wrong and emitted way more than expected)
+### Maintaining assertion bounds
 
-It's a good idea to add assertions at the start of writing a crawler, and then see whether those expectations are met when the crawler is complete. A good rule of thumb for datasets that change over time is minima 10% below the expected number to allow normal variation, unless there's a known hard minimum, and a maximum around twice the expected number of entities to leave room to grow.
+A violated bound is a signal to explain the latest run, not an instruction to fit the
+envelope around any output. Compare the run with the last successful statistics and, when
+needed, its delta or source history.
+
+When a count change is legitimate, move the bound outward from the observed value and
+round it in the safe direction:
+
+- Lower a failing minimum to about 80% of the observed count.
+- Raise a failing maximum to about twice the observed count.
+
+Do not update a bound when the output collapsed, exploded or otherwise cannot be
+explained. Repair the crawler or source access instead. For `property_fill_rate`, stay
+within the 0–1 domain and choose a small margin that preserves the assertion's intended
+quality signal; count rounding and doubling do not apply.
 
 A basic assertion block can look like this:
 
@@ -178,6 +196,8 @@ assertions:
 
 
 #### Assertion types
+
+**`entity_count`** asserts on the total number of entities in the dataset.
 
 **`schema_entities`** asserts on the number of entities of a given schema.
 
