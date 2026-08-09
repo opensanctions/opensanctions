@@ -19,6 +19,8 @@ The diagnostic report below is the source of runtime facts. It resolves the data
 
 For `DOM hash changed`, `URL hash changed` and `File hash changed`, follow `zavod/docs/best_practices/change_detection.md`. Inspect and understand the changed source; inference-based extraction from an unstructured page or document is allowed.
 
+For PDFs, start with `pdftotext -layout <file> -`; use `pdftoppm -png <file> <prefix>` when visual structure or scanned content makes text extraction ambiguous.
+
 - If source data changed, incorporate it into the dataset before accepting the new hash.
 - If the change is demonstrably cosmetic, the new hash may be accepted, but the PR must explain what changed and why dataset output is unaffected. Improve the monitor scope when the same noise is likely to recur.
 - If the impact is unresolved, retain the old hash and skip the issue.
@@ -32,6 +34,7 @@ You may modify {{ yaml_path }}, {{ code_path }} and directly related static data
 
 - Keep crawler changes minimal and limit output differences to those justified by the reported issues.
 - Preserve entity IDs: do not change inputs to `make_id` or `make_slug`, and never put PII into `make_slug`.
+- `jq` is available for inspecting JSON issue logs, and `qsv` for checking `statements.pack`, for example `qsv frequency -s prop <file>`.
 {% else %}
 No dataset-local crawler code is available. Modify only {{ yaml_path }} and skip issues that require crawler or shared-framework changes.
 {% endif %}
