@@ -22,6 +22,12 @@ def split_websites(value: str) -> list[str]:
 def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     name = input_dict.pop("name")
 
+    # The source sometimes publishes a row with an empty name column. There is
+    # nothing left to identify the entity by, so it cannot be emitted.
+    if not len(name.strip()):
+        context.log.warning("Skipping entry without a name", data=input_dict)
+        return
+
     # If it's a potential clone, we remove the "potential clone" from the name
     potential_clone = "Potential clone entity – " in name
     name = name.replace("Potential clone entity – ", "")
@@ -39,6 +45,11 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
         entity.add("description", "Potential clone entity")
 
     entity.add("website", split_websites(input_dict.pop("website")))
+
+    # The bank info column is new and so far only ever holds "N/A" - drop that so
+    # audit_data still flags it once the source starts populating it.
+    if input_dict.get("bankInfo") == "N/A":
+        input_dict.pop("bankInfo")
 
     context.emit(entity)
 
