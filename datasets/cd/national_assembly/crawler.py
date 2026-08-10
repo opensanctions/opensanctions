@@ -171,6 +171,8 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
+    # only sitting legislature deputies are currently exposed by the source
+    # we keep the term walk if it ever changes and historical members get backfilled
     terms = crawl_terms(context)
     for index, term in enumerate(terms):
         if term.period_end < h.earliest_term_start(TOPICS):
