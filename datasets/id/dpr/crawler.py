@@ -1,22 +1,11 @@
-import re
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# The site is Akamai-protected and client-rendered, so each electoral-district (dapil) page
-# is fetched through the Zyte API (browser rendering) with an Indonesian exit.
-GEOLOCATION = "id"
-
 # Members are elected from 84 electoral districts.
 DAPIL_COUNT = 84
-DAPIL_URL = "https://www.dpr.go.id/anggota/index/dapil/%d"
-
-# Each member links to a detail page "/anggota/detail/id/<id>" (or "/anggota/id/<id>").
-MEMBER_HREF_RE = re.compile(r"/anggota/(?:detail/)?id/(\d+)")
-UNBLOCK_VALIDATOR = './/a[contains(@href, "/anggota/") and contains(@href, "id/")]'
 
 
 def crawl_dapil(
@@ -24,33 +13,39 @@ def crawl_dapil(
     position: Entity,
     categorisation: PositionCategorisation,
     dapil: int,
-    seen: set[str],
 ) -> None:
-    url = DAPIL_URL % dapil
+    # The site is Akamai-protected and client-rendered
     doc = zyte_api.fetch_html(
         context,
-        url,
-        unblock_validator=UNBLOCK_VALIDATOR,
-        geolocation=GEOLOCATION,
+        f"{context.data_url}/{dapil}",
+        unblock_validator='.//a[contains(@href, "/anggota/") and contains(@href, "/id/")]',
+        geolocation="id",
         cache_days=1,
+        absolute_links=True,
     )
-    for link in h.xpath_elements(doc, "//a[@href]"):
+    # A member's profile URL is "/anggota/detail/id/<id>" (or "/anggota/id/<id>"),
+    # linked from both the photo (no link text) and the name, so key the members
+    # on the numeric profile id, keeping the named link.
+    members: dict[str, tuple[str, str]] = {}
+    for link in h.xpath_elements(
+        doc, '//a[contains(@href, "/anggota/") and contains(@href, "/id/")]'
+    ):
         href = link.get("href")
         if href is None:
             continue
-        match = MEMBER_HREF_RE.search(href)
-        if match is None:
+        member_id = href.rsplit("/id/", 1)[-1]
+        if not member_id.isdigit():
             continue
-        member_id = match.group(1)
         name = h.element_text(link)
-        if not name or member_id in seen:
+        if not name:
             continue
-        seen.add(member_id)
+        members.setdefault(member_id, (name, href))
 
+    for member_id, (name, href) in members.items():
         person = context.make("Person")
         person.id = context.make_slug(member_id)
         person.add("name", name)
-        person.add("sourceUrl", f"https://www.dpr.go.id/anggota/detail/id/{member_id}")
+        person.add("sourceUrl", href)
         # DPR candidates must be Indonesian citizens (Law No. 7 of 2017 on General
         # Elections, Article 240 paragraph (1)). https://peraturan.bpk.go.id/Details/37644
         person.add("citizenship", "id")
@@ -58,11 +53,10 @@ def crawl_dapil(
         occupancy = h.make_occupancy(
             context, person, position, categorisation=categorisation
         )
-        if occupancy is None:
-            continue
-        occupancy.add("constituency", f"Dapil {dapil}")
-        context.emit(occupancy)
-        context.emit(person)
+        if occupancy is not None:
+            occupancy.add("constituency", f"Dapil {dapil}")
+            context.emit(occupancy)
+            context.emit(person)
 
 
 def crawl(context: Context) -> None:
@@ -79,6 +73,5 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    seen: set[str] = set()
     for dapil in range(1, DAPIL_COUNT + 1):
-        crawl_dapil(context, position, categorisation, dapil, seen)
+        crawl_dapil(context, position, categorisation, dapil)
