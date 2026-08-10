@@ -1,6 +1,60 @@
 import csv
+from pathlib import Path
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
+
+RESOLUTIONS_CSV = Path(__file__).parent / "resolutions.csv"
+# The cards are rendered client-side, well after the document has loaded, so the
+# browser has to be told to wait for them rather than snapshotting the empty shell.
+RESOLUTION_XPATH = ".//h3[starts-with(normalize-space(text()), 'TF-')]"
+ACTIONS = [
+    {
+        "action": "waitForSelector",
+        "selector": {"type": "xpath", "value": RESOLUTION_XPATH},
+        "timeout": 15,
+    },
+]
+
+
+def crawl_resolutions(context: Context) -> None:
+    # The spreadsheet at data.url is a hand-maintained extraction of the designations
+    # in the AMLC's terrorism financing resolutions, so a newly published resolution
+    # has to reach a human rather than silently going missing from the dataset.
+    # Rewriting resolutions.csv on every run turns one into a reviewable diff: check
+    # the new resolution, update the spreadsheet, then commit the updated CSV.
+    assert context.dataset.url is not None
+    # The validator doubles as the guarantee that the list actually rendered.
+    doc = zyte_api.fetch_html(
+        context,
+        context.dataset.url,
+        RESOLUTION_XPATH,
+        actions=ACTIONS,
+        cache_days=1,
+        javascript=True,
+        geolocation="PH",
+    )
+    published: dict[str, str] = {}
+    for element in h.xpath_elements(doc, RESOLUTION_XPATH):
+        title = h.element_text(element)
+        # The XPath guarantees each heading opens with its resolution id.
+        published[title.split(" ", 1)[0]] = title
+
+    with open(RESOLUTIONS_CSV) as fh:
+        known = {row["resolution_id"]: row["title"] for row in csv.DictReader(fh)}
+    if published != known:
+        context.log.warning(
+            "Published AMLC resolutions changed. Reconcile the source spreadsheet "
+            "with the resolutions, then commit the updated resolutions.csv.",
+            added=sorted(published.keys() - known.keys()),
+            removed=sorted(known.keys() - published.keys()),
+        )
+
+    with open(RESOLUTIONS_CSV, "w") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(["resolution_id", "title"])
+        # The ids are zero-padded, so this is the newest-first order of the source.
+        writer.writerows(sorted(published.items(), reverse=True))
 
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
@@ -33,38 +87,9 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 
 def crawl(context: Context) -> None:
-    assert context.dataset.url is not None
-    doc = context.fetch_html(context.dataset.url, cache_days=1)
-    table = h.xpath_element(doc, ".//div[@class='item-page']/table")
-    h.assert_dom_hash(table, "60ffd9d35b4102ac60c69fdb5fdf7af2a8f23396")
-    # AMLC Resolution TF -114
-    # AMLC Resolution TF -113
-    # AMLC Resolution TF -112
-    # AMLC Resolution TF -108
-    # AMLC Resolution TF -104
-    # AMLC Resolution TF -102
-    # AMLC Resolution TF -90
-    # AMLC Resolution TF -88
-    # AMLC Resolution TF -87
-    # AMLC Resolution TF -86
-    # AMLC Resolution TF -76
-    # AMLC Resolution TF -69
-    # AMLC Resolution TF -68
-    # AMLC Resolution TF -67
-    # AMLC Resolution TF -64
-    # AMLC Resolution TF -63
-    # AMLC Resolution TF -56
-    # AMLC Resolution TF -55
-    # AMLC Resolution TF -50
-    # AMLC Resolution TF -42
-    # AMLC Resolution TF -41
-    # AMLC Resolution TF -40
-    # AMLC Resolution TF -39
-    # AMLC Resolution TF -35
-    # AMLC Resolution TF -34
-    # AMLC Resolution TF -33
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             crawl_row(context, row)
+    crawl_resolutions(context)
