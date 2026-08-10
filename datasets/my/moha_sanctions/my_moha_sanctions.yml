@@ -36,17 +36,12 @@ publisher:
 url: https://www.moha.gov.my/utama/index.php/en/component/content/article/350-list-of-ministries-of-home-affairs
 data:
   url: https://www.moha.gov.my/utama/index.php/en/component/content/article/350-list-of-ministries-of-home-affairs
-  format: PDF
-  lang: msa
+  format: XML
+  lang: eng
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36" (zavod; opensanctions.org)
 dates:
   formats: ["%d %B %Y", "%d %b %Y", "%d.%m.%Y"]
-  months:
-    May: Mei
-    February: Februari
-    August: Ogos
-    January: Januari
 tags:
   - list.sanction
 
@@ -61,68 +56,54 @@ assertions:
       Organization: 50
 
 lookups:
-  columns_person:
-    options:
-      - match: 1
-        value: internal_no  # renaming this from 'no' to avoid consfusion with the falsy interpretation by the lookup
-      - match: 2
-        value: reference_no
-      - match: 3
-        value: name
-      - match: 4
-        value: title
-      - match: 5
-        value: position
-      - match: 6
-        value: birth_date
-      - match: 7
-        value: birth_place
-      - match: 8
-        value: other_name
-      - match: 9
-        value: citizenship
-      - match: 10
-        value: passport_no
-      - match: 11
-        value: id_no
-      - match: 12
-        value: address
-      - match: 13
-        value: date_listed
-  columns_organization:
-    options:
-      - match:
-          - 1
-          - "no"
-        value: internal_no
-      - match:
-          - 2
-          - reference
-        value: reference_no
-      - match:
-          - 3
-          - name
-        value: name
-      - match:
-          - 4
-          - alias
-        value: alias
-      - match:
-          - 5
-          - other_name
-        value: other_name
-      - match:
-          - 6
-          - address
-        value: address
-      - match:
-          - 7
-          - date_of_listed
-        value: date_listed
+  # The XML labels each field with its column number and heading. Both the
+  # individual and the group table are mapped here; headings are unique across
+  # the two because they carry the (differing) column number.
+  columns:
+    map:
+      # Individuals
+      "(1) No.": internal_no
+      "(2) Reference": reference_no
+      "(3) Name": name
+      "(4) Title": title
+      "(5) Designation": position
+      "(6) Date of Birth": birth_date
+      "(7) Place of Birth": birth_place
+      "(8) Other Names": other_name
+      "(9) Nationality": citizenship
+      "(10) Passport Number": passport_no
+      "(11) Identification Card Number": id_no
+      "(12) Address": address
+      "(13) Date 0f Listed": date_listed  # sic, typo in the source
+      "(13) Date of Listed": date_listed
+      # Groups
+      "(4) Alias": alias
+      "(5) Other Name": other_name
+      "(6) Address": address
+      "(7) Date of Listed": date_listed
   type.country:
     options:
       - match: 'Philippines (Permanent Resident in Malaysia)'
         value: Philippines
+  type.address:
+    options:
+      - match: Iraq Syria
+        values: ["Iraq", "Syria"]
+      - match: Algeria Mali Mauritania Morocco Niger Tunisia
+        values:
+          - Algeria
+          - Mali
+          - Mauritania
+          - Morocco
+          - Niger
+          - Tunisia
+  type.name:
+    options:
+      # Two names run together without the pipe the source uses elsewhere.
+      - match: Le Groupe Salafiste pour La Prédication et le Combat (GSPC) Salafist Group for Call and Combat
+        values:
+          - Le Groupe Salafiste pour La Prédication et le Combat (GSPC)
+          - Salafist Group for Call and Combat
   type.date:
     options:
       - match: 20.2.1976 13.2.1975 15.2.1976 7.1.1977
