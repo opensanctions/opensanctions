@@ -24,20 +24,13 @@ publisher:
 tags:
   - list.pep
 url: https://www.parlament.hu/kepviselok
-# The parliament's XML Web API needs a personal, non-transferable access code from
-# https://www.parlament.hu/web/guest/web-api-regisztracio, read from the
-# $HNA_API_PASSWORD environment variable and sent as the `access_token` parameter.
-# parlament.hu CAPTCHAs every non-Hungarian IP, so requests egress via Zyte with
-# geolocation HU.
 data:
   url: https://www.parlament.hu/cgi-bin/web-api-pub/kepviselok.cgi
   format: xml
   lang: hun
 dates:
-  # The API writes dates with a trailing period, e.g. mandatum_kezdete="2026.05.09."
   formats: ["%Y.%m.%d."]
 
-# 200 members of parliament
 assertions:
   min:
     schema_entities:

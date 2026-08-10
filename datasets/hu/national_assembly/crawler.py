@@ -10,12 +10,6 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 from zavod.util import Element
 
-# parlament.hu fronts the whole domain with a WAF that serves a CAPTCHA to every
-# non-Hungarian IP, so all requests have to egress from Hungary.
-GEOLOCATION = "HU"
-CACHE_DAYS = 1
-# The access code issued at registration, mandatory on every endpoint. It is
-# personal and non-transferable, so it lives in the environment, not in the repo.
 ACCESS_TOKEN = os.environ.get("HNA_API_PASSWORD")
 
 # A member's mandates, one per election they won. The parliamentary group
@@ -29,18 +23,22 @@ GROUP_PATH = "./kepvcsop-tagsagok/tagsag"
 FUNCTION_PATH = "./tisztsegek/tisztseg"
 
 
-def api_url(context: Context, endpoint: str, params: dict[str, str]) -> str:
-    """Build the URL of a Web API endpoint, relative to the configured data URL."""
-    return build_url(urljoin(context.data_url, f"{endpoint}.cgi"), params)
-
-
 def fetch_xml(context: Context, endpoint: str, params: dict[str, str] = {}) -> Element:
     """Fetch and parse one endpoint of the parliament's XML Web API."""
     # Without a token the API answers with an empty body rather than an error.
     assert ACCESS_TOKEN is not None, "Missing $HNA_API_PASSWORD"
-    url = api_url(context, endpoint, {**params, "access_token": ACCESS_TOKEN})
+    url = build_url(
+        urljoin(context.data_url, f"{endpoint}.cgi"),
+        {
+            **params,
+            "access_token": ACCESS_TOKEN,
+        },
+    )
     _, _, _, text = zyte_api.fetch_text(
-        context, url, geolocation=GEOLOCATION, cache_days=CACHE_DAYS
+        context,
+        url,
+        geolocation="HU",
+        cache_days=1,
     )
     return etree.fromstring(text.encode())
 
@@ -77,11 +75,10 @@ def crawl_member(context: Context, azon: str) -> None:
     person = context.make("Person")
     person.id = context.make_slug(azon)
     # Hungarian name order, family name first, often carrying a 'Dr.' prefix.
-    person.add("name", h.xpath_string(doc, "./nev/text()"), lang="hun")
+    person.add("name", h.xpath_string(doc, "./nev/text()"))
     person.add("citizenship", "hu")
-    person.add("sourceUrl", api_url(context, "kepviselo", {"p_azon": azon}))
     person.add("website", h.xpath_strings(doc, "./honlap/text()"))
-    person.add("political", h.xpath_strings(doc, f"{GROUP_PATH}/@kepvcsop"), lang="hun")
+    person.add("political", h.xpath_strings(doc, f"{GROUP_PATH}/@kepvcsop"))
 
     position = h.make_position(
         context,
