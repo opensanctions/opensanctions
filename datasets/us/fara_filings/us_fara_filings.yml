@@ -156,3 +156,14 @@ lookups:
         value: "Ulm"
       - match: "Zug"  # Town and canton in Switzerland.
         value: "Zug"
+      # Foreign principal rows whose Address_1 holds a data entry artefact and
+      # no other address component. Sibling rows for the same registrants carry
+      # real single-token cities (Tokyo, Shanghai, Baku, Seoul), so these are
+      # truncation remnants rather than place names. Drop them.
+      - match:
+          - "0"  # Republic of Azerbaijan, registration 2759.
+          - "5"  # Air China International, registration 5283.
+          - "8"  # Fukuoka Prefectural Government, registration 5591.
+          - "cs"  # Panama Canal Study Group, registration 3438.
+          - "ka"  # Korea-U.S. Economic Council, registration 1967.
+        value: null
