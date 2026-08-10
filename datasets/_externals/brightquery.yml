@@ -101,6 +101,8 @@ lookups:
     options:
       - match: "FLS INTERNATIONAL LLC A&#X2F;K&#X2F;A UNIVERSAL PLACEMENT PR"
         value: "FLS INTERNATIONAL LLC A/K/A UNIVERSAL PLACEMENT PR"
+      - match: "NOLA SHIPPING &#X26; PACKING, LLC"
+        value: "NOLA SHIPPING & PACKING, LLC"
   type.address:
     options:
       - match:
