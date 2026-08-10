@@ -40,6 +40,16 @@ assertions:
       LegalEntity: 3000
 
 lookups:
+  # Names for rows the source publishes with an empty name column, keyed on the
+  # remark. Only add an option where the row itself identifies the entity it is
+  # listed under.
+  empty_name:
+    options:
+      # Listed under the letter L (group ",L,") with a fake certificate branded
+      # "Level 17 Capital" (fake-cert-L17.jpg), impersonating the SC-licensed
+      # Level 17 Capital Sdn Bhd named in the remark.
+      - contains: "Misusing the name and credentials of Level 17 Capital Sdn Bhd (eCMSL/A0385/2023)"
+        value: "Potential clone entity – Level 17 Capital Sdn Bhd"
   type.url:
     lowercase: true
     options:

@@ -22,11 +22,15 @@ def split_websites(value: str) -> list[str]:
 def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     name = input_dict.pop("name")
 
-    # The source sometimes publishes a row with an empty name column. There is
-    # nothing left to identify the entity by, so it cannot be emitted.
+    # The source sometimes publishes a row with an empty name column. Where the
+    # remark identifies the entity being impersonated, a lookup supplies the name
+    # the row is listed under; otherwise there is nothing left to identify it by.
     if not len(name.strip()):
-        context.log.warning("Skipping entry without a name", data=input_dict)
-        return
+        looked_up = context.lookup_value("empty_name", input_dict["remark"])
+        if looked_up is None:
+            context.log.warning("Skipping entry without a name", data=input_dict)
+            return
+        name = looked_up
 
     # If it's a potential clone, we remove the "potential clone" from the name
     potential_clone = "Potential clone entity – " in name
