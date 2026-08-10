@@ -75,8 +75,6 @@ def crawl(context: Context) -> None:
     headings = [
         " ".join(h.element_text(el).split()) for el in h.xpath_elements(doc, "//h3")
     ]
-    members = [text for text in headings if HEADING_RE.match(text)]
-    if not members:
-        raise ValueError("No member headings found on the Nitijela members page")
-    for heading in members:
+
+    for heading in headings:
         crawl_member(context, position, categorisation, heading)
