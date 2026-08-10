@@ -14,11 +14,7 @@ description: |
   Parliament of Cambodia. Its 125 members are directly elected from the provinces under
   proportional representation for a five-year term and hold the country's legislative
   power, including passing laws and approving the budget.
-
-  Coverage starts with the fifth legislature, elected in 2013, the earliest one whose
-  membership the Assembly publishes as text rather than as scanned images. Members are
-  dated by the years of the legislature they served, which are the only dates published.
-url: https://nac.org.kh/group-article/117
+url: https://nac.org.kh/
 publisher:
   name: National Assembly of Cambodia
   acronym: NAC
@@ -29,21 +25,13 @@ publisher:
   country: kh
   official: true
 data:
-  # The page of the sitting (7th) legislature. Its navigation carries the switcher listing
-  # every legislature, which is where the crawler discovers the other terms. Each new
-  # legislature is published under a new group-article id, and the crawler fails until this
-  # URL is updated to the newest one.
-  url: https://nac.org.kh/group-article/117
+  url: https://nac.org.kh/
   format: HTML
   lang: khm
 
 tags:
   - list.pep
 
-# Members are listed with an honorific, which is not part of the name and hurts matching.
-# These are the exact forms the rosters use; `honorific_roots` below warns about any form
-# not listed here. Entity ids are built from the raw name, not the stripped one, so adding
-# a form here changes no id - it only cleans up the name property.
 names:
   prefixes_strip:
     - ឯកឧត្តម
@@ -78,14 +66,6 @@ config:
     - នាម និង គោត្តនាម
     - មណ្ឌល
     - គណបក្សនយោបាយ
-  # Every honorific the rosters use starts with one of these words. A name that still
-  # starts with one of them after `names.prefixes_strip` has run carries a form the
-  # dataset has not seen, and needs adding to that list.
-  honorific_roots:
-    - ឯកឧត្តម
-    - លោកជំទាវ
-    - សម្តេច
-    - ព្រះអង្គម្ចាស់
   # Legislatures whose members cannot be read off the site. The 1st, 2nd and 4th publish
   # their rosters only as scanned images (e.g. https://nac.org.kh/Images/NA4_name1.jpg),
   # and https://nac.org.kh/group-article/49 publishes no member names at all for the 3rd,
@@ -97,10 +77,6 @@ config:
     - 3
     - 4
 
-# 228 members across the 5th, 6th and 7th legislatures, held as 242 entities: 12 of them
-# are styled with a different honorific in a later legislature, and the entity id is built
-# from the raw name, so those fragment for deduplication to merge. Each election adds a
-# cohort, so the maximum leaves room for several more legislatures.
 assertions:
   min:
     schema_entities:
