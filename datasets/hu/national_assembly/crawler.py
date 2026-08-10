@@ -1,14 +1,53 @@
-from zavod.extract import zyte_api
-from zavod.entity import Entity
-from zavod.stateful.positions import categorise
+import os
+from urllib.parse import urljoin
 
-from zavod import Context
+from lxml import etree
+from rigour.urls import build_url
+
+from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract import zyte_api
+from zavod.stateful.positions import categorise
+from zavod.util import Element
+
+# parlament.hu fronts the whole domain with a WAF that serves a CAPTCHA to every
+# non-Hungarian IP, so all requests have to egress from Hungary.
+GEOLOCATION = "HU"
+CACHE_DAYS = 1
+# The access code issued at registration, mandatory on every endpoint. It is
+# personal and non-transferable, so it lives in the environment, not in the repo.
+ACCESS_TOKEN = os.environ.get("HNA_API_PASSWORD")
+
+# A member's mandates, one per election they won. The parliamentary group
+# memberships alongside them cover the same periods, so the parties are read from
+# there rather than from the single current group in the list endpoint.
+ELECTION_PATH = "./valasztasok/valasztas"
+GROUP_PATH = "./kepvcsop-tagsagok/tagsag"
+# Roles held outside parliament, e.g. 'Építési és Beruházási Minisztérium
+# államtitkára'. Committee seats and parliamentary group offices are also in the
+# profile, under bizottsagi-tagsagok and kepvcsop-tisztsegek, but aren't emitted.
+FUNCTION_PATH = "./tisztsegek/tisztseg"
 
 
-def categorise_and_emit(
+def api_url(context: Context, endpoint: str, params: dict[str, str]) -> str:
+    """Build the URL of a Web API endpoint, relative to the configured data URL."""
+    return build_url(urljoin(context.data_url, f"{endpoint}.cgi"), params)
+
+
+def fetch_xml(context: Context, endpoint: str, params: dict[str, str] = {}) -> Element:
+    """Fetch and parse one endpoint of the parliament's XML Web API."""
+    # Without a token the API answers with an empty body rather than an error.
+    assert ACCESS_TOKEN is not None, "Missing $HNA_API_PASSWORD"
+    url = api_url(context, endpoint, {**params, "access_token": ACCESS_TOKEN})
+    _, _, _, text = zyte_api.fetch_text(
+        context, url, geolocation=GEOLOCATION, cache_days=CACHE_DAYS
+    )
+    return etree.fromstring(text.encode())
+
+
+def emit_occupancy(
     context: Context,
-    entity: Entity,
+    person: Entity,
     position: Entity,
     start_date: str | None,
     end_date: str | None,
@@ -20,7 +59,7 @@ def categorise_and_emit(
 
     occupancy = h.make_occupancy(
         context,
-        person=entity,
+        person=person,
         position=position,
         start_date=start_date,
         end_date=end_date,
@@ -29,21 +68,20 @@ def categorise_and_emit(
     if occupancy is not None:
         context.emit(occupancy)
         context.emit(position)
-        context.emit(entity)
+        context.emit(person)
 
 
-def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
-    validator = ".//div[@class='pair-content']"
-    pep_doc = zyte_api.fetch_html(context, url, validator, cache_days=5)
-    entity = context.make("Person")
-    entity.id = context.make_id(raw_name, party)
+def crawl_member(context: Context, azon: str) -> None:
+    doc = fetch_xml(context, "kepviselo", {"p_azon": azon})
 
-    last_name, first_name = raw_name.split(",", 1)
-
-    h.apply_name(entity, first_name=first_name, last_name=last_name)
-    entity.add("political", party)
-    entity.add("sourceUrl", url)
-    entity.add("citizenship", "hu")
+    person = context.make("Person")
+    person.id = context.make_slug(azon)
+    # Hungarian name order, family name first, often carrying a 'Dr.' prefix.
+    person.add("name", h.xpath_string(doc, "./nev/text()"), lang="hun")
+    person.add("citizenship", "hu")
+    person.add("sourceUrl", api_url(context, "kepviselo", {"p_azon": azon}))
+    person.add("website", h.xpath_strings(doc, "./honlap/text()"))
+    person.add("political", h.xpath_strings(doc, f"{GROUP_PATH}/@kepvcsop"), lang="hun")
 
     position = h.make_position(
         context,
@@ -53,67 +91,37 @@ def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
         topics=["gov.legislative", "gov.national"],
         lang="eng",
     )
-    # Table with all parliamentary terms
-    elections_table = h.xpath_elements(
-        pep_doc, '//table[.//th[@colspan="5" and text()="Elections"]]', expect_exactly=1
-    )[0]
-    for row in h.parse_html_table(
-        elections_table,
-        skiprows=1,
-        ignore_colspan={"5"},
-        index_empty_headers=True,
-    ):
-        str_row = h.cells_to_str(row)
-        categorise_and_emit(
+    for election in h.xpath_elements(doc, ELECTION_PATH):
+        emit_occupancy(
             context,
-            entity=entity,
+            person=person,
             position=position,
-            start_date=str_row.pop("from"),
-            end_date=str_row.pop("to", None),
+            start_date=h.xpath_string(election, "@mandatum_kezdete"),
+            # An ongoing period is expressed as an empty end date.
+            end_date=election.get("mandatum_vege") or None,
             is_pep=True,
         )
-    # Table with state functions, e.g. 'Parliamentary Secretary for Finance'
-    state_functions_table = h.xpath_elements(
-        pep_doc, '//table[.//th[@colspan="3" and text()="State functions"]]'
-    )
-    if len(state_functions_table) > 0:
-        for row in h.parse_html_table(
-            state_functions_table[0],
-            skiprows=1,
-            ignore_colspan={"3"},
-            index_empty_headers=True,
-        ):
-            str_row = h.cells_to_str(row)
-            function = str_row.pop("function")
-            if not function:
-                continue
-            position = h.make_position(
-                context,
-                name=function,
-                country="hu",
-                topics=["gov.national"],
-            )
-            categorise_and_emit(
-                context,
-                entity=entity,
-                position=position,
-                start_date=str_row.pop("from"),
-                end_date=str_row.pop("to", None),
-                # is_pep is not set, since not all these positions are necessarily PEP positions
-                is_pep=None,
-            )
+
+    for function in h.xpath_elements(doc, FUNCTION_PATH):
+        function_position = h.make_position(
+            context,
+            name=h.xpath_string(function, "@megnevezes"),
+            country="hu",
+            topics=["gov.national"],
+            lang="hun",
+        )
+        emit_occupancy(
+            context,
+            person=person,
+            position=function_position,
+            start_date=h.xpath_string(function, "@tol_datum"),
+            end_date=function.get("ig_datum") or None,
+            # Not every one of these is a PEP position, so leave it to categorisation.
+            is_pep=None,
+        )
 
 
 def crawl(context: Context) -> None:
-    table_xpath = ".//table[@class=' table table-bordered']"
-    doc = zyte_api.fetch_html(context, context.data_url, table_xpath, cache_days=5)
-    table = doc.find(table_xpath)
-    assert table is not None
-
-    for row in h.parse_html_table(table, skiprows=1, index_empty_headers=True):
-        name_el = row["members_of_parliament"]
-        url = h.xpath_strings(name_el, ".//a/@href", expect_exactly=1)[0]
-        raw_name = h.element_text(name_el)
-        party = h.element_text(row["parliamentary_groups"])
-
-        crawl_row(context, url, raw_name, party)
+    doc = fetch_xml(context, "kepviselok")
+    for azon in h.xpath_strings(doc, "./kepviselo/@p_azon"):
+        crawl_member(context, azon)
