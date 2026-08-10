@@ -48,14 +48,3 @@ assertions:
     schema_entities:
       Person: 60
       Position: 1
-
-lookups:
-  member_names:
-    options:
-      # Fidias Panayiotou notified the Chief Returning Officer on 25 May 2026 that he
-      # would not take up the seat, keeping his seat in the European Parliament instead.
-      # Giannis Laouris filled it as the party's next-most-voted candidate in the
-      # district. The source keeps naming Panayiotou in brackets after Laouris; only the
-      # sitting member is emitted.
-      - match: Λαούρης Γιάννης (Παναγιώτου Φειδίας)
-        value: Λαούρης Γιάννης

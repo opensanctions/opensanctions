@@ -1,9 +1,9 @@
 import re
-from urllib.parse import urljoin
 
 from lxml.etree import strip_elements
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -14,39 +14,11 @@ UNBLOCK_VALIDATOR = ".//div[@id='fullpage']"
 # the district heading picks out only the six pages that list members. The seat
 # count in the heading is authoritative; the one in the URL slug goes stale
 # (Paphos sits at ".../-πάφου-(4-έδρες)" while returning five members).
+# "Constituency <name> (<seats> seats)"
 DISTRICT = re.compile(r"^Εκλογική περιφέρεια (?P<name>.+?) \((?P<seats>\d+) έδρες\)$")
 # Members are numbered contiguously within each district, e.g.
 # "1.     Δημητρίου Δημήτρης".
 MEMBER = re.compile(r"^(?P<seat>\d+)\.\s+(?P<name>\S.*)$")
-# The six districts are fixed by the Constitution, as are the 56 seats they
-# return. The remaining 24 of the 80 seats are reserved for the Turkish Cypriot
-# community and have been vacant since 1964.
-DISTRICT_COUNT = 6
-
-
-def resolve_name(context: Context, raw: str) -> str | None:
-    """Resolve a member name that carries a parenthetical.
-
-    Where a seat changed hands before the House convened, the source names the
-    declining candidate in brackets after the sitting member, e.g.
-    "Λαούρης Γιάννης (Παναγιώτου Φειδίας)". The bracketed person is a different
-    individual who never took the seat — not an alias — so the raw string must
-    not reach the entity. Known cases are resolved to the sitting member through
-    the `member_names` lookup.
-    """
-    if "(" not in raw:
-        return raw
-    name = context.lookup_value("member_names", raw)
-    if name is None:
-        context.log.warning(
-            "Member name contains an unresolved parenthetical. The source uses "
-            "brackets to name a candidate who declined the seat, who is a "
-            "different person rather than an alias, so this name needs a "
-            "`member_names` lookup naming the sitting member.",
-            name=raw,
-        )
-        return None
-    return name
 
 
 def crawl_member(
@@ -58,14 +30,11 @@ def crawl_member(
     party: str,
     raw_name: str,
 ) -> None:
-    name = resolve_name(context, raw_name)
-    if name is None:
-        return
     person = context.make("Person")
-    person.id = context.make_id("cy-mp", name)
-    # The source prints names surname-first ("Δημητρίου Αννίτα"). We keep that
-    # order rather than guess where a surname ends.
-    person.add("name", name, lang="ell")
+    # Key on district and name to reduce chance of unintentional merges.
+    # And hopefully constituency loyalty trumps party loyalty.
+    person.id = context.make_id("cy-mp", district, raw_name)
+    h.apply_reviewed_name_string(context, person, string=raw_name, lang="ell")
     person.add("citizenship", "cy")
     person.add("political", party, lang="ell")
     person.add("sourceUrl", url)
@@ -76,7 +45,6 @@ def crawl_member(
     if occupancy is None:
         return
     occupancy.add("constituency", district, lang="ell")
-    occupancy.add("politicalGroup", party, lang="ell")
     context.emit(occupancy)
     context.emit(person)
 
@@ -104,6 +72,12 @@ def crawl_district(
     content = h.xpath_element(article, './/div[@class="contentdiv"]')
     party: str | None = None
     seen = 0
+
+    ####
+    ## We're gonna use a few of hard assertions here because we're iterating
+    ## over p-tags and inferring whether it's a party or an MP based on numbering.
+    ## Dodgy but not super time-sensitive, so let's have some safety.
+    ####
     for para in list(content.iter("p")):
         # Footnote markers are part of the name paragraph, e.g.
         # "19. Λαούρης Γιάννης (Παναγιώτου Φειδίας)<sup>(1)</sup>". Dropping them
@@ -120,6 +94,8 @@ def crawl_district(
             continue
         member = MEMBER.match(text)
         if member is None:
+            # If it's not a numbered member entry, then it's either a party or
+            # some other bit of text. Probably.
             continue
         seen += 1
         assert int(member.group("seat")) == seen, (
@@ -161,6 +137,7 @@ def crawl(context: Context) -> None:
         UNBLOCK_VALIDATOR,
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
     districts = 0
     for link in h.xpath_elements(doc, './/div[@class="greybox"]//a'):
@@ -170,10 +147,10 @@ def crawl(context: Context) -> None:
         if DISTRICT.match(h.element_text(link)) is None:
             continue
         districts += 1
-        crawl_district(
-            context, position, categorisation, urljoin(context.data_url, href)
-        )
-    assert districts == DISTRICT_COUNT, (
-        "Unexpected number of electoral districts",
-        districts,
-    )
+        crawl_district(context, position, categorisation, href)
+
+    # At least one entry contains the originally-elected name too.
+    # The urgency isn't such that entries must show up instantly, so let's
+    # abort a publish when a name needs cleaning so we publish clean names.
+    assert_all_accepted(context, raise_on_unaccepted=True)
+    assert districts == 6, districts
