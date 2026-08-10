@@ -10,7 +10,7 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 from zavod.util import Element
 
-ACCESS_TOKEN = os.environ.get("HNA_API_PASSWORD")
+ACCESS_TOKEN = os.environ.get("OPENSANCTIONS_HU_NATIONAL_ASSEMBLY_API_KEY")
 
 # A member's mandates, one per election they won. The parliamentary group
 # memberships alongside them cover the same periods, so the parties are read from
@@ -26,7 +26,7 @@ FUNCTION_PATH = "./tisztsegek/tisztseg"
 def fetch_xml(context: Context, endpoint: str, params: dict[str, str] = {}) -> Element:
     """Fetch and parse one endpoint of the parliament's XML Web API."""
     # Without a token the API answers with an empty body rather than an error.
-    assert ACCESS_TOKEN is not None, "Missing $HNA_API_PASSWORD"
+    assert ACCESS_TOKEN is not None
     url = build_url(
         urljoin(context.data_url, f"{endpoint}.cgi"),
         {
