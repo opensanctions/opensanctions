@@ -40,6 +40,14 @@ assertions:
       LegalEntity: 3000
 
 lookups:
+  # When the name is blank, use value EMIT to emit the entity without name, but
+  # with whatever identifying information is available. Remark field is used for
+  # entity id, so only do this if it's unique.
+  # If there's no identifying information to emit, use value SKIP.
+  empty_name_action:
+    options:
+      - contains: "Misusing the name and credentials of Level 17 Capital Sdn Bhd (eCMSL/A0385/2023)"
+        value: SKIP
   type.url:
     lowercase: true
     options:
