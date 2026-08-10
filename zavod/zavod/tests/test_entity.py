@@ -63,6 +63,23 @@ def test_extra_functions():
     assert entity.to_dict()["properties"]["birthDate"][0] == "1988"
 
 
+def test_future_birth_date_rejected():
+    catalog = get_catalog()
+    test_ds = catalog.make_dataset(TEST_DATASET)
+    entity = Entity(test_ds, {"schema": "Person"})
+    entity.id = "test_entity"
+
+    entity.add("birthDate", "2999-01-01")
+    assert entity.get("birthDate") == []
+
+    entity.add("birthDate", "1988-07-16")
+    assert "1988-07-16" in entity.get("birthDate")
+
+    # The guard applies only to birth dates.
+    entity.add("deathDate", "2999-01-01")
+    assert "2999-01-01" in entity.get("deathDate")
+
+
 def test_target_logic():
     catalog = get_catalog()
     test_ds = catalog.make_dataset(TEST_DATASET)
