@@ -40,17 +40,14 @@ assertions:
       LegalEntity: 3000
 
 lookups:
-  # Rows the source publishes with an empty name column, keyed on the remark.
-  # A matching option allows the row to be emitted without a name, described
-  # only by the remark it was published with. Don't supply a name here - the
-  # point is to publish what the source says, not to infer who is meant.
-  no_name:
+  # When the name is blank, use value EMIT to emit the entity without name, but
+  # with whatever identifying information is available. Remark field is used for
+  # entity id, so only do this if it's unique.
+  # If there's no identifying information to emit, use value SKIP.
+  empty_name_action:
     options:
-      # A clone of the SC-licensed Level 17 Capital Sdn Bhd, but the source
-      # doesn't say what name the clone operates under: it is listed under the
-      # letter L (group ",L,") with a fake certificate branded "Level 17
-      # Capital" (fake-cert-L17.jpg) and no name of its own.
       - contains: "Misusing the name and credentials of Level 17 Capital Sdn Bhd (eCMSL/A0385/2023)"
+        value: SKIP
   type.url:
     lowercase: true
     options:
