@@ -187,6 +187,10 @@ def crawl_archives_for_date(
 #   - An ownership or directorship missing from a record that *is* in the archive has
 #     ended: the registry described the company and didn't mention it.
 #
+# "Missing" includes a section the registry withholds rather than omits (ОгрДосСв, "access
+# to the information is restricted"): the relationship is no longer published, so we end it
+# rather than carry it forward.
+#
 # That makes "when did this end?" a question about the company's own appearances, never
 # about other companies. We therefore don't build current state by folding archives into
 # each other; we group by company instead. Each ownership and directorship gets one
