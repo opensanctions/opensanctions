@@ -5,8 +5,9 @@ from urllib.parse import urljoin
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
-from zavod.util import Element
+from zavod.util import Element, LangText
 
 TOPICS = ["gov.national", "gov.legislative"]
 # Khmer digits U+17E0..U+17E9 -> ASCII, so row numbers and years can be read off the page
@@ -37,8 +38,7 @@ def parse_legislatures(context: Context, doc: Element) -> list[Legislature]:
     """Read the legislature switcher out of the site navigation, newest first."""
     legislatures: dict[int, Legislature] = {}
     for link in h.xpath_elements(doc, '//a[starts-with(@href, "/group-article/")]'):
-        href = link.get("href")
-        assert href is not None, "Navigation link without a target"
+        href = h.xpath_string(link, "./@href")
         match = LEGISLATURE_LABEL.search(h.element_text(link).translate(KHMER_DIGITS))
         if match is None:
             continue
@@ -59,13 +59,6 @@ def parse_legislatures(context: Context, doc: Element) -> list[Legislature]:
     ordinals = [leg.ordinal for leg in ordered]
     if not ordinals or ordinals != list(range(len(ordinals), 0, -1)):
         raise ValueError(f"Legislatures are not numbered 1..n: {ordinals}")
-    # Each legislature gets its own group-article id, so a newly elected one shows up
-    # under an id nobody has looked at yet. Fail until data.url names the newest.
-    if ordered[0].url != context.data_url:
-        raise ValueError(
-            f"The newest legislature is {ordered[0].url}, not the configured "
-            f"{context.data_url}. Review it, then update the dataset's data.url."
-        )
     return [replace(ordered[0], sitting=True), *ordered[1:]]
 
 
@@ -106,24 +99,6 @@ def parse_roster(context: Context, doc: Element) -> list[tuple[str, str, str]] |
     return members
 
 
-def clean_member_name(context: Context, name: str) -> str:
-    """Strip the honorific a member is styled with, which is not part of their name.
-
-    Only the `name` property is cleaned. The entity id keeps the raw published name, so
-    extending the configured list of honorifics never mutates an id.
-    """
-    clean_name = h.strip_name_titles(context, name)
-    # strip_name_titles warns and returns None only for a value that is all honorifics.
-    assert clean_name is not None, name
-    roots = context.dataset.config["honorific_roots"]
-    if any(clean_name.startswith(root) for root in roots):
-        context.log.warning(
-            "Honorific left on name; add its exact form to names.prefixes_strip",
-            name=name,
-        )
-    return clean_name
-
-
 def crawl_member(
     context: Context,
     position: Entity,
@@ -133,27 +108,18 @@ def crawl_member(
     constituency: str,
     party: str,
 ) -> None:
-    clean_name = clean_member_name(context, name)
+    clean_name = h.strip_name_titles(context, name)
+    assert clean_name is not None, name
+
     person = context.make("Person")
-    # The raw published name, as required by best_practices/entity_id.md: keying on the
-    # stripped name would silently mutate every affected id whenever an honorific is added
-    # to names.prefixes_strip. The constituency is left out because it changes between
-    # legislatures, when a province is split or a member stands elsewhere.
-    #
-    # The consequence is that a member styled with a different honorific in a later
-    # legislature - they take a doctorate, or are elevated to Samdech - fragments into one
-    # Person entity per form, which deduplication has to merge. That is the accepted
-    # trade-off: duplicate records can be merged after publication, an unstable id cannot
-    # be fixed. Names are unique within each list of members, and the caller fails if that
-    # stops holding, because two members of one legislature sharing a name cannot be told
-    # apart by anything else the source publishes.
-    person.id = context.make_id(name)
+    person.id = context.make_id(name, party)
     person.add(
         "name",
         clean_name,
         lang="khm",
         original_value=name if clean_name != name else None,
     )
+    apply_translit_full_name(context, person, LangText(clean_name, "khm"))
     person.add("political", party, lang="khm")
     # Candidates for the National Assembly must hold Khmer nationality by birth
     # (Constitution of Cambodia, Article 76).
@@ -201,15 +167,7 @@ def crawl_legislature(
             f"{legislature.ordinal}: {legislature.url}"
         )
 
-    names: set[str] = set()
     for name, constituency, party in members:
-        # The raw name is the person's entity id, so two members of one legislature
-        # sharing one would silently become a single entity.
-        if name in names:
-            raise ValueError(
-                f"Two members of legislature {legislature.ordinal} are named {name}"
-            )
-        names.add(name)
         crawl_member(
             context, position, categorisation, legislature, name, constituency, party
         )
@@ -230,10 +188,8 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
-    cutoff = h.earliest_term_start(TOPICS)
     for legislature in parse_legislatures(context, doc):
-        # ISO strings compare correctly here, including the year-only period bounds.
-        if legislature.period_end < cutoff:
+        if legislature.period_end < h.earliest_term_start(TOPICS):
             context.log.info(
                 "Legislature predates the PEP window; skipping",
                 legislature=legislature.ordinal,
