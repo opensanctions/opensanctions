@@ -140,7 +140,7 @@ def emit_impersonated(context: Context, entity: Entity, name: str) -> None:
     link.id = context.make_id(entity.id, "impersonated", impersonated.id)
     link.add("subject", impersonated)
     link.add("object", entity)
-    link.add("role", "Impersonated by")
+    link.add("role", "Impersonated")
     context.emit(link)
 
 
