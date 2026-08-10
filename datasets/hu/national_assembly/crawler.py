@@ -128,6 +128,7 @@ def crawl_member(context: Context, azon: str) -> None:
             country="hu",
             topics=["gov.national"],
             lang="hun",
+            translate_name=True,
         )
         emit_occupancy(
             context,
