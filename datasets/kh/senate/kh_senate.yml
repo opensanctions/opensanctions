@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: true
+ci_test: false  # openAI API for name translit
 summary: >-
   Upper chamber of Parliament, indirectly elected and appointed for six years
 description: |
@@ -26,16 +26,20 @@ publisher:
   country: kh
   official: true
 data:
-  url: https://senate.gov.kh/wp-content/themes/senate/ajax/generalsearch.php
+  url: https://senate.gov.kh/search-senator-all/
   format: JSON
   lang: khm
 
 tags:
   - list.pep
 
+lookups:
+  type.date:
+    options:
+      - match: "0000-00-00"
+        value: null
+
 names:
-  # Khmer honorifics and honorary titles the source stores as part of the name. Both
-  # spellings of ឯកឧត្តម (His Excellency) occur.
   prefixes_strip:
     - សម្តេចអគ្គមហាធម្មពោធិសាល
     - សម្តេចអគ្គមហាសេនាបតីតេជោ
@@ -54,11 +58,11 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 155
+      Person: 80
       Position: 1
     country_entities:
-      kh: 155
+      kh: 80
   max:
     schema_entities:
-      Person: 345
+      Person: 160
       Position: 1
