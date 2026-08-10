@@ -16,12 +16,6 @@ description: |
   and have been vacant since 1964. The remaining 56 members are elected by proportional
   representation for a five-year term across six electoral districts corresponding to
   the administrative districts of Cyprus.
-
-  Members are crawled from the six per-district pages of the Greek-language composition
-  section, which give each member's name, party and electoral district. Only the Greek
-  pages are populated; the English composition pages have been empty since the 2026
-  election. The source no longer publishes per-member biographical pages, so birth dates,
-  places of birth and education are not available.
 url: https://www.parliament.cy/el/general-information/composition/members-of-the-house
 tags:
   - list.pep
