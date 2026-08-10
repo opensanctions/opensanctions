@@ -96,25 +96,21 @@ def apex_url(url: str) -> str:
 def get_secret_param(context: Context) -> str:
     """
     Goes through the chain of redirects to get the secret param.
+
+    The whole crawl hangs off this session identifier, so a failure here is
+    structural: it is raised rather than logged, so that an unreachable registry
+    fails the run at the point of failure instead of emitting an empty dataset.
+
     Args:
         context: The context object for the current dataset.
     Returns:
-        The secret param as a str, or an empty string if not found.
+        The secret param as a str.
     """
-    try:
-        resp = context.fetch_text(context.data_url)
-        if resp is None:
-            context.log.warning("Cannot find secret param")
-            return ""
-        matches = re.search(r"f\?p=18\d\:\d+\:(\d+)", resp)
-        if not matches:
-            context.log.warning("Cannot find secret param")
-            return ""
-        return matches.group(1)
-
-    except Exception as e:
-        context.log.warning(f"Failed to get secret param: {e}")
-        return ""
+    resp = context.fetch_text(context.data_url)
+    assert resp is not None, context.data_url
+    matches = re.search(r"f\?p=18\d\:\d+\:(\d+)", resp)
+    assert matches is not None, f"Cannot find secret param at {context.data_url}"
+    return matches.group(1)
 
 
 def clean_name(raw_name: str | None) -> list[str]:
@@ -546,10 +542,6 @@ def crawl(context: Context) -> None:
     """
 
     secret_param = get_secret_param(context)
-
-    if not secret_param:
-        return
-
     cities = seed_city(context, secret_param)
 
     periods: list[tuple[str, str]] = [
