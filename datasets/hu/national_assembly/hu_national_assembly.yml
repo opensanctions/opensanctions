@@ -30,10 +30,16 @@ data:
   lang: hun
 dates:
   formats: ["%Y.%m.%d."]
+# Academic titles are published as part of the name, e.g. 'Dr. Apáti István'.
+names:
+  prefixes_strip:
+    - Dr.
+    - Prof.
 
 assertions:
   min:
     schema_entities:
+      # 199 members of parliament
       Person: 195
       Position: 1
     country_entities:
