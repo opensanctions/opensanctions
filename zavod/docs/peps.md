@@ -297,6 +297,19 @@ for role in person_data.pop("roles"):
         context.emit(person)
 ```
 
+### One person, several positions
+
+Some role labels imply more than one held office: a parliament's Speaker is typically
+elected from among the members and keeps their seat, so they hold the Speaker office
+and the plain membership at once. Create an occupancy for each held position, not just
+the most senior one — each is politically exposing in its own right.
+
+Where the source labels the role, a `position` lookup option with multiple `values`
+(see [result values](best_practices/datapatch_lookups.md#result-values)) maps the label
+to all held position names declaratively; the crawler then loops over
+`context.lookup(...).values`, applying the pattern above to each name. Worked example:
+`examples.md` → "One label, several held positions".
+
 ## Historical and multi-term sources
 
 Current office holders are the priority, but when a source also exposes past terms
