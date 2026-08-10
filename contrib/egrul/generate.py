@@ -195,6 +195,11 @@ def crawl_archives_for_date(
 #
 # The grouping runs over "appearance" tables a few strings wide, so the nested records are
 # only touched again at the end, to pick up the winning version of each relationship.
+#
+# All of these tables are rebuilt on every run, unlike the per-archive tables. They're
+# derived from the whole set of archives, so as soon as one more archive exists they are
+# stale, and a new archive can end a relationship belonging to any company anywhere in
+# history. Reusing them would silently omit whatever arrived since.
 
 # The nested relationship arrays inside a company record, both handled identically.
 RELATIONSHIP_ARRAY_COLUMNS = ("ownerships", "directorships")
@@ -254,40 +259,38 @@ def build_appearance_tables(
     This is the only place the full set of records is scanned for the end-date logic, and
     it reduces them to a few skinny columns that everything downstream groups by.
     """
-    if not spark.catalog.tableExists(COMPANY_APPEARANCES_TABLE):
-        # One row per (company, archive date) already, because the per-date tables are
-        # deduplicated by company id. The company's own origin is kept here so that when
-        # this archive ends a relationship, we can name it as the source of that end date.
-        companies = read_archive_records(
-            spark, archive_dates, ["id", "legal_entity.origin"]
-        )
-        write_company_bucketed_table(
-            companies, COMPANY_APPEARANCES_TABLE, ["id", "archive_date"]
-        )
+    # One row per (company, archive date) already, because the per-date tables are
+    # deduplicated by company id. The company's own origin is kept here so that when this
+    # archive ends a relationship, we can name it as the source of that end date.
+    companies = read_archive_records(
+        spark, archive_dates, ["id", "legal_entity.origin"]
+    )
+    write_company_bucketed_table(
+        companies, COMPANY_APPEARANCES_TABLE, ["id", "archive_date"]
+    )
 
-    if not spark.catalog.tableExists(RELATIONSHIP_APPEARANCES_TABLE):
-        relationships = reduce(
-            DataFrame.unionByName,
-            [
-                read_archive_records(spark, archive_dates, ["id", kind]).select(
-                    "id",
-                    lit(kind).alias("kind"),
-                    # A record can list the same relationship twice, and the window
-                    # functions downstream need one row per appearance. Deduplicating
-                    # within the array does that without a shuffle, and it's enough:
-                    # only ids from the same array can collide, because the per-date
-                    # tables are already deduplicated by company.
-                    explode(
-                        array_distinct(transform(col(kind), lambda r: r["id"]))
-                    ).alias("relationship_id"),
-                    "archive_date",
-                )
-                for kind in RELATIONSHIP_ARRAY_COLUMNS
-            ],
-        )
-        write_company_bucketed_table(
-            relationships, RELATIONSHIP_APPEARANCES_TABLE, ["id", "archive_date"]
-        )
+    relationships = reduce(
+        DataFrame.unionByName,
+        [
+            read_archive_records(spark, archive_dates, ["id", kind]).select(
+                "id",
+                lit(kind).alias("kind"),
+                # A record can list the same relationship twice, and the window functions
+                # downstream need one row per appearance. Deduplicating within the array
+                # does that without a shuffle, and it's enough: only ids from the same
+                # array can collide, because the per-date tables are already deduplicated
+                # by company.
+                explode(array_distinct(transform(col(kind), lambda r: r["id"]))).alias(
+                    "relationship_id"
+                ),
+                "archive_date",
+            )
+            for kind in RELATIONSHIP_ARRAY_COLUMNS
+        ],
+    )
+    write_company_bucketed_table(
+        relationships, RELATIONSHIP_APPEARANCES_TABLE, ["id", "archive_date"]
+    )
 
     return (
         spark.table(COMPANY_APPEARANCES_TABLE),
@@ -304,20 +307,19 @@ def build_successor_start_table(
     successor's start date is a sharper end date than the archive date: the registry's own
     record date can predate the archive that publishes it.
     """
-    if not spark.catalog.tableExists(DIRECTORSHIP_SUCCESSOR_STARTS_TABLE):
-        starts = (
-            read_archive_records(spark, archive_dates, ["id", "directorships"])
-            .select(
-                "id",
-                "archive_date",
-                explode(col("directorships")).alias("directorship"),
-            )
-            .groupBy("id", "archive_date", col("directorship.role").alias("role"))
-            .agg(spark_min("directorship.start_date").alias("successor_start_date"))
+    starts = (
+        read_archive_records(spark, archive_dates, ["id", "directorships"])
+        .select(
+            "id",
+            "archive_date",
+            explode(col("directorships")).alias("directorship"),
         )
-        write_company_bucketed_table(
-            starts, DIRECTORSHIP_SUCCESSOR_STARTS_TABLE, ["id", "archive_date"]
-        )
+        .groupBy("id", "archive_date", col("directorship.role").alias("role"))
+        .agg(spark_min("directorship.start_date").alias("successor_start_date"))
+    )
+    write_company_bucketed_table(
+        starts, DIRECTORSHIP_SUCCESSOR_STARTS_TABLE, ["id", "archive_date"]
+    )
 
     return spark.table(DIRECTORSHIP_SUCCESSOR_STARTS_TABLE)
 
@@ -348,45 +350,44 @@ def build_relationship_tenures(
     The closing archive is null for the tenure that is still listed in the company's
     latest record: that relationship is current, and gets no end date.
     """
-    if not spark.catalog.tableExists(RELATIONSHIP_TENURES_TABLE):
-        appearances = number_company_appearances(company_appearances)
-        dated = relationship_appearances.join(
-            appearances, on=["id", "archive_date"], how="inner"
-        )
+    appearances = number_company_appearances(company_appearances)
+    dated = relationship_appearances.join(
+        appearances, on=["id", "archive_date"], how="inner"
+    )
 
-        # Across a run of consecutive seq values, seq minus a counter over the same rows
-        # stays constant, which is what identifies the run.
-        tenure_id = col("seq") - row_number().over(
-            Window.partitionBy("id", "kind", "relationship_id").orderBy("seq")
-        )
-        tenures = (
-            dated.withColumn("tenure_id", tenure_id)
-            .groupBy("id", "kind", "relationship_id", "tenure_id")
-            .agg(spark_max("seq").alias("last_seq"))
-        )
+    # Across a run of consecutive seq values, seq minus a counter over the same rows
+    # stays constant, which is what identifies the run.
+    tenure_id = col("seq") - row_number().over(
+        Window.partitionBy("id", "kind", "relationship_id").orderBy("seq")
+    )
+    tenures = (
+        dated.withColumn("tenure_id", tenure_id)
+        .groupBy("id", "kind", "relationship_id", "tenure_id")
+        .agg(spark_max("seq").alias("last_seq"))
+    )
 
-        last_seen = appearances.select(
+    last_seen = appearances.select(
+        "id",
+        col("seq").alias("last_seq"),
+        col("archive_date").alias("last_archive_date"),
+    )
+    closing = appearances.select(
+        "id",
+        (col("seq") - 1).alias("last_seq"),
+        col("archive_date").alias("closing_archive_date"),
+    )
+    resolved = (
+        tenures.join(last_seen, on=["id", "last_seq"], how="inner")
+        .join(closing, on=["id", "last_seq"], how="left")
+        .select(
             "id",
-            col("seq").alias("last_seq"),
-            col("archive_date").alias("last_archive_date"),
+            "kind",
+            "relationship_id",
+            "last_archive_date",
+            "closing_archive_date",
         )
-        closing = appearances.select(
-            "id",
-            (col("seq") - 1).alias("last_seq"),
-            col("archive_date").alias("closing_archive_date"),
-        )
-        resolved = (
-            tenures.join(last_seen, on=["id", "last_seq"], how="inner")
-            .join(closing, on=["id", "last_seq"], how="left")
-            .select(
-                "id",
-                "kind",
-                "relationship_id",
-                "last_archive_date",
-                "closing_archive_date",
-            )
-        )
-        write_company_bucketed_table(resolved, RELATIONSHIP_TENURES_TABLE, ["id"])
+    )
+    write_company_bucketed_table(resolved, RELATIONSHIP_TENURES_TABLE, ["id"])
 
     return spark.table(RELATIONSHIP_TENURES_TABLE)
 
@@ -730,8 +731,8 @@ def crawl(context: Context) -> None:
         if date(2022, 1, 1) <= d
     ]
 
-    # Parse every archive into its own table first, so the rest of the job is pure SQL
-    # over the warehouse and can be interrupted and resumed.
+    # Parse every archive into its own table first. These are the only cached step: an
+    # archive's contents never change, so parsing can be interrupted and resumed.
     for archive_date, archives in archives_by_date:
         context.log.info("Processing %s" % archive_date)
         crawl_archives_for_date(spark, archive_date, archives)

@@ -51,8 +51,11 @@ other. Instead it:
 4. joins the tenures back onto the records to pick up each relationship as the last
    archive that listed it described it, and writes `current_<last archive date>`.
 
-All of these are Hive tables, so a run can be interrupted and resumed, and intermediate
-state can be queried with SQL. Dropping a table recomputes it on the next run.
+All of these are Hive tables, so intermediate state can be queried with SQL. Only the
+per-archive tables in step 1 are cached between runs — an archive's contents never change,
+so parsing can be interrupted and resumed. Everything derived from them is rebuilt every
+run, because one new archive can end a relationship belonging to any company anywhere in
+history.
 
 
 ## Provenance
