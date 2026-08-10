@@ -21,28 +21,30 @@ def split_websites(value: str) -> list[str]:
 
 def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     name = input_dict.pop("name")
+    has_name = len(name.strip()) > 0
 
-    # The source sometimes publishes a row with an empty name column. Where the
-    # remark identifies the entity being impersonated, a lookup supplies the name
-    # the row is listed under; otherwise there is nothing left to identify it by.
-    if not len(name.strip()):
-        looked_up = context.lookup_value("empty_name", input_dict["remark"])
-        if looked_up is None:
-            context.log.warning("Skipping entry without a name", data=input_dict)
-            return
-        name = looked_up
+    # The source sometimes publishes a row with an empty name column. The remark
+    # still describes the scheme being warned about, so a lookup keyed on the
+    # remark can allow such a row to be emitted without a name. Rows that aren't
+    # listed there are skipped, so new ones surface as a warning for review.
+    if not has_name and context.lookup("no_name", input_dict["remark"]) is None:
+        context.log.warning("Skipping entry without a name", data=input_dict)
+        return
 
     # If it's a potential clone, we remove the "potential clone" from the name
     potential_clone = "Potential clone entity – " in name
     name = name.replace("Potential clone entity – ", "")
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name)
-    entity.add("name", name.split(" / "))
+    remark = input_dict.pop("remark")
+    # Rows without a name are identified by their remark instead.
+    entity.id = context.make_id(name) if has_name else context.make_id(remark)
+    if has_name:
+        entity.add("name", name.split(" / "))
     address = input_dict.pop("address").replace("N/A", "")
     addresses = re.split(r"\b\d\) ", address)
     entity.add("address", addresses)
-    entity.add("notes", input_dict.pop("remark").split("\n"))
+    entity.add("notes", remark.split("\n"))
     entity.add("topics", "crime.fin")
     entity.add("sourceUrl", input_dict.pop("url"))
     if potential_clone:
