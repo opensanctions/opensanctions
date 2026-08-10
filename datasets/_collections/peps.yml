@@ -182,6 +182,7 @@ children:
   - ru_federation_council
   - ru_kremlin_persons
   - rw_parliament
+  - sb_parliament
   - se_riksdag
   - se_soe
   - sg_gov_dir
@@ -197,6 +198,7 @@ children:
   - tj_majlisi_milli
   - tm_mejlis
   - tn_arp
+  - to_legislative_assembly
   - tr_parliament
   - tw_legislature
   - tz_bunge
