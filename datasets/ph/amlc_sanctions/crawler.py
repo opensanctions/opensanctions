@@ -1,13 +1,10 @@
 import csv
-import re
 from pathlib import Path
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
-LOCAL_PATH = Path(__file__).parent
-RESOLUTIONS_CSV = LOCAL_PATH / "resolutions.csv"
-RESOLUTION_ID = re.compile(r"^TF-\d+")
+RESOLUTIONS_CSV = Path(__file__).parent / "resolutions.csv"
 # The cards are rendered client-side, well after the document has loaded, so the
 # browser has to be told to wait for them rather than snapshotting the empty shell.
 RESOLUTION_XPATH = ".//h3[starts-with(normalize-space(text()), 'TF-')]"
@@ -37,31 +34,27 @@ def crawl_resolutions(context: Context) -> None:
         javascript=True,
         geolocation="PH",
     )
-    published: list[tuple[str, str]] = []
-    for heading in h.xpath_elements(doc, ".//h3"):
-        title = h.element_text(heading)
-        match = RESOLUTION_ID.match(title)
-        if match is not None:
-            published.append((match.group(0), title))
-    # Zero-padded ids sort like the newest-first order the site publishes them in.
-    published.sort(reverse=True)
+    published: dict[str, str] = {}
+    for element in h.xpath_elements(doc, RESOLUTION_XPATH):
+        title = h.element_text(element)
+        # The XPath guarantees each heading opens with its resolution id.
+        published[title.split(" ", 1)[0]] = title
 
     with open(RESOLUTIONS_CSV) as fh:
-        known = {row["resolution_id"] for row in csv.DictReader(fh)}
-    added = sorted({id for id, _ in published} - known)
-    removed = sorted(known - {id for id, _ in published})
-    if added or removed:
+        known = {row["resolution_id"]: row["title"] for row in csv.DictReader(fh)}
+    if published != known:
         context.log.warning(
             "Published AMLC resolutions changed. Reconcile the source spreadsheet "
             "with the resolutions, then commit the updated resolutions.csv.",
-            added=added,
-            removed=removed,
+            added=sorted(published.keys() - known.keys()),
+            removed=sorted(known.keys() - published.keys()),
         )
 
     with open(RESOLUTIONS_CSV, "w") as fh:
         writer = csv.writer(fh)
         writer.writerow(["resolution_id", "title"])
-        writer.writerows(published)
+        # The ids are zero-padded, so this is the newest-first order of the source.
+        writer.writerows(sorted(published.items(), reverse=True))
 
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
