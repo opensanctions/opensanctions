@@ -82,16 +82,11 @@ def mandate_status(
     """
     if term.has_ended or mandate is None:
         return None
-    status = context.lookup_value("mandate_status", mandate)
-    if status is None:
+    value = context.lookup_value("mandate_status", mandate)
+    if value is None:
         raise ValueError(f"Unknown mandate status: {mandate!r}")
-    if status == "current":
-        return OccupancyStatus.CURRENT
-    if status == "ended":
-        return OccupancyStatus.ENDED
-    if status == "unknown":
-        return None
-    raise ValueError(f"Unexpected mandate_status lookup result: {status!r}")
+    status = OccupancyStatus(value)
+    return None if status is OccupancyStatus.UNKNOWN else status
 
 
 def crawl_member(
@@ -129,10 +124,8 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    for constituency in taxonomies.get("circonscriptions", []):
-        occupancy.add("constituency", constituency)
-    for province in taxonomies.get("provinces", []):
-        occupancy.add("constituency", province)
+    occupancy.add("constituency", taxonomies.get("circonscriptions", []))
+    occupancy.add("constituency", taxonomies.get("provinces", []))
     context.emit(occupancy)
     context.emit(person)
 
@@ -179,7 +172,6 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     terms = crawl_terms(context)
-    counts: dict[str, int] = {}
     for index, term in enumerate(terms):
         if term.period_end < h.earliest_term_start(TOPICS):
             context.log.info(
@@ -187,12 +179,10 @@ def crawl(context: Context) -> None:
                 legislatures=[skipped.name for skipped in terms[index:]],
             )
             break
-        counts[term.name] = crawl_term(context, term, position, categorisation)
-    # The sitting legislature always has deputies. If it doesn't, the post type or the
-    # taxonomy filter has changed and the crawler is no longer reading the roster.
-    if counts.get(terms[0].name, 0) == 0:
-        raise ValueError(
-            f"Legislature {terms[0].name!r} (id {terms[0].id}) has no deputies — "
-            "the structure of the source may have changed."
-        )
-    context.log.info("Crawled legislatures", records=counts)
+        records = crawl_term(context, term, position, categorisation)
+        context.log.info("Crawled legislature", term=term.name, records=records)
+        if index == 0 and records == 0:
+            raise ValueError(
+                f"Legislature {term.name!r} (id {term.id}) has no deputies — "
+                "the structure of the source may have changed."
+            )
