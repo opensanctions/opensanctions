@@ -26,19 +26,23 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
         provider.id = context.make_id(provider_name, zip_code)
 
         last_name, first_name = provider_name.split(",", 1)
-        # If the provider name contains "aka" or the name look long enough, default to lookup
-        if REGEX_AKA.search(provider_name) or not (
+        # A lookup entry always overrides the heuristic below, since some
+        # provider names look like "Last, First" but are actually a legal
+        # entity's name in disguise (e.g. "American, All" for "All American
+        # Medical").
+        result = context.lookup("names", provider_name)
+        if result is not None:
+            provider.add("name", result.name)
+            provider.add("alias", result.alias)
+        # If the provider name contains "aka" or the name doesn't look long
+        # enough, default to lookup
+        elif REGEX_AKA.search(provider_name) or not (
             REGEX_WORD.search(first_name) and REGEX_WORD.search(last_name)
         ):
-            result = context.lookup("names", provider_name)
-            if result is None:
-                context.log.warning(
-                    "No lookups found for provider", provider_name=provider_name
-                )
-                provider.add("name", provider_name)
-            else:
-                provider.add("name", result.name)
-                provider.add("alias", result.alias)
+            context.log.warning(
+                "No lookups found for provider", provider_name=provider_name
+            )
+            provider.add("name", provider_name)
         else:
             provider.add_schema("Person")
             h.apply_name(provider, last_name=last_name, first_name=first_name)
