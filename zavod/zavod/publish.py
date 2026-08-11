@@ -12,7 +12,7 @@ from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
 from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.versions import get_latest
+from zavod.runtime.versions import get_latest, set_last_successful_version
 from zavod.exporters import write_dataset_index
 
 log = get_logger(__name__)
@@ -68,7 +68,16 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     Listed resources plus index and collection catalog are copied to
     /datasets/{RELEASE}/{dataset}/ backward compatibility and
     /datasets/{LATEST}/{dataset}/ for discovery without the full catalog.
+
+    Publishing is only reached once a run has succeeded (`archive_failure` is the
+    other way out), so this is where the version becomes the last successful one.
+    Artifact lookups resolve that pointer, so a publish which didn't move it
+    would leave every reader of the archive on the run before this one.
     """
+    version = get_latest(dataset.name, backfill=False)
+    if version is None:
+        raise ValueError(f"No working version found for dataset: {dataset.name}")
+    set_last_successful_version(dataset, version)
 
     extra_artifacts = []
     all_published_files: list[str] = [
@@ -83,9 +92,6 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
         all_published_files.append(CATALOG_FILE)
 
     _archive_artifacts(dataset, extra_artifacts)
-
-    version = get_latest(dataset.name, backfill=False)
-    assert version is not None
 
     if republish_to_latest:
         _warn_about_stale_latest_files(dataset, set(all_published_files))

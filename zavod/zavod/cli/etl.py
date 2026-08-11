@@ -11,7 +11,7 @@ from zavod.exc import RunFailedException
 from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, archive_failure
-from zavod.runtime.versions import make_version, set_last_successful_version
+from zavod.runtime.versions import make_version
 from zavod.store import get_store
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.validators import validate_dataset
@@ -133,8 +133,6 @@ def run(
     # Export
     try:
         export_dataset(dataset, view)
-        # Set the version as successful in the version file, which will be archived by publish_dataset.
-        set_last_successful_version(dataset, settings.RUN_VERSION)
     except Exception:
         log.exception(f"Failed to export: {dataset_path}")
         archive_failure(dataset)

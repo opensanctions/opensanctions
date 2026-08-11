@@ -17,6 +17,7 @@ from zavod.archive import HASH_FILE, DELTA_INDEX_FILE, CATALOG_FILE
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.exporters import export_dataset
+from zavod.exporters.metadata import get_catalog_dataset
 from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, archive_failure
 from zavod.exc import RunFailedException
@@ -221,6 +222,66 @@ def test_empty_crawl_does_not_resurrect_archived_statements(
     view = store.view(testdataset1, external=False)
     assert len(list(view.entities())) == 0
     store.close()
+
+
+def test_failed_run_does_not_replace_latest_metadata(
+    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
+):
+    """A run failing after a successful one archives an index which lists no
+    resources. Everything reading the dataset's current metadata - the catalog
+    above all - has to keep answering with the last successful run.
+
+    https://github.com/opensanctions/operations/issues/2762
+    """
+    linker = get_dataset_linker(testdataset1)
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    export_dataset(testdataset1, store.view(testdataset1))
+    publish_dataset(testdataset1, republish_to_latest=True)
+    store.close()
+    good_version = settings.RUN_VERSION
+
+    # A later run fails while crawling, as in a production `zavod run`:
+    clear_data_path(testdataset1.name)
+    monkeypatch.setattr(settings, "RUN_VERSION", Version.new())
+    failed_version = settings.RUN_VERSION
+    assert failed_version.id != good_version.id
+    assert testdataset1.data is not None
+    testdataset1.data.format = "FAIL"
+    with pytest.raises(RunFailedException):
+        crawl_dataset(testdataset1)
+    archive_failure(testdataset1)
+
+    # The failed run is the newest version of the dataset, and its index has no
+    # resources to offer:
+    history = _read_history(testdataset1.name)
+    assert history is not None
+    assert history.latest == failed_version
+    assert history.last_successful == good_version
+    failed_index = (
+        settings.ARCHIVE_PATH
+        / ARTIFACTS
+        / testdataset1.name
+        / failed_version.id
+        / INDEX_FILE
+    )
+    with open(failed_index) as fh:
+        assert json.load(fh)["resources"] == []
+
+    # Backfilling the index - as a catalog export in a fresh container does -
+    # skips it and lands on the last successful run:
+    clear_data_path(testdataset1.name)
+    with open(get_dataset_artifact(testdataset1.name, INDEX_FILE)) as fh:
+        index = json.load(fh)
+    assert index["version"] == good_version.id
+    assert index["result"] == "success"
+    assert len(index["resources"]) > 0
+
+    catalog_dataset = get_catalog_dataset(testdataset1)
+    assert catalog_dataset["version"] == good_version.id
+    assert catalog_dataset["last_change"] == index["last_change"]
+    assert {r["name"] for r in catalog_dataset["resources"]} >= STANDARD_EXPORTS
 
 
 def test_archive_failure(testdataset1: Dataset):
