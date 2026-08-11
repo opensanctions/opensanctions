@@ -257,15 +257,9 @@ def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
         # phone cleaner rejects nothing, so they have to be dropped here.
         if any(char.isdigit() for char in phone):
             entity.add("phone", phone)
-    # Older records don't use the blank-line separator consistently, so 28 values are
-    # split by hand in a type.address lookup. Those have to reach it whole: the splitter
-    # does divide them, and none of the resulting parts matches the lookup.
     address_s = item.pop("address_s")
-    if context.lookup("type.address", address_s) is not None:
-        entity.add("address", address_s)
-    else:
-        for address in ADDRESS_SPLITTER.split(address_s):
-            entity.add("address", address)
+    for address in ADDRESS_SPLITTER.split(address_s):
+        entity.add("address", address)
     entity.add("notes", item.pop("notes_s"))
     entity.add("topics", ["fin", "reg.warn"])
     h.apply_date(entity, "modifiedAt", item.pop("modifieddate_dt"))
