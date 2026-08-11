@@ -31,6 +31,57 @@ data:
 tags:
   - list.pep
 
+names:
+  prefixes_strip:
+    - ທ່ານ # Mr
+    - ນາງ # Mrs / Ms
+    - ສຈ. # Professor
+    - ຮສ. # Associate Professor
+    - ດຣ. # Dr
+    - ປອ. # Doctor
+    - ປອ
+    - ພັທ. # military/police ranks
+    - ພັອ.
+    - ພັນ
+    - ພົຈວ.
+    - ພົຕ.
+    - ພົທ.
+    - Mr.
+    - Mr
+    - Mrs.
+    - Mrs
+    - Ms.
+    - Ms
+    - Dr.
+    - Prof.
+    - Assoc.
+    - Maj.
+    - Gen.
+    - Pol.
+    - Lt.
+    - Col.
+    - Col
+    - H.E.
+  suffixes_strip:
+    - PHD
+    - ", PH.D"
+    - MD.PHD
+    - MD.MPHM
+  schema_rules:
+    Person:
+      # A full stop remaining after prefix stripping indicates a rank abbreviation
+      # missing from prefixes_strip; the crawler warns on such names unless they
+      # are cleared in the name_with_stop_ok lookup.
+      reject_chars: "."
+
+lookups:
+  name_with_stop_ok:
+    options:
+      # Full stop is a surname initial, not an unstripped title.
+      - match:
+          - ສີສູນທອນ ສ.ຜາບມີໄຊຍ໌
+          - Sisouthone S.PHABMIXAY
+
 assertions:
   min:
     schema_entities:
