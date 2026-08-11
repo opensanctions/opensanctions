@@ -3,7 +3,6 @@ import json
 import re
 from typing import Any, NamedTuple
 
-from followthemoney.types import registry
 from pydantic import BaseModel
 from rigour.mime.types import JSON
 
@@ -183,21 +182,21 @@ def apply_source_names(
     previous_names = h.multi_split(former_names, NAME_SPLITTERS)
 
     source = EntityData(name=names, alias=aliases, previousName=previous_names)
-    if any(
-        h.is_name_irregular(entity, name) for name in names + aliases + previous_names
-    ):
+    all_names = names + aliases + previous_names
+    needs_review = any(h.is_name_irregular(entity, name) for name in all_names)
+    if needs_review:
         # Sorted and limited to the populated props, so that reordering at the source
         # doesn't invalidate an accepted review, and adding a property to EntityData
         # later doesn't reset every one of them.
         source_data: dict[str, Any] = {
             prop: sorted(vals) for prop, vals in source.model_dump().items() if vals
         }
+        key_parts: list[str] = []
+        for prop in sorted(source_data):
+            key_parts.append(prop)
+            key_parts.extend(source_data[prop])
         source_value = JSONSourceValue(
-            key_parts=[
-                part
-                for prop in sorted(source_data)
-                for part in (prop, *source_data[prop])
-            ],
+            key_parts=key_parts,
             label="names extraction",
             data=source_data,
         )
@@ -258,8 +257,9 @@ def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
         # phone cleaner rejects nothing, so they have to be dropped here.
         if any(char.isdigit() for char in phone):
             entity.add("phone", phone)
-    # Older records don't use the blank-line separator consistently, so where a
-    # type.address lookup splits a value by hand, leave it to.
+    # Older records don't use the blank-line separator consistently, so 28 values are
+    # split by hand in a type.address lookup. Those have to reach it whole: the splitter
+    # does divide them, and none of the resulting parts matches the lookup.
     address_s = item.pop("address_s")
     if context.lookup("type.address", address_s) is not None:
         entity.add("address", address_s)
@@ -269,13 +269,8 @@ def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
     entity.add("notes", item.pop("notes_s"))
     entity.add("topics", ["fin", "reg.warn"])
     h.apply_date(entity, "modifiedAt", item.pop("modifieddate_dt"))
-    # None of these can occur inside an address, and the field also carries country
-    # labels ("Singapore: a@b.com") and space-separated lists.
     for email in h.multi_split(item.pop("email_s"), [";", ",", ":", "/", " ", "\n"]):
-        # Splitting that aggressively leaves fragments of the surrounding free text.
-        email_clean = registry.email.clean(email)
-        if email_clean is not None:
-            entity.add("email", email_clean)
+        entity.add("email", email)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", item.pop("date_dt", None))

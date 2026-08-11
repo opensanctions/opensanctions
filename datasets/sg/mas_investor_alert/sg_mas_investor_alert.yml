@@ -56,7 +56,6 @@ names:
       reject_chars: "()[]{}<>:\"“”@."
       reject_strings:
         - " and "
-        - impersonated
         - not affiliated
         - known as
         - telegram
@@ -120,6 +119,37 @@ lookups:
       - match: VNSMART (subsidiary of Intelligence Investment Financial Services PLC or “IIFSP”)
         owner_name: [Intelligence Investment Financial Services PLC]
         entity_name: VNSMART
+  type.email:
+    options:
+      # Country and office labels introducing an address.
+      - match:
+          - China
+          - Indonesia
+          - Malaysia
+          - Singapore
+          - UK
+          - USA
+          - Vietnam
+        value: null
+      # Words from a company name sharing the line.
+      - match:
+          - "Co."
+          - FX
+          - Financial
+          - Group
+          - "Ltd."
+          - Poseidon
+          - Trading
+          - and
+          - trade
+        value: null
+      # Websites listed in the email field, and the pieces a URL splits into.
+      - match:
+          - com
+          - https
+          - torexfx.com
+          - www.stpbroker.com
+        value: null
   type.url:
     normalize: true
     options:
