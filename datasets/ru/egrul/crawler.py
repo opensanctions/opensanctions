@@ -11,7 +11,7 @@ from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
 LOCAL_BUCKET_PATH = "/Users/leon/internal-data/"
-PROCESSED_EGRUL_PREFIX = "ru_egrul/processed_2026-06-04/"
+PROCESSED_EGRUL_PREFIX = "ru_egrul/processed_2026-08-09/"
 
 
 def substitute_abbreviations(name: str | None) -> str | None:
