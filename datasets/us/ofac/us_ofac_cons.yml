@@ -51,10 +51,12 @@ assertions:
   min:
     schema_entities:
       Address: 440
-      Organization: 300
+      # Most sanctioned organizations are owned or controlled by another party,
+      # which makes them Companies rather than plain Organizations.
+      Organization: 60
       Security: 200
       Person: 70
-      Company: 4
+      Company: 225
     # Set at roughly a quarter of the production fill rate: low enough that a
     # shift in the shape of the source data doesn't hold up the release, high
     # enough to catch a crawler that stopped parsing a field altogether.
@@ -62,6 +64,11 @@ assertions:
       Person:
         birthDate: 0.25
       Organization:
+        country: 0.25
+        address: 0.25
+      # Company carries the same guard as Organization: the owned organizations
+      # make up most of the schema's population.
+      Company:
         country: 0.25
         address: 0.25
       Security:
@@ -75,10 +82,10 @@ assertions:
   max:
     schema_entities:
       Address: 1030
-      Organization: 720
+      Organization: 160
       Security: 460
       Person: 160
-      Company: 50
+      Company: 560
 
 # Consolidated List
 # SDN List

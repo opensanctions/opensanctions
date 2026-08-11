@@ -48,12 +48,14 @@ assertions:
   min:
     schema_entities:
       Address: 13720
-      Organization: 7330
+      # A large share of sanctioned organizations are owned or controlled by
+      # another party, which makes them Companies rather than plain Organizations.
+      Organization: 5385
       Person: 6245
       Vessel: 995
       CryptoWallet: 570
       Airplane: 320
-      Company: 20
+      Company: 2430
       Security: 5
       LegalEntity: 1
     # Set at roughly a quarter of the production fill rate: low enough that a
@@ -64,6 +66,10 @@ assertions:
         birthDate: 0.25
         nationality: 0.18
       Organization:
+        country: 0.25
+      # Company carries the same guard as Organization: owned organizations make
+      # up most of the schema's population.
+      Company:
         country: 0.25
       Vessel:
         imoNumber: 0.25
@@ -76,12 +82,12 @@ assertions:
   max:
     schema_entities:
       Address: 32280
-      Organization: 17245
+      Organization: 13470
       Person: 14690
       Vessel: 2345
       CryptoWallet: 1340
       Airplane: 750
-      Company: 100
+      Company: 6080
       Security: 100
       LegalEntity: 100
 # Program tags URL: https://ofac.treasury.gov/specially-designated-nationals-list-sdn-list/program-tag-definitions-for-ofac-sanctions-lists
