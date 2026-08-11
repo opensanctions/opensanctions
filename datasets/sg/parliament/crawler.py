@@ -260,15 +260,6 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
-    if "gov.national" not in categorisation.topics:
-        # The reviewed topics, not the ones above, decide how long a member stays
-        # exposed after leaving office. Without gov.national that is five years
-        # rather than twenty, silently reducing this dataset to the two most recent
-        # Parliaments.
-        context.log.warning(
-            "Reviewed position topics don't include gov.national",
-            topics=categorisation.topics,
-        )
     context.emit(position)
 
     document = fetch_flight_document(context, context.data_url)
