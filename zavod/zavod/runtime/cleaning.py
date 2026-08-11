@@ -189,19 +189,6 @@ def value_clean(
             yield prop_, item, origin
             continue
 
-        # HACK HACK HACK REMOVE BY AUG 2026
-        # We want to onboard new URL cleaning without dropping lots of invalid values
-        # as they're getting fixed.
-        if prop_.type == registry.url:
-            log.warning(
-                f"Invalid property value [{prop_.name}]: {value}",
-                entity_id=entity.id,
-                prop=prop_.name,
-                value=value,
-            )
-            yield prop_, item, origin
-            continue
-
         log.warning(
             f"Rejected property value [{prop_.name}]: {value}",
             entity_id=entity.id,
