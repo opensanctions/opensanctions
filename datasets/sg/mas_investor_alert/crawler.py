@@ -192,9 +192,9 @@ def apply_source_names(
             prop: sorted(vals) for prop, vals in source.model_dump().items() if vals
         }
         key_parts: list[str] = []
-        for prop in sorted(source_data):
+        for prop, values in sorted(source_data.items()):
             key_parts.append(prop)
-            key_parts.extend(source_data[prop])
+            key_parts.extend(values)
         source_value = JSONSourceValue(
             key_parts=key_parts,
             label="names extraction",
