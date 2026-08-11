@@ -4,7 +4,7 @@ from functools import reduce
 import os
 from pathlib import Path
 import tempfile
-from typing import Generator, List, Iterable, Dict
+from collections.abc import Generator, Iterable
 from zipfile import ZipFile
 from dataclasses import dataclass
 
@@ -115,7 +115,7 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
     # TODO: Since we cache persistently locally (for running on Leon's machine),
     # maybe a checksum comparison with the remote blob would be a good idea.
     if not os.path.exists(local_archive_path):
-        context.log.info("Downloading archive: %s" % blob_url)
+        context.log.info(f"Downloading archive: {blob_url}")
         client = Client()
         bucket = client.get_bucket(blob_url.bucket_name)
         blob = bucket.blob(blob_url.name)
@@ -124,7 +124,7 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
         blob.download_to_filename(local_archive_path)
 
     context.log.info(
-        "Opening local archive: %s (cache of %s)" % (local_archive_path, blob_url)
+        f"Opening local archive: {local_archive_path} (cache of {blob_url})"
     )
 
     try:
@@ -133,13 +133,12 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
                 if not name.lower().endswith(".xml"):
                     continue
                 pc = ParseContext(
-                    origin="%s/%s" % (Path(blob_url.name).name, name),
+                    origin=f"{Path(blob_url.name).name}/{name}",
                     data_time=data_date,
                     _context=context,
                 )
                 with zip.open(name, "r") as fh:
-                    for e in parse_xml(pc, fh):
-                        yield e
+                    yield from parse_xml(pc, fh)
     finally:
         # Don't clean up the temporary file, for now this is being run on Leon's machine and it's
         # okay to just have them cached.
@@ -147,19 +146,35 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
         pass
 
 
-def archive_table_name(archive_date: date) -> str:
-    return archive_date.isoformat().replace("-", "_")
+# Parsed company records for every archive, partitioned by the date of the archive they
+# came from. One partition per archive date is the unit of caching: an archive's contents
+# never change, so a partition that exists is never rebuilt, and adding a new day appends a
+# partition without touching the rest.
+ARCHIVE_RECORDS_TABLE = "archive_records"
 
 
-def crawl_archives_for_date(
+def partitioned_archive_dates(spark: SparkSession) -> set[date]:
+    """Which archive dates have already been parsed into the records table."""
+    if not spark.catalog.tableExists(ARCHIVE_RECORDS_TABLE):
+        return set()
+    partitions = spark.sql(f"SHOW PARTITIONS `{ARCHIVE_RECORDS_TABLE}`").collect()
+    # Partition names are Hive-style, "archive_date=2026-08-09".
+    return {date.fromisoformat(row[0].split("=", 1)[1]) for row in partitions}
+
+
+def write_archive_partitions(records: DataFrame) -> None:
+    """Add records to the table, one partition per distinct archive_date they carry."""
+    records.write.mode("append").partitionBy("archive_date").saveAsTable(
+        ARCHIVE_RECORDS_TABLE
+    )
+
+
+def parse_archives_for_date(
     spark: SparkSession,
     archive_date: date,
-    archives: List[BlobURL],
-) -> DataFrame:
-    table_name = archive_table_name(archive_date)
-    if spark.catalog.tableExists(table_name):
-        return spark.table(table_name)
-
+    archives: list[BlobURL],
+) -> None:
+    """Parse one archive date's zips into a partition of the records table."""
     # TODO: Parallelizing on XML files (inside the zips) instead of just the zips
     # would speed up dataframe building for days that only have few archives a lot.
     blob_rdd = spark.sparkContext.parallelize(archives)
@@ -171,10 +186,8 @@ def crawl_archives_for_date(
     )
     df = merge_duplicate_company_records(df)
 
-    df.write.saveAsTable(table_name, mode="overwrite")
+    write_archive_partitions(df.withColumn("archive_date", lit(archive_date)))
     df.unpersist()
-
-    return spark.table(table_name)
 
 
 # === Assembling current state out of the archives ===
@@ -200,10 +213,10 @@ def crawl_archives_for_date(
 # The grouping runs over "appearance" tables a few strings wide, so the nested records are
 # only touched again at the end, to pick up the winning version of each relationship.
 #
-# All of these tables are rebuilt on every run, unlike the per-archive tables. They're
-# derived from the whole set of archives, so as soon as one more archive exists they are
-# stale, and a new archive can end a relationship belonging to any company anywhere in
-# history. Reusing them would silently omit whatever arrived since.
+# All of these tables are rebuilt on every run, unlike the archive records. They're derived
+# from the whole set of archives, so as soon as one more archive exists they are stale, and
+# a new archive can end a relationship belonging to any company anywhere in history.
+# Reusing them would silently omit whatever arrived since.
 
 # The nested relationship arrays inside a company record, both handled identically.
 RELATIONSHIP_ARRAY_COLUMNS = ("ownerships", "directorships")
@@ -219,7 +232,7 @@ NUM_BUCKETS = 200
 
 
 def write_company_bucketed_table(
-    df: DataFrame, table_name: str, sort_by: List[str]
+    df: DataFrame, table_name: str, sort_by: list[str]
 ) -> None:
     """Write a table bucketed and sorted by company id.
 
@@ -235,40 +248,29 @@ def write_company_bucketed_table(
     )
 
 
-def read_archive_records(
-    spark: SparkSession, archive_dates: List[date], columns: List[str]
-) -> DataFrame:
-    """Read the per-archive-date tables as one DataFrame tagged with `archive_date`.
+def read_archive_records(spark: SparkSession, columns: list[str]) -> DataFrame:
+    """Read every archive's records, with the archive date they came from.
 
     Deliberately lazy and column-projected: callers ask for the few columns they need so
     Spark's Parquet reader skips the rest. That matters a lot, because the nested
     ownership and directorship arrays dwarf everything else in a record.
+
+    Reads every partition. Which archive dates have one is decided when they're parsed.
     """
-    return reduce(
-        DataFrame.unionByName,
-        [
-            spark.table(archive_table_name(d))
-            .select(*columns)
-            .withColumn("archive_date", lit(d))
-            for d in archive_dates
-        ],
-    )
+    return spark.table(ARCHIVE_RECORDS_TABLE).select(*columns, "archive_date")
 
 
-def build_appearance_tables(
-    spark: SparkSession, archive_dates: List[date]
-) -> tuple[DataFrame, DataFrame]:
+def build_appearance_tables(spark: SparkSession) -> tuple[DataFrame, DataFrame]:
     """Materialise which companies, ownerships and directorships each archive listed.
 
     This is the only place the full set of records is scanned for the end-date logic, and
     it reduces them to a few skinny columns that everything downstream groups by.
     """
-    # One row per (company, archive date) already, because the per-date tables are
-    # deduplicated by company id. The company's own origin is kept here so that when this
-    # archive ends a relationship, we can name it as the source of that end date.
-    companies = read_archive_records(
-        spark, archive_dates, ["id", "legal_entity.origin"]
-    )
+    # One row per (company, archive date) already, because each archive's records are
+    # deduplicated by company id as they're parsed. The company's own origin is kept here
+    # so that when this archive ends a relationship, we can name it as the source of that
+    # end date.
+    companies = read_archive_records(spark, ["id", "legal_entity.origin"])
     write_company_bucketed_table(
         companies, COMPANY_APPEARANCES_TABLE, ["id", "archive_date"]
     )
@@ -276,14 +278,14 @@ def build_appearance_tables(
     relationships = reduce(
         DataFrame.unionByName,
         [
-            read_archive_records(spark, archive_dates, ["id", kind]).select(
+            read_archive_records(spark, ["id", kind]).select(
                 "id",
                 lit(kind).alias("kind"),
                 # A record can list the same relationship twice, and the window functions
                 # downstream need one row per appearance. Deduplicating within the array
                 # does that without a shuffle, and it's enough: only ids from the same
-                # array can collide, because the per-date tables are already deduplicated
-                # by company.
+                # array can collide, because each archive's records are already
+                # deduplicated by company.
                 explode(array_distinct(transform(col(kind), lambda r: r["id"]))).alias(
                     "relationship_id"
                 ),
@@ -302,9 +304,7 @@ def build_appearance_tables(
     )
 
 
-def build_successor_start_table(
-    spark: SparkSession, archive_dates: List[date]
-) -> DataFrame:
+def build_successor_start_table(spark: SparkSession) -> DataFrame:
     """Collect the earliest directorship start date per company, archive and role.
 
     Where the archive that dropped a directorship names a successor in the same role, that
@@ -312,7 +312,7 @@ def build_successor_start_table(
     record date can predate the archive that publishes it.
     """
     starts = (
-        read_archive_records(spark, archive_dates, ["id", "directorships"])
+        read_archive_records(spark, ["id", "directorships"])
         .select(
             "id",
             "archive_date",
@@ -398,7 +398,6 @@ def build_relationship_tenures(
 
 def join_winning_relationship_versions(
     spark: SparkSession,
-    archive_dates: List[date],
     tenures: DataFrame,
     company_appearances: DataFrame,
     kind: str,
@@ -410,7 +409,7 @@ def join_winning_relationship_versions(
     it's keyed by company, as is the aggregation that follows.
     """
     relationships = (
-        read_archive_records(spark, archive_dates, ["id", kind])
+        read_archive_records(spark, ["id", kind])
         .select("id", "archive_date", explode(col(kind)).alias("relationship"))
         .withColumn("relationship_id", col("relationship.id"))
     )
@@ -469,13 +468,12 @@ def collect_resolved_relationships(
 
 def resolve_ownerships(
     spark: SparkSession,
-    archive_dates: List[date],
     tenures: DataFrame,
     company_appearances: DataFrame,
 ) -> DataFrame:
     """Build the final ownerships array per company."""
     ownerships = join_winning_relationship_versions(
-        spark, archive_dates, tenures, company_appearances, "ownerships"
+        spark, tenures, company_appearances, "ownerships"
     )
     # The company was described without this ownership on the closing date, so the last
     # day it can have held is the day before.
@@ -486,14 +484,13 @@ def resolve_ownerships(
 
 def resolve_directorships(
     spark: SparkSession,
-    archive_dates: List[date],
     tenures: DataFrame,
     company_appearances: DataFrame,
     successor_starts: DataFrame,
 ) -> DataFrame:
     """Build the final directorships array per company, ending each at its successor."""
     directorships = join_winning_relationship_versions(
-        spark, archive_dates, tenures, company_appearances, "directorships"
+        spark, tenures, company_appearances, "directorships"
     )
     successor_starts = successor_starts.select(
         "id",
@@ -540,7 +537,6 @@ def resolve_directorships(
 
 def assemble_company_records(
     spark: SparkSession,
-    archive_dates: List[date],
     company_appearances: DataFrame,
     ownerships: DataFrame,
     directorships: DataFrame,
@@ -558,9 +554,7 @@ def assemble_company_records(
         spark_max("archive_date").alias("archive_date")
     )
     return (
-        read_archive_records(
-            spark, archive_dates, ["id", "legal_entity", "successions"]
-        )
+        read_archive_records(spark, ["id", "legal_entity", "successions"])
         .join(latest, on=["id", "archive_date"], how="inner")
         .drop("archive_date")
         .join(ownerships, on="id", how="left")
@@ -683,7 +677,7 @@ def get_archive_date_from_blob_url(blob_url: BlobURL) -> date:
 
 def aggregate_archives_by_date(
     archive_blobs: Iterable[BlobURL],
-) -> Dict[date, List[BlobURL]]:
+) -> dict[date, list[BlobURL]]:
     archives_by_date = defaultdict(list)
     for archive_blob in archive_blobs:
         archive_date = get_archive_date_from_blob_url(archive_blob)
@@ -691,7 +685,7 @@ def aggregate_archives_by_date(
     return archives_by_date
 
 
-def list_archives(bucket_name: str, prefix: str) -> List[BlobURL]:
+def list_archives(bucket_name: str, prefix: str) -> list[BlobURL]:
     """List all archive blobs from Google Cloud Storage and convert to BlobURL objects."""
     client = Client()
     bucket = client.get_bucket(bucket_name)
@@ -735,20 +729,21 @@ def crawl(context: Context) -> None:
         if date(2022, 1, 1) <= d
     ]
 
-    # Parse every archive into its own table first. These are the only cached step: an
-    # archive's contents never change, so parsing can be interrupted and resumed.
-    for archive_date, archives in archives_by_date:
-        context.log.info("Processing %s" % archive_date)
-        crawl_archives_for_date(spark, archive_date, archives)
-
     archive_dates = [archive_date for archive_date, _ in archives_by_date]
 
-    context.log.info("Collecting company and relationship appearances")
-    company_appearances, relationship_appearances = build_appearance_tables(
-        spark, archive_dates
-    )
+    # Parsing is the only cached step, because an archive's contents never change. It runs
+    # to completion first so the rest of the job is pure SQL over one table.
+    already_parsed = partitioned_archive_dates(spark)
+    for archive_date, archives in archives_by_date:
+        if archive_date in already_parsed:
+            continue
+        context.log.info(f"Parsing {archive_date}")
+        parse_archives_for_date(spark, archive_date, archives)
 
-    successor_starts = build_successor_start_table(spark, archive_dates)
+    context.log.info("Collecting company and relationship appearances")
+    company_appearances, relationship_appearances = build_appearance_tables(spark)
+
+    successor_starts = build_successor_start_table(spark)
 
     context.log.info("Finding ownership and directorship tenures")
     tenures = build_relationship_tenures(
@@ -756,12 +751,12 @@ def crawl(context: Context) -> None:
     )
 
     context.log.info("Resolving current ownerships and directorships")
-    ownerships = resolve_ownerships(spark, archive_dates, tenures, company_appearances)
+    ownerships = resolve_ownerships(spark, tenures, company_appearances)
     directorships = resolve_directorships(
-        spark, archive_dates, tenures, company_appearances, successor_starts
+        spark, tenures, company_appearances, successor_starts
     )
     final_df = assemble_company_records(
-        spark, archive_dates, company_appearances, ownerships, directorships
+        spark, company_appearances, ownerships, directorships
     )
 
     last_date = archive_dates[-1]

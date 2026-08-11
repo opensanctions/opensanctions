@@ -39,7 +39,7 @@ described the company and didn't mention it.
 That makes end dates a per-company question, so the job doesn't fold archives into each
 other. Instead it:
 
-1. parses each archive date into its own table (`2026_03_11`),
+1. parses the archives into `archive_records`, partitioned by archive date,
 2. reduces all of them to skinny appearance tables — which companies, ownerships and
    directorships each archive listed (`company_appearances`, `relationship_appearances`,
    `directorship_successor_starts`). These are bucketed by company id, which is what lets
@@ -51,11 +51,12 @@ other. Instead it:
 4. joins the tenures back onto the records to pick up each relationship as the last
    archive that listed it described it, and writes `current_<last archive date>`.
 
-All of these are Hive tables, so intermediate state can be queried with SQL. Only the
-per-archive tables in step 1 are cached between runs — an archive's contents never change,
-so parsing can be interrupted and resumed. Everything derived from them is rebuilt every
-run, because one new archive can end a relationship belonging to any company anywhere in
-history.
+All of these are Hive tables, so intermediate state can be queried with SQL. Only step 1 is
+cached between runs, one partition per archive date — an archive's contents never change,
+so parsing can be interrupted and resumed, and adding a day appends a partition without
+touching the rest. Drop a partition to have it parsed again. Everything derived from the
+records is rebuilt every run, because one new archive can end a relationship belonging to
+any company anywhere in history.
 
 
 ## Provenance
