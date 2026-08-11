@@ -30,12 +30,13 @@ class Term:
     end: str | None
 
 
-def fetch_flight_document(context: Context, url: str) -> str:
-    """Fetch a page and reassemble the Next.js flight document it embeds.
+def fetch_streamed_page_data(context: Context, url: str) -> str:
+    """Fetch a page and reassemble the data stream it embeds.
 
-    Both rosters render client-side: the server ships their data as a sequence of
+    Both rosters render client-side: the server ships their data as a Next.js
+    flight document (the React Server Components payload) — a sequence of
     `self.__next_f.push([1, "<chunk>"])` calls whose string chunks concatenate, in
-    document order, into one flight document. Chunk boundaries fall at arbitrary
+    document order, into one document. Chunk boundaries fall at arbitrary
     offsets, so nothing can be decoded before they are joined.
     """
     text = context.fetch_text(url, cache_days=1)
@@ -59,21 +60,21 @@ def fetch_flight_document(context: Context, url: str) -> str:
         ):
             chunks.append(pushed[1])
     if len(chunks) == 0:
-        raise ValueError(f"No flight document chunks found: {url}")
+        raise ValueError(f"No data stream chunks found: {url}")
     return "".join(chunks)
 
 
-def decode_flight_value(document: str, key: str) -> Any:
-    """Decode the JSON value stored under `key` in a flight document.
+def decode_page_data_value(document: str, key: str) -> Any:
+    """Decode the JSON value stored under `key` in the streamed page data.
 
-    The document is a stream of framed rows rather than one JSON value, so the
+    The data is a stream of framed rows rather than one JSON value, so the
     value is located by its key and consumed from there. Anything other than a
     single occurrence means the page no longer ships the data this crawler reads
     from it, or ships it more than once and the right copy is ambiguous.
     """
     marker = f'"{key}":'
     if document.count(marker) != 1:
-        raise ValueError(f"Flight document has {document.count(marker)} {key!r} values")
+        raise ValueError(f"Page data has {document.count(marker)} {key!r} values")
     value, _ = json.JSONDecoder().raw_decode(
         document, document.find(marker) + len(marker)
     )
@@ -82,7 +83,7 @@ def decode_flight_value(document: str, key: str) -> Any:
 
 def decode_roster(document: str, key: str) -> list[dict[str, Any]]:
     """Decode a roster, checking it against the record count the page reports."""
-    roster = decode_flight_value(document, key)
+    roster = decode_page_data_value(document, key)
     records: list[dict[str, Any]] = roster["data"]
     reported: int = roster["meta"]["filter_count"]
     if len(records) != reported:
@@ -262,11 +263,11 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    document = fetch_flight_document(context, context.data_url)
-    sessions = parse_terms(context, decode_flight_value(document, "options"))
+    document = fetch_streamed_page_data(context, context.data_url)
+    sessions = parse_terms(context, decode_page_data_value(document, "options"))
     for record in decode_roster(document, "mps"):
         crawl_member(context, position, categorisation, record, sessions)
 
-    document = fetch_flight_document(context, CURRENT_MPS_URL)
+    document = fetch_streamed_page_data(context, CURRENT_MPS_URL)
     for record in decode_roster(document, "initialMPs"):
         crawl_sitting_member(context, position, categorisation, record)
