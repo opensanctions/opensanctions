@@ -44,8 +44,6 @@ def wrap_test():
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
-    # The version file is cached by dataset name, and both the names and the
-    # version IDs recur across tests while the archive is emptied between them.
     get_versions_data.cache_clear()
     create_db()
     yield

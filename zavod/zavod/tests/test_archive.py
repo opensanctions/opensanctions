@@ -81,8 +81,7 @@ def _archive_run(
 
 def test_get_artifact_object_uses_last_successful_version(testdataset1: Dataset):
     """A lookup which doesn't name a version answers with the last successful
-    run, not the newest one - a failed run has an artifact directory, but no
-    data. See https://github.com/opensanctions/operations/issues/2762"""
+    run, not the newest one. See https://github.com/opensanctions/operations/issues/2762"""
     succeeded = Version.from_string("20260101000000-aaa")
     failed = Version.from_string("20260102000000-bbb")
     _archive_run(testdataset1, succeeded)
@@ -95,16 +94,15 @@ def test_get_artifact_object_uses_last_successful_version(testdataset1: Dataset)
     prefix = f"{ARTIFACTS}/{testdataset1.name}"
     assert object.name == f"{prefix}/{succeeded.id}/{RESOURCE_NAME}"
 
-    # A version the caller names explicitly is honoured, failed or not:
+    # A version the caller names explicitly is honoured, failed or not.
+    # Maybe this doesn't have a use case as of 2026-08-11 but it's documenting behaviour.
     object = get_artifact_object(testdataset1.name, RESOURCE_NAME, version=failed.id)
     assert object is not None
     assert object.name == f"{prefix}/{failed.id}/{RESOURCE_NAME}"
 
 
 def test_get_artifact_object_without_successful_version(testdataset1: Dataset):
-    """Until a run has succeeded there is nothing to answer a lookup with. An
-    archived version alone is not a candidate - that's what makes moving the
-    pointer in publish_dataset() load-bearing."""
+    """Until a run has succeeded there is nothing to answer a lookup with."""
     _archive_run(testdataset1, Version.from_string("20260101000000-aaa"), False)
 
     assert get_artifact_object(testdataset1.name, RESOURCE_NAME) is None
@@ -139,8 +137,8 @@ def test_artifact_backfill(testdataset1: Dataset):
     assert not versions_file.exists()
     assert not local_path.exists()
     make_version(testdataset1, settings.RUN_VERSION)
-    # Backfill answers with the last successful run, so the run has to be
-    # recorded as one - publish_dataset() does this for a real run:
+    # Backfill answers with the last successful run,
+    # so the run has to be recorded as one:
     set_last_successful_version(testdataset1, settings.RUN_VERSION)
     publish_version_history(testdataset1.name)
     assert versions_file.exists()

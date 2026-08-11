@@ -63,16 +63,13 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
 def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     """Publish a dataset.
 
+    Only for successful runs. Also stamps this version as the last successful.
+
     Every file we persist about this run is uploaded to /artifacts/{dataset}/{version}/
 
     Listed resources plus index and collection catalog are copied to
     /datasets/{RELEASE}/{dataset}/ backward compatibility and
     /datasets/{LATEST}/{dataset}/ for discovery without the full catalog.
-
-    Publishing is only reached once a run has succeeded (`archive_failure` is the
-    other way out), so this is where the version becomes the last successful one.
-    Artifact lookups resolve that pointer, so a publish which didn't move it
-    would leave every reader of the archive on the run before this one.
     """
     version = get_latest(dataset.name, backfill=False)
     if version is None:
