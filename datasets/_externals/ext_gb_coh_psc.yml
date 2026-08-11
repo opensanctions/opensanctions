@@ -96,12 +96,17 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 370
+      # Lowered from 370 after gb_coh_psc started dropping PSC statements about
+      # companies that have left the register (and with them the nameless
+      # registration-number-only Company stubs). The first ext_ run against the
+      # reduced upstream snapshot matched 284 Companies, down from 398.
+      Company: 220
       Person: 150
       Organization: 10
-    # This is a local enricher: a stable ~21% of matched Company entities are
-    # identified by registration number / external link without a name (only
-    # Person and Organization names are consistently present).
+    # Until 2026-08-07 a stable ~21% of matched Company entities were identified
+    # by registration number / external link without a name. gb_coh_psc has since
+    # retired those stubs, so the fill rate should rise well above this floor;
+    # the bound is left in place until a post-change run reports an actual value.
     property_fill_rate:
       Company:
         name: 0.7
