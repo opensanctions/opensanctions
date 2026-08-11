@@ -222,14 +222,11 @@ def get_artifact_object(
         if object.exists():
             return object
 
-    # Temporary fallback for datasets that haven't succeeded since last_successful
-    # TODO: Remove after the stragglers have succeeded or been removed.
-    # stragglers: lt_pep_declarations, hu_national_assembly, ps_local_freezing
-    for v in iter_dataset_versions(dataset_name):
-        # We could check if the index.json has a resources array here, but only
-        # lt_pep_declarations needs it, and it's being removed 2026-08-17
-        # so let's nto bother
-        name = f"{ARTIFACTS}/{dataset_name}/{v.id}/{resource}"
+    # TODO: Remove after lt_pep_declarations is deleted.
+    # It hasn't succeeded since last_successful was added.
+    if dataset_name == "lt_pep_declarations":
+        version = "20250403160648-kkg"
+        name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
         object = backend.get_object(name)
         if object.exists():
             return object
