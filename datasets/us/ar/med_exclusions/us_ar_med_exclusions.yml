@@ -101,13 +101,22 @@ lookups:
         name: "Lifebrite Laboratories"
       - match: "Specialty Pharmacy, Walgreen  "
         name: "Walgreen Specialty Pharmacy"
-      - match: "Health Service, Dayspring Behavioral  "
-        name: "Dayspring Behavioral Health Service"
-      - match: "Health Service, Dayspring Behavioral Health Service "
+      - match:
+          - "Health Service, Dayspring Behavioral  "
+          - "Health Service, Dayspring Behavioral Health Service "
         name: "Dayspring Behavioral Health Service"
       - match: "Enterprises, Iti Chito "
         name: "Iti Chito Enterprises"
       - match: "on Duty, Angels  "
         name: "Angels on Duty"
+      # "Waters" is the owner's surname, not part of the business name (the
+      # same row's facility name is "INFANTS WORLD INC").
       - match: "Waters, Infants World Inc "
         name: "Infants World Inc"
+      - match: ", Little Bitty City Therapeutic  "
+        name: "Little Bitty City Therapeutic Services LLC"
+      - match: "Inc, Med "
+        name: "Med Inc"
+      - match: "Adult Daycare, Popes Community  Tylisha Pope"
+        name: "Popes Community Adult Daycare"
+        alias: ["Tylisha Pope"]
