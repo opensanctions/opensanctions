@@ -28,8 +28,9 @@ context about the dataset.
 
 **Consult on demand** (open only when you actually need the section — don't pre-load):
 
-- `.claude/skills/crawler-pep/examples.md` — code examples (Patterns A/B/C, multi-term
-  sources, subnational variant, associates). Open when you're stuck on a pattern.
+- `.claude/skills/crawler-pep/examples.md` — code examples (Patterns A/B/C, one label
+  mapping to several held positions, multi-term sources, subnational variant,
+  associates). Open when you're stuck on a pattern.
 - `zavod/docs/peps.md` — the rest of it: position naming depth, `categorise()`, relatives.
 - `zavod/docs/metadata.md` — full YAML field reference. Open if you're using a field not
   covered by the template in `crawler-guide.md`.

@@ -200,6 +200,56 @@ if not categorisation.is_pep:
 context.emit(position)
 ```
 
+### One label, several held positions
+
+When a role label implies more than one held office — a Speaker is elected from among
+the members and keeps their seat — map the label to every held position name with a
+multi-`values` lookup option, and make an occupancy for each
+(`zavod/docs/peps.md` → "One person, several positions"):
+
+```yaml
+lookups:
+  position:
+    required: true
+    options:
+      - match: Member of Parliament
+        value: Member of the Parliament of Examplia
+      - match: Speaker
+        values:
+          - Speaker of the Parliament of Examplia
+          - Member of the Parliament of Examplia
+```
+
+```python
+# Only the member seat has a Wikidata item.
+POSITION_QIDS = {"Member of the Parliament of Examplia": "Q..."}
+
+# required: true only halts the crawl via context.lookup —
+# context.lookup_value catches the exception and returns None.
+res = context.lookup("position", role)
+assert res is not None, role
+for title in res.values:
+    position = h.make_position(
+        context,
+        name=title,
+        country="xx",
+        topics=["gov.national", "gov.legislative"],
+        wikidata_id=POSITION_QIDS.get(title),
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        continue
+    occupancy = h.make_occupancy(
+        context, person, position, categorisation=categorisation
+    )
+    if occupancy is not None:
+        context.emit(occupancy)
+        # Repeated emits of the same position/person are fine.
+        context.emit(position)
+        context.emit(person)
+```
+
 ## Multi-term source
 
 The default shape whenever the source exposes past terms, not just the sitting roster.

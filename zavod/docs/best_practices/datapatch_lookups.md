@@ -216,7 +216,7 @@ rel.add(res.link, link_type)
 
 Pass `warn_unmatched=True` to log a warning when a value matches no option — this surfaces values that need a new lookup entry rather than silently dropping data.
 
-For lookups where any unmatched value should halt the crawl, set `required: true` on the lookup itself. A miss then raises `LookupException`.
+For lookups where any unmatched value should halt the crawl, set `required: true` on the lookup itself. A miss then raises `LookupException` — but only through `context.lookup`: `context.lookup_value` catches the exception and returns its `default` argument instead, so pair `required: true` with `context.lookup`.
 
 
 ## Common runtime warnings involving lookups
@@ -268,7 +268,7 @@ Set under each named lookup (e.g. `lookups: type.country: …`):
 | `normalize` | `false` | Strip diacritics and collapse whitespace before matching. |
 | `lowercase` | `false` | Lowercase before matching. |
 | `asciify` | `true` | Transliterate to ASCII when normalizing. |
-| `required` | `false` | Raise `LookupException` when no option matches the input. |
+| `required` | `false` | Raise `LookupException` when no option matches the input (propagates via `context.lookup` only; `context.lookup_value` swallows it). |
 
 ### Option-level keys
 
