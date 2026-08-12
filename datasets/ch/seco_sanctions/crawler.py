@@ -12,6 +12,7 @@
 from itertools import product
 from typing import Literal
 
+from followthemoney.schema import Schema
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element, tostring
@@ -362,13 +363,17 @@ def parse_identity(
             context.emit(passport)
 
 
+def relation_range(rel: Entity, prop_name: str) -> Schema:
+    """The schema an entity referenced by the given relationship property must have."""
+    prop = rel.schema.get(prop_name)
+    if prop is None or prop.range is None:
+        raise ValueError(f"Not an entity property: {rel.schema.name}:{prop_name}")
+    return prop.range
+
+
 def make_related_entities(
     context: Context, entity: Entity, relationship: RelatedEntity
 ) -> list[Entity]:
-    other = context.make("LegalEntity")
-    other.id = context.make_id(*relationship.related_entity_name)
-    other.add("name", relationship.related_entity_name)
-
     res = context.lookup("relations", relationship.relationship_schema)
     if res is None:
         context.log.warning(
@@ -379,6 +384,26 @@ def make_related_entities(
         return []
 
     rel = context.make(relationship.relationship_schema)
+    source_range = relation_range(rel, res.source)
+    if not entity.schema.is_a(source_range):
+        # e.g. the model claiming a family relationship for a company.
+        context.log.warning(
+            "Relationship doesn't apply to the subject entity",
+            schema=relationship.relationship_schema,
+            expected=source_range.name,
+            source=entity,
+        )
+        return []
+
+    # Family:relative must be a Person. Where the range is too abstract to emit
+    # (UnknownLink:object is a Thing), fall back to LegalEntity.
+    target_range = relation_range(rel, res.target)
+    other = context.make(
+        target_range if target_range.is_a("LegalEntity") else "LegalEntity"
+    )
+    other.id = context.make_id(*relationship.related_entity_name)
+    other.add("name", relationship.related_entity_name)
+
     rel.id = context.make_id(entity.id, relationship.relationship, other.id)
     rel.add(res.text, relationship.relationship)
     rel.add(res.source, entity.id)
