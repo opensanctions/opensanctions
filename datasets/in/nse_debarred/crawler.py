@@ -31,7 +31,10 @@ def load_sheet(workbook: Any, possible_names: list[str]) -> Any:
 def crawl_ownership(
     context: Context, owner: Entity, asset_name: str, is_debarred: bool = False
 ) -> Entity:
-    asset = context.make("LegalEntity")
+    # The source describes these as proprietorship concerns of the debarred
+    # person. Company inherits from both Asset and LegalEntity, so it fits the
+    # range of Ownership:asset (LegalEntity does not).
+    asset = context.make("Company")
     asset.id = context.make_id(owner.id, asset_name)
     asset.add("name", asset_name)
     if is_debarred:
