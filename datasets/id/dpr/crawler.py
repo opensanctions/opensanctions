@@ -11,15 +11,10 @@ import orjson
 
 from zavod import Context
 from zavod import helpers as h
-from zavod import settings
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.extract.zyte_api import ZyteAPIRequest
-from zavod.stateful.positions import (
-    PositionCategorisation,
-    categorise,
-    get_after_office,
-)
+from zavod.stateful.positions import PositionCategorisation, categorise
 
 
 # The ID of the newest legislature known to this crawler. The probe in crawl()
@@ -27,7 +22,8 @@ from zavod.stateful.positions import (
 # add the new term dates instead of silently treating an old roster as current.
 PERIODE_ID = 6
 LEGISLATURES: dict[int, tuple[str, str]] = {
-    1: ("1999-10-01", "2004-09-30"),
+    # Period 1 (1999-2004) is outside PEP coverage and the API only exposes a
+    # handful of incomplete records for it, so it is intentionally omitted.
     2: ("2004-10-01", "2009-09-30"),
     3: ("2009-10-01", "2014-09-30"),
     4: ("2014-10-01", "2019-09-30"),
@@ -280,7 +276,10 @@ def crawl_member(
 
 
 def crawl(context: Context) -> None:
-    assert set(LEGISLATURES) == set(range(1, PERIODE_ID + 1)), LEGISLATURES
+    first_period_id = min(LEGISLATURES)
+    assert set(LEGISLATURES) == set(range(first_period_id, PERIODE_ID + 1)), (
+        LEGISLATURES
+    )
     check_for_new_legislature(context)
 
     position = h.make_position(
@@ -296,19 +295,12 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # Use the same after-office duration as occupancy_status. earliest_term_start()
-    # intentionally adds ten years of discovery slack and would make us fetch
-    # legislatures whose occupancies are guaranteed to be discarded.
-    pep_cutoff = (
-        (settings.RUN_TIME - get_after_office(categorisation.topics)).date().isoformat()
-    )
     for period_id, (period_start, period_end) in LEGISLATURES.items():
-        if period_end < pep_cutoff:
+        if period_end < h.earliest_term_start(categorisation.topics):
             context.log.info(
                 "Skipping legislature outside PEP coverage",
                 period_id=period_id,
                 period_end=period_end,
-                cutoff=pep_cutoff,
             )
             continue
         members = fetch_roster(

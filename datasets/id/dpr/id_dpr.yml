@@ -473,6 +473,10 @@ names:
     # word boundary
     - S.M.
     - S.Ds.
+    - S.E.
+    - SE
+    - SH
+    - MA
 
 assertions:
   min:
