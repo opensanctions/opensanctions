@@ -4,7 +4,7 @@ prefix: mh-nit
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-17
+  start: 2026-08-12
 load_statements: true
 ci_test: true
 summary: >-

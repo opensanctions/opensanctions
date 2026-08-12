@@ -71,6 +71,7 @@ children:
   - ci_national_assembly
   - ci_senate
   - cl_info_probidad
+  - cl_senate
   - cm_national_assembly
   - cm_senate
   - cn_npc
@@ -98,6 +99,7 @@ children:
   - everypolitician
   - fi_eduskunta
   - fj_parliament
+  - fm_congress
   - fr_assemblee
   - fr_hatvp_declarations
   - fr_maires
@@ -128,6 +130,7 @@ children:
   - ke_national_assembly
   - ke_senate
   - kg_jogorku_kenesh
+  - ki_maneaba
   - kr_assembly
   - ky_judicial
   - ky_parliament
@@ -144,6 +147,7 @@ children:
   - mc_conseil_national
   - me_acp_peps
   - me_skupstina
+  - mh_nitijela
   - mk_officials
   - mn_parliament
   - mo_legislature
@@ -195,6 +199,8 @@ children:
   - sr_national_assembly
   - sv_legislature
   - th_cabinet
+  - th_house_representatives
+  - th_senate
   - tj_majlisi_milli
   - tm_mejlis
   - tn_arp
@@ -216,6 +222,7 @@ children:
   - uz_senate
   - ve_asamblea_nacional
   - vn_national_assembly
+  - vu_parliament
   - wd_categories
   - wd_peps
   - xk_assembly
