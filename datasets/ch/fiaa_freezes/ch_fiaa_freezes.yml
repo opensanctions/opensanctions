@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: ch-fiaa
 coverage:
   frequency: never
-  start: 2026-07-30
+  start: 2026-08-12
 deploy:
   schedule: "45 7 * * *"
 manual_check:
