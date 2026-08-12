@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false  # Paginated Zyte fetches against a signed GraphQL endpoint
+ci_test: false  # Browser-rendered Zyte fetch of a client-rendered listing
 summary: >-
   Lower chamber of the Indonesian parliament, elected from 84 electoral districts
 description: |
@@ -25,10 +25,9 @@ publisher:
   country: id
   official: true
 data:
-  # Next.js frontend backed by a GraphQL API. The roster is
-  # served from this single endpoint via the getDaftarRiwayatAnggota operation;
-  # the human-facing listing lives at the `url` above.
-  url: https://www.dpr.go.id/gql
+  # Client-rendered Next.js listing. The crawler renders it in a browser and
+  # reads the roster from the JSON the page fetches for itself.
+  url: https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan
   format: JSON
   lang: ind
 
