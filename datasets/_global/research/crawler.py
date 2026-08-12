@@ -139,6 +139,23 @@ def crawl_sanction_ownership_row(context: Context, row: dict[str, Any]) -> None:
         ubo_ent.add("program", program)
         context.emit(ubo_ent)
 
+        # When the direct owner is the beneficial owner themselves, the source
+        # simply repeats them in the UBO columns and there is no indirect
+        # ownership left to state.
+        if ubo_ent.id == owner_ent.id:
+            return
+        # A person cannot be owned: an indirect ownership link is only
+        # meaningful where the direct owner is itself an asset.
+        if owner_schema != "Company":
+            context.log.warning(
+                "UBO differs from the direct owner, but the direct owner "
+                "cannot be owned",
+                ubo=ubo_name,
+                owner=owner_name_eng,
+                owner_schema=owner_schema,
+            )
+            return
+
         ubo_ownership = context.make("Ownership")
         ubo_ownership.id = context.make_id(ubo_name, ubo_id, owner_name_eng, owner_id)
         ubo_ownership.add("owner", ubo_ent.id)
