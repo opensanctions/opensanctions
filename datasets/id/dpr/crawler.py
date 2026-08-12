@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import uuid
 from base64 import b64encode
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from itertools import count
 from typing import Any
 
@@ -74,7 +74,7 @@ def sign_request(method: str, body: bytes) -> dict[str, str]:
     precision, UTC "Z"); the server rejects stale timestamps, so signatures cannot be
     cached or replayed.
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     request_at = f"{now:%Y-%m-%dT%H:%M:%S}.{now.microsecond // 1000:03d}Z"
     request_id = str(uuid.uuid4())
     request_body = hashlib.sha256(body).hexdigest()
