@@ -40,6 +40,8 @@ names:
     - Dr.
     - (Prof.)
     - Prof.
+    - (Mrs.)
+    - (Ms.)
     - (Ven.)
     - Ven.
     - (Rev.)
@@ -51,9 +53,13 @@ names:
     - Mr.
     - Mrs.
     - Ms.
+    - Lieutenant Commander (Rtd.)
+    - Major General (Rtd.)
   suffixes_strip:
     - ", M.P."
     - ", MP"
+    - ", Attorney at Law"
+    - ", PC"
 
 assertions:
   min:
