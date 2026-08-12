@@ -74,8 +74,8 @@ def crawl_detail(
 
 
 def fetch_xml(context: Context, name: str, url: str, title: str) -> etree._Element:
-    """Fetch a SOAP XML document, archive it, and return its namespace-stripped root."""
-    path = context.fetch_resource(name, url)
+    """Fetch a SOAP XML document via Zyte and return its namespace-stripped root."""
+    _, _, _, path = zyte_api.fetch_resource(context, name, url)
     context.export_resource(path, XML, title=title)
     doc = context.parse_resource_xml(path)
     h.remove_namespace(doc)
