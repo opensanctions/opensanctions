@@ -17,26 +17,6 @@ PDF_URL = (
 # to this crawler as dans_list.pdf; see the runbook comment in the yml.
 PDF_HASH = "c05bfa98aa2037403fe7d4eda60f8e784e8a9087"
 
-# The introductory sentence of each list section, verbatim from the decision.
-SECTION_REASON = {
-    "III": (
-        "Лица, срещу които е образувано наказателно производство за тероризъм, "
-        "финансиране на тероризъм, набиране или обучаване на отделни лица или групи "
-        "от хора с цел извършване на тероризъм, излизане или влизане през границата "
-        "на страната, както и незаконно пребиваване в нея с цел участие в тероризъм, "
-        "образуване, ръководене или членуване в организирана престъпна група, която "
-        "си поставя за цел да извършва тероризъм или финансиране на тероризъм, "
-        "приготовление към извършване на тероризъм, подправка на официален документ "
-        "с цел улесняване извършване на тероризъм, явно подбуждане към извършване на "
-        "тероризъм или закана за извършване на тероризъм по смисъла на Наказателния "
-        "кодекс"
-    ),
-    "IV": (
-        "Лица, за които има достатъчно данни, че осъществяват дейност, свързана с "
-        "тероризъм или с финансиране на тероризъм"
-    ),
-}
-
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
     section = row.pop("Section")
@@ -59,6 +39,10 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity.add("address", row.pop("Address"), lang="bul")
     entity.add("notes", row.pop("Notes"), lang="bul")
 
+    # The grounds for designation, stated at the head of each list section.
+    reason = context.lookup_value("sections", section)
+    assert reason is not None, section
+
     sanction = h.make_sanction(
         context,
         entity,
@@ -66,7 +50,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         start_date=row.pop("Listed"),
         end_date=row.pop("Delisted"),
     )
-    sanction.add("reason", SECTION_REASON[section], lang="bul")
+    sanction.add("reason", reason, lang="bul")
     sanction.add("summary", row.pop("Gazette"), lang="bul")
     if h.is_active(sanction):
         entity.add("topics", "sanction")
