@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false  # 84 Zyte browser-rendered fetches, well over the CI budget.
+ci_test: false  # Paginated Zyte fetches against a signed GraphQL endpoint
 summary: >-
   Lower chamber of the Indonesian parliament, elected from 84 electoral districts
 description: |
@@ -14,7 +14,7 @@ description: |
   the lower chamber of Indonesia's bicameral parliament. Its 580 members are elected from
   84 electoral districts (dapil) across the provinces for a five-year term and hold the
   country's legislative power, including passing laws and approving the budget.
-url: https://www.dpr.go.id/anggota
+url: https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan
 publisher:
   name: Dewan Perwakilan Rakyat Republik Indonesia
   acronym: DPR
@@ -25,12 +25,241 @@ publisher:
   country: id
   official: true
 data:
-  url: https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan
-  format: HTML
+  # Next.js frontend backed by a GraphQL API. The roster is
+  # served from this single endpoint via the getDaftarRiwayatAnggota operation;
+  # the human-facing listing lives at the `url` above.
+  url: https://www.dpr.go.id/gql
+  format: JSON
   lang: ind
 
 tags:
   - list.pep
+
+names:
+  prefixes_strip:
+    - Prof.
+    - (Prof.)
+    - Assoc. Prof.
+    - Dr.
+    - (Dr.)
+    - Dr. (H.C.)
+    - (H.C.)
+    - (H.C)
+    - (H.C).
+    - (HC)
+    - H.C.
+    # Applied doctorate; appears as "Dr.Tr." (the "Dr." strips first)
+    - Tr.
+    - drg.
+    - drh.
+    - Drs.
+    - Dra.
+    - Ir.
+    - Apt.
+    - H.
+    - Hj.
+    - Hi.
+    - KH.
+    - K.H.
+    - Ny.
+    - Ust.
+    # Police/military ranks (retired)
+    - Irjen. Pol. (Purn)
+    - Irjen Pol (P)
+    - Mayjen. TNI (Purn.)
+    # Javanese noble title (Kanjeng Raden Tumenggung)
+    - K.R.T.
+  suffixes_strip:
+    # Bachelor's (Sarjana, "S.")
+    - ", S.H."
+    - ", S.H.I."
+    - ", S.E."
+    - ", S.E.I."
+    - ", S.Sos."
+    - ", S.Sos.I."
+    - ", S.T."
+    - ", S.T.P."
+    - ", S.Pd."
+    - ", S.Pd.I."
+    - ", S.Ag."
+    - ", S.Kom."
+    - ", S.I.P."
+    - ", S.IP."
+    - ", S.Ip."
+    - ", S.Si."
+    - ", S.Ked."
+    - ", S.Farm."
+    - ", S.Psi."
+    - ", S.Pt."
+    - ", S.P."
+    - ", S.Sn."
+    - ", S.Th."
+    - ", S.Th.I."
+    - ", S.Fil."
+    - ", S.Fil.I."
+    - ", S.Ud."
+    - ", S.Hut."
+    - ", S.Kel."
+    - ", S.Tr."
+    - ", S.Kep."
+    - ", S.K.M."
+    - ", S.KM."
+    - ", S.I.Kom."
+    - ", S.Ikom."
+    - ", S.A.B."
+    - ", S.AB."
+    - ", S.STP."
+    - ", S.IK."
+    - ", S.Par."
+    - ", S.S."
+    - ", S.ST."
+    - ", S.PWK."
+    - ", S.PWK"
+    - ", S.Pd.I"
+    - ", S.PdI."
+    - ", S.IAN"
+    - ", S.I.P"
+    - ", S.Mn."
+    - ", S.M."
+    - ", S.K.H."
+    - ", S.A.P."
+    - ", S.Hub.Int."
+    - ", S.Sos"
+    - ", S.Kp."
+    - ", S.Q."
+    - ", S.H"
+    # Master's (Magister, "M.")
+    - ", M.H."
+    - ", M.H.I."
+    - ", M.M."
+    - ", M.Si."
+    - ", M.T."
+    - ", M.Pd."
+    - ", M.Pd.I."
+    - ", M.A."
+    - ", M.A.P."
+    - ", M.AP."
+    - ", M.B.A."
+    - ", M.BA."
+    - ", M.E."
+    - ", M.E.I."
+    - ", M.Ec."
+    - ", M.Ec.Dev."
+    - ", M.Kom."
+    - ", M.Kes."
+    - ", M.Kep."
+    - ", M.Sos."
+    - ", M.Ag."
+    - ", M.Hum."
+    - ", M.Sc."
+    - ", M.P."
+    - ", M.I.Kom."
+    - ", M.Ikom."
+    - ", M.I.P."
+    - ", M.IP."
+    - ", M.Han."
+    - ", M.Han"
+    - ", M.Div."
+    - ", M.Th."
+    - ", M.Eng."
+    - ", M.Fil.I."
+    - ", M.Kn."
+    - ", M.Psi."
+    - ", M.Tr."
+    - ", M.I.Pol."
+    - ", M.I.Pol"
+    - ", M.K.M."
+    - ", M.KM."
+    - ", M.K.P."
+    - ", M.KP."
+    - ", M.HP."
+    - ", M.H"
+    - ", M.Hum"
+    - ", M.Si"
+    - ", M.S."
+    - ", M.S.P."
+    - ", M.M.A."
+    - ", M.M.A"
+    - ", M.M.Tr."
+    - ", M.A.P"
+    - ", M.A.B."
+    - ", M.Ak."
+    - ", M.Sn."
+    - ", M.Psi.T."
+    - ", M.PSDM."
+    - ", M.P.P."
+    - ", M.H.Kes."
+    - ", M.Mar."
+    - ", M.Bus."
+    - ", M.IR"
+    - ", MA."
+    - ", MSc."
+    - ", MCom"
+    - ", M.Comn&MediaSt."
+    # Doctorate and professional
+    - ", Ph.D."
+    - ", Ph.D"
+    - ", LL.M."
+    - ", LLM"
+    - ", LL.B."
+    - ", B.Sc."
+    - ", B.S."
+    - ", B.A."
+    - ", B.A. (Hons)."
+    - ", B.B.A."
+    - ", B.Bus."
+    - ", B.Com."
+    - ", B.Com"
+    - ", B.Comm."
+    - ", Bc.I.P."
+    - ", M.B.A"
+    - ", MBA"
+    - ", Ak."
+    - ", Akt."
+    - ", CA."
+    - ", CA"
+    - ", CPA."
+    - ", C.N."
+    - ", C.L.A."
+    - ", A.Md."
+    - ", QIA"
+    - ", IPU."
+    - ", ACCS."
+    - ", D.E.A."
+    - ", Lc."
+    - ", Lc"
+    - ", L.c."
+    - ", Psikolog."
+    # Dotless variants of the most common degrees
+    - ", SH"
+    - ", SE"
+    - ", MM"
+    - ", MH"
+    # No space after the comma
+    - ",S.H."
+    - ",S.T."
+    - ",S.Th."
+    - ",S.E."
+    - ",M.B.A."
+    - ",M.H."
+    - ",M.H"
+    - ",M.A."
+    - ",M.Si"
+    - ",MSc"
+    - ",MCom"
+    - ",B.Bus.Man."
+    - ",S.H.Sp.N."
+    # Malformed one-offs seen in the roster (missing commas/dots, stray spaces)
+    - ", S.E.M.A.P"
+    - ", S.I.Kom.M.IP."
+    - ", S.Sos. M.Si."
+    - ", S.H. M.Si."
+    - ", S. M."
+    - ", M. Farm"
+    # Degrees appended without a comma; safe because suffixes only strip at a
+    # word boundary
+    - S.M.
+    - S.Ds.
 
 assertions:
   min:
