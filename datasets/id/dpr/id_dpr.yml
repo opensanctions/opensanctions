@@ -1,4 +1,4 @@
-title: Indonesia Members of the People's Representative Council (DPR)
+title: Indonesia Members of the People's Representative Council
 name: id_dpr
 prefix: id-dpr
 entry_point: crawler.py
