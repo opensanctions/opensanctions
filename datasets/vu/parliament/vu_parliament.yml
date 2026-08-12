@@ -4,7 +4,7 @@ prefix: vu-parl
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-17
+  start: 2026-08-12
 load_statements: true
 # Zyte fetching requires API credentials unavailable in CI.
 ci_test: false
