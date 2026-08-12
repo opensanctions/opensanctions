@@ -123,6 +123,13 @@ def crawl_detail(
             owner, asset = (
                 (main, entity) if relationship == "subsidiary" else (entity, main)
             )
+            # Ownership:asset only accepts Asset (e.g. Company, not Organization
+            # or bare LegalEntity); anything else emits an out-of-range reference.
+            if not asset.schema.is_a("Asset"):
+                raise ValueError(
+                    f"Ownership asset must be an Asset, not {asset.schema.name}: "
+                    f"{measure!r} / {name!r}"
+                )
             ownership = context.make("Ownership")
             ownership.id = context.make_id("ownership", owner.id, asset.id)
             ownership.add("owner", owner.id)
