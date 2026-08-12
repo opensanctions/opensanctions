@@ -3,7 +3,7 @@ import hmac
 import re
 import uuid
 from base64 import b64encode
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from itertools import count
 from typing import Any
 
@@ -85,7 +85,7 @@ def member_url(name: str, member_id: str) -> str:
 
 def sign_request(method: str, body: bytes) -> dict[str, str]:
     """Build the signing headers required by the /gql endpoint."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     request_at = f"{now:%Y-%m-%dT%H:%M:%S}.{now.microsecond // 1000:03d}Z"
     request_id = str(uuid.uuid4())
     request_body = hashlib.sha256(body).hexdigest()
