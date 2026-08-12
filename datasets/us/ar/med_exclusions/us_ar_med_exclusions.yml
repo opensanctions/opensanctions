@@ -110,9 +110,11 @@ lookups:
       - match: "on Duty, Angels  "
         name: "Angels on Duty"
       # "Waters" is the owner's surname, not part of the business name (the
-      # same row's facility name is "INFANTS WORLD INC").
+      # same row's facility name is "INFANTS WORLD INC"), so it is kept as a
+      # weak alias rather than attributed to a person we cannot name.
       - match: "Waters, Infants World Inc "
         name: "Infants World Inc"
+        weakAlias: ["Waters"]
       - match: ", Little Bitty City Therapeutic  "
         name: "Little Bitty City Therapeutic Services LLC"
       - match: "Inc, Med "

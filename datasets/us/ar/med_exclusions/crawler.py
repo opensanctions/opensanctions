@@ -32,6 +32,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
         if result is not None:
             provider.add("name", result.name)
             provider.add("alias", result.alias)
+            provider.add("weakAlias", result.weakAlias)
         else:
             last_name, first_name = provider_name.split(",", 1)
             # A name containing "aka", or whose parts are too short to be name
