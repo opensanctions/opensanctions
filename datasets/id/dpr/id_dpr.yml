@@ -481,11 +481,11 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 450
+      Person: 2000
       Position: 1
     country_entities:
-      id: 450
+      id: 2000
   max:
     schema_entities:
-      Person: 650
+      Person: 2200
       Position: 1
