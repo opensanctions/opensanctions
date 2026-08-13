@@ -10,12 +10,12 @@ summary: >
   People of Interest is an interactive database developed and managed by RISE Moldova.
   It is a work in progress journalistic project.
 description: |
-  > On this platform, we outline the profiles of public figures and their connections. 
-  > We index data about their companies, cases, properties, narrow interests, and 
+  > On this platform, we outline the profiles of public figures and their connections.
+  > We index data about their companies, cases, properties, narrow interests, and
   > intermediaries.
   > We verify the information we publish here from several open and closed sources.
-  > We have met the persons from the People of Interest Platform several times in our 
-  > journalistic documentations. Whether they vote laws, juggle with public money, 
+  > We have met the persons from the People of Interest Platform several times in our
+  > journalistic documentations. Whether they vote laws, juggle with public money,
   > or they are intermediaries or wealthy businessmen, their decisions affect us all.
 publisher:
   name: RISE Moldova
@@ -33,14 +33,18 @@ dates:
   formats: ["%d.%m.%Y"]
 
 assertions:
+  # Organizations used to be emitted as bare LegalEntity, which shifted roughly
+  # 130 entities from LegalEntity to Organization.
   min:
     schema_entities:
-      LegalEntity: 500
+      LegalEntity: 380
+      Organization: 100
       Person: 300
       Company: 100
   max:
     schema_entities:
       LegalEntity: 1200
+      Organization: 300
       Person: 700
       Company: 220
 
@@ -120,6 +124,17 @@ lookups:
       - match:
           - Intertelecom
         value: company
+  # Entities whose profile states no type, but whose name identifies the schema.
+  # Political parties named "Partidul ..." are handled in the crawler.
+  schema_by_name:
+    normalize: true
+    options:
+      - match:
+          - Platforma Demnitate și Adevăr
+        value: Organization
+      - match:
+          - Avantage SRL
+        value: Company
   relations:
     normalize: true
     options:
@@ -182,6 +197,7 @@ lookups:
         schema: Membership
         source: member
         dest: organization
+        dest_schema: Organization
         text: role
       # Relationships that make more sense reversed - the dest is the object
       - match:
