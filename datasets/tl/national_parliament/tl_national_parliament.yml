@@ -14,7 +14,7 @@ description: |
   legislature of Timor-Leste. Its 65 members are elected from a single nationwide
   constituency under closed-list proportional representation for a five-year term and
   hold the country's legislative power, including passing laws and approving the budget.
-url: https://www.parlamento.tl/legislatura-2023---2028
+url: https://www.parlamento.tl/data-tables
 publisher:
   name: Parlamento Nacional de Timor-Leste
   description: >
@@ -24,7 +24,7 @@ publisher:
   country: tl
   official: true
 data:
-  url: https://www.parlamento.tl/legislatura-2023---2028
+  url: https://www.parlamento.tl/data-tables
   format: HTML
   lang: por
 
