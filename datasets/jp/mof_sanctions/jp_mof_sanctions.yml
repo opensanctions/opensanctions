@@ -89,18 +89,22 @@ assertions:
 
 names:
   schema_rules:
-    # Names still containing these are not clean enough to auto-accept in step 1;
-    # flag them as irregular so they are held back for human review.
+    # The crawler passes the source columns on unsplit and uncleaned, so these rules
+    # are what flags a value as too dirty to emit as-is and holds it back for review.
+    # `a.k.a.` and `also/previously known as` are already covered by rigour's split
+    # phrases; `f.k.a.` is not, so it is listed explicitly.
     LegalEntity:
       reject_chars: "()（）:：;；、"
       reject_strings:
         - "_x000D_"
         - "original script:"
+        - "f.k.a."
     Person:
       reject_chars: "()（）:：;；、"
       reject_strings:
         - "_x000D_"
         - "original script:"
+        - "f.k.a."
 
 lookups:
   schema:

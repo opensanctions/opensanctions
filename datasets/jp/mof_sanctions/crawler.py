@@ -14,10 +14,12 @@ from rigour.mime.types import XLS, XLSX
 
 from zavod import Context, Entity, settings
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 
-# Match non-brackets inside an opening and closing pair of brackets
-BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
-
+# Cells throughout the sheet pack multiple values into one cell, numbered or
+# newline-separated, so every cell is split on SPLITS when the rows are read.
+# Names thus reach review already split, not as the raw cell. Kept anyway:
+# undoing it takes the crawler back to square one.
 SPLITS = [f"({char})" for char in string.ascii_lowercase]
 SPLITS = SPLITS + [f"（{char}）" for char in string.ascii_lowercase]
 # WTF full-width brackets!
@@ -25,7 +27,6 @@ SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)"]
 SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
-ALIAS_SPLITS = SPLITS + ["; "]
 ADDR_SPLITS = ["; and ", ";"]
 DATE_SPLITS = SPLITS + [
     "、",
@@ -83,42 +84,6 @@ def parse_date(text: list[str]) -> list[str]:
     return dates
 
 
-def parse_names(names: list[str]) -> list[str]:
-    cleaned = []
-    # We split on numbering e.g. (a), (b) when reading the rows of the excel file
-    # so we might have split a cell-wide opening and closing parenthesis
-    split_open = len([n.startswith("(") and n.count(")") == 0 for n in names])
-    split_close = len([n.endswith(")") and n.count("(") == 0 for n in names])
-    split_bracketed = split_open == split_close
-    for name in names:
-        # (a.k.a.:
-        # Full width colon. Yes really.
-        name = re.sub(r"[(（]a\.k\.a\.? ?[:：]? ?", "", name)
-        name = re.sub(r"[（(]original script[:：]\s*(.*?)[）)]", r"\1", name)
-        # It's come up in the opposite order after a U+202B right-to-left embedding char
-        name = re.sub(r"[（(](.*?)\s*[:：]original script[）)]", r"\1", name)
-        name = re.sub(r"[（(]f.k.a.:\s*(.*?)[）)]", r"\1", name)
-
-        # in Excel, it has this value as (previously listed as), (Previously listed as some name)
-        name = name.replace("(previously listed as)", "")
-        name = name.replace("(formerly listed as", "")
-        name = name.replace("a.k.a., the following three aliases:", "")
-        if split_bracketed and name.count("(") == 0 and name.endswith(")"):
-            name = name.rstrip(")")
-        if split_bracketed and name.count(")") == 0 and name.startswith("("):
-            name = name.lstrip("(")
-        # e.g: Al Qaïda au Maghreb islamique (AQMI))
-        name = name.replace("))", ")")
-        name = name.strip(" 、")
-        # U+202B Right to left embedding indicates a part of a string will be right to left
-        if name and name != "\u202b":
-            cleaned.append(name)
-        no_brackets = BRACKETED.sub(" ", name).strip()
-        if no_brackets != name and len(no_brackets):
-            cleaned.append(no_brackets)
-    return cleaned
-
-
 def parse_notes(context: Context, entity: Entity, notes: list[str]) -> None:
     for note in notes:
         cryptos = h.extract_cryptos(note)
@@ -171,12 +136,8 @@ def emit_row(
     raw_old_name = row.pop("old_name", [])
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
-    entity.add("name", parse_names(name_english))
-    entity.add("name", parse_names(name_japanese), lang="jpn")
-    entity.add("alias", parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)))
-    entity.add("alias", parse_names(raw_known_alias))
-    entity.add("previousName", parse_names(raw_past_alias))
-    entity.add("previousName", parse_names(raw_old_name))
+    # Uncleaned beyond the sheet-wide SPLITS: names.schema_rules decides what needs
+    # review, the analyst decides categorisation.
     original = h.Names()
     for n in name_english:
         original.add("name", n)
@@ -188,37 +149,7 @@ def emit_row(
         original.add("previousName", n)
     for n in chain(raw_weak_alias, raw_nickname):
         original.add("weakAlias", n)
-    suggested = h.Names()
-    for n in parse_names(name_english):
-        suggested.add("name", n)
-    for n in parse_names(name_japanese):
-        suggested.add("name", n, lang="jpn")
-    for n in chain(
-        parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)),
-        parse_names(raw_known_alias),
-    ):
-        suggested.add("alias", n)
-    for n in chain(parse_names(raw_past_alias), parse_names(raw_old_name)):
-        suggested.add("previousName", n)
-    for n in chain(
-        parse_names(h.multi_split(raw_weak_alias, ALIAS_SPLITS)),
-        parse_names(h.multi_split(raw_nickname, ALIAS_SPLITS)),
-    ):
-        suggested.add("weakAlias", n)
-    is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(
-        context,
-        entity,
-        original=original,
-        suggested=suggested,
-        is_irregular=is_irregular,
-        # Only auto-accept clean names. Names still flagged as irregular (e.g. ones that
-        # contain brackets or colons) are held back for human review instead of being
-        # locked in as accepted. The weak_alias and
-        # nickname fields often hold notes/descriptions rather than names, so they are
-        # held back too.
-        default_accepted=not is_irregular and not (raw_weak_alias or raw_nickname),
-    )
+    h.apply_reviewed_names(context, entity, original=original)
     # The position column mixes Japanese and Latin-script values, so it carries
     # no language tag rather than a blanket (and often wrong) eng/jpn label.
     entity.add_cast("Person", "position", row.pop("position", []))
@@ -411,3 +342,4 @@ def crawl(context: Context) -> None:
     else:
         raise ValueError(f"Unknown file type: {url}")
     crawl_sheets(context, sheets)
+    assert_all_accepted(context, raise_on_unaccepted=False)
