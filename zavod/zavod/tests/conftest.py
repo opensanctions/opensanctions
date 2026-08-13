@@ -9,6 +9,7 @@ from nomenklatura import Resolver
 from nomenklatura.db import close_db, make_session, Session
 
 from zavod import settings
+from zavod.archive import get_versions_data
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.logs import configure_logging, reset_logging
@@ -43,6 +44,7 @@ def wrap_test():
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
+    get_versions_data.cache_clear()
     create_db()
     yield
     get_catalog.cache_clear()

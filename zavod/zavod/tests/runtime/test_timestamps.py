@@ -1,12 +1,15 @@
 from datetime import timedelta
-from shutil import copyfile
 from rigour.time import utc_now
 
 from zavod import settings
+from zavod.exporters import export_dataset
+from zavod.integration.dedupe import get_dataset_linker
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
+from zavod.publish import publish_dataset
 from zavod.runtime.timestamps import TimeStampIndex
+from zavod.store import get_store
 
 
 def test_timestamps(testdataset1: Dataset):
@@ -36,14 +39,15 @@ def test_timestamps(testdataset1: Dataset):
 
 def test_backfill(testdataset1: Dataset):
     prev_time = settings.RUN_TIME_ISO
+    # Run the dataset once to output statements.pack
+    # Publish to archive statements and make them discoverable by the next run.
+    linker = get_dataset_linker(testdataset1)
     crawl_dataset(testdataset1)
-
-    archive_path = settings.ARCHIVE_PATH / "datasets/latest" / testdataset1.name
-    archive_path.mkdir(parents=True, exist_ok=True)
-    copyfile(
-        settings.DATA_PATH / "datasets" / testdataset1.name / "statements.pack",
-        archive_path / "statements.pack",
-    )
+    store = get_store(testdataset1, linker)
+    store.sync()
+    view = store.view(testdataset1)
+    export_dataset(testdataset1, view)
+    publish_dataset(testdataset1, republish_to_latest=False)
 
     settings.RUN_TIME = settings.RUN_TIME + timedelta(days=1)
     settings.RUN_TIME_ISO = settings.RUN_TIME.isoformat(sep="T", timespec="seconds")

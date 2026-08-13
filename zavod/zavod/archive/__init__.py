@@ -210,24 +210,27 @@ def get_artifact_object(
     dataset_name: str, resource: str, version: str | None = None
 ) -> ArchiveObject | None:
     backend = get_archive_backend()
+    if version is None:
+        versions_data = get_versions_data(dataset_name)
+        if versions_data is not None:
+            history = VersionHistory.from_json(versions_data)
+            version = history.last_successful.id if history.last_successful else None
+
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
         object = backend.get_object(name)
         if object.exists():
             return object
-    else:
-        for v in iter_dataset_versions(dataset_name):
-            name = f"{ARTIFACTS}/{dataset_name}/{v.id}/{resource}"
-            object = backend.get_object(name)
-            if object.exists():
-                return object
 
-    # FIXME: legacy fallback option of using the latest release
-    # REMOVE THIS AFTER MIGRATION
-    name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
-    object = backend.get_object(name)
-    if object.exists():
-        return object
+    # TODO: Remove after lt_pep_declarations is deleted.
+    # It hasn't succeeded since last_successful was added.
+    if dataset_name == "lt_pep_declarations":
+        version = "20250403160648-kkg"
+        name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
+        object = backend.get_object(name)
+        if object.exists():
+            return object
+
     return None
 
 
