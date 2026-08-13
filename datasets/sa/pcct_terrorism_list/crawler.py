@@ -246,12 +246,15 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
     # Emit linked organizations
     for org in h.multi_split(row.pop("linked_org", None), [";"]):
         emit_related(context, entity, TERROR_ORG_RELATION, name=org)
-    # Emit owners of designated vessels
+    # Emit owners of designated organizations and vessels
+    owner_name = clean_cell(row.pop("owner_name", None))
+    if owner_name is not None and not entity.schema.is_a("Asset"):
+        entity.add_schema("Company")
     emit_related(
         context,
         entity,
         OWNER_RELATION,
-        name=row.pop("owner_name", None),
+        name=owner_name,
         notes=row.pop("owner_info", None),
     )
 
