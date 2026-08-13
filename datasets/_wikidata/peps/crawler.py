@@ -2,7 +2,7 @@ from collections.abc import Generator
 from datetime import datetime
 from functools import lru_cache
 
-from nomenklatura.wikidata import WikidataClient
+from nomenklatura.wikidata import Item, WikidataClient
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
 from rigour.territories.territory import Territory
@@ -30,6 +30,7 @@ ABOLISHED_CLAUSE = """
     OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
 """
 POSITION_CACHE_SIZE = 250_000
+HOLDER_QUERY_ATTEMPTS = 2
 
 
 def all_territories() -> Generator[Territory, None, None]:
@@ -175,6 +176,35 @@ def get_position(context: Context, client: WikidataClient, qid: str) -> Entity |
     return wikidata_position(context, client, item)
 
 
+def fetch_position_holders(
+    context: Context, client: WikidataClient, item: Item
+) -> dict[str, datetime | None]:
+    """Holders of one position, tolerating a failed holder query.
+
+    Holder queries return multi-megabyte result sets for large legislatures, and
+    a transfer that gets cut off mid-body leaves the query service response
+    unparseable. The client drops such a response from its cache, so a second
+    attempt is a genuinely fresh fetch. If that fails too, this position goes
+    without holders for the run — as with the discovery queries above, a single
+    bad query must not discard the whole crawl."""
+    error: Exception | None = None
+    for attempt in range(HOLDER_QUERY_ATTEMPTS):
+        try:
+            return position_holders(client, item)
+        except Exception as exc:  # noqa: BLE001
+            error = exc
+            context.log.debug(
+                "Position holder query failed, retrying",
+                position=item.id,
+                attempt=attempt + 1,
+                error=str(exc),
+            )
+    context.log.warning(
+        "Position holder query failed", position=item.id, error=str(error)
+    )
+    return {}
+
+
 def crawl_person(
     context: Context,
     client: WikidataClient,
@@ -258,7 +288,8 @@ def crawl(context: Context) -> None:
         if position is None:
             continue
         context.log.info(f"Position [{position.id}]: {position.caption}")
-        for person_qid, modified_at in position_holders(client, position_item).items():
+        holders = fetch_position_holders(context, client, position_item)
+        for person_qid, modified_at in holders.items():
             if person_qid in done_persons:
                 continue
             done_persons.add(person_qid)
