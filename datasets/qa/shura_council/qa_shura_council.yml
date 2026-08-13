@@ -61,10 +61,10 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 35
+      Person: 40
       Position: 3
     country_entities:
-      qa: 35
+      qa: 40
   max:
     schema_entities:
       Person: 80

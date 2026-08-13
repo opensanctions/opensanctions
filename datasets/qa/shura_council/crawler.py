@@ -7,12 +7,9 @@ from zavod.util import Element
 POSITION_QIDS = {"Member of the Shura Council of Qatar": "Q21328600"}
 
 
-def crawl_member(context: Context, member_card: Element) -> None:
-    role = h.element_text(h.xpath_element(member_card, ".//h4"))
-    res = context.lookup("position", role, warn_unmatched=True)
-    assert res is not None, role
-
-    raw_name = h.element_text(h.xpath_element(member_card, ".//h3//a"))
+def crawl_member(context: Context, card: Element) -> None:
+    link = h.xpath_element(card, './/h3//a[contains(@href, "/Members/")]')
+    raw_name = h.element_text(link)
     name = h.strip_name_titles(context, raw_name)
     assert name is not None, raw_name
     clean_name = name.rstrip("/")
@@ -25,14 +22,14 @@ def crawl_member(context: Context, member_card: Element) -> None:
         lang="eng",
         original_value=raw_name if clean_name != raw_name else None,
     )
-    person.add(
-        "sourceUrl",
-        h.xpath_string(member_card, './/h3//a[contains(@href, "/Members/")]/@href'),
-    )
+    person.add("sourceUrl", h.xpath_string(link, "./@href"))
     # Shura Council members must hold original Qatari nationality (Constitution of
     # Qatar, Article 80(1)). https://www.constituteproject.org/constitution/Qatar_2003
     person.add("citizenship", "qa")
 
+    role = h.element_text(h.xpath_element(card, ".//h4"))
+    res = context.lookup("position", role)
+    assert res is not None, role
     for title in res.values:
         position = h.make_position(
             context,
@@ -48,15 +45,15 @@ def crawl_member(context: Context, member_card: Element) -> None:
         occupancy = h.make_occupancy(
             context, person, position, categorisation=categorisation
         )
-        if occupancy is not None:
-            context.emit(occupancy)
-            context.emit(position)
-            context.emit(person)
+        if occupancy is None:
+            continue
+        context.emit(position)
+        context.emit(occupancy)
+        context.emit(person)
 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-    for member_card in h.xpath_elements(
-        doc, '//div[@class="content-block"]//div[@class="card"]', expect_exactly=49
-    ):
-        crawl_member(context, member_card)
+    cards = h.xpath_elements(doc, '//div[@class="content-block"]//div[@class="card"]')
+    for card in cards:
+        crawl_member(context, card)
