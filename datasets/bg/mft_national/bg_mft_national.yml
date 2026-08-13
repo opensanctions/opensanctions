@@ -1,0 +1,119 @@
+title: Bulgaria National Terrorism Financing List
+entry_point: crawler.py
+prefix: bg-mft
+coverage:
+  frequency: never
+  start: 2026-08-10
+deploy:
+  schedule: "15 7 * * *"
+manual_check:
+  last_checked: "2026-08-10"
+  interval: 90
+  message: >-
+    The PDF hash monitor in this crawler catches amendments to the
+    consolidated list document. Separately verify on https://www.dans.bg/bg/28
+    (blocked for bots, open in a browser) that the watched PDF is still the
+    document behind the "Консолидиран списък" link, and check whether DANS
+    has started publishing the national designations in another form.
+load_statements: true
+summary: >-
+  Persons designated by the Bulgarian government under the Law on
+  Measures Against the Financing of Terrorism.
+description: |
+  Under the Bulgarian Law on Measures Against the Financing of Terrorism
+  (ЗМФТ), the Council of Ministers adopts a list of persons, legal entities,
+  groups and organisations subject to asset freezing and a ban on providing
+  financial services (Decision 265 of 23 April 2003, as amended). The
+  consolidated list is published by the State Agency for National Security
+  as a PDF document.
+
+  The list consists of four sections. Sections I and II reproduce the UN
+  Security Council terrorism designations (Resolutions 1267/1333) and the
+  EU terrorist list (Regulation 2580/2001) as they stood at the time of
+  adoption; these designations are covered in OpenSanctions through the
+  [UN](/datasets/un_sc_sanctions/) and [EU](/datasets/eu_fsf/) source
+  datasets. This dataset covers Bulgaria's own national designations:
+
+  * **Section III**: persons against whom criminal proceedings for
+    terrorism, its financing or related crimes have been initiated in
+    Bulgaria, including a group of Russian GRU-linked officers added in
+    2022 over their suspected role in arms-depot explosions.
+  * **Section IV**: persons for whom sufficient data exists that they
+    carry out activity related to terrorism or its financing.
+
+  The named persons exist only in the consolidated PDF, which is not
+  machine-readable. The data is therefore maintained as a reviewed CSV file
+  in the OpenSanctions repository, and the crawler monitors the published
+  document for amendments.
+publisher:
+  name: State Agency for National Security
+  acronym: DANS
+  description: |
+    DANS (Държавна агенция „Национална сигурност“) is Bulgaria's civilian
+    security and counter-intelligence agency. Its financial intelligence
+    directorate acts as Bulgaria's FIU and publishes the consolidated list
+    of persons subject to measures against the financing of terrorism.
+  url: https://www.dans.bg/
+  country: bg
+  official: true
+url: https://www.dans.bg/bg/28
+data:
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/bg/mft_national/sanctions.csv
+  format: CSV
+  lang: bul
+dates:
+  formats: ["%d.%m.%Y"]
+tags:
+  - list.sanction
+  - juris.bg
+
+assertions:
+  min:
+    schema_entities:
+      Person: 15
+  max:
+    schema_entities:
+      Person: 40
+
+lookups:
+  # The introductory sentence of each list section, verbatim from the decision.
+  sections:
+    options:
+      - match: "III"
+        value: >-
+          Лица, срещу които е образувано наказателно производство за тероризъм,
+          финансиране на тероризъм, набиране или обучаване на отделни лица или
+          групи от хора с цел извършване на тероризъм, излизане или влизане
+          през границата на страната, както и незаконно пребиваване в нея с цел
+          участие в тероризъм, образуване, ръководене или членуване в
+          организирана престъпна група, която си поставя за цел да извършва
+          тероризъм или финансиране на тероризъм, приготовление към извършване
+          на тероризъм, подправка на официален документ с цел улесняване
+          извършване на тероризъм, явно подбуждане към извършване на тероризъм
+          или закана за извършване на тероризъм по смисъла на Наказателния
+          кодекс.
+      - match: "IV"
+        value: >-
+          Лица, за които има достатъчно данни, че осъществяват дейност,
+          свързана с тероризъм или с финансиране на тероризъм
+
+config:
+  # Handling "The consolidated list PDF has been amended" warnings:
+  #
+  # 1. Fetch the new PDF from the URL in the warning via the Zyte API with
+  #    geolocation "BG" (dans.bg blocks plain requests behind a Cloudflare
+  #    challenge). Diff Раздел III and Раздел IV against the committed
+  #    dans_list.pdf — pdftotext works, the document is text-based.
+  # 2. For each newly listed person, append one sanctions.csv row: names
+  #    verbatim from the decision (Bulgarian in "Name BG", a Latin name only
+  #    if the decision gives one), Gazette set to the amendment's State
+  #    Gazette reference (e.g. "ДВ, бр. 73 от 2022 г.") and Listed to that
+  #    issue's publication date.
+  # 3. For a removal, set the row's Delisted date instead of deleting the
+  #    row. Amendments to sections I and II need no CSV change — those
+  #    sections are out of scope — but note them in the commit message.
+  # 4. Replace dans_list.pdf with the new document and update PDF_HASH in
+  #    crawler.py with its SHA1. This mutes the warning.
+  # 5. If the fetch itself fails ("List PDF change check failed"), DANS has
+  #    likely re-uploaded the document under a new /upload/NNN/ path — find
+  #    the current link on https://www.dans.bg/bg/28 and update PDF_URL.

@@ -1,0 +1,17 @@
+id: 323
+title: Bulgarian Terrorism Financing Measures List
+key: BG-MFT
+url: https://www.dans.bg/bg/28
+summary: With Decision 265 of 23 April 2003, the Bulgarian Council of Ministers
+  adopts the list of persons, legal entities, groups and organisations subject
+  to the measures under the Law on Measures Against the Financing of Terrorism.
+  The assets of listed persons are frozen and providing them with funds or
+  financial services is prohibited. Beyond reproducing the UN Security Council
+  and EU terrorism designations, the list names persons under Bulgarian
+  criminal proceedings for terrorism-related crimes and persons for whom
+  sufficient data of terrorism-related activity exists.
+issuer: bg_bul
+dataset: bg_mft_national
+measures:
+  - Asset freeze
+  - Financial restrictions
