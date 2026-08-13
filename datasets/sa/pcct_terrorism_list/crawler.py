@@ -249,9 +249,6 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
     # Emit owners of designated organizations and vessels
     owner_name = clean_cell(row.pop("owner_name", None))
     if owner_name is not None and not entity.schema.is_a("Asset"):
-        # `Ownership:asset` only accepts an `Asset`, which `Organization` is not.
-        # A designated organization that someone owns is a business, so make it a
-        # `Company` - the schema that inherits from both `Asset` and `Organization`.
         entity.add_schema("Company")
     emit_related(
         context,
