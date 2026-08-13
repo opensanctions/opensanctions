@@ -231,15 +231,6 @@ def get_artifact_object(
         if object.exists():
             return object
 
-    # FIXME: legacy fallback option of using the latest release
-    # REMOVE THIS AFTER MIGRATION
-    name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
-    object = backend.get_object(name)
-    if object.exists():
-        log.warning(
-            f"Couldn't find artifact object the modern way {dataset_name} {resource}"
-        )
-        return object
     return None
 
 
