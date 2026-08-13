@@ -8,11 +8,17 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  National legislative body, part elected and part appointed by the Emir
+  Members of the advisory legislative body of the State of Qatar.
 description: |
-  Current members of the Shura Council (Majlis al-Shura), the national legislative body of
-  the State of Qatar. As of November 2024, all 45 seats are appointed by Emir. Members hold the country's legislative
-  authority, including passing laws and approving the general budget.
+  Current members of the Shura Council (Majlis al-Shura), the unicameral national
+  legislature of the State of Qatar. All 45 members are appointed by the Emir, following
+  a November 2024 constitutional amendment that ended elections to the 30 seats
+  previously filled by vote, and they hold the country's legislative authority,
+  including passing laws and approving the general budget.
+
+  This dataset records each member with their name and their seat in the council, along
+  with any presiding office, Speaker or Deputy Speaker, held alongside that seat.
+  Only the current legislative session is covered.
 url: https://www.shura.qa/
 publisher:
   name: Shura Council of Qatar
@@ -22,7 +28,6 @@ publisher:
   country: qa
   official: true
 data:
-  # The English roster; the crawler also reads the /ar-QA/ locale for Arabic names.
   url: https://www.shura.qa/en/Pages/About-Council/President-and-Members
   format: HTML
   lang: eng
@@ -63,10 +68,10 @@ assertions:
   min:
     schema_entities:
       Person: 40
-      Position: 3
+      Position: 2
     country_entities:
       qa: 40
   max:
     schema_entities:
       Person: 80
-      Position: 3
+      Position: 5
