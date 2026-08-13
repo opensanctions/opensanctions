@@ -270,8 +270,12 @@ class SenzingExporter(Exporter):
                 push(record, "ADDRESSES", clean(adj_data))
 
             elif adj.schema.name == "Identification":
+                # Carry the document type (e.g. "National ID No.", "Cedula No.") — sources
+                # record it on the Identification but it was being dropped, leaving the
+                # exclusive NATIONAL_ID untyped and prone to cross-scheme false conflicts.
                 adj_data = {
                     "NATIONAL_ID_NUMBER": adj.first("number"),
+                    "NATIONAL_ID_TYPE": adj.first("type"),
                     "NATIONAL_ID_COUNTRY": adj.first("country"),
                 }
                 push(record, "IDENTIFIERS", clean(adj_data))
