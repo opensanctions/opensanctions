@@ -7,6 +7,7 @@ __pycache__/
 *.sqlite3
 *.perf
 *.csv
+!datasets/eu/sanctions_map/programs.csv
 *.sql
 .env
 .envrc
