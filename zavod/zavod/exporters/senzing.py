@@ -44,10 +44,22 @@ def push(obj: dict[str, Any], section: str, value: dict[str, Any]) -> None:
 
 
 def map(
-    entity: Entity, prop: str, obj: dict[str, Any], section: str, attr: str
+    entity: Entity,
+    prop: str,
+    obj: dict[str, Any],
+    section: str,
+    attr: str,
+    type_attr: str | None = None,
 ) -> None:
     for value in entity.get(prop, quiet=True):
-        push(obj, section, {attr: value})
+        item = {attr: value}
+        if type_attr is not None:
+            # Preserve the FtM property as the identifier TYPE. Several distinct
+            # schemes (e.g. ogrnCode vs registrationNumber vs innCode) otherwise
+            # collapse into one untyped Senzing field, so a mismatch between two
+            # different-scheme numbers is wrongly treated as an exclusive conflict.
+            item[type_attr] = prop
+        push(obj, section, item)
 
 
 def clean(obj: dict[str, Any]) -> dict[str, Any]:
@@ -150,12 +162,18 @@ class SenzingExporter(Exporter):
         map(entity, "email", record, "CONTACTS", "EMAIL_ADDRESS")
         map(entity, "phone", record, "CONTACTS", "PHONE_NUMBER")
         map(entity, "passportNumber", record, "IDENTIFIERS", "PASSPORT_NUMBER")
-        map(entity, "idNumber", record, "IDENTIFIERS", "NATIONAL_ID_NUMBER")
-        map(entity, "registrationNumber", record, "IDENTIFIERS", "NATIONAL_ID_NUMBER")
-        map(entity, "ogrnCode", record, "IDENTIFIERS", "NATIONAL_ID_NUMBER")
-        map(entity, "taxNumber", record, "IDENTIFIERS", "TAX_ID_NUMBER")
-        map(entity, "innCode", record, "IDENTIFIERS", "TAX_ID_NUMBER")
-        map(entity, "vatCode", record, "IDENTIFIERS", "TAX_ID_NUMBER")
+        # NATIONAL_ID / TAX_ID collapse several distinct FtM identifier schemes into one
+        # Senzing field; keep the FtM property as *_TYPE so they remain distinguishable.
+        id_num = "NATIONAL_ID_NUMBER"
+        id_type = "NATIONAL_ID_TYPE"
+        tax_num = "TAX_ID_NUMBER"
+        tax_type = "TAX_ID_TYPE"
+        map(entity, "idNumber", record, "IDENTIFIERS", id_num, id_type)
+        map(entity, "registrationNumber", record, "IDENTIFIERS", id_num, id_type)
+        map(entity, "ogrnCode", record, "IDENTIFIERS", id_num, id_type)
+        map(entity, "taxNumber", record, "IDENTIFIERS", tax_num, tax_type)
+        map(entity, "innCode", record, "IDENTIFIERS", tax_num, tax_type)
+        map(entity, "vatCode", record, "IDENTIFIERS", tax_num, tax_type)
         map(entity, "socialSecurityNumber", record, "IDENTIFIERS", "SSN_NUMBER")
         map(entity, "leiCode", record, "IDENTIFIERS", "LEI_NUMBER")
         map(entity, "dunsCode", record, "IDENTIFIERS", "DUNS_NUMBER")
