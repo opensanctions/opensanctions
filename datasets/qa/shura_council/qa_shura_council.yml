@@ -48,7 +48,8 @@ lookups:
     required: true
     options:
       - match: Member of the Shura Council
-        value: Member of the Shura Council of Qatar
+        values:
+          - Member of the Shura Council of Qatar
       - match: The Shura Speaker
         values:
           - Speaker of the Shura Council of Qatar

@@ -43,11 +43,10 @@ def crawl_member(context: Context, card: Element) -> None:
         occupancy = h.make_occupancy(
             context, person, position, categorisation=categorisation
         )
-        if occupancy is None:
-            continue
-        context.emit(position)
-        context.emit(occupancy)
-        context.emit(person)
+        if occupancy is not None:
+            context.emit(position)
+            context.emit(occupancy)
+            context.emit(person)
 
 
 def crawl(context: Context) -> None:
