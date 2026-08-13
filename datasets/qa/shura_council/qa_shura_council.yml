@@ -28,7 +28,8 @@ publisher:
   country: qa
   official: true
 data:
-  url: https://www.shura.qa/en/Pages/About-Council/President-and-Members
+  # Requested with the session number because we assert the latest session is being used.
+  url: https://www.shura.qa/en/Pages/About-Council/President-and-Members?SessionNumber=54
   format: HTML
   lang: eng
 http:

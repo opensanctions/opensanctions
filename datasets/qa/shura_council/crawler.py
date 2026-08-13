@@ -51,6 +51,10 @@ def crawl_member(context: Context, card: Element) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
+    # The roster is requested per session, so fail when a newer one is published.
+    sessions = h.xpath_strings(doc, '//select[@id="sessionNumber"]/option/@value')
+    latest = max(int(s) for s in sessions if s)
+    assert context.data_url.endswith(f"SessionNumber={latest}"), latest
     cards = h.xpath_elements(doc, '//div[@class="content-block"]//div[@class="card"]')
     for card in cards:
         crawl_member(context, card)
