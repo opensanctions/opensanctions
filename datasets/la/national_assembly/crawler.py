@@ -9,7 +9,9 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # Capital" through "18. Constituency 18, Xaysomboun Province". Matching on the link
 # text (rather than a URL keyword) also catches constituency 1, whose link is the hub
 # page itself, and constituency 2, whose URL slug ("phongsaly2") is not in Lao script.
-REGEX_CONSTITUENCY_LINK = re.compile(r"^\d{1,2}\. Constituency \d{1,2},")
+REGEX_CONSTITUENCY_LINK = re.compile(
+    r"^(?P<number>1[0-8]|[1-9])\. Constituency (?P=number), [A-Za-z ]+$"
+)
 # One constituency per province, plus the Vientiane Capital prefecture.
 CONSTITUENCY_COUNT = 18
 

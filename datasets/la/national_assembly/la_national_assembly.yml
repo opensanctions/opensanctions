@@ -82,13 +82,14 @@ lookups:
           - ສີສູນທອນ ສ.ຜາບມີໄຊຍ໌
           - Sisouthone S.PHABMIXAY
 
+# 164 seats in total
 assertions:
   min:
     schema_entities:
-      Person: 120
+      Person: 130
       Position: 1
     country_entities:
-      la: 120
+      la: 130
   max:
     schema_entities:
       Person: 200
