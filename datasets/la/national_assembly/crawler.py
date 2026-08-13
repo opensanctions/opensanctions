@@ -33,7 +33,7 @@ def crawl_member(
         # in the `names_override` lookup.
         if (
             h.is_name_irregular(person, name)
-            and context.lookup_value("names_override", name) is None
+            and context.lookup("names_override", name) is None
         ):
             context.log.warning(
                 "Name still looks titled after stripping; extend names.prefixes_strip",
@@ -103,8 +103,10 @@ def crawl(context: Context) -> None:
         seen.add(href)
         urls.append(href)
     if len(urls) != CONSTITUENCY_COUNT:
-        raise ValueError(
-            f"Expected {CONSTITUENCY_COUNT} constituency links, found {len(urls)}"
+        context.log.warning(
+            "Unexpected number of constituency links; check regex and page structure",
+            expected=CONSTITUENCY_COUNT,
+            found=len(urls),
         )
 
     for url in urls:
