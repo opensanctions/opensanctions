@@ -50,6 +50,8 @@ def map(
     section: str,
     attr: str,
     type_attr: str | None = None,
+    country: str | None = None,
+    country_attr: str | None = None,
 ) -> None:
     for value in entity.get(prop, quiet=True):
         item = {attr: value}
@@ -59,6 +61,11 @@ def map(
             # collapse into one untyped Senzing field, so a mismatch between two
             # different-scheme numbers is wrongly treated as an exclusive conflict.
             item[type_attr] = prop
+        if country and country_attr is not None:
+            # Qualify the identifier by country. Exclusive ids (NATIONAL_ID/TAX_ID/
+            # PASSPORT) are only unique WITHIN a country, so a country puts them in
+            # the right namespace and stops cross-country numbers from colliding.
+            item[country_attr] = country
         push(obj, section, item)
 
 
@@ -161,19 +168,97 @@ class SenzingExporter(Exporter):
         map(entity, "website", record, "CONTACTS", "WEBSITE_ADDRESS")
         map(entity, "email", record, "CONTACTS", "EMAIL_ADDRESS")
         map(entity, "phone", record, "CONTACTS", "PHONE_NUMBER")
-        map(entity, "passportNumber", record, "IDENTIFIERS", "PASSPORT_NUMBER")
+        # A single best country to qualify exclusive identifiers. Registration ids use the
+        # legal jurisdiction; a passport uses the holder's nationality.
+        id_country = (
+            entity.first("jurisdiction", quiet=True)
+            or entity.first("country", quiet=True)
+            or entity.first("mainCountry", quiet=True)
+            or entity.first("nationality", quiet=True)
+        )
+        passport_country = (
+            entity.first("nationality", quiet=True)
+            or entity.first("citizenship", quiet=True)
+            or id_country
+        )
+        map(
+            entity,
+            "passportNumber",
+            record,
+            "IDENTIFIERS",
+            "PASSPORT_NUMBER",
+            country=passport_country,
+            country_attr="PASSPORT_COUNTRY",
+        )
         # NATIONAL_ID / TAX_ID collapse several distinct FtM identifier schemes into one
-        # Senzing field; keep the FtM property as *_TYPE so they remain distinguishable.
+        # Senzing field; keep the FtM property as *_TYPE so they remain distinguishable,
+        # and qualify by *_COUNTRY (both are exclusive and only unique within a country).
         id_num = "NATIONAL_ID_NUMBER"
         id_type = "NATIONAL_ID_TYPE"
+        id_ctry = "NATIONAL_ID_COUNTRY"
         tax_num = "TAX_ID_NUMBER"
         tax_type = "TAX_ID_TYPE"
-        map(entity, "idNumber", record, "IDENTIFIERS", id_num, id_type)
-        map(entity, "registrationNumber", record, "IDENTIFIERS", id_num, id_type)
-        map(entity, "ogrnCode", record, "IDENTIFIERS", id_num, id_type)
-        map(entity, "taxNumber", record, "IDENTIFIERS", tax_num, tax_type)
-        map(entity, "innCode", record, "IDENTIFIERS", tax_num, tax_type)
-        map(entity, "vatCode", record, "IDENTIFIERS", tax_num, tax_type)
+        tax_ctry = "TAX_ID_COUNTRY"
+        map(
+            entity,
+            "idNumber",
+            record,
+            "IDENTIFIERS",
+            id_num,
+            id_type,
+            id_country,
+            id_ctry,
+        )
+        map(
+            entity,
+            "registrationNumber",
+            record,
+            "IDENTIFIERS",
+            id_num,
+            id_type,
+            id_country,
+            id_ctry,
+        )
+        map(
+            entity,
+            "ogrnCode",
+            record,
+            "IDENTIFIERS",
+            id_num,
+            id_type,
+            id_country,
+            id_ctry,
+        )
+        map(
+            entity,
+            "taxNumber",
+            record,
+            "IDENTIFIERS",
+            tax_num,
+            tax_type,
+            id_country,
+            tax_ctry,
+        )
+        map(
+            entity,
+            "innCode",
+            record,
+            "IDENTIFIERS",
+            tax_num,
+            tax_type,
+            id_country,
+            tax_ctry,
+        )
+        map(
+            entity,
+            "vatCode",
+            record,
+            "IDENTIFIERS",
+            tax_num,
+            tax_type,
+            id_country,
+            tax_ctry,
+        )
         map(entity, "socialSecurityNumber", record, "IDENTIFIERS", "SSN_NUMBER")
         map(entity, "leiCode", record, "IDENTIFIERS", "LEI_NUMBER")
         map(entity, "dunsCode", record, "IDENTIFIERS", "DUNS_NUMBER")

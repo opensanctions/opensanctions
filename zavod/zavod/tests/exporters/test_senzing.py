@@ -35,11 +35,13 @@ def test_senzing(testdataset1: Dataset):
     company_countries = company.pop("COUNTRIES")
     assert {"REGISTRATION_COUNTRY": "us"} in company_countries
     company_identifiers = company.pop("IDENTIFIERS")
-    # The FtM property (here registrationNumber) is preserved as NATIONAL_ID_TYPE so distinct
-    # identifier schemes don't collapse into one untyped NATIONAL_ID and false-conflict.
+    # The FtM property (here registrationNumber) is preserved as NATIONAL_ID_TYPE, and the entity's
+    # jurisdiction as NATIONAL_ID_COUNTRY, so distinct identifier schemes/countries don't collapse
+    # into one untyped NATIONAL_ID and false-conflict.
     assert {
         "NATIONAL_ID_NUMBER": "8723-BX",
         "NATIONAL_ID_TYPE": "registrationNumber",
+        "NATIONAL_ID_COUNTRY": "us",
     } in company_identifiers
     assert company["DATA_SOURCE"] == "OS_TESTDATASET1"
     assert company["RECORD_ID"] == "osv-umbrella-corp"
