@@ -177,6 +177,10 @@ lookups:
         values:
           - "www.allfinanzregulierung.ch"
           - "www.shz-schuldenhilfe.de"
+      - match: "www.albaswissfx.com; alba-integrity.cm"
+        values:
+          - "www.albaswissfx.com"
+          - "alba-integrity.cm"
       - match: "www.alpenstark.online / www.alpenstark.com"
         values:
           - "www.alpenstark.online"
