@@ -1,0 +1,78 @@
+title: Qatar Members of the Shura Council
+name: qa_shura_council
+prefix: qa-shura
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-24
+load_statements: true
+ci_test: true
+summary: >-
+  Members of the advisory legislative body of the State of Qatar.
+description: |
+  Current members of the Shura Council (Majlis al-Shura), the unicameral national
+  legislature of the State of Qatar. All 45 members are appointed by the Emir, following
+  a November 2024 constitutional amendment that ended elections to the 30 seats
+  previously filled by vote, and they hold the country's legislative authority,
+  including passing laws and approving the general budget.
+
+  This dataset records each member with their name and their seat in the council, along
+  with any presiding office, Speaker or Deputy Speaker, held alongside that seat.
+  Only the current legislative session is covered.
+url: https://www.shura.qa/
+publisher:
+  name: Shura Council of Qatar
+  description: >
+    The Shura Council is the legislative body of the State of Qatar.
+  url: https://www.shura.qa/
+  country: qa
+  official: true
+data:
+  # Requested with the session number because we assert the latest session is being used.
+  url: https://www.shura.qa/en/Pages/About-Council/President-and-Members?SessionNumber=54
+  format: HTML
+  lang: eng
+http:
+  # The site returns 403 without a browser user agent.
+  user_agent: >-
+    Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)
+    Chrome/124.0.0.0 Safari/537.36
+
+names:
+  prefixes_strip:
+    - H.E. Mr.
+    - H.E. Mrs.
+    - H.E. Ms.
+    - H.E. Dr.
+    - H.E.
+
+tags:
+  - list.pep
+
+lookups:
+  position:
+    required: true
+    options:
+      - match: Member of the Shura Council
+        values:
+          - Member of the Shura Council of Qatar
+      - match: The Shura Speaker
+        values:
+          - Speaker of the Shura Council of Qatar
+          - Member of the Shura Council of Qatar
+      - match: The Deputy Speaker
+        values:
+          - Deputy Speaker of the Shura Council of Qatar
+          - Member of the Shura Council of Qatar
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+      Position: 2
+    country_entities:
+      qa: 40
+  max:
+    schema_entities:
+      Person: 80
+      Position: 5
