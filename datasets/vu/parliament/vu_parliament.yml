@@ -41,6 +41,17 @@ names:
     - "Hon "
     - Hon.
 
+lookups:
+  # The 7th legislature states each member's constituency inside its home-island column.
+  # Where a cell holds something else instead, name the constituency here, or map it to
+  # null if the source offers no way to recover it.
+  home_island_seat:
+    options:
+      # Maxime Carlot Korman's cell holds a portfolio. The 6th, 8th and 9th legislature
+      # rosters all give his constituency as Port Vila, as do the rows around his.
+      - match: Minister of Education
+        value: Port Vila
+
 tags:
   - list.pep
 
