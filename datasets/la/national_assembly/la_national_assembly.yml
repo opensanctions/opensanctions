@@ -75,7 +75,7 @@ names:
       reject_chars: "."
 
 lookups:
-  name_with_stop_ok:
+  names_override:
     options:
       # Full stop is a surname initial, not an unstripped title.
       - match:

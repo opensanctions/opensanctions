@@ -30,10 +30,10 @@ def crawl_member(
         # A full stop left after title stripping (flagged via `names.schema_rules.
         # Person.reject_chars`) means a rank/academic abbreviation missing from
         # `names.prefixes_strip` — unless it is a known surname initial, cleared
-        # in the `name_with_stop_ok` lookup.
+        # in the `names_override` lookup.
         if (
             h.is_name_irregular(person, name)
-            and context.lookup("name_with_stop_ok", name) is None
+            and context.lookup_value("names_override", name) is None
         ):
             context.log.warning(
                 "Name still looks titled after stripping; extend names.prefixes_strip",
