@@ -1,3 +1,4 @@
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -17,6 +18,100 @@ SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_seb
 OTHER_DEBARRMENT_URL = (
     "https://nsearchives.nseindia.com/content/press/prs_ra_others.xls"
 )
+
+OWNERSHIP_MARKER = re.compile(
+    r"\b(?:proprietor(?![a-z])|owner(?![a-z])|prop\.)(?P<of>\s+of\b)?",
+    re.IGNORECASE,
+)
+PROPRIETORY_CONCERN_MARKER = re.compile(
+    r"\bproprietory\s+concern\s+of\b", re.IGNORECASE
+)
+PROPRIETORSHIP_FIRM_MARKER = re.compile(
+    r"\s*&\s*its\s+proprietorship\s+firm\s+viz\.\s*", re.IGNORECASE
+)
+ASSET_RELATIONSHIP_SUFFIX = re.compile(
+    r"\s*(?:(?:and|/)\s+(?:the\s+)?its?|\(\s*represented\s+by\s+its)"
+    r"(?:\s+sole)?\s*$",
+    re.IGNORECASE,
+)
+PERSON_PREFIX = re.compile(
+    r"^(?:(?:mr|mrs|ms|dr)\.(?=\s*\w)|(?:mr|mrs|ms|dr|shri|smt)\.?\s+)",
+    re.IGNORECASE,
+)
+BUSINESS_WORD = re.compile(
+    r"\b(?:advisory|advisor|academy|capital|company|consultancy|consultant|"
+    r"enterprise|financial|firm|gainer|infotech|institute|investment|market|"
+    r"money|organisation|research|securities|services|solutions|system|tips|"
+    r"trader|trading)\b",
+    re.IGNORECASE,
+)
+
+
+def clean_ownership_name(name: str) -> str:
+    """Remove punctuation used to separate an owner from their business."""
+    name = re.sub(
+        r"\(\s*individual\s+capacity\s+and\s*$", "", name, flags=re.IGNORECASE
+    )
+    return name.strip(" \t\r\n,;:-–—?()")
+
+
+def looks_like_person(name: str) -> bool:
+    return PERSON_PREFIX.search(name) is not None
+
+
+def looks_like_business(name: str) -> bool:
+    return name.casefold().startswith("m/s") or BUSINESS_WORD.search(name) is not None
+
+
+def split_ownership_name(name: str) -> tuple[str, str, bool] | None:
+    """Split a combined proprietor/business name into owner and asset names."""
+    proprietorship_match = PROPRIETORSHIP_FIRM_MARKER.search(name)
+    if proprietorship_match is not None:
+        owner_name = clean_ownership_name(name[: proprietorship_match.start()])
+        asset_name = clean_ownership_name(name[proprietorship_match.end() :])
+        if not owner_name or not asset_name:
+            return None
+        return owner_name, asset_name, True
+
+    proprietory_match = PROPRIETORY_CONCERN_MARKER.search(name)
+    matches = list(OWNERSHIP_MARKER.finditer(name))
+    if proprietory_match is not None:
+        if matches:
+            return None
+        left = clean_ownership_name(name[: proprietory_match.start()])
+        right = clean_ownership_name(name[proprietory_match.end() :])
+        if not left or not right:
+            return None
+        return right, left, False
+    if len(matches) != 1:
+        return None
+
+    match = matches[0]
+    left = clean_ownership_name(name[: match.start()])
+    right = clean_ownership_name(name[match.end() :])
+    if not left or not right:
+        return None
+
+    # "Person, proprietor of Business" is unambiguous. Without "of", use the
+    # source's person titles and common business terms to handle both orders.
+    person_first = match.group("of") is not None
+    if not person_first:
+        left_is_person = looks_like_person(left)
+        right_is_person = looks_like_person(right)
+        left_is_business = looks_like_business(left)
+        right_is_business = looks_like_business(right)
+        if left_is_person != right_is_person:
+            person_first = left_is_person
+        elif left_is_business != right_is_business:
+            person_first = right_is_business
+
+    owner_name, asset_name = (left, right) if person_first else (right, left)
+    relationship_match = ASSET_RELATIONSHIP_SUFFIX.search(asset_name)
+    asset_is_debarred = relationship_match is not None
+    if relationship_match is not None:
+        asset_name = asset_name[: relationship_match.start()]
+        asset_name = clean_ownership_name(asset_name)
+    return owner_name, asset_name, asset_is_debarred
 
 
 def load_sheet(workbook: Any, possible_names: list[str]) -> Any:
@@ -60,19 +155,9 @@ def crawl_item(context: Context, input_dict: dict[str, str | None]) -> None:
     asset = None
     debarreds = []
 
-    names = h.multi_split(name, ["Proprietor of", "Owner of"])
-    if len(names) == 2:
-        name = names[0]
-        crawl_ownership(context, entity, names[1])
-
-    names = h.multi_split(name, ["Proprietor", "Owner", "Prop."])
-    if len(names) == 2 and names[0].strip():
-        name = names[1]
-        asset_name = names[0]
-        asset_is_debarred = False
-        if "and its" in asset_name:
-            asset_name = asset_name.replace("and its", "")
-            asset_is_debarred = True
+    ownership_names = split_ownership_name(name)
+    if ownership_names is not None:
+        name, asset_name, asset_is_debarred = ownership_names
         asset = crawl_ownership(
             context, entity, asset_name, is_debarred=asset_is_debarred
         )
