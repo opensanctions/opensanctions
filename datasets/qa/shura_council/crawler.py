@@ -3,9 +3,6 @@ from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.util import Element
 
-# No Wikidata item covers either leadership office.
-POSITION_QIDS = {"Member of the Shura Council of Qatar": "Q21328600"}
-
 
 def crawl_member(context: Context, card: Element) -> None:
     link = h.xpath_element(card, './/h3//a[contains(@href, "/Members/")]')
@@ -36,7 +33,8 @@ def crawl_member(context: Context, card: Element) -> None:
             name=title,
             country="qa",
             topics=["gov.national", "gov.legislative"],
-            wikidata_id=POSITION_QIDS.get(title),
+            # No Wikidata item covers either leadership office.
+            wikidata_id="Q21328600" if "Member of the Shura Council" in title else None,
             lang="eng",
         )
         categorisation = categorise(context, position)
