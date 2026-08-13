@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import argparse
-import sys
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import requests
+import click
 from lxml import etree, html
 
 from zavod.helpers.html import xpath_element
@@ -298,49 +297,47 @@ def extract_body_html(expression: Expression) -> bytes:
     return etree.tostring(body, encoding="utf-8", method="html")
 
 
-def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Fetch an EU legal expression from CELLAR."
-    )
-    parser.add_argument("celex", help="CELEX identifier, EUR-Lex URL, or ELI URL")
-    parser.add_argument("--language", default="ENG", help="CELLAR language code")
-    parser.add_argument(
-        "--media-type",
-        default="application/xhtml+xml",
-        help="preferred expression media type",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        help="write the expression to this path instead of standard output",
-    )
-    parser.add_argument(
-        "--body-only",
-        action="store_true",
-        help="emit the act body as HTML, preserving annex tables",
-    )
-    return parser
-
-
-def main(argv: list[str] | None = None) -> int:
+@click.command(help="Fetch an EU legal expression from CELLAR.")
+@click.argument("celex")
+@click.option(
+    "--language", default="ENG", show_default=True, help="CELLAR language code"
+)
+@click.option(
+    "--media-type",
+    default="application/xhtml+xml",
+    show_default=True,
+    help="Preferred expression media type.",
+)
+@click.option(
+    "--output",
+    type=click.Path(path_type=Path, dir_okay=False),
+    help="Write the expression to this path instead of standard output.",
+)
+@click.option(
+    "--body-only",
+    is_flag=True,
+    help="Emit the act body as HTML, preserving annex tables.",
+)
+def cli(
+    celex: str,
+    language: str,
+    media_type: str,
+    output: Path | None,
+    body_only: bool,
+) -> None:
     """Fetch source bytes for agents and humans without requiring a crawl."""
-    args = _parser().parse_args(argv)
     try:
         expression = fetch_expression_http(
-            args.celex, language=args.language, media_type=args.media_type
+            celex, language=language, media_type=media_type
         )
-        content = (
-            extract_body_html(expression) if args.body_only else expression.content
-        )
-        if args.output is None:
-            sys.stdout.buffer.write(content)
+        content = extract_body_html(expression) if body_only else expression.content
+        if output is None:
+            click.get_binary_stream("stdout").write(content)
         else:
-            args.output.write_bytes(content)
+            output.write_bytes(content)
     except (OSError, ValueError, requests.RequestException) as exc:
-        print(str(exc), file=sys.stderr)
-        return 2
-    return 0
+        raise click.ClickException(str(exc)) from exc
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    cli()

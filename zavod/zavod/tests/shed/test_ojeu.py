@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 import requests
+from click.testing import CliRunner
 
 from zavod.shed.ojeu import cellar, celex
 
@@ -112,7 +113,7 @@ def test_context_adapters_share_requests_and_parsers() -> None:
 
 
 def test_cli_prints_stable_json_and_saves_expression(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     result = json.loads((FIXTURES / "act.json").read_text())
     act = cellar.parse_act_results("32026R1708", result)
@@ -131,9 +132,11 @@ def test_cli_prints_stable_json_and_saves_expression(
     )
     output_path = tmp_path / "act.xhtml"
 
-    assert celex.main(["32026R1708", "--save-expression", str(output_path)]) == 0
-
-    output = capsys.readouterr().out
+    result = CliRunner().invoke(
+        celex.cli, ["32026R1708", "--save-expression", str(output_path)]
+    )
+    assert result.exit_code == 0, result.output
+    output = result.output
     parsed = json.loads(output)
     assert parsed["celex"] == "32026R1708"
     assert parsed["expression"]["saved_to"] == str(output_path)
@@ -162,7 +165,10 @@ def test_cellar_cli_writes_expression(
     )
     output_path = tmp_path / "act.xhtml"
 
-    assert cellar.main(["32026R1708", "--output", str(output_path)]) == 0
+    result = CliRunner().invoke(
+        cellar.cli, ["32026R1708", "--output", str(output_path)]
+    )
+    assert result.exit_code == 0, result.output
     assert output_path.read_bytes() == content
 
 
@@ -184,7 +190,11 @@ def test_cellar_cli_extracts_body_with_tables(
     )
     output_path = tmp_path / "act-body.html"
 
-    assert cellar.main(["32026R1708", "--body-only", "--output", str(output_path)]) == 0
+    result = CliRunner().invoke(
+        cellar.cli,
+        ["32026R1708", "--body-only", "--output", str(output_path)],
+    )
+    assert result.exit_code == 0, result.output
     body = output_path.read_text()
     assert body.startswith("<body>")
     assert "<table>" in body

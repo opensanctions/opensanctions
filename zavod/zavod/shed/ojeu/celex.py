@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 import re
-import sys
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
+
+import click
 
 EUR_LEX_URL = "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
 
@@ -99,53 +99,55 @@ def _celex_from_eli_path(path: str) -> str | None:
     return celex
 
 
-def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Inspect an EU legal act via CELLAR.")
-    parser.add_argument("celex", help="CELEX identifier, EUR-Lex URL, or ELI URL")
-    parser.add_argument("--language", default="ENG", help="CELLAR language code")
-    parser.add_argument(
-        "--media-type",
-        default="application/xhtml+xml",
-        help="preferred expression media type",
-    )
-    parser.add_argument(
-        "--metadata-only",
-        action="store_true",
-        help="query metadata without downloading the expression",
-    )
-    parser.add_argument(
-        "--save-expression",
-        type=Path,
-        help="write the fetched expression to this path",
-    )
-    return parser
-
-
-def main(argv: list[str] | None = None) -> int:
+@click.command(help="Inspect an EU legal act via CELLAR.")
+@click.argument("celex")
+@click.option(
+    "--language", default="ENG", show_default=True, help="CELLAR language code"
+)
+@click.option(
+    "--media-type",
+    default="application/xhtml+xml",
+    show_default=True,
+    help="Preferred expression media type.",
+)
+@click.option(
+    "--metadata-only",
+    is_flag=True,
+    help="Query metadata without downloading the expression.",
+)
+@click.option(
+    "--save-expression",
+    type=click.Path(path_type=Path, dir_okay=False),
+    help="Write the fetched expression to this path.",
+)
+def cli(
+    celex: str,
+    language: str,
+    media_type: str,
+    metadata_only: bool,
+    save_expression: Path | None,
+) -> None:
     """Print stable JSON for an act so agents can inspect it without a crawl."""
     from zavod.shed.ojeu.cellar import fetch_expression_http, query_act_http
 
-    args = _parser().parse_args(argv)
     try:
-        celex = normalize(args.celex)
+        celex = normalize(celex)
         act = query_act_http(celex)
         output = act.to_dict()
-        if not args.metadata_only:
+        if not metadata_only:
             expression = fetch_expression_http(
-                celex, language=args.language, media_type=args.media_type
+                celex, language=language, media_type=media_type
             )
             output["expression"] = expression.to_dict()
-            if args.save_expression is not None:
-                args.save_expression.write_bytes(expression.content)
-                output["expression"]["saved_to"] = str(args.save_expression)
-        elif args.save_expression is not None:
+            if save_expression is not None:
+                save_expression.write_bytes(expression.content)
+                output["expression"]["saved_to"] = str(save_expression)
+        elif save_expression is not None:
             raise ValueError("--save-expression cannot be used with --metadata-only")
     except (OSError, ValueError) as exc:
-        print(str(exc), file=sys.stderr)
-        return 2
-    print(json.dumps(output, indent=2, sort_keys=True, ensure_ascii=False))
-    return 0
+        raise click.ClickException(str(exc)) from exc
+    click.echo(json.dumps(output, indent=2, sort_keys=True, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    cli()
