@@ -125,15 +125,20 @@ def crawl_member(
     home_island = row.pop("home_island", None)
     if home_island is not None:
         seat = HOME_ISLAND_SEAT.search(home_island)
-        if seat is None:
-            context.log.warning(
-                "No constituency in home island cell",
-                legislature=legislature,
-                name=name,
-                home_island=home_island,
-            )
-        else:
+        if seat is not None:
             constituency = seat.group(1)
+        else:
+            # Some cells hold text other than an address, e.g. a ministerial portfolio.
+            result = context.lookup("home_island_seat", home_island)
+            if result is None:
+                context.log.warning(
+                    "No constituency in home island cell",
+                    legislature=legislature,
+                    name=name,
+                    home_island=home_island,
+                )
+            else:
+                constituency = result.value
 
     person = context.make("Person")
     person.id = context.make_id(name, constituency)
