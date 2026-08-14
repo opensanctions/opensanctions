@@ -75,6 +75,8 @@ docs/_build/
 target/
 
 data/
+!datasets/eu/journal_sanctions/data/
+!datasets/eu/journal_sanctions/data/**/*.csv
 env*/
 
 _site/
