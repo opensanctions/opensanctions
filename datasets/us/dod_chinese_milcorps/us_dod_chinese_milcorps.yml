@@ -71,11 +71,12 @@ publisher:
     - sector.defense
     - target.cn
     - issuer.west
-url: https://github.com/opensanctions/opensanctions/blob/main/datasets/us/dod_chinese_milcorps/sanctions.csv
+url: https://www.war.gov/News/Releases/Release/Article/4511232/dow-releases-list-of-chinese-military-companies-in-accordance-with-section-1260/
 data:
   url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/dod_chinese_milcorps/sanctions.csv
   format: CSV
   lang: eng
+ci_test: false  # No zyte key in CI
 
 assertions:
   min:
