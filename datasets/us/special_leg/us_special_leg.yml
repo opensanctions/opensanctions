@@ -2,7 +2,7 @@ title: "US Special Legislative Exclusions"
 entry_point: crawler.py
 prefix: us-leg
 manual_check:
-  last_check: "2026-07-23"
+  last_checked: "2026-07-23"
   interval: 90
   message: >-
     Sections 889 (FY19 NDAA), 5949 (FY23 NDAA) and 154 (FY24 NDAA) name their entities in the
