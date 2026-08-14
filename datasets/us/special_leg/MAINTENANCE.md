@@ -1,8 +1,9 @@
 # Maintaining us_special_leg
 
-The dataset is maintained as the CSV files in `data/` next to the crawler; edits
-are made as pull requests against them. Each file holds exactly one act, report
-or designation authority, and the crawler rejects a file that mixes several.
+The dataset is maintained as the CSV files in `source_files/` next to the
+crawler; edits are made as pull requests against them. Each file holds exactly
+one act, report or designation authority, and the crawler rejects a file that
+mixes several.
 
 One row per entity per designation event: an entity named by successive editions
 of the same list keeps one row per edition, keyed by `report-date`, and an entity
@@ -36,9 +37,9 @@ All files share the same header:
 
 ## Adding a new act
 
-Create a new file in `data/` with the same header, add the program title to the
-`sanction.program` lookup with a new program key, describe the act in
-`description`, and re-check `assertions`.
+Create a new file in `source_files/` with the same header, add the program
+title to the `sanction.program` lookup with a new program key, describe the act
+in `description`, and re-check `assertions`.
 
 ## Updating the Section 1286 list
 
@@ -49,7 +50,7 @@ Follow [SECTION_1286.md](SECTION_1286.md).
 The crawler searches the DoD Chief Technology Officer's site for published
 Section 1286 lists, which appear as one post per fiscal year. A post is treated
 as reviewed once one of the documents it links is the `source_url` of a
-`data/section_1286.csv` row, so importing the new list — following
+`source_files/section_1286.csv` row, so importing the new list — following
 [SECTION_1286.md](SECTION_1286.md) — mutes the warning by itself.
 
 The search is a keyword query, so a post that is not a list at all would keep
@@ -63,6 +64,6 @@ that are not published as a list — Sections 889, 5949 and 154, and the Section
 ## Handling "Hash mismatch" warnings on the Federal Register API
 
 The crawler polls the API for new INKSNA determinations and rewrites
-`fr_notices.csv`. Read each new notice, append one `data/inksna.csv` row per
-designated foreign person, then commit `fr_notices.csv` and update the hash in
-`crawler.py`.
+`fr_notices.csv`. Read each new notice, append one `source_files/inksna.csv`
+row per designated foreign person, then commit `fr_notices.csv` and update the
+hash in `crawler.py`.

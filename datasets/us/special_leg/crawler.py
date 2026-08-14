@@ -10,8 +10,8 @@ from zavod import Context, helpers as h
 
 LOCAL_PATH = Path(__file__).parent
 # One CSV per act, report or designation authority covered by the dataset.
-DATA_PATH = LOCAL_PATH / "data"
-SECTION_1286_FILE = DATA_PATH / "section_1286.csv"
+SOURCE_FILES_PATH = LOCAL_PATH / "source_files"
+SECTION_1286_FILE = SOURCE_FILES_PATH / "section_1286.csv"
 FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
 # The Section 1286 lists are published by the DoD Chief Technology Officer as a
 # WordPress post per fiscal year, each linking that year's list as a PDF. The
@@ -68,9 +68,9 @@ def crawl_fr_notices(context: Context) -> None:
     # designations published in the Federal Register can take weeks or months
     # to appear in the CSL. This function monitors the FR API directly so that
     # any new notice triggers a warning.
-    # If the hash changes, review the updated fr_notices.csv for new entries and
-    # add the designations to data/inksna.csv accordingly. Then commit the updated
-    # fr_notices.csv and update the hash in this function.
+    # If the hash changes, review the updated fr_notices.csv for new entries
+    # and add the designations to source_files/inksna.csv accordingly. Then
+    # commit the updated fr_notices.csv and update the hash in this function.
     h.assert_url_hash(context, FR_API_URL, "9ee76295f4ac089fe7382bf6f33b947dae5f9eb0")
     rows: list[list[str]] = []
     url = FR_API_URL
@@ -167,9 +167,9 @@ def crawl_source_file(context: Context, source_file: Path) -> None:
 
 
 def crawl(context: Context) -> None:
-    source_files = sorted(DATA_PATH.glob("*.csv"))
+    source_files = sorted(SOURCE_FILES_PATH.glob("*.csv"))
     if len(source_files) == 0:
-        raise ValueError(f"No source data found in {DATA_PATH}")
+        raise ValueError(f"No source data found in {SOURCE_FILES_PATH}")
     for source_file in source_files:
         crawl_source_file(context, source_file)
 

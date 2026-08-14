@@ -83,9 +83,9 @@ publisher:
   country: us
   url: https://www.congress.gov/
   official: true
-url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/data
+url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/source_files
 data:
-  url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/data
+  url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/source_files
   format: CSV
   lang: eng
 dates:

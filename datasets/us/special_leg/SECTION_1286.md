@@ -7,8 +7,8 @@ roughly once a year. Last run: FY25, July 2026.
 
 ## Where the data lives
 
-- The Section 1286 rows live in `data/section_1286.csv`, maintained by pull
-  request. There is no automated crawl of the PDF.
+- The Section 1286 rows live in `source_files/section_1286.csv`, maintained by
+  pull request. There is no automated crawl of the PDF.
 - Each fiscal year gets its **own complete set of rows**, keyed by the
   `report-date` column (2022, 2023, 2024, …). A new release means adding a
   full new year-block, not editing old rows.
@@ -21,7 +21,7 @@ roughly once a year. Last run: FY25, July 2026.
 
 ## Procedure
 
-1. **Get the PDF** and the current `data/section_1286.csv`. Count the
+1. **Get the PDF** and the current `source_files/section_1286.csv`. Count the
    institutions the press release claims (e.g. FY25: "130 academic and research
    institutions") — this is the reconciliation target for top-level Table 1
    entries.
