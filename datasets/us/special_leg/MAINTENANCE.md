@@ -44,6 +44,23 @@ Create a new file in `data/` with the same header, add the program title to the
 
 Follow [SECTION_1286.md](SECTION_1286.md).
 
+## Handling "Unreviewed Section 1286 list" warnings
+
+The crawler searches the DoD Chief Technology Officer's site for published
+Section 1286 lists, which appear as one post per fiscal year. A post is treated
+as reviewed once one of the documents it links is the `source_url` of a
+`data/section_1286.csv` row, so importing the new list — following
+[SECTION_1286.md](SECTION_1286.md) — mutes the warning by itself.
+
+If the warning is about a post that is not a list, or a list already imported
+from another URL, add the post URL to `config.discovery.reviewed_urls` in the
+yml instead, with a comment saying why.
+
+This detects new and re-issued documents. It does not detect an edit to the
+bytes behind a URL that is already imported, and the two acts and one report
+that are not published as a list — Sections 889, 5949 and 154, and the Section
+353 report — are covered by `manual_check` rather than by any monitor.
+
 ## Handling "Hash mismatch" warnings on the Federal Register API
 
 The crawler polls the API for new INKSNA determinations and rewrites

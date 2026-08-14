@@ -9,6 +9,9 @@ manual_check:
 
     There does not seem to be a standard way to track amendments to these legislations, so manually
     searching for press releases announcing amendments to the individual legislations is required.
+    This applies to Sections 889, 5949 and 154, whose entities are named in the statutes themselves,
+    and to the Section 353 report, whose designation authority expired in December 2023. New Section
+    1286 lists and INKSNA determinations are discovered by the crawler and reported as warnings.
 coverage:
   frequency: never
   schedule: "@weekly"
@@ -117,3 +120,9 @@ lookups:
         value: US-5949LIST
       - match: Nonproliferation Sanctions (ISN) - State Department
         value: US-DOS-ISN
+
+config:
+  discovery:
+    # Published cto.mil posts that are not a Section 1286 list, or whose list is
+    # represented from another URL. See MAINTENANCE.md.
+    reviewed_urls: []
