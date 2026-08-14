@@ -77,6 +77,8 @@ lookups:
     options:
       - match: 32014R0833
         value: 02014R0833-20260717
+      - match: 32016R0044
+        value: 02016R0044-20260616
   garbage_collect_original_name:
     # Override the string to look for in the consolidated act text
     # e.g. if we expanded aliases like Lev Anatolyevich Yershov (Ershov)
