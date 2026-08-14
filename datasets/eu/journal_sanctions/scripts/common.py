@@ -49,6 +49,7 @@ COLUMNS = (
     "passportNumber",
     "gender",
     "incorporationDate",
+    "legalForm",
     "registrationNumber",
     "taxNumber",
     "idNumber",
@@ -62,6 +63,7 @@ COLUMNS = (
     "phone",
     "email",
     "website",
+    "notes",
 )
 ENTITY_COLUMNS = COLUMNS[COLUMNS.index("name") :]
 

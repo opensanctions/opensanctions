@@ -79,11 +79,8 @@ lookups:
         value: 02014R0833-20260717
       - match: 32016R0044
         value: 02016R0044-20260616
-      # The reviewed snapshot is the original act itself: its Annex I is an
-      # empty skeleton, and the parser has not yet been taught the populated
-      # consolidated markup.
       - match: 32020R1998
-        value: 32020R1998
+        value: 02020R1998-20260528
   garbage_collect_original_name:
     # Override the string to look for in the consolidated act text
     # e.g. if we expanded aliases like Lev Anatolyevich Yershov (Ershov)

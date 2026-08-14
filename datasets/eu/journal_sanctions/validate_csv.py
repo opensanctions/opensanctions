@@ -39,6 +39,7 @@ ENTITY_COLUMNS: tuple[str, ...] = (
     "passportNumber",
     "gender",
     "incorporationDate",
+    "legalForm",
     "registrationNumber",
     "taxNumber",
     "idNumber",
@@ -52,6 +53,7 @@ ENTITY_COLUMNS: tuple[str, ...] = (
     "phone",
     "email",
     "website",
+    "notes",
 )
 METADATA_COLUMNS: tuple[str, ...] = (
     "recordId",
