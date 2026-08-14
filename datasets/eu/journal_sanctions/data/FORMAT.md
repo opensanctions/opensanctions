@@ -32,7 +32,7 @@ same columns, same order, no extras.
 Amendment files are named `{amendmentCelex}.csv` and use:
 
 ```csv
-amendedCelex,amendmentCelex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website,notes
+amendedCelex,amendmentCelex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,swiftBic,imoNumber,flag,address,phone,email,website,notes
 ```
 
 Consolidated files are named `{celex}.csv` after the framework act (e.g.
@@ -41,7 +41,7 @@ history in git. Where a regime has no regulation, the framework act is the
 CFSP decision itself (e.g. `32011D0173.csv`). Consolidated files use:
 
 ```csv
-celex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website,notes
+celex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,swiftBic,imoNumber,flag,address,phone,email,website,notes
 ```
 
 Every row in a file carries the same immediate source CELEX (`amendmentCelex` in
@@ -111,8 +111,9 @@ country.
 
 Use `birthDate` for people and `incorporationDate` for legal entities. Put
 identifiers in the most specific property the source supports (`innCode`,
-`ogrnCode`, `kppCode`, `okpoCode`, `imoNumber`); use `taxNumber`, `idNumber`, or
-`registrationNumber` only when no more specific system is established.
+`ogrnCode`, `kppCode`, `okpoCode`, `swiftBic`, `imoNumber`); use `taxNumber`,
+`idNumber`, or `registrationNumber` only when no more specific system is
+established.
 
 `legalForm` holds the source's stated type or legal form of a legal entity
 (`Type of entity: Governmental Agency` produces `Governmental Agency`).

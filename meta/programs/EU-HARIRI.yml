@@ -1,0 +1,23 @@
+id: 324
+title: EU Restrictive measures in relation to the 14 February 2005 terrorist
+  bombing in Beirut
+key: EU-HARIRI
+url: https://sanctionsmap.eu/#/main/details/22/
+summary: A framework regime enabling the EU to impose an asset freeze and a
+  travel ban on persons suspected of involvement in the assassination of
+  former Lebanese Prime Minister Rafiq Hariri, implementing UN Security
+  Council Resolution 1636 (2005). Designations follow registration by the
+  committee established by paragraph 3(b) of that resolution; the committee
+  has never registered anyone, so the framework has never been used and no
+  persons or entities are listed.
+issuer: eu_council
+dataset: eu_fsf
+aliases:
+  - Regulation (EC) No 305/2006
+  - Common Position 2005/888/CFSP
+  - UNSCR 1636
+target_territories:
+  - lb
+measures:
+  - Asset freeze
+  - Travel ban

@@ -60,6 +60,7 @@ COLUMNS = (
     "ogrnCode",
     "kppCode",
     "okpoCode",
+    "swiftBic",
     "imoNumber",
     "flag",
     "address",

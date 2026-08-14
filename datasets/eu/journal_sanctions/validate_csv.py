@@ -50,6 +50,7 @@ ENTITY_COLUMNS: tuple[str, ...] = (
     "ogrnCode",
     "kppCode",
     "okpoCode",
+    "swiftBic",
     "imoNumber",
     "flag",
     "address",

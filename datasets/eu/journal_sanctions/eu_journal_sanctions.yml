@@ -79,18 +79,42 @@ lookups:
         value: 02001R2580-20260227
       - match: 32002R0881
         value: 02002R0881-20260721
+      - match: 32003R1210
+        value: 02003R1210-20251224
+      - match: 32004R0314
+        value: 02004R0314-20260219
+      - match: 32006R0305
+        value: 02006R0305-20240913
       - match: 32006R0765
         value: 02006R0765-20260424
+      - match: 32009R1284
+        value: 02009R1284-20240913
+      - match: 32010D0573
+        value: 02010D0573-20251029
       - match: 32011D0173
         value: 02011D0173-20260331
+      - match: 32011R0101
+        value: 02011R0101-20260131
+      - match: 32011R0359
+        value: 02011R0359-20260724
       - match: 32011R0753
         value: 02011R0753-20240913
+      - match: 32012R0377
+        value: 02012R0377-20250924
       - match: 32013R0401
         value: 02013R0401-20260429
+      - match: 32014R0208
+        value: 02014R0208-20260303
       - match: 32014R0224
         value: 02014R0224-20250326
+      - match: 32014R0747
+        value: 02014R0747-20260622
       - match: 32014R0833
         value: 02014R0833-20260717
+      - match: 32014R1352
+        value: 02014R1352-20240913
+      - match: 32015R0735
+        value: 02015R0735-20260624
       - match: 32015R1755
         value: 02015R1755-20250924
       - match: 32016R0044
@@ -99,8 +123,32 @@ lookups:
         value: 02016R1686-20251124
       - match: 32017R1770
         value: 02017R1770-20251203
+      - match: 32017R2063
+        value: 02017R2063-20251217
+      - match: 32018R1542
+        value: 02018R1542-20260703
+      - match: 32019R0796
+        value: 02019R0796-20260713
+      - match: 32019R1716
+        value: 02019R1716-20251001
+      - match: 32019R1890
+        value: 02019R1890-20251126
       - match: 32020R1998
         value: 02020R1998-20260528
+      - match: 32022R2309
+        value: 02022R2309-20251215
+      - match: 32023R0888
+        value: 02023R0888-20260615
+      - match: 32023R1529
+        value: 02023R1529-20260608
+      - match: 32023R2147
+        value: 02023R2147-20260715
+      - match: 32023R2406
+        value: 02023R2406-20240913
+      - match: 32024R0287
+        value: 02024R0287-20260113
+      - match: 32024R0386
+        value: 02024R0386-20260528
       - match: 32024R1485
         value: 02024R1485-20260713
       - match: 32024R2642
@@ -235,7 +283,9 @@ lookups:
           - 2016/1686
           - 2016/1693
         value: EU-TAQA-EUAQ
-      - match: 2022/2319
+      - match:
+          - 2022/2319
+          - 2022/2309
         value: EU-HTI
       - match:
           - 753/2011
@@ -251,6 +301,40 @@ lookups:
         value: EU-CAF
       - match: 2011/173
         value: EU-BOSNIA
+      - match:
+          - 1284/2009
+          - 2010/638
+        value: EU-GIN
+      - match:
+          - 377/2012
+          - 2012/285
+        value: EU-GNB
+      - match:
+          - 314/2004
+          - 2011/101
+        value: EU-ZWE
+      - match:
+          - 2019/1716
+          - 2019/1720
+        value: EU-NIC
+      - match:
+          - 2019/1890
+          - 2019/1894
+        value: EU-TUR
+      - match:
+          - 2023/2406
+          - 2023/2287
+        value: EU-NIGER
+      - match:
+          - 305/2006
+          - 2005/888
+        value: EU-HARIRI
+      - match: 2010/573
+        value: EU-TRANSNISTRIA
+      - match:
+          - 1352/2014
+          - 2014/932
+        value: EU-YEM
       - match:
           - 2023/888
           - 2023/891
