@@ -29,7 +29,14 @@ class EntityReferenceValidator(BaseValidator):
     the reference is made. Once the whole dataset is in the store, it becomes
     checkable - a company emitted as an `Organization` rather than a `Company`
     shows up here.
+
+    Enabled by default; set `validators.entity_reference` to `false` in the
+    dataset metadata to switch it off.
     """
+
+    @classmethod
+    def enabled(cls, dataset: Dataset) -> bool:
+        return dataset.validators.entity_reference
 
     def __init__(self, context: Context, view: View) -> None:
         super().__init__(context, view)
@@ -125,7 +132,11 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
             path=dataset_data_path(dataset.name),
         )
 
-        validators = [validator(context, view) for validator in VALIDATORS]
+        validators = [
+            validator(context, view)
+            for validator in VALIDATORS
+            if validator.enabled(dataset)
+        ]
         for idx, entity in enumerate(view.entities()):
             if idx > 0 and idx % 10000 == 0:
                 context.log.info(f"Validated {idx} entities...", dataset=dataset.name)

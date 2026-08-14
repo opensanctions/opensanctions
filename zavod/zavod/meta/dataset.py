@@ -23,6 +23,7 @@ from zavod.meta.http import HTTP
 from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.names import NamesSpec
 from zavod.meta.numbers import NumbersSpec
+from zavod.meta.validators import ValidatorsSpec
 from zavod.runtime.urls import make_published_url
 
 if TYPE_CHECKING:
@@ -113,6 +114,11 @@ class Dataset(FollowTheMoneyDataset):
 
         self.numbers: NumbersSpec = NumbersSpec.model_validate(data.get("numbers", {}))
         """Number parsing configuration for this dataset."""
+
+        self.validators: ValidatorsSpec = ValidatorsSpec.model_validate(
+            data.get("validators", {})
+        )
+        """Which post-crawl validators are enabled for this dataset."""
 
     @cached_property
     def lookups(self) -> dict[str, Lookup]:
