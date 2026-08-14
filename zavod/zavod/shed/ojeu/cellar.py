@@ -2,22 +2,29 @@
 
 from __future__ import annotations
 
+import base64
+import json
+from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import date
 from hashlib import sha256
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from collections.abc import Iterable, Iterator, Mapping
+from typing import Any, Protocol
 
-import requests
 import click
+import orjson
+import requests
 from lxml import etree, html
+from nomenklatura.cache import Cache
+from nomenklatura.db import make_session as make_db_session
+from requests import Session
 
 from zavod.helpers.html import xpath_element
+from zavod.meta import Dataset
+from zavod.meta.http import HTTP
+from zavod.runtime.http_ import make_session, request_hash
 from zavod.shed.ojeu.celex import eur_lex_url, normalize
-
-if TYPE_CHECKING:
-    from requests import Session
-
-    from zavod import Context
 
 CELLAR_RESOURCE_URL = "http://publications.europa.eu/resource/celex/{celex}"
 SPARQL_ENDPOINT = "https://publications.europa.eu/webapi/rdf/sparql"
@@ -60,6 +67,41 @@ SELECT DISTINCT ?title ?doc_date ?type ?eli ?amends_celex ?based_on_celex
 }
 """
 
+RELATED_ACTS_QUERY = """
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX lang: <http://publications.europa.eu/resource/authority/language/>
+PREFIX rt: <http://publications.europa.eu/resource/authority/resource-type/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
+  VALUES ?framework_celex { FRAMEWORK_VALUES }
+  ?framework cdm:resource_legal_id_celex ?framework_celex .
+  {
+    ?work cdm:resource_legal_amends_resource_legal ?framework .
+    BIND("amends" AS ?relation)
+  }
+  UNION
+  {
+    ?work cdm:resource_legal_based_on_resource_legal ?framework .
+    BIND("based_on" AS ?relation)
+  }
+  ?work cdm:resource_legal_id_celex ?celex ;
+        cdm:work_date_document ?doc_date ;
+        cdm:work_has_resource-type ?type .
+  OPTIONAL {
+    ?expression cdm:expression_belongs_to_work ?work ;
+                cdm:expression_uses_language lang:ENG ;
+                cdm:expression_title ?title .
+  }
+  FILTER (?doc_date >= "DATE_FROM"^^xsd:date)
+  DATE_TO_FILTER
+  FILTER (?type IN (RESOURCE_TYPES))
+}
+ORDER BY ?doc_date ?celex ?framework_celex ?relation
+"""
+
+RELATED_ACT_TYPES = ("REG_IMPL", "DEC_IMPL", "REG", "DEC")
+
 
 @dataclass(frozen=True)
 class Request:
@@ -68,6 +110,12 @@ class Request:
     url: str
     method: str = "GET"
     data: bytes | None = None
+    headers: tuple[tuple[str, str], ...] = ()
+
+    @property
+    def header_map(self) -> dict[str, str]:
+        """Build headers for executing or fingerprinting this exact request."""
+        return dict(self.headers)
 
 
 @dataclass(frozen=True)
@@ -107,6 +155,34 @@ class Act:
 
 
 @dataclass(frozen=True)
+class RelatedAct:
+    """Represent one incoming legal relationship to a framework act.
+
+    Use this edge-oriented result for discovery so callers can distinguish an
+    amendment from a legal-basis relationship without re-querying CELLAR.
+    """
+
+    celex: str
+    framework_celex: str
+    relation: str
+    title: str | None
+    document_date: str
+    resource_type: str
+
+    def to_dict(self) -> dict[str, str | None]:
+        """Return stable JSON fields for crawler issues and command output."""
+        return {
+            "celex": self.celex,
+            "document_date": self.document_date,
+            "eur_lex_url": eur_lex_url(self.celex),
+            "framework_celex": self.framework_celex,
+            "relation": self.relation,
+            "resource_type": self.resource_type,
+            "title": self.title,
+        }
+
+
+@dataclass(frozen=True)
 class Expression:
     """Keep fetched source bytes together with reproducibility metadata."""
 
@@ -120,7 +196,7 @@ class Expression:
     @property
     def request(self) -> Request:
         """Return the exact GET request used to fetch this expression."""
-        return expression_request(self.celex)
+        return expression_request(self.celex, self.language, self.media_type)
 
     @property
     def sha256(self) -> str:
@@ -138,24 +214,252 @@ class Expression:
         }
 
 
+class CacheStore(Protocol):
+    """Provide the small text-cache surface needed by CELLAR clients."""
+
+    def get(self, key: str, max_age: int | None = None) -> str | None: ...
+
+    def set(self, key: str, value: str | None) -> None: ...
+
+    def delete(self, key: str) -> None: ...
+
+
+@dataclass(frozen=True)
+class _Response:
+    final_url: str
+    media_type: str | None
+    content: bytes
+
+    def dump(self) -> str:
+        return json.dumps(
+            {
+                "content": base64.b64encode(self.content).decode("ascii"),
+                "final_url": self.final_url,
+                "media_type": self.media_type,
+            },
+            sort_keys=True,
+        )
+
+    @classmethod
+    def load(cls, value: str) -> _Response:
+        data = json.loads(value)
+        return cls(
+            final_url=str(data["final_url"]),
+            media_type=data.get("media_type"),
+            content=base64.b64decode(data["content"]),
+        )
+
+
+class CellarClient:
+    """Access CELLAR consistently from crawlers and standalone tools.
+
+    Use this with a crawler's HTTP session and cache, or with ephemeral CLI
+    dependencies, so metadata and expression requests share one implementation.
+    """
+
+    def __init__(self, session: Session, cache: CacheStore | None = None) -> None:
+        self.session = session
+        self.cache = cache
+
+    def _fingerprint(self, request: Request) -> str:
+        headers: Mapping[str, str] | None = request.header_map or None
+        return request_hash(
+            request.url,
+            method=request.method,
+            data=request.data,
+            headers=headers,
+        )
+
+    def clear(self, request: Request) -> None:
+        """Evict a request after its cached response fails validation."""
+        if self.cache is not None:
+            self.cache.delete(self._fingerprint(request))
+
+    def _fetch(self, request: Request, cache_days: int | None) -> _Response:
+        fingerprint = self._fingerprint(request)
+        if self.cache is not None and cache_days is not None:
+            cached = self.cache.get(fingerprint, max_age=cache_days)
+            if cached is not None:
+                return _Response.load(cached)
+
+        response = self.session.request(
+            request.method,
+            request.url,
+            data=request.data,
+            headers=request.header_map,
+        )
+        response.raise_for_status()
+        media_type = response.headers.get("Content-Type")
+        if media_type is not None:
+            media_type = media_type.split(";", 1)[0]
+        result = _Response(
+            final_url=response.url,
+            media_type=media_type,
+            content=response.content,
+        )
+        if self.cache is not None and cache_days is not None:
+            self.cache.set(fingerprint, result.dump())
+        return result
+
+    def query_act(self, value: str, cache_days: int | None = 1) -> Act:
+        """Load metadata when reviewing an act or resolving its consolidation."""
+        celex = normalize(value)
+        request = act_request(celex)
+        response = self._fetch(request, cache_days)
+        try:
+            result = orjson.loads(response.content)
+            return parse_act_results(celex, result, request)
+        except Exception:
+            self.clear(request)
+            raise
+
+    def query_related_acts(
+        self,
+        framework_celexes: str | Iterable[str],
+        date_from: date,
+        date_to: date | None = None,
+        resource_types: str | Iterable[str] = RELATED_ACT_TYPES,
+        cache_days: int | None = 1,
+    ) -> tuple[RelatedAct, ...]:
+        """Find acts that amend or use known frameworks as their legal basis.
+
+        Use this for bounded discovery runs. The default types cover regulations,
+        decisions, and their implementing acts; callers can choose a narrower set.
+        """
+        request = related_acts_request(
+            framework_celexes, date_from, date_to, resource_types
+        )
+        response = self._fetch(request, cache_days)
+        try:
+            result = orjson.loads(response.content)
+            return parse_related_act_results(result)
+        except Exception:
+            self.clear(request)
+            raise
+
+    def fetch_expression(
+        self,
+        value: str,
+        language: str = "ENG",
+        media_type: str = "application/xhtml+xml",
+        cache_days: int | None = 1,
+    ) -> Expression:
+        """Fetch exact source bytes for provenance or legal-text extraction."""
+        celex = normalize(value)
+        request = expression_request(celex, language, media_type)
+        response = self._fetch(request, cache_days)
+        if not response.content:
+            self.clear(request)
+            raise ValueError(f"Empty CELLAR expression for {celex}")
+        return Expression(
+            celex=celex,
+            language=language.upper(),
+            media_type=response.media_type or media_type,
+            request_url=request.url,
+            final_url=response.final_url,
+            content=response.content,
+        )
+
+
 def cellar_url(value: str) -> str:
     """Build the content-negotiated CELLAR resource URL for a CELEX."""
     return CELLAR_RESOURCE_URL.format(celex=normalize(value))
 
 
 def expression_headers(language: str, media_type: str) -> dict[str, str]:
-    """Build identical content-negotiation headers for both transport adapters."""
+    """Select a language and representation when fetching a CELLAR expression."""
     return {"Accept": media_type, "Accept-Language": language.lower()}
 
 
-def expression_request(value: str) -> Request:
+def expression_request(
+    value: str,
+    language: str = "ENG",
+    media_type: str = "application/xhtml+xml",
+) -> Request:
     """Build the exact request used to fetch a CELEX expression."""
-    return Request(cellar_url(value))
+    return Request(
+        cellar_url(value),
+        headers=tuple(expression_headers(language, media_type).items()),
+    )
 
 
 def build_act_query(value: str) -> bytes:
     """Build the exact SPARQL request used for metadata and relationships."""
     return ACT_QUERY.replace("CELEX_ID", normalize(value)).encode("utf-8")
+
+
+def act_request(value: str) -> Request:
+    """Build the exact SPARQL request used to inspect an act."""
+    return Request(
+        SPARQL_ENDPOINT,
+        method="POST",
+        data=build_act_query(value),
+        headers=tuple(SPARQL_HEADERS.items()),
+    )
+
+
+def build_related_acts_query(
+    framework_celexes: str | Iterable[str],
+    date_from: date,
+    date_to: date | None = None,
+    resource_types: str | Iterable[str] = RELATED_ACT_TYPES,
+) -> bytes:
+    """Build a bounded inverse-relationship query for framework discovery."""
+    values = _normalize_frameworks(framework_celexes)
+    if date_to is not None and date_to < date_from:
+        raise ValueError("date_to must not be before date_from")
+    framework_values = " ".join(f'"{celex}"^^xsd:string' for celex in values)
+    date_to_filter = ""
+    if date_to is not None:
+        date_to_filter = f'FILTER (?doc_date <= "{date_to.isoformat()}"^^xsd:date)'
+    type_values = ", ".join(f"rt:{value}" for value in _normalize_types(resource_types))
+    query = RELATED_ACTS_QUERY.replace("FRAMEWORK_VALUES", framework_values)
+    query = query.replace("DATE_FROM", date_from.isoformat())
+    query = query.replace("DATE_TO_FILTER", date_to_filter)
+    query = query.replace("RESOURCE_TYPES", type_values)
+    return query.encode("utf-8")
+
+
+def related_acts_request(
+    framework_celexes: str | Iterable[str],
+    date_from: date,
+    date_to: date | None = None,
+    resource_types: str | Iterable[str] = RELATED_ACT_TYPES,
+) -> Request:
+    """Build the exact request for discovering acts related to frameworks."""
+    return Request(
+        SPARQL_ENDPOINT,
+        method="POST",
+        data=build_related_acts_query(
+            framework_celexes, date_from, date_to, resource_types
+        ),
+        headers=tuple(SPARQL_HEADERS.items()),
+    )
+
+
+def _normalize_frameworks(
+    framework_celexes: str | Iterable[str],
+) -> tuple[str, ...]:
+    values = (
+        (framework_celexes,)
+        if isinstance(framework_celexes, str)
+        else tuple(framework_celexes)
+    )
+    normalized = tuple(sorted({normalize(value) for value in values}))
+    if not normalized:
+        raise ValueError("At least one framework CELEX is required")
+    return normalized
+
+
+def _normalize_types(resource_types: str | Iterable[str]) -> tuple[str, ...]:
+    values = (resource_types,) if isinstance(resource_types, str) else resource_types
+    normalized = tuple(sorted({value.strip().upper() for value in values if value}))
+    if not normalized:
+        raise ValueError("At least one resource type is required")
+    for value in normalized:
+        if not value.replace("_", "").isalnum():
+            raise ValueError(f"Invalid CELLAR resource type: {value}")
+    return normalized
 
 
 def parse_act_results(value: str, result: Any, request: Request | None = None) -> Act:
@@ -183,7 +487,6 @@ def parse_act_results(value: str, result: Any, request: Request | None = None) -
     resource_type = first("type")
     if resource_type is not None:
         resource_type = resource_type.rstrip("/").rsplit("/", 1)[-1]
-    query = build_act_query(celex)
     return Act(
         celex=celex,
         title=first("title"),
@@ -193,96 +496,71 @@ def parse_act_results(value: str, result: Any, request: Request | None = None) -
         amends=values("amends_celex"),
         based_on=values("based_on_celex"),
         consolidated=values("cons_celex"),
-        request=request or Request(SPARQL_ENDPOINT, method="POST", data=query),
+        request=request or act_request(celex),
     )
 
 
-def query_act(context: Context, value: str, cache_days: int = 1) -> Act:
-    """Load act metadata through a crawler Context when crawl caching is needed."""
-    celex = normalize(value)
-    query = build_act_query(celex)
-    result = context.fetch_json(
-        SPARQL_ENDPOINT,
-        method="POST",
-        data=query,
-        headers=SPARQL_HEADERS,
-        cache_days=cache_days,
-    )
-    return parse_act_results(
-        celex, result, Request(SPARQL_ENDPOINT, method="POST", data=query)
+def parse_related_act_results(result: Any) -> tuple[RelatedAct, ...]:
+    """Parse inverse CELLAR relationships into deterministic discovery edges."""
+    try:
+        bindings = result["results"]["bindings"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("Invalid CELLAR SPARQL response") from exc
+
+    found: dict[tuple[str, str, str, str, str], set[str]] = {}
+    for binding in bindings:
+        try:
+            celex = normalize(str(binding["celex"]["value"]))
+            framework = normalize(str(binding["framework_celex"]["value"]))
+            relation = str(binding["relation"]["value"])
+            document_date = str(binding["doc_date"]["value"])
+            resource_type = str(binding["type"]["value"]).rstrip("/").rsplit("/", 1)[-1]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Invalid related-act binding in CELLAR response") from exc
+        if relation not in {"amends", "based_on"}:
+            raise ValueError(f"Unsupported CELLAR relationship: {relation}")
+        key = (celex, framework, relation, document_date, resource_type)
+        title = str(binding.get("title", {}).get("value", "")).strip()
+        if title:
+            found.setdefault(key, set()).add(title)
+        else:
+            found.setdefault(key, set())
+
+    related = [
+        RelatedAct(
+            celex=key[0],
+            framework_celex=key[1],
+            relation=key[2],
+            document_date=key[3],
+            resource_type=key[4],
+            title=min(titles) if titles else None,
+        )
+        for key, titles in found.items()
+    ]
+    return tuple(
+        sorted(
+            related,
+            key=lambda act: (
+                act.document_date,
+                act.celex,
+                act.framework_celex,
+                act.relation,
+            ),
+        )
     )
 
 
-def query_act_http(value: str, session: Session | None = None) -> Act:
-    """Load act metadata without requiring dataset or Watchful configuration."""
-    celex = normalize(value)
-    query = build_act_query(celex)
-    client = session or requests
-    response = client.post(
-        SPARQL_ENDPOINT, data=query, headers=SPARQL_HEADERS, timeout=60
-    )
-    response.raise_for_status()
-    return parse_act_results(
-        celex,
-        response.json(),
-        Request(SPARQL_ENDPOINT, method="POST", data=query),
-    )
-
-
-def fetch_expression(
-    context: Context,
-    value: str,
-    language: str = "ENG",
-    media_type: str = "application/xhtml+xml",
-    cache_days: int = 1,
-) -> Expression:
-    """Fetch an expression through a crawler Context for cached source access."""
-    celex = normalize(value)
-    request = expression_request(celex)
-    text = context.fetch_text(
-        request.url,
-        headers=expression_headers(language, media_type),
-        cache_days=cache_days,
-        method=request.method,
-        data=request.data,
-    )
-    if not text:
-        raise ValueError(f"Empty CELLAR expression for {celex}")
-    return Expression(
-        celex=celex,
-        language=language.upper(),
-        media_type=media_type,
-        request_url=request.url,
-        final_url=request.url,
-        content=text.encode("utf-8"),
-    )
-
-
-def fetch_expression_http(
-    value: str,
-    language: str = "ENG",
-    media_type: str = "application/xhtml+xml",
-    session: Session | None = None,
-) -> Expression:
-    """Fetch an expression directly for standalone tools and agents."""
-    celex = normalize(value)
-    request = expression_request(celex)
-    client = session or requests
-    response = client.get(
-        request.url, headers=expression_headers(language, media_type), timeout=60
-    )
-    response.raise_for_status()
-    content_type = response.headers.get("Content-Type", media_type).split(";", 1)[0]
-    if not response.content:
-        raise ValueError(f"Empty CELLAR expression for {celex}")
-    return Expression(
-        celex=celex,
-        language=language.upper(),
-        media_type=content_type,
-        request_url=request.url,
-        final_url=response.url,
-        content=response.content,
-    )
+@contextmanager
+def cli_client() -> Iterator[CellarClient]:
+    """Create an isolated client for commands that run without a crawler Context."""
+    dataset = Dataset({"name": "ojeu_cli"})
+    db = make_db_session("sqlite:///:memory:")
+    session = make_session(HTTP({}))
+    try:
+        yield CellarClient(session, Cache(db, dataset, create=True))
+    finally:
+        session.close()
+        db.close()
 
 
 def extract_body_html(expression: Expression) -> bytes:
@@ -327,9 +605,10 @@ def cli(
 ) -> None:
     """Fetch source bytes for agents and humans without requiring a crawl."""
     try:
-        expression = fetch_expression_http(
-            celex, language=language, media_type=media_type
-        )
+        with cli_client() as client:
+            expression = client.fetch_expression(
+                celex, language=language, media_type=media_type
+            )
         content = extract_body_html(expression) if body_only else expression.content
         if output is None:
             click.get_binary_stream("stdout").write(content)

@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 import click
+import requests
 
 EUR_LEX_URL = "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
 
@@ -120,31 +122,55 @@ def _celex_from_eli_path(path: str) -> str | None:
     type=click.Path(path_type=Path, dir_okay=False),
     help="Write the fetched expression to this path.",
 )
+@click.option(
+    "--related-since",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    help="Include acts related to this framework on or after YYYY-MM-DD.",
+)
+@click.option(
+    "--related-until",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    help="Bound related acts at YYYY-MM-DD (inclusive).",
+)
 def cli(
     celex: str,
     language: str,
     media_type: str,
     metadata_only: bool,
     save_expression: Path | None,
+    related_since: datetime | None,
+    related_until: datetime | None,
 ) -> None:
     """Print stable JSON for an act so agents can inspect it without a crawl."""
-    from zavod.shed.ojeu.cellar import fetch_expression_http, query_act_http
+    from zavod.shed.ojeu.cellar import cli_client
 
     try:
         celex = normalize(celex)
-        act = query_act_http(celex)
-        output = act.to_dict()
-        if not metadata_only:
-            expression = fetch_expression_http(
-                celex, language=language, media_type=media_type
-            )
-            output["expression"] = expression.to_dict()
-            if save_expression is not None:
-                save_expression.write_bytes(expression.content)
-                output["expression"]["saved_to"] = str(save_expression)
-        elif save_expression is not None:
-            raise ValueError("--save-expression cannot be used with --metadata-only")
-    except (OSError, ValueError) as exc:
+        with cli_client() as client:
+            act = client.query_act(celex)
+            output = act.to_dict()
+            if related_until is not None and related_since is None:
+                raise ValueError("--related-until requires --related-since")
+            if related_since is not None:
+                related = client.query_related_acts(
+                    celex,
+                    related_since.date(),
+                    related_until.date() if related_until is not None else None,
+                )
+                output["related_acts"] = [item.to_dict() for item in related]
+            if not metadata_only:
+                expression = client.fetch_expression(
+                    celex, language=language, media_type=media_type
+                )
+                output["expression"] = expression.to_dict()
+                if save_expression is not None:
+                    save_expression.write_bytes(expression.content)
+                    output["expression"]["saved_to"] = str(save_expression)
+            elif save_expression is not None:
+                raise ValueError(
+                    "--save-expression cannot be used with --metadata-only"
+                )
+    except (OSError, ValueError, requests.RequestException) as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(output, indent=2, sort_keys=True, ensure_ascii=False))
 

@@ -74,6 +74,34 @@ def test_context_helpers(testdataset1: Dataset):
     context.close()
 
 
+def test_request_hash_optional_headers_preserve_existing_keys() -> None:
+    assert request_hash("https://example.com") == (
+        "https://example.com[f030bbbd32966cde41037b98a8849c46b76e4bc1]"
+    )
+    assert (
+        request_hash(
+            "https://example.com", method="POST", data=b"abc", encoding="utf-8"
+        )
+        == "https://example.com[7d8069fc46fae2067417cc17a091b7800cc1772c]"
+    )
+
+
+def test_request_hash_normalizes_optional_headers() -> None:
+    first = request_hash(
+        "https://example.com",
+        headers={"Accept": " application/xml ", "Accept-Language": "eng"},
+    )
+    second = request_hash(
+        "https://example.com",
+        headers={"accept-language": "eng", "accept": "application/xml"},
+    )
+    assert first == second
+    assert first != request_hash(
+        "https://example.com",
+        headers={"Accept": "application/json", "Accept-Language": "eng"},
+    )
+
+
 def test_context_dry_run(testdataset1: Dataset):
     context = Context(testdataset1, dry_run=True)
     assert context.dataset == testdataset1

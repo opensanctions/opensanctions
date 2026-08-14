@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -66,7 +67,61 @@ def test_framework_results_include_own_consolidated_family() -> None:
     assert "BIND(COALESCE(?amended_framework, ?work) AS ?framework)" in query
 
 
-def test_fetch_expression_http(requests_mock) -> None:
+def test_build_and_parse_related_acts_query() -> None:
+    query = cellar.build_related_acts_query(
+        ["32024R1485", "32024R1485"],
+        date(2025, 1, 1),
+        date(2026, 7, 31),
+    ).decode("utf-8")
+    assert query.count('"32024R1485"^^xsd:string') == 1
+    assert '?doc_date >= "2025-01-01"^^xsd:date' in query
+    assert '?doc_date <= "2026-07-31"^^xsd:date' in query
+    assert "resource_legal_amends_resource_legal" in query
+    assert "resource_legal_based_on_resource_legal" in query
+    assert (
+        "PREFIX rt: <http://publications.europa.eu/resource/authority/resource-type/>"
+        in query
+    )
+    assert "FILTER (?type IN (rt:DEC, rt:DEC_IMPL, rt:REG, rt:REG_IMPL))" in query
+
+    result = json.loads((FIXTURES / "related.json").read_text())
+    related = cellar.parse_related_act_results(result)
+    assert [item.celex for item in related] == [
+        "32025R1980",
+        "32026R1708",
+        "32026R1708",
+    ]
+    assert [item.relation for item in related] == ["amends", "amends", "based_on"]
+    assert related[0].title is None
+    assert related[1].resource_type == "REG_IMPL"
+
+
+def test_related_acts_query_rejects_invalid_bounds() -> None:
+    with pytest.raises(ValueError, match="date_to"):
+        cellar.build_related_acts_query(
+            "32024R1485", date(2026, 1, 2), date(2026, 1, 1)
+        )
+    with pytest.raises(ValueError, match="At least one"):
+        cellar.build_related_acts_query([], date(2026, 1, 1))
+    with pytest.raises(ValueError, match="resource type"):
+        cellar.build_related_acts_query(
+            "32024R1485", date(2026, 1, 1), resource_types=[]
+        )
+
+
+def test_cellar_client_queries_related_acts(requests_mock) -> None:
+    result = json.loads((FIXTURES / "related.json").read_text())
+    requests_mock.post(cellar.SPARQL_ENDPOINT, json=result)
+    client = cellar.CellarClient(requests.Session())
+
+    related = client.query_related_acts("32024R1485", date(2025, 1, 1))
+
+    assert len(related) == 3
+    assert related[-1].framework_celex == "32024R1485"
+    assert b'"32024R1485"^^xsd:string' in requests_mock.last_request.body
+
+
+def test_cellar_client_fetches_expression(requests_mock) -> None:
     content = (FIXTURES / "expression.xhtml").read_bytes()
     requests_mock.get(
         cellar.cellar_url("32026R1708"),
@@ -74,7 +129,8 @@ def test_fetch_expression_http(requests_mock) -> None:
         headers={"Content-Type": "application/xhtml+xml; charset=utf-8"},
     )
 
-    expression = cellar.fetch_expression_http("32026R1708")
+    client = cellar.CellarClient(requests.Session())
+    expression = client.fetch_expression("32026R1708")
 
     assert expression.content == content
     assert expression.media_type == "application/xhtml+xml"
@@ -83,52 +139,83 @@ def test_fetch_expression_http(requests_mock) -> None:
     assert requests_mock.last_request.headers["Accept-Language"] == "eng"
 
 
-def test_context_adapters_share_requests_and_parsers() -> None:
+def test_cellar_client_caches_metadata_and_exact_expression_bytes(
+    requests_mock,
+) -> None:
     result = json.loads((FIXTURES / "act.json").read_text())
-    content = (FIXTURES / "expression.xhtml").read_text()
+    content = (FIXTURES / "expression.xhtml").read_bytes()
 
-    class FakeContext:
-        json_call = None
-        text_call = None
+    class FakeCache:
+        values: dict[str, str] = {}
 
-        def fetch_json(self, url, **kwargs):
-            self.json_call = (url, kwargs)
-            return result
+        def get(self, key: str, max_age: int | None = None) -> str | None:
+            return self.values.get(key)
 
-        def fetch_text(self, url, **kwargs):
-            self.text_call = (url, kwargs)
-            return content
+        def set(self, key: str, value: str | None) -> None:
+            assert value is not None
+            self.values[key] = value
 
-    context = FakeContext()
-    act = cellar.query_act(context, "32026R1708")  # type: ignore[arg-type]
-    expression = cellar.fetch_expression(context, "32026R1708")  # type: ignore[arg-type]
+        def delete(self, key: str) -> None:
+            self.values.pop(key, None)
+
+    requests_mock.post(cellar.SPARQL_ENDPOINT, json=result)
+    requests_mock.get(
+        cellar.cellar_url("32026R1708"),
+        content=content,
+        headers={"Content-Type": "application/xhtml+xml; charset=utf-8"},
+    )
+    client = cellar.CellarClient(requests.Session(), FakeCache())
+    act = client.query_act("32026R1708")
+    expression = client.fetch_expression("32026R1708")
+    cached_act = client.query_act("32026R1708")
+    cached_expression = client.fetch_expression("32026R1708")
 
     assert act.latest_consolidated == "02024R1485-20260713"
-    assert expression.content == content.encode("utf-8")
-    assert context.json_call[1]["data"] == act.request.data
-    assert context.json_call[1]["cache_days"] == 1
-    assert context.text_call[1]["headers"] == cellar.expression_headers(
-        "ENG", "application/xhtml+xml"
+    assert cached_act == act
+    assert expression.content == content
+    assert cached_expression == expression
+    assert requests_mock.call_count == 2
+
+
+def test_expression_cache_varies_by_content_negotiation(requests_mock) -> None:
+    requests_mock.get(
+        cellar.cellar_url("32026R1708"),
+        [
+            {"content": b"english"},
+            {"content": b"french"},
+        ],
     )
+
+    class FakeCache:
+        values: dict[str, str] = {}
+
+        def get(self, key: str, max_age: int | None = None) -> str | None:
+            return self.values.get(key)
+
+        def set(self, key: str, value: str | None) -> None:
+            assert value is not None
+            self.values[key] = value
+
+        def delete(self, key: str) -> None:
+            self.values.pop(key, None)
+
+    client = cellar.CellarClient(requests.Session(), FakeCache())
+    assert client.fetch_expression("32026R1708", language="ENG").content == b"english"
+    assert client.fetch_expression("32026R1708", language="FRA").content == b"french"
+    assert client.fetch_expression("32026R1708", language="ENG").content == b"english"
+    assert requests_mock.call_count == 2
 
 
 def test_cli_prints_stable_json_and_saves_expression(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    requests_mock, tmp_path: Path
 ) -> None:
     result = json.loads((FIXTURES / "act.json").read_text())
-    act = cellar.parse_act_results("32026R1708", result)
     content = (FIXTURES / "expression.xhtml").read_bytes()
-    expression = cellar.Expression(
-        celex="32026R1708",
-        language="ENG",
-        media_type="application/xhtml+xml",
-        request_url=cellar.cellar_url("32026R1708"),
-        final_url="https://publications.europa.eu/final.xhtml",
+    requests_mock.post(cellar.SPARQL_ENDPOINT, json=result)
+    requests_mock.get(
+        cellar.cellar_url("32026R1708"),
         content=content,
-    )
-    monkeypatch.setattr(cellar, "query_act_http", lambda value: act)
-    monkeypatch.setattr(
-        cellar, "fetch_expression_http", lambda value, language, media_type: expression
+        headers={"Content-Type": "application/xhtml+xml"},
     )
     output_path = tmp_path / "act.xhtml"
 
@@ -147,21 +234,38 @@ def test_cli_prints_stable_json_and_saves_expression(
     )
 
 
+def test_celex_cli_includes_related_acts(requests_mock) -> None:
+    act = json.loads((FIXTURES / "framework.json").read_text())
+    related = json.loads((FIXTURES / "related.json").read_text())
+    requests_mock.post(cellar.SPARQL_ENDPOINT, [{"json": act}, {"json": related}])
+
+    result = CliRunner().invoke(
+        celex.cli,
+        [
+            "32024R1485",
+            "--metadata-only",
+            "--related-since",
+            "2025-01-01",
+            "--related-until",
+            "2026-07-31",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    output = json.loads(result.output)
+    assert len(output["related_acts"]) == 3
+    assert output["related_acts"][0]["celex"] == "32025R1980"
+
+
 def test_cellar_cli_writes_expression(
-    monkeypatch: pytest.MonkeyPatch,
+    requests_mock,
     tmp_path: Path,
 ) -> None:
     content = (FIXTURES / "expression.xhtml").read_bytes()
-    expression = cellar.Expression(
-        celex="32026R1708",
-        language="ENG",
-        media_type="application/xhtml+xml",
-        request_url=cellar.cellar_url("32026R1708"),
-        final_url="https://publications.europa.eu/final.xhtml",
+    requests_mock.get(
+        cellar.cellar_url("32026R1708"),
         content=content,
-    )
-    monkeypatch.setattr(
-        cellar, "fetch_expression_http", lambda value, language, media_type: expression
+        headers={"Content-Type": "application/xhtml+xml"},
     )
     output_path = tmp_path / "act.xhtml"
 
@@ -173,20 +277,14 @@ def test_cellar_cli_writes_expression(
 
 
 def test_cellar_cli_extracts_body_with_tables(
-    monkeypatch: pytest.MonkeyPatch,
+    requests_mock,
     tmp_path: Path,
 ) -> None:
     content = (FIXTURES / "expression.xhtml").read_bytes()
-    expression = cellar.Expression(
-        celex="32026R1708",
-        language="ENG",
-        media_type="application/xhtml+xml",
-        request_url=cellar.cellar_url("32026R1708"),
-        final_url="https://publications.europa.eu/final.xhtml",
+    requests_mock.get(
+        cellar.cellar_url("32026R1708"),
         content=content,
-    )
-    monkeypatch.setattr(
-        cellar, "fetch_expression_http", lambda value, language, media_type: expression
+        headers={"Content-Type": "application/xhtml+xml"},
     )
     output_path = tmp_path / "act-body.html"
 
@@ -214,10 +312,10 @@ def test_expression_preserves_request() -> None:
         content=content,
     )
 
-    assert expression.request == cellar.Request(url)
+    assert expression.request == cellar.expression_request("32026R1708")
 
 
 def test_http_errors_are_not_hidden(requests_mock) -> None:
     requests_mock.post(cellar.SPARQL_ENDPOINT, status_code=503)
     with pytest.raises(requests.HTTPError):
-        cellar.query_act_http("32026R1708")
+        cellar.CellarClient(requests.Session()).query_act("32026R1708")
