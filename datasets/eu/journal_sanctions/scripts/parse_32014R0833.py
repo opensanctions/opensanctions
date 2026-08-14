@@ -15,18 +15,41 @@ YAML's `consolidation` lookup, updated in the same commit as the CSV.
 
 from __future__ import annotations
 
-import csv
 import json
 import re
-from dataclasses import dataclass, field
+from collections.abc import Callable
 from pathlib import Path
-from typing import Literal, get_args
+from typing import get_args
 
 import click
+from common import (
+    LABELLED_RE,
+    SKIP_P_CLASSES,
+    AnnexSpec,
+    ParseError,
+    Row,
+    annex_blocks,
+    annex_id,
+    assert_empty,
+    bare_text,
+    cell_line,
+    cell_lines,
+    check_marker,
+    clean,
+    load_source,
+    parse_dotted_date,
+    parse_worded_date,
+    single_paragraph,
+    split_values,
+    summary,
+    table_body,
+    to_record,
+    validate_records,
+    write_csv,
+)
 from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.shed.ojeu.cellar import cli_client
 from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
@@ -34,76 +57,10 @@ FRAMEWORK_CELEX = "32014R0833"
 CONSOLIDATED_RE = re.compile(r"^02014R0833-\d{8}$")
 PROGRAM_KEY = "EU-RUS"
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DATASET_DIR = SCRIPT_DIR.parent
-OUTPUT_DIR = DATASET_DIR / "data" / "consolidated"
-
-COLUMNS = (
-    "celex",
-    "recordId",
-    "programKey",
-    "annex",
-    "measure",
-    "startDate",
-    "reason",
-    "schema",
-    "name",
-    "alias",
-    "weakAlias",
-    "previousName",
-    "country",
-    "nationality",
-    "jurisdiction",
-    "birthDate",
-    "birthPlace",
-    "position",
-    "passportNumber",
-    "gender",
-    "incorporationDate",
-    "registrationNumber",
-    "taxNumber",
-    "idNumber",
-    "innCode",
-    "ogrnCode",
-    "kppCode",
-    "okpoCode",
-    "imoNumber",
-    "flag",
-    "address",
-    "phone",
-    "email",
-    "website",
-)
-ENTITY_COLUMNS = COLUMNS[COLUMNS.index("name") :]
-
-# Consolidation markup: standalone modification references ("▼M37", with an
-# optional deletion dash run) and inline change markers ("►C15 value ◄").
-MARKER_ROW_RE = re.compile(r"^▼(?:B|C\d+|M\d+)(?: —+)?$")
-INLINE_MARKER_RE = re.compile(r"►(?:B|C\d+|M\d+) ?|◄ ?")
 PART_RE = re.compile(r"^Part ([A-Z])(?: – .+)?$")
 # The dot is missing on one observed XLII entry (648).
 NUMBER_RE = re.compile(r"^(\d+)\.?$")
 NUMBERED_NAME_RE = re.compile(r"^(\d+)\.\s+(\S.*)$")
-LABELLED_RE = re.compile(r"^([^:]{1,40}):\s*(.*)$")
-DATE_DOTTED_RE = re.compile(r"^(\d{1,2})\.(\d{1,2})\.(\d{4})$")
-DATE_WORDED_RE = re.compile(
-    r"^(\d{1,2}) (January|February|March|April|May|June|July|August"
-    r"|September|October|November|December) (\d{4})$"
-)
-MONTHS = {
-    "January": 1,
-    "February": 2,
-    "March": 3,
-    "April": 4,
-    "May": 5,
-    "June": 6,
-    "July": 7,
-    "August": 8,
-    "September": 9,
-    "October": 10,
-    "November": 11,
-    "December": 12,
-}
 FORMERLY_RE = re.compile(r"^\(formerly (.+)\)$")
 # Former vessel names also appear inline: "Kavya (formerly Hana)"; one
 # observed entry (XLII 218) never closes the parenthesis.
@@ -147,37 +104,6 @@ ID_LABELS = {
     "email": "email",
     "Place of registration": "jurisdiction",
 }
-
-Family = Literal["plain_list", "grid_list", "numbered_list", "table"]
-# Cell roles for table annexes, in column order.
-Role = Literal[
-    "recordId",
-    "name",
-    "startDate",
-    "reason",
-    "address",
-    "iv_name",
-    "iv_info",
-    "vessel_name",
-    "imoNumber",
-]
-
-
-class ParseError(Exception):
-    """A source structure this parser has not been taught. Fix the code."""
-
-
-@dataclass(frozen=True)
-class AnnexSpec:
-    family: Family
-    schema: str
-    measure: Measure
-    header: tuple[str, ...] = ()
-    roles: tuple[Role, ...] = ()
-    parts: tuple[str, ...] = ()
-    country: str = ""
-    list_suffixes: bool = False  # strip trailing ";" / "; and" from list items
-
 
 ENTITY_TABLE = "Name of the legal person, entity or body"
 TARGETS: dict[str, AnnexSpec] = {
@@ -322,87 +248,15 @@ NON_TARGET = frozenset(
     }
 )
 
-# Annex-block children that carry no entries and are skipped everywhere.
-SKIP_P_CLASSES = frozenset({"", "title-annex-1", "title-annex-2"})
-
-
-@dataclass
-class Row:
-    annex: str
-    schema: str
-    measure: str
-    record_id: str = ""
-    start_date: str = ""
-    reason: str = ""
-    props: dict[str, list[str]] = field(default_factory=dict)
-
-    def add(self, prop: str, values: list[str]) -> None:
-        target = self.props.setdefault(prop, [])
-        for value in values:
-            if value and value not in target:
-                target.append(value)
-
-
-def clean(text: str, ctx: str) -> str:
-    """Strip inline change markers; fail on any marker char left behind."""
-    out = " ".join(INLINE_MARKER_RE.sub("", text).split()).strip()
-    if any(char in out for char in "►◄▼"):
-        raise ParseError(f"{ctx}: unstripped marker in {out[:60]!r}")
-    return out
-
-
-def cell_lines(td: Element, ctx: str) -> list[str]:
-    """Return the cell's non-empty <p> lines, failing on stray cell text."""
-    lines = [clean(element_text(p), ctx) for p in xpath_elements(td, ".//p")]
-    lines = [line for line in lines if line]
-    whole = clean(element_text(td), ctx)
-    if " ".join(lines) != whole:
-        raise ParseError(f"{ctx}: cell text outside <p> structure: {whole[:60]!r}")
-    return lines
-
-
-def cell_line(td: Element, ctx: str) -> str:
-    """Return the single line of a scalar cell; more lines means new structure."""
-    lines = cell_lines(td, ctx)
-    if len(lines) != 1:
-        raise ParseError(f"{ctx}: expected one line in cell, got {len(lines)}")
-    return lines[0]
-
-
-def bare_text(el: Element, ctx: str) -> str:
-    """Text of a list entry that holds no nested structure (observed shape)."""
-    if xpath_elements(el, ".//p | .//div | .//table"):
-        raise ParseError(f"{ctx}: structured content in text entry")
-    return clean(element_text(el), ctx)
-
-
-def single_paragraph(el: Element, ctx: str) -> str:
-    """Text of an entry that holds exactly one <p> and no other text."""
-    paragraphs = xpath_elements(el, ".//p")
-    if len(paragraphs) != 1:
-        raise ParseError(f"{ctx}: entry has {len(paragraphs)} paragraphs")
-    text = clean(element_text(el), ctx)
-    if clean(element_text(paragraphs[0]), ctx) != text:
-        raise ParseError(f"{ctx}: entry text outside <p>: {text[:60]!r}")
-    return text
-
-
-def split_values(value: str) -> list[str]:
-    return [part.strip() for part in value.split(";") if part.strip()]
-
 
 def parse_date(text: str, ctx: str) -> str:
-    dotted = DATE_DOTTED_RE.match(text)
-    if dotted is not None:
-        day, month, year = dotted.groups()
-        return f"{year}-{int(month):02d}-{int(day):02d}"
-    worded = DATE_WORDED_RE.match(text)
-    if worded is not None:
-        return (
-            f"{worded.group(3)}-{MONTHS[worded.group(2)]:02d}"
-            f"-{int(worded.group(1)):02d}"
-        )
-    raise ParseError(f"{ctx}: unrecognized date {text!r}")
+    # Only the dotted and full-month forms occur in this document.
+    parsed = parse_dotted_date(text)
+    if parsed is None:
+        parsed = parse_worded_date(text)
+    if parsed is None:
+        raise ParseError(f"{ctx}: unrecognized date {text!r}")
+    return parsed
 
 
 def parse_record_id(text: str, ctx: str) -> str:
@@ -410,44 +264,6 @@ def parse_record_id(text: str, ctx: str) -> str:
     if match is None:
         raise ParseError(f"{ctx}: unrecognized entry number {text!r}")
     return match.group(1)
-
-
-def annex_blocks(doc: Element) -> list[tuple[str, Element]]:
-    blocks: list[tuple[str, Element]] = []
-    for title in xpath_elements(doc, "//p[@class='title-annex-1']"):
-        text = clean(element_text(title), "annex title")
-        match = re.match(r"^ANNEX ([A-Z]+)$", text)
-        if match is None:
-            raise ParseError(f"unrecognized annex title {text!r}")
-        parent = title.getparent()
-        if parent is None:
-            raise ParseError(f"annex title {text!r} has no container")
-        blocks.append((match.group(1), parent))
-    seen = [roman for roman, _ in blocks]
-    if len(set(seen)) != len(seen):
-        raise ParseError("duplicate annex titles in document")
-    known = set(TARGETS) | EXPECTED_EMPTY | NON_TARGET
-    unknown = set(seen) - known
-    if unknown:
-        raise ParseError(f"unknown annexes: {sorted(unknown)}")
-    missing = known - set(seen)
-    if missing:
-        raise ParseError(f"expected annexes missing: {sorted(missing)}")
-    return blocks
-
-
-def check_marker(text: str, ctx: str) -> None:
-    if MARKER_ROW_RE.match(text) is None:
-        raise ParseError(f"{ctx}: unrecognized modification marker {text!r}")
-
-
-def assert_empty(roman: str, block: Element) -> None:
-    entries = xpath_elements(
-        block,
-        ".//table | .//div[@class='list'] | .//div[contains(@class, 'grid-container')]",
-    )
-    if entries:
-        raise ParseError(f"{roman}: expected-empty annex has entry content")
 
 
 def iter_entry_children(
@@ -491,10 +307,6 @@ def iter_entry_children(
     if tuple(seen_parts) != parts:
         raise ParseError(f"{roman}: parts {seen_parts} != expected {list(parts)}")
     return entries
-
-
-def annex_id(roman: str, part: str) -> str:
-    return f"{roman}.{part}" if part else roman
 
 
 # --- parser families ---------------------------------------------------
@@ -551,30 +363,6 @@ def parse_numbered_list(roman: str, spec: AnnexSpec, block: Element) -> list[Row
     return rows
 
 
-def table_body(roman: str, table: Element, header: tuple[str, ...]) -> list[Element]:
-    """Validate the header row and return data rows, skipping marker rows."""
-    body: list[Element] = []
-    rows = xpath_elements(table, ".//tr")
-    if not rows:
-        raise ParseError(f"{roman}: table has no rows")
-    first = tuple(
-        clean(element_text(td), roman) for td in xpath_elements(rows[0], "./td|./th")
-    )
-    if first != header:
-        raise ParseError(f"{roman}: header {first} != expected {header}")
-    for tr in rows[1:]:
-        cells = xpath_elements(tr, "./td|./th")
-        if len(cells) == 1:
-            check_marker(" ".join(element_text(cells[0]).split()), roman)
-            continue
-        if len(cells) != len(header):
-            raise ParseError(
-                f"{roman}: row has {len(cells)} cells, expected {len(header)}"
-            )
-        body.append(tr)
-    return body
-
-
 def parse_table(roman: str, spec: AnnexSpec, block: Element) -> list[Row]:
     rows: list[Row] = []
     for part, div in iter_entry_children(roman, block, spec.parts):
@@ -616,6 +404,8 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
             parse_iv_name(ctx, cell_lines(td, ctx), row)
         elif role == "iv_info":
             parse_iv_info(ctx, cell_lines(td, ctx), row)
+        else:
+            raise ParseError(f"{roman}: unknown cell role {role!r}")
     if spec.country:
         row.add("country", [spec.country])
     return row
@@ -721,7 +511,7 @@ def parse_iv_info(ctx: str, lines: list[str], row: Row) -> None:
         row.add(ID_LABELS[match.group(1)], split_values(match.group(2)))
 
 
-FAMILIES = {
+FAMILIES: dict[str, Callable[[str, AnnexSpec, Element], list[Row]]] = {
     "plain_list": parse_plain_list,
     "grid_list": parse_grid_list,
     "numbered_list": parse_numbered_list,
@@ -729,7 +519,7 @@ FAMILIES = {
 }
 
 
-# --- assembly and validation ---------------------------------------------
+# --- assembly and CLI ------------------------------------------------------
 
 
 def check_registry() -> None:
@@ -741,6 +531,8 @@ def check_registry() -> None:
             raise ParseError(f"{roman}: invalid measure {spec.measure!r}")
         if spec.measure not in program.measures:
             raise ParseError(f"{roman}: measure not in {PROGRAM_KEY}")
+        if spec.family not in FAMILIES:
+            raise ParseError(f"{roman}: unknown family {spec.family!r}")
         schema = model.get(spec.schema)
         if schema is None:
             raise ParseError(f"{roman}: unknown schema {spec.schema!r}")
@@ -748,7 +540,8 @@ def check_registry() -> None:
 
 def parse_document(doc: Element) -> list[Row]:
     rows: list[Row] = []
-    for roman, block in annex_blocks(doc):
+    known = set(TARGETS) | set(EXPECTED_EMPTY) | set(NON_TARGET)
+    for roman, block in annex_blocks(doc, known):
         if roman in NON_TARGET:
             continue
         if roman in EXPECTED_EMPTY:
@@ -760,75 +553,6 @@ def parse_document(doc: Element) -> list[Row]:
             raise ParseError(f"{roman}: no entries extracted")
         rows.extend(annex_rows)
     return rows
-
-
-def to_record(row: Row) -> dict[str, str]:
-    record = {column: "" for column in COLUMNS}
-    record["celex"] = FRAMEWORK_CELEX
-    record["recordId"] = row.record_id
-    record["programKey"] = PROGRAM_KEY
-    record["annex"] = row.annex
-    record["measure"] = row.measure
-    record["startDate"] = row.start_date
-    record["reason"] = row.reason
-    record["schema"] = row.schema
-    schema = model.get(row.schema)
-    assert schema is not None
-    for prop, values in row.props.items():
-        if prop not in ENTITY_COLUMNS:
-            raise ParseError(f"{row.annex}: {prop!r} is not a CSV column")
-        if prop not in schema.properties:
-            raise ParseError(f"{row.annex}: {row.schema} has no {prop!r}")
-        record[prop] = "; ".join(values)
-    if not record["name"]:
-        raise ParseError(f"{row.annex}: row without name")
-    return record
-
-
-def validate_records(records: list[dict[str, str]]) -> None:
-    seen_rows: set[tuple[str, ...]] = set()
-    seen_ids: set[tuple[str, str]] = set()
-    for record in records:
-        key = tuple(record[column] for column in COLUMNS)
-        if key in seen_rows:
-            raise ParseError(f"{record['annex']}: duplicate row {record['name']!r}")
-        seen_rows.add(key)
-        if record["recordId"]:
-            id_key = (record["annex"], record["recordId"])
-            if id_key in seen_ids:
-                raise ParseError(
-                    f"{record['annex']}: duplicate entry number {record['recordId']}"
-                )
-            seen_ids.add(id_key)
-
-
-def summary(records: list[dict[str, str]], celex: str) -> dict[str, object]:
-    """Per-annex parity counts, echoed for the agent re-running the script."""
-    counts: dict[str, int] = {}
-    for record in records:
-        counts[record["annex"]] = counts.get(record["annex"], 0) + 1
-    return {
-        "consolidated_celex": celex,
-        "rows": counts,
-        "blank_start_dates": sum(1 for r in records if not r["startDate"]),
-        "total": len(records),
-    }
-
-
-# --- source retrieval and CLI ---------------------------------------------
-
-
-def load_source(celex: str, source: Path | None) -> bytes:
-    if source is not None:
-        return source.read_bytes()
-    cached = SCRIPT_DIR / "out" / f"{celex}.xhtml"
-    if cached.exists():
-        return cached.read_bytes()
-    with cli_client() as client:
-        expression = client.fetch_expression(celex)
-    cached.parent.mkdir(parents=True, exist_ok=True)
-    cached.write_bytes(expression.content)
-    return expression.content
 
 
 @click.command(help="Parse consolidated Regulation 833/2014 into a CSV candidate.")
@@ -846,15 +570,9 @@ def main(celex: str, source: Path | None) -> None:
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)
-        records = [to_record(row) for row in rows]
+        records = [to_record(row, FRAMEWORK_CELEX, PROGRAM_KEY) for row in rows]
         validate_records(records)
-
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        csv_path = OUTPUT_DIR / f"{FRAMEWORK_CELEX}.csv"
-        with open(csv_path, "w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=list(COLUMNS))
-            writer.writeheader()
-            writer.writerows(records)
+        csv_path = write_csv(records, FRAMEWORK_CELEX)
         click.echo(json.dumps(summary(records, celex), indent=2))
         click.echo(f"wrote {csv_path}")
     except ParseError as exc:

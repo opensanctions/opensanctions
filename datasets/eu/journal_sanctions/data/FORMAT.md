@@ -103,12 +103,18 @@ Do not recast such targets as `LegalEntity` or `Organization`.
 - Cells are trimmed. Missing values are empty cells — never placeholders such as
   `unknown`, `N/A`, or `-`.
 - Every entity column except `name` is multi-valued, separated by `;` with a
-  single space after the separator preferred: `Foo; Bar`. Elements must be
-  non-empty and unique after trimming. All other columns — the CELEX columns,
-  `recordId`, `programKey`, `annex`, `measure`, `startDate`, `reason`, `schema`,
-  and `name` — are scalar and never split.
-- Dates (`startDate`, `birthDate`, `incorporationDate`) are `YYYY`, `YYYY-MM`, or
-  `YYYY-MM-DD` and must be calendar-valid.
+  single space after the separator preferred: `Foo; Bar`. A value that itself
+  contains `;` or `"` is CSV-quoted within the cell, with embedded quotes
+  doubled — `"Foo; Bar"; Baz` holds two values — so cells decode losslessly
+  with a `;`-delimiter CSV parser (e.g. Python `csv` with `delimiter=";"` and
+  `skipinitialspace=True`). Elements must be non-empty and unique after
+  trimming. All other columns — the CELEX columns, `recordId`, `programKey`,
+  `annex`, `measure`, `startDate`, `reason`, `schema`, and `name` — are scalar
+  and never split.
+- `startDate` is `YYYY`, `YYYY-MM`, or `YYYY-MM-DD` and must be calendar-valid.
+  The entity date columns (`birthDate`, `incorporationDate`) instead preserve
+  the source's verbatim wording (`4 Apr. 1944`, `Approximately 1952`); the
+  crawler normalizes them via `type.date` lookups in the dataset YAML.
 
 ## Row uniqueness
 

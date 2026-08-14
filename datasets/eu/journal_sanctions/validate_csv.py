@@ -72,8 +72,10 @@ AMENDMENT_HEADER: tuple[str, ...] = (
 )
 
 # Every entity property column except name holds `;`-separated multi-values.
+# The entity date columns (birthDate, incorporationDate) are deliberately not
+# date-checked: they hold the source's verbatim wording ("Approximately
+# 1952") and are normalized in the crawler via `type.date` lookups.
 MULTI_VALUE_COLUMNS: frozenset[str] = frozenset(ENTITY_COLUMNS) - {"name"}
-DATE_COLUMNS: frozenset[str] = frozenset({"birthDate", "incorporationDate"})
 SUPPORTED_SCHEMAS: frozenset[str] = frozenset(
     {"Person", "LegalEntity", "Organization", "Company", "Vessel", "Asset"}
 )
@@ -114,10 +116,23 @@ class ValidationResult:
 
 
 def split_multi(value: str) -> list[str]:
-    """Split a `;`-separated multi-value cell into trimmed elements."""
+    """Decode a multi-value cell into trimmed elements.
+
+    Cells are `;`-delimited with CSV quoting: a value that itself contains
+    the separator or a quote is quoted, with embedded quotes doubled. Raises
+    ``ValueError`` on cells that do not decode to one clean row.
+    """
     if value == "":
         return []
-    return [part.strip() for part in value.split(";")]
+    try:
+        rows = list(
+            csv.reader(io.StringIO(value), delimiter=";", skipinitialspace=True)
+        )
+    except csv.Error as exc:
+        raise ValueError(f"multi-value cell does not decode as ;-CSV: {exc}")
+    if len(rows) != 1:
+        raise ValueError("multi-value cell contains a line break")
+    return [element.strip() for element in rows[0]]
 
 
 def _check_celex(value: str) -> str | None:
@@ -304,7 +319,7 @@ def validate_file(path: Path) -> ValidationResult:
                     )
                 )
 
-        # Dates: scalar startDate, multi-valued entity date columns.
+        # Dates: only the scalar startDate is strict ISO.
         if record["startDate"] != "":
             error = _check_date(record["startDate"])
             if error is not None:
@@ -312,7 +327,11 @@ def validate_file(path: Path) -> ValidationResult:
 
         # Multi-value cells.
         for column in MULTI_VALUE_COLUMNS:
-            elements = split_multi(record[column])
+            try:
+                elements = split_multi(record[column])
+            except ValueError as exc:
+                issues.append(Issue(path, row_num, column, str(exc)))
+                continue
             if len(elements) == 0:
                 continue
             if "" in elements:
@@ -330,13 +349,6 @@ def validate_file(path: Path) -> ValidationResult:
                         "multi-valued cell has duplicate elements",
                     )
                 )
-            if column in DATE_COLUMNS:
-                for element in elements:
-                    if element == "":
-                        continue
-                    error = _check_date(element)
-                    if error is not None:
-                        issues.append(Issue(path, row_num, column, error))
 
         # Row uniqueness.
         row_key = tuple(cells)
