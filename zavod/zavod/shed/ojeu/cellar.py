@@ -6,9 +6,10 @@ import base64
 import json
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import date
 from hashlib import sha256
 from pathlib import Path
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from typing import Any, Protocol
 
 import click
@@ -66,6 +67,41 @@ SELECT DISTINCT ?title ?doc_date ?type ?eli ?amends_celex ?based_on_celex
 }
 """
 
+RELATED_ACTS_QUERY = """
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX lang: <http://publications.europa.eu/resource/authority/language/>
+PREFIX rt: <http://publications.europa.eu/resource/authority/resource-type/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
+  VALUES ?framework_celex { FRAMEWORK_VALUES }
+  ?framework cdm:resource_legal_id_celex ?framework_celex .
+  {
+    ?work cdm:resource_legal_amends_resource_legal ?framework .
+    BIND("amends" AS ?relation)
+  }
+  UNION
+  {
+    ?work cdm:resource_legal_based_on_resource_legal ?framework .
+    BIND("based_on" AS ?relation)
+  }
+  ?work cdm:resource_legal_id_celex ?celex ;
+        cdm:work_date_document ?doc_date ;
+        cdm:work_has_resource-type ?type .
+  OPTIONAL {
+    ?expression cdm:expression_belongs_to_work ?work ;
+                cdm:expression_uses_language lang:ENG ;
+                cdm:expression_title ?title .
+  }
+  FILTER (?doc_date >= "DATE_FROM"^^xsd:date)
+  DATE_TO_FILTER
+  FILTER (?type IN (RESOURCE_TYPES))
+}
+ORDER BY ?doc_date ?celex ?framework_celex ?relation
+"""
+
+RELATED_ACT_TYPES = ("REG_IMPL", "DEC_IMPL", "REG", "DEC")
+
 
 @dataclass(frozen=True)
 class Request:
@@ -114,6 +150,34 @@ class Act:
             "latest_consolidated": self.latest_consolidated,
             "resource_type": self.resource_type,
             "resource_url": cellar_url(self.celex),
+            "title": self.title,
+        }
+
+
+@dataclass(frozen=True)
+class RelatedAct:
+    """Represent one incoming legal relationship to a framework act.
+
+    Use this edge-oriented result for discovery so callers can distinguish an
+    amendment from a legal-basis relationship without re-querying CELLAR.
+    """
+
+    celex: str
+    framework_celex: str
+    relation: str
+    title: str | None
+    document_date: str
+    resource_type: str
+
+    def to_dict(self) -> dict[str, str | None]:
+        """Return stable JSON fields for crawler issues and command output."""
+        return {
+            "celex": self.celex,
+            "document_date": self.document_date,
+            "eur_lex_url": eur_lex_url(self.celex),
+            "framework_celex": self.framework_celex,
+            "relation": self.relation,
+            "resource_type": self.resource_type,
             "title": self.title,
         }
 
@@ -249,6 +313,30 @@ class CellarClient:
             self.clear(request)
             raise
 
+    def query_related_acts(
+        self,
+        framework_celexes: str | Iterable[str],
+        date_from: date,
+        date_to: date | None = None,
+        resource_types: str | Iterable[str] = RELATED_ACT_TYPES,
+        cache_days: int | None = 1,
+    ) -> tuple[RelatedAct, ...]:
+        """Find acts that amend or use known frameworks as their legal basis.
+
+        Use this for bounded discovery runs. The default types cover regulations,
+        decisions, and their implementing acts; callers can choose a narrower set.
+        """
+        request = related_acts_request(
+            framework_celexes, date_from, date_to, resource_types
+        )
+        response = self._fetch(request, cache_days)
+        try:
+            result = orjson.loads(response.content)
+            return parse_related_act_results(result)
+        except Exception:
+            self.clear(request)
+            raise
+
     def fetch_expression(
         self,
         value: str,
@@ -310,6 +398,70 @@ def act_request(value: str) -> Request:
     )
 
 
+def build_related_acts_query(
+    framework_celexes: str | Iterable[str],
+    date_from: date,
+    date_to: date | None = None,
+    resource_types: str | Iterable[str] = RELATED_ACT_TYPES,
+) -> bytes:
+    """Build a bounded inverse-relationship query for framework discovery."""
+    values = _normalize_frameworks(framework_celexes)
+    if date_to is not None and date_to < date_from:
+        raise ValueError("date_to must not be before date_from")
+    framework_values = " ".join(f'"{celex}"^^xsd:string' for celex in values)
+    date_to_filter = ""
+    if date_to is not None:
+        date_to_filter = f'FILTER (?doc_date <= "{date_to.isoformat()}"^^xsd:date)'
+    type_values = ", ".join(f"rt:{value}" for value in _normalize_types(resource_types))
+    query = RELATED_ACTS_QUERY.replace("FRAMEWORK_VALUES", framework_values)
+    query = query.replace("DATE_FROM", date_from.isoformat())
+    query = query.replace("DATE_TO_FILTER", date_to_filter)
+    query = query.replace("RESOURCE_TYPES", type_values)
+    return query.encode("utf-8")
+
+
+def related_acts_request(
+    framework_celexes: str | Iterable[str],
+    date_from: date,
+    date_to: date | None = None,
+    resource_types: str | Iterable[str] = RELATED_ACT_TYPES,
+) -> Request:
+    """Build the exact request for discovering acts related to frameworks."""
+    return Request(
+        SPARQL_ENDPOINT,
+        method="POST",
+        data=build_related_acts_query(
+            framework_celexes, date_from, date_to, resource_types
+        ),
+        headers=tuple(SPARQL_HEADERS.items()),
+    )
+
+
+def _normalize_frameworks(
+    framework_celexes: str | Iterable[str],
+) -> tuple[str, ...]:
+    values = (
+        (framework_celexes,)
+        if isinstance(framework_celexes, str)
+        else tuple(framework_celexes)
+    )
+    normalized = tuple(sorted({normalize(value) for value in values}))
+    if not normalized:
+        raise ValueError("At least one framework CELEX is required")
+    return normalized
+
+
+def _normalize_types(resource_types: str | Iterable[str]) -> tuple[str, ...]:
+    values = (resource_types,) if isinstance(resource_types, str) else resource_types
+    normalized = tuple(sorted({value.strip().upper() for value in values if value}))
+    if not normalized:
+        raise ValueError("At least one resource type is required")
+    for value in normalized:
+        if not value.replace("_", "").isalnum():
+            raise ValueError(f"Invalid CELLAR resource type: {value}")
+    return normalized
+
+
 def parse_act_results(value: str, result: Any, request: Request | None = None) -> Act:
     """Parse CELLAR SPARQL JSON into deterministic, deduplicated act metadata."""
     celex = normalize(value)
@@ -345,6 +497,56 @@ def parse_act_results(value: str, result: Any, request: Request | None = None) -
         based_on=values("based_on_celex"),
         consolidated=values("cons_celex"),
         request=request or act_request(celex),
+    )
+
+
+def parse_related_act_results(result: Any) -> tuple[RelatedAct, ...]:
+    """Parse inverse CELLAR relationships into deterministic discovery edges."""
+    try:
+        bindings = result["results"]["bindings"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("Invalid CELLAR SPARQL response") from exc
+
+    found: dict[tuple[str, str, str, str, str], set[str]] = {}
+    for binding in bindings:
+        try:
+            celex = normalize(str(binding["celex"]["value"]))
+            framework = normalize(str(binding["framework_celex"]["value"]))
+            relation = str(binding["relation"]["value"])
+            document_date = str(binding["doc_date"]["value"])
+            resource_type = str(binding["type"]["value"]).rstrip("/").rsplit("/", 1)[-1]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Invalid related-act binding in CELLAR response") from exc
+        if relation not in {"amends", "based_on"}:
+            raise ValueError(f"Unsupported CELLAR relationship: {relation}")
+        key = (celex, framework, relation, document_date, resource_type)
+        title = str(binding.get("title", {}).get("value", "")).strip()
+        if title:
+            found.setdefault(key, set()).add(title)
+        else:
+            found.setdefault(key, set())
+
+    related = [
+        RelatedAct(
+            celex=key[0],
+            framework_celex=key[1],
+            relation=key[2],
+            document_date=key[3],
+            resource_type=key[4],
+            title=min(titles) if titles else None,
+        )
+        for key, titles in found.items()
+    ]
+    return tuple(
+        sorted(
+            related,
+            key=lambda act: (
+                act.document_date,
+                act.celex,
+                act.framework_celex,
+                act.relation,
+            ),
+        )
     )
 
 

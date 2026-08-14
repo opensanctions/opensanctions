@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -64,6 +65,60 @@ def test_framework_results_include_own_consolidated_family() -> None:
     assert act.latest_consolidated == "02024R1485-20260713"
     query = cellar.build_act_query("32024R1485").decode("utf-8")
     assert "BIND(COALESCE(?amended_framework, ?work) AS ?framework)" in query
+
+
+def test_build_and_parse_related_acts_query() -> None:
+    query = cellar.build_related_acts_query(
+        ["32024R1485", "32024R1485"],
+        date(2025, 1, 1),
+        date(2026, 7, 31),
+    ).decode("utf-8")
+    assert query.count('"32024R1485"^^xsd:string') == 1
+    assert '?doc_date >= "2025-01-01"^^xsd:date' in query
+    assert '?doc_date <= "2026-07-31"^^xsd:date' in query
+    assert "resource_legal_amends_resource_legal" in query
+    assert "resource_legal_based_on_resource_legal" in query
+    assert (
+        "PREFIX rt: <http://publications.europa.eu/resource/authority/resource-type/>"
+        in query
+    )
+    assert "FILTER (?type IN (rt:DEC, rt:DEC_IMPL, rt:REG, rt:REG_IMPL))" in query
+
+    result = json.loads((FIXTURES / "related.json").read_text())
+    related = cellar.parse_related_act_results(result)
+    assert [item.celex for item in related] == [
+        "32025R1980",
+        "32026R1708",
+        "32026R1708",
+    ]
+    assert [item.relation for item in related] == ["amends", "amends", "based_on"]
+    assert related[0].title is None
+    assert related[1].resource_type == "REG_IMPL"
+
+
+def test_related_acts_query_rejects_invalid_bounds() -> None:
+    with pytest.raises(ValueError, match="date_to"):
+        cellar.build_related_acts_query(
+            "32024R1485", date(2026, 1, 2), date(2026, 1, 1)
+        )
+    with pytest.raises(ValueError, match="At least one"):
+        cellar.build_related_acts_query([], date(2026, 1, 1))
+    with pytest.raises(ValueError, match="resource type"):
+        cellar.build_related_acts_query(
+            "32024R1485", date(2026, 1, 1), resource_types=[]
+        )
+
+
+def test_cellar_client_queries_related_acts(requests_mock) -> None:
+    result = json.loads((FIXTURES / "related.json").read_text())
+    requests_mock.post(cellar.SPARQL_ENDPOINT, json=result)
+    client = cellar.CellarClient(requests.Session())
+
+    related = client.query_related_acts("32024R1485", date(2025, 1, 1))
+
+    assert len(related) == 3
+    assert related[-1].framework_celex == "32024R1485"
+    assert b'"32024R1485"^^xsd:string' in requests_mock.last_request.body
 
 
 def test_cellar_client_fetches_expression(requests_mock) -> None:
@@ -177,6 +232,29 @@ def test_cli_prints_stable_json_and_saves_expression(
         output
         == json.dumps(parsed, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
     )
+
+
+def test_celex_cli_includes_related_acts(requests_mock) -> None:
+    act = json.loads((FIXTURES / "framework.json").read_text())
+    related = json.loads((FIXTURES / "related.json").read_text())
+    requests_mock.post(cellar.SPARQL_ENDPOINT, [{"json": act}, {"json": related}])
+
+    result = CliRunner().invoke(
+        celex.cli,
+        [
+            "32024R1485",
+            "--metadata-only",
+            "--related-since",
+            "2025-01-01",
+            "--related-until",
+            "2026-07-31",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    output = json.loads(result.output)
+    assert len(output["related_acts"]) == 3
+    assert output["related_acts"][0]["celex"] == "32025R1980"
 
 
 def test_cellar_cli_writes_expression(
