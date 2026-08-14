@@ -94,29 +94,17 @@ def crawl_fr_notices(context: Context) -> None:
         writer.writerows(rows)
 
 
-def without_scheme(url: str) -> str:
-    """Strip what differs between a document as linked and as recorded: the
-    posts link their PDFs over http, the CSV records them over https."""
-    return url.strip().split("://", 1)[-1]
-
-
-def list_documents(context: Context, url: str) -> list[str]:
-    """Find the list documents linked from a published post."""
-    doc = context.fetch_html(url, cache_days=CTO_CACHE_DAYS, absolute_links=True)
-    links = h.xpath_elements(doc, "//a[@href]")
-    urls = [cast(str, link.get("href")) for link in links]
-    return [url for url in urls if url.lower().endswith(".pdf")]
-
-
 def check_section_1286_lists(context: Context) -> None:
     """Warn about published Section 1286 lists that are not in the CSV yet.
 
     A post is reviewed once one of the documents it links is the source_url of a
     Section 1286 row, so importing a new fiscal-year list mutes its own warning.
+    The posts link their PDFs over http while the CSV records them over https,
+    so the URLs are compared without their scheme.
     """
     with open(SECTION_1286_FILE, encoding="utf-8", newline="") as fh:
         imported = {
-            without_scheme(url)
+            url.split("://", 1)[-1]
             for row in csv.DictReader(fh)
             for url in h.multi_split(row["source_url"], ";")
         }
@@ -130,8 +118,13 @@ def check_section_1286_lists(context: Context) -> None:
         context.log.warning("Section 1286 list search returned no posts")
 
     for post in posts:
-        documents = list_documents(context, post["link"])
-        if any(without_scheme(url) in imported for url in documents):
+        page = context.fetch_html(
+            post["link"], cache_days=CTO_CACHE_DAYS, absolute_links=True
+        )
+        links = h.xpath_elements(page, "//a[@href]")
+        urls = [cast(str, link.get("href")) for link in links]
+        documents = [url for url in urls if url.lower().endswith(".pdf")]
+        if any(url.split("://", 1)[-1] in imported for url in documents):
             continue
         context.log.warning(
             "Unreviewed Section 1286 list",
