@@ -17,8 +17,8 @@ ACCESS_TOKEN = os.environ.get("OPENSANCTIONS_HU_NATIONAL_ASSEMBLY_API_KEY")
 # there rather than from the single current group in the list endpoint.
 ELECTION_PATH = "./valasztasok/valasztas"
 GROUP_PATH = "./kepvcsop-tagsagok/tagsag"
-# Roles held outside parliament, e.g. 'Építési és Beruházási Minisztérium
-# államtitkára'. Committee seats and parliamentary group offices are also in the
+# Offices held besides the mandate, e.g. 'az Országgyűlés elnöke' (Speaker of the
+# National Assembly). Committee seats and parliamentary group offices are also in the
 # profile, under bizottsagi-tagsagok and kepvcsop-tisztsegek, but aren't emitted.
 FUNCTION_PATH = "./tisztsegek/tisztseg"
 
@@ -126,7 +126,8 @@ def crawl_member(context: Context, azon: str) -> None:
             context,
             name=h.xpath_string(function, "@megnevezes"),
             country="hu",
-            topics=["gov.national"],
+            # No topics: these names come straight from the source, so their scope and
+            # role are for the review and classification system to decide.
             lang="hun",
             translate_name=True,
         )
