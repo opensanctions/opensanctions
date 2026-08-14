@@ -23,18 +23,23 @@ publisher:
   url: https://www.parlament.hu/web/house-of-the-national-assembly
 tags:
   - list.pep
-url: https://www.parlament.hu/en/web/house-of-the-national-assembly/list-of-mps
+url: https://www.parlament.hu/kepviselok
 data:
-  url: https://www.parlament.hu/en/web/house-of-the-national-assembly/list-of-mps
-  format: html
-  lang: eng
+  url: https://www.parlament.hu/cgi-bin/web-api-pub/kepviselok.cgi
+  format: xml
+  lang: hun
 dates:
-  formats: ["%d-%m-%Y"]
+  formats: ["%Y.%m.%d."]
+# Academic titles are published as part of the name, e.g. 'Dr. Apáti István'.
+names:
+  prefixes_strip:
+    - Dr.
+    - Prof.
 
-# 200 members of parliament
 assertions:
   min:
     schema_entities:
+      # 199 members of parliament
       Person: 195
       Position: 1
     country_entities:
