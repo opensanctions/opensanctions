@@ -1,7 +1,8 @@
 """Validate reviewed EU Journal sanctions CSV files before they are loaded.
 
 Reviewed designations live in git as amendment and consolidated CSV files with
-a fixed column contract. This tool checks those files offline — structure,
+a fixed column contract, documented in ``data/FORMAT.md`` next to the files.
+This tool checks those files offline — structure,
 CELEX provenance, program and measure vocabulary, FtM schema compatibility,
 dates, multi-value cells, and row uniqueness — so contract violations are
 caught at review time rather than at crawl time. The loader reuses
