@@ -19,8 +19,8 @@ The regulation's target annexes:
   entity field labels.
 
 Annex V (vessels) is currently empty; Annexes I, IV and VII list goods and
-authorities, not designations. Birth dates are transcribed verbatim as the
-source prints them ("Approximately 1952"); the crawler normalizes dates.
+authorities, not designations. Dates are transcribed as the source prints
+them ("26 Feb. 2011", "Approximately 1952"); the crawler normalizes dates.
 
 Output: data/consolidated/32016R0044.csv (the EU Journal consolidated CSV
 contract, keyed by the framework act). The consolidated version the snapshot
@@ -145,10 +145,6 @@ III_NUMBER_RE = re.compile(r"^(\d+)\.$")
 # Inline alias parenthetical in a name cell: "Libyan Agricultural Bank
 # (a.k.a. Agricultural Bank; a.k.a. Al Masraf Al Zirae)".
 III_INLINE_AKA_RE = re.compile(r"^(.+?) \(a\.k\.a\. (.+)\)$")
-# Alias strings split on ";" by default; a comma inside one piece is usually
-# a surname format ("DIAB, Mousa"). These entries' comma-separated alias
-# lists are pinned for comma splitting instead.
-III_COMMA_ALIAS_PINS = frozenset({("A", "15"), ("B", "11")})
 # Identifying-information labels → CSV column.
 III_INFO_LABELS = {
     "Position": "position",
@@ -233,20 +229,20 @@ III_INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]
 }
 
 
-def parse_date(text: str, ctx: str) -> str:
+def verbatim_date(text: str, ctx: str) -> str:
     # Formats observed in this document: dotted listing dates ("28.2.2011"),
     # UN abbreviated dates ("26 Feb. 2011"), worded dates ("17 March 2011").
+    # The printed wording is kept; the recognizers only guard the shape.
     for parse in (parse_dotted_date, parse_worded_date, parse_abbrev_date):
-        parsed = parse(text)
-        if parsed is not None:
-            return parsed
+        if parse(text) is not None:
+            return text
     raise ParseError(f"{ctx}: unrecognized date {text!r}")
 
 
 def parse_listed_on(ctx: str, value: str) -> str:
     # "26 Feb. 2011 (amended on 27 Jun. 2014, 1 Apr. 2016)" — the amendment
     # history is not part of the designation date.
-    return parse_date(value.split(" (amended on ")[0].strip(), ctx)
+    return verbatim_date(value.split(" (amended on ")[0].strip(), ctx)
 
 
 # --- UN narrative layout (Annexes II and VI) --------------------------------
@@ -444,18 +440,16 @@ def parse_annex_vi(roman: str, block: Element) -> list[Row]:
 # --- Annex III tables --------------------------------------------------------
 
 
-def split_iii_aliases(part: str, record_id: str, text: str) -> list[str]:
+def split_iii_aliases(text: str) -> list[str]:
     aliases: list[str] = []
     for piece in text.split(";"):
         piece = piece.strip().removeprefix("a.k.a.").strip()
-        if (part, record_id) in III_COMMA_ALIAS_PINS:
-            aliases.extend(item.strip() for item in piece.split(","))
-        else:
+        if piece:
             aliases.append(piece)
-    return [alias for alias in aliases if alias]
+    return aliases
 
 
-def parse_iii_name(ctx: str, part: str, record_id: str, td: Element, row: Row) -> None:
+def parse_iii_name(ctx: str, td: Element, row: Row) -> None:
     lines = cell_lines(td, ctx)
     if not lines:
         raise ParseError(f"{ctx}: empty name cell")
@@ -464,10 +458,10 @@ def parse_iii_name(ctx: str, part: str, record_id: str, td: Element, row: Row) -
     inline = III_INLINE_AKA_RE.match(name)
     if inline is not None:
         name = inline.group(1)
-        aliases.extend(split_iii_aliases(part, record_id, inline.group(2)))
+        aliases.extend(split_iii_aliases(inline.group(2)))
     for line in lines[1:]:
         if line.startswith("a.k.a. "):
-            aliases.extend(split_iii_aliases(part, record_id, line))
+            aliases.extend(split_iii_aliases(line))
         elif line.startswith("(") and line.endswith(")"):
             # A native-script rendering printed under the Latin name.
             name = f"{name} {line}"
@@ -532,10 +526,10 @@ def parse_iii_row(roman: str, part: str, tr: Element) -> Row:
         MEASURE,
         record_id=record_id,
     )
-    parse_iii_name(ctx, part, record_id, cells[1], row)
+    parse_iii_name(ctx, cells[1], row)
     parse_iii_info(ctx, part, record_id, cells[2], row)
     row.reason = " ".join(cell_lines(cells[3], ctx))
-    row.start_date = parse_date(cell_line(cells[4], ctx), ctx)
+    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx)
     return row
 
 

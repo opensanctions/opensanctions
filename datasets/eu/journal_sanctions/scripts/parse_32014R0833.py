@@ -249,14 +249,12 @@ NON_TARGET = frozenset(
 )
 
 
-def parse_date(text: str, ctx: str) -> str:
-    # Only the dotted and full-month forms occur in this document.
-    parsed = parse_dotted_date(text)
-    if parsed is None:
-        parsed = parse_worded_date(text)
-    if parsed is None:
+def verbatim_date(text: str, ctx: str) -> str:
+    # Only the dotted and full-month forms occur in this document. The printed
+    # wording is kept; the recognizers only guard the shape.
+    if parse_dotted_date(text) is None and parse_worded_date(text) is None:
         raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return parsed
+    return text
 
 
 def parse_record_id(text: str, ctx: str) -> str:
@@ -387,7 +385,7 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
         elif role == "name":
             row.add("name", [cell_line(td, ctx)])
         elif role == "startDate":
-            row.start_date = parse_date(cell_line(td, ctx), ctx)
+            row.start_date = verbatim_date(cell_line(td, ctx), ctx)
         elif role == "reason":
             # Grounds cells legitimately span paragraphs (XLII, XLVII).
             row.reason = " ".join(cell_lines(td, ctx))

@@ -11,6 +11,7 @@ caught at review time rather than at crawl time. The loader reuses
 
 import csv
 import io
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -72,9 +73,10 @@ AMENDMENT_HEADER: tuple[str, ...] = (
 )
 
 # Every entity property column except name holds `;`-separated multi-values.
-# The entity date columns (birthDate, incorporationDate) are deliberately not
-# date-checked: they hold the source's verbatim wording ("Approximately
-# 1952") and are normalized in the crawler via `type.date` lookups.
+# All date columns hold the source's printed wording, normalized in the
+# crawler via the dataset `dates` configuration and `type.date` lookups. The
+# entity date columns (birthDate, incorporationDate) are free-form; startDate
+# is shape-checked only to guard that it is one bare date.
 MULTI_VALUE_COLUMNS: frozenset[str] = frozenset(ENTITY_COLUMNS) - {"name"}
 SUPPORTED_SCHEMAS: frozenset[str] = frozenset(
     {"Person", "LegalEntity", "Organization", "Company", "Vessel", "Asset"}
@@ -148,12 +150,65 @@ def _check_celex(value: str) -> str | None:
     return None
 
 
-def _check_date(value: str) -> str | None:
-    """Return an error message unless the value is a calendar-valid partial date."""
-    if len(value) not in (4, 7, 10):
-        return f"date must be YYYY, YYYY-MM, or YYYY-MM-DD: {value!r}"
+# The bare-date shapes accepted in startDate, each mapped to its ISO form so
+# calendar validity can be checked. These mirror the recognizers in
+# scripts/common.py; the validator stays importable without scripts/.
+DATE_ISO_RE = re.compile(r"^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$")
+DATE_DOTTED_RE = re.compile(r"^(\d{1,2})\.(\d{1,2})\.(\d{4})$")
+DATE_WORDED_RE = re.compile(
+    r"^(\d{1,2}) (January|February|March|April|May|June|July|August"
+    r"|September|October|November|December) (\d{4})$"
+)
+DATE_ABBREV_RE = re.compile(
+    r"^(\d{1,2}) (Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\. (\d{4})$"
+)
+MONTHS = {
+    "January": 1,
+    "February": 2,
+    "March": 3,
+    "April": 4,
+    "May": 5,
+    "June": 6,
+    "July": 7,
+    "August": 8,
+    "September": 9,
+    "October": 10,
+    "November": 11,
+    "December": 12,
+    "Jan": 1,
+    "Feb": 2,
+    "Mar": 3,
+    "Apr": 4,
+    "Jun": 6,
+    "Jul": 7,
+    "Aug": 8,
+    "Sep": 9,
+    "Sept": 9,
+    "Oct": 10,
+    "Nov": 11,
+    "Dec": 12,
+}
+
+
+def _check_start_date(value: str) -> str | None:
+    """Return an error message unless the value is one bare, calendar-valid date."""
+    iso: str | None = None
+    if DATE_ISO_RE.match(value) is not None:
+        iso = value
+    match = DATE_DOTTED_RE.match(value)
+    if match is not None:
+        day, month, year = match.groups()
+        iso = f"{year}-{int(month):02d}-{int(day):02d}"
+    match = DATE_WORDED_RE.match(value) or DATE_ABBREV_RE.match(value)
+    if match is not None:
+        iso = f"{match.group(3)}-{MONTHS[match.group(2)]:02d}-{int(match.group(1)):02d}"
+    if iso is None:
+        return (
+            "startDate must be one bare date (ISO partial, dotted, worded, "
+            f"or UN-abbreviated): {value!r}"
+        )
     try:
-        prefix_interval(value)
+        prefix_interval(iso)
     except ValueError:
         return f"invalid calendar date: {value!r}"
     return None
@@ -322,9 +377,9 @@ def validate_file(path: Path) -> ValidationResult:
                     )
                 )
 
-        # Dates: only the scalar startDate is strict ISO.
+        # Dates: only the scalar startDate is shape-checked.
         if record["startDate"] != "":
-            error = _check_date(record["startDate"])
+            error = _check_start_date(record["startDate"])
             if error is not None:
                 issues.append(Issue(path, row_num, "startDate", error))
 

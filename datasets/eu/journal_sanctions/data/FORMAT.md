@@ -13,6 +13,17 @@ designated entity in one legal context. There are two file kinds:
 Both kinds share the same sanctions-metadata and entity columns and differ only in
 their leading CELEX provenance columns.
 
+## Fidelity and the cleaning boundary
+
+Cells hold the source's printed wording. Transcription performs structural
+extraction only: mapping printed labels to columns, splits dictated by the
+source's own labels, list structure, or enumeration, dropping printed
+placeholders (`na`, `n/a`), collapsing whitespace, and stripping EUR-Lex
+change markers. Semantic normalization — date parsing, country codes,
+identifier canonicalization, and any name categorisation beyond printed
+labels — belongs to the consuming crawler, via `type.*` lookups, the `dates`
+configuration, and the names review system.
+
 ## File naming and headers
 
 Files are UTF-8, comma-delimited, and start with the exact header for their kind —
@@ -60,7 +71,7 @@ date-suffixed version identifiers such as `02014R0833-20260717` are invalid. Do 
 | `programKey` | Yes | One OpenSanctions program key that resolves against `meta/programs/*.yml` (e.g. `EU-LBY`). |
 | `annex` | When stated | The source's annex or section identifier, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. |
 | `measure` | Yes | One sanctions measure from the `Measure` vocabulary in `zavod/zavod/stateful/programs.py`, which must also appear in the selected program's `measures:` list. |
-| `startDate` | No | The date the designation takes effect. Empty when the source does not establish it — never infer one. |
+| `startDate` | No | The source's printed per-designation date, date-only — surrounding labels such as `Listed on:` and amendment-history parentheticals are stripped. Empty when the source does not establish a date for the specific designation — never infer one. |
 | `reason` | No | The source's rationale for listing, as prose (maps to `Sanction.reason`). |
 
 There is no `unknown` value for any column; a row whose measure cannot be
@@ -74,6 +85,15 @@ column in either kind.
 `Organization`, `Company`, `Vessel`, or `Asset`, and every populated entity
 column must be a property that exists on that FollowTheMoney schema (e.g. `flag`
 and `imoNumber` only on `Vessel`, `kppCode` only on `Company`).
+
+Name cells preserve the source's wording and casing. A value is categorised
+into `alias`, `weakAlias`, or `previousName` only when the source prints a
+label or structure that says so: `a.k.a.` and `Good quality a.k.a.` mark an
+`alias`, `Low quality a.k.a.` a `weakAlias`, `f.k.a.` and `formerly` a
+`previousName`. Never split a name on punctuation alone or extract
+transliteration variants; an unlabeled combined form stays whole in `name`.
+Irregular values are expected — the consuming crawler routes names through
+the review helpers, where a human categorises them.
 
 The country columns are distinct — use the most specific one:
 
@@ -111,10 +131,13 @@ Do not recast such targets as `LegalEntity` or `Organization`.
   trimming. All other columns — the CELEX columns, `recordId`, `programKey`,
   `annex`, `measure`, `startDate`, `reason`, `schema`, and `name` — are scalar
   and never split.
-- `startDate` is `YYYY`, `YYYY-MM`, or `YYYY-MM-DD` and must be calendar-valid.
-  The entity date columns (`birthDate`, `incorporationDate`) instead preserve
-  the source's verbatim wording (`4 Apr. 1944`, `Approximately 1952`); the
-  crawler normalizes them via `type.date` lookups in the dataset YAML.
+- All date columns preserve the source's wording; the crawler normalizes them
+  via the dataset YAML's `dates` configuration and `type.date` lookups.
+  `startDate` must additionally be a bare, calendar-valid date in one of these
+  shapes: ISO partial (`2011`, `2011-02`, `2011-02-28`), dotted (`28.2.2011`),
+  worded (`2 December 1985`), or UN-abbreviated (`26 Feb. 2011`). The entity
+  date columns (`birthDate`, `incorporationDate`) are free-form
+  (`4 Apr. 1944`, `Approximately 1952`).
 
 ## Row uniqueness
 
