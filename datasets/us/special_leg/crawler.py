@@ -7,6 +7,8 @@ from rigour.mime.types import CSV
 from zavod import Context, helpers as h
 
 LOCAL_PATH = Path(__file__).parent
+# One CSV per act, report or designation authority covered by the dataset.
+DATA_PATH = LOCAL_PATH / "data"
 FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
 
 
@@ -53,7 +55,7 @@ def crawl_fr_notices(context: Context) -> None:
     # to appear in the CSL. This function monitors the FR API directly so that
     # any new notice triggers a warning.
     # If the hash changes, review the updated fr_notices.csv for new entries and
-    # add the designations to sanctions.csv accordingly. Then commit the updated
+    # add the designations to data/inksna.csv accordingly. Then commit the updated
     # fr_notices.csv and update the hash in this function.
     h.assert_url_hash(context, FR_API_URL, "9ee76295f4ac089fe7382bf6f33b947dae5f9eb0")
     rows: list[list[str]] = []
@@ -78,14 +80,43 @@ def crawl_fr_notices(context: Context) -> None:
         writer.writerows(rows)
 
 
-def crawl(context: Context) -> None:
-    source_file = LOCAL_PATH / "sanctions.csv"
-    resource_path = context.get_resource_path("source.csv")
+def crawl_source_file(context: Context, source_file: Path) -> None:
+    """Emit the entities of one act, report or designation authority."""
+    resource_path = context.get_resource_path(source_file.name)
     shutil.copy(source_file, resource_path)
-    context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
+    context.export_resource(
+        resource_path, CSV, f"{context.SOURCE_TITLE}: {source_file.name}"
+    )
 
     with open(source_file, encoding="utf-8", newline="") as fh:
-        for row in csv.DictReader(fh):
-            crawl_row(context, row)
+        rows = list(csv.DictReader(fh))
+
+    # Each file covers exactly one legal basis, so that a new act is added as a
+    # new file rather than mixed into an existing one.
+    programs = {row["program"] for row in rows}
+    if len(programs) != 1:
+        raise ValueError(f"{source_file.name} covers {len(programs)} programs")
+
+    # An entity is listed at most once per edition of a list: repeated names
+    # within an edition mean the source was transcribed twice, or with one row
+    # per alias instead of one row per entity.
+    seen: set[tuple[str, str]] = set()
+    for row in rows:
+        listing = (row["report-date"], row["name"])
+        if listing in seen:
+            raise ValueError(
+                f"{source_file.name}: {row['name']!r} listed twice "
+                f"in the {row['report-date']!r} edition"
+            )
+        seen.add(listing)
+        crawl_row(context, row)
+
+
+def crawl(context: Context) -> None:
+    source_files = sorted(DATA_PATH.glob("*.csv"))
+    if len(source_files) == 0:
+        raise ValueError(f"No source data found in {DATA_PATH}")
+    for source_file in source_files:
+        crawl_source_file(context, source_file)
 
     crawl_fr_notices(context)

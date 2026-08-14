@@ -63,7 +63,8 @@ description: |
 
   The named entities exist only in the text of the individual acts, reports and
   Federal Register notices, none of which are machine-readable. The data is
-  therefore maintained as a reviewed CSV file in the OpenSanctions repository.
+  therefore maintained as reviewed CSV files in the OpenSanctions repository,
+  one per act or designation authority.
 
   **This dataset is manually maintained and not automatically updated with new legislation.**
 tags:
@@ -77,9 +78,9 @@ publisher:
   country: us
   url: https://www.congress.gov/
   official: true
-url: https://github.com/opensanctions/opensanctions/blob/main/datasets/us/special_leg/sanctions.csv
+url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/data
 data:
-  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/special_leg/sanctions.csv
+  url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/data
   format: CSV
   lang: eng
 dates:
@@ -116,12 +117,16 @@ lookups:
         value: US-DOS-ISN
 
 config:
-  # The dataset is maintained as sanctions.csv next to the crawler; edits are made
-  # as pull requests against that file. One row per entity per designation event:
-  # the same entity named by several acts, or by successive editions of the same
-  # list, keeps one row per listing.
+  # The dataset is maintained as the CSV files in data/ next to the crawler; edits
+  # are made as pull requests against them. Each file holds exactly one act,
+  # report or designation authority, and the crawler rejects a file that mixes
+  # several. One row per entity per designation event: an entity named by
+  # successive editions of the same list keeps one row per edition, keyed by
+  # report-date, and an entity named by several acts appears in several files.
+  # Within one edition an entity must appear only once, with all of its names
+  # collected in `aliases`.
   #
-  # Columns:
+  # All files share these columns:
   # - schema: Person or Company.
   # - name: the name exactly as printed in the act, report or notice.
   # - aliases: additional names, separated by semicolons.
@@ -140,13 +145,13 @@ config:
   # - source_url: the official act, report or notice the row was taken from;
   #   several URLs separated by semicolons.
   #
-  # Adding a new act: append its rows, add the program title to the
-  # sanction.program lookup with a new program key, describe the act in
-  # `description`, and re-check `assertions`.
+  # Adding a new act: create a new file in data/ with the same header, add the
+  # program title to the sanction.program lookup with a new program key,
+  # describe the act in `description`, and re-check `assertions`.
   #
   # Updating the Section 1286 list: follow SECTION_1286.md next to this file.
   #
   # Handling "Hash mismatch" warnings on the Federal Register API: the crawler
   # polls the API for new INKSNA determinations and rewrites fr_notices.csv.
-  # Read each new notice, append one sanctions.csv row per designated foreign
+  # Read each new notice, append one data/inksna.csv row per designated foreign
   # person, then commit fr_notices.csv and update the hash in crawler.py.
