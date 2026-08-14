@@ -83,6 +83,8 @@ lookups:
         value: 02003R1210-20251224
       - match: 32004R0314
         value: 02004R0314-20260219
+      - match: 32005R1183
+        value: 02005R1183-20251210
       - match: 32006R0305
         value: 02006R0305-20240913
       - match: 32006R0765
@@ -91,6 +93,8 @@ lookups:
         value: 02009R1284-20240913
       - match: 32010D0573
         value: 02010D0573-20251029
+      - match: 32010R0356
+        value: 02010R0356-20240913
       - match: 32011D0173
         value: 02011D0173-20260331
       - match: 32011R0101
@@ -99,6 +103,10 @@ lookups:
         value: 02011R0359-20260724
       - match: 32011R0753
         value: 02011R0753-20240913
+      - match: 32012R0036
+        value: 02012R0036-20260520
+      - match: 32012R0267
+        value: 02012R0267-20260801
       - match: 32012R0377
         value: 02012R0377-20250924
       - match: 32013R0401
@@ -107,6 +115,8 @@ lookups:
         value: 02014R0208-20260303
       - match: 32014R0224
         value: 02014R0224-20250326
+      - match: 32014R0269
+        value: 02014R0269-20260717
       - match: 32014R0747
         value: 02014R0747-20260622
       - match: 32014R0833
@@ -121,6 +131,8 @@ lookups:
         value: 02016R0044-20260616
       - match: 32016R1686
         value: 02016R1686-20251124
+      - match: 32017R1509
+        value: 02017R1509-20251217
       - match: 32017R1770
         value: 02017R1770-20251203
       - match: 32017R2063
@@ -372,8 +384,14 @@ lookups:
         value: EU-GTM
       - match: 1183/2005
         value: EU-COD
-      - match: 2016/849
+      - match:
+          - 2016/849
+          - 2017/1509
         value: EU-PRK
+      - match:
+          - 356/2010
+          - 2010/231
+        value: EU-SOM
       - match: 2017/2063
         value: EU-VEN
       - match: 2024/386
