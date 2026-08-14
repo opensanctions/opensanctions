@@ -30,7 +30,7 @@ url: https://portaldatransparencia.gov.br/download-de-dados/ceis
 data:
   url: https://portaldatransparencia.gov.br/download-de-dados/ceis
   format: csv
-ci_test: false # no zyte in CI
+ci_test: false  # no zyte in CI
 
 assertions:
   min:
@@ -53,6 +53,11 @@ lookups:
       - match: "37.176.339/0001-53"
         # From the dataset
         values: ["VITAL PRODUTOS MEDICO-HOSPITALARES LTDA", "VITALMED"]
+      - match: "12.441.527/0001-30"
+        # The source lists the CNPJ instead of a name. Legal name from the Receita
+        # Federal company register (https://minhareceita.org/12441527000130),
+        # matched on the entity's tax number: 12441527000130
+        value: W J C PROMOCOES ARTISTICAS LTDA
       - match: "23402.016955/2025-18"
         # From the registry: https://casadosdados.com.br/solucao/cnpj/kasvi-importacao-e-distribuicao-de-produtos-para-laboratorios-ltda-13324282000396
         # matched based on the tax number: 13324282000396
