@@ -61,6 +61,7 @@ def request_hash(
     method: str = "GET",
     data: Any = None,
     encoding: str | None = None,
+    headers: _Headers = None,
 ) -> str:
     """
     Generate a unique fingerprint for an HTTP request.
@@ -70,12 +71,18 @@ def request_hash(
         method: The HTTP method of the request.
         data: The data to be sent in the request body.
         encoding: The character encoding used to decode the response body.
+        headers: Representation-varying headers to include in the fingerprint.
     Returns:
         A unique fingerprint for the request (url + hashed payload).
     """
     parts: tuple[Any, ...] = (auth, method, data)
     if encoding is not None:
         parts = (*parts, encoding)
+    if headers is not None:
+        normalized_headers = tuple(
+            sorted((key.lower(), value.strip()) for key, value in headers.items())
+        )
+        parts = (*parts, normalized_headers)
     hsh = hash_data(parts)
     return f"{url}[{hsh}]"
 

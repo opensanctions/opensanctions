@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 import click
+import requests
 
 EUR_LEX_URL = "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
 
@@ -128,23 +129,26 @@ def cli(
     save_expression: Path | None,
 ) -> None:
     """Print stable JSON for an act so agents can inspect it without a crawl."""
-    from zavod.shed.ojeu.cellar import fetch_expression_http, query_act_http
+    from zavod.shed.ojeu.cellar import cli_client
 
     try:
         celex = normalize(celex)
-        act = query_act_http(celex)
-        output = act.to_dict()
-        if not metadata_only:
-            expression = fetch_expression_http(
-                celex, language=language, media_type=media_type
-            )
-            output["expression"] = expression.to_dict()
-            if save_expression is not None:
-                save_expression.write_bytes(expression.content)
-                output["expression"]["saved_to"] = str(save_expression)
-        elif save_expression is not None:
-            raise ValueError("--save-expression cannot be used with --metadata-only")
-    except (OSError, ValueError) as exc:
+        with cli_client() as client:
+            act = client.query_act(celex)
+            output = act.to_dict()
+            if not metadata_only:
+                expression = client.fetch_expression(
+                    celex, language=language, media_type=media_type
+                )
+                output["expression"] = expression.to_dict()
+                if save_expression is not None:
+                    save_expression.write_bytes(expression.content)
+                    output["expression"]["saved_to"] = str(save_expression)
+            elif save_expression is not None:
+                raise ValueError(
+                    "--save-expression cannot be used with --metadata-only"
+                )
+    except (OSError, ValueError, requests.RequestException) as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(json.dumps(output, indent=2, sort_keys=True, ensure_ascii=False))
 

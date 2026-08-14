@@ -8,11 +8,11 @@ from nomenklatura.resolver import Linker
 from normality import normalize
 from rigour.ids.ogrn import OGRN
 from zavod.integration import get_dataset_linker
+from zavod.shed.ojeu import cellar
+from zavod.shed.ojeu.celex import normalize as normalize_celex
 
 from zavod import Context, Entity, settings
 from zavod import helpers as h
-from zavod.shed.ojeu import cellar
-from zavod.shed.ojeu.celex import normalize as normalize_celex
 
 # Some Russia-related entries are sourced from the consolidated regulation text.
 SPECIAL_CASE_URL = (
@@ -54,7 +54,8 @@ def extract_program_code(context: Context, source_url: str) -> str | None:
         context.log.warning(f"Could not find CELEX in source URL: {source_url}")
         return None
     program_xpath = "//div[@class='eli-main-title']/p[@class='oj-doc-ti']"
-    expression = cellar.fetch_expression(context, celex, cache_days=365)
+    client = cellar.CellarClient(context.http, context.cache)
+    expression = client.fetch_expression(celex, cache_days=365)
     doc = html.fromstring(expression.content)
     title_nodes = h.xpath_elements(doc, program_xpath)
     if len(title_nodes) == 0:
@@ -85,7 +86,8 @@ def get_consolidated_act(context: Context, source_url: str) -> cellar.Act | None
     except ValueError:
         context.log.warning(f"Could not find CELEX in source URL: {source_url}")
         return None
-    act = cellar.query_act(context, celex, cache_days=1)
+    client = cellar.CellarClient(context.http, context.cache)
+    act = client.query_act(celex, cache_days=1)
     frameworks = list(act.amends)
     if len(frameworks) == 0:
         context.log.warning(
@@ -116,7 +118,8 @@ def get_consolidated_text(context: Context, act: cellar.Act) -> str | None:
     """
     celex = act.latest_consolidated
     assert celex is not None
-    expression = cellar.fetch_expression(context, celex, cache_days=1)
+    client = cellar.CellarClient(context.http, context.cache)
+    expression = client.fetch_expression(celex, cache_days=1)
     doc = html.fromstring(expression.content)
     text = h.element_text(doc)
     if not text:
