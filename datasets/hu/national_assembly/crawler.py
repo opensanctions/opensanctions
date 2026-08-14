@@ -1,4 +1,5 @@
 import os
+from time import sleep
 from urllib.parse import urljoin
 
 from lxml import etree
@@ -7,10 +8,18 @@ from rigour.urls import build_url
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.extract import zyte_api
+from zavod.extract.zyte_api import ZyteAPIRequest
 from zavod.stateful.positions import categorise
 from zavod.util import Element
 
 ACCESS_TOKEN = os.environ.get("OPENSANCTIONS_HU_NATIONAL_ASSEMBLY_API_KEY")
+
+CACHE_DAYS = 1
+# parlament.hu is fronted by a WAF which intermittently answers a request with an
+# HTML challenge page instead of the XML document, so a response that doesn't parse is
+# retried on the schedule zyte_api.fetch_html uses for its own unblocking retries.
+FETCH_ATTEMPTS = 3
+FETCH_BACKOFF = 6  # seconds, doubled per attempt
 
 # A member's mandates, one per election they won. The parliamentary group
 # memberships alongside them cover the same periods, so the parties are read from
@@ -24,7 +33,11 @@ FUNCTION_PATH = "./tisztsegek/tisztseg"
 
 
 def fetch_xml(context: Context, endpoint: str, params: dict[str, str] = {}) -> Element:
-    """Fetch and parse one endpoint of the parliament's XML Web API."""
+    """Fetch and parse one endpoint of the parliament's XML Web API.
+
+    Only a response which parses as XML is written to the cache, so a challenge page
+    isn't replayed from the cache for the rest of the day.
+    """
     # Without a token the API answers with an empty body rather than an error.
     assert ACCESS_TOKEN is not None
     url = build_url(
@@ -34,13 +47,49 @@ def fetch_xml(context: Context, endpoint: str, params: dict[str, str] = {}) -> E
             "access_token": ACCESS_TOKEN,
         },
     )
-    _, _, _, text = zyte_api.fetch_text(
-        context,
-        url,
-        geolocation="HU",
-        cache_days=1,
+    request = ZyteAPIRequest(url=url, geolocation="HU")
+    for attempt in range(FETCH_ATTEMPTS):
+        result = zyte_api.fetch(context, request, cache_days=CACHE_DAYS)
+        doc: Element | None = None
+        error: str | None = None
+        # A response served from the cache reports no status code.
+        if result.status_code not in (200, None):
+            error = f"HTTP status {result.status_code}"
+        else:
+            try:
+                doc = etree.fromstring(result.response_text.encode())
+            except etree.XMLSyntaxError as exc:
+                error = str(exc)
+
+        if doc is not None:
+            if not result.from_cache:
+                context.cache.set(result.cache_fingerprint, result.response_text)
+            return doc
+
+        # fetch() reads the cache but never writes it, so this only clears an entry
+        # left behind by an earlier run.
+        result.invalidate_cache(context)
+        # Retryable, so log at info and let the raise below be the definitive error.
+        # The URL and the response body both stay out of issues.log, which is
+        # published: the URL carries the access token, and a challenge page may echo
+        # it back. The body is available at debug level when running locally.
+        context.log.info(
+            "No XML in API response",
+            endpoint=endpoint,
+            params=params,
+            status_code=result.status_code,
+            media_type=result.media_type,
+            from_cache=result.from_cache,
+            length=len(result.response_text),
+            error=error,
+        )
+        context.log.debug("Response body", body=result.response_text)
+        if attempt + 1 < FETCH_ATTEMPTS:
+            sleep(FETCH_BACKOFF * 2**attempt)
+
+    raise RuntimeError(
+        f"No XML from {endpoint}.cgi for {params!r} after {FETCH_ATTEMPTS} attempts"
     )
-    return etree.fromstring(text.encode())
 
 
 def emit_occupancy(
