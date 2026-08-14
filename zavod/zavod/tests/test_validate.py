@@ -109,6 +109,19 @@ def test_property_range() -> None:
     assert validator.abort is False
 
 
+def test_entity_reference_toggle() -> None:
+    # Enabled unless the dataset metadata says otherwise.
+    ds = Dataset(BASE_DATASET_CONFIG)
+    assert EntityReferenceValidator.enabled(ds) is True
+
+    disabled = Dataset(
+        {**BASE_DATASET_CONFIG, "validators": {"entity_reference": False}}
+    )
+    assert EntityReferenceValidator.enabled(disabled) is False
+    # Validators without a switch keep running.
+    assert SelfReferenceValidator.enabled(disabled) is True
+
+
 def test_self_references(testdataset3) -> None:
     crawl_dataset(testdataset3)
     validator, logs = run_validator(SelfReferenceValidator, testdataset3)
