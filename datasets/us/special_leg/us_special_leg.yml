@@ -5,13 +5,15 @@ manual_check:
   last_check: "2026-07-23"
   interval: 90
   message: >-
-    Please check whether any amendments have been made to the legislation listed in this dataset.
+    Sections 889 (FY19 NDAA), 5949 (FY23 NDAA) and 154 (FY24 NDAA) name their entities in the
+    statute text, and there is no standard way to track amendments to them: search for press
+    releases announcing an amendment to each.
 
-    There does not seem to be a standard way to track amendments to these legislations, so manually
-    searching for press releases announcing amendments to the individual legislations is required.
-    This applies to Sections 889, 5949 and 154, whose entities are named in the statutes themselves,
-    and to the Section 353 report, whose designation authority expired in December 2023. New Section
-    1286 lists and INKSNA determinations are discovered by the crawler and reported as warnings.
+    Section 353: the designation authority expired in December 2023, so no further report is
+    expected. Check that the State Department has not published one anyway.
+
+    Section 1286 and INKSNA need no manual check. The crawler warns about lists newly published
+    on cto.mil and about new Federal Register determinations.
 coverage:
   frequency: never
   schedule: "@weekly"
