@@ -69,7 +69,7 @@ date-suffixed version identifiers such as `02014R0833-20260717` are invalid. Do 
 | --- | --- | --- |
 | `recordId` | No | The entry identifier printed in the source annex. Empty when the act prints none — never invent one. |
 | `programKey` | Yes | One OpenSanctions program key that resolves against `meta/programs/*.yml` (e.g. `EU-LBY`). |
-| `annex` | When stated | The source's annex or section identifier, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. |
+| `annex` | When stated | The source's annex or section identifier, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. An annex inserted by an amending act keeps its printed lowercase suffix: `Ia`. |
 | `measure` | Yes | One sanctions measure from the `Measure` vocabulary in `zavod/zavod/stateful/programs.py`, which must also appear in the selected program's `measures:` list. |
 | `startDate` | No | The source's printed per-designation date, date-only — surrounding labels such as `Listed on:` and amendment-history parentheticals are stripped. Empty when the source does not establish a date for the specific designation — never infer one. |
 | `reason` | No | The source's rationale for listing, as prose (maps to `Sanction.reason`). |

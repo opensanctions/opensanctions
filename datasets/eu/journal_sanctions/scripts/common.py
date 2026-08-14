@@ -272,11 +272,16 @@ def parse_abbrev_date(text: str) -> str | None:
 
 
 def annex_blocks(doc: Element, known: set[str]) -> list[tuple[str, Element]]:
-    """Locate every annex block and check the inventory the parser expects."""
+    """Locate every annex block and check the inventory the parser expects.
+
+    Annexes inserted by amending acts carry a lowercase suffix in the
+    consolidation markup ("ANNEX Ia", "ANNEX Vba"); the suffix is part of
+    the identifier.
+    """
     blocks: list[tuple[str, Element]] = []
     for title in xpath_elements(doc, "//p[@class='title-annex-1']"):
         text = clean(element_text(title), "annex title")
-        match = re.match(r"^ANNEX ([A-Z]+)$", text)
+        match = re.match(r"^ANNEX ([A-Z]+[a-z]*)$", text)
         if match is None:
             raise ParseError(f"unrecognized annex title {text!r}")
         parent = title.getparent()
