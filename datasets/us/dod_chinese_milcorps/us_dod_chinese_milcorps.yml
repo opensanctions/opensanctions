@@ -5,9 +5,20 @@ prefix: us-dod-mil
 coverage:
   frequency: never
   start: 2024-03-07
-  end: 2025-01-07
+  end: 2026-06-08
 deploy:
   schedule: "@monthly"
+manual_check:
+  last_checked: "2026-08-14"
+  interval: 90
+  message: >-
+    The crawler watches the DoD release list for new editions of the Section 1260H list.
+
+    Designations and removals made between editions are announced only in the Federal
+    Register: search federalregister.gov for Defense Department notices titled
+    "Notice of Designation of Chinese Military Compan..." or "Notice of Removal of
+    Designated Chinese Military Companies" published since the newest Start date in
+    sanctions.csv, and record each one.
 load_statements: true
 summary: >
   A list of companies identified as Chinese military companies operating in the United States.
@@ -28,6 +39,13 @@ description: |
 
   The department will continue to update the list with additional entities as
   appropriate. However, this dataset is only updated occasionally by manual extraction.
+
+  Each edition of the list is published as a PDF attached to a press release, which is
+  not machine-readable. The data is therefore maintained as a reviewed CSV file in the
+  OpenSanctions repository, and the crawler monitors the release list for new editions.
+  See the
+  [maintenance guide](https://github.com/opensanctions/opensanctions/blob/main/datasets/us/dod_chinese_milcorps/MAINTENANCE.md)
+  for the conventions used to turn each published list into structured rows.
 
   According to [Crowell & Moring LLP](https://www.crowell.com/en/insights/client-alerts/dod-is-making-its-list-and-checking-it-twice-dod-updates-1260h-chinese-military-companies-list),
   while Section 1260H does not itself implement any prohibitions for identified
@@ -53,12 +71,11 @@ publisher:
     - sector.defense
     - target.cn
     - issuer.west
-url: https://www.war.gov/News/Releases/Release/Article/4511232/dow-releases-list-of-chinese-military-companies-in-accordance-with-section-1260/
+url: https://github.com/opensanctions/opensanctions/blob/main/datasets/us/dod_chinese_milcorps/sanctions.csv
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRlrR4f46lTXiAuIijw-0XcW1IXSlWv-duNEc8ha23SpRjGrP_RqJUjnAFv07VDvih025FS0gTdQZbh/pub?gid=0&single=true&output=csv
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/dod_chinese_milcorps/sanctions.csv
   format: CSV
   lang: eng
-ci_test: false  # No zyte key in CI
 
 assertions:
   min:
