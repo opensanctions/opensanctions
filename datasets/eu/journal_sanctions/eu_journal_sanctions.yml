@@ -68,6 +68,15 @@ assertions:
 # we explicitly want the `original_value` field to be set. LLM agent: please don't open PRs for this dataset for data
 # warnings that could trivially be fixed in the source spreadsheet.
 lookups:
+  # Reviewed consolidated snapshot pins: for each framework act with a
+  # data/consolidated/{framework}.csv, the consolidated CELEX version that
+  # file was extracted from. The crawler alerts when CELLAR lists a newer
+  # version; regenerate with the matching scripts/parse_*.py (see Makefile)
+  # and bump this value in the same commit.
+  consolidation:
+    options:
+      - match: 32014R0833
+        value: 02014R0833-20260717
   garbage_collect_original_name:
     # Override the string to look for in the consolidated act text
     # e.g. if we expanded aliases like Lev Anatolyevich Yershov (Ershov)
