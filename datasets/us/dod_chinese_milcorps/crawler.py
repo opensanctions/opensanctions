@@ -6,7 +6,7 @@ from rigour.mime.types import CSV
 
 from zavod.extract import zyte_api
 
-from zavod import Context, settings
+from zavod import Context
 from zavod import helpers as h
 
 LOCAL_PATH = Path(__file__).parent
@@ -75,12 +75,8 @@ def check_releases(context: Context) -> None:
     """Warn when DoD publishes a release that may announce a list update.
 
     Each edition of the Section 1260H list is announced as a press release
-    linking a PDF, which is transcribed into sanctions.csv by hand. defense.gov
-    blocks plain requests, so the release list is fetched through the Zyte API.
+    linking a PDF, which is transcribed into sanctions.csv by hand.
     """
-    if settings.ZYTE_API_KEY is None:
-        context.log.info("Skipping release check: no Zyte API key configured")
-        return
     doc = zyte_api.fetch_html(context, RELEASES_URL, RELEASES_XPATH, cache_days=1)
     search_result = h.xpath_element(doc, RELEASES_XPATH)
     h.assert_dom_hash(search_result, RELEASES_HASH, text_only=True)

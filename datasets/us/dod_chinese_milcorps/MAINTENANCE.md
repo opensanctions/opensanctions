@@ -50,10 +50,6 @@ new release: if it announces an edition of the list, follow the steps above; if
 it is unrelated, update `RELEASES_HASH` in `crawler.py` and the enumeration of
 releases above it.
 
-The release list is fetched through the Zyte API because defense.gov blocks
-plain requests. Without an API key configured the check is skipped, so a local
-run neither fails nor detects a new release.
-
 ## Designations between editions
 
 Additions and removals made between editions are published in the Federal
