@@ -1,11 +1,9 @@
 import csv
 import shutil
 from pathlib import Path
-from typing import Any, cast
-from urllib.parse import urljoin, urlparse
+from typing import cast
 
 import requests
-from lxml import html
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
@@ -23,7 +21,7 @@ CTO_API_URL = "https://www.cto.mil/wp-json/wp/v2/posts"
 CTO_API_PARAMS = {
     "search": "Section 1286",
     "per_page": "20",
-    "_fields": "date,link,title",
+    "_fields": "date,link",
 }
 CTO_CACHE_DAYS = 1
 
@@ -96,73 +94,50 @@ def crawl_fr_notices(context: Context) -> None:
         writer.writerows(rows)
 
 
-def compare_url(url: str) -> str:
-    """Normalise a URL for comparison against a source_url in the CSV files.
-
-    The published posts link their PDFs over http while the CSV records them
-    over https, and a trailing slash is not meaningful here.
-    """
-    parsed = urlparse(url.strip())
-    return parsed._replace(scheme="", path=parsed.path.rstrip("/")).geturl()
+def without_scheme(url: str) -> str:
+    """Strip what differs between a document as linked and as recorded: the
+    posts link their PDFs over http, the CSV records them over https."""
+    return url.strip().split("://", 1)[-1]
 
 
-def parse_pdf_links(content: str, base_url: str) -> list[str]:
+def list_documents(context: Context, url: str) -> list[str]:
     """Find the list documents linked from a published post."""
-    root = html.fromstring(content)
-    urls: dict[str, None] = {}
-    for anchor in h.xpath_elements(root, "//a[@href]"):
-        url = urljoin(base_url, cast(str, anchor.get("href")))
-        if urlparse(url).path.lower().endswith(".pdf"):
-            urls[url] = None
-    return list(urls)
+    doc = context.fetch_html(url, cache_days=CTO_CACHE_DAYS, absolute_links=True)
+    links = h.xpath_elements(doc, "//a[@href]")
+    urls = [cast(str, link.get("href")) for link in links]
+    return [url for url in urls if url.lower().endswith(".pdf")]
 
 
 def check_section_1286_lists(context: Context) -> None:
     """Warn about published Section 1286 lists that are not in the CSV yet.
 
-    A post counts as reviewed once one of the documents it links is recorded as
-    the source_url of a Section 1286 row, so importing a new fiscal-year list
-    mutes its warning. A post that is not a list at all — the search is a plain
-    keyword query — is muted through the reviewed_urls config instead. Note that
-    this detects new and re-issued documents, not an edit to the bytes behind a
-    URL that is already imported.
+    A post is reviewed once one of the documents it links is the source_url of a
+    Section 1286 row, so importing a new fiscal-year list mutes its own warning.
     """
-    source_urls = set()
     with open(SECTION_1286_FILE, encoding="utf-8", newline="") as fh:
-        for row in csv.DictReader(fh):
-            for url in h.multi_split(row["source_url"], ";"):
-                source_urls.add(compare_url(url))
-
-    discovery = context.dataset.config.get("discovery", {})
-    reviewed_urls = {
-        compare_url(str(url)) for url in discovery.get("reviewed_urls", [])
-    }
+        imported = {
+            without_scheme(url)
+            for row in csv.DictReader(fh)
+            for url in h.multi_split(row["source_url"], ";")
+        }
 
     posts = context.fetch_json(
         CTO_API_URL, params=CTO_API_PARAMS, cache_days=CTO_CACHE_DAYS
     )
-    if not isinstance(posts, list):
-        raise ValueError(f"Unexpected response from {CTO_API_URL}")
+    # Every known list is still published, so an empty result means the site,
+    # the API or the search behaviour has changed.
     if len(posts) == 0:
-        # The known lists are all still published, so an empty result means the
-        # site, the API or the search behaviour has changed.
         context.log.warning("Section 1286 list search returned no posts")
-        return
 
     for post in posts:
-        link = cast(str, post["link"])
-        if compare_url(link) in reviewed_urls:
-            continue
-        content = context.fetch_text(link, cache_days=CTO_CACHE_DAYS) or ""
-        pdf_urls = parse_pdf_links(content, link)
-        if any(compare_url(url) in source_urls for url in pdf_urls):
+        documents = list_documents(context, post["link"])
+        if any(without_scheme(url) in imported for url in documents):
             continue
         context.log.warning(
             "Unreviewed Section 1286 list",
-            title=cast(dict[str, Any], post["title"])["rendered"],
+            url=post["link"],
             date=post["date"],
-            url=link,
-            documents=pdf_urls,
+            documents=documents,
         )
 
 
@@ -209,5 +184,5 @@ def crawl(context: Context) -> None:
 
     try:
         check_section_1286_lists(context)
-    except (requests.RequestException, ValueError) as exc:
+    except requests.RequestException as exc:
         context.log.warning("Section 1286 list discovery failed", error=str(exc))

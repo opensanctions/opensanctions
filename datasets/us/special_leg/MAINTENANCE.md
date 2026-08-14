@@ -52,9 +52,8 @@ as reviewed once one of the documents it links is the `source_url` of a
 `data/section_1286.csv` row, so importing the new list — following
 [SECTION_1286.md](SECTION_1286.md) — mutes the warning by itself.
 
-If the warning is about a post that is not a list, or a list already imported
-from another URL, add the post URL to `config.discovery.reviewed_urls` in the
-yml instead, with a comment saying why.
+The search is a keyword query, so a post that is not a list at all would keep
+warning. None exist today; if one appears, skip it by URL in the crawler.
 
 This detects new and re-issued documents. It does not detect an edit to the
 bytes behind a URL that is already imported, and the two acts and one report
