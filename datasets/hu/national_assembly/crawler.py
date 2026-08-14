@@ -16,10 +16,13 @@ ACCESS_TOKEN = os.environ.get("OPENSANCTIONS_HU_NATIONAL_ASSEMBLY_API_KEY")
 
 CACHE_DAYS = 1
 # parlament.hu is fronted by a WAF which intermittently answers a request with an
-# HTML challenge page instead of the XML document, so a response that doesn't parse is
-# retried on the schedule zyte_api.fetch_html uses for its own unblocking retries.
+# HTML challenge page instead of the XML document, so a response that doesn't parse
+# is retried rather than treated as a source change.
 FETCH_ATTEMPTS = 3
 FETCH_BACKOFF = 6  # seconds, doubled per attempt
+# Length of the response quoted when giving up, enough to tell a challenge page from
+# an error page without filling issues.log with markup.
+SNIPPET_LEN = 200
 
 # A member's mandates, one per election they won. The parliamentary group
 # memberships alongside them cover the same periods, so the parties are read from
@@ -69,21 +72,17 @@ def fetch_xml(context: Context, endpoint: str, params: dict[str, str] = {}) -> E
         # fetch() reads the cache but never writes it, so this only clears an entry
         # left behind by an earlier run.
         result.invalidate_cache(context)
-        # Retryable, so log at info and let the raise below be the definitive error.
-        # The URL and the response body both stay out of issues.log, which is
-        # published: the URL carries the access token, and a challenge page may echo
-        # it back. The body is available at debug level when running locally.
-        context.log.info(
+        # The URL carries the access token, so it's kept out of the logs.
+        context.log.warning(
             "No XML in API response",
             endpoint=endpoint,
             params=params,
             status_code=result.status_code,
             media_type=result.media_type,
             from_cache=result.from_cache,
-            length=len(result.response_text),
             error=error,
+            snippet=result.response_text[:SNIPPET_LEN],
         )
-        context.log.debug("Response body", body=result.response_text)
         if attempt + 1 < FETCH_ATTEMPTS:
             sleep(FETCH_BACKOFF * 2**attempt)
 
