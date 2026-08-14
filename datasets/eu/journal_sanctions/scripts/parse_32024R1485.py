@@ -158,17 +158,15 @@ INFO_LABELS = {
     "Russian website": "website",
     "International website": "website",
 }
-# Free-text labels about the entity itself, kept verbatim in `notes`.
-# "Date of issue" qualifies the internal passport printed above it; the CSV
-# has no passport-attribute columns.
-NOTES_LABELS = frozenset({"Date of issue"})
 # Columns whose labelled value legitimately continues onto bare follow-on
 # lines in this document (a former role printed under the current
 # position). Bare lines after any other label are new structure.
 CONTINUABLE_COLUMNS = frozenset({"position"})
-# Relational labels naming other parties: no CSV column, deliberately not
-# transcribed. The label line and its bare continuation lines are consumed.
-DROP_LABELS = frozenset({"Associated entities"})
+# Labels with no CSV column, deliberately not transcribed: relational lines
+# naming other parties, and "Date of issue", which qualifies the internal
+# passport printed above it. The label line and its bare continuation lines
+# are consumed.
+DROP_LABELS = frozenset({"Associated entities", "Date of issue"})
 # Reviewed hand-mappings for identifying-information lines the label rules
 # cannot place, keyed by (part, entry) and the exact line. An empty mapping
 # drops the line deliberately.
@@ -284,10 +282,6 @@ def parse_info(ctx: str, part: str, record_id: str, td: Element, row: Row) -> No
         label = labelled.group(1) if labelled is not None else None
         if label in DROP_LABELS:
             block, dropped = None, True
-            continue
-        if label in NOTES_LABELS:
-            row.add("notes", [line])
-            block, dropped = None, False
             continue
         if label is not None and label in INFO_LABELS:
             assert labelled is not None

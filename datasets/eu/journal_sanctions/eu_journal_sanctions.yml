@@ -75,12 +75,28 @@ lookups:
   # and bump this value in the same commit.
   consolidation:
     options:
+      - match: 32001R2580
+        value: 02001R2580-20260227
+      - match: 32002R0881
+        value: 02002R0881-20260721
       - match: 32006R0765
         value: 02006R0765-20260424
+      - match: 32011D0173
+        value: 02011D0173-20260331
+      - match: 32011R0753
+        value: 02011R0753-20240913
+      - match: 32013R0401
+        value: 02013R0401-20260429
+      - match: 32014R0224
+        value: 02014R0224-20250326
       - match: 32014R0833
         value: 02014R0833-20260717
+      - match: 32015R1755
+        value: 02015R1755-20250924
       - match: 32016R0044
         value: 02016R0044-20260616
+      - match: 32016R1686
+        value: 02016R1686-20251124
       - match: 32017R1770
         value: 02017R1770-20251203
       - match: 32020R1998
@@ -221,6 +237,20 @@ lookups:
         value: EU-TAQA-EUAQ
       - match: 2022/2319
         value: EU-HTI
+      - match:
+          - 753/2011
+          - 2011/486
+        value: EU-AFG
+      - match:
+          - 2015/1755
+          - 2015/1763
+        value: EU-BDI
+      - match:
+          - 224/2014
+          - 2013/798
+        value: EU-CAF
+      - match: 2011/173
+        value: EU-BOSNIA
       - match:
           - 2023/888
           - 2023/891

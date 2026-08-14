@@ -183,27 +183,27 @@ INFO_LABELS = {
     "Website": "website",
     "Telegram": "website",
     "Type of entity": "legalForm",
+    "Active regions": "country",
 }
-# Free-text labels about the entity itself, kept verbatim in `notes`.
-# "Date of delivery"/"Expiration date" qualify the passport printed above
-# them; the CSV has no passport-attribute columns.
+# Free-text labels whose prose value goes to `notes`, label stripped.
 NOTES_LABELS = frozenset(
     {
         "Other information",
         "Other identifying information",
-        "Active regions",
-        "Date of delivery",
-        "Expiration date",
     }
 )
 # Columns whose labelled value legitimately continues onto bare follow-on
 # lines in this document (positions spanning paragraphs, address lists,
 # notes prose). Bare lines after any other label are new structure.
 CONTINUABLE_COLUMNS = frozenset({"position", "address", "notes"})
-# Relational labels naming other parties: no CSV column, deliberately not
-# transcribed. The label line and its bare continuation lines are consumed.
+# Labels with no CSV column, deliberately not transcribed: relational lines
+# naming other parties, and passport-validity dates qualifying the passport
+# printed above them. The label line and its bare continuation lines are
+# consumed.
 DROP_LABELS = frozenset(
     {
+        "Date of delivery",
+        "Expiration date",
         "Associated companies",
         "Associated entities",
         "Associated entity",
@@ -438,7 +438,10 @@ def parse_info(ctx: str, part: str, record_id: str, td: Element, row: Row) -> No
             block, opened_empty, dropped, wrapped = None, False, True, None
             continue
         if label in NOTES_LABELS:
-            row.add("notes", [line])
+            assert labelled is not None
+            value = labelled.group(2)
+            if value != "":
+                row.add("notes", [value])
             block, opened_empty, dropped, wrapped = "notes", False, False, None
             continue
         if label is not None and label in INFO_LABELS:

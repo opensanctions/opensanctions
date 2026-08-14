@@ -32,15 +32,16 @@ same columns, same order, no extras.
 Amendment files are named `{amendmentCelex}.csv` and use:
 
 ```csv
-amendedCelex,amendmentCelex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website,notes
+amendedCelex,amendmentCelex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website,notes
 ```
 
 Consolidated files are named `{celex}.csv` after the framework act (e.g.
 `32014R0833.csv`) — one file per framework, updated in place, with version
-history in git — and use:
+history in git. Where a regime has no regulation, the framework act is the
+CFSP decision itself (e.g. `32011D0173.csv`). Consolidated files use:
 
 ```csv
-celex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website,notes
+celex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,incorporationDate,legalForm,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website,notes
 ```
 
 Every row in a file carries the same immediate source CELEX (`amendmentCelex` in
@@ -114,13 +115,22 @@ identifiers in the most specific property the source supports (`innCode`,
 `registrationNumber` only when no more specific system is established.
 
 `legalForm` holds the source's stated type or legal form of a legal entity
-(`Type of entity: Governmental Agency` produces `Governmental Agency`). `notes`
-collects the source's other-information prose about the entity itself when it
-fits no structured column, one value per printed line, verbatim with its
-printed label retained. Identifiers embedded in such lines belong in their
-proper identifier columns instead. Relational lines that name other parties
-(`Associated individuals: …`, `Associated entities: …`) have no column and are
-not transcribed.
+(`Type of entity: Governmental Agency` produces `Governmental Agency`).
+`appearance` holds physical-description prose, `ethnicity` the stated ethnic
+background, and `fatherName` a stated father's name.
+
+`notes` collects the source's other-information prose about the entity
+itself when it fits no structured column, one value per printed line or
+paragraph. Notes values are bare prose: a printed label is the instruction
+for which column the value belongs in and is never part of any cell value —
+`Other information: Owns a villa.` produces the notes value `Owns a villa.`
+A labelled value that no column fits is not transcribed; cell values are
+never assembled from parsed pieces. Deliberate drops, documented in each
+parser: identity-document validity lines (`Date of issue: …`,
+`Expiration date: …`), kin names (`Brother's name: …`), and relational lines
+that name other parties (`Associated individuals: …`,
+`Associated entities: …`). Identifiers embedded in prose lines belong in
+their proper identifier columns instead.
 
 Use `Asset` for a directly restricted thing that is not a legal entity or vessel:
 facilities and geographic zones use `name` with their published location in

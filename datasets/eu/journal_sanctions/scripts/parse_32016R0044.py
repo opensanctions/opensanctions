@@ -19,8 +19,11 @@ The regulation's target annexes:
   entity field labels.
 
 Annex V (vessels) is currently empty; Annexes I, IV and VII list goods and
-authorities, not designations. Dates are transcribed as the source prints
-them ("26 Feb. 2011", "Approximately 1952"); the crawler normalizes dates.
+authorities, not designations. In the narrative layout the trailing
+paragraphs are the reason and the field paragraph's "Other information"
+goes to notes; entries without narrative paragraphs state no reason.
+Dates are transcribed as the source prints them ("26 Feb. 2011",
+"Approximately 1952"); the crawler normalizes dates.
 
 Output: data/consolidated/32016R0044.csv (the EU Journal consolidated CSV
 contract, keyed by the framework act). The consolidated version the snapshot
@@ -378,16 +381,21 @@ def field_values(value: str) -> list[str]:
     return [item for item in split_lettered(value) if item not in NOT_AVAILABLE]
 
 
-def assemble_reason(other_information: str, lines: list[str]) -> str:
-    """Join the blob's Other information with the trailing narrative."""
+def assemble_reason(lines: list[str]) -> str:
+    """Join the entry's trailing narrative paragraphs."""
     parts: list[str] = []
-    if other_information not in NOT_AVAILABLE and other_information != "":
-        parts.append(other_information)
     for line in lines:
         if line in ("Additional information", "Additional information:"):
             continue
         parts.append(re.sub(r"^—\s*", "", line))
     return " ".join(parts)
+
+
+def other_information_notes(value: str) -> list[str]:
+    """The blob's Other information field as one notes value."""
+    if value in NOT_AVAILABLE or value == "":
+        return []
+    return [value]
 
 
 def parse_annex_ii(roman: str, block: Element) -> list[Row]:
@@ -410,7 +418,8 @@ def parse_annex_ii(roman: str, block: Element) -> list[Row]:
         for label, column in PERSON_FIELD_COLUMNS.items():
             row.add(column, field_values(fields[label]))
         row.start_date = parse_listed_on(ctx, fields["Listed on"])
-        row.reason = assemble_reason(fields["Other information"], lines[1:])
+        row.add("notes", other_information_notes(fields["Other information"]))
+        row.reason = assemble_reason(lines[1:])
         rows.append(row)
     return rows
 
@@ -432,7 +441,8 @@ def parse_annex_vi(roman: str, block: Element) -> list[Row]:
         for label, column in ENTITY_FIELD_COLUMNS.items():
             row.add(column, field_values(fields[label]))
         row.start_date = parse_listed_on(ctx, fields["Listed on"])
-        row.reason = assemble_reason(fields["Other information"], lines[1:])
+        row.add("notes", other_information_notes(fields["Other information"]))
+        row.reason = assemble_reason(lines[1:])
         rows.append(row)
     return rows
 
