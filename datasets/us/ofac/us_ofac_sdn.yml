@@ -46,9 +46,12 @@ data:
 
 assertions:
   min:
+    # A designated subsidiary is emitted as Company rather than Organization,
+    # because only a Company can be the `asset` of an Ownership. cf. the schema
+    # upgrade in `record_upgrade`.
     schema_entities:
       Address: 13720
-      Organization: 7330
+      Organization: 5400
       Person: 6245
       Vessel: 995
       CryptoWallet: 570
@@ -81,7 +84,7 @@ assertions:
       Vessel: 2345
       CryptoWallet: 1340
       Airplane: 750
-      Company: 100
+      Company: 6100
       Security: 100
       LegalEntity: 100
 # Program tags URL: https://ofac.treasury.gov/specially-designated-nationals-list-sdn-list/program-tag-definitions-for-ofac-sanctions-lists

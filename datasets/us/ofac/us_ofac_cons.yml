@@ -49,12 +49,15 @@ data:
 
 assertions:
   min:
+    # Most legal entities on these lists are subsidiaries designated through an
+    # ownership relation, so they are emitted as Company rather than Organization.
+    # cf. the schema upgrade in `record_upgrade`.
     schema_entities:
       Address: 440
-      Organization: 300
+      Organization: 60
       Security: 200
       Person: 70
-      Company: 4
+      Company: 220
     # Set at roughly a quarter of the production fill rate: low enough that a
     # shift in the shape of the source data doesn't hold up the release, high
     # enough to catch a crawler that stopped parsing a field altogether.
@@ -62,6 +65,9 @@ assertions:
       Person:
         birthDate: 0.25
       Organization:
+        country: 0.25
+        address: 0.25
+      Company:
         country: 0.25
         address: 0.25
       Security:
@@ -75,10 +81,10 @@ assertions:
   max:
     schema_entities:
       Address: 1030
-      Organization: 720
+      Organization: 160
       Security: 460
       Person: 160
-      Company: 50
+      Company: 570
 
 # Consolidated List
 # SDN List

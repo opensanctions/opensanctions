@@ -112,6 +112,27 @@ def get_relation_schema(party_schema: Schema | None, range: Schema | None) -> Sc
         raise
 
 
+def record_upgrade(
+    upgrades: dict[str, Schema],
+    parties: dict[str, Schema],
+    party_id: str,
+    schema: Schema,
+) -> None:
+    """Note that a relation needs a party to be more specific than its profile says.
+
+    A party's own profile only tells us whether it is an organisation, a person,
+    a vessel or an aircraft. The relations it takes part in can narrow that down:
+    an organisation that is the `asset` of an `Ownership` has to be a `Company`,
+    because a plain `Organization` is not an `Asset`. The upgrade is collected
+    here and applied in `parse_distinct_party`, before the party is emitted -
+    re-emitting the party as a bare schema stub afterwards would not work,
+    because an entity without any statement is never written out.
+    """
+    common = model.common_schema(upgrades.get(party_id, parties[party_id]), schema)
+    if common != parties[party_id]:
+        upgrades[party_id] = common
+
+
 def get_ref_element(refs: Element, type_: str, id: str | None) -> Element:
     if id is None:
         raise ValueError(f"Reference ID is None for type: {type_}")
@@ -235,7 +256,11 @@ def parse_location(context: Context, refs: Element, location: Element) -> Featur
 
 
 def parse_relation(
-    context: Context, refs: Element, el: Element, parties: dict[str, Schema]
+    context: Context,
+    refs: Element,
+    el: Element,
+    parties: dict[str, Schema],
+    upgrades: dict[str, Schema],
 ) -> None:
     type_id = el.get("RelationTypeID")
     type_ = get_ref_text(refs, "RelationType", type_id)
@@ -296,23 +321,18 @@ def parse_relation(
         # )
         from_id, to_id = to_id, from_id
 
-    from_party = context.make(get_relation_schema(parties[from_id], from_prop.range))
-    from_party.id = from_id
-    if not parties[from_id].is_a(from_party.schema) and len(from_party.properties):
-        context.emit(from_party)
+    from_schema = get_relation_schema(parties[from_id], from_prop.range)
+    record_upgrade(upgrades, parties, from_id, from_schema)
+    to_schema = get_relation_schema(parties[to_id], to_prop.range)
+    record_upgrade(upgrades, parties, to_id, to_schema)
 
-    to_party = context.make(get_relation_schema(parties[to_id], to_prop.range))
-    to_party.id = to_id
-    if not parties[to_id].is_a(to_party.schema) and len(to_party.properties):
-        context.emit(to_party)
-
-    entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
-    entity.add(from_prop, from_party)
-    entity.add(to_prop, to_party)
+    entity.id = context.make_id("Relation", from_id, to_id, el.get("ID"))
+    entity.add(from_prop, from_id)
+    entity.add(to_prop, to_id)
     entity.add(relation.description_prop, type_)
     entity.add("summary", el.findtext("Comment"))
     context.emit(entity)
-    context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
+    context.log.debug("Relation", from_=from_id, type=type_, to=to_id)
     # pprint(entity.to_dict())
 
 
@@ -329,17 +349,34 @@ def parse_schema(refs: Element, sub_type_id: str | None) -> str:
     return TYPES[type_text]
 
 
-def parse_distinct_party(
-    context: Context, doc: ElementOrTree, refs: Element, party: Element
-) -> Entity:
+def get_profile(party: Element) -> Element:
     profiles = party.findall("./Profile")
     assert len(profiles) == 1
-    profile = profiles[0]
+    return profiles[0]
+
+
+def parse_party_id(context: Context, profile: Element) -> str:
+    party_id = context.make_slug(profile.get("ID"))
+    assert party_id is not None, tostring(profile)
+    return party_id
+
+
+def parse_distinct_party(
+    context: Context,
+    doc: ElementOrTree,
+    refs: Element,
+    party: Element,
+    upgrades: dict[str, Schema],
+) -> Entity:
+    profile = get_profile(party)
 
     schema = parse_schema(refs, profile.get("PartySubTypeID"))
     proxy = context.make(schema)
     profile_id = profile.get("ID")
-    proxy.id = context.make_slug(profile_id)
+    proxy.id = parse_party_id(context, profile)
+    upgrade = upgrades.get(proxy.id)
+    if upgrade is not None:
+        proxy.add_schema(upgrade)
     proxy.add("notes", party.findtext("./Comment"))
     proxy.add("sourceUrl", URL % profile.get("ID"))
     # return proxy
@@ -842,11 +879,20 @@ def crawl(context: Context) -> None:
     # with open(clean_path, "wb") as fh:
     #     fh.write(tostring(doc, pretty_print=True, encoding="utf-8"))
 
+    # Relations are resolved before the parties are emitted, because a relation
+    # can imply a more specific schema for a party than its own profile does.
+    # The first pass only needs each party's schema, which comes straight from
+    # its profile sub-type and doesn't depend on any of its features.
     parties: dict[str, Schema] = {}
     for distinct_party in doc.findall("./DistinctParties/DistinctParty"):
-        proxy = parse_distinct_party(context, doc, refs, distinct_party)
-        if proxy.id is not None:
-            parties[proxy.id] = proxy.schema
+        profile = get_profile(distinct_party)
+        party_schema = model.get(parse_schema(refs, profile.get("PartySubTypeID")))
+        assert party_schema is not None
+        parties[parse_party_id(context, profile)] = party_schema
 
+    upgrades: dict[str, Schema] = {}
     for relation in doc.findall(".//ProfileRelationship"):
-        parse_relation(context, refs, relation, parties)
+        parse_relation(context, refs, relation, parties, upgrades)
+
+    for distinct_party in doc.findall("./DistinctParties/DistinctParty"):
+        parse_distinct_party(context, doc, refs, distinct_party, upgrades)
