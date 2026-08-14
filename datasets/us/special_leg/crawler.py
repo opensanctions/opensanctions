@@ -1,5 +1,8 @@
 import csv
+import shutil
 from pathlib import Path
+
+from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
@@ -50,7 +53,7 @@ def crawl_fr_notices(context: Context) -> None:
     # to appear in the CSL. This function monitors the FR API directly so that
     # any new notice triggers a warning.
     # If the hash changes, review the updated fr_notices.csv for new entries and
-    # update the us_special_leg Google Sheet accordingly. Then commit the updated
+    # add the designations to sanctions.csv accordingly. Then commit the updated
     # fr_notices.csv and update the hash in this function.
     h.assert_url_hash(context, FR_API_URL, "9ee76295f4ac089fe7382bf6f33b947dae5f9eb0")
     rows: list[list[str]] = []
@@ -76,9 +79,13 @@ def crawl_fr_notices(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.csv", context.data_url)
-    with open(path) as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
+    source_file = LOCAL_PATH / "sanctions.csv"
+    resource_path = context.get_resource_path("source.csv")
+    shutil.copy(source_file, resource_path)
+    context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
+
+    with open(source_file, encoding="utf-8", newline="") as fh:
+        for row in csv.DictReader(fh):
             crawl_row(context, row)
+
     crawl_fr_notices(context)
