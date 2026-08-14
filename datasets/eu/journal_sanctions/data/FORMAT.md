@@ -118,6 +118,8 @@ Do not recast such targets as `LegalEntity` or `Organization`.
 
 ## Row uniqueness
 
+- An amendment file must contain at least one data row; a consolidated file may
+  contain zero data rows when the framework act's annexes list no designations.
 - Exact duplicate rows are invalid.
 - A non-empty `recordId` may not repeat within the same amended act
   (`amendedCelex`, or the file's `celex` for consolidated files), `annex`,

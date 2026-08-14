@@ -200,7 +200,10 @@ def validate_file(path: Path) -> ValidationResult:
         )
         return ValidationResult(None, [], issues)
     if len(raw_rows) == 1:
-        issues.append(Issue(path, None, None, "file contains no data rows"))
+        # An amendment transcribes at least one change; a consolidated file
+        # may legitimately snapshot a framework act with empty annexes.
+        if kind == "amendment":
+            issues.append(Issue(path, None, None, "file contains no data rows"))
         return ValidationResult(kind, [], issues)
 
     source_column = "amendmentCelex" if kind == "amendment" else "celex"
