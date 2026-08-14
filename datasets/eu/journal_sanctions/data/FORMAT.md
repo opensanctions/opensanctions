@@ -6,8 +6,9 @@ designated entity in one legal context. There are two file kinds:
 
 - **amendment files** (`amendments/`) transcribe the additions and modifications
   made by one amending act; and
-- **consolidated files** (`consolidated/`) contain a complete snapshot extracted
-  from one consolidated CELEX version.
+- **consolidated files** (`consolidated/`) contain a complete snapshot of a
+  framework act's annexes, extracted from the consolidated version pinned in
+  the dataset metadata.
 
 Both kinds share the same sanctions-metadata and entity columns and differ only in
 their leading CELEX provenance columns.
@@ -23,7 +24,9 @@ Amendment files are named `{amendmentCelex}.csv` and use:
 amendedCelex,amendmentCelex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,incorporationDate,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website
 ```
 
-Consolidated files are named `{celex}.csv` and use:
+Consolidated files are named `{celex}.csv` after the framework act (e.g.
+`32014R0833.csv`) — one file per framework, updated in place, with version
+history in git — and use:
 
 ```csv
 celex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,incorporationDate,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website
@@ -37,11 +40,12 @@ filename stem.
 
 All CELEX cells hold exactly one bare, normalized, uppercase identifier — the
 form produced by `zavod.shed.ojeu.celex.normalize`, such as `32026R1941`. EUR-Lex
-URLs, `CELEX:` prefixes, lowercase forms, and semicolon-separated lists are
-invalid. Do not store source URLs anywhere; they are derived from the CELEX.
+URLs, `CELEX:` prefixes, lowercase forms, semicolon-separated lists, and
+date-suffixed version identifiers such as `02014R0833-20260717` are invalid. Do not store source URLs anywhere; they are derived from the CELEX.
 
-- Consolidated `celex` carries a date suffix: `02014R0269-20260718`.
-- Amendment `amendedCelex` and `amendmentCelex` never carry a date suffix.
+- Consolidated `celex` is the framework act itself; the date-suffixed consolidated
+  version each snapshot was extracted from is pinned in the dataset YAML's
+  `consolidation` lookup and updated in the same commit as the CSV.
 - `amendedCelex` is the framework act whose annex is changed; `amendmentCelex` is
   the amending act the row was transcribed from. A row has exactly one
   `amendedCelex` — when one act amends several frameworks, or one designation

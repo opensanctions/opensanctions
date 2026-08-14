@@ -19,7 +19,6 @@ from typing import Literal, get_args
 import click
 from followthemoney import model
 from rigour.dates import prefix_interval
-
 from zavod.shed.ojeu.celex import normalize as normalize_celex
 from zavod.stateful.programs import Measure, get_program_by_key
 
@@ -240,22 +239,13 @@ def validate_file(path: Path) -> ValidationResult:
             if error is not None:
                 issues.append(Issue(path, row_num, column, error))
                 continue
-            if kind == "consolidated" and "-" not in value:
+            if "-" in value:
                 issues.append(
                     Issue(
                         path,
                         row_num,
                         column,
-                        f"consolidated CELEX must carry a date suffix: {value!r}",
-                    )
-                )
-            if kind == "amendment" and "-" in value:
-                issues.append(
-                    Issue(
-                        path,
-                        row_num,
-                        column,
-                        f"amendment CELEX must not carry a date suffix: {value!r}",
+                        f"CELEX must not carry a date suffix: {value!r}",
                     )
                 )
             if column == source_column:
