@@ -81,7 +81,7 @@ text. `split_multi` decodes a contract cell. Do not merge them.
 
 - Run from the dataset directory:
   `python scripts/parse_<celex>.py <consolidated-celex>` — the consolidated
-  version must match the `consolidation` lookup pin in the dataset YAML and
+  version must match the `config.consolidation` pin in the dataset YAML and
   the Makefile, updated in the same commit as the CSV.
 - `out/` caches fetched source expressions and is gitignored; `--source`
   parses exact local bytes instead.

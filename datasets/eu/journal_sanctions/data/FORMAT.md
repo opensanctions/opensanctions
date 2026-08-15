@@ -57,12 +57,19 @@ date-suffixed version identifiers such as `02014R0833-20260717` are invalid. Do 
 
 - Consolidated `celex` is the framework act itself; the date-suffixed consolidated
   version each snapshot was extracted from is pinned in the dataset YAML's
-  `consolidation` lookup and updated in the same commit as the CSV.
+  `config.consolidation` and updated in the same commit as the CSV.
 - `amendedCelex` is the framework act whose annex is changed; `amendmentCelex` is
   the amending act the row was transcribed from. A row has exactly one
   `amendedCelex` — when one act amends several frameworks, or one designation
   applies to several programs or measures, repeat the whole entity row per
   distinct legal context.
+- A sanctions package is usually adopted as a CFSP decision and a regulation on
+  the same day. Transcribe the pair once, from the regulation: `amendedCelex` is
+  the framework regulation and `amendmentCelex` the implementing regulation, so
+  the rows share a framework CELEX with the consolidated snapshot that will
+  supersede them. A measure the regulation does not impose — a travel ban is
+  the standing case — has no row in the file. Only where a regime has no
+  regulation at all is the decision the framework act.
 
 ## Sanctions metadata columns
 

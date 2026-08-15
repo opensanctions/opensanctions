@@ -3,7 +3,7 @@ PYTHON ?= python
 all: parse validate
 
 # One line per framework act; the consolidated version passed to each parse
-# script matches the `consolidation:` lookup pin in eu_journal_sanctions.yml.
+# script matches the `config.consolidation` pin in eu_journal_sanctions.yml.
 parse:
 	$(PYTHON) scripts/parse_32001R2580.py 02001R2580-20260227
 	$(PYTHON) scripts/parse_32002R0881.py 02002R0881-20260721

@@ -1,7 +1,9 @@
 import csv
+import io
 import re
-from datetime import timedelta
+from datetime import date, timedelta
 from functools import cache
+from pathlib import Path
 
 from lxml import html
 from nomenklatura.resolver import Linker
@@ -9,6 +11,7 @@ from normality import normalize
 from rigour.ids.ogrn import OGRN
 from zavod.integration import get_dataset_linker
 from zavod.shed.ojeu import cellar
+from zavod.shed.ojeu.celex import eur_lex_url
 from zavod.shed.ojeu.celex import normalize as normalize_celex
 
 from zavod import Context, Entity, settings
@@ -37,6 +40,10 @@ RETIRE_FEEDS = frozenset({"eu-fsf-", "eu-sancmap-"})
 
 # Sheet rows that can be deleted, mapped to their name for the end-of-run summary.
 GC_ROWS: dict[int, str] = {}
+
+DATA_DIR = Path(__file__).parent / "data"
+# Entity columns holding a free-form source date rather than a plain value.
+CSV_DATE_PROPS = frozenset({"birthDate", "incorporationDate"})
 
 
 @cache
@@ -425,6 +432,179 @@ def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> No
     )
 
 
+def split_cell(value: str) -> list[str]:
+    """Decode a multi-valued CSV cell into its elements.
+
+    Counterpart to `join_multi` in scripts/common.py: values are ";"-separated
+    and a value containing the separator or a quote is CSV-quoted within the
+    cell, so a naive split would corrupt it.
+    """
+    if not value:
+        return []
+    rows = list(csv.reader(io.StringIO(value), delimiter=";", skipinitialspace=True))
+    if len(rows) != 1:
+        raise ValueError(f"Multi-value cell contains a line break: {value!r}")
+    return [element.strip() for element in rows[0] if element.strip()]
+
+
+def crawl_csv_data(context: Context, path: Path) -> None:
+    """Emit the designations transcribed into one reviewed CSV.
+
+    Handles both file kinds specified in data/FORMAT.md, which differ only in
+    their leading CELEX columns. Entity columns are named after the FtM
+    property they populate, so a column the row's schema does not carry fails
+    loudly here.
+    """
+    with open(path, encoding="utf-8") as infh:
+        for row in csv.DictReader(infh):
+            celex = row.pop("celex", None)
+            if celex is None:
+                # An amendment row keys on the framework act it amends, so the
+                # designation keeps its ID once the consolidated snapshot
+                # catches up; the URL names the act that made the change.
+                celex = row.pop("amendedCelex")
+                source_url = eur_lex_url(row.pop("amendmentCelex"))
+            else:
+                source_url = eur_lex_url(celex)
+            # The annex locates the listing in the act, but the same entity
+            # listed in two annexes is one designation under one program.
+            row.pop("annex")
+            record_id = row.pop("recordId")
+            program_key = row.pop("programKey")
+            measure = row.pop("measure")
+            start_date = row.pop("startDate")
+            reason = row.pop("reason")
+            name = row.pop("name")
+
+            entity = context.make(row.pop("schema"))
+            entity.id = context.make_id(celex, record_id, name)
+            entity.add("name", name)
+            entity.add("topics", "sanction")
+            entity.add("sourceUrl", source_url)
+            for prop, cell in row.items():
+                values = split_cell(cell)
+                if not values:
+                    continue
+                if prop in CSV_DATE_PROPS:
+                    h.apply_dates(entity, prop, values)
+                else:
+                    entity.add(prop, values)
+
+            sanction = h.make_sanction(
+                context,
+                entity,
+                key=program_key,
+                program_key=program_key,
+            )
+            sanction.add("recordId", record_id)
+            sanction.add("provisions", measure)
+            sanction.add("reason", reason)
+            sanction.add("sourceUrl", source_url)
+            h.apply_date(sanction, "startDate", start_date)
+
+            context.emit(entity, external=True)
+            context.emit(sanction, external=True)
+
+
+def consolidation_pins(context: Context) -> dict[str, str]:
+    """Framework act to the consolidated version its snapshot was parsed from."""
+    pins: dict[str, str] = context.dataset.config["consolidation"]
+    return pins
+
+
+def pin_date(pin: str) -> date:
+    """The version date a consolidated CELEX names ('02012R0267-20260801')."""
+    return date.fromisoformat(pin.rsplit("-", 1)[-1])
+
+
+def crawl_csv_consolidated(context: Context) -> None:
+    """Emit the reviewed snapshot of every pinned framework act."""
+    pins = consolidation_pins(context)
+    directory = DATA_DIR / "consolidated"
+    unpinned = {path.stem for path in directory.glob("*.csv")} - set(pins)
+    if unpinned:
+        context.log.warning("Snapshot has no consolidation pin", celex=sorted(unpinned))
+    for framework in sorted(pins):
+        crawl_csv_data(context, directory / f"{framework}.csv")
+
+
+def amendment_framework(path: Path) -> str:
+    """The framework act whose annex an amendment file changes."""
+    with open(path, encoding="utf-8") as infh:
+        return next(csv.DictReader(infh))["amendedCelex"]
+
+
+def crawl_csv_amendments(context: Context) -> None:
+    """Emit each reviewed amendment a consolidated snapshot has not absorbed.
+
+    An amendment is dropped only once the snapshot named as consolidating it is
+    the one checked in, so an unproven handoff keeps the designations published
+    rather than losing them between the two sources.
+    """
+    configured: dict[str, str] = context.dataset.config.get(
+        "consolidated_amendments", {}
+    )
+    pins = consolidation_pins(context)
+    paths = sorted((DATA_DIR / "amendments").glob("*.csv"))
+    stale = set(configured) - {path.stem for path in paths}
+    if stale:
+        context.log.warning(
+            "No amendment file for a consolidated CELEX", celex=sorted(stale)
+        )
+    for path in paths:
+        consolidated = configured.get(path.stem)
+        if consolidated is not None:
+            framework = amendment_framework(path)
+            pinned = pins.get(framework)
+            if pinned == consolidated:
+                context.log.info(
+                    "Amendment consolidated, skipping",
+                    celex=path.stem,
+                    consolidated=consolidated,
+                )
+                continue
+            context.log.warning(
+                "Amendment consolidated into a snapshot we have not parsed",
+                celex=path.stem,
+                framework=framework,
+                consolidated=consolidated,
+                pinned=pinned,
+            )
+        crawl_csv_data(context, path)
+
+
+def check_new_amendments(context: Context) -> None:
+    """Warn about acts amending a tracked framework that no reviewed file covers.
+
+    An act published after its framework's consolidation pin cannot be in the
+    snapshot we parse, so until it is transcribed its designations are in
+    neither input. The pin doubles as the discovery cursor: bumping it on the
+    next snapshot clears every act it absorbed.
+    """
+    pinned = {
+        celex: pin_date(pin) for celex, pin in consolidation_pins(context).items()
+    }
+    reviewed = {path.stem for path in (DATA_DIR / "amendments").glob("*.csv")}
+    reviewed.update(context.dataset.config.get("reviewed_acts", []))
+    client = cellar.CellarClient(context.http, context.cache)
+    acts = client.query_related_acts(sorted(pinned), date_from=min(pinned.values()))
+    for act in {act.celex: act for act in acts}.values():
+        consolidated = pinned.get(act.framework_celex)
+        if consolidated is None or act.document_date <= consolidated.isoformat():
+            continue
+        if act.celex in reviewed:
+            continue
+        context.log.warning(
+            "Amending act has no reviewed transcription",
+            celex=act.celex,
+            framework=act.framework_celex,
+            document_date=act.document_date,
+            resource_type=act.resource_type,
+            title=act.title,
+            url=eur_lex_url(act.celex),
+        )
+
+
 def crawl(context: Context) -> None:
     # Current journal rows that are not yet present in the canonical EU feeds.
     path = context.fetch_resource("unconsolidated.csv", context.data_url)
@@ -453,3 +633,7 @@ def crawl(context: Context) -> None:
 
     if seq_start != 0:
         report_gc_range(context, seq_start, seq_max)
+
+    crawl_csv_consolidated(context)
+    crawl_csv_amendments(context)
+    check_new_amendments(context)

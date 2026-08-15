@@ -22,7 +22,7 @@ zero data rows.
 Output: data/consolidated/32023R2406.csv (the EU Journal consolidated CSV
 contract, keyed by the framework act). The consolidated version the snapshot
 was extracted from is passed as the CELEX argument and pinned in the dataset
-YAML's `consolidation` lookup, updated in the same commit as the CSV.
+YAML's `config.consolidation`, updated in the same commit as the CSV.
 """
 
 from __future__ import annotations
