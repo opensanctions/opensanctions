@@ -96,6 +96,42 @@ def test_build_and_parse_related_acts_query() -> None:
     assert related[1].resource_type == "REG_IMPL"
 
 
+def test_build_and_parse_consolidations_query() -> None:
+    query = cellar.build_consolidations_query(
+        ["32014R0833", "32024R1485", "32014R0833"]
+    ).decode("utf-8")
+    assert query.count('"32014R0833"^^xsd:string') == 1
+    assert '"32024R1485"^^xsd:string' in query
+    assert "resource_legal_id_celex ?cons_celex" in query
+
+    result = json.loads((FIXTURES / "consolidations.json").read_text())
+    consolidations = cellar.parse_consolidations_results(result)
+    # Grouped by framework, deduplicated and sorted, so max() is the newest.
+    assert consolidations["32014R0833"] == (
+        "02014R0833-20240625",
+        "02014R0833-20260717",
+    )
+    assert max(consolidations["32024R1485"]) == "02024R1485-20260713"
+    # A framework CELLAR said nothing about is absent, not empty.
+    assert "32016R0044" not in consolidations
+
+
+def test_consolidations_query_rejects_empty_frameworks() -> None:
+    with pytest.raises(ValueError, match="At least one"):
+        cellar.build_consolidations_query([])
+
+
+def test_cellar_client_queries_consolidations(requests_mock) -> None:
+    result = json.loads((FIXTURES / "consolidations.json").read_text())
+    requests_mock.post(cellar.SPARQL_ENDPOINT, json=result)
+    client = cellar.CellarClient(requests.Session())
+
+    consolidations = client.query_consolidations(["32014R0833", "32024R1485"])
+
+    assert set(consolidations) == {"32014R0833", "32024R1485"}
+    assert b'"32014R0833"^^xsd:string' in requests_mock.last_request.body
+
+
 def test_related_acts_query_rejects_invalid_bounds() -> None:
     with pytest.raises(ValueError, match="date_to"):
         cellar.build_related_acts_query(

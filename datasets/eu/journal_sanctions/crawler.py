@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from functools import cache
 from pathlib import Path
 
+import requests
 from lxml import html
 from nomenklatura.resolver import Linker
 from normality import normalize
@@ -600,7 +601,10 @@ def check_new_amendments(context: Context) -> None:
     reviewed = {path.stem for path in (DATA_DIR / "amendments").glob("*.csv")}
     reviewed.update(context.dataset.config.get("reviewed_acts", []))
     client = cellar.CellarClient(context.http, context.cache)
-    acts = client.query_related_acts(sorted(pinned), date_from=min(pinned.values()))
+    # A designation must not wait on a cache: discovery is always fetched fresh.
+    acts = client.query_related_acts(
+        sorted(pinned), date_from=min(pinned.values()), cache_days=None
+    )
     for act in {act.celex: act for act in acts}.values():
         consolidated = pinned.get(act.framework_celex)
         if consolidated is None or act.document_date <= consolidated.isoformat():
@@ -616,6 +620,47 @@ def check_new_amendments(context: Context) -> None:
             title=act.title,
             url=eur_lex_url(act.celex),
         )
+
+
+def check_consolidation_pins(context: Context) -> None:
+    """Warn when CELLAR has published a consolidation newer than our pin.
+
+    A stale pin means the snapshot no longer reflects the framework, so
+    designations the new version removed are still being emitted. Regenerate
+    with the matching scripts/parse_*.py and bump the pin in the same commit.
+    """
+    pins = consolidation_pins(context)
+    client = cellar.CellarClient(context.http, context.cache)
+    try:
+        published = client.query_consolidations(sorted(pins), cache_days=1)
+    except requests.RequestException as exc:
+        # Emission is already complete; a flaky endpoint must not fail the run.
+        context.log.warning("Could not list consolidated versions", error=str(exc))
+        return
+    for framework, pin in sorted(pins.items()):
+        versions = published.get(framework)
+        if versions is None:
+            context.log.warning(
+                "CELLAR reports no consolidated version", framework=framework
+            )
+            continue
+        latest = max(versions)
+        if latest > pin:
+            context.log.warning(
+                "Newer consolidated version published",
+                framework=framework,
+                pinned=pin,
+                latest=latest,
+                url=eur_lex_url(latest),
+            )
+        elif latest < pin:
+            # The pin names a version CELLAR does not offer: a typo, or withdrawn.
+            context.log.warning(
+                "Pinned consolidation is not published by CELLAR",
+                framework=framework,
+                pinned=pin,
+                latest=latest,
+            )
 
 
 def crawl(context: Context) -> None:
@@ -650,6 +695,7 @@ def crawl(context: Context) -> None:
     crawl_csv_consolidated(context)
     crawl_csv_amendments(context)
     check_new_amendments(context)
+    check_consolidation_pins(context)
 
     # Warn rather than raise: the dataset keeps publishing the source wording
     # while the name review backlog is worked through.

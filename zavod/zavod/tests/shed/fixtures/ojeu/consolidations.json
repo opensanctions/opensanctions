@@ -1,0 +1,32 @@
+{
+  "head": {
+    "vars": [
+      "framework_celex",
+      "cons_celex"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "framework_celex": {"type": "literal", "value": "32024R1485"},
+        "cons_celex": {"type": "literal", "value": "02024R1485-20260713"}
+      },
+      {
+        "framework_celex": {"type": "literal", "value": "32024R1485"},
+        "cons_celex": {"type": "literal", "value": "02024R1485-20250924"}
+      },
+      {
+        "framework_celex": {"type": "literal", "value": "32014R0833"},
+        "cons_celex": {"type": "literal", "value": "02014R0833-20260717"}
+      },
+      {
+        "framework_celex": {"type": "literal", "value": "32014R0833"},
+        "cons_celex": {"type": "literal", "value": "02014R0833-20240625"}
+      },
+      {
+        "framework_celex": {"type": "literal", "value": "32014R0833"},
+        "cons_celex": {"type": "literal", "value": "02014R0833-20260717"}
+      }
+    ]
+  }
+}

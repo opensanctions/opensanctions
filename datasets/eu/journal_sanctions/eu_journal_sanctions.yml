@@ -10,6 +10,12 @@ deploy:
   memory_limit: "2000Mi"
 load_statements: true
 ci_test: false
+http:
+  # The CELLAR consolidation query scans every consolidated CELEX to match each
+  # framework's version family, and takes ~2 minutes for the 45 frameworks
+  # below. Only direct session users are affected: Context.fetch_* passes its
+  # own timeout.
+  timeout: 300
 publisher:
   name: Council of the European Union
   acronym: Council
@@ -71,6 +77,24 @@ config:
   # extracted from. This mapping is the registry of framework acts the
   # dataset covers: regenerate a snapshot with the matching
   # scripts/parse_*.py (see Makefile) and bump its pin in the same commit.
+  #
+  # Handling "Newer consolidated version published" warnings:
+  #
+  # 1. The warning names the framework, the pinned version and the newer one
+  #    CELLAR offers. Open the `url` to see what changed.
+  # 2. Run `python scripts/parse_<framework>.py <newer-celex>` from the dataset
+  #    directory. The parser fails closed on structures it has not been taught;
+  #    an error naming an annex is a code review event, not a fallback case.
+  # 3. Review the snapshot diff designation by designation. Rows that vanished
+  #    are delistings the new version applies — the point of the exercise.
+  # 4. Bump the pin here and the matching Makefile line, and stage the CSV with
+  #    `git add -f`, all in one commit.
+  # 5. Retire any amendment the new snapshot absorbed by adding it to
+  #    `consolidated_amendments` below.
+  #
+  # There is deliberately no mute list for this warning: a stale pin means the
+  # dataset is publishing designations a newer consolidation may have removed,
+  # which is the liability this dataset exists to bound.
   consolidation:
     32001R2580: 02001R2580-20260227
     32002R0881: 02002R0881-20260721
