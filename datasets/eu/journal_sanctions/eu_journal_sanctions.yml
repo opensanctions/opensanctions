@@ -12,10 +12,9 @@ load_statements: true
 ci_test: false
 http:
   # The CELLAR consolidation query scans every consolidated CELEX to match each
-  # framework's version family, and takes ~2 minutes for the 45 frameworks
-  # below. Only direct session users are affected: Context.fetch_* passes its
-  # own timeout. `zavod --debug crawl` skips the CELLAR discovery checks
-  # entirely, which is the fast way to iterate on the reviewed CSVs.
+  # framework's version family, and takes ~2 minutes for the 45 frameworks.
+  # `zavod --debug crawl` skips the CELLAR discovery checks, which is the fast
+  # way to iterate on the reviewed CSVs.
   timeout: 300
 publisher:
   name: Council of the European Union
@@ -90,64 +89,18 @@ config:
   # This dataset has ci_test: false. Do not crawl. Verify a change with
   # `python scripts/validate.py` and `contrib/lint_dataset.sh <dataset>.yml`.
   #
-  # ## Warning "Amending act has no reviewed transcription"
-  #
-  # An act changes an annex of a framework act, and no reviewed file holds the
-  # designations of that act. The designations are in no input of the dataset.
-  #
-  # 1. Get the act. The warning gives the CELEX, the title and the EUR-Lex url.
-  # 2. Find the annexes that add or change a designated party.
-  # 3. If the act designates no party, add the CELEX to `reviewed_acts` and
-  #    stop. Acts that change operative articles only, and corrigenda, go
-  #    there.
-  # 4. A sanctions package is usually a CFSP decision and a regulation with the
-  #    same designations. Transcribe the regulation. Add the CELEX of the
-  #    decision to `reviewed_acts`. data/FORMAT.md gives the full rule.
-  # 5. Write all designations of the act to data/amendments/<CELEX>.csv. One
-  #    file holds the complete act. A part of the act is not sufficient.
-  #    data/FORMAT.md gives the columns, the fidelity rules and the row rules.
-  # 6. Run `python scripts/format.py data/amendments/<CELEX>.csv`, then
-  #    `python scripts/validate.py`.
-  # 7. In the PR, name each annex you transcribed and the number of rows it
-  #    gave. Name each annex that has no designated party.
-  #
-  # ## Warning "Newer consolidated version published"
-  #
-  # CELLAR has a consolidated version of a framework act that is newer than the
-  # pin in `consolidation`. The snapshot in data/consolidated/ is stale.
-  #
-  # 1. Open the `url` in the warning. Read the change.
-  # 2. Run `python scripts/parse_<framework>.py <latest>` from this directory.
-  #    The parser stops with an error when the document has a structure that
-  #    the parser does not know. Change that one parser, and teach it only the
-  #    structure that the document shows. Do not add a general fallback.
-  # 3. Read the diff of data/consolidated/<framework>.csv designation by
-  #    designation. Rows that are gone are delistings. They are the purpose of
-  #    the update.
-  # 4. Change the pin in `consolidation` and the related line in the Makefile.
-  #    The two must give the same version.
-  # 5. Retire the amendments that the new snapshot absorbed. Find each file in
-  #    data/amendments/ whose `amendedCelex` is this framework. Compare its
-  #    rows with the new snapshot. If the snapshot has the designations, add
-  #    the amendment to `consolidated_amendments` with the new version. If the
-  #    snapshot does not have them, do not change the entry. Do not delete the
-  #    amendment file.
-  # 6. Run `python scripts/validate.py`. Put all of these changes in one
-  #    commit.
-  #
-  # There is deliberately no mute list for this warning: a stale pin means the
-  # dataset is publishing designations a newer consolidation may have removed,
-  # which is the liability this dataset exists to bound.
-  #
-  # ## Other warnings about this section
-  #
-  # - "Snapshot has no consolidation pin": a file in data/consolidated/ has no
-  #   entry in `consolidation`. Add the pin, or delete the file.
-  # - "Pinned consolidation is not published by CELLAR": the pin has an error,
-  #   or CELLAR withdrew the version. Correct the pin.
+  # The procedure for each warning is above the key that the procedure
+  # changes. A comment block here holds a maximum of 32 lines: the YAML
+  # check in CI rejects more before a key.
 
   # The consolidated version that each data/consolidated/{framework}.csv
   # snapshot comes from. The Makefile gives the same version to the parser.
+  #
+  # These two warnings show an error in this mapping. Correct the mapping.
+  # - "Snapshot has no consolidation pin": a file in data/consolidated/ has no
+  #   entry here. Add the pin, or delete the file.
+  # - "Pinned consolidation is not published by CELLAR": the pin has an error,
+  #   or CELLAR withdrew the version. Correct the pin.
   consolidation:
     32001R2580: 02001R2580-20260227
     32002R0881: 02002R0881-20260721
@@ -194,15 +147,60 @@ config:
     32024R0386: 02024R0386-20260528
     32024R1485: 02024R1485-20260713
     32024R2642: 02024R2642-20260713
-  # Amendments whose designations a consolidated snapshot absorbed, with the
-  # version that absorbed each. The crawler stops to emit an amendment when the
-  # version here agrees with the `consolidation` pin of its framework above.
-  # The transcription stays in git as provenance.
+  # ## Warning "Newer consolidated version published"
+  #
+  # CELLAR has a consolidated version of a framework act that is newer than the
+  # pin in `consolidation`. The snapshot in data/consolidated/ is stale.
+  #
+  # 1. Open the `url` in the warning. Read the change.
+  # 2. Run `python scripts/parse_<framework>.py <latest>` from this directory.
+  #    The parser stops with an error when the document has a structure that
+  #    the parser does not know. Change that one parser, and teach it only the
+  #    structure that the document shows. Do not add a general fallback.
+  # 3. Read the diff of data/consolidated/<framework>.csv designation by
+  #    designation. Rows that are gone are delistings. They are the purpose of
+  #    the update.
+  # 4. Change the pin in `consolidation` and the related line in the Makefile.
+  #    The two must give the same version.
+  # 5. Retire the amendments that the new snapshot absorbed. Find each file in
+  #    data/amendments/ whose `amendedCelex` is this framework. Compare its
+  #    rows with the new snapshot. If the snapshot has the designations, add
+  #    the amendment below with the new version. If the snapshot does not have
+  #    them, do not change the entry. Do not delete the amendment file.
+  # 6. Run `python scripts/validate.py`. Put all of these changes in one
+  #    commit.
+  #
+  # There is deliberately no mute list for this warning: a stale pin means the
+  # dataset is publishing designations a newer consolidation may have removed,
+  # which is the liability this dataset exists to bound.
+  #
+  # The crawler stops to emit an amendment when the version here agrees with
+  # the `consolidation` pin of its framework. The transcription stays in git
+  # as provenance.
   consolidated_amendments:
     32026R1883: 02012R0267-20260801
+  # ## Warning "Amending act has no reviewed transcription"
+  #
+  # An act changes an annex of a framework act, and no reviewed file holds the
+  # designations of that act. The designations are in no input of the dataset.
+  #
+  # 1. Get the act. The warning gives the CELEX, the title and the EUR-Lex url.
+  # 2. Find the annexes that add or change a designated party.
+  # 3. If the act designates no party, add the CELEX below and stop. Acts that
+  #    change operative articles only, and corrigenda, go there.
+  # 4. A sanctions package is usually a CFSP decision and a regulation with the
+  #    same designations. Transcribe the regulation. Add the CELEX of the
+  #    decision below. data/FORMAT.md gives the full rule.
+  # 5. Write all designations of the act to data/amendments/<CELEX>.csv. One
+  #    file holds the complete act. A part of the act is not sufficient.
+  #    data/FORMAT.md gives the columns, the fidelity rules and the row rules.
+  # 6. Run `python scripts/format.py data/amendments/<CELEX>.csv`, then
+  #    `python scripts/validate.py`.
+  # 7. In the PR, name each annex you transcribed and the number of rows it
+  #    gave. Name each annex that has no designated party.
+  #
   # Acts that the discovery check found and that a reviewer closed with no
-  # transcription: acts that change operative articles only, corrigenda, and
-  # acts whose designations another act in the same package gives.
+  # transcription.
   reviewed_acts:
     - 32026R1844
     - 32026R1891
