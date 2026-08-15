@@ -14,7 +14,8 @@ http:
   # The CELLAR consolidation query scans every consolidated CELEX to match each
   # framework's version family, and takes ~2 minutes for the 45 frameworks
   # below. Only direct session users are affected: Context.fetch_* passes its
-  # own timeout.
+  # own timeout. `zavod --debug crawl` skips the CELLAR discovery checks
+  # entirely, which is the fast way to iterate on the reviewed CSVs.
   timeout: 300
 publisher:
   name: Council of the European Union

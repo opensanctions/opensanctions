@@ -694,8 +694,12 @@ def crawl(context: Context) -> None:
 
     crawl_csv_consolidated(context)
     crawl_csv_amendments(context)
-    check_new_amendments(context)
-    check_consolidation_pins(context)
+
+    # Discovery emits no entity and costs minutes of CELLAR queries, so
+    # `zavod --debug crawl` skips it and iterating on the CSVs stays fast.
+    if settings.DEBUG is False:
+        check_new_amendments(context)
+        check_consolidation_pins(context)
 
     # Warn rather than raise: the dataset keeps publishing the source wording
     # while the name review backlog is worked through.
