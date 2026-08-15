@@ -55,6 +55,17 @@ data:
 dates:
   formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d.%m.%Y'", "%d %B %Y’", "%B %Y"]
 
+names:
+  schema_rules:
+    LegalEntity:
+      # Source labels leak into name cells ("aka: POSCO", "Rosgvardiya (Russian:
+      # Росгвардия)"). Parentheses stay allowed: over a thousand values use the
+      # legitimate "Full Name (ACRONYM)" form.
+      reject_chars: ":"
+  # The acts print many single-token person aliases ("Sa’id", "Saleh"), which
+  # belong in weakAlias.
+  suggest_weak_alias_person_single_token: true
+
 config:
   # The consolidated version each data/consolidated/{framework}.csv was
   # extracted from. This mapping is the registry of framework acts the

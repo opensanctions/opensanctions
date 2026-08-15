@@ -13,6 +13,7 @@ from zavod.integration import get_dataset_linker
 from zavod.shed.ojeu import cellar
 from zavod.shed.ojeu.celex import eur_lex_url
 from zavod.shed.ojeu.celex import normalize as normalize_celex
+from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context, Entity, settings
 from zavod import helpers as h
@@ -44,6 +45,8 @@ GC_ROWS: dict[int, str] = {}
 DATA_DIR = Path(__file__).parent / "data"
 # Entity columns holding a free-form source date rather than a plain value.
 CSV_DATE_PROPS = frozenset({"birthDate", "incorporationDate"})
+# Multi-valued name columns, reviewed alongside the scalar `name` column.
+CSV_NAME_PROPS = ("alias", "weakAlias", "previousName")
 
 
 @cache
@@ -478,9 +481,19 @@ def crawl_csv_data(context: Context, path: Path) -> None:
 
             entity = context.make(row.pop("schema"))
             entity.id = context.make_id(celex, record_id, name)
-            entity.add("name", name)
             entity.add("topics", "sanction")
             entity.add("sourceUrl", source_url)
+
+            # Transcription only categorises a name where the act prints a label
+            # saying so, so the whole name block is reviewed together and a human
+            # decides the rest. While a review is pending, each string stays on
+            # the property the source gave it.
+            names = h.Names(name=name)
+            for name_prop in CSV_NAME_PROPS:
+                for value in split_cell(row.pop(name_prop)):
+                    names.add(name_prop, value)
+            h.apply_reviewed_names(context, entity, original=names)
+
             for prop, cell in row.items():
                 values = split_cell(cell)
                 if not values:
@@ -637,3 +650,7 @@ def crawl(context: Context) -> None:
     crawl_csv_consolidated(context)
     crawl_csv_amendments(context)
     check_new_amendments(context)
+
+    # Warn rather than raise: the dataset keeps publishing the source wording
+    # while the name review backlog is worked through.
+    assert_all_accepted(context, raise_on_unaccepted=False)
