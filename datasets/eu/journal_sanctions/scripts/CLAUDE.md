@@ -87,5 +87,4 @@ text. `split_multi` decodes a contract cell. Do not merge them.
   parses exact local bytes instead.
 - No `__init__.py` in this directory; scripts import `common` as a sibling
   module.
-- Snapshot CSVs are gitignored globally; stage them with `git add -f`.
 - After parsing, validate: `python scripts/validate.py` (or `make all`).

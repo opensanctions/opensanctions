@@ -74,28 +74,80 @@ names:
   suggest_weak_alias_person_single_token: true
 
 config:
-  # The consolidated version each data/consolidated/{framework}.csv was
-  # extracted from. This mapping is the registry of framework acts the
-  # dataset covers: regenerate a snapshot with the matching
-  # scripts/parse_*.py (see Makefile) and bump its pin in the same commit.
+  # This section is the registry of the EU legal acts the dataset covers. The
+  # crawler compares the registry with CELLAR and gives a warning when the
+  # registry is behind the Official Journal. Two warnings ask for work here.
+  # Obey the full procedure for the warning you get.
   #
-  # Handling "Newer consolidated version published" warnings:
+  # Before you write a CSV in data/, read data/FORMAT.md. It is the contract
+  # for both file kinds. Before you change a parser in scripts/, read
+  # scripts/CLAUDE.md.
   #
-  # 1. The warning names the framework, the pinned version and the newer one
-  #    CELLAR offers. Open the `url` to see what changed.
-  # 2. Run `python scripts/parse_<framework>.py <newer-celex>` from the dataset
-  #    directory. The parser fails closed on structures it has not been taught;
-  #    an error naming an annex is a code review event, not a fallback case.
-  # 3. Review the snapshot diff designation by designation. Rows that vanished
-  #    are delistings the new version applies — the point of the exercise.
-  # 4. Bump the pin here and the matching Makefile line, and stage the CSV with
-  #    `git add -f`, all in one commit.
-  # 5. Retire any amendment the new snapshot absorbed by adding it to
-  #    `consolidated_amendments` below.
+  # To read the text of an act, get the body HTML with its annex tables:
+  #
+  #     python -m zavod.shed.ojeu.cellar <CELEX> --body-only --output act.html
+  #
+  # This dataset has ci_test: false. Do not crawl. Verify a change with
+  # `python scripts/validate.py` and `contrib/lint_dataset.sh <dataset>.yml`.
+  #
+  # ## Warning "Amending act has no reviewed transcription"
+  #
+  # An act changes an annex of a framework act, and no reviewed file holds the
+  # designations of that act. The designations are in no input of the dataset.
+  #
+  # 1. Get the act. The warning gives the CELEX, the title and the EUR-Lex url.
+  # 2. Find the annexes that add or change a designated party.
+  # 3. If the act designates no party, add the CELEX to `reviewed_acts` and
+  #    stop. Acts that change operative articles only, and corrigenda, go
+  #    there.
+  # 4. A sanctions package is usually a CFSP decision and a regulation with the
+  #    same designations. Transcribe the regulation. Add the CELEX of the
+  #    decision to `reviewed_acts`. data/FORMAT.md gives the full rule.
+  # 5. Write all designations of the act to data/amendments/<CELEX>.csv. One
+  #    file holds the complete act. A part of the act is not sufficient.
+  #    data/FORMAT.md gives the columns, the fidelity rules and the row rules.
+  # 6. Run `python scripts/format.py data/amendments/<CELEX>.csv`, then
+  #    `python scripts/validate.py`.
+  # 7. In the PR, name each annex you transcribed and the number of rows it
+  #    gave. Name each annex that has no designated party.
+  #
+  # ## Warning "Newer consolidated version published"
+  #
+  # CELLAR has a consolidated version of a framework act that is newer than the
+  # pin in `consolidation`. The snapshot in data/consolidated/ is stale.
+  #
+  # 1. Open the `url` in the warning. Read the change.
+  # 2. Run `python scripts/parse_<framework>.py <latest>` from this directory.
+  #    The parser stops with an error when the document has a structure that
+  #    the parser does not know. Change that one parser, and teach it only the
+  #    structure that the document shows. Do not add a general fallback.
+  # 3. Read the diff of data/consolidated/<framework>.csv designation by
+  #    designation. Rows that are gone are delistings. They are the purpose of
+  #    the update.
+  # 4. Change the pin in `consolidation` and the related line in the Makefile.
+  #    The two must give the same version.
+  # 5. Retire the amendments that the new snapshot absorbed. Find each file in
+  #    data/amendments/ whose `amendedCelex` is this framework. Compare its
+  #    rows with the new snapshot. If the snapshot has the designations, add
+  #    the amendment to `consolidated_amendments` with the new version. If the
+  #    snapshot does not have them, do not change the entry. Do not delete the
+  #    amendment file.
+  # 6. Run `python scripts/validate.py`. Put all of these changes in one
+  #    commit.
   #
   # There is deliberately no mute list for this warning: a stale pin means the
   # dataset is publishing designations a newer consolidation may have removed,
   # which is the liability this dataset exists to bound.
+  #
+  # ## Other warnings about this section
+  #
+  # - "Snapshot has no consolidation pin": a file in data/consolidated/ has no
+  #   entry in `consolidation`. Add the pin, or delete the file.
+  # - "Pinned consolidation is not published by CELLAR": the pin has an error,
+  #   or CELLAR withdrew the version. Correct the pin.
+
+  # The consolidated version that each data/consolidated/{framework}.csv
+  # snapshot comes from. The Makefile gives the same version to the parser.
   consolidation:
     32001R2580: 02001R2580-20260227
     32002R0881: 02002R0881-20260721
@@ -142,15 +194,15 @@ config:
     32024R0386: 02024R0386-20260528
     32024R1485: 02024R1485-20260713
     32024R2642: 02024R2642-20260713
-  # Amendments whose designations have arrived in a consolidated snapshot,
-  # mapped to the consolidated version that absorbed them. The transcription
-  # stays in git for provenance, but the crawler stops emitting it once the
-  # named version matches the framework's `consolidation` pin above.
+  # Amendments whose designations a consolidated snapshot absorbed, with the
+  # version that absorbed each. The crawler stops to emit an amendment when the
+  # version here agrees with the `consolidation` pin of its framework above.
+  # The transcription stays in git as provenance.
   consolidated_amendments:
     32026R1883: 02012R0267-20260801
-  # Acts the discovery check found and a reviewer resolved without a
-  # transcription: those that change operative articles only, corrigenda, and
-  # acts whose designations another act in the package already covers.
+  # Acts that the discovery check found and that a reviewer closed with no
+  # transcription: acts that change operative articles only, corrigenda, and
+  # acts whose designations another act in the same package gives.
   reviewed_acts:
     - 32026R1844
     - 32026R1891
