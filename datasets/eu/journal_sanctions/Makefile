@@ -52,6 +52,9 @@ parse:
 	$(PYTHON) scripts/parse_32024R2642.py 02024R2642-20260713
 
 validate:
-	$(PYTHON) validate_csv.py
+	$(PYTHON) scripts/validate.py
 
-.PHONY: all parse validate
+format:
+	$(PYTHON) scripts/format.py
+
+.PHONY: all parse validate format

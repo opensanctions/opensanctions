@@ -13,6 +13,7 @@ the ground rules before adding anything.
 from __future__ import annotations
 
 import csv
+import io
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,9 +27,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 DATASET_DIR = SCRIPT_DIR.parent
 OUTPUT_DIR = DATASET_DIR / "data" / "consolidated"
 
-# The consolidated-file column contract from ../data/FORMAT.md.
-COLUMNS = (
-    "celex",
+# The column contract from ../data/FORMAT.md. Both file kinds share the
+# sanctions-metadata and entity blocks and differ only in their leading CELEX
+# provenance columns.
+METADATA_COLUMNS = (
     "recordId",
     "programKey",
     "annex",
@@ -36,6 +38,8 @@ COLUMNS = (
     "startDate",
     "reason",
     "schema",
+)
+ENTITY_COLUMNS = (
     "name",
     "alias",
     "weakAlias",
@@ -74,7 +78,10 @@ COLUMNS = (
     "website",
     "notes",
 )
-ENTITY_COLUMNS = COLUMNS[COLUMNS.index("name") :]
+CONSOLIDATED_COLUMNS = ("celex",) + METADATA_COLUMNS + ENTITY_COLUMNS
+AMENDMENT_COLUMNS = (
+    ("amendedCelex", "amendmentCelex") + METADATA_COLUMNS + ENTITY_COLUMNS
+)
 
 # Consolidation markup: standalone modification references ("▼M37", with an
 # optional deletion dash run) and inline change markers ("►C15 value ◄").
@@ -226,6 +233,11 @@ def single_paragraph(el: Element, ctx: str) -> str:
 
 
 def split_values(value: str) -> list[str]:
+    """Split a run of printed source wording on ";".
+
+    Not the inverse of ``join_multi`` — source text carries no CSV quoting.
+    Use ``split_multi`` to decode a contract cell.
+    """
     return [part.strip() for part in value.split(";") if part.strip()]
 
 
@@ -242,6 +254,24 @@ def join_multi(values: list[str]) -> str:
             value = '"' + value.replace('"', '""') + '"'
         encoded.append(value)
     return "; ".join(encoded)
+
+
+def split_multi(value: str) -> list[str]:
+    """Decode a multi-value cell into trimmed elements, inverting ``join_multi``.
+
+    Raises ``ValueError`` on cells that do not decode to one clean row.
+    """
+    if value == "":
+        return []
+    try:
+        rows = list(
+            csv.reader(io.StringIO(value), delimiter=";", skipinitialspace=True)
+        )
+    except csv.Error as exc:
+        raise ValueError(f"multi-value cell does not decode as ;-CSV: {exc}")
+    if len(rows) != 1:
+        raise ValueError("multi-value cell contains a line break")
+    return [element.strip() for element in rows[0]]
 
 
 # --- date primitives --------------------------------------------------------
@@ -351,7 +381,7 @@ def table_body(roman: str, table: Element, header: tuple[str, ...]) -> list[Elem
 
 def to_record(row: Row, celex: str, program_key: str) -> dict[str, str]:
     """Flatten a Row into a contract record, checking columns against FtM."""
-    record = {column: "" for column in COLUMNS}
+    record = {column: "" for column in CONSOLIDATED_COLUMNS}
     record["celex"] = celex
     record["recordId"] = row.record_id
     record["programKey"] = program_key
@@ -384,7 +414,7 @@ def validate_records(records: list[dict[str, str]]) -> None:
     seen_rows: set[tuple[str, ...]] = set()
     seen_ids: set[tuple[str, str]] = set()
     for record in records:
-        key = tuple(record[column] for column in COLUMNS)
+        key = tuple(record[column] for column in CONSOLIDATED_COLUMNS)
         if key in seen_rows:
             raise ParseError(f"{record['annex']}: duplicate row {record['name']!r}")
         seen_rows.add(key)
@@ -414,7 +444,7 @@ def write_csv(records: list[dict[str, str]], framework_celex: str) -> Path:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     csv_path = OUTPUT_DIR / f"{framework_celex}.csv"
     with open(csv_path, "w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(COLUMNS))
+        writer = csv.DictWriter(handle, fieldnames=list(CONSOLIDATED_COLUMNS))
         writer.writeheader()
         writer.writerows(records)
     return csv_path

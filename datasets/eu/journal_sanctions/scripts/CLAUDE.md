@@ -59,6 +59,23 @@ review.
    deduplicate on sight. Distill into `common.py` only after copies have
    proven byte-stable across parsers, and even then apply rules 3–5.
 
+## The two contract tools
+
+`validate.py` and `format.py` are not parsers and the rules above do not
+govern them. They implement `../data/FORMAT.md` itself — `validate.py` checks
+any reviewed CSV against it, `format.py` puts a transcribed amendment file's
+header into the contract's column set and order.
+
+For these two, rule 2 is inverted: they **must** read the column contract from
+`common.py` (`METADATA_COLUMNS`, `ENTITY_COLUMNS`, `CONSOLIDATED_COLUMNS`,
+`AMENDMENT_COLUMNS`) and the cell codec from `join_multi` / `split_multi`,
+never restate them. A second copy of the column list is how the contract drifts
+from the files that are supposed to satisfy it.
+
+Note that `split_values` is not the inverse of `join_multi`: it splits printed
+source wording, which carries no CSV quoting, and parsers use it on document
+text. `split_multi` decodes a contract cell. Do not merge them.
+
 ## Mechanics
 
 - Run from the dataset directory:
@@ -70,4 +87,4 @@ review.
 - No `__init__.py` in this directory; scripts import `common` as a sibling
   module.
 - Snapshot CSVs are gitignored globally; stage them with `git add -f`.
-- After parsing, validate: `python validate_csv.py` (or `make all`).
+- After parsing, validate: `python scripts/validate.py` (or `make all`).

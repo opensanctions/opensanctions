@@ -176,7 +176,7 @@ Do not recast such targets as `LegalEntity` or `Organization`.
 Every file must pass the validator before it is checked in:
 
 ```
-python datasets/eu/journal_sanctions/validate_csv.py [CSV ...]
+python datasets/eu/journal_sanctions/scripts/validate.py [CSV ...]
 ```
 
 With no arguments it validates every CSV under `amendments/` and `consolidated/`.
@@ -185,3 +185,19 @@ success, `1` on validation failures, and `2` on usage errors. It runs entirely
 offline. The validator checks structure only — it cannot verify that values match
 the source act; that transcription fidelity, including exact country wording,
 remains the reviewer's responsibility.
+
+A transcribed amendment file's header can be brought to the exact column set and
+order above with:
+
+```
+python datasets/eu/journal_sanctions/scripts/format.py [CSV ...]
+```
+
+It rewrites the given files in place, defaulting to every CSV under
+`amendments/`. Columns the header omits are added empty and columns out of order
+are moved; cell values, row content, and row order are untouched. A column that
+is not in the contract, a repeated column, or a row whose cell count disagrees
+with the header is an error that leaves the file unchanged — nothing a reviewer
+wrote is dropped. Consolidated files are written by the annex parsers and are
+not accepted here. Formatting is not validation: a formatted file still has to
+pass `validate.py`.

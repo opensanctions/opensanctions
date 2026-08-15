@@ -1,12 +1,13 @@
-"""Validate reviewed EU Journal sanctions CSV files before they are loaded.
+"""Validate reviewed EU Journal sanctions CSV files against the column contract.
 
 Reviewed designations live in git as amendment and consolidated CSV files with
 a fixed column contract, documented in ``data/FORMAT.md`` next to the files.
-This tool checks those files offline — structure,
-CELEX provenance, program and measure vocabulary, FtM schema compatibility,
-dates, multi-value cells, and row uniqueness — so contract violations are
-caught at review time rather than at crawl time. The loader reuses
-``validate_file`` to refuse files that do not validate cleanly.
+This tool checks those files offline — structure, CELEX provenance, program and
+measure vocabulary, FtM schema compatibility, dates, multi-value cells, and row
+uniqueness — so contract violations are caught while a reviewer still has the
+source act open, not once the data is published.
+
+It checks structure only: it cannot verify that a cell matches the source act.
 """
 
 import csv
@@ -23,65 +24,18 @@ from rigour.dates import prefix_interval
 from zavod.shed.ojeu.celex import normalize as normalize_celex
 from zavod.stateful.programs import Measure, get_program_by_key
 
-FileKind = Literal["amendment", "consolidated"]
+from common import (
+    AMENDMENT_COLUMNS,
+    CONSOLIDATED_COLUMNS,
+    DATASET_DIR,
+    ENTITY_COLUMNS,
+    parse_abbrev_date,
+    parse_dotted_date,
+    parse_worded_date,
+    split_multi,
+)
 
-ENTITY_COLUMNS: tuple[str, ...] = (
-    "name",
-    "alias",
-    "weakAlias",
-    "previousName",
-    "country",
-    "nationality",
-    "jurisdiction",
-    "birthDate",
-    "birthPlace",
-    "position",
-    "passportNumber",
-    "gender",
-    "appearance",
-    "ethnicity",
-    "fatherName",
-    "motherName",
-    "incorporationDate",
-    "legalForm",
-    "sector",
-    "registrationNumber",
-    "taxNumber",
-    "idNumber",
-    "innCode",
-    "ogrnCode",
-    "kppCode",
-    "okpoCode",
-    "leiCode",
-    "swiftBic",
-    "ticker",
-    "imoNumber",
-    "mmsi",
-    "flag",
-    "address",
-    "phone",
-    "email",
-    "website",
-    "notes",
-)
-METADATA_COLUMNS: tuple[str, ...] = (
-    "recordId",
-    "programKey",
-    "annex",
-    "measure",
-    "startDate",
-    "reason",
-    "schema",
-)
-CONSOLIDATED_HEADER: tuple[str, ...] = ("celex",) + METADATA_COLUMNS + ENTITY_COLUMNS
-AMENDMENT_HEADER: tuple[str, ...] = (
-    (
-        "amendedCelex",
-        "amendmentCelex",
-    )
-    + METADATA_COLUMNS
-    + ENTITY_COLUMNS
-)
+FileKind = Literal["amendment", "consolidated"]
 
 # Every entity property column except name holds `;`-separated multi-values.
 # All date columns hold the source's printed wording, normalized in the
@@ -128,26 +82,6 @@ class ValidationResult:
     issues: list[Issue]
 
 
-def split_multi(value: str) -> list[str]:
-    """Decode a multi-value cell into trimmed elements.
-
-    Cells are `;`-delimited with CSV quoting: a value that itself contains
-    the separator or a quote is quoted, with embedded quotes doubled. Raises
-    ``ValueError`` on cells that do not decode to one clean row.
-    """
-    if value == "":
-        return []
-    try:
-        rows = list(
-            csv.reader(io.StringIO(value), delimiter=";", skipinitialspace=True)
-        )
-    except csv.Error as exc:
-        raise ValueError(f"multi-value cell does not decode as ;-CSV: {exc}")
-    if len(rows) != 1:
-        raise ValueError("multi-value cell contains a line break")
-    return [element.strip() for element in rows[0]]
-
-
 def _check_celex(value: str) -> str | None:
     """Return an error message if the value is not one bare normalized CELEX."""
     if ";" in value:
@@ -161,44 +95,9 @@ def _check_celex(value: str) -> str | None:
     return None
 
 
-# The bare-date shapes accepted in startDate, each mapped to its ISO form so
-# calendar validity can be checked. These mirror the recognizers in
-# scripts/common.py; the validator stays importable without scripts/.
+# The ISO-partial shape accepted in startDate; the dotted, worded and
+# UN-abbreviated shapes are recognized by the shared parsers in common.py.
 DATE_ISO_RE = re.compile(r"^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$")
-DATE_DOTTED_RE = re.compile(r"^(\d{1,2})\.(\d{1,2})\.(\d{4})$")
-DATE_WORDED_RE = re.compile(
-    r"^(\d{1,2}) (January|February|March|April|May|June|July|August"
-    r"|September|October|November|December) (\d{4})$"
-)
-DATE_ABBREV_RE = re.compile(
-    r"^(\d{1,2}) (Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\. (\d{4})$"
-)
-MONTHS = {
-    "January": 1,
-    "February": 2,
-    "March": 3,
-    "April": 4,
-    "May": 5,
-    "June": 6,
-    "July": 7,
-    "August": 8,
-    "September": 9,
-    "October": 10,
-    "November": 11,
-    "December": 12,
-    "Jan": 1,
-    "Feb": 2,
-    "Mar": 3,
-    "Apr": 4,
-    "Jun": 6,
-    "Jul": 7,
-    "Aug": 8,
-    "Sep": 9,
-    "Sept": 9,
-    "Oct": 10,
-    "Nov": 11,
-    "Dec": 12,
-}
 
 
 def _check_start_date(value: str) -> str | None:
@@ -206,13 +105,12 @@ def _check_start_date(value: str) -> str | None:
     iso: str | None = None
     if DATE_ISO_RE.match(value) is not None:
         iso = value
-    match = DATE_DOTTED_RE.match(value)
-    if match is not None:
-        day, month, year = match.groups()
-        iso = f"{year}-{int(month):02d}-{int(day):02d}"
-    match = DATE_WORDED_RE.match(value) or DATE_ABBREV_RE.match(value)
-    if match is not None:
-        iso = f"{match.group(3)}-{MONTHS[match.group(2)]:02d}-{int(match.group(1)):02d}"
+    else:
+        iso = (
+            parse_dotted_date(value)
+            or parse_worded_date(value)
+            or parse_abbrev_date(value)
+        )
     if iso is None:
         return (
             "startDate must be one bare date (ISO partial, dotted, worded, "
@@ -256,9 +154,9 @@ def validate_file(path: Path) -> ValidationResult:
         return ValidationResult(None, [], issues)
 
     header = tuple(raw_rows[0])
-    if header == AMENDMENT_HEADER:
+    if header == AMENDMENT_COLUMNS:
         kind: FileKind = "amendment"
-    elif header == CONSOLIDATED_HEADER:
+    elif header == CONSOLIDATED_COLUMNS:
         kind = "consolidated"
     else:
         issues.append(
@@ -490,7 +388,7 @@ def validate_file(path: Path) -> ValidationResult:
 )
 def cli(paths: tuple[Path, ...]) -> None:
     if len(paths) == 0:
-        data_path = Path(__file__).resolve().parent / "data"
+        data_path = DATASET_DIR / "data"
         found = sorted(data_path.joinpath("amendments").glob("*.csv"))
         found.extend(sorted(data_path.joinpath("consolidated").glob("*.csv")))
         if len(found) == 0:
