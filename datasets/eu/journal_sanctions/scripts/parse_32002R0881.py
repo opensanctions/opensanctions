@@ -47,7 +47,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -55,24 +54,22 @@ from common import (
     Row,
     annex_blocks,
     bare_text,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_abbrev_date,
-    parse_dotted_date,
     summary,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32002R0881"
-CONSOLIDATED_RE = re.compile(r"^02002R0881-\d{8}$")
 PROGRAM_KEY = "EU-TAQA-EUAQ"
 # The regulation implements the fund freeze; travel bans ride on the UN
 # regime and Decision (CFSP) 2016/1693.
@@ -475,25 +472,11 @@ ENTRY_OVERRIDES: dict[str, tuple[tuple[str, str], ...]] = {
 }
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Dotted and UN-abbreviated forms occur in this document. The printed
-    # wording is kept; the recognizers only guard the shape.
-    if parse_dotted_date(text) is None and parse_abbrev_date(text) is None:
-        raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return text
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for _, schema_name in SECTIONS:
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
+# Dotted and UN-abbreviated forms occur in this document.
+DATE_FORMATS = (
+    "dotted",
+    "abbrev",
+)
 
 
 def enum_paren(text: str, i: int) -> bool:
@@ -718,7 +701,7 @@ def set_start_date(ctx: str, row: Row, printed: str) -> None:
     if row.start_date:
         raise ParseError(f"{ctx}: second designation date")
     printed = DATE_PINS.get(printed, printed)
-    row.start_date = verbatim_date(printed, ctx)
+    row.start_date = verbatim_date(printed, ctx, DATE_FORMATS)
 
 
 def route_item(ctx: str, item: str, row: Row) -> None:
@@ -818,7 +801,7 @@ def parse_entry(annex: str, schema: str, text: str, entry_no: int) -> Row:
     if override is not None:
         for column, value in override:
             if column == "startDate":
-                row.start_date = verbatim_date(value, ctx)
+                row.start_date = verbatim_date(value, ctx, DATE_FORMATS)
             else:
                 row.add(column, [value])
         return row
@@ -976,9 +959,10 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 881/2002 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY, [MEASURE], [schema_name for _, schema_name in SECTIONS]
+        )
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

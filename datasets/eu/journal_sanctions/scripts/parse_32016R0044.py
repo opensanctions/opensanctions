@@ -37,7 +37,6 @@ import json
 import re
 from collections.abc import Callable
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -51,27 +50,24 @@ from common import (
     assert_empty,
     cell_line,
     cell_lines,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_abbrev_date,
-    parse_dotted_date,
-    parse_worded_date,
     split_values,
     summary,
     table_body,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32016R0044"
-CONSOLIDATED_RE = re.compile(r"^02016R0044-\d{8}$")
 PROGRAM_KEY = "EU-LBY"
 # Annexes II, III and VI all implement the regulation's fund freezes
 # (Articles 6(1), 6(2) and 5(4)); travel bans live in Decision 2015/1333.
@@ -232,20 +228,19 @@ III_INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]
 }
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Formats observed in this document: dotted listing dates ("28.2.2011"),
-    # UN abbreviated dates ("26 Feb. 2011"), worded dates ("17 March 2011").
-    # The printed wording is kept; the recognizers only guard the shape.
-    for parse in (parse_dotted_date, parse_worded_date, parse_abbrev_date):
-        if parse(text) is not None:
-            return text
-    raise ParseError(f"{ctx}: unrecognized date {text!r}")
+# Formats observed in this document: dotted listing dates ("28.2.2011"), UN
+# abbreviated dates ("26 Feb. 2011"), worded dates ("17 March 2011").
+DATE_FORMATS = (
+    "dotted",
+    "worded",
+    "abbrev",
+)
 
 
 def parse_listed_on(ctx: str, value: str) -> str:
     # "26 Feb. 2011 (amended on 27 Jun. 2014, 1 Apr. 2016)" — the amendment
     # history is not part of the designation date.
-    return verbatim_date(value.split(" (amended on ")[0].strip(), ctx)
+    return verbatim_date(value.split(" (amended on ")[0].strip(), ctx, DATE_FORMATS)
 
 
 # --- UN narrative layout (Annexes II and VI) --------------------------------
@@ -539,7 +534,7 @@ def parse_iii_row(roman: str, part: str, tr: Element) -> Row:
     parse_iii_name(ctx, cells[1], row)
     parse_iii_info(ctx, part, record_id, cells[2], row)
     row.reason = " ".join(cell_lines(cells[3], ctx))
-    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx)
+    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx, DATE_FORMATS)
     return row
 
 
@@ -591,19 +586,6 @@ TARGET_PARSERS: dict[str, Callable[[str, Element], list[Row]]] = {
 }
 
 
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for schema_name in ("Person", "LegalEntity"):
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
-
-
 def parse_document(doc: Element) -> list[Row]:
     rows: list[Row] = []
     known = set(TARGET_PARSERS) | set(EXPECTED_EMPTY) | set(NON_TARGET)
@@ -629,9 +611,8 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 2016/44 CELEX: {celex!r}")
+        check_registry(PROGRAM_KEY, [MEASURE], ("Person", "LegalEntity"))
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

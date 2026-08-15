@@ -1,8 +1,9 @@
 """Leaf utilities shared by the per-framework consolidated regulation parsers.
 
-Everything in here is either mandated by the reviewed CSV contract
-(``../data/FORMAT.md``) or by the EUR-Lex consolidation markup standard, and
-is therefore identical for every parser by necessity. Parsers call these
+Everything in here is mandated by the reviewed CSV contract
+(``../data/FORMAT.md``), by the EUR-Lex consolidation markup standard, or by
+the registries that own the sanctions vocabulary, and is therefore identical
+for every parser by necessity. Parsers call these
 functions top-down with plain data arguments; nothing here dispatches into
 or configures parser code. Document policy — which annexes exist, which date
 formats and labels are legal, per-entry quirk pins — always lives in the
@@ -15,12 +16,15 @@ from __future__ import annotations
 import csv
 import io
 import re
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import get_args
 
 from followthemoney import model
 from zavod.helpers.html import element_text, xpath_elements
 from zavod.shed.ojeu.cellar import cli_client
+from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -180,6 +184,47 @@ class Row:
                 target.append(value)
 
 
+# --- run preconditions -------------------------------------------------------
+
+
+def check_registry(
+    program_key: str, measures: Iterable[str], schemata: Iterable[str]
+) -> None:
+    """Check a parser's sanctions vocabulary against the registries that own it.
+
+    Called before parsing so that a program key, measure or schema name the
+    registries no longer carry fails at once, rather than at CSV review time.
+    The caller passes the measures and schemata its own annex tables declare;
+    which of them a document uses stays parser policy.
+    """
+    program = get_program_by_key(program_key)
+    if program is None:
+        raise ParseError(f"unknown program key {program_key!r}")
+    for measure in measures:
+        if measure not in get_args(Measure):
+            raise ParseError(f"invalid measure {measure!r}")
+        if measure not in program.measures:
+            raise ParseError(f"measure {measure!r} not in {program_key}")
+    for schema_name in schemata:
+        if model.get(schema_name) is None:
+            raise ParseError(f"unknown schema {schema_name!r}")
+
+
+def check_consolidated_celex(celex: str, framework_celex: str) -> None:
+    """Reject a CELEX that is not a consolidated expression of this act.
+
+    A consolidated expression carries sector 0 in place of the framework
+    act's sector 3, plus the date of the version ("32014R0269" ->
+    "02014R0269-20260717"), so the accepted form follows from the framework
+    act alone.
+    """
+    if not framework_celex.startswith("3"):
+        raise ParseError(f"not a framework act CELEX: {framework_celex!r}")
+    pattern = r"^0" + re.escape(framework_celex[1:]) + r"-\d{8}$"
+    if re.match(pattern, celex) is None:
+        raise ParseError(f"not a consolidated {framework_celex} CELEX: {celex!r}")
+
+
 # --- consolidation markup and cell text ------------------------------------
 
 
@@ -305,6 +350,34 @@ def parse_abbrev_date(text: str) -> str | None:
         f"{match.group(3)}-{ABBREV_MONTHS[match.group(2)]:02d}"
         f"-{int(match.group(1)):02d}"
     )
+
+
+DATE_FORMATS: dict[str, Callable[[str], str | None]] = {
+    "dotted": parse_dotted_date,
+    "worded": parse_worded_date,
+    "abbrev": parse_abbrev_date,
+}
+
+
+def verbatim_date(text: str, ctx: str, formats: Sequence[str]) -> str:
+    """Return a printed date unchanged, once one recognizer has accepted it.
+
+    The CSV keeps the source wording, so the recognizers only guard the shape.
+    ``formats`` names the forms the document has been observed to print;
+    widening it is a code review event, not a fallback for a date that fails.
+    """
+    parsers: list[Callable[[str], str | None]] = []
+    for name in formats:
+        parser = DATE_FORMATS.get(name)
+        if parser is None:
+            raise ParseError(f"{ctx}: unknown date format {name!r}")
+        parsers.append(parser)
+    if not parsers:
+        raise ParseError(f"{ctx}: no date format declared")
+    for parser in parsers:
+        if parser(text) is not None:
+            return text
+    raise ParseError(f"{ctx}: unrecognized date {text!r}")
 
 
 # --- document access --------------------------------------------------------

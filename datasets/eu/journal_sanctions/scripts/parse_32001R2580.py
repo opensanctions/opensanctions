@@ -49,7 +49,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -58,6 +57,8 @@ from common import (
     Row,
     annex_blocks,
     annex_id,
+    check_consolidated_celex,
+    check_registry,
     clean,
     load_source,
     single_paragraph,
@@ -66,14 +67,11 @@ from common import (
     validate_records,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32001R2580"
-CONSOLIDATED_RE = re.compile(r"^02001R2580-\d{8}$")
 PROGRAM_KEY = "EU-TERR"
 # The regulation implements the Article 2 fund freeze; travel measures live
 # in Common Position 2001/931/CFSP.
@@ -457,19 +455,6 @@ ENTRIES: dict[tuple[str, str], tuple[str, tuple[tuple[str, str], ...]]] = {
 }
 
 
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for _, _, schema_name in PARTS:
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
-
-
 def build_row(annex: str, part: str, schema: str, text: str) -> Row:
     number = NUMBER_RE.match(text)
     if number is None:
@@ -572,9 +557,10 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 2580/2001 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY, [MEASURE], [schema_name for _, _, schema_name in PARTS]
+        )
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

@@ -29,11 +29,12 @@ review.
    structures.** Many small functions beat one configurable object. A
    function belongs there only if it is (a) a pure function or constant over
    strings/elements/records, (b) identical for all parsers *by necessity* —
-   mandated by the CSV contract or by the EUR-Lex consolidation markup
-   standard, not by coincidence — and (c) called with plain data arguments.
-   Shared dataclasses that *describe* things (`AnnexSpec`, `Row`) are
-   welcome: joint vocabulary is cheap as long as it carries data, not
-   behavior. Each parser decides for itself how to interpret them.
+   mandated by the CSV contract, by the EUR-Lex consolidation markup standard,
+   or by the registries that own the sanctions vocabulary, not by coincidence
+   — and (c) called with plain data arguments. Shared dataclasses that
+   *describe* things (`AnnexSpec`, `Row`) are welcome: joint vocabulary is
+   cheap as long as it carries data, not behavior. Each parser decides for
+   itself how to interpret them.
 4. **No inversion of control.** Shared code never calls back into parser
    code: no registries, dispatch tables, role→handler maps, or CLI builders.
    Parsers call `common.py` top-down, like a stdlib. If sharing something

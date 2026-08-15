@@ -43,7 +43,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -51,7 +50,9 @@ from common import (
     ParseError,
     Row,
     annex_blocks,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
     single_paragraph,
@@ -61,14 +62,11 @@ from common import (
     validate_records,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32003R1210"
-CONSOLIDATED_RE = re.compile(r"^02003R1210-\d{8}$")
 PROGRAM_KEY = "EU-IRQ"
 # Both designation annexes implement the Article 4 fund freezes; the other
 # EU-IRQ measures (arms embargo, cultural-goods import restrictions) ride on
@@ -238,21 +236,6 @@ ALIAS_GROUP_PINS: dict[str, tuple[str, tuple[str, ...]]] = {
         ),
     ),
 }
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    schemata = {"Person", *F2_SCHEMAS.values()}
-    schemata.update(schema for _, schema, _ in III_ENTRIES.values())
-    for schema_name in schemata:
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
 
 
 def check_subtitle(ctx: str, child: Element, expected: str, seen: bool) -> None:
@@ -588,9 +571,16 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 1210/2003 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY,
+            [MEASURE],
+            {
+                "Person",
+                *F2_SCHEMAS.values(),
+                *(schema for _, schema, _ in III_ENTRIES.values()),
+            },
+        )
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

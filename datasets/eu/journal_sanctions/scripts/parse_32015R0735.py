@@ -39,7 +39,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -51,27 +50,24 @@ from common import (
     annex_id,
     cell_line,
     cell_lines,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_abbrev_date,
-    parse_dotted_date,
-    parse_worded_date,
     split_values,
     summary,
     table_body,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32015R0735"
-CONSOLIDATED_RE = re.compile(r"^02015R0735-\d{8}$")
 PROGRAM_KEY = "EU-SSD"
 # Annexes I and II implement the Article 5 fund freeze; travel bans live in
 # Decision (CFSP) 2015/740.
@@ -161,15 +157,14 @@ II_ENTRY_SCHEMAS = {"1": "Person"}
 NUMBER_RE = re.compile(r"^(\d+)\.$")
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Formats observed in this document: UN abbreviated ("1 Jul. 2015") and
-    # worded ("13 July 2018") dates in Annex I, dotted ("3.2.2018") in
-    # Annex II. The printed wording is kept; the recognizers only guard the
-    # shape.
-    for parse in (parse_abbrev_date, parse_worded_date, parse_dotted_date):
-        if parse(text) is not None:
-            return text
-    raise ParseError(f"{ctx}: unrecognized date {text!r}")
+# Formats observed in this document: UN abbreviated ("1 Jul. 2015") and
+# worded ("13 July 2018") dates in Annex I, dotted ("3.2.2018") in Annex
+# II.
+DATE_FORMATS = (
+    "abbrev",
+    "worded",
+    "dotted",
+)
 
 
 def split_plain_lettered(ctx: str, value: str) -> list[str]:
@@ -264,7 +259,7 @@ def parse_fields(ctx: str, part: str, row: Row, lines: list[str]) -> None:
         label = labelled.group(1) if labelled is not None else None
         if label == DATE_LABEL:
             value = labelled.group(2) if labelled is not None else ""
-            row.start_date = verbatim_date(value, ctx)
+            row.start_date = verbatim_date(value, ctx, DATE_FORMATS)
             continue
         if label == NOTES_LABEL:
             value = labelled.group(2) if labelled is not None else ""
@@ -371,7 +366,7 @@ def parse_ii_row(ctx: str, cells: list[Element]) -> Row:
     if not reason_lines:
         raise ParseError(f"{ctx}: empty reasons cell")
     row.reason = " ".join(reason_lines)
-    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx)
+    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx, DATE_FORMATS)
     return row
 
 
@@ -410,19 +405,6 @@ def parse_annex_ii(roman: str, block: Element) -> list[Row]:
     return rows
 
 
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for schema_name in {I_SCHEMA, *II_ENTRY_SCHEMAS.values()}:
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
-
-
 def parse_document(doc: Element) -> list[Row]:
     rows: list[Row] = []
     for roman, block in annex_blocks(doc, {"I", "II"} | NON_TARGET):
@@ -447,9 +429,8 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 2015/735 CELEX: {celex!r}")
+        check_registry(PROGRAM_KEY, [MEASURE], {I_SCHEMA, *II_ENTRY_SCHEMAS.values()})
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

@@ -31,7 +31,6 @@ YAML's `consolidation` lookup, updated in the same commit as the CSV.
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 import click
@@ -40,7 +39,9 @@ from common import (
     ParseError,
     Row,
     annex_blocks,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
     summary,
@@ -50,11 +51,9 @@ from common import (
 )
 from lxml import html
 from zavod.helpers.html import element_text
-from zavod.stateful.programs import get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32004R0314"
-CONSOLIDATED_RE = re.compile(r"^02004R0314-\d{8}$")
 PROGRAM_KEY = "EU-ZWE"
 
 # Every annex in the document, with its printed subtitle and the content
@@ -72,12 +71,6 @@ ANNEXES = {
         ("p", "norm"),
     ),
 }
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
 
 
 def check_annex(annex: str, block: Element) -> None:
@@ -127,9 +120,8 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 314/2004 CELEX: {celex!r}")
+        check_registry(PROGRAM_KEY, [], [])
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

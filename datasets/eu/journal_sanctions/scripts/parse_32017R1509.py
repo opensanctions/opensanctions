@@ -60,7 +60,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -71,24 +70,23 @@ from common import (
     annex_blocks,
     cell_line,
     cell_lines,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_dotted_date,
     summary,
     table_body,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32017R1509"
-CONSOLIDATED_RE = re.compile(r"^02017R1509-\d{8}$")
 PROGRAM_KEY = "EU-PRK"
 
 # Articles 34(1)-(4) are the fund freeze; Article 39(1)(g) prohibits port
@@ -430,26 +428,8 @@ ALIAS_LETTER_SPLIT_RE = re.compile(r"(?:^|;? )([a-z])\) ")
 IMAGE_SCRIPT_LABEL_RE = re.compile(r"^(?:Korean|Chinese) name: ?;?$")
 
 
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    for measure in (MEASURE_FREEZE, MEASURE_PORT):
-        if measure not in get_args(Measure):
-            raise ParseError(f"invalid measure {measure!r}")
-        if measure not in program.measures:
-            raise ParseError(f"measure {measure!r} not in {PROGRAM_KEY}")
-    for schema_name in ("Person", "LegalEntity", "Vessel"):
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
-
-
-def verbatim_date(text: str, ctx: str) -> str:
-    # Only the dotted form occurs in this document. The printed wording is
-    # kept; the recognizer only guards the shape.
-    if parse_dotted_date(text) is None:
-        raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return text
+# Only the dotted form occurs in this document.
+DATE_FORMATS = ("dotted",)
 
 
 def parse_date_cell(ctx: str, annex_part: str, record_id: str, td: Element) -> str:
@@ -460,7 +440,7 @@ def parse_date_cell(ctx: str, annex_part: str, record_id: str, td: Element) -> s
         raise ParseError(f"{ctx}: empty designation date")
     if len(lines) != 1:
         raise ParseError(f"{ctx}: {len(lines)} lines in date cell")
-    return verbatim_date(lines[0], ctx)
+    return verbatim_date(lines[0], ctx, DATE_FORMATS)
 
 
 def split_alias_line(ctx: str, line: str) -> list[str]:
@@ -768,7 +748,7 @@ def parse_vessel_subrow(
     row = Row(annex_part, "Vessel", MEASURE_FREEZE)
     row.add("name", [match.group(2)])
     row.add("imoNumber", [match.group(3)])
-    row.start_date = verbatim_date(texts[4], ctx)
+    row.start_date = verbatim_date(texts[4], ctx, DATE_FORMATS)
     return row
 
 
@@ -1009,9 +989,8 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 2017/1509 CELEX: {celex!r}")
+        check_registry(PROGRAM_KEY, [], ("Person", "LegalEntity", "Vessel"))
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

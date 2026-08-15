@@ -19,7 +19,6 @@ import json
 import re
 from collections.abc import Callable
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -34,27 +33,25 @@ from common import (
     bare_text,
     cell_line,
     cell_lines,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_dotted_date,
-    parse_worded_date,
     single_paragraph,
     split_values,
     summary,
     table_body,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32014R0833"
-CONSOLIDATED_RE = re.compile(r"^02014R0833-\d{8}$")
 PROGRAM_KEY = "EU-RUS"
 
 PART_RE = re.compile(r"^Part ([A-Z])(?: – .+)?$")
@@ -249,12 +246,11 @@ NON_TARGET = frozenset(
 )
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Only the dotted and full-month forms occur in this document. The printed
-    # wording is kept; the recognizers only guard the shape.
-    if parse_dotted_date(text) is None and parse_worded_date(text) is None:
-        raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return text
+# Only the dotted and full-month forms occur in this document.
+DATE_FORMATS = (
+    "dotted",
+    "worded",
+)
 
 
 def parse_record_id(text: str, ctx: str) -> str:
@@ -385,7 +381,7 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
         elif role == "name":
             row.add("name", [cell_line(td, ctx)])
         elif role == "startDate":
-            row.start_date = verbatim_date(cell_line(td, ctx), ctx)
+            row.start_date = verbatim_date(cell_line(td, ctx), ctx, DATE_FORMATS)
         elif role == "reason":
             # Grounds cells legitimately span paragraphs (XLII, XLVII).
             row.reason = " ".join(cell_lines(td, ctx))
@@ -520,22 +516,6 @@ FAMILIES: dict[str, Callable[[str, AnnexSpec, Element], list[Row]]] = {
 # --- assembly and CLI ------------------------------------------------------
 
 
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    for roman, spec in TARGETS.items():
-        if spec.measure not in get_args(Measure):
-            raise ParseError(f"{roman}: invalid measure {spec.measure!r}")
-        if spec.measure not in program.measures:
-            raise ParseError(f"{roman}: measure not in {PROGRAM_KEY}")
-        if spec.family not in FAMILIES:
-            raise ParseError(f"{roman}: unknown family {spec.family!r}")
-        schema = model.get(spec.schema)
-        if schema is None:
-            raise ParseError(f"{roman}: unknown schema {spec.schema!r}")
-
-
 def parse_document(doc: Element) -> list[Row]:
     rows: list[Row] = []
     known = set(TARGETS) | set(EXPECTED_EMPTY) | set(NON_TARGET)
@@ -553,6 +533,13 @@ def parse_document(doc: Element) -> list[Row]:
     return rows
 
 
+def check_families() -> None:
+    """Every target annex must name a reader this parser implements."""
+    for roman, spec in TARGETS.items():
+        if spec.family not in FAMILIES:
+            raise ParseError(f"{roman}: unknown family {spec.family!r}")
+
+
 @click.command(help="Parse consolidated Regulation 833/2014 into a CSV candidate.")
 @click.argument("celex")
 @click.option(
@@ -562,9 +549,13 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 833/2014 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY,
+            [spec.measure for spec in TARGETS.values()],
+            [spec.schema for spec in TARGETS.values()],
+        )
+        check_families()
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

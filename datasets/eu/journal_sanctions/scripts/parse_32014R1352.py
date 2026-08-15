@@ -44,7 +44,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -52,24 +51,22 @@ from common import (
     Row,
     annex_blocks,
     annex_id,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_abbrev_date,
-    parse_dotted_date,
     summary,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32014R1352"
-CONSOLIDATED_RE = re.compile(r"^02014R1352-\d{8}$")
 PROGRAM_KEY = "EU-YEM"
 # The regulation implements the Article 2 fund freeze; travel bans live in
 # Decision 2014/932/CFSP.
@@ -365,27 +362,12 @@ OTHER_INFO_OVERRIDES = {
 }
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Formats observed in this document: dotted dates ("25.2.2021") and UN
-    # abbreviated dates ("26 Sep. 2022"). The printed wording is kept; the
-    # recognizers only guard the shape.
-    for parse in (parse_dotted_date, parse_abbrev_date):
-        if parse(text) is not None:
-            return text
-    raise ParseError(f"{ctx}: unrecognized date {text!r}")
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for schema_name in {"Person"} | set(B_ENTRY_SCHEMAS.values()):
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
+# Formats observed in this document: dotted dates ("25.2.2021") and UN
+# abbreviated dates ("26 Sep. 2022").
+DATE_FORMATS = (
+    "dotted",
+    "abbrev",
+)
 
 
 def split_lettered(ctx: str, value: str) -> list[str]:
@@ -482,7 +464,7 @@ def set_start_date(ctx: str, raw: str, row: Row) -> None:
     if value.endswith("."):
         value = value[:-1].strip()
     value = AMENDED_RE.sub("", value).strip()
-    row.start_date = verbatim_date(value, ctx)
+    row.start_date = verbatim_date(value, ctx, DATE_FORMATS)
 
 
 def parse_field_blob(ctx: str, part: str, record_id: str, blob: str, row: Row) -> None:
@@ -704,9 +686,10 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 1352/2014 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY, [MEASURE], {"Person"} | set(B_ENTRY_SCHEMAS.values())
+        )
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

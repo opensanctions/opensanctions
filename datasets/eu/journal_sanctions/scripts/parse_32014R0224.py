@@ -32,7 +32,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -41,24 +40,22 @@ from common import (
     Row,
     annex_blocks,
     annex_id,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_abbrev_date,
-    parse_worded_date,
     summary,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32014R0224"
-CONSOLIDATED_RE = re.compile(r"^02014R0224-\d{8}$")
 PROGRAM_KEY = "EU-CAF"
 # Annex I implements the Article 5 fund freeze; travel bans live in
 # Decision 2013/798/CFSP.
@@ -133,14 +130,12 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
 }
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Formats observed in this document: worded dates ("9 May 2014") and UN
-    # abbreviated dates ("20 Aug. 2015"). The printed wording is kept; the
-    # recognizers only guard the shape.
-    for parse in (parse_worded_date, parse_abbrev_date):
-        if parse(text) is not None:
-            return text
-    raise ParseError(f"{ctx}: unrecognized date {text!r}")
+# Formats observed in this document: worded dates ("9 May 2014") and UN
+# abbreviated dates ("20 Aug. 2015").
+DATE_FORMATS = (
+    "worded",
+    "abbrev",
+)
 
 
 def split_plain_lettered(ctx: str, value: str) -> list[str]:
@@ -255,7 +250,7 @@ def parse_fields(ctx: str, part: str, row: Row, lines: list[str]) -> None:
             value = labelled.group(2) if labelled is not None else ""
             if (part, row.record_id) in DATE_PERIOD_PINS:
                 value = value.removesuffix(".")
-            row.start_date = verbatim_date(value, ctx)
+            row.start_date = verbatim_date(value, ctx, DATE_FORMATS)
             continue
         if label in NOTES_LABELS:
             value = labelled.group(2) if labelled is not None else ""
@@ -329,19 +324,6 @@ def parse_annex_i(roman: str, block: Element) -> list[Row]:
     return rows
 
 
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for _, _, schema_name in PARTS:
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
-
-
 def parse_document(doc: Element) -> list[Row]:
     rows: list[Row] = []
     for roman, block in annex_blocks(doc, {"I"} | NON_TARGET):
@@ -363,9 +345,10 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 224/2014 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY, [MEASURE], [schema_name for _, _, schema_name in PARTS]
+        )
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

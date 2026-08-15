@@ -49,7 +49,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -61,26 +60,24 @@ from common import (
     annex_id,
     cell_line,
     cell_lines,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_dotted_date,
-    parse_worded_date,
     split_values,
     summary,
     table_body,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32006R0765"
-CONSOLIDATED_RE = re.compile(r"^02006R0765-\d{8}$")
 PROGRAM_KEY = "EU-BLR"
 
 # Annex I implements the Article 2(1) fund freeze; travel bans live in
@@ -358,28 +355,11 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
 DATE_PERIOD_PINS = frozenset({("I.B", "28"), ("XXXIV", "")})
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Only the dotted and full-month forms occur in this document. The printed
-    # wording is kept; the recognizers only guard the shape.
-    if parse_dotted_date(text) is None and parse_worded_date(text) is None:
-        raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return text
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    specs = [(ANNEX_I_MEASURE, schema) for _, _, schema in ANNEX_I_PARTS]
-    specs += [(measure, schema) for schema, measure in NORM_LIST_TARGETS.values()]
-    specs += [(measure, schema) for schema, measure, _ in NAME_DATE_TARGETS.values()]
-    for measure, schema_name in specs:
-        if measure not in get_args(Measure):
-            raise ParseError(f"invalid measure {measure!r}")
-        if measure not in program.measures:
-            raise ParseError(f"measure {measure!r} not in {PROGRAM_KEY}")
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
+# Only the dotted and full-month forms occur in this document.
+DATE_FORMATS = (
+    "dotted",
+    "worded",
+)
 
 
 def apply_override(row: Row, mapped: tuple[tuple[str, str], ...]) -> None:
@@ -547,7 +527,7 @@ def parse_annex_i_row(roman: str, part: str, schema: str, tr: Element) -> Row:
     date_text = cell_line(cells[5], ctx)
     if (annex, record_id) in DATE_PERIOD_PINS:
         date_text = date_text.removesuffix(".")
-    row.start_date = verbatim_date(date_text, ctx)
+    row.start_date = verbatim_date(date_text, ctx, DATE_FORMATS)
     return row
 
 
@@ -655,7 +635,7 @@ def parse_name_date_table(
                 date_text = cell_line(cells[1], roman)
                 if (roman, "") in DATE_PERIOD_PINS:
                     date_text = date_text.removesuffix(".")
-                row.start_date = verbatim_date(date_text, roman)
+                row.start_date = verbatim_date(date_text, roman, DATE_FORMATS)
                 rows.append(row)
             continue
         raise ParseError(f"{roman}: unexpected <{child.tag} class={cls!r}>")
@@ -706,9 +686,20 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 765/2006 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY,
+            [
+                ANNEX_I_MEASURE,
+                *(measure for _, measure in NORM_LIST_TARGETS.values()),
+                *(measure for _, measure, _ in NAME_DATE_TARGETS.values()),
+            ],
+            [
+                *(schema for _, _, schema in ANNEX_I_PARTS),
+                *(schema for schema, _ in NORM_LIST_TARGETS.values()),
+                *(schema for schema, _, _ in NAME_DATE_TARGETS.values()),
+            ],
+        )
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

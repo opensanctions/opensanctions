@@ -34,7 +34,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -45,25 +44,24 @@ from common import (
     annex_blocks,
     cell_line,
     cell_lines,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_dotted_date,
     split_values,
     summary,
     table_body,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32017R1770"
-CONSOLIDATED_RE = re.compile(r"^02017R1770-\d{8}$")
 PROGRAM_KEY = "EU-MLI"
 # Annex Ia implements the regulation's Article 2b fund freeze; travel bans
 # live in Decision (CFSP) 2017/1775.
@@ -105,25 +103,8 @@ INFO_LABELS = {
 }
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Only the dotted form occurs in this document. The printed wording is
-    # kept; the recognizer only guards the shape.
-    if parse_dotted_date(text) is None:
-        raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return text
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for schema_name in set(ENTRY_SCHEMAS.values()):
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
+# Only the dotted form occurs in this document.
+DATE_FORMATS = ("dotted",)
 
 
 def parse_name(ctx: str, record_id: str, td: Element, row: Row) -> None:
@@ -166,7 +147,7 @@ def parse_row(annex: str, tr: Element) -> Row:
     if not reason_lines:
         raise ParseError(f"{ctx}: empty reasons cell")
     row.reason = " ".join(reason_lines)
-    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx)
+    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx, DATE_FORMATS)
     return row
 
 
@@ -221,9 +202,8 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 2017/1770 CELEX: {celex!r}")
+        check_registry(PROGRAM_KEY, [MEASURE], set(ENTRY_SCHEMAS.values()))
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

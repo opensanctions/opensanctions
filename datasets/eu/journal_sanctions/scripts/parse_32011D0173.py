@@ -25,14 +25,14 @@ YAML's `consolidation` lookup, updated in the same commit as the CSV.
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
     SKIP_P_CLASSES,
     ParseError,
+    check_consolidated_celex,
+    check_registry,
     clean,
     load_source,
     summary,
@@ -41,11 +41,9 @@ from common import (
 )
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32011D0173"
-CONSOLIDATED_RE = re.compile(r"^02011D0173-\d{8}$")
 PROGRAM_KEY = "EU-BOSNIA"
 # The decision's Article 2 fund freeze; the Article 1 travel ban would be a
 # second legal context per designation, but the annex has never listed one.
@@ -58,16 +56,6 @@ ANNEX_SUBTITLE = "List of natural and legal persons referred to in Articles 1 an
 # The never-used list body: one paragraph holding a single horizontal
 # ellipsis.
 PLACEHOLDER = "…"
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
 
 
 def annex_block(doc: Element) -> Element:
@@ -128,9 +116,8 @@ def parse_document(doc: Element) -> list[dict[str, str]]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 2011/173 CELEX: {celex!r}")
+        check_registry(PROGRAM_KEY, [MEASURE], [])
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         records = parse_document(doc)

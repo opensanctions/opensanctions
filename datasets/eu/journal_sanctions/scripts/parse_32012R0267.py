@@ -46,7 +46,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -56,25 +55,23 @@ from common import (
     ParseError,
     Row,
     annex_blocks,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_dotted_date,
-    parse_worded_date,
     split_values,
     summary,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32012R0267"
-CONSOLIDATED_RE = re.compile(r"^02012R0267-\d{8}$")
 PROGRAM_KEY = "EU-IRN"
 # Annexes VIII and IX implement the Article 23 fund freezes; travel bans
 # live in Decision 2010/413/CFSP.
@@ -416,25 +413,11 @@ IX_INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]]
 }
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Only the dotted and worded forms occur in this document. The printed
-    # wording is kept; the recognizers only guard the shape.
-    if parse_dotted_date(text) is None and parse_worded_date(text) is None:
-        raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return text
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    for schema_name in ("Person", "LegalEntity"):
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
+# Only the dotted and worded forms occur in this document.
+DATE_FORMATS = (
+    "dotted",
+    "worded",
+)
 
 
 # --- shared helpers ----------------------------------------------------------
@@ -534,7 +517,7 @@ def viii_start_date(ctx: str, row: Row, label: str, value: str) -> None:
     if match is not None:
         value = match.group(1)
     value = VIII_DATE_MISPRINTS.get(value, value)
-    row.start_date = verbatim_date(value, ctx)
+    row.start_date = verbatim_date(value, ctx, DATE_FORMATS)
 
 
 def viii_head(
@@ -1006,7 +989,7 @@ def parse_ix_table(annex: str, schema: str, table: Element) -> list[Row]:
             extra = f"{extra})"
         if extra and IX_HISTORY_RE.match(extra) is None:
             raise ParseError(f"{ctx}: unrecognized date line {extra!r}")
-        row.start_date = verbatim_date(date_match.group(1), ctx)
+        row.start_date = verbatim_date(date_match.group(1), ctx, DATE_FORMATS)
         rows.append(row)
     return rows
 
@@ -1108,9 +1091,8 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 267/2012 CELEX: {celex!r}")
+        check_registry(PROGRAM_KEY, [MEASURE], ("Person", "LegalEntity"))
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)

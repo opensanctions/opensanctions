@@ -41,7 +41,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import get_args
 
 import click
 from common import (
@@ -53,25 +52,24 @@ from common import (
     annex_id,
     cell_line,
     cell_lines,
+    check_consolidated_celex,
     check_marker,
+    check_registry,
     clean,
     load_source,
-    parse_dotted_date,
     split_values,
     summary,
     table_body,
     to_record,
     validate_records,
+    verbatim_date,
     write_csv,
 )
-from followthemoney import model
 from lxml import html
 from zavod.helpers.html import element_text, xpath_elements
-from zavod.stateful.programs import Measure, get_program_by_key
 from zavod.util import Element
 
 FRAMEWORK_CELEX = "32024R2642"
-CONSOLIDATED_RE = re.compile(r"^02024R2642-\d{8}$")
 PROGRAM_KEY = "EU-RUSDA"
 # Annex I implements the regulation's Article 2 fund freeze; travel bans
 # live in Decision (CFSP) 2024/2643.
@@ -222,26 +220,8 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
 }
 
 
-def verbatim_date(text: str, ctx: str) -> str:
-    # Only the dotted form occurs in this document. The printed wording is
-    # kept; the recognizer only guards the shape.
-    if parse_dotted_date(text) is None:
-        raise ParseError(f"{ctx}: unrecognized date {text!r}")
-    return text
-
-
-def check_registry() -> None:
-    program = get_program_by_key(PROGRAM_KEY)
-    if program is None:
-        raise ParseError(f"unknown program key {PROGRAM_KEY!r}")
-    if MEASURE not in get_args(Measure):
-        raise ParseError(f"invalid measure {MEASURE!r}")
-    if MEASURE not in program.measures:
-        raise ParseError(f"measure {MEASURE!r} not in {PROGRAM_KEY}")
-    schemata = [schema_name for _, _, _, schema_name in PARTS] + ["Company"]
-    for schema_name in schemata:
-        if model.get(schema_name) is None:
-            raise ParseError(f"unknown schema {schema_name!r}")
+# Only the dotted form occurs in this document.
+DATE_FORMATS = ("dotted",)
 
 
 def strip_list_suffix(text: str) -> str:
@@ -390,7 +370,7 @@ def parse_row(roman: str, part: str, schema: str, tr: Element) -> Row:
     parse_name(ctx, part, record_id, cells[1], row)
     parse_info(ctx, part, record_id, cells[2], row)
     row.reason = " ".join(cell_lines(cells[3], ctx))
-    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx)
+    row.start_date = verbatim_date(cell_line(cells[4], ctx), ctx, DATE_FORMATS)
     return row
 
 
@@ -504,9 +484,12 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry()
-        if CONSOLIDATED_RE.match(celex) is None:
-            raise ParseError(f"not a consolidated 2024/2642 CELEX: {celex!r}")
+        check_registry(
+            PROGRAM_KEY,
+            [MEASURE],
+            [schema_name for _, _, _, schema_name in PARTS] + ["Company"],
+        )
+        check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
         rows = parse_document(doc)
