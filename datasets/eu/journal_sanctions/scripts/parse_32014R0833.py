@@ -88,11 +88,13 @@ NAME_ALIAS_LABELS = frozenset(
 ID_LABELS = {
     "Address(es)": "address",
     "Address": "address",
+    "Addresses": "address",
     "Registration number": "registrationNumber",
     "Registration Number": "registrationNumber",
     "Website": "website",
     "Websites": "website",
     "Telephone": "phone",
+    "Telephone(s)": "phone",
     "Telephones": "phone",
     "Phone": "phone",
     "Email": "email",
