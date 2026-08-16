@@ -59,7 +59,27 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
   format: CSV
 dates:
-  formats: ["%d.%m.%Y", "%d %B %Y", "%Y-%m", "%d.%m.%Y’", "%d.%m.%Y'", "%d %B %Y’", "%B %Y"]
+  formats:
+    [
+      "%d.%m.%Y",
+      "%d %B %Y",
+      "%Y-%m",
+      "%d.%m.%Y’",
+      "%d.%m.%Y'",
+      "%d %B %Y’",
+      "%B %Y",
+      "%d %b. %Y",
+      "%d %b %Y",
+      "%d %b.%Y",
+      "%b. %Y",
+      "%b %Y",
+      "%B %d, %Y",
+      "%d.%m.%Y.",
+      "%d %B %Y.",
+      "%d.%m. %Y",
+      "%d.%m %Y",
+      "%d/%m/%Y",
+    ]
 
 names:
   schema_rules:
@@ -235,29 +255,891 @@ lookups:
       - match: Hamida Nabaggala
         value: Hamidah Nabagala
   type.date:
+    lowercase: true
     options:
-      - match: 3.1.2003 (founded in 1918)
-        value: 2003-01-03
-      - match: ", previously registered as southfront.org since 30.4.2015"
-        value: 2015-04-30
-      - match: "Approximately 1977"
-        value: 1977
-      - match: "Between Aug. and Sep. 1977"
+      - match:
+          - "(year unknown)"
+          - "10 october (year unknown)"
+          - "28 september"
+          - "approximately (29 years old)"
+          - "approximately (30-35 years old)"
+          - "leningrad, ussr (now st. petersburg, russian federation)"
+          - "n/d"
+          - "qom, iran"
+        value: null
+      - match: "1922 as bank and 2007 as development institute"
         values:
-          - 1977-08
-          - 1977-09
-      - match: "1960s-1970s"
+          - 1922
+          - 2007
+      - match: "approximately 1923"
+        value: 1923
+      - match: "1937 or 1938"
         values:
+          - 1937
+          - 1938
+      - match: "circa 1938"
+        value: 1938
+      - match: "between 1940 and 1941"
+        values:
+          - 1940
+          - 1941
+      - match:
+          - "approximately 1942"
+          - "circa 1942"
+        value: 1942
+      - match: "circa 1957 or 14 march 1942"
+        values:
+          - 1942-03-14
+          - 1957
+      - match: "(a) 17.8.1943, (b) 1943, (c) 1944"
+        values:
+          - 1943
+          - 1943-08-17
+          - 1944
+      - match:
+          - "(probably) 1944"
+          - "approximately 1944"
+          - "circa 1944"
+        value: 1944
+      - match: "approximately 1945-1950"
+        values:
+          - 1945
+          - 1950
+      - match: "circa 1946 or 1949 or 1960"
+        values:
+          - 1946
+          - 1949
           - 1960
-          - 1970
-      - match: "Between 1960 and 1975"
+      - match: "(a) 4.5.1948 (b) 4.5.1946"
         values:
+          - 1946-05-04
+          - 1948-05-04
+      - match:
+          - "ca. 1947"
+          - "middle of the 1940s (probably 1947)"
+        value: 1947
+      - match: "approximately 1948"
+        value: 1948
+      - match:
+          - "approximately 1952"
+          - "circa 1952"
+        value: 1952
+      - match: "(a) 1955, (b) circa 1952"
+        values:
+          - 1952
+          - 1955
+      - match: "9.11.1952 or 25.7.1952 or 25.7.1962"
+        values:
+          - 1952-07-25
+          - 1952-11-09
+          - 1962-07-25
+      - match: "7.10.1952 pob: leningrad (now saint-petersburg), ex-ussr (now russian federation)"
+        value: 1952-10-07
+      - match: "a) 1.1.1958, b) 31.12.1952, c) 28.10.1956"
+        values:
+          - 1952-12-31
+          - 1956-10-28
+          - 1958-01-01
+      - match: "approximately 1953"
+        value: 1953
+      - match: "between 1953 and 1958"
+        values:
+          - 1953
+          - 1958
+      - match: "28.9.1953 or 28.8.1953"
+        values:
+          - 1953-08-28
+          - 1953-09-28
+      - match: "circa 1954"
+        value: 1954
+      - match:
+          - "1954 or 1955"
+          - "1954 or 1955."
+          - "between 1954 and 1955"
+        values:
+          - 1954
+          - 1955
+      - match: "approximately 1955"
+        value: 1955
+      - match: "1955 or 1956"
+        values:
+          - 1955
+          - 1956
+      - match: "approximately 1955-1958"
+        values:
+          - 1955
+          - 1958
+      - match: "(a) 13.4.1964, (b) 13.4.1965, (c) 12.5.1964, (d) 1955"
+        values:
+          - 1955
+          - 1964-04-13
+          - 1964-05-12
+          - 1965-04-13
+      - match: "(a) 1.3.1965, (b) 1955"
+        values:
+          - 1955
+          - 1965-03-01
+      - match: "6.3.1955 or 15.3.1955"
+        values:
+          - 1955-03-06
+          - 1955-03-15
+      - match: "20.5.1972 or 30.5.1972 or 20.12.1955"
+        values:
+          - 1955-12-20
+          - 1972-05-20
+          - 1972-05-30
+      - match: "circa 1956"
+        value: 1956
+      - match: "between 1956 and 1957"
+        values:
+          - 1956
+          - 1957
+      - match: "(a) 30.7.1957 (b) 28.7.1957, (c) 10.3.1957, (d) 1.1.1957, (e) 1956, (f) 1957"
+        values:
+          - 1956
+          - 1957
+          - 1957-01-01
+          - 1957-03-10
+          - 1957-07-28
+          - 1957-07-30
+      - match: "1.3.1956 or 3.1.1956"
+        values:
+          - 1956-01-03
+          - 1956-03-01
+      - match: "20.6.1956 or 6.10.1956"
+        values:
+          - 1956-06-20
+          - 1956-10-06
+      - match: "(a) 7.7.1956, (b) 17.6.1963"
+        values:
+          - 1956-07-07
+          - 1963-06-17
+      - match:
+          - "approximately 1957"
+          - "circa 1957"
+        value: 1957
+      - match: "between 1957 and 1959"
+        values:
+          - 1957
+          - 1959
+      - match: "between 1957 and 1962"
+        values:
+          - 1957
+          - 1962
+      - match: "1957 or 1965"
+        values:
+          - 1957
+          - 1965
+      - match: "15.4.1957, 22.2.1958"
+        values:
+          - 1957-04-15
+          - 1958-02-22
+      - match: "(a) 25 april 1957, (b) 25 april 1967"
+        values:
+          - 1957-04-25
+          - 1967-04-25
+      - match: "(a) 17.8.1957, (b) 17.8.1958"
+        values:
+          - 1957-08-17
+          - 1958-08-17
+      - match:
+          - "approximately 1958"
+          - "circa 1958"
+        value: 1958
+      - match: "(a) 1.1.1958; (b) 1958"
+        values:
+          - 1958
+          - 1958-01-01
+      - match: "between 1958 and 1963"
+        values:
+          - 1958
+          - 1963
+      - match: "between 1958 and 1964"
+        values:
+          - 1958
+          - 1964
+      - match: "1959/1960"
+        values:
+          - 1959
           - 1960
-          - 1975
-      - match: "Between 1959 and 1965"
+      - match: "a) 20 feb. 1962; b) 1959"
+        values:
+          - 1959
+          - 1962-02-20
+      - match: "between 1959 and 1965"
         values:
           - 1959
           - 1965
+      - match:
+          - "1960s"
+          - "approximately 1960"
+        value: 1960
+      - match: "1960 or august 1961"
+        values:
+          - 1960
+          - 1961-08
+      - match: "between 1960 and 1962 (approximately)"
+        values:
+          - 1960
+          - 1962
+      - match:
+          - "1960s-1970s"
+          - "1960s-1970s (approx. 60 years old)"
+        values:
+          - 1960
+          - 1970
+      - match: "between 1960 and 1975"
+        values:
+          - 1960
+          - 1975
+      - match: "(a) 4.4.1969, (b) 4.4.1960, (c) 4.6.1960"
+        values:
+          - 1960-04-04
+          - 1960-06-04
+          - 1969-04-04
+      - match: "(i) 11.4.1963, (ii) 11.4.1960"
+        values:
+          - 1960-04-11
+          - 1963-04-11
+      - match: "(a) 1.3.1961, (b) 16.6.1960"
+        values:
+          - 1960-06-16
+          - 1961-03-01
+      - match: "(a) 30.12.1960, (b) 13.12.1960"
+        values:
+          - 1960-12-13
+          - 1960-12-30
+      - match: "29 december 1960 or 26 may 1962"
+        values:
+          - 1960-12-29
+          - 1962-05-26
+      - match:
+          - "1340 (iranian hijri calendar), 1961 (gregorian calendar)"
+          - "approximately 1961"
+        value: 1961
+      - match: "between 1.1.1961 and 31.12.1963"
+        values:
+          - 1961
+          - 1963
+      - match: "(a) approximately 1967, (b) approximately 1961, (c) approximately 1973"
+        values:
+          - 1961
+          - 1967
+          - 1973
+      - match: "4.5.1961 or 5.5.1961"
+        values:
+          - 1961-05-04
+          - 1961-05-05
+      - match: "(jul. 1961)"
+        value: 1961-07
+      - match: "(aug. 1961)"
+        value: 1961-08
+      - match:
+          - "approximately 1962"
+          - "circa 1962"
+        value: 1962
+      - match: "between 1962 and 1963 (approximately)"
+        values:
+          - 1962
+          - 1963
+      - match: "1962 or 1967"
+        values:
+          - 1962
+          - 1967
+      - match: "a) 1964 b) 28.8.1962"
+        values:
+          - 1962-08-28
+          - 1964
+      - match: "13.10.1962 or 9.6.1969"
+        values:
+          - 1962-10-13
+          - 1969-06-09
+      - match: "30.12.1965 or 19.12.1962"
+        values:
+          - 1962-12-19
+          - 1965-12-30
+      - match: "approximately 1963"
+        value: 1963
+      - match:
+          - "1963 or 1964"
+          - "1963/1964"
+        values:
+          - 1963
+          - 1964
+      - match: "between 1963 and 1968"
+        values:
+          - 1963
+          - 1968
+      - match: "19.1.1963 or 8.5.1966"
+        values:
+          - 1963-01-19
+          - 1966-05-08
+      - match: "(apr. 1963)"
+        value: 1963-04
+      - match: "1.1.1970 or 8.7.1963"
+        values:
+          - 1963-07-08
+          - 1970-01-01
+      - match: "20.8.1963 pob: tokmak, kirghiz ssr, former ussr (now kyrgyzstan) nationality: russian gender: male"
+        value: 1963-08-20
+      - match:
+          - "approximately 1964"
+          - "before 1964"
+        value: 1964
+      - match: "1964 (possibly: 21 april)"
+        values:
+          - 1964
+          - 1964-04-21
+      - match: "1343 (iranian hijri calendar), 1964 or 1965 (gregorian calendar)"
+        values:
+          - 1964
+          - 1965
+      - match: "(a) 1966, (b) 1964, (c) 1969, (d) 1971"
+        values:
+          - 1964
+          - 1966
+          - 1969
+          - 1971
+      - match: "1964 or 1967"
+        values:
+          - 1964
+          - 1967
+      - match: "(a) 1.1.1964, (b) 1.2.1964"
+        values:
+          - 1964-01-01
+          - 1964-02-01
+      - match: "1.1.1964 or 29.12.1968"
+        values:
+          - 1964-01-01
+          - 1968-12-29
+      - match: "14.4.1965 or 1.3.1964"
+        values:
+          - 1964-03-01
+          - 1965-04-14
+      - match: "20.11.2002 / 16.5.1964"
+        values:
+          - 1964-05-16
+          - 2002-11-20
+      - match: "24.6.1964 or 25.6.1964 or 26.6.1964"
+        values:
+          - 1964-06-24
+          - 1964-06-25
+          - 1964-06-26
+      - match: "(a) 25.6.1964, (b) 5.12.1969, (c) 12.5.1965"
+        values:
+          - 1964-06-25
+          - 1965-05-12
+          - 1969-12-05
+      - match: "21.11.1964 / 1965"
+        values:
+          - 1964-11-21
+          - 1965
+      - match:
+          - "approximately 1965"
+          - "circa 1965"
+        value: 1965
+      - match: "1965 or 1966"
+        values:
+          - 1965
+          - 1966
+      - match: "between 1965 and 1969"
+        values:
+          - 1965
+          - 1969
+      - match: "(a) 3.3.1965, (b) 1.1.1965, (c) 11.1.1965"
+        values:
+          - 1965-01-01
+          - 1965-01-11
+          - 1965-03-03
+      - match: "march/april 1965"
+        values:
+          - 1965-03
+          - 1965-04
+      - match: "march 1965 or 1966"
+        values:
+          - 1965-03
+          - 1966
+      - match: "18.1.1970 or 29.3.1965"
+        values:
+          - 1965-03-29
+          - 1970-01-18
+      - match: "7.8.1965 / 20.2.1972"
+        values:
+          - 1965-08-07
+          - 1972-02-20
+      - match: "1.1.1966 or 25.12.1965"
+        values:
+          - 1965-12-25
+          - 1966-01-01
+      - match: "approximately 1966"
+        value: 1966
+      - match:
+          - "1966 or 1967"
+          - "between 1966 and 1967 (approximately )"
+          - "between 1966 and 1967 (approximately)"
+        values:
+          - 1966
+          - 1967
+      - match: "(a) 18.3.1966, (b) 10.3.1967"
+        values:
+          - 1966-03-18
+          - 1967-03-10
+      - match:
+          - "approximately 1967"
+          - "circa 1967"
+        value: 1967
+      - match: "1967-1969."
+        values:
+          - 1967
+          - 1969
+      - match: "(a) 16.6.1967; (b) 1.1.1967"
+        values:
+          - 1967-01-01
+          - 1967-06-16
+      - match: "8.5.1967 gender: female"
+        value: 1967-05-08
+      - match: "approximately 1968"
+        value: 1968
+      - match: "between 1968 and 1970"
+        values:
+          - 1968
+          - 1970
+      - match: "between 1968 and 1973"
+        values:
+          - 1968
+          - 1973
+      - match: "(a) 1.1.1968, (b) 23.4.1968"
+        values:
+          - 1968-01-01
+          - 1968-04-23
+      - match: "march 1968/1969"
+        values:
+          - 1968-03
+          - 1969-03
+      - match: "(a) 18.12.1969, (b) 25.5.1968, (c) 18.12.1968, (d) 14.7.1969"
+        values:
+          - 1968-05-25
+          - 1968-12-18
+          - 1969-07-14
+          - 1969-12-18
+      - match: "a) 10.7.1968, b) 10.6.1968"
+        values:
+          - 1968-06-10
+          - 1968-07-10
+      - match: "approximately 1969"
+        value: 1969
+      - match: "between 1969 and 1971"
+        values:
+          - 1969
+          - 1971
+      - match: "a) 1.1.1969 b) approximately 1971"
+        values:
+          - 1969-01-01
+          - 1971
+      - match: "(a) 5.2.1970, (b) 5.2.1969"
+        values:
+          - 1969-02-05
+          - 1970-02-05
+      - match: "29.8.1969 or 1973"
+        values:
+          - 1969-08-29
+          - 1973
+      - match: "9.6.1971 or 28.9.1969"
+        values:
+          - 1969-09-28
+          - 1971-06-09
+      - match:
+          - "1970 circa"
+          - "approximately 1970"
+          - "around 1970"
+        value: 1970
+      - match: "between 1970 and 1973 (approximately)"
+        values:
+          - 1970
+          - 1973
+      - match: "a) 1975 b) 1970"
+        values:
+          - 1970
+          - 1975
+      - match: "(a) 14.3.1974, (b) 13.4.1974, (c) 14.4.1974, (d) 1.8.1970"
+        values:
+          - 1970-08-01
+          - 1974-03-14
+          - 1974-04-13
+          - 1974-04-14
+      - match: "(a) 21.4.1971, (b) 22.4.1971"
+        values:
+          - 1971-04-21
+          - 1971-04-22
+      - match: "(a) 26.9.1971, (b) 26.9.1977"
+        values:
+          - 1971-09-26
+          - 1977-09-26
+      - match: "(a) 4 dec. 1971 (b) 1977"
+        values:
+          - 1971-12-04
+          - 1977
+      - match:
+          - "approximately 1972"
+          - "circa 1972"
+        value: 1972
+      - match:
+          - "1352 (iranian hijri calendar), 1972 or 1973 (gregorian calendar)"
+          - "between 1972 and 1973"
+        values:
+          - 1972
+          - 1973
+      - match: "(a) 1972 (b) 21.3.1974"
+        values:
+          - 1972
+          - 1974-03-21
+      - match: "1972 or 1982"
+        values:
+          - 1972
+          - 1982
+      - match: "(a) 17.8.1972; (b) 1.1.1972"
+        values:
+          - 1972-01-01
+          - 1972-08-17
+      - match: "(a) 5.2.1981, (b) 1.1.1972"
+        values:
+          - 1972-01-01
+          - 1981-02-05
+      - match: "(a) 1.5.1972, (b) 16.9.1973"
+        values:
+          - 1972-05-01
+          - 1973-09-16
+      - match: "23.6.1972 (or 23.7.1972)"
+        values:
+          - 1972-06-23
+          - 1972-07-23
+      - match: "5.8.1972 or 15.8.1972"
+        values:
+          - 1972-08-05
+          - 1972-08-15
+      - match:
+          - "approximately 1973"
+          - "circa 1973"
+          - "probably 1973"
+        value: 1973
+      - match: "between 1973 and 1974"
+        values:
+          - 1973
+          - 1974
+      - match: "(a) 27.5.1979, (b) 1973 (othman ahmed othman al omairah)"
+        values:
+          - 1973
+          - 1979-05-27
+      - match: "(a) 15.1.1973; (b) 15.1.1974; (c) 31.3.1975"
+        values:
+          - 1973-01-15
+          - 1974-01-15
+          - 1975-03-31
+      - match: "(a) 5.1.1974 (b) 1977 (c) 1975 (d) 24.1.1973"
+        values:
+          - 1973-01-24
+          - 1974-01-05
+          - 1975
+          - 1977
+      - match: "on or around 3.4.1973"
+        value: 1973-04-03
+      - match:
+          - "approximately 1974"
+          - "circa 1974"
+        value: 1974
+      - match: "(a) 1974, (b) 1975"
+        values:
+          - 1974
+          - 1975
+      - match: "(a) 1974, (b) 1975, (c) 1979"
+        values:
+          - 1974
+          - 1975
+          - 1979
+      - match: "3.5.1977 (15.4.1974 for the alias mikhail stepanov)"
+        values:
+          - 1974-04-15
+          - 1977-05-03
+      - match: "(a) 16.11.1977, (b) 16.11.1974"
+        values:
+          - 1974-11-16
+          - 1977-11-16
+      - match: "approximately 1975"
+        value: 1975
+      - match: "(a) 14.5.1975, (b) approximately 1975"
+        values:
+          - 1975
+          - 1975-05-14
+      - match: "between 1975 and 1976"
+        values:
+          - 1975
+          - 1976
+      - match: "1975 to 1979"
+        values:
+          - 1975
+          - 1979
+      - match: "25.7.1978 (or 23.3.1975)"
+        values:
+          - 1975-03-23
+          - 1978-07-25
+      - match: "21.8.1976 or 21.8.1975"
+        values:
+          - 1975-08-21
+          - 1976-08-21
+      - match: "22.8.1978 or 4.12.1975"
+        values:
+          - 1975-12-04
+          - 1978-08-22
+      - match: "a) 1 jun. 1976; b) 1976"
+        values:
+          - 1976
+          - 1976-06-01
+      - match: "1976 or 1977"
+        values:
+          - 1976
+          - 1977
+      - match: "(a) 5.10.1976, (b) 1.10.1976, (c) 6.1.1976"
+        values:
+          - 1976-01-06
+          - 1976-10-01
+          - 1976-10-05
+      - match: "18.10.1976, 25.8.1976"
+        values:
+          - 1976-08-25
+          - 1976-10-18
+      - match: "approximately 1977"
+        value: 1977
+      - match: "between 1977 and 1978 (approximately)"
+        values:
+          - 1977
+          - 1978
+      - match: "between 1977 and 1982"
+        values:
+          - 1977
+          - 1982
+      - match: "between aug. and sep. 1977"
+        values:
+          - 1977-08
+          - 1977-09
+      - match: "(a) 21.10.1977; (b) 21.11.1977"
+        values:
+          - 1977-10-21
+          - 1977-11-21
+      - match: "1978 or 1984"
+        values:
+          - 1978
+          - 1984
+      - match:
+          - "approximately 1979"
+          - "circa 1979"
+        value: 1979
+      - match: "1979, 1980 or 1981"
+        values:
+          - 1979
+          - 1980
+          - 1981
+      - match: "(a) 28.5.1984, (b) 3.12.1979, (c) 3.3.1979, (d) 8.8.1980"
+        values:
+          - 1979-03-03
+          - 1979-12-03
+          - 1980-08-08
+          - 1984-05-28
+      - match: "7.4.1980 or 7.4.1979"
+        values:
+          - 1979-04-07
+          - 1980-04-07
+      - match:
+          - "1980 (presumed)"
+          - "approximately 1980"
+        value: 1980
+      - match: "1980 or 1983"
+        values:
+          - 1980
+          - 1983
+      - match: "1980-1990"
+        values:
+          - 1980
+          - 1990
+      - match: "(a) 1.10.1983; (b) 15.3.1983; (c) 1.1.1980"
+        values:
+          - 1980-01-01
+          - 1983-03-15
+          - 1983-10-01
+      - match: "11.7.1982 or 3.1.1980"
+        values:
+          - 1980-01-03
+          - 1982-07-11
+      - match: "19 december 1980 or 19 january 1980"
+        values:
+          - 1980-01-19
+          - 1980-12-19
+      - match: "28.4.1980 or 28.4.1981"
+        values:
+          - 1980-04-28
+          - 1981-04-28
+      - match: "6.12.1980 (6.6.1980 for alias oleg tarasov)"
+        values:
+          - 1980-06-06
+          - 1980-12-06
+      - match: "16.6.1981 or 16.6.1980"
+        values:
+          - 1980-06-16
+          - 1981-06-16
+      - match: "approximately 1981"
+        value: 1981
+      - match: "1981 to 1983"
+        values:
+          - 1981
+          - 1983
+      - match: "9.6.1981 or 1982"
+        values:
+          - 1981-06-09
+          - 1982
+      - match: "possibly 23.7.1981"
+        value: 1981-07-23
+      - match: "19.9.1981 or 29.9.1981"
+        values:
+          - 1981-09-19
+          - 1981-09-29
+      - match: "1.10.1981 or 11.11.1981"
+        values:
+          - 1981-10-01
+          - 1981-11-11
+      - match: "(a) 11.1.1986; (b) 1982"
+        values:
+          - 1982
+          - 1986-01-11
+      - match: "(a) 19.4.1982, (b) 18.4.1982, (c) 24.6.1402 (hijri calendar)"
+        values:
+          - 1982-04-18
+          - 1982-04-19
+      - match: "29.9.1982 or 23.9.1982"
+        values:
+          - 1982-09-23
+          - 1982-09-29
+      - match: "10.2.1983 (or 10.3.1983)"
+        values:
+          - 1983-02-10
+          - 1983-03-10
+      - match: "5.7.1983 or 10.3.1983"
+        values:
+          - 1983-03-10
+          - 1983-07-05
+      - match: "1984 or 1985"
+        values:
+          - 1984
+          - 1985
+      - match: "between 1984 and 1986"
+        values:
+          - 1984
+          - 1986
+      - match: "approximately 1985"
+        value: 1985
+      - match: "1987-1988"
+        values:
+          - 1987
+          - 1988
+      - match: "around 1988"
+        value: 1988
+      - match: "(a) 22.9.1988, (b) 22.9.1989"
+        values:
+          - 1988-09-22
+          - 1989-09-22
+      - match: "(a) 28.10.1994; (b) 24.5.1990"
+        values:
+          - 1990-05-24
+          - 1994-10-28
+      - match: "2.7.1990 (incorporation date 30.7.2002)"
+        values:
+          - 1990-07-02
+          - 2002-07-30
+      - match: "5.9.1990 (singapore)"
+        value: 1990-09-05
+      - match: "24.4.1991 as \u2018\u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019"
+        value: 1991-04-24
+      - match: "6.7.1993 or 6.7.1991"
+        values:
+          - 1991-07-06
+          - 1993-07-06
+      - match: "22.7.1992 (ukraine), 13.8.2014 (russian federation)"
+        values:
+          - 1992-07-22
+          - 2014-08-13
+      - match: "24.3.1993, 31.12.2002"
+        values:
+          - 1993-03-24
+          - 2002-12-31
+      - match: "12.4.1993 (incorporation date 11.9.2002)"
+        values:
+          - 1993-04-12
+          - 2002-09-11
+      - match: "10.11.1993 (incorporation date 12.9.2002)"
+        values:
+          - 1993-11-10
+          - 2002-09-12
+      - match: "1.2.1994/6.3.2000"
+        values:
+          - 1994-02-01
+          - 2000-03-06
+      - match: "6.5.1994 (incorporation date: 18.7.2002)"
+        values:
+          - 1994-05-06
+          - 2002-07-18
+      - match: "31.8.1995, 7.9.2002"
+        values:
+          - 1995-08-31
+          - 2002-09-07
+      - match: "11.9.1996 as \u2018\u0433\u043e\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0435 \u043f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0435 \u2013 \u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019"
+        value: 1996-09-11
+      - match: "founded in 1997 as a state owned company, registered as a private company on 9 january 2019"
+        values:
+          - 1997
+          - 2019-01-09
+      - match: "1.12.1997 as \u2018\u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019"
+        value: 1997-12-01
+      - match: "7.7.1998 (previous entity), 27.11.2002"
+        values:
+          - 1998-07-07
+          - 2002-11-27
+      - match: "1999 (privatised 2009)"
+        value: 1999
+      - match: "3.11.1999 as \u2018\u0440\u0435\u0441\u043f\u0443\u0431\u043b\u0438\u043a\u0430\u043d\u0441\u043a\u043e\u0435 \u0443\u043d\u0438\u0442\u0430\u0440\u043d\u043e\u0435 \u043f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0435 \u2018\u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019\u2019"
+        value: 1999-11-03
+      - match: "established 2001"
+        value: 2001
+      - match: "1.11.2001, 20.9.2002"
+        values:
+          - 2001-11-01
+          - 2002-09-20
+      - match: "12.6.2002 by federal law no. 67-fz"
+        value: 2002-06-12
+      - match: "3.1.2003 (founded in 1918)"
+        value: 2003-01-03
+      - match: "2007 or 2008"
+        values:
+          - 2007
+          - 2008
+      - match: "established 2009"
+        value: 2009
+      - match: "1.1.2012 as \u2018\u043e\u0442\u043a\u0440\u044b\u0442\u043e\u0435 \u0430\u043a\u0446\u0438\u043e\u043d\u0435\u0440\u043d\u043e\u0435 \u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e \u2018\u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019\u2019"
+        value: 2012-01-01
+      - match: ", previously registered as southfront.org since 30.4.2015"
+        value: 2015-04-30
+      - match: "18.8.2023, previously registered as southfront.org since 30.4.2015"
+        values:
+          - 2015-04-30
+          - 2023-08-18
+      - match: "26.12.2016/3.4.2017"
+        values:
+          - 2016-12-26
+          - 2017-04-03
+      - match: "11 sept. 2018"
+        value: 2018-09-11
+      - match: "20.5.2019 (registered as a small and medium-sized enterprise)"
+        value: 2019-05-20
+      - match: "10.7.2023 (registered as a small enterprise)"
+        value: 2023-07-10
+
   type.identifier:
     options:
       - match:
@@ -274,7 +1156,411 @@ lookups:
           - 13185231
           - 07500548
         prop: registrationNumber
+      - match: "M307707 (Tunisian passport issued on 12.4.2000 which expired on 11.4.2005)"
+        value: "M307707"
+      - match: "E590976 (Tunisian passport issued on 19.6.1987 which expired on 18.6.1992)"
+        value: "E590976"
+      - match: "G737411 (Tunisian passport issued on 24.10.1990, expired on 20.9.1997)"
+        value: "G737411"
+      - match: "L335915 (Tunisian passport issued in Milan, Italy on 8.11.1996, expired on 7.11.2001)"
+        value: "L335915"
+      - match: "M174950 (Tunisian passport issued on 27.4.1999, expired on 26.4.2004)"
+        value: "M174950"
+      - match: "P229856 (Tunisian passport issued on 1.11.2002, expired on 31.10.2007)"
+        value: "P229856"
+      - match: "L723315 (Tunisian passport issued on 5.5.1998, expired on 4.5.2003)"
+        value: "L723315"
+      - match: "L851940 (Tunisian passport issued on 9.9.1998, expired on 8.9.2003)"
+        value: "L851940"
+      - match: "P182583 (Tunisian passport issued on 13.9.2003, expired on 12.9.2007)"
+        value: "P182583"
+      - match: "M788439 (Tunisian passport issued on 20.10.2001, expired on 19.10.2006)"
+        value: "M788439"
+      - match: "W342058 (Tunisian passport, issued on 14.3.2011, expires on 13.3.2016)"
+        value: "W342058"
+      - match: "Z050399 (Tunisian passport, issued on 9.12.2003, expired on 8.12.2008)"
+        value: "Z050399"
+      - match: "08705184 (Tunisian National Identity Card number, issued on 24.2.2011)"
+        value: "08705184"
+      - match: "04711809 (Tunisian National Identity Card number, issued on 13.11.2003)"
+        value: "04711809"
+      - match: "Tunisia National Identification Card 05054425, issued on 3.5.2011 (issued in Hammam Lif)"
+        value: "05054425"
+      - match: "849594 (Kuwaiti passport issued on 27.11.1998 in Kuwait, expired on 24.6.2003)"
+        value: "849594"
+      - match: "1739010 (Kuwaiti passport issued on 26.5.2003 in Kuwait, expired on 25.5.2008.)"
+        value: "1739010"
+      - match: "281020505755 (Kuwait Civil Identification number under the name Said Jan ‘Abd al-Salam)"
+        value: "281020505755"
+      - match: "541939 (Yemeni passport issued in Al-Hudaydah, Yemen, issued on 31.7.2000 in the name of Muhammad Muhammad Abdullah Al-Ahdal)"
+        value: "541939"
+      - match: "Yemen passport number 00344994, issued on 3 Jul. 1999, issued in Sanaa"
+        value: "00344994"
+      - match: "Yemeni national identification number 973406, issued on 3 Jul. 1996"
+        value: "973406"
+      - match: "Yemen number 05274639, issued on 7.10.2013 (Expiration date: 7.10.2019)"
+        value: "05274639"
+      - match: "Yemen number 00481779, issued on 9.12.2000 (Expiration date: 9.12.2006)"
+        value: "00481779"
+      - match: "E126785 (Saudi Arabian passport, issued on 27.5.2002, expired on 3.4.2007)"
+        value: "E126785"
+      - match: "F654645 (Saudi Arabian passport number, issued on 30.4.2005, expired on 7.3.2010, issue date in Hijri Calendar 24.06.1426, expiry date in Hijri Calendar 21.03.1431)"
+        value: "F654645"
+      - match: "Saudi Arabian alien registration number 2054275397, issued on 22.7.1998"
+        value: "2054275397"
+      - match: "1005552350 (German passport issued on 27.3.2001 by Municipality of Kiel, Germany, expired on 26.3.2011)"
+        value: "1005552350"
+      - match: "1007850441 (German federal identity card issued on 27.3.2001 by Municipality of Kiel, Germany, expired on 26.3.2011)"
+        value: "1007850441"
+      - match: "5208323009 (German passport issued in Stadt Bonn, Germany on 2.2.2007, expires on 1.2.2012)"
+        value: "5208323009"
+      - match: "5209530116 (German national identity card issued in Stadt Bonn, Germany on 21.6.2006, expired on 20.6.2011)"
+        value: "5209530116"
+      - match: "5204893014 (German passport number issued in Stadt Bonn, Germany on 5.10.2000, expired on 5.10.2005)"
+        value: "5204893014"
+      - match: "5209445304 (German national identity card issued in Stadt Bonn, Germany on 5.9.2005, expired on 4.9.2010)"
+        value: "5209445304"
+      - match: "5802098444 (German national identity card number, issued in Bonn, Germany on 15.4.2010, expired on 14.4.2016)"
+        value: "5802098444"
+      - match: "German travel document (‘Reiseausweis’) A 0139243 (revoked as at Sep. 2012)"
+        value: "A 0139243"
+      - match: "TR-P 614166 (Turkish passport issued by the Turkish Consulate General in Frankfurt/Main on 22.3.2006, expired on 15.9.2009)"
+        value: "TR-P 614166"
+      - match: "A31142734 (Malaysian number, issued on 6.11.2013 by the Immigration Department of Malaysia, expiration date 6.11.2015)"
+        value: "A31142734"
+      - match: "660603-05-5267 (Malaysia National Identification Card issued by National Registration Department of Malaysia; issued to Mohd Rafi bin Udin)"
+        value: "660603-05-5267"
+      - match: "T710219 (Indonesia, issued in Sukoharjo, Central Java, Indonesia)"
+        value: "T710219"
+      - match: "Indonesian passport number W344982 (issued under name Angga Dimas Peshada)"
+        value: "W344982"
+      - match: "Indonesian passport number A2823222 (issued 28.5.2012, expires 28.5.2017 under name Wiji Joko Santoso)"
+        value: "A2823222"
+      - match: "DG5149481 (passport issued on 22.8.2006, expired on 21.8.2011, passport booklet number A2815665)"
+        value: "DG5149481"
+      - match: "CV9157521 (Pakistani passport issued on 8.9.2008, expires on 7.9.2013)"
+        value: "CV9157521"
+      - match: "BP4199631 (Pakistan passport, expires on 25 June 2014, officially cancelled as of 2013)"
+        value: "BP4199631"
+      - match: "Pakistani passport number FA0157612, issued on 23 July 2009, expires on 22 July 2014, officially cancelled as of 2013, issued under name Allah Muhammad"
+        value: "FA0157612"
+      - match: "Pakistani passport number NC5140251 issued on 23 October 2009 expires on 22 October 2014, officially cancelled as of 2013"
+        value: "NC5140251"
+      - match: "Pakistani national identification number 54201-247561-5, officially cancelled as of 2013"
+        value: "54201-247561-5"
+      - match: "Pakistan National Identification number 5440005229635, officially cancelled as of 2013"
+        value: "5440005229635"
+      - match: "Pakistani national identity card number 54401-2288025-9, officially cancelled as of 2013"
+        value: "54401-2288025-9"
+      - match: "Pakistani 5430312277059 (fraudulently obtained and since cancelled by the Government of Pakistan)"
+        value: "5430312277059"
+      - match: "A1037434 (Malian passport issued on 10.8.2001, expired on 31.12.2014)"
+        value: "A1037434"
+      - match: "France national identity card 070275Q007873, issued on 16.2.2007 (valid until 15.2.2017)"
+        value: "070275Q007873"
+      - match: "France number 12CP63882.3FRA, issued on 31.7.2012 (valid until 30.7.2022)"
+        value: "12CP63882.3FRA"
+      - match: "(a) 101127200129 (French national identity card issued by the Sous-Préfecture of Bernay, France and expires 4.11.2020)"
+        value: "101127200129"
+      - match: "720134834 (British passport issued on 27.6.2012, expires on 27.6.2022)"
+        value: "720134834"
+      - match: "210804241 (British passport issued on 27.7.2010, expires on 27 Jul. 2020)"
+        value: "210804241"
+      - match: "205939411 (British passport issued on 21.7.2004, expired on 21.4.2015)"
+        value: "205939411"
+      - match: "519408086 (British passport issued on 23.9.2013, expires on 23.9.2023)"
+        value: "519408086"
+      - match: "516088643 (British passport issued on 7.1.2014, expires on 7.1.2024)"
+        value: "516088643"
+      - match: "516384722 (UK Passport issued by Passport Office Glasgow on 6.5.2013, expires on 6.6.2023)"
+        value: "516384722"
+      - match: "801121547 (British, issued on 16.6.2009 by UK Passport Office with expiry date of 16.6.2019, cancelled in December 2014)"
+        value: "801121547"
+      - match: "515458008 (Russian foreign travel passport number, expires 30.5.2017)"
+        value: "515458008"
+      - match: "514448632 (Russian foreign travel passport number issued on 8.9.2010 in Alexandria, Egypt by Consulate General of the Russian Federation)"
+        value: "514448632"
+      - match: "9103314932 (Russian national passport number issued on 15.8.2003 by Department of the Federal Migration Service of the Russian Federation for the Republic Karachayevo-Cherkessia)"
+        value: "9103314932"
+      - match: "9600133195 (Russian national passport number issued in Vedensiky District, Republic of Chechnya, Russian Federation by Department of Internal Affairs)"
+        value: "9600133195"
+      - match: "1200075689 (Russian national passport number issued on 15 Dec. 2000 by Russian Federation)"
+        value: "1200075689"
+      - match: "Passport of the Russian Federation no. 3914857478, issued 20.4.2015"
+        value: "3914857478"
+      - match: "01503093 (Afhgan passport, issued on 25.8.2016 in Kabul, Afghanistan and expired on 25.8.2021)"
+        value: "01503093"
+      - match: "SE-011697 (Afghan passport number issued on 25 Jan. 1988 in Kabul, expired on 23 Feb. 2000)"
+        value: "SE-011697"
+      - match: "Afghanistan number OR1961825, issued on 4 Feb. 2003 (expired 2 Feb. 2006, under the name of Akhter Mohmad)"
+        value: "OR1961825"
+      - match: "Afghanistan number TR024417, issued on 20 Dec. 2003 (expired 29 Dec. 2006 under the name of Haji Gulab Gul)"
+        value: "TR024417"
+      - match: "Afghan national identification card (tazkira) number 545167, issued in 1974"
+        value: "545167"
+      - match: "Afghan national identification card (tazkira) number 57388 issued in Lashkar Gah District, Helmand Province, Afghanistan"
+        value: "57388"
+      - match: "Residential card number 665, Ayno Maina, Kandahar Province, Afghanistan"
+        value: "665"
+      - match: "Iraqi passport No. 284158 (expires 21.8.2005; name: Ali Thafir Abdallah; date of birth: 1970; place of birth: Baghdad, Iraq)"
+        value: "284158"
+      - match: "Iraqi passport No. 2863795S (expires 23.8.2005; name: Umar Ahmad Ali Al-Alusi; date of birth: 1970; place of birth: Baghdad, Iraq)"
+        value: "2863795S"
+      - match: "Iraqi passport No. 284173 (expires 21.8.2005; name: Muhammad Da’ud Salman; date of birth: 1977; place of birth: Baghdad, Iraq)"
+        value: "284173"
+      - match: "Iraq number A4059346, issued on29.5.2013, issued in Baghdad, Iraq (expires on 27.5.2021)"
+        value: "A4059346"
+      - match: "Iraq number A6489694, issued on 2 Sep. 2013 (expires on 31 Aug. 2021); name in Arabic script: ال محمد مصطفى سالم منصور"
+        value: "A6489694"
+      - match: "Iran (Islamic Republic of) 0035-11785, issued in Iran (Islamic Republic of)"
+        value: "0035-11785"
+      - match: "108120258 (issued by the DPRK on 14.2.2018; expiration date 14.2.2023)"
+        value: "108120258"
+      - match: "D00002264, issued on 11 June 2013 (issued by the Minister of Foreign Affairs, in Juba, South Sudan. Expires on 11 June 2017. Diplomatic passport issued under name Samuel Peter Mudde)"
+        value: "D00002264"
+      - match: "no: P04838205, issued on 10 June 2018, (issued in Bahri, Sudan. Expires on 9 June 2023. Passport issued under the name of Mohamed Adam Brema Abdallah)"
+        value: "P04838205"
+      - match: "CAR diplomatic passport No D00000898, issued on 11 April 2013 (valid until 10 April 2018)"
+        value: "D00000898"
+      - match: "CAR diplomatic passport no. D00000897, issued on 5 Apr. 2013 (valid until 4 April 2018)"
+        value: "D00000897"
+      - match: "CAR diplomatic passport no. D00004262, issued on 11 March 2014 (expires on 10 March 2019)"
+        value: "D00004262"
+      - match: "CAR diplomatic passport no. 06FBO2262, issued on 22 February 2007 (expired on 21 February 2012)"
+        value: "06FBO2262"
+      - match: "Central African Republic number O00065772 (letter O followed by 3 zeros), expires 30 December 2019)"
+        value: "O00065772"
+      - match: "Central African Republic armed forces (FACA) military identification number 911-10-77."
+        value: "FACA 911-10-77"
+      - match: "Laissez-passer No N°235/MISPAT/DIRCAB/DGPC/DGAEI/SI/SP, issued on 15 March 2019 (issued by the Minister of Interior of the Central African Republic )"
+        value: "N°235/MISPAT/DIRCAB/DGPC/DGAEI/SI/SP"
+      - match: "Chad national identity card no. 103-00653129-22, issued on 21 Apr. 2009 (expires on 21 April 2019)"
+        value: "103-00653129-22"
+      - match: "Congo service passport number SA0020249 , issued on 22 January 2019 (expires on 21 January 2022)"
+        value: "SA0020249"
+      - match: "Diplomatic Passport D014433, issued on 21 Feb. 2013 (Expired on 21 Feb. 2015)"
+        value: "D014433"
+      - match: "Diplomatic Passport D009889, issued on 17 Feb. 2011 (Expired on 17 Feb. 2013)"
+        value: "D009889"
+      - match: "Libya number FK117RK0, issued on 25 Nov. 2018, issued in Tripoli (Date of expiration: 24 Nov 2026)"
+        value: "FK117RK0"
+      - match: "Libya number AA862825, issued on 19 May 2021, issued in Tripoli (expires 18 May 2029)"
+        value: "AA862825"
+      - match: "Libya number LY53FP76; issued on 29 September 2015; issued in Tripoli"
+        value: "LY53FP76"
+      - match: "N 011612445, issue no. 002-17-L022286 (place of issue: Syrian Arab Republic)"
+        value: "N 011612445"
+      - match: "11996849 (United Arab Emirates, National Economic Register Number (CBLS))"
+        value: "11996849"
+      - match: "Series 1502 No 746336, issued 22.8.2002 by the Department of Internal Affairs in Sovietskiy District of Bryansk"
+        value: "1502 746336"
+      - match: "series 4507 No 336855, issued on 20.8.2004 by the centre of internal affairs in Moscow (Sokolniki District)"
+        value: "4507 336855"
+      - match: "series 6103 No 814361, issued on 8.4.2003 by the Railway District Department of Internal Affairs"
+        value: "6103 814361"
+      - match: "Russian passport number 8208 No. 555627, issued by Leninskiy Office, Directorate of the Federal Migration Service of the Russian Federation for the Republic of Dagestan"
+        value: "8208 555627"
+      - match: "Russian passport no. 55 0314316, valid from 6.12.2019 until 6.12.2029"
+        value: "55 0314316"
+      - match: "(a) Voter ID 73320881AG1191MAM20000, (b) Student ID 200801087, (c) Other ID 140000900032"
+        values:
+          - "73320881AG1191MAM20000"
+          - "200801087"
+          - "140000900032"
+      - match: "(a) Philippines number EC6530802 (expires 19.1.2021), (b) Philippines number EB2778599"
+        values:
+          - "EC6530802"
+          - "EB2778599"
+      - match: "(a) Philippines number XX3966391 (issued on 25.2.2015 by the Department of Foreign Affairs of Philippines, expiration date 24.2.2020), (b) Philippines number EC3524065"
+        values:
+          - "XX3966391"
+          - "EC3524065"
+      - match: "(a) 27082171 (United States of America (Issued on 21 June 1992 in Amman, Jordan)) (b) MO887925 (Iraq)"
+        values:
+          - "27082171"
+          - "MO887925"
+      - match: "(a) M408665 (Tunisian passport number issued on 4.10.2000, expired 3.10.2005), (b) W334061 (Tunisian national identity number issued on 9.3.2011), (c) BNSDLA70L14Z352B (Italian Fiscal Code)"
+        values:
+          - "M408665"
+          - "W334061"
+          - "BNSDLA70L14Z352B"
+      - match: "(a) 203037 (Libyan passport issued in Tripoli, Libya), (b) 347834 (Libyan passport issued under name Ibrahim Ali Tantoush, expired on 21.2.2014)"
+        values:
+          - "203037"
+          - "347834"
+      - match: "(a) L 191609 (Tunisian passport number issued on 28.2.1996, expired on 27.2.2001), (b) 04643632 (Tunisian passport number issued on 18 June 1999), (c) DAOMMD74T11Z352Z (Italian Fiscal Code)"
+        values:
+          - "L 191609"
+          - "04643632"
+          - "DAOMMD74T11Z352Z"
+      - match: "(a) Provisional German passport No 28642163 issued by the City of Hamburg (b) Expired Moroccan passport No 954242 issued on 28.6.1995 in Meknas, Morocco"
+        values:
+          - "28642163"
+          - "954242"
+      - match: "(a) M 271351 (Moroccan passport issued on 24.10.2000 by the Embassy of Morocco in Berlin); (b) K-348486 (Moroccan passport)"
+        values:
+          - "M 271351"
+          - "K-348486"
+      - match: "(a) E-189935 (Moroccan National Identity number); (b) G-0343089 (Moroccan National Identity Card)"
+        values:
+          - "E-189935"
+          - "G-0343089"
+      - match: "K929139 (Tunisian passport number issued on 14.2.1995, expired on 13.2.2000), (b) 00319547 (Tunisian passport number issued on 8.12.1994), (c) SSDSBN68B10Z352F (Italian Fiscal Code)"
+        values:
+          - "K929139"
+          - "00319547"
+          - "SSDSBN68B10Z352F"
+      - match: "(a) 665334 (Pakistani passport issued in Kuwait), (b) 917739 (Pakistani passport issued in Pakistan on 8.9.1991, expired on 7.8.1996)"
+        values:
+          - "665334"
+          - "917739"
+      - match: "(a) A-333602 (Indian passport issued on 4.6.1985 in Bombay, India), (b) M110522 (Indian passport issued on 13.11.1978 in Bombay, India), (c) R841697 (Indian passport issued on 26.11.1981 in Bombay), (d) F823692 (JEDDAH) (Indian passport issued by CGI in Jeddah, on 2.9.1989), (e) A501801 (BOMBAY) (Indian passport issued on 26.7.1985), (f) K560098 (BOMBAY) (Indian passport issued on 30.7.1975), (g) V57865 (BOMBAY) (issued on 3.10.1983), (h) P537849 (BOMBAY) (issued on 30.7.1979), (i) A717288 (MISUSE) (issued on 18.8.1985 in Dubai, (j) G866537 (MISUSE) (Pakistani passport issued on 12.8.1991 in Rawalpindi), (k) C-267185 (issued in Karachi in July 1996), (l) H-123259 (issued in Rawalpindi in July 2001), (m) G-869537 (issued in Rawalpindi), (n) KC-285901)"
+        values:
+          - "A-333602"
+          - "M110522"
+          - "R841697"
+          - "F823692"
+          - "A501801"
+          - "K560098"
+          - "V57865"
+          - "P537849"
+          - "A717288"
+          - "G866537"
+          - "C-267185"
+          - "H-123259"
+          - "G-869537"
+          - "KC-285901"
+      - match: "(a) Kuwait number 106261543 (b) Kuwait number 1420529, issued in Kuwait"
+        values:
+          - "106261543"
+          - "1420529"
+      - match: "(a) 101423404, (b) 2541451 (Kuwaiti passport which expires on 16.2.2017), (c) 002327881 (Kuwaiti passport)"
+        values:
+          - "101423404"
+          - "2541451"
+          - "002327881"
+      - match: "(a) 101856740 (Kuwaiti passport issued on 12.5.2005, expired on 11.5.2007), (b) 002955916 (Kuwaiti passport)"
+        values:
+          - "101856740"
+          - "002955916"
+      - match: "(a) 001714467 (Kuwaiti passport number); (b) 101505554 (Kuwaiti passport number)"
+        values:
+          - "001714467"
+          - "101505554"
+      - match: "(a) MM611523 (Filipino passport, 2004); (b) EE947317 (Filipino passport 2000-2001); (c) P421967 (Filipino passport number (1995- 1997))"
+        values:
+          - "MM611523"
+          - "EE947317"
+          - "P421967"
+      - match: "(a) AT0712501 (Pakistani, issued on 12.3.2008, expired 11.3.2013), (b) A-374184 (Pakistani)"
+        values:
+          - "AT0712501"
+          - "A-374184"
+      - match: "(a) OR801168 (Afghan passport under the name of Said Jan ‘Abd al-Salam issued on 28.2.2006, expired on 27.2.2011), (b) 4117921 (Pakistani passport issued under the name of Dilawar Khan Zain Khan issued on 9.9.2008, expired on 9.9.2013)"
+        values:
+          - "OR801168"
+          - "4117921"
+      - match: "(a) 3219222002.2181558 (Indonesian national identity card), (b) 2181558 (Identification number)"
+        values:
+          - "3219222002.2181558"
+          - "2181558"
+      - match: "(a) Egyptian passport number 6487, issued 30 Jan. 1986, under name Muhammad Jamal Abdu, (b) Egyptian passport issued in 1993, under name Muhammad Jamal Abd-Al Rahim Ahmad Al-Kashif, (c) Yemeni passport number 388181, under name Muhammad Jamal Abd-Al Rahim Al-Kashif"
+        values:
+          - "6487"
+          - "388181"
+      - match: "(a) 01461558 (Qatari passport number, expiring on 20.1.2024); (b) 00868774 (Qatari passport number, expired on 27.4.2014)"
+        values:
+          - "01461558"
+          - "00868774"
+      - match: "(a) 25463400086 (Qatari identification number); (b) 25463401784 (Qatari identification number, expired on 6.12.2019)"
+        values:
+          - "25463400086"
+          - "25463401784"
+      - match: "(a) 01020802 (Qatari passport number); (b) 00754833 (Qatari passport number, issued on 20.5.2007); (c) 00490327 (Qatari passport number, issued on 28.7.2001); (d) 01538029 (Qatari passport number, expires on 14.3.2025)"
+        values:
+          - "01020802"
+          - "00754833"
+          - "00490327"
+          - "01538029"
+      - match: "(a) 05AT521433 (French passport number, issued on 30.11.2005 by the sous-prefecture of police of Lorient, France), (b) 050456101445 (French national identity card, issued on 19.5.2005 by the sous-prefecture of police of Lorient, France), (c) 0205561020089 (French identity card number, issued on 30.5.2002 under name Emilie Edwige Konig)"
+        values:
+          - "05AT521433"
+          - "050456101445"
+          - "0205561020089"
+      - match: "(a) K048787 (Jordanian passport number); (b) 486298 (Jordanian passport number)"
+        values:
+          - "K048787"
+          - "486298"
+      - match: "a) Jordan 654781 (approximately issued in 2009) b) Jordan 286062 (issued on 5.4.1999 at Zarqa, Jordan, expired on 4.4.2004)"
+        values:
+          - "654781"
+          - "286062"
+      - match: "(a) 223611 (Libyan passport number) (b) C00146605 (British passport number)"
+        values:
+          - "223611"
+          - "C00146605"
+      - match: "(a) 349054 (Bosnia and Herzegovina passport number), b) 3490054 (Bosnia and Herzegovina passport number)"
+        values:
+          - "349054"
+          - "3490054"
+      - match: "(a) UZ6430184 (Moroccan passport number), (b) CD595054 (Moroccan national identity number)"
+        values:
+          - "UZ6430184"
+          - "CD595054"
+      - match: "(a) 542858 (Libyan passport number), (b) 55252 (Libyan national identification number, issued in Derna, Libya)"
+        values:
+          - "542858"
+          - "55252"
+      - match: "(a) K142736 (Saudi Arabian passport number issued 14.7.2011 in Al-Khafji, Saudi Arabia), (b) Saudi Arabia national identification number G579315"
+        values:
+          - "K142736"
+          - "G579315"
+      - match: "(a) Trinidad and Tobago number TA959547, issued on 19.11.2013 (issued by Immigration Division of Trinidad and Tobago, expiration date 18.11.2018); (b) Trinidad and Tobago number T1071839, issued on 8.11.2004 (issued by Immigration Division of Trinidad and Tobago, expiration date 7.11.2014)"
+        values:
+          - "TA959547"
+          - "T1071839"
+      - match: "(a) Trinidad and Tobago National Identification Card 19860222007, issued on 16.6.2011 (expiration date 16.6.2016); (b) Trinidad and Tobago Birth Certificate B394445, issued on 23.1.2007; (c) Trinidad and Tobago Driver's Permit 892124B, issued on 30.8.2007 (expiration date 30.8.2010)"
+        values:
+          - "19860222007"
+          - "B394445"
+          - "892124B"
+      - match: "(a) TB162181 (Trinidad and Tobago passport issued on 27.1.2015 and expired on 26.1.2020); (b) 420985453 (United States of America passport expired on 6.2.2017)"
+        values:
+          - "TB162181"
+          - "420985453"
+      - match: "a) Iraq national identification card 00813602, issued on 18 Sep. 2011 (name in Arabic script: منصور ال محمد مصطفى سالم); (b) Iraq Certificate of Iraqi Nationality 300397, issued on 25 Jun. 2013 (name in Arabic script: محمد مصطفى سالم)"
+        values:
+          - "00813602"
+          - "300397"
+      - match: "(a) Iraq national identification card 00405771, issued on 20 May 2013, issued in Iraq; (b) Iraq Certificate of Iraqi Nationality 540763, issued on 13.2.1984"
+        values:
+          - "00405771"
+          - "540763"
+      - match: "3987189 (Syrian passport). National identification no. (a) 13080011550; (b) 5877002 (Syrian Identification Card issued on 25 May 2011)"
+        values:
+          - "3987189"
+          - "13080011550"
+          - "5877002"
+      - match: "7730239877, KPP 773001001, OKPO 20239393"
+        value: "7730239877"
+      - match: "3525023010 OKPO: 07500548 KPP: 352501001"
+        value: "3525023010"
+      - match: "6441013942 / 644101001"
+        value: "6441013942"
+      - match: "7712040285,"
+        value: "7712040285"
+      - match: "- 7805060220"
+        value: "7805060220"
+      - match: "1 121 402 000 213"
+        value: "1121402000213"
+      - match: "1 159 102 022 738"
+        value: "1159102022738"
+      - match: "KHJBSDKH and 5040942458"
+        value: "KHJBSDKH"
+      - match: "Does not exist"
+        value: null
   type.country:
+    lowercase: true
     options:
       - match: Crimea, Ukraine
         value: ua-cri
@@ -298,12 +1584,619 @@ lookups:
       # release resolves the slash form on its own.
       - match: Myanmar/Burma
         value: mm
+      - match:
+          - "afghan. afghan passport number oa462456 (issued under the name abdul haq) issued on 31.1.2012 (11-11-1390)"
+          - "saudi citizenship withdrawn, afghan nationality given by the taliban regime"
+        value: "af"
+      - match: "armenian, russian, finnish"
+        values:
+          - "am"
+          - "ru"
+          - "fi"
+      - match: "australian/russian"
+        values:
+          - "au"
+          - "ru"
+      - match: "belarussian"
+        value: "by"
+      - match: "belarusian, russian"
+        values:
+          - "by"
+          - "ru"
+      - match:
+          - "assumed congolese (drc)"
+          - "democratic republic of the congo, passport no. ob 0243318"
+        value: "cd"
+      - match: "swiss and cameroonian"
+        values:
+          - "ch"
+          - "cm"
+      - match: "china, cambodia"
+        values:
+          - "cn"
+          - "kh"
+      - match: "(a) german; (b) algerian"
+        values:
+          - "de"
+          - "dz"
+      - match: "(a) german, (b) moroccan"
+        values:
+          - "de"
+          - "ma"
+      - match:
+          - "(a) algerian (b) german"
+          - "(a) algerian, (b) german"
+        values:
+          - "dz"
+          - "de"
+      - match: "(a) algerian, (b) palestinian"
+        values:
+          - "dz"
+          - "ps"
+      - match: "(a) egypt"
+        value: "eg"
+      - match: "possibly ethiopian"
+        value: "et"
+      - match: "french, russian"
+        values:
+          - "fr"
+          - "ru"
+      - match: "french, togolese"
+        values:
+          - "fr"
+          - "tg"
+      - match: "(a) french (b) tunisian"
+        values:
+          - "fr"
+          - "tn"
+      - match: "french, turkish"
+        values:
+          - "fr"
+          - "tr"
+      - match:
+          - "indonesia. national identification no.: (a) 3311092409580002 (indonesian national identity card), (b) 3311092409580003 (indonesian national identity card)"
+          - "indonesian (as at december 2003)"
+          - "indonesian. national identification no.: (a) 3573010405480001 (indonesian national identity card), (b) 353010405480001 (indonesian national identity card)"
+          - "indonesian. national identification no.: 1127083101740003 (indonesian identity card under name abdul rosyid ridho ba'asyir)"
+        value: "id"
+      - match: "iraqi. national identification no.: 00278640 (issued on 2.5.2012)"
+        value: "iq"
+      - match: "iranian and us"
+        values:
+          - "ir"
+          - "us"
+      - match: "italian since 1990"
+        value: "it"
+      - match: "jordanian (presumed)"
+        value: "jo"
+      - match: "(a) jordanian (b) american"
+        values:
+          - "jo"
+          - "us"
+      - match: "lithuanian, russian"
+        values:
+          - "lt"
+          - "ru"
+      - match: "latvia and israel"
+        values:
+          - "lv"
+          - "il"
+      - match: "of the republic of moldova"
+        value: "md"
+      - match: "republic of moldova, israeli"
+        values:
+          - "md"
+          - "il"
+      - match: "republic of moldova, romanian"
+        values:
+          - "md"
+          - "ro"
+      - match: "republic of moldova, romanian, russian"
+        values:
+          - "md"
+          - "ro"
+          - "ru"
+      - match: "moldovan, russian"
+        values:
+          - "md"
+          - "ru"
+      - match: "(a) mauritanian, (b) malian"
+        values:
+          - "mr"
+          - "ml"
+      - match: "(a) malaysia, (b) indonesia"
+        values:
+          - "my"
+          - "id"
+      - match: "pakistani (presumed)"
+        value: "pk"
+      - match: "gaza strip, west bank, southern lebanon"
+        values:
+          - "ps"
+          - "lb"
+      - match: "serbian, croatian"
+        values:
+          - "rs"
+          - "hr"
+      - match: "allegedly russian"
+        value: "ru"
+      - match: "russian, united arab emirates"
+        values:
+          - "ru"
+          - "ae"
+      - match:
+          - "russian and belarusian"
+          - "russian, belarusian"
+        values:
+          - "ru"
+          - "by"
+      - match: "russian, swiss"
+        values:
+          - "ru"
+          - "ch"
+      - match: "russian, cypriot"
+        values:
+          - "ru"
+          - "cy"
+      - match: "russian, german"
+        values:
+          - "ru"
+          - "de"
+      - match: "russian, estonian"
+        values:
+          - "ru"
+          - "ee"
+      - match: "russian, finnish"
+        values:
+          - "ru"
+          - "fi"
+      - match: "(a) russian; (b) georgian"
+        values:
+          - "ru"
+          - "ge"
+      - match: "russian, montenegrin, honduran"
+        values:
+          - "ru"
+          - "me"
+          - "hn"
+      - match: "(a) russian, (b) ussr (until 1991)"
+        values:
+          - "ru"
+          - "suhh"
+      - match:
+          - "russian / ukrainian"
+          - "russian and ukrainian"
+          - "russian, ukrainian"
+        values:
+          - "ru"
+          - "ua"
+      - match: "russian, uzbekistani, british"
+        values:
+          - "ru"
+          - "uz"
+          - "gb"
+      - match: "(a) saudi arabian, (b) yemeni (othman ahmed othman al omairah)"
+        values:
+          - "sa"
+          - "ye"
+      - match: "sudanese by birth"
+        value: "sd"
+      - match: "somalia, kenya"
+        values:
+          - "so"
+          - "ke"
+      - match:
+          - "syrian (presumed)"
+          - "syrian. passport no 00814l001424 (syrian passport). national identification no (a) 10716775 (syrian national identification card); (b) 2020316097 (syrian national identification card); (c) 2020409266 (syrian national identification card)"
+        value: "sy"
+      - match: "syrian/iranian"
+        values:
+          - "sy"
+          - "ir"
+      - match: "syrian/lebanese"
+        values:
+          - "sy"
+          - "lb"
+      - match: "syrian/libyan"
+        values:
+          - "sy"
+          - "ly"
+      - match: "a) syrian b) palestinian"
+        values:
+          - "sy"
+          - "ps"
+      - match: "syrian, russian"
+        values:
+          - "sy"
+          - "ru"
+      - match: "syrian, turkish"
+        values:
+          - "sy"
+          - "tr"
+      - match:
+          - "(a) tunisian"
+          - "tunisian. national identification no.: 08619445"
+        value: "tn"
+      - match: "tunisian, french"
+        values:
+          - "tn"
+          - "fr"
+      - match: "turkish, german"
+        values:
+          - "tr"
+          - "de"
+      - match: "(a) trinidad and tobago; (b) united states of america"
+        values:
+          - "tt"
+          - "us"
+      - match: "ukrainian, israeli"
+        values:
+          - "ua"
+          - "il"
+      - match:
+          - "ukrainian and/or russian"
+          - "ukrainian, russian (the union does not recognise passports issued by the russian federation in crimea)"
+        values:
+          - "ua"
+          - "ru"
+      - match: "uganda passport"
+        value: "ug"
+      - match: "american, israeli"
+        values:
+          - "us"
+          - "il"
+      - match: "american, russian"
+        values:
+          - "us"
+          - "ru"
+      - match: "(a) united states of america, (b) yemeni"
+        values:
+          - "us"
+          - "ye"
+      - match: "(a) uzbek, (b) afghan"
+        values:
+          - "uz"
+          - "af"
   type.email:
+    lowercase: true
     options:
+      - match: "all offices worldwide"
+        value: null
+      - match: "a.lee@opkrt.ru, e.arinina@opkrt.ru, e.sharova@oboronprom.ru, glavbux-olga@mail.ru, n.koritskaya@opkrt.ru"
+        values:
+          - "a.lee@opkrt.ru"
+          - "e.arinina@opkrt.ru"
+          - "e.sharova@oboronprom.ru"
+          - "glavbux-olga@mail.ru"
+          - "n.koritskaya@opkrt.ru"
+      - match: "aelektrotyaga@mail.ru, contact@aoelectrotyaga.ru"
+        values:
+          - "aelektrotyaga@mail.ru"
+          - "contact@aoelectrotyaga.ru"
+      - match: "avangard2004@yandex.ru,"
+        value: "avangard2004@yandex.ru"
+      - match: "avto@siagat.ru, mail@siagat.ru, okad@siagat.ru"
+        values:
+          - "avto@siagat.ru"
+          - "mail@siagat.ru"
+          - "okad@siagat.ru"
+      - match: "axk@aleksin.tula.net, post@alhk.ru, post@rtalhk.ru"
+        values:
+          - "axk@aleksin.tula.net"
+          - "post@alhk.ru"
+          - "post@rtalhk.ru"
+      - match: "dis_agree@mail.ru, info@niid.uvz.ru, sebniid@mail.ru"
+        values:
+          - "dis_agree@mail.ru"
+          - "info@niid.uvz.ru"
+          - "sebniid@mail.ru"
+      - match: "dnurkhametova@alabuga.ru, damirova@alabuga.ru, mperevozchikova@alabuga.ru"
+        values:
+          - "dnurkhametova@alabuga.ru"
+          - "damirova@alabuga.ru"
+          - "mperevozchikova@alabuga.ru"
+      - match: "emo.xz@ chemplant.ru"
+        value: "emo.xz@chemplant.ru"
       - match: "general@angstrem.r"
         value: "general@angstrem.ru"
+      - match: "info@ao-pribor.ru, ppribor@mail.ru, pprubor@mail.ru, pribor005uprav@yandex.ru, priborotiz@mail.ru, zakupki.pribor@mail.ru"
+        values:
+          - "info@ao-pribor.ru"
+          - "ppribor@mail.ru"
+          - "pprubor@mail.ru"
+          - "pribor005uprav@yandex.ru"
+          - "priborotiz@mail.ru"
+          - "zakupki.pribor@mail.ru"
+      - match: "info@astais.ru, op@astais.ru"
+        values:
+          - "info@astais.ru"
+          - "op@astais.ru"
+      - match: "info@bpk-spb.ru and service@bpk-spb.ru"
+        values:
+          - "info@bpk-spb.ru"
+          - "service@bpk-spb.ru"
+      - match: "info@cniitm.ru, 223ctm@gmail.com, ctm76@rambler.ru, tsniitochmash@podolsk.ru"
+        values:
+          - "info@cniitm.ru"
+          - "223ctm@gmail.com"
+          - "ctm76@rambler.ru"
+          - "tsniitochmash@podolsk.ru"
+      - match: "info@gidravlika-ufa.ru, gidravlika@tdhc.ru"
+        values:
+          - "info@gidravlika-ufa.ru"
+          - "gidravlika@tdhc.ru"
+      - match: "info@hamshointl.com and hamshogroup@yahoo.com"
+        values:
+          - "info@hamshointl.com"
+          - "hamshogroup@yahoo.com"
+      - match: "info@in-vent.ru, moscow@in-vent.ru"
+        values:
+          - "info@in-vent.ru"
+          - "moscow@in-vent.ru"
+      - match: "info@knaaz.org pr@knaaz.org"
+        values:
+          - "info@knaaz.org"
+          - "pr@knaaz.org"
+      - match: "info@metallic-sy.com and shaamco@mail.sy"
+        values:
+          - "info@metallic-sy.com"
+          - "shaamco@mail.sy"
+      - match: "info@nziv.ru, nziv@ngs.ru"
+        values:
+          - "info@nziv.ru"
+          - "nziv@ngs.ru"
+      - match: "info@pr-t.ru, sales@pr-t.ru, otm@pr-t.ru"
+        values:
+          - "info@pr-t.ru"
+          - "sales@pr-t.ru"
+          - "otm@pr-t.ru"
+      - match: "info@rt-komplekt.ru, office4291@gmail.com"
+        values:
+          - "info@rt-komplekt.ru"
+          - "office4291@gmail.com"
+      - match: "info@rt-techpriemka.ru, pr@rt-techpriemka.ru, rostecsert@rt-techpriemka.ru"
+        values:
+          - "info@rt-techpriemka.ru"
+          - "pr@rt-techpriemka.ru"
+          - "rostecsert@rt-techpriemka.ru"
+      - match: "info@scf-group.ru, spbinfo@scf-group.ru"
+        values:
+          - "info@scf-group.ru"
+          - "spbinfo@scf-group.ru"
+      - match: "info@sctbankers.com zanjani@sctbankers.com"
+        values:
+          - "info@sctbankers.com"
+          - "zanjani@sctbankers.com"
+      - match: "kama@portal.ru, ppz@perm.ru"
+        values:
+          - "kama@portal.ru"
+          - "ppz@perm.ru"
+      - match: "mirtelecom@ro.ru, tdi@mir-telecom.ru, info@mir-telecom.ru"
+        values:
+          - "mirtelecom@ro.ru"
+          - "tdi@mir-telecom.ru"
+          - "info@mir-telecom.ru"
+      - match: "msk@compel.ru, spb@compel.ru"
+        values:
+          - "msk@compel.ru"
+          - "spb@compel.ru"
       - match: "mss@korund_m.ru"
         value: "mss@korund-m.ru"
+      - match: "news@spastv.ru, office@spastv.ru"
+        values:
+          - "news@spastv.ru"
+          - "office@spastv.ru"
+      - match: "npzkanc@ponpz.ru, salesru@npzoptics.ru, sales@npzoptics.ru"
+        values:
+          - "npzkanc@ponpz.ru"
+          - "salesru@npzoptics.ru"
+          - "sales@npzoptics.ru"
+      - match: "office@horizont-rnd.by, ict@dtv.horizont.by"
+        values:
+          - "office@horizont-rnd.by"
+          - "ict@dtv.horizont.by"
+      - match: "office@uacrussia.ru, hello@uacrussia.ru"
+        values:
+          - "office@uacrussia.ru"
+          - "hello@uacrussia.ru"
+      - match: "pac@silibank.com and kndic@co.chesin.com."
+        values:
+          - "pac@silibank.com"
+          - "kndic@co.chesin.com"
+      - match: "post@mail.ioffe.ru, ftian@mail.ioffe.ru"
+        values:
+          - "post@mail.ioffe.ru"
+          - "ftian@mail.ioffe.ru"
+      - match: "post@uraltransmash.ru, bozd@utm.uvz.ru"
+        values:
+          - "post@uraltransmash.ru"
+          - "bozd@utm.uvz.ru"
+      - match: "press@zalivkerch.com, sess@zalivkerch.com, uzis@zalivkerch.com"
+        values:
+          - "press@zalivkerch.com"
+          - "sess@zalivkerch.com"
+          - "uzis@zalivkerch.com"
+      - match: "promtechnologies@gmail.com, zinchenko@orsis.com"
+        values:
+          - "promtechnologies@gmail.com"
+          - "zinchenko@orsis.com"
+      - match: "ryonha@silibank.com; sjc117@hotmail.com; and millim@silibank.com"
+        values:
+          - "ryonha@silibank.com"
+          - "sjc117@hotmail.com"
+          - "millim@silibank.com"
+      - match: "sapr@tulamash.ru, sekretar@tulamash.ru"
+        values:
+          - "sapr@tulamash.ru"
+          - "sekretar@tulamash.ru"
+      - match: "shutdown@163.com, isoon2015@126.com, tao_tingting@i-soon.net, li_ping@i-soon.net"
+        values:
+          - "shutdown@163.com"
+          - "isoon2015@126.com"
+          - "tao_tingting@i-soon.net"
+          - "li_ping@i-soon.net"
+      - match: "sophia@guang-xing.com, lixiaocui520@mail.ru, lixiaocui520@list.ru, hbgxmachinery_sophia@mail.ru"
+        values:
+          - "sophia@guang-xing.com"
+          - "lixiaocui520@mail.ru"
+          - "lixiaocui520@list.ru"
+          - "hbgxmachinery_sophia@mail.ru"
+      - match: "starostina@ngs.ru, info@anozit.ru"
+        values:
+          - "starostina@ngs.ru"
+          - "info@anozit.ru"
+      - match: "zabota@rddm.team, info@rddm.team"
+        values:
+          - "zabota@rddm.team"
+          - "info@rddm.team"
+  type.url:
+    options:
+      - match:
+          - "(Inaccessible in the EU)"
+          - "+ 38-063-688-60-01"
+          - "+ 38-067-145-14-99"
+          - "+ 38-094-912-96-60"
+          - "+ 38-099-445-63-78"
+          - "In process of liquidation"
+          - "ZPentest (Account suspended)"
+          - "Zpentestalliance"
+        value: null
+      - match: "cge.evrazia.ru, cge.su"
+        values:
+          - "cge.evrazia.ru"
+          - "cge.su"
+      - match: "http://aerocomposit.ru (offline)"
+        value: "http://aerocomposit.ru"
+      - match: "http://uralvagonzavod.ru,"
+        value: "http://uralvagonzavod.ru"
+      - match: "Cossack National Guard http://vk.com/kazak_nac_guard"
+        value: "http://vk.com/kazak_nac_guard"
+      - match: "https://catalysis.ru /"
+        value: "https://catalysis.ru"
+      - match: "https://sibfire.com https://www.lveplant.ru"
+        values:
+          - "https://sibfire.com"
+          - "https://www.lveplant.ru"
+      - match: "VK: https://vk.com/official_cniitm"
+        value: "https://vk.com/official_cniitm"
+      - match: "Facebook: https://www.facebook.com/profile.php?id=100063824414668"
+        value: "https://www.facebook.com/profile.php?id=100063824414668"
+      - match: "https://www.stc- spb.ru/contacts/"
+        value: "https://www.stc-spb.ru/contacts/"
+      - match: "https://www.zdship.ru,"
+        value: "https://www.zdship.ru"
+      - match: "i-soon.net, isoon.net, i-soon.com.cn, isoonren.com, isoon.win"
+        values:
+          - "i-soon.net"
+          - "isoon.net"
+          - "i-soon.com.cn"
+          - "isoonren.com"
+          - "isoon.win"
+      - match: "www.eltelme.com, www.abrajtec.com"
+        values:
+          - "www.eltelme.com"
+          - "www.abrajtec.com"
+      - match: "www.izh-bs.ru, www.izh-bs"
+        value: "www.izh-bs.ru"
+      - match: "www.mbbru.com www.bmiru.com"
+        values:
+          - "www.mbbru.com"
+          - "www.bmiru.com"
+      - match: "www.voiceofeurope.com, www.voiceofeurope.eu"
+        values:
+          - "www.voiceofeurope.com"
+          - "www.voiceofeurope.eu"
+  type.gender:
+    lowercase: true
+    options:
+      - match: "male."
+        value: "male"
+  type.address:
+    options:
+      - match: "(a) Kitas Ghar, Nazimabad 4, Dahgel-Iftah, Karachi, Pakistan; (b) Jamia Maajid, Sulalman Park, Melgium Pura, Lahore, Pakistan; (c) Office Dha’rbi-M’unin, Opposite Khyber Bank, Abbottabad Road, Mansehra, Pakistan; (d) Office Dha’rbi-M’unin ZR Brothers, Katcherry Road, Chowk Yadgaar, Peshawar, Pakistan; (e) Office Dha’rbi-M’unin, Rm No. 3, Moti Plaza, Near Liaquat Bagh, Muree Road, Rawalpindi, Pakistan; (f) Office Dha’rbi-M’unin, Top Floor, Dr. Dawa Khan Dental Clinic Surgeon, Main Baxae, Mingora, Swat, Pakistan; (g) Kitab Ghar, Darul Ifta Wal Irshad, Nazimabad No 4, Karachi, Pakistan (Tel. (a) 668 33 01; (b) 0300- 820 91 99, Fax 662 38 14); (h) 302b-40, Good Earth Court, Opposite Pia Planitarium, Block 13a, Gulshan -I Igbal, Karachi, Pakistan (Tel. 497 92 63); (i) 617 Clifton Center, Block 5, 6th Floor, Clifton, Karachi, Pakistan (Tel. 587 25 45); (j) 605 Landmark Plaza, 11 Chundrigar Road, Opposite Jang Building, Karachi, Pakistan (Tel. 262 38 18-19); (k) Jamia Masjid, Sulaiman Park, Begum Pura, Lahore, Pakistan (Tel. 042-681 20 81)"
+        values:
+          - "Kitas Ghar, Nazimabad 4, Dahgel-Iftah, Karachi, Pakistan"
+          - "Jamia Maajid, Sulalman Park, Melgium Pura, Lahore, Pakistan"
+          - "Office Dha’rbi-M’unin, Opposite Khyber Bank, Abbottabad Road, Mansehra, Pakistan"
+          - "Office Dha’rbi-M’unin ZR Brothers, Katcherry Road, Chowk Yadgaar, Peshawar, Pakistan"
+          - "Office Dha’rbi-M’unin, Rm No. 3, Moti Plaza, Near Liaquat Bagh, Muree Road, Rawalpindi, Pakistan"
+          - "Office Dha’rbi-M’unin, Top Floor, Dr. Dawa Khan Dental Clinic Surgeon, Main Baxae, Mingora, Swat, Pakistan"
+          - "Kitab Ghar, Darul Ifta Wal Irshad, Nazimabad No 4, Karachi, Pakistan"
+          - "302b-40, Good Earth Court, Opposite Pia Planitarium, Block 13a, Gulshan -I Igbal, Karachi, Pakistan"
+          - "617 Clifton Center, Block 5, 6th Floor, Clifton, Karachi, Pakistan"
+          - "605 Landmark Plaza, 11 Chundrigar Road, Opposite Jang Building, Karachi, Pakistan"
+          - "Jamia Masjid, Sulaiman Park, Begum Pura, Lahore, Pakistan"
+      - match: "(a) 8820 Mobile Avenue, IA, Oak Lawn, Illinois, 60453, United States of America, (b) P.O. Box 548, Worth, Illinois, 60482, United States of America, (c) 9838 S. Roberts Road, Suite 1W, Palos Hills, Illinois, 60465, United States of America (Formerly located at), (d) 20-24 Branford Place, Suite 705, Newark, New Jersey, 07102, United States of America (Formerly located at), (e) P.O. Box 1937, Khartoum, Sudan, (f) Bangladesh, (g) (Gaza Strip), (h) Yemen"
+        values:
+          - "8820 Mobile Avenue, IA, Oak Lawn, Illinois, 60453, United States of America"
+          - "P.O. Box 548, Worth, Illinois, 60482, United States of America"
+          - "9838 S. Roberts Road, Suite 1W, Palos Hills, Illinois, 60465, United States of America (Formerly located at)"
+          - "20-24 Branford Place, Suite 705, Newark, New Jersey, 07102, United States of America (Formerly located at)"
+          - "P.O. Box 1937, Khartoum, Sudan"
+      - match: "(a) 30a Put Mladih Muslimana (former name Palva Lukaca Street), 71000 Sarajevo, Bosnia and Herzegovina; (b) 72 ul. Strossmajerova, Zenica, Bosnia and Herzegovina; (c) 42 Muhameda Hadzijahica, Sarajevo, Bosnia and Herzegovina; (d) 70 and 53 Strosmajerova Street, Zenica, Bosnia and Herzegovina; (e) Zlatnih Ljiljana Street, Zavidovici, Bosnia and Herzegovina"
+        values:
+          - "30a Put Mladih Muslimana (former name Palva Lukaca Street), 71000 Sarajevo, Bosnia and Herzegovina"
+          - "72 ul. Strossmajerova, Zenica, Bosnia and Herzegovina"
+          - "42 Muhameda Hadzijahica, Sarajevo, Bosnia and Herzegovina"
+          - "70 and 53 Strosmajerova Street, Zenica, Bosnia and Herzegovina"
+          - "Zlatnih Ljiljana Street, Zavidovici, Bosnia and Herzegovina"
+      - match: "(a) Afghanistan/Pakistan border area (previous location); (b) Khan-Shaykhun, Syrian Arab Republic (53 km south of Idlib, location as of March 2018); (c) Idlib, Aleppo and Khama, Syrian Arab Republic (operation zone); (d) Faryab, Badghis and Jawzjan Provinces, Afghanistan"
+        values:
+          - "Afghanistan/Pakistan border area (previous location)"
+          - "Khan-Shaykhun, Syrian Arab Republic (53 km south of Idlib, location as of March 2018)"
+          - "Idlib, Aleppo and Khama, Syrian Arab Republic (operation zone)"
+          - "Faryab, Badghis and Jawzjan Provinces, Afghanistan"
+      - match: "(a) B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (as at 30.1.2014), (b) 90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (as at 23.4. 2010), (c) 96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (as at 6.4. 2007), (d) Syrian Arab Republic (location since 2014)"
+        values:
+          - "B-3B-19 Glenview Villa, Jalan 49 Off Jalan Kuari, Taman Pinggiran Cheras, 56000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (as at 30.1.2014)"
+          - "90-00-04 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (as at 23.4. 2010)"
+          - "96-06-06 Flat Sri Kota, Bandar Tun Razak, 56100, Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia (as at 6.4. 2007)"
+      - match: "(a) Syrian Arab Republic (as at May 2014); (b) Reyhanli, Hatay, Turkey (previous location from Nov. 2013 to May 2014); (c) 349 Dass Branch Trace, Dass Trace, Enterprise Chaguanas, Trinidad and Tobago (from birth until 27.11.2013); (d) LP# 41 Ballisier Road, Smith Field Lands, Wallerfield, County of St. George East, Trinidad and Tobago (alternative location as at Sep. 2011)"
+        values:
+          - "Reyhanli, Hatay, Turkey (previous location from Nov. 2013 to May 2014)"
+          - "349 Dass Branch Trace, Dass Trace, Enterprise Chaguanas, Trinidad and Tobago (from birth until 27.11.2013)"
+          - "LP# 41 Ballisier Road, Smith Field Lands, Wallerfield, County of St. George East, Trinidad and Tobago (alternative location as at Sep. 2011)"
+      - match: "(a) United States of America (in detention, Federal Detention Center - Miami, Register Number: 10423-509); (b) #12 Rio Claro Mayaro Road, Rio Claro, Trinidad (previous location 2008-March 2015); (c) #7 Guayaguayare Road, Rio Claro, Trinidad (previous location circa 2003); (d) United States of America (previous location January 1991-2008)"
+        values:
+          - "#12 Rio Claro Mayaro Road, Rio Claro, Trinidad (previous location 2008-March 2015)"
+          - "#7 Guayaguayare Road, Rio Claro, Trinidad (previous location circa 2003)"
+      - match: "(Branch Office 1: (i) Chohar Mir Road, Kandahari Bazaar, Quetta City, Baluchistan Province, Pakistan, (ii) Room number 1, Abdul Sattar Plaza, Hafiz Saleem Street, Munsafi Road, Quetta, Baluchistan Province, Pakistan, (iii) Shop number 3, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan, (iv) Office number 3, Near Fatima Jinnah Road, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan, (v) Kachara Road, Nasrullah Khan Chowk, Quetta, Baluchistan Province, Pakistan, (vi) Wazir Mohammad Road, Quetta, Baluchistan Province, Pakistan)"
+        values:
+          - "Chohar Mir Road, Kandahari Bazaar, Quetta City, Baluchistan Province, Pakistan"
+          - "Room number 1, Abdul Sattar Plaza, Hafiz Saleem Street, Munsafi Road, Quetta, Baluchistan Province, Pakistan"
+          - "Shop number 3, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan"
+          - "Office number 3, Near Fatima Jinnah Road, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan"
+          - "Kachara Road, Nasrullah Khan Chowk, Quetta, Baluchistan Province, Pakistan"
+          - "Wazir Mohammad Road, Quetta, Baluchistan Province, Pakistan"
+      - match: "(Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com)"
+        value: "Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan"
+      - match: "(Branch Office 7: (i) Shops number 21 and 22, 2nd Floor, Kandahar City Sarafi Market, Kandahar City, Kandahar Province, Afghanistan, (ii) New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan, (iii) Safi Market, Kandahar City, Kandahar Province, Afghanistan)"
+        values:
+          - "Shops number 21 and 22, 2nd Floor, Kandahar City Sarafi Market, Kandahar City, Kandahar Province, Afghanistan"
+          - "New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan"
+          - "Safi Market, Kandahar City, Kandahar Province, Afghanistan"
+      - match: "(Branch Office 1: (i) Shop number 1584, Furqan (variant Fahr Khan) Center, Chalhor Mal Road,Quetta, Baluchistan Province, Pakistan, (ii) Flat number 4, Furqan Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan, (iii) Office number 4, 2nd Floor, Muslim Plaza Building, Doctor Banu Road, Quetta, Baluchistan Province, Pakistan, (iv) Cholmon Road, Quetta, Baluchistan Province, Pakistan, (v) Munsafi Road, Quetta, Baluchistan Province, Pakistan, (vi) Shop number 1, 1st Floor, Kadari Place, Abdul Samad Khan Street (next to Fatima Jena Road), Quetta, Baluchistan Province, Pakistan)"
+        values:
+          - "Shop number 1584, Furqan (variant Fahr Khan) Center, Chalhor Mal Road,Quetta, Baluchistan Province, Pakistan"
+          - "Flat number 4, Furqan Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan"
+          - "Office number 4, 2nd Floor, Muslim Plaza Building, Doctor Banu Road, Quetta, Baluchistan Province, Pakistan"
+          - "Cholmon Road, Quetta, Baluchistan Province, Pakistan"
+          - "Munsafi Road, Quetta, Baluchistan Province, Pakistan"
+          - "Shop number 1, 1st Floor, Kadari Place, Abdul Samad Khan Street (next to Fatima Jena Road), Quetta, Baluchistan Province, Pakistan"
+      - match: "Shcheglovskaya zaseka Str. 33, Tula, 300004 Russian Federation Telephone: + 7 (4872) 46-44-09 Website: www.splav.org, www.splavtula.ru, сплав.рф Email: mail@splavtula.ru Associated entities: JSC Research and Industrial Concern ‘Machine Engineering Technologies’ - JSC RIC TECMASH"
+        value: "Shcheglovskaya zaseka Str. 33, Tula, 300004 Russian Federation"
+      - match: "Krasnoarmeyskaya Str. 103, 241050 Bryansk, Bryanskaya Oblast, Russian Federation Type of entity: Joint Stock Company Registration number: 1023202741781 Tax Identification Number: 3234043140 Principal place of business: Russian Federation Website: https://group-kremny.ru/ Email: group@kremny.032.ru Telephone: + 7 (4832) 41-43-11, + 7 (4832) 41-42-34"
+        value: "Krasnoarmeyskaya Str. 103, 241050 Bryansk, Bryanskaya Oblast, Russian Federation"
+      - match: "620105, Sverdlovsk region, Yekaterinburg city district, Yekaterinburg city, Academician Sakharov ave., 41, apt. 118, Russian Federation Type of entity: Limited Liability Company Principal place of business: Russian Federation Email: 9089124735@mail.ru"
+        value: "620105, Sverdlovsk region, Yekaterinburg city district, Yekaterinburg city, Academician Sakharov ave., 41, apt. 118, Russian Federation"
+      - match: "Office E, 8/F, Shing Hing Commercial Building, 21-27 Wing Kut Street, Central, Hong Kong Type of entity: Limited Liability Company Registration number: 2182045 64199990-000 CR No. 2182045 Principal place of business: People’s Republic of China/Hong Kong"
+        value: "Office E, 8/F, Shing Hing Commercial Building, 21-27 Wing Kut Street, Central, Hong Kong"
+      - match: "195009, St. Petersburg, in. ter. g. municipal district finland district, komsomola street, 1-3, letter l, room. 5n, room. 6, Russian Federation (local: 195009, Г.САНКТ-ПЕТЕРБУРГ, ВН.ТЕР.Г. МУНИЦИПАЛЬНЫЙ ОКРУГ ФИНЛЯНДСКИЙ ОКРУГ, УЛ КОМСОМОЛА, Д. 1-3, ЛИТЕРА Л, ПОМЕЩ. 5Н, КОМ. 6)"
+        values:
+          - "195009, St. Petersburg, in. ter. g. municipal district finland district, komsomola street, 1-3, letter l, room. 5n, room. 6, Russian Federation"
+          - "195009, Г.САНКТ-ПЕТЕРБУРГ, ВН.ТЕР.Г. МУНИЦИПАЛЬНЫЙ ОКРУГ ФИНЛЯНДСКИЙ ОКРУГ, УЛ КОМСОМОЛА, Д. 1-3, ЛИТЕРА Л, ПОМЕЩ. 5Н, КОМ. 6"
+      - match: "6"
+        value: null
   # This lookup maps the original legislation number to our internal program key.
   # When we add new legislation to eu_journal_sanctions, they are usually amendments
   # to existing legislation, and we extract that original legislation number.
