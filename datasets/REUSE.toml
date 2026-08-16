@@ -7,8 +7,10 @@
 # Crawler code and dataset metadata (*.py, *.yml) are configuration that zavod executes, and fall
 # through to MIT at the repository root.
 #
-# The exception to the glob is a CSV a crawler writes back verbatim from its source. Those are
-# annotated in a REUSE.toml in their own directory, next to the crawler that writes them.
+# The glob is deliberately coarse. A few of the files it matches are snapshots a crawler writes
+# back verbatim from its source rather than anything we produced, and we hold no rights in those.
+# Sorting that out file by file was not sustainable, so the limit is stated once, in prose:
+# the license reaches only as far as our own rights do. See COPYRIGHT.md.
 
 version = 1
 
@@ -17,7 +19,8 @@ path = "**/*.csv"
 SPDX-FileCopyrightText = "2026 OpenSanctions Datenbanken GmbH"
 SPDX-License-Identifier = "CC-BY-NC-4.0"
 
-# Vendored source material that is not a CSV, and so does not collide with the glob above.
+# Bulk third-party artifacts — source PDFs, saved pages, extracted text. These are downloaded
+# once and do not drift, so unlike the CSVs above they can be listed accurately.
 [[annotations]]
 path = [
   "bg/mft_national/dans_list.pdf",
