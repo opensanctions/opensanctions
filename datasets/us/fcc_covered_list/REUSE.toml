@@ -1,0 +1,11 @@
+# Exempt from the CC BY-NC 4.0 CSV default in datasets/REUSE.toml.
+#
+# A snapshot of the FCC Covered List table, regenerated from the source page on every run. The
+# headers are the FCC's own, and the cell text and date strings are unnormalised.
+
+version = 1
+
+[[annotations]]
+path = "table.csv"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "LicenseRef-vendored-source"

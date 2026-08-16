@@ -1,0 +1,31 @@
+# Data files under datasets/ are not covered by the repository's MIT license.
+#
+# CSVs default to CC BY-NC 4.0, because a CSV committed here is normally something a maintainer
+# curated: transcribed from a source document, restructured, aligned to the FollowTheMoney schema,
+# annotated with our own identifiers. The glob covers new ones automatically.
+#
+# Crawler code and dataset metadata (*.py, *.yml) are configuration that zavod executes, and fall
+# through to MIT at the repository root.
+#
+# The exception to the glob is a CSV a crawler writes back verbatim from its source. Those are
+# annotated in a REUSE.toml in their own directory, next to the crawler that writes them.
+
+version = 1
+
+[[annotations]]
+path = "**/*.csv"
+SPDX-FileCopyrightText = "2026 OpenSanctions Datenbanken GmbH"
+SPDX-License-Identifier = "CC-BY-NC-4.0"
+
+# Vendored source material that is not a CSV, and so does not collide with the glob above.
+[[annotations]]
+path = [
+  "bg/mft_national/dans_list.pdf",
+  "lt/illegal_websites/data",
+  "pk/proscribed_persons/source.json",
+  "jp/meti_ru/*.txt",
+  "sg/terrorists/*.html",
+  "ru/egrul/docs/*",
+]
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "LicenseRef-vendored-source"

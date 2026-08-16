@@ -1,0 +1,11 @@
+# Exempt from the CC BY-NC 4.0 CSV default in datasets/REUSE.toml.
+#
+# An index of AMLC's published resolutions, regenerated from the source page on every run. The
+# titles are the resolutions' own official wording.
+
+version = 1
+
+[[annotations]]
+path = "resolutions.csv"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "LicenseRef-vendored-source"

@@ -1,0 +1,11 @@
+# Exempt from the CC BY-NC 4.0 CSV default in datasets/REUSE.toml.
+#
+# An index of Federal Register notices written from the federalregister.gov API on every run,
+# using the API's own field names. No OpenSanctions modelling is applied.
+
+version = 1
+
+[[annotations]]
+path = "fr_notices.csv"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "LicenseRef-vendored-source"

@@ -1,0 +1,22 @@
+Vendored source material — no license granted by OpenSanctions
+
+Files marked with the SPDX identifier `LicenseRef-vendored-source` are unmodified reproductions
+of material published by a third party. They are committed to this repository for provenance and
+so that changes at the source can be reviewed as a diff. They fall into two groups:
+
+  * artifacts downloaded and committed as retrieved — source PDFs, saved HTML pages, and
+    extracted-text dumps of source PDFs; and
+  * snapshots that a crawler writes back verbatim on every run, so that a maintainer can see what
+    changed upstream.
+
+OpenSanctions Datenbanken GmbH asserts no copyright, database right, or other right in these
+files, and grants no license to them. Whatever rights exist remain with the original publisher.
+Anyone wishing to reuse one of these files must assess it against that publisher's own terms.
+
+No representation is made about what those terms are. Several of these files are official works
+of a government body and may be in the public domain, or subject to a public sector information
+or open data regime, in their jurisdiction — but this varies by publisher and by country, and it
+is the reuser's responsibility to establish.
+
+The absence of a license grant here says nothing about the rest of this repository. Source code
+is under the MIT License and OpenSanctions-produced data is under CC BY-NC 4.0; see COPYRIGHT.md.

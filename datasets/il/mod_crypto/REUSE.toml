@@ -1,0 +1,12 @@
+# Exempt from the CC BY-NC 4.0 CSV default in datasets/REUSE.toml.
+#
+# Both files are dumps of the source tables written by write_csv_for_manual_diff() in crawler.py
+# on every run, so a maintainer can review upstream changes as a diff. The publisher's own column
+# labels are preserved verbatim.
+
+version = 1
+
+[[annotations]]
+path = ["releases.csv", "wallets.csv"]
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "LicenseRef-vendored-source"
