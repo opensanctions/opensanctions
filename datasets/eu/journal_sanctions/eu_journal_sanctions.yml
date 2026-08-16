@@ -65,9 +65,13 @@ names:
   schema_rules:
     LegalEntity:
       # Source labels leak into name cells ("aka: POSCO", "Rosgvardiya (Russian:
-      # Росгвардия)"). Parentheses stay allowed: over a thousand values use the
-      # legitimate "Full Name (ACRONYM)" form.
-      reject_chars: ":"
+      # Росгвардия)"). The crawler splits the printed "Full Name (ACRONYM)" form
+      # into `abbreviation`, so a parenthesis that survives that marks a shape
+      # nobody has classified yet.
+      reject_chars: ":()"
+    Vessel:
+      # Vessel matches its own spec rather than the LegalEntity one above.
+      reject_chars: "()"
   # The acts print many single-token person aliases ("Sa’id", "Saleh"), which
   # belong in weakAlias.
   suggest_weak_alias_person_single_token: true

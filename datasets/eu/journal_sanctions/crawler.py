@@ -48,6 +48,11 @@ DATA_DIR = Path(__file__).parent / "data"
 CSV_DATE_PROPS = frozenset({"birthDate", "incorporationDate"})
 # Multi-valued name columns, reviewed alongside the scalar `name` column.
 CSV_NAME_PROPS = ("alias", "weakAlias", "previousName")
+# A name whose bracketed tail may be an abbreviation: one group, closing the value.
+TRAILING_ABBREVIATION_RE = re.compile(r"^(?P<name>[^()]+?)\s*\((?P<abbr>[^()]+)\)$")
+# The scripts an abbreviation is recognised in. Cyrillic short forms are a
+# different shape ("АО «Казанский Вертолетный Завод»") and go to review instead.
+LATIN_ABBREVIATION_RE = re.compile(r"[A-Za-z0-9 .,&/’'\-]+")
 
 
 @cache
@@ -451,6 +456,63 @@ def split_cell(value: str) -> list[str]:
     return [element.strip() for element in rows[0] if element.strip()]
 
 
+def split_trailing_abbreviation(value: str) -> tuple[str, str] | None:
+    """Break "Really Long Factory Name (RLFN)" into its name and its acronym.
+
+    The acts print an entity's acronym after its name in brackets, and
+    transcription keeps the printed wording, so both arrive as one string on one
+    property. Returns None unless the bracketed part is confidently an
+    abbreviation rather than a disambiguator ("VTB Bank (Belarus)"), an editorial
+    note ("(as previously listed)"), or a second name in its own right.
+    """
+    match = TRAILING_ABBREVIATION_RE.match(value)
+    if match is None:
+        return None
+    name = match.group("name").strip()
+    abbr = match.group("abbr").strip()
+    if len(name.split()) < 2:
+        return None
+    if not 2 <= len(abbr) <= 20:
+        return None
+    if len(abbr) >= len(name) * 0.5:
+        return None
+    if LATIN_ABBREVIATION_RE.fullmatch(abbr) is None:
+        return None
+    letters = [char for char in abbr if char.isalpha()]
+    if not letters or not letters[0].isupper():
+        return None
+    # An acronym is mostly capitals ("TsAGI", "VGTRK"); a short form is a piece
+    # of the printed name ("Joint Stock Company Metallist Samara (Metallist
+    # Samara)"). A place name is neither, which is what keeps the
+    # disambiguating "(Kyrgyzstan)", "(Hamburg)" forms whole.
+    mostly_capitals = sum(char.isupper() for char in letters) >= len(letters) * 0.5
+    if not mostly_capitals and abbr.lower() not in name.lower():
+        return None
+    return name, abbr
+
+
+def suggest_abbreviations(entity: Entity, names: h.Names) -> h.Names:
+    """Move a printed trailing acronym out of each name value into `abbreviation`.
+
+    Person parentheticals are notes rather than acronyms ("(nom de guerre)",
+    "(as previously listed)"), and a schema without the property cannot carry
+    the result, so both are returned untouched.
+    """
+    if entity.schema.is_a("Person") or entity.schema.get("abbreviation") is None:
+        return names
+    suggested = h.Names()
+    for prop, values in names.as_langtexts():
+        for value in values:
+            split = split_trailing_abbreviation(value.text)
+            if split is None:
+                suggested.add(prop, value.text, lang=value.lang)
+                continue
+            name, abbr = split
+            suggested.add(prop, name, lang=value.lang)
+            suggested.add("abbreviation", abbr, lang=value.lang)
+    return suggested
+
+
 def crawl_csv_data(context: Context, path: Path) -> None:
     """Emit the designations transcribed into one reviewed CSV.
 
@@ -487,13 +549,24 @@ def crawl_csv_data(context: Context, path: Path) -> None:
 
             # Transcription only categorises a name where the act prints a label
             # saying so, so the whole name block is reviewed together and a human
-            # decides the rest. While a review is pending, each string stays on
-            # the property the source gave it.
+            # decides the rest. The crawler proposes one categorisation of its
+            # own, the printed acronym. While a review is pending, each string
+            # stays on the property the source gave it.
             names = h.Names(name=name)
             for name_prop in CSV_NAME_PROPS:
                 for value in split_cell(row.pop(name_prop)):
                     names.add(name_prop, value)
-            h.apply_reviewed_names(context, entity, original=names)
+            # The proposal is built on top of the standard heuristics, not
+            # instead of them: passing `suggested` skips check_names_regularity,
+            # which is what applies the yml's name rules.
+            is_irregular, regular = h.check_names_regularity(entity, names)
+            h.apply_reviewed_names(
+                context,
+                entity,
+                original=names,
+                suggested=suggest_abbreviations(entity, regular),
+                is_irregular=is_irregular,
+            )
 
             for prop, cell in row.items():
                 values = split_cell(cell)
