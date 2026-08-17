@@ -5,13 +5,19 @@ from datetime import UTC
 from typing import Any
 from urllib.parse import urlencode
 
-from lxml import html
+from lxml import etree, html
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 START_YEAR = 2019
 START_MONTH = 1
+TABLE_XPATH = "//table[@id='dvData']"
+# The source intermittently answers with a PHP error page (HTTP 200, no results
+# table) instead of the data, so retry a few times before giving up on a month.
+FETCH_ATTEMPTS = 5
+RETRY_BACKOFF = 10
+CACHE_DAYS = 1
 
 
 def emit_linked_org(
@@ -108,44 +114,71 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     context.audit_data(row, ["Place", "#"])
 
 
+def fetch_month_table(
+    context: Context, headers: dict[str, str], year: int, month: int
+) -> etree._Element:
+    """Fetch the detention table for one month, retrying on error pages.
+
+    The source answers a request it doesn't like with a PHP error page carrying
+    HTTP 200 and no results table, so the response has to be validated rather
+    than trusted. Raises once the attempts are exhausted, so that a sustained
+    source outage fails the run instead of silently dropping a month.
+    """
+    data = {
+        "month": f"{month:02}",  # pad month to two digits
+        "year": str(year),
+        "auth": "0",
+        "held": "0",
+    }
+    request = zyte_api.ZyteAPIRequest(
+        url=context.data_url,
+        headers=headers,
+        body=urlencode(data).encode("utf-8"),
+        method="POST",
+    )
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        zyte_result = zyte_api.fetch(context, request, cache_days=CACHE_DAYS)
+        try:
+            doc = html.fromstring(zyte_result.response_text)
+            table = h.xpath_element(doc, TABLE_XPATH)
+        except (etree.ParserError, ValueError):
+            # Don't let an error page linger in the cache for the next attempt.
+            zyte_result.invalidate_cache(context)
+            context.log.debug(
+                "No detention table in response, retrying",
+                year=year,
+                month=month,
+                attempt=attempt,
+                attempts=FETCH_ATTEMPTS,
+            )
+            if attempt < FETCH_ATTEMPTS:
+                time.sleep(RETRY_BACKOFF * attempt)
+            continue
+        # zyte_api.fetch reads the cache but leaves setting it to the caller, so
+        # that only responses we've validated get cached.
+        if not zyte_result.from_cache:
+            context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)
+        return table
+    raise RuntimeError(
+        f"No detention table for {year}-{month:02} after {FETCH_ATTEMPTS} attempts"
+    )
+
+
 def crawl(context: Context) -> None:
     headers = {
         "X-Requested-With": "XMLHttpRequest",
         "Content-Type": "application/x-www-form-urlencoded",
         "Referer": context.data_url,
         "Origin": context.data_url,
+        # The source serves an error page instead of the table unless the
+        # request carries a browser-like user agent.
+        "User-Agent": context.dataset.http.user_agent,
     }
     now = datetime.now(tz=UTC)
     year = START_YEAR
     month = START_MONTH
     while (year, month) <= (now.year, now.month):
-        data = {
-            "month": f"{month:02}",  # pad month to two digits
-            "year": str(year),
-            "auth": "0",
-            "held": "0",
-        }
-        zyte_result = zyte_api.fetch(
-            context,
-            zyte_api.ZyteAPIRequest(
-                url=context.data_url,
-                headers=headers,
-                body=urlencode(data).encode("utf-8"),
-                method="POST",
-            ),
-            cache_days=1,
-        )
-
-        try:
-            doc = html.fromstring(zyte_result.response_text)
-            table = h.xpath_element(doc, "//table[@id='dvData']")
-        except Exception:
-            if zyte_result:
-                context.cache.delete(zyte_result.cache_fingerprint)
-            context.log.exception(
-                "Failed to fetch HTML or find table for month", month=month, year=year
-            )
-            continue
+        table = fetch_month_table(context, headers, year, month)
 
         for row in h.parse_html_table(table, slugify_headers=False):
             crawl_row(context, h.cells_to_str(row))
