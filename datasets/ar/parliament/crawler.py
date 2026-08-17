@@ -1,15 +1,16 @@
-import csv
-from rigour.mime.types import CSV
+import json
+from rigour.mime.types import JSON
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    path = context.fetch_resource("source.json", context.data_url)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path) as fh:
-        for row in csv.DictReader(fh):
+        rows: list[dict[str, str | None]] = json.load(fh)
+        for row in rows:
             person = context.make("Person")
             person.id = context.make_slug(row.pop("ID"))
             h.apply_name(
