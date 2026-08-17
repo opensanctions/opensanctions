@@ -5,8 +5,8 @@ from followthemoney import model, registry
 from zavod import settings
 from zavod.util import write_json
 from zavod.meta import Dataset
-from zavod.runtime.urls import make_artifact_url, make_published_url
-from zavod.runtime.versions import get_latest
+from zavod.runtime.urls import make_artifact_url
+from zavod.runtime.versions import get_history
 from zavod.exporters.metadata import get_catalog_datasets
 from zavod.archive import datasets_path, get_dataset_artifact
 from zavod.archive import INDEX_FILE, STATISTICS_FILE
@@ -28,15 +28,10 @@ def get_opensanctions_catalog(scope: Dataset) -> dict[str, Any]:
             schemata.update(stats.get("schemata", []))
 
     log.info("Generating catalog", schemata=len(schemata), datasets=len(datasets))
-    default_version = get_latest("default", backfill=False)
-    if default_version is not None:
-        statements_url = make_artifact_url(
-            "default", default_version.id, "statements.csv"
-        )
-    else:
-        # TODO: Remove after default dataset is published.
-        # https://github.com/opensanctions/operations/issues/2587
-        statements_url = make_published_url("default", "statements.csv")
+    default_version = get_history("default", backfill=False).last_successful
+    if default_version is None:
+        raise RuntimeError("No successful version of 'default' dataset found.")
+    statements_url = make_artifact_url("default", default_version.id, "statements.csv")
     return {
         "datasets": datasets,
         "run_time": settings.RUN_TIME_ISO,
