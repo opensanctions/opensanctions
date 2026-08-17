@@ -227,6 +227,13 @@ config:
   # transcription.
   reviewed_acts:
     - 32026R1844
+    # Deletes the entries of four natural persons from Annex III and renews the
+    # regime; it designates nobody, and amendment files hold positive state only.
+    - 32026R1853
+    # The Article 7 review re-adopts Annex II unchanged: its 13 persons and 23
+    # entities are the same entries, in the same numbering, as the pinned
+    # snapshot 02001R2580-20260227 in data/consolidated/32001R2580.csv.
+    - 32026R1878
     - 32026R1891
 
 assertions:
@@ -1156,6 +1163,12 @@ lookups:
           - 13185231
           - 07500548
         prop: registrationNumber
+      # Consolidated act 02018R1542-20260703 prints "INN: 366217317327" for
+      # Aleksey Vadimovich AKSYONOV. The number fails the 12-digit INN check
+      # digits, so the transcription is kept as the tax number the act states
+      # rather than asserted to be a valid INN.
+      - match: "366217317327"
+        prop: taxNumber
       - match: "M307707 (Tunisian passport issued on 12.4.2000 which expired on 11.4.2005)"
         value: "M307707"
       - match: "E590976 (Tunisian passport issued on 19.6.1987 which expired on 18.6.1992)"
