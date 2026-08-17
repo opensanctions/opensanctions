@@ -84,7 +84,7 @@ assertions:
     schema_entities:
       Person: 4
       LegalEntity: 2
-      Company: 5
+      Company: 3
     country_entities:
       ee: 5
       cy: 1
