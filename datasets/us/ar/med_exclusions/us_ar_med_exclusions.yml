@@ -84,6 +84,10 @@ lookups:
         name: null
       - match: "-, Precious Jewels In Home Care LLC "
         name: "Precious Jewels In Home Care LLC "
+      # Company name repeated in the provider column, with an empty last-name part.
+      # Facility Name for the same row is "Little Bitty City Therapeutic services llc".
+      - match: ", Little Bitty City Therapeutic  "
+        name: "Little Bitty City Therapeutic"
       - match: "Lambert aka Sherbbie Allen, Sherbbie  "
         name: "Sherbbie Allen"
         weakAlias: ["Lambert", "Sherbbie"]
