@@ -100,6 +100,19 @@ SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
 ORDER BY ?doc_date ?celex ?framework_celex ?relation
 """
 
+CONSOLIDATIONS_QUERY = """
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?framework_celex ?cons_celex WHERE {
+  VALUES ?framework_celex { FRAMEWORK_VALUES }
+  ?framework cdm:resource_legal_id_celex ?framework_celex .
+  ?consolidated cdm:resource_legal_id_celex ?cons_celex .
+  FILTER(STRSTARTS(STR(?cons_celex),
+                   CONCAT("0", SUBSTR(STR(?framework_celex), 2), "-")))
+}
+"""
+
 RELATED_ACT_TYPES = ("REG_IMPL", "DEC_IMPL", "REG", "DEC")
 
 
@@ -337,6 +350,26 @@ class CellarClient:
             self.clear(request)
             raise
 
+    def query_consolidations(
+        self,
+        framework_celexes: str | Iterable[str],
+        cache_days: int | None = 1,
+    ) -> dict[str, tuple[str, ...]]:
+        """List the consolidated versions published for each framework act.
+
+        Use this to check a reviewed snapshot against what CELLAR now offers,
+        without a request per framework. Frameworks with no consolidation are
+        omitted from the result.
+        """
+        request = consolidations_request(framework_celexes)
+        response = self._fetch(request, cache_days)
+        try:
+            result = orjson.loads(response.content)
+            return parse_consolidations_results(result)
+        except Exception:
+            self.clear(request)
+            raise
+
     def fetch_expression(
         self,
         value: str,
@@ -433,6 +466,24 @@ def related_acts_request(
         data=build_related_acts_query(
             framework_celexes, date_from, date_to, resource_types
         ),
+        headers=tuple(SPARQL_HEADERS.items()),
+    )
+
+
+def build_consolidations_query(framework_celexes: str | Iterable[str]) -> bytes:
+    """Build a query for the consolidated versions of several framework acts."""
+    values = _normalize_frameworks(framework_celexes)
+    framework_values = " ".join(f'"{celex}"^^xsd:string' for celex in values)
+    query = CONSOLIDATIONS_QUERY.replace("FRAMEWORK_VALUES", framework_values)
+    return query.encode("utf-8")
+
+
+def consolidations_request(framework_celexes: str | Iterable[str]) -> Request:
+    """Build the exact request for listing consolidated versions."""
+    return Request(
+        SPARQL_ENDPOINT,
+        method="POST",
+        data=build_consolidations_query(framework_celexes),
         headers=tuple(SPARQL_HEADERS.items()),
     )
 
@@ -548,6 +599,32 @@ def parse_related_act_results(result: Any) -> tuple[RelatedAct, ...]:
             ),
         )
     )
+
+
+def parse_consolidations_results(result: Any) -> dict[str, tuple[str, ...]]:
+    """Group consolidated versions by the framework act they belong to.
+
+    A framework CELLAR knows nothing about is absent from the mapping rather
+    than present with an empty tuple, so callers can tell a missing answer from
+    an act that has never been consolidated.
+    """
+    try:
+        bindings = result["results"]["bindings"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("Invalid CELLAR SPARQL response") from exc
+
+    found: dict[str, set[str]] = {}
+    for binding in bindings:
+        try:
+            framework = normalize(str(binding["framework_celex"]["value"]))
+            consolidated = str(binding["cons_celex"]["value"]).strip()
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(
+                "Invalid consolidation binding in CELLAR response"
+            ) from exc
+        if consolidated:
+            found.setdefault(framework, set()).add(consolidated)
+    return {celex: tuple(sorted(values)) for celex, values in found.items()}
 
 
 @contextmanager

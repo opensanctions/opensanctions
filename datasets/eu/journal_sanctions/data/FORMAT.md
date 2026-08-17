@@ -13,6 +13,17 @@ designated entity in one legal context. There are two file kinds:
 Both kinds share the same sanctions-metadata and entity columns and differ only in
 their leading CELEX provenance columns.
 
+## Fidelity and the cleaning boundary
+
+Cells hold the source's printed wording. Transcription performs structural
+extraction only: mapping printed labels to columns, splits dictated by the
+source's own labels, list structure, or enumeration, dropping printed
+placeholders (`na`, `n/a`), collapsing whitespace, and stripping EUR-Lex
+change markers. Semantic normalization — date parsing, country codes,
+identifier canonicalization, and any name categorisation beyond printed
+labels — belongs to the consuming crawler, via `type.*` lookups, the `dates`
+configuration, and the names review system.
+
 ## File naming and headers
 
 Files are UTF-8, comma-delimited, and start with the exact header for their kind —
@@ -21,15 +32,16 @@ same columns, same order, no extras.
 Amendment files are named `{amendmentCelex}.csv` and use:
 
 ```csv
-amendedCelex,amendmentCelex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,incorporationDate,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website
+amendedCelex,amendmentCelex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes
 ```
 
 Consolidated files are named `{celex}.csv` after the framework act (e.g.
 `32014R0833.csv`) — one file per framework, updated in place, with version
-history in git — and use:
+history in git. Where a regime has no regulation, the framework act is the
+CFSP decision itself (e.g. `32011D0173.csv`). Consolidated files use:
 
 ```csv
-celex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,incorporationDate,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,imoNumber,flag,address,phone,email,website
+celex,recordId,programKey,annex,measure,startDate,reason,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes
 ```
 
 Every row in a file carries the same immediate source CELEX (`amendmentCelex` in
@@ -45,12 +57,19 @@ date-suffixed version identifiers such as `02014R0833-20260717` are invalid. Do 
 
 - Consolidated `celex` is the framework act itself; the date-suffixed consolidated
   version each snapshot was extracted from is pinned in the dataset YAML's
-  `consolidation` lookup and updated in the same commit as the CSV.
+  `config.consolidation` and updated in the same commit as the CSV.
 - `amendedCelex` is the framework act whose annex is changed; `amendmentCelex` is
   the amending act the row was transcribed from. A row has exactly one
   `amendedCelex` — when one act amends several frameworks, or one designation
   applies to several programs or measures, repeat the whole entity row per
   distinct legal context.
+- A sanctions package is usually adopted as a CFSP decision and a regulation on
+  the same day. Transcribe the pair once, from the regulation: `amendedCelex` is
+  the framework regulation and `amendmentCelex` the implementing regulation, so
+  the rows share a framework CELEX with the consolidated snapshot that will
+  supersede them. A measure the regulation does not impose — a travel ban is
+  the standing case — has no row in the file. Only where a regime has no
+  regulation at all is the decision the framework act.
 
 ## Sanctions metadata columns
 
@@ -58,9 +77,9 @@ date-suffixed version identifiers such as `02014R0833-20260717` are invalid. Do 
 | --- | --- | --- |
 | `recordId` | No | The entry identifier printed in the source annex. Empty when the act prints none — never invent one. |
 | `programKey` | Yes | One OpenSanctions program key that resolves against `meta/programs/*.yml` (e.g. `EU-LBY`). |
-| `annex` | When stated | The source's annex or section identifier, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. |
+| `annex` | When stated | The source's annex or section identifier, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. An annex inserted by an amending act keeps its printed lowercase suffix: `Ia`. |
 | `measure` | Yes | One sanctions measure from the `Measure` vocabulary in `zavod/zavod/stateful/programs.py`, which must also appear in the selected program's `measures:` list. |
-| `startDate` | No | The date the designation takes effect. Empty when the source does not establish it — never infer one. |
+| `startDate` | No | The source's printed per-designation date, date-only — surrounding labels such as `Listed on:` and amendment-history parentheticals are stripped. Empty when the source does not establish a date for the specific designation — never infer one. |
 | `reason` | No | The source's rationale for listing, as prose (maps to `Sanction.reason`). |
 
 There is no `unknown` value for any column; a row whose measure cannot be
@@ -74,6 +93,15 @@ column in either kind.
 `Organization`, `Company`, `Vessel`, or `Asset`, and every populated entity
 column must be a property that exists on that FollowTheMoney schema (e.g. `flag`
 and `imoNumber` only on `Vessel`, `kppCode` only on `Company`).
+
+Name cells preserve the source's wording and casing. A value is categorised
+into `alias`, `weakAlias`, or `previousName` only when the source prints a
+label or structure that says so: `a.k.a.` and `Good quality a.k.a.` mark an
+`alias`, `Low quality a.k.a.` a `weakAlias`, `f.k.a.` and `formerly` a
+`previousName`. Never split a name on punctuation alone or extract
+transliteration variants; an unlabeled combined form stays whole in `name`.
+Irregular values are expected — the consuming crawler routes names through
+the review helpers, where a human categorises them.
 
 The country columns are distinct — use the most specific one:
 
@@ -90,8 +118,28 @@ country.
 
 Use `birthDate` for people and `incorporationDate` for legal entities. Put
 identifiers in the most specific property the source supports (`innCode`,
-`ogrnCode`, `kppCode`, `okpoCode`, `imoNumber`); use `taxNumber`, `idNumber`, or
-`registrationNumber` only when no more specific system is established.
+`ogrnCode`, `kppCode`, `okpoCode`, `leiCode`, `swiftBic`, `ticker`,
+`imoNumber`, `mmsi`); use `taxNumber`, `idNumber`, or `registrationNumber`
+only when no more specific system is established.
+
+`legalForm` holds the source's stated type or legal form of a legal entity
+(`Type of entity: Governmental Agency` produces `Governmental Agency`).
+`appearance` holds physical-description prose, `ethnicity` the stated ethnic
+background, and `fatherName` and `motherName` a stated parent's name.
+`sector` holds the source's stated business sector of a legal entity.
+
+`notes` collects the source's other-information prose about the entity
+itself when it fits no structured column, one value per printed line or
+paragraph. Notes values are bare prose: a printed label is the instruction
+for which column the value belongs in and is never part of any cell value —
+`Other information: Owns a villa.` produces the notes value `Owns a villa.`
+A labelled value that no column fits is not transcribed; cell values are
+never assembled from parsed pieces. Deliberate drops, documented in each
+parser: identity-document validity lines (`Date of issue: …`,
+`Expiration date: …`), kin names (`Brother's name: …`), and relational lines
+that name other parties (`Associated individuals: …`,
+`Associated entities: …`). Identifiers embedded in prose lines belong in
+their proper identifier columns instead.
 
 Use `Asset` for a directly restricted thing that is not a legal entity or vessel:
 facilities and geographic zones use `name` with their published location in
@@ -103,15 +151,26 @@ Do not recast such targets as `LegalEntity` or `Organization`.
 - Cells are trimmed. Missing values are empty cells — never placeholders such as
   `unknown`, `N/A`, or `-`.
 - Every entity column except `name` is multi-valued, separated by `;` with a
-  single space after the separator preferred: `Foo; Bar`. Elements must be
-  non-empty and unique after trimming. All other columns — the CELEX columns,
-  `recordId`, `programKey`, `annex`, `measure`, `startDate`, `reason`, `schema`,
-  and `name` — are scalar and never split.
-- Dates (`startDate`, `birthDate`, `incorporationDate`) are `YYYY`, `YYYY-MM`, or
-  `YYYY-MM-DD` and must be calendar-valid.
+  single space after the separator preferred: `Foo; Bar`. A value that itself
+  contains `;` or `"` is CSV-quoted within the cell, with embedded quotes
+  doubled — `"Foo; Bar"; Baz` holds two values — so cells decode losslessly
+  with a `;`-delimiter CSV parser (e.g. Python `csv` with `delimiter=";"` and
+  `skipinitialspace=True`). Elements must be non-empty and unique after
+  trimming. All other columns — the CELEX columns, `recordId`, `programKey`,
+  `annex`, `measure`, `startDate`, `reason`, `schema`, and `name` — are scalar
+  and never split.
+- All date columns preserve the source's wording; the crawler normalizes them
+  via the dataset YAML's `dates` configuration and `type.date` lookups.
+  `startDate` must additionally be a bare, calendar-valid date in one of these
+  shapes: ISO partial (`2011`, `2011-02`, `2011-02-28`), dotted (`28.2.2011`),
+  worded (`2 December 1985`), or UN-abbreviated (`26 Feb. 2011`). The entity
+  date columns (`birthDate`, `incorporationDate`) are free-form
+  (`4 Apr. 1944`, `Approximately 1952`).
 
 ## Row uniqueness
 
+- An amendment file must contain at least one data row; a consolidated file may
+  contain zero data rows when the framework act's annexes list no designations.
 - Exact duplicate rows are invalid.
 - A non-empty `recordId` may not repeat within the same amended act
   (`amendedCelex`, or the file's `celex` for consolidated files), `annex`,
@@ -124,7 +183,7 @@ Do not recast such targets as `LegalEntity` or `Organization`.
 Every file must pass the validator before it is checked in:
 
 ```
-python datasets/eu/journal_sanctions/validate_csv.py [CSV ...]
+python datasets/eu/journal_sanctions/scripts/validate.py [CSV ...]
 ```
 
 With no arguments it validates every CSV under `amendments/` and `consolidated/`.
@@ -133,3 +192,19 @@ success, `1` on validation failures, and `2` on usage errors. It runs entirely
 offline. The validator checks structure only — it cannot verify that values match
 the source act; that transcription fidelity, including exact country wording,
 remains the reviewer's responsibility.
+
+A transcribed amendment file's header can be brought to the exact column set and
+order above with:
+
+```
+python datasets/eu/journal_sanctions/scripts/format.py [CSV ...]
+```
+
+It rewrites the given files in place, defaulting to every CSV under
+`amendments/`. Columns the header omits are added empty and columns out of order
+are moved; cell values, row content, and row order are untouched. A column that
+is not in the contract, a repeated column, or a row whose cell count disagrees
+with the header is an error that leaves the file unchanged — nothing a reviewer
+wrote is dropped. Consolidated files are written by the annex parsers and are
+not accepted here. Formatting is not validation: a formatted file still has to
+pass `validate.py`.

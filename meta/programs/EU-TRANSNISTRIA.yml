@@ -1,0 +1,21 @@
+id: 325
+title: EU Restrictive measures against the leadership of the Transnistrian
+  region of the Republic of Moldova
+key: EU-TRANSNISTRIA
+url: https://sanctionsmap.eu/#/main/details/25/
+summary: Enables travel restrictions against the leadership of Moldova's
+  breakaway Transnistrian region, established in response to the campaign
+  against Latin-script schools teaching the Moldovan curriculum in
+  Transnistria. The regime is a CFSP decision only — no EU regulation was
+  adopted, and there is no asset freeze. The measures are renewed annually
+  and the list of designated persons is currently empty.
+issuer: eu_council
+dataset: eu_fsf
+aliases:
+  - Decision 2010/573/CFSP
+  - Council Decision concerning restrictive measures against the leadership
+    of the Transnistrian region of the Republic of Moldova
+target_territories:
+  - md-pmr
+measures:
+  - Travel ban

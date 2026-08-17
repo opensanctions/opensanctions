@@ -1,16 +1,18 @@
-"""Validate reviewed EU Journal sanctions CSV files before they are loaded.
+"""Validate reviewed EU Journal sanctions CSV files against the column contract.
 
 Reviewed designations live in git as amendment and consolidated CSV files with
 a fixed column contract, documented in ``data/FORMAT.md`` next to the files.
-This tool checks those files offline — structure,
-CELEX provenance, program and measure vocabulary, FtM schema compatibility,
-dates, multi-value cells, and row uniqueness — so contract violations are
-caught at review time rather than at crawl time. The loader reuses
-``validate_file`` to refuse files that do not validate cleanly.
+This tool checks those files offline — structure, CELEX provenance, program and
+measure vocabulary, FtM schema compatibility, dates, multi-value cells, and row
+uniqueness — so contract violations are caught while a reviewer still has the
+source act open, not once the data is published.
+
+It checks structure only: it cannot verify that a cell matches the source act.
 """
 
 import csv
 import io
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,58 +24,25 @@ from rigour.dates import prefix_interval
 from zavod.shed.ojeu.celex import normalize as normalize_celex
 from zavod.stateful.programs import Measure, get_program_by_key
 
+from common import (
+    AMENDMENT_COLUMNS,
+    CONSOLIDATED_COLUMNS,
+    DATASET_DIR,
+    ENTITY_COLUMNS,
+    parse_abbrev_date,
+    parse_dotted_date,
+    parse_worded_date,
+    split_multi,
+)
+
 FileKind = Literal["amendment", "consolidated"]
 
-ENTITY_COLUMNS: tuple[str, ...] = (
-    "name",
-    "alias",
-    "weakAlias",
-    "previousName",
-    "country",
-    "nationality",
-    "jurisdiction",
-    "birthDate",
-    "birthPlace",
-    "position",
-    "passportNumber",
-    "gender",
-    "incorporationDate",
-    "registrationNumber",
-    "taxNumber",
-    "idNumber",
-    "innCode",
-    "ogrnCode",
-    "kppCode",
-    "okpoCode",
-    "imoNumber",
-    "flag",
-    "address",
-    "phone",
-    "email",
-    "website",
-)
-METADATA_COLUMNS: tuple[str, ...] = (
-    "recordId",
-    "programKey",
-    "annex",
-    "measure",
-    "startDate",
-    "reason",
-    "schema",
-)
-CONSOLIDATED_HEADER: tuple[str, ...] = ("celex",) + METADATA_COLUMNS + ENTITY_COLUMNS
-AMENDMENT_HEADER: tuple[str, ...] = (
-    (
-        "amendedCelex",
-        "amendmentCelex",
-    )
-    + METADATA_COLUMNS
-    + ENTITY_COLUMNS
-)
-
 # Every entity property column except name holds `;`-separated multi-values.
+# All date columns hold the source's printed wording, normalized in the
+# crawler via the dataset `dates` configuration and `type.date` lookups. The
+# entity date columns (birthDate, incorporationDate) are free-form; startDate
+# is shape-checked only to guard that it is one bare date.
 MULTI_VALUE_COLUMNS: frozenset[str] = frozenset(ENTITY_COLUMNS) - {"name"}
-DATE_COLUMNS: frozenset[str] = frozenset({"birthDate", "incorporationDate"})
 SUPPORTED_SCHEMAS: frozenset[str] = frozenset(
     {"Person", "LegalEntity", "Organization", "Company", "Vessel", "Asset"}
 )
@@ -113,13 +82,6 @@ class ValidationResult:
     issues: list[Issue]
 
 
-def split_multi(value: str) -> list[str]:
-    """Split a `;`-separated multi-value cell into trimmed elements."""
-    if value == "":
-        return []
-    return [part.strip() for part in value.split(";")]
-
-
 def _check_celex(value: str) -> str | None:
     """Return an error message if the value is not one bare normalized CELEX."""
     if ";" in value:
@@ -133,12 +95,29 @@ def _check_celex(value: str) -> str | None:
     return None
 
 
-def _check_date(value: str) -> str | None:
-    """Return an error message unless the value is a calendar-valid partial date."""
-    if len(value) not in (4, 7, 10):
-        return f"date must be YYYY, YYYY-MM, or YYYY-MM-DD: {value!r}"
+# The ISO-partial shape accepted in startDate; the dotted, worded and
+# UN-abbreviated shapes are recognized by the shared parsers in common.py.
+DATE_ISO_RE = re.compile(r"^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$")
+
+
+def _check_start_date(value: str) -> str | None:
+    """Return an error message unless the value is one bare, calendar-valid date."""
+    iso: str | None = None
+    if DATE_ISO_RE.match(value) is not None:
+        iso = value
+    else:
+        iso = (
+            parse_dotted_date(value)
+            or parse_worded_date(value)
+            or parse_abbrev_date(value)
+        )
+    if iso is None:
+        return (
+            "startDate must be one bare date (ISO partial, dotted, worded, "
+            f"or UN-abbreviated): {value!r}"
+        )
     try:
-        prefix_interval(value)
+        prefix_interval(iso)
     except ValueError:
         return f"invalid calendar date: {value!r}"
     return None
@@ -175,9 +154,9 @@ def validate_file(path: Path) -> ValidationResult:
         return ValidationResult(None, [], issues)
 
     header = tuple(raw_rows[0])
-    if header == AMENDMENT_HEADER:
+    if header == AMENDMENT_COLUMNS:
         kind: FileKind = "amendment"
-    elif header == CONSOLIDATED_HEADER:
+    elif header == CONSOLIDATED_COLUMNS:
         kind = "consolidated"
     else:
         issues.append(
@@ -185,7 +164,10 @@ def validate_file(path: Path) -> ValidationResult:
         )
         return ValidationResult(None, [], issues)
     if len(raw_rows) == 1:
-        issues.append(Issue(path, None, None, "file contains no data rows"))
+        # An amendment transcribes at least one change; a consolidated file
+        # may legitimately snapshot a framework act with empty annexes.
+        if kind == "amendment":
+            issues.append(Issue(path, None, None, "file contains no data rows"))
         return ValidationResult(kind, [], issues)
 
     source_column = "amendmentCelex" if kind == "amendment" else "celex"
@@ -304,15 +286,19 @@ def validate_file(path: Path) -> ValidationResult:
                     )
                 )
 
-        # Dates: scalar startDate, multi-valued entity date columns.
+        # Dates: only the scalar startDate is shape-checked.
         if record["startDate"] != "":
-            error = _check_date(record["startDate"])
+            error = _check_start_date(record["startDate"])
             if error is not None:
                 issues.append(Issue(path, row_num, "startDate", error))
 
         # Multi-value cells.
         for column in MULTI_VALUE_COLUMNS:
-            elements = split_multi(record[column])
+            try:
+                elements = split_multi(record[column])
+            except ValueError as exc:
+                issues.append(Issue(path, row_num, column, str(exc)))
+                continue
             if len(elements) == 0:
                 continue
             if "" in elements:
@@ -330,13 +316,6 @@ def validate_file(path: Path) -> ValidationResult:
                         "multi-valued cell has duplicate elements",
                     )
                 )
-            if column in DATE_COLUMNS:
-                for element in elements:
-                    if element == "":
-                        continue
-                    error = _check_date(element)
-                    if error is not None:
-                        issues.append(Issue(path, row_num, column, error))
 
         # Row uniqueness.
         row_key = tuple(cells)
@@ -409,7 +388,7 @@ def validate_file(path: Path) -> ValidationResult:
 )
 def cli(paths: tuple[Path, ...]) -> None:
     if len(paths) == 0:
-        data_path = Path(__file__).resolve().parent / "data"
+        data_path = DATASET_DIR / "data"
         found = sorted(data_path.joinpath("amendments").glob("*.csv"))
         found.extend(sorted(data_path.joinpath("consolidated").glob("*.csv")))
         if len(found) == 0:
