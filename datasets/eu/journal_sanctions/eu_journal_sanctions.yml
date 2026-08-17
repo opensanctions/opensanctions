@@ -1571,6 +1571,13 @@ lookups:
         value: "1159102022738"
       - match: "KHJBSDKH and 5040942458"
         value: "KHJBSDKH"
+      # Council Implementing Regulation (EU) 2026/1843 prints "Main state
+      # registration number: 11203400006072" for Joint Stock Company "Red
+      # October Corporation". The number has 14 digits, which is neither an
+      # OGRN (13) nor an OGRNIP (15), so the transcription is kept as the
+      # registration number the act states rather than asserted to be an OGRN.
+      - match: "11203400006072"
+        prop: registrationNumber
       - match: "Does not exist"
         value: null
   type.country:
@@ -1887,6 +1894,10 @@ lookups:
         values:
           - "aelektrotyaga@mail.ru"
           - "contact@aoelectrotyaga.ru"
+      - match: "aleksandr.babuchin@domrf.ru, isb@domrf.ru"
+        values:
+          - "aleksandr.babuchin@domrf.ru"
+          - "isb@domrf.ru"
       - match: "avangard2004@yandex.ru,"
         value: "avangard2004@yandex.ru"
       - match: "avto@siagat.ru, mail@siagat.ru, okad@siagat.ru"
@@ -1899,6 +1910,13 @@ lookups:
           - "axk@aleksin.tula.net"
           - "post@alhk.ru"
           - "post@rtalhk.ru"
+      # Council Implementing Regulation (EU) 2026/1843 prints "www.akbars.ru"
+      # inside entry 822's Email line; the run holds two addresses and a
+      # website, and only the addresses belong on this property.
+      - match: "canc@akbars.ru, www.akbars.ru, kanc@akbars.ru"
+        values:
+          - "canc@akbars.ru"
+          - "kanc@akbars.ru"
       - match: "dis_agree@mail.ru, info@niid.uvz.ru, sebniid@mail.ru"
         values:
           - "dis_agree@mail.ru"
@@ -1985,6 +2003,10 @@ lookups:
         values:
           - "kama@portal.ru"
           - "ppz@perm.ru"
+      - match: "mail@primbank.ru, zno@primbank.ru"
+        values:
+          - "mail@primbank.ru"
+          - "zno@primbank.ru"
       - match: "mirtelecom@ro.ru, tdi@mir-telecom.ru, info@mir-telecom.ru"
         values:
           - "mirtelecom@ro.ru"
