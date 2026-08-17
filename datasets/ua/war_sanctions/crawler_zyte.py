@@ -57,7 +57,13 @@ LIQUIDATED_RE = re.compile(r"\bLiquidated\b\s*(?P<date>[\d.]*)")
 
 # Person-page label aliases — they vary by section (war sections vs partner sanctions vs
 # executives). Each FtM property is fed from any of its aliases.
-PERSON_CITIZENSHIP_LABELS = ["Citizenship", "Jurisdiction"]
+PERSON_CITIZENSHIP_LABELS = ["Citizenship"]
+
+# Person sections carry a "Jurisdiction" field, which maps to the FtM property of the same
+# name: the country a person is listed as operating under. Some cells name two ("Israel,
+# russian federation"); the type.country lookups split those into components.
+PERSON_JURISDICTION_LABELS = ["Jurisdiction"]
+
 PERSON_DOB_LABELS = ["Date and place of birth", "DOB"]
 PERSON_POSITION_LABELS = [
     "Position",
@@ -533,6 +539,8 @@ def crawl_person_page(
     person.add("taxNumber", take_lines("TIN"))
     for label in PERSON_CITIZENSHIP_LABELS:
         person.add("citizenship", take_lines(label))
+    for label in PERSON_JURISDICTION_LABELS:
+        person.add("jurisdiction", take_lines(label))
     for label in PERSON_POSITION_LABELS:
         for position in take_lines(label):
             person.add("position", position)
