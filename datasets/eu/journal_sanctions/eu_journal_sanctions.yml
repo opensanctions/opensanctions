@@ -8,6 +8,7 @@ coverage:
 deploy:
   memory: "1500Mi"
   memory_limit: "2000Mi"
+  issues_turns: 300
 load_statements: true
 ci_test: false
 http:
