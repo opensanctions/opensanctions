@@ -17,10 +17,10 @@
     "@uiw/react-codemirror": "^4.25.11",
     "bootstrap": "^5.3.8",
     "codemirror-json-schema": "^0.8.1",
-    "jose": "^6.2.8",
+    "jose": "^6.2.9",
     "json-schema-library": "^11.6.2",
     "kysely": "^0.29.5",
-    "next": "16.3.0",
+    "next": "16.3.1",
     "pg": "^8.23.0",
     "query-string": "^9.5.0",
     "react-bootstrap": "^2.10.10",
@@ -41,7 +41,7 @@
     "ts-jest": "^29.4.12",
     "typescript": "^6",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.0",
+    "eslint-config-next": "^16.3.1",
     "eslint-plugin-import": "^2.32.0"
   },
   "overrides": {
