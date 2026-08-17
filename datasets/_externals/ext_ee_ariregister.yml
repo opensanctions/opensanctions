@@ -84,7 +84,12 @@ assertions:
     schema_entities:
       Person: 4
       LegalEntity: 2
-      Company: 5
+      # Lowered from 5 after MoneySwap OÜ (14461101, sanctioned by pl_mswia)
+      # was struck from the Estonian register on 2026-08-05 and left all four
+      # open data files, taking the match count from 5 to 4. Only a handful of
+      # Estonian companies carry a gating topic, so each dissolution moves this
+      # number by one.
+      Company: 3
     country_entities:
       ee: 5
       cy: 1
