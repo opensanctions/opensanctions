@@ -6,6 +6,7 @@ from functools import cache
 from pathlib import Path
 
 import requests
+from followthemoney.types import registry
 from lxml import html
 from nomenklatura.resolver import Linker
 from normality import normalize
@@ -53,6 +54,10 @@ TRAILING_ABBREVIATION_RE = re.compile(r"^(?P<name>[^()]+?)\s*\((?P<abbr>[^()]+)\
 # The scripts an abbreviation is recognised in. Cyrillic short forms are a
 # different shape ("АО «Казанский Вертолетный Завод»") and go to review instead.
 LATIN_ABBREVIATION_RE = re.compile(r"[A-Za-z0-9 .,&/’'\-]+")
+# The longest string the FtM name type carries. The acts print an a.k.a. run as
+# one comma-joined string and the contract keeps it whole, so a value this long
+# is a list of names rather than a name.
+NAME_MAX_LENGTH = registry.name.max_length
 
 
 @cache
@@ -491,6 +496,20 @@ def split_trailing_abbreviation(value: str) -> tuple[str, str] | None:
     return name, abbr
 
 
+def has_overlong_name(names: h.Names) -> bool:
+    """Whether any value is longer than the FtM name type can carry.
+
+    The character rules cannot see this shape: a comma-joined a.k.a. run has
+    nothing irregular in it but the number of names it holds, so without this
+    the longest of them are the ones that never reach a reviewer.
+    """
+    for _prop, values in names.as_langtexts():
+        for value in values:
+            if len(value.text) > NAME_MAX_LENGTH:
+                return True
+    return False
+
+
 def suggest_abbreviations(entity: Entity, names: h.Names) -> h.Names:
     """Move a printed trailing acronym out of each name value into `abbreviation`.
 
@@ -560,6 +579,7 @@ def crawl_csv_data(context: Context, path: Path) -> None:
             # instead of them: passing `suggested` skips check_names_regularity,
             # which is what applies the yml's name rules.
             is_irregular, regular = h.check_names_regularity(entity, names)
+            is_irregular = is_irregular or has_overlong_name(names)
             h.apply_reviewed_names(
                 context,
                 entity,
