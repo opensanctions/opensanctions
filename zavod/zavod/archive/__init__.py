@@ -260,23 +260,15 @@ def archive_artifact(
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
 
 
-def invalidate_dataset_urls(dataset_name: str, resource: str) -> None:
-    """Purge the CDN cache for a resource's legacy /datasets/ URLs:
-    /datasets/{RELEASE}/{dataset}/{resource} and
-    /datasets/{LATEST}/{dataset}/{resource}.
-
-    The /artifacts/ object is the canonical, immutable URL surfaced in
-    metadata; the /datasets/ URLs exist for back-compat with customers using
-    stable /datasets/{LATEST}/... or /datasets/{RELEASE}/... URLs. The CDN
-    serves them as redirects into /artifacts/ and caches those redirect
-    responses, so purge them when a new version publishes - just like the
-    server-side copies used to be purged."""
-    release_name = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/{resource}"
-    invalidate_archive_cache(release_name)
+def invalidate_dataset_urls(dataset_name: str) -> None:
+    """Purge the CDN cache for a dataset's date-stamped and '/latest/' URLs
+    under /datasets/."""
+    release_prefix = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/*"
+    invalidate_archive_cache(release_prefix)
 
     if settings.RELEASE != LATEST:
-        latest_name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
-        invalidate_archive_cache(latest_name)
+        latest_prefix = f"{DATASETS}/{LATEST}/{dataset_name}/*"
+        invalidate_archive_cache(latest_prefix)
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:

@@ -70,7 +70,7 @@ def publish_dataset(dataset: Dataset) -> None:
     The legacy /datasets/{RELEASE}/{dataset}/ and /datasets/{LATEST}/{dataset}/
     URLs for listed resources, index and collection catalog are served by the
     CDN as redirects into /artifacts/ (operations#2641); their cached responses
-    are purged so they pick up this run.
+    are purged, by wildcard over both prefixes, so they pick up this run.
     """
     version = get_latest(dataset.name, backfill=False)
     if version is None:
@@ -92,9 +92,7 @@ def publish_dataset(dataset: Dataset) -> None:
     _archive_artifacts(dataset, extra_artifacts)
 
     _warn_about_stale_latest_files(dataset, set(all_published_files))
-
-    for name in all_published_files:
-        invalidate_dataset_urls(dataset.name, name)
+    invalidate_dataset_urls(dataset.name)
 
 
 def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) -> None:

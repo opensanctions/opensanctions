@@ -48,14 +48,13 @@ def test_archive_artifact(testdataset1: Dataset):
 def test_invalidate_dataset_urls(
     testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
 ):
-    name = "foo.json"
     purged: list[str] = []
     monkeypatch.setattr("zavod.archive.invalidate_archive_cache", purged.append)
 
-    invalidate_dataset_urls(testdataset1.name, name)
+    invalidate_dataset_urls(testdataset1.name)
     assert purged == [
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{name}",
-        f"{DATASETS}/{LATEST}/{testdataset1.name}/{name}",
+        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
+        f"{DATASETS}/{LATEST}/{testdataset1.name}/*",
     ]
 
 

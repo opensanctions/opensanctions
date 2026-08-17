@@ -99,11 +99,14 @@ def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch)
     assert len(list(release_path.glob("*"))) == 0
     assert len(list(latest_path.glob("*"))) == 0
 
-    # Both the date-stamped and the latest /datasets/ URLs get purged.
-    release_index = f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{INDEX_FILE}"
-    latest_index = f"{DATASETS}/latest/{testdataset1.name}/{INDEX_FILE}"
-    assert release_index in purged
-    assert latest_index in purged
+    # Both the date-stamped and the latest /datasets/ URLs get purged, by
+    # wildcard over the whole prefix rather than file by file.
+    assert purged == [
+        # The root version file, which the redirects resolve through:
+        f"{ARTIFACTS}/{testdataset1.name}/{VERSIONS_FILE}",
+        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
+        f"{DATASETS}/latest/{testdataset1.name}/*",
+    ]
 
     artifact_index = artifact_path.joinpath(INDEX_FILE).read_bytes()
 
