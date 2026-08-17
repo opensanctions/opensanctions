@@ -6,7 +6,7 @@ from zavod import Context, helpers as h
 
 AKA_MATCH = r"\(aka ([^)]+)\)"
 
-SKIPROWS = 4
+SKIPROWS = 10
 
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
@@ -32,10 +32,6 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if npi and npi != "N/A":
         entity.add("npiCode", npi)
 
-    business_name = row.pop("business_name")
-    if business_name and business_name != "N/A":
-        entity.add("alias", business_name)
-
     street = row.pop("street_address")
     city = row.pop("city")
     state = row.pop("state")
@@ -58,14 +54,6 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
 
-    medicaid_id = row.pop("medicaid_provider_number")
-    if medicaid_id and medicaid_id != "N/A":
-        entity.add("idNumber", medicaid_id)
-
-    medicare_number = row.pop("medicare_provider_number")
-    if medicare_number and medicare_number != "N/A":
-        entity.add("idNumber", medicare_number)
-
     sanction = h.make_sanction(context, entity)
     termination_date = row.pop("exclusion_date")
     assert termination_date is not None
@@ -74,18 +62,11 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     termination_date = termination_date.replace("Denial ", "").strip()
     h.apply_date(sanction, "startDate", termination_date)
     sanction.add("reason", row.pop("reason_for_exclusion"))
-    sanction.add("provisions", row.pop("sanction_type"))
 
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(
-        row,
-        ignore=[
-            "verification_contact",
-            "practice_state",
-        ],
-    )
+    context.audit_data(row)
 
 
 def crawl_excel_url(context: Context) -> str:
