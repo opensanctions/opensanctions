@@ -61,3 +61,12 @@ lookups:
         value: 2024-10-04
       - match: 10/252024
         value: 2024-10-25
+      - match: 12/17/2025 - on payment plan
+        value: 2025-12-17
+      # Sanction end dates which state that the exclusion is open-ended rather
+      # than naming a date on which it lapses.
+      - match:
+          - Indefinite
+          - Federal Authority
+          - On Payment Plan
+        value: null
