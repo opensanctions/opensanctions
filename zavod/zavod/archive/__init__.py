@@ -22,19 +22,13 @@ most recent version IDs of the dataset (oldest first, up to
 `{"items": ["20260629141001-mek", ...], "last_successful": "20260707123218-hai"}`.
 It is updated on every run, including failed ones.
 
-`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
-can be found for the latest successful run on a given day.
+`/datasets/{date_stamp}/{dataset}/` is the legacy date-stamped location for
+metadata and resources. We redirect HTTP requests for dates >= 2026-08-17
+to the corresponding `/artifacts/` version directory. When in use, subsequent
+runs starting on the same day overwrote files from earlier runs.
 
-`/datasets/latest/{dataset}/` is the same for the latest successful run
-overall. `/datasets/latest/{dataset}/index.json` is the stable URL for the
-latest metadata of a dataset.
-
-The `/datasets/` URLs are not objects in the bucket: the CDN serves them as
-307 redirects to the corresponding `/artifacts/` file, resolved via the
-version files (see opensanctions/operations#2641). Date stamps before the
-2026-08-17 cutover are still served from the server-side copies made before
-we stopped copying. Our job at publish time is just to purge the CDN cache
-for these URLs so the redirects pick up the new version.
+`/datasets/latest/{dataset}/` was where the latest successful run would copy
+its outputs. We now redirect requests to the latest successful version in `/artifacts/`.
 
 Walking versions
 ----------------
@@ -58,18 +52,14 @@ Success and failure
 -------------------
 
 Each run's `index.json` has a `result` field, either "success" or "failure".
-Failed runs are archived to `/artifacts/` too (with issues, but without data
-resources), but `last_successful` in the root `versions.json` keeps pointing
-at the newest version whose run succeeded - so the `/datasets/latest/`
-redirects always resolve to the last successful run.
+Failed runs archive their index.json and issues files if possible and log the
+new version in versions.json, but do not archive data files or update the last
+successful version reference.
 
 Terminology
 -----------
 
 When storing in /artifacts we use the verb "archive".
-Making a new version reachable via its /datasets URLs is called "publishing";
-since we stopped copying into /datasets (operations#2641) that only means
-purging the CDN cache for those URLs.
 """
 
 import shutil
