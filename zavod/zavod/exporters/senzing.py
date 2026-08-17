@@ -4,6 +4,14 @@
 # This format can then be used to perform record linkage against other datasets.
 # As a next step, the matching results could be converted back into a
 # nomenklatura resolver file and then used to generate integrated FtM entities.
+#
+# Senzing config note (NATIONAL_ID_TYPE / TAX_ID_TYPE):
+# This exporter emits typed identifiers so distinct FtM schemes stay in separate exclusivity
+# namespaces. NATIONAL_ID_TYPE works in the default config. TAX_ID_TYPE needs an ID_TYPE element on
+# the TAX_ID feature, which the Senzing 4.4 default config includes; on engines whose config predates
+# that, apply the companion `senzing_config_updates.gtc` (`sz_configtool -f ...`) -- otherwise TAX_ID_TYPE
+# is dropped at load and distinct tax schemes collide in one untyped namespace. (That script adds the
+# ID_TYPE element to TAX_ID *and* to its comparison call, which is what makes the type actually scored.)
 
 import re
 from itertools import product
