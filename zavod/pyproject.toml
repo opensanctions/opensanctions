@@ -75,7 +75,7 @@ dev = [
     "types-PyYAML",
     "prek",
     "dspy == 3.3.0",
-    "litellm>=1.64.0,<=1.96.0", # required by dspy, pinned following litellm compromise
+    "litellm>=1.64.0,<=1.96.2", # required by dspy, pinned following litellm compromise
 ]
 docs = [
     "pillow",
