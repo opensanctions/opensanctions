@@ -186,6 +186,14 @@ lookups:
   license_numbers:
     normalize: true
     options:
+      # Keys without any whitespace are matched against the license number with all
+      # whitespace removed, so they hold regardless of where the PDF wraps the cell.
+      - match: "44294(HI)R149156(MD)"
+        values: ["44294", "R149156"]
+      - match: "RN348987L(PA)"
+        values: ["RN348987L"]
+      - match: "PN305385"
+        values: ["PN305385"]
       - match: "LG0000537 L1-\n0036672 AN-\n0007759"
         values:
           - LG0000537
@@ -261,12 +269,6 @@ lookups:
         values: ["RN741306"]
       - match: "OK\nO000003(PA)"
         values: ["OKO000003"]
-      - match: "4429\n4(HI)R149156(MD)"
-        values: ["44294", "R149156"]
-      - match: "RN348\n987L(PA)"
-        values: ["RN348987L"]
-      - match: "PN3\n05385"
-        values: ["PN305385"]
       - match: "RN757358/\nPN270730"
         values: ["RN757358", "PN270730"]
       - match: "2\n54128(OH)"
@@ -275,16 +277,12 @@ lookups:
         values:
           - PROMIS# 001400491
           - MA049957
-      - match: "4\n4294(HI)R149156(MD)"
-        values: ["44294", "R149156"]
       - match: "140646(\nNC)"
         values: ["140646"]
       - match: "R0065074(OK\n)"
         values: ["R0065074"]
       - match: "0001158032(\nVA)"
         values: ["0001158032"]
-      - match: "P\nN305385"
-        values: ["PN305385"]
       - match: "RN708529 (PA) DH067595\n(PA)"
         values: ["RN708529", "DH067595"]
       - match: "RN691829\n(PA)"
