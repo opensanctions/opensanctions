@@ -1,10 +1,9 @@
 from rigour.mime.types import JSON
 
-from zavod.archive.backend import get_archive_backend
 from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
-from zavod.archive import DATASETS, LATEST, UNLISTED_RESOURCES, dataset_resource_path
+from zavod.archive import dataset_resource_path
 from zavod.archive import publish_version_history, archive_artifact
 from zavod.archive import invalidate_dataset_urls
 from zavod.archive import INDEX_FILE, CATALOG_FILE
@@ -63,57 +62,25 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
 def publish_dataset(dataset: Dataset) -> None:
     """Publish a dataset.
 
-    Only for successful runs. Also stamps this version as the last successful.
+    Only for successful runs.
 
-    Every file we persist about this run is uploaded to /artifacts/{dataset}/{version}/
+    This entails
 
-    The legacy /datasets/{RELEASE}/{dataset}/ and /datasets/{LATEST}/{dataset}/
-    URLs for listed resources, index and collection catalog are served by the
-    CDN as redirects into /artifacts/ (operations#2641); their cached responses
-    are purged, by wildcard over both prefixes, so they pick up this run.
+    - Adding this version to version history
+    - Archiving all artifacts to /artifacts/{dataset}/{version}/
+    - Stamping this version as the last successful in the version history.
+    - Invalidating /datasets/latest/<dataset> and legacy /datasets/<date>/<dataset>
+      URLs in CDN cache
     """
     version = get_latest(dataset.name, backfill=False)
     if version is None:
         raise ValueError(f"No working version found for dataset: {dataset.name}")
     set_last_successful_version(dataset, version)
 
-    extra_artifacts = []
-    all_published_files: list[str] = [
-        r.name
-        for r in DatasetResources(dataset).all()
-        if r.name not in UNLISTED_RESOURCES
-    ]
-    all_published_files.append(INDEX_FILE)
-
-    if dataset.is_collection:
-        extra_artifacts.append(CATALOG_FILE)
-        all_published_files.append(CATALOG_FILE)
-
+    extra_artifacts = [CATALOG_FILE] if dataset.is_collection else []
     _archive_artifacts(dataset, extra_artifacts)
 
-    _warn_about_stale_latest_files(dataset, set(all_published_files))
     invalidate_dataset_urls(dataset.name)
-
-
-def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) -> None:
-    """Warn about leftover copies in datasets/latest/<dataset>/ of files that we
-    no longer publish so we can clean them up by hand. We don't delete
-    automatically because deleting from the bucket is scary.
-
-    These leftovers matter: the CDN redirect for a /datasets/latest/ URL falls
-    through to the bucket object when the file doesn't exist in the current
-    artifact version, so a stale copy keeps getting served until deleted."""
-    backend = get_archive_backend()
-    latest_prefix = f"{DATASETS}/{LATEST}/{dataset.name}/"
-    for object in backend.list_objects(latest_prefix):
-        basename = object.name[len(latest_prefix) :]
-        if basename not in published_files:
-            log.warning(
-                f"Stale file in datasets/latest/{dataset.name}: {basename}",
-                dataset=dataset.name,
-                object=object.name,
-                updated_at=object.updated_at().isoformat(),
-            )
 
 
 def archive_failure(dataset: Dataset) -> None:
