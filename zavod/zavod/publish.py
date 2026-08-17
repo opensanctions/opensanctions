@@ -60,7 +60,7 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
     publish_version_history(dataset.name)
 
 
-def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
+def publish_dataset(dataset: Dataset) -> None:
     """Publish a dataset.
 
     Only for successful runs. Also stamps this version as the last successful.
@@ -91,11 +91,10 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
 
     _archive_artifacts(dataset, extra_artifacts)
 
-    if republish_to_latest:
-        _warn_about_stale_latest_files(dataset, set(all_published_files))
+    _warn_about_stale_latest_files(dataset, set(all_published_files))
 
     for name in all_published_files:
-        invalidate_dataset_urls(dataset.name, name, republish_to_latest)
+        invalidate_dataset_urls(dataset.name, name)
 
 
 def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) -> None:

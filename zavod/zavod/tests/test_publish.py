@@ -44,12 +44,12 @@ def filter_logs(cap_logs: list[dict], levels: tuple[str, ...]) -> list[dict]:
 
 
 def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
-    """Effectively a 'zavod run' on a dataset, first without --latest, then with.
+    """Effectively a 'zavod run' on a dataset.
 
     Checking that the files expected to be archived are present, that nothing
     is copied into /datasets/ (those URLs are served as redirects into
-    /artifacts/, operations#2641), and that the right /datasets/ URLs get
-    their CDN cache purged in each case."""
+    /artifacts/, operations#2641), and that both the date-stamped and the
+    latest /datasets/ URLs get their CDN cache purged."""
 
     purged: list[str] = []
     monkeypatch.setattr("zavod.archive.invalidate_archive_cache", purged.append)
@@ -70,7 +70,7 @@ def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch)
     export_dataset(testdataset1, view)
 
     with capture_logs() as cap_logs:
-        publish_dataset(testdataset1, republish_to_latest=False)
+        publish_dataset(testdataset1)
     assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
     history = _read_history(testdataset1.name)
     assert history is not None
@@ -99,15 +99,10 @@ def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch)
     assert len(list(release_path.glob("*"))) == 0
     assert len(list(latest_path.glob("*"))) == 0
 
-    # Without --latest, only the /datasets/{RELEASE}/ URLs get purged.
+    # Both the date-stamped and the latest /datasets/ URLs get purged.
     release_index = f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{INDEX_FILE}"
     latest_index = f"{DATASETS}/latest/{testdataset1.name}/{INDEX_FILE}"
     assert release_index in purged
-    assert latest_index not in purged
-
-    publish_dataset(testdataset1, republish_to_latest=True)
-    assert len(list(release_path.glob("*"))) == 0
-    assert len(list(latest_path.glob("*"))) == 0
     assert latest_index in purged
 
     artifact_index = artifact_path.joinpath(INDEX_FILE).read_bytes()
@@ -150,7 +145,7 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
 
     export_dataset(collection, view)
     with capture_logs() as cap_logs:
-        publish_dataset(collection, republish_to_latest=True)
+        publish_dataset(collection)
     assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
 
     history = _read_history(collection.name)
@@ -193,7 +188,7 @@ def test_empty_crawl_does_not_resurrect_archived_statements(
     store = get_store(testdataset1, linker)
     store.sync()
     export_dataset(testdataset1, store.view(testdataset1))
-    publish_dataset(testdataset1, republish_to_latest=True)
+    publish_dataset(testdataset1)
     store.close()
 
     # Run an empty crawl under a fresh version on a clean data path, as in a
@@ -231,7 +226,7 @@ def test_failed_run_does_not_replace_latest_metadata(
     store = get_store(testdataset1, linker)
     store.sync()
     export_dataset(testdataset1, store.view(testdataset1))
-    publish_dataset(testdataset1, republish_to_latest=True)
+    publish_dataset(testdataset1)
     store.close()
     good_version = settings.RUN_VERSION
 

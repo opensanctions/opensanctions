@@ -71,12 +71,11 @@ def export(dataset_path: Path, rebuild_store: bool = True) -> None:
 
 @cli.command("publish", help="Publish data from a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-l", "--latest", is_flag=True, default=False)
-def publish(dataset_path: Path, latest: bool = False) -> None:
+def publish(dataset_path: Path) -> None:
     dataset = _load_dataset(dataset_path)
     make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=False)
     try:
-        publish_dataset(dataset, republish_to_latest=latest)
+        publish_dataset(dataset)
     except Exception:
         log.exception(f"Failed to publish: {dataset_path}")
         sys.exit(1)
@@ -84,17 +83,9 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option(
-    "-l",
-    "--latest",
-    is_flag=True,
-    default=False,
-    help="Whether to purge the cached /datasets/latest/ URLs, in addition to the timestamped ones.",
-)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
     dataset_path: Path,
-    latest: bool = False,
     clear_data: bool = False,
 ) -> None:
     dataset = _load_dataset(dataset_path)
@@ -141,7 +132,7 @@ def run(
 
     # Publish
     try:
-        publish_dataset(dataset, republish_to_latest=latest)
+        publish_dataset(dataset)
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)

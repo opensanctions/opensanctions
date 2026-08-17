@@ -260,15 +260,10 @@ def archive_artifact(
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
 
 
-def invalidate_dataset_urls(
-    dataset_name: str,
-    resource: str,
-    invalidate_latest: bool = True,
-) -> None:
+def invalidate_dataset_urls(dataset_name: str, resource: str) -> None:
     """Purge the CDN cache for a resource's legacy /datasets/ URLs:
-    /datasets/{RELEASE}/{dataset}/{resource} (and
-    /datasets/{LATEST}/{dataset}/{resource} when invalidate_latest=True and
-    RELEASE != LATEST).
+    /datasets/{RELEASE}/{dataset}/{resource} and
+    /datasets/{LATEST}/{dataset}/{resource}.
 
     The /artifacts/ object is the canonical, immutable URL surfaced in
     metadata; the /datasets/ URLs exist for back-compat with customers using
@@ -279,7 +274,7 @@ def invalidate_dataset_urls(
     release_name = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/{resource}"
     invalidate_archive_cache(release_name)
 
-    if invalidate_latest and settings.RELEASE != LATEST:
+    if settings.RELEASE != LATEST:
         latest_name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
         invalidate_archive_cache(latest_name)
 

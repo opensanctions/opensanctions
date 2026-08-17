@@ -79,7 +79,7 @@ def test_run_dataset(testdataset1: Dataset):
     runner = CliRunner()
     result = runner.invoke(cli, ["run", "/dev/null"])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     # Nothing gets copied into /datasets/ - the CDN serves those URLs as
     # redirects into /artifacts/ (operations#2641).
@@ -92,7 +92,7 @@ def test_run_dataset(testdataset1: Dataset):
 
     result = runner.invoke(cli, ["publish", "/dev/null"])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["publish", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["publish", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     assert not latest_path.exists()
     # shutil.rmtree(settings.DATA_PATH)
@@ -107,7 +107,7 @@ def test_run_validation_failed(testdataset3: Dataset):
     )
     assert not (artifacts_path / "issues.json").exists()
     runner = CliRunner()
-    result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     # Validation issues in an aborted run are published
     assert "Assertion countries failed" in result.output, result.output
@@ -122,13 +122,13 @@ def test_run_update_last_successful_version(
     runner = CliRunner()
 
     # testdataset3 has validation errors, so last_successful should NOT be set
-    result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     versions_path = dataset_resource_path(testdataset3.name, VERSIONS_FILE)
     assert not versions_path.exists(), "versions.json should not exist after failed run"
 
     # testdataset1 succeeds, so last_successful should be set
-    result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     versions_path = dataset_resource_path(testdataset1.name, VERSIONS_FILE)
     assert versions_path.exists(), "versions.json should exist after run"

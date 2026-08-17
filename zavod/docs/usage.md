@@ -16,10 +16,10 @@ $ zavod crawl datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 $ zavod export datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 
 # You can publish a dataset to the archive:
-$ zavod publish  --latest datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
+$ zavod publish datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 
 # Combine crawl, export and publish in one command:
-$ zavod run --latest datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
+$ zavod run datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 ```
 
 When you are developing a crawler, it can be handy to rerun the crawler a number
