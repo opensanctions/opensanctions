@@ -233,8 +233,7 @@ lookups:
       # Historical state; map to modern Yemen.
       - match: "People's Democratic Republic of Yemen"
         value: ye
-      # Multi-citizenship persons: the source lists several countries in one
-      # comma-separated citizenship line. Split each into its component countries.
+      # Cells naming more than one country, comma-separated. Split into components.
       - match: "Angola, Portugal"
         values:
           - "Angola"
