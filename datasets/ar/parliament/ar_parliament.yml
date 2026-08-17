@@ -24,11 +24,17 @@ publisher:
   url: https://www.hcdn.gob.ar/index.html
 url: https://datos.hcdn.gob.ar/dataset/legisladores
 data:
-  url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/bed68ccd-81f4-4165-89b5-2b3ff9720cac/download/diputados_actuales1.8.csv
-  format: CSV
+  # The resource labels in the HCDN data portal are mixed up: the resource titled
+  # "Composición Actual de la Cámara" (this one) holds the full history of deputies,
+  # one row per bloc membership period, while the ones titled "Diputados" hold only
+  # the 257 members currently in office. In July 2026 the CSV resources were
+  # replaced with the reduced 1.9 current-composition export, so this JSON is the
+  # only remaining source of the historical mandates.
+  url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/638cf72a-f993-4211-80e1-43984a529e4f/download/diputados_acuales1.8.json
+  format: JSON
   lang: spa
 dates:
-  formats: ["%d/%m/%Y"]
+  formats: ["%Y-%m-%dT%H:%M:%S"]
 
 assertions:
   min:

@@ -6,6 +6,14 @@ from zavod.extract import zyte_api
 
 URL_XPATH = "//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a"
 
+HEADER_ROW = 2
+SOURCE_HEADER = "Sanction Source"
+# Names for the two identically-headed provenance columns.
+SOURCE_HEADERS = {
+    "Sanction Date1": "Sanction Source1",
+    "Sanction Date2": "Sanction Source2",
+}
+
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
     raw_date_1 = row.pop("sanction_date1")
@@ -16,7 +24,8 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     license = row.pop("license")
     npi = row.pop("npi")
     provider_category = row.pop("provider_category")
-    source = row.pop("sanction_source")
+    source_1 = row.pop("sanction_source1")
+    sources_2 = row.pop("sanction_source2")
     city = row.pop("city")
     address = h.format_address(city=city, state="MI", country_code="US")
 
@@ -39,7 +48,8 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
             h.apply_dates(sanction, "startDate", sanction_date_1)
         if sanction_date_2:
             h.apply_dates(sanction, "startDate", sanction_date_2)
-        sanction.add("publisher", source)
+        sanction.add("publisher", source_1)
+        sanction.add("publisher", sources_2)
         sanction.add("reason", reason)
 
         context.emit(entity)
@@ -71,7 +81,8 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
             h.apply_dates(person_sanction, "startDate", sanction_date_1)
         if sanction_date_2:
             h.apply_dates(person_sanction, "startDate", sanction_date_2)
-        person_sanction.add("publisher", source)
+        person_sanction.add("publisher", source_1)
+        person_sanction.add("publisher", sources_2)
         person_sanction.add("reason", reason)
 
         context.emit(person)
@@ -112,8 +123,17 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    # Not read-only: the header cells are relabelled in place below.
+    wb = load_workbook(path)
 
     assert wb.active is not None
+    # The source heads the provenance column of each of its two sanction dates
+    # "Sanction Source". Both slugify to one key, which drops the first column's
+    # values, so name each after the sanction date it follows.
+    header = wb.active[HEADER_ROW]
+    for date_cell, source_cell in zip(header, header[1:]):
+        if source_cell.value == SOURCE_HEADER:
+            source_cell.value = SOURCE_HEADERS[str(date_cell.value)]
+
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
         crawl_item(item, context)
