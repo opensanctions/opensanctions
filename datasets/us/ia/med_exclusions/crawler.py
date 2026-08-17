@@ -30,9 +30,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity.add("name", business_name)
         # The source also names an individual behind some organizations
         if first_name or last_name:
-            entity.add(
-                "alias", h.make_name(first_name=first_name, last_name=last_name)
-            )
+            entity.add("alias", h.make_name(first_name=first_name, last_name=last_name))
     else:
         context.log.warning("Enrollment type not recognized: " + enrollment_type)
         return
