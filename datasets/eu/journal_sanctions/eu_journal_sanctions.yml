@@ -1571,8 +1571,69 @@ lookups:
         value: "1159102022738"
       - match: "KHJBSDKH and 5040942458"
         value: "KHJBSDKH"
+      # Council Implementing Regulation (EU) 2026/1843 prints "Main state
+      # registration number: 11203400006072" for Joint Stock Company "Red
+      # October Corporation". The number has 14 digits, which is neither an
+      # OGRN (13) nor an OGRNIP (15), so the transcription is kept as the
+      # registration number the act states rather than asserted to be an OGRN.
+      - match: "11203400006072"
+        prop: registrationNumber
       - match: "Does not exist"
         value: null
+  type.name:
+    options:
+      # Annex I.B entry 6 of Regulation (EU) 2016/1686 prints the whole a.k.a.
+      # list of Katiba Macina as one comma-separated run, which the snapshot
+      # keeps whole (the acts also print aliases containing commas, so the
+      # parsers never split on one). The run is 445 characters, over the name
+      # type length; the printed items are separated here under review.
+      - match: "Macina Liberation Front, Katiba Macina of Jama’a Nusrat ul-Islam wa al-Muslimin, FLM, MLF, MLM, Massina Liberation Front, Katiba Massina, Massina Brigade, Macina Brigade, Ansar Dine Macina, Harakat Ansar al-Din Macina Brigade, Ansar al-Din South, Macina Battalion, Macina Liberation Movement, La Force de Libération du Macina, ML Movement, Massina Liberation Movement, Ansar al-Din Macina Brigade, Katiba Macina – Ansar Dine, Ansar al-Din Macina"
+        values:
+          - "Macina Liberation Front"
+          - "Katiba Macina of Jama’a Nusrat ul-Islam wa al-Muslimin"
+          - "FLM"
+          - "MLF"
+          - "MLM"
+          - "Massina Liberation Front"
+          - "Katiba Massina"
+          - "Massina Brigade"
+          - "Macina Brigade"
+          - "Ansar Dine Macina"
+          - "Harakat Ansar al-Din Macina Brigade"
+          - "Ansar al-Din South"
+          - "Macina Battalion"
+          - "Macina Liberation Movement"
+          - "La Force de Libération du Macina"
+          - "ML Movement"
+          - "Massina Liberation Movement"
+          - "Ansar al-Din Macina Brigade"
+          - "Katiba Macina – Ansar Dine"
+          - "Ansar al-Din Macina"
+      # Annex IX.I.B entry 97 of Regulation (EU) No 267/2012 prints the same
+      # shape for STEP Standart Teknik Parca, at 627 characters. "Step
+      # Standart Teknyk, Parca San. Ve Tyc. A.S." is kept as one value: it is
+      # the y-transliterated form of the entry's own name, printed with a
+      # comma no other variant in the list carries.
+      - match: "SSTP, Step Standard Technical Components Industry and Trading Corporation, Step Corporation, Step Standart Teknik Parca Sanayi Ve Ticaret A.S., Step AS, Step Company, Stap Standart Tek Par San Tic AS, Step Standart Teknyk, Parca San. Ve Tyc. A.S., STEP Standart Teknik Parca San. ve Tic. A.S., Step Standart Teknik Parca Sanayi ve Ticaret Anonim Sirketi, Step A.S., Step S.A., Step Istanbul, Standart Teknik Parca San Ve Tic A.S., Standart Teknik Parca San. Ve Ticaret A.S., Standard Technical Component Industry and Trade Company, Step Standart Teknik Parca San Ve Tic As, Step Istanbul/Standart Teknik Parca San. Ve Tic. A.S."
+        values:
+          - "SSTP"
+          - "Step Standard Technical Components Industry and Trading Corporation"
+          - "Step Corporation"
+          - "Step Standart Teknik Parca Sanayi Ve Ticaret A.S."
+          - "Step AS"
+          - "Step Company"
+          - "Stap Standart Tek Par San Tic AS"
+          - "Step Standart Teknyk, Parca San. Ve Tyc. A.S."
+          - "STEP Standart Teknik Parca San. ve Tic. A.S."
+          - "Step Standart Teknik Parca Sanayi ve Ticaret Anonim Sirketi"
+          - "Step A.S."
+          - "Step S.A."
+          - "Step Istanbul"
+          - "Standart Teknik Parca San Ve Tic A.S."
+          - "Standart Teknik Parca San. Ve Ticaret A.S."
+          - "Standard Technical Component Industry and Trade Company"
+          - "Step Standart Teknik Parca San Ve Tic As"
+          - "Step Istanbul/Standart Teknik Parca San. Ve Tic. A.S."
   type.country:
     lowercase: true
     options:
@@ -1887,6 +1948,10 @@ lookups:
         values:
           - "aelektrotyaga@mail.ru"
           - "contact@aoelectrotyaga.ru"
+      - match: "aleksandr.babuchin@domrf.ru, isb@domrf.ru"
+        values:
+          - "aleksandr.babuchin@domrf.ru"
+          - "isb@domrf.ru"
       - match: "avangard2004@yandex.ru,"
         value: "avangard2004@yandex.ru"
       - match: "avto@siagat.ru, mail@siagat.ru, okad@siagat.ru"
@@ -1899,6 +1964,13 @@ lookups:
           - "axk@aleksin.tula.net"
           - "post@alhk.ru"
           - "post@rtalhk.ru"
+      # Council Implementing Regulation (EU) 2026/1843 prints "www.akbars.ru"
+      # inside entry 822's Email line; the run holds two addresses and a
+      # website, and only the addresses belong on this property.
+      - match: "canc@akbars.ru, www.akbars.ru, kanc@akbars.ru"
+        values:
+          - "canc@akbars.ru"
+          - "kanc@akbars.ru"
       - match: "dis_agree@mail.ru, info@niid.uvz.ru, sebniid@mail.ru"
         values:
           - "dis_agree@mail.ru"
@@ -1985,6 +2057,10 @@ lookups:
         values:
           - "kama@portal.ru"
           - "ppz@perm.ru"
+      - match: "mail@primbank.ru, zno@primbank.ru"
+        values:
+          - "mail@primbank.ru"
+          - "zno@primbank.ru"
       - match: "mirtelecom@ro.ru, tdi@mir-telecom.ru, info@mir-telecom.ru"
         values:
           - "mirtelecom@ro.ru"
