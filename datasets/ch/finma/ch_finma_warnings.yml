@@ -560,3 +560,7 @@ lookups:
         values:
           - "www.blazerusholdings.com"
           - "www.blazerusholdings.net"
+      - match: "www.stegeritfinanz.com / www.stegeritfinanzag.com"
+        values:
+          - "www.stegeritfinanz.com"
+          - "www.stegeritfinanzag.com"
