@@ -147,7 +147,7 @@ def crawl(context: Context) -> None:
                 month=month,
                 year=year,
                 status_code=zyte_result.status_code,
-                response_length=len(zyte_result.response_text),
+                from_cache=zyte_result.from_cache,
             )
             continue
 
