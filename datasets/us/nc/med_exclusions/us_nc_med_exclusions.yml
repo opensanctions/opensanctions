@@ -31,13 +31,20 @@ data:
 
 dates:
   formats: ["%m/%d/%Y"]
+# Individual providers are listed as their own owner, so they arrive twice: once as the
+# excluded LegalEntity and once as the Person in the ownership column. 78 of the names
+# are shared that way, and resolution merges each pair into a Person, moving it out of
+# the LegalEntity bucket - which is what took LegalEntity from 146 to 72. Keep its floor
+# below where that settles, and assert on Person, the bucket those providers land in.
 assertions:
   min:
     schema_entities:
-      LegalEntity: 100
+      LegalEntity: 50
+      Person: 100
   max:
     schema_entities:
       LegalEntity: 300
+      Person: 250
 lookups:
   type.identifier:
     options:
