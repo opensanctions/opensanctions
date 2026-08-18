@@ -13,7 +13,9 @@ def crawl(context: Context) -> None:
         for row in csv.DictReader(fh):
             name_zho = row.pop("Company_Name_Chinese")
             addr_zho = row.pop("Registered_Address")
-            entity = context.make("Organization")
+            # The owned side of each row is a registered business, so it needs to be a
+            # Company: Organization is not an Asset and can't be an Ownership:asset.
+            entity = context.make("Company")
             entity.id = context.make_id(name_zho)
             entity.add("name", name_zho, lang="zho")
             entity.add("name", row.pop("Company_Name_English"), lang="eng")
@@ -31,6 +33,9 @@ def crawl(context: Context) -> None:
             entity.add("topics", "forced.labor")
             context.emit(entity)
 
+            # Shareholders include XPCC divisions and state asset supervision
+            # commissions besides companies, so they stay Organizations. The ones which
+            # are companies are emitted as such where they show up as an owned entity.
             owner = context.make("Organization")
             owner_name = row.pop("Shareholding_Company_Name")
             if owner_name == name_zho:
