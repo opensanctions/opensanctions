@@ -474,6 +474,10 @@ lookups:
         values:
           - "www.statefunds.com"
           - "www.statefunds.vip"
+      - match: "www.stegeritfinanz.com / www.stegeritfinanzag.com"
+        values:
+          - "www.stegeritfinanz.com"
+          - "www.stegeritfinanzag.com"
       - match: "www.swissalpinum.com / www.swissalpinium.com / www.swissalpin.eu"
         values:
           - "www.swissalpinum.com"
