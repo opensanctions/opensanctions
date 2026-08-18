@@ -35,17 +35,20 @@ data:
 dates:
   formats: ["%m/%d/%Y"]
 
-# The LegalEntity floor is loose on purpose: ~70% of them carry a merged ID because
-# resolution merges each provider with its associated legal entity, so the count falls
-# as dedupe progresses (967 -> 902 -> 659) while the source keeps growing.
+# Don't assert per-schema counts for the providers. ~70% of them carry a merged ID
+# because resolution merges each provider with its associated legal entity, so the
+# count falls as dedupe progresses (967 -> 902 -> 659) while the source keeps growing,
+# and providers split between LegalEntity and Company depending on whether the source
+# discloses someone holding a controlling interest. entity_count rolls up every thing,
+# so it tracks the source rather than either of those.
 assertions:
   min:
+    entity_count: 800
     schema_entities:
-      LegalEntity: 500
       Person: 250
   max:
+    entity_count: 2000
     schema_entities:
-      LegalEntity: 1400
       Person: 600
 
 lookups:
