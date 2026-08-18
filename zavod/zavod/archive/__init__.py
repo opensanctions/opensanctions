@@ -55,11 +55,6 @@ Each run's `index.json` has a `result` field, either "success" or "failure".
 Failed runs archive their index.json and issues files if possible and log the
 new version in versions.json, but do not archive data files or update the last
 successful version reference.
-
-Terminology
------------
-
-When storing in /artifacts we use the verb "archive".
 """
 
 import shutil

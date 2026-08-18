@@ -66,36 +66,35 @@ def test_dump_file():
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_run_dataset(testdataset1: Dataset):
-    latest_path = settings.ARCHIVE_PATH / "datasets" / "latest" / testdataset1.name
+def test_run_publish_dataset(testdataset1: Dataset):
     artifacts_path = (
         settings.ARCHIVE_PATH
         / "artifacts"
         / testdataset1.name
         / settings.RUN_VERSION.id
     )
-    assert not latest_path.exists()
     assert not artifacts_path.exists()
     runner = CliRunner()
+    # zavod run
     result = runner.invoke(cli, ["run", "/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(cli, ["run", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    # Nothing gets copied into /datasets/ - the CDN serves those URLs as
-    # redirects into /artifacts/ (operations#2641).
-    assert not latest_path.exists()
     assert artifacts_path.joinpath("index.json").exists()
     assert artifacts_path.joinpath("entities.ftm.json").exists()
-    # Validation issues in a published run are published
+    # Warning issues in a published run are published
     with open(artifacts_path / "issues.json") as f:
         assert "This is a test warning" in f.read()
+    shutil.rmtree(artifacts_path)
 
+    # zavod publish
+    assert not artifacts_path.exists()
     result = runner.invoke(cli, ["publish", "/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(cli, ["publish", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    assert not latest_path.exists()
-    # shutil.rmtree(settings.DATA_PATH)
+    assert artifacts_path.joinpath("index.json").exists()
+    assert artifacts_path.joinpath("entities.ftm.json").exists()
 
 
 def test_run_validation_failed(testdataset3: Dataset):
