@@ -7,12 +7,13 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
-
 UNBLOCK_VALIDATOR = "//table[@width='100%']"
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
 # Every page we parse is server-rendered ColdFusion HTML with no JavaScript involved,
 # so the fetches ask Zyte for httpResponseBody rather than its default browserHtml.
 HTML_SOURCE = "httpResponseBody"
+# Retry patiently: when throttled, the site answers with a table-less IIS 403 page.
+RETRIES = 7
 
 # Matches DOB in plain-text bios:
 #   French: "Née à Tournai le 22 mai 1963."
@@ -56,28 +57,15 @@ def crawl_person(
     political_group = group_texts[0].strip() if group_texts else ""
 
     context.log.info("Crawling bio", name=squash_spaces(name), profile_url=profile_url)
-    try:
-        pep_doc = zyte_api.fetch_html(
-            context,
-            profile_url,
-            unblock_validator="//table",
-            html_source=HTML_SOURCE,
-            absolute_links=True,
-            cache_days=30,
-        )
-    except zyte_api.UnblockFailedException:
-        # The site occasionally answers a single request with an IIS 403 page, which
-        # carries no table and so exhausts the retries in fetch_html. The person's ID
-        # includes their birth date, which only the profile page carries, so emitting
-        # them without it would mint a second entity for the same member. Skip them
-        # this run instead of losing the whole term - the Person count assertion
-        # catches it if this ever stops being occasional.
-        context.log.warning(
-            "Could not fetch profile page",
-            name=squash_spaces(name),
-            profile_url=profile_url,
-        )
-        return
+    pep_doc = zyte_api.fetch_html(
+        context,
+        profile_url,
+        unblock_validator="//table",
+        html_source=HTML_SOURCE,
+        absolute_links=True,
+        cache_days=30,
+        retries=RETRIES,
+    )
     bio_texts = h.xpath_strings(
         pep_doc,
         './/td/p[contains(., "Né ") or contains(., "Ne ") or contains(., "Née ") or contains(., "Geboren")]/text()',
