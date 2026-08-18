@@ -1,3 +1,26 @@
+# sanctions.csv conventions and update procedure (pattern: bg_mft_national, cn_sanctions):
+#
+# The list is maintained manually in datasets/us/dod_chinese_milcorps/sanctions.csv
+# and served to the crawler from raw.githubusercontent.com. To update after a new
+# 1260H release (detected by the assert_dom_hash check in crawler.py):
+#
+# 1. Fetch the DoD release and the attached 1260H PDF from defense.gov.
+# 2. For each newly listed entity, append one row per listing period. Re-listings of
+#    the same entity are intentional: each listing period is a separate row, keyed by
+#    its Start date.
+# 3. For each delisted entity, set End date on its current row. Never delete rows.
+# 4. Update the expected hash in crawler.py so the release-page check passes again.
+#
+# Row conventions:
+# - Name: the raw name exactly as printed in the DoD list (may include a
+#   parenthesised alias and a trailing asterisk).
+# - Clean Name: the official name without alias or asterisk; identity key for the row.
+# - Alias: the short/parenthesised name; all-caps strings of up to 5 characters are
+#   emitted as weakAlias.
+# - Previous Name / Parent Name: optional; Parent Name creates an Ownership link.
+# - Note: free-text remark, emitted as notes.
+# - Start date / End date: ISO YYYY-MM-DD; dates the listing period per the release.
+# - Source Url: the defense.gov release the row was extracted from.
 name: us_dod_chinese_milcorps
 title: "US DoD Chinese military companies"
 entry_point: crawler.py
@@ -55,7 +78,7 @@ publisher:
     - issuer.west
 url: https://www.war.gov/News/Releases/Release/Article/4511232/dow-releases-list-of-chinese-military-companies-in-accordance-with-section-1260/
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRlrR4f46lTXiAuIijw-0XcW1IXSlWv-duNEc8ha23SpRjGrP_RqJUjnAFv07VDvih025FS0gTdQZbh/pub?gid=0&single=true&output=csv
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/dod_chinese_milcorps/sanctions.csv
   format: CSV
   lang: eng
 ci_test: false  # No zyte key in CI
