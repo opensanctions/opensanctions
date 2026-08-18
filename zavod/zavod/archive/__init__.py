@@ -265,10 +265,8 @@ def invalidate_dataset_urls(dataset_name: str) -> None:
     under /datasets/."""
     release_prefix = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/*"
     invalidate_archive_cache(release_prefix)
-
-    if settings.RELEASE != LATEST:
-        latest_prefix = f"{DATASETS}/{LATEST}/{dataset_name}/*"
-        invalidate_archive_cache(latest_prefix)
+    latest_prefix = f"{DATASETS}/{LATEST}/{dataset_name}/*"
+    invalidate_archive_cache(latest_prefix)
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
