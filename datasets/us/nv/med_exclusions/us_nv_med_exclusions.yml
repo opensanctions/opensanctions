@@ -35,12 +35,8 @@ data:
 dates:
   formats: ["%m/%d/%Y"]
 
-# Don't assert per-schema counts for the providers. ~70% of them carry a merged ID
-# because resolution merges each provider with its associated legal entity, so the
-# count falls as dedupe progresses (967 -> 902 -> 659) while the source keeps growing,
-# and providers split between LegalEntity and Company depending on whether the source
-# discloses someone holding a controlling interest. entity_count rolls up every thing,
-# so it tracks the source rather than either of those.
+# Provider counts move with dedupe and split across LegalEntity/Company, so assert on
+# entity_count, which rolls up every thing and tracks the source instead.
 assertions:
   min:
     entity_count: 800

@@ -38,10 +38,8 @@ dates:
   formats: ["%Y-%m-%d", "%m/%d/%Y"]
 ci_test: false  # Zyte is not available in CI
 
-# The list carries one row per NPI, so a company with several NPIs arrives as several
-# records - "New England Brace Company, Inc." alone accounts for five - and resolution
-# collapses them. 13 Company records are 9 distinct companies, which is what the floor
-# has to allow for. The 63 Person records are 63 distinct names, so they don't collapse.
+# One row per NPI, so a company with several NPIs arrives several times and dedupe
+# collapses them: 13 Company records are 9 distinct companies.
 assertions:
   min:
     schema_entities:
