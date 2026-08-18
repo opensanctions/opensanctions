@@ -2,13 +2,22 @@ title: "US Special Legislative Exclusions"
 entry_point: crawler.py
 prefix: us-leg
 manual_check:
-  last_check: "2026-07-23"
+  last_checked: "2026-07-23"
   interval: 90
   message: >-
-    Please check whether any amendments have been made to the legislation listed in this dataset.
+    Sections 889 (FY19 NDAA), 5949 (FY23 NDAA) and 154 (FY24 NDAA) name their entities in the
+    statute text, so a list only changes if Congress amends the section. Check the enacted NDAA
+    for the current fiscal year on https://www.congress.gov/ for amendments to each section, and
+    search https://www.federalregister.gov/ for the FAR and DFARS rules implementing each
+    prohibition, which restate the covered entities: FAR clause 52.204-25 for Section 889, and
+    "Federal Acquisition Regulation: Prohibition on Certain Semiconductor Products and Services"
+    for Section 5949.
 
-    There does not seem to be a standard way to track amendments to these legislations, so manually
-    searching for press releases announcing amendments to the individual legislations is required.
+    Section 353: the designation authority expired in December 2023, so no further report is
+    expected. Check that the State Department has not published one anyway.
+
+    Section 1286 and INKSNA need no manual check. The crawler warns about lists newly published
+    on cto.mil and about new Federal Register determinations.
 coverage:
   frequency: never
   schedule: "@weekly"
@@ -73,9 +82,9 @@ publisher:
   country: us
   url: https://www.congress.gov/
   official: true
-url: https://docs.google.com/spreadsheets/d/18p4GLexZuK0XHZFOXXdSCreVVtxf3H0ERwlTEbQJmdo/edit#gid=0
+url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/source_files
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSVatiUNMn-TatTYOQhYOPbEBRBwmoBG6LtaJklPPzLju1x-qrJxxBlsDwuis3IyKz77dHp3xvvnMRb/pub?gid=0&single=true&output=csv
+  url: https://github.com/opensanctions/opensanctions/tree/main/datasets/us/special_leg/source_files
   format: CSV
   lang: eng
 dates:

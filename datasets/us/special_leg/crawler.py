@@ -1,10 +1,29 @@
 import csv
+import shutil
 from pathlib import Path
+from typing import cast
+
+import requests
+from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
 LOCAL_PATH = Path(__file__).parent
+# One CSV per act, report or designation authority covered by the dataset.
+SOURCE_FILES_PATH = LOCAL_PATH / "source_files"
+SECTION_1286_FILE = SOURCE_FILES_PATH / "section_1286.csv"
 FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
+# The Section 1286 lists are published by the DoD Chief Technology Officer as a
+# WordPress post per fiscal year, each linking that year's list as a PDF. The
+# post slug carries the fiscal year, so a new edition is a new post rather than
+# a change to an existing one.
+CTO_API_URL = "https://www.cto.mil/wp-json/wp/v2/posts"
+CTO_API_PARAMS = {
+    "search": "Section 1286",
+    "per_page": "20",
+    "_fields": "date,link",
+}
+CTO_CACHE_DAYS = 1
 
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
@@ -49,9 +68,9 @@ def crawl_fr_notices(context: Context) -> None:
     # designations published in the Federal Register can take weeks or months
     # to appear in the CSL. This function monitors the FR API directly so that
     # any new notice triggers a warning.
-    # If the hash changes, review the updated fr_notices.csv for new entries and
-    # update the us_special_leg Google Sheet accordingly. Then commit the updated
-    # fr_notices.csv and update the hash in this function.
+    # If the hash changes, review the updated fr_notices.csv for new entries
+    # and add the designations to source_files/inksna.csv accordingly. Then
+    # commit the updated fr_notices.csv and update the hash in this function.
     h.assert_url_hash(context, FR_API_URL, "9ee76295f4ac089fe7382bf6f33b947dae5f9eb0")
     rows: list[list[str]] = []
     url = FR_API_URL
@@ -75,10 +94,88 @@ def crawl_fr_notices(context: Context) -> None:
         writer.writerows(rows)
 
 
+def check_section_1286_lists(context: Context) -> None:
+    """Warn about published Section 1286 lists that are not in the CSV yet.
+
+    A post is reviewed once one of the documents it links is the source_url of a
+    Section 1286 row, so importing a new fiscal-year list mutes its own warning.
+    The posts link their PDFs over http while the CSV records them over https,
+    so the URLs are compared without their scheme.
+    """
+    with open(SECTION_1286_FILE, encoding="utf-8", newline="") as fh:
+        imported = {
+            url.split("://", 1)[-1]
+            for row in csv.DictReader(fh)
+            for url in h.multi_split(row["source_url"], ";")
+        }
+
+    posts = context.fetch_json(
+        CTO_API_URL, params=CTO_API_PARAMS, cache_days=CTO_CACHE_DAYS
+    )
+    # Every known list is still published, so an empty result means the site,
+    # the API or the search behaviour has changed.
+    if len(posts) == 0:
+        context.log.warning("Section 1286 list search returned no posts")
+
+    for post in posts:
+        page = context.fetch_html(
+            post["link"], cache_days=CTO_CACHE_DAYS, absolute_links=True
+        )
+        links = h.xpath_elements(page, "//a[@href]")
+        urls = [cast(str, link.get("href")) for link in links]
+        documents = [url for url in urls if url.lower().endswith(".pdf")]
+        if any(url.split("://", 1)[-1] in imported for url in documents):
+            continue
+        context.log.warning(
+            "Unreviewed Section 1286 list",
+            url=post["link"],
+            date=post["date"],
+            documents=documents,
+        )
+
+
+def crawl_source_file(context: Context, source_file: Path) -> None:
+    """Emit the entities of one act, report or designation authority."""
+    resource_path = context.get_resource_path(source_file.name)
+    shutil.copy(source_file, resource_path)
+    context.export_resource(
+        resource_path, CSV, f"{context.SOURCE_TITLE}: {source_file.name}"
+    )
+
+    with open(source_file, encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+
+    # Each file covers exactly one legal basis, so that a new act is added as a
+    # new file rather than mixed into an existing one.
+    programs = {row["program"] for row in rows}
+    if len(programs) != 1:
+        raise ValueError(f"{source_file.name} covers {len(programs)} programs")
+
+    # An entity is listed at most once per edition of a list: repeated names
+    # within an edition mean the source was transcribed twice, or with one row
+    # per alias instead of one row per entity.
+    seen: set[tuple[str, str]] = set()
+    for row in rows:
+        listing = (row["report-date"], row["name"])
+        if listing in seen:
+            raise ValueError(
+                f"{source_file.name}: {row['name']!r} listed twice "
+                f"in the {row['report-date']!r} edition"
+            )
+        seen.add(listing)
+        crawl_row(context, row)
+
+
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.csv", context.data_url)
-    with open(path) as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
-            crawl_row(context, row)
+    source_files = sorted(SOURCE_FILES_PATH.glob("*.csv"))
+    if len(source_files) == 0:
+        raise ValueError(f"No source data found in {SOURCE_FILES_PATH}")
+    for source_file in source_files:
+        crawl_source_file(context, source_file)
+
     crawl_fr_notices(context)
+
+    try:
+        check_section_1286_lists(context)
+    except requests.RequestException as exc:
+        context.log.warning("Section 1286 list discovery failed", error=str(exc))
