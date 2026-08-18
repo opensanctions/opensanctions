@@ -6,8 +6,12 @@ manual_check:
   interval: 90
   message: >-
     Sections 889 (FY19 NDAA), 5949 (FY23 NDAA) and 154 (FY24 NDAA) name their entities in the
-    statute text, and there is no standard way to track amendments to them: search for press
-    releases announcing an amendment to each.
+    statute text, so a list only changes if Congress amends the section. Check the enacted NDAA
+    for the current fiscal year on https://www.congress.gov/ for amendments to each section, and
+    search https://www.federalregister.gov/ for the FAR and DFARS rules implementing each
+    prohibition, which restate the covered entities: FAR clause 52.204-25 for Section 889, and
+    "Federal Acquisition Regulation: Prohibition on Certain Semiconductor Products and Services"
+    for Section 5949.
 
     Section 353: the designation authority expired in December 2023, so no further report is
     expected. Check that the State Department has not published one anyway.
@@ -65,13 +69,6 @@ description: |
   Designations are announced in the Federal Register.
 
   Additional pieces of legislation may be added to this dataset from time to time.
-
-  The named entities exist only in the text of the individual acts, reports and
-  Federal Register notices, none of which are machine-readable. The data is
-  therefore maintained as reviewed CSV files in the OpenSanctions repository,
-  one per act or designation authority. See the
-  [maintenance guide](https://github.com/opensanctions/opensanctions/blob/main/datasets/us/special_leg/MAINTENANCE.md)
-  for the conventions used to turn official sources into structured rows.
 
   **This dataset is manually maintained and not automatically updated with new legislation.**
 tags:

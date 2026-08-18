@@ -57,7 +57,7 @@ The search is a keyword query, so a post that is not a list at all would keep
 warning. None exist today; if one appears, skip it by URL in the crawler.
 
 This detects new and re-issued documents. It does not detect an edit to the
-bytes behind a URL that is already imported, and the two acts and one report
+bytes behind a URL that is already imported, and the three acts and one report
 that are not published as a list — Sections 889, 5949 and 154, and the Section
 353 report — are covered by `manual_check` rather than by any monitor.
 
