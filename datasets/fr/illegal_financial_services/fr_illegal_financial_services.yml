@@ -36,10 +36,10 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 2400
+      LegalEntity: 3000
   max:
     schema_entities:
-      LegalEntity: 3800
+      LegalEntity: 4000
 
 lookups:
   type.email:
