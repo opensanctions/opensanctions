@@ -7,9 +7,13 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
-
 UNBLOCK_VALIDATOR = "//table[@width='100%']"
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
+# Every page we parse is server-rendered ColdFusion HTML with no JavaScript involved,
+# so the fetches ask Zyte for httpResponseBody rather than its default browserHtml.
+HTML_SOURCE = "httpResponseBody"
+# Retry patiently: when throttled, the site answers with a table-less IIS 403 page.
+RETRIES = 7
 
 # Matches DOB in plain-text bios:
 #   French: "Née à Tournai le 22 mai 1963."
@@ -57,8 +61,10 @@ def crawl_person(
         context,
         profile_url,
         unblock_validator="//table",
+        html_source=HTML_SOURCE,
         absolute_links=True,
         cache_days=30,
+        retries=RETRIES,
     )
     bio_texts = h.xpath_strings(
         pep_doc,
@@ -122,6 +128,7 @@ def crawl_term(context: Context, legislature: Legislature) -> None:
         context,
         legislature.url,
         unblock_validator=UNBLOCK_VALIDATOR,
+        html_source=HTML_SOURCE,
         absolute_links=True,
         cache_days=1,
     )
@@ -138,6 +145,7 @@ def crawl(context: Context) -> None:
         context,
         context.data_url,
         unblock_validator=UNBLOCK_VALIDATOR,
+        html_source=HTML_SOURCE,
         absolute_links=True,
         cache_days=1,
     )
