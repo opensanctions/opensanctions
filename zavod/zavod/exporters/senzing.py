@@ -60,15 +60,24 @@ def map(
     type_attr: str | None = None,
     country: str | None = None,
     country_attr: str | None = None,
+    type_val: str | None = None,
+    subtype_attr: str | None = None,
+    subtype_val: str | None = None,
 ) -> None:
     for value in entity.get(prop, quiet=True):
         item = {attr: value}
         if type_attr is not None:
-            # Preserve the FtM property as the identifier TYPE. Several distinct
-            # schemes (e.g. ogrnCode vs registrationNumber vs innCode) otherwise
-            # collapse into one untyped Senzing field, so a mismatch between two
-            # different-scheme numbers is wrongly treated as an exclusive conflict.
-            item[type_attr] = prop
+            # The BROAD identifier scheme, which governs the exclusivity namespace.
+            # Defaults to the FtM property name; pass `type_val` to place a specific
+            # scheme under a broader one (e.g. ogrnCode -> TYPE=registrationNumber).
+            item[type_attr] = type_val if type_val is not None else prop
+        if subtype_attr is not None:
+            # The FINE scheme within the broad TYPE (e.g. ogrnCode within
+            # registrationNumber). A refinement, not a separate namespace: a bare
+            # broad type partial-matches a subtyped one rather than conflicting. Needs
+            # the ID_SUBTYPE element (see GDEV-4439 / the companion config script);
+            # dropped by configs that predate it, leaving just the broad TYPE.
+            item[subtype_attr] = subtype_val if subtype_val is not None else prop
         if country and country_attr is not None:
             # Qualify the identifier by country. Exclusive ids (NATIONAL_ID/TAX_ID/
             # PASSPORT) are only unique WITHIN a country, so a country puts them in
@@ -134,7 +143,6 @@ class SenzingExporter(Exporter):
         record: dict[str, Any] = {
             "DATA_SOURCE": self.source_name,
             "RECORD_ID": entity.id,
-            "RECORD_TYPE": record_type,
             "LAST_CHANGE": entity.last_change,
         }
 
@@ -162,6 +170,10 @@ class SenzingExporter(Exporter):
         map(entity, "birthDate", record, "DATES", "DATE_OF_BIRTH")
         map(entity, "deathDate", record, "DATES", "DATE_OF_DEATH")
         map(entity, "incorporationDate", record, "DATES", "REGISTRATION_DATE")
+        # Organization dissolution date — the org analog of a person's DATE_OF_DEATH.
+        # Emitted formatted for Senzing; a consumer can register a DISSOLUTION_DATE feature
+        # if they want it scored (parallel to REGISTRATION_DATE for incorporation).
+        map(entity, "dissolutionDate", record, "DATES", "DISSOLUTION_DATE")
         map(entity, "birthPlace", record, "ADDRESSES", "PLACE_OF_BIRTH")
         map(
             entity,
@@ -198,74 +210,42 @@ class SenzingExporter(Exporter):
             country=passport_country,
             country_attr="PASSPORT_COUNTRY",
         )
-        # NATIONAL_ID / TAX_ID collapse several distinct FtM identifier schemes into one
-        # Senzing field; keep the FtM property as *_TYPE so they remain distinguishable,
-        # and qualify by *_COUNTRY (both are exclusive and only unique within a country).
+        # NATIONAL_ID / TAX_ID collapse several distinct FtM identifier schemes into one Senzing
+        # field. We disambiguate with a two-level scheme + a country qualifier:
+        #   *_TYPE     = the BROAD scheme, which governs the exclusivity namespace;
+        #   *_SUBTYPE  = the FINE scheme within it (GDEV-4439) — a refinement, so a bare broad type
+        #                partial-matches a subtyped one instead of conflicting;
+        #   *_COUNTRY  = issuer (exclusive ids are only unique within a country).
+        #
+        # The `*_TYPE` value is the UPPER-CASE canonical scheme from the Senzing identifier crosswalk
+        # (INN, VAT, REGISTRATION_NUMBER, …) rather than the raw FtM property, so every source that
+        # loads into the same Senzing instance shares one exclusivity namespace per scheme. A bare
+        # GENERIC default (`idNumber` / `taxNumber`) carries NO *_TYPE. Distinct schemes each get
+        # their canonical *_TYPE; *_SUBTYPE is used ONLY where a broad TYPE has multiple sub-registries
+        # and the source may not know which — RU has several REGISTRATION_NUMBER registries, so
+        # `ogrnCode` is TYPE=REGISTRATION_NUMBER + SUBTYPE=OGRN (a bare REGISTRATION_NUMBER then
+        # partial-matches it instead of conflicting).
         id_num = "NATIONAL_ID_NUMBER"
         id_type = "NATIONAL_ID_TYPE"
+        id_subtype = "NATIONAL_ID_SUBTYPE"
         id_ctry = "NATIONAL_ID_COUNTRY"
         tax_num = "TAX_ID_NUMBER"
         tax_type = "TAX_ID_TYPE"
         tax_ctry = "TAX_ID_COUNTRY"
+        # Generic defaults -> blank TYPE.
+        map(entity, "idNumber", record, "IDENTIFIERS", id_num, None, id_country, id_ctry)
+        map(entity, "taxNumber", record, "IDENTIFIERS", tax_num, None, id_country, tax_ctry)
+        # Distinct schemes -> canonical (upper-case) *_TYPE.
+        map(entity, "registrationNumber", record, "IDENTIFIERS", id_num, id_type, id_country, id_ctry,
+            type_val="REGISTRATION_NUMBER")
+        map(entity, "innCode", record, "IDENTIFIERS", tax_num, tax_type, id_country, tax_ctry,
+            type_val="INN")
+        map(entity, "vatCode", record, "IDENTIFIERS", tax_num, tax_type, id_country, tax_ctry,
+            type_val="VAT")
+        # ogrnCode = one of several RU registration registries -> SUBTYPE under REGISTRATION_NUMBER.
         map(
-            entity,
-            "idNumber",
-            record,
-            "IDENTIFIERS",
-            id_num,
-            id_type,
-            id_country,
-            id_ctry,
-        )
-        map(
-            entity,
-            "registrationNumber",
-            record,
-            "IDENTIFIERS",
-            id_num,
-            id_type,
-            id_country,
-            id_ctry,
-        )
-        map(
-            entity,
-            "ogrnCode",
-            record,
-            "IDENTIFIERS",
-            id_num,
-            id_type,
-            id_country,
-            id_ctry,
-        )
-        map(
-            entity,
-            "taxNumber",
-            record,
-            "IDENTIFIERS",
-            tax_num,
-            tax_type,
-            id_country,
-            tax_ctry,
-        )
-        map(
-            entity,
-            "innCode",
-            record,
-            "IDENTIFIERS",
-            tax_num,
-            tax_type,
-            id_country,
-            tax_ctry,
-        )
-        map(
-            entity,
-            "vatCode",
-            record,
-            "IDENTIFIERS",
-            tax_num,
-            tax_type,
-            id_country,
-            tax_ctry,
+            entity, "ogrnCode", record, "IDENTIFIERS", id_num, id_type, id_country, id_ctry,
+            type_val="REGISTRATION_NUMBER", subtype_attr=id_subtype, subtype_val="OGRN",
         )
         map(entity, "socialSecurityNumber", record, "IDENTIFIERS", "SSN_NUMBER")
         map(entity, "leiCode", record, "IDENTIFIERS", "LEI_NUMBER")
@@ -379,6 +359,30 @@ class SenzingExporter(Exporter):
 
             if len(addrs_list) != len(addr_hashes):
                 record["ADDRESSES"] = unique_addrs
+
+        # Emit the recommended single-list FEATURES schema (one list for every feature) rather than
+        # the legacy per-feature sub-lists (NAMES/ADDRESSES/IDENTIFIERS/...). Senzing accepts both and
+        # resolves them identically; the single list is cleaner and consistent across mappers. Built
+        # via sub-lists above (so the address/name dedup and BUSINESS tagging stay simple), flattened
+        # here. Record-level metadata (DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL) stays at the top level.
+        feats: list[dict[str, Any]] = []
+        if record_type is not None:
+            feats.append({"RECORD_TYPE": record_type})
+        if (gender := record.pop("GENDER", None)) is not None:
+            feats.append({"GENDER": gender})
+        for section in (
+            "NAMES",
+            "RISKS",
+            "ADDRESSES",
+            "DATES",
+            "COUNTRIES",
+            "CONTACTS",
+            "IDENTIFIERS",
+            "SOURCE_LINKS",
+            "RELATIONSHIPS",
+        ):
+            feats.extend(record.pop(section, []))
+        record["FEATURES"] = feats
 
         # pprint(record)
         write_json(record, self.fh)
