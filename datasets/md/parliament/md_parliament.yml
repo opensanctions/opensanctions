@@ -1,0 +1,63 @@
+title: Moldova Members of Parliament
+entry_point: crawler.py
+prefix: md-parl
+coverage:
+  frequency: monthly
+  start: "2026-08-19"
+load_statements: true
+ci_test: false  # Zyte (Cloudflare)
+summary: >-
+  Members of Moldova's unicameral national legislature
+description: |
+  Current members and recent members of the Parliament of the
+  Republic of Moldova (Parlamentul Republicii Moldova), the country's unicameral
+  national legislature. Its 101 members are elected by proportional representation for
+  four-year terms and exercise legislative power.
+url: https://parlament.md/
+publisher:
+  name: Parlamentul Republicii Moldova
+  name_en: Parliament of the Republic of Moldova
+  description: >-
+    The Parliament is the unicameral legislative authority of the Republic of Moldova.
+  url: https://parlament.md/
+  country: md
+  official: true
+data:
+  url: https://parlament.md/home.nspx
+  format: JSON
+  lang: eng
+
+http:
+  # Browser rendering fetches both available rosters under one 40-second abort window;
+  # the 90-second Zyte timeout covers the roughly doubled in-page request time.
+  zyte_timeout: 90
+
+tags:
+  - list.pep
+
+lookups:
+  faction_status:
+    required: true
+    options:
+      - match:
+          - Independent
+          - Unaffiliated
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 110
+      Position: 1
+    country_entities:
+      md: 110
+    entities_with_prop:
+      Occupancy:
+        holder: 170
+  max:
+    schema_entities:
+      Person: 220
+      Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 260
