@@ -6,8 +6,12 @@ from pdfplumber.page import Page
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
+CONTROLLING_INTEREST = "persons_with_controlling_interest_of_5_or_more"
 
-def crawl_item(row: dict[str, str | None], context: Context) -> None:
+
+def crawl_item(
+    row: dict[str, str | None], context: Context, person_names: set[str]
+) -> None:
     # We already crawl the federal dataset on another crawler
     sanction_tier = row.pop("nevada_medicaid_sanction_tier")
     if (sanction_tier or "").lower() == "federal":
@@ -39,16 +43,12 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         context.emit(associated_entity)
         context.emit(link)
 
-    controlling_interest_name = row.pop(
-        "persons_with_controlling_interest_of_5_or_more"
-    )
-    # Individual providers are listed as holding the controlling interest in themselves,
-    # which is no relationship worth recording. A name other than the provider's own
-    # means the provider is a business, which is what lets it be the asset of an
-    # Ownership: that expects an Asset, and a plain LegalEntity isn't one.
-    if controlling_interest_name and slugify(controlling_interest_name) not in {
-        slugify(n) for n in names
-    }:
+    controlling_interest_name = row.pop(CONTROLLING_INTEREST)
+    # A provider the list names as a controlling-interest holder is a practitioner:
+    # nothing to own, and making them a Company would leave them unassemblable once
+    # resolution merges them with the Person another row emits.
+    is_individual = any(slugify(n) in person_names for n in names)
+    if controlling_interest_name and not is_individual:
         entity.add_schema("Company")
 
         person = context.make("Person")
@@ -115,10 +115,21 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for item in h.parse_pdf_table(
-        context,
-        path,
-        headers_per_page=True,
-        page_settings=page_settings,
-    ):
-        crawl_item(item, context)
+    rows = list(
+        h.parse_pdf_table(
+            context,
+            path,
+            headers_per_page=True,
+            page_settings=page_settings,
+        )
+    )
+    # The list marks a name as a person by putting it in this column, on any row.
+    person_names = {
+        slug
+        for row in rows
+        for part in (row.get(CONTROLLING_INTEREST) or "").split("\n")
+        for name in part.split(" aka ")
+        if (slug := slugify(name)) is not None
+    }
+    for row in rows:
+        crawl_item(row, context, person_names)
