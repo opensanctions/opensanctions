@@ -143,7 +143,11 @@ def crawl(context: Context) -> None:
             if zyte_result:
                 context.cache.delete(zyte_result.cache_fingerprint)
             context.log.exception(
-                "Failed to fetch HTML or find table for month", month=month, year=year
+                "Failed to fetch HTML or find table for month",
+                month=month,
+                year=year,
+                status_code=zyte_result.status_code,
+                from_cache=zyte_result.from_cache,
             )
             continue
 

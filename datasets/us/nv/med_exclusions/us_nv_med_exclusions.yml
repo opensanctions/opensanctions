@@ -35,14 +35,16 @@ data:
 dates:
   formats: ["%m/%d/%Y"]
 
+# Provider counts move with dedupe and split across LegalEntity/Company, so assert on
+# entity_count, which rolls up every thing and tracks the source instead.
 assertions:
   min:
+    entity_count: 800
     schema_entities:
-      LegalEntity: 900
       Person: 250
   max:
+    entity_count: 2000
     schema_entities:
-      LegalEntity: 1400
       Person: 600
 
 lookups:
