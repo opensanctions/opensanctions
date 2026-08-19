@@ -1,14 +1,20 @@
 import csv
+import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from io import StringIO
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 
+import click
 from nomenklatura.wikidata import Claim, Item
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.time import iso_datetime
+from zavod.archive import clear_data_path
+from zavod.logs import configure_logging
+from zavod.meta import Dataset, load_dataset_from_path
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import (
@@ -20,6 +26,7 @@ from zavod.stateful.positions import categorised_position_qids
 from zavod import Context, Entity
 from zavod import helpers as h
 
+DATASET_PATH = Path(__file__).parent / "wd_categories.yml"
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
     "doit": "",
@@ -305,20 +312,98 @@ def crawl_persons(state: CrawlState) -> None:
     # raise RuntimeError("Crawler is in debug mode, do not release results")
 
 
-def crawl(context: Context) -> None:
-    state = CrawlState(context)
-    crawl_declarator(state)
-    category_crawl_specs: list[dict[str, Any]] = context.dataset.config.get(
-        "categories", []
-    )
-    for category_crawl_spec in category_crawl_specs:
-        crawl_category(state, category_crawl_spec)
-        state.context.flush()
+def category_crawl_specs(dataset: Dataset) -> list[dict[str, Any]]:
+    specs: list[dict[str, Any]] = dataset.config.get("categories", [])
+    return specs
 
+
+def warn_stale_exclusions(state: CrawlState) -> None:
+    """Report configured exclusions which no category produced.
+
+    Only meaningful after a full run - a partial run skips most categories, so every
+    exclusion not covered by the selected ones would look stale.
+    """
     stale = state.excluded_qids - state.excluded_qids_seen
     if len(stale) > 0:
-        context.log.warning(
+        state.context.log.warning(
             "Excluded QIDs no longer found in any category", qids=sorted(stale)
         )
 
+
+def crawl(context: Context) -> None:
+    state = CrawlState(context)
+    crawl_declarator(state)
+    for category_crawl_spec in category_crawl_specs(context.dataset):
+        crawl_category(state, category_crawl_spec)
+        state.context.flush()
+
+    warn_stale_exclusions(state)
     crawl_persons(state)
+
+
+@click.command()
+@click.argument("categories", nargs=-1, required=True)
+@click.option(
+    "--clear/--keep",
+    default=True,
+    help="Clear the dataset output directory before running.",
+)
+@click.option(
+    "-d",
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Log what would be emitted without writing statements.",
+)
+@click.option("--debug", is_flag=True, default=False)
+def cli(
+    categories: tuple[str, ...],
+    clear: bool = True,
+    dry_run: bool = False,
+    debug: bool = False,
+) -> None:
+    """Crawl only the named entries of the wd_categories category config.
+
+    A full run takes hours, which makes it useless for checking what one category
+    contributes, or what a `negcats` or `excluded_qids` change does to it. This runs the
+    real crawler against the real dataset config, but over the given categories only.
+    Declarator discovery is skipped.
+
+    Output lands in data/datasets/wd_categories/ like a normal run, so it replaces
+    whatever a previous local run left there unless you pass --keep.
+
+    CATEGORIES - one or more `category` values as spelled in wd_categories.yml, e.g.
+    Political_office-holders_in_the_United_States
+    """
+    configure_logging(level=logging.DEBUG if debug else logging.INFO)
+    dataset = load_dataset_from_path(DATASET_PATH)
+    if dataset is None:
+        raise click.ClickException(f"Cannot load dataset: {DATASET_PATH}")
+
+    specs = {s["category"].strip(): s for s in category_crawl_specs(dataset)}
+    unknown = [c for c in categories if c not in specs]
+    if len(unknown) > 0:
+        raise click.BadParameter(
+            f"Not in the category config: {', '.join(unknown)}",
+            param_hint="CATEGORIES",
+        )
+
+    if clear and not dry_run:
+        clear_data_path(dataset.name)
+
+    context = Context(dataset, dry_run=dry_run)
+    try:
+        context.begin(clear=clear)
+        state = CrawlState(context)
+        for category in categories:
+            crawl_category(state, specs[category])
+            context.flush()
+        crawl_persons(state)
+        context.flush()
+        context.finalize_statements()
+    finally:
+        context.close()
+
+
+if __name__ == "__main__":
+    cli()

@@ -52,6 +52,11 @@
 # them, so they are not emitted at all unless another route (declarator, P1308
 # officeholder) reaches them. A QID which stops showing up in any category is reported as
 # a warning so the list can be pruned.
+#
+# To check the effect of either on the entities we actually emit, without sitting through
+# a full run, crawl the affected category entries on their own:
+# python datasets/_wikidata/categories/crawler.py Political_office-holders_in_Gibraltar
+# See --help; note that it overwrites data/datasets/wd_categories/ like a normal run.
 
 title: Wikidata Persons in Relevant Categories
 entry_point: crawler.py
