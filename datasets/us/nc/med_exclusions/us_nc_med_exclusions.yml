@@ -31,18 +31,25 @@ data:
 
 dates:
   formats: ["%m/%d/%Y"]
-# Individual providers arrive twice, as the excluded LegalEntity and as the Person who
-# owns it, and dedupe merges the pair into a Person - so LegalEntity drains into Person.
+# A provider given as their own owner is a Person and the rest are Companies, so every
+# provider carries one of the two schemata and nothing is left in the LegalEntity bucket.
 assertions:
   min:
+    entity_count: 180
     schema_entities:
-      LegalEntity: 50
-      Person: 100
+      Person: 120
+      Company: 40
   max:
+    entity_count: 350
     schema_entities:
-      LegalEntity: 300
       Person: 250
+      Company: 150
 lookups:
+  type.name:
+    options:
+      # The ownership column names the person, and repeats what they trade as
+      - match: 'ROSALIND CURRENCE BLAND d\b\a ABUNDANT LOVE HOME CARE SERVICES'
+        value: ROSALIND CURRENCE BLAND
   type.identifier:
     options:
       - match: # NPI/ATYPICAL ID in the source
