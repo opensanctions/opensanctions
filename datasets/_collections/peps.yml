@@ -70,6 +70,7 @@ children:
   - ch_parlament
   - ci_national_assembly
   - ci_senate
+  - cl_chamber_deputies
   - cl_info_probidad
   - cl_senate
   - cm_national_assembly
@@ -136,7 +137,9 @@ children:
   - ky_parliament
   - kz_mazhilis
   - kz_senate
+  - la_national_assembly
   - li_landtag
+  - lk_parliament
   - lt_seimas
   - lu_bourgmestres
   - lu_chamber
@@ -177,6 +180,7 @@ children:
   - pl_senate
   - pt_parliament
   - py_congreso
+  - qa_shura_council
   - ro_cdep_deputies
   - ro_fiu_declarations
   - ro_senate
