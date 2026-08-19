@@ -343,25 +343,8 @@ def crawl(context: Context) -> None:
 
 @click.command()
 @click.argument("categories", nargs=-1, required=True)
-@click.option(
-    "--clear/--keep",
-    default=True,
-    help="Clear the dataset output directory before running.",
-)
-@click.option(
-    "-d",
-    "--dry-run",
-    is_flag=True,
-    default=False,
-    help="Log what would be emitted without writing statements.",
-)
 @click.option("--debug", is_flag=True, default=False)
-def cli(
-    categories: tuple[str, ...],
-    clear: bool = True,
-    dry_run: bool = False,
-    debug: bool = False,
-) -> None:
+def cli(categories: tuple[str, ...], debug: bool = False) -> None:
     """Crawl only the named entries of the wd_categories category config.
 
     A full run takes hours, which makes it useless for checking what one category
@@ -369,8 +352,8 @@ def cli(
     real crawler against the real dataset config, but over the given categories only.
     Declarator discovery is skipped.
 
-    Output lands in data/datasets/wd_categories/ like a normal run, so it replaces
-    whatever a previous local run left there unless you pass --keep.
+    Output lands in data/datasets/wd_categories/ like a normal run, replacing whatever a
+    previous local run left there.
 
     CATEGORIES - one or more `category` values as spelled in wd_categories.yml, e.g.
     Political_office-holders_in_the_United_States
@@ -388,12 +371,10 @@ def cli(
             param_hint="CATEGORIES",
         )
 
-    if clear and not dry_run:
-        clear_data_path(dataset.name)
-
-    context = Context(dataset, dry_run=dry_run)
+    clear_data_path(dataset.name)
+    context = Context(dataset)
     try:
-        context.begin(clear=clear)
+        context.begin(clear=True)
         state = CrawlState(context)
         for category in categories:
             crawl_category(state, specs[category])
