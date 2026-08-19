@@ -35,8 +35,8 @@ data:
 dates:
   formats: ["%m/%d/%Y"]
 
-# Provider counts move with dedupe and split across LegalEntity/Company, so assert on
-# entity_count, which rolls up every thing and tracks the source instead.
+# Provider counts move with dedupe, so assert on entity_count, which rolls up every
+# thing and tracks the source instead.
 assertions:
   min:
     entity_count: 800
