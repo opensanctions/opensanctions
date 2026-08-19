@@ -35,6 +35,23 @@
 # and add them one per line to a `negcats` entry in the category config.
 # Consider also adding the person's QID to `exclusion_checks` to detect if other
 # categories cause them to be included that aren't covered by the negcats arguments.
+#
+# Beware that petscan subtracts a `negcats` page from the whole result, not just from the
+# branch that the negative category sits on. Anyone who also reaches the queried category
+# by another route is dropped too, so a negcat on a category which mixes PEPs and non-PEPs
+# (election candidates, party members, alumni) costs real PEPs. Check what a candidate
+# negcat removes before adding it, e.g.
+# curl -G https://petscan.wmcloud.org/ --data-urlencode doit= --data-urlencode depth=4 \
+#   --data-urlencode format=csv --data-urlencode wikidata_item=with \
+#   --data-urlencode wikidata_prop_item_use=Q5 --data-urlencode categories=<CATEGORY> \
+#   --data-urlencode negcats=<NEGCAT>
+# and diff the Wikidata column against the same query without negcats.
+#
+# When the categories are all defensible and only one person is wrong, list their QID
+# under `excluded_qids` instead. Those people are skipped wherever a category discovers
+# them, so they are not emitted at all unless another route (declarator, P1308
+# officeholder) reaches them. A QID which stops showing up in any category is reported as
+# a warning so the list can be pruned.
 
 title: Wikidata Persons in Relevant Categories
 entry_point: crawler.py
@@ -199,6 +216,13 @@ config:
   exclusion_checks:
     - Q5234712 # Came in via Dallas categories under Category:George_M._Dallas
     - Q546195 # Khuit II, Queen Consort of Ancient Egypt
+  # Person QIDs which the categories legitimately contain, but who are not PEPs. Prefer a
+  # `negcats` entry where a whole category is wrong; use this only for one-off people.
+  excluded_qids:
+    # Pastor who filed for the 2018 Florida Democratic US Senate primary and lost it, so
+    # he sits in Category:Candidates_in_the_2018_United_States_Senate_elections, four hops
+    # under Political_office-holders_in_the_United_States. He has never held office.
+    - Q7292512
   categories:
     # Position names defined here (the `position.name` field) should be written
     # in English — make_position tags them with lang="eng".

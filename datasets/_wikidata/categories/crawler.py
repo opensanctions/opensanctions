@@ -68,6 +68,9 @@ class CrawlState:
         self._crawled_officeholder_positions: set[str] = set()
         exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
         self.exclusion_checks: set[str] = set(exc)
+        excl = [str(x) for x in context.dataset.config.get("excluded_qids", [])]
+        self.excluded_qids: set[str] = set(excl)
+        self.excluded_qids_seen: set[str] = set()
         self.person_modified_at: dict[str, datetime] = {}
 
     def emit_position(self, position: Entity) -> None:
@@ -195,6 +198,9 @@ def crawl_category(state: CrawlState, category_crawl_spec: dict[str, Any]) -> No
                 "Regression on exclusion found", category=cat, qid=person_qid
             )
             continue
+        if person_qid in state.excluded_qids:
+            state.excluded_qids_seen.add(person_qid)
+            continue
         state.persons[person_qid].from_categories.add(cat)
 
         if person_qid not in state.person_topics:
@@ -308,5 +314,11 @@ def crawl(context: Context) -> None:
     for category_crawl_spec in category_crawl_specs:
         crawl_category(state, category_crawl_spec)
         state.context.flush()
+
+    stale = state.excluded_qids - state.excluded_qids_seen
+    if len(stale) > 0:
+        context.log.warning(
+            "Excluded QIDs no longer found in any category", qids=sorted(stale)
+        )
 
     crawl_persons(state)
