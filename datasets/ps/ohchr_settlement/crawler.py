@@ -50,7 +50,7 @@ def crawl(context: Context) -> None:
     # current listing, followed by a smaller table of enterprises that have been delisted. To
     # sync the Sheet when the OHCHR page changes:
     #   1. Run the crawler locally. It rewrites table.csv from the OHCHR page and logs a
-    #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
+    #      "File hash changed" warning with the new hash; diff table.csv to see what changed.
     #   2. Add newly listed enterprises from the first table to the Google Sheet. For each
     #      enterprise in the delisted table, remove it from the Sheet if present (do not add
     #      it). These edits live in Google Drive, not the PR.
@@ -60,14 +60,17 @@ def crawl(context: Context) -> None:
         for table in h.xpath_elements(content[0], ".//table")
         for row in h.parse_html_table(table)
     ]
-    with open(Path(__file__).parent / "table.csv", "w") as fh:
+    table_path = Path(__file__).parent / "table.csv"
+    with open(table_path, "w") as fh:
         writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
         writer.writeheader()
         writer.writerows(rows)
     # Check if the data has been updated, normally with a new report, if the content has changed.
-    h.assert_dom_hash(
-        content[0], "88d41d38d368ce8b9170ca98319969c1875d3500", text_only=True
-    )
+    # We hash the extracted tables rather than the surrounding page node: the page node also
+    # contains the site's business-and-human-rights navigation menu, whose entries change
+    # without any effect on the database. A table added to or removed from the page still
+    # changes table.csv, so the check keeps its original scope.
+    h.assert_file_hash(table_path, "351fdc88600068f7eb40ce8202cec0f872ce00e7")
     # 2018: OHCHR published an interim report (A/HRC/37/39), setting out the methods of work and methodology used to discharge the mandate as set out in Council resolution 31/36.
     # 2020: OHCHR published a report (A/HRC/43/71) containing a database listing 112 business enterprises.
     # 2023: OHCHR published an update containing a review of the 112 business enterprises.
