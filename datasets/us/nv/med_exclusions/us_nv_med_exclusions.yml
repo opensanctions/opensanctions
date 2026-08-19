@@ -48,6 +48,16 @@ assertions:
       Person: 600
 
 lookups:
+  # Cells where a line break isn't a separator between two holders, or where two
+  # holders aren't separated at all.
+  controlling_interest:
+    options:
+      - match: "Devin James\nAnthony Brooks"
+        value: Devin James Anthony Brooks
+      - match: Morton Hyson Nicole Hyson
+        values:
+          - Morton Hyson
+          - Nicole Hyson
   type.date:
     options:
       - match: "7/18/2017*"

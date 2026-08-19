@@ -1,12 +1,27 @@
 from typing import Any
 from normality import slugify
 from rigour.mime.types import PDF
+from rigour.names import extract_org_types
 from pdfplumber.page import Page
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 CONTROLLING_INTEREST = "persons_with_controlling_interest_of_5_or_more"
+
+
+def controlling_interest_holders(context: Context, value: str | None) -> list[str]:
+    """Split a controlling-interest cell into one name per holder.
+
+    A cell names one holder per line, except where a line break falls inside a name
+    or where two names run together with no separator at all. The lookup spells those
+    out, since nothing in the cell distinguishes them.
+    """
+    if not value:
+        return []
+    result = context.lookup("controlling_interest", value)
+    names = result.values if result is not None else value.split("\n")
+    return [name.lstrip("&").strip() for name in names if name.strip("& ")]
 
 
 def crawl_item(
@@ -43,26 +58,28 @@ def crawl_item(
         context.emit(associated_entity)
         context.emit(link)
 
-    controlling_interest_name = row.pop(CONTROLLING_INTEREST)
+    holders = controlling_interest_holders(context, row.pop(CONTROLLING_INTEREST))
     # A provider the list names as a controlling-interest holder is a practitioner:
     # nothing to own, and making them a Company would leave them unassemblable once
     # resolution merges them with the Person another row emits.
     is_individual = any(slugify(n) in person_names for n in names)
-    if controlling_interest_name and not is_individual:
+    if holders and not is_individual:
         entity.add_schema("Company")
 
-        person = context.make("Person")
-        person.id = context.make_id(controlling_interest_name, entity.id)
-        person.add("name", controlling_interest_name.split(" aka "))
-        person.add("country", "us")
+        for holder in holders:
+            # The column says persons, but a couple of cells name a business.
+            owner = context.make("Company" if extract_org_types(holder) else "Person")
+            owner.id = context.make_id(holder, entity.id)
+            owner.add("name", holder)
+            owner.add("country", "us")
 
-        link = context.make("Ownership")
-        link.id = context.make_id(entity.id, "own", person.id)
-        link.add("asset", entity)
-        link.add("owner", person)
+            link = context.make("Ownership")
+            link.id = context.make_id(entity.id, "own", owner.id)
+            link.add("asset", entity)
+            link.add("owner", owner)
 
-        context.emit(link)
-        context.emit(person)
+            context.emit(link)
+            context.emit(owner)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("provisions", f"Tier: {sanction_tier}")
@@ -127,9 +144,8 @@ def crawl(context: Context) -> None:
     person_names = {
         slug
         for row in rows
-        for part in (row.get(CONTROLLING_INTEREST) or "").split("\n")
-        for name in part.split(" aka ")
-        if (slug := slugify(name)) is not None
+        for name in controlling_interest_holders(context, row.get(CONTROLLING_INTEREST))
+        if not extract_org_types(name) and (slug := slugify(name)) is not None
     }
     for row in rows:
         crawl_item(row, context, person_names)
