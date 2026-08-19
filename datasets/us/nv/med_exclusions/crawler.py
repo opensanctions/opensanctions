@@ -1,5 +1,4 @@
 from typing import Any
-from normality import slugify
 from rigour.mime.types import PDF
 from pdfplumber.page import Page
 
@@ -20,8 +19,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
     npi = row.pop("sanctioned_excluded_npi")
     entity.id = context.make_id(name, npi)
-    names = h.multi_split(name, [" aka ", " dba ", " DBA "])
-    entity.add("name", names)
+    entity.add("name", h.multi_split(name, [" aka ", " dba ", " DBA "]))
     entity.add("npiCode", (npi or "").split("\n"))
     entity.add("country", "us")
 
@@ -39,18 +37,9 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         context.emit(associated_entity)
         context.emit(link)
 
-    controlling_interest_name = row.pop(
+    if controlling_interest_name := row.pop(
         "persons_with_controlling_interest_of_5_or_more"
-    )
-    # Individual providers are listed as holding the controlling interest in themselves,
-    # which is no relationship worth recording. A name other than the provider's own
-    # means the provider is a business, which is what lets it be the asset of an
-    # Ownership: that expects an Asset, and a plain LegalEntity isn't one.
-    if controlling_interest_name and slugify(controlling_interest_name) not in {
-        slugify(n) for n in names
-    }:
-        entity.add_schema("Company")
-
+    ):
         person = context.make("Person")
         person.id = context.make_id(controlling_interest_name, entity.id)
         person.add("name", controlling_interest_name.split(" aka "))
