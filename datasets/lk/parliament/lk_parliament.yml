@@ -4,7 +4,7 @@ name: lk_parliament
 prefix: lk-parl
 coverage:
   frequency: monthly
-  start: 2026-07-23
+  start: 2026-08-19
 load_statements: true
 ci_test: true
 summary: >-
