@@ -12,7 +12,7 @@ import time
 from collections import Counter
 from pathlib import Path
 from shutil import copyfile
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import click
 import orjson
@@ -65,8 +65,8 @@ class UnionFind:
     """Track connected components of entity identifiers."""
 
     def __init__(self) -> None:
-        self.parent: Dict[str, str] = {}
-        self.members: Dict[str, List[str]] = {}
+        self.parent: dict[str, str] = {}
+        self.members: dict[str, list[str]] = {}
 
     def find(self, node: str) -> str:
         root = node
@@ -90,21 +90,20 @@ class UnionFind:
         lmembers.extend(rmembers)
         del self.members[rroot]
 
-    def component(self, node: str) -> List[str]:
+    def component(self, node: str) -> list[str]:
         return self.members.get(self.find(node), [node])
 
 
-def load_edges(resolver: Resolver[Entity]) -> List[Edge]:
+def load_edges(resolver: Resolver[Entity]) -> list[Edge]:
     """Load live judged edges in deterministic chronological order."""
-    edges = resolver._live_edges()
-    edges = [e for e in edges if e.judgement != Judgement.NO_JUDGEMENT]
+    edges = list(resolver.all_edges())
     # Null timestamps sort last; the key tiebreak makes replay order fully
     # deterministic rather than dependent on database row order.
     edges.sort(key=lambda e: (e.created_at or "XXXX", e.target.id, e.source.id))
     return edges
 
 
-def group_label(groups: UnionFind, node: str, cache: Dict[str, str]) -> str:
+def group_label(groups: UnionFind, node: str, cache: dict[str, str]) -> str:
     """Return the stable component label: its smallest identifier."""
     root = groups.find(node)
     label = cache.get(root)
@@ -116,13 +115,13 @@ def group_label(groups: UnionFind, node: str, cache: Dict[str, str]) -> str:
 
 def resolve_side(
     view: View, replay: UnionFind, node_id: str
-) -> Tuple[Optional[Entity], Optional[str]]:
+) -> tuple[Entity | None, str | None]:
     """Merge the replay-time cluster around node_id from the store view.
 
     Returns (cluster, None) on success or (None, skip_reason) when the side
     cannot be used for a training pair."""
     saw_address = False
-    cluster: Optional[Entity] = None
+    cluster: Entity | None = None
     members = sorted(replay.component(node_id))
     for member in members:
         entity = view.get_entity(member)
@@ -138,7 +137,7 @@ def resolve_side(
             cluster = cluster.merge(entity)
         except Exception as exc:
             log.warning(
-                "Error merging entities: %s" % exc,
+                f"Error merging entities: {exc}",
                 cluster=cluster.id,
                 member=entity.id,
             )
@@ -149,13 +148,13 @@ def resolve_side(
     return cluster, None
 
 
-def hash_user(user: Optional[str]) -> Optional[str]:
+def hash_user(user: str | None) -> str | None:
     if user is None:
         return None
     return hashlib.sha256(user.encode("utf-8")).hexdigest()[:12]
 
 
-def entity_dict(entity: Entity) -> Dict[str, Any]:
+def entity_dict(entity: Entity) -> dict[str, Any]:
     """Serialize an entity with sorted value lists for byte-stable output."""
     properties = {prop: sorted(values) for prop, values in entity.properties.items()}
     return {"id": entity.id, "schema": entity.schema.name, "properties": properties}
@@ -168,7 +167,7 @@ def make_row(
     right: Entity,
     left_cluster: str,
     right_cluster: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "format_version": FORMAT_VERSION,
         "left": entity_dict(left),
@@ -188,14 +187,14 @@ def make_row(
 
 
 def component_stats(
-    groups: UnionFind, cache: Dict[str, str], pairs_per_group: Counter
-) -> Dict[str, Any]:
+    groups: UnionFind, cache: dict[str, str], pairs_per_group: Counter
+) -> dict[str, Any]:
     """Report the component size distribution; the split policy for very large
     components is decided downstream, this only measures."""
     node_counts = sorted((len(m) for m in groups.members.values()), reverse=True)
     edge_counts = sorted(pairs_per_group.values(), reverse=True)
 
-    def percentile(values: List[int], share: float) -> int:
+    def percentile(values: list[int], share: float) -> int:
         if not values:
             return 0
         return values[min(len(values) - 1, int(len(values) * share))]
@@ -224,7 +223,7 @@ def component_stats(
     }
 
 
-def generate(scope: str, outdir: Path) -> Dict[str, Any]:
+def generate(scope: str, outdir: Path) -> dict[str, Any]:
     started = time.monotonic()
     dataset_scope = get_catalog().require(scope)
     datasets = [d for d in dataset_scope.datasets if d.name not in IGNORE_DATASETS]
@@ -252,8 +251,8 @@ def generate(scope: str, outdir: Path) -> Dict[str, Any]:
             clusters.union(edge.source.id, edge.target.id)
 
     replay = UnionFind()
-    group_cache: Dict[str, str] = {}
-    cluster_cache: Dict[str, str] = {}
+    group_cache: dict[str, str] = {}
+    cluster_cache: dict[str, str] = {}
     skips: Counter[str] = Counter()
     emitted: Counter[str] = Counter()
     pairs_per_group: Counter[str] = Counter()
