@@ -8,6 +8,14 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 CONTROLLING_INTEREST = "persons_with_controlling_interest_of_5_or_more"
+# rigour reads each of these as a legal form, but on a medical provider they are a
+# generational suffix or a credential: "Claude Arthur Verbal II", "Gary Ridenour OD".
+PERSON_SUFFIXES = {"ii", "iii", "iv", "od", "pt"}
+
+
+def is_business(name: str) -> bool:
+    """Whether a name carries a legal form, which a person's name doesn't."""
+    return any(norm not in PERSON_SUFFIXES for _, norm in extract_org_types(name))
 
 
 def controlling_interest_holders(context: Context, value: str | None) -> list[str]:
@@ -68,7 +76,7 @@ def crawl_item(
 
         for holder in holders:
             # The column says persons, but a couple of cells name a business.
-            owner = context.make("Company" if extract_org_types(holder) else "Person")
+            owner = context.make("Company" if is_business(holder) else "Person")
             owner.id = context.make_id(holder, entity.id)
             owner.add("name", holder)
             owner.add("country", "us")
@@ -145,7 +153,7 @@ def crawl(context: Context) -> None:
         slug
         for row in rows
         for name in controlling_interest_holders(context, row.get(CONTROLLING_INTEREST))
-        if not extract_org_types(name) and (slug := slugify(name)) is not None
+        if not is_business(name) and (slug := slugify(name)) is not None
     }
     for row in rows:
         crawl_item(row, context, person_names)
