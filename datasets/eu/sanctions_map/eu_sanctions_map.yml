@@ -66,12 +66,12 @@ assertions:
   min:
     schema_entities:
       LegalEntity: 570
-      Vessel: 500
+      Vessel: 700
       Person: 15
   max:
     schema_entities:
       LegalEntity: 1340
-      Vessel: 900
+      Vessel: 1000
       Person: 50
 
 lookups:
@@ -94,6 +94,10 @@ lookups:
     options:
       - match: "#REF!"
         value: null
+      # Data entry error: the cell is a bare number, while the rest of the
+      # Regulation (EU) 2025/2033 batch is dated 24.10.2025.
+      - match: "24102025"
+        value: "2025-10-24"
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
     options:
@@ -210,5 +214,7 @@ lookups:
         value: EU-ZWE
   vessel_columns:
     options:
-      - match: Vessel name at designation time
+      # The name column header carries a note about column A that the source
+      # edits from time to time, so match on the stable part of the label.
+      - contains: Vessel name at designation time
         value: vessel_name
