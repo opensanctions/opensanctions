@@ -24,7 +24,6 @@ from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.names import NamesSpec
 from zavod.meta.numbers import NumbersSpec
 from zavod.meta.validators import ValidatorsSpec
-from zavod.runtime.urls import make_published_url
 
 if TYPE_CHECKING:
     from zavod.meta.catalog import ArchiveBackedCatalog
@@ -163,7 +162,6 @@ class Dataset(FollowTheMoneyDataset):
             checksum=checksum,
             mime_type=mime_type,
             size=size,
-            url=make_published_url(self.name, name),
         )
 
     def to_dict(self) -> dict[str, Any]:

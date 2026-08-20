@@ -47,7 +47,7 @@ def test_backfill(testdataset1: Dataset):
     store.sync()
     view = store.view(testdataset1)
     export_dataset(testdataset1, view)
-    publish_dataset(testdataset1, republish_to_latest=False)
+    publish_dataset(testdataset1)
 
     settings.RUN_TIME = settings.RUN_TIME + timedelta(days=1)
     settings.RUN_TIME_ISO = settings.RUN_TIME.isoformat(sep="T", timespec="seconds")

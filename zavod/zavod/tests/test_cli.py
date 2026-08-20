@@ -66,37 +66,35 @@ def test_dump_file():
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_run_dataset(testdataset1: Dataset):
-    latest_path = settings.ARCHIVE_PATH / "datasets" / "latest" / testdataset1.name
+def test_run_publish_dataset(testdataset1: Dataset):
     artifacts_path = (
         settings.ARCHIVE_PATH
         / "artifacts"
         / testdataset1.name
         / settings.RUN_VERSION.id
     )
-    assert not latest_path.exists()
     assert not artifacts_path.exists()
     runner = CliRunner()
+    # zavod run
     result = runner.invoke(cli, ["run", "/dev/null"])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    assert latest_path.exists()
-    assert latest_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("entities.ftm.json").exists()
-    # Validation issues in a published run are published
+    assert artifacts_path.joinpath("index.json").exists()
+    assert artifacts_path.joinpath("entities.ftm.json").exists()
+    # Warning issues in a published run are published
     with open(artifacts_path / "issues.json") as f:
         assert "This is a test warning" in f.read()
-    shutil.rmtree(latest_path)
+    shutil.rmtree(artifacts_path)
 
+    # zavod publish
+    assert not artifacts_path.exists()
     result = runner.invoke(cli, ["publish", "/dev/null"])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["publish", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["publish", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    assert latest_path.exists()
-    assert latest_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("entities.ftm.json").exists()
-    # shutil.rmtree(settings.DATA_PATH)
+    assert artifacts_path.joinpath("index.json").exists()
+    assert artifacts_path.joinpath("entities.ftm.json").exists()
 
 
 def test_run_validation_failed(testdataset3: Dataset):
@@ -108,7 +106,7 @@ def test_run_validation_failed(testdataset3: Dataset):
     )
     assert not (artifacts_path / "issues.json").exists()
     runner = CliRunner()
-    result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     # Validation issues in an aborted run are published
     assert "Assertion countries failed" in result.output, result.output
@@ -123,13 +121,13 @@ def test_run_update_last_successful_version(
     runner = CliRunner()
 
     # testdataset3 has validation errors, so last_successful should NOT be set
-    result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     versions_path = dataset_resource_path(testdataset3.name, VERSIONS_FILE)
     assert not versions_path.exists(), "versions.json should not exist after failed run"
 
     # testdataset1 succeeds, so last_successful should be set
-    result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     versions_path = dataset_resource_path(testdataset1.name, VERSIONS_FILE)
     assert versions_path.exists(), "versions.json should exist after run"

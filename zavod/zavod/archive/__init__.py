@@ -22,13 +22,13 @@ most recent version IDs of the dataset (oldest first, up to
 `{"items": ["20260629141001-mek", ...], "last_successful": "20260707123218-hai"}`.
 It is updated on every run, including failed ones.
 
-`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
-can be found for the latest successful run on a given day (server-side copies
-of the `/artifacts/` objects).
+`/datasets/{date_stamp}/{dataset}/` is the legacy date-stamped location for
+metadata and resources. We redirect HTTP requests for dates >= 2026-08-17
+to the corresponding `/artifacts/` version directory. When in use, subsequent
+runs starting on the same day overwrote files from earlier runs.
 
-`/datasets/latest/{dataset}/` is the same for the latest successful run
-overall. `/datasets/latest/{dataset}/index.json` is the stable URL for the
-latest metadata of a dataset.
+`/datasets/latest/{dataset}/` was where the latest successful run would copy
+its outputs. We now redirect requests to the latest successful version in `/artifacts/`.
 
 Walking versions
 ----------------
@@ -52,17 +52,9 @@ Success and failure
 -------------------
 
 Each run's `index.json` has a `result` field, either "success" or "failure".
-Failed runs are archived to `/artifacts/` too (with issues, but without data
-resources), but never published to `/datasets/` - so `/datasets/latest/` always
-reflects the last successful run. `last_successful` in the root `versions.json`
-keeps pointing at the newest version whose run succeeded.
-
-Terminology
------------
-
-When storing in /artifacts we use the verb "archive".
-When storing in /datasets we use the verb "publish".
-We "publish" by copying server-side what's been already been "archived".
+Failed runs archive their index.json and issues files if possible and log the
+new version in versions.json, but do not archive data files or update the last
+successful version reference.
 """
 
 import shutil
@@ -263,33 +255,13 @@ def archive_artifact(
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
 
 
-def publish_artifact(
-    dataset_name: str,
-    version_id: str,
-    resource: str,
-    republish_to_latest: bool = True,
-) -> None:
-    """Server-side copy from /artifacts/{dataset}/{version}/{resource} into
-    /datasets/{RELEASE}/{dataset}/{resource} (and /datasets/{LATEST}/{dataset}/{resource}
-    when republish_to_latest=True and RELEASE != LATEST).
-
-    The /artifacts/ copy is the canonical, immutable URL surfaced in metadata;
-    the /datasets/ copies exist for back-compat with customers using stable
-    /datasets/{LATEST}/... or /datasets/{RELEASE}/... URLs.
-    """
-    backend = get_archive_backend()
-    artifact_name = f"{ARTIFACTS}/{dataset_name}/{version_id}/{resource}"
-
-    release_name = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/{resource}"
-    release_object = backend.get_object(release_name)
-    release_object.republish(artifact_name, ttl=TTL_MEDIUM)
-    invalidate_archive_cache(release_name)
-
-    if republish_to_latest and settings.RELEASE != LATEST:
-        latest_name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
-        latest_object = backend.get_object(latest_name)
-        latest_object.republish(artifact_name, ttl=TTL_MEDIUM)
-        invalidate_archive_cache(latest_name)
+def invalidate_dataset_urls(dataset_name: str) -> None:
+    """Purge the CDN cache for a dataset's date-stamped and '/latest/' URLs
+    under /datasets/."""
+    release_prefix = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/*"
+    invalidate_archive_cache(release_prefix)
+    latest_prefix = f"{DATASETS}/{LATEST}/{dataset_name}/*"
+    invalidate_archive_cache(latest_prefix)
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:

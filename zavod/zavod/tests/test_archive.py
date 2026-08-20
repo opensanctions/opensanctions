@@ -1,11 +1,12 @@
-import shutil
+import pytest
 
 from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.runtime.versions import make_version, set_last_successful_version
-from zavod.archive import get_dataset_artifact, publish_artifact, archive_artifact
+from zavod.archive import get_dataset_artifact, invalidate_dataset_urls
+from zavod.archive import archive_artifact
 from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_path
 from zavod.archive import publish_version_history, get_archive_backend
 from zavod.archive import get_artifact_object
@@ -14,13 +15,12 @@ from zavod.archive import ARTIFACTS, DATASETS, LATEST, VERSIONS_FILE
 RESOURCE_NAME = "foo.json"
 
 
-def test_archive_then_publish(testdataset1: Dataset):
+def test_archive_artifact(testdataset1: Dataset):
     name = "foo.json"
     version = settings.RUN_VERSION
     data_path = dataset_data_path(testdataset1.name)
     local_path = dataset_resource_path(testdataset1.name, name)
     artifacts_root = settings.ARCHIVE_PATH / ARTIFACTS
-    datasets_root = settings.ARCHIVE_PATH / DATASETS
 
     assert not local_path.exists()
     with open(local_path, "w") as fh:
@@ -32,32 +32,30 @@ def test_archive_then_publish(testdataset1: Dataset):
     archive_artifact(local_path, testdataset1.name, version, name)
     assert artifact_path.exists()
 
-    # publish_artifact then server-side copies into /datasets/{RELEASE}/.
-    release_path = datasets_root / settings.RELEASE / testdataset1.name / name
-    assert not release_path.exists()
-    publish_artifact(testdataset1.name, version.id, name, republish_to_latest=False)
-    assert release_path.exists()
-    assert release_path.read_bytes() == artifact_path.read_bytes()
-
-    # republish_to_latest=True also writes /datasets/latest/.
-    latest_path = datasets_root / LATEST / testdataset1.name / name
-    assert not latest_path.exists()
-    publish_artifact(testdataset1.name, version.id, name, republish_to_latest=True)
-    assert latest_path.exists()
-    assert latest_path.read_bytes() == artifact_path.read_bytes()
-
     backend = get_archive_backend()
     assert backend.get_object(
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{name}"
+        f"{ARTIFACTS}/{testdataset1.name}/{version.id}/{name}"
     ).exists()
     assert not backend.get_object(
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{name}.xxx"
+        f"{ARTIFACTS}/{testdataset1.name}/{version.id}/{name}.xxx"
     ).exists()
 
-    shutil.rmtree(datasets_root / LATEST)
     assert data_path.is_dir()
     clear_data_path(testdataset1.name)
     assert not data_path.exists()
+
+
+def test_invalidate_dataset_urls(
+    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
+):
+    purged: list[str] = []
+    monkeypatch.setattr("zavod.archive.invalidate_archive_cache", purged.append)
+
+    invalidate_dataset_urls(testdataset1.name)
+    assert purged == [
+        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
+        f"{DATASETS}/{LATEST}/{testdataset1.name}/*",
+    ]
 
 
 def _archive_run(
