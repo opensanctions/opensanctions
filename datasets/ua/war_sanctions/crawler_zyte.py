@@ -234,6 +234,23 @@ def emit_succession(
     context.emit(rel)
 
 
+def rostec_parent_id(context: Context, structure_el: Element | None) -> str | None:
+    """The immediate holding parent from a 'Within the structure of Rostec' chain.
+
+    The row links the company itself first, then its ancestry up to Rostec State Corporation,
+    so the 2nd link is the immediate parent. Returns None when the row is absent or names only
+    the company itself (the top of a holding), i.e. when we learn no owner from it. The chain
+    always uses /rostec/<id> links, also on pages outside the rostec section.
+    """
+    if structure_el is None:
+        return None
+    chain = h.xpath_strings(structure_el, ".//a/@href")
+    parents = [m.group(1) for href in chain if (m := re.search(r"/rostec/(\d+)", href))]
+    if len(parents) < 2:
+        return None
+    return context.make_slug("entity", parents[1])
+
+
 def entity_label_map(doc: Element) -> dict[str, Element]:
     """Label -> value map for an entity (company) page: col-sm-8 value, prev-sibling label."""
     pairs: dict[str, Element] = {}
@@ -254,7 +271,7 @@ def crawl_entity_page(
     program_key: str | None,
     topic: str | None,
 ) -> str:
-    """Emit a LegalEntity from any company-type page (col-sm-8 layout); return its id.
+    """Emit a legal entity from any company-type page (col-sm-8 layout); return its id.
 
     Shared by ships-company (descended inline from vessels) and every */companies-style
     listing section. Keyed `ua-ws-entity-<url_id>` to match the retiring API crawler.
@@ -264,10 +281,18 @@ def crawl_entity_page(
     )
     pairs = entity_label_map(doc)
 
+    # Read the Rostec holding chain before the entity is made: it decides the schema. An
+    # `Ownership:asset` has to be an `Asset`, so a company we assert is owned by its holding
+    # parent is emitted as a `Company` (which inherits from both LegalEntity and Asset).
+    # Everything else stays a bare LegalEntity — nothing here tells us it is a business.
+    parent_id = rostec_parent_id(
+        context, pairs.pop("Within the structure of Rostec", None)
+    )
+
     entity_id = context.make_slug("entity", url_id_of(url))
     if entity_id is None:
         raise ValueError(f"Cannot build entity id from {url!r}")
-    entity = context.make("LegalEntity")
+    entity = context.make("Company" if parent_id is not None else "LegalEntity")
     entity.id = entity_id
     name_el, name_label = pop_prefixed(pairs, COMPANY_NAME_LABEL)
     entity.add("name", value_lines(name_el))
@@ -299,23 +324,15 @@ def crawl_entity_page(
     context.emit(entity)
     context.emit(sanction)
 
-    # Rostec holding chain: "Within the structure of Rostec" links self, then ancestry.
-    # The 2nd link is the immediate parent → one Ownership edge (each company emits its own,
-    # so the full tree is built incrementally), mirroring the API's rostec/structure.
-    structure_el = pairs.pop("Within the structure of Rostec", None)
-    if structure_el is not None:
-        chain = h.xpath_strings(structure_el, ".//a/@href")
-        parents = [
-            m.group(1) for href in chain if (m := re.search(r"/rostec/(\d+)", href))
-        ]
-        if len(parents) >= 2:
-            parent_id = context.make_slug("entity", parents[1])
-            rel = context.make("Ownership")
-            rel.id = context.make_id(parent_id, "subsidiary of", entity_id)
-            rel.add("owner", parent_id)
-            rel.add("asset", entity_id)
-            rel.add("role", "subsidiary of")
-            context.emit(rel)
+    # One Ownership edge to the immediate holding parent. Each company emits only its own, so
+    # the full tree is built incrementally, mirroring the API's rostec/structure.
+    if parent_id is not None:
+        rel = context.make("Ownership")
+        rel.id = context.make_id(parent_id, "subsidiary of", entity_id)
+        rel.add("owner", parent_id)
+        rel.add("asset", entity_id)
+        rel.add("role", "subsidiary of")
+        context.emit(rel)
 
     # Liquidated companies name their legal successor in an "Assignee" row.
     successor_el = pairs.pop("Assignee", None)
