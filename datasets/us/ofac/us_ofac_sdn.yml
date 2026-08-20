@@ -53,12 +53,12 @@ assertions:
   min:
     schema_entities:
       Address: 13720
-      Organization: 7330
+      Organization: 5758
       Person: 6245
       Vessel: 995
       CryptoWallet: 570
       Airplane: 320
-      Company: 20
+      Company: 2605
       Security: 5
       LegalEntity: 1
     # Set at roughly a quarter of the production fill rate: low enough that a
@@ -86,7 +86,7 @@ assertions:
       Vessel: 2345
       CryptoWallet: 1340
       Airplane: 750
-      Company: 100
+      Company: 6130
       Security: 100
       LegalEntity: 100
 # Program tags URL: https://ofac.treasury.gov/specially-designated-nationals-list-sdn-list/program-tag-definitions-for-ofac-sanctions-lists
