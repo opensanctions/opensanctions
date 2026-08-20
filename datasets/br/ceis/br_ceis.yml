@@ -30,7 +30,7 @@ url: https://portaldatransparencia.gov.br/download-de-dados/ceis
 data:
   url: https://portaldatransparencia.gov.br/download-de-dados/ceis
   format: csv
-ci_test: false # no zyte in CI
+ci_test: false  # no zyte in CI
 
 assertions:
   min:
@@ -56,8 +56,8 @@ lookups:
       - match: "23402.016955/2025-18"
         # From the registry: https://casadosdados.com.br/solucao/cnpj/kasvi-importacao-e-distribuicao-de-produtos-para-laboratorios-ltda-13324282000396
         # matched based on the tax number: 13324282000396
-        values: "KASVI IMPORTACAO E DISTRIBUICAO DE PRODUTOS PARA LABORATORIOS LTDA"
+        value: "KASVI IMPORTACAO E DISTRIBUICAO DE PRODUTOS PARA LABORATORIOS LTDA"
       - match: "12.441.527/0001-30"
         # From a second entry with the same company registration number in the source dataset.
         # matched based on the tax number: 12441527000130
-        values: "WJC PROMOÇÕES ARTÍSTICAS LTDA - ME"
+        value: "WJC PROMOÇÕES ARTÍSTICAS LTDA - ME"
