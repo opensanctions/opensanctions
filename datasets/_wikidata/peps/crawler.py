@@ -29,6 +29,14 @@ from zavod import Context
 ABOLISHED_CLAUSE = """
     OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
 """
+# The two kinds of evidence that a position is in use: a human holds it via P39
+# (position held), or the position names an officeholder itself via P1308. They
+# are asked for in separate queries rather than as one UNION — see
+# `query_usage_positions`.
+USAGE_CLAUSES = (
+    "?holder wdt:P39 ?position . ?holder wdt:P31 wd:Q5 .",
+    "?position wdt:P1308 ?officeholder .",
+)
 POSITION_CACHE_SIZE = 250_000
 
 
@@ -73,18 +81,24 @@ def query_usage_positions(
     One query per QID: batching them into a single `VALUES` block makes the
     query planner give up on large territories — the six QIDs of `gb` together
     exceed the query service's own execution limit, while each on its own is
-    comfortably inside it."""
+    comfortably inside it.
+
+    One query per evidence clause, too, for the same reason: the query service
+    costs a `UNION` as a whole, so the cheap P1308 branch is dragged over the
+    60s execution limit by the expensive P39 branch. Asked separately, both
+    branches finish — for `fr` (38k positions, mostly communal mayors) in 38s
+    and 1s, where the combined query times out."""
     positions: set[str] = set()
     for qid in sorted(territory.qids):
-        query = f"""
-        SELECT DISTINCT ?position ?abolished WHERE {{
-            ?position wdt:P1001|wdt:P17 wd:{qid} .
-            {{ ?holder wdt:P39 ?position . ?holder wdt:P31 wd:Q5 . }}
-            UNION {{ ?position wdt:P1308 ?officeholder . }}
-            {ABOLISHED_CLAUSE}
-        }}
-        """
-        positions.update(collect_positions(context, client, query))
+        for usage_clause in USAGE_CLAUSES:
+            query = f"""
+            SELECT DISTINCT ?position ?abolished WHERE {{
+                ?position wdt:P1001|wdt:P17 wd:{qid} .
+                {usage_clause}
+                {ABOLISHED_CLAUSE}
+            }}
+            """
+            positions.update(collect_positions(context, client, query))
     return positions
 
 
