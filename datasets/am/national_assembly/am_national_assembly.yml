@@ -1,0 +1,56 @@
+title: Armenia Members of the National Assembly
+name: am_national_assembly
+prefix: am-na
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-08-17
+load_statements: true
+
+ci_test: true
+summary: >-
+  Current and historical deputies of Armenia's unicameral legislature
+description: |
+  Members of the National Assembly (Azgayin Zhoghov), the unicameral parliament of the
+  Republic of Armenia, which holds the country's legislative power and is elected for a
+  five-year term under a proportional list system. The dataset covers the sitting
+  convocation together with past convocations.
+
+  Each deputy is linked to their electoral list, parliamentary faction and, where held,
+  a leadership office such as President of the National Assembly or Deputy Speaker.
+url: https://www.parliament.am/deputies/en
+publisher:
+  name: Azgayin Zhoghov
+  name_en: National Assembly of the Republic of Armenia
+  description: >
+    The National Assembly is the unicameral parliament of the Republic of Armenia. It
+    exercises legislative power, approves the state budget, and elects or approves the
+    appointment of senior state officials.
+  url: https://www.parliament.am/
+  country: am
+  official: true
+data:
+  url: https://www.parliament.am/api/v1/convocations/website/all/en
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+lookups:
+  type.email:
+    options:
+      - match: 'vhovhannisyan@parliament\251am'
+        value: "vhovhannisyan@parliament.am"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 750
+      Position: 3
+    country_entities:
+      am: 750
+  max:
+    schema_entities:
+      Person: 1800
+      Position: 3
