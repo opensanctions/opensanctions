@@ -20,6 +20,7 @@ COUNTRY_CODES = {
     "F": "fr",  # France
     "I": "it",  # Italy
     "CH": "ch",  # Switzerland
+    "FL": "li",  # Liechtenstein
     "SL": "si",  # Slovenia
 }
 TITLE_GENDER = {
