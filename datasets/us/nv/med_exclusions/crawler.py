@@ -45,10 +45,16 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         person.add("name", controlling_interest_name.split(" aka "))
         person.add("country", "us")
 
-        link = context.make("Ownership")
+        # The excluded provider can be either a business or a natural person, so it is
+        # emitted as a plain LegalEntity and cannot be the Asset of an Ownership. The
+        # source also lists the controlling interest of the associated legal entity on
+        # rows whose provider is an individual, so the direction of an ownership claim
+        # about the provider itself wouldn't be reliable either.
+        link = context.make("UnknownLink")
         link.id = context.make_id(entity.id, "own", person.id)
-        link.add("asset", entity)
-        link.add("owner", person)
+        link.add("object", entity)
+        link.add("subject", person)
+        link.add("role", "Person with controlling interest of 5% or more")
 
         context.emit(link)
         context.emit(person)
