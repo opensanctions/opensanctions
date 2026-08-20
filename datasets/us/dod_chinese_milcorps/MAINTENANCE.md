@@ -37,10 +37,10 @@ are collapsed to spaces when transcribing.
 3. For each entry that has dropped off, set `End date` on its open row rather
    than deleting the row.
 4. Transcribe names as the new list prints them, in both `Name` and `Clean
-   Name`, including where an entry is plainly a company already listed under a
-   different spelling. `Clean Name` keys the entity, so a new spelling emits a
-   new entity and deduplication handles the changeover, as for any other source
-   that renames an entry.
+   Name`. Where an entry is clearly an existing entry (e.g. original start date) but includes a 
+   correction to the name, update the entry in-place. The entity ID might 
+   change since IDs are generated from names. That's ok and normal for a correction.
+   The deduplication process will handle that as it normally does.
 5. Re-check `assertions` against the new company count.
 
 ## Handling "Assertion failed" warnings on the release list
