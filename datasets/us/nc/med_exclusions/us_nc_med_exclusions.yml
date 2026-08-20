@@ -31,21 +31,22 @@ data:
 
 dates:
   formats: ["%m/%d/%Y"]
-# Individual providers arrive twice, as the excluded LegalEntity and as the Person who
-# owns it, and dedupe merges the pair into a Person - so LegalEntity drains into Person.
+# Excluded providers are either individuals (Person) or businesses (Company, so that
+# they can be the asset of an Ownership). Individuals also show up as the owner of a
+# business on other rows, and dedupe merges those two Persons into one.
 assertions:
   min:
     schema_entities:
-      LegalEntity: 50
+      Company: 50
       Person: 100
   max:
     schema_entities:
-      LegalEntity: 300
+      Company: 300
       Person: 250
 lookups:
   type.identifier:
     options:
-      - match: # NPI/ATYPICAL ID in the source
+      - match:  # NPI/ATYPICAL ID in the source
           - 50345490
           - 40401363
           - 40425647

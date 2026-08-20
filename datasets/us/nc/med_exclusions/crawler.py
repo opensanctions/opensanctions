@@ -1,3 +1,4 @@
+from normality import slugify
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -5,11 +6,22 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(
-        row.get("excluded_entity"), row.get("npi_atypical_id_excluded")
-    )
-    entity.add("name", row.pop("excluded_entity"))
+    excluded_name = row.pop("excluded_entity")
+    owner_name = row.pop("ownership")
+    assert excluded_name is not None, row
+    assert owner_name is not None, row
+
+    # The OWNERSHIP column names the owner(s) of the excluded provider. Where it simply
+    # repeats the name in EXCLUDED ENTITY, the excluded provider is that individual, so
+    # there is no ownership relationship to model. Otherwise the excluded provider is a
+    # business, and the named person owns it.
+    is_individual = slugify(excluded_name) == slugify(owner_name)
+
+    # Ownership:asset must reference an Asset, so an owned business is a Company
+    # rather than a plain LegalEntity.
+    entity = context.make("Person" if is_individual else "Company")
+    entity.id = context.make_id(excluded_name, row.get("npi_atypical_id_excluded"))
+    entity.add("name", excluded_name)
     entity.add("npiCode", row.pop("npi_atypical_id_excluded"))
     entity.add("topics", "debarment")
     address = h.format_address(
@@ -25,20 +37,21 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     sanction.add("reason", row.pop("reason_for_exclusion"))
 
-    owner = context.make("Person")
-    owner.id = context.make_id(row.get("ownership"))
-    owner.add("name", row.pop("ownership"))
-
-    ownership = context.make("Ownership")
-    ownership.id = context.make_id(owner.id, entity.id)
-
-    ownership.add("asset", entity)
-    ownership.add("owner", owner)
-
     context.emit(entity)
     context.emit(sanction)
-    context.emit(owner)
-    context.emit(ownership)
+
+    if not is_individual:
+        owner = context.make("Person")
+        owner.id = context.make_id(owner_name)
+        owner.add("name", owner_name)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(owner.id, entity.id)
+        ownership.add("asset", entity)
+        ownership.add("owner", owner)
+
+        context.emit(owner)
+        context.emit(ownership)
 
     context.audit_data(row)
 
