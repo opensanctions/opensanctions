@@ -47,7 +47,7 @@ are collapsed to spaces when transcribing.
 
 The crawler hashes the DoD release list and warns when it changes. Review the
 new release: if it announces an edition of the list, follow the steps above; if
-it is unrelated, update `RELEASES_HASH` in `crawler.py` and the enumeration of
+it is unrelated, just update `RELEASES_HASH` in `crawler.py` and the enumeration of
 releases above it.
 
 ## Designations between editions
