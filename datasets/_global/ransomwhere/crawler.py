@@ -3,13 +3,9 @@ from rigour.mime.types import JSON
 
 from zavod import Context, helpers as h
 
-# The API's CloudFront origin answers 502 to any request that accepts a
-# compressed response, so ask for the body verbatim.
-HEADERS = {"Accept-Encoding": "identity"}
-
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.json", context.data_url, headers=HEADERS)
+    path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path) as fh:
         data = json.load(fh)
