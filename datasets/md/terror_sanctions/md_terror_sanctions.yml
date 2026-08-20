@@ -91,3 +91,6 @@ lookups:
           - Grupul Al Zawaya pentru dezvoltare
           - investiții Sociedad limitada
         value: null
+      # Missing space between the month name and the year in the source
+      - match: 30 aprilie1963
+        value: 1963-04-30
