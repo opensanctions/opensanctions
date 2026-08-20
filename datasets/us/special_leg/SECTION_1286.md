@@ -46,12 +46,19 @@ roughly once a year. Last run: FY25, July 2026.
      "(a.k.a. …)" goes in aliases.
    - *Chinese Academy of Sciences*: **no parent row** (listing says "select
      affiliates"); one row per affiliate, named
-     `Chinese Academy of Sciences – <X>` (en dash).
+     `Chinese Academy of Sciences - <X>` (ASCII hyphen). The separator and the
+     `Chinese Academy of Sciences` prefix are ours, not the PDF's — the list
+     prints only the bullet. Keep the affiliate name exactly as bulleted; do
+     not add acronyms the PDF does not print (`(CAS)`, `(ICT)`), which split
+     the entity across years. Acronyms belong in `aliases`.
    - *China Academy of Engineering Physics*: one row, all bulleted institutes
      as aliases.
-   - *Table 2 talent programs*: one row each for the named programs; the
-     generic "any other program meeting CHIPS Act §10638(4) criteria" row is
-     never included.
+   - *Table 2 talent programs*: **not imported at all**. Table 2 lists
+     foreign talent recruitment programmes (Thousand Talents Plan, Project
+     5-100, …), which are funding and recruitment schemes rather than
+     institutions, so there is no entity to screen and no FollowTheMoney
+     schema that fits. They were imported as `Company` until FY25 and have
+     been removed. Only Table 1, "List of Institutions", is transcribed.
 5. **Build a delta CSV, not `section_1286.csv` rows directly**: previous-year
    rows vs the new list, with a trailing `change` column
    (`KEEP` / `ADD` / `REMOVE`).
@@ -94,3 +101,7 @@ roughly once a year. Last run: FY25, July 2026.
   "P.I. Baranov") — check the rendered page when they do.
 - "Formerly X" bullets are aliases, and usually the signal that a KEEP entry
   was renamed rather than a new institution added.
+- The em dash in `Tactical Missile Corporation, Concern “MPO—Gidropribor”`
+  is printed by the PDF (the Russian column prints one too) — leave it. Only the
+  separator in the constructed `Chinese Academy of Sciences - <X>` names is ours
+  to normalise.
