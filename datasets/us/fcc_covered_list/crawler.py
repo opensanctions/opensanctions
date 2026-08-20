@@ -73,9 +73,13 @@ def crawl(context: Context) -> None:
     # FCC list changes:
     #   1. Run the crawler locally. It rewrites table.csv from the FCC page and logs a
     #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
+    #      Stray "Visit - " fragments in the text are injected by the page's AudioEye
+    #      accessibility script in front of every absolute-URL link; they are not source text.
     #   2. Edit the Google Sheet to match (that edit lives in Google Drive, not the PR).
+    #      The sheet only lists named entities; the FCC also publishes category-level rows
+    #      (UAS, routers, power inverters, robotic devices) that this dataset excludes.
     #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
-    h.assert_dom_hash(table, "7cd3d182782e7720ae6a9c0de2214eb9d2f2bc84", text_only=True)
+    h.assert_dom_hash(table, "03aa4c282c13d88a92a8fe5fb55a3a0d93e4bd44", text_only=True)
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
