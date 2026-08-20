@@ -12,8 +12,8 @@ sanction is keyed on `Start date`, so the periods do not collide.
 
 - `Name`: the entry exactly as printed in the list, including any parenthesised
   aliases. Kept as the original value behind the cleaned name.
-- `Clean Name`: the name alone, without alias or annotation. Keys the entity, so
-  a changed name splits it — see the note on renames below.
+- `Clean Name`: the name alone, without alias or annotation, as printed in that
+  edition. Keys the entity.
 - `Alias`: an alternative name; emitted as `weakAlias` when it is a short
   all-caps acronym.
 - `Previous Name`: a former name given by the list ("formerly ...").
@@ -36,11 +36,11 @@ are collapsed to spaces when transcribing.
    date and `Source Url` to the PDF.
 3. For each entry that has dropped off, set `End date` on its open row rather
    than deleting the row.
-4. Where the new list prints a different name for an entry that is plainly the
-   same company, keep the existing `Clean Name` — changing it creates a second
-   entity. The printed form is preserved in `Name`; record a genuinely new name
-   in `Alias` or `Previous Name`. This applies to punctuation and capitalisation
-   too: `AVIC JONHON ...` and `AVIC Jonhon ...` are two entities, not one.
+4. Transcribe names as the new list prints them, in both `Name` and `Clean
+   Name`, including where an entry is plainly a company already listed under a
+   different spelling. `Clean Name` keys the entity, so a new spelling emits a
+   new entity and deduplication handles the changeover, as for any other source
+   that renames an entry.
 5. Re-check `assertions` against the new company count.
 
 ## Handling "Assertion failed" warnings on the release list
