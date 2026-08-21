@@ -1,0 +1,93 @@
+title: Trinidad and Tobago Members of Parliament
+entry_point: crawler.py
+prefix: tt-parl
+coverage:
+  frequency: monthly
+  start: 2026-08-20
+load_statements: true
+summary: >-
+  Members of the House of Representatives and the Senate, for the current and
+  recent past terms
+description: |
+  Members of the bicameral Parliament of Trinidad and Tobago: the elected House
+  of Representatives, whose members represent single-member constituencies, and
+  the appointed Senate, whose members are named by the President on the advice of
+  the Prime Minister, the Leader of the Opposition, and at the President's own
+  discretion. Senators include temporary senators sworn in to act for a member
+  absent during a term. The dataset also covers the Speaker of the House, who
+  presides over the House of Representatives and, under the Constitution, need not
+  be an elected member.
+
+  Alongside the sitting parliament, the dataset covers the members of recent past
+  parliamentary terms, back to those recent enough that a former member may still
+  be politically exposed.
+url: https://www.ttparliament.org/members/
+publisher:
+  name: Parliament of the Republic of Trinidad and Tobago
+  description: |
+    The bicameral national legislature of Trinidad and Tobago, consisting of the
+    House of Representatives and the Senate.
+  url: https://www.ttparliament.org/
+  country: tt
+  official: true
+data:
+  url: https://www.ttparliament.org/members/find-members/
+  format: HTML
+  lang: eng
+
+dates:
+  formats:
+    - "%d %b %Y"
+
+http:
+  # The default python-requests User-Agent gets a 403; a browser-like one is required.
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+names:
+  prefixes_strip:
+    - Senator
+    - The Honourable
+    - the Hon.
+    - Dr.
+    - Mr.
+    - Mrs.
+    - Ms.
+    - Prof.
+    # Religious titles used before a member's name in the roster.
+    - Rev.
+    - Imam
+    - Pundit
+    # Military ranks, stripped token by token so "Brig. Gen." / "Maj. Gen."
+    # reduce to the bare name.
+    - Brig.
+    - Gen.
+    - Maj.
+  suffixes_strip:
+    - ", MP"
+    - " SC"
+
+tags:
+  - list.pep
+
+lookups:
+  party:
+    options:
+      - match:
+          - "-"
+          - ""
+        value: null
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 3
+    entities_with_prop:
+      Occupancy:
+        holder: 450
+  max:
+    schema_entities:
+      Person: 700
+      Position: 4
+    entities_with_prop:
+      Occupancy:
+        holder: 1100
