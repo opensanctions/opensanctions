@@ -1,11 +1,13 @@
 from typing import Any
 from banal import ensure_dict
 
+from nomenklatura.store import View
+
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.exporters.statistics import Statistics
 from zavod.meta.assertion import Assertion, Comparison, Metric, parse_assertions
-from zavod.store import View
+from zavod.meta.dataset import Dataset
+from zavod.runtime.statistics import Statistics
 from zavod.validators.common import BaseValidator
 
 
@@ -154,15 +156,17 @@ def check_assertion(
 
 
 class StatisticsAssertionsValidator(BaseValidator):
-    """Validator that checks various asssertions that are based on dataset statistics."""
+    """Validator that checks various asssertions that are based on dataset statistics.
 
-    def __init__(self, context: Context, view: View) -> None:
-        super().__init__(context, view)
-        self.stats = Statistics()
-        self.abort = False
+    The statistics are observed once during the export traversal and shared
+    with the statistics exporter."""
 
-    def feed(self, entity: Entity) -> None:
-        self.stats.observe(entity)
+    def __init__(self, context: Context, stats: Statistics) -> None:
+        super().__init__(context)
+        self.stats = stats
+
+    def feed(self, entity: Entity, view: View[Dataset, Entity]) -> None:
+        pass
 
     def finish(self) -> None:
         # Nudge maintainers based on what they configured in YAML, ignoring the

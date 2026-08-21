@@ -14,7 +14,6 @@ from zavod.publish import publish_dataset, archive_failure
 from zavod.runtime.versions import make_version
 from zavod.store import get_store
 from zavod.tools.load_db import load_dataset_to_db
-from zavod.validators import validate_dataset
 
 
 @cli.command("crawl", help="Crawl a specific dataset")
@@ -32,10 +31,13 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -
         sys.exit(1)
 
 
-@cli.command("validate", help="Check the integrity of a dataset")
+@cli.command("export", help="Export and validate data from a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
-def validate(dataset_path: Path, rebuild_store: bool = True) -> None:
+@click.option("--validate/--no-validate", is_flag=True, default=True)
+def export(
+    dataset_path: Path, rebuild_store: bool = True, validate: bool = True
+) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info(f"Dataset is disabled, skipping: {dataset.name}")
@@ -44,29 +46,13 @@ def validate(dataset_path: Path, rebuild_store: bool = True) -> None:
     store = get_store(dataset, linker)
     try:
         store.sync(clear=rebuild_store)
-        validate_dataset(dataset, store.view(dataset, external=False))
-    except Exception:
-        log.exception(f"Validation failed for {dataset_path!r}")
-        store.close()
-        sys.exit(1)
-
-
-@cli.command("export", help="Export data from a specific dataset")
-@click.argument("dataset_path", type=DatasetInPath)
-@click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
-def export(dataset_path: Path, rebuild_store: bool = True) -> None:
-    dataset = _load_dataset(dataset_path)
-    if dataset.model.disabled:
-        log.info(f"Dataset is disabled, skipping: {dataset.name}")
-        sys.exit(0)
-    linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
-    try:
-        store.sync(clear=rebuild_store)
-        export_dataset(dataset, store.view(dataset, external=False))
+        view = store.view(dataset, external=False)
+        export_dataset(dataset, view, validate=validate)
     except Exception:
         log.exception(f"Failed to export: {dataset_path}")
         sys.exit(1)
+    finally:
+        store.close()
 
 
 @cli.command("publish", help="Publish data from a specific dataset")
@@ -109,20 +95,10 @@ def run(
 
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
-    # Validate
+    # Export and validation
     try:
         store.sync(clear=True)
         view = store.view(dataset, external=False)
-        if not dataset.is_collection:
-            validate_dataset(dataset, view)
-    except Exception:
-        log.exception(f"Validation failed for {dataset.name!r}")
-        archive_failure(dataset)
-        store.close()
-        sys.exit(1)
-
-    # Export
-    try:
         export_dataset(dataset, view)
     except Exception:
         log.exception(f"Failed to export: {dataset_path}")

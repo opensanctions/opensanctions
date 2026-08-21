@@ -34,10 +34,22 @@ from zavod.runtime.http_ import (
 )
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.versions import get_latest, make_version
 from zavod.util import Element, join_slug, prefixed_hash_id
+
+
+class ContextStats:
+    """A simple object for tracking the number of statements, entities and targets
+    emitted by a dataset context while running the dataset method."""
+
+    def __init__(self) -> None:
+        self.reset()
+
+    def reset(self) -> None:
+        self.statements = 0
+        self.changed = 0
+        self.entities = 0
 
 
 class Context:

@@ -26,6 +26,10 @@ class DeltaExporter(Exporter):
     def feed(self, entity: Entity, view: ExportView) -> None:
         self.delta.feed(entity)
 
+    def abort(self) -> None:
+        self.delta.discard()
+        super().abort()
+
     def generate(self, view: ExportView) -> Generator[Any, None, None]:
         for op, entity_id in self.delta.generate():
             if op == "DEL":

@@ -8,7 +8,7 @@ from zavod.archive import publish_version_history, archive_artifact
 from zavod.archive import invalidate_dataset_urls
 from zavod.archive import INDEX_FILE, CATALOG_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS
+from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS, HASH_FILE
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest, set_last_successful_version
@@ -106,6 +106,9 @@ def archive_failure(dataset: Dataset) -> None:
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
+    # A half-written hash file from an aborted export would poison later delta
+    # computations if it reached the archive.
+    dataset_resource_path(dataset.name, HASH_FILE).unlink(missing_ok=True)
 
     write_dataset_index(dataset, DatasetVersionResult.FAILURE)
     path = dataset_resource_path(dataset.name, INDEX_FILE)

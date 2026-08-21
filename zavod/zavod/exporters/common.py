@@ -29,6 +29,12 @@ class Exporter:
     def feed_unconsolidated(self, entity: Entity) -> None:
         pass
 
+    def abort(self) -> None:
+        """Clean up after an aborted export run: the partial output file must
+        not linger where it could be mistaken for a real artifact. Exporters
+        holding resources beyond their output file release them here."""
+        self.path.unlink(missing_ok=True)
+
     def finish(self, view: ExportView) -> None:
         try:
             resource = self.context.export_resource(

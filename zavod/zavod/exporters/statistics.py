@@ -1,168 +1,27 @@
-from collections import defaultdict, namedtuple
-from typing import Any
-from followthemoney import model, registry
-
+from zavod.context import Context
 from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE
 from zavod.exporters.common import Exporter, ExportView
+from zavod.runtime.statistics import Statistics
 from zavod.util import write_json
 
 
-def get_schema_facets(schemata: dict[str, int]) -> list[Any]:
-    facets: list[Any] = []
-    for name, count in sorted(schemata.items(), key=lambda s: s[1], reverse=True):
-        schema = model.get(name)
-        if schema is None:
-            continue
-        facet = {
-            "name": name,
-            "count": count,
-            "label": schema.label,
-            "plural": schema.plural,
-        }
-        facets.append(facet)
-    return facets
-
-
-def get_country_facets(countries: dict[str, int]) -> list[Any]:
-    facets: list[Any] = []
-    for code, count in sorted(countries.items(), key=lambda s: s[1], reverse=True):
-        facet = {
-            "code": code,
-            "count": count,
-            "label": registry.country.caption(code),
-        }
-        facets.append(facet)
-    return facets
-
-
-def get_sanctions_programs_facets(sanctions_programs: dict[str, int]) -> list[Any]:
-    return [
-        {
-            "id": program_id,
-            "count": count,
-        }
-        for program_id, count in sanctions_programs.items()
-    ]
-
-
-# We don't use followthemoney.Property because we want to track manifestations of property values on specific
-# schemas, even though the property might be defined somewhere higher in the type hierarchy.
-SchemaProperty = namedtuple("SchemaProperty", ["schema", "property"])
-
-
-def get_entities_with_prop_facets(
-    properties: dict[SchemaProperty, int],
-    schema_counts: dict[str, int],
-) -> list[Any]:
-    facets: list[Any] = []
-    for prop, count in sorted(properties.items()):
-        total = schema_counts.get(prop.schema, 0)
-        fill_rate = count / total if total > 0 else 0.0
-        facet = {
-            "schema": prop.schema,
-            "property": prop.property,
-            "count": count,
-            "total": total,
-            "fill_rate": fill_rate,
-        }
-        facets.append(facet)
-    return facets
-
-
-class Statistics:
-    def __init__(self) -> None:
-        self.entity_count = 0
-        self.last_change: str | None = None
-        self.schemata: set[str] = set()
-        self.qnames: set[str] = set()
-
-        self.entity_count_by_schema: dict[str, int] = defaultdict(int)
-
-        self.thing_count = 0
-        self.thing_countries: dict[str, int] = defaultdict(int)
-        self.thing_schemata: dict[str, int] = defaultdict(int)
-        self.entities_with_prop_count: dict[SchemaProperty, int] = defaultdict(int)
-
-        self.target_count = 0
-        self.target_countries: dict[str, int] = defaultdict(int)
-        self.target_schemata: dict[str, int] = defaultdict(int)
-
-        self.sanctions_programs: dict[str, int] = defaultdict(int)
-
-    def observe(self, entity: Entity) -> None:
-        self.entity_count += 1
-        self.entity_count_by_schema[entity.schema.name] += 1
-        self.schemata.add(entity.schema.name)
-        for prop in entity.iterprops():
-            self.qnames.add(prop.qname)
-        for prop_name, values in entity.properties.items():
-            # We add 1 instead of len(values) here because we want to count the number of entities that have this
-            # value set, not the number of values.
-            self.entities_with_prop_count[
-                SchemaProperty(entity.schema.name, prop_name)
-            ] += 1
-
-        if entity.schema.is_a("Thing"):
-            self.thing_count += 1
-            self.thing_schemata[entity.schema.name] += 1
-            for country in entity.countries:
-                self.thing_countries[country] += 1
-
-        if entity.schema.is_a("Sanction"):
-            for program_key in entity.get("programId"):
-                self.sanctions_programs[program_key] += 1
-
-        if entity.target:
-            self.target_count += 1
-            self.target_schemata[entity.schema.name] += 1
-            for country in entity.countries:
-                self.target_countries[country] += 1
-
-        if entity.last_change is not None:
-            if self.last_change is None:
-                self.last_change = entity.last_change
-            else:
-                self.last_change = max(self.last_change, entity.last_change)
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "last_change": self.last_change,
-            "schemata": list(self.schemata),
-            "properties": list(self.qnames),
-            "entity_count": self.entity_count,
-            "target_count": self.target_count,
-            "targets": {
-                "total": self.target_count,
-                "countries": get_country_facets(self.target_countries),
-                "schemata": get_schema_facets(self.target_schemata),
-            },
-            "sanctions": {
-                "programs": get_sanctions_programs_facets(self.sanctions_programs)
-            },
-            "things": {
-                "total": self.thing_count,
-                "countries": get_country_facets(self.thing_countries),
-                "schemata": get_schema_facets(self.thing_schemata),
-                "entities_with_prop": get_entities_with_prop_facets(
-                    self.entities_with_prop_count,
-                    self.entity_count_by_schema,
-                ),
-            },
-        }
-
-
 class StatisticsExporter(Exporter):
+    """Writes out the dataset statistics observed during the export traversal.
+
+    The `Statistics` instance is fed by the export loop itself, so that the
+    same numbers serve this exporter and the dataset's assertions."""
+
     TITLE = "Dataset statistics"
     FILE_NAME = STATISTICS_FILE
     MIME_TYPE = "application/json"
 
-    def setup(self) -> None:
-        super().setup()
-        self.stats = Statistics()
+    def __init__(self, context: Context, stats: Statistics) -> None:
+        super().__init__(context)
+        self.stats = stats
 
     def feed(self, entity: Entity, view: ExportView) -> None:
-        self.stats.observe(entity)
+        pass
 
     def finish(self, view: ExportView) -> None:
         with open(self.path, "wb") as fh:

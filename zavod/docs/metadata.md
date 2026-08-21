@@ -151,7 +151,7 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
 
 ### Validators
 
-Besides the assertions below, `zavod validate` runs a set of validators over the whole
+Besides the assertions below, the export stage runs a set of validators over the whole
 dataset once it is in the store. They are all enabled by default; the `validators` block
 switches individual ones off for a dataset whose finding has been reviewed and accepted.
 Record the reason in a YAML comment — a disabled validator leaves no trace in the run
@@ -172,8 +172,9 @@ validators:
 ### Data assertions
 
 Data assertions smoke-test the exported dataset against its expected shape. They run
-during `zavod run`; `zavod validate` applies them to a development run. A failed `min`
-assertion is an error and prevents export, while a failed `max` assertion emits a warning.
+as part of the export stage of `zavod run`; `zavod export` applies them to a development
+run (pass `--no-validate` to skip them). A failed `min` assertion is an error and aborts
+the export, while a failed `max` assertion emits a warning.
 
 When creating count assertions, base them on a known healthy crawl. Set minima roughly
 10–20% below the expected value to allow normal variation, unless the source has a known

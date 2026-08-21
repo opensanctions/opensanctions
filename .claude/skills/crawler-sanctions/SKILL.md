@@ -187,4 +187,5 @@ qsv search -s prop "^Sanction:entity$" data/datasets/cc_dataset/statements.pack 
 qsv search -s prop ":id$" data/datasets/cc_dataset/statements.pack | qsv select entity_id | qsv behead | sort -u > /tmp/all_ids.txt && qsv search -s prop ":topics$" data/datasets/cc_dataset/statements.pack | qsv search -s value "^sanction$" | qsv select entity_id | qsv behead | sort -u > /tmp/sanctioned.txt && comm -23 /tmp/all_ids.txt /tmp/sanctioned.txt
 ```
 
-Then run `zavod validate datasets/cc/dataset/cc_dataset.yml`.
+Then run `zavod export datasets/cc/dataset/cc_dataset.yml`, which checks the dataset
+validators and assertions.
