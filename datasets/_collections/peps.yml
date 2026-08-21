@@ -32,6 +32,7 @@ children:
   - ad_consell_general
   - al_kuvendi
   - am_hetq_officials
+  - am_national_assembly
   - ann_pep_positions
   - ar_parliament
   - ar_senado
