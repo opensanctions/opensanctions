@@ -4,8 +4,17 @@ prefix: il-nbctf
 coverage:
   frequency: never
   start: 2021-10-22
+manual_check:
+  last_checked: "2026-08-21"
+  interval: 90
+  message: >-
+    The crawler watches the source page and warns about a seizure order or a wallet
+    listed there that seizures.csv does not cover. It cannot see a change made only
+    inside an order's PDF or its wallet annex, and it does not compare names, so
+    check a few recent orders against their PDFs for wallets and holder details the
+    page table leaves out. See MAINTENANCE.md.
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "30 5 * * *"
 load_statements: true
 summary: >-
   Cryptocurrency wallets seized by the Israeli government using
@@ -14,8 +23,14 @@ description: |
   A list of seizure orders issued by the Israeli government against crypto wallets
   with the most regularly seen authrorization being the Anti-Terrorism law 5776-2016.
 
-  The NBCTF website uses scraping protection which makes it impossible for us to
-  update the data fully automatically. It is periodically checked for freshness.
+  The NBCTF website publishes the orders as a table which omits some of the wallet
+  addresses named in the orders themselves, so the data is transcribed from the
+  order documents into
+  [seizures.csv](https://github.com/opensanctions/opensanctions/blob/main/datasets/il/mod_crypto/seizures.csv)
+  and maintained there. The crawler reads that file and watches the website for
+  orders and wallets it does not yet cover. See the
+  [maintenance guide](https://github.com/opensanctions/opensanctions/blob/main/datasets/il/mod_crypto/MAINTENANCE.md)
+  for the conventions used.
 
   **The initial version of this dataset was prepared by our partners at
   [Thetaray](https://www.thetaray.com/).**
@@ -32,10 +47,12 @@ publisher:
   official: true
 url: https://nbctf.mod.gov.il/he/MinisterSanctions/PropertyPerceptions/Pages/Blockchain.aspx
 data:
-  # Edit URL: https://docs.google.com/spreadsheets/d/1J0xD7ZyU0HnHxkpwvmN9UpF3TZKZXmJD8XiPC5XpJDg
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWfPqec5nU9pMkUpcDVdO3a9S5AfPtJzeHkOZ1NEWvp03uk-f8zWy46O0D3pzbeV67Ega1t6DwQ8xd/pub?gid=1352921314&single=true&output=csv
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/il/mod_crypto/seizures.csv
   format: CSV
-ci_test: false # No Zyte key in CI
+# The data comes from seizures.csv in this repo, so a pull request against it can be
+# crawled, validated and exported in CI. Only the source page monitor needs a Zyte
+# key, and it degrades to a warning without one.
+ci_test: true
 dates:
   formats: ["%d/%m/%Y", "%m/%d/%Y", "%d.%m.%Y", "%m.%d.%Y", "%m.%d.%y"]
 tags:
@@ -61,3 +78,55 @@ assertions:
       Person: 1500
       CryptoWallet: 2000
       LegalEntity: 10
+
+config:
+  discovery:
+    # The source website sits behind anti-bot protection, so neither the page nor the
+    # order PDFs can be fetched without a Zyte key, which CI does not have. Everything
+    # needed to prepare an update therefore travels in the warnings and the run's
+    # artifacts:
+    #
+    # - each warning names the order, its documents, and the values the page lists;
+    # - page_wallets.csv and page_releases.csv are exported as resources on every run,
+    #   so the full page tables can be read from the latest archived run.
+    #
+    # Draft the rows, state in the pull request which of them came from the page rather
+    # than from the order PDF, and leave the PDF reconciliation to the reviewer.
+    #
+    # Handling "Unreviewed seizure order" warnings:
+    #
+    # 1. Take the order number, `last_updated` and `validity` from the warning, and the
+    #    order's wallet block from page_wallets.csv in the latest archived run.
+    # 2. Append one row per wallet, account or holder, following MAINTENANCE.md. Rows
+    #    for one order share order_id, start_date, end_date, last_updated and order_url:
+    #    end_date is the validity date, start_date is two years earlier (the term of
+    #    every order so far - the exact date is printed in the PDF), last_updated is the
+    #    date from the releases table, and order_url is the order document.
+    # 3. The page table is a subset of the order PDF and its wallet annex, and its column
+    #    headings do not hold for every order, so keep the transcription conservative:
+    #    a wallet with no holder is a `Wallet` row, and holder details go in only where
+    #    the page states them unambiguously.
+    # 4. The warning mutes itself once the order's rows cover the listed values.
+    #
+    # Handling "Unreviewed values in a seizure order listing" warnings:
+    #
+    # The page states a wallet, account, passport or phone number for an order that no
+    # seizures.csv row holds. Find it in that order's block in page_wallets.csv to see
+    # which holder's row it belongs to, then add it to that row, or add a new row when
+    # it is a wallet with no named holder. The values are matched against the whole row,
+    # so a number already recorded in another column is not reported.
+    #
+    # Handling "Seizure order is no longer listed on the source page" warnings:
+    #
+    # Do not delete the order's rows - a lapsed or forfeited order is still a
+    # designation that happened. Set end_date where the order has expired, and list the
+    # order number in reviewed_orders with a comment saying why it is gone.
+    #
+    # Handling "Source page yielded fewer orders or values than expected":
+    #
+    # The page markup changed and the monitor is now reading little or nothing. Fix the
+    # parsing in crawler.py; do not touch the data.
+    #
+    # reviewed_orders mutes an order entirely. Use it only for a listing that is not a
+    # designation, or one deliberately not imported, and say which in a comment.
+    reviewed_orders: []

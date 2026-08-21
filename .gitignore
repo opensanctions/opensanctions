@@ -8,6 +8,12 @@ __pycache__/
 *.perf
 *.csv
 !datasets/eu/sanctions_map/programs.csv
+# The source of truth for il_mod_crypto, plus the snapshots of the source page
+# tables it is reviewed against. Negated so a pull request that edits them does
+# not need `git add -f`.
+!datasets/il/mod_crypto/seizures.csv
+!datasets/il/mod_crypto/page_releases.csv
+!datasets/il/mod_crypto/page_wallets.csv
 *.sql
 .env
 .envrc
