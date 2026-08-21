@@ -38,13 +38,9 @@ number and `last_updated` still identify the order.
 
 ### `end_date` — "Validity of Issue" (`תוקף הצו`)
 
-From the releases table, where that column holds a date (e.g. `20.04.2028`). Where it holds
-a link to a forfeiture order instead (e.g. `צו חילוט (צח 14/26)`), which is the case for most
-orders up to 2024, take the order's own validity from the PDF if it is stated there, and
-otherwise leave `end_date` empty and record the link in `forfeiture_order_url`.
-
-Getting this wrong is consequential: an `end_date` in the past makes the sanction inactive,
-and the crawler then drops the `crime.terror` topic from the wallet.
+From the releases table, where that column holds a date (e.g. `20.04.2028`). Getting this wrong
+is consequential: an `end_date` in the past makes the sanction inactive, and the crawler then
+drops the `crime.terror` topic from the wallet.
 
 ### `last_updated` — "Last Updated" (`תאריך עדכון`)
 
