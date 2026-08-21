@@ -1,0 +1,218 @@
+title: Indonesia Members of the Regional Representative Council (DPD)
+name: id_dpd
+prefix: id-dpd
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false  # The API is only reachable through Zyte
+summary: >-
+  Upper chamber seating four non-partisan senators from each of 38 provinces
+description: |
+  Current and historical members of the Regional Representative Council (Dewan Perwakilan
+  Daerah, DPD), the upper chamber of Indonesia's bicameral parliament. Four non-partisan
+  senators are directly elected from each of the 38 provinces for a five-year term, giving
+  the chamber 152 members, and share the country's legislative power with the People's
+  Representative Council.
+
+  Coverage reaches back to the chamber's first term in 2004, with one occupancy per term
+  a member served. The source states no date on which a member left, so a mandate that
+  ended before its term expired is recorded without an end date.
+url: https://www.dpd.go.id/anggota/anggota
+publisher:
+  name: Dewan Perwakilan Daerah Republik Indonesia
+  acronym: DPD
+  description: >
+    The Regional Representative Council is the upper chamber of the Indonesian parliament,
+    composed of directly elected provincial senators.
+  url: https://www.dpd.go.id/
+  country: id
+  official: true
+data:
+  url: https://service.dpd.go.id/anggota/api/v1/member/public/profile
+  format: JSON
+  lang: ind
+
+tags:
+  - list.pep
+
+names:
+  prefixes_strip:
+    # Religious / customary honorifics
+    - "H."          # Haji
+    - "H "          # Haji, written without the dot
+    - "H,"          # Haji, comma typo for the dot
+    - "Hj."         # Hajjah
+    - "Hi."         # Haji (regional variant)
+    - "K.H."        # Kyai Haji
+    - "KH."
+    - "Tgk."        # Teungku (Acehnese)
+    - "TGH."        # Tuan Guru Haji
+    - "Ust."        # Ustaz
+    - "Pdt."        # Pendeta (Protestant minister)
+    - "Pendeta"
+    - "Dato'"       # Malay honorific
+    # Academic / professional titles
+    - "Prof."
+    - "Dr."         # doctorate; also matches lowercase "dr." (physician)
+    - "Drs."        # Doctorandus
+    - "Dra."        # Doctoranda
+    - "Ir."         # Insinyur (engineer)
+    - "Apt."        # Apoteker (pharmacist)
+    - "Dipl."       # Diplom-Ingenieur
+    - "Ing."
+    # Doctorate qualifiers that follow the title
+    - "(C)"         # candidate
+    - "(HC)"        # honoris causa
+    - "(H.C.)"
+    # Military rank
+    - "Laksma TNI (Purn)"   # retired rear admiral
+  suffixes_strip:
+    - ","           # trailing comma left after a dropped post-nominal
+    # Bachelor's / diploma
+    - ", B.A."
+    - ", B.A. (Hons.)"
+    - ", B.Bus."
+    - ", B.Bus.Com."
+    - ", B.Sc."
+    - ", A.Md."
+    - ", A.Md. Kep."
+    - ", A.Md.Par."
+    # Sarjana (bachelor) degrees
+    - ", S.AP."
+    - ", S.Ag."
+    - ", S.E."
+    - ", S.E"
+    - ", S.Farm."
+    - ", S.H."
+    - ", S.H.I."
+    - ", S.I.Kom."
+    - ", S.IP."
+    - ", S.IP"
+    - ", S.KG."
+    - ", S.Ked."
+    - ", S.Mn."
+    - ", S.P."
+    - ", S.PAK."
+    - ", S.Pd."
+    - ", S.Pd.I."
+    - ", S.Pi."
+    - ", S.Psi."
+    - ", S.S."
+    - ", S.Si."
+    - ", S.Si"
+    - ", S.Sos."
+    - ", S.Sos"
+    - ", S.Sos.I."
+    - ", S.ST."
+    - ", S.T."
+    - ", S.Th."
+    # Master's degrees
+    - ", M.A."
+    - ", M.A.C.Ed."
+    - ", M.A.P."
+    - ", M.A.R.S."
+    - ", M.AP."
+    - ", M.Ag."
+    - ", M.B.A."
+    - ", M.Biomed."
+    - ", M.Com."
+    - ", M.Div."
+    - ", M.E.I."
+    - ", M.Ed."
+    - ", M.Eng."
+    - ", M.Fin."
+    - ", M.H."
+    - ", M.HP."
+    - ", M.Hi."
+    - ", M.Hum."
+    - ", M.I.Kom."
+    - ", M.I.P."
+    - ", M.Keb."
+    - ", M.Kes."
+    - ", M.Kesos."
+    - ", M.Kn."
+    - ", M.M."
+    - ", M.M"
+    - ", M.,Si"    # typo for M.Si.
+    - ", M.MSip."
+    - ", M.Pd."
+    - ", M.Pd.I."
+    - ", MM. M.Pd.I."
+    - ", M.S."
+    - ", M.S.M."
+    - ", M.S.P."
+    - ", M.SP."
+    - ", M.Sc."
+    - ", M.Si."
+    - ", M.Sos."
+    - ", M.T."
+    - ", M.Th."
+    - ", MMSI."
+    - ", (MTRU)"
+    - ", M(Tru)"
+    # Doctorate / professional certifications
+    - ", D.Min."
+    - ", LL.M."
+    - ", Ph.d"
+    - ", Lc."      # Licence (Islamic studies)
+    - ", Akt."     # Akuntan
+    - ", Apt."     # Apoteker
+    - ", BD."
+    - ", Bc. Hk."
+    - ", C.L.A."
+    - ", CIRBC."
+    - ", CM.NNLP."
+    - ", CWC."
+    - ", SM.Th."
+    - ", Sp.N."    # medical specialist (neurology)
+    - ", Sp.OG"    # medical specialist (obstetrics/gynaecology)
+    - ", Teol."
+
+lookups:
+  type.name:
+    options:
+      # A second, informal name ("Habib Banua") was appended after this member's
+      # post-nominals in the source. Title stripping cannot reach the degrees
+      # buried mid-string, so drop them here while keeping both name parts.
+      - match: "PANGERAN SYARIF ABDURRAHMAN BAHASYIM, S.E., M.M. HABIB BANUA"
+        value: "PANGERAN SYARIF ABDURRAHMAN BAHASYIM HABIB BANUA"
+  type.date:
+    options:
+      # .NET's DateTime.MinValue: the API's sentinel for an unset date, not a real one.
+      - match: "0001-01-01T00:00:00Z"
+        value: null
+  type.gender:
+    options:
+      - match: 0
+        value: male
+      - match: 1
+        value: female
+  type.email:
+    options:
+      - match:
+          - "--"
+          - "-"
+          - "."
+          - dpd.go.id
+          - "@dpd.go.id"
+        value: null
+      - match: marthin.billa@dpd.go.id;
+        value: marthin.billa@dpd.go.id
+      - match: abdul.rachman@dpd.go.id;
+        value: abdul.rachman@dpd.go.id
+      - match: siti aseanti@dpd.go.id
+        value: siti.aseanti@dpd.go.id
+
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+      Position: 1
+    country_entities:
+      id: 450
+  max:
+    schema_entities:
+      Person: 1000
+      Position: 1
