@@ -1,10 +1,18 @@
-# Maintaining the il_mod_crypto Google Sheet
+# Maintaining il_mod_crypto
 
-The crawler reads its entity data from a manually maintained Google Sheet
-([edit URL](https://docs.google.com/spreadsheets/d/e/2PACX-1vRWfPqec5nU9pMkUpcDVdO3a9S5AfPtJzeHkOZ1NEWvp03uk-f8zWy46O0D3pzbeV67Ega1t6DwQ8xd/pub?gid=1352921314&single=true&output=csv)),
-not from the NBCTF web page. The page is only fetched to snapshot the two tables into
-`releases.csv` and `wallets.csv`, so that `git diff` shows what changed on the source.
-When the diff shows a new order or new wallets, add the rows to the sheet by hand.
+The crawler reads its entity data from `seizures.csv` next to this file, not from the
+NBCTF web page. It is edited by hand, as a pull request against that file; the Google
+Sheet the data used to live in is retired, and `seizures.csv` began as a verbatim export
+of it, so the two produce identical entities. The page is only fetched to snapshot the two
+tables into `releases.csv` and `wallets.csv`, so that `git diff` shows what changed on
+the source. When the diff shows a new order or new wallets, add the rows by hand.
+
+The crawler reads the file out of the checkout, so a run always uses the copy in front
+of it and a pull request is crawled with its own edit. `data.url` in `il_mod_crypto.yml`
+points at the file on `main` for provenance only — it is published as the dataset's
+source URL and is not fetched. `*.csv` is in `.gitignore`, so the file needs
+`git add -f datasets/il/mod_crypto/seizures.csv` — without the `-f` the edit is silently
+left out of the commit.
 
 Source page: <https://nbctf.mod.gov.il/he/MinisterSanctions/PropertyPerceptions/Pages/Blockchain.aspx>
 (Hebrew — it is more complete and more current than the English translation).
@@ -32,7 +40,7 @@ passport number alone where the order gives no name.
 
 Not in the web table. Take it from the date field inside the Seizure Order PDF, which is
 usually **handwritten**, though it is sometimes printed. In most orders currently in the
-sheet it precedes `end_date` by exactly two years, which makes each a good check on the
+file it precedes `end_date` by exactly two years, which makes each a good check on the
 other when the handwriting is hard to read. Leave it empty rather than guess — the ASO
 number and `last_updated` still identify the order.
 
@@ -67,11 +75,14 @@ designation, and it is what a user needs in order to verify the entry. Two relat
 
 ## Dates
 
-Write dates as `YYYY-MM-DD`. Both `DD.MM.YYYY` and `DD/MM/YYYY` are also accepted (see
-`dates.formats` in `il_mod_crypto.yml`) and the sheet currently holds a mix of all three,
-but only the ISO form is unambiguous: slash dates are read day-first, so a date that Google
-Sheets has helpfully reformatted to US `MM/DD/YYYY` is parsed with day and month swapped,
-silently and without a warning, for the first twelve days of any month.
+Prefer `YYYY-MM-DD` for anything you add. `DD.MM.YYYY` and `DD/MM/YYYY` are also
+accepted (see `dates.formats` in `il_mod_crypto.yml`), and the file — exported from the
+sheet the data used to live in — currently holds a mix of all three. Only the ISO form
+is unambiguous: slash dates are read day-first, so a date a spreadsheet editor has
+reformatted to US `MM/DD/YYYY` is parsed with day and month swapped, silently and
+without a warning, for the first twelve days of any month. Converting the existing
+values is a separate change: it rewrites most rows, so do it on its own rather than
+inside a data update.
 
 ## After editing
 
