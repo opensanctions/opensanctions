@@ -4,7 +4,7 @@ prefix: am-na
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-08-17
+  start: 2026-08-21
 load_statements: true
 
 ci_test: true
