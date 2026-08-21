@@ -54,6 +54,11 @@ TRAILING_ABBREVIATION_RE = re.compile(r"^(?P<name>[^()]+?)\s*\((?P<abbr>[^()]+)\
 LATIN_ABBREVIATION_RE = re.compile(r"[A-Za-z0-9 .,&/’'\-]+")
 
 
+def pin_date(pin: str) -> date:
+    """The version date a consolidated CELEX names ('02012R0267-20260801')."""
+    return date.fromisoformat(pin.rsplit("-", 1)[-1])
+
+
 @cache
 def extract_program_code(context: Context, source_url: str) -> str | None:
     """Fetch the EU act code (e.g. '267/2012') for a sanctions notice.
@@ -162,7 +167,8 @@ def check_in_consolidated_act_text(
 
     Use this to identify journal rows that likely disappeared from the current
     regulation. Names are checked with their source spelling first, then with
-    diacritics folded to catch transcription differences.
+    diacritics folded to catch transcription differences. A row is only judged
+    against a consolidation that is able to contain it.
     """
     start_date_parsed = h.extract_date(context.dataset, start_date)
     # extract_date falls back to the original text when it can't parse a date,
@@ -180,6 +186,15 @@ def check_in_consolidated_act_text(
         return
     consolidated_celex = act.latest_consolidated
     assert consolidated_celex is not None
+    # The start date above is the date of the original designation, which an act
+    # that renames or otherwise amends a standing entry restates verbatim. The
+    # recency guard is therefore blind to a change published today against a
+    # decade-old listing, so compare the act the row cites with the
+    # consolidation instead: one adopted after the consolidated version was cut
+    # cannot have reached its text yet, whatever the designation date says.
+    if act.document_date is not None:
+        if date.fromisoformat(act.document_date) > pin_date(consolidated_celex):
+            return
     consolidated_act_text = _law_normalized(context, act)
     if consolidated_act_text is None:
         return
@@ -596,11 +611,6 @@ def consolidation_pins(context: Context) -> dict[str, str]:
     """Framework act to the consolidated version its snapshot was parsed from."""
     pins: dict[str, str] = context.dataset.config["consolidation"]
     return pins
-
-
-def pin_date(pin: str) -> date:
-    """The version date a consolidated CELEX names ('02012R0267-20260801')."""
-    return date.fromisoformat(pin.rsplit("-", 1)[-1])
 
 
 def crawl_csv_consolidated(context: Context) -> None:
