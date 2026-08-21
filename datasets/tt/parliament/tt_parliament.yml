@@ -81,9 +81,13 @@ assertions:
     schema_entities:
       Person: 300
       Position: 3
-      Occupancy: 450
+    entities_with_prop:
+      Occupancy:
+        holder: 450
   max:
     schema_entities:
       Person: 700
       Position: 4
-      Occupancy: 1100
+    entities_with_prop:
+      Occupancy:
+        holder: 1100
