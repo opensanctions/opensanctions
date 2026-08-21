@@ -490,6 +490,10 @@ lookups:
         values:
           - 1960
           - 1962
+      - match: "(a) 30.4.1963; (b) 1960"
+        values:
+          - 1960
+          - 1963-04-30
       - match:
           - "1960s-1970s"
           - "1960s-1970s (approx. 60 years old)"
@@ -505,7 +509,9 @@ lookups:
           - 1960-04-04
           - 1960-06-04
           - 1969-04-04
-      - match: "(i) 11.4.1963, (ii) 11.4.1960"
+      - match:
+          - "(a) 11.4.1963; (b) 11.4.1960"
+          - "(i) 11.4.1963, (ii) 11.4.1960"
         values:
           - 1960-04-11
           - 1963-04-11
@@ -1069,6 +1075,10 @@ lookups:
         values:
           - 1991-07-06
           - 1993-07-06
+      - match: "(a) 13.1.1992; (b) 16.3.1993"
+        values:
+          - 1992-01-13
+          - 1993-03-16
       - match: "22.7.1992 (ukraine), 13.8.2014 (russian federation)"
         values:
           - 1992-07-22
@@ -1461,6 +1471,11 @@ lookups:
         values:
           - "001714467"
           - "101505554"
+      - match: "(a) 03111298 (Kuwaiti); (b) 003111298 (Kuwaiti passport, issued in Kuwait on 16.9.2010, expired 15.9.2020 in the name of Shafi S M S Alajmi, Arabic script شافي سلطان محمد سلطان العجمي); (c) 0216155930"
+        values:
+          - "03111298"
+          - "003111298"
+          - "0216155930"
       - match: "(a) MM611523 (Filipino passport, 2004); (b) EE947317 (Filipino passport 2000-2001); (c) P421967 (Filipino passport number (1995- 1997))"
         values:
           - "MM611523"
