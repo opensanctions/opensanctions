@@ -41,7 +41,9 @@ REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^(
 
 
 def split_urls(value: str) -> list[str]:
-    return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
+    # Some cells are CSV fragments where the first URL is still quoted.
+    parts = REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
+    return [url for url in (part.strip().strip('"') for part in parts) if url]
 
 
 def split_associates(
@@ -60,7 +62,10 @@ def split_associates(
 
 
 def crawl_company(
-    context: Context, row: dict[str, str | None], skipped: set[str]
+    context: Context,
+    row: dict[str, str | None],
+    skipped: set[str],
+    owned_ids: set[str],
 ) -> None:
     id_ = row.pop("entity_id")
     if id_ is None:
@@ -89,6 +94,11 @@ def crawl_company(
     else:
         context.log.warning("Unknown entity type", entity_type=entity_type)
         return
+
+    # An owned entity is the `asset` of an Ownership, so it has to be an Asset.
+    # Company is the only schema used here that is both a LegalEntity and an Asset.
+    if id_ in owned_ids and schema in ("Organization", "LegalEntity"):
+        schema = "Company"
 
     entity = context.make(schema)
     entity.id = context.make_slug(id_)
@@ -214,7 +224,16 @@ def crawl(context: Context) -> None:
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     skipped: set[str] = set()
 
+    ownership_rows = list(
+        h.parse_xlsx_sheet(context, sheet=workbook["Entity Ownership"])
+    )
+    owned_ids = {
+        subject_id
+        for row in ownership_rows
+        if (subject_id := row["subject_entity_id"]) is not None
+    }
+
     for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
-        crawl_company(context, row, skipped)
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["Entity Ownership"]):
+        crawl_company(context, row, skipped, owned_ids)
+    for row in ownership_rows:
         crawl_rel(context, row, skipped)

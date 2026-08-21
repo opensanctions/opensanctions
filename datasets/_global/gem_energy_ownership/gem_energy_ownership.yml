@@ -54,8 +54,11 @@ assertions:
   min:
     schema_entities:
       Company: 22200
-      Organization: 1100
-      LegalEntity: 130
+      # Entities that appear as the owned side of an ownership are emitted as
+      # Company (Ownership:asset needs an Asset), which moved ~190 entities out
+      # of Organization and LegalEntity.
+      Organization: 950
+      LegalEntity: 85
     country_entities:
       cn: 6400
       us: 1500
@@ -295,6 +298,22 @@ lookups:
         value: https://www.brownsgroup.lk/
       - match: "ttps://www.bpi.ir"
         value: https://www.bpi.ir
+      # Truncated in the May 2026 sheet; the March 2026 edition of the same
+      # source had https://www.bem-ka.com.tr/home-page for this entity.
+      - match: "https://www.bem-ka.com.t"
+        value: https://www.bem-ka.com.tr
+      - match: "http:www.cjsdig.com"
+        value: http://www.cjsdig.com
+      # www. prefixed to a bare IP address
+      - match: "http://www.183.221.170.134"
+        value: http://183.221.170.134
+      # Trailing characters after the port; no way to tell whether they are a path
+      - match: "http://120.68.253.27:8082mgq2680033"
+        value: null
+      - match: "http://tepk-invest.ru or https://web.archive.org/web/20220614102750/http://tepk-invest.ru/proekty/coal.html"
+        values:
+          - http://tepk-invest.ru
+          - https://web.archive.org/web/20220614102750/http://tepk-invest.ru/proekty/coal.html
   type.address:
     options:
       - match:
