@@ -180,6 +180,21 @@ def check_in_consolidated_act_text(
         return
     consolidated_celex = act.latest_consolidated
     assert consolidated_celex is not None
+    # The consolidated text cannot carry wording from an act published after the
+    # version was produced. `start_date` does not catch that: an act amending the
+    # identifying data of a decades-old designation keeps the original date of
+    # designation, so the row looks old while its wording is days old.
+    if (
+        act.document_date is not None
+        and act.document_date > pin_date(consolidated_celex).isoformat()
+    ):
+        context.log.info(
+            "Source act is newer than the consolidated version, skipping name check",
+            source_url=source_url,
+            document_date=act.document_date,
+            consolidated_celex=consolidated_celex,
+        )
+        return
     consolidated_act_text = _law_normalized(context, act)
     if consolidated_act_text is None:
         return
