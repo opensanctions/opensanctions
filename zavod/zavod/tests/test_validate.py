@@ -5,9 +5,11 @@ from structlog.testing import capture_logs
 from zavod import Entity
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
-from zavod.integration import get_dataset_linker
+from zavod.exporters.consolidate import consolidate_entity
+from zavod.exporters.fragment import ViewFragment
+from zavod.runtime.statistics import Statistics
 from zavod.meta.dataset import Dataset
-from zavod.store import get_store
+from zavod.tests.exporters.util import get_test_view
 from zavod.validators import (
     EntityReferenceValidator,
     SelfReferenceValidator,
@@ -24,20 +26,22 @@ BASE_DATASET_CONFIG = {
 
 
 def run_validator(clazz: type[BaseValidator], dataset: Dataset):
+    """Run a single validator over the dataset, mirroring the export loop."""
     context = Context(dataset)
-    linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
     # Pass clear so that if the test emits statements and re-validates, we pick that up.
-    store.sync(clear=True)
-    view = store.view(dataset)
+    view = get_test_view(dataset, clear=True)
 
+    stats = Statistics()
     with capture_logs() as cap_logs:
-        validator = clazz(context, view)
+        validator = clazz(context, stats)
         for entity in view.entities():
-            validator.feed(entity)
+            entity = consolidate_entity(view.store.linker, entity)
+            fragment = ViewFragment(view, entity)
+            stats.observe(entity)
+            validator.feed(entity, fragment)
         validator.finish()
 
-    store.close()
+    view.store.close()
     context.close()
 
     cap_logs = [(log["log_level"], log["event"]) for log in cap_logs]

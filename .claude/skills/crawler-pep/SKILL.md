@@ -252,7 +252,7 @@ what catches the wrong-endpoint mistake that no amount of code review will.
 
 ```bash
 zavod crawl <path>          # then read data/datasets/<dataset>/issues.log — it must be clean
-zavod validate <path>
+zavod export <path>       # runs the dataset validators and assertions
 contrib/lint_dataset.sh <path>   # ruff + mypy + pre-commit exactly as CI runs them
 ```
 

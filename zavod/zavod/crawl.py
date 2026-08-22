@@ -3,10 +3,9 @@ from datapatch import LookupException
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.context import Context
+from zavod.context import Context, ContextStats
 from zavod.exc import RunFailedException
 from zavod.archive import dataset_data_path
-from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
 from zavod.runner.enrich import enrich
 from zavod.reset import reset_caches

@@ -37,12 +37,30 @@ def test_export_dataset():
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_validate_dataset():
+def test_export_validation_failed(testdataset3: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset3.name
     runner = CliRunner()
-    result = runner.invoke(cli, ["validate", "/dev/null"])
-    assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["crawl", DATASET_3_YML.as_posix()])
     assert result.exit_code == 0, result.output
+
+    # Validation is on by default and testdataset3 fails its min assertions.
+    result = runner.invoke(cli, ["export", DATASET_3_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    assert "Assertion countries failed" in result.output, result.output
+    # Partial export files may remain in the working directory, but the abort
+    # must not produce any success markers: exporters never finish, so nothing
+    # is registered as a resource and no success index is written. Keeping the
+    # partial files out of the archive is archive_failure's job.
+    assert not (dataset_path / "statistics.json").exists()
+    assert not (dataset_path / "index.json").exists()
+    resources_path = dataset_path / "resources.json"
+    if resources_path.exists():
+        assert "entities.ftm.json" not in resources_path.read_text()
+
+    result = runner.invoke(cli, ["export", "--no-validate", DATASET_3_YML.as_posix()])
+    assert result.exit_code == 0, result.output
+    assert (dataset_path / "entities.ftm.json").exists()
+    assert (dataset_path / "index.json").exists()
     shutil.rmtree(settings.DATA_PATH)
 
 
@@ -112,6 +130,10 @@ def test_run_validation_failed(testdataset3: Dataset):
     assert "Assertion countries failed" in result.output, result.output
     with open(artifacts_path / "issues.json") as f:
         assert "Assertion countries failed" in f.read()
+    # Only failure information is archived - never partial export artifacts,
+    # even though the abort happened mid-export.
+    archived = {p.name for p in artifacts_path.iterdir()}
+    assert archived == {"index.json", "issues.json", "issues.log", "versions.json"}
     shutil.rmtree(settings.DATA_PATH)
 
 

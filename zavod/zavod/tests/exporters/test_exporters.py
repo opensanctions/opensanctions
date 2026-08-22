@@ -10,8 +10,6 @@ from datetime import datetime
 
 from zavod import Context, settings
 from zavod.entity import Entity
-from zavod.integration.dedupe import get_dataset_linker
-from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path, DATASETS
 from zavod.exporters.ftm import FtMExporter
@@ -21,7 +19,7 @@ from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
-from zavod.tests.exporters.util import harnessed_export
+from zavod.tests.exporters.util import get_test_view, harnessed_export
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -55,10 +53,7 @@ def emit_entity(
 
 
 def export(dataset: Dataset) -> None:
-    linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
-    store.sync(clear=True)
-    view = store.view(dataset)
+    view = get_test_view(dataset, clear=True)
     export_dataset(dataset, view)
 
 

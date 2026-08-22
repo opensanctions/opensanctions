@@ -102,5 +102,6 @@ class HashDelta:
                 yield "MOD", entity_id
 
     def close(self) -> None:
-        self.db.close()
+        if not self.db.closed:
+            self.db.close()
         self.fh.close()
