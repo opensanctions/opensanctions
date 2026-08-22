@@ -1,6 +1,6 @@
 import json
 from typing import Any
-from followthemoney.dataset import DataResource
+from followthemoney.dataset import DataResource, Version
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_artifact_path
@@ -11,7 +11,7 @@ class DatasetResources:
     """Store information about the resources in the dataset that have been emitted
     from the context during runtime."""
 
-    def __init__(self, dataset: Dataset, version: str) -> None:
+    def __init__(self, dataset: Dataset, version: Version) -> None:
         self.dataset = dataset
         self.version = version
         self.path = dataset_artifact_path(dataset.name, self.version, RESOURCES_FILE)

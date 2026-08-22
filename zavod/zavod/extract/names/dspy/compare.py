@@ -21,7 +21,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
     _train_set, _val_set, test_set = load_data(examples_path)
 
     fake_dataset: Dataset = Dataset({"name": "fake"})
-    context = Context(fake_dataset, settings.RUN_VERSION.id)
+    context = Context(fake_dataset, settings.RUN_VERSION)
 
     results = []
 

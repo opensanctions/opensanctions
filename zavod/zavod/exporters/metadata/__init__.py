@@ -34,10 +34,9 @@ class DatasetVersionResult(StrEnum):
     FAILURE = "failure"
 
 
-def get_base_dataset_metadata(dataset: Dataset, version: str) -> dict[str, Any]:
+def get_base_dataset_metadata(dataset: Dataset, version: Version) -> dict[str, Any]:
     """Build the barebones metadata block for a dataset, without artifact URLs."""
-    vobj = Version.from_string(version)
-    viso = vobj.dt.isoformat(sep="T", timespec="seconds")
+    viso = version.dt.isoformat(sep="T", timespec="seconds")
 
     meta: dict[str, Any] = {
         "issue_levels": {},
@@ -95,7 +94,7 @@ def get_base_dataset_metadata(dataset: Dataset, version: str) -> dict[str, Any]:
 
 
 def write_dataset_index(
-    dataset: Dataset, version: str, result: DatasetVersionResult
+    dataset: Dataset, version: Version, result: DatasetVersionResult
 ) -> None:
     """Export dataset metadata to index.json."""
     catalog = get_catalog()
@@ -103,7 +102,7 @@ def write_dataset_index(
     log.info(
         "Writing dataset index",
         path=index_path,
-        version=version,
+        version=version.id,
         is_collection=dataset.is_collection,
     )
     meta = get_base_dataset_metadata(dataset, version)
@@ -115,9 +114,8 @@ def write_dataset_index(
     meta.pop("sources", None)
     meta.pop("collections", None)
 
-    meta["version"] = version
-    vobj = Version.from_string(version)
-    meta["updated_at"] = vobj.dt.isoformat()
+    meta["version"] = version.id
+    meta["updated_at"] = version.dt.isoformat()
     meta["index_url"] = make_artifact_url(dataset.name, version, INDEX_FILE)
     for res_data in meta["resources"]:
         res_data["url"] = make_artifact_url(dataset.name, version, res_data["path"])
@@ -140,12 +138,10 @@ def write_dataset_index(
         # If the delta index is not available, try to find the newest delta index
         # generate the URL from that:
         for prev_version in iter_dataset_versions(dataset.name):
-            object = get_artifact_object(
-                dataset.name, prev_version.id, DELTA_EXPORT_FILE
-            )
+            object = get_artifact_object(dataset.name, prev_version, DELTA_EXPORT_FILE)
             if object is not None:
                 meta["delta_url"] = make_artifact_url(
-                    dataset.name, prev_version.id, DELTA_INDEX_FILE
+                    dataset.name, prev_version, DELTA_INDEX_FILE
                 )
                 break
 
@@ -206,7 +202,9 @@ def get_catalog_datasets(scope: Dataset) -> list[dict[str, Any]]:
     return datasets
 
 
-def write_delta_index(dataset: Dataset, version: str, max_versions: int = 100) -> None:
+def write_delta_index(
+    dataset: Dataset, version: Version, max_versions: int = 100
+) -> None:
     """Export list of delta data versions for the dataset with their URLs
     associated."""
     versions: dict[str, str] = {}
@@ -215,16 +213,18 @@ def write_delta_index(dataset: Dataset, version: str, max_versions: int = 100) -
     # time as the index file:
     data_path = dataset_artifact_path(dataset.name, version, DELTA_EXPORT_FILE)
     if data_path.is_file() and data_path.stat().st_size > 0:
-        versions[version] = make_artifact_url(dataset.name, version, DELTA_EXPORT_FILE)
+        versions[version.id] = make_artifact_url(
+            dataset.name, version, DELTA_EXPORT_FILE
+        )
 
     # Get the most recent versions of the dataset:
     for prev_version in iter_dataset_versions(dataset.name):
         if prev_version.id in versions:
             continue
-        object = get_artifact_object(dataset.name, prev_version.id, DELTA_EXPORT_FILE)
+        object = get_artifact_object(dataset.name, prev_version, DELTA_EXPORT_FILE)
         if object is not None and object.size() > 0:
             versions[prev_version.id] = make_artifact_url(
-                dataset.name, prev_version.id, DELTA_EXPORT_FILE
+                dataset.name, prev_version, DELTA_EXPORT_FILE
             )
         if len(versions) >= max_versions:
             break
@@ -255,7 +255,7 @@ def write_delta_index(dataset: Dataset, version: str, max_versions: int = 100) -
         write_json(data, fh)
 
 
-def write_catalog(scope: Dataset, version: str) -> None:
+def write_catalog(scope: Dataset, version: Version) -> None:
     """Export a Nomenklatura-style data catalog file to represent all the datasets
     within this scope."""
     if not scope.is_collection:

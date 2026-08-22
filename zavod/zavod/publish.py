@@ -1,4 +1,5 @@
 from rigour.mime.types import JSON
+from followthemoney.dataset import Version
 
 from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
@@ -18,7 +19,7 @@ log = get_logger(__name__)
 
 
 def _archive_artifacts(
-    dataset: Dataset, version: str, extra_artifacts: list[str] = []
+    dataset: Dataset, version: Version, extra_artifacts: list[str] = []
 ) -> None:
     """
     Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
@@ -59,7 +60,7 @@ def _archive_artifacts(
     publish_version_history(dataset.name, version)
 
 
-def publish_dataset(dataset: Dataset, version: str) -> None:
+def publish_dataset(dataset: Dataset, version: Version) -> None:
     """Publish a dataset.
 
     Only for successful runs.
@@ -80,7 +81,7 @@ def publish_dataset(dataset: Dataset, version: str) -> None:
     invalidate_dataset_urls(dataset.name)
 
 
-def archive_failure(dataset: Dataset, version: str) -> None:
+def archive_failure(dataset: Dataset, version: Version) -> None:
     """Upload failure information about a dataset to the archive."""
     # For collections, we used to refuse to archive_failure because we were worried about a failed
     # `default/index.json` ending up at `/datasets/latest/default/index.json` with empty resources.
