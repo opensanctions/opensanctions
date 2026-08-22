@@ -149,7 +149,6 @@ def dataset_artifact_path(dataset_name: str, version: str, artifact: str) -> Pat
     """Versioned artifacts."""
     dataset_path = dataset_data_path(dataset_name)
     artifact_path = dataset_path / "_artifacts" / version
-    artifact_path.mkdir(parents=True, exist_ok=True)
     return artifact_path / artifact
 
 
@@ -206,6 +205,23 @@ def get_artifact_object(
     if object.exists():
         return object
     return None
+
+
+def create_artifact_path(dataset_name: str, version: str) -> VersionHistory:
+    """Create the artifact path for a given dataset and version, and update the
+    version history file. Returns the updated version history."""
+    version_path = dataset_artifact_path(dataset_name, version, VERSIONS_FILE)
+    shutil.rmtree(version_path.parent, ignore_errors=True)
+    if not version_path.parent.exists():
+        version_path.parent.mkdir(parents=True, exist_ok=True)
+    data = get_versions_data(dataset_name)
+    history = VersionHistory.from_json(data or "{}")
+    vobj = Version.from_string(version)
+    if vobj not in history.items:
+        history = history.append(vobj)
+        with open(version_path, "w") as fh:
+            fh.write(history.to_json())
+    return history
 
 
 def publish_version_history(dataset_name: str, version: str) -> None:

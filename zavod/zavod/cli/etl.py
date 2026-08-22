@@ -4,14 +4,13 @@ from pathlib import Path
 import click
 
 from zavod import settings
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, create_artifact_path
 from zavod.cli import cli, DatasetInPath, _load_dataset, log
 from zavod.crawl import crawl_dataset
 from zavod.exc import RunFailedException
 from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, archive_failure
-from zavod.runtime.versions import make_history
 from zavod.store import get_store
 from zavod.tools.load_db import load_dataset_to_db
 
@@ -33,6 +32,7 @@ def crawl(
 
     if version is None:
         version = settings.RUN_VERSION.id
+    create_artifact_path(dataset.name, version)
 
     try:
         crawl_dataset(dataset, version=version, dry_run=dry_run)
@@ -97,6 +97,7 @@ def run(
 
     if version is None:
         version = settings.RUN_VERSION.id
+    create_artifact_path(dataset.name, version)
 
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
@@ -105,8 +106,6 @@ def run(
         except RunFailedException:
             archive_failure(dataset, version)
             sys.exit(1)
-    else:
-        make_history(dataset.name, version)
 
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
