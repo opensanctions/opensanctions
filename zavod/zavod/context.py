@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, cast
 from collections.abc import Mapping
 from datapatch import Lookup, LookupException, Result
-from followthemoney.dataset import DataResource, Version
+from followthemoney.dataset import DataResource
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
 from followthemoney.statement.serialize import PackStatementWriter
@@ -18,7 +18,12 @@ from rigour.urls import ParamsType, build_url
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
-from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_path
+from zavod.archive import (
+    STATEMENTS_FILE,
+    dataset_artifact_path,
+    dataset_data_path,
+    dataset_resource_path,
+)
 from zavod.audit import inspect
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
@@ -35,7 +40,6 @@ from zavod.runtime.http_ import (
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.timestamps import TimeStampIndex
-from zavod.runtime.versions import get_latest, make_version
 from zavod.util import Element, join_slug, prefixed_hash_id
 
 
@@ -63,14 +67,16 @@ class Context:
 
     SOURCE_TITLE = "Source data"
 
-    def __init__(self, dataset: Dataset, dry_run: bool = False):
+    def __init__(self, dataset: Dataset, version: str, dry_run: bool = False):
         self.dataset = dataset
+        self.version = version
         self.dry_run = dry_run
         self.stats = ContextStats()
-        self.issues = DatasetIssues(dataset)
-        self.resources = DatasetResources(dataset)
+        self.issues = DatasetIssues(dataset, self.version)
+        self.resources = DatasetResources(dataset, self.version)
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
+        self._version: str | None = None
         self._db: Session | None = None
         self._cache: Cache | None = None
         self._timestamps: TimeStampIndex | None = None
@@ -78,7 +84,9 @@ class Context:
         self._structlog_contextvars_tokens: (
             Mapping[str, contextvars.Token[Any]] | None
         ) = None
-        self._writer_path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+        self._writer_path = dataset_artifact_path(
+            dataset.name, version, STATEMENTS_FILE
+        )
         self._writer: PackStatementWriter | None = None
 
         self.lang: str | None = None
@@ -121,11 +129,6 @@ class Context:
         return self._resolver
 
     @property
-    def version(self) -> Version:
-        """The current version of the dataset."""
-        return get_latest(self.dataset.name, backfill=False) or settings.RUN_VERSION
-
-    @property
     def timestamps(self) -> TimeStampIndex:
         """An index of the first_seen time of every statement previous emitted by
         the dataset. This is used to determine if a statement is new or not."""
@@ -140,7 +143,7 @@ class Context:
             raise ValueError(f"Dataset has no data URL: {self.dataset!r}")
         return self.dataset.data.url
 
-    def begin(self, clear: bool = False) -> None:
+    def begin(self) -> None:
         """Prepare the context for running the exporter.
 
         Args:
@@ -150,12 +153,6 @@ class Context:
             dataset=self.dataset.name,
             context=self,
         )
-        make_version(
-            self.dataset, settings.RUN_VERSION, append_new_version_to_history=clear
-        )
-        if clear and not self.dry_run:
-            self.resources.clear()
-            self.issues.clear()
         self.stats.reset()
 
     def rekey(self, old_id: str | None, new_id: str | None) -> None:

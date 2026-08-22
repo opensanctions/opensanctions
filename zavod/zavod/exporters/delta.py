@@ -15,7 +15,7 @@ class DeltaExporter(Exporter):
 
     def setup(self) -> None:
         super().setup()
-        self.delta = HashDelta(self.dataset, self.context.version.id)
+        self.delta = HashDelta(self.dataset, self.context.version)
         self.delta.backfill()
         self.counts = {
             "ADD": 0,
@@ -48,7 +48,7 @@ class DeltaExporter(Exporter):
         self.delta.close()
         self.context.log.info(
             "Delta export complete",
-            version=self.context.version.id,
+            version=self.context.version,
             metric="delta_counts",
             added=self.counts["ADD"],
             modified=self.counts["MOD"],

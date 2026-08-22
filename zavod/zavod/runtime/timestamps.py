@@ -6,7 +6,11 @@ from followthemoney import Statement
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import dataset_state_path, iter_previous_statements
+from zavod.archive import (
+    dataset_state_path,
+    get_last_successful_version,
+    stream_statements,
+)
 
 log = get_logger(__name__)
 
@@ -52,7 +56,9 @@ class TimeStampIndex:
     @classmethod
     def build(cls, dataset: Dataset) -> "TimeStampIndex":
         index = cls(dataset)
-        index.index(iter_previous_statements(dataset, external=False))
+        version = get_last_successful_version(dataset.name)
+        if version is not None:
+            index.index(stream_statements(dataset, version, external=False))
         return index
 
     def get(self, entity_id: str) -> dict[str, str]:
