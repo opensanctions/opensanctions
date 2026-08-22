@@ -49,7 +49,7 @@ lookups:
           - "Islamic Republic of Iran"
           - "Nauru"
           - "Ukraine"
-        value: Organization
+        value: PublicBody
   clean_name:
     # Names in the overview table that carry inline annotations. The raw
     # string stays the entity ID and the details.csv join key; these
