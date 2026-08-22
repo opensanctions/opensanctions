@@ -26,9 +26,6 @@ class DeltaExporter(Exporter):
     def feed(self, entity: Entity, view: ExportView) -> None:
         self.delta.feed(entity)
 
-    def close(self) -> None:
-        self.delta.close()
-
     def generate(self, view: ExportView) -> Generator[Any, None, None]:
         for op, entity_id in self.delta.generate():
             if op == "DEL":
@@ -39,6 +36,9 @@ class DeltaExporter(Exporter):
                 continue
             entity = consolidate_entity(view.store.linker, entity)
             yield {"op": op, "entity": entity.to_dict()}
+
+    def close(self) -> None:
+        self.delta.close()
 
     def finish(self, view: ExportView) -> None:
         with open(self.path, "wb") as fh:
