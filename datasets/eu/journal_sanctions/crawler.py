@@ -180,6 +180,21 @@ def check_in_consolidated_act_text(
         return
     consolidated_celex = act.latest_consolidated
     assert consolidated_celex is not None
+    # The start date above is the date of the original designation, which an
+    # amending act carries over when it only renames or re-describes an entry.
+    # An old start date therefore says nothing about how recent the change is,
+    # so also skip acts the newest consolidation cannot have absorbed yet.
+    if (
+        act.document_date is not None
+        and pin_date(consolidated_celex).isoformat() < act.document_date
+    ):
+        context.log.info(
+            "Consolidated version predates the source act",
+            source_url=source_url,
+            consolidated_celex=consolidated_celex,
+            document_date=act.document_date,
+        )
+        return
     consolidated_act_text = _law_normalized(context, act)
     if consolidated_act_text is None:
         return
