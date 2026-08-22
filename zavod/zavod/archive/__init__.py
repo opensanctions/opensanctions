@@ -169,7 +169,7 @@ def get_dataset_artifact(
 # TODO(Leon Handreke): This function has some overlap with versions.get_history.
 # The right thing to do might be to have two functions, one to get the "root" version file
 # at artifacts/{dataset_name}/versions.json, and one to get the version file for a specific version.
-@lru_cache(maxsize=1000)
+@lru_cache(maxsize=5000)
 def get_versions_data(dataset_name: str, version: str | None = None) -> str | None:
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
@@ -178,6 +178,20 @@ def get_versions_data(dataset_name: str, version: str | None = None) -> str | No
     object = backend.get_object(name)
     if object.exists():
         return object.open().read()
+    return None
+
+
+@lru_cache(maxsize=5000)
+def get_last_successful_version(dataset_name: str) -> str | None:
+    """Get the last successful version of a dataset, ie. the last one which produced
+    a set of artifacts that were archived. Change detection and delta generation are
+    based on this version."""
+    data = get_versions_data(dataset_name)
+    if data is None:
+        return None
+    history = VersionHistory.from_json(data)
+    if history.last_successful:
+        return history.last_successful.id
     return None
 
 
@@ -203,26 +217,13 @@ def get_artifact_object(
 ) -> ArchiveObject | None:
     backend = get_archive_backend()
     if version is None:
-        versions_data = get_versions_data(dataset_name)
-        if versions_data is not None:
-            history = VersionHistory.from_json(versions_data)
-            version = history.last_successful.id if history.last_successful else None
+        version = get_last_successful_version(dataset_name)
 
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
         object = backend.get_object(name)
         if object.exists():
             return object
-
-    # TODO: Remove after lt_pep_declarations is deleted.
-    # It hasn't succeeded since last_successful was added.
-    if dataset_name == "lt_pep_declarations":
-        version = "20250403160648-kkg"
-        name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
-        object = backend.get_object(name)
-        if object.exists():
-            return object
-
     return None
 
 
@@ -235,7 +236,7 @@ def publish_version_history(dataset_name: str) -> None:
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     object = backend.get_object(name)
-    object.publish(path, mime_type=JSON, ttl=TTL_MEDIUM)
+    object.publish(path, mime_type=JSON, ttl=TTL_SHORT)
     invalidate_archive_cache(name)
     get_versions_data.cache_clear()
 
