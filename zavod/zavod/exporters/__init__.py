@@ -72,37 +72,38 @@ def export_data(context: Context, view: View, validate: bool = True) -> None:
     for exporter in exporters:
         exporter.setup()
 
-    for idx, entity in enumerate(view.entities()):
-        if idx > 0 and idx % 10000 == 0:
-            log.info(f"Exported {idx} entities...", scope=context.dataset.name)
+    try:
+        for idx, entity in enumerate(view.entities()):
+            if idx > 0 and idx % 10000 == 0:
+                log.info(f"Exported {idx} entities...", scope=context.dataset.name)
 
-        # feed_unconsolidated must be called before consolidate_entity, because
-        # consolidate_entity mutates the entity in place.
-        for exporter in exporters:
-            exporter.feed_unconsolidated(entity)
+            # feed_unconsolidated must be called before consolidate_entity, because
+            # consolidate_entity mutates the entity in place.
+            for exporter in exporters:
+                exporter.feed_unconsolidated(entity)
 
-        entity = consolidate_entity(view.store.linker, entity)
-        fragment = ViewFragment(view, entity)
-        stats.observe(entity)
-        for exporter in exporters:
-            exporter.feed(entity, fragment)
+            entity = consolidate_entity(view.store.linker, entity)
+            fragment = ViewFragment(view, entity)
+            stats.observe(entity)
+            for exporter in exporters:
+                exporter.feed(entity, fragment)
+            for validator in validators:
+                validator.feed(entity, fragment)
+
+        # Validators finish before exporters: on a validation abort, no exporter
+        # may register its artifact for publication.
+        abort = False
         for validator in validators:
-            validator.feed(entity, fragment)
+            validator.finish()
+            abort = abort or validator.abort
+        if abort:
+            raise RunFailedException("Validation caused abort.")
 
-    # Validators finish before exporters: on a validation abort, no exporter
-    # may register its artifact for publication, and the partial output files
-    # written during the traversal are removed.
-    abort = False
-    for validator in validators:
-        validator.finish()
-        abort = abort or validator.abort
-    if abort:
         for exporter in exporters:
-            exporter.abort()
-        raise RunFailedException("Validation caused abort.")
-
-    for exporter in exporters:
-        exporter.finish(view)
+            exporter.finish(view)
+    finally:
+        for exporter in exporters:
+            exporter.close()
 
 
 def export_dataset(dataset: Dataset, view: View, validate: bool = True) -> None:

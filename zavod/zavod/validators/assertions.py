@@ -156,7 +156,7 @@ def check_assertion(
 
 
 class StatisticsAssertionsValidator(BaseValidator):
-    """Validator that checks various asssertions that are based on dataset statistics.
+    """Validator that checks various assertions that are based on dataset statistics.
 
     The statistics are observed once during the export traversal and shared
     with the statistics exporter."""

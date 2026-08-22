@@ -94,7 +94,11 @@ def archive_failure(dataset: Dataset) -> None:
     # So archiving a failed collection just lands a `result: failure` version in `/artifacts`,
     # which is exactly what we want for surfacing the `issues.log`.
     # Clear out interim artifacts so they cannot pollute the metadata we're
-    # generating.
+    # generating. This deny-list is the sole guard against half-generated
+    # export files reaching the archive.
+    # TODO: invert this into an allow-list of failure artifacts (index.json,
+    # issues.json, issues.log, versions.json) instead of unlinking everything
+    # else.
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)
     # TODO: The statistics file gets pulled in by write_dataset_index,
     #  so they get published as part of the artifacts anyway.
@@ -106,8 +110,6 @@ def archive_failure(dataset: Dataset) -> None:
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
-    # A half-written hash file from an aborted export would poison later delta
-    # computations if it reached the archive.
     dataset_resource_path(dataset.name, HASH_FILE).unlink(missing_ok=True)
 
     write_dataset_index(dataset, DatasetVersionResult.FAILURE)

@@ -102,12 +102,6 @@ class HashDelta:
                 yield "MOD", entity_id
 
     def close(self) -> None:
-        self.db.close()
+        if not self.db.closed:
+            self.db.close()
         self.fh.close()
-
-    def discard(self) -> None:
-        """Close and remove the partial hash output of an aborted run. A
-        truncated hash file must never reach the archive: later runs would
-        backfill it and compute deltas against an incomplete entity set."""
-        self.close()
-        self.curr_path.unlink(missing_ok=True)

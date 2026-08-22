@@ -47,12 +47,15 @@ def test_export_validation_failed(testdataset3: Dataset):
     result = runner.invoke(cli, ["export", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     assert "Assertion countries failed" in result.output, result.output
-    # The abort must leave no half-generated export artifacts behind, and no
-    # index claiming a successful run.
-    assert not (dataset_path / "entities.ftm.json").exists()
+    # Partial export files may remain in the working directory, but the abort
+    # must not produce any success markers: exporters never finish, so nothing
+    # is registered as a resource and no success index is written. Keeping the
+    # partial files out of the archive is archive_failure's job.
     assert not (dataset_path / "statistics.json").exists()
-    assert not (dataset_path / "entities.hash").exists()
     assert not (dataset_path / "index.json").exists()
+    resources_path = dataset_path / "resources.json"
+    if resources_path.exists():
+        assert "entities.ftm.json" not in resources_path.read_text()
 
     result = runner.invoke(cli, ["export", "--no-validate", DATASET_3_YML.as_posix()])
     assert result.exit_code == 0, result.output
@@ -127,6 +130,10 @@ def test_run_validation_failed(testdataset3: Dataset):
     assert "Assertion countries failed" in result.output, result.output
     with open(artifacts_path / "issues.json") as f:
         assert "Assertion countries failed" in f.read()
+    # Only failure information is archived - never partial export artifacts,
+    # even though the abort happened mid-export.
+    archived = {p.name for p in artifacts_path.iterdir()}
+    assert archived == {"index.json", "issues.json", "issues.log", "versions.json"}
     shutil.rmtree(settings.DATA_PATH)
 
 
