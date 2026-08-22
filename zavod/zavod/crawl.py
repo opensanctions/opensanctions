@@ -2,12 +2,12 @@ from requests.exceptions import RequestException
 from datapatch import LookupException
 
 from zavod import settings
+from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.context import Context, ContextStats
 from zavod.exc import RunFailedException
-from zavod.archive import dataset_data_path
+from zavod.archive import create_artifact_path, dataset_data_path
 from zavod.runtime.loader import load_entry_point
-from zavod.runtime.versions import make_history
 from zavod.runner.enrich import enrich
 from zavod.reset import reset_caches
 
@@ -15,18 +15,20 @@ from zavod.reset import reset_caches
 # on OS X, probably related to the nested use of import_module.
 assert enrich is not None
 
+log = get_logger(__name__)
+
 
 def crawl_dataset(
     dataset: Dataset, version: str, dry_run: bool = False
 ) -> ContextStats:
     """Load the dataset entry point, configure a context, and then execute the entry
     point; finally disband the context."""
-    context = Context(dataset, version, dry_run=dry_run)
     if dataset.model.disabled:
-        context.log.info("Source is disabled", source=dataset.name)
-        return context.stats
+        log.info(f"Source is disabled: {dataset.name}")
+        return ContextStats()
 
-    make_history(dataset.name, version)
+    create_artifact_path(dataset.name, version)
+    context = Context(dataset, version, dry_run=dry_run)
     try:
         context.begin()
         context.log.info(

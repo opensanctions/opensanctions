@@ -153,47 +153,54 @@ def dataset_artifact_path(dataset_name: str, version: str, artifact: str) -> Pat
 
 
 @lru_cache(maxsize=5000)
-def get_versions_data(dataset_name: str, version: str | None = None) -> str | None:
-    """Fetch the latest version data from the artifact base directory."""
+def get_version_history(
+    dataset_name: str, version: str | None = None
+) -> VersionHistory:
+    """Fetch the version history from the artifact base directory."""
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version}/{VERSIONS_FILE}"
     object = backend.get_object(name)
+    data = "{}"
     if object.exists():
-        return object.open().read()
-    return None
+        data = object.open().read()
+    return VersionHistory.from_json(data)
 
 
-@lru_cache(maxsize=5000)
 def get_last_successful_version(dataset_name: str) -> str | None:
     """Get the last successful version of a dataset, ie. the last one which produced
     a set of artifacts that were archived. Change detection and delta generation are
     based on this version."""
-    data = get_versions_data(dataset_name)
-    if data is None:
+    history = get_version_history(dataset_name)
+    if not history.last_successful:
         return None
-    history = VersionHistory.from_json(data)
-    if history.last_successful:
+    return history.last_successful.id
+
+
+def get_best_version(dataset_name: str) -> str | None:
+    """Get the best version of a dataset, ie. the last successful one if available,
+    otherwise the latest one."""
+    history = get_version_history(dataset_name)
+    if history.last_successful is not None:
         return history.last_successful.id
+    if history.latest is not None:
+        return history.latest.id
     return None
 
 
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
     """Iterate over all versions of a given dataset."""
-    data = get_versions_data(dataset_name)
+    history = get_version_history(dataset_name)
     seen: set[str] = set()
     while True:
-        if data is None:
-            break
-        history = VersionHistory.from_json(data)
         for version in history.items[::-1]:
             if version.id not in seen:
                 yield version
                 seen.add(version.id)
         if len(history.items) < 2:
             break
-        data = get_versions_data(dataset_name, history.items[0].id)
+        history = get_version_history(dataset_name, history.items[0].id)
 
 
 def get_artifact_object(
@@ -207,6 +214,19 @@ def get_artifact_object(
     return None
 
 
+def backfill_artifact(dataset_name: str, version: str, resource: str) -> Path | None:
+    """Fetch a given artifact from the archive and write it to the local file system."""
+    target_path = dataset_artifact_path(dataset_name, version, resource)
+    if target_path.exists():
+        return target_path
+    object = get_artifact_object(dataset_name, version, resource)
+    if object is None:
+        return None
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    object.backfill(target_path)
+    return target_path
+
+
 def create_artifact_path(dataset_name: str, version: str) -> VersionHistory:
     """Create the artifact path for a given dataset and version, and update the
     version history file. Returns the updated version history."""
@@ -214,13 +234,12 @@ def create_artifact_path(dataset_name: str, version: str) -> VersionHistory:
     shutil.rmtree(version_path.parent, ignore_errors=True)
     if not version_path.parent.exists():
         version_path.parent.mkdir(parents=True, exist_ok=True)
-    data = get_versions_data(dataset_name)
-    history = VersionHistory.from_json(data or "{}")
+    history = get_version_history(dataset_name)
     vobj = Version.from_string(version)
     if vobj not in history.items:
         history = history.append(vobj)
-        with open(version_path, "w") as fh:
-            fh.write(history.to_json())
+    with open(version_path, "w") as fh:
+        fh.write(history.to_json())
     return history
 
 
@@ -235,7 +254,7 @@ def publish_version_history(dataset_name: str, version: str) -> None:
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON, ttl=TTL_SHORT)
     invalidate_archive_cache(name)
-    get_versions_data.cache_clear()
+    get_version_history.cache_clear()
 
 
 def archive_artifact(
@@ -278,7 +297,7 @@ def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> Statem
 def iter_local_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     """Create a generator that yields all statements in the given dataset."""
     assert not dataset.is_collection
-    path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+    path = dataset_artifact_path(dataset.name, settings.RUN_VERSION.id, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
     with open(path) as fh:
