@@ -262,6 +262,11 @@ lookups:
       # journal spelling "Hamida Nabaggala" is not found as a contiguous string.
       - match: Hamida Nabaggala
         value: Hamidah Nabagala
+      # Consolidated act 02002R0881 prints this person as "Shafi Sultan
+      # Mohammed Al-Ajmi", without the second "Sultan" the journal spelling
+      # carries, so the sheet name is not found as a contiguous string.
+      - match: Shafi Sultan Mohammed Sultan Al-Ajmi
+        value: Shafi Sultan Mohammed Al-Ajmi
   type.date:
     lowercase: true
     options:
