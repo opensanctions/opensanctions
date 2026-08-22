@@ -3,7 +3,7 @@ from rigour.mime.types import JSON
 from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
-from zavod.archive import dataset_resource_path
+from zavod.archive import dataset_artifact_path, dataset_resource_path
 from zavod.archive import publish_version_history, archive_artifact
 from zavod.archive import invalidate_dataset_urls
 from zavod.archive import INDEX_FILE, CATALOG_FILE
@@ -11,13 +11,15 @@ from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
 from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS, HASH_FILE
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.versions import get_latest, set_last_successful_version
+from zavod.runtime.versions import set_version_successful
 from zavod.exporters import write_dataset_index
 
 log = get_logger(__name__)
 
 
-def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> None:
+def _archive_artifacts(
+    dataset: Dataset, version: str, extra_artifacts: list[str] = []
+) -> None:
     """
     Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
 
@@ -27,11 +29,7 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
     """
     extra_artifacts = list(extra_artifacts) + EXTRA_ARTIFACTS
 
-    version = get_latest(dataset.name, backfill=False)
-    if version is None:
-        raise ValueError(f"No working version found for dataset: {dataset.name}")
-
-    for resource in DatasetResources(dataset).all():
+    for resource in DatasetResources(dataset, version).all():
         path = dataset_resource_path(dataset.name, resource.name)
         if not path.is_file():
             log.error(f"Resource not found: {path}", dataset=dataset.name)
@@ -56,10 +54,10 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
             mime_type=JSON if artifact.endswith(".json") else None,
         )
 
-    publish_version_history(dataset.name)
+    publish_version_history(dataset.name, version)
 
 
-def publish_dataset(dataset: Dataset) -> None:
+def publish_dataset(dataset: Dataset, version: str) -> None:
     """Publish a dataset.
 
     Only for successful runs.
@@ -72,18 +70,15 @@ def publish_dataset(dataset: Dataset) -> None:
     - Invalidating /datasets/latest/<dataset> and legacy /datasets/<date>/<dataset>
       URLs in CDN cache
     """
-    version = get_latest(dataset.name, backfill=False)
-    if version is None:
-        raise ValueError(f"No working version found for dataset: {dataset.name}")
-    set_last_successful_version(dataset, version)
+    set_version_successful(dataset, version)
 
     extra_artifacts = [CATALOG_FILE] if dataset.is_collection else []
-    _archive_artifacts(dataset, extra_artifacts)
+    _archive_artifacts(dataset, version, extra_artifacts)
 
     invalidate_dataset_urls(dataset.name)
 
 
-def archive_failure(dataset: Dataset) -> None:
+def archive_failure(dataset: Dataset, version: str) -> None:
     """Upload failure information about a dataset to the archive."""
     # For collections, we used to refuse to archive_failure because we were worried about a failed
     # `default/index.json` ending up at `/datasets/latest/default/index.json` with empty resources.
@@ -99,24 +94,26 @@ def archive_failure(dataset: Dataset) -> None:
     # TODO: invert this into an allow-list of failure artifacts (index.json,
     # issues.json, issues.log, versions.json) instead of unlinking everything
     # else.
-    dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)
-    # TODO: The statistics file gets pulled in by write_dataset_index,
-    #  so they get published as part of the artifacts anyway.
-    #  For a brief discussion of our currently broken failure semantics,
-    #  see https://github.com/opensanctions/opensanctions/pull/2483
-    dataset_resource_path(dataset.name, STATISTICS_FILE).unlink(missing_ok=True)
-    dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)
-    dataset_resource_path(dataset.name, CATALOG_FILE).unlink(missing_ok=True)
-    dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
-    dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
-    dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
-    dataset_resource_path(dataset.name, HASH_FILE).unlink(missing_ok=True)
+    remove_artifacts = [
+        STATEMENTS_FILE,
+        STATISTICS_FILE,
+        INDEX_FILE,
+        CATALOG_FILE,
+        RESOURCES_FILE,
+        DELTA_EXPORT_FILE,
+        DELTA_INDEX_FILE,
+        HASH_FILE,
+    ]
+    for artifact in remove_artifacts:
+        path = dataset_artifact_path(dataset.name, version, artifact)
+        if path.is_file():
+            path.unlink(missing_ok=True)
 
-    write_dataset_index(dataset, DatasetVersionResult.FAILURE)
-    path = dataset_resource_path(dataset.name, INDEX_FILE)
+    write_dataset_index(dataset, version, DatasetVersionResult.FAILURE)
+    path = dataset_artifact_path(dataset.name, version, INDEX_FILE)
     if not path.is_file():
         log.error(f"Metadata file not found: {path}", dataset=dataset.name)
         return
-    _archive_artifacts(dataset)
-    dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
-    dataset_resource_path(dataset.name, VERSIONS_FILE).unlink(missing_ok=True)
+    _archive_artifacts(dataset, version)
+    dataset_artifact_path(dataset.name, version, RESOURCES_FILE).unlink(missing_ok=True)
+    dataset_artifact_path(dataset.name, version, VERSIONS_FILE).unlink(missing_ok=True)

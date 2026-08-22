@@ -140,37 +140,22 @@ def clear_data_path(dataset_name: str) -> None:
 
 
 def dataset_resource_path(dataset_name: str, resource: str) -> Path:
+    """Downloaded resources, not subject to versioning."""
     dataset_path = dataset_data_path(dataset_name)
     return dataset_path.joinpath(resource)
 
 
-def get_dataset_artifact(
-    dataset_name: str,
-    resource: str,
-    backfill: bool = True,
-    version: str | None = None,
-) -> Path:
-    path = dataset_resource_path(dataset_name, resource)
-    if path.exists():
-        return path
-    if backfill:
-        object = get_artifact_object(dataset_name, resource, version)
-        if object is not None:
-            log.info(
-                "Backfilling dataset artifact...",
-                current=dataset_name,
-                resource=resource,
-                object=object.name,
-            )
-            object.backfill(path)
-    return path
+def dataset_artifact_path(dataset_name: str, version: str, artifact: str) -> Path:
+    """Versioned artifacts."""
+    dataset_path = dataset_data_path(dataset_name)
+    artifact_path = dataset_path / "_artifacts" / version
+    artifact_path.mkdir(parents=True, exist_ok=True)
+    return artifact_path / artifact
 
 
-# TODO(Leon Handreke): This function has some overlap with versions.get_history.
-# The right thing to do might be to have two functions, one to get the "root" version file
-# at artifacts/{dataset_name}/versions.json, and one to get the version file for a specific version.
 @lru_cache(maxsize=5000)
 def get_versions_data(dataset_name: str, version: str | None = None) -> str | None:
+    """Fetch the latest version data from the artifact base directory."""
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     if version is not None:
@@ -213,23 +198,19 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
 
 
 def get_artifact_object(
-    dataset_name: str, resource: str, version: str | None = None
+    dataset_name: str, version: str, resource: str
 ) -> ArchiveObject | None:
     backend = get_archive_backend()
-    if version is None:
-        version = get_last_successful_version(dataset_name)
-
-    if version is not None:
-        name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
-        object = backend.get_object(name)
-        if object.exists():
-            return object
+    name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
+    object = backend.get_object(name)
+    if object.exists():
+        return object
     return None
 
 
-def publish_version_history(dataset_name: str) -> None:
+def publish_version_history(dataset_name: str, version: str) -> None:
     """Publish the history of versions for a given dataset to the artifact directory."""
-    path = dataset_resource_path(dataset_name, VERSIONS_FILE)
+    path = dataset_artifact_path(dataset_name, version, VERSIONS_FILE)
     if not path.exists():
         raise RuntimeError(f"Version history not found: {dataset_name}")
 
@@ -244,13 +225,13 @@ def publish_version_history(dataset_name: str) -> None:
 def archive_artifact(
     path: Path,
     dataset_name: str,
-    version: Version,
-    resource: str,
+    version: str,
+    artifact: str,
     mime_type: str | None = None,
 ) -> None:
     """Publish a file in the given versions artifact directory of the dataset."""
     assert path.relative_to(dataset_data_path(dataset_name))
-    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
+    name = f"{ARTIFACTS}/{dataset_name}/{version}/{artifact}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
@@ -282,8 +263,6 @@ def iter_local_statements(dataset: "Dataset", external: bool = True) -> Statemen
     """Create a generator that yields all statements in the given dataset."""
     assert not dataset.is_collection
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-    if settings.ARCHIVE_BACKFILL_STATEMENTS:
-        get_dataset_artifact(dataset.name, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
     with open(path) as fh:
@@ -297,31 +276,29 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
     except FileNotFoundError:
         pass
 
-    object = get_artifact_object(dataset.name, STATEMENTS_FILE)
-    if object is not None:
-        log.info(
-            "Streaming statements...",
-            current=dataset.name,
-            object=object.name,
-        )
-        with object.open() as fh:
-            yield from _read_fh_statements(fh, external)
+    version = get_last_successful_version(dataset.name)
+    if version is None:
+        log.warning(f"No last successful version found for: {dataset.name}")
         return
-    log.error(f"Cannot load statements for: {dataset.name}")
+
+    yield from stream_statements(dataset, version, external=external)
 
 
-def iter_previous_statements(
-    dataset: "Dataset", external: bool = True, version: str | None = None
+def stream_statements(
+    dataset: "Dataset", version: str, external: bool = True
 ) -> StatementGen:
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
-    for scope in dataset.leaves:
-        object = get_artifact_object(dataset.name, STATEMENTS_FILE, version)
-        if object is not None:
-            log.info(
-                "Streaming backfilled statements...",
-                current=scope.name,
-                object=object.name,
-            )
-            with object.open() as fh:
-                yield from _read_fh_statements(fh, external)
+    if dataset.is_collection:
+        raise TypeError(f"Cannot stream collection: {dataset.name}")
+    object = get_artifact_object(dataset.name, version, STATEMENTS_FILE)
+    if object is None:
+        log.error(f"Cannot load statements for: {dataset.name}")
+        return
+    log.info(
+        "Streaming statements...",
+        current=dataset.name,
+        object=object.name,
+    )
+    with object.open() as fh:
+        yield from _read_fh_statements(fh, external)

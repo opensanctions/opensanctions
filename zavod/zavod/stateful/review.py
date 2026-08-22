@@ -412,13 +412,13 @@ def review_extraction[ModelType: BaseModel](
             origin=origin,
             extracted_data=original_extraction,
             crawler_version=crawler_version,
-            last_seen_version=context.version.id,
+            last_seen_version=context.version,
             modified_at=now,
             modified_by=MODIFIED_BY_CRAWLER,
         )
         save_new_revision = True
     else:
-        review.last_seen_version = context.version.id
+        review.last_seen_version = context.version
 
         crawler_version_changed = review.crawler_version < crawler_version
         # Don't try to read (and thus validate) the extracted data if the crawler
@@ -491,13 +491,11 @@ def assert_all_accepted(context: Context, *, raise_on_unaccepted: bool = True) -
     # Make sure everything is saved to the database in case we raise:
     context.flush()
 
-    count = Review.count_unaccepted(
-        context.db, context.dataset.name, context.version.id
-    )
+    count = Review.count_unaccepted(context.db, context.dataset.name, context.version)
     if count > 0:
         message = (
             f"There are {count} unaccepted items for dataset "
-            f"{context.dataset.name} and version {context.version.id}"
+            f"{context.dataset.name} and version {context.version}"
         )
         if raise_on_unaccepted:
             raise Exception(message)

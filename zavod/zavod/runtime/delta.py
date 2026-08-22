@@ -32,7 +32,7 @@ class HashDelta:
         if self.prev is None or self.prev == self.curr:
             log.info("No previous version found, skipping backfill.")
             return
-        obj = get_artifact_object(self.dataset.name, HASH_FILE, self.prev)
+        obj = get_artifact_object(self.dataset.name, self.prev, HASH_FILE)
         if obj is None:
             log.info(
                 "No previous hash file found, skipping backfill.", version=self.prev

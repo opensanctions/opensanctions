@@ -111,7 +111,9 @@ def export_data(context: Context, view: View, validate: bool = True) -> None:
             exporter.close()
 
 
-def export_dataset(dataset: Dataset, view: View, validate: bool = True) -> None:
+def export_dataset(
+    dataset: Dataset, version: str, view: View, validate: bool = True
+) -> None:
     """Dump the contents of the dataset to the output directory.
 
     Unless `validate` is False, the dataset validators run on the same
@@ -120,15 +122,15 @@ def export_dataset(dataset: Dataset, view: View, validate: bool = True) -> None:
     if validate and dataset.is_collection:
         log.info(f"Skipping validation for collection: {dataset.name}")
         validate = False
-    context = Context(dataset)
+    context = Context(dataset, version=version)
     try:
-        context.begin(clear=False)
+        context.begin()
         export_data(context, view, validate=validate)
     finally:
         context.close()
 
     # Export metadata and issues (after the context is closed & flushed)
-    write_delta_index(dataset)
-    write_dataset_index(dataset, DatasetVersionResult.SUCCESS)
-    write_catalog(dataset)
+    write_delta_index(dataset, version)
+    write_dataset_index(dataset, version, DatasetVersionResult.SUCCESS)
+    write_catalog(dataset, version)
     log.info(f"Exported dataset: {dataset.name}")

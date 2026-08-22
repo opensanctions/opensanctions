@@ -7,6 +7,7 @@ from zavod.context import Context, ContextStats
 from zavod.exc import RunFailedException
 from zavod.archive import dataset_data_path
 from zavod.runtime.loader import load_entry_point
+from zavod.runtime.versions import make_history
 from zavod.runner.enrich import enrich
 from zavod.reset import reset_caches
 
@@ -15,21 +16,24 @@ from zavod.reset import reset_caches
 assert enrich is not None
 
 
-def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
+def crawl_dataset(
+    dataset: Dataset, version: str, dry_run: bool = False
+) -> ContextStats:
     """Load the dataset entry point, configure a context, and then execute the entry
     point; finally disband the context."""
-    context = Context(dataset, dry_run=dry_run)
+    context = Context(dataset, version, dry_run=dry_run)
     if dataset.model.disabled:
         context.log.info("Source is disabled", source=dataset.name)
         return context.stats
 
+    make_history(dataset.name, version)
     try:
-        context.begin(clear=True)
+        context.begin()
         context.log.info(
             "Running dataset",
             data_path=dataset_data_path(dataset.name),
             data_time=settings.RUN_TIME_ISO,
-            version=context.version.id,
+            version=context.version,
         )
         entry_point = load_entry_point(dataset)
         entry_point(context)
@@ -37,6 +41,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         context.finalize_statements()
         context.log.info(
             "Run completed",
+            version=context.version,
             entities=context.stats.entities,
             statements=context.stats.statements,
             changed=context.stats.changed,
