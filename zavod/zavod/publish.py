@@ -30,7 +30,9 @@ def _archive_artifacts(
     extra_artifacts = list(extra_artifacts) + EXTRA_ARTIFACTS
 
     for resource in DatasetResources(dataset, version).all():
-        path = dataset_resource_path(dataset.name, resource.name)
+        path = dataset_artifact_path(dataset.name, version, resource.name)
+        if not path.is_file():
+            path = dataset_resource_path(dataset.name, resource.name)
         if not path.is_file():
             log.error(f"Resource not found: {path}", dataset=dataset.name)
             continue
@@ -43,7 +45,7 @@ def _archive_artifacts(
         )
 
     for artifact in extra_artifacts:
-        path = dataset_resource_path(dataset.name, artifact)
+        path = dataset_artifact_path(dataset.name, version, artifact)
         if not path.is_file():
             continue
         archive_artifact(

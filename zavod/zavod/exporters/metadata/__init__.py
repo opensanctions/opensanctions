@@ -132,7 +132,7 @@ def write_dataset_index(
     meta["issues_url"] = make_artifact_url(dataset.name, version, ISSUES_FILE)
     meta["statistics_url"] = make_artifact_url(dataset.name, version, STATISTICS_FILE)
 
-    delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
+    delta_index_path = dataset_artifact_path(dataset.name, version, DELTA_INDEX_FILE)
     if delta_index_path.is_file():
         # Only generated for successful exports:
         meta["delta_url"] = make_artifact_url(dataset.name, version, DELTA_INDEX_FILE)
