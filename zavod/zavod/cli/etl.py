@@ -32,7 +32,6 @@ def crawl(
 
     if version is None:
         version = settings.RUN_VERSION.id
-    create_artifact_path(dataset.name, version)
 
     try:
         crawl_dataset(dataset, version=version, dry_run=dry_run)
@@ -97,7 +96,6 @@ def run(
 
     if version is None:
         version = settings.RUN_VERSION.id
-    create_artifact_path(dataset.name, version)
 
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
@@ -106,6 +104,8 @@ def run(
         except RunFailedException:
             archive_failure(dataset, version)
             sys.exit(1)
+    else:
+        create_artifact_path(dataset.name, version)
 
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)

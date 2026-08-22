@@ -14,13 +14,13 @@ from zavod.archive import (
     INDEX_FILE,
     STATISTICS_FILE,
     ISSUES_FILE,
+    backfill_artifact,
     dataset_artifact_path,
-    get_last_successful_version,
+    get_best_version,
 )
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
 from zavod.archive import UNLISTED_RESOURCES
-from zavod.archive import get_dataset_artifact, get_artifact_object
-from zavod.archive import iter_dataset_versions, dataset_resource_path
+from zavod.archive import get_artifact_object, iter_dataset_versions
 from zavod.runtime.urls import make_artifact_url
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
@@ -174,32 +174,28 @@ def get_catalog_dataset(dataset: Dataset) -> dict[str, Any]:
     Uses run information from the latest published index file, but patches it with the latest metadata from
     the dataset object to allow us to quickly patch the catalog without waiting for another export.
     """
-    # Get a barebones metadata object, only relevant before the first export
-    meta = get_base_dataset_metadata(dataset)
-
+    meta = {}
     # Use the latest published index file, if available.
-    version = get_last_successful_version(dataset.name)
-    if version is None:
-        log.warn(
-            "No last successful version found for dataset, catalog metadata will be incomplete",
-            dataset=dataset.name,
-        )
+    version = get_best_version(dataset.name)
     if version is not None:
-        path = get_dataset_artifact(dataset.name, version, INDEX_FILE)
-        if path.is_file():
+        path = backfill_artifact(dataset.name, version, INDEX_FILE)
+        if path is not None:
             with open(path) as fh:
                 meta.update(json.load(fh))
         else:
             log.warn(
                 "No index file found, dataset likely hasn't run yet",
-                path=path.as_posix(),
                 report_issue=False,
             )
+    else:
+        log.warn(
+            "No successful version found for dataset, catalog will be incomplete",
+            dataset=dataset.name,
+        )
 
     # Overwrite with latest metadata (without any run information), useful to quickly patch up the catalog
     # for datasets that don't get exported often.
     meta.update(dataset.to_opensanctions_dict(get_catalog()))
-
     return meta
 
 
