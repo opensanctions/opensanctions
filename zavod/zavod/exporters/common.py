@@ -3,6 +3,7 @@ from nomenklatura.store import View
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.context import Context
+from zavod.runtime.statistics import Statistics
 
 ExportView = View[Dataset, Entity]
 
@@ -14,8 +15,9 @@ class Exporter:
     TITLE = ""
     MIME_TYPE = "text/plain"
 
-    def __init__(self, context: Context):
+    def __init__(self, context: Context, stats: Statistics):
         self.context = context
+        self.stats = stats
         self.dataset = context.dataset
         self.resource_name = f"{self.FILE_NAME}"
         self.path = context.get_resource_path(self.resource_name)
@@ -30,10 +32,7 @@ class Exporter:
         pass
 
     def close(self) -> None:
-        """Release resources held by the exporter. Runs after successful and
-        aborted exports alike, so it must be idempotent. Exporters holding
-        locks or similar OS resources beyond a plain output file override
-        this."""
+        """Release resources held by the exporter."""
         pass
 
     def finish(self, view: ExportView) -> None:

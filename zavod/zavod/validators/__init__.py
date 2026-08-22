@@ -37,8 +37,8 @@ class EntityReferenceValidator(BaseValidator):
     def enabled(cls, dataset: Dataset) -> bool:
         return dataset.validators.entity_reference
 
-    def __init__(self, context: Context) -> None:
-        super().__init__(context)
+    def __init__(self, context: Context, stats: Statistics) -> None:
+        super().__init__(context, stats)
         self.out_of_range: Counter[tuple[Property, Schema]] = Counter()
         self.examples: dict[tuple[Property, Schema], list[str]] = defaultdict(list)
 
@@ -97,8 +97,8 @@ class SelfReferenceValidator(BaseValidator):
 class EmptyValidator(BaseValidator):
     """Warn if no entities are validated."""
 
-    def __init__(self, context: Context):
-        super().__init__(context)
+    def __init__(self, context: Context, stats: Statistics):
+        super().__init__(context, stats)
         self.is_empty = True
 
     def feed(self, entity: Entity, view: View[Dataset, Entity]) -> None:
@@ -118,16 +118,10 @@ VALIDATORS: list[type[BaseValidator]] = [
 
 
 def get_validators(context: Context, stats: Statistics) -> list[BaseValidator]:
-    """Instantiate the validators enabled for the context's dataset.
-
-    `stats` is the statistics instance observed during the export traversal,
-    checked against the dataset's assertions once the traversal is done."""
+    """Instantiate the validators enabled for the context's dataset."""
     validators: list[BaseValidator] = []
     for clazz in VALIDATORS:
         if not clazz.enabled(context.dataset):
             continue
-        if clazz is StatisticsAssertionsValidator:
-            validators.append(StatisticsAssertionsValidator(context, stats))
-        else:
-            validators.append(clazz(context))
+        validators.append(clazz(context, stats))
     return validators

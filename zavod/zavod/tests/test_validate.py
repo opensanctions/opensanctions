@@ -33,10 +33,7 @@ def run_validator(clazz: type[BaseValidator], dataset: Dataset):
 
     stats = Statistics()
     with capture_logs() as cap_logs:
-        if clazz is StatisticsAssertionsValidator:
-            validator: BaseValidator = StatisticsAssertionsValidator(context, stats)
-        else:
-            validator = clazz(context)
+        validator = clazz(context, stats)
         for entity in view.entities():
             entity = consolidate_entity(view.store.linker, entity)
             fragment = ViewFragment(view, entity)

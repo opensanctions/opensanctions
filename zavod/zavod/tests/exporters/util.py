@@ -1,6 +1,5 @@
 from zavod.context import Context
 from zavod.exporters.consolidate import consolidate_entity
-from zavod.exporters.statistics import StatisticsExporter
 from zavod.runtime.statistics import Statistics
 from zavod.store import get_store
 from zavod.exporters.fragment import ViewFragment
@@ -22,10 +21,7 @@ def harnessed_export(exporter_class, dataset, linker=None) -> None:
     view = get_test_view(dataset, linker=linker)
 
     stats = Statistics()
-    if exporter_class is StatisticsExporter:
-        exporter = StatisticsExporter(context, stats)
-    else:
-        exporter = exporter_class(context)
+    exporter = exporter_class(context, stats)
     exporter.setup()
     for entity in view.entities():
         exporter.feed_unconsolidated(entity)

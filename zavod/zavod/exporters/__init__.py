@@ -24,8 +24,7 @@ from zavod.exporters.metadata import write_catalog, write_delta_index
 
 log = get_logger(__name__)
 
-# The statistics exporter is not listed here: it always runs, constructed
-# explicitly with the statistics instance shared with the validators.
+# The statistics exporter is not listed here: it always runs.
 DEFAULT_EXPORTERS: set[str] = {
     FtMExporter.FILE_NAME,
     NestedTargetsJSONExporter.FILE_NAME,
@@ -49,8 +48,8 @@ EXPORTERS: dict[str, type[Exporter]] = {
 __all__ = ["export_dataset", "write_dataset_index"]
 
 
-def export_data(context: Context, view: View, validate: bool = True) -> None:
-    stats = Statistics()
+def get_exporters(context: Context, stats: Statistics) -> list[Exporter]:
+    """Instantiate the exporters configured for the context's dataset."""
     exporter_names = set(context.dataset.model.exports)
     if not len(exporter_names):
         exporter_names.update(DEFAULT_EXPORTERS)
@@ -61,7 +60,13 @@ def export_data(context: Context, view: View, validate: bool = True) -> None:
         if clazz is None:
             log.error(f"No exporter found for target: {name}")
             continue
-        exporters.append(clazz(context))
+        exporters.append(clazz(context, stats))
+    return exporters
+
+
+def export_data(context: Context, view: View, validate: bool = True) -> None:
+    stats = Statistics()
+    exporters = get_exporters(context, stats)
     validators = get_validators(context, stats) if validate else []
 
     log.info(

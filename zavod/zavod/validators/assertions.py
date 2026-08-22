@@ -7,7 +7,6 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.assertion import Assertion, Comparison, Metric, parse_assertions
 from zavod.meta.dataset import Dataset
-from zavod.runtime.statistics import Statistics
 from zavod.validators.common import BaseValidator
 
 
@@ -156,14 +155,7 @@ def check_assertion(
 
 
 class StatisticsAssertionsValidator(BaseValidator):
-    """Validator that checks various assertions that are based on dataset statistics.
-
-    The statistics are observed once during the export traversal and shared
-    with the statistics exporter."""
-
-    def __init__(self, context: Context, stats: Statistics) -> None:
-        super().__init__(context)
-        self.stats = stats
+    """Validator that checks various assertions that are based on dataset statistics."""
 
     def feed(self, entity: Entity, view: View[Dataset, Entity]) -> None:
         pass
