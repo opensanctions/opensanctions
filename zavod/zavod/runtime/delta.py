@@ -3,12 +3,13 @@ import shutil
 import plyvel  # type: ignore
 from collections.abc import Generator
 
+from followthemoney.dataset import Version
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.archive import (
-    dataset_resource_path,
+    dataset_artifact_path,
     dataset_state_path,
     get_last_successful_version,
 )
@@ -18,11 +19,11 @@ log = get_logger(__name__)
 
 
 class HashDelta:
-    def __init__(self, dataset: Dataset, current: str):
+    def __init__(self, dataset: Dataset, current: Version):
         self.dataset = dataset
         self.curr = current
         self.prev = get_last_successful_version(self.dataset.name)
-        self.curr_path = dataset_resource_path(dataset.name, HASH_FILE)
+        self.curr_path = dataset_artifact_path(dataset.name, self.curr, HASH_FILE)
         self.fh = self.curr_path.open("w")
         self.db_path = dataset_state_path(dataset.name) / "hashes"
         shutil.rmtree(self.db_path, ignore_errors=True)
@@ -35,17 +36,17 @@ class HashDelta:
         obj = get_artifact_object(self.dataset.name, self.prev, HASH_FILE)
         if obj is None:
             log.info(
-                "No previous hash file found, skipping backfill.", version=self.prev
+                "No previous hash file found, skipping backfill.", version=self.prev.id
             )
             return
         log.info(
             "Loading previous hashes...",
-            version=self.prev,
+            version=self.prev.id,
         )
         with obj.open() as fh:
             for line in fh:
                 entity_id, entity_hash = line.strip().split(":", 1)
-                key = f"{entity_id}:{self.prev}".encode()
+                key = f"{entity_id}:{self.prev.id}".encode()
                 self.db.put(key, entity_hash.encode("utf-8"))
 
     def feed(self, entity: Entity) -> None:
@@ -64,7 +65,7 @@ class HashDelta:
         #     f"Hash mismatch for {entity.id}: {entity_hash} != {digest.hexdigest()}"
         # )
         self.fh.write(f"{entity.id}:{entity_hash}\n")
-        key = f"{entity.id}:{self.curr}".encode()
+        key = f"{entity.id}:{self.curr.id}".encode()
         self.db.put(key, entity_hash.encode("utf-8"))
 
     def _collect(
@@ -88,7 +89,7 @@ class HashDelta:
                     if entity_id is not None:
                         yield entity_id, prev_hash, curr_hash
                     entity_id, prev_hash, curr_hash = new_id, None, None
-                if self.curr is not None and version_id == self.curr:
+                if self.curr is not None and version_id == self.curr.id:
                     curr_hash = hash
                 else:
                     prev_hash = hash

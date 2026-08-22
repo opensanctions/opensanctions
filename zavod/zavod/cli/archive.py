@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import click
+from followthemoney.dataset import Version
 
 from zavod.archive import (
     STATEMENTS_FILE,
@@ -14,12 +15,12 @@ from zavod.runtime.urls import make_artifact_url
 RESOURCE_FILENAMES = [STATEMENTS_FILE]
 
 
-def _get_latest_version(dataset: Dataset) -> str:
+def _get_latest_version(dataset: Dataset) -> Version:
     # iter_dataset_versions always reads from the archive, never from the local file system
     # which is what we want in this case. Otherwise we might end up with a version that's not
     # actually in the archive but just from a local run.
     for v in iter_dataset_versions(dataset.name):
-        return v.id
+        return v
     raise click.ClickException(f"No version history found for dataset: {dataset.name}")
 
 
@@ -57,7 +58,7 @@ def url(
             "Exactly one of --latest or --last-successful is required."
         )
 
-    version: str | None = None
+    version: Version | None = None
     if latest:
         version = _get_latest_version(dataset)
     elif last_successful:

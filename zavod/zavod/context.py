@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, cast
 from collections.abc import Mapping
 from datapatch import Lookup, LookupException, Result
-from followthemoney.dataset import DataResource
+from followthemoney.dataset import DataResource, Version
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
 from followthemoney.statement.serialize import PackStatementWriter
@@ -67,7 +67,7 @@ class Context:
 
     SOURCE_TITLE = "Source data"
 
-    def __init__(self, dataset: Dataset, version: str, dry_run: bool = False):
+    def __init__(self, dataset: Dataset, version: Version, dry_run: bool = False):
         self.dataset = dataset
         self.version = version
         self.dry_run = dry_run
@@ -76,7 +76,6 @@ class Context:
         self.resources = DatasetResources(dataset, self.version)
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
-        self._version: str | None = None
         self._db: Session | None = None
         self._cache: Cache | None = None
         self._timestamps: TimeStampIndex | None = None

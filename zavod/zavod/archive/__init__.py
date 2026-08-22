@@ -145,22 +145,22 @@ def dataset_resource_path(dataset_name: str, resource: str) -> Path:
     return dataset_path.joinpath(resource)
 
 
-def dataset_artifact_path(dataset_name: str, version: str, artifact: str) -> Path:
+def dataset_artifact_path(dataset_name: str, version: Version, artifact: str) -> Path:
     """Versioned artifacts."""
     dataset_path = dataset_data_path(dataset_name)
-    artifact_path = dataset_path / "_artifacts" / version
+    artifact_path = dataset_path / "_artifacts" / version.id
     return artifact_path / artifact
 
 
 @lru_cache(maxsize=5000)
 def get_version_history(
-    dataset_name: str, version: str | None = None
+    dataset_name: str, version: Version | None = None
 ) -> VersionHistory:
     """Fetch the version history from the artifact base directory."""
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     if version is not None:
-        name = f"{ARTIFACTS}/{dataset_name}/{version}/{VERSIONS_FILE}"
+        name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{VERSIONS_FILE}"
     object = backend.get_object(name)
     data = "{}"
     if object.exists():
@@ -168,25 +168,21 @@ def get_version_history(
     return VersionHistory.from_json(data)
 
 
-def get_last_successful_version(dataset_name: str) -> str | None:
+def get_last_successful_version(dataset_name: str) -> Version | None:
     """Get the last successful version of a dataset, ie. the last one which produced
     a set of artifacts that were archived. Change detection and delta generation are
     based on this version."""
     history = get_version_history(dataset_name)
-    if not history.last_successful:
-        return None
-    return history.last_successful.id
+    return history.last_successful
 
 
-def get_best_version(dataset_name: str) -> str | None:
+def get_best_version(dataset_name: str) -> Version | None:
     """Get the best version of a dataset, ie. the last successful one if available,
     otherwise the latest one."""
     history = get_version_history(dataset_name)
     if history.last_successful is not None:
-        return history.last_successful.id
-    if history.latest is not None:
-        return history.latest.id
-    return None
+        return history.last_successful
+    return history.latest
 
 
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
@@ -200,21 +196,23 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
                 seen.add(version.id)
         if len(history.items) < 2:
             break
-        history = get_version_history(dataset_name, history.items[0].id)
+        history = get_version_history(dataset_name, history.items[0])
 
 
 def get_artifact_object(
-    dataset_name: str, version: str, resource: str
+    dataset_name: str, version: Version, resource: str
 ) -> ArchiveObject | None:
     backend = get_archive_backend()
-    name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
+    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     object = backend.get_object(name)
     if object.exists():
         return object
     return None
 
 
-def backfill_artifact(dataset_name: str, version: str, resource: str) -> Path | None:
+def backfill_artifact(
+    dataset_name: str, version: Version, resource: str
+) -> Path | None:
     """Fetch a given artifact from the archive and write it to the local file system."""
     target_path = dataset_artifact_path(dataset_name, version, resource)
     if target_path.exists():
@@ -227,7 +225,7 @@ def backfill_artifact(dataset_name: str, version: str, resource: str) -> Path | 
     return target_path
 
 
-def create_artifact_path(dataset_name: str, version: str) -> VersionHistory:
+def create_artifact_path(dataset_name: str, version: Version) -> VersionHistory:
     """Create the artifact path for a given dataset and version, and update the
     version history file. Returns the updated version history."""
     version_path = dataset_artifact_path(dataset_name, version, VERSIONS_FILE)
@@ -235,15 +233,14 @@ def create_artifact_path(dataset_name: str, version: str) -> VersionHistory:
     if not version_path.parent.exists():
         version_path.parent.mkdir(parents=True, exist_ok=True)
     history = get_version_history(dataset_name)
-    vobj = Version.from_string(version)
-    if vobj not in history.items:
-        history = history.append(vobj)
+    if version not in history.items:
+        history = history.append(version)
     with open(version_path, "w") as fh:
         fh.write(history.to_json())
     return history
 
 
-def publish_version_history(dataset_name: str, version: str) -> None:
+def publish_version_history(dataset_name: str, version: Version) -> None:
     """Publish the history of versions for a given dataset to the artifact directory."""
     path = dataset_artifact_path(dataset_name, version, VERSIONS_FILE)
     if not path.exists():
@@ -260,13 +257,13 @@ def publish_version_history(dataset_name: str, version: str) -> None:
 def archive_artifact(
     path: Path,
     dataset_name: str,
-    version: str,
+    version: Version,
     artifact: str,
     mime_type: str | None = None,
 ) -> None:
     """Publish a file in the given versions artifact directory of the dataset."""
     assert path.relative_to(dataset_data_path(dataset_name))
-    name = f"{ARTIFACTS}/{dataset_name}/{version}/{artifact}"
+    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{artifact}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
@@ -297,7 +294,7 @@ def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> Statem
 def iter_local_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     """Create a generator that yields all statements in the given dataset."""
     assert not dataset.is_collection
-    path = dataset_artifact_path(dataset.name, settings.RUN_VERSION.id, STATEMENTS_FILE)
+    path = dataset_artifact_path(dataset.name, settings.RUN_VERSION, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
     with open(path) as fh:
@@ -320,7 +317,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
 
 
 def stream_statements(
-    dataset: "Dataset", version: str, external: bool = True
+    dataset: "Dataset", version: Version, external: bool = True
 ) -> StatementGen:
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""

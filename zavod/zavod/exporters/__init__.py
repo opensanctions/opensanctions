@@ -1,3 +1,5 @@
+from followthemoney.dataset import Version
+
 from zavod.exporters.consolidate import consolidate_entity
 from zavod.exc import RunFailedException
 from zavod.logs import get_logger
@@ -112,7 +114,7 @@ def export_data(context: Context, view: View, validate: bool = True) -> None:
 
 
 def export_dataset(
-    dataset: Dataset, version: str, view: View, validate: bool = True
+    dataset: Dataset, version: Version, view: View, validate: bool = True
 ) -> None:
     """Dump the contents of the dataset to the output directory.
 

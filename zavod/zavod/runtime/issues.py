@@ -6,6 +6,8 @@ from datetime import datetime
 from typing import Any, TypedDict, BinaryIO, cast
 from collections.abc import Generator
 
+from followthemoney.dataset import Version
+
 from zavod.meta import Dataset
 from zavod.archive import (
     dataset_artifact_path,
@@ -28,7 +30,7 @@ class Issue(TypedDict):
 class DatasetIssues:
     """A log of issues that occurred during the running and export of a dataset."""
 
-    def __init__(self, dataset: Dataset, version: str) -> None:
+    def __init__(self, dataset: Dataset, version: Version) -> None:
         self.dataset = dataset
         self.version = version
         self.log_path = dataset_artifact_path(

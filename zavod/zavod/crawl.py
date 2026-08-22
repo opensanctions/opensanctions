@@ -1,5 +1,6 @@
 from requests.exceptions import RequestException
 from datapatch import LookupException
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -19,7 +20,7 @@ log = get_logger(__name__)
 
 
 def crawl_dataset(
-    dataset: Dataset, version: str, dry_run: bool = False
+    dataset: Dataset, version: Version, dry_run: bool = False
 ) -> ContextStats:
     """Load the dataset entry point, configure a context, and then execute the entry
     point; finally disband the context."""
@@ -35,7 +36,7 @@ def crawl_dataset(
             "Running dataset",
             data_path=dataset_data_path(dataset.name),
             data_time=settings.RUN_TIME_ISO,
-            version=context.version,
+            version=context.version.id,
         )
         entry_point = load_entry_point(dataset)
         entry_point(context)
@@ -43,7 +44,7 @@ def crawl_dataset(
         context.finalize_statements()
         context.log.info(
             "Run completed",
-            version=context.version,
+            version=context.version.id,
             entities=context.stats.entities,
             statements=context.stats.statements,
             changed=context.stats.changed,

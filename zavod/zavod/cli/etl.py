@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 
 import click
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.archive import clear_data_path, create_artifact_path
@@ -30,11 +31,12 @@ def crawl(
     if clear_data:
         clear_data_path(dataset.name)
 
-    if version is None:
-        version = settings.RUN_VERSION.id
+    run_version = settings.RUN_VERSION
+    if version is not None:
+        run_version = Version.from_string(version)
 
     try:
-        crawl_dataset(dataset, version=version, dry_run=dry_run)
+        crawl_dataset(dataset, version=run_version, dry_run=dry_run)
     except RunFailedException:
         sys.exit(1)
 
@@ -48,6 +50,7 @@ def export(
     dataset_path: Path, version: str, rebuild_store: bool = True, validate: bool = True
 ) -> None:
     dataset = _load_dataset(dataset_path)
+    run_version = Version.from_string(version)
     if dataset.model.disabled:
         log.info(f"Dataset is disabled, skipping: {dataset.name}")
         sys.exit(0)
@@ -56,7 +59,7 @@ def export(
     try:
         store.sync(clear=rebuild_store)
         view = store.view(dataset, external=False)
-        export_dataset(dataset, version, view, validate=validate)
+        export_dataset(dataset, run_version, view, validate=validate)
     except Exception:
         log.exception(f"Failed to export: {dataset_path}")
         sys.exit(1)
@@ -69,8 +72,9 @@ def export(
 @click.argument("version", type=str)
 def publish(dataset_path: Path, version: str) -> None:
     dataset = _load_dataset(dataset_path)
+    run_version = Version.from_string(version)
     try:
-        publish_dataset(dataset, version)
+        publish_dataset(dataset, run_version)
     except Exception:
         log.exception(f"Failed to publish: {dataset_path}")
         sys.exit(1)
@@ -94,18 +98,19 @@ def run(
         # archive_failure(dataset)
         sys.exit(0)
 
-    if version is None:
-        version = settings.RUN_VERSION.id
+    run_version = settings.RUN_VERSION
+    if version is not None:
+        run_version = Version.from_string(version)
 
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
-            crawl_dataset(dataset, version=version, dry_run=False)
+            crawl_dataset(dataset, version=run_version, dry_run=False)
         except RunFailedException:
-            archive_failure(dataset, version)
+            archive_failure(dataset, run_version)
             sys.exit(1)
     else:
-        create_artifact_path(dataset.name, version)
+        create_artifact_path(dataset.name, run_version)
 
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
@@ -113,16 +118,16 @@ def run(
     try:
         store.sync(clear=True)
         view = store.view(dataset, external=False)
-        export_dataset(dataset, version, view)
+        export_dataset(dataset, run_version, view)
     except Exception:
         log.exception(f"Failed to export: {dataset_path}")
-        archive_failure(dataset, version)
+        archive_failure(dataset, run_version)
         store.close()
         sys.exit(1)
 
     # Publish
     try:
-        publish_dataset(dataset, version)
+        publish_dataset(dataset, run_version)
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)

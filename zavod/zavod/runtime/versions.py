@@ -5,7 +5,7 @@ from zavod.archive import dataset_artifact_path
 from zavod.archive import VERSIONS_FILE
 
 
-def set_version_successful(dataset: Dataset, version: str) -> None:
+def set_version_successful(dataset: Dataset, version: Version) -> None:
     """Set the last successful version in the dataset history."""
     path = dataset_artifact_path(dataset.name, version, VERSIONS_FILE)
     if not path.exists():
@@ -18,6 +18,6 @@ def set_version_successful(dataset: Dataset, version: str) -> None:
         raise RuntimeError(
             f"Version {version} is not in the version history for dataset {dataset.name}"
         )
-    history.last_successful = Version.from_string(version)
+    history.last_successful = version
     with open(path, "w") as fh:
         fh.write(history.to_json())
