@@ -20,6 +20,7 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 from zavod import settings
 from zavod.archive import (
     STATEMENTS_FILE,
+    dataset_artifact_directory,
     dataset_artifact_path,
     dataset_data_path,
     dataset_resource_path,
@@ -231,8 +232,12 @@ class Context:
         Returns:
             The generated resource object which has been saved.
         """
+        directory = dataset_artifact_directory(self.dataset.name, self.version)
+        name: str | None = None
+        if path.is_relative_to(directory):
+            name = path.relative_to(directory).as_posix()
         resource = self.dataset.resource_from_path(
-            path, mime_type=mime_type, title=title
+            path, mime_type=mime_type, title=title, name=name
         )
         self.resources.save(resource)
         return resource

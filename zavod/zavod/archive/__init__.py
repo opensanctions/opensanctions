@@ -97,18 +97,6 @@ UNLISTED_RESOURCES = [
     STATISTICS_FILE,
     DELTA_EXPORT_FILE,
 ]
-# Files we persist about a run other than DatasetResources.
-EXTRA_ARTIFACTS = [
-    ISSUES_FILE,
-    ISSUES_LOG,
-    INDEX_FILE,
-    STATEMENTS_FILE,
-    VERSIONS_FILE,
-    MANIFEST_FILE,
-    RESOURCES_FILE,
-    HASH_FILE,
-    DELTA_INDEX_FILE,
-]
 # The only files a failed run publishes: enough to surface the failure and
 # register the version, while any half-generated data files stay local.
 FAILURE_ARTIFACTS = [
@@ -151,11 +139,15 @@ def dataset_resource_path(dataset_name: str, resource: str) -> Path:
     return dataset_path.joinpath(resource)
 
 
+def dataset_artifact_directory(dataset_name: str, version: Version) -> Path:
+    """The local directory holding all artifacts of a given run."""
+    dataset_path = dataset_data_path(dataset_name)
+    return dataset_path / "_artifacts" / version.id
+
+
 def dataset_artifact_path(dataset_name: str, version: Version, artifact: str) -> Path:
     """Versioned artifacts."""
-    dataset_path = dataset_data_path(dataset_name)
-    artifact_path = dataset_path / "_artifacts" / version.id
-    return artifact_path / artifact
+    return dataset_artifact_directory(dataset_name, version) / artifact
 
 
 @lru_cache(maxsize=5000)
@@ -245,10 +237,10 @@ def backfill_artifact(
 def create_artifact_path(dataset_name: str, version: Version) -> VersionHistory:
     """Create the artifact path for a given dataset and version, and update the
     version history file. Returns the updated version history."""
-    version_path = dataset_artifact_path(dataset_name, version, VERSIONS_FILE)
-    shutil.rmtree(version_path.parent, ignore_errors=True)
-    if not version_path.parent.exists():
-        version_path.parent.mkdir(parents=True, exist_ok=True)
+    directory = dataset_artifact_directory(dataset_name, version)
+    shutil.rmtree(directory, ignore_errors=True)
+    directory.mkdir(parents=True, exist_ok=True)
+    version_path = directory / VERSIONS_FILE
     history = get_version_history(dataset_name)
     if version not in history.items:
         history = history.append(version)
@@ -289,6 +281,8 @@ def archive_artifact(
 def invalidate_dataset_urls(dataset_name: str) -> None:
     """Purge the CDN cache for a dataset's date-stamped and '/latest/' URLs
     under /datasets/."""
+    version_file = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
+    invalidate_archive_cache(version_file)
     release_prefix = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/*"
     invalidate_archive_cache(release_prefix)
     latest_prefix = f"{DATASETS}/{LATEST}/{dataset_name}/*"
