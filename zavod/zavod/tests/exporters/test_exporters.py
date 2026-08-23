@@ -8,10 +8,10 @@ from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
 from datetime import datetime
 
-from zavod import Context, settings
+from zavod import settings
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
-from zavod.archive import clear_data_path, DATASETS
+from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
@@ -19,7 +19,8 @@ from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
-from zavod.tests.exporters.util import get_test_view, harnessed_export
+from zavod.tests.exporters.util import harnessed_export
+from zavod.tests.util import get_test_view, make_context
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -39,7 +40,7 @@ def emit_entity(
     id_: str | None = None,
     properties: dict[str, list[str]] = {},
 ) -> Entity:
-    context = Context(ds)
+    context = make_context(ds)
     context.begin()
 
     entity = Entity.from_data(
@@ -54,19 +55,19 @@ def emit_entity(
 
 def export(dataset: Dataset) -> None:
     view = get_test_view(dataset, clear=True)
-    export_dataset(dataset, view)
+    export_dataset(dataset, settings.RUN_VERSION, view)
 
 
 def read_exported_entities(dataset: Dataset) -> list[ValueEntity]:
-    dataset_path = settings.DATA_PATH / DATASETS / dataset.name
+    dataset_path = dataset_artifact_directory(dataset.name, settings.RUN_VERSION)
     return list(path_entities(dataset_path / "entities.ftm.json", ValueEntity))
 
 
 def test_export(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     export(testdataset1)
 
     # it parses and finds expected number of entities
@@ -117,10 +118,10 @@ def test_export(testdataset1: Dataset):
 
 def test_minimal_export_config(testdataset2: Dataset):
     """Test export when dataset.exporters is empty list"""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2.name
+    dataset_path = dataset_artifact_directory(testdataset2.name, settings.RUN_VERSION)
     clear_data_path(testdataset2.name)
 
-    crawl_dataset(testdataset2)
+    crawl_dataset(testdataset2, settings.RUN_VERSION)
     export(testdataset2)
 
     with open(dataset_path / "index.json") as index_file:
@@ -142,10 +143,12 @@ def test_minimal_export_config(testdataset2: Dataset):
 
 def test_custom_export_config(testdataset2_export: Dataset):
     """Test export when dataset.exporters has custom exports listed"""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
+    dataset_path = dataset_artifact_directory(
+        testdataset2_export.name, settings.RUN_VERSION
+    )
     clear_data_path(testdataset2_export.name)
 
-    crawl_dataset(testdataset2_export)
+    crawl_dataset(testdataset2_export, settings.RUN_VERSION)
     export(testdataset2_export)
 
     with open(dataset_path / "index.json") as index_file:
@@ -167,7 +170,7 @@ def test_custom_export_config(testdataset2_export: Dataset):
 def test_ftm(testdataset1: Dataset):
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(FtMExporter, testdataset1)
 
     entities = read_exported_entities(testdataset1)
@@ -197,7 +200,7 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
     testdataset1.resolve = True
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(FtMExporter, testdataset1, linker=resolver)
 
     entities = read_exported_entities(testdataset1)
@@ -219,7 +222,7 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
     assert dataset2 is not None
     collection = load_dataset_from_path(COLLECTION_YML)
     assert collection is not None
-    crawl_dataset(dataset2)
+    crawl_dataset(dataset2, settings.RUN_VERSION)
     other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection, linker=resolver)
     entities = read_exported_entities(collection)
@@ -242,10 +245,10 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
 
 
 def test_names(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(NamesExporter, testdataset1)
 
     with open(dataset_path / "names.txt") as names_file:
@@ -259,10 +262,10 @@ def test_names(testdataset1: Dataset):
 
 
 def test_targets_simple(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(SimpleCSVExporter, testdataset1)
 
     with open(dataset_path / "targets.simple.csv") as csv_file:
@@ -312,10 +315,10 @@ def test_targets_simple(testdataset1: Dataset):
 
 
 def test_statements(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(StatementsCSVExporter, testdataset1)
 
     path = dataset_path / "statements.csv"
@@ -349,7 +352,7 @@ def test_statements_preserves_consolidated_removals() -> None:
 
     export(collection)
 
-    dataset_path = settings.DATA_PATH / DATASETS / collection.name
+    dataset_path = dataset_artifact_directory(collection.name, settings.RUN_VERSION)
 
     # Statements export must contain both the original variants, even though
     # consolidation removes "JOHN DOE" as a case-duplicate of "John Doe".

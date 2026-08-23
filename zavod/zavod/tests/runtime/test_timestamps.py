@@ -1,29 +1,31 @@
 from datetime import timedelta
+
+import pytest
+from followthemoney.dataset import Version
 from rigour.time import utc_now
 
 from zavod import settings
-from zavod.exporters import export_dataset
-from zavod.integration.dedupe import get_dataset_linker
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
-from zavod.archive import iter_dataset_statements
-from zavod.publish import publish_dataset
+from zavod.runtime.manifest import Manifest
 from zavod.runtime.timestamps import TimeStampIndex
-from zavod.store import get_store
+from zavod.tests.util import run_dataset
 
 
 def test_timestamps(testdataset1: Dataset):
-    crawl_dataset(testdataset1)
+    version = settings.RUN_VERSION
+    crawl_dataset(testdataset1, version)
 
     prev_time = str(settings.RUN_TIME_ISO)
-    stmts = list(iter_dataset_statements(testdataset1))
+    manifest = Manifest.load_artifact(testdataset1, version)
+    stmts = list(manifest.statements())
     for stmt in stmts:
         assert stmt.first_seen == prev_time
 
     dt = utc_now().replace(microsecond=0) + timedelta(days=1)
     default = dt.isoformat(sep="T", timespec="seconds")
 
-    index = TimeStampIndex(dataset=testdataset1)
+    index = TimeStampIndex(testdataset1, version)
     index.index(stmts)
     stamps = index.get("osv-john-doe")
     assert len(stamps), stamps
@@ -37,25 +39,29 @@ def test_timestamps(testdataset1: Dataset):
     assert "TimeStampIndex" in repr(index), repr(index)
 
 
-def test_backfill(testdataset1: Dataset):
+def test_backfill(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
     prev_time = settings.RUN_TIME_ISO
     # Run the dataset once to output statements.pack
     # Publish to archive statements and make them discoverable by the next run.
-    linker = get_dataset_linker(testdataset1)
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
-    store.sync()
-    view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
-    publish_dataset(testdataset1)
+    first_version = run_dataset(testdataset1)
 
-    settings.RUN_TIME = settings.RUN_TIME + timedelta(days=1)
-    settings.RUN_TIME_ISO = settings.RUN_TIME.isoformat(sep="T", timespec="seconds")
-    settings.RUN_DATE = settings.RUN_TIME.date().isoformat()
+    # A second run, a day later: the run version and the derived run time move
+    # together.
+    next_dt = first_version.dt + timedelta(days=1)
+    second_version = Version.from_string(next_dt.strftime("%Y%m%d%H%M%S") + "-bbb")
+    monkeypatch.setattr(settings, "RUN_VERSION", second_version)
+    monkeypatch.setattr(settings, "RUN_TIME", second_version.dt)
+    monkeypatch.setattr(
+        settings,
+        "RUN_TIME_ISO",
+        second_version.dt.isoformat(sep="T", timespec="seconds"),
+    )
+    monkeypatch.setattr(settings, "RUN_DATE", second_version.dt.date().isoformat())
     second_time = settings.RUN_TIME_ISO
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, second_version)
 
-    stmts = list(iter_dataset_statements(testdataset1))
+    manifest = Manifest.load_artifact(testdataset1, second_version)
+    stmts = list(manifest.statements())
     index = TimeStampIndex.build(dataset=testdataset1)
     stamps = index.get("osv-john-doe")
     assert len(stamps), stamps
