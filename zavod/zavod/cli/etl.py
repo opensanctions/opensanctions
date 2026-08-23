@@ -68,7 +68,7 @@ def export(
                 version=run_version.id,
             )
             sys.exit(1)
-    store = get_store(dataset, linker, manifest)
+    store = get_store(manifest, linker)
     try:
         store.sync(clear=rebuild_store)
         view = store.view(dataset, external=False)
@@ -127,7 +127,7 @@ def run(
         manifest = Manifest.create(dataset, run_version)
 
     linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker, manifest)
+    store = get_store(manifest, linker)
     # Export and validation
     try:
         store.sync(clear=True)
@@ -145,7 +145,7 @@ def run(
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            load_dataset_to_db(dataset, linker, manifest, external=False)
+            load_dataset_to_db(manifest, linker, external=False)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception(f"Failed to publish {dataset.name!r}")

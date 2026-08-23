@@ -28,6 +28,7 @@ from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import get_catalog, get_multi_dataset
+from zavod.runtime.manifest import Manifest
 from zavod.store import View, get_store
 
 log = get_logger(Path(__file__).stem)
@@ -230,7 +231,7 @@ def generate(scope: str, outdir: Path) -> dict[str, Any]:
     datasets = [d for d in datasets if not d.is_collection]
     dataset = get_multi_dataset(get_catalog(), [d.name for d in datasets])
 
-    store = get_store(dataset, Linker({}))
+    store = get_store(Manifest.get_transient(dataset), Linker({}))
     store.sync()
     view = store.view(dataset, external=True)
 

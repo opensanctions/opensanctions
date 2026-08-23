@@ -198,11 +198,7 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
 
 
 def latest_local_artifact_version(dataset_name: str, artifact: str) -> Version | None:
-    """Find the newest local artifact directory that contains the given file.
-
-    Used when pinning a manifest: a locally crawled dataset should be consumed
-    at the version that actually produced data, and failed runs (whose
-    statements are unlinked) are skipped by requiring the file's presence."""
+    """Find the newest local artifact directory that contains the given file."""
     path = dataset_data_path(dataset_name) / "_artifacts"
     if not path.is_dir():
         return None

@@ -15,24 +15,19 @@ log = get_logger(__name__)
 View = LevelDBView[Dataset, Entity]
 
 
-def get_store(
-    dataset: Dataset, linker: Linker[Entity], manifest: Manifest | None = None
-) -> "Store":
-    if manifest is None:
-        manifest = Manifest.get_transient(dataset)
-    store = Store(dataset, linker, manifest)
+def get_store(manifest: Manifest, linker: Linker[Entity]) -> "Store":
+    store = Store(manifest, linker)
     return store
 
 
 class Store(LevelDBStore[Dataset, Entity]):
     def __init__(
         self,
-        dataset: Dataset,
-        linker: Linker[Entity],
         manifest: Manifest,
+        linker: Linker[Entity],
     ):
-        path = dataset_state_path(dataset.name) / "store"
-        super().__init__(dataset, linker, path)
+        path = dataset_state_path(manifest.scope.name) / "store"
+        super().__init__(manifest.scope, linker, path)
         self.manifest = manifest
         self.entity_class = Entity
 
