@@ -13,6 +13,7 @@ from zavod.archive import (
     dataset_artifact_path,
     iter_statements_path,
 )
+from zavod.archive.backend import FileSystemObject
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
@@ -120,9 +121,33 @@ def test_first_seen_carried_over(
         assert first_seen == first_time
         assert last_seen == second_time
 
+    # Without a local copy, the previous parquet is read in place through the
+    # archive object's URI, not backfilled:
+    local_prev = dataset_artifact_path(
+        testdataset1.name, first_version, STATEMENTS_PARQUET
+    )
+    local_prev.unlink()
+    parquet_path = dataset_artifact_path(
+        testdataset1.name, second_version, STATEMENTS_PARQUET
+    )
+    parquet_path.unlink()
+    build_statements_parquet(testdataset1, second_version)
+    assert sorted(rows) == sorted(_seen_rows(testdataset1, second_version))
+    assert not local_prev.is_file()
+
+    # An unreadable URI (e.g. access-restricted old objects) falls back to
+    # backfilling the parquet:
+    monkeypatch.setattr(
+        FileSystemObject, "uri", lambda self: "file:///does/not/exist.parquet"
+    )
+    parquet_path.unlink()
+    build_statements_parquet(testdataset1, second_version)
+    assert sorted(rows) == sorted(_seen_rows(testdataset1, second_version))
+    assert local_prev.is_file()
+
     # Drop the previous run's parquet locally and from the archive: the build
     # falls back to joining against its statements.pack.
-    dataset_artifact_path(testdataset1.name, first_version, STATEMENTS_PARQUET).unlink()
+    local_prev.unlink()
     archived = (
         settings.ARCHIVE_PATH
         / ARTIFACTS
@@ -131,9 +156,6 @@ def test_first_seen_carried_over(
         / STATEMENTS_PARQUET
     )
     archived.unlink()
-    parquet_path = dataset_artifact_path(
-        testdataset1.name, second_version, STATEMENTS_PARQUET
-    )
     parquet_path.unlink()
     build_statements_parquet(testdataset1, second_version)
     assert sorted(rows) == sorted(_seen_rows(testdataset1, second_version))

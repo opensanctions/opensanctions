@@ -21,6 +21,7 @@ from zavod.archive import (
     STATEMENTS_PARQUET,
     backfill_artifact,
     dataset_artifact_path,
+    get_artifact_object,
     get_last_successful_version,
 )
 
@@ -33,7 +34,7 @@ PACK_MAX_LINE = 33554432
 SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
-def _sql_str(value: Path) -> str:
+def _sql_str(value: Path | str) -> str:
     return str(value).replace("'", "''")
 
 
@@ -71,23 +72,45 @@ def _empty_statements_sql() -> str:
     return f"SELECT {columns} WHERE false"
 
 
-def _previous_statements_sql(dataset: Dataset) -> str | None:
+def _previous_statements_sql(
+    conn: duckdb.DuckDBPyConnection, dataset: Dataset
+) -> str | None:
     """A SELECT over the last successful run's statements, or None for the
-    first run of a dataset. Prefers the parquet artifact, falling back to
-    reading the pack file for runs that predate the lake."""
+    first run of a dataset.
+
+    Prefers the parquet artifact, read in place via the archive object's URI
+    so that only the joined columns are fetched; when the URI cannot be read
+    (old objects can be access-restricted) the file is backfilled and read
+    locally instead. Runs that predate the lake fall back to a backfill of
+    the pack file, which a remote read could not skip any bytes of anyway."""
     version = get_last_successful_version(dataset.name)
     if version is None:
         return None
-    path = backfill_artifact(dataset.name, version, STATEMENTS_PARQUET)
-    if path is not None:
+    path = dataset_artifact_path(dataset.name, version, STATEMENTS_PARQUET)
+    if path.is_file():
         return f"SELECT * FROM read_parquet('{_sql_str(path)}')"
-    path = backfill_artifact(dataset.name, version, STATEMENTS_FILE)
-    if path is None:
+    object = get_artifact_object(dataset.name, version, STATEMENTS_PARQUET)
+    if object is not None:
+        select = f"SELECT * FROM read_parquet('{_sql_str(object.uri())}')"
+        try:
+            conn.execute(f"DESCRIBE {select}")
+            return select
+        except duckdb.IOException as ioe:
+            log.info(
+                "Previous parquet not remotely readable, backfilling it",
+                uri=object.uri(),
+                error=str(ioe),
+            )
+        path_ = backfill_artifact(dataset.name, version, STATEMENTS_PARQUET)
+        if path_ is not None:
+            return f"SELECT * FROM read_parquet('{_sql_str(path_)}')"
+    pack = backfill_artifact(dataset.name, version, STATEMENTS_FILE)
+    if pack is None:
         msg = f"Statements for {dataset.name}@{version.id} not found in the archive"
         raise FileNotFoundError(msg)
-    if path.stat().st_size == 0:
+    if pack.stat().st_size == 0:
         return None
-    return _read_pack_sql(path)
+    return _read_pack_sql(pack)
 
 
 def _check_pack_rows(conn: duckdb.DuckDBPyConnection, pack_sql: str) -> None:
@@ -125,7 +148,7 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
         else:
             pack_sql = _read_pack_sql(pack_path)
             _check_pack_rows(conn, pack_sql)
-            previous_sql = _previous_statements_sql(dataset)
+            previous_sql = _previous_statements_sql(conn, dataset)
             if previous_sql is None:
                 previous_sql = _empty_statements_sql()
             # Rows can share an id with differing content: the statement id hash
