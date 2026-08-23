@@ -46,6 +46,11 @@ class ArchiveObject:
     def open(self) -> TextIO:
         raise NotImplementedError
 
+    def uri(self) -> str:
+        """A URI under which the object's raw bytes can be read directly. Purely
+        computed: existence is not checked."""
+        raise NotImplementedError
+
 
 class ArchiveBackend:
     def get_object(self, name: str) -> ArchiveObject:
@@ -95,6 +100,9 @@ class GoogleCloudObject(ArchiveObject):
             raise RuntimeError(f"Object does not exist: {self.name}")
         self.blob.reload()
         return cast(TextIO, self.blob.open(mode="r", chunk_size=BLOB_CHUNK))
+
+    def uri(self) -> str:
+        return f"{settings.ARCHIVE_SITE}/{self.name}"
 
     def backfill(self, dest: Path) -> None:
         if self.blob is None:
@@ -156,6 +164,9 @@ class FileSystemObject(ArchiveObject):
 
     def open(self) -> TextIO:
         return open(self.path, buffering=BLOB_CHUNK)
+
+    def uri(self) -> str:
+        return self.path.as_uri()
 
     def backfill(self, dest: Path) -> None:
         log.info(
