@@ -44,17 +44,8 @@ def get_base_dataset_metadata(dataset: Dataset, version: Version) -> dict[str, A
         "updated_at": viso,
     }
 
-    # This reads the file produced by the statistics exporter which
-    # contains entity counts for the dataset, aggregated by various
-    # criteria:
-    # TODO: In the case of a failed run, this will currently backfill the stats from the last
-    #  previous run. That doesn't really make sense, because the resources of the index will
-    #  be empty - so what are these counts referring to? (Answer: the last successful run, and then
-    #  publish_failure will just publish that one over and over again).
-    #  But we currently show these numbers on our website, and we currently don't have well-defined
-    #  semantics how our website (or our customers) would figure out what the last successful run was.
-    #  For a brief discussion of our currently broken failure semantics,
-    #  see https://github.com/opensanctions/opensanctions/pull/2483
+    # Entity counts come from the statistics exporter's output for this run
+    # only: a failed run has no statistics file, so its index carries no counts.
     statistics_path = dataset_artifact_path(dataset.name, version, STATISTICS_FILE)
     if statistics_path.is_file():
         with open(statistics_path) as fh:
