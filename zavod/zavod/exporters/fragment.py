@@ -65,7 +65,9 @@ class ViewFragment(View[Dataset, Entity]):
                 )
 
     def entities(
-        self, include_schemata: list[Schema] | None = None
+        self,
+        include_schemata: list[Schema] | None = None,
+        prefetch_nested: bool = False,
     ) -> Generator[Entity, None, None]:
         # Don't cache entities here
         raise NotImplementedError("This method should not be called on a ViewFragment!")

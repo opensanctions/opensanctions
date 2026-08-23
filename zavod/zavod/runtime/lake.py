@@ -13,9 +13,11 @@ from pathlib import Path
 import duckdb
 from followthemoney.dataset import Version
 from nomenklatura import duck
+from nomenklatura.duck import check_relation_name
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
+from zavod.runtime.manifest import Manifest
 from zavod.archive import (
     STATEMENTS_FILE,
     STATEMENTS_PARQUET,
@@ -63,6 +65,23 @@ def _read_pack_sql(path: Path) -> str:
     """
 
 
+def _dedupe_sql(select: str) -> str:
+    """Wrap a statement SELECT to keep one row per statement id.
+
+    Rows can share an id with differing content: the statement id hash
+    covers dataset, entity_id, prop, value, lang and external, so only
+    schema, original_value, origin and the seen timestamps can differ
+    within an id. Prefer the richest row, then order for determinism."""
+    return f"""
+        SELECT * FROM ({select})
+        QUALIFY row_number() OVER (
+            PARTITION BY id
+            ORDER BY original_value NULLS LAST, origin NULLS LAST,
+                "schema", first_seen, last_seen
+        ) = 1
+    """
+
+
 def _empty_statements_sql() -> str:
     """A SELECT producing zero rows with the statement relation contract types."""
     columns = ", ".join(
@@ -72,24 +91,22 @@ def _empty_statements_sql() -> str:
     return f"SELECT {columns} WHERE false"
 
 
-def _previous_statements_sql(
-    conn: duckdb.DuckDBPyConnection, dataset: Dataset
+def _version_statements_sql(
+    conn: duckdb.DuckDBPyConnection, dataset_name: str, version: Version
 ) -> str | None:
-    """A SELECT over the last successful run's statements, or None for the
-    first run of a dataset.
+    """A SELECT over one dataset version's statements, or None for a version
+    with no statements (a pre-lake empty run).
 
-    Prefers the parquet artifact, read in place via the archive object's URI
-    so that only the joined columns are fetched; when the URI cannot be read
-    (old objects can be access-restricted) the file is backfilled and read
-    locally instead. Runs that predate the lake fall back to a backfill of
-    the pack file, which a remote read could not skip any bytes of anyway."""
-    version = get_last_successful_version(dataset.name)
-    if version is None:
-        return None
-    path = dataset_artifact_path(dataset.name, version, STATEMENTS_PARQUET)
+    Prefers the parquet artifact: a local copy first, then read in place via
+    the archive object's URI so that only the queried columns are fetched;
+    when the URI cannot be read (old objects can be access-restricted) the
+    file is backfilled and read locally instead. Versions that predate the
+    lake fall back to a backfill of the pack file, which a remote read could
+    not skip any bytes of anyway."""
+    path = dataset_artifact_path(dataset_name, version, STATEMENTS_PARQUET)
     if path.is_file():
         return f"SELECT * FROM read_parquet('{_sql_str(path)}')"
-    object = get_artifact_object(dataset.name, version, STATEMENTS_PARQUET)
+    object = get_artifact_object(dataset_name, version, STATEMENTS_PARQUET)
     if object is not None:
         select = f"SELECT * FROM read_parquet('{_sql_str(object.uri())}')"
         try:
@@ -97,20 +114,91 @@ def _previous_statements_sql(
             return select
         except duckdb.IOException as ioe:
             log.info(
-                "Previous parquet not remotely readable, backfilling it",
+                "Parquet not remotely readable, backfilling it",
                 uri=object.uri(),
                 error=str(ioe),
             )
-        path_ = backfill_artifact(dataset.name, version, STATEMENTS_PARQUET)
+        path_ = backfill_artifact(dataset_name, version, STATEMENTS_PARQUET)
         if path_ is not None:
             return f"SELECT * FROM read_parquet('{_sql_str(path_)}')"
-    pack = backfill_artifact(dataset.name, version, STATEMENTS_FILE)
-    if pack is None:
-        msg = f"Statements for {dataset.name}@{version.id} not found in the archive"
+    # The pack fallback is only for archived versions predating the lake: a
+    # version that exists only locally comes from a crawl, which always
+    # builds the parquet - a pre-existing local pack must not stand in.
+    if get_artifact_object(dataset_name, version, STATEMENTS_FILE) is None:
+        msg = f"No statement artifacts for {dataset_name}@{version.id}"
         raise FileNotFoundError(msg)
+    pack = backfill_artifact(dataset_name, version, STATEMENTS_FILE)
+    assert pack is not None
     if pack.stat().st_size == 0:
         return None
-    return _read_pack_sql(pack)
+    # Convert the pack into a local parquet cache rather than reading the
+    # CSV in place: a csv reader allocates buffers sized for the biggest
+    # possible line, so a relation unioning dozens of pack reads runs out
+    # of memory at bind time. Converting scans one file at a time, and
+    # later consumers of the version get the parquet for free.
+    log.info(
+        "Converting archived pack to parquet",
+        dataset=dataset_name,
+        version=version.id,
+    )
+    tmp_path = path.with_suffix(".parquet.tmp")
+    try:
+        conn.execute(
+            f"""
+            COPY (SELECT * FROM ({_dedupe_sql(_read_pack_sql(pack))})
+                ORDER BY entity_id)
+            TO '{_sql_str(tmp_path)}' (FORMAT parquet, COMPRESSION zstd)
+            """
+        )
+        tmp_path.replace(path)
+    except Exception:
+        tmp_path.unlink(missing_ok=True)
+        raise
+    return f"SELECT * FROM read_parquet('{_sql_str(path)}')"
+
+
+def _previous_statements_sql(
+    conn: duckdb.DuckDBPyConnection, dataset: Dataset
+) -> str | None:
+    """A SELECT over the last successful run's statements, or None for the
+    first run of a dataset."""
+    version = get_last_successful_version(dataset.name)
+    if version is None:
+        return None
+    return _version_statements_sql(conn, dataset.name, version)
+
+
+def manifest_statements_view(
+    conn: duckdb.DuckDBPyConnection,
+    manifest: Manifest,
+    relation: str = "lake_statements",
+) -> str:
+    """Create a view combining the statements of every dataset version pinned
+    in the manifest, and return its name.
+
+    This is how batch consumers (stores, exports, xref) get one statement
+    relation for a whole scope out of the per-dataset artifacts. Each pinned
+    version resolves through `_version_statements_sql`, so archived datasets
+    are read as parquet where available and local, unpublished runs are read
+    from their local artifact directory."""
+    check_relation_name(relation)
+    selects: list[str] = []
+    for dataset_name, version in sorted(manifest.datasets.items()):
+        select = _version_statements_sql(conn, dataset_name, version)
+        if select is None:
+            log.info(
+                "Dataset version has no statements",
+                dataset=dataset_name,
+                version=version.id,
+            )
+            continue
+        selects.append(select)
+    if len(selects) == 0:
+        selects.append(_empty_statements_sql())
+    union = " UNION ALL ".join(f"SELECT * FROM ({select})" for select in selects)
+    conn.execute(f"CREATE OR REPLACE VIEW {relation} AS {union}")
+    duck.validate_statement_relation(conn, relation)
+    return relation
 
 
 def _check_pack_rows(conn: duckdb.DuckDBPyConnection, pack_sql: str) -> None:
@@ -151,18 +239,9 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
             previous_sql = _previous_statements_sql(conn, dataset)
             if previous_sql is None:
                 previous_sql = _empty_statements_sql()
-            # Rows can share an id with differing content: the statement id hash
-            # covers dataset, entity_id, prop, value, lang and external, so only
-            # schema, original_value, origin and the seen timestamps can differ
-            # within an id. Prefer the richest row, then order for determinism.
             select = f"""
                 WITH crawled AS (
-                    SELECT * FROM ({pack_sql})
-                    QUALIFY row_number() OVER (
-                        PARTITION BY id
-                        ORDER BY original_value NULLS LAST, origin NULLS LAST,
-                            "schema", first_seen, last_seen
-                    ) = 1
+                    {_dedupe_sql(pack_sql)}
                 ),
                 previous AS (
                     SELECT id, min(first_seen) AS first_seen
