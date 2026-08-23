@@ -14,7 +14,8 @@ Layout
 outputs of a given run, and is what we point to in the metadata. It holds both
 the listed resources (e.g. `entities.ftm.json`) and run artifacts such as
 `index.json`, `statistics.json`, `issues.json`, `statements.pack`,
-`entities.delta.json`, `delta.json` and a `versions.json` snapshot.
+`statements.parquet`, `entities.delta.json`, `delta.json` and a
+`versions.json` snapshot.
 
 `/artifacts/{dataset}/versions.json` is the root version file: a window of the
 most recent version IDs of the dataset (oldest first, up to
@@ -78,6 +79,7 @@ DATASETS = "datasets"
 ARTIFACTS = "artifacts"
 LATEST = "latest"
 STATEMENTS_FILE = "statements.pack"
+STATEMENTS_PARQUET = "statements.parquet"
 HASH_FILE = "entities.hash"
 DELTA_EXPORT_FILE = "entities.delta.json"
 DELTA_INDEX_FILE = "delta.json"
