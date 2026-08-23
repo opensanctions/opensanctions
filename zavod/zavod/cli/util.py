@@ -28,9 +28,8 @@ def load_db(
         linker = get_dataset_linker(dataset)
         manifest = Manifest.get_transient(dataset)
         load_dataset_to_db(
-            dataset,
-            linker,
             manifest,
+            linker,
             batch_size=batch_size,
             external=external,
         )
@@ -52,9 +51,8 @@ def dump_file(
         linker = get_dataset_linker(dataset)
         manifest = Manifest.get_transient(dataset)
         dump_dataset_to_file(
-            dataset,
-            linker,
             manifest,
+            linker,
             out_path,
             format=format.lower(),
             external=external,
