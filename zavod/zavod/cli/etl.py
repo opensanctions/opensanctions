@@ -19,7 +19,7 @@ from zavod.tools.load_db import load_dataset_to_db
 
 @cli.command("crawl", help="Crawl a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-v", "--version", envvar="ZAVOD_VERSION", default=None, show_envvar=True)
+@click.option("-v", "--version", default=None)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def crawl(
     dataset_path: Path,
@@ -42,7 +42,7 @@ def crawl(
 
 @cli.command("export", help="Export and validate data from a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.argument("version", envvar="ZAVOD_VERSION", type=str)
+@click.argument("version", type=str)
 @click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
 @click.option("--validate/--no-validate", is_flag=True, default=True)
 def export(
@@ -93,7 +93,7 @@ def publish(dataset_path: Path, version: str) -> None:
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-v", "--version", envvar="ZAVOD_VERSION", default=None, show_envvar=True)
+@click.option("-v", "--version", default=None)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
     dataset_path: Path,
