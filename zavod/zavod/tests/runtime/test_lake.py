@@ -16,10 +16,16 @@ from zavod.archive import (
 from zavod.archive.backend import FileSystemObject
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
+from zavod.integration import get_dataset_linker
 from zavod.meta import Dataset
 from zavod.publish import publish_dataset
-from zavod.runtime.lake import build_statements_parquet, dump_statements_pack
-from zavod.tests.util import make_context, run_dataset
+from zavod.runtime.lake import (
+    build_statements_parquet,
+    dump_statements_pack,
+    manifest_statements_view,
+)
+from zavod.store import get_lake_store
+from zavod.tests.util import get_manifest, make_context, run_dataset
 
 SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -236,3 +242,56 @@ def test_missing_inputs(testdataset1: Dataset):
         build_statements_parquet(testdataset1, version)
     with pytest.raises(FileNotFoundError):
         dump_statements_pack(testdataset1, version)
+
+
+def test_manifest_statements_view(testdataset1: Dataset):
+    version = settings.RUN_VERSION
+    crawl_dataset(testdataset1, version)
+    # The crawl is unpublished: the manifest pins a local-only version, read
+    # from the local artifact directory.
+    manifest = get_manifest(testdataset1)
+    assert manifest.datasets[testdataset1.name] == version
+    parquet_path = dataset_artifact_path(testdataset1.name, version, STATEMENTS_PARQUET)
+    with duck.connect() as conn:
+        relation = manifest_statements_view(conn, manifest, relation="test_lake")
+        duck.validate_statement_relation(conn, relation)
+        row = conn.execute(f"SELECT count(*) FROM {relation}").fetchone()
+        assert row is not None
+        parquet = conn.execute(
+            f"SELECT count(*) FROM read_parquet('{parquet_path.as_posix()}')"
+        ).fetchone()
+        assert parquet is not None
+        assert row[0] == parquet[0] > 0
+
+    # A local version without its parquet artifact is an error, not a fallback:
+    parquet_path.unlink()
+    with duck.connect() as conn:
+        with pytest.raises(FileNotFoundError):
+            manifest_statements_view(conn, manifest, relation="test_lake")
+
+
+def test_lake_store(testdataset1: Dataset):
+    linker = get_dataset_linker(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
+    manifest = get_manifest(testdataset1)
+    store = get_lake_store(manifest, linker)
+    store.sync()
+    view = store.default_view(external=True)
+    assert len(list(view.entities())) > 5, list(view.entities())
+    entity = view.get_entity("osv-john-doe")
+    assert entity is not None, entity
+    assert entity.id == "osv-john-doe"
+    assert entity.schema.name == "Person"
+    assert entity.first_seen == settings.RUN_TIME_ISO
+    assert entity.last_seen == settings.RUN_TIME_ISO
+    store.close()
+
+    # Syncing again rebuilds the statement table; views built afterwards work.
+    store = get_lake_store(manifest, linker)
+    store.sync()
+    store.sync()
+    view2 = store.view(testdataset1, external=False)
+    entity = view2.get_entity("osv-john-doe")
+    assert entity is not None, entity
+    assert entity.id == "osv-john-doe"
+    store.close()
