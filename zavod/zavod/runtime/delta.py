@@ -36,7 +36,8 @@ class HashDelta:
         obj = get_artifact_object(self.dataset.name, self.prev, HASH_FILE)
         if obj is None:
             log.info(
-                "No previous hash file found, skipping backfill.", version=self.prev.id
+                "No previous hash file found, skipping backfill.",
+                version=self.prev.id,
             )
             return
         log.info(
@@ -50,7 +51,7 @@ class HashDelta:
                 self.db.put(key, entity_hash.encode("utf-8"))
 
     def feed(self, entity: Entity) -> None:
-        if entity.id is None or self.curr is None:
+        if entity.id is None:
             return
         digest = sha1()
         digest.update(entity.id.encode("utf-8"))
@@ -89,7 +90,7 @@ class HashDelta:
                     if entity_id is not None:
                         yield entity_id, prev_hash, curr_hash
                     entity_id, prev_hash, curr_hash = new_id, None, None
-                if self.curr is not None and version_id == self.curr.id:
+                if version_id == self.curr.id:
                     curr_hash = hash
                 else:
                     prev_hash = hash

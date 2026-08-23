@@ -97,8 +97,7 @@ UNLISTED_RESOURCES = [
     STATISTICS_FILE,
     DELTA_EXPORT_FILE,
 ]
-# The only files a failed run publishes: enough to surface the failure and
-# register the version, while any half-generated data files stay local.
+# The only files a failed run publishes. Half-generated data files stay local.
 FAILURE_ARTIFACTS = [
     INDEX_FILE,
     ISSUES_FILE,
@@ -135,14 +134,12 @@ def clear_data_path(dataset_name: str) -> None:
 
 def dataset_resource_path(dataset_name: str, resource: str) -> Path:
     """Downloaded resources, not subject to versioning."""
-    dataset_path = dataset_data_path(dataset_name)
-    return dataset_path.joinpath(resource)
+    return dataset_data_path(dataset_name).joinpath(resource)
 
 
 def dataset_artifact_directory(dataset_name: str, version: Version) -> Path:
     """The local directory holding all artifacts of a given run."""
-    dataset_path = dataset_data_path(dataset_name)
-    return dataset_path / "_artifacts" / version.id
+    return dataset_data_path(dataset_name) / "_artifacts" / version.id
 
 
 def dataset_artifact_path(dataset_name: str, version: Version, artifact: str) -> Path:
@@ -160,9 +157,7 @@ def get_version_history(
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{VERSIONS_FILE}"
     object = backend.get_object(name)
-    data = "{}"
-    if object.exists():
-        data = object.open().read()
+    data = object.open().read() if object.exists() else "{}"
     return VersionHistory.from_json(data)
 
 
@@ -178,9 +173,7 @@ def get_best_version(dataset_name: str) -> Version | None:
     """Get the best version of a dataset, ie. the last successful one if available,
     otherwise the latest one."""
     history = get_version_history(dataset_name)
-    if history.last_successful is not None:
-        return history.last_successful
-    return history.latest
+    return history.last_successful or history.latest
 
 
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
@@ -240,11 +233,10 @@ def create_artifact_path(dataset_name: str, version: Version) -> VersionHistory:
     directory = dataset_artifact_directory(dataset_name, version)
     shutil.rmtree(directory, ignore_errors=True)
     directory.mkdir(parents=True, exist_ok=True)
-    version_path = directory / VERSIONS_FILE
     history = get_version_history(dataset_name)
     if version not in history.items:
         history = history.append(version)
-    with open(version_path, "w") as fh:
+    with open(directory / VERSIONS_FILE, "w") as fh:
         fh.write(history.to_json())
     return history
 
@@ -279,8 +271,7 @@ def archive_artifact(
 
 
 def invalidate_dataset_urls(dataset_name: str, version: Version) -> None:
-    """Purge the CDN cache for a dataset's date-stamped and '/latest/' URLs
-    under /datasets/."""
+    """Purge the CDN cache for a dataset's date-stamped and '/latest/' URLs under /datasets/."""
     release = version.dt.strftime("%Y%m%d")
     release_prefix = f"{DATASETS}/{release}/{dataset_name}/*"
     invalidate_archive_cache(release_prefix)
@@ -311,13 +302,8 @@ def stream_statements(
     rather than a condition to skip over."""
     object = get_artifact_object(dataset_name, version, STATEMENTS_FILE)
     if object is None:
-        raise FileNotFoundError(
-            f"Statements for {dataset_name}@{version.id} not found in the archive"
-        )
-    log.info(
-        "Streaming statements...",
-        current=dataset_name,
-        object=object.name,
-    )
+        msg = f"Statements for {dataset_name}@{version.id} not found in the archive"
+        raise FileNotFoundError(msg)
+    log.info("Streaming statements...", current=dataset_name, object=object.name)
     with object.open() as fh:
         yield from _read_fh_statements(fh, external)
