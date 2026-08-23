@@ -36,7 +36,7 @@ from google.cloud.storage import Client  # type: ignore
 from egrul_xml import parse_xml
 from parse_context import ParseContext
 from schema import company_record_schema
-from zavod import Context
+from zavod import Context, settings
 from zavod import Dataset
 
 LOCAL_BUCKET_CACHE_DIR = Path(
@@ -773,7 +773,7 @@ def crawl(context: Context) -> None:
 
 def get_context() -> Context:
     dataset = Dataset.from_path("datasets/ru/egrul/ru_egrul.yml")
-    return Context(dataset)
+    return Context(dataset, settings.RUN_VERSION)
 
 
 def main() -> None:

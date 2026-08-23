@@ -1,8 +1,8 @@
 import logging
-from typing import Tuple
 from urllib.parse import urlencode
 
 import click
+from zavod import settings
 from zavod.context import Context
 from zavod.logs import configure_logging
 from zavod.meta.dataset import Dataset
@@ -32,7 +32,7 @@ def find_paths_downwards(
     qid: str,
     language: str,
     max_depth: int,
-    path: Tuple[str, ...] = (),
+    path: tuple[str, ...] = (),
 ) -> None:
     path = path + (category_title,)
     cursor = None
@@ -100,7 +100,7 @@ def cli(
     """
 
     fake_dataset: Dataset = Dataset({"name": "fake"})
-    context = Context(fake_dataset)
+    context = Context(fake_dataset, settings.RUN_VERSION)
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)
 

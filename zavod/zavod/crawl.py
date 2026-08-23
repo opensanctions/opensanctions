@@ -20,9 +20,7 @@ assert enrich is not None
 log = get_logger(__name__)
 
 
-def crawl_dataset(
-    dataset: Dataset, version: Version, dry_run: bool = False
-) -> ContextStats:
+def crawl_dataset(dataset: Dataset, version: Version) -> ContextStats:
     """Load the dataset entry point, configure a context, and then execute the entry
     point; finally disband the context."""
     if dataset.model.disabled:
@@ -30,7 +28,7 @@ def crawl_dataset(
         return ContextStats()
 
     Manifest.create(dataset, version)
-    context = Context(dataset, version, dry_run=dry_run)
+    context = Context(dataset, version)
     try:
         context.begin()
         context.log.info(

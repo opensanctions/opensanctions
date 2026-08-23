@@ -67,10 +67,9 @@ class Context:
 
     SOURCE_TITLE = "Source data"
 
-    def __init__(self, dataset: Dataset, version: Version, dry_run: bool = False):
+    def __init__(self, dataset: Dataset, version: Version):
         self.dataset = dataset
         self.version = version
-        self.dry_run = dry_run
         self.stats = ContextStats()
         self.issues = DatasetIssues(dataset, self.version)
         self.resources = DatasetResources(dataset, self.version)
@@ -143,11 +142,7 @@ class Context:
         return self.dataset.data.url
 
     def begin(self) -> None:
-        """Prepare the context for running the exporter.
-
-        Args:
-            clear: Remove the existing resources and issues from the dataset.
-        """
+        """Prepare the context for running a crawl or export."""
         self._structlog_contextvars_tokens = bind_contextvars(
             dataset=self.dataset.name,
             context=self,
@@ -197,7 +192,7 @@ class Context:
         This can be important while e.g. enrichers backfill from the most recent
         statements file.
         """
-        if not self.dry_run and self._writer is None:
+        if self._writer is None:
             self._writer_path.touch()
 
     def close(self) -> None:
@@ -211,8 +206,7 @@ class Context:
             self._writer.close()
         reset_contextvars(**(self._structlog_contextvars_tokens or {}))
         self.issues.close()
-        if not self.dry_run:
-            self.issues.export()
+        self.issues.export()
 
     def get_resource_path(self, name: PathLike) -> Path:
         """Get the path to a file in the dataset data folder.
@@ -240,8 +234,7 @@ class Context:
         resource = self.dataset.resource_from_path(
             path, mime_type=mime_type, title=title
         )
-        if not self.dry_run:
-            self.resources.save(resource)
+        self.resources.save(resource)
         return resource
 
     def fetch_resource(
@@ -650,7 +643,7 @@ class Context:
                 statements=self.stats.statements,
             )
             self.flush()
-        stamps = {} if self.dry_run else self.timestamps.get(entity.id)
+        stamps = self.timestamps.get(entity.id)
         for stmt in entity.statements:
             stmt = stmt.clone(
                 dataset=self.dataset.name,
@@ -666,11 +659,10 @@ class Context:
             if stmt.first_seen == settings.RUN_TIME_ISO:
                 self.stats.changed += 1
             stmt.last_seen = settings.RUN_TIME_ISO
-            if not self.dry_run:
-                if self._writer is None:
-                    fh = self._writer_path.open("w", encoding=ENCODING)
-                    self._writer = PackStatementWriter(fh)
-                self._writer.write(stmt)
+            if self._writer is None:
+                fh = self._writer_path.open("w", encoding=ENCODING)
+                self._writer = PackStatementWriter(fh)
+            self._writer.write(stmt)
             self.stats.statements += 1
 
     def __hash__(self) -> int:
