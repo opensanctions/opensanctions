@@ -40,7 +40,6 @@ from zavod.runtime.http_ import (
 )
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.timestamps import TimeStampIndex
 from zavod.util import Element, join_slug, prefixed_hash_id
 
 
@@ -53,7 +52,6 @@ class ContextStats:
 
     def reset(self) -> None:
         self.statements = 0
-        self.changed = 0
         self.entities = 0
 
 
@@ -78,7 +76,6 @@ class Context:
         self.http = make_session(dataset.http)
         self._db: Session | None = None
         self._cache: Cache | None = None
-        self._timestamps: TimeStampIndex | None = None
         self._resolver: Resolver[Entity] | None = None
         self._structlog_contextvars_tokens: (
             Mapping[str, contextvars.Token[Any]] | None
@@ -128,14 +125,6 @@ class Context:
         return self._resolver
 
     @property
-    def timestamps(self) -> TimeStampIndex:
-        """An index of the first_seen time of every statement previous emitted by
-        the dataset. This is used to determine if a statement is new or not."""
-        if self._timestamps is None:
-            self._timestamps = TimeStampIndex.build(self.dataset)
-        return self._timestamps
-
-    @property
     def data_url(self) -> str:
         """The URL of the source data for the dataset."""
         if self.dataset.data is None or self.dataset.data.url is None:
@@ -180,13 +169,15 @@ class Context:
             self._db.checkpoint()
 
     def finalize_statements(self) -> None:
-        """Ensure a statements file exists even if the crawl emitted nothing.
+        """Seal the run's statements file so downstream steps can read it.
 
-        The statement writer is only opened on the first emit, so a crawl
-        that emitted nothing would leave no statements file behind - and
-        downstream stages would silently fall back to streaming a previous
+        The statement writer buffers rows and is only opened on the first
+        emit, so until this point the on-disk file is incomplete - and a crawl
+        that emitted nothing would leave no statements file behind at all,
+        making downstream stages silently fall back to streaming a previous
         version's statements from the archive, republishing old data as a
-        new successful run. Record the empty output explicitly instead.
+        new successful run. Flush and close the writer, or record the empty
+        output explicitly.
 
         Only called once the crawl has completed successfully so that statements
         file is never created earlier than it would by emitting entities.
@@ -195,14 +186,15 @@ class Context:
         """
         if self._writer is None:
             self._writer_path.touch()
+        else:
+            self._writer.close()
+            self._writer = None
 
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
         if self._db is not None:
             self._db.commit()
-        if self._timestamps is not None:
-            self._timestamps.close()
         if self._writer is not None:
             self._writer.close()
         reset_contextvars(**(self._structlog_contextvars_tokens or {}))
@@ -648,7 +640,6 @@ class Context:
                 statements=self.stats.statements,
             )
             self.flush()
-        stamps = self.timestamps.get(entity.id)
         for stmt in entity.statements:
             stmt = stmt.clone(
                 dataset=self.dataset.name,
@@ -660,9 +651,9 @@ class Context:
             )
             if stmt.id is None:
                 raise ValueError("Statement has no ID: %r", stmt)
-            stmt.first_seen = stamps.get(stmt.id, settings.RUN_TIME_ISO)
-            if stmt.first_seen == settings.RUN_TIME_ISO:
-                self.stats.changed += 1
+            # first_seen is computed against the previous run when the parquet
+            # statement artifact is built, after the crawl (zavod.runtime.lake).
+            stmt.first_seen = settings.RUN_TIME_ISO
             stmt.last_seen = settings.RUN_TIME_ISO
             if self._writer is None:
                 fh = self._writer_path.open("w", encoding=ENCODING)

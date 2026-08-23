@@ -372,8 +372,9 @@ def test_crawl_dataset_empty(testdataset1: Dataset):
 
     stats = crawl_dataset(testdataset1, version)
     assert stats.statements == 0
+    # The file is regenerated from the (empty) parquet artifact, so it holds
+    # a header row but no statements.
     assert path.is_file()
-    assert path.stat().st_size == 0
     manifest = Manifest.load_artifact(testdataset1, version)
     assert len(list(manifest.statements())) == 0
 
