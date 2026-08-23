@@ -51,9 +51,10 @@ def test_invalidate_dataset_urls(
     purged: list[str] = []
     monkeypatch.setattr("zavod.archive.invalidate_archive_cache", purged.append)
 
-    invalidate_dataset_urls(testdataset1.name)
+    version = settings.RUN_VERSION
+    invalidate_dataset_urls(testdataset1.name, version)
     assert purged == [
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
+        f"{DATASETS}/{version.dt.strftime('%Y%m%d')}/{testdataset1.name}/*",
         f"{DATASETS}/{LATEST}/{testdataset1.name}/*",
     ]
 

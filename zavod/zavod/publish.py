@@ -68,7 +68,7 @@ def publish_dataset(dataset: Dataset, version: Version) -> None:
         )
 
     publish_version_history(dataset.name, version)
-    invalidate_dataset_urls(dataset.name)
+    invalidate_dataset_urls(dataset.name, version)
 
 
 def archive_failure(dataset: Dataset, version: Version) -> None:

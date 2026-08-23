@@ -6,6 +6,8 @@ from pydantic import ValidationError
 
 from followthemoney.dataset import Version
 
+from rigour.time import datetime_iso
+
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset, get_catalog
@@ -38,7 +40,7 @@ def get_base_dataset_metadata(
     dataset: Dataset, version: Version, result: DatasetVersionResult
 ) -> dict[str, Any]:
     """Build the barebones metadata block for a dataset, without artifact URLs."""
-    viso = version.dt.isoformat(sep="T", timespec="seconds")
+    viso = datetime_iso(version.dt)
 
     meta: dict[str, Any] = {
         "issue_levels": {},
@@ -111,7 +113,7 @@ def write_dataset_index(
     meta.pop("collections", None)
 
     meta["version"] = version.id
-    meta["updated_at"] = version.dt.isoformat()
+    meta["updated_at"] = datetime_iso(version.dt)
     meta["index_url"] = make_artifact_url(dataset.name, version, INDEX_FILE)
     for res_data in meta["resources"]:
         res_data["url"] = make_artifact_url(dataset.name, version, res_data["path"])

@@ -91,9 +91,10 @@ def test_publish_dataset(
         # CATALOG_FILE,
     } | STANDARD_EXPORTS  # fmt: skip
 
+    release = version.dt.strftime("%Y%m%d")
     assert purged == [
         f"{ARTIFACTS}/{testdataset1.name}/{VERSIONS_FILE}",
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
+        f"{DATASETS}/{release}/{testdataset1.name}/*",
         f"{DATASETS}/latest/{testdataset1.name}/*",
     ]
 
