@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import pytest
 from followthemoney.dataset import Version
-from rigour.time import utc_now
+from rigour.time import datetime_iso, utc_now
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -22,8 +22,8 @@ def test_timestamps(testdataset1: Dataset):
     for stmt in stmts:
         assert stmt.first_seen == prev_time
 
-    dt = utc_now().replace(microsecond=0) + timedelta(days=1)
-    default = dt.isoformat(sep="T", timespec="seconds")
+    default = datetime_iso(utc_now() + timedelta(days=1))
+    assert default is not None
 
     index = TimeStampIndex(testdataset1, version)
     index.index(stmts)
@@ -51,11 +51,7 @@ def test_backfill(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
     second_version = Version.from_string(next_dt.strftime("%Y%m%d%H%M%S") + "-bbb")
     monkeypatch.setattr(settings, "RUN_VERSION", second_version)
     monkeypatch.setattr(settings, "RUN_TIME", second_version.dt)
-    monkeypatch.setattr(
-        settings,
-        "RUN_TIME_ISO",
-        second_version.dt.isoformat(sep="T", timespec="seconds"),
-    )
+    monkeypatch.setattr(settings, "RUN_TIME_ISO", datetime_iso(second_version.dt))
     monkeypatch.setattr(settings, "RUN_DATE", second_version.dt.date().isoformat())
     second_time = settings.RUN_TIME_ISO
     crawl_dataset(testdataset1, second_version)

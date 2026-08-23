@@ -278,10 +278,11 @@ def archive_artifact(
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
 
 
-def invalidate_dataset_urls(dataset_name: str) -> None:
+def invalidate_dataset_urls(dataset_name: str, version: Version) -> None:
     """Purge the CDN cache for a dataset's date-stamped and '/latest/' URLs
     under /datasets/."""
-    release_prefix = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/*"
+    release = version.dt.strftime("%Y%m%d")
+    release_prefix = f"{DATASETS}/{release}/{dataset_name}/*"
     invalidate_archive_cache(release_prefix)
     latest_prefix = f"{DATASETS}/{LATEST}/{dataset_name}/*"
     invalidate_archive_cache(latest_prefix)
