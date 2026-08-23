@@ -30,8 +30,9 @@ DATASETS_PATH = Path(
     env.get("ZAVOD_DATASETS_PATH") or _REPO_ROOT / "datasets"
 ).resolve()
 
-# Per-run timestamp
-RUN_VERSION = Version.from_env("ZAVOD_VERSION")
+# Per-run timestamp. Pin a version explicitly via the CLI arguments; the
+# process default is a fresh version.
+RUN_VERSION = Version.new()
 RUN_TIME = RUN_VERSION.dt
 _run_time_iso = datetime_iso(RUN_TIME)
 assert _run_time_iso is not None
