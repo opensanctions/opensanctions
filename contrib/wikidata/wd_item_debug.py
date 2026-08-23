@@ -47,7 +47,7 @@ import sys
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
+from collections.abc import Iterator
 
 import click
 from followthemoney.statement.serialize import PackStatementWriter
@@ -88,7 +88,7 @@ def _run_context(dataset_path: Path) -> Iterator[RunContext]:
     dataset = load_dataset_from_path(dataset_path)
     if dataset is None:
         raise click.BadParameter(f"Invalid dataset path: {dataset_path}")
-    context = Context(dataset, dry_run=True)
+    context = Context(dataset, settings.RUN_VERSION)
     context.begin(clear=False)
     writer = PackStatementWriter(sys.stdout)
     client = WikidataClient(context.cache, context.http)

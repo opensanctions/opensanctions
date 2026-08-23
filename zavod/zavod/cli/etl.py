@@ -20,12 +20,10 @@ from zavod.tools.load_db import load_dataset_to_db
 @cli.command("crawl", help="Crawl a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option("-v", "--version", envvar="ZAVOD_VERSION", default=None, show_envvar=True)
-@click.option("-d", "--dry-run", is_flag=True, default=False)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def crawl(
     dataset_path: Path,
     version: str | None = None,
-    dry_run: bool = False,
     clear_data: bool = False,
 ) -> None:
     dataset = _load_dataset(dataset_path)
@@ -37,7 +35,7 @@ def crawl(
         run_version = Version.from_string(version)
 
     try:
-        crawl_dataset(dataset, version=run_version, dry_run=dry_run)
+        crawl_dataset(dataset, version=run_version)
     except RunFailedException:
         sys.exit(1)
 
@@ -118,7 +116,7 @@ def run(
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
-            crawl_dataset(dataset, version=run_version, dry_run=False)
+            crawl_dataset(dataset, version=run_version)
         except RunFailedException:
             archive_failure(dataset, run_version)
             sys.exit(1)
