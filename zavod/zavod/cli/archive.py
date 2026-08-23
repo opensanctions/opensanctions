@@ -3,25 +3,9 @@ from pathlib import Path
 import click
 from followthemoney.dataset import Version
 
-from zavod.archive import (
-    STATEMENTS_FILE,
-    get_last_successful_version,
-    iter_dataset_versions,
-)
+from zavod.archive import STATEMENTS_FILE, get_version_history
 from zavod.cli import cli, DatasetInPath, _load_dataset
-from zavod.meta.dataset import Dataset
 from zavod.runtime.urls import make_artifact_url
-
-RESOURCE_FILENAMES = [STATEMENTS_FILE]
-
-
-def _get_latest_version(dataset: Dataset) -> Version:
-    # iter_dataset_versions always reads from the archive, never from the local file system
-    # which is what we want in this case. Otherwise we might end up with a version that's not
-    # actually in the archive but just from a local run.
-    for v in iter_dataset_versions(dataset.name):
-        return v
-    raise click.ClickException(f"No version history found for dataset: {dataset.name}")
 
 
 @cli.group("archive", help="Archive-related utilities")
@@ -30,7 +14,7 @@ def archive() -> None:
 
 
 @archive.command("url", help="Print the public URL for a dataset resource")
-@click.argument("resource_filename", type=click.Choice(RESOURCE_FILENAMES))
+@click.argument("resource_filename", type=click.Choice([STATEMENTS_FILE]))
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option(
     "--latest",
@@ -58,17 +42,14 @@ def url(
             "Exactly one of --latest or --last-successful is required."
         )
 
+    history = get_version_history(dataset.name)
     version: Version | None = None
     if latest:
-        version = _get_latest_version(dataset)
+        version = history.latest
     elif last_successful:
-        version = get_last_successful_version(dataset.name)
-        if version is None:
-            raise click.ClickException(
-                f"No last successful version found for dataset: {dataset.name}"
-            )
-
-    assert version is not None
+        version = history.last_successful
+    if version is None:
+        raise click.ClickException(f"No matching version found for: {dataset.name}")
 
     url = make_artifact_url(dataset.name, version, resource_filename)
     click.echo(url)

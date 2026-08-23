@@ -44,9 +44,3 @@ class DatasetResources:
         for raw in data.get("resources", []):
             resources.append(DataResource.model_validate(raw))
         return resources
-
-    def clear(self) -> None:
-        if self.path.exists():
-            self.path.unlink()
-        with open(self.path, "w") as fh:
-            fh.write(json.dumps({"resources": []}))
