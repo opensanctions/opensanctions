@@ -70,13 +70,6 @@ class DatasetIssues:
         out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE)
         self.fh.write(out)
 
-    def clear(self) -> None:
-        """Clear (delete) the issues log file."""
-        self.close()
-        with open(self.log_path, "w") as fh:
-            fh.flush()
-        self.file_path.unlink(missing_ok=True)
-
     def close(self) -> None:
         """Close the issues log file."""
         if self.fh is not None:
