@@ -78,6 +78,7 @@ def archive_failure(dataset: Dataset, version: Version) -> None:
     the issues that explain it, plus the version bookkeeping. Data files from
     the failed run stay local, and the version is registered in the history
     without becoming the last successful one."""
+    dataset_artifact_directory(dataset.name, version).mkdir(parents=True, exist_ok=True)
     write_dataset_index(dataset, version, DatasetVersionResult.FAILURE)
     for artifact in FAILURE_ARTIFACTS:
         path = dataset_artifact_path(dataset.name, version, artifact)
