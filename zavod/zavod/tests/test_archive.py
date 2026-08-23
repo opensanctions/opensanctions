@@ -1,6 +1,6 @@
 import pytest
 
-from followthemoney.dataset import Version, VersionHistory
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -9,6 +9,7 @@ from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_p
 from zavod.archive import create_artifact_path, dataset_artifact_path
 from zavod.archive import get_archive_backend, get_artifact_object
 from zavod.archive import get_best_version, get_last_successful_version
+from zavod.archive import get_version_history
 from zavod.archive import publish_version_history
 from zavod.archive import ARTIFACTS, DATASETS, LATEST, VERSIONS_FILE
 
@@ -74,13 +75,13 @@ def _archive_run(
         with open(path, "w") as fh:
             fh.write(version.id)
         archive_artifact(path, dataset.name, version, RESOURCE_NAME)
+    # The version history snapshot is written when the run concludes:
+    history = get_version_history(dataset.name).append(version)
     if successful:
-        vsn_path = dataset_artifact_path(dataset.name, version, VERSIONS_FILE)
-        with open(vsn_path) as fh:
-            history = VersionHistory.from_json(fh.read())
         history.last_successful = version
-        with open(vsn_path, "w") as fh:
-            fh.write(history.to_json())
+    vsn_path = dataset_artifact_path(dataset.name, version, VERSIONS_FILE)
+    with open(vsn_path, "w") as fh:
+        fh.write(history.to_json())
     publish_version_history(dataset.name, version)
 
 

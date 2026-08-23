@@ -227,18 +227,11 @@ def backfill_artifact(
     return target_path
 
 
-def create_artifact_path(dataset_name: str, version: Version) -> VersionHistory:
-    """Create the artifact path for a given dataset and version, and update the
-    version history file. Returns the updated version history."""
+def create_artifact_path(dataset_name: str, version: Version) -> None:
+    """Force an empty local artifact directory for a given run."""
     directory = dataset_artifact_directory(dataset_name, version)
     shutil.rmtree(directory, ignore_errors=True)
     directory.mkdir(parents=True, exist_ok=True)
-    history = get_version_history(dataset_name)
-    if version not in history.items:
-        history = history.append(version)
-    with open(directory / VERSIONS_FILE, "w") as fh:
-        fh.write(history.to_json())
-    return history
 
 
 def publish_version_history(dataset_name: str, version: Version) -> None:
