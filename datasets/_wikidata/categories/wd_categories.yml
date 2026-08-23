@@ -617,14 +617,15 @@ config:
         topics:
           - gov.igo
           - mil
-    - category: Secretaries_general_of_NATO
-      topic: role.pep
-      position:
-        name: Secretary General of NATO
-        wikidata_id: Q167662
-        topics:
-          - gov.igo
-          - mil
+    # retired 2026-08-23; 16/17 already hold Q167662; 1 leave the dataset (born-before-1920)
+    # - category: Secretaries_general_of_NATO
+    #   topic: role.pep
+    #   position:
+    #     name: Secretary General of NATO
+    #     wikidata_id: Q167662
+    #     topics:
+    #       - gov.igo
+    #       - mil
     - category: Chairpersons_of_the_African_Union_Commission
       topic: role.pep
       position:
@@ -655,14 +656,15 @@ config:
         country: zz
         topics:
           - gov.igo
-    - category: Secretaries-general_of_the_Gulf_Cooperation_Council
-      topic: role.pep
-      position:
-        name: Secretary General of the Gulf Cooperation Council
-        wikidata_id: Q104127429
-        country: zz
-        topics:
-          - gov.igo
+    # retired 2026-08-23; 5/5 already hold Q104127429
+    # - category: Secretaries-general_of_the_Gulf_Cooperation_Council
+    #   topic: role.pep
+    #   position:
+    #     name: Secretary General of the Gulf Cooperation Council
+    #     wikidata_id: Q104127429
+    #     country: zz
+    #     topics:
+    #       - gov.igo
     - category: Presidents_of_Interpol
       topic: role.pep
       position:
@@ -765,25 +767,27 @@ config:
         country: us
         topics:
           - role.judge
-    - category: Presidents_of_the_United_States
-      depth: 0
-      topic: role.pep
-      country: us
-      position:
-        name: President of the United States
-        wikidata_id: Q11696
-        country: us
-        topics:
-          - gov.head
-    - category: Chief_justices_of_the_United_States
-      topic: role.pep
-      country: us
-      position:
-        name: Chief Justice of the United States
-        wikidata_id: Q11147
-        country: us
-        topics:
-          - role.judge
+    # retired 2026-08-23; 45/45 already hold Q11696
+    # - category: Presidents_of_the_United_States
+    #   depth: 0
+    #   topic: role.pep
+    #   country: us
+    #   position:
+    #     name: President of the United States
+    #     wikidata_id: Q11696
+    #     country: us
+    #     topics:
+    #       - gov.head
+    # retired 2026-08-23; 17/17 already hold Q11147
+    # - category: Chief_justices_of_the_United_States
+    #   topic: role.pep
+    #   country: us
+    #   position:
+    #     name: Chief Justice of the United States
+    #     wikidata_id: Q11147
+    #     country: us
+    #     topics:
+    #       - role.judge
     - category: United_States_presidential_advisors
       topic: role.pep
       country: us
@@ -829,15 +833,16 @@ config:
     # Canada
     - category: 21st-century_Canadian_federal_ministers
       topic: role.pep
-    - category: 21st-century_members_of_the_House_of_Commons_of_Canada
-      topic: role.pep
-      position:
-        name: Member of Parliament of Canada
-        wikidata_id: Q15964890
-        country: ca
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 1179/1179 already hold Q15964890
+    # - category: 21st-century_members_of_the_House_of_Commons_of_Canada
+    #   topic: role.pep
+    #   position:
+    #     name: Member of Parliament of Canada
+    #     wikidata_id: Q15964890
+    #     country: ca
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: 21st-century_members_of_the_Senate_of_Canada
       topic: role.pep
       position:
@@ -1199,60 +1204,64 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidents_of_Colombia
-      country: co
-      topic: role.pep
-      depth: 0
-      position:
-        name: President of Colombia
-        wikidata_id: Q853475
-        country: co
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 31/38 already hold Q853475; 7 leave the dataset (born-before-1920)
+    # - category: Presidents_of_Colombia
+    #   country: co
+    #   topic: role.pep
+    #   depth: 0
+    #   position:
+    #     name: President of Colombia
+    #     wikidata_id: Q853475
+    #     country: co
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Government_ministers_of_Colombia
       country: co
       topic: role.pep
-    - category: Mayors_of_Bogotá
-      country: co
-      topic: role.pep
-      position:
-        name: Mayor of Bogotá
-        wikidata_id: Q21994938
-        country: co
-        topics:
-          - gov.muni
-          - gov.head
+    # retired 2026-08-23; 16/28 already hold Q21994938; 12 leave the dataset (born-before-1920, long-dead)
+    # - category: Mayors_of_Bogotá
+    #   country: co
+    #   topic: role.pep
+    #   position:
+    #     name: Mayor of Bogotá
+    #     wikidata_id: Q21994938
+    #     country: co
+    #     topics:
+    #       - gov.muni
+    #       - gov.head
     - category: Lists_of_political_office-holders_in_Colombia
       country: co
       topic: role.pep
-    - category: Senadores_de_Colombia
-      country: co
-      language: es
-      topic: role.pep
-      position:
-        name: Senator
-        wikidata_id: Q19254253
-        country: co
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 0/0 already hold Q19254253
+    # - category: Senadores_de_Colombia
+    #   country: co
+    #   language: es
+    #   topic: role.pep
+    #   position:
+    #     name: Senator
+    #     wikidata_id: Q19254253
+    #     country: co
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Diputados_de_Colombia
       country: co
       language: es
       topic: role.pep
-    - category: Presidentes_de_Colombia
-      country: co
-      language: es
-      topic: role.pep
-      depth: 0
-      position:
-        name: President of Colombia
-        wikidata_id: Q853475
-        country: co
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 61/106 already hold Q853475; 45 leave the dataset (born-before-1920)
+    # - category: Presidentes_de_Colombia
+    #   country: co
+    #   language: es
+    #   topic: role.pep
+    #   depth: 0
+    #   position:
+    #     name: President of Colombia
+    #     wikidata_id: Q853475
+    #     country: co
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vicepresidencia_de_Colombia
       country: co
       language: es
@@ -1281,30 +1290,32 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Members_of_the_Senate_of_Venezuela
-      country: ve
-      negcats: |
-        Nicolás_Maduro
-      topic: role.pep
-      position:
-        name: Member of the Senate of Venezuela
-        wikidata_id: Q20081434
-        country: ve
-        topics:
-          - gov.legislative
-          - gov.national
-    - category: Presidents_of_Venezuela
-      country: ve
-      negcats: |
-        Nicolás_Maduro
-      topic: role.pep
-      position:
-        name: President of Venezuela
-        wikidata_id: Q11942698
-        country: ve
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 30/33 already hold Q20081434; 3 leave the dataset (born-before-1920)
+    # - category: Members_of_the_Senate_of_Venezuela
+    #   country: ve
+    #   negcats: |
+    #     Nicolás_Maduro
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the Senate of Venezuela
+    #     wikidata_id: Q20081434
+    #     country: ve
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
+    # retired 2026-08-23; 50/52 already hold Q11942698; 2 leave the dataset (born-before-1920)
+    # - category: Presidents_of_Venezuela
+    #   country: ve
+    #   negcats: |
+    #     Nicolás_Maduro
+    #   topic: role.pep
+    #   position:
+    #     name: President of Venezuela
+    #     wikidata_id: Q11942698
+    #     country: ve
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vice_presidents_of_Venezuela
       country: ve
       negcats: |
@@ -1339,19 +1350,20 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidentes_de_Venezuela
-      country: ve
-      language: es
-      negcats: |
-        Nicolás_Maduro
-      topic: role.pep
-      position:
-        name: President of Venezuela
-        wikidata_id: Q11942698
-        country: ve
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 29/31 already hold Q11942698; 2 leave the dataset (born-before-1920)
+    # - category: Presidentes_de_Venezuela
+    #   country: ve
+    #   language: es
+    #   negcats: |
+    #     Nicolás_Maduro
+    #   topic: role.pep
+    #   position:
+    #     name: President of Venezuela
+    #     wikidata_id: Q11942698
+    #     country: ve
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Ministros_por_presidente_de_Venezuela
       country: ve
       language: es
@@ -1385,16 +1397,17 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidents_of_Nicaragua
-      country: ni
-      topic: role.pep
-      position:
-        name: President of Nicaragua
-        wikidata_id: Q852448
-        country: ni
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 66/68 already hold Q852448; 2 leave the dataset (born-before-1920, long-dead)
+    # - category: Presidents_of_Nicaragua
+    #   country: ni
+    #   topic: role.pep
+    #   position:
+    #     name: President of Nicaragua
+    #     wikidata_id: Q852448
+    #     country: ni
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vice_presidents_of_Nicaragua
       country: ni
       topic: role.pep
@@ -1420,17 +1433,18 @@ config:
           - gov.head
     - category: Nicaraguan_politicians
       country: ni
-    - category: Presidentes_de_Nicaragua
-      country: ni
-      language: es
-      topic: role.pep
-      position:
-        name: President of Nicaragua
-        wikidata_id: Q852448
-        country: ni
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 65/67 already hold Q852448; 2 leave the dataset (born-before-1920, long-dead)
+    # - category: Presidentes_de_Nicaragua
+    #   country: ni
+    #   language: es
+    #   topic: role.pep
+    #   position:
+    #     name: President of Nicaragua
+    #     wikidata_id: Q852448
+    #     country: ni
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Ministros_de_Nicaragua
       country: ni
       language: es
@@ -1455,16 +1469,17 @@ config:
     - category: Political_office-holders_in_Guatemala
       country: gt
       topic: role.pep
-    - category: Presidents_of_Guatemala
-      country: gt
-      topic: role.pep
-      position:
-        name: President of Guatemala
-        wikidata_id: Q6085537
-        country: gt
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 21/25 already hold Q6085537; 4 leave the dataset (born-before-1920)
+    # - category: Presidents_of_Guatemala
+    #   country: gt
+    #   topic: role.pep
+    #   position:
+    #     name: President of Guatemala
+    #     wikidata_id: Q6085537
+    #     country: gt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vice_presidents_of_Guatemala
       country: gt
       topic: role.pep
@@ -1478,16 +1493,17 @@ config:
     - category: Government_ministers_of_Guatemala
       country: gt
       topic: role.pep
-    - category: Mayors_of_Guatemala_City
-      country: gt
-      topic: role.pep
-      position:
-        name: Mayor of Guatemala City
-        wikidata_id: Q116790781
-        country: gt
-        topics:
-          - gov.muni
-          - gov.head
+    # retired 2026-08-23; 7/9 already hold Q116790781; 2 leave the dataset (born-before-1920)
+    # - category: Mayors_of_Guatemala_City
+    #   country: gt
+    #   topic: role.pep
+    #   position:
+    #     name: Mayor of Guatemala City
+    #     wikidata_id: Q116790781
+    #     country: gt
+    #     topics:
+    #       - gov.muni
+    #       - gov.head
     - category: Members_of_the_Congress_of_Guatemala
       country: gt
       topic: role.pep
@@ -1501,17 +1517,18 @@ config:
     - category: Políticos_de_Guatemala
       country: gt
       language: es
-    - category: Presidentes_de_Guatemala
-      country: gt
-      language: es
-      topic: role.pep
-      position:
-        name: President of Guatemala
-        wikidata_id: Q6085537
-        country: gt
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 48/50 already hold Q6085537; 2 leave the dataset (born-before-1920, long-dead)
+    # - category: Presidentes_de_Guatemala
+    #   country: gt
+    #   language: es
+    #   topic: role.pep
+    #   position:
+    #     name: President of Guatemala
+    #     wikidata_id: Q6085537
+    #     country: gt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vicepresidentes_de_Guatemala
       country: gt
       language: es
@@ -1563,16 +1580,17 @@ config:
     - category: Government_ministers_of_Belarus
       country: by
       topic: role.pep
-    - category: Prime_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Prime Minister
-        wikidata_id: Q12379704
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 11/17 already hold Q12379704; 6 leave the dataset (born-before-1920)
+    # - category: Prime_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Prime Minister
+    #     wikidata_id: Q12379704
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
     - category: Deputy_prime_ministers_of_Belarus
       country: by
       topic: role.pep
@@ -1583,76 +1601,83 @@ config:
         topics:
           - gov.executive
           - gov.national
-    - category: Foreign_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Foreign Affairs
-        wikidata_id: Q2045068
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Defence_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Defence
-        wikidata_id: Q44035369
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Finance_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Finance
-        wikidata_id: Q106510813
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Interior_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Internal Affairs
-        wikidata_id: Q100699741
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Justice_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Justice
-        wikidata_id: Q106510814
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Health_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Health Care
-        wikidata_id: Q89775465
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Transport_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Transport and Communications
-        wikidata_id: Q60676745
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 9/10 already hold Q2045068; 1 leave the dataset (long-dead)
+    # - category: Foreign_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Foreign Affairs
+    #     wikidata_id: Q2045068
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 7/7 already hold Q44035369
+    # - category: Defence_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Defence
+    #     wikidata_id: Q44035369
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 3/3 already hold Q106510813
+    # - category: Finance_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Finance
+    #     wikidata_id: Q106510813
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 5/6 already hold Q100699741; 1 leave the dataset (born-before-1920)
+    # - category: Interior_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Internal Affairs
+    #     wikidata_id: Q100699741
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 7/7 already hold Q106510814
+    # - category: Justice_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Justice
+    #     wikidata_id: Q106510814
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 4/4 already hold Q89775465
+    # - category: Health_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Health Care
+    #     wikidata_id: Q89775465
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 2/2 already hold Q60676745
+    # - category: Transport_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Transport and Communications
+    #     wikidata_id: Q60676745
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
     - category: Communications_ministers_of_Belarus
       country: by
       topic: role.pep
@@ -1663,26 +1688,28 @@ config:
         topics:
           - gov.executive
           - gov.national
-    - category: Industry_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Industry
-        wikidata_id: Q106508605
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Information_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Information
-        wikidata_id: Q106399613
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 4/4 already hold Q106508605
+    # - category: Industry_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Industry
+    #     wikidata_id: Q106508605
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 3/3 already hold Q106399613
+    # - category: Information_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Information
+    #     wikidata_id: Q106399613
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
 
     - category: Members_of_the_Polish_Sejm_2023–2027
       country: pl
@@ -1908,25 +1935,27 @@ config:
 
     - category: Political_office-holders_in_Hungary
       country: hu
-    - category: Members_of_the_National_Assembly_of_Hungary_(2022–2026)
-      country: hu
-      topic: role.pep
-      position:
-        name: Member of the National Assembly of Hungary
-        wikidata_id: Q17590876
-        country: hu
-        topics:
-          - gov.legislative
-    - category: Országgyűlési_képviselők_(2022–2026)
-      country: hu
-      language: hu
-      topic: role.pep
-      position:
-        name: Member of the National Assembly of Hungary
-        wikidata_id: Q17590876
-        country: hu
-        topics:
-          - gov.legislative
+    # retired 2026-08-23; 172/172 already hold Q17590876
+    # - category: Members_of_the_National_Assembly_of_Hungary_(2022–2026)
+    #   country: hu
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the National Assembly of Hungary
+    #     wikidata_id: Q17590876
+    #     country: hu
+    #     topics:
+    #       - gov.legislative
+    # retired 2026-08-23; 209/209 already hold Q17590876
+    # - category: Országgyűlési_képviselők_(2022–2026)
+    #   country: hu
+    #   language: hu
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the National Assembly of Hungary
+    #     wikidata_id: Q17590876
+    #     country: hu
+    #     topics:
+    #       - gov.legislative
     - category: Országgyűlési_képviselők
       country: hu
       language: hu
@@ -1977,26 +2006,28 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidents_of_the_Senate_of_Spain
-      country: es
-      topic: role.pep
-      position:
-        name: President of the Senate of Spain
-        wikidata_id: Q1335465
-        country: es
-        topics:
-          - gov.legislative
-          - gov.national
-    - category: Prime_ministers_of_Spain
-      country: es
-      topic: role.pep
-      position:
-        name: Prime Minister of Spain
-        wikidata_id: Q844587
-        country: es
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 36/39 already hold Q1335465; 3 leave the dataset (born-before-1920)
+    # - category: Presidents_of_the_Senate_of_Spain
+    #   country: es
+    #   topic: role.pep
+    #   position:
+    #     name: President of the Senate of Spain
+    #     wikidata_id: Q1335465
+    #     country: es
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
+    # retired 2026-08-23; 15/116 already hold Q844587; 101 leave the dataset (born-before-1920)
+    # - category: Prime_ministers_of_Spain
+    #   country: es
+    #   topic: role.pep
+    #   position:
+    #     name: Prime Minister of Spain
+    #     wikidata_id: Q844587
+    #     country: es
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Deputy_Prime_Ministers_of_Spain
       country: es
       topic: role.pep
@@ -2075,16 +2106,17 @@ config:
     - category: Political_office-holders_in_Germany
       country: de
       topic: role.pep
-    - category: Members_of_the_Bundestag
-      country: de
-      topic: role.pep
-      position:
-        name: Member of the Bundestag
-        wikidata_id: Q1939555
-        country: de
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 1/1 already hold Q1939555
+    # - category: Members_of_the_Bundestag
+    #   country: de
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the Bundestag
+    #     wikidata_id: Q1939555
+    #     country: de
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Members_of_the_German_Bundesrat
       country: de
       topic: role.pep
@@ -2192,28 +2224,30 @@ config:
       language: lt
       country: lt
 
-    - category: Lietuvos_prezidentai
-      language: lt
-      country: lt
-      topic: role.pep
-      position:
-        name: President of Lithuania
-        wikidata_id: Q878222
-        country: lt
-        topics:
-          - gov.head
-          - gov.national
-    - category: Lietuvos_ministrai_pirmininkai
-      language: lt
-      country: lt
-      topic: role.pep
-      position:
-        name: Prime Minister of Lithuania
-        wikidata_id: Q845439
-        country: lt
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 4/4 already hold Q878222
+    # - category: Lietuvos_prezidentai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: President of Lithuania
+    #     wikidata_id: Q878222
+    #     country: lt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
+    # retired 2026-08-23; 18/19 already hold Q845439; 1 leave the dataset (long-dead)
+    # - category: Lietuvos_ministrai_pirmininkai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: Prime Minister of Lithuania
+    #     wikidata_id: Q845439
+    #     country: lt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Lietuvos_vicepremjerai
       language: lt
       country: lt
@@ -2322,28 +2356,30 @@ config:
           - gov.judicial
           - gov.national
 
-    - category: Lietuvos_banko_vadovai
-      language: lt
-      country: lt
-      topic: role.pep
-      position:
-        name: Governor of the Bank of Lithuania
-        wikidata_id: Q109496871
-        country: lt
-        topics:
-          - gov.financial
-          - gov.national
-    - category: Lietuvos_kariuomenės_vadai
-      language: lt
-      country: lt
-      topic: role.pep
-      position:
-        name: Chief of Defence of Lithuania
-        wikidata_id: Q55607326
-        country: lt
-        topics:
-          - gov.security
-          - gov.national
+    # retired 2026-08-23; 5/10 already hold Q109496871; 5 leave the dataset (born-before-1920)
+    # - category: Lietuvos_banko_vadovai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: Governor of the Bank of Lithuania
+    #     wikidata_id: Q109496871
+    #     country: lt
+    #     topics:
+    #       - gov.financial
+    #       - gov.national
+    # retired 2026-08-23; 7/16 already hold Q55607326; 9 leave the dataset (born-before-1920)
+    # - category: Lietuvos_kariuomenės_vadai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: Chief of Defence of Lithuania
+    #     wikidata_id: Q55607326
+    #     country: lt
+    #     topics:
+    #       - gov.security
+    #       - gov.national
 
     # Lietuvos_diplomatai as a whole also holds consuls and junior diplomats,
     # so only the ambassadors are marked.
@@ -2526,15 +2562,16 @@ config:
       topic: role.pep
       country: bn
 
-    - category: Australian_MPs_2022–2025
-      topic: role.pep
-      country: au
-      position:
-        name: Member of the Australian Parliament
-        wikidata_id: Q18912794
-        country: au
-        topics:
-          - gov.legislative
+    # retired 2026-08-23; 155/155 already hold Q18912794
+    # - category: Australian_MPs_2022–2025
+    #   topic: role.pep
+    #   country: au
+    #   position:
+    #     name: Member of the Australian Parliament
+    #     wikidata_id: Q18912794
+    #     country: au
+    #     topics:
+    #       - gov.legislative
     - category: 21st-century_Australian_politicians
       country: au
     - category: Political_office-holders_in_Australia
@@ -2842,18 +2879,19 @@ config:
           - gov.national
 
     # "Премьер-министр и министры"  # Prime Minister and Ministers
-    - category: Председатели Правительства РФ # Prime Ministers of the Russian Federation
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Prime Minister of the Russian Federation
-        wikidata_id: Q842386
-        country: ru
-        topics:
-          - gov.head
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 12/12 already hold Q842386
+    # - category: Председатели Правительства РФ # Prime Ministers of the Russian Federation
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Prime Minister of the Russian Federation
+    #     wikidata_id: Q842386
+    #     country: ru
+    #     topics:
+    #       - gov.head
+    #       - gov.executive
+    #       - gov.national
     - category: Первые заместители председателя Правительства Российской Федерации # First Deputy Prime Ministers of the Russian Federation
       topic: role.pep
       country: ru
@@ -2953,17 +2991,18 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Депутаты Государственной думы Российской Федерации VII созыва # Deputies of the State Duma of the Russian Federation VII convocation
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Deputy of the State Duma of the Russian Federation
-        wikidata_id: Q17276321
-        country: ru
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 498/498 already hold Q17276321
+    # - category: Депутаты Государственной думы Российской Федерации VII созыва # Deputies of the State Duma of the Russian Federation VII convocation
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Deputy of the State Duma of the Russian Federation
+    #     wikidata_id: Q17276321
+    #     country: ru
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Депутаты Государственной думы Российской Федерации VIII созыва # Deputies of the State Duma of the Russian Federation VIII convocation
       topic: role.pep
       country: ru
@@ -3052,16 +3091,17 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Члены Совета Федерации России от Камчатского края # Members of the Federation Council of Russia from Kamchatka Krai
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Member of the Federation Council
-        wikidata_id: Q4516946
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 4/4 already hold Q4516946
+    # - category: Члены Совета Федерации России от Камчатского края # Members of the Federation Council of Russia from Kamchatka Krai
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Federation Council
+    #     wikidata_id: Q4516946
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Члены Совета Федерации России от Республики Крым # Members of the Federation Council of Russia from the Republic of Crimea
       topic: role.pep
       language: ru
@@ -3072,26 +3112,28 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Члены Совета Федерации России от Приморского края # Members of the Federation Council of Russia from Primorsky Krai
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Member of the Federation Council
-        wikidata_id: Q4516946
-        topics:
-          - gov.legislative
-          - gov.national
-    - category: Члены Совета Федерации России от Рязанской области # Members of the Federation Council of Russia from Ryazan Oblast
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Member of the Federation Council
-        wikidata_id: Q4516946
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 10/11 already hold Q4516946; 1 leave the dataset (long-dead)
+    # - category: Члены Совета Федерации России от Приморского края # Members of the Federation Council of Russia from Primorsky Krai
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Federation Council
+    #     wikidata_id: Q4516946
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
+    # retired 2026-08-23; 13/14 already hold Q4516946; 1 leave the dataset (long-dead)
+    # - category: Члены Совета Федерации России от Рязанской области # Members of the Federation Council of Russia from Ryazan Oblast
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Federation Council
+    #     wikidata_id: Q4516946
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Члены Совета Федерации России от Хабаровского края # Members of the Federation Council of Russia from Khabarovsk Krai
       topic: role.pep
       country: ru
@@ -4062,17 +4104,18 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Думы Ханты-Мансийского автономного округа — Югры # Deputies of the Duma of the Khanty-Mansi Autonomous Okrug — Yugra
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Deputy of the Duma of Khanty-Mansi Autonomous Okrug — Yugra
-        wikidata_id: Q124755389
-        country: ru
-        topics:
-          - gov.legislative
-          - gov.state
+    # retired 2026-08-23; 13/13 already hold Q124755389
+    # - category: Депутаты Думы Ханты-Мансийского автономного округа — Югры # Deputies of the Duma of the Khanty-Mansi Autonomous Okrug — Yugra
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Deputy of the Duma of Khanty-Mansi Autonomous Okrug — Yugra
+    #     wikidata_id: Q124755389
+    #     country: ru
+    #     topics:
+    #       - gov.legislative
+    #       - gov.state
     - category: Депутаты Законодательного собрания Челябинской области # Deputies of the Legislative Assembly of the Chelyabinsk Region
       topic: role.pep
       country: ru
