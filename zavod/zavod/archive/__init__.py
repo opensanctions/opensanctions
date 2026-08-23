@@ -109,6 +109,15 @@ EXTRA_ARTIFACTS = [
     HASH_FILE,
     DELTA_INDEX_FILE,
 ]
+# The only files a failed run publishes: enough to surface the failure and
+# register the version, while any half-generated data files stay local.
+FAILURE_ARTIFACTS = [
+    INDEX_FILE,
+    ISSUES_FILE,
+    ISSUES_LOG,
+    VERSIONS_FILE,
+    MANIFEST_FILE,
+]
 TTL_SHORT = 10 * 60
 TTL_LONG = 7 * 24 * 60 * 60
 

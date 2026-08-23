@@ -34,7 +34,9 @@ class DatasetVersionResult(StrEnum):
     FAILURE = "failure"
 
 
-def get_base_dataset_metadata(dataset: Dataset, version: Version) -> dict[str, Any]:
+def get_base_dataset_metadata(
+    dataset: Dataset, version: Version, result: DatasetVersionResult
+) -> dict[str, Any]:
     """Build the barebones metadata block for a dataset, without artifact URLs."""
     viso = version.dt.isoformat(sep="T", timespec="seconds")
 
@@ -42,10 +44,13 @@ def get_base_dataset_metadata(dataset: Dataset, version: Version) -> dict[str, A
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": viso,
+        "resources": [],
     }
+    if result != DatasetVersionResult.SUCCESS:
+        return meta
 
     # Entity counts come from the statistics exporter's output for this run
-    # only: a failed run has no statistics file, so its index carries no counts.
+    # only: a failed run publishes no statistics, so its index carries no counts.
     statistics_path = dataset_artifact_path(dataset.name, version, STATISTICS_FILE)
     if statistics_path.is_file():
         with open(statistics_path) as fh:
@@ -96,7 +101,7 @@ def write_dataset_index(
         version=version.id,
         is_collection=dataset.is_collection,
     )
-    meta = get_base_dataset_metadata(dataset, version)
+    meta = get_base_dataset_metadata(dataset, version, result)
     meta.update(dataset.to_opensanctions_dict(catalog))
 
     # Remove redundant dataset hierarchy metadata
@@ -122,8 +127,8 @@ def write_dataset_index(
     meta["statistics_url"] = make_artifact_url(dataset.name, version, STATISTICS_FILE)
 
     delta_index_path = dataset_artifact_path(dataset.name, version, DELTA_INDEX_FILE)
-    if delta_index_path.is_file():
-        # Only generated for successful exports:
+    if result == DatasetVersionResult.SUCCESS and delta_index_path.is_file():
+        # Only generated and published for successful exports:
         meta["delta_url"] = make_artifact_url(dataset.name, version, DELTA_INDEX_FILE)
     else:
         # If the delta index is not available, try to find the newest delta index
