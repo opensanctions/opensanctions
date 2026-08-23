@@ -58,7 +58,7 @@ class TimeStampIndex:
         index = cls(dataset)
         version = get_last_successful_version(dataset.name)
         if version is not None:
-            index.index(stream_statements(dataset, version, external=False))
+            index.index(stream_statements(dataset.name, version, external=False))
         return index
 
     def get(self, entity_id: str) -> dict[str, str]:

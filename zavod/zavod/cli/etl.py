@@ -5,13 +5,14 @@ import click
 from followthemoney.dataset import Version
 
 from zavod import settings
-from zavod.archive import clear_data_path, create_artifact_path
+from zavod.archive import clear_data_path
 from zavod.cli import cli, DatasetInPath, _load_dataset, log
 from zavod.crawl import crawl_dataset
 from zavod.exc import RunFailedException
 from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, archive_failure
+from zavod.runtime.manifest import Manifest
 from zavod.store import get_store
 from zavod.tools.load_db import load_dataset_to_db
 
@@ -55,7 +56,19 @@ def export(
         log.info(f"Dataset is disabled, skipping: {dataset.name}")
         sys.exit(0)
     linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
+    if dataset.is_collection:
+        manifest = Manifest.create(dataset, run_version)
+    else:
+        try:
+            manifest = Manifest.load_run(dataset, run_version)
+        except FileNotFoundError:
+            log.error(
+                "No manifest found for this run, crawl the dataset first",
+                dataset=dataset.name,
+                version=run_version.id,
+            )
+            sys.exit(1)
+    store = get_store(dataset, linker, manifest)
     try:
         store.sync(clear=rebuild_store)
         view = store.view(dataset, external=False)
@@ -109,11 +122,12 @@ def run(
         except RunFailedException:
             archive_failure(dataset, run_version)
             sys.exit(1)
+        manifest = Manifest.load_run(dataset, run_version)
     else:
-        create_artifact_path(dataset.name, run_version)
+        manifest = Manifest.create(dataset, run_version)
 
     linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
+    store = get_store(dataset, linker, manifest)
     # Export and validation
     try:
         store.sync(clear=True)
@@ -131,7 +145,7 @@ def run(
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            load_dataset_to_db(dataset, linker, external=False)
+            load_dataset_to_db(dataset, linker, manifest, external=False)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception(f"Failed to publish {dataset.name!r}")

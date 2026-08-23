@@ -9,6 +9,7 @@ from nomenklatura.settings import STATEMENT_BATCH
 from zavod.archive import clear_data_path
 from zavod.cli import cli, DatasetInPath, STMT_FORMATS, _load_dataset, log
 from zavod.integration import get_dataset_linker
+from zavod.runtime.manifest import Manifest
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.load_db import load_dataset_to_db
 
@@ -25,9 +26,11 @@ def load_db(
     try:
         dataset = _load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
+        manifest = Manifest.get_transient(dataset)
         load_dataset_to_db(
             dataset,
             linker,
+            manifest,
             batch_size=batch_size,
             external=external,
         )
@@ -47,9 +50,11 @@ def dump_file(
     try:
         dataset = _load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
+        manifest = Manifest.get_transient(dataset)
         dump_dataset_to_file(
             dataset,
             linker,
+            manifest,
             out_path,
             format=format.lower(),
             external=external,
