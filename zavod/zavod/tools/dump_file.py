@@ -5,6 +5,7 @@ from nomenklatura.resolver import Linker
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.runtime.manifest import Manifest
 from zavod.tools.util import iter_output_statements, unique_statements
 
 log = get_logger(__name__)
@@ -13,6 +14,7 @@ log = get_logger(__name__)
 def dump_dataset_to_file(
     scope: Dataset,
     linker: Linker[Entity],
+    manifest: Manifest,
     out_path: Path,
     format: str,
     external: bool = True,
@@ -22,6 +24,7 @@ def dump_dataset_to_file(
 
     Args:
         scope: The dataset to load from the archive.
+        manifest: The manifest pinning the dataset versions to read.
         out_path: The database URI to load into.
         format: Format name defined by nomenklatura
         external: Include statements that are enrichment candidates.
@@ -30,7 +33,9 @@ def dump_dataset_to_file(
         writer = get_statement_writer(fh, format)
         total_count: int = 0
         for dataset in scope.leaves:
-            output = iter_output_statements(dataset, linker, external=external)
+            output = iter_output_statements(
+                dataset, linker, manifest, external=external
+            )
             stmts = unique_statements(output)
             for idx, stmt in enumerate(stmts):
                 total_count += 1

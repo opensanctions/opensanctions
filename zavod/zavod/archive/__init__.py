@@ -60,7 +60,6 @@ successful version reference.
 import shutil
 from pathlib import Path
 from functools import lru_cache
-from typing import TYPE_CHECKING
 from typing import TextIO
 from collections.abc import Generator
 from rigour.mime.types import JSON
@@ -72,9 +71,6 @@ from zavod import settings
 from zavod.logs import get_logger
 from zavod.archive.backend import get_archive_backend, ArchiveObject
 from zavod.archive.cdn import invalidate_archive_cache
-
-if TYPE_CHECKING:
-    from zavod.meta.dataset import Dataset
 
 log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]
@@ -92,6 +88,7 @@ RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
 VERSIONS_FILE = "versions.json"
+MANIFEST_FILE = "manifest.json"
 # HACK: DatasetResources are defined as downloadable files of a dataset.
 # A couple of exporters use this as a mechanism to get files archived,
 # but their files are listed elsewhere in the dataset metadata so we don't
@@ -107,6 +104,7 @@ EXTRA_ARTIFACTS = [
     INDEX_FILE,
     STATEMENTS_FILE,
     VERSIONS_FILE,
+    MANIFEST_FILE,
     RESOURCES_FILE,
     HASH_FILE,
     DELTA_INDEX_FILE,
@@ -199,6 +197,21 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
         history = get_version_history(dataset_name, history.items[0])
 
 
+def latest_local_artifact_version(dataset_name: str, artifact: str) -> Version | None:
+    """Find the newest local artifact directory that contains the given file.
+
+    Used when pinning a manifest: a locally crawled dataset should be consumed
+    at the version that actually produced data, and failed runs (whose
+    statements are unlinked) are skipped by requiring the file's presence."""
+    path = dataset_data_path(dataset_name) / "_artifacts"
+    if not path.is_dir():
+        return None
+    for entry in sorted(path.iterdir(), reverse=True):
+        if entry.is_dir() and entry.joinpath(artifact).is_file():
+            return Version.from_string(entry.name)
+    return None
+
+
 def get_artifact_object(
     dataset_name: str, version: Version, resource: str
 ) -> ArchiveObject | None:
@@ -285,51 +298,28 @@ def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
         yield stmt
 
 
-def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
-    """Create a generator that yields all statements in the given dataset."""
-    for scope in dataset.leaves:
-        yield from _iter_scope_statements(scope, external=external)
-
-
-def iter_local_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
-    """Create a generator that yields all statements in the given dataset."""
-    assert not dataset.is_collection
-    path = dataset_artifact_path(dataset.name, settings.RUN_VERSION, STATEMENTS_FILE)
-    if not path.exists():
-        raise FileNotFoundError(f"Statements not found: {dataset.name}")
+def iter_statements_path(path: Path, external: bool = True) -> StatementGen:
+    """Yield the statements stored in a local statements file."""
     with open(path) as fh:
         yield from _read_fh_statements(fh, external)
 
 
-def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
-    try:
-        yield from iter_local_statements(dataset, external=external)
-        return
-    except FileNotFoundError:
-        pass
-
-    version = get_last_successful_version(dataset.name)
-    if version is None:
-        log.warning(f"No last successful version found for: {dataset.name}")
-        return
-
-    yield from stream_statements(dataset, version, external=external)
-
-
 def stream_statements(
-    dataset: "Dataset", version: Version, external: bool = True
+    dataset_name: str, version: Version, external: bool = True
 ) -> StatementGen:
-    """Load the statements from the previous release of the dataset by streaming them
-    from the data archive."""
-    if dataset.is_collection:
-        raise TypeError(f"Cannot stream collection: {dataset.name}")
-    object = get_artifact_object(dataset.name, version, STATEMENTS_FILE)
+    """Stream the statements of a specific dataset version from the archive.
+
+    Raises FileNotFoundError when the archive holds no statements for that
+    version: callers name an exact version, so absence is an inconsistency
+    rather than a condition to skip over."""
+    object = get_artifact_object(dataset_name, version, STATEMENTS_FILE)
     if object is None:
-        log.error(f"Cannot load statements for: {dataset.name}")
-        return
+        raise FileNotFoundError(
+            f"Statements for {dataset_name}@{version.id} not found in the archive"
+        )
     log.info(
         "Streaming statements...",
-        current=dataset.name,
+        current=dataset_name,
         object=object.name,
     )
     with object.open() as fh:

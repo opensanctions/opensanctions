@@ -7,8 +7,9 @@ from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.context import Context, ContextStats
 from zavod.exc import RunFailedException
-from zavod.archive import create_artifact_path, dataset_data_path
+from zavod.archive import dataset_data_path
 from zavod.runtime.loader import load_entry_point
+from zavod.runtime.manifest import Manifest
 from zavod.runner.enrich import enrich
 from zavod.reset import reset_caches
 
@@ -28,7 +29,7 @@ def crawl_dataset(
         log.info(f"Source is disabled: {dataset.name}")
         return ContextStats()
 
-    create_artifact_path(dataset.name, version)
+    Manifest.create(dataset, version)
     context = Context(dataset, version, dry_run=dry_run)
     try:
         context.begin()

@@ -7,6 +7,7 @@ from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.stateful.model import statement_table
+from zavod.runtime.manifest import Manifest
 from zavod.tools.util import iter_output_statements
 
 log = get_logger(__name__)
@@ -15,6 +16,7 @@ log = get_logger(__name__)
 def load_dataset_to_db(
     scope: Dataset,
     linker: Linker[Entity],
+    manifest: Manifest,
     batch_size: int = STATEMENT_BATCH,
     external: bool = True,
 ) -> None:
@@ -23,7 +25,7 @@ def load_dataset_to_db(
 
     Args:
         scope: The dataset to load from the archive.
-        database_uri: The database URI to load into.
+        manifest: The manifest pinning the dataset versions to read.
         batch_size: The number of statements to insert in a single batch.
         external: Include statements that are enrichment candidates.
     """
@@ -36,6 +38,6 @@ def load_dataset_to_db(
             engine,
             statement_table,
             dataset.name,
-            iter_output_statements(dataset, linker, external=external),
+            iter_output_statements(dataset, linker, manifest, external=external),
             batch_size=batch_size,
         )
