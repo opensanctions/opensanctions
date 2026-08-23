@@ -53,7 +53,6 @@ def test_invalidate_dataset_urls(
 
     invalidate_dataset_urls(testdataset1.name)
     assert purged == [
-        f"{ARTIFACTS}/{testdataset1.name}/{VERSIONS_FILE}",
         f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
         f"{DATASETS}/{LATEST}/{testdataset1.name}/*",
     ]

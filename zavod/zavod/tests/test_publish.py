@@ -92,8 +92,6 @@ def test_publish_dataset(
     } | STANDARD_EXPORTS  # fmt: skip
 
     assert purged == [
-        # Once from publish_version_history, once from invalidate_dataset_urls:
-        f"{ARTIFACTS}/{testdataset1.name}/{VERSIONS_FILE}",
         f"{ARTIFACTS}/{testdataset1.name}/{VERSIONS_FILE}",
         f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
         f"{DATASETS}/latest/{testdataset1.name}/*",

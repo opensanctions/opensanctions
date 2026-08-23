@@ -106,7 +106,6 @@ def run(
 
     if dataset.model.disabled:
         log.info(f"Dataset is disabled, skipping: {dataset.name}")
-        # archive_failure(dataset)
         sys.exit(0)
 
     run_version = settings.RUN_VERSION
