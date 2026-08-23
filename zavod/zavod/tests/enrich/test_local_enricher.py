@@ -2,6 +2,7 @@ import shutil
 from copy import deepcopy
 
 import pytest
+from followthemoney.dataset import Version
 from nomenklatura.blocker.index import BlockingMatches
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
@@ -18,6 +19,7 @@ from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
 from zavod.store import get_store
+from zavod.tests.util import get_manifest, make_context
 
 DATASET_DATA = {
     "name": "test_enricher",
@@ -63,10 +65,10 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
     """We match and expand an entity with a similar name"""
 
     # Make a little subject dataset
-    crawl_dataset(testdataset_enrich_subject)
+    crawl_dataset(testdataset_enrich_subject, settings.RUN_VERSION)
 
     # Treat testdataset1 as the target dataset
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
 
     # Enrich the subject against the target
     with make_session() as session:
@@ -75,13 +77,13 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
         assert list(resolver.get_candidates()) == []
         assert list(resolver.get_judgements()) == []
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
-    crawl_dataset(enricher_ds)
+    crawl_dataset(enricher_ds, settings.RUN_VERSION)
     assert enricher_ds.name == "test_enricher"
 
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        store = get_store(enricher_ds, resolver)
+        store = get_store(get_manifest(enricher_ds), resolver)
         store.sync(clear=True)
         internals = list(store.view(enricher_ds, external=False).entities())
         assert len(internals) == 0, internals
@@ -94,12 +96,12 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
 
     # Enrich again, now with internals
     clear_data_path(enricher_ds.name)
-    crawl_dataset(enricher_ds)
+    crawl_dataset(enricher_ds, settings.RUN_VERSION)
 
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        store = get_store(enricher_ds, resolver)
+        store = get_store(get_manifest(enricher_ds), resolver)
         store.sync(clear=True)
         internals = list(store.view(enricher_ds, external=False).entities())
         assert len(internals) == 3, internals
@@ -117,12 +119,11 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
         owner = view.get_entity(ownership.get("owner")[0])
         assert owner.id == "osv-oswell-spencer"
         store.close()
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
 def test_enrich_id_match(vcontext: Context):
     """We match an entity with same ID"""
-    crawl_dataset(vcontext.dataset)
+    crawl_dataset(vcontext.dataset, Version.new())
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
     entity = Entity.from_data(vcontext.dataset, JON_DOVER)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
@@ -138,12 +139,10 @@ def test_enrich_id_match(vcontext: Context):
     assert len(results) == 1, results
     assert str(results[0].id) == entity.id, results[0]
 
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
 
 def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     """test that we don't expand to sibling securities via the issuer"""
-    crawl_dataset(testdataset_securities)
+    crawl_dataset(testdataset_securities, settings.RUN_VERSION)
     enricher = load_enricher(vcontext, DATASET_DATA, testdataset_securities.name)
     entity = Entity.from_data(vcontext.dataset, AAA_USD_ISK)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
@@ -162,12 +161,10 @@ def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     assert internals[1].schema.name == "Organization"
     assert internals[1].id == "osv-lei-a"
 
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
 
 def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     """test that we expand to the securities of an issuer"""
-    crawl_dataset(testdataset_securities)
+    crawl_dataset(testdataset_securities, settings.RUN_VERSION)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
     entity = Entity.from_data(vcontext.dataset, AAA_BANK)
     candidates = {id_.id: cands for id_, cands in enricher.candidates([entity])}
@@ -188,15 +185,13 @@ def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
     assert internals[1].id != internals[2].id
     assert internals[1].id[:-1] == internals[2].id[:-1] == "osv-isin-"
 
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
 
 def test_full_candidate_list_scored(vcontext: Context):
     """The blocker hands over a ranked, pre-trimmed candidate list; every entry
     in it gets matcher-scored. A true match at the tail of the list, behind a
     long run of widely-spread higher index scores, must still be found (the
     former max_bin walk would have halted before reaching it)."""
-    crawl_dataset(vcontext.dataset)
+    crawl_dataset(vcontext.dataset, Version.new())
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
     entity = Entity.from_data(vcontext.dataset, UMBRELLA_CORP)
 
@@ -209,12 +204,10 @@ def test_full_candidate_list_scored(vcontext: Context):
     assert len(results) == 1, results
     assert str(results[0].id) == "osv-umbrella-corp", results[0]
 
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
 
 def test_cutoff(vcontext: Context):
     """We don't match an entity if its score is lower than the cutoff."""
-    crawl_dataset(vcontext.dataset)
+    crawl_dataset(vcontext.dataset, Version.new())
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["cutoff"] = 0.99
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
@@ -223,12 +216,10 @@ def test_cutoff(vcontext: Context):
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
 
 def test_limit(vcontext: Context):
     """We only return limit matches per entity"""
-    crawl_dataset(vcontext.dataset)
+    crawl_dataset(vcontext.dataset, Version.new())
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["limit"] = 0
     enricher = load_enricher(vcontext, dataset_data, "testdataset1")
@@ -237,20 +228,17 @@ def test_limit(vcontext: Context):
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
 
 def test_topic_gated_requires_topics(testdataset1: Dataset):
     """topic_gated without `topics` is a config error: subjects wouldn't be
     topic-filtered, so untagged matches could emit disconnected supporting
     entities."""
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["topic_gated"] = True
     enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
     with pytest.raises(RunFailedException):
-        crawl_dataset(enricher_ds)
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+        crawl_dataset(enricher_ds, settings.RUN_VERSION)
 
 
 def test_topic_gated_prunes_unpublishable_references(
@@ -260,7 +248,9 @@ def test_topic_gated_prunes_unpublishable_references(
     (e.g. a security whose issuer has no risk topic) is emitted without that
     reference, so the published dataset has no dangling references."""
     clear_data_path(testdataset_enrich_subject.name)
-    crawl_dataset(testdataset_securities)  # enriching against this
+    crawl_dataset(
+        testdataset_securities, settings.RUN_VERSION
+    )  # enriching against this
 
     # The subject store holds a security with a gating topic, but no issuer.
     subject_security = {
@@ -268,7 +258,7 @@ def test_topic_gated_prunes_unpublishable_references(
         "id": "sub-isin-a",
         "properties": {"name": ["AAA USD ISK"], "topics": ["reg.warn"]},
     }
-    subject_ctx = Context(testdataset_enrich_subject)
+    subject_ctx = make_context(testdataset_enrich_subject)
     subject_ctx.emit(Entity.from_data(testdataset_enrich_subject, subject_security))
     subject_ctx.close()
 
@@ -284,7 +274,7 @@ def test_topic_gated_prunes_unpublishable_references(
     enricher_ds = make_enricher_dataset(dataset_data, testdataset_securities.name)
     clear_data_path(enricher_ds.name)
     with capture_logs() as cap_logs:
-        crawl_dataset(enricher_ds)
+        crawl_dataset(enricher_ds, settings.RUN_VERSION)
     assert {
         "event": "Demoting reference to unpublishable entity to external",
         "log_level": "info",
@@ -296,7 +286,7 @@ def test_topic_gated_prunes_unpublishable_references(
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        store = get_store(enricher_ds, resolver)
+        store = get_store(get_manifest(enricher_ds), resolver)
         store.sync(clear=True)
         view_internal = store.view(enricher_ds, external=False)
         view_all = store.view(enricher_ds, external=True)
@@ -316,7 +306,6 @@ def test_topic_gated_prunes_unpublishable_references(
         assert security_all is not None
         assert "osv-lei-a" in security_all.get("issuer")
         store.close()
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
 def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
@@ -325,8 +314,8 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     that neighbour is tagged in the subject store, a subsequent run promotes
     both the node and the connecting edge to internal."""
     clear_data_path(testdataset_enrich_subject.name)
-    crawl_dataset(testdataset_enrich_subject)  # enriching this
-    crawl_dataset(testdataset1)  # enriching against this
+    crawl_dataset(testdataset_enrich_subject, settings.RUN_VERSION)  # enriching this
+    crawl_dataset(testdataset1, settings.RUN_VERSION)  # enriching against this
 
     # Confirm the match (committed on block exit, before the enrich crawl)
     with make_session() as session:
@@ -339,12 +328,12 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     dataset_data["config"]["topics"] = ["reg.warn", "crime.boss"]
     enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
     clear_data_path(enricher_ds.name)
-    crawl_dataset(enricher_ds)
+    crawl_dataset(enricher_ds, settings.RUN_VERSION)
 
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        store = get_store(enricher_ds, resolver)
+        store = get_store(get_manifest(enricher_ds), resolver)
         store.sync(clear=True)
         view_internal = store.view(enricher_ds, external=False)
         view_all = store.view(enricher_ds, external=True)
@@ -372,7 +361,7 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     # --- Round 2: give oswell-spencer a risk topic in the subject store ---
     # Simulate what the graph analyzer would do after the first enricher run:
     # tag an adjacent (currently external) entity with a topic and emit external.
-    subject_ctx = Context(testdataset_enrich_subject)
+    subject_ctx = make_context(testdataset_enrich_subject)
     subject_ctx.emit(Entity.from_data(testdataset_enrich_subject, UMBRELLA_CORP))
     oswell_patch = Entity.from_data(
         testdataset_enrich_subject,
@@ -390,12 +379,12 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
         ignore_errors=True,
     )
     clear_data_path(enricher_ds.name)
-    crawl_dataset(enricher_ds)
+    crawl_dataset(enricher_ds, settings.RUN_VERSION)
 
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        store = get_store(enricher_ds, resolver)
+        store = get_store(get_manifest(enricher_ds), resolver)
         store.sync(clear=True)
         view_internal = store.view(enricher_ds, external=False)
         view_all = store.view(enricher_ds, external=True)
@@ -416,4 +405,3 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
         # ownership edge: both endpoints now have topics → must be internal
         assert view_internal.get_entity(ownership_id) is not None
         store.close()
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)

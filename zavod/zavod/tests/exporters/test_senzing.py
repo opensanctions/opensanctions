@@ -2,7 +2,7 @@ from json import loads
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.senzing import SenzingExporter
 from zavod.crawl import crawl_dataset
 from zavod.tests.exporters.util import harnessed_export
@@ -11,10 +11,10 @@ from zavod.tests.exporters.util import harnessed_export
 def test_senzing(testdataset1: Dataset):
     """Tests whether the senzing output contain the expected entities, with expected
     keys and value formats."""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(SenzingExporter, testdataset1)
 
     with open(dataset_path / "senzing.json") as senzing_file:

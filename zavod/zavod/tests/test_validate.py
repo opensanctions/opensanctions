@@ -2,14 +2,13 @@ import uuid
 
 from structlog.testing import capture_logs
 
-from zavod import Entity
-from zavod.context import Context
+from zavod import Entity, settings
 from zavod.crawl import crawl_dataset
 from zavod.exporters.consolidate import consolidate_entity
 from zavod.exporters.fragment import ViewFragment
 from zavod.runtime.statistics import Statistics
 from zavod.meta.dataset import Dataset
-from zavod.tests.exporters.util import get_test_view
+from zavod.tests.util import get_test_view, make_context
 from zavod.validators import (
     EntityReferenceValidator,
     SelfReferenceValidator,
@@ -27,7 +26,11 @@ BASE_DATASET_CONFIG = {
 
 def run_validator(clazz: type[BaseValidator], dataset: Dataset):
     """Run a single validator over the dataset, mirroring the export loop."""
-    context = Context(dataset)
+    context = make_context(dataset)
+    # A completed run always has a statements file, even when it emitted
+    # nothing (see crawl_dataset); mirror that so the store build can't fall
+    # through to the archive.
+    context.finalize_statements()
     # Pass clear so that if the test emits statements and re-validates, we pick that up.
     view = get_test_view(dataset, clear=True)
 
@@ -49,7 +52,7 @@ def run_validator(clazz: type[BaseValidator], dataset: Dataset):
 
 
 def emit_entity(ds: Dataset, schema: str, properties: dict[str, list[str]]) -> Entity:
-    context = Context(ds)
+    context = make_context(ds)
     context.begin()
 
     entity = Entity.from_data(
@@ -63,7 +66,7 @@ def emit_entity(ds: Dataset, schema: str, properties: dict[str, list[str]]) -> E
 
 
 def test_dangling_references(testdataset3) -> None:
-    crawl_dataset(testdataset3)
+    crawl_dataset(testdataset3, settings.RUN_VERSION)
     validator, logs = run_validator(EntityReferenceValidator, testdataset3)
 
     assert logs == {
@@ -83,7 +86,7 @@ def test_property_range() -> None:
     # All of these have to be emitted through one context: each context run
     # replaces the dataset's statements rather than appending to them.
     ds = Dataset({**BASE_DATASET_CONFIG, "name": "test_range"})
-    context = Context(ds)
+    context = make_context(ds)
     context.begin()
 
     def make(schema: str, properties: dict[str, list[str]]) -> Entity:
@@ -127,7 +130,7 @@ def test_entity_reference_toggle() -> None:
 
 
 def test_self_references(testdataset3) -> None:
-    crawl_dataset(testdataset3)
+    crawl_dataset(testdataset3, settings.RUN_VERSION)
     validator, logs = run_validator(SelfReferenceValidator, testdataset3)
 
     assert logs == {
@@ -144,7 +147,7 @@ def test_self_references(testdataset3) -> None:
 
 
 def test_assertions(testdataset3) -> None:
-    crawl_dataset(testdataset3)
+    crawl_dataset(testdataset3, settings.RUN_VERSION)
     validator, logs = run_validator(StatisticsAssertionsValidator, testdataset3)
     assert (
         "error",
