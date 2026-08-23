@@ -60,7 +60,7 @@ def export(
         manifest = Manifest.create(dataset, run_version)
     else:
         try:
-            manifest = Manifest.load_run(dataset, run_version)
+            manifest = Manifest.load_artifact(dataset, run_version)
         except FileNotFoundError:
             log.error(
                 "No manifest found for this run, crawl the dataset first",
@@ -122,7 +122,7 @@ def run(
         except RunFailedException:
             archive_failure(dataset, run_version)
             sys.exit(1)
-        manifest = Manifest.load_run(dataset, run_version)
+        manifest = Manifest.load_artifact(dataset, run_version)
     else:
         manifest = Manifest.create(dataset, run_version)
 

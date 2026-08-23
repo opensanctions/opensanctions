@@ -105,7 +105,7 @@ class Manifest:
         return manifest
 
     @classmethod
-    def load_run(cls, dataset: Dataset, version: Version) -> "Manifest":
+    def load_artifact(cls, dataset: Dataset, version: Version) -> "Manifest":
         """Load the manifest created for a run of the given dataset."""
         path = dataset_artifact_path(dataset.name, version, MANIFEST_FILE)
         return cls.load(dataset, path)
