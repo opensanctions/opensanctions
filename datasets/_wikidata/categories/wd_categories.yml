@@ -289,7 +289,7 @@ config:
     - category: Politicians_from_the_Gaza_Strip
       topic: role.pep
       country: ps
-    - category: Hamas_military_members
+    - category: Hamas_military_commanders
       topic: mil
     - category: Members_of_the_Palestinian_Legislative_Council
       topic: role.pep
@@ -299,9 +299,9 @@ config:
       country: ps
 
     # Syria
-    - category: Al-Assad_family
+    - category: Assad_family
       topic: poi
-    - category: Syrian_individuals_subject_to_the_European_Union_sanctions
+    - category: Syrian_individuals_subject_to_European_Union_sanctions
     - category: Syrian_individuals_subject_to_U.S._Department_of_the_Treasury_sanctions
     - category: Syrian_individuals_subject_to_United_Kingdom_sanctions
     - category: Individuals_sanctioned_by_the_United_States_Department_of_State
@@ -512,7 +512,7 @@ config:
         country: zz
         topics:
           - gov.igo
-    - category: Under-Secretaries-General_of_the_United_Nations
+    - category: Under-secretaries-general_of_the_United_Nations
       topic: role.pep
       position:
         name: Under-Secretary-General of the United Nations
@@ -520,7 +520,7 @@ config:
         country: zz
         topics:
           - gov.igo
-    - category: OSCE_Secretaries_General
+    - category: OSCE_secretaries_general
       topic: role.pep
       position:
         name: Secretary General of the OSCE
@@ -535,7 +535,7 @@ config:
         country: zz
         topics:
           - gov.igo
-    - category: Council_of_Europe_Secretaries-General
+    - category: Secretaries_general_of_the_Council_of_Europe
       topic: role.pep
       position:
         name: Secretary General of the Council of Europe
@@ -594,7 +594,7 @@ config:
       topic: role.pep
     - category: International_Telecommunication_Union_people
       topic: role.pep
-    - category: World_Health_Organization_director-generals
+    - category: World_Health_Organization_directors-general
       topic: role.pep
       position:
         name: Director-General of the World Health Organization
@@ -701,7 +701,7 @@ config:
       topic: role.pep
     - category: African_Union_officials
       topic: role.pep
-    - category: Directors-General_of_the_World_Trade_Organization
+    - category: Directors-general_of_the_World_Trade_Organization
       topic: role.pep
     - category: Presidents_of_FIFA
       topic: poi
@@ -734,7 +734,7 @@ config:
     - category: Governors_of_Zhejiang
       topic: role.pep
       country: cn
-    - category: Regional_leaders_in_the_People's_Republic_of_China
+    - category: Regional_leaders_in_China
       depth: 7
       search_max_results: 5000
       topic: role.pep
@@ -758,7 +758,7 @@ config:
       topic: poi
     - category: People_associated_with_the_2020_United_States_presidential_election
     - category: People_associated_with_the_2016_United_States_presidential_election
-    - category: Current_justices_of_the_Supreme_Court_of_the_United_States
+    - category: Justices_of_the_Supreme_Court_of_the_United_States
       topic: role.pep
       country: us
       position:
@@ -794,7 +794,7 @@ config:
       position:
         name: US Presidential Advisor
         country: us
-    - category: White_House_Counsels
+    - category: White_House_counsels
       topic: role.pep
       country: us
       position:
@@ -1743,7 +1743,6 @@ config:
           - gov.legislative
     - category: Members_of_the_Senate_of_Poland_2023–2027
       country: pl
-      language: pl
       topic: role.pep
       position:
         name: Senator of the Republic of Poland
@@ -2037,7 +2036,7 @@ config:
     #     topics:
     #       - gov.head
     #       - gov.national
-    - category: Deputy_Prime_Ministers_of_Spain
+    - category: Deputy_prime_ministers_of_Spain
       country: es
       topic: role.pep
       position:
@@ -2126,22 +2125,12 @@ config:
     #     topics:
     #       - gov.legislative
     #       - gov.national
-    - category: Members_of_the_German_Bundesrat
-      country: de
-      topic: role.pep
-      position:
-        name: Member of the Bundesrat
-        wikidata_id: Q15835370
-        country: de
-        topics:
-          - gov.legislative
-          - gov.national
 
     # country: Sweden
     - category: Political_office-holders_in_Sweden
       country: se
       topic: role.pep
-    - category: Svenske_politikere
+    - category: Svenska_politiker
       language: "sv"
     - category: Lists_of_political_office-holders_in_Norway
       country: "no"
@@ -2220,8 +2209,6 @@ config:
       country: fo
       topic: role.pep
     - category: Lists_of_political_office-holders_in_Finland
-      country: fi
-    - category: Lists_of_office-holders_in_Finland
       country: fi
     - category: Political_office-holders_in_Finland
       country: fi
@@ -2551,18 +2538,9 @@ config:
     - category: Singaporean_military_leaders
       topic: role.pep
       country: sg
-    - category: List_of_serving_general_and_flag_officers_of_the_Singapore_Armed_Forces
-      topic: role.pep
-      country: sg
-      position:
-        name: Senior Military Leadership
-        country: sg
-        topics:
-          - mil
-          - gov.national
 
     # country: Timor-Leste
-    - category: Political_office-holders_in_East_Timor
+    - category: Political_office-holders_in_Timor-Leste
       topic: role.pep
       country: tl
 
@@ -2776,7 +2754,7 @@ config:
       country: lb
 
     # country: State of Palestine
-    - category: Political_office-holders_in_the_State_of_Palestine
+    - category: Political_office-holders_in_Palestine
       topic: role.pep
       country: ps
 
@@ -3346,7 +3324,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Белгородской областной Думы # Deputies of the Belgorod Oblast Duma
+    - category: Депутаты Белгородской областной думы # Deputies of the Belgorod Oblast Duma
       topic: role.pep
       country: ru
       language: ru
@@ -3357,7 +3335,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Брянской областной Думы # Deputies of the Bryansk Regional Duma
+    - category: Депутаты Брянской областной думы # Deputies of the Bryansk Regional Duma
       topic: role.pep
       country: ru
       language: ru
@@ -3390,7 +3368,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Волгоградской областной Думы # Deputies of the Volgograd Regional Duma
+    - category: Депутаты Волгоградской областной думы # Deputies of the Volgograd Regional Duma
       topic: role.pep
       country: ru
       language: ru
@@ -3445,7 +3423,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Законодательного Собрания Забайкальского края # Deputies of the Legislative Assembly of the Trans-Baikal Territory
+    - category: Депутаты Законодательного собрания Забайкальского края # Deputies of the Legislative Assembly of the Trans-Baikal Territory
       topic: role.pep
       country: ru
       language: ru
@@ -3456,7 +3434,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Ивановской областной Думы # Deputies of the Ivanovo Regional Duma
+    - category: Депутаты Ивановской областной думы # Deputies of the Ivanovo Regional Duma
       topic: role.pep
       country: ru
       language: ru
@@ -3609,7 +3587,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Костромской областной Думы # Deputies of the Kostroma Regional Duma
+    - category: Депутаты Костромской областной думы # Deputies of the Kostroma Regional Duma
       topic: role.pep
       country: ru
       language: ru
@@ -3642,7 +3620,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Курганской областной Думы # Deputies of the Kurgan Regional Duma
+    - category: Депутаты Курганской областной думы # Deputies of the Kurgan Regional Duma
       topic: role.pep
       country: ru
       language: ru
@@ -3741,7 +3719,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Мурманской областной Думы # Deputies of the Murmansk Regional Duma
+    - category: Депутаты Мурманской областной думы # Deputies of the Murmansk Regional Duma
       topic: role.pep
       country: ru
       language: ru
@@ -3884,7 +3862,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Рязанской областной Думы # Deputies of the Ryazan Regional Duma
+    - category: Депутаты Рязанской областной думы # Deputies of the Ryazan Regional Duma
       topic: role.pep
       country: ru
       language: ru
@@ -4059,7 +4037,7 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Тюменской областной Думы # Deputies of the Tyumen Regional Duma
+    - category: Депутаты Тюменской областной думы # Deputies of the Tyumen Regional Duma
       topic: role.pep
       country: ru
       language: ru
