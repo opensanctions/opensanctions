@@ -7,8 +7,9 @@ from zavod.crawl import crawl_dataset
 from zavod.exporters.consolidate import consolidate_entity
 from zavod.exporters.fragment import ViewFragment
 from zavod.runtime.statistics import Statistics
+from zavod.archive import STATEMENTS_FILE, dataset_artifact_path
 from zavod.meta.dataset import Dataset
-from zavod.tests.util import get_test_view, make_context
+from zavod.tests.util import finish_statements, get_test_view, make_context
 from zavod.validators import (
     EntityReferenceValidator,
     SelfReferenceValidator,
@@ -27,10 +28,12 @@ BASE_DATASET_CONFIG = {
 def run_validator(clazz: type[BaseValidator], dataset: Dataset):
     """Run a single validator over the dataset, mirroring the export loop."""
     context = make_context(dataset)
-    # A completed run always has a statements file, even when it emitted
-    # nothing (see crawl_dataset); mirror that so the store build can't fall
-    # through to the archive.
-    context.finalize_statements()
+    # A completed run always leaves statement artifacts, even when it emitted
+    # nothing (see crawl_dataset); mirror that for a dataset that was never
+    # crawled or emitted, so the store build can't fall through to the archive.
+    pack_path = dataset_artifact_path(dataset.name, context.version, STATEMENTS_FILE)
+    if not pack_path.is_file():
+        finish_statements(context)
     # Pass clear so that if the test emits statements and re-validates, we pick that up.
     view = get_test_view(dataset, clear=True)
 
@@ -61,6 +64,7 @@ def emit_entity(ds: Dataset, schema: str, properties: dict[str, list[str]]) -> E
     )
     context.emit(entity)
 
+    finish_statements(context)
     context.close()
     return entity
 
@@ -104,6 +108,7 @@ def test_property_range() -> None:
     # An Organization is not an Asset - the case reported in #2550.
     org = make("Organization", {"name": ["Acme Foundation"]})
     make("Ownership", {"owner": [owner.id], "asset": [org.id]})
+    finish_statements(context)
     context.close()
 
     validator, logs = run_validator(EntityReferenceValidator, ds)

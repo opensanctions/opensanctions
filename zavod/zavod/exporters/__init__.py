@@ -80,7 +80,7 @@ def export_data(context: Context, view: View, validate: bool = True) -> None:
         exporter.setup()
 
     try:
-        for idx, entity in enumerate(view.entities()):
+        for idx, entity in enumerate(view.entities(prefetch_nested=True)):
             if idx > 0 and idx % 10000 == 0:
                 log.info(f"Exported {idx} entities...", scope=context.dataset.name)
 

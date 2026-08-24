@@ -6,7 +6,7 @@ from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
 from zavod.tests.exporters.util import harnessed_export
-from zavod.tests.util import make_context
+from zavod.tests.util import finish_statements, make_context
 
 
 def test_statistics(testdataset1: Dataset):
@@ -68,6 +68,7 @@ def test_sanction_programs(testdataset1):
     context.emit(sanction)
 
     context.flush()
+    finish_statements(context)
     context.close()
     harnessed_export(StatisticsExporter, testdataset1)
 

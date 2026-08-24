@@ -19,7 +19,7 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.archive import (
-    STATEMENTS_FILE,
+    STATEMENTS_RAW,
     dataset_artifact_directory,
     dataset_artifact_path,
     dataset_data_path,
@@ -40,7 +40,6 @@ from zavod.runtime.http_ import (
 )
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.timestamps import TimeStampIndex
 from zavod.util import Element, join_slug, prefixed_hash_id
 
 
@@ -53,7 +52,6 @@ class ContextStats:
 
     def reset(self) -> None:
         self.statements = 0
-        self.changed = 0
         self.entities = 0
 
 
@@ -78,14 +76,11 @@ class Context:
         self.http = make_session(dataset.http)
         self._db: Session | None = None
         self._cache: Cache | None = None
-        self._timestamps: TimeStampIndex | None = None
         self._resolver: Resolver[Entity] | None = None
         self._structlog_contextvars_tokens: (
             Mapping[str, contextvars.Token[Any]] | None
         ) = None
-        self._writer_path = dataset_artifact_path(
-            dataset.name, version, STATEMENTS_FILE
-        )
+        self._writer_path = dataset_artifact_path(dataset.name, version, STATEMENTS_RAW)
         self._writer: PackStatementWriter | None = None
 
         self.lang: str | None = None
@@ -126,14 +121,6 @@ class Context:
             self._resolver = get_resolver(self.db)
             self._resolver.load_into_memory()
         return self._resolver
-
-    @property
-    def timestamps(self) -> TimeStampIndex:
-        """An index of the first_seen time of every statement previous emitted by
-        the dataset. This is used to determine if a statement is new or not."""
-        if self._timestamps is None:
-            self._timestamps = TimeStampIndex.build(self.dataset)
-        return self._timestamps
 
     @property
     def data_url(self) -> str:
@@ -180,29 +167,31 @@ class Context:
             self._db.checkpoint()
 
     def finalize_statements(self) -> None:
-        """Ensure a statements file exists even if the crawl emitted nothing.
+        """Seal the run's raw statements file so downstream steps can read it.
 
-        The statement writer is only opened on the first emit, so a crawl
-        that emitted nothing would leave no statements file behind - and
-        downstream stages would silently fall back to streaming a previous
-        version's statements from the archive, republishing old data as a
-        new successful run. Record the empty output explicitly instead.
+        The statement writer buffers rows and is only opened on the first
+        emit, so until this point the on-disk file is incomplete - and a crawl
+        that emitted nothing would leave no raw statements file behind at all,
+        crashing the parquet build instead of recording an empty run. Flush
+        and close the writer, or record the empty output explicitly.
 
-        Only called once the crawl has completed successfully so that statements
-        file is never created earlier than it would by emitting entities.
-        This can be important while e.g. enrichers backfill from the most recent
-        statements file.
+        Only called once the crawl has completed successfully. The raw file is
+        the input to the statement artifact build (zavod.runtime.lake), which
+        derives ``statements.parquet`` and ``statements.pack`` from it and then
+        deletes it - so an in-progress or crashed crawl never leaves behind a
+        file that could pass for a completed run's statements.
         """
         if self._writer is None:
             self._writer_path.touch()
+        else:
+            self._writer.close()
+            self._writer = None
 
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
         if self._db is not None:
             self._db.commit()
-        if self._timestamps is not None:
-            self._timestamps.close()
         if self._writer is not None:
             self._writer.close()
         reset_contextvars(**(self._structlog_contextvars_tokens or {}))
@@ -648,7 +637,6 @@ class Context:
                 statements=self.stats.statements,
             )
             self.flush()
-        stamps = self.timestamps.get(entity.id)
         for stmt in entity.statements:
             stmt = stmt.clone(
                 dataset=self.dataset.name,
@@ -660,9 +648,9 @@ class Context:
             )
             if stmt.id is None:
                 raise ValueError("Statement has no ID: %r", stmt)
-            stmt.first_seen = stamps.get(stmt.id, settings.RUN_TIME_ISO)
-            if stmt.first_seen == settings.RUN_TIME_ISO:
-                self.stats.changed += 1
+            # first_seen is computed against the previous run when the parquet
+            # statement artifact is built, after the crawl (zavod.runtime.lake).
+            stmt.first_seen = settings.RUN_TIME_ISO
             stmt.last_seen = settings.RUN_TIME_ISO
             if self._writer is None:
                 fh = self._writer_path.open("w", encoding=ENCODING)

@@ -13,7 +13,7 @@ from zavod.archive import (
 from zavod.archive import dataset_resource_path
 from zavod.archive import publish_version_history, archive_artifact
 from zavod.archive import invalidate_dataset_urls
-from zavod.archive import FAILURE_ARTIFACTS, VERSIONS_FILE
+from zavod.archive import FAILURE_ARTIFACTS, UNPUBLISHED_ARTIFACTS, VERSIONS_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.exporters import write_dataset_index
 
@@ -44,9 +44,10 @@ def publish_dataset(dataset: Dataset, version: Version) -> None:
     """Publish a successful dataset run:
 
     - Stamping this version as the last successful in the version history.
-    - Uploading every file in the run's artifact directory to
-      /artifacts/{dataset}/{version}/, then any registered resources not
-      already covered from the dataset's resource folder.
+    - Uploading every file in the run's artifact directory (except
+      UNPUBLISHED_ARTIFACTS) to /artifacts/{dataset}/{version}/, then any
+      registered resources not already covered from the dataset's resource
+      folder.
     - Publishing the version history to the dataset's stable location.
     - Invalidating /datasets/latest/<dataset> and legacy /datasets/<date>/<dataset>
       URLs in CDN cache
@@ -59,7 +60,7 @@ def publish_dataset(dataset: Dataset, version: Version) -> None:
     resources = {res.name: res for res in DatasetResources(dataset, version).all()}
     uploaded: set[str] = set()
     for path in sorted(artifact_dir.iterdir()):
-        if not path.is_file():
+        if not path.is_file() or path.name in UNPUBLISHED_ARTIFACTS:
             continue
         resource = resources.get(path.name)
         mime_type = resource.mime_type if resource is not None else None

@@ -61,4 +61,8 @@ WORKDIR /opensanctions
 
 USER app
 
+# Preinstall the duckdb extension for https:// reads (zavod.runtime.lake), so
+# containers don't autoinstall it from the network on first use.
+RUN python3 -c "import duckdb; duckdb.install_extension('httpfs')"
+
 CMD ["zavod"]

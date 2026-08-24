@@ -20,7 +20,7 @@ from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
-from zavod.tests.util import get_test_view, make_context
+from zavod.tests.util import finish_statements, get_test_view, make_context
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -49,6 +49,7 @@ def emit_entity(
     )
     context.emit(entity)
 
+    finish_statements(context)
     context.close()
     return entity
 
