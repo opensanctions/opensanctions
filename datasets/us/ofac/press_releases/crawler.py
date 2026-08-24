@@ -18,6 +18,11 @@ Schema = Literal[
 
 MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
 
+# Images pasted from Office documents keep a base64 copy of the original graphic in
+# an `o:gfxdata` attribute. It carries no information we extract, but a single
+# release can hold megabytes of it and blow past the model's context window.
+GFXDATA_ATTR = "o:gfxdata"
+
 schema_field = Field(
     description=(
         "- 'Person', if the name refers to an individual human."
@@ -159,6 +164,9 @@ def crawl_press_release(context: Context, url: str) -> None:
     assert len(names) == 1, f"Expected 1 title, got {len(names)}"
     article_name = h.element_text(names[0])
     article_content = article.findall(".//article[@class='entity--type-node']")
+    for element in article.iter():
+        if GFXDATA_ATTR in element.attrib:
+            del element.attrib[GFXDATA_ATTR]
     for img in article.findall(".//img"):
         img_src = img.get("src")
         if img_src is None or img_src.startswith("data:image"):
