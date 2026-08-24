@@ -19,7 +19,7 @@ from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
 from zavod.runner.local_enricher import LocalEnricher
 from zavod.store import get_store
-from zavod.tests.util import get_manifest, make_context
+from zavod.tests.util import finish_statements, get_manifest, make_context
 
 DATASET_DATA = {
     "name": "test_enricher",
@@ -260,6 +260,7 @@ def test_topic_gated_prunes_unpublishable_references(
     }
     subject_ctx = make_context(testdataset_enrich_subject)
     subject_ctx.emit(Entity.from_data(testdataset_enrich_subject, subject_security))
+    finish_statements(subject_ctx)
     subject_ctx.close()
 
     # Confirm the match (committed on block exit, before the enrich crawl)
@@ -372,6 +373,7 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
         },
     )
     subject_ctx.emit(oswell_patch, external=True)
+    finish_statements(subject_ctx)
     subject_ctx.close()
 
     shutil.rmtree(
