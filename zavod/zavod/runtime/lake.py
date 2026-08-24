@@ -36,6 +36,10 @@ log = get_logger(__name__)
 PACK_MAX_LINE = 33554432
 # Render TIMESTAMP columns back to the string form used by Statement.
 SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
+# Full sort key for statement artifacts: `id` is unique after dedupe, so the
+# output is byte-reproducible. A bare entity_id sort is not - the connection
+# runs with preserve_insertion_order disabled, leaving ties unstable.
+STATEMENT_ORDER = "entity_id, prop, id"
 
 
 def _sql_str(value: Path | str) -> str:
@@ -149,7 +153,7 @@ def _version_statements_sql(
         conn.execute(
             f"""
             COPY (SELECT * FROM ({_dedupe_sql(_read_pack_sql(pack))})
-                ORDER BY entity_id)
+                ORDER BY {STATEMENT_ORDER})
             TO '{_sql_str(tmp_path)}' (FORMAT parquet, COMPRESSION zstd)
             """
         )
@@ -272,7 +276,7 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
         try:
             conn.execute(
                 f"""
-                COPY (SELECT * FROM ({select}) ORDER BY entity_id)
+                COPY (SELECT * FROM ({select}) ORDER BY {STATEMENT_ORDER})
                 TO '{_sql_str(tmp_path)}' (FORMAT parquet, COMPRESSION zstd)
                 """
             )
@@ -330,7 +334,7 @@ def dump_statements_pack(dataset: Dataset, version: Version) -> None:
                     strftime(last_seen, '{SEEN_FORMAT}') AS last_seen,
                     id
                 FROM read_parquet('{_sql_str(parquet_path)}')
-                ORDER BY entity_id
+                ORDER BY {STATEMENT_ORDER}
             ) TO '{_sql_str(tmp_path)}' (FORMAT csv, HEADER true)
             """
         )
