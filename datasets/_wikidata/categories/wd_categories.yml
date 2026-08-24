@@ -1233,18 +1233,19 @@ config:
     - category: Lists_of_political_office-holders_in_Colombia
       country: co
       topic: role.pep
-    # retired 2026-08-23; 0/0 already hold Q19254253
-    # - category: Senadores_de_Colombia
-    #   country: co
-    #   language: es
-    #   topic: role.pep
-    #   position:
-    #     name: Senator
-    #     wikidata_id: Q19254253
-    #     country: co
-    #     topics:
-    #       - gov.legislative
-    #       - gov.national
+    # restored 2026-08-24; the retirement measurement (0/0) queried en.wikipedia
+    # instead of es.wikipedia and saw an empty category; the real query has ~636 members
+    - category: Senadores_de_Colombia
+      country: co
+      language: es
+      topic: role.pep
+      position:
+        name: Senator
+        wikidata_id: Q19254253
+        country: co
+        topics:
+          - gov.legislative
+          - gov.national
     - category: Diputados_de_Colombia
       country: co
       language: es
@@ -1836,6 +1837,7 @@ config:
       language: cs
     - category: Poslanci_Parlamentu_České_republiky_(2021–2025)
       country: cz
+      language: cs
       topic: role.pep
       position:
         name: Member of the Chamber of Deputies
@@ -1846,6 +1848,7 @@ config:
     # We don't mark these as peps, since some of them have been out of office for more than 20 years
     - category: Poslanci_Parlamentu_České_republiky
       country: cz
+      language: cs
       position:
         name: Member of the Chamber of Deputies
         wikidata_id: Q19803234
@@ -1854,6 +1857,7 @@ config:
           - gov.legislative
     - category: Senátoři_Parlamentu_České_republiky
       country: cz
+      language: cs
       position:
         name: Senator of the Czech Republic
         wikidata_id: Q18941264
@@ -1862,6 +1866,7 @@ config:
           - gov.legislative
     - category: Prezidenti_České_republiky
       country: cz
+      language: cs
       position:
         name: President of the Czech Republic
         wikidata_id: Q1819381
@@ -1870,6 +1875,7 @@ config:
           - gov.head
     - category: Ministři_vlád_České_republiky
       country: cz
+      language: cs
       topic: role.pep
       position:
         name: Minister of the Czech Republic
@@ -1879,6 +1885,7 @@ config:
           - gov.executive
     - category: Soudci_Nejvyššího_soudu_České_republiky
       country: cz
+      language: cs
       position:
         name: Judge of the Supreme Court of the Czech Republic
         country: cz
@@ -1886,6 +1893,7 @@ config:
           - gov.judicial
     - category: Soudci_Nejvyššího_správního_soudu_České_republiky
       country: cz
+      language: cs
       position:
         name: Judge of the Supreme Administrative Court of the Czech Republic
         country: cz
@@ -1893,6 +1901,7 @@ config:
           - gov.judicial
     - category: Soudci_Ústavního_soudu_České_republiky
       country: cz
+      language: cs
       position:
         name: Judge of the Constitutional Court of the Czech Republic
         wikidata_id: Q59773473
@@ -2809,6 +2818,7 @@ config:
       language: el
     - category: Βουλευτές_ΙΒ΄_Κοινοβουλευτικής_Περιόδου_(Κύπρος)
       country: cy
+      language: el
       topic: role.pep
 
     - category: Greek_MPs_2023–
