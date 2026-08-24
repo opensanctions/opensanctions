@@ -136,6 +136,23 @@ lookups:
           - koutsoukosgiannis.gr
           - gunhild.wallin
         value: null
+      # Percent-encoded UTF-8 in the host name of Danish IDN domains.
+      - match: http://s%C3%B8rens%C3%B8ndergaard.dk/
+        value: http://sørensøndergaard.dk/
+      - match: http://www.kirstenbrosb%C3%B8l.dk
+        value: http://www.kirstenbrosbøl.dk
+      # Two URLs crammed into a single website field.
+      - match: http://meropitzoufi.wordpress.com; www.fb.com/mtzoufi.gr
+        values:
+          - http://meropitzoufi.wordpress.com
+          - http://www.fb.com/mtzoufi.gr
+      - match: "http://www.karaoglou.gr; Facebook: www.facebook.com/Th.Karaoglou"
+        values:
+          - http://www.karaoglou.gr
+          - http://www.facebook.com/Th.Karaoglou
+      # Backslash instead of a path separator.
+      - match: 'http://www.folkpartiet.se\heinemann'
+        value: http://www.folkpartiet.se/heinemann
   type.email:
     options:
       - match:
