@@ -9,7 +9,8 @@ from rigour.urls import build_url
 from followthemoney.statement import read_statements, PACK
 
 from zavod import settings
-from zavod.archive import dataset_artifact_path, STATEMENTS_FILE
+from zavod.archive import dataset_artifact_path
+from zavod.archive import STATEMENTS_FILE, STATEMENTS_PARQUET, STATEMENTS_RAW
 from zavod.crawl import crawl_dataset
 from zavod.entity import Entity
 from zavod.exc import RunFailedException
@@ -18,7 +19,7 @@ from zavod.runtime.http_ import request_hash
 from zavod.runtime.loader import load_entry_point
 from zavod.runtime.manifest import Manifest
 from zavod.tests.conftest import XML_DOC
-from zavod.tests.util import make_context
+from zavod.tests.util import finish_statements, make_context
 
 
 def test_context_helpers(testdataset1: Dataset):
@@ -341,14 +342,23 @@ def test_crawl_dataset(testdataset1: Dataset):
         context.stats.statements
     )
     assert len(context.resources.all()) == 1
+    finish_statements(context)
     context.close()
     manifest = Manifest.load_artifact(testdataset1, context.version)
     assert len(list(manifest.statements())) == context.stats.statements
 
 
 def test_crawl_dataset_wrapper(testdataset1: Dataset):
-    stats = crawl_dataset(testdataset1, settings.RUN_VERSION)
+    version = settings.RUN_VERSION
+    stats = crawl_dataset(testdataset1, version)
     assert stats.entities > 10
+    # The crawl leaves the derived statement artifacts behind, but deletes
+    # the raw statements file it emitted.
+    assert dataset_artifact_path(testdataset1.name, version, STATEMENTS_FILE).is_file()
+    parquet = dataset_artifact_path(testdataset1.name, version, STATEMENTS_PARQUET)
+    assert parquet.is_file()
+    raw = dataset_artifact_path(testdataset1.name, version, STATEMENTS_RAW)
+    assert not raw.exists()
 
     testdataset1.model.disabled = True
     stats = crawl_dataset(testdataset1, settings.RUN_VERSION)

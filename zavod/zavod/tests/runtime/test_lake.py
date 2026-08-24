@@ -1,3 +1,4 @@
+import shutil
 from datetime import timedelta
 
 import pytest
@@ -10,6 +11,7 @@ from zavod.archive import (
     ARTIFACTS,
     STATEMENTS_FILE,
     STATEMENTS_PARQUET,
+    STATEMENTS_RAW,
     dataset_artifact_path,
     iter_statements_path,
 )
@@ -41,6 +43,14 @@ def _next_version(version: Version, monkeypatch: pytest.MonkeyPatch) -> Version:
     return next_version
 
 
+def _raw_from_pack(dataset: Dataset, version: Version) -> None:
+    """Recreate a run's raw statements file from its dumped pack, so that the
+    parquet can be rebuilt after a completed crawl deleted the raw file."""
+    pack_path = dataset_artifact_path(dataset.name, version, STATEMENTS_FILE)
+    raw_path = dataset_artifact_path(dataset.name, version, STATEMENTS_RAW)
+    shutil.copyfile(pack_path, raw_path)
+
+
 def _seen_rows(dataset: Dataset, version: Version) -> list[tuple[str, bool, str, str]]:
     """(entity_id, external, first_seen, last_seen) for every parquet row."""
     path = dataset_artifact_path(dataset.name, version, STATEMENTS_PARQUET)
@@ -58,16 +68,21 @@ def _seen_rows(dataset: Dataset, version: Version) -> list[tuple[str, bool, str,
 def test_build_and_dump_roundtrip(testdataset1: Dataset):
     version = settings.RUN_VERSION
     run_time = settings.RUN_TIME_ISO
-    # The crawl builds the parquet and regenerates the pack from it.
+    # The crawl builds the parquet, dumps the pack from it, and removes the
+    # raw statements file it emitted.
     crawl_dataset(testdataset1, version)
     pack_path = dataset_artifact_path(testdataset1.name, version, STATEMENTS_FILE)
+    raw_path = dataset_artifact_path(testdataset1.name, version, STATEMENTS_RAW)
+    assert not raw_path.exists()
     original = {stmt.id: stmt for stmt in iter_statements_path(pack_path)}
     assert len(original) > 0
 
-    # Duplicate a row: the pack writer only deduplicates within a batch, so
-    # repeated ids can occur in real files and must collapse in the parquet.
-    lines = pack_path.read_text().splitlines()
-    with open(pack_path, "a") as fh:
+    # Rebuild from a raw file with a duplicated row: the pack writer only
+    # deduplicates within a batch, so repeated ids can occur in real raw
+    # files and must collapse in the parquet.
+    _raw_from_pack(testdataset1, version)
+    lines = raw_path.read_text().splitlines()
+    with open(raw_path, "a") as fh:
         fh.write(lines[1] + "\n")
 
     build_statements_parquet(testdataset1, version)
@@ -126,6 +141,10 @@ def test_first_seen_carried_over(
     for _, _, first_seen, last_seen in rows:
         assert first_seen == first_time
         assert last_seen == second_time
+
+    # The crawl removed its raw statements file; restore one from the dumped
+    # pack so the parquet can be rebuilt below.
+    _raw_from_pack(testdataset1, second_version)
 
     # Without a local copy, the previous parquet is read in place through the
     # archive object's URI, not backfilled:
@@ -187,7 +206,19 @@ def test_external_first_seen_not_carried(
     internal_id = _emit_person(context, "John Int", external=False)
     context.finalize_statements()
     context.close()
+    build_statements_parquet(testdataset1, first_version)
+    dump_statements_pack(testdataset1, first_version)
     publish_dataset(testdataset1, first_version)
+    # The raw statements file is still in the artifact directory, but must
+    # never be uploaded to the archive:
+    archived_raw = (
+        settings.ARCHIVE_PATH
+        / ARTIFACTS
+        / testdataset1.name
+        / first_version.id
+        / STATEMENTS_RAW
+    )
+    assert not archived_raw.exists()
 
     second_version = _next_version(first_version, monkeypatch)
     second_time = settings.RUN_TIME_ISO

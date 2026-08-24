@@ -19,7 +19,7 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.archive import (
-    STATEMENTS_FILE,
+    STATEMENTS_RAW,
     dataset_artifact_directory,
     dataset_artifact_path,
     dataset_data_path,
@@ -80,9 +80,7 @@ class Context:
         self._structlog_contextvars_tokens: (
             Mapping[str, contextvars.Token[Any]] | None
         ) = None
-        self._writer_path = dataset_artifact_path(
-            dataset.name, version, STATEMENTS_FILE
-        )
+        self._writer_path = dataset_artifact_path(dataset.name, version, STATEMENTS_RAW)
         self._writer: PackStatementWriter | None = None
 
         self.lang: str | None = None
@@ -169,20 +167,19 @@ class Context:
             self._db.checkpoint()
 
     def finalize_statements(self) -> None:
-        """Seal the run's statements file so downstream steps can read it.
+        """Seal the run's raw statements file so downstream steps can read it.
 
         The statement writer buffers rows and is only opened on the first
         emit, so until this point the on-disk file is incomplete - and a crawl
-        that emitted nothing would leave no statements file behind at all,
-        making downstream stages silently fall back to streaming a previous
-        version's statements from the archive, republishing old data as a
-        new successful run. Flush and close the writer, or record the empty
-        output explicitly.
+        that emitted nothing would leave no raw statements file behind at all,
+        crashing the parquet build instead of recording an empty run. Flush
+        and close the writer, or record the empty output explicitly.
 
-        Only called once the crawl has completed successfully so that statements
-        file is never created earlier than it would by emitting entities.
-        This can be important while e.g. enrichers backfill from the most recent
-        statements file.
+        Only called once the crawl has completed successfully. The raw file is
+        the input to the statement artifact build (zavod.runtime.lake), which
+        derives ``statements.parquet`` and ``statements.pack`` from it and then
+        deletes it - so an in-progress or crashed crawl never leaves behind a
+        file that could pass for a completed run's statements.
         """
         if self._writer is None:
             self._writer_path.touch()
