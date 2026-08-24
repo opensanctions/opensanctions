@@ -1,11 +1,12 @@
 """Parquet statement artifacts ("the lake") for dataset runs.
 
-After a crawl, the emitted ``statements.pack`` is converted into a typed
+After a crawl, the emitted ``statements.raw`` is converted into a typed
 ``statements.parquet`` in the run's artifact directory, satisfying the
 statement relation contract in `nomenklatura.duck`. The conversion joins the
 last successful run's statements on statement id to compute ``first_seen``
 between the two runs - the crawl itself stamps every statement with the run
-time only.
+time only. The published ``statements.pack`` is then dumped back out of the
+parquet, so both carry the deduplicated, correctly time-stamped statements.
 """
 
 from pathlib import Path
@@ -21,6 +22,7 @@ from zavod.runtime.manifest import Manifest
 from zavod.archive import (
     STATEMENTS_FILE,
     STATEMENTS_PARQUET,
+    STATEMENTS_RAW,
     backfill_artifact,
     dataset_artifact_path,
     get_artifact_object,
@@ -41,7 +43,8 @@ def _sql_str(value: Path | str) -> str:
 
 
 def _read_pack_sql(path: Path) -> str:
-    """A SELECT adapting a statements.pack file to the statement relation contract.
+    """A SELECT adapting a pack-format statements file to the statement
+    relation contract.
 
     The pack dialect (csv.unix_dialect) is pinned rather than sniffed: a large
     unquoted sample makes the sniffer detect "no quoting", which then breaks on
@@ -215,7 +218,7 @@ def _check_pack_rows(conn: duckdb.DuckDBPyConnection, pack_sql: str) -> None:
 
 
 def build_statements_parquet(dataset: Dataset, version: Version) -> None:
-    """Build the run's statements.parquet from its emitted statements.pack.
+    """Build the run's statements.parquet from its emitted statements.raw.
 
     Runs after a crawl. The output satisfies the statement relation contract:
     deduplicated on statement id and sorted by entity_id, with ``first_seen``
@@ -224,24 +227,24 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
     this run's time. Previous-run external statements do not donate their
     ``first_seen``: a statement promoted from enrichment candidate to internal
     counts as new."""
-    pack_path = dataset_artifact_path(dataset.name, version, STATEMENTS_FILE)
-    if not pack_path.is_file():
-        raise FileNotFoundError(f"No statements file: {pack_path}")
+    raw_path = dataset_artifact_path(dataset.name, version, STATEMENTS_RAW)
+    if not raw_path.is_file():
+        raise FileNotFoundError(f"No raw statements file: {raw_path}")
     out_path = dataset_artifact_path(dataset.name, version, STATEMENTS_PARQUET)
     conn = duck.connect()
     try:
-        if pack_path.stat().st_size == 0:
+        if raw_path.stat().st_size == 0:
             # The crawl emitted nothing (see Context.finalize_statements).
             select = _empty_statements_sql()
         else:
-            pack_sql = _read_pack_sql(pack_path)
-            _check_pack_rows(conn, pack_sql)
+            raw_sql = _read_pack_sql(raw_path)
+            _check_pack_rows(conn, raw_sql)
             previous_sql = _previous_statements_sql(conn, dataset)
             if previous_sql is None:
                 previous_sql = _empty_statements_sql()
             select = f"""
-                WITH crawled AS (
-                    {_dedupe_sql(pack_sql)}
+                WITH raw AS (
+                    {_dedupe_sql(raw_sql)}
                 ),
                 previous AS (
                     SELECT id, min(first_seen) AS first_seen
@@ -250,19 +253,19 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
                     GROUP BY id
                 )
                 SELECT
-                    crawled.id,
-                    crawled.entity_id,
-                    crawled."schema",
-                    crawled.prop,
-                    crawled.value,
-                    crawled.dataset,
-                    crawled.lang,
-                    crawled.original_value,
-                    crawled.origin,
-                    crawled.external,
-                    coalesce(previous.first_seen, crawled.last_seen) AS first_seen,
-                    crawled.last_seen
-                FROM crawled
+                    raw.id,
+                    raw.entity_id,
+                    raw."schema",
+                    raw.prop,
+                    raw.value,
+                    raw.dataset,
+                    raw.lang,
+                    raw.original_value,
+                    raw.origin,
+                    raw.external,
+                    coalesce(previous.first_seen, raw.last_seen) AS first_seen,
+                    raw.last_seen
+                FROM raw
                 LEFT JOIN previous USING (id)
             """
         tmp_path = out_path.with_suffix(".parquet.tmp")
@@ -298,11 +301,11 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
 
 
 def dump_statements_pack(dataset: Dataset, version: Version) -> None:
-    """Regenerate the run's statements.pack from its statements.parquet.
+    """Dump the run's statements.pack from its statements.parquet.
 
     The parquet build is where statements get deduplicated and their
-    ``first_seen`` computed, so dumping it back gives pack consumers the
-    deduplicated, correctly time-stamped view again - the crawl-emitted pack
+    ``first_seen`` computed, so dumping it gives pack consumers the
+    deduplicated, correctly time-stamped view - the raw statements file
     only carries run-time stamps."""
     parquet_path = dataset_artifact_path(dataset.name, version, STATEMENTS_PARQUET)
     if not parquet_path.is_file():
