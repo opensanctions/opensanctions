@@ -48,10 +48,15 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str) -> None
         key: (doc.xpath(xpath)[0].strip() if doc.xpath(xpath) else "")
         for key, xpath in details.items()
     }
-    status = doc.findtext(".//p[@align='center']/font[@color='blue']")
-    if status not in {"Wanted", "Suspect"}:
-        context.log.warning("Unknown or missing status", status=status, url=source_url)
+    raw_status = doc.findtext(".//p[@align='center']/font[@color='blue']")
+    result = context.lookup("status", raw_status)
+    if result is None:
+        context.log.warning(
+            "Unknown or missing status", status=raw_status, url=source_url
+        )
         status = None
+    else:
+        status = result.value
 
     if info.get("aliases"):
         person.add(
@@ -65,7 +70,9 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str) -> None
     person.add("height", info.get("height"))
     person.add("weight", info.get("weight"))
 
-    person.add("notes", f"{status} - {info['crime']}")
+    # Both parts are empty on listings which the source publishes before the crime
+    # and status fields are filled in.
+    person.add("notes", " - ".join(p for p in [status, info["crime"]] if p))
 
     context.emit(person)
 

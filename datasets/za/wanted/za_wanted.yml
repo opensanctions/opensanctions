@@ -45,6 +45,19 @@ assertions:
       Person: 920
 
 lookups:
+  status:
+    lowercase: true
+    options:
+      - match: Wanted
+        value: Wanted
+      - match: Suspect
+        value: Suspect
+      # The blue status banner is rendered empty on listings which the source
+      # publishes before the crime and status fields are filled in.
+      - match:
+          - null
+          - ""
+        value: null
   type.number:
     lowercase: true
     options:
