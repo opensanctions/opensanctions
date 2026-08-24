@@ -90,6 +90,15 @@ config:
     - LegalEntity
     - PublicBody
 
+validators:
+  # ROR models institutional hierarchy as parent/child relationships, which the
+  # `ror` crawler maps onto Ownership (see the `relationship` lookup in
+  # datasets/_global/ror/ror.yml). ROR only ever describes its members as plain
+  # Organizations, so every Ownership edge expanded into this dataset has an
+  # asset outside the Asset range unless the target happens to dedupe into a
+  # Company from another source.
+  entity_reference: false
+
 assertions:
   min:
     schema_entities:
