@@ -10,6 +10,7 @@ from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
 from zavod.meta import Dataset
 from zavod.publish import publish_dataset
+from zavod.runtime.lake import build_statements_parquet, dump_statements_pack
 from zavod.runtime.manifest import Manifest
 from zavod.store import View, get_store
 
@@ -30,6 +31,16 @@ def make_context(dataset: Dataset, version: Version | None = None) -> Context:
     it (which writes issues.json there) works outside a full crawl."""
     get_manifest(dataset, version)
     return Context(dataset, version or settings.RUN_VERSION)
+
+
+def finish_statements(context: Context) -> None:
+    """Seal a manually-emitted context's raw statements file and derive the
+    run's parquet and pack artifacts from it, as `crawl_dataset` does after
+    the crawl. Use after emitting fixture entities through a bare Context, so
+    stores and exports built off the run's manifest can read them."""
+    context.finalize_statements()
+    build_statements_parquet(context.dataset, context.version)
+    dump_statements_pack(context.dataset, context.version)
 
 
 def get_test_view(
