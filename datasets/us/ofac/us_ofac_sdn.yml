@@ -758,6 +758,8 @@ lookups:
         value: Mozambique
       - match: gambia (false)
         value: Gambia
+      - match: Botswana False
+        value: Botswana
   type.gender:
     lowercase: true
     normalize: true
