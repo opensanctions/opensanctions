@@ -59,15 +59,11 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
 
     entity.add("website", split_websites(input_dict.pop("website")))
 
-    # The bank info column is new and so far only ever holds "N/A" - drop that so
-    # audit_data still flags it once the source starts populating it.
-    if input_dict.get("bankInfo") == "N/A":
-        input_dict.pop("bankInfo")
-
     context.emit(entity)
 
-    # group is just the alphabetical order of the name
-    context.audit_data(input_dict, ignore=["group", "date"])
+    # group is just the alphabetical order of the name. bankInfo holds the bank
+    # account of the scheme, which we do not model.
+    context.audit_data(input_dict, ignore=["group", "date", "bankInfo"])
 
 
 def crawl(context: Context) -> None:
