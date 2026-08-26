@@ -116,6 +116,18 @@ lookups:
         value: kuv_verification
       - match: KvalifikovanePodnety
         value: qualified_reports
+  type.date:
+    options:
+      # KonecniUzivateliaVyhod/115221 records Ivana Rejlová's birth date with the
+      # millennium digit mistyped. The same person is recorded correctly as
+      # KonecniUzivateliaVyhod/71567 with 1966-06-05.
+      - match: "2966-06-05"
+        value: "1966-06-05"
+      # KonecniUzivateliaVyhod/184495 (Thomas Cord Prinzhorn) is the only record for
+      # this person, so the intended year cannot be established from the source.
+      # A birth date in the year 2972 is certainly wrong, so drop it.
+      - match: "2972-12-25"
+        value: null
   type.url:
     options:
       - regex: /entities/.*
