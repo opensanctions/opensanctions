@@ -176,7 +176,8 @@ TARGETS: dict[str, AnnexSpec] = {
         "Transportation restrictions",
         header=("", "Name", "Grounds for inclusion", "Date of application"),
         roles=("recordId", "name", "reason", "startDate"),
-        parts=("A", "B", "C"),
+        # Part D, the refinery list, was inserted by M43 (Regulation 2026/1848).
+        parts=("A", "B", "C", "D"),
     ),
     "XLIX": AnnexSpec(
         "table",
@@ -244,6 +245,10 @@ NON_TARGET = frozenset(
         "XLI",
         "XLVIII",
         "LI",
+        # Article 5bc restricts transactions with crypto-asset service providers
+        # established in a third country listed in LVII, so the annex names
+        # countries rather than designated parties, like VIII and LI.
+        "LVII",
     }
 )
 
@@ -254,12 +259,30 @@ DATE_FORMATS = (
     "worded",
 )
 
+# Scalar name cells whose printed value wraps onto a second line, pinned by
+# annex and entry number ("Kulevi Oil Refinery," / "Georgia"). The trailing
+# comma is what marks the wrap; an unpinned multi-line name cell raises so a
+# new shape is reviewed rather than joined silently.
+WRAPPED_NAME_PINS = frozenset({("XLVII.D", "1")})
+
 
 def parse_record_id(text: str, ctx: str) -> str:
     match = NUMBER_RE.match(text)
     if match is None:
         raise ParseError(f"{ctx}: unrecognized entry number {text!r}")
     return match.group(1)
+
+
+def parse_name_cell(ctx: str, annex: str, record_id: str, td: Element) -> str:
+    """Read a scalar name cell, joining a pinned wrapped line back together."""
+    lines = cell_lines(td, ctx)
+    if len(lines) == 1:
+        return lines[0]
+    if (annex, record_id) not in WRAPPED_NAME_PINS:
+        raise ParseError(f"{ctx}: expected one line in name cell, got {len(lines)}")
+    if len(lines) != 2 or not lines[0].endswith(","):
+        raise ParseError(f"{ctx}: unrecognized wrapped name {lines!r}")
+    return f"{lines[0]} {lines[1]}"
 
 
 def iter_entry_children(
@@ -381,7 +404,7 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
             row.record_id = parse_record_id(cell_line(td, ctx), ctx)
             ctx = f"{roman} entry {row.record_id}"
         elif role == "name":
-            row.add("name", [cell_line(td, ctx)])
+            row.add("name", [parse_name_cell(ctx, row.annex, row.record_id, td)])
         elif role == "startDate":
             row.start_date = verbatim_date(cell_line(td, ctx), ctx, DATE_FORMATS)
         elif role == "reason":
