@@ -53,6 +53,20 @@ IGNORE_PARTNER = [
 #       entity and related people.
 
 
+def parse_date(value: str | None) -> str | None:
+    """Reduce a source timestamp to the calendar date it denotes.
+
+    The API renders dates as local-midnight timestamps (e.g.
+    `1978-11-20T00:00:00+01:00`). Handing those to the date cleaner converts them to
+    UTC, which moves a Slovak local midnight back into the previous day, so keep only
+    the date part.
+    """
+    if not value:
+        return None
+    date, _, _ = value.partition("T")
+    return date
+
+
 def rename_headers(context: Context, entry: dict[str, Any]) -> dict[str, Any]:
     result = {}
     for old_key, value in entry.items():
@@ -113,7 +127,7 @@ def emit_related_entity(
     # This way we will have only one ID for them
     related.id = context.make_id(first_name, last_name)
     h.apply_name(related, first_name=first_name, last_name=last_name)
-    h.apply_date(related, "birthDate", dob)
+    h.apply_date(related, "birthDate", parse_date(dob), original_value=dob)
     related.add("title", entity_data.pop("title_prefix"))
     related.add("title", entity_data.pop("title_suffix"))
     if address := entity_data.pop("address", ""):
@@ -174,7 +188,8 @@ def process_entry(context: Context, entry: dict[str, Any]) -> None:
             first_name=entity_data.pop("name"),
             last_name=entity_data.pop("surname"),
         )
-        h.apply_date(entity, "birthDate", entity_data.pop("dob"))
+        dob = entity_data.pop("dob")
+        h.apply_date(entity, "birthDate", parse_date(dob), original_value=dob)
         entity.add("title", entity_data.pop("title_prefix"))
         entity.add("title", entity_data.pop("title_suffix"))
     else:
@@ -188,7 +203,7 @@ def process_entry(context: Context, entry: dict[str, Any]) -> None:
         title_prefix = entity_data.pop("title_prefix", "")
         # Overwrite the schema when the record is an individual entrepreneur
         if dob and entity_type == "FyzickaOsobaPodnikatel":
-            entity.add_cast("Person", "birthDate", dob)
+            entity.add_cast("Person", "birthDate", parse_date(dob), original_value=dob)
             entity.add_cast("Person", "title", title_prefix)
 
     if legal_form := entity_data.pop("legal_form"):
