@@ -1,13 +1,18 @@
 import json
 import re
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 # The website column lists several URLs per entry, separated by a pipe, whitespace,
 # or both. Whitespace only separates where the next URL begins, because long URLs
 # are wrapped across lines mid-query.
 WEBSITE_SPLIT = re.compile(r"\s*\|\s*|\s+(?=https?://|www\.)", re.IGNORECASE)
+
+# The bank info column holds bare account numbers, one per line. Anything else is
+# a format we haven't seen (e.g. a bank name alongside the number), so we warn
+# instead of guessing at it.
+ACCOUNT_NUMBER = re.compile(r"\d[\d -]{5,}")
 
 
 def split_websites(value: str) -> list[str]:
@@ -17,6 +22,33 @@ def split_websites(value: str) -> list[str]:
         if len(part):
             websites.append(part)
     return websites
+
+
+def crawl_bank_accounts(context: Context, entity: Entity, value: str) -> None:
+    """Emit the bank accounts the alert entry lists next to the entity.
+
+    The source names an account number but not the relationship between the account
+    and the listed entity, so the two are linked with an UnknownLink.
+    """
+    for line in value.splitlines():
+        number = line.strip()
+        if not len(number) or number == "N/A":
+            continue
+        if ACCOUNT_NUMBER.fullmatch(number) is None:
+            context.log.warning("Cannot parse bank account information", value=number)
+            continue
+
+        account = context.make("BankAccount")
+        account.id = context.make_id("bank-account", number)
+        account.add("accountNumber", number)
+        context.emit(account)
+
+        link = context.make("UnknownLink")
+        link.id = context.make_id(entity.id, "account", account.id)
+        link.add("subject", entity)
+        link.add("object", account)
+        link.add("role", "Bank account listed in the investor alert")
+        context.emit(link)
 
 
 def crawl_item(input_dict: dict[str, str], context: Context) -> None:
@@ -59,12 +91,9 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
 
     entity.add("website", split_websites(input_dict.pop("website")))
 
-    # The bank info column is new and so far only ever holds "N/A" - drop that so
-    # audit_data still flags it once the source starts populating it.
-    if input_dict.get("bankInfo") == "N/A":
-        input_dict.pop("bankInfo")
-
     context.emit(entity)
+
+    crawl_bank_accounts(context, entity, input_dict.pop("bankInfo"))
 
     # group is just the alphabetical order of the name
     context.audit_data(input_dict, ignore=["group", "date"])
