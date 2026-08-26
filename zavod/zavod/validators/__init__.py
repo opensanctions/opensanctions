@@ -64,15 +64,16 @@ class EntityReferenceValidator(BaseValidator):
     def finish(self) -> None:
         for (prop, schema), count in self.out_of_range.most_common():
             assert prop.range is not None
-            self.context.log.warning(
-                f"{prop.qname} should reference {prop.range.name}, "
-                f"but {count} references point at {schema.name}",
-                prop=prop.qname,
-                range=prop.range.name,
-                referenced_schema=schema.name,
-                count=count,
-                examples=self.examples[(prop, schema)],
-            )
+            # TODO: Re-enable after the team retreat in August 2026.
+            # self.context.log.warning(
+            #     f"{prop.qname} should reference {prop.range.name}, "
+            #     f"but {count} references point at {schema.name}",
+            #     prop=prop.qname,
+            #     range=prop.range.name,
+            #     referenced_schema=schema.name,
+            #     count=count,
+            #     examples=self.examples[(prop, schema)],
+            # )
 
 
 # FollowTheMoney prevents direct self-references so we check 1 level deep
