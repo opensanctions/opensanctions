@@ -57,6 +57,8 @@ def crawl_item(context: Context, url: str) -> None:
         context.log.warn("No ISIN code on page", url=url)
         return
     security = h.make_security(context, isin_code)
+    if security is None:
+        return
     security.add("sourceUrl", url)
     security.add("topics", "invest.ban")
     for prop, prop_val in values["security"].items():
