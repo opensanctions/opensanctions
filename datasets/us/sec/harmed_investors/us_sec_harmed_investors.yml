@@ -885,6 +885,10 @@ lookups:
         names:
           - George B. Franz III
           - Ruby Corporation
+      - match: glenncap llc and jonathan vincent glenn
+        names:
+          - GlennCap LLC
+          - Jonathan Vincent Glenn
       - match: henry ford f/k/a cleothus lefty jackson and fallcatcher inc.
         names:
           - Henry Ford
