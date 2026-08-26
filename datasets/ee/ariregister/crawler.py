@@ -1,4 +1,5 @@
 import ijson  # type: ignore
+import re
 import zipfile
 from typing import Any
 from collections.abc import Generator
@@ -25,6 +26,37 @@ TYPES = {
 }
 
 NULL_NAME = {"-", ".", "#", "##"}
+
+# The website field is free text typed in by the registrants, so it regularly holds
+# several sites at once, separated by punctuation or by the Estonian "ja" (and) and
+# "või" (or).
+WEBSITE_SPLIT = re.compile(
+    r"(?:\s*[,;]\s*|\s+(?:ja|või|/|-)\s+|\s{2,})(?=https?://|www\.)"
+)
+# Leading punctuation left over from a label, e.g. ": www.example.ee".
+WEBSITE_LEAD = re.compile(r"^[\s:.,-]+")
+# A scheme followed by the wrong number of slashes and/or stray filler characters,
+# e.g. "http:/example.ee", "http:// example.ee", "https://.example.ee".
+WEBSITE_SCHEME = re.compile(r"^(https?):/*[\s.-]*")
+# The "www" prefix separated from the host by a space or a comma instead of a dot.
+WEBSITE_WWW = re.compile(r"\bwww[.,\s]+")
+
+
+def parse_websites(value: str) -> Generator[str, None, None]:
+    """Split a website contact field into individual URLs and repair the data entry
+    damage that the registry does not validate away."""
+    for part in WEBSITE_SPLIT.split(value):
+        part = WEBSITE_LEAD.sub("", part.strip())
+        part = WEBSITE_SCHEME.sub(r"\1://", part)
+        part = WEBSITE_WWW.sub("www.", part)
+        if len(part) == 0 or part.endswith("://"):
+            # A bare scheme, e.g. the "http://" in "http:// või https://www.x.ee"
+            continue
+        if "://" in part:
+            scheme, url = part.split("://", 1)
+            if scheme not in ("http", "https"):
+                part = f"http://{url}"
+        yield part
 
 
 def get_value[Default](
@@ -151,11 +183,8 @@ def parse_general(context: Context, row: Item) -> None:
         if contact["liik"] == "EMAIL":
             proxy.add("email", value)
         elif contact["liik"] == "WWW":
-            if "://" in value:
-                scheme, url = value.split("://", 1)
-                if scheme not in ("http", "https"):
-                    value = f"http://{url}"
-            proxy.add("website", value)
+            for website in parse_websites(value):
+                proxy.add("website", website)
         elif contact["liik"] in ("MOB", "TEL"):
             proxy.add("phone", value)
 

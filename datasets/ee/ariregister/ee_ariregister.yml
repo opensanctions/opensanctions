@@ -99,6 +99,22 @@ lookups:
         value: zug
       - match: Raa # Råå, Sweden
         value: Raa
+      # The source only records a country for some foreign officers:
+      - match: USA
+        value: USA
+  type.url:
+    options:
+      # Free-text notes and e-mail addresses typed into the website field:
+      - match:
+          - "Invoice address Sweden: BOX 588, 114 11.STOCKHOLM"
+          - "Invoice address Sweden:U-Box 240 20229.MALMÖ"
+          - "aadress auskalle@gmail.com"
+          - "elpaso@hot.ee kustutada.Lisa joonasradik@gmail.com"
+          - "uus e-posti aadress  - rodiarvo@gmail.com"
+          - "www.postpress@.ee"
+        value: null
+      - match: "www.arenta,ee"
+        value: www.arenta.ee
   type.country:
     options:
       - match: GER
