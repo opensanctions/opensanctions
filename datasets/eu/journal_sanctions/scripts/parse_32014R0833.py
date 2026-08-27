@@ -175,8 +175,8 @@ TARGETS: dict[str, AnnexSpec] = {
         "Asset",
         "Transportation restrictions",
         header=("", "Name", "Grounds for inclusion", "Date of application"),
-        roles=("recordId", "name", "reason", "startDate"),
-        parts=("A", "B", "C"),
+        roles=("recordId", "xlvii_name", "reason", "startDate"),
+        parts=("A", "B", "C", "D"),
     ),
     "XLIX": AnnexSpec(
         "table",
@@ -244,6 +244,7 @@ NON_TARGET = frozenset(
         "XLI",
         "XLVIII",
         "LI",
+        "LVII",
     }
 )
 
@@ -396,6 +397,8 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
             row.add("imoNumber", [imo])
         elif role == "vessel_name":
             parse_vessel_name(ctx, cell_lines(td, ctx), row)
+        elif role == "xlvii_name":
+            parse_xlvii_name(ctx, cell_lines(td, ctx), row)
         elif role == "iv_name":
             parse_iv_name(ctx, cell_lines(td, ctx), row)
         elif role == "iv_info":
@@ -405,6 +408,25 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
     if spec.country:
         row.add("country", [spec.country])
     return row
+
+
+def parse_xlvii_name(ctx: str, lines: list[str], row: Row) -> None:
+    """Read an Annex XLVII name cell, joining a comma-continued name.
+
+    One observed Part D entry prints the country of a refinery on its own
+    line, continuing a first line that ends in a comma ("Kulevi Oil
+    Refinery," / "Georgia"). Any other multi-line shape is new structure.
+    """
+    if not lines:
+        raise ParseError(f"{ctx}: empty name cell")
+    name = lines[0]
+    for line in lines[1:]:
+        if not name.endswith(","):
+            raise ParseError(f"{ctx}: unrecognized name line {line[:60]!r}")
+        name = f"{name} {line}"
+    if name.endswith(","):
+        raise ParseError(f"{ctx}: name ends in a comma: {name[:60]!r}")
+    row.add("name", [name])
 
 
 def parse_vessel_name(ctx: str, lines: list[str], row: Row) -> None:
