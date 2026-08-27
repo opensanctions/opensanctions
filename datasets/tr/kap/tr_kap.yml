@@ -1,0 +1,98 @@
+title: Türkiye Public Disclosure Platform (KAP) Companies
+entry_point: crawler.py
+prefix: tr-kap
+coverage:
+  frequency: weekly
+  start: "2026-08-27"
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - entities.delta.json
+deploy:
+  memory: 1500Mi
+resolve: false
+ci_test: false
+summary: >-
+  Listed companies and other capital-market institutions in Türkiye, with their
+  shareholders, boards of directors and subsidiaries, as disclosed on the Public
+  Disclosure Platform
+description: |
+  The Public Disclosure Platform (Kamuyu Aydınlatma Platformu, KAP) is the statutory
+  disclosure channel for the Turkish capital markets. Under the Capital Markets Law
+  No. 6362 and the Capital Markets Board's Public Disclosure Platform Communiqué, all
+  information subject to public disclosure by listed companies, investment firms,
+  portfolio management companies, independent audit firms and other capital-market
+  institutions must be filed on KAP with an electronic signature.
+
+  This dataset covers the general information pages of all KAP member companies:
+
+  * company identifiers (trade registry number and office, tax number), address,
+    website, sector and paid-in capital,
+  * shareholders holding 5% or more of the capital, directly and indirectly, with
+    their share and voting right ratios,
+  * members of the board of directors with their role, gender, profession and
+    first election date,
+  * subsidiaries, affiliates and financial investments with the share held.
+
+  KAP is a disclosure platform: the content is declared by the issuing companies
+  under a legal obligation and is not independently verified by MKK or the Capital
+  Markets Board. Members without a general information page on KAP (issuers of
+  debt instruments that are not traded on the exchange and some other member types)
+  are included with their name and city only.
+
+  KAP publishes national identity numbers of board members inside its page data.
+  These are deliberately not included in this dataset.
+url: https://www.kap.org.tr/tr/sirketler/ALL
+tags:
+  - juris.tr
+publisher:
+  name: Merkezi Kayıt Kuruluşu
+  acronym: MKK
+  description: |
+    Merkezi Kayıt Kuruluşu A.Ş. (MKK, Central Securities Depository of Türkiye) is the central securities depository of
+    Türkiye and the national numbering agency for Turkish securities. It has operated
+    the Public Disclosure Platform on behalf of the Capital Markets Board since 2014.
+  country: tr
+  url: https://www.mkk.com.tr/
+  official: true
+data:
+  url: https://www.kap.org.tr/tr/sirketler/ALL
+  format: HTML
+  lang: tur
+
+dates:
+  formats: ["%d/%m/%Y %H:%M:%S", "%d/%m/%Y", "%Y%m%d%H%M%S"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 3700
+      Person: 4500
+      LegalEntity: 2800
+    countries: 1
+  max:
+    schema_entities:
+      Company: 9500
+      Person: 11500
+      LegalEntity: 7000
+
+lookups:
+  type.gender:
+    normalize: true
+    options:
+      - match: MALE
+        value: male
+      - match: FEMALE
+        value: female
+  # Rows in the shareholder tables that describe the remainder of the capital
+  # rather than a shareholder: "other" (diğer), "publicly held" (halka açık),
+  # "public offering" (halka arz), "total" (toplam), "none" (yok / yoktur),
+  # "traded on the exchange" (işlem gören).
+  shareholder:
+    lowercase: true
+    normalize: true
+    options:
+      - match: [yok, yoktur, toplam]
+        value: skip
+      - contains: [diger, halka acik, halka arz, islem goren]
+        value: skip
