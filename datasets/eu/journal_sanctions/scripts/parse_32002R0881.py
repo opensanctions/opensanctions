@@ -134,6 +134,7 @@ INFO_LABELS = {
     "National identification no": "idNumber",
     "National identification no.": "idNumber",
     "National Identification No": "idNumber",
+    "National Identification No.": "idNumber",
     "National identification number": "idNumber",
     "national identification": "idNumber",
     "Identity card No": "idNumber",
