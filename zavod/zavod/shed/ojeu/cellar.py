@@ -688,7 +688,7 @@ def cli(
             )
         content = extract_body_html(expression) if body_only else expression.content
         if output is None:
-            click.get_binary_stream("stdout").write(content)
+            click.echo(content, nl=False)
         else:
             output.write_bytes(content)
     except (OSError, ValueError, requests.RequestException) as exc:
