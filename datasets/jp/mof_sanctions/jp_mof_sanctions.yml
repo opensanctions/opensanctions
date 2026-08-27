@@ -376,6 +376,26 @@ lookups:
         values:
           - Colombia
           - Spain
+      # Dual nationalities, given once in Japanese and once in English on two
+      # lines of the same 国籍 cell in the Taliban sheet.
+      - match:
+          - インドネシア； マレーシア
+          - Indonesia; Malaysia
+        values:
+          - Indonesia
+          - Malaysia
+      - match:
+          - ドイツ； モロッコ
+          - Germany; Morocco
+        values:
+          - Germany
+          - Morocco
+      - match:
+          - フランス； チュニジア
+          - France; Tunisia
+        values:
+          - France
+          - Tunisia
   type.date:
     options:
       - match:
@@ -429,6 +449,7 @@ lookups:
           - "7月31"
           - "8月13"
           - "8月14"
+          - "8月18"
           - "9月1"
           - "9月21"
           - "9月27"
@@ -786,7 +807,11 @@ lookups:
         value: 4117921
       - match: クウェート国民ID番号（Kuwaiti Civil Identification number） 281020505755 （Said Jan 'Abd al-Salamの名義）
         value: 281020505755
-      - match: サウジアラビア旅券 F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+      # The source re-typed the single-digit months and days as full-width, so
+      # both spellings of the same cell are listed here.
+      - match:
+          - サウジアラビア旅券 F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+          - サウジアラビア旅券 F654645（2005年４月30日発行、2010年３月７日失効、ヒジュラ暦では、1426年６月24日発行、1431年３月21日失効）
         value: F654645
       - match: パキスタン旅券 FA0157612（2009年7月23日発行、2014年7月22日失効、2013年時点で公式に失効措置済み。アラー・ムハンマドの名義で発行されている）
         value: FA0157612
