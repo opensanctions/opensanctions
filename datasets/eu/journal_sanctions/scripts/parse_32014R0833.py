@@ -175,8 +175,9 @@ TARGETS: dict[str, AnnexSpec] = {
         "Asset",
         "Transportation restrictions",
         header=("", "Name", "Grounds for inclusion", "Date of application"),
-        roles=("recordId", "name", "reason", "startDate"),
-        parts=("A", "B", "C"),
+        roles=("recordId", "xlvii_name", "reason", "startDate"),
+        # Part D — refineries in Russia and third countries — inserted by ▼M43.
+        parts=("A", "B", "C", "D"),
     ),
     "XLIX": AnnexSpec(
         "table",
@@ -244,6 +245,10 @@ NON_TARGET = frozenset(
         "XLI",
         "XLVIII",
         "LI",
+        # Inserted by ▼M43: "List of countries referred to in Article 5bc",
+        # the third countries whose crypto-asset service providers are
+        # off-limits. Like LI it lists territories, not designated parties.
+        "LVII",
     }
 )
 
@@ -387,6 +392,11 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
         elif role == "reason":
             # Grounds cells legitimately span paragraphs (XLII, XLVII).
             row.reason = " ".join(cell_lines(td, ctx))
+        elif role == "xlvii_name":
+            # Part D prints a refinery's name and its country on separate
+            # lines ("Kulevi Oil Refinery," / "Georgia"); parts A to C print
+            # the port or airport name on one line.
+            row.add("name", [" ".join(cell_lines(td, ctx))])
         elif role == "address":
             row.add("address", [cell_line(td, ctx)])
         elif role == "imoNumber":
