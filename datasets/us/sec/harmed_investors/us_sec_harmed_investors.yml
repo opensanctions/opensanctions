@@ -1059,6 +1059,9 @@ lookups:
       - match: moravec, matthew
         names:
           - Matthew Moravec
+      - match: burleson, james
+        names:
+          - James Burleson  # Case page is titled "SEC v. James Burleson"
       - match: summit planning group inc and richard urciuoli
         names:
           - Summit Planning Group Inc
