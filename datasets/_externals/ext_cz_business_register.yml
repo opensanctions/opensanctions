@@ -23,7 +23,9 @@ summary: >-
 publisher:
   name: Administrativní registr ekonomických subjektů
   acronym: ARES
-  url: http://wwwinfo.mfcr.cz/ares/ares.html.en
+  # The old wwwinfo.mfcr.cz host was retired and no longer resolves; ARES now
+  # lives on its own domain.
+  url: https://ares.gov.cz/
   description: |
     The Administrative Register of Economic Entities is an information system
     that allows searching over economic entities registered in the Czech
