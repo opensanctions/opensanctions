@@ -21,6 +21,12 @@ from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_html
 from zavod.util import Element
 
+# Biographies commonly start with a structured "place – date, father, mother" prefix,
+# where the date is either a bare year ("Sivas / Koyulhisar – 1959, Dursun, Dudu") or a
+# full Turkish date ("İstanbul – 12 Ekim 1990, Hüseyin, Lale."). Month names are
+# translated to numbers via the `dates` spec in the dataset metadata.
+BIRTH_PREFIX = re.compile(r"^([\w\s/]+?)\s*[-–]\s*((?:\d{1,2}\s+[^\W\d_]+\s+)?\d{4})\b")
+
 UNBLOCK_ACTIONS = [
     {
         "action": "waitForNavigation",
@@ -36,7 +42,7 @@ UNBLOCK_ACTIONS = [
 ]
 
 
-def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str | None]:
+def crawl_birth_date_place(context: Context, url: str) -> tuple[str | None, str | None]:
     doc = fetch_html(
         context,
         url,
@@ -55,10 +61,16 @@ def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str 
 
     birth_string = h.element_text(h.xpath_element(doc, xpath))
 
-    # e.g. "Sivas / Koyulhisar – 1959, Dursun, Dudu"
-    match = re.match(r"^([\w\s/]+?)\s*[-–]\s*(\d{4})", birth_string)
+    match = BIRTH_PREFIX.match(birth_string)
     if match:
-        return match.group(2), match.group(1).strip()
+        try:
+            dates = h.extract_date(
+                context.dataset, match.group(2), fallback_to_original=False
+            )
+            return dates[0], match.group(1).strip()
+        except ValueError:
+            # Fall through to the lookup and the warning below.
+            pass
 
     result = context.lookup("birth_string", birth_string)
     if result is not None:
@@ -83,16 +95,16 @@ def crawl_item(context: Context, item: Element) -> None:
     assert len(party_els) == 1
     party = h.element_text(party_els[0])
 
-    birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
+    birth_date, birth_place = crawl_birth_date_place(context, deputy_url)
 
     entity = context.make("Person")
-    entity.id = context.make_id(name, str(birth_year), birth_place)
+    entity.id = context.make_id(name, str(birth_date), birth_place)
     # citizenship required:
     # https://www.celebilegal.com/constitution-of-turkey/
     # https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-REF(2017)003-e
     entity.add("citizenship", "tr")
     entity.add("name", name)
-    entity.add("birthDate", birth_year)
+    entity.add("birthDate", birth_date)
     entity.add("birthPlace", birth_place)
     entity.add("sourceUrl", deputy_url)
     entity.add("political", party)

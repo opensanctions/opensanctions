@@ -31,6 +31,22 @@ data:
 # Requires API key
 ci_test: false
 
+dates:
+  formats: ["%d %m %Y"]
+  months:
+    1: Ocak
+    2: Şubat
+    3: Mart
+    4: Nisan
+    5: Mayıs
+    6: Haziran
+    7: Temmuz
+    8: Ağustos
+    9: Eylül
+    10: Ekim
+    11: Kasım
+    12: Aralık
+
 assertions:
   min:
     schema_entities:
@@ -52,9 +68,6 @@ lookups:
   birth_string:
     normalize: false
     options:
-      - match: "İstanbul – 12 Ekim 1990, Hüseyin, Lale Tamam."
-        birth_place: İstanbul
-        birth_date: "1990-10-12"
       - match: "Koray Aydın 1955 yılında Trabzon'da doğdu. Babası Halil İbrahim Aydın, annesi ise Sebahat Aydın'dır."
         birth_place: Trabzon
         birth_date: "1955"
