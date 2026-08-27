@@ -94,8 +94,7 @@ PARTS = (
 HEADER = ("", "Name", "Identifying information", "Reasons", "Date of listing")
 
 # Entry numbers, including corrigendum-inserted lowercase suffixes ("174a.").
-# The trailing dot is missing on one observed I.PERSONS entry (2097).
-NUMBER_RE = re.compile(r"^(\d+)([a-z]?)\.?$")
+NUMBER_RE = re.compile(r"^(\d+)([a-z]?)\.$")
 # a.k.a./alias label prefixes as printed: "a.k.a.", "a.k.a", "A.k.a.",
 # "AKA", "Alias:", "alias ", optionally glued to the value ("a.k.a.ECOOIL").
 AKA_RE = re.compile(r"^(?:a\.k\.a\.?:? ?|A\.k\.a\.:? ?|AKA:? ?|[Aa]lias:? )(.+)$")
@@ -322,6 +321,7 @@ INFO_LABELS = {
     "e-mail": "email",
     "E-mail": "email",
     "Еmail": "email",
+    "EMail": "email",
     "Mail": "email",
     "E-mail address": "email",
     "e-mail address": "email",
@@ -332,6 +332,7 @@ INFO_LABELS = {
     "Telegram": "website",
     "Telegram channel": "website",
     "Social media": "website",
+    "Social network profile": "website",
     "Media resources": "website",
 }
 # Free-text labels whose prose value goes to `notes`, label stripped. Their
@@ -547,6 +548,13 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
             ),
         ),
     },
+    # The passport label is glued to the INN value with no line break.
+    ("PERSONS", "2099"): {
+        "INN: 732508747179 Passport number: 7304202860": (
+            ("innCode", "732508747179"),
+            ("passportNumber", "7304202860"),
+        ),
+    },
     # The birth place printed on a bare line without its label.
     ("PERSONS", "1766"): {
         "Novomoskovsk, Tula Oblast, USSR (now Russian Federation)": (
@@ -604,6 +612,9 @@ DATE_PERIOD_PINS = frozenset(
 DATE_EMPTY_PINS = frozenset({("ENTITIES", "103")})
 # One reasons paragraph is printed as its own single-cell row.
 SINGLE_CELL_REASON_PINS = frozenset({("PERSONS", "885")})
+# One entry number is printed without the trailing full stop that every
+# other entry carries.
+DOTLESS_NUMBER_PINS = frozenset({("PERSONS", "2097")})
 # Two rows print a continuation with one column missing entirely: entry
 # 18's drops the date column (four cells = number/name/info/reasons),
 # entry 434's drops the number column (four cells = name/info/reasons/date).
@@ -978,7 +989,10 @@ def parse_part(roman: str, part: str, default_schema: str, table: Element) -> li
             continue
         if len(number_lines) != 1:
             raise ParseError(f"{ctx}: {len(number_lines)} lines in number cell")
-        match = NUMBER_RE.match(number_lines[0])
+        number = number_lines[0]
+        if (part, number) in DOTLESS_NUMBER_PINS:
+            number = f"{number}."
+        match = NUMBER_RE.match(number)
         if match is None:
             raise ParseError(f"{ctx}: unrecognized entry number {number_lines[0]!r}")
         record_id = match.group(1) + match.group(2)
