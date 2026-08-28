@@ -210,7 +210,12 @@ TARGETS: dict[str, AnnexSpec] = {
     ),
 }
 
-EXPECTED_EMPTY = frozenset({"XLIII", "XLVI", "L", "LIV", "LV", "LVI"})
+# Annex LVII is the list of countries referred to in Article 5bc; it is
+# printed with a heading and no entries. Whether a country named there is a
+# target of this dataset or merely a scope criterion for the crypto-asset
+# service provider prohibition is a decision to take on its first entry, so
+# the annex gaining content must stop the run rather than be skipped silently.
+EXPECTED_EMPTY = frozenset({"XLIII", "XLVI", "L", "LIV", "LV", "LVI", "LVII"})
 NON_TARGET = frozenset(
     {
         "I",
@@ -247,9 +252,6 @@ NON_TARGET = frozenset(
         "XLI",
         "XLVIII",
         "LI",
-        # Article 5bc lists third countries whose crypto-asset service
-        # providers are off limits; it designates no party.
-        "LVII",
     }
 )
 
