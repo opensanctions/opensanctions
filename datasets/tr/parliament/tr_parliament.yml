@@ -52,7 +52,7 @@ lookups:
   birth_string:
     normalize: false
     options:
-      - match: "İstanbul – 12 Ekim 1990, Hüseyin, Lale Tamam."
+      - match: "İstanbul – 12 Ekim 1990, Hüseyin, Lale."
         birth_place: İstanbul
         birth_date: "1990-10-12"
       - match: "Koray Aydın 1955 yılında Trabzon'da doğdu. Babası Halil İbrahim Aydın, annesi ise Sebahat Aydın'dır."

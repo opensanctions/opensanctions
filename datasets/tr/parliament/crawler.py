@@ -60,6 +60,11 @@ def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str 
     if match:
         return match.group(2), match.group(1).strip()
 
+    # Everything the regex above doesn't cover is handled by lookups on purpose. The
+    # biographies are free text and the few structured-looking variants (full Turkish
+    # dates, "doğdu" sentences) are ambiguous enough that parsing them would risk
+    # silently mis-dating people. Don't extend the parsing - add a lookup option
+    # instead.
     result = context.lookup("birth_string", birth_string)
     if result is not None:
         return result.birth_date, result.birth_place
