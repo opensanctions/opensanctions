@@ -812,6 +812,21 @@ config:
       # country: us
     - category: Political_office-holders_in_the_United_States
       topic: role.pep
+      # Temporary. Candidates_in_the_2018_United_States_Senate_elections sits four hops
+      # below here, so people who filed for a Senate primary and lost get role.pep - a
+      # pastor, a comedian, an ophthalmologist, a biologist.
+      #
+      # negcats is a blunt instrument for this: petscan subtracts the page from the whole
+      # result, not from the branch, so it also drops candidates who reach this category
+      # by another route. Measured 2026-08-28, of the 74 members: 20 are the false
+      # positives we are targeting, 37 are office-holders that another dataset also
+      # supplies and who are therefore unaffected, and 17 lose role.pep because
+      # wd_categories is their only source. Of those 17 only five have a recorded
+      # tenure, all state or county level and all ended - see the PR for the list.
+      #
+      # Replace this with a branch-aware exclusion rather than extending it.
+      negcats: |
+        Candidates_in_the_2018_United_States_Senate_elections
     - category: Second_Trump_administration_personnel
       topic: role.pep
     - category: Biden_administration_personnel
