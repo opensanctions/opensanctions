@@ -170,13 +170,16 @@ TARGETS: dict[str, AnnexSpec] = {
         roles=("name", "startDate"),
         parts=("A", "B", "C", "D"),
     ),
+    # Part D (refineries, Article 5ae(2a)) carries the same "any transaction"
+    # prohibition as the ports, locks and airports of Parts A to C, so the
+    # whole annex keeps one measure.
     "XLVII": AnnexSpec(
         "table",
         "Asset",
         "Transportation restrictions",
         header=("", "Name", "Grounds for inclusion", "Date of application"),
         roles=("recordId", "name", "reason", "startDate"),
-        parts=("A", "B", "C"),
+        parts=("A", "B", "C", "D"),
     ),
     "XLIX": AnnexSpec(
         "table",
@@ -207,7 +210,12 @@ TARGETS: dict[str, AnnexSpec] = {
     ),
 }
 
-EXPECTED_EMPTY = frozenset({"XLIII", "XLVI", "L", "LIV", "LV", "LVI"})
+# Annex LVII is the list of countries referred to in Article 5bc; it is
+# printed with a heading and no entries. Whether a country named there is a
+# target of this dataset or merely a scope criterion for the crypto-asset
+# service provider prohibition is a decision to take on its first entry, so
+# the annex gaining content must stop the run rather than be skipped silently.
+EXPECTED_EMPTY = frozenset({"XLIII", "XLVI", "L", "LIV", "LV", "LVI", "LVII"})
 NON_TARGET = frozenset(
     {
         "I",
@@ -253,6 +261,25 @@ DATE_FORMATS = (
     "dotted",
     "worded",
 )
+
+
+# A table name cell prints one line. Annex XLVII Part D wraps its single
+# refinery name after the comma, so the printed lines are pinned to the name
+# they spell; a source edit breaks the key and resurfaces the parse error.
+WRAPPED_NAME_PINS: dict[tuple[str, ...], str] = {
+    ("Kulevi Oil Refinery,", "Georgia"): "Kulevi Oil Refinery, Georgia",
+}
+
+
+def joined_name(td: Element, ctx: str) -> str:
+    """The printed name of a table entry, rejoining a pinned line wrap."""
+    lines = cell_lines(td, ctx)
+    if len(lines) == 1:
+        return lines[0]
+    pinned = WRAPPED_NAME_PINS.get(tuple(lines))
+    if pinned is None:
+        raise ParseError(f"{ctx}: unrecognized multi-line name {lines!r}")
+    return pinned
 
 
 def parse_record_id(text: str, ctx: str) -> str:
@@ -381,7 +408,7 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
             row.record_id = parse_record_id(cell_line(td, ctx), ctx)
             ctx = f"{roman} entry {row.record_id}"
         elif role == "name":
-            row.add("name", [cell_line(td, ctx)])
+            row.add("name", [joined_name(td, ctx)])
         elif role == "startDate":
             row.start_date = verbatim_date(cell_line(td, ctx), ctx, DATE_FORMATS)
         elif role == "reason":
