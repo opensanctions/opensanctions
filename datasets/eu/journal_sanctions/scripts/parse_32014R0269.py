@@ -94,7 +94,8 @@ PARTS = (
 HEADER = ("", "Name", "Identifying information", "Reasons", "Date of listing")
 
 # Entry numbers, including corrigendum-inserted lowercase suffixes ("174a.").
-NUMBER_RE = re.compile(r"^(\d+)([a-z]?)\.$")
+# The trailing dot is missing on one observed PERSONS entry (2097).
+NUMBER_RE = re.compile(r"^(\d+)([a-z]?)\.?$")
 # a.k.a./alias label prefixes as printed: "a.k.a.", "a.k.a", "A.k.a.",
 # "AKA", "Alias:", "alias ", optionally glued to the value ("a.k.a.ECOOIL").
 AKA_RE = re.compile(r"^(?:a\.k\.a\.?:? ?|A\.k\.a\.:? ?|AKA:? ?|[Aa]lias:? )(.+)$")
@@ -168,6 +169,7 @@ INFO_LABELS = {
     # tax identifiers (INN-explicit forms → innCode)
     "INN": "innCode",
     "INN/TIN": "innCode",
+    "Russian taxpayer number (INN)": "innCode",
     "Tax ID (INN no.)": "innCode",
     "Tax Identification Number (ИНН)": "innCode",
     "Taxpayer Identification number (INN)": "innCode",
@@ -187,6 +189,7 @@ INFO_LABELS = {
     "Tax Identificiation Number": "taxNumber",
     "Tax Indentification Number": "taxNumber",
     "Taxpayer Identification Number": "taxNumber",
+    "Taxpayer Identification number": "taxNumber",
     "Taxpayer identification number": "taxNumber",
     "Individual tax number": "taxNumber",
     "Individual Tax Number": "taxNumber",
@@ -210,8 +213,10 @@ INFO_LABELS = {
     "OGRN number": "ogrnCode",
     "PSRN": "ogrnCode",
     "Primary State registration number": "ogrnCode",
+    "Primary state registration number (OGRN)": "ogrnCode",
     "Registration ID (OGRN no.)": "ogrnCode",
     "Registration number (OGRN)": "ogrnCode",
+    "Main state registration number": "ogrnCode",
     "ОГРН/main state registration number": "ogrnCode",
     "OKPO": "okpoCode",
     "— OKPO": "okpoCode",
@@ -234,6 +239,7 @@ INFO_LABELS = {
     "CBLS": "registrationNumber",
     "Local licence number": "registrationNumber",
     "Licence number": "registrationNumber",
+    "Licence Number": "registrationNumber",
     "Business Licence No.": "registrationNumber",
     "Import and export enterprise code": "registrationNumber",
     "China Company Registration Number": "registrationNumber",
@@ -302,6 +308,7 @@ INFO_LABELS = {
     "Telephones": "phone",
     "Tel.": "phone",
     "Tel": "phone",
+    "Тel": "phone",
     "Tel./fax": "phone",
     "Tel./Fax": "phone",
     "Phone": "phone",
@@ -310,6 +317,7 @@ INFO_LABELS = {
     "Fax": "phone",
     "Telephone volunteers in Russia": "phone",
     "Email": "email",
+    "EMail": "email",
     "email": "email",
     "e-mail": "email",
     "E-mail": "email",
@@ -322,7 +330,9 @@ INFO_LABELS = {
     "Web": "website",
     "Webpage": "website",
     "Telegram": "website",
+    "Telegram channel": "website",
     "Social media": "website",
+    "Social network profile": "website",
     "Media resources": "website",
 }
 # Free-text labels whose prose value goes to `notes`, label stripped. Their
@@ -395,10 +405,12 @@ LONG_LABELS = {
 # Colon-less labelled prefixes printed on bare lines.
 COLONLESS_PREFIXES = (
     ("Tax ID No. ", "taxNumber"),
+    ("Tax Identification Number ", "taxNumber"),
     ("Tax ID (INN no.) ", "innCode"),
     ("TIN/INN ", "innCode"),
     ("POB ", "birthPlace"),
     ("Nationality ", "nationality"),
+    ("Gender ", "gender"),
     ("KPP ", "kppCode"),
     ("КПП ", "kppCode"),
     ("INN ", "innCode"),
@@ -543,6 +555,13 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
                 "birthPlace",
                 "Novomoskovsk, Tula Oblast, USSR (now Russian Federation)",
             ),
+        ),
+    },
+    # Two labelled identifiers printed on one line.
+    ("PERSONS", "2099"): {
+        "INN: 732508747179 Passport number: 7304202860": (
+            ("innCode", "732508747179"),
+            ("passportNumber", "7304202860"),
         ),
     },
     # The info cell opens with the transliterated corporate name and an

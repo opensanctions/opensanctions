@@ -175,8 +175,8 @@ TARGETS: dict[str, AnnexSpec] = {
         "Asset",
         "Transportation restrictions",
         header=("", "Name", "Grounds for inclusion", "Date of application"),
-        roles=("recordId", "name", "reason", "startDate"),
-        parts=("A", "B", "C"),
+        roles=("recordId", "site_name", "reason", "startDate"),
+        parts=("A", "B", "C", "D"),
     ),
     "XLIX": AnnexSpec(
         "table",
@@ -207,7 +207,12 @@ TARGETS: dict[str, AnnexSpec] = {
     ),
 }
 
-EXPECTED_EMPTY = frozenset({"XLIII", "XLVI", "L", "LIV", "LV", "LVI"})
+# Annexes the Council has created but not yet filled. LVII (M43) lists the
+# third countries whose crypto-asset service providers Article 5bc restricts;
+# whether a country listed there is a target of this dataset or a scope
+# criterion like the partner-country annexes in NON_TARGET is a decision for
+# the first entry, so an empty annex gaining content is a review event.
+EXPECTED_EMPTY = frozenset({"XLIII", "XLVI", "L", "LIV", "LV", "LVI", "LVII"})
 NON_TARGET = frozenset(
     {
         "I",
@@ -394,6 +399,8 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
             if re.match(r"^\d{7}$", imo) is None:
                 raise ParseError(f"{ctx}: unrecognized IMO number {imo!r}")
             row.add("imoNumber", [imo])
+        elif role == "site_name":
+            row.add("name", [parse_site_name(ctx, cell_lines(td, ctx))])
         elif role == "vessel_name":
             parse_vessel_name(ctx, cell_lines(td, ctx), row)
         elif role == "iv_name":
@@ -405,6 +412,21 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
     if spec.country:
         row.add("country", [spec.country])
     return row
+
+
+def parse_site_name(ctx: str, lines: list[str]) -> str:
+    """Read an Annex XLVII facility name, which may run over two paragraphs.
+
+    Part C prints the "facility, country" form on one line ("Karimun Oil
+    Terminal, Indonesia"); Part D breaks the same form after the comma. Only a
+    comma-terminated line continues onto the next one.
+    """
+    if not lines:
+        raise ParseError(f"{ctx}: empty name cell")
+    for line in lines[:-1]:
+        if not line.endswith(","):
+            raise ParseError(f"{ctx}: unrecognized name line {line!r}")
+    return " ".join(lines)
 
 
 def parse_vessel_name(ctx: str, lines: list[str], row: Row) -> None:
