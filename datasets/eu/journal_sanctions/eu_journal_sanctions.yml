@@ -147,9 +147,9 @@ config:
     32013R0401: 02013R0401-20260429
     32014R0208: 02014R0208-20260303
     32014R0224: 02014R0224-20250326
-    32014R0269: 02014R0269-20260717
+    32014R0269: 02014R0269-20260807
     32014R0747: 02014R0747-20260622
-    32014R0833: 02014R0833-20260717
+    32014R0833: 02014R0833-20260724
     32014R1352: 02014R1352-20240913
     32015R0735: 02015R0735-20260624
     32015R1755: 02015R1755-20250924
@@ -203,7 +203,10 @@ config:
   # the `consolidation` pin of its framework. The transcription stays in git
   # as provenance.
   consolidated_amendments:
+    32026R1843: 02014R0269-20260807
+    32026R1848: 02014R0833-20260724
     32026R1883: 02012R0267-20260801
+    32026R1940: 02014R0269-20260807
   # ## Warning "Amending act has no reviewed transcription"
   #
   # An act changes an annex of a framework act, and no reviewed file holds the
@@ -630,6 +633,10 @@ lookups:
         values:
           - 1964-03-01
           - 1965-04-14
+      - match: "(a) 4.4.1964; (b) 1966"
+        values:
+          - 1964-04-04
+          - 1966
       - match: "20.11.2002 / 16.5.1964"
         values:
           - 1964-05-16
@@ -952,7 +959,9 @@ lookups:
           - 1979
           - 1980
           - 1981
-      - match: "(a) 28.5.1984, (b) 3.12.1979, (c) 3.3.1979, (d) 8.8.1980"
+      - match:
+          - "(a) 28.5.1984, (b) 3.12.1979, (c) 3.3.1979, (d) 8.8.1980"
+          - "(a) 28.5.1984, (b) 3.12.1979, (c) 3.3.1979 (from false passport), (d) 8.8.1980 (information derived from forged indonesia passport no.s335026)"
         values:
           - 1979-03-03
           - 1979-12-03

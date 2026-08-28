@@ -176,7 +176,7 @@ TARGETS: dict[str, AnnexSpec] = {
         "Transportation restrictions",
         header=("", "Name", "Grounds for inclusion", "Date of application"),
         roles=("recordId", "name", "reason", "startDate"),
-        parts=("A", "B", "C"),
+        parts=("A", "B", "C", "D"),
     ),
     "XLIX": AnnexSpec(
         "table",
@@ -244,6 +244,8 @@ NON_TARGET = frozenset(
         "XLI",
         "XLVIII",
         "LI",
+        # Article 5bc lists third countries, never designated parties.
+        "LVII",
     }
 )
 
@@ -253,6 +255,14 @@ DATE_FORMATS = (
     "dotted",
     "worded",
 )
+
+# Scalar name cells the printer wraps across lines, keyed by the exact
+# printed lines and valued by the one name they spell. A source edit breaks
+# the key and resurfaces the original parse error.
+WRAPPED_NAME_PINS: dict[tuple[str, ...], str] = {
+    # XLVII Part D entry 1: the country is printed on its own line.
+    ("Kulevi Oil Refinery,", "Georgia"): "Kulevi Oil Refinery, Georgia",
+}
 
 
 def parse_record_id(text: str, ctx: str) -> str:
@@ -372,6 +382,17 @@ def parse_table(roman: str, spec: AnnexSpec, block: Element) -> list[Row]:
     return rows
 
 
+def table_name(td: Element, ctx: str) -> str:
+    """The one printed name of a scalar name cell, rejoining a pinned wrap."""
+    lines = cell_lines(td, ctx)
+    if len(lines) == 1:
+        return lines[0]
+    pinned = WRAPPED_NAME_PINS.get(tuple(lines))
+    if pinned is None:
+        raise ParseError(f"{ctx}: {len(lines)} lines in name cell {lines[0][:40]!r}")
+    return pinned
+
+
 def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
     row = Row(annex_id(roman, part), spec.schema, spec.measure)
     cells = xpath_elements(tr, "./td|./th")
@@ -381,7 +402,7 @@ def parse_table_row(roman: str, part: str, spec: AnnexSpec, tr: Element) -> Row:
             row.record_id = parse_record_id(cell_line(td, ctx), ctx)
             ctx = f"{roman} entry {row.record_id}"
         elif role == "name":
-            row.add("name", [cell_line(td, ctx)])
+            row.add("name", [table_name(td, ctx)])
         elif role == "startDate":
             row.start_date = verbatim_date(cell_line(td, ctx), ctx, DATE_FORMATS)
         elif role == "reason":

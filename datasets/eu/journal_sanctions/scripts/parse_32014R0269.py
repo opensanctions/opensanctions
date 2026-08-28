@@ -171,6 +171,7 @@ INFO_LABELS = {
     "Tax ID (INN no.)": "innCode",
     "Tax Identification Number (ИНН)": "innCode",
     "Taxpayer Identification number (INN)": "innCode",
+    "Russian taxpayer number (INN)": "innCode",
     "TIN": "taxNumber",
     "Tax number": "taxNumber",
     "Tax Number": "taxNumber",
@@ -188,6 +189,7 @@ INFO_LABELS = {
     "Tax Indentification Number": "taxNumber",
     "Taxpayer Identification Number": "taxNumber",
     "Taxpayer identification number": "taxNumber",
+    "Taxpayer Identification number": "taxNumber",
     "Individual tax number": "taxNumber",
     "Individual Tax Number": "taxNumber",
     "Tax Individual Number": "taxNumber",
@@ -210,6 +212,8 @@ INFO_LABELS = {
     "OGRN number": "ogrnCode",
     "PSRN": "ogrnCode",
     "Primary State registration number": "ogrnCode",
+    "Primary state registration number (OGRN)": "ogrnCode",
+    "Main state registration number": "ogrnCode",
     "Registration ID (OGRN no.)": "ogrnCode",
     "Registration number (OGRN)": "ogrnCode",
     "ОГРН/main state registration number": "ogrnCode",
@@ -234,6 +238,7 @@ INFO_LABELS = {
     "CBLS": "registrationNumber",
     "Local licence number": "registrationNumber",
     "Licence number": "registrationNumber",
+    "Licence Number": "registrationNumber",
     "Business Licence No.": "registrationNumber",
     "Import and export enterprise code": "registrationNumber",
     "China Company Registration Number": "registrationNumber",
@@ -247,6 +252,8 @@ INFO_LABELS = {
     # maritime, banking and market identifiers
     "IMO": "imoNumber",
     "IMO number": "imoNumber",
+    "IMO-number": "imoNumber",
+    "IMO registration number": "imoNumber",
     "IMO Number": "imoNumber",
     "SWIFT/BIC": "swiftBic",
     "LEI": "leiCode",
@@ -298,6 +305,8 @@ INFO_LABELS = {
     "Principal places of business": "address",
     # contact
     "Telephone": "phone",
+    # Printed with a Cyrillic "Т".
+    "Тel": "phone",
     "Telephone.": "phone",
     "Telephones": "phone",
     "Tel.": "phone",
@@ -310,6 +319,7 @@ INFO_LABELS = {
     "Fax": "phone",
     "Telephone volunteers in Russia": "phone",
     "Email": "email",
+    "EMail": "email",
     "email": "email",
     "e-mail": "email",
     "E-mail": "email",
@@ -322,7 +332,9 @@ INFO_LABELS = {
     "Web": "website",
     "Webpage": "website",
     "Telegram": "website",
+    "Telegram channel": "website",
     "Social media": "website",
+    "Social network profile": "website",
     "Media resources": "website",
 }
 # Free-text labels whose prose value goes to `notes`, label stripped. Their
@@ -345,6 +357,7 @@ NOTES_LABELS = frozenset(
 # continuation lines are consumed.
 DROP_LABELS = frozenset(
     {
+        "Associated company",
         "Associated entities",
         "Associated entites",
         "Associated entity",
@@ -395,10 +408,12 @@ LONG_LABELS = {
 # Colon-less labelled prefixes printed on bare lines.
 COLONLESS_PREFIXES = (
     ("Tax ID No. ", "taxNumber"),
+    ("Tax Identification Number ", "taxNumber"),
     ("Tax ID (INN no.) ", "innCode"),
     ("TIN/INN ", "innCode"),
     ("POB ", "birthPlace"),
     ("Nationality ", "nationality"),
+    ("Gender ", "gender"),
     ("KPP ", "kppCode"),
     ("КПП ", "kppCode"),
     ("INN ", "innCode"),
@@ -591,6 +606,9 @@ DATE_PERIOD_PINS = frozenset(
     {("PERSONS", "706"), ("PERSONS", "710"), ("PERSONS", "1819"), ("PERSONS", "1917")}
 )
 DATE_EMPTY_PINS = frozenset({("ENTITIES", "103")})
+# Entry numbers printed without their trailing period, keyed by the exact
+# printed number line.
+NUMBER_PERIOD_PINS = frozenset({("PERSONS", "2097")})
 # One reasons paragraph is printed as its own single-cell row.
 SINGLE_CELL_REASON_PINS = frozenset({("PERSONS", "885")})
 # Two rows print a continuation with one column missing entirely: entry
@@ -967,7 +985,10 @@ def parse_part(roman: str, part: str, default_schema: str, table: Element) -> li
             continue
         if len(number_lines) != 1:
             raise ParseError(f"{ctx}: {len(number_lines)} lines in number cell")
-        match = NUMBER_RE.match(number_lines[0])
+        printed_number = number_lines[0]
+        if (part, printed_number) in NUMBER_PERIOD_PINS:
+            printed_number = f"{printed_number}."
+        match = NUMBER_RE.match(printed_number)
         if match is None:
             raise ParseError(f"{ctx}: unrecognized entry number {number_lines[0]!r}")
         record_id = match.group(1) + match.group(2)
