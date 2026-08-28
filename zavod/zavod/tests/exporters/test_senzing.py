@@ -3,9 +3,34 @@ from json import loads
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import clear_data_path
-from zavod.exporters.senzing import SenzingExporter
+from zavod.exporters.senzing import SenzingExporter, canonical_national_id_type
 from zavod.crawl import crawl_dataset
 from zavod.tests.exporters.util import harnessed_export
+
+
+def test_canonical_national_id_type():
+    """The Identification adjacency must canonicalize its free-text FtM `type` to the SAME
+    upper-case scheme the typed properties and the Sayari mapper emit, so the same scheme
+    bridges across sources; generic/unrecognized labels must fall back to a blank type."""
+    # Deducible + canonical -> canonical scheme (equals the Sayari mapper's labels).
+    assert canonical_national_id_type("C.U.R.P.") == "CURP"
+    assert canonical_national_id_type("Cedula No.") == "CEDULA"
+    assert canonical_national_id_type("D.N.I.") == "DNI"
+    assert canonical_national_id_type("C.U.I.T.") == "CUIT"
+    assert canonical_national_id_type("C.U.I.") == "CUI"
+    assert canonical_national_id_type("Commercial Register") == "REGISTRATION_NUMBER"
+    # Case / punctuation variants collapse to the same canonical scheme.
+    assert canonical_national_id_type("curp") == "CURP"
+    assert canonical_national_id_type("CURP") == "CURP"
+    assert canonical_national_id_type("dni") == "DNI"
+    # C.U.I. and C.U.I.T. must NOT collide.
+    assert canonical_national_id_type("C.U.I.") != canonical_national_id_type("C.U.I.T.")
+    # Generic or unrecognized -> blank (None); Senzing learns the untyped id.
+    assert canonical_national_id_type("National ID No.") is None
+    assert canonical_national_id_type("Identification Number") is None
+    assert canonical_national_id_type("N.I.E.") is None
+    assert canonical_national_id_type("Some Unknown Doc Type") is None
+    assert canonical_national_id_type(None) is None
 
 
 def test_senzing(testdataset1: Dataset):

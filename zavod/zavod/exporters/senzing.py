@@ -98,6 +98,53 @@ def hash_value(value: str) -> str:
     return NORM_TEXT.sub("", value).lower()
 
 
+# Free-text FtM `Identification.type` label -> canonical NATIONAL_ID scheme.
+#
+# The rest of this exporter routes the typed FtM properties (registrationNumber, innCode,
+# vatCode, ogrnCode) through UPPER-CASE canonical schemes so every source sharing a Senzing
+# instance lands in one exclusivity namespace per scheme. The `Identification` adjacency,
+# though, carried `adj.first("type")` through RAW -- a mixed-case, punctuated FtM string
+# ("C.U.R.P.", "Cedula No.", "National ID No.") -- so the same scheme from a different source
+# (e.g. the Sayari mapper's canonical CURP / CEDULA) would NOT compare equal in the
+# `*_TYPE` namespace, silently missing the cross-source bridge.
+#
+# Keys are hash_value() of the label (lower-cased, punctuation/space-stripped) so "C.U.R.P.",
+# "CURP" and "c.u.r.p" all collapse to one key. Values are the SAME upper-case canonical
+# schemes the Sayari mapper emits (config/sayari_codes.csv), so the two sources share one
+# namespace per scheme. A label is listed ONLY when its scheme is both deducible from the
+# label AND a canonical scheme in the shared vocabulary. Everything else -- generic labels
+# ("National ID No.", "Identification Number") and anything unrecognized -- maps to a blank
+# TYPE (Senzing still learns the untyped id; we never invent a label that isn't in the vocab).
+NATIONAL_ID_TYPES = {
+    hash_value(k): v
+    for k, v in {
+        # Person national-id schemes (canonical in the shared vocab).
+        "C.U.R.P.": "CURP",  # Mexico
+        "Cedula": "CEDULA",
+        "Cedula No.": "CEDULA",
+        "D.N.I.": "DNI",
+        "C.U.I.T.": "CUIT",  # Argentina
+        "C.U.I.L.": "CUIL",  # Argentina
+        "C.U.I.": "CUI",  # Guatemala
+        "CNPJ": "CNPJ",  # Brazil (legal entity)
+        "CPF": "CPF",  # Brazil (natural person)
+        # Company registration -> the single canonical REGISTRATION_NUMBER scheme.
+        "Commercial Register": "REGISTRATION_NUMBER",
+        "Commercial Registry Number": "REGISTRATION_NUMBER",
+        "Registration Number": "REGISTRATION_NUMBER",
+        "Company Number": "REGISTRATION_NUMBER",
+    }.items()
+}
+
+
+def canonical_national_id_type(raw_type: str | None) -> str | None:
+    """Map a free-text FtM Identification.type to a canonical NATIONAL_ID scheme, or
+    None (blank) when the label is generic or unrecognized -- see NATIONAL_ID_TYPES."""
+    if raw_type is None:
+        return None
+    return NATIONAL_ID_TYPES.get(hash_value(raw_type))
+
+
 class SenzingExporter(Exporter):
     TITLE = "Senzing entity format"
     FILE_NAME = "senzing.json"
@@ -258,12 +305,16 @@ class SenzingExporter(Exporter):
                 push(record, "ADDRESSES", clean(adj_data))
 
             elif adj.schema.name == "Identification":
-                # Carry the document type (e.g. "National ID No.", "Cedula No.") — sources
-                # record it on the Identification but it was being dropped, leaving the
-                # exclusive NATIONAL_ID untyped and prone to cross-scheme false conflicts.
+                # Carry the document type (e.g. "C.U.R.P.", "Cedula No.") — sources record it
+                # on the Identification but it was being dropped, leaving the exclusive
+                # NATIONAL_ID untyped and prone to cross-scheme false conflicts. Canonicalize
+                # it to the shared upper-case scheme (matching the typed properties above and
+                # the Sayari mapper) so the SAME scheme bridges across sources; generic or
+                # unrecognized labels canonicalize to blank rather than a raw, non-comparable
+                # string. See NATIONAL_ID_TYPES.
                 adj_data = {
                     "NATIONAL_ID_NUMBER": adj.first("number"),
-                    "NATIONAL_ID_TYPE": adj.first("type"),
+                    "NATIONAL_ID_TYPE": canonical_national_id_type(adj.first("type")),
                     "NATIONAL_ID_COUNTRY": adj.first("country"),
                 }
                 push(record, "IDENTIFIERS", clean(adj_data))
