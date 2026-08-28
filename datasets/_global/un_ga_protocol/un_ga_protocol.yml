@@ -77,6 +77,10 @@ lookups:
         value: 2021-05
       - match: 09-Jan-0721
         value: 2007-01-09
+      # Both San Marino Captains Regent share a cell rendering "01-Apr-2601-Apr-26"
+      # (i.e. "01-Apr-26" twice, overlapping) in the source PDF.
+      - match: 01-Apr-2601
+        value: 2026-04-01
       - match:
           - 09-Sep-2227
           - 09-Sep-2221
