@@ -26,6 +26,9 @@ that warning is in the `config.discovery` section of the dataset `.yml`.
     Sanction record with the parent measure's dates.
   - `subsidiary` / `owner` — creates the entity plus an Ownership link to /
     from the main entity.
+  - `controller` — like `owner`, but for a party the document says controls
+    the main entity without stating ownership ("controlled and operated by");
+    the Ownership link carries `role: control`.
   - `related` — creates the entity plus an UnknownLink; for parties the
     documents connect to the target without designating them.
 
@@ -65,7 +68,7 @@ and from the measure's current stage in the table:
   while a final rule or Section 9714 order is in force, `reg.warn` while only
   a finding or proposed rule exists, and no topic once the measure is
   rescinded (the Sanction record's end date is the history).
-- `subsidiary`, `owner` and `related` entities are `poi` for as long as the
+- `subsidiary`, `owner`, `controller` and `related` entities are `poi` for as long as the
   measure is live, and untagged once it is rescinded. FinCEN names them as
   part of its finding; it does not designate them, so they are never
   `sanction`, `sanction.linked` or `reg.warn` here. Derived topics such as
