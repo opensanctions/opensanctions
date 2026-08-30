@@ -18,7 +18,7 @@ REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
 # Trailing asterisks in the name column are footnote markers, not part of the name.
 REGEX_FOOTNOTE = re.compile(r"[\s*]+$")
 REGEX_ANNOTATION = re.compile(r"\b(includes|renamed|formerly)\b", re.IGNORECASE)
-RELATIONSHIPS = {"self", "target", "subsidiary", "owner", "related"}
+RELATIONSHIPS = {"self", "target", "subsidiary", "owner", "controller", "related"}
 
 
 def convert_date(date_str: str) -> list[str]:
@@ -92,8 +92,8 @@ def crawl_detail(
     a further entity the measure applies to (`target`), or a linked party.
 
     Topics are never read from the row. A `target` shares the measure's status;
-    a subsidiary, owner or related party is a person of interest for as long as
-    the measure is live — unless it is itself a measure target (`target_names`
+    a subsidiary, owner, controller or related party is a person of interest for
+    as long as the measure is live — unless it is itself a measure target (`target_names`
     holds every table-row and `target`-row name), whose own status prevails.
     """
     relationship = detail.pop("Relationship")
@@ -146,7 +146,7 @@ def crawl_detail(
     if relationship != "target" and main is not None:
         # A subsidiary / owner / related party links to the main entity; under a
         # skipped measure there is none, so the party is emitted on its own.
-        if relationship in ("subsidiary", "owner"):
+        if relationship in ("subsidiary", "owner", "controller"):
             owner, asset = (
                 (main, entity) if relationship == "subsidiary" else (entity, main)
             )
@@ -154,6 +154,8 @@ def crawl_detail(
             ownership.id = context.make_id("ownership", owner.id, asset.id)
             ownership.add("owner", owner.id)
             ownership.add("asset", asset.id)
+            if relationship == "controller":
+                ownership.add("role", "control")
             ownership.add("sourceUrl", source_url)
             context.emit(ownership)
         elif relationship == "related":
