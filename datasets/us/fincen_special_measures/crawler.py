@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import cast
 
 from lxml import html
-from normality import collapse_spaces, slugify, squash_spaces
+from normality import slugify, squash_spaces
 from rigour.mime.types import CSV
 from zavod.entity import Entity
 
@@ -61,16 +61,41 @@ def detail_entity_id(
     return context.make_id(measure, name)
 
 
+def measure_status(final_rule: str, rescinded: str) -> str | None:
+    """Risk topic a measure confers on the entities it applies to, or None.
+
+    A final rule (or Section 9714 order) in force prohibits specific dealings
+    with the target, which is what `sanction` denotes; a finding or proposed
+    rule only warns. A rescinded measure confers nothing — its Sanction record
+    with an end date is the history.
+    """
+    if rescinded != "":
+        return None
+    if final_rule != "":
+        return "sanction"
+    return "reg.warn"
+
+
 def crawl_detail(
     context: Context,
     detail: dict[str, str],
     main: Entity | None,
     measure: str,
     measure_names: set[str],
+    target_names: set[str],
+    status: str | None,
     listing_date: str,
     start_date: str,
     end_date: str,
 ) -> None:
+    """Emit one details.csv row: facts about the measure's own entity (`self`),
+    a further entity the measure applies to (`target`), or a linked party.
+
+    Topics are never read from the row. A `target` shares the measure's status;
+    a subsidiary, owner or related party is a person of interest for as long as
+    the measure is live — unless it is itself a measure target (`target_names`
+    holds every table-row and `target`-row name), whose own status prevails.
+    """
     relationship = detail.pop("Relationship")
     if relationship not in RELATIONSHIPS:
         raise ValueError(f"Unknown relationship: {relationship!r}")
@@ -87,7 +112,6 @@ def crawl_detail(
         main.add("registrationNumber", detail.pop("Registration number"))
         main.add("notes", detail.pop("Notes"))
         detail.pop("Type")
-        detail.pop("Topics")
         context.audit_data(detail)
         return
 
@@ -104,9 +128,9 @@ def crawl_detail(
         entity.add("registrationNumber", reg_number)
     elif reg_number != "":
         raise ValueError(f"Registration number on non-LegalEntity: {name!r}")
-    entity.add("topics", h.multi_split(detail.pop("Topics"), [";"]))
 
     if relationship == "target":
+        entity.add("topics", status)
         sanction = h.make_sanction(context, entity)
         sanction.add("sourceUrl", source_url)
         for date in convert_date(listing_date):
@@ -116,7 +140,10 @@ def crawl_detail(
         for date in convert_date(end_date):
             h.apply_date(sanction, "endDate", date)
         context.emit(sanction)
-    elif main is not None:
+    elif status is not None and squash_spaces(name) not in target_names:
+        entity.add("topics", "poi")
+
+    if relationship != "target" and main is not None:
         # A subsidiary / owner / related party links to the main entity; under a
         # skipped measure there is none, so the party is emitted on its own.
         if relationship in ("subsidiary", "owner"):
@@ -146,6 +173,7 @@ def crawl_item(
     row: dict[str, html.HtmlElement],
     details: list[dict[str, str]],
     measure_names: set[str],
+    target_names: set[str],
 ) -> list[str]:
     """Emit the measure's main entity (unless it is a non-representable class)
     and its mined details; return the document URLs linked from the table row."""
@@ -156,10 +184,11 @@ def crawl_item(
     finding_date = row["finding"].text_content()
     nprm_date = row["notice-of-proposed-rulemaking"].text_content()
     listing_date = finding_date if finding_date else nprm_date
-    final_rule_text = row["final-rule"].text_content()
+    final_rule_text = squash_spaces(row["final-rule"].text_content())
     start_date = final_rule_text if final_rule_text != "---" else ""
     rescinded_date = squash_spaces(row["rescinded"].text_content())
-    end_date = rescinded_date if rescinded_date not in ("---", "") else ""
+    end_date = rescinded_date if rescinded_date != "---" else ""
+    status = measure_status(start_date, end_date)
 
     # Document links from the table row, for provenance and for discovery.
     anchors = row["finding"].findall(".//a")
@@ -193,16 +222,7 @@ def crawl_item(
                 context.log.warning("Measure name needs a clean_name lookup", name=name)
             original = name if clean_name != name else None
             main.add("name", clean_name, original_value=original)
-        # Adjust the topic based on the presence of "final rule"
-        final_rule = collapse_spaces(final_rule_text.strip().lower())
-        if (
-            final_rule
-            and final_rule != "---"
-            and (not rescinded_date or rescinded_date == "---")
-        ):
-            main.add("topics", "sanction")
-        else:
-            main.add("topics", "reg.warn")
+        main.add("topics", status)
 
         sanction = h.make_sanction(context, main)
         sanction.add("sourceUrl", doc_urls)
@@ -220,6 +240,8 @@ def crawl_item(
             main,
             name,
             measure_names,
+            target_names,
+            status,
             listing_date,
             start_date,
             end_date,
@@ -272,10 +294,17 @@ def crawl(context: Context) -> None:
     table = h.xpath_element(doc, '//table[@id="special-measures-table"]')
     rows = list(parse_table(table))
     measure_names = {squash_spaces(row["name"].text_content()) for row in rows}
+    target_names = set(measure_names)
+    for detail_rows in details.values():
+        for d in detail_rows:
+            if d["Relationship"] == "target":
+                target_names.add(squash_spaces(d["Name"]))
     unreviewed: dict[str, list[str]] = {}
     for row in rows:
         measure = squash_spaces(row["name"].text_content())
-        doc_urls = crawl_item(context, row, details.pop(measure, []), measure_names)
+        doc_urls = crawl_item(
+            context, row, details.pop(measure, []), measure_names, target_names
+        )
         for url in doc_urls:
             if url not in reviewed_urls:
                 unreviewed.setdefault(url, []).append(measure)
