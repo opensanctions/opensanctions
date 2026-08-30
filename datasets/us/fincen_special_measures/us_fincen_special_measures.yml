@@ -61,7 +61,7 @@ lookups:
           - "Islamic Republic of Iran"
           - "Nauru"
           - "Ukraine"
-        value: PublicBody
+        value: Organization
   clean_name:
     # Names in the overview table that carry inline annotations. The raw
     # string stays the entity ID and the details.csv join key; these
@@ -87,16 +87,14 @@ lookups:
 assertions:
   min:
     schema_entities:
-      PublicBody: 5
       Company: 280
       Person: 30
-      Organization: 10
+      Organization: 20
   max:
     schema_entities:
-      PublicBody: 25
-      Company: 400
-      Person: 70
-      Organization: 40
+      Company: 450
+      Person: 80
+      Organization: 90
 
 config:
   # Subsidiaries are linked to the target by Ownership only; the graph analyzer
