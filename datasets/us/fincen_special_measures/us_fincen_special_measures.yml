@@ -6,19 +6,31 @@ coverage:
   frequency: daily
   start: 2024-07-26
 summary: >
-  FinCEN, part of the U.S. Department of the Treasury, fights money laundering, safeguards the financial system, and promotes national
-  security through gathering and sharing financial intelligence.
+  Foreign banks, jurisdictions and transaction classes FinCEN has found to be
+  of primary money laundering concern
 description: |
   FinCEN issues special measures under Section 311 of the USA PATRIOT Act and
   Section 9714 of the Combating Russian Money Laundering Act (Public Law 116-283).
-  They issue notices of proposed rulemaking for public comment, and measures
-  imposing restrictions on banking services that may be offered to named entities
-  or jurisdictions.
+  A finding designates a foreign jurisdiction, financial institution or class
+  of transactions as being of primary money laundering concern; a notice of
+  proposed rulemaking proposes one or more special measures; a final rule or
+  order imposes them, most often a prohibition on US financial institutions
+  maintaining correspondent accounts for, or transmitting funds involving, the
+  target.
 
-  Beyond the targets listed in FinCEN's overview table, this dataset includes
-  the addresses, aliases and related entities — subsidiaries, owners, and the
-  individually named members of class-based measures — stated in the linked
-  rulemaking documents (findings, proposed rules and final rules).
+  The targets in FinCEN's overview table are `sanction` while a final rule or
+  order is in force and `reg.warn` while only a finding or proposed rule
+  exists. Rescinded measures are kept with the end date of their sanction
+  record and no risk topic.
+
+  The dataset also includes the addresses, aliases and identifiers stated in
+  the linked rulemaking documents, the individually named members of
+  class-based measures and affiliates the rules define as part of a target
+  (which share the target's status), and the subsidiaries, owners and other
+  parties the documents name in connection with a target. Those parties are
+  not designated by FinCEN; they are tagged as persons of interest (`poi`)
+  for as long as the measure is live, with FinCEN's own wording quoted in
+  their notes.
 tags:
   - sector.banking
   - list.sanction
@@ -87,6 +99,11 @@ assertions:
       Organization: 40
 
 config:
+  # Subsidiaries are linked to the target by Ownership only; the graph analyzer
+  # (ann_graph_topics) then derives sanction.control / sanction.linked for the
+  # subsidiaries of a `sanction` target. It has no notion of the exclusions some
+  # orders carry (e.g. Intercam's US affiliates), so those inherit the derived
+  # topics too.
   discovery:
     # Handling "Unreviewed special measures document" warnings:
     #
@@ -105,7 +122,10 @@ config:
     #    `pdftotext -layout <file> -`.
     # 2. Extract facts into details.csv rows citing the document URL exactly
     #    as it appears in the table — that marks the URL reviewed. Follow the
-    #    column semantics in README.md; copy names and addresses verbatim.
+    #    column semantics in README.md: names and addresses verbatim, Notes as
+    #    quoted sentences from the document, no topics (the crawler derives
+    #    them). An affiliate the rule's definition of the target names gets a
+    #    `target` row in addition to its `subsidiary` row.
     # 3. If the document names no addresses, aliases, identifiers or related
     #    entities (procedural notices, withdrawals), add its URL below with a
     #    one-line comment instead.

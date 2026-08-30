@@ -20,13 +20,19 @@ that warning is in the `config.discovery` section of the dataset `.yml`.
 - `Relationship` — how the row applies to the measure's main entity:
   - `self` — a fact about the main entity itself (address, alias,
     registration number). `Name` repeats the measure string.
-  - `target` — an entity covered by the measure but not the table entry
-    (e.g. members of a "class" measure). Gets its own Sanction record with
-    the parent measure's dates.
+  - `target` — an entity the measure applies to that is not the table entry:
+    a member of a "class" measure, or an affiliate the rule's definition of
+    the target names (e.g. "CIBanco ... including Finanmadrid"). Gets its own
+    Sanction record with the parent measure's dates.
   - `subsidiary` / `owner` — creates the entity plus an Ownership link to /
     from the main entity.
   - `related` — creates the entity plus an UnknownLink; for parties the
     documents connect to the target without designating them.
+
+  An entity may appear in several rows with different relationships: a
+  subsidiary that the rule folds into the target has a `subsidiary` row (the
+  ownership) and a `target` row (the coverage). Rows with the same `Measure`
+  and `Name` merge into one entity.
 
   When a table row names a *class of transactions* rather than an entity we can
   represent (e.g. "Convertible Virtual Currency Mixing", "Mexican Gambling
@@ -41,15 +47,29 @@ that warning is in the `config.discovery` section of the dataset `.yml`.
 - `Address` — verbatim postal address; one address per row, repeat rows for
   more (rows for the same entity merge during processing).
 - `Registration number` — SWIFT/BIC, tax or company number, verbatim.
-- `Topics` — `;`-separated FTM topics, set explicitly per row: entities the
-  measure covers mirror the parent's status (`sanction` while a final rule is
-  in force, `reg.warn` otherwise); documented-but-not-designated connections
-  use `sanction.linked` or stay empty.
-- `Notes` — at most a short, near-verbatim qualifier from the document.
-  Never invented prose.
+- `Notes` — verbatim quotation(s) from the document only, each in double
+  quotes, separated by `;`. Quote the sentence or clause that names the
+  entity; trim at clause boundaries, never paraphrase, summarise, hedge or
+  insert words (no "described as", no bracketed glosses). Fix only the
+  source's character encoding (`Z[uuml]rich` → `Zürich`).
 - `Source URL` — the document the fact was taken from, exactly as linked
   from the table. Every row must cite one; the set of cited URLs doubles as
   the record of which documents have been reviewed.
+
+## Topics
+
+Topics are never set per row; the crawler derives them from the relationship
+and from the measure's current stage in the table:
+
+- The main entity and every `target` carry the measure's status: `sanction`
+  while a final rule or Section 9714 order is in force, `reg.warn` while only
+  a finding or proposed rule exists, and no topic once the measure is
+  rescinded (the Sanction record's end date is the history).
+- `subsidiary`, `owner` and `related` entities are `poi` for as long as the
+  measure is live, and untagged once it is rescinded. FinCEN names them as
+  part of its finding; it does not designate them, so they are never
+  `sanction`, `sanction.linked` or `reg.warn` here. Derived topics such as
+  `sanction.control` come from the graph analyzer, not from this file.
 
 ## Removed documents are not delistings
 
