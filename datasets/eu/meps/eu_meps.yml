@@ -1,6 +1,6 @@
 title: European Parliament Members
 entry_point: crawler.py
-ci_test: false  # fetched via the Zyte API (europarl.europa.eu is behind an AWS WAF challenge)
+ci_test: false  # ~4000 API requests per run is impractical for CI
 prefix: eu-meps
 coverage:
   frequency: weekly
@@ -14,6 +14,10 @@ description: |
   a European-wide election conducted in each member state. Member states have different
   contingents of MEPs based on their voting population. MEPs are organised into groups,
   which are formed from the representatives of national parties aligned with that group.
+
+  This dataset covers current MEPs and former MEPs.
+
+  This data source is licensed under the [Creative Commons Attribution license (CC-BY)](https://creativecommons.org/licenses/by/4.0/).
 tags:
   - list.pep
 publisher:
@@ -26,10 +30,10 @@ publisher:
   url: http://www.europarl.europa.eu/
   country: eu
   official: true
-url: http://www.europarl.europa.eu/meps/
+url: https://data.europarl.europa.eu/en/data/browse-data/mep
 data:
-  url: http://www.europarl.europa.eu/meps/en/full-list/xml
-  format: XML
+  url: https://data.europarl.europa.eu/api/v2/meps
+  format: JSON
 
 assertions:
   min:
