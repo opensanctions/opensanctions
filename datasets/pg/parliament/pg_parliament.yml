@@ -13,6 +13,11 @@ description: |
   111 seats. Members are directly elected: 89 from Open electorates (districts)
   and 22 from Provincial electorates, where the winning candidate serves
   simultaneously as the elected Provincial Governor.
+deprecation: |
+  The PNG Parliament rebuilt their website sometime in the week before 2026-07-28; 
+  [the new version fails to list](https://github.com/opensanctions/opensanctions/issues/5167)
+  the members of parliament. Therefore, we are marking this dataset as deprecated and will 
+  eventually remove it.
 url: https://www.parliament.gov.pg
 publisher:
   name: National Parliament of Papua New Guinea
