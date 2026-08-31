@@ -4,6 +4,7 @@ prefix: ps-freezing
 coverage:
   frequency: daily
   start: 2024-03-19
+  end: 2026-05-04
 load_statements: true
 summary: >
   People who are sanctioned by the PMA in accordance with Security Council 
