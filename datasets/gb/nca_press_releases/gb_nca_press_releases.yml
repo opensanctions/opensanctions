@@ -117,6 +117,12 @@ lookups:
           - Steve Rodhouse
           - Honours
         value: null
+  type.country:
+    lowercase: true
+    options:
+      # Placeholder emitted by the extraction model instead of an empty country list.
+      - match: No country indicated
+        value: null
   type.date:
     options:
       - match: 23 Janaury 2025. # january typo!
