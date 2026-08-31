@@ -35,6 +35,37 @@ data:
   url: https://data.europarl.europa.eu/api/v2/meps
   format: JSON
 
+lookups:
+  # `def/ep-entities`: what kind of body a membership is held in. This decides
+  # how the membership is modelled, so a value missing here warns rather than
+  # being dropped.
+  membership_classification:
+    options:
+      - match: EU_INSTITUTION
+        # The parliament itself: the member's mandate for one term.
+        value: mandate
+      - match: EU_POLITICAL_GROUP
+        value: eu-group
+      - match: NATIONAL_POLITICAL_GROUP
+        value: nat-party
+      # Bodies a member sits on within the parliament. Out of scope: the mandate
+      # already establishes political exposure.
+      - match:
+          - COMMITTEE_PARLIAMENTARY_STANDING
+          - COMMITTEE_PARLIAMENTARY_SUB
+          - COMMITTEE_PARLIAMENTARY_SPECIAL
+          - COMMITTEE_PARLIAMENTARY_TEMPORARY
+          - DELEGATION_PARLIAMENTARY
+          - DELEGATION_PARLIAMENTARY_ASSEMBLY
+          - DELEGATION_JOINT_COMMITTEE
+          - WORKING_GROUP
+          - GOVERNING_BODY
+          # The mandate is published a second time without a classification,
+          # alongside the EU_INSTITUTION membership carrying the same dates. A
+          # few freshly created memberships are also still unclassified.
+          - null
+        value: null
+
 assertions:
   min:
     schema_entities:
