@@ -57,9 +57,14 @@ def parse_date(value: str | None) -> str | None:
     """Reduce a source timestamp to the calendar date it denotes.
 
     The API renders dates as local-midnight timestamps (e.g.
-    `1978-11-20T00:00:00+01:00`). Handing those to the date cleaner converts them to
-    UTC, which moves a Slovak local midnight back into the previous day, so keep only
-    the date part.
+    `1978-11-20T00:00:00+01:00`). The date cleaner's formats only match bare ISO
+    dates, so handing it the full timestamp string matches nothing and, by default,
+    falls back to storing the raw timestamp verbatim. Keep only the date part so it
+    parses cleanly.
+
+    Note we deliberately don't add a timezone-aware date format instead: parsing the
+    offset normalizes to UTC and pushes Slovak local midnight back into the previous
+    day (`1978-11-20T00:00:00+01:00` -> `1978-11-19`), corrupting the calendar date.
     """
     if not value:
         return None
