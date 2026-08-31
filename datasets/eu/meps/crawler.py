@@ -15,6 +15,70 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # One term roster fits in a single response; this bounds it and flags overflow.
 ROSTER_LIMIT = 10000
 
+# Fields each record type carries that the crawler deliberately leaves unmapped.
+# Every object the API returns has `id` (the JSON-LD node IRI) and `type` (the
+# JSON-LD @type tag).
+
+# A PeriodOfTime, as carried by `temporal` and `memberDuring`.
+PERIOD_IGNORE = ["id", "type"]
+
+# A parliamentary term, i.e. the `org/ep-{n}` corporate body.
+TERM_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "identifier",  # term number, already the loop index
+    "label",  # term number as a label
+    "altLabel",  # always "European Parliament"
+    "prefLabel",  # always "European Parliament"
+    "classification",  # always EU_INSTITUTION
+    "represents",  # not set on the institution body
+    "source",  # EP provenance flag
+    "linkedTo",  # refs to related bodies
+    "isVersionOf",  # parent body ref
+    "notation_codictBodyId",  # internal EP id
+    "notation_providerTemporalBodyId",  # internal EP id
+]
+
+# A political group or national party, i.e. an `org/{id}` corporate body.
+ORG_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "identifier",  # equals the local_id we already keep
+    "classification",  # group/committee type, not needed on the org
+    "temporal",  # the body's own date range, unused
+    "source",  # EP provenance flag
+    "linkedTo",  # refs to related bodies
+    "isVersionOf",  # term-invariant parent group ref (e.g. org/PPE)
+    "notation_codictBodyId",  # internal EP id
+    "notation_providerTemporalBodyId",  # internal EP id
+]
+
+# A membership of a political group or national party.
+MEMBERSHIP_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "identifier",  # internal membership id
+    "notation_codictFunctionId",  # internal EP function id
+    "contactPoint",  # office address and phone, not modelled
+]
+
+# An MEP.
+MEP_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "notation_codictPersonId",  # internal EP id, duplicate of identifier
+    "hasEmail",  # contact detail, not screening-relevant
+    "hasHonorificPrefix",  # honorific (Mr/Ms)
+    "homepage",  # personal website, not modelled
+    "account",  # social media accounts, not modelled
+    "img",  # portrait photo URL
+    "sortLabel",  # sorting key, redundant with the name
+    "upperFamilyName",  # uppercase form of familyName
+    "upperGivenName",  # uppercase form of givenName
+    "upperOfficialFamilyName",  # uppercase form of the native family name
+    "upperOfficialGivenName",  # uppercase form of the native given name
+]
+
 
 @dataclass
 class Term:
@@ -85,7 +149,7 @@ def fetch_data(
     if context.cache.get(fingerprint, max_age=cache_days) is None:
         rate_limiter.acquire()
     body = context.fetch_json(url, params=params, cache_days=cache_days)
-    return ensure_list(body.get("data"))
+    return ensure_list(body["data"])
 
 
 def fetch_terms(context: Context) -> list[Term]:
@@ -100,31 +164,13 @@ def fetch_terms(context: Context) -> list[Term]:
             if err.response is not None and err.response.status_code == 404:
                 break
             raise
-        body = rows[0] if rows else {}
-        temporal = body.pop("temporal", None)
-        temporal = temporal if isinstance(temporal, dict) else {}
-        term_start = temporal.pop("startDate", None)
+        assert len(rows) == 1, (number, len(rows))
+        body = rows[0]
+        temporal = body.pop("temporal")
+        term_start = temporal.pop("startDate")
         term_end = temporal.pop("endDate", None)
-        # temporal's id and type are JSON-LD boilerplate.
-        context.audit_data(temporal, ignore=["id", "type"])
-        context.audit_data(
-            body,
-            ignore=[
-                "id",  # JSON-LD node IRI
-                "type",  # JSON-LD @type tag
-                "identifier",  # term number, already the loop index
-                "label",  # term number as a label
-                "altLabel",  # always "European Parliament"
-                "prefLabel",  # always "European Parliament"
-                "classification",  # always EU_INSTITUTION
-                "represents",  # not set on the institution body
-                "source",  # EP provenance flag
-                "linkedTo",  # refs to related bodies
-                "isVersionOf",  # parent body ref
-                "notation_codictBodyId",  # internal EP id
-                "notation_providerTemporalBodyId",  # internal EP id
-            ],
-        )
+        context.audit_data(temporal, ignore=PERIOD_IGNORE)
+        context.audit_data(body, ignore=TERM_IGNORE)
         terms.append(Term(number, term_start, term_end))
     return terms
 
@@ -135,35 +181,21 @@ def fetch_org(context: Context, org_ref: str, cache: dict[str, OrgInfo]) -> OrgI
         return cache[org_ref]
     local_id = org_ref.split("/", 1)[-1]
     rows = fetch_data(context, f"/corporate-bodies/{local_id}")
-    data = rows[0] if rows else {}
+    assert len(rows) == 1, (org_ref, len(rows))
+    data = rows[0]
     countries = [
         c for c in map(last_segment, ensure_list(data.pop("represents", None))) if c
     ]
     # prefLabel is the body's full name; altLabel is a shorter form, used as fallback.
     # Pop both up front so audit_data does not flag the one the `or` would skip.
-    pref_name = pick_label(data.pop("prefLabel", None))
-    alt_name = pick_label(data.pop("altLabel", None))
+    pref_name = pick_label(data.pop("prefLabel"))
+    alt_name = pick_label(data.pop("altLabel"))
     name = pref_name or alt_name
-    acronym = data.pop("label", None)
-    acronym = acronym if isinstance(acronym, str) else None
+    acronym = data.pop("label")
     # The API uses "-" as a placeholder for a missing value.
     name = None if name == "-" else name
     acronym = None if acronym == "-" else acronym
-    context.audit_data(
-        data,
-        ignore=[
-            "id",  # JSON-LD node IRI
-            "type",  # JSON-LD @type tag
-            "identifier",  # equals the local_id we already keep
-            "classification",  # group/committee type, not needed on the org
-            "temporal",  # the body's own date range, unused
-            "source",  # EP provenance flag
-            "linkedTo",  # refs to related bodies
-            "isVersionOf",  # term-invariant parent group ref (e.g. org/PPE)
-            "notation_codictBodyId",  # internal EP id
-            "notation_providerTemporalBodyId",  # internal EP id
-        ],
-    )
+    context.audit_data(data, ignore=ORG_IGNORE)
     info = OrgInfo(local_id=local_id, name=name, acronym=acronym, countries=countries)
     cache[org_ref] = info
     return info
@@ -177,12 +209,13 @@ def crawl_group_membership(
     cache: dict[str, OrgInfo],
 ) -> None:
     """Emit the political group or national party and the person's membership in it."""
-    org_ref = membership.pop("organization", None)
-    if not isinstance(org_ref, str):
-        return
-    info = fetch_org(context, org_ref, cache)
+    info = fetch_org(context, membership.pop("organization"), cache)
 
     org = context.make("Organization")
+    # The API uses "-" where it records no party. A nameless organization, and
+    # a membership pointing at one, carry no information.
+    if info.name is None and info.acronym is None:
+        return
     # The API models a group as a distinct body per term. Key by name so the
     # same party or group is one entity across terms, not one per term.
     org.id = context.make_slug(
@@ -197,31 +230,20 @@ def crawl_group_membership(
     context.emit(org)
 
     # memberDuring carries the start and end dates of the membership period.
-    period = membership.pop("memberDuring", None)
-    period = period if isinstance(period, dict) else {}
+    period = membership.pop("memberDuring")
     entity = context.make("Membership")
     entity.id = context.make_id(
         person.id, org.id, period.get("startDate"), period.get("endDate")
     )
     entity.add("member", person)
     entity.add("organization", org)
-    role = last_segment(membership.pop("role", None))
+    role = last_segment(membership.pop("role"))
     if role is not None:
         entity.add("role", role.replace("_", " ").lower())
-    h.apply_date(entity, "startDate", period.pop("startDate", None))
+    h.apply_date(entity, "startDate", period.pop("startDate"))
     h.apply_date(entity, "endDate", period.pop("endDate", None))
-    # memberDuring's id and type are JSON-LD boilerplate.
-    context.audit_data(period, ignore=["id", "type"])
-    context.audit_data(
-        membership,
-        ignore=[
-            "id",  # JSON-LD node IRI
-            "type",  # JSON-LD @type tag
-            "identifier",  # internal membership id
-            "notation_codictFunctionId",  # internal EP function id
-            "contactPoint",  # office address and phone, not modelled
-        ],
-    )
+    context.audit_data(period, ignore=PERIOD_IGNORE)
+    context.audit_data(membership, ignore=MEMBERSHIP_IGNORE)
     context.emit(entity)
 
 
@@ -242,7 +264,7 @@ def crawl_mep(
     person = context.make("Person")
     person.id = context.make_slug(data.pop("identifier"))
     # Names are plain strings, but gender and citizenship are EU authority URIs.
-    person.add("name", pick_label(data.pop("label", None)))
+    person.add("name", pick_label(data.pop("label")))
     person.add("firstName", data.pop("givenName", None))
     person.add("lastName", data.pop("familyName", None))
     # Cyrillic- and Greek-name MEPs also carry their name in the native script.
@@ -259,24 +281,7 @@ def crawl_mep(
     h.apply_date(person, "deathDate", data.pop("deathDate", None))
     person.add("sourceUrl", f"https://www.europarl.europa.eu/meps/en/{mep_id}")
     memberships = ensure_list(data.pop("hasMembership", None))
-    context.audit_data(
-        data,
-        ignore=[
-            "id",  # JSON-LD node IRI
-            "type",  # JSON-LD @type tag
-            "notation_codictPersonId",  # internal EP id, duplicate of identifier
-            "hasEmail",  # contact detail, not screening-relevant
-            "hasHonorificPrefix",  # honorific (Mr/Ms)
-            "homepage",  # personal website, not modelled
-            "account",  # social media accounts, not modelled
-            "img",  # portrait photo URL
-            "sortLabel",  # sorting key, redundant with the name
-            "upperFamilyName",  # uppercase form of familyName
-            "upperGivenName",  # uppercase form of givenName
-            "upperOfficialFamilyName",  # uppercase form of the native family name
-            "upperOfficialGivenName",  # uppercase form of the native given name
-        ],
-    )
+    context.audit_data(data, ignore=MEP_IGNORE)
 
     # One occupancy per term: a mandate is an EU_INSTITUTION membership in
     # org/ep-{term}. make_occupancy decides PEP relevance from the end date and
@@ -286,17 +291,27 @@ def crawl_mep(
     for membership in memberships:
         # Consumed here to dispatch; popped so the group handler need not ignore it.
         group = last_segment(membership.pop("membershipClassification", None))
-        if group == "EU_INSTITUTION":
+        result = context.lookup("membership_classification", group)
+        if result is None:
+            context.log.warning(
+                "Unknown membership classification", group=group, mep_id=mep_id
+            )
+            continue
+        if result.value == "mandate":
             org_ref = membership.get("organization")
             if not isinstance(org_ref, str) or not org_ref.startswith("org/ep-"):
+                context.log.warning(
+                    "Mandate is not held in a parliamentary term",
+                    organization=org_ref,
+                    mep_id=mep_id,
+                )
                 continue
-            period = membership.get("memberDuring")
-            period = period if isinstance(period, dict) else {}
+            period = membership["memberDuring"]
             occupancy = h.make_occupancy(
                 context,
                 person,
                 position,
-                start_date=period.get("startDate"),
+                start_date=period["startDate"],
                 end_date=period.get("endDate"),
                 # The source always lists an end date for a past-term mandate, so a
                 # missing end date only ever means the current, ongoing term.
@@ -305,9 +320,9 @@ def crawl_mep(
             )
             if occupancy is not None:
                 occupancies.append(occupancy)
-        elif group == "EU_POLITICAL_GROUP":
+        elif result.value == "eu-group":
             groups.append((True, membership))
-        elif group == "NATIONAL_POLITICAL_GROUP":
+        elif result.value == "nat-party":
             groups.append((False, membership))
     if not occupancies:
         return
