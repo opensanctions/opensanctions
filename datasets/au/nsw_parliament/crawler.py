@@ -1,9 +1,11 @@
 import re
 from typing import Any
+from urllib.parse import urlencode
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
@@ -22,6 +24,7 @@ SEARCH_PARAMS = {
 }
 # The index URL of each result is the only place the member's numeric ID appears.
 INDEX_URL_PK = re.compile(r"/member/(\d+)$")
+MEMBER_BANNER_XPATH = "//div[contains(@class, 'pims-member-banner')]"
 
 POSITIONS: dict[str, dict[str, str]] = {
     "Legislative Assembly": {
@@ -133,7 +136,14 @@ def crawl_member(
     constituency = electorates[0] if electorates else None
 
     # The listing has no term dates or biography; both live on the profile page.
-    detail = context.fetch_html(profile_url, cache_days=14)
+    # Cloudflare
+    detail = zyte_api.fetch_html(
+        context,
+        profile_url,
+        unblock_validator=MEMBER_BANNER_XPATH,
+        html_source="httpResponseBody",
+        cache_days=14,
+    )
     start_date = extract_term_start(detail, chamber)
     biography = extract_biography(detail)
 
@@ -178,7 +188,8 @@ def crawl(context: Context) -> None:
         context.emit(position)
         house_positions[house_name] = (position, categorisation, config["chamber"])
 
-    data = context.fetch_json(context.data_url, params=SEARCH_PARAMS)
+    search_url = f"{context.data_url}?{urlencode(SEARCH_PARAMS)}"
+    data = zyte_api.fetch_json(context, search_url)  # Cloudflare
     packet = data["response"]["resultPacket"]
     results = packet["results"]
     # Guard against the listing being silently truncated by the page size.
