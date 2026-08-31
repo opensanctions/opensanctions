@@ -216,10 +216,17 @@ config:
       depth: 8
     - category: Political_office-holders_in_North_America
       depth: 8
+      # Candidates_in_the_2018_United_States_Senate_elections also leaks in here via
+      # Political_office-holders_in_the_United_States > United_States_Congresses >
+      # 115th_United_States_Congress > 2018_United_States_Senate_elections, so it needs
+      # the same negcat as the US category below.
+      # TODO: replace once we have a better way of excluding mixed PEP/non-PEP subcategories
+      # than negcats. https://github.com/opensanctions/opensanctions/issues/5485
       negcats: |
         Polk_administration_cabinet_members
         19th-century_presidents_of_the_United_States
         George_M._Dallas
+        Candidates_in_the_2018_United_States_Senate_elections
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
