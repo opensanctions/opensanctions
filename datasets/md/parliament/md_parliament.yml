@@ -5,7 +5,7 @@ coverage:
   frequency: monthly
   start: "2026-08-19"
 load_statements: true
-ci_test: false  # Zyte (Cloudflare)
+ci_test: false  # Zyte; the roster API only answers calls made from within the page
 summary: >-
   Members of Moldova's unicameral national legislature
 description: |
@@ -23,14 +23,9 @@ publisher:
   country: md
   official: true
 data:
-  url: https://parlament.md/home.nspx
+  url: https://parlament.md/member-of-the-parliament.nspx
   format: JSON
   lang: eng
-
-http:
-  # Browser rendering fetches both available rosters under one 40-second abort window;
-  # the 90-second Zyte timeout covers the roughly doubled in-page request time.
-  zyte_timeout: 90
 
 tags:
   - list.pep

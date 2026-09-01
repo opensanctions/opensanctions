@@ -10,6 +10,12 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod import Context
 from zavod import helpers as h
 
+# The script runs on the site's home page rather than the roster page named by
+# data.url: the dispatch endpoint is same-origin, so any page will serve, and the
+# roster page renders every member into the DOM with a ~240KB base64 portrait
+# apiece - browserHtml would carry the ~50MB the script exists to avoid.
+RENDER_URL = "https://parlament.md/home.nspx"
+
 # In-page requests that retrieve and slim all available rosters. The endpoint only
 # answers calls made from within the rendered page; an identical external POST
 # returns an empty 200.
@@ -111,6 +117,11 @@ def crawl_member(
         context.lookup("faction_status", faction)
         political_group = None
 
+    # RoleId marks offices within the chamber, but the source documents no values.
+    # Audit here rather than at the end: make_occupancy returns None for a lapsed
+    # term, and the early return below would skip the audit for those members.
+    context.audit_data(data, ignore=["RoleId"])
+
     occupancy = h.make_occupancy(
         context,
         person,
@@ -139,6 +150,8 @@ def crawl_term(
     assert period_start <= period_end, (period_start, period_end)
     is_current = structure.pop("IsCurrent")
     assert isinstance(is_current, bool), is_current
+    # The roster arrives already grouped by term, so the structure ID is unused.
+    context.audit_data(structure, ignore=["Id"])
 
     for member in term.pop("members"):
         crawl_member(
@@ -168,7 +181,7 @@ def crawl(context: Context) -> None:
 
     doc = fetch_html(
         context,
-        context.data_url,
+        RENDER_URL,
         html_source="browserHtml",
         unblock_validator=(
             '//pre[@id="payload"][starts-with(normalize-space(text()), "[")]'
