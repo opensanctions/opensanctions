@@ -6,6 +6,7 @@ coverage:
   start: 2024-03-19
   end: 2026-05-04
 load_statements: true
+ci_test: false
 summary: >
   People who are sanctioned by the PMA in accordance with Security Council
   Resolutions to combat money laundering and the financing of terrorism.

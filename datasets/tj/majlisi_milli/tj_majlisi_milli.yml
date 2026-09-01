@@ -6,7 +6,7 @@ coverage:
   start: 2026-06-26
   end: 2026-07-29
 load_statements: true
-ci_test: true
+ci_test: false
 summary: >-
   Members of the upper chamber of the Supreme Assembly of the Republic of Tajikistan
 description: |
