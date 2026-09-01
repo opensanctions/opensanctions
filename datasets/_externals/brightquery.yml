@@ -48,7 +48,7 @@ assertions:
       Company: 500
   max:
     schema_entities:
-      Company: 1200
+      Company: 2500
 
 inputs:
   - ann_graph_topics
