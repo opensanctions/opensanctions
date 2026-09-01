@@ -1,3 +1,11 @@
+# The roster API only answers calls made from within the rendered page; an external
+# POST returns an empty 200 whatever headers or cookies it carries. Hence the in-page
+# script. Never attach cookies to a Zyte request: any requestCookies value returns
+# 520 "Website Ban". The site's Angular app never populates the roster in Zyte's
+# browser, so DOM scraping and XHR capture are dead ends too.
+#
+# An audit_data warning naming a new API field means the source added one: map it, or
+# extend the ignore list in crawler.py.
 title: Moldova Members of Parliament
 entry_point: crawler.py
 prefix: md-parl
@@ -5,20 +13,23 @@ coverage:
   frequency: monthly
   start: "2026-08-19"
 load_statements: true
-ci_test: false  # Zyte; the roster API only answers calls made from within the page
+ci_test: false  # needs Zyte browser rendering, see the note above
 summary: >-
-  Members of Moldova's unicameral national legislature
+  Current and recent Members of Moldova's unicameral national legislature.
 description: |
-  Current members and recent members of the Parliament of the
-  Republic of Moldova (Parlamentul Republicii Moldova), the country's unicameral
-  national legislature. Its 101 members are elected by proportional representation for
-  four-year terms and exercise legislative power.
-url: https://parlament.md/
+  Current and historical members of the Parliament of the Republic of Moldova
+  (Parlamentul Republicii Moldova), the country's unicameral national legislature.
+  Its 101 members are elected under proportional representation for a four-year term
+  and hold the country's legislative power, including passing laws and approving the
+  state budget.
+url: https://parlament.md/member-of-the-parliament.nspx
 publisher:
   name: Parlamentul Republicii Moldova
   name_en: Parliament of the Republic of Moldova
   description: >-
-    The Parliament is the unicameral legislative authority of the Republic of Moldova.
+    The Parliament is the supreme representative body of the people of the Republic
+    of Moldova and the country's sole legislative authority. Its deputies are elected
+    nationally for four-year terms.
   url: https://parlament.md/
   country: md
   official: true
@@ -31,6 +42,8 @@ tags:
   - list.pep
 
 lookups:
+  # Without a faction ID the title holds a status label, not a faction name. A match
+  # emits no politicalGroup; an unmatched label halts the crawl - it may be a faction.
   faction_status:
     required: true
     options:
