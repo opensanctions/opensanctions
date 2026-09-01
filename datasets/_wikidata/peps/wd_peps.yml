@@ -120,6 +120,10 @@ lookups:
         value: 2020-04
       - match: "1969-04-31"
         value: 1969-04
+      - match: "2008-06-31"
+        value: 2008-06
+      - match: "2022-06-31"
+        value: 2022-06
       - match: "2025-06-31"
         value: 2025-06
       - match: "2026-06-31"
@@ -130,6 +134,8 @@ lookups:
         value: 2011-02
       - match: "1999-06-31"
         value: 1999-06
+      - match: "1920-06-31"
+        value: 1920-06
       - match: "1951-06-31"
         value: 1951-06
       - match: "2006-09-31"

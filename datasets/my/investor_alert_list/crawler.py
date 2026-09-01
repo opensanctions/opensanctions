@@ -58,12 +58,13 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
         entity.add("description", "Potential clone entity")
 
     entity.add("website", split_websites(input_dict.pop("website")))
+    # bankInfo is mostly N/A and a spurious field (uncertain about what info it carries)
+    entity.add("notes", input_dict.pop("bankInfo"))
 
     context.emit(entity)
 
-    # group is just the alphabetical order of the name. bankInfo holds the bank
-    # account of the scheme, which we do not model.
-    context.audit_data(input_dict, ignore=["group", "date", "bankInfo"])
+    # group is just the alphabetical order of the name.
+    context.audit_data(input_dict, ignore=["group", "date"])
 
 
 def crawl(context: Context) -> None:

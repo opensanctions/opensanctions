@@ -303,6 +303,8 @@ lookups:
         value: 9422457
       - match: 9434980
         value: 9434890
+      - match: 947115
+        value: null
   type.country:
     options:
       - match: Guinea-Bisau
