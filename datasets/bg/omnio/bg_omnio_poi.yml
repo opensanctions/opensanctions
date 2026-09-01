@@ -4,6 +4,7 @@ prefix: omnio
 coverage:
   frequency: daily
   start: 2022-09-06
+  end: 2026-11-16
 deploy:
   schedule: "0 */6 * * *"
 load_statements: true
@@ -18,6 +19,13 @@ description: |
   > Terrorism.
 
   This list has been manually extracted from the government PDF by OMNIO staff.
+deprecation: |
+  `bg_omnio_poi` was a third-party reproduction of Bulgaria's terrorism-financing list,
+  maintained by OMNIO Compliance in a shared Google Doc. `bg_mft_national` will replace
+  it with a crawler that reads the consolidated PDF published directly by Bulgaria's State
+  Agency for National Security (DANS) — an official source, monitored for change, instead
+  of a manually maintained copy. As a result, we are marking `bg_omnio_poi` as deprecated
+  and will eventually remove it.
 tags:
   - list.sanction
 publisher:
