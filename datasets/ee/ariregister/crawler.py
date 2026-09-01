@@ -55,7 +55,9 @@ def parse_websites(value: str) -> Generator[str, None, None]:
         if "://" in part:
             scheme, url = part.split("://", 1)
             if scheme not in ("http", "https"):
-                part = f"http://{url}"
+                # A mistyped scheme, e.g. "htttp://": assume plain HTTP and drop
+                # the filler left between the scheme and the host.
+                part = f"http://{WEBSITE_LEAD.sub('', url)}"
         yield part
 
 

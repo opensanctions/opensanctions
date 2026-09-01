@@ -95,9 +95,9 @@ lookups:
           - "???"
         value: null
       # Real short place names, marked as curated to silence the length smell:
-      - match: zug # Zug, Switzerland
+      - match: zug  # Zug, Switzerland
         value: zug
-      - match: Raa # Råå, Sweden
+      - match: Raa  # Råå, Sweden
         value: Raa
       # The source only records a country for some foreign officers:
       - match: USA
@@ -163,7 +163,7 @@ lookups:
         value: VG
       - match: XKX
         value: XK
-      - match: MON # Monaco
+      - match: MON  # Monaco
         value: MC
-      - match: ROM # Romania
+      - match: ROM  # Romania
         value: RO
