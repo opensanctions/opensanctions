@@ -18,7 +18,7 @@ description: |
   property, equipment, or other instrumentalities.
 deprecation: |
   The source for the Palestine Monetary Authority Local Freezing List dataset is gone,
-  [returning a 404, since at least May 2025](https://github.com/opensanctions/opensanctions/issues/4143).
+  [returning a 404, since at least May 2026](https://github.com/opensanctions/opensanctions/issues/4143).
   Therefore, we are marking this dataset as deprecated and will eventually remove it.
 publisher:
   name: Palestine Monetary Authority
