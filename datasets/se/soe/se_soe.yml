@@ -7,7 +7,7 @@ coverage:
   start: 2026-02-23
 load_statements: true
 manual_check:
-  last_checked: "2026-02-16"
+  last_checked: "2026-09-01"
   interval: 182
   message: |
     Check if a new Swedish SOE report is available and update if needed.
