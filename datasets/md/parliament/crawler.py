@@ -1,5 +1,4 @@
 import json
-import re
 from datetime import datetime, time
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -73,20 +72,17 @@ BROWSER_SCRIPT = """
 })()
 """
 
-REGEX_DOTNET_DATE = re.compile(r"/Date\((\d{13})\)/")
+CHISINAU = ZoneInfo("Europe/Chisinau")
 
 
-def parse_structure_date(structure: dict[str, Any], field: str) -> str:
-    """Parse the .NET JSON dates used by the legislature selector."""
-    value = structure.pop(field)
-    match = REGEX_DOTNET_DATE.fullmatch(value)
-    assert match is not None, (field, value)
+def dotnet_date(value: str) -> str:
+    """Convert a .NET /Date(ms)/ timestamp to the calendar date it denotes."""
     parsed = datetime.fromtimestamp(
-        int(match.group(1)) / 1000, tz=ZoneInfo("Europe/Chisinau")
+        int(value.removeprefix("/Date(").removesuffix(")/")) / 1000, CHISINAU
     )
-    # The timestamps are midnight local time; a nonzero time would make the date
-    # ambiguous.
-    assert parsed.time() == time(0, 0), (field, value, parsed.isoformat())
+    # Terms start and end at midnight local time. Any other time would mean the
+    # timezone assumption is wrong and the date could be a day out.
+    assert parsed.time() == time(0, 0), (value, parsed.isoformat())
     return parsed.date().isoformat()
 
 
@@ -138,8 +134,8 @@ def crawl_term(
 ) -> None:
     structure = term.pop("structure")
 
-    period_start = parse_structure_date(structure, "DateFrom")
-    period_end = parse_structure_date(structure, "DateTo")
+    period_start = dotnet_date(structure.pop("DateFrom"))
+    period_end = dotnet_date(structure.pop("DateTo"))
     assert period_start <= period_end, (period_start, period_end)
     is_current = structure.pop("IsCurrent")
     assert isinstance(is_current, bool), is_current
