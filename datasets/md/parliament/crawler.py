@@ -11,7 +11,9 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod import Context
 from zavod import helpers as h
 
-# In-page requests that retrieve and slim all available rosters.
+# In-page requests that retrieve and slim all available rosters. The endpoint only
+# answers calls made from within the rendered page; an identical external POST
+# returns an empty 200.
 BROWSER_SCRIPT = """
 (async () => {
   const emit = (value) => {
@@ -32,7 +34,8 @@ BROWSER_SCRIPT = """
     if (!response.ok) {
       throw new Error(`POST ${body.methodName} returned HTTP ${response.status}`);
     }
-    return JSON.parse(await response.text());
+    // An empty body means the endpoint rejected the call; no results is "[]".
+    return response.json();
   };
 
   try {
@@ -40,19 +43,10 @@ BROWSER_SCRIPT = """
       methodName: "GetAllStructuresForFilter",
       languageId: 1,
     });
-    if (!Array.isArray(structures)) {
-      throw new Error("GetAllStructuresForFilter did not return an array");
-    }
-    const current = structures.filter((structure) => structure.IsCurrent === true);
-    if (current.length !== 1) {
-      throw new Error(`Expected one current structure, found ${current.length}`);
-    }
-
     const terms = [];
     for (const structure of structures) {
-      if (structure === null || typeof structure !== "object" ||
-          typeof structure.Id !== "string") {
-        throw new Error("Invalid parliament structure");
+      if (typeof structure.Id !== "string") {
+        throw new Error(`Invalid structure: ${JSON.stringify(structure)}`);
       }
       const members = await post({
         methodName: "GetParliamentMPs",
@@ -67,19 +61,8 @@ BROWSER_SCRIPT = """
         membersFlag: null,
         StructureId: structure.Id,
       });
-      if (!Array.isArray(members)) {
-        throw new Error("GetParliamentMPs did not return an array");
-      }
-      const slimmed = members.map((member) => {
-        if (member === null || typeof member !== "object" ||
-            !Object.hasOwn(member, "UserImg")) {
-          throw new Error("Roster member is missing UserImg");
-        }
-        const copy = {...member};
-        delete copy.UserImg;
-        return copy;
-      });
-      terms.push({structure: structure, members: slimmed});
+      // Each member carries ~240KB of base64 portrait, putting a roster at ~50MB.
+      terms.push({structure, members: members.map(({UserImg, ...rest}) => rest)});
     }
     emit(terms);
   } catch (error) {
@@ -204,5 +187,7 @@ def crawl(context: Context) -> None:
     terms = json.loads(payload)
     # The in-page script emits an {"error": ...} object when a roster request fails.
     assert isinstance(terms, list), terms
+    current = [t for t in terms if t["structure"]["IsCurrent"] is True]
+    assert len(current) == 1, len(current)
     for term in terms:
         crawl_term(context, position, categorisation, term)
