@@ -4,8 +4,9 @@ prefix: tj-milli
 coverage:
   frequency: monthly
   start: 2026-06-26
+  end: 2026-07-29
 load_statements: true
-ci_test: true
+ci_test: false
 summary: >-
   Members of the upper chamber of the Supreme Assembly of the Republic of Tajikistan
 description: |
@@ -16,6 +17,9 @@ description: |
 
   This dataset records each sitting member with their name, date and place of birth,
   sourced from the chamber's official website.
+deprecation: |
+  Since June 2025 the Turkmenistan Members of the Mejlis website [has rejected TCP connections](https://github.com/opensanctions/opensanctions/issues/5489)
+  and is therefore tentatively marked as deprecated unless a successful crawl is possible.
 url: https://majmilli.tj/azoi-majlisi-milli/
 publisher:
   name: Маҷлиси миллии Маҷлиси Олии Ҷумҳурии Тоҷикистон

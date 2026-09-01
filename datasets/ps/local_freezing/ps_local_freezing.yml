@@ -4,17 +4,23 @@ prefix: ps-freezing
 coverage:
   frequency: daily
   start: 2024-03-19
+  end: 2026-05-04
 load_statements: true
+ci_test: false
 summary: >
-  People who are sanctioned by the PMA in accordance with Security Council 
+  People who are sanctioned by the PMA in accordance with Security Council
   Resolutions to combat money laundering and the financing of terrorism.
 description: |
   In line with authorities of the "Security Council Resolutions Enforcing Committee",
   which formed according to Decree No. (14) of 2015 Concerning the Enforcement of
   Security Council Resolutions, the PMA publishes a Local Freezing List.
 
-  Persons named on this list are prohibited from moving or transferring 
+  Persons named on this list are prohibited from moving or transferring
   property, equipment, or other instrumentalities.
+deprecation: |
+  The source for the Palestine Monetary Authority Local Freezing List dataset is gone,
+  [returning a 404, since at least May 2026](https://github.com/opensanctions/opensanctions/issues/4143).
+  Therefore, we are marking this dataset as deprecated and will eventually remove it.
 publisher:
   name: Palestine Monetary Authority
   acronym: PMA
