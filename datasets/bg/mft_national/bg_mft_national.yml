@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: bg-mft
 coverage:
   frequency: never
-  start: 2026-08-10
+  start: 2026-09-01
 deploy:
   schedule: "15 7 * * *"
 manual_check:
