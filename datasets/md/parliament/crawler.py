@@ -10,15 +10,12 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod import Context
 from zavod import helpers as h
 
-# The script runs on the site's home page rather than the roster page named by
-# data.url: the dispatch endpoint is same-origin, so any page will serve, and the
-# roster page renders every member into the DOM with a ~240KB base64 portrait
-# apiece - browserHtml would carry the ~50MB the script exists to avoid.
+# The endpoint is same-origin, so the script can run on the light home page. The
+# roster page named by data.url would render every portrait into the DOM.
 RENDER_URL = "https://parlament.md/home.nspx"
 
-# In-page requests that retrieve and slim all available rosters. The endpoint only
-# answers calls made from within the rendered page; an identical external POST
-# returns an empty 200.
+# The endpoint only answers calls made from within the rendered page; an identical
+# external POST returns an empty 200.
 BROWSER_SCRIPT = """
 (async () => {
   const emit = (value) => {
@@ -86,8 +83,7 @@ def dotnet_date(value: str) -> str:
     parsed = datetime.fromtimestamp(
         int(value.removeprefix("/Date(").removesuffix(")/")) / 1000, CHISINAU
     )
-    # Terms start and end at midnight local time. Any other time would mean the
-    # timezone assumption is wrong and the date could be a day out.
+    # Any time but midnight means the zone is wrong and the date a day out.
     assert parsed.time() == time(0, 0), (value, parsed.isoformat())
     return parsed.date().isoformat()
 
@@ -104,22 +100,23 @@ def crawl_member(
     person.id = context.make_slug(data.pop("UserId"))
     raw_name = data.pop("FullName").strip()
     h.apply_name(person, full=raw_name.title(), lang="eng")
-    # Electoral Code No. CE325/2022, Art. 109 requires parliamentary candidates to
-    # hold Moldovan citizenship: https://www.legis.md/cautare/downloadpdf/148962
+    # Candidates must hold Moldovan citizenship: Electoral Code CE325/2022, Art. 109
+    # https://www.legis.md/cautare/downloadpdf/148962
     person.add("citizenship", "md")
 
     faction = data.pop("ParliamentaryFactionTitle").strip()
-    political_group: str | None = faction
-    if data.pop("ParliamentaryFactionId") is None:
-        # Members outside any faction carry a status label in the faction title.
-        # The required lookup halts the crawl if a new label — potentially a real
-        # faction name — shows up here.
-        context.lookup("faction_status", faction)
+    faction_id = data.pop("ParliamentaryFactionId")
+    political_group: str | None
+    if faction_id is None:
+        # Without an ID the title holds a status label, not a faction name. Required
+        # lookups raise only via context.lookup, so an unknown label halts the crawl.
+        context.lookup("faction_status", faction, warn_unmatched=True)
         political_group = None
+    else:
+        political_group = faction
 
-    # RoleId marks offices within the chamber, but the source documents no values.
-    # Audit here rather than at the end: make_occupancy returns None for a lapsed
-    # term, and the early return below would skip the audit for those members.
+    # RoleId marks offices within the chamber; the source documents no values. Audit
+    # before the early return below, which would skip members whose term has lapsed.
     context.audit_data(data, ignore=["RoleId"])
 
     occupancy = h.make_occupancy(
@@ -160,8 +157,8 @@ def crawl_term(
             categorisation,
             member,
             period_start=period_start,
-            # The sitting term's DateTo is the scheduled end of the mandate, not a
-            # fact about the member; leave it open so the occupancy reads as current.
+            # The sitting term's DateTo is a scheduled end, not a fact about the
+            # member; leave it open so the occupancy reads as current.
             period_end=None if is_current else period_end,
         )
 
