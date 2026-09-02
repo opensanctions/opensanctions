@@ -12,11 +12,9 @@ from zavod.stateful.positions import (
 )
 
 TOPICS = ["gov.national", "gov.legislative"]
-
+# Sibling of the member endpoint in `data.url`, listing every term the API knows.
+PERIOD_URL = "https://service.dpd.go.id/anggota/api/v1/period"
 PER_PAGE = 300
-
-EMPTY_PERIODS_BEFORE_STOP = 3
-MAX_PERIODS_PROBED = 40
 STATUS_SERVING = 0
 STATUS_LEFT = 1
 
@@ -26,56 +24,32 @@ class Term:
     period_id: int
     start_year: int
     end_year: int
-    members: list[dict[str, Any]]
 
 
 def fetch_terms(context: Context) -> list[Term]:
-    """Return every term the source serves DPD members for, newest first.
+    """Return every term the source lists, newest first.
 
-    The period table is shared across chambers, so the DPD's terms sit in a window of
-    ids inside it, not starting at 1. Nothing here pins a term: the window and each
-    term's years are read off the source, so an election needs no change to this code.
+    The period table is shared across chambers, so some of them serve no DPD members.
     """
-    terms: list[Term] = []
-    empty_run = 0
-    for period_id in range(1, MAX_PERIODS_PROBED + 1):
-        url = f"{context.data_url}?periodId={period_id}&page=1&perPage={PER_PAGE}"
-        # The API host sits behind a WAF that rejects ordinary egress.
-        members = zyte_api.fetch_json(context, url, geolocation="id", cache_days=7)
-        # Also narrows `fetch_json`'s untyped return for the strict type check.
-        if not isinstance(members, list):
-            raise ValueError(f"Period {period_id} did not return a list of members")
-
-        if len(members) == 0:
-            if len(terms) == 0:
-                continue  # Still below the window the DPD's terms occupy.
-            empty_run += 1
-            if empty_run >= EMPTY_PERIODS_BEFORE_STOP:
-                break
-            continue
-
-        if len(members) == PER_PAGE:
-            raise ValueError(f"Period {period_id} filled page 1; rows may be missing")
-        empty_run = 0
-
-        spans = {
-            (mandate["period"]["startYear"], mandate["period"]["endYear"])
-            for member in members
-            for mandate in member["memberPeriods"]
-            if mandate["period"]["id"] == period_id
-        }
-        if len(spans) != 1:
-            raise ValueError(f"Period {period_id} has ambiguous years: {spans}")
-        start_year, end_year = spans.pop()
-        terms.append(Term(period_id, start_year, end_year, members))
-
+    periods = zyte_api.fetch_json(context, PERIOD_URL, geolocation="id", cache_days=7)
+    if not isinstance(periods, list):
+        raise ValueError("Period endpoint did not return a list")
+    terms = [Term(p["id"], p["startYear"], p["endYear"]) for p in periods]
     if len(terms) == 0:
-        raise ValueError(f"No period up to {MAX_PERIODS_PROBED} serves DPD members")
-    context.log.info(
-        "Found terms",
-        terms={t.period_id: f"{t.start_year}-{t.end_year}" for t in terms},
-    )
-    return sorted(terms, key=lambda t: t.period_id, reverse=True)
+        raise ValueError("Period endpoint returned no terms")
+    terms.sort(key=lambda t: (t.end_year, t.start_year, t.period_id), reverse=True)
+    return terms
+
+
+def fetch_members(context: Context, term: Term) -> list[dict[str, Any]]:
+    url = f"{context.data_url}?periodId={term.period_id}&page=1&perPage={PER_PAGE}"
+    # The API host sits behind a WAF that rejects ordinary egress.
+    members = zyte_api.fetch_json(context, url, geolocation="id", cache_days=7)
+    if not isinstance(members, list):
+        raise ValueError(f"Period {term.period_id} did not return a list of members")
+    if len(members) == PER_PAGE:
+        raise ValueError(f"Period {term.period_id} filled page 1; rows may be missing")
+    return members
 
 
 def crawl_member(
@@ -84,12 +58,11 @@ def crawl_member(
     categorisation: PositionCategorisation,
     member: dict[str, Any],
     term: Term,
-    sitting: bool,
+    is_current: bool,
 ) -> None:
     person = context.make("Person")
     person.id = context.make_slug(str(member.pop("id")))
-    # Source names carry honorifics and academic post-nominals as part of the
-    # name; strip the affixes declared in the dataset metadata.
+    # Names carry honorifics and post-nominals; the affixes to strip are in the metadata.
     raw_name = member.pop("fullName")
     clean_name = h.strip_name_titles(context, raw_name)
     person.add(
@@ -101,13 +74,27 @@ def crawl_member(
     person.add("gender", member.pop("gender"))
     person.add("birthPlace", member.pop("placeOfBirth"))
     h.apply_date(person, "birthDate", member.pop("dateOfBirth"))
-    person.add("biography", member.pop("profile"))  # local lang
+    person.add("biography", member.pop("profile"))
     person.add("email", member.pop("email"))
-    # DPD candidates must be Indonesian citizens (Law No. 7 of 2017 on General
-    # Elections, Article 182 letter a). https://peraturan.bpk.go.id/Details/37644
+    # DPD members must be Indonesian citizens (Law No. 7 of 2017, Article 182a).
     person.add("citizenship", "id")
-
     mandates = member.pop("memberPeriods")
+    context.audit_data(
+        member,
+        [
+            "photoUrl",
+            "photoThumbnailUrl",
+            "religionName",
+            "maritalStatus",
+            "organStructures",
+            "facebook",
+            "instagram",
+            "tiktok",
+            "youtube",
+            "twitter",
+            "website",
+        ],
+    )
 
     occupancies: list[Entity] = []
     for mandate in mandates:
@@ -126,14 +113,14 @@ def crawl_member(
             period_start=str(term.start_year),
             period_end=str(term.end_year),
             status=(
-                OccupancyStatus.ENDED if sitting and status == STATUS_LEFT else None
+                OccupancyStatus.ENDED if is_current and status == STATUS_LEFT else None
             ),
             categorisation=categorisation,
         )
         if occupancy is not None:
             occupancy.add("constituency", mandate["region"]["name"])
             occupancies.append(occupancy)
-    # A member whose only mandate falls outside the PEP window gets no occupancy.
+    # No occupancy means every mandate fell outside the PEP window.
     if len(occupancies) == 0:
         return
     for occupancy in occupancies:
@@ -155,30 +142,30 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    terms = fetch_terms(context)
-    sitting = terms[0]
-    if sitting.end_year < settings.RUN_TIME.year:
-        raise ValueError(
-            f"Newest period {sitting.period_id} ended in {sitting.end_year}: the "
-            "source has no term in progress. Aborting as not to emit its members as "
-            "current."
-        )
-
-    for term in terms:
-        if term.end_year < int(h.earliest_term_start(TOPICS)[:4]):
-            context.log.info(
-                "Term ended before the PEP window; stopping",
-                id=term.period_id,
-                years=f"{term.start_year}-{term.end_year}",
-            )
-            break
-        for member in term.members:
+    window_start_year = int(h.earliest_term_start(TOPICS)[:4])
+    current_term: Term | None = None
+    for term in fetch_terms(context):
+        if term.end_year < window_start_year:
+            continue
+        members = fetch_members(context, term)
+        if len(members) == 0:
+            continue  # A term of one of the other chambers.
+        if current_term is None:
+            current_term = term
+            if term.end_year < settings.RUN_TIME.year:
+                raise ValueError(
+                    f"Newest period {term.period_id} ended in {term.end_year}; "
+                    "refusing to emit its members as current."
+                )
+        for member in members:
             crawl_member(
-                context, position, categorisation, member, term, term is sitting
+                context, position, categorisation, member, term, term is current_term
             )
         context.log.info(
             "Crawled term",
             id=term.period_id,
             years=f"{term.start_year}-{term.end_year}",
-            members=len(term.members),
+            members=len(members),
         )
+    if current_term is None:
+        raise ValueError("No term in the PEP window serves DPD members")
