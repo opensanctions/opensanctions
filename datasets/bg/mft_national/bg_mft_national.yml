@@ -114,6 +114,10 @@ config:
   #    sections are out of scope — but note them in the commit message.
   # 4. Replace dans_list.pdf with the new document and update PDF_HASH in
   #    crawler.py with its SHA1. This mutes the warning.
-  # 5. If the fetch itself fails ("List PDF change check failed"), DANS has
+  # 5. If the fetch itself fails ("List PDF change check failed") with a
+  #    text/html media type, Cloudflare served its challenge page instead of
+  #    the document. The crawler retries this, so a single warning means all
+  #    attempts were blocked; check whether the neighbouring runs succeeded
+  #    before acting. Only if the failure persists across runs has DANS
   #    likely re-uploaded the document under a new /upload/NNN/ path — find
   #    the current link on https://www.dans.bg/bg/28 and update PDF_URL.
