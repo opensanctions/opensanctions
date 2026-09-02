@@ -66,6 +66,38 @@ http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36 (zavod; opensanctions.org)
 
 lookups:
+  # The "Registration Number" field on the founders page sometimes describes where
+  # a foreign founder is registered instead of naming the number, which blows past
+  # the 64 character identifier limit. Pull the identifiers out of the prose.
+  type.identifier:
+    options:
+      - match: "Agencija za privredne registre, R.Srbije, mat.reg.broj 20566744, PIB 106266191"
+        values:
+          - "20566744"
+          - "106266191"
+      - match: "Gradski sud u Pragu, Odjeljak C, uložak 234430, matični br. 035 96 338"
+        values:
+          - "C 234430"
+          - "03596338"
+      - match: "MBS: 080130530, OIB 13530191392, Trgovački sud Zagreb, R.Hrvatska"
+        values:
+          - "080130530"
+          - "13530191392"
+      - match: "Reg.fondacija, Ministarstvo pravde, RF-3/02, Knjiga II Registra 01.10.2002."
+        value: "RF-3/02"
+      - match: "Registar privrednih subjekata, Gradski sud u Pragu, Odeljak B, uložak 21913."
+        value: "B 21913"
+      - match: "Privredna komora Chieti Pescara, PDV br. 02493150698, br. REA CH-183219"
+        values:
+          - "02493150698"
+          - "CH-183219"
+      - match: "A17013863, Tr. reg. Girona-e T.2.980 F.9, pogl. 171, list 1, str. GI-3095"
+        values:
+          - "A17013863"
+          - "GI-3095"
+      # 19 characters, so not a valid (20 character) LEI - kept as a plain identifier.
+      - match: "Ured reg.preduzeća, Privredne komore Venezoa Giulia, pod L.E.I:815600D69B9617DA495"
+        value: "815600D69B9617DA495"
   type.name:
     options:
       # Skip values that contain only dots, dashes, slashes, or spaces (e.g. "----", "...", "-//-", etc.)
