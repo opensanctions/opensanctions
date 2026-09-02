@@ -35,7 +35,7 @@ data:
   # Edit URL: https://docs.google.com/spreadsheets/d/1J0xD7ZyU0HnHxkpwvmN9UpF3TZKZXmJD8XiPC5XpJDg
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWfPqec5nU9pMkUpcDVdO3a9S5AfPtJzeHkOZ1NEWvp03uk-f8zWy46O0D3pzbeV67Ega1t6DwQ8xd/pub?gid=1352921314&single=true&output=csv
   format: CSV
-ci_test: false # No Zyte key in CI
+ci_test: false  # No Zyte key in CI
 dates:
   formats: ["%d/%m/%Y", "%m/%d/%Y", "%d.%m.%Y", "%m.%d.%Y", "%m.%d.%y"]
 tags:
