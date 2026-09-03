@@ -1,0 +1,71 @@
+title: Dominican Republic Members of the National Congress
+entry_point: crawler.py
+prefix: do-cgso
+coverage:
+  frequency: monthly
+  start: 2026-08-19
+load_statements: true
+ci_test: true
+summary: >-
+  Deputies and senators of the bicameral National Congress
+description: |
+  Current and recent members of the bicameral National Congress (Congreso Nacional)
+  of the Dominican Republic, which comprises the Chamber of Deputies (Cámara de
+  Diputados, 190 seats elected from the provinces, the National District and overseas
+  constituencies) and the Senate (Senado, one seat per province and the National
+  District, 32 seats). Members are elected for four-year terms and hold the country's
+  legislative power, including passing laws and approving the budget.
+
+  This dataset also includes some members of the prior term who had not yet been
+  retired from the source at the time of collection. Officials of other state bodies
+  occasionally listed alongside legislators in the source — the electoral authority,
+  the executive and the supreme court — are not members of Congress and are excluded.
+url: https://camaradediputados.gob.do/
+publisher:
+  name: Cámara de Diputados de la República Dominicana
+  name_en: Chamber of Deputies of the Dominican Republic
+  acronym: CD
+  description: >
+    The Chamber of Deputies is the lower chamber of the bicameral National Congress
+    of the Dominican Republic. It operates the Sistema de Información Legislativa
+    (SIL), a shared legislator database that also covers the Senate.
+  url: https://camaradediputados.gob.do/
+  country: do
+  official: true
+data:
+  url: https://www.diputadosrd.gob.do/sil/api/legislador/
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+lookups:
+  # The API's "funcion" field also lists institutions (electoral authority, executive,
+  # supreme court) cross-referenced by the legislative system, alongside the two
+  # chamber roles it exists to enumerate. Every value must route here explicitly.
+  role:
+    required: true
+    options:
+      - match:
+          - Diputado
+          - Diputada
+        value: deputy
+      - match:
+          - Senador
+          - Senadora
+        value: senator
+      - match: Institución del Estado
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 190
+      Position: 2
+    country_entities:
+      do: 190
+  max:
+    schema_entities:
+      Person: 450
+      Position: 2
