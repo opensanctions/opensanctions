@@ -7,17 +7,37 @@ import requests
 from zavod import Context
 from zavod import helpers as h
 
-# It looks like a colon in the company name might break their site, but
-# AL YAHMADI za razvoj i projekte Društvo sa ograničenom odgovornošću Sarajevo
-# Na engleskom jeziku: AL YAHMADI for development and projects Limited Liability Company Sarajevo
-# https://bizreg.pravosudje.ba/pls/apex/f?p=186:13:3129288602127392::NO:RP,13:P13_P_POS_ID,P13_XMBS,P13_NAZIV:11563166%2C65-01-0620-17%2C%5CAL%20YAHMADI%20za%20razvoj%20i%20projekte%20Dru%C5%A1tvo%20sa%20ograni%C4%8Denom%20odgovorno%C5%A1%C4%87u%20Sarajevo%0D%0ANa%20engleskom%20jeziku:%20AL%20YAHMADI%20for%20development%20and%20projects%20Limited%20Liability%20Company%20Sarajevo\&cs=3819C1F7C88FC875F599B4E719587FBBE
-# shows an error page, while
-# PROJEKT ŽIVOTA I KOMUNIKACIJA d.o.o. Mostar, firma na njemačkom jeziku: Lebensart & kommunikation d.o.o. Mostar
-# https://bizreg.pravosudje.ba/pls/apex/f?p=186:13:3129288602127392::NO:RP,13:P13_P_POS_ID,P13_XMBS,P13_NAZIV:21131241%2C58-01-0068-09%2C%5CPROJEKT%20%C5%BDIVOTA%20I%20KOMUNIKACIJA%20d.o.o.%20Mostar%2C%20firma%20na%20njema%C4%8Dkom%20jeziku:%20Lebensart%20&%20kommunikation%20d.o.o.%20Mostar\&cs=372A07D95AE8C2719A055669223E4025E
-# responds 400
+# Known failure mode: detail links the registry itself emits broken.
 #
-# Other companies with Na engleskom jeziku: don't error.
+# The listing page builds each detail link by URL-encoding the company name into
+# the APEX `f?p=` argument list, but its encoder stops at the first colon in the
+# name and emits the remainder raw, e.g. for
+# 'Društvo za proizvodnju, trgovinu, usluge i zastupanje "TEPIH SAN" d.o.o: Busovača':
+#   f?p=186:13:<session>::NO:13:P13_P_POS_ID,P13_XMBS,P13_NAZIV:21054781%2C51-01-0090-08%2C%5CDru%C5%A1tvo%20...%20d.o.o: Busovača\&cs=3BB92596...
+# `f?p=` is itself colon-delimited, so the raw colon starts a new argument, the
+# name arrives truncated and APEX answers with a "Session state protection
+# violation: This may be caused by manual alteration of a URL containing a
+# checksum" page. The `&cs=` checksum is generated server-side over the intact
+# name, and it is mandatory: dropping it, re-encoding the colon as %3A, quoting
+# the whole argument or POSTing `p`/`cs` all produce the same violation. These
+# links therefore cannot be repaired from our side, and are logged at info level
+# rather than as warnings. The affected companies are still emitted from their
+# listing row, but without legal form, status, JIB, founders or managers.
+# 459 of 53,382 records in the 2026-08-21 run.
+#
+# Separately, a handful of names containing "&" are rejected before they reach
+# APEX by the registry's web application firewall, which answers
+# "The requested URL was rejected. [...] Your support ID is: ..." for the
+# fully-encoded URL over both GET and POST, while other "&" names go through
+# untouched (7 records in the same run). That is also outside our control, but
+# it is rare and the rule may change, so it stays at warning level.
 EXPECTED_ERRORS = 100
+
+# A well-formed detail link carries eight colon-delimited APEX arguments - app,
+# page, session, request, debug, clear cache, item names, item values - and
+# therefore seven colons. Any extra colon comes from an unescaped one in the
+# company name.
+APEX_ARG_COLONS = 7
 
 # Unfortunately no cache for the listing page, as the state of the current
 # page is stored in the session and no cache for details page, as
@@ -91,6 +111,24 @@ def apex_url(url: str) -> str:
     if not sep:
         return url
     return f"{prefix.replace('&', '%26')}{sep}{checksum}"
+
+
+def apex_link_broken(url: str) -> bool:
+    """Check whether the registry left an unescaped colon in a detail link.
+
+    The company name is the last APEX argument, so a colon the registry failed to
+    encode adds an argument to the `f?p=` list. Such a link always fails the
+    registry's session state protection check and cannot be repaired; see the note
+    at the top of this file.
+
+    Args:
+        url: The details URL taken from the listing page.
+    Returns:
+        True if the link carries an unescaped colon, False otherwise.
+    """
+    prefix, _, _ = url.rpartition("&cs=")
+    args = (prefix or url).partition("f?p=")[2]
+    return args.count(":") > APEX_ARG_COLONS
 
 
 def get_secret_param(context: Context) -> str:
@@ -242,13 +280,13 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
         context: The context object for the current dataset.
         record: The record to fetch the details for.
     """
+    details_url = record["details_url"]
+    assert details_url is not None
     try:
-        details_url = record["details_url"]
-        assert details_url is not None
         details_page = context.fetch_html(details_url, cache_days=CACHE_DAYS)
     except requests.exceptions.HTTPError as exc:
         context.log.warning(
-            f"Failed to fetch company {record['details_url']}: {type(exc)}, {exc}"
+            f"Failed to fetch company {details_url}: {type(exc)}, {exc}"
         )
         return False
 
@@ -297,7 +335,13 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
         founders_hrefs = h.xpath_strings(details_page, '//*[@id="podmeni"]/p/a/@href')
         founders_url = urljoin(BASE_URL, founders_hrefs[0])
     except IndexError:
-        context.log.warning("Details page empty", url=record["details_url"])
+        if apex_link_broken(details_url):
+            context.log.info(
+                "Details page unreachable: registry link has an unescaped colon",
+                url=details_url,
+            )
+        else:
+            context.log.warning("Details page empty", url=details_url)
     else:
         founders_page = context.fetch_html(founders_url)
 
