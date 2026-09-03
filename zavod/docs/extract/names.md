@@ -392,8 +392,18 @@ Agreement: 35.0 out of 47 (74.46808510638297%)
 
 We probably want to be careful not to let the Direct GPT score go below 80.
 
-The scores aren't precisely a percentage, but 0 is given if none of the names are correct, 1 is given if all the names are correct, and partial correctness results in a score in between.
+The scores aren't precisely a percentage, but 0 is given if none of the names are correct, 1 is given if all the names are correct, and partial correctness results in a score in between. Each expected name earns full credit when extracted exactly in the right field, reduced credit when only casing, punctuation or spacing differ, a little credit when it was put in the wrong field, and nothing when it is missing. Names that were extracted but not expected count as extras. The score is the credit earned divided by the number of expected names plus extras, so inventing a name costs about as much as missing one, and a wrong field costs less than either.
 
 Agreement is when the same example results in precisely the same results via DSPy and directly.
 
 Ideally add these lines to your commit message when you update the prompt.
+
+#### Changing the metric
+
+When you change `metric_with_feedback_dict`, re-score the outputs saved by an earlier `compare` run instead of calling the LLM again, so that the change in score is attributable to the metric alone and not to LLM non-determinism:
+
+```
+zavod-tune rescore validation_results.json
+```
+
+Put the before and after lines in the commit message.

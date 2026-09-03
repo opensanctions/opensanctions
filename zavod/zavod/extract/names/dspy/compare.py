@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 from followthemoney import Model
 
@@ -74,7 +75,30 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
     with open(output_path, "w", encoding="utf-8") as results_file:
         json.dump(results, results_file, indent=2, ensure_ascii=False)
     print(f"Wrote {output_path}")
+    print_scores(results)
 
+
+def rescore_single_entity(results_path: Path) -> None:
+    """Re-score the outputs saved by a previous compare run with the current metric.
+
+    This isolates the effect of a metric change from LLM non-determinism: no new
+    LLM calls are made.
+    """
+    with open(results_path, encoding="utf-8") as results_file:
+        results = json.load(results_file)
+    for result in results:
+        for key in ("dspy_result", "direct_gpt_result"):
+            evaluation = metric_with_feedback_dict(
+                result["gold"], result[key]["output"]
+            )
+            result[key]["score"] = evaluation.score
+            result[key].pop("feedback", None)
+            if evaluation.score < 1.0:
+                result[key]["feedback"] = evaluation.feedback
+    print_scores(results)
+
+
+def print_scores(results: list[dict[str, Any]]) -> None:
     total_dspy_score = sum(r["dspy_result"]["score"] for r in results)
     total_direct_gpt_score = sum(r["direct_gpt_result"]["score"] for r in results)
     total_agreed = sum(1.0 for r in results if r["results_agree"])

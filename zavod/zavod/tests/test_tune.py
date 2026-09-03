@@ -115,4 +115,9 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
 
     with open(output_path) as f:
         program_data = f.read()
-        assert "incorrectly" in program_data
+        assert "belongs in name, not alias" in program_data
+
+    # The saved outputs can be re-scored with the current metric without LLM calls.
+    result = runner.invoke(cli, ["rescore", output_path.as_posix()])
+    assert_exit_status_zero(result)
+    assert "Direct GPT score:" in result.output

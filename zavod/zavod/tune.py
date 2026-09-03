@@ -12,7 +12,10 @@ import yaml
 from followthemoney.cli.util import InPath, OutPath
 
 from zavod.extract.names.clean import SINGLE_ENTITY_PROGRAM_PATH
-from zavod.extract.names.dspy.compare import compare_single_entity
+from zavod.extract.names.dspy.compare import (
+    compare_single_entity,
+    rescore_single_entity,
+)
 from zavod.extract.names.dspy.example_data import EXAMPLES_PATH
 from zavod.extract.names.dspy.optimise import LEVELS, optimise_single_entity
 
@@ -46,6 +49,12 @@ def optimise(
 @click.argument("examples_path", type=InPath, default=EXAMPLES_PATH)
 def compare(output_path: Path, examples_path: Path = EXAMPLES_PATH) -> None:
     compare_single_entity(examples_path, output_path)
+
+
+@cli.command("rescore", help="Re-score a compare output file with the current metric")
+@click.argument("results_path", type=InPath)
+def rescore(results_path: Path) -> None:
+    rescore_single_entity(results_path)
 
 
 @cli.command("dump-examples")
