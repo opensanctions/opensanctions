@@ -333,3 +333,28 @@ lookups:
       # Lots of registration numbers in the name (for dissolved companies?)
       - regex: ^[\d\W]+$
         value: null
+      # Angle brackets are genuinely part of these registered company names.
+      - match: "<SCI> SWANSTON COTTAGE INDUSTRIES LIMITED"
+        value: "<SCI> SWANSTON COTTAGE INDUSTRIES LIMITED"
+        silence_warnings: [xss-html-smell]
+      - match: "DIGIT<ALL>"
+        value: "DIGIT<ALL>"
+        silence_warnings: [xss-html-smell]
+  type.address:
+    options:
+      # RegAddress often holds a single placeholder token and nothing else, which
+      # formats into an address made up only of punctuation and/or digits.
+      - regex: ^[\d\W]+$
+        value: null
+      # ... or only the outward part of a postcode entered in RegAddress.PostTown
+      # or RegAddress.PostCode, which is not an address on its own.
+      - regex: ^[A-Za-z]{1,2}\d{1,2}[A-Za-z]?$
+        value: null
+      - match:
+          - XXX
+          - N
+        value: null
+      # Angle brackets are the registrant's way of designating the flat.
+      - match: "NUMBER 2 VINICOMBE STREET <FLAT 2,2> KINGDOM OF SCOTSLAND, G12 8BG BURGH OF HILLHEAD"
+        value: "NUMBER 2 VINICOMBE STREET <FLAT 2,2> KINGDOM OF SCOTSLAND, G12 8BG BURGH OF HILLHEAD"
+        silence_warnings: [xss-html-smell]
