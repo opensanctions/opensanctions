@@ -217,9 +217,16 @@ def crawl(context: Context) -> None:
     tables = h.xpath_elements(
         container, '//table[@class="ms-rteTable-4"]', expect_exactly=2
     )
-    write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
-    write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
-    h.assert_dom_hash(container, "fef907128eaddd7c60081c964b1ef06aadf0d9cc")
+    releases_path = LOCAL_PATH / "releases.csv"
+    wallets_path = LOCAL_PATH / "wallets.csv"
+    write_csv_for_manual_diff(tables[0], releases_path)
+    write_csv_for_manual_diff(tables[1], wallets_path)
+    # The two snapshots are the reviewed extraction of the tables, so hash them rather
+    # than the surrounding page markup: the warning then names the table that changed,
+    # the git diff shows what changed, and the expected value can be checked with
+    # `sha1sum` on the committed file, independently of how the page was fetched.
+    h.assert_file_hash(releases_path, "594008a1b5dfb4d0a959c8f74abac237601d9d22")
+    h.assert_file_hash(wallets_path, "f8e0c6ace1e993f4f9944a8121017c3d4518643b")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv

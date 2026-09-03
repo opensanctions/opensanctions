@@ -6,6 +6,13 @@ not from the NBCTF web page. The page is only fetched to snapshot the two tables
 `releases.csv` and `wallets.csv`, so that `git diff` shows what changed on the source.
 When the diff shows a new order or new wallets, add the rows to the sheet by hand.
 
+The crawler hashes those two snapshots (`h.assert_file_hash` in `crawler.py`) and warns
+when either changes. To resolve the warning: run the crawler, read `git diff` on the two
+CSVs, reflect anything relevant in the sheet, then commit the new snapshots together with
+their new hashes (`sha1sum datasets/il/mod_crypto/*.csv`) in the same pull request. Not
+every value in the wallets table is a wallet: in a person row, the "wallet id" column
+usually holds a phone number, which belongs in the sheet's `phone` column.
+
 Source page: <https://nbctf.mod.gov.il/he/MinisterSanctions/PropertyPerceptions/Pages/Blockchain.aspx>
 (Hebrew — it is more complete and more current than the English translation).
 
