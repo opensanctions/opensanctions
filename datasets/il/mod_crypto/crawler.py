@@ -79,6 +79,12 @@ def normalize_address(addr: str) -> str:
 
 
 def write_csv_for_manual_diff(table: HtmlElement, path: Path) -> None:
+    """Snapshot the cells of a table, followed by the link targets of the row.
+
+    The link targets are part of the snapshot because they are what the sanction
+    sourceUrls are taken from, and a document that gets replaced or moved changes
+    the DOM hash without changing any of the cell text.
+    """
     with open(path, "w") as f:
         writer = csv.writer(f)
         for row in table.findall(".//tr"):
@@ -86,7 +92,7 @@ def write_csv_for_manual_diff(table: HtmlElement, path: Path) -> None:
                 squash_spaces(cast(HtmlElement, c).text_content())
                 for c in h.xpath_elements(row, ".//*[self::td or self::th]")
             ]
-            writer.writerow(cells)
+            writer.writerow(cells + h.xpath_strings(row, ".//a/@href"))
 
 
 def crawl_csv_row(context: Context, row: dict[str, str]) -> None:
@@ -211,6 +217,7 @@ def crawl(context: Context) -> None:
     # The key things to check are
     # - the table of releases - are there any new ones?
     # - The table of persons/wallets - does it look like anything's been added there?
+    # - the link targets trailing each row - has an order document been replaced?
     # If updated, reflect changes in the Google Sheet and commit the new CSV:
     # git add -f datasets/il/mod_crypto/releases.csv
     # git add -f datasets/il/mod_crypto/wallets.csv
@@ -219,7 +226,7 @@ def crawl(context: Context) -> None:
     )
     write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
     write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
-    h.assert_dom_hash(container, "009da07ce2c833cbed4837620cce8a17e4c6b0c6")
+    h.assert_dom_hash(container, "a9a61e0b6dc410bc3196909b049e7120b12c703e")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv

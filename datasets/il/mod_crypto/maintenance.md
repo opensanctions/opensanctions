@@ -6,6 +6,13 @@ not from the NBCTF web page. The page is only fetched to snapshot the two tables
 `releases.csv` and `wallets.csv`, so that `git diff` shows what changed on the source.
 When the diff shows a new order or new wallets, add the rows to the sheet by hand.
 
+Each snapshot row holds the cells of the table row followed by the `href` of every link
+in it. The links matter as much as the cells: they are where `order_url`,
+`forfeiture_order_url` and `annex_url` come from, and a document that is replaced or
+moved changes the page — and so the `assert_dom_hash` in the crawler — without changing
+a single cell. A hash warning whose snapshot diff is empty means something in `<main>`
+changed outside the two tables.
+
 Source page: <https://nbctf.mod.gov.il/he/MinisterSanctions/PropertyPerceptions/Pages/Blockchain.aspx>
 (Hebrew — it is more complete and more current than the English translation).
 
