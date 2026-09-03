@@ -19,7 +19,7 @@ description: |
   parliament's official website.
 deprecation: |
   Since June 2025 the Turkmenistan Members of the Mejlis website [has rejected TCP connections](https://github.com/opensanctions/opensanctions/issues/5489)
-  and is therefore tentatively marked as deprecated unless a successful crawl is possible.
+  and we are therefore marking this dataset as deprecated and will eventually remove it.
 url: https://mejlis.gov.tm/
 publisher:
   name: Türkmenistanyň Mejlisi
