@@ -5,7 +5,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data
 
-
 # Unique entity types
 # {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
 
@@ -218,7 +217,7 @@ def crawl_rel(context: Context, row: dict[str, str | None], skipped: set[str]) -
 def crawl(context: Context) -> None:
     path = context.get_resource_path("source.xlsx")
     fetch_internal_data(
-        "gem_energy_ownership/Global-Energy-Ownership-Tracker-May-2026-V1.xlsx",
+        "gem_energy_ownership/Global-Energy-Ownership-Tracker-August-2026-V2.xlsx",
         path,
     )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
