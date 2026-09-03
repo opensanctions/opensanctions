@@ -9,7 +9,7 @@ from rigour.mime.types import CSV
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
 
-# Hand-maintained, one row per appointment. See docs/extraction.md.
+# Hand-maintained, one row per appointment. See extraction.md.
 LOCAL_PATH = Path(__file__).parent
 LEADERSHIP_FILE = LOCAL_PATH / "leadership.csv"
 
@@ -51,7 +51,7 @@ SKIP_POSITIONS = ("Auditor", "Employee Representative")
 def check_updates(context: Context) -> None:
     """Fail if the source page offers reports we haven't extracted.
 
-    A new edition means: extract it per docs/extraction.md, add it to REPORTS, then
+    A new edition means: extract it per extraction.md, add it to REPORTS, then
     merge its rows into leadership.csv.
     """
     doc = context.fetch_html(SOURCE_PAGE_URL, absolute_links=True)

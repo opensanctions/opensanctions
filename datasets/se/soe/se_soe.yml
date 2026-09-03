@@ -14,7 +14,7 @@ manual_check:
   interval: 182
   message: |
     Check whether a new report has been published, and extract it if so.
-    docs/extraction.md has the procedure, the traps in these PDFs, and the
+    extraction.md has the procedure, the traps in these PDFs, and the
     machine-readable alternatives already ruled out.
 deploy:
   schedule: "@monthly"
