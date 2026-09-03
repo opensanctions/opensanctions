@@ -4,7 +4,6 @@ prefix: tj-milli
 coverage:
   frequency: monthly
   start: 2026-06-26
-  end: 2026-07-29
 load_statements: true
 ci_test: false
 summary: >-
@@ -17,9 +16,6 @@ description: |
 
   This dataset records each sitting member with their name, date and place of birth,
   sourced from the chamber's official website.
-deprecation: |
-  Since June 2025 the Turkmenistan Members of the Mejlis website [has rejected TCP connections](https://github.com/opensanctions/opensanctions/issues/5489)
-  and we are therefore marking this dataset as deprecated and will eventually remove it.
 url: https://majmilli.tj/azoi-majlisi-milli/
 publisher:
   name: Маҷлиси миллии Маҷлиси Олии Ҷумҳурии Тоҷикистон
