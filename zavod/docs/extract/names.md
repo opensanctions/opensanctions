@@ -249,9 +249,15 @@ names:
     - Watch out Indonesian names can be single tokens. If in doubt, make it an `alias`
 
 - For organisations
-    - acronyms of their name e.g. `JSC SMZ` for `JOINT STOCK COMPANY SEROV MECHANICAL PLANT`
-    - really short short forms
+    - really short short forms, including a short all-caps string given on its own, e.g. `UCK`, `ZYFRA`, `VTB 24 JSC`
+    - shortened forms of the full name, e.g. `Speedtech Burkina Faso` for `Speedtech Energy Burkina Faso S.A.`
     - names where a significant part is a really common term, e.g. `TRO ITALIA` or `VA HOTLINE`
+
+#### abbreviation
+
+- An acronym or initialism that stands for the entity's name, when the source shows what it abbreviates, e.g. `SSRC` for `Scientific Studies Research Centre`, `TKB` for `TRANSKAPITALBANK`, `CCP NCC` for `Central Counterparty National Clearing Centre`.
+- A short all-caps string on its own, with nothing it visibly abbreviates, is a `weakAlias`, not an abbreviation. (The `suggest_abbreviation_...` heuristics are deliberately cruder than this; they only propose a categorisation for review.)
+- A variant that merely shortens the legal form, e.g. `JSC Bank Ingo` next to `Joint Stock Company Bank Ingo`, is an `alias`.
 
 #### previousName
 

@@ -30,6 +30,9 @@ class CleanNamesSignature(dspy.Signature):  # type: ignore
     previousName: list[str] = dspy.OutputField(
         desc="A list of names this entity was known by in the past."
     )
+    abbreviation: list[str] = dspy.OutputField(
+        desc="A list of acronyms or initialisms standing for the entity's name, e.g. 'TKB' for 'TRANSKAPITALBANK' or 'CCP NCC' for 'Central Counterparty National Clearing Centre'. Only when the input shows what the letters abbreviate. Not a variant that merely shortens the legal form, e.g. 'JSC Bank Ingo' for 'Joint Stock Company Bank Ingo' is an alias."
+    )
 
 
 @cache

@@ -92,6 +92,7 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
         alias=[],
         weakAlias=[],
         previousName=[],
+        abbreviation=[],
     )
 
     # Mock direct OpenAI call

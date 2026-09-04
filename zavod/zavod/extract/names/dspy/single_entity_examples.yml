@@ -158,7 +158,7 @@
 - strings: ["Force aérospatiale du Corps des gardiens de la révolution islamique; (IRGC ASF)"]
   entity_schema: LegalEntity
   name: [Force aérospatiale du Corps des gardiens de la révolution islamique]
-  weakAlias: [IRGC ASF]
+  abbreviation: [IRGC ASF]
 - strings: ["Fondation coopérative Basij; (également connue sous le nom de Bonyad-eh Ta’avon-eh Basij)"]
   entity_schema: LegalEntity
   name: [Fondation coopérative Basij]
@@ -192,7 +192,7 @@
     - INTERMONTE PARTNERS- SIM P.A.
     - INTERMONTE PARTNERS SIM
     - INTERMONTE P SIM
-  weakAlias: [IP SIM]
+  abbreviation: [IP SIM]
 - strings: ["UNIFAST FINANCE &amp; INVESTMENTS PUBLIC COMPANY LIMITED"]
   entity_schema: LegalEntity
   name: [UNIFAST FINANCE & INVESTMENTS PUBLIC COMPANY LIMITED]
@@ -551,7 +551,7 @@
 - strings: ["Russian Aerospace Forces (aka VKS);"]
   entity_schema: LegalEntity
   name: [Russian Aerospace Forces]
-  weakAlias: [VKS]
+  abbreviation: [VKS]
 - strings: ["Elena; a.k.a. Elena Leonidovna Shifrin Lena; a.k.a Gohkman Alexander; a.k.a Ivanov Elena; a.k.a Belov Shifrin"]
   entity_schema: Person
   alias:
@@ -602,7 +602,7 @@
   previousName: [Obshchestvo S Ogranichennoi Otvetstvennostyu Proizvodstvenno Instrument Kachestvo]
 - strings: ["JSC NIIP, f.k.a., Otkrytoe Aktsionernoe Obshchestvo Nauchno Issledovatelski Institute Priborostroeniya Imeni V.V. Tikhomirova"]
   entity_schema: LegalEntity
-  weakAlias: [JSC NIIP]
+  abbreviation: [JSC NIIP]
   previousName: [Otkrytoe Aktsionernoe Obshchestvo Nauchno Issledovatelski Institute Priborostroeniya Imeni V.V. Tikhomirova]
 - strings: ["SIBERIAN AIRLINES D/B/A S7 AIRLINES"]
   entity_schema: LegalEntity
@@ -658,7 +658,7 @@
 - strings: ["China Aerospace Science and Technology Corporation (CASC) 8th Academy 811 Research Institute"]
   entity_schema: LegalEntity
   name: [China Aerospace Science and Technology Corporation (CASC) 8th Academy 811 Research Institute]
-  weakAlias: [CASC]
+  abbreviation: [CASC]
 - strings: ["VTB BANK (AUSTRIA) AG"]
   entity_schema: Company
   name: [VTB BANK (AUSTRIA) AG]
@@ -680,15 +680,15 @@
 - strings: ["Centre d'Etudes et de Recherches Scientifiques (CERS)"]
   entity_schema: LegalEntity
   name: [Centre d'Etudes et de Recherches Scientifiques]
-  weakAlias: [CERS]
+  abbreviation: [CERS]
 - strings: ["Scientific Studies Research Centre (SSRC)"]
   entity_schema: Organization
   name: [Scientific Studies Research Centre]
-  weakAlias: [SSRC]
+  abbreviation: [SSRC]
 - strings: ["Scientific Studies and Research Center (SSRC)"]
   entity_schema: Company
   name: [Scientific Studies and Research Center]
-  weakAlias: [SSRC]
+  abbreviation: [SSRC]
 - strings: ["Bearings on Lipetsk LLC (Russian entity);"]
   entity_schema: LegalEntity
   name: [Bearings on Lipetsk LLC]
