@@ -18,6 +18,11 @@ from zavod.extract.names.dspy.compare import (
 )
 from zavod.extract.names.dspy.example_data import EXAMPLES_PATH
 from zavod.extract.names.dspy.optimise import LEVELS, optimise_single_entity
+from zavod.extract.names.dspy.review_examples import (
+    existing_identities,
+    load_candidates,
+    write_candidates,
+)
 
 LEVEL_OPTIONS = click.Choice(LEVELS, case_sensitive=False)
 
@@ -55,6 +60,34 @@ def compare(output_path: Path, examples_path: Path = EXAMPLES_PATH) -> None:
 @click.argument("results_path", type=InPath)
 def rescore(results_path: Path) -> None:
     rescore_single_entity(results_path)
+
+
+@cli.command("review-examples")
+@click.argument("output_path", type=OutPath)
+@click.argument("report_path", type=OutPath)
+@click.option(
+    "--origin-like",
+    default="gpt-%",
+    help="SQL LIKE pattern for the review origin, e.g. 'gpt-%' for LLM-cleaned reviews or '%' for all.",
+)
+@click.option("--examples-path", type=InPath, default=EXAMPLES_PATH)
+def review_examples(
+    output_path: Path,
+    report_path: Path,
+    origin_like: str,
+    examples_path: Path = EXAMPLES_PATH,
+) -> None:
+    """
+    Export accepted name reviews from the review database as candidate DSPy
+    examples (YAML, grouped by dataset, with the LLM's output and the kind of
+    reviewer edit in comments) plus a Markdown report of edit kinds. Examples
+    already in the examples file are skipped.
+    """
+    candidates = load_candidates(origin_like)
+    write_candidates(
+        candidates, output_path, report_path, existing_identities(examples_path)
+    )
+    print(f"Wrote {output_path} and {report_path}")
 
 
 @cli.command("dump-examples")

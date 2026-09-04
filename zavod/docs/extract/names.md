@@ -333,6 +333,7 @@ LLMs can do a lot of the categorisation and cleaning for us. We pair this with [
 We use [DSPy](https://dspy.ai/) to write, optimise, and evaluate the prompt. The process is
 
 1. Ensure we have good example data in `zavod/extract/names/dspy/single_entity_examples.yml`
+    - Accepted [Data Reviews](../data_reviews.md) of LLM-cleaned names are the best source of new examples. `zavod-tune review-examples candidates.yml report.md` exports them from the review database in the example format, grouped by dataset, with the LLM's original output and the kind of reviewer edit in comments, and skips examples already in the file. Pick and hand-check examples from `candidates.yml`, since reviewers are not always right or consistent, and prefer scenarios the prompt gets wrong.
 2. Run `zavod-tune optimise` to find the ideal prompt for the data
 3. Run `zavod-tune compare`
     - This shows us how well the prompt works on the validation set
