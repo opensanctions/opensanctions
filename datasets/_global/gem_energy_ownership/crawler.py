@@ -17,7 +17,6 @@ IGNORE = [
     "gem_parents_ids",
     "intermediate_owner_ids",
     "joint_venture",
-    "entity_status_data_source_url",
 ]
 ALIAS_SPLITS = [
     "[former],",
@@ -200,6 +199,7 @@ def crawl_company(
     # of those targets are not published anywhere in the workbook, so the succession
     # can only be recorded when the successor is an entity we actually emit.
     merged_into = row.pop("merged_into")
+    status_urls = row.pop("entity_status_data_source_url")
     if merged_into is not None:
         successor_id = clean_entity_id(merged_into)
         if successor_id is None:
@@ -219,6 +219,9 @@ def crawl_company(
             succession.id = context.make_id(id_, successor_id)
             succession.add("predecessor", entity)
             succession.add("successor", context.make_slug(successor_id))
+            if status_urls is not None:
+                # The evidence is serialised as a Python list literal.
+                succession.add("sourceUrl", status_urls.strip("[]'").split("', '"))
             context.emit(succession)
 
     context.audit_data(
