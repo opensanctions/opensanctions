@@ -28,7 +28,13 @@ example = {
     "previousName": [],
 }
 # Repeat 3 times because test/validation/train sets are each 1/3 of shuffled data
-examples = [example, deepcopy(example), deepcopy(example)]
+# Distinct examples so that the hash-based split populates train, val and test.
+examples = []
+for i in range(30):
+    case = deepcopy(example)
+    case["strings"] = [f"Example Person {i}"]
+    case["name"] = [f"Example Person {i}"]
+    examples.append(case)
 
 
 def assert_exit_status_zero(result: Result) -> None:
@@ -115,7 +121,7 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
 
     with open(output_path) as f:
         program_data = f.read()
-        assert "belongs in name, not alias" in program_data
+        assert "should not be in alias" in program_data
 
     # The saved outputs can be re-scored with the current metric without LLM calls.
     result = runner.invoke(cli, ["rescore", output_path.as_posix()])

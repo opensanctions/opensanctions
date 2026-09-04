@@ -99,6 +99,8 @@ def rescore_single_entity(results_path: Path) -> None:
 
 
 def print_scores(results: list[dict[str, Any]]) -> None:
+    if len(results) == 0:
+        raise ValueError("No examples in the test split.")
     total_dspy_score = sum(r["dspy_result"]["score"] for r in results)
     total_direct_gpt_score = sum(r["direct_gpt_result"]["score"] for r in results)
     total_agreed = sum(1.0 for r in results if r["results_agree"])

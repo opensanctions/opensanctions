@@ -370,6 +370,8 @@ Examples take the form
 
 String represents the input string. The fields to extract are defined in `zavod.extract.names.dspy.clean.CleanNamesSignature`
 
+Examples are assigned to the train, validation and test sets by a hash of their strings and schema, so adding or removing examples never moves an existing example between sets. Scores from before and after adding examples are therefore computed on overlapping test sets.
+
 The "optimised program" in DSPy speak is saved to `zavod/extract/names/dspy/single_entity_program.json`. This contains the prompt and some metadata.
 
 
