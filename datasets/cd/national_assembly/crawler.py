@@ -142,5 +142,7 @@ def crawl(context: Context) -> None:
                 context, record, period_start, period_end, position, categorisation
             )
         records += len(data)
+        # The chamber seats 500; ten times that means `offset` stopped paging.
+        assert records < 5000, records
         if len(data) < PER_PAGE:
             break
