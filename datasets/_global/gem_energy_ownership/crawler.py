@@ -216,7 +216,7 @@ def crawl_company(
             )
         elif successor_id not in SKIP_IDS:
             succession = context.make("Succession")
-            succession.id = context.make_id(id_, successor_id)
+            succession.id = context.make_id("succession", id_, successor_id)
             succession.add("predecessor", entity)
             succession.add("successor", context.make_slug(successor_id))
             if status_urls is not None:
