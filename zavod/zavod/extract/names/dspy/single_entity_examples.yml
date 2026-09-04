@@ -1861,3 +1861,504 @@
     - TIP FARMS
   weakAlias:
     - TIP FARMS
+
+# --- Examples from accepted data reviews of LLM-cleaned names (zavod-tune review-examples, 2026-09-04) ---
+
+# honorific: Hon. X, MP (pg_parliament)
+- strings: ['Hon. Win Bakri Daki, MP']
+  entity_schema: Person
+  name: [Win Bakri Daki]
+- strings: ['Hon. Tony Wouwou, MP']
+  entity_schema: Person
+  name: [Tony Wouwou]
+- strings: ['Hon. Sir Peter Ipatas, GCL, KBE, MP']
+  entity_schema: Person
+  name: [Peter Ipatas]
+- strings: ['Hon. Kessy Sawang, MP']
+  entity_schema: Person
+  name: [Kessy Sawang]
+- strings: ['Hon. Simon Sung Sing Sia, GCL, LM, MP']
+  entity_schema: Person
+  name: [Simon Sung Sing Sia]
+- strings: ['Hon. Gordon Wesley, MP']
+  entity_schema: Person
+  name: [Gordon Wesley]
+- strings: ['Hon. Kansol Harwai Kamdaru, MP']
+  entity_schema: Person
+  name: [Kansol Harwai Kamdaru]
+- strings: ['Hon. William Marra Duma, LLB, LLM, MP']
+  entity_schema: Person
+  name: [William Marra Duma]
+
+# honorific + image suffix (fj_parliament)
+- strings: [HON. SASHI KIRAN 300x300]
+  entity_schema: Person
+  name: [SASHI KIRAN]
+- strings: [HON. INIA SERUIRATU 1 300x300]
+  entity_schema: Person
+  name: [INIA SERUIRATU]
+- strings: [HON. SITIVENI RABUKA 01 300x300]
+  entity_schema: Person
+  name: [SITIVENI RABUKA]
+- strings: [HON. SAKIUSA TUBUNA 300x300]
+  entity_schema: Person
+  name: [SAKIUSA TUBUNA]
+
+# honorific Mr/Dr in afdb/ebrd (policy: strip)
+- strings: [Mr Nabaraj Basnet (also known as Mr. Basnet)]
+  entity_schema: Person
+  name: [Nabaraj Basnet]
+  weakAlias: [Basnet]
+- strings: ['Mr Jamshed Sharifov (also known as - in Russian: Джамшед Шарифов Also known as Dzhamshed Abdulamidovich Sharifov (in Tajik: Чамшед Абдуламидович Шарифов)']
+  entity_schema: Person
+  name: [Jamshed Sharifov]
+  alias: [Джамшед Шарифов, Dzhamshed Abdulamidovich Sharifov]
+- strings: [Mr Klemen Jerin (also known as Mr. Jerin)]
+  entity_schema: Person
+  name: [Klemen Jerin]
+  weakAlias: [Jerin]
+- strings: ['Mr PEDRO CESAR LAZO MONTEJO, (also MR. PEDRO CÉSAR LAZO MONTEJO)']
+  entity_schema: Person
+  name: [PEDRO CESAR LAZO MONTEJO, PEDRO CÉSAR LAZO MONTEJO]
+- strings: [Mr Shalva Bubuteishvili (also known as Mr. S. Bubuteishvili)]
+  entity_schema: Person
+  name: [Shalva Bubuteishvili]
+  weakAlias: [S. Bubuteishvili]
+- strings: [Mr Bamidele Obiniyi (also known as Mr Bamidele Abayomi)]
+  entity_schema: LegalEntity
+  name: [Bamidele Obiniyi]
+  alias: [Bamidele Abayomi]
+
+# n/k/a -> name + previousName
+- strings: [HanoiTC Expert Joint Stock Company, (now known as International Real Estate Consulting and Investment Joint Stock Company)]
+  entity_schema: LegalEntity
+  name: [International Real Estate Consulting and Investment Joint Stock Company]
+  previousName: [HanoiTC Expert Joint Stock Company]
+- strings: ['Pickering Energy Partners Inc. n/k/a Tudor, Pickering & Co. Securities Inc.']
+  entity_schema: LegalEntity
+  name: ['Tudor, Pickering & Co. Securities Inc.']
+  previousName: [Pickering Energy Partners Inc.]
+- strings: [J.P. Morgan Clearing Corp. (n/k/a) J.P. Morgan Securities LLC]
+  entity_schema: LegalEntity
+  name: [J.P. Morgan Securities LLC]
+  previousName: [J.P. Morgan Clearing Corp.]
+- strings: [H&R BLOCK FINANCIAL ADVISORS INC. (N/K/A AMERIPRISE FINANCIAL SERVICES INC.]
+  entity_schema: LegalEntity
+  name: [AMERIPRISE FINANCIAL SERVICES INC.]
+  previousName: [H&R BLOCK FINANCIAL ADVISORS INC.]
+- strings: [H&R BLOCK FINANCIAL ADVISORS INC. (N/K/A AMERIPRISE FINANCIAL SERVICES INC.)]
+  entity_schema: LegalEntity
+  name: [AMERIPRISE FINANCIAL SERVICES INC.]
+  previousName: [H&R BLOCK FINANCIAL ADVISORS INC.]
+- strings: [WACHOVIA SECURITIES LLC N/K/A WELLS FARGO ADVISORS LLC]
+  entity_schema: LegalEntity
+  name: [WELLS FARGO ADVISORS LLC]
+  previousName: [WACHOVIA SECURITIES LLC]
+- strings: [Meyers Associates L.P. (n/k/a Windsor Street Capital L.P.)]
+  entity_schema: LegalEntity
+  name: [Windsor Street Capital L.P.]
+  previousName: [Meyers Associates L.P.]
+- strings: [Chelsie Marie Hovingh (n/k/a Chelsie Marie Jensen)]
+  entity_schema: LegalEntity
+  name: [Chelsie Marie Jensen]
+  previousName: [Chelsie Marie Hovingh]
+- strings: [First Clearing LLC n/k/a Wells Fargo Clearing Services LLC]
+  entity_schema: LegalEntity
+  name: [Wells Fargo Clearing Services LLC]
+  previousName: [First Clearing LLC]
+- strings: [HARTFORD LIFE DISTRIBUTORS LLC N/K/A FORETHOUGHT DISTRIBUTORS LLC]
+  entity_schema: LegalEntity
+  name: [FORETHOUGHT DISTRIBUTORS LLC]
+  previousName: [HARTFORD LIFE DISTRIBUTORS LLC]
+
+# f/k/a accepted as-is
+- strings: ['SCHROEDER CAPITAL MANAGEMENT, LLC (FORMERLY VAN KASPER ADVISORS)']
+  entity_schema: Organization
+  name: ['SCHROEDER CAPITAL MANAGEMENT, LLC']
+  previousName: [VAN KASPER ADVISORS]
+- strings: [E*Trade Futures LLC (f/k/a Aperture LLC d/b/a OptionsHouse)]
+  entity_schema: LegalEntity
+  name: [E*Trade Futures LLC]
+  alias: [OptionsHouse]
+  previousName: [Aperture LLC]
+- strings: [Sungard Brokerage & Securities Services LLC f/k/a Assent LLC]
+  entity_schema: LegalEntity
+  name: [Sungard Brokerage & Securities Services LLC]
+  previousName: [Assent LLC]
+- strings: [Yona S. Thomas formerly known as Yona S. Reaux]
+  entity_schema: LegalEntity
+  name: [Yona S. Thomas]
+  previousName: [Yona S. Reaux]
+- strings: [INDIAN OVERSEAS BANK (FORMERLY BHARAT OVERSEAS BANK LTD)]
+  entity_schema: Organization
+  name: [INDIAN OVERSEAS BANK]
+  previousName: [BHARAT OVERSEAS BANK LTD]
+
+# (also known as short form) -> weakAlias
+- strings: [Mr Ricardo Checa Hernandez (also known as Mr. Hernandez)]
+  entity_schema: Person
+  name: [Ricardo Checa Hernandez]
+  weakAlias: [Hernandez]
+- strings: [M/S Techfab International Pvt Ltd (also known as Techfab)]
+  entity_schema: LegalEntity
+  name: [M/S Techfab International Pvt Ltd]
+  weakAlias: [Techfab]
+- strings: [Tiger It Bangladesh Ltd (also known as Tiger It)]
+  entity_schema: LegalEntity
+  name: [Tiger IT Bangladesh Ltd]
+  weakAlias: [Tiger IT]
+- strings: [Mafap S.A. (also known as Mafap)]
+  entity_schema: LegalEntity
+  name: [Mafap S.A.]
+  weakAlias: [Mafap]
+- strings: [Networks Europe Lp (also known as Networks Europe)]
+  entity_schema: LegalEntity
+  name: [Networks Europe LP]
+  weakAlias: [Networks Europe]
+- strings: [Al-Ajam Company For General Contracting Ltd. (also known as Al-Ajam)]
+  entity_schema: LegalEntity
+  name: [Al-Ajam Company For General Contracting Ltd.]
+  weakAlias: [Al-Ajam]
+- strings: [Emmyways Engineering/Construction Limited (also known as Emmyways)]
+  entity_schema: LegalEntity
+  name: [Emmyways Engineering/Construction Limited]
+  weakAlias: [Emmyways]
+- strings: [Mr Patrick Alozie Onwuka (also known as Mr. Onwuka)]
+  entity_schema: Person
+  name: [Patrick Alozie Onwuka]
+  weakAlias: [Onwuka]
+- strings: [María Benilda Sandoval Valdéz (also known as Sandoval)]
+  entity_schema: Person
+  name: [María Benilda Sandoval Valdéz]
+  weakAlias: [Sandoval]
+- strings: [Vodokanalproekt- Metalproect Ingeneering Ad (also known as Vodokanal)]
+  entity_schema: LegalEntity
+  name: [Vodokanalproekt- Metalproect Ingeneering Ad]
+  weakAlias: [Vodokanal]
+- strings: [Aaron Ingenieros Constructores & Consultores E.I.R.L. (also known as Aaron)]
+  entity_schema: LegalEntity
+  name: [Aaron Ingenieros Constructores & Consultores E.I.R.L.]
+  weakAlias: [Aaron]
+- strings: [Unique Concept Enterprises (also known as Unique)]
+  entity_schema: LegalEntity
+  name: [Unique Concept Enterprises]
+  weakAlias: [Unique]
+
+# (also known as different name) -> alias, as-is
+- strings: [JXTE ASSEMBLY MANUFACTURING CO LTD (ALSO KNOWN AS JIANGXI JIAOGONG ASSEMBLY MANUFACTURING CO LTD)]
+  entity_schema: LegalEntity
+  name: [JXTE ASSEMBLY MANUFACTURING CO LTD]
+  alias: [JIANGXI JIAOGONG ASSEMBLY MANUFACTURING CO LTD]
+- strings: [Sunaula Khimti Pvt. Construction Ltd. (also known as M/s Sunaula Khimti)]
+  entity_schema: LegalEntity
+  name: [Sunaula Khimti Pvt. Construction Ltd.]
+  alias: [M/s Sunaula Khimti]
+- strings: [Control Electrónico S.A (also known as Control Electrónico)]
+  entity_schema: LegalEntity
+  name: [Control Electrónico S.A]
+  alias: [Control Electrónico]
+- strings: [Cesa De Nicaragua S.A. (also known as Cesa Nicaragua)]
+  entity_schema: LegalEntity
+  name: [Cesa De Nicaragua S.A.]
+  alias: [Cesa Nicaragua]
+- strings: [Comsis Information Technology Solutions Services (also known as Comsis Afghanistan)]
+  entity_schema: LegalEntity
+  name: [Comsis Information Technology Solutions Services]
+  alias: [Comsis Afghanistan]
+
+# abbreviation: initialism next to full name (ru_cbr/afdb)
+- strings: ['Payment processing center "Far East" (Joint stock company), PPC "FE" (JSC)']
+  entity_schema: Company
+  name: [Payment processing center "Far East" (Joint stock company)]
+  abbreviation: [PPC "FE" (JSC)]
+- strings: ['Commercial Bank "Trade Finance Bank" (Joint Stock Company), CB "TFB" JSC']
+  entity_schema: Company
+  name: [Commercial Bank "Trade Finance Bank" (Joint Stock Company)]
+  abbreviation: [CB "TFB" JSC]
+- strings: [Spencer Edwards Inc. ("SEI")]
+  entity_schema: LegalEntity
+  name: [Spencer Edwards Inc.]
+  abbreviation: [SEI]
+- strings: [Euro Pacific Capital Inc. (n/k/a A.G.P./Alliance Global Partners Corp.)]
+  entity_schema: LegalEntity
+  name: [Alliance Global Partners Corp.]
+  previousName: [Euro Pacific Capital Inc.]
+  abbreviation: [A.G.P.]
+- strings: ['"Credit Ural Bank" Joint Stock Company, "CUB" JSC']
+  entity_schema: Company
+  name: [Credit Ural Bank Joint Stock Company]
+  abbreviation: [CUB JSC]
+- strings: [Computer and Electrical Services Ltd. St. Lucia (also known as CES)]
+  entity_schema: LegalEntity
+  name: [Computer and Electrical Services Ltd. St. Lucia]
+  abbreviation: [CES]
+- strings: [Industrial Investment Group Llc (also known as IIG or Industrial Investment Group ALC )]
+  entity_schema: LegalEntity
+  name: [Industrial Investment Group Llc]
+  alias: [Industrial Investment Group ALC]
+  abbreviation: [IIG]
+- strings: ['"NATIONAL INVESTMENT BANK" JOINT-STOCK COMPANY,  "NIB" JSC']
+  entity_schema: Company
+  name: ['"NATIONAL INVESTMENT BANK" JOINT-STOCK COMPANY']
+  abbreviation: [NIB JSC]
+- strings: ['National Settlement Depository,  NSD']
+  entity_schema: Company
+  name: [National Settlement Depository]
+  abbreviation: [NSD]
+- strings: [CNE Environmental & Waste Services Ltd. (also known as CNE)]
+  entity_schema: LegalEntity
+  name: [CNE Environmental & Waste Services Ltd.]
+  abbreviation: [CNE]
+- strings: [SRS Design & Fashion Ltd (also known as SRS)]
+  entity_schema: LegalEntity
+  name: [SRS Design & Fashion Ltd]
+  abbreviation: [SRS]
+
+# legal-form-only variant -> alias (ru_cbr)
+- strings: ['"EurocityBank" Public Joint Stock Company, "EurocityBank" ']
+  entity_schema: Company
+  name: ['"EurocityBank" Public Joint Stock Company']
+  alias: ['"EurocityBank"']
+- strings: [Joint stock company settlement non-banking credit institution "Financial landscape"; JSC SNCO "Financial landscape"]
+  entity_schema: Company
+  name: [Joint stock company settlement non-banking credit institution "Financial landscape"]
+  alias: [JSC SNCO "Financial landscape"]
+- strings: [Commercial bank DeltaCredit Joint stock company; CB DeltaCredit]
+  entity_schema: Company
+  name: [Commercial bank DeltaCredit Joint stock company]
+  alias: [CB DeltaCredit]
+- strings: ['Development Bank of production of oil and gas extractive equipment, conversion, shipbuilding and construction (joint-stock company), JSC NOKSSBANK']
+  entity_schema: Company
+  name: ['Development Bank of production of oil and gas extractive equipment, conversion, shipbuilding and construction (joint-stock company)']
+  alias: [JSC NOKSSBANK]
+- strings: [Commercial International "Profile Bank" (Joint-Stock Company); CM "Profile Bank" (JSC)]
+  entity_schema: Company
+  name: [Commercial International "Profile Bank" (Joint-Stock Company)]
+  alias: [CM "Profile Bank" (JSC)]
+- strings: ['Public Joint-Stock Company "Donkhlebbank", PJCB "Donkhlebbank"']
+  entity_schema: Company
+  name: [Public Joint-Stock Company "Donkhlebbank"]
+  alias: [PJCB "Donkhlebbank"]
+- strings: ['Public Joint Stock Company "FINSTAR BANK", PJSC FINSTAR BANK']
+  entity_schema: Company
+  name: [Public Joint Stock Company "FINSTAR BANK"]
+  alias: [PJSC FINSTAR BANK]
+
+# semicolon list -> two names, as-is (ru_cbr)
+- strings: ['Joint-stock company MC Bank Rus; JSC MC Bank Rus ']
+  entity_schema: Company
+  name: [Joint-stock company MC Bank Rus, JSC MC Bank Rus]
+- strings: [ONEBANK (public joint-stock company); ONEBANK]
+  entity_schema: Company
+  name: [ONEBANK (public joint-stock company), ONEBANK]
+- strings: ['Sberbank of Russia, Sberbank']
+  entity_schema: Company
+  name: [Sberbank of Russia, Sberbank]
+- strings: [Joint Stock Company "Bank Credit Suisse (Moscow)"; JSC "Bank Credit Suisse (Moscow)"]
+  entity_schema: Company
+  name: [Joint Stock Company "Bank Credit Suisse (Moscow)", JSC "Bank Credit Suisse (Moscow)"]
+- strings: ['Tavrichesky Bank (joint-stock company), Tavrichesky Bank (JSC)']
+  entity_schema: Company
+  name: [Tavrichesky Bank (joint-stock company), Tavrichesky Bank (JSC)]
+- strings: [Credit-Moscow Joint stock Commercial Bank (Joint Stock Company); Credit-Moscow Bank]
+  entity_schema: Company
+  name: [Credit-Moscow Joint stock Commercial Bank (Joint Stock Company), Credit-Moscow Bank]
+
+# (joint-stock company) kept in name
+- strings: ['International bank of St-Petersburg (Joint-stock company), Bank IBSP (JSC)']
+  entity_schema: Company
+  name: [International bank of St-Petersburg (Joint-stock company)]
+  abbreviation: [Bank IBSP (JSC)]
+- strings: [Joint Stock Commercial Bank "Transstroibank" (Joint Stock company); "Transstroibank"]
+  entity_schema: Company
+  name: [Joint Stock Commercial Bank "Transstroibank" (Joint Stock company)]
+  weakAlias: [Transstroibank]
+- strings: [Central counterparty "LCC" (joint-stock company); LCC (JSC)]
+  entity_schema: Company
+  name: [Central counterparty "LCC" (joint-stock company)]
+  abbreviation: [LCC (JSC)]
+- strings: [State Specialized Russian Export-Import Bank (joint-stock company); EXIMBANK OF RUSSIA]
+  entity_schema: Company
+  name: [State Specialized Russian Export-Import Bank (joint-stock company), EXIMBANK OF RUSSIA]
+
+# name / domain -> alias
+- strings: [Copy Trades / copytrades.top]
+  entity_schema: LegalEntity
+  name: [Copy Trades]
+  alias: [copytrades.top]
+- strings: [Hodivault / hodivault.com]
+  entity_schema: LegalEntity
+  name: [Hodivault]
+  alias: [hodivault.com]
+- strings: [Erion Group (erion.biz / eriongroupe.com)]
+  entity_schema: LegalEntity
+  name: [Erion Group]
+  alias: [erion.biz, eriongroupe.com]
+- strings: [ASSET EMPOWERMENT / assetempowerment.com]
+  entity_schema: LegalEntity
+  name: [ASSET EMPOWERMENT]
+  alias: [assetempowerment.com]
+- strings: [Rivont Limited / www.rivontlimited.icu]
+  entity_schema: LegalEntity
+  name: [Rivont Limited]
+  alias: [www.rivontlimited.icu]
+- strings: [Market Master Pros / MarketMasterPros]
+  entity_schema: LegalEntity
+  name: [Market Master Pros]
+  alias: [MarketMasterPros]
+- strings: [Trade FDC / www.tradefdc.com]
+  entity_schema: LegalEntity
+  name: [Trade FDC]
+  alias: [www.tradefdc.com]
+- strings: [ICMARKET/www.icapitalmarket.net]
+  entity_schema: LegalEntity
+  name: [ICMARKET]
+  alias: [www.icapitalmarket.net]
+
+# bare domain -> name (as-is)
+- strings: [YellowEye Investment Management (UK) Limited]
+  entity_schema: LegalEntity
+  name: [YellowEye Investment Management (UK) Limited]
+- strings: [ignitemotorinsurance.uk (Clone of FCA authorised firm)]
+  entity_schema: LegalEntity
+  name: [ignitemotorinsurance.uk]
+- strings: [ORBINEXT / ORBI NEXT]
+  entity_schema: LegalEntity
+  name: [ORBINEXT, ORBI NEXT]
+
+# CJK in parentheses -> second name
+- strings: [Xinjiang Communications Construction Group Co. Ltd. XCCG (新疆交通建设集团股份有限公司 新疆交建)]
+  entity_schema: LegalEntity
+  name: [Xinjiang Communications Construction Group Co. Ltd. XCCG, 新疆交通建设集团股份有限公司 新疆交建]
+- strings: [Xinjiang Chuangsite Construction Consulting Co. Ltd (新疆创思特建设工程咨询有限公司)]
+  entity_schema: LegalEntity
+  name: [Xinjiang Chuangsite Construction Consulting Co. Ltd, 新疆创思特建设工程咨询有限公司]
+- strings: ['かまやち 敏[釜萢 敏]']
+  entity_schema: Person
+  name: [かまやち 敏, 釜萢 敏]
+- strings: [Xinjiang Xinjiao Construction Afu Highway Project Management Co. Ltd (新疆新交建阿富公路项目管理有限公)]
+  entity_schema: LegalEntity
+  name: [Xinjiang Xinjiao Construction Afu Highway Project Management Co. Ltd, 新疆新交建阿富公路项目管理有限公]
+- strings: ['福島 みずほ[福島 瑞穂]']
+  entity_schema: Person
+  name: [福島 みずほ, 福島 瑞穂]
+- strings: [XCCG Traffic Engineering Technology Co. Ltd (新疆交建交通工程科技有限责任公司)]
+  entity_schema: LegalEntity
+  name: [XCCG Traffic Engineering Technology Co. Ltd, 新疆交建交通工程科技有限责任公司]
+- strings: [Inner Mongolia Yuanshan Energy Co. Ltd (内蒙古沅山能源有限公司)]
+  entity_schema: LegalEntity
+  name: [Inner Mongolia Yuanshan Energy Co. Ltd, 内蒙古沅山能源有限公司]
+- strings: [Xinjiang Road And Bridge Engineering Co. Ltd (新疆路桥桥梁工程建设有限责任公司)]
+  entity_schema: LegalEntity
+  name: [Xinjiang Road And Bridge Engineering Co. Ltd, 新疆路桥桥梁工程建设有限责任公司]
+
+# as-is balance (us_finra_actions)
+- strings: [Tori K. Uhiren (a.k.a. Tori van der Geest)]
+  entity_schema: LegalEntity
+  name: [Tori K. Uhiren]
+  alias: [Tori van der Geest]
+- strings: [Texas E&P Partners Inc. f/k/a Chestnut Exploration Partners Inc. f/k/a Chestnut Energy Partners Inc.]
+  entity_schema: LegalEntity
+  name: [Texas E&P Partners Inc.]
+  previousName: [Chestnut Exploration Partners Inc., Chestnut Energy Partners Inc.]
+- strings: [ARGENTUS SECURITIES LLC (F/K/A SUMMIT ALLIANCE SECURITIES LLC AND SIG SECURITIES INC.)]
+  entity_schema: LegalEntity
+  name: [ARGENTUS SECURITIES LLC]
+  previousName: [SUMMIT ALLIANCE SECURITIES LLC, SIG SECURITIES INC.]
+- strings: [MILKIE/FERGUSON INVESTMENTS INC.]
+  entity_schema: LegalEntity
+  name: [MILKIE/FERGUSON INVESTMENTS INC.]
+- strings: [RAYMOND JAMES LTD (USA) LTD.]
+  entity_schema: LegalEntity
+  name: [RAYMOND JAMES LTD (USA) LTD.]
+- strings: [IFC Holdings Inc. (a/k/a) INVEST Financial Corporation]
+  entity_schema: LegalEntity
+  name: [IFC Holdings Inc.]
+  alias: [INVEST Financial Corporation]
+- strings: ['Goldman, Sachs & Co. LLC (f/k/a Goldman, Sachs & Co']
+  entity_schema: LegalEntity
+  name: ['Goldman, Sachs & Co. LLC']
+  previousName: ['Goldman, Sachs & Co']
+- strings: [CALYON SECURITIES (USA) INC]
+  entity_schema: LegalEntity
+  name: [CALYON SECURITIES (USA) INC]
+
+# as-is balance (afdb_sanctions)
+- strings: [Vpower Engineering (Shenzhen) Ltd.]
+  entity_schema: LegalEntity
+  name: [Vpower Engineering (Shenzhen) Ltd.]
+- strings: [Yunnan Jincheng Construction Engineering Co. Ltd. (Yunnan Jincheng)]
+  entity_schema: LegalEntity
+  name: [Yunnan Jincheng Construction Engineering Co. Ltd.]
+  alias: [Yunnan Jincheng]
+- strings: [L’Entreprise Générale De Construction Tsimanavaka]
+  entity_schema: LegalEntity
+  name: [L'Entreprise Générale De Construction Tsimanavaka]
+- strings: [Cv Cempaka]
+  entity_schema: LegalEntity
+  name: [Cv Cempaka]
+- strings: [M/S Uday Pratap Sharma]
+  entity_schema: LegalEntity
+  name: [M/S Uday Pratap Sharma]
+
+# as-is balance (ru_cbr_banks)
+- strings: [Joint Stock Company RenCap Bank; AO RenCap Bank]
+  entity_schema: Company
+  name: [Joint Stock Company RenCap Bank, AO RenCap Bank]
+- strings: ['Krona-Bank (Limited Liability Company), Krona-Bank, Ltd']
+  entity_schema: Company
+  name: [Krona-Bank (Limited Liability Company), 'Krona-Bank, Ltd']
+- strings: ['Public Joint-Stock Commercial Bank  "DERZHAVA", PJSCB "DERZHAVA"']
+  entity_schema: Company
+  name: [Public Joint-Stock Commercial Bank "DERZHAVA", PJSCB "DERZHAVA"]
+- strings: ['"Russian Public Joint-Stock Commercial Roads Bank"; "RosDorBank"']
+  entity_schema: Company
+  name: [Russian Public Joint-Stock Commercial Roads Bank, RosDorBank]
+- strings: ['Commercial Bank "EUROPEAN STANDART" (Limited Liability Company), Commercial Bank "EUROSTANDART", LLC']
+  entity_schema: Company
+  name: [Commercial Bank "EUROPEAN STANDART" (Limited Liability Company), 'Commercial Bank "EUROSTANDART", LLC']
+- strings: ['"FIRST JOINT STOCK COMMERCIAL ROAD AND TRANSPORT BANK", "First DorTransBank"']
+  entity_schema: Company
+  name: [FIRST JOINT STOCK COMMERCIAL ROAD AND TRANSPORT BANK, First DorTransBank]
+
+# as-is balance (ebrd_ineligible)
+- strings: ['Hunan Water and Hydropower Construction Group Co., Ltd.']
+  entity_schema: LegalEntity
+  name: ['Hunan Water and Hydropower Construction Group Co., Ltd.']
+- strings: [Hoang Mai Construction Import and Export Joint Stock Company]
+  entity_schema: LegalEntity
+  name: [Hoang Mai Construction Import and Export Joint Stock Company]
+- strings: ['Flowbird Société par Actions Simplifiée  (formerly operating as: Parkeon Société par Actions Simplifiée)']
+  entity_schema: LegalEntity
+  name: [Flowbird Société par Actions Simplifiée]
+  previousName: [Parkeon Société par Actions Simplifiée]
+- strings: [Project Planning and Management Barbados Ltd]
+  entity_schema: LegalEntity
+  name: [Project Planning and Management Barbados Ltd]
+- strings: [SoftTech IT Solutions and Services Ltd.]
+  entity_schema: LegalEntity
+  name: [SoftTech IT Solutions and Services Ltd.]
+
+# as-is balance (iso9362_bic)
+- strings: ['BANK OF ANSHAN CO., LTD. (FORMERLY ANSHAN CITY COMMERCIAL BANK)']
+  entity_schema: Organization
+  name: ['BANK OF ANSHAN CO., LTD.']
+  previousName: [ANSHAN CITY COMMERCIAL BANK]
+- strings: [WDR WARBURG DILLON READ LLC (FORMERLY UBS SECURITIES LLC)]
+  entity_schema: Organization
+  name: [WDR WARBURG DILLON READ LLC]
+  previousName: [UBS SECURITIES LLC]
+- strings: ['RENAISSANCE GROUP LLC DBA RENAISSANCE INVESTMENT MANAGEMENT, THE']
+  entity_schema: Organization
+  name: [RENAISSANCE GROUP LLC]
+  alias: ['RENAISSANCE INVESTMENT MANAGEMENT, THE']
+
+# as-is balance (us_ddtc_debarred)
+- strings: ['Shapovalov, Michael (aka Mikhail Shapovalov)']
+  entity_schema: Person
+  name: ['Shapovalov, Michael']
+  alias: [Mikhail Shapovalov]
+- strings: ['Asad-Ghanem, Rami Najm (aka Ghanem, Rami Najm)']
+  entity_schema: Person
+  name: ['Asad-Ghanem, Rami Najm']
+  alias: ['Ghanem, Rami Najm']
