@@ -1,0 +1,73 @@
+title: US NFA Enforcement and Regulatory Actions
+entry_point: crawler.py
+prefix: us-nfa
+coverage:
+  frequency: weekly
+  start: 2026-09-01
+load_statements: true
+summary: >-
+  Firms and individuals disciplined by the US futures industry's self-regulatory
+  organisation
+description: |
+  The National Futures Association (NFA) is the self-regulatory organisation for the
+  US derivatives industry, designated by the Commodity Futures Trading Commission as a
+  "registered futures association" under section 17 of the Commodity Exchange Act.
+  Membership is mandatory for futures commission merchants, introducing brokers,
+  commodity pool operators, commodity trading advisors and their associated persons,
+  and NFA disciplines those members under its own rulebook — separately from, and often
+  without, any parallel federal action by the CFTC.
+
+  This dataset covers the concluded actions NFA publishes in its enforcement and
+  regulatory actions listing: decisions in disciplinary cases, final orders in
+  registration cases, and member responsibility actions, which are emergency orders
+  restricting a member's activity while a matter is pending. Each respondent is linked
+  to the case it was named in, the date the action was taken, and the NFA rules, bylaws
+  or CFTC regulations cited against it.
+
+  Complaints are excluded. A complaint is the charging document that opens a disciplinary
+  case and states allegations that have not been adjudicated; respondents who were only
+  ever named in a complaint are therefore not in this dataset. Sanctions imposed —
+  fines, bars, suspensions, withdrawals — are published only on the per-case detail
+  pages, which NFA excludes from crawling, so this dataset records that an action was
+  taken but not what it imposed.
+url: https://www.nfa.futures.org/EnforcementReg/EnforceRegActionsSimple.aspx
+publisher:
+  name: National Futures Association
+  acronym: NFA
+  description: >
+    NFA is the industry-wide self-regulatory organisation for the US derivatives markets.
+    Authorised by Congress in 1974 and designated by the CFTC in 1981, it registers and
+    audits futures commission merchants, introducing brokers, commodity pool operators,
+    commodity trading advisors, swap dealers and their associated persons, and enforces
+    its rulebook through a Business Conduct Committee that can fine, suspend, bar or
+    expel members.
+  url: https://www.nfa.futures.org/
+  country: us
+  official: true
+data:
+  url: https://www.nfa.futures.org/EnforcementReg/api/DataHandlerEnforcementReg.ashx
+  format: JSON
+  lang: eng
+dates:
+  formats: ["%Y-%m-%dT%H:%M:%S"]
+tags:
+  - list.enforcement
+  - issuer.west
+  - sector.financial
+
+# Only Thing-schema entities are counted, so the Sanctions (about one and a
+# half per respondent) cannot be asserted on here.
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1500
+  max:
+    schema_entities:
+      LegalEntity: 4000
+
+lookups:
+  type.name:
+    options:
+      - match: 
+          - "Vincent Capital Group LLC ("
+        value: Vincent Capital Group LLC
