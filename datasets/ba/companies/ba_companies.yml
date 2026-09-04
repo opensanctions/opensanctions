@@ -98,9 +98,82 @@ lookups:
       # 19 characters, so not a valid (20 character) LEI - kept as a plain identifier.
       - match: "Ured reg.preduzeća, Privredne komore Venezoa Giulia, pod L.E.I:815600D69B9617DA495"
         value: "815600D69B9617DA495"
+      - match: "02666995 Centralni registar privrednih subjekata poreske uprave Podgorica, Crna Gora"
+        value: "02666995"
+      - match: "Broj registra: 0000776715, ID broj: 382867177, Poreski broj: 9512480858"
+        values:
+          - "0000776715"
+          - "382867177"
+          - "9512480858"
+      - match: "Direktorat privr. registra u Ankari reg. br. 411001, broj u elektronskom registru: 09971382717000021"
+        values:
+          - "411001"
+          - "09971382717000021"
+      - match: "Osnovni sud Flensburgu upisano pod brojem spisa HRB 11875 FL sa tekućim brojem 3"
+        value: "HRB 11875 FL"
+      - match: "Trgovački registar kod Općinskog suda  Kleve, pod brojem firme HR B 11896"
+        value: "HRB 11896"
+      # Associations, foundations and other non-commercial founders are cited by their
+      # entry in a register kept by one of the justice ministries. The R-, RU- and RF-
+      # numbers carry a year and identify the entry on their own.
+      - match: "HNK Ministarstvo pravouđa, uprave i lokalne samouprave Mostar br. R-1676/15, str. 346, knjige V"
+        value: "R-1676/15"
+      - match: "Ministarstvo pravosuđa HNK br. R-23/03, rješenje br. 03-03-05-UP1-192/16"
+        value: "R-23/03"
+      - match: "Ministarstvo pravosuđa HNK/Ž registar Udruga reg. br. R-278/01 novi R-21/03 u knjigu KK (druga H)"
+        values:
+          - "R-278/01"
+          - "R-21/03"
+      - match: "Registarski broj R-1171/11 knjiga IV Registra Ministarstva pravosuđa, uprave i lokalne samouprave"
+        value: "R-1171/11"
+      - match: "stranica 242 knjige V Registra udruženja pod registarskim brojem R-1580/14"
+        value: "R-1580/14"
+      - match: "Registar udruga Ministarstva pravde BiH registarski broj RU-275/05, Knjige I Registra"
+        value: "RU-275/05"
+      - match: "RF-3/02, Knjiga II Registra fondacija pri Ministarstvu pravde BiH"
+        value: "RF-3/02"
+      - match: "RF-41/06 knjiga II Registra Ministarstva pravde BiH  JMB:4201115180002"
+        values:
+          - "RF-41/06"
+          - "4201115180002"
+      - match: "Registarski br:314/08, knjiga br. II, od 8.10.2008. g. Ministarstvo pravde BiH"
+        value: "314/08"
+      - match: "reg.br. 273/07 knjiga broj II kod Ministarstva pravde Bosne i Hercegovine"
+        value: "273/07"
+      # The only numbers these give are the sequential entry number inside a numbered
+      # register book, or the number of the decision that ordered the registration.
+      # Neither identifies the entity on its own, so drop the prose rather than
+      # emitting a fragment of it as a registration number.
+      - match:
+          - "Broj 265 (u knjizi 1 registra Federalnog ministarstva pravde FBiH sa danom 26.04.1999. godine)"
+          - "Federalno ministarstvo pravde, Knjiga broj 1 registarski broj 699"
+          - "Registar regulatorne agencije za humanitarne poslove pod rednim brojem 6."
+          - "Registar udruženja Ministarstva pravde i uprave Kantona Sarajevo knjiga I, registarski broj 425"
+          - "Rješenje Federalnog Ministarstva pravde Sarajevo 04-05-2-236/03 od 3.4.2003.g."
+          - "knjiga I pod registarskim brojm 652 Federalno ministarstvo pravde od 03.04.2003. godine"
+          - "knjiga IX Reg. broj 1623 Ministarstvo za pravosuđe i upravu ZE-DO kantona"
+          - "registar Udruženja kod Federalnog ministarstva pravde Sarajevo reg. 695, Knjiga I registar"
+          - "upisano pod registarskim brojem 315, knjiga I registra, dana 01.12.1999.godine"
+        value: null
   type.name:
     options:
       # Skip values that contain only dots, dashes, slashes, or spaces (e.g. "----", "...", "-//-", etc.)
       # Sometimes we get these values from the name or abbreviation fields.
       - regex: ^[.\-\/\s]+$
         value: null
+      # The founder name field is occasionally used for a note listing the legal heirs
+      # ("zakonski nasljednici") of a deceased founder and the share each of them holds.
+      # The individual heirs cannot be split out reliably, so drop the note.
+      - regex: ^ZAKONSKI NASLJEDNICI
+        value: null
+  type.address:
+    options:
+      # Placeholder values used where no address is recorded, seen in both the
+      # additional address of a company and the address of a founding company.
+      - regex: ^[.\-\/\s]+$
+        value: null
+  type.country:
+    options:
+      # North Macedonia, in the Bosnian long form used by the register.
+      - match: "Republika Severna Makedonija"
+        value: mk

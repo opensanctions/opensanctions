@@ -52,6 +52,14 @@ TOUCH_URL = DICTS_URL
 # URL to retrieve the list of companies
 RETRIEVE_URL = f"{BASE_URL}/f"
 
+# The founder table of a formerly state-owned company routinely carries a note
+# about the collective of shareholders ("dioničari") or about where their list is
+# kept, instead of the name of a founding entity, e.g. "Dioničari prema listi
+# dioničara Registra vrijednosnih papira FBiH" or plain "Dioničari". Every one of
+# the 142 distinct values seen in the 2026-08-28 run was such a note and none of
+# them named an entity, so they are skipped rather than emitted as a founder.
+SHAREHOLDER_NOTE = "dioničari"
+
 FOUNDER_DENY_LIST = {
     "-",
     "Dioničari prema evidenciji Registra vrijednosnih papir F BiH",
@@ -489,12 +497,13 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
         for comp in founders_companies:
             if comp["name"] in FOUNDER_DENY_LIST:
                 continue
-            if "dioničari" in comp["name"].lower():
-                context.log.warning(
-                    "Possible note instead of name (containing dioničari)",
+            if SHAREHOLDER_NOTE in comp["name"].lower():
+                context.log.info(
+                    "Skipping shareholder note used as a founder name",
                     name=comp["name"],
                     url=record["details_url"],
                 )
+                continue
 
             founder_company = context.make("LegalEntity")
             founder_company.id = context.make_id(
