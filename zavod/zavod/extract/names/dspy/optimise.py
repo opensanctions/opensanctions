@@ -9,6 +9,7 @@ from zavod.settings import OPENAI_API_KEY
 import dspy  # type: ignore
 
 LEVELS = ["light", "heavy"]
+REFLECTION_MODEL = "gpt-5.5"
 
 
 def metric_with_feedback(
@@ -120,8 +121,14 @@ def optimise_single_entity(
         num_threads=threads,
         track_stats=False,
         use_merge=False,
+        # The reflection model writes the prompt; use the strongest general model
+        # available. The student stays the production model so the prompt is tuned
+        # for what actually runs in the crawlers.
         reflection_lm=dspy.LM(
-            model="gpt-5", temperature=1.0, max_tokens=32000, api_key=OPENAI_API_KEY
+            model=REFLECTION_MODEL,
+            temperature=1.0,
+            max_tokens=32000,
+            api_key=OPENAI_API_KEY,
         ),
         seed=0,
     )
