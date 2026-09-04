@@ -87,6 +87,44 @@ def fetch_collection(
     return records
 
 
+def crawl_terms(
+    context: Context,
+    person: Entity,
+    positions: dict[str, tuple[Entity, PositionCategorisation]],
+    terms: list[dict[str, Any]],
+    phid: str,
+) -> bool:
+    """Emit an Occupancy per elected term; return whether any survived PEP gating."""
+    has_occupancy = False
+    for term in terms:
+        chamber = term.pop("MpOrSenator")
+        if chamber not in positions:
+            raise ValueError(f"Unexpected MpOrSenator value: {chamber!r}")
+        position, categorisation = positions[chamber]
+        # The secondary date pair is unused by the source (always the sentinel); a real
+        # value would be a second service period we'd otherwise drop.
+        if term.pop("DateStart2") != ONGOING or term.pop("DateEnd2") != ONGOING:
+            raise ValueError(f"Unexpected secondary service period for {phid}")
+        end_date = term.pop("DateEnd1")
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            categorisation=categorisation,
+            start_date=term.pop("DateStart1"),
+            end_date=None if end_date == ONGOING else end_date,
+        )
+        state = term.pop("Value1")
+        electorate = term.pop("Value2")
+        if occupancy is not None:
+            # House members sit for an electorate, senators for a state.
+            occupancy.add("constituency", electorate or state)
+            context.emit(occupancy)
+            has_occupancy = True
+        context.audit_data(term, ignore=SERVICE_IGNORE)
+    return has_occupancy
+
+
 def crawl_member(
     context: Context,
     positions: dict[str, tuple[Entity, PositionCategorisation]],
@@ -139,35 +177,40 @@ def crawl_member(
     person.add("sourceUrl", f"https://handbook.aph.gov.au/Parliamentarian/{phid}")
     context.audit_data(record, ignore=INDIVIDUAL_IGNORE)
 
-    has_occupancy = False
-    for term in terms:
-        chamber = term.pop("MpOrSenator")
-        if chamber not in positions:
-            raise ValueError(f"Unexpected MpOrSenator value: {chamber!r}")
-        position, categorisation = positions[chamber]
-        # The secondary date pair is unused by the source (always the sentinel); a real
-        # value would be a second service period we'd otherwise drop.
-        if term.pop("DateStart2") != ONGOING or term.pop("DateEnd2") != ONGOING:
-            raise ValueError(f"Unexpected secondary service period for {phid}")
-        end_date = term.pop("DateEnd1")
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            categorisation=categorisation,
-            start_date=term.pop("DateStart1"),
-            end_date=None if end_date == ONGOING else end_date,
-        )
-        state = term.pop("Value1")
-        electorate = term.pop("Value2")
-        if occupancy is not None:
-            # House members sit for an electorate, senators for a state.
-            occupancy.add("constituency", electorate or state)
-            context.emit(occupancy)
-            has_occupancy = True
-        context.audit_data(term, ignore=SERVICE_IGNORE)
+    if crawl_terms(context, person, positions, terms, phid):
+        context.emit(person)
 
-    if has_occupancy:
+
+def crawl_pending_member(
+    context: Context,
+    positions: dict[str, tuple[Entity, PositionCategorisation]],
+    phid: str,
+    terms: list[dict[str, Any]],
+) -> None:
+    # The handbook publishes a member's record of service as soon as they are sworn
+    # in (e.g. senators filling a casual vacancy under Constitution s 15), but the
+    # biographical `individuals` record can lag by weeks. Emit a minimal Person from
+    # the service rows so a sitting member is not dropped; crawl_member takes over
+    # with the fuller record once the individual is published.
+    display_name = terms[0]["DisplayName"]
+    print(display_name)
+    # DisplayName here is "FAMILY, Given(s)", e.g. "BLEYER, Vanessa". Anything else
+    # (extra commas, honorifics) is unexpected for a service row: warn and skip
+    # rather than emit a mis-split name.
+    parts = display_name.split(", ")
+    if len(parts) != 2:
+        context.log.warning(
+            "Cannot parse pending member name", phid=phid, value=display_name
+        )
+        return
+    family_name, given_names = parts
+    person = context.make("Person")
+    person.id = context.make_slug("person", phid)
+    h.apply_name(person, first_name=given_names, last_name=family_name)
+    person.add("citizenship", "au")
+    person.add("sourceUrl", f"https://handbook.aph.gov.au/Parliamentarian/{phid}")
+
+    if crawl_terms(context, person, positions, terms, phid):
         context.emit(person)
 
 
@@ -211,8 +254,7 @@ def crawl(context: Context) -> None:
             continue
         crawl_member(context, positions, record, terms)
 
-    if terms_by_phid:
-        context.log.warning(
-            "Parliamentary service records without a matching individual",
-            phids=sorted(terms_by_phid.keys()),
-        )
+    # Members sworn in very recently have a record of service before their
+    # biographical individual record is published; emit them from the service rows.
+    for phid, terms in terms_by_phid.items():
+        crawl_pending_member(context, positions, phid, terms)
