@@ -14,12 +14,6 @@ from zavod import helpers as h
 FIRST_YEAR = 1981
 # The link params carrying a respondent's key, in the two forms the source has used.
 KEY_PARAMS = ("entityid", "nfaid")
-# A caption naming more than one respondent, e.g. "Acme Futures, et al. (Jane Roe)".
-AMBIGUOUS_CAPTION = re.compile(r"\bet\.?\s*al\b|[()]", re.IGNORECASE)
-# Names often contain an et al and parenthetical names, all post-nominal info that 
-# we can ignore.
-PATTERN_IRREGULAR = r"[()]|et al"
-REGEX_IRREGULAR = re.compile(PATTERN_IRREGULAR, re.IGNORECASE)
 
 
 def listing_url(context: Context) -> str:
