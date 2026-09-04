@@ -1,3 +1,10 @@
+# The PermID match API (api-eit.refinitiv.com) intermittently drops or stalls POST
+# requests, surfacing as `Enrichment error <...>: HTTP POST failed [...]` errors after
+# the configured retries are exhausted. A handful of these in a run only means those
+# subjects went unmatched this time; they are retried on the next run. Many of them at
+# once means the API is having an outage — the run of 2026-08-23 failed that way, with
+# ~15 such errors followed by a JSONDecodeError. In that case, re-run rather than
+# changing the crawler.
 type: external
 title: PermID Open Data
 entry_point: zavod.runner.enrich:enrich
@@ -79,4 +86,8 @@ assertions:
       Company: 2800
   max:
     schema_entities:
-      Company: 10000
+      # The published entity count tracks how many enrichment candidates have been
+      # confirmed in review, so it steps up as the review backlog is worked down
+      # rather than following the source. Keep plenty of headroom above the observed
+      # count here; the min bound is what guards against a broken run.
+      Company: 20000
