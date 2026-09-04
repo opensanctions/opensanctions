@@ -5,12 +5,13 @@ coverage:
   frequency: never
   start: 2024-03-08
 manual_check:
-  last_checked: "2026-06-29"
+  last_checked: "2026-09-01"
   interval: 45
   message: >
     Review official Chinese authorities not covered by automated MFA, MOFCOM, and
     Taiwan Affairs Office discovery — including Chinese embassies and other State
-    Council departments — for new designation or list-change notices.
+    Council departments — for new designation or list-change notices. See
+    docs/discovery.md for the query set and the log of what has already been ruled out.
 deploy:
   schedule: "30 6 * * *"
   issues_turns: 500
