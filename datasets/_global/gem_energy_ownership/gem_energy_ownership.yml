@@ -331,10 +331,16 @@ lookups:
           - 6500004766
           - 7802942672
           - U40107DL2008PLC179263
+          - 02.315.580/0001-31
+          - 5036181392
         prop: registrationNumber
       - match:
           - 253400U464BV6CWFSP06
+          - 549300ED64PCB8PIL726
         prop: leiCode
+      - match: 5086807410 Company
+        value: 5086807410
+        prop: permId
       - match:
           - 4205070630
           - 7722515837
@@ -761,9 +767,19 @@ lookups:
           - 9731001285
           - 9731011220
           - 7729722060
+          - 7801212360
+          - 7736186950
+          - 7705721371
+          - 7702005813
+          - 3808066311
+          - 7704455695
+          - 7708339516
+          - 0318015873
+          - 7736030085
         prop: innCode
       - match:
           - not found
+          - not  found
           - not applicable
           - not ofund
           - not sure

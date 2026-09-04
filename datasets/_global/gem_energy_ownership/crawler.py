@@ -5,7 +5,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data
 
-
 # Unique entity types
 # {"person", "unknown entity", "state", "legal entity", "arrangement", "state body"}
 
@@ -16,6 +15,8 @@ IGNORE = [
     "headquarters_subdivision",
     "gem_parents",
     "gem_parents_ids",
+    "intermediate_owner_ids",
+    "joint_venture",
 ]
 ALIAS_SPLITS = [
     "[former],",
@@ -37,7 +38,17 @@ SKIP_IDS = {
 }
 SELF_OWNED = {"E100000002236"}
 REGEX_URL_SPLIT = re.compile(r",\s*http")
+REGEX_ENTITY_ID = re.compile(r"^E\d+$")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
+
+
+def clean_entity_id(value: str) -> str | None:
+    """Normalise an entity reference, or None if it isn't one.
+
+    Some references are written as floats, e.g. "E100001014363.0".
+    """
+    ident = value.strip().removesuffix(".0")
+    return ident if REGEX_ENTITY_ID.match(ident) else None
 
 
 def split_urls(value: str) -> list[str]:
@@ -66,6 +77,7 @@ def crawl_company(
     row: dict[str, str | None],
     skipped: set[str],
     owned_ids: set[str],
+    entity_ids: set[str],
 ) -> None:
     id_ = row.pop("entity_id")
     if id_ is None:
@@ -144,6 +156,8 @@ def crawl_company(
     if entity_type != "unknown entity":
         entity.add("description", entity_type)
     entity.add("legalForm", row.pop("legal_entity_type"))
+    # "dissolved" or "amalgamated"; absent for entities still trading.
+    entity.add("status", row.pop("entity_status"))
     entity.add("country", reg_country)
     entity.add("mainCountry", headquarters_country)
     homepage = row.pop("home_page")
@@ -180,6 +194,36 @@ def crawl_company(
     entity.add("address", address)
 
     context.emit(entity)
+
+    # Entities marked "amalgamated" name the entity they merged into. About a third
+    # of those targets are not published anywhere in the workbook, so the succession
+    # can only be recorded when the successor is an entity we actually emit.
+    merged_into = row.pop("merged_into")
+    status_urls = row.pop("entity_status_data_source_url")
+    if merged_into is not None:
+        successor_id = clean_entity_id(merged_into)
+        if successor_id is None:
+            context.log.warning(
+                "Malformed merged_into value",
+                entity_id=id_,
+                merged_into=merged_into,
+            )
+        elif successor_id not in entity_ids:
+            context.log.info(
+                "Skipping merger into an entity the source doesn't publish",
+                entity_id=id_,
+                merged_into=successor_id,
+            )
+        elif successor_id not in SKIP_IDS:
+            succession = context.make("Succession")
+            succession.id = context.make_id(id_, successor_id)
+            succession.add("predecessor", entity)
+            succession.add("successor", context.make_slug(successor_id))
+            if status_urls is not None:
+                # The evidence is serialised as a Python list literal.
+                succession.add("sourceUrl", status_urls.strip("[]'").split("', '"))
+            context.emit(succession)
+
     context.audit_data(
         row,
         ignore=IGNORE,
@@ -218,7 +262,7 @@ def crawl_rel(context: Context, row: dict[str, str | None], skipped: set[str]) -
 def crawl(context: Context) -> None:
     path = context.get_resource_path("source.xlsx")
     fetch_internal_data(
-        "gem_energy_ownership/Global-Energy-Ownership-Tracker-May-2026-V1.xlsx",
+        "gem_energy_ownership/Global-Energy-Ownership-Tracker-August-2026-V2.xlsx",
         path,
     )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
@@ -233,7 +277,12 @@ def crawl(context: Context) -> None:
         if (subject_id := row["subject_entity_id"]) is not None
     }
 
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]):
-        crawl_company(context, row, skipped, owned_ids)
+    entity_rows = list(h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]))
+    entity_ids = {
+        entity_id for row in entity_rows if (entity_id := row["entity_id"]) is not None
+    }
+
+    for row in entity_rows:
+        crawl_company(context, row, skipped, owned_ids, entity_ids)
     for row in ownership_rows:
         crawl_rel(context, row, skipped)
