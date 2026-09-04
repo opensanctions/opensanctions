@@ -68,6 +68,6 @@ assertions:
 lookups:
   type.name:
     options:
-      - match: 
+      - match:
           - "Vincent Capital Group LLC ("
         value: Vincent Capital Group LLC

@@ -1,6 +1,5 @@
 import json
 import re
-from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import parse_qs, urljoin, urlsplit
 
@@ -105,7 +104,7 @@ def clean_name(name: str) -> str:
     Names often contain a post-nominal add on that can vary, even though
     the entityid (from the NFA website) is the same for that name.
 
-    ex. 
+    ex.
     American Futures Group, Inc., et al. (Bill Hockemeyer)
     should be
     American Futures Group, Inc.
@@ -119,36 +118,40 @@ def clean_name(name: str) -> str:
     return name_without_parentheticals
 
 
-def parse_row(context: Context, row) -> None:
+def parse_row(context: Context, row: dict[str, str]) -> None:
     case_id = row.pop("CASE_ID")
     category = row.pop("ACTION_CATEGORY_CODE")
     date = row.pop("content_date_sort")
     respondents = parse_respondents(context, row.pop("HEADLINE_TEXT"), case_id)
-    
+
     for respondent in respondents:
         entity_id = respondent[0]
         source_url = respondent[1]
         name_raw = respondent[2]
-        
+
         entity = context.make("LegalEntity")
         entity.id = context.make_id(entity_id, name_raw)
         h.apply_name(entity, full=clean_name(name_raw))
         entity.add("topics", "reg.action")
         entity.add("sourceUrl", source_url)
-        
 
         sanction = h.make_sanction(context, entity, key=case_id)
         sanction.add("authorityId", case_id)
         sanction.add("program", category)
         sanction.add("sourceUrl", source_url)
-        h.apply_dates(sanction, "startDate", [date,])
+        h.apply_dates(
+            sanction,
+            "startDate",
+            [
+                date,
+            ],
+        )
 
         context.emit(entity)
         context.emit(sanction)
 
 
 def crawl(context: Context) -> None:
-    irregular_count = 0
     for row in fetch_rows(context):
         parse_row(context, row)
 
