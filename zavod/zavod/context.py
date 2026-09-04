@@ -18,7 +18,13 @@ from rigour.urls import ParamsType, build_url
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
-from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_path
+from zavod.archive import (
+    STATEMENTS_FILE,
+    dataset_artifact_directory,
+    dataset_artifact_path,
+    dataset_data_path,
+    dataset_resource_path,
+)
 from zavod.audit import inspect
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
@@ -35,7 +41,6 @@ from zavod.runtime.http_ import (
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.timestamps import TimeStampIndex
-from zavod.runtime.versions import get_latest, make_version
 from zavod.util import Element, join_slug, prefixed_hash_id
 
 
@@ -63,12 +68,12 @@ class Context:
 
     SOURCE_TITLE = "Source data"
 
-    def __init__(self, dataset: Dataset, dry_run: bool = False):
+    def __init__(self, dataset: Dataset, version: Version):
         self.dataset = dataset
-        self.dry_run = dry_run
+        self.version = version
         self.stats = ContextStats()
-        self.issues = DatasetIssues(dataset)
-        self.resources = DatasetResources(dataset)
+        self.issues = DatasetIssues(dataset, self.version)
+        self.resources = DatasetResources(dataset, self.version)
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
         self._db: Session | None = None
@@ -78,7 +83,9 @@ class Context:
         self._structlog_contextvars_tokens: (
             Mapping[str, contextvars.Token[Any]] | None
         ) = None
-        self._writer_path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+        self._writer_path = dataset_artifact_path(
+            dataset.name, version, STATEMENTS_FILE
+        )
         self._writer: PackStatementWriter | None = None
 
         self.lang: str | None = None
@@ -121,11 +128,6 @@ class Context:
         return self._resolver
 
     @property
-    def version(self) -> Version:
-        """The current version of the dataset."""
-        return get_latest(self.dataset.name, backfill=False) or settings.RUN_VERSION
-
-    @property
     def timestamps(self) -> TimeStampIndex:
         """An index of the first_seen time of every statement previous emitted by
         the dataset. This is used to determine if a statement is new or not."""
@@ -140,22 +142,12 @@ class Context:
             raise ValueError(f"Dataset has no data URL: {self.dataset!r}")
         return self.dataset.data.url
 
-    def begin(self, clear: bool = False) -> None:
-        """Prepare the context for running the exporter.
-
-        Args:
-            clear: Remove the existing resources and issues from the dataset.
-        """
+    def begin(self) -> None:
+        """Prepare the context for running a crawl or export."""
         self._structlog_contextvars_tokens = bind_contextvars(
             dataset=self.dataset.name,
             context=self,
         )
-        make_version(
-            self.dataset, settings.RUN_VERSION, append_new_version_to_history=clear
-        )
-        if clear and not self.dry_run:
-            self.resources.clear()
-            self.issues.clear()
         self.stats.reset()
 
     def rekey(self, old_id: str | None, new_id: str | None) -> None:
@@ -201,7 +193,7 @@ class Context:
         This can be important while e.g. enrichers backfill from the most recent
         statements file.
         """
-        if not self.dry_run and self._writer is None:
+        if self._writer is None:
             self._writer_path.touch()
 
     def close(self) -> None:
@@ -215,8 +207,7 @@ class Context:
             self._writer.close()
         reset_contextvars(**(self._structlog_contextvars_tokens or {}))
         self.issues.close()
-        if not self.dry_run:
-            self.issues.export()
+        self.issues.export()
 
     def get_resource_path(self, name: PathLike) -> Path:
         """Get the path to a file in the dataset data folder.
@@ -241,11 +232,14 @@ class Context:
         Returns:
             The generated resource object which has been saved.
         """
+        directory = dataset_artifact_directory(self.dataset.name, self.version)
+        name: str | None = None
+        if path.is_relative_to(directory):
+            name = path.relative_to(directory).as_posix()
         resource = self.dataset.resource_from_path(
-            path, mime_type=mime_type, title=title
+            path, mime_type=mime_type, title=title, name=name
         )
-        if not self.dry_run:
-            self.resources.save(resource)
+        self.resources.save(resource)
         return resource
 
     def fetch_resource(
@@ -654,7 +648,7 @@ class Context:
                 statements=self.stats.statements,
             )
             self.flush()
-        stamps = {} if self.dry_run else self.timestamps.get(entity.id)
+        stamps = self.timestamps.get(entity.id)
         for stmt in entity.statements:
             stmt = stmt.clone(
                 dataset=self.dataset.name,
@@ -670,11 +664,10 @@ class Context:
             if stmt.first_seen == settings.RUN_TIME_ISO:
                 self.stats.changed += 1
             stmt.last_seen = settings.RUN_TIME_ISO
-            if not self.dry_run:
-                if self._writer is None:
-                    fh = self._writer_path.open("w", encoding=ENCODING)
-                    self._writer = PackStatementWriter(fh)
-                self._writer.write(stmt)
+            if self._writer is None:
+                fh = self._writer_path.open("w", encoding=ENCODING)
+                self._writer = PackStatementWriter(fh)
+            self._writer.write(stmt)
             self.stats.statements += 1
 
     def __hash__(self) -> int:

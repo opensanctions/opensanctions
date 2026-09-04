@@ -6,8 +6,12 @@ from datetime import datetime
 from typing import Any, TypedDict, BinaryIO, cast
 from collections.abc import Generator
 
+from followthemoney.dataset import Version
+
 from zavod.meta import Dataset
-from zavod.archive import dataset_resource_path, get_dataset_artifact
+from zavod.archive import (
+    dataset_artifact_path,
+)
 from zavod.archive import ISSUES_LOG, ISSUES_FILE
 
 
@@ -26,14 +30,20 @@ class Issue(TypedDict):
 class DatasetIssues:
     """A log of issues that occurred during the running and export of a dataset."""
 
-    def __init__(self, dataset: Dataset) -> None:
+    def __init__(self, dataset: Dataset, version: Version) -> None:
         self.dataset = dataset
+        self.version = version
+        self.log_path = dataset_artifact_path(
+            self.dataset.name, self.version, ISSUES_LOG
+        )
+        self.file_path = dataset_artifact_path(
+            self.dataset.name, self.version, ISSUES_FILE
+        )
         self.fh: BinaryIO | None = None
 
     def write(self, event: dict[str, Any]) -> None:
         if self.fh is None:
-            path = dataset_resource_path(self.dataset.name, ISSUES_LOG)
-            self.fh = open(path, "ab")
+            self.fh = open(self.log_path, "ab")
 
         data = dict(event)  # copy so we can pop without side effects
         data.pop("_record", None)
@@ -60,15 +70,6 @@ class DatasetIssues:
         out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE)
         self.fh.write(out)
 
-    def clear(self) -> None:
-        """Clear (delete) the issues log file."""
-        self.close()
-        log_path = dataset_resource_path(self.dataset.name, ISSUES_LOG)
-        with open(log_path, "w") as fh:
-            fh.flush()
-        file_path = dataset_resource_path(self.dataset.name, ISSUES_FILE)
-        file_path.unlink(missing_ok=True)
-
     def close(self) -> None:
         """Close the issues log file."""
         if self.fh is not None:
@@ -78,13 +79,9 @@ class DatasetIssues:
     def all(self) -> Generator[Issue, None, None]:
         """Iterate over all issues in the log."""
         self.close()
-        # Don't backfill the issues log, otherwise we'll get issues from a previous run for collections.
-        # For data sources (that run crawl), that's not the case because they run clear() at the beginning
-        # of the crawl stage.
-        path = get_dataset_artifact(self.dataset.name, ISSUES_LOG, backfill=False)
-        if not path.is_file():
+        if not self.log_path.is_file():
             return
-        with open(path, "rb") as fh:
+        with open(self.log_path, "rb") as fh:
             for line in fh:
                 yield cast(Issue, orjson.loads(line))
 
@@ -99,8 +96,7 @@ class DatasetIssues:
 
     def export(self, path: Path | None = None) -> None:
         """Export the issues log to a consolidated file."""
-        if path is None:
-            path = dataset_resource_path(self.dataset.name, ISSUES_FILE)
+        path = path or self.file_path
         with open(path, "wb") as fh:
             issues = list(self.all())
             fh.write(orjson.dumps({"issues": issues}))

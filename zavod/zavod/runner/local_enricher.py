@@ -24,6 +24,7 @@ from zavod.runner.util import (
     prune_unpublishable_references,
     should_promote,
 )
+from zavod.runtime.manifest import Manifest
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
@@ -61,7 +62,9 @@ class LocalEnricher(BaseEnricher[Dataset]):
         )
         target_dataset = get_catalog().require(dataset.model.full_dataset)
         target_linker = get_dataset_linker(target_dataset)
-        self.target_store = get_store(target_dataset, target_linker)
+        self.target_store = get_store(
+            Manifest.get_transient(target_dataset), target_linker
+        )
         self.target_store.sync()
         self.target_view = self.target_store.view(target_dataset)
         index_path = dataset_state_path(target_dataset.name) / "enrich-index"
@@ -220,7 +223,7 @@ def enrich(context: Context) -> None:
             "disconnected supporting entities."
         )
 
-    subject_store = get_store(scope, context.resolver)
+    subject_store = get_store(Manifest.get_transient(scope), context.resolver)
     # Commit the resolver's load-time read (and the cache-table DDL) so no
     # transaction is held open across the store sync and index build below; the
     # resolver is in-memory after the load.

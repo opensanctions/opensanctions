@@ -2,6 +2,7 @@ from collections.abc import Generator, Iterator
 from datetime import datetime
 from datapatch import Lookup
 from normality import slugify_text, stringify
+from rigour.time import datetime_iso
 from xlrd import (
     XL_CELL_DATE,
     XL_CELL_EMPTY,
@@ -36,8 +37,8 @@ def convert_excel_cell(book: Book, cell: Cell) -> str | None:
     if cell.ctype == XL_CELL_DATE:
         assert isinstance(cell.value, float)
         dt = xldate_as_datetime(cell.value, book.datemode)
-        # Naive ISO 8601, e.g. "2023-07-26T00:00:00" — Excel cells carry no timezone.
-        return dt.isoformat(sep="T", timespec="seconds")
+        # e.g. "2023-07-26T00:00:00" — Excel cells carry no timezone.
+        return datetime_iso(dt)
     else:
         if cell.value is None:
             return None
@@ -65,8 +66,8 @@ def convert_excel_date(value: str | int | float | None) -> str | None:
     if value < 4_000 or value > 100_000:
         return None
     dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + value - 2)
-    # Naive ISO 8601, e.g. "2022-11-11T00:00:00" — Excel dates carry no timezone.
-    return dt.isoformat(sep="T", timespec="seconds")
+    # e.g. "2022-11-11T00:00:00" — Excel dates carry no timezone.
+    return datetime_iso(dt)
 
 
 def parse_xls_sheet(

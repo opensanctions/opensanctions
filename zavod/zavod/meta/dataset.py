@@ -137,14 +137,16 @@ class Dataset(FollowTheMoneyDataset):
         path: Path,
         mime_type: str | None = None,
         title: str | None = None,
+        name: str | None = None,
     ) -> "DataResource":
         """Create a resource description object from a local file path."""
         if not path.exists():
             raise ValueError(f"File does not exist: {path}")
         if mime_type is None:
             mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=False)
-        dataset_path_ = dataset_data_path(self.name)
-        name = path.relative_to(dataset_path_).as_posix()
+        if name is None:
+            dataset_path_ = dataset_data_path(self.name)
+            name = path.relative_to(dataset_path_).as_posix()
 
         digest = sha1()
         size = 0

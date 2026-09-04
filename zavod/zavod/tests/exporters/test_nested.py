@@ -3,7 +3,7 @@ from datetime import datetime
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.nested import NestedTargetsJSONExporter
 from zavod.crawl import crawl_dataset
 from zavod.tests.exporters.util import harnessed_export
@@ -13,10 +13,10 @@ TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
 
 def test_nested_targets(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(NestedTargetsJSONExporter, testdataset1)
 
     with open(dataset_path / "targets.nested.json") as nested_file:

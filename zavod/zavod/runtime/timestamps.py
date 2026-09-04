@@ -1,21 +1,36 @@
 import plyvel  # type: ignore
-import shutil
 from collections.abc import Iterable
 from rigour.env import ENCODING as E
 from followthemoney import Statement
+from followthemoney.dataset import Version
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import dataset_state_path, iter_previous_statements
+from zavod.archive import (
+    dataset_state_path,
+    get_last_successful_version,
+    stream_statements,
+)
 
 log = get_logger(__name__)
 
 
 class TimeStampIndex:
-    BUFFER = 10 * 1024 * 1024
+    """Lookup of the first_seen timestamp for every statement in the last
+    successful run of a dataset.
 
-    def __init__(self, dataset: Dataset) -> None:
-        self.path = dataset_state_path(dataset.name) / "timestamps"
+    The index is a pure function of that version, so it is kept as a cache
+    keyed by the version id and rebuilt only when a new version has been
+    published - not on every crawl."""
+
+    BUFFER = 10 * 1024 * 1024
+    DONE_KEY = b"$done"
+
+    def __init__(self, dataset: Dataset, version: Version | None) -> None:
+        base = dataset_state_path(dataset.name) / "timestamps"
+        base.mkdir(parents=True, exist_ok=True)
+        name = version.id if version is not None else "none"
+        self.path = base / name
         self.db = plyvel.DB(
             self.path.as_posix(),
             create_if_missing=True,
@@ -46,13 +61,21 @@ class TimeStampIndex:
 
         batch.write()
         batch.clear()
-        # self.db.compact_range()
         log.info("Index ready.", count=total_size)
 
     @classmethod
     def build(cls, dataset: Dataset) -> "TimeStampIndex":
-        index = cls(dataset)
-        index.index(iter_previous_statements(dataset, external=False))
+        version = get_last_successful_version(dataset.name)
+        index = cls(dataset, version)
+        if index.db.get(cls.DONE_KEY) is not None:
+            log.info(
+                "Using cached timestamp index.",
+                version=None if version is None else version.id,
+            )
+            return index
+        if version is not None:
+            index.index(stream_statements(dataset.name, version, external=False))
+        index.db.put(cls.DONE_KEY, b"1")
         return index
 
     def get(self, entity_id: str) -> dict[str, str]:
@@ -66,7 +89,6 @@ class TimeStampIndex:
 
     def close(self) -> None:
         self.db.close()
-        shutil.rmtree(self.path.as_posix(), ignore_errors=True)
 
     def __hash__(self) -> int:
         return hash(self.db.name)

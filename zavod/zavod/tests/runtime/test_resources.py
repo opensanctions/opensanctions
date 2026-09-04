@@ -1,9 +1,13 @@
 import pytest
 import shutil
 
+from followthemoney.dataset import Version
+
+from zavod import settings
 from zavod.archive import dataset_resource_path
 from zavod.meta import Dataset
 from zavod.runtime.resources import DatasetResources
+from zavod.tests.util import get_manifest
 
 from zavod.tests.conftest import DATASET_1_YML
 
@@ -11,8 +15,9 @@ CSV_PATH = DATASET_1_YML.parent / "dataset.csv"
 
 
 def test_resources(testdataset1: Dataset):
-    resources = DatasetResources(testdataset1)
-    resources.clear()
+    version = settings.RUN_VERSION
+    get_manifest(testdataset1, version)
+    resources = DatasetResources(testdataset1, version)
     assert len(resources.all()) == 0
 
     with pytest.raises(ValueError):
@@ -35,10 +40,10 @@ def test_resources(testdataset1: Dataset):
     resources.save(resource)
     assert len(resources.all()) == 1
 
-    resources2 = DatasetResources(testdataset1)
+    resources2 = DatasetResources(testdataset1, version)
     assert len(resources2.all()) == 1
     assert resources2.all()[0].name == "dataset.csv"
 
-    resources.clear()
-    assert len(resources.all()) == 0
-    assert len(resources2.all()) == 0
+    # A fresh run is a fresh version, and starts with no resources:
+    resources3 = DatasetResources(testdataset1, Version.new("bbb"))
+    assert len(resources3.all()) == 0

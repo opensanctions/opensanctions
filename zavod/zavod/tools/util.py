@@ -2,13 +2,15 @@ from collections.abc import Generator, Iterable
 from followthemoney import Statement
 from nomenklatura.resolver import Linker
 
-from zavod.meta import Dataset
 from zavod.entity import Entity
-from zavod.archive import iter_dataset_statements
+from zavod.runtime.manifest import Manifest
 
 
 def iter_output_statements(
-    scope: Dataset, linker: Linker[Entity], external: bool = True
+    dataset_name: str,
+    manifest: Manifest,
+    linker: Linker[Entity],
+    external: bool = True,
 ) -> Generator[Statement, None, None]:
     """Return all the statements in the given dataset that are ready for
     export. That means they have a valid ID and their canonical ID has been
@@ -18,14 +20,14 @@ def iter_output_statements(
     `unique_statements` when writing to a sink that cannot reject duplicates.
 
     Args:
-        dataset: The dataset to load from the archive.
+        dataset_name: The pinned dataset to load from the archive.
+        manifest: The manifest pinning the dataset version to read.
         external: Include statements that are enrichment candidates.
 
     Returns:
         A generator of statements.
     """
-    assert not scope.is_collection
-    for stmt in iter_dataset_statements(scope, external=external):
+    for stmt in manifest.statements(external=external, dataset=dataset_name):
         if stmt.entity_id is None:
             continue
 

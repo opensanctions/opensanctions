@@ -6,6 +6,8 @@ from followthemoney.settings import USER_AGENT
 from zavod import settings
 from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.meta.assertion import Assertion
+from followthemoney.dataset import Version
+
 from zavod.runtime.urls import make_artifact_url
 
 TEST_DATASET = {
@@ -57,7 +59,8 @@ def test_basic():
     assert test_ds.model.data.url is not None
     assert test_ds.model.disabled is False
     assert not len(test_ds.inputs)
-    url = make_artifact_url(test_ds.name, "20260101000000-aaa", "foo.json")
+    version = Version.from_string("20260101000000-aaa")
+    url = make_artifact_url(test_ds.name, version, "foo.json")
     assert url.startswith("https://data.opensanctions.org/artifacts/"), url
     assert url.endswith(f"{test_ds.name}/20260101000000-aaa/foo.json"), url
     os_data = test_ds.to_opensanctions_dict(catalog)

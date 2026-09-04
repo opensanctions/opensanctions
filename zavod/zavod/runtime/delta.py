@@ -2,49 +2,56 @@ from hashlib import sha1
 import shutil
 import plyvel  # type: ignore
 from collections.abc import Generator
+
 from followthemoney.dataset import Version
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
-from zavod.archive import dataset_resource_path, dataset_state_path
-from zavod.archive import iter_dataset_versions, get_artifact_object, HASH_FILE
-from zavod.runtime.versions import get_latest
+from zavod.archive import (
+    dataset_artifact_path,
+    dataset_state_path,
+    get_last_successful_version,
+)
+from zavod.archive import get_artifact_object, HASH_FILE
 
 log = get_logger(__name__)
 
 
 class HashDelta:
-    def __init__(self, dataset: Dataset):
+    def __init__(self, dataset: Dataset, current: Version):
         self.dataset = dataset
-        self.curr = get_latest(dataset.name, backfill=False)
-        self.prev: Version | None = None
-        self.curr_path = dataset_resource_path(dataset.name, HASH_FILE)
+        self.curr = current
+        self.prev = get_last_successful_version(self.dataset.name)
+        self.curr_path = dataset_artifact_path(dataset.name, self.curr, HASH_FILE)
         self.fh = self.curr_path.open("w")
         self.db_path = dataset_state_path(dataset.name) / "hashes"
         shutil.rmtree(self.db_path, ignore_errors=True)
         self.db = plyvel.DB(self.db_path.as_posix(), create_if_missing=True)
 
     def backfill(self) -> None:
-        for version in iter_dataset_versions(self.dataset.name):
-            obj = get_artifact_object(self.dataset.name, HASH_FILE, version.id)
-            if obj is None or version == self.curr:
-                continue
-            self.prev = version
-            log.info(
-                "Loading previous hashes...",
-                version=version.id,
-            )
-            with obj.open() as fh:
-                for line in fh:
-                    entity_id, entity_hash = line.strip().split(":", 1)
-                    key = f"{entity_id}:{version.id}".encode()
-                    self.db.put(key, entity_hash.encode("utf-8"))
+        if self.prev is None or self.prev == self.curr:
+            log.info("No previous version found, skipping backfill.")
             return
-        log.info("No previous hash data found.")
+        obj = get_artifact_object(self.dataset.name, self.prev, HASH_FILE)
+        if obj is None:
+            log.info(
+                "No previous hash file found, skipping backfill.",
+                version=self.prev.id,
+            )
+            return
+        log.info(
+            "Loading previous hashes...",
+            version=self.prev.id,
+        )
+        with obj.open() as fh:
+            for line in fh:
+                entity_id, entity_hash = line.strip().split(":", 1)
+                key = f"{entity_id}:{self.prev.id}".encode()
+                self.db.put(key, entity_hash.encode("utf-8"))
 
     def feed(self, entity: Entity) -> None:
-        if entity.id is None or self.curr is None:
+        if entity.id is None:
             return
         digest = sha1()
         digest.update(entity.id.encode("utf-8"))
@@ -83,7 +90,7 @@ class HashDelta:
                     if entity_id is not None:
                         yield entity_id, prev_hash, curr_hash
                     entity_id, prev_hash, curr_hash = new_id, None, None
-                if self.curr is not None and version_id == self.curr.id:
+                if version_id == self.curr.id:
                     curr_hash = hash
                 else:
                     prev_hash = hash
