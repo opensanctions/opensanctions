@@ -193,7 +193,6 @@ def crawl_pending_member(
     # the service rows so a sitting member is not dropped; crawl_member takes over
     # with the fuller record once the individual is published.
     display_name = terms[0]["DisplayName"]
-    print(display_name)
     # DisplayName here is "FAMILY, Given(s)", e.g. "BLEYER, Vanessa". Anything else
     # (extra commas, honorifics) is unexpected for a service row: warn and skip
     # rather than emit a mis-split name.
