@@ -33,16 +33,6 @@ data:
 tags:
   - list.pep
 
-lookups:
-  mandate_status:
-    options:
-      - match: En cours
-        value: current
-      - match: Terminé
-        value: ended
-      - match: Suspendu
-        value: unknown
-
 assertions:
   min:
     schema_entities:
