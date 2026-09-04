@@ -1,0 +1,46 @@
+title: DR Congo Members of the National Assembly
+entry_point: crawler.py
+name: cd_national_assembly
+prefix: cd-na
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: true
+summary: >-
+  Lower house of Parliament, 500 deputies from multi-member constituencies
+description: |
+  Current members of the National Assembly (Assemblée nationale), the lower house
+  of the bicameral Parliament of the Democratic Republic of the Congo. Its 500 deputies are
+  elected for five-year terms in multi-member constituencies and hold the country's legislative
+  power, including passing laws and approving the budget. Substitutes who have taken up a seat,
+  and deputies whose mandate has ended or been suspended, are included alongside the sitting
+  members.
+url: https://assembleenationale.cd/tous-les-deputes/
+publisher:
+  name: Assemblée nationale de la République démocratique du Congo
+  description: >
+    The National Assembly is the lower house of the bicameral Parliament of the
+    Democratic Republic of the Congo, alongside the Senate.
+  url: https://assembleenationale.cd/
+  country: cd
+  official: true
+data:
+  url: https://assembleenationale.cd/wp-json/wp/v2/deputes
+  format: JSON
+  lang: fra
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 490
+      Position: 1
+    country_entities:
+      cd: 490
+  max:
+    schema_entities:
+      Person: 1100
+      Position: 1
