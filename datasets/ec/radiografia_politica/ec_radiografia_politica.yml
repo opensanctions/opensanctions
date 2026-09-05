@@ -1,0 +1,77 @@
+title: Ecuador Public Officials from Radiografía Política
+entry_point: crawler.py
+prefix: ec-radpol
+coverage:
+  frequency: monthly
+  start: 2026-09-05
+load_statements: true
+summary: >-
+  Current Ecuadorian public officials published by the Radiografía Política project
+description: |
+  Radiografía Política is a civil-society project that consolidates information about
+  high-ranking Ecuadorian public officials from public records. Its coverage spans the
+  executive, legislative, judicial, electoral, and public oversight functions.
+
+  The source contains a broad range of public roles. Positions are therefore enrolled
+  for manual PEP review before their holders are emitted, avoiding the assumption that
+  every person listed by the project is politically exposed.
+url: https://www.radiografiapolitica.org/datos-abiertos
+publisher:
+  name: Fundación Ciudadanía y Desarrollo
+  acronym: FCD
+  description: >-
+    An Ecuadorian civil-society organization promoting transparency, citizen
+    participation, and public accountability.
+  url: https://www.ciudadaniaydesarrollo.org/
+  country: ec
+  official: false
+data:
+  url: https://www.radiografiapolitica.org/personas-list-csv
+  format: CSV
+  lang: spa
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.pep
+
+# Positions from this mixed source initially require manual review, so a new local
+# state database may emit zero entities until at least one position is classified.
+assertions:
+  max:
+    schema_entities:
+      Person: 450
+      Position: 260
+      Occupancy: 500
+
+config:
+  enrichment_url: https://www.radiografiapolitica.org/api/json-genero
+  expected_license: Creative Commons Attribution Share-Alike 4.0 (CC-BY-SA-4.0)
+  expected_columns:
+    - id
+    - descripcion_cargo
+    - cargo
+    - orden
+    - picture
+    - partido
+    - facebook
+    - twitter
+    - description
+    - description_persona
+    - name
+    - lastname
+    - img
+    - funcion_estado_id
+    - funcion_estado
+    - estado_cargo
+    - institucion
+    - es_candidato
+
+lookups:
+  type.gender:
+    options:
+      - match: "0"
+        value: female
+      - match: "1"
+        value: male
