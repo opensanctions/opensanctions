@@ -66,6 +66,8 @@ def crawl(context: Context) -> None:
                 context.log.warn("No ISIN", row=row)
                 return
             entity = h.make_security(context, isin)
+            if entity is None:
+                continue
             entity.add("name", row.pop("instrumentFullName", isin))
 
             sanction = h.make_sanction(

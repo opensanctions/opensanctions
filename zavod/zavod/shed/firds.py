@@ -27,6 +27,8 @@ def parse_element(context: Context, file_name: str, elem: etree._Element) -> Non
         # Skip OTC derivatives and other special case securities
         return
     security = h.make_security(context, isin)
+    if security is None:
+        return
     security.add("name", attr.findtext(f"./{NS}FullNm"))
     security.add("alias", attr.findtext(f"./{NS}ShrtNm"))
     security.add("classification", attr.findtext(f"./{NS}ClssfctnTp"))
