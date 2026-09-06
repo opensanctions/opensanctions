@@ -63,6 +63,44 @@ def test_extra_functions():
     assert entity.to_dict()["properties"]["birthDate"][0] == "1988"
 
 
+def test_add_cast_keeps_provenance():
+    catalog = get_catalog()
+    test_ds = catalog.make_dataset(TEST_DATASET)
+
+    # The entity is widened from LegalEntity to Person, so the cast happens.
+    cast = Entity(test_ds, {"schema": "LegalEntity"})
+    cast.id = "cast_entity"
+    cast.add_cast(
+        "Person",
+        "position",
+        "Minister",
+        lang="deu",
+        original_value="Minister (a. D.)",
+        origin="test",
+    )
+    (cast_stmt,) = cast.get_statements("position")
+    assert cast_stmt.lang == "deu", cast_stmt
+    assert cast_stmt.original_value == "Minister (a. D.)", cast_stmt
+    assert cast_stmt.origin == "test", cast_stmt
+
+    # Person already has the property, so no cast is needed. The provenance
+    # must not depend on the schema the entity happened to have.
+    direct = Entity(test_ds, {"schema": "Person"})
+    direct.id = "direct_entity"
+    direct.add_cast(
+        "Person",
+        "position",
+        "Minister",
+        lang="deu",
+        original_value="Minister (a. D.)",
+        origin="test",
+    )
+    (direct_stmt,) = direct.get_statements("position")
+    assert direct_stmt.lang == "deu", direct_stmt
+    assert direct_stmt.original_value == "Minister (a. D.)", direct_stmt
+    assert direct_stmt.origin == "test", direct_stmt
+
+
 def test_future_birth_date_rejected():
     catalog = get_catalog()
     test_ds = catalog.make_dataset(TEST_DATASET)

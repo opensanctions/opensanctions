@@ -104,7 +104,20 @@ class Entity(StatementEntity):
         """
         prop_ = self.schema.get(prop)
         if prop_ is not None:
-            return self.add(prop, values, cleaned=cleaned, fuzzy=fuzzy, format=format)
+            # The entity already carries the property, so no cast is needed. This
+            # path still has to pass on the provenance arguments, otherwise a
+            # value keeps or loses them depending on the entity's schema at the
+            # time of the call.
+            return self.add(
+                prop,
+                values,
+                cleaned=cleaned,
+                fuzzy=fuzzy,
+                format=format,
+                lang=lang,
+                original_value=original_value,
+                origin=origin,
+            )
 
         schema_ = model.get(schema)
         if schema_ is None:
