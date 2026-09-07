@@ -161,7 +161,8 @@ def crawl_press_release(context: Context, url: str) -> None:
     article_content = article.findall(".//article[@class='entity--type-node']")
     for img in article.findall(".//img"):
         # Images pasted from Office carry a megabytes-long base64 copy of the graphic here.
-        img.attrib.pop("o:gfxdata", None)
+        if "o:gfxdata" in img.attrib:
+            del img.attrib["o:gfxdata"]
         img_src = img.get("src")
         if img_src is None or img_src.startswith("data:image"):
             img_parent = img.getparent()
@@ -169,6 +170,18 @@ def crawl_press_release(context: Context, url: str) -> None:
                 img_parent.remove(img)
     assert len(article_content) == 1
     article_element = article_content[0]
+    for field in h.xpath_elements(
+        article_element, ".//div[contains(@class, 'field--label-above')]"
+    ):
+        # The CMS renders editorial metadata fields with their admin label visible
+        # (e.g. "Use featured image: Off"), while the press release itself lives in
+        # label-hidden fields. Such a field is not source content, but it lands in
+        # the review source value, so the day the site stops or starts emitting it,
+        # every accepted review is reset. Treasury dropped the last one in August
+        # 2026; strip them so that their return doesn't cost a re-review.
+        field_parent = field.getparent()
+        if field_parent is not None:
+            field_parent.remove(field)
     date = h.xpath_strings(article_element, ".//time[@class='datetime']/@datetime")[0]
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
