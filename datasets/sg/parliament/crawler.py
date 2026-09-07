@@ -8,8 +8,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 CURRENT_MPS_URL = "https://www.parliament.gov.sg/mps/list-of-current-mps"
-# "Halimah Yacob (Resigned on 7 August 2017, 13th Parliament)" - the only place the
-# source records a member leaving before their Parliament was dissolved.
+# e.g. "Halimah Yacob (Resigned on 7 August 2017, 13th Parliament)".
 REGEX_RESIGNED = re.compile(r"\s*\(Resigned on (?P<date>[^,)]+), (?P<term>[^)]+)\)\s*$")
 REGEX_TERM_RANGE = re.compile(r"^\((?P<start>[\d.]+)\s*-\s*(?P<end>[\d.]+)\)$")
 
@@ -26,8 +25,7 @@ def fetch_page_data(context: Context, url: str) -> str:
     """Fetch the Next.js flight document a page renders itself from."""
     document = context.fetch_text(
         url,
-        # Our HTTP cache keys on the URL alone, so this keeps the flight document and
-        # the page's HTML apart.
+        # Our cache keys on the URL alone; this parts the document from the HTML.
         params={"_rsc": "1"},
         headers={"RSC": "1"},  # Serves the document itself, not the HTML embedding it.
         encoding="utf-8",  # `text/x-component` has no charset, so HTTP says Latin-1.
@@ -40,8 +38,7 @@ def fetch_page_data(context: Context, url: str) -> str:
 def decode_page_data(document: str, key: str) -> Any:
     """Decode the JSON value stored under `key`.
 
-    The document is a stream of framed rows rather than one JSON value, so the value is
-    located by its key and consumed from there.
+    The document is framed rows, not one JSON value, so the value is read from its key.
     """
     marker = f'"{key}":'
     if document.count(marker) != 1:
@@ -63,10 +60,9 @@ def decode_roster(document: str, key: str) -> list[dict[str, Any]]:
 def parse_terms(context: Context, options: list[dict[str, Any]]) -> dict[str, Term]:
     """Map each parliamentary session to the Parliament it was part of.
 
-    The dropdown of Parliaments is the only place the source publishes term date ranges,
-    and members reference their terms indirectly, by session. Only the sitting
-    Parliament, listed last, is published without a range; any other missing one would
-    make its members look like they never left.
+    The dropdown is the only place the source publishes term date ranges, and members
+    reference their terms by session. Only the current Parliament, listed last, has no
+    range; any other without one would show its members as never having left.
     """
     sessions: dict[str, Term] = {}
     for option in options:
@@ -93,18 +89,16 @@ def crawl_member(
     categorisation: PositionCategorisation,
     record: dict[str, Any],
     sessions: dict[str, Term],
-    sitting: dict[str, dict[str, Any]],
+    current_mps: dict[str, dict[str, Any]],
 ) -> None:
     """Emit one member, with an occupancy per Parliament they sat in.
 
     Members are keyed on their published name: neither roster publishes an identifier
-    the other shares, so the name is what makes a member listed in both of them one
-    entity, and what joins the sitting-member record to this one.
+    the other shares, so the name both merges the two listings and joins them here.
     """
     published_name = record.pop("full_name")
-    # A note on the published name is the only way the source records a member leaving
-    # early. Any other annotation is one this crawler cannot read: the member is still
-    # worth emitting, so keep the name as published and ask for the pattern to be added.
+    # A note on the name is the only record of a member leaving early. Any other
+    # annotation is unreadable here, but the member is still worth emitting as given.
     resigned = REGEX_RESIGNED.search(published_name)
     resigned_term, resigned_date = None, None
     if resigned is not None:
@@ -118,11 +112,10 @@ def crawl_member(
     terms: set[Term] = set()
     for reference in record.pop("parliament_session"):
         terms.add(sessions[reference["parliament_sessions_id"]])
-    # The label doubles as a seat type for Nominated and Non-Constituency Members, which
-    # is published once per member and so belongs to no single term.
+    # Doubles as a seat type for Nominated and Non-Constituency Members. Published once
+    # per member, so it belongs to the person rather than to any one term.
     party = context.lookup("party", record.pop("party_affliation"))
-    # `legislative_assembly` flags service in the pre-1965 Legislative Assembly, outside
-    # both this dataset and the PEP relevance window.
+    # `legislative_assembly` flags pre-1965 service, outside this dataset either way.
     context.audit_data(record, ignore=["photo", "status", "legislative_assembly"])
 
     person = context.make("Person")
@@ -134,22 +127,19 @@ def crawl_member(
         llm_cleaning=True,
         lang="eng",
     )
-    # Elected members and Nominated Members alike are Singapore citizens: Constitution
-    # of the Republic of Singapore, Article 44(2)(a) and Fourth Schedule, paragraph 1.
+    # Elected or nominated, a member is a Singapore citizen: Constitution of the
+    # Republic of Singapore, Article 44(2)(a) and Fourth Schedule, paragraph 1.
     person.add("citizenship", "sg")
     if party is not None:
         person.add("political", party.values)
 
-    # The sitting-member roster carries 61 fields, nearly all of them content-management
-    # bookkeeping or facts outside this dataset's scope: contact details, committee
-    # seats, and dated constituency and office-holding histories worth entities of their
-    # own. Members who have left Parliament are absent from it.
-    #
-    # A member who resigned and later returned has one record per Parliament, so the
-    # sitting record is claimed by the one holding the undated term, not the first seen.
+    # The current roster's other 57 fields are CMS bookkeeping or out of scope: contact
+    # details, committee seats, dated constituency and office-holding histories.
+    # A member who returned after resigning has a record per Parliament, so the current
+    # record goes to whichever holds the undated term, not to the first one seen.
     current = None
     if any(term.start is None and term.end is None for term in terms):
-        current = sitting.pop(published_name, None)
+        current = current_mps.pop(published_name, None)
     if current is not None:
         person.add("sourceUrl", f"{CURRENT_MPS_URL}/mp/details/{current['url']}")
         # Only that roster publishes a year of birth, and not for every member.
@@ -157,9 +147,8 @@ def crawl_member(
 
     occupancies: list[Entity] = []
     for term in terms:
-        # The sitting Parliament is published without dates, so its members have none
-        # and default to current. The roster is maintained: a member who resigned
-        # dropped off the current one within weeks.
+        # The current Parliament has no dates, so its members stay open-ended. The
+        # roster is kept up: a member who resigned dropped off it within weeks.
         occupancy = h.make_occupancy(
             context,
             person,
@@ -171,8 +160,8 @@ def crawl_member(
         )
         if occupancy is None:
             continue
-        # Where the source records the seat type of Nominated and Non-Constituency
-        # Members, in place of a constituency. Published for the sitting term only.
+        # Holds the seat type for Nominated and Non-Constituency Members instead of a
+        # constituency, and is published for the current term only.
         if current is not None and term.start is None and term.end is None:
             occupancy.add("constituency", current["constituency"]["constituency"])
         occupancies.append(occupancy)
@@ -198,14 +187,13 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # The sitting members, who the all-Parliaments roster covers too, but without their
-    # constituency, profile or year of birth.
+    # Covered by the all-Parliaments roster too, but without constituency or birth year.
     document = fetch_page_data(context, CURRENT_MPS_URL)
-    sitting = {r["full_name"]: r for r in decode_roster(document, "initialMPs")}
+    current_mps = {r["full_name"]: r for r in decode_roster(document, "initialMPs")}
 
     document = fetch_page_data(context, context.data_url)
     sessions = parse_terms(context, decode_page_data(document, "options"))
     for record in decode_roster(document, "mps"):
-        crawl_member(context, position, categorisation, record, sessions, sitting)
-    # Every sitting member is listed in the all-Parliaments roster under the same name.
-    assert len(sitting) == 0, sorted(sitting)
+        crawl_member(context, position, categorisation, record, sessions, current_mps)
+    # Every current member is listed in the all-Parliaments roster under the same name.
+    assert len(current_mps) == 0, sorted(current_mps)
