@@ -11,6 +11,7 @@ from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 from zavod.constants import ORIGIN_INFERRED, ORIGIN_LOOKUP
 from zavod.settings import RUN_TIME
 from zavod.logs import get_logger
+from zavod.runtime.china_ids import check_china_division_agreement
 from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
 from zavod.runtime.safety import check_xss_html_smell
 
@@ -180,6 +181,15 @@ def value_clean(
             # it is making this aspect explicit in the data.
             if prop_.type == registry.topic and origin is None:
                 origin = ORIGIN_INFERRED
+
+            # Cross-check Chinese 注册号 vs USCC division prefixes when both
+            # are present. Mismatch is a warning only (#5444).
+            if prop_.name == "uscCode":
+                check_china_division_agreement(entity, pending_uscc=clean)
+            elif prop_.name == "registrationNumber":
+                check_china_division_agreement(
+                    entity, pending_registration_number=clean
+                )
 
             yield prop_, clean, origin
             continue
