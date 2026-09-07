@@ -79,6 +79,24 @@ MEP_IGNORE = [
     "upperOfficialGivenName",  # uppercase form of the native given name
 ]
 
+# `def/ep-entities` membership classifications the crawler does not model: the
+# committees, delegations and working groups a member sits on within the
+# parliament. The mandate itself already establishes political exposure. `None`
+# is the mandate re-published without a classification, plus a few memberships
+# the source has not classified yet. An unlisted value warns instead.
+UNMODELLED_CLASSIFICATIONS: set[str | None] = {
+    "COMMITTEE_PARLIAMENTARY_STANDING",
+    "COMMITTEE_PARLIAMENTARY_SUB",
+    "COMMITTEE_PARLIAMENTARY_SPECIAL",
+    "COMMITTEE_PARLIAMENTARY_TEMPORARY",
+    "DELEGATION_PARLIAMENTARY",
+    "DELEGATION_PARLIAMENTARY_ASSEMBLY",
+    "DELEGATION_JOINT_COMMITTEE",
+    "WORKING_GROUP",
+    "GOVERNING_BODY",
+    None,
+}
+
 
 @dataclass
 class Term:
@@ -291,13 +309,7 @@ def crawl_mep(
     for membership in memberships:
         # Consumed here to dispatch; popped so the group handler need not ignore it.
         group = last_segment(membership.pop("membershipClassification", None))
-        result = context.lookup("membership_classification", group)
-        if result is None:
-            context.log.warning(
-                "Unknown membership classification", group=group, mep_id=mep_id
-            )
-            continue
-        if result.value == "mandate":
+        if group == "EU_INSTITUTION":
             org_ref = membership.get("organization")
             if not isinstance(org_ref, str) or not org_ref.startswith("org/ep-"):
                 context.log.warning(
@@ -320,10 +332,14 @@ def crawl_mep(
             )
             if occupancy is not None:
                 occupancies.append(occupancy)
-        elif result.value == "eu-group":
+        elif group == "EU_POLITICAL_GROUP":
             groups.append((True, membership))
-        elif result.value == "nat-party":
+        elif group == "NATIONAL_POLITICAL_GROUP":
             groups.append((False, membership))
+        elif group not in UNMODELLED_CLASSIFICATIONS:
+            context.log.warning(
+                "Unknown membership classification", group=group, mep_id=mep_id
+            )
     if not occupancies:
         return
 
