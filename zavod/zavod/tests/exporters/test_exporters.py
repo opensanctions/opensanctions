@@ -11,6 +11,7 @@ from datetime import datetime
 from zavod import settings
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
+from zavod.exporters.common import Exporter, ExportView
 from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
@@ -21,6 +22,9 @@ from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
 from zavod.tests.util import get_test_view, make_context
+from zavod.runtime.resources import DatasetResources
+from zavod.runtime.statistics import Statistics
+import pytest
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -406,3 +410,36 @@ def test_consolidate_names_never_remove_ofac_names():
     assert set(entities[0].get("name")) == {"John Doe", "The Tiger"}
     # "Tigger" is demoted (even though it's a name in xx_garbage) because it's a weakAlias in xx_garbage
     assert set(entities[0].get("weakAlias")) == {"Tigger", "The Tiger"}
+
+
+class NoOutputExporter(Exporter):
+    """An exporter that never writes its file."""
+
+    TITLE = "Broken exporter"
+    FILE_NAME = "broken.json"
+    MIME_TYPE = "application/json"
+
+    def feed(self, entity: Entity, view: ExportView) -> None:
+        pass
+
+
+def test_exporter_missing_output_raises(testdataset1: Dataset):
+    """An exporter that fails to produce its file must fail the export rather
+    than log a warning, so a broken exporter never yields a published dataset
+    with a silently missing artifact."""
+    clear_data_path(testdataset1.name)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
+    context = make_context(testdataset1)
+    context.begin()
+    view = get_test_view(testdataset1)
+    exporter = NoOutputExporter(context, Statistics())
+    exporter.setup()
+    assert not exporter.path.exists()
+    with pytest.raises(FileNotFoundError):
+        exporter.finish(view)
+    context.close()
+    view.store.close()
+
+    # Nothing was registered for publication:
+    names = {r.name for r in DatasetResources(testdataset1, context.version).all()}
+    assert NoOutputExporter.FILE_NAME not in names
