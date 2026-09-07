@@ -120,20 +120,14 @@ def crawl_member(
 
     person = context.make("Person")
     person.id = context.make_id(published_name)
-    h.apply_reviewed_name_string(
-        context,
-        person,
-        string=h.strip_name_titles(context, published_name),
-        llm_cleaning=True,
-        lang="eng",
-    )
+    person.add("name", h.strip_name_titles(context, published_name))
     # Elected or nominated, a member is a Singapore citizen: Constitution of the
     # Republic of Singapore, Article 44(2)(a) and Fourth Schedule, paragraph 1.
     person.add("citizenship", "sg")
     if party is not None:
         person.add("political", party.values)
 
-    # The current roster's other 57 fields are CMS bookkeeping or out of scope: contact
+    # The current roster's other 53 fields are CMS bookkeeping or out of scope: contact
     # details, committee seats, dated constituency and office-holding histories.
     # A member who returned after resigning has a record per Parliament, so the current
     # record goes to whichever holds the undated term, not to the first one seen.
@@ -142,8 +136,11 @@ def crawl_member(
         current = current_mps.pop(published_name, None)
     if current is not None:
         person.add("sourceUrl", f"{CURRENT_MPS_URL}/mp/details/{current['url']}")
+        person.add("sourceUrl", current["government_directory_link"])
         # Only that roster publishes a year of birth, and not for every member.
         h.apply_date(person, "birthDate", current["year_of_birth"])
+        person.add("name", current["name_in_chinese"], lang="zho")
+        person.add("name", current["name_in_tamil"], lang="tam")
 
     occupancies: list[Entity] = []
     for term in terms:
