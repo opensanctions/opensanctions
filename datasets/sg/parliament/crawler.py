@@ -143,6 +143,7 @@ def crawl_member(
     party = context.lookup("party", record.pop("party_affliation"))
     # `legislative_assembly` flags service in the pre-1965 Legislative Assembly, outside
     # both this dataset and the PEP relevance window.
+    context.audit_data(record, ignore=["photo", "status", "legislative_assembly"])
 
     person = make_member(context, published_name)
     if party is not None:
@@ -173,8 +174,6 @@ def crawl_member(
     for occupancy in occupancies:
         context.emit(occupancy)
     context.emit(person)
-
-    context.audit_data(record, ignore=["photo", "status", "legislative_assembly"])
 
 
 def crawl_sitting_member(
