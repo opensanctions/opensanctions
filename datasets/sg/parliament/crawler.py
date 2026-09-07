@@ -42,7 +42,12 @@ def decode_page_data(document: str, key: str) -> Any:
     """
     marker = f'"{key}":'
     if document.count(marker) != 1:
-        raise ValueError(f"Page data has {document.count(marker)} {key!r} values")
+        # The length says whether we got the document at all or something short in
+        # its place, which is the difference between a source change and a block.
+        raise ValueError(
+            f"Page data ({len(document)} chars) holds "
+            f"{document.count(marker)} {key!r} values"
+        )
     value, _ = json.JSONDecoder().raw_decode(
         document, document.find(marker) + len(marker)
     )
