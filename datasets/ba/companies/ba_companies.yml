@@ -166,6 +166,13 @@ lookups:
       # The individual heirs cannot be split out reliably, so drop the note.
       - regex: ^ZAKONSKI NASLJEDNICI
         value: null
+      # Likewise, the founder name field sometimes carries the recital of the decision
+      # ("Na osnovu rješenja ...") that transferred the capital during privatisation,
+      # naming the privatisation agency, the decision number and the resulting stakes.
+      # Nothing that starts this way is a name, and the owners it mentions cannot be
+      # split out reliably, so drop the note.
+      - regex: ^Na osnovu rješenja
+        value: null
   type.address:
     options:
       # Placeholder values used where no address is recorded, seen in both the
