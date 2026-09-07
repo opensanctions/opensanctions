@@ -7,16 +7,16 @@ coverage:
   start: 2026-07-23
 load_statements: true
 summary: >-
-  Unicameral legislature, with elected, non-constituency and nominated seats
+  Current and historical members of the Parliament of Singapore, the country's unicameral legislature.
 description: |
-  Current and historical members of the Parliament of Singapore, the country's unicameral
-  legislature. It comprises members elected from Group Representation Constituencies (GRCs)
-  and Single Member Constituencies (SMCs), Non-Constituency Members (NCMPs) drawn from the
-  best-performing losing candidates, and Nominated Members (NMPs) appointed by the President.
-
-  Coverage reaches back over earlier Parliaments. A former member holds one term per
-  Parliament they sat in, dated to that Parliament's duration, or to their resignation
-  where they left before it was dissolved.
+  Members of the Parliament of Singapore, which shares legislative authority with the President.
+  Most Members of Parliament (MPs) are elected for terms of up to five years, representing either
+  a Group Representation Constituency (GRC) or a Single Member Constituency (SMC). 
+  
+  The Parliament also includes Non-Constituency Members of Parliament (NCMPs), who are selected
+  from the best-performing unsuccessful candidates from opposition parties, and Nominated
+  Members of Parliament (NMPs), who are appointed by the President to provide independent
+  and non-partisan perspectives.
 url: https://www.parliament.gov.sg/history/list-of-mps-by-parliament
 publisher:
   name: Parliament of Singapore
@@ -26,18 +26,14 @@ publisher:
   country: sg
   official: true
 data:
-  # Every member since 1965, grouped by the Parliament they sat in, including the
-  # sitting one.
   url: https://www.parliament.gov.sg/history/list-of-mps-by-parliament
-  format: HTML
+  format: JSON
   lang: eng
 
 tags:
   - list.pep
 
 dates:
-  # Term date ranges read "(10.10.2011 - 25.08.2015)" and resignation notes
-  # "7 August 2017".
   formats: ["%d.%m.%Y", "%d %B %Y"]
 
 names:
@@ -50,7 +46,6 @@ names:
 
 lookups:
   party:
-    # Normalising folds the curly-apostrophe, trailing-tab and leading-space variants
     required: true
     normalize: true
     lowercase: true
@@ -75,7 +70,6 @@ lookups:
         values:
           - People's Action Party
           - Barisan Sosialis
-      # Not parties but seat types
       - match:
           - Nominated Member of Parliament
           - Non-Constituency Member of Parliament
