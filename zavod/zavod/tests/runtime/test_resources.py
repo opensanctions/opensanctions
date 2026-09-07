@@ -20,8 +20,13 @@ def test_resources(testdataset1: Dataset):
     resources = DatasetResources(testdataset1, version)
     assert len(resources.all()) == 0
 
+    # A file outside the dataset data folder cannot be named as a resource:
     with pytest.raises(ValueError):
         testdataset1.resource_from_path(CSV_PATH)
+
+    missing_path = dataset_resource_path(testdataset1.name, "missing.csv")
+    with pytest.raises(FileNotFoundError):
+        testdataset1.resource_from_path(missing_path)
 
     resource_path = dataset_resource_path(testdataset1.name, "dataset.csv")
     shutil.copyfile(CSV_PATH, resource_path)
