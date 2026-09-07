@@ -17,6 +17,11 @@ description: |
 
   This dataset records each currently serving deputy with their name and parliamentary
   group.
+deprecation: |
+  Since 2026-08-08 the Legislative Assembly of Costa Rica website has been
+  [unreachable, timing out on every connection attempt](https://github.com/opensanctions/opensanctions/issues/5395),
+  including from within Costa Rica. Therefore, we are marking this dataset as deprecated
+  and will remove it on or shortly after 2026-12-15 unless the website becomes reachable again.
 url: https://www.asamblea.go.cr/opendata/SitePages/Inicio.aspx
 publisher:
   name: Asamblea Legislativa de la República de Costa Rica
