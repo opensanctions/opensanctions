@@ -60,7 +60,15 @@ def get_exporters(context: Context, stats: Statistics) -> list[Exporter]:
     for name in exporter_names:
         clazz = EXPORTERS.get(name)
         if clazz is None:
-            log.error(f"No exporter found for target: {name}")
+            # Deliberately not fatal: a misspelt export name should not stop
+            # the run, since the statements.pack and the other exports still
+            # get published and their consumers still benefit from the update.
+            # The error lands in the dataset's issues, where it is noticed.
+            log.error(
+                f"No exporter found for target: {name}",
+                dataset=context.dataset.name,
+                known_exporters=sorted(EXPORTERS),
+            )
             continue
         exporters.append(clazz(context, stats))
     return exporters

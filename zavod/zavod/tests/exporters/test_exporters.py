@@ -7,6 +7,7 @@ from json import load, loads
 from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
 from datetime import datetime
+from structlog.testing import capture_logs
 
 from zavod import settings
 from zavod.entity import Entity
@@ -443,3 +444,35 @@ def test_exporter_missing_output_raises(testdataset1: Dataset):
     # Nothing was registered for publication:
     names = {r.name for r in DatasetResources(testdataset1, context.version).all()}
     assert NoOutputExporter.FILE_NAME not in names
+
+
+def test_unknown_exporter_logs_error() -> None:
+    """A misspelt name in a dataset's exports is logged as an error but does
+    not fail the run: the statements and the remaining exports are still
+    published, so their consumers still benefit from the update."""
+    catalog = get_catalog()
+    dataset = Dataset(
+        {"name": "test_bad_exports", "exports": ["entities.ftm.jsn", "names.txt"]}
+    )
+    catalog.add(dataset)
+    emit_entity(dataset, "Person", id_="bad-exports-1", properties={"name": ["Jo"]})
+
+    with capture_logs() as cap_logs:
+        export(dataset)
+
+    errors = [
+        entry
+        for entry in cap_logs
+        if entry.get("log_level") == "error"
+        and "entities.ftm.jsn" in entry.get("event", "")
+    ]
+    assert len(errors) == 1, cap_logs
+    assert "entities.ftm.json" in errors[0]["known_exporters"]
+
+    # The other exports and the index are still produced:
+    dataset_path = dataset_artifact_directory(dataset.name, settings.RUN_VERSION)
+    assert (dataset_path / "names.txt").is_file()
+    assert (dataset_path / "statistics.json").is_file()
+    with open(dataset_path / "index.json") as fh:
+        resources = {r["name"] for r in load(fh)["resources"]}
+    assert resources == {"names.txt"}
