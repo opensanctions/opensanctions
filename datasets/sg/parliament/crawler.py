@@ -1,9 +1,7 @@
 import json
 import re
-from dataclasses import dataclass
-from typing import Any
+from typing import Any, NamedTuple
 
-from normality import squash_spaces
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 from zavod import Context, Entity
@@ -16,8 +14,7 @@ REGEX_RESIGNED = re.compile(r"\s*\(Resigned on (?P<date>[^,)]+), (?P<term>[^)]+)
 REGEX_TERM_RANGE = re.compile(r"^\((?P<start>[\d.]+)\s*-\s*(?P<end>[\d.]+)\)$")
 
 
-@dataclass(frozen=True)
-class Term:
+class Term(NamedTuple):
     """One numbered Parliament, labelled the way the source labels it everywhere."""
 
     title: str
@@ -67,24 +64,25 @@ def parse_terms(context: Context, options: list[dict[str, Any]]) -> dict[str, Te
     """Map each parliamentary session to the Parliament it was part of.
 
     The dropdown of Parliaments is the only place the source publishes term date ranges,
-    and members reference their terms indirectly, by session.
+    and members reference their terms indirectly, by session. Only the sitting
+    Parliament, listed last, is published without a range; any other missing one would
+    make its members look like they never left.
     """
     sessions: dict[str, Term] = {}
-    for index, option in enumerate(options):
+    for option in options:
         title = option.pop("title")
         content = option.pop("content")
-        start, end = None, None
-        if content is not None:
-            match = REGEX_TERM_RANGE.match(squash_spaces(content))
+        if content is None:
+            if option is not options[-1]:
+                raise ValueError(f"Parliament without a date range: {title!r}")
+            term = Term(title, None, None)
+        else:
+            match = REGEX_TERM_RANGE.match(content)
             if match is None:
                 raise ValueError(f"Unexpected {title} date range: {content!r}")
-            start, end = match.group("start"), match.group("end")
-        elif index != len(options) - 1:
-            # Only the sitting Parliament, listed last, is published without a range.
-            # Any other would make its members look like they never left.
-            raise ValueError(f"Parliament without a date range: {title!r}")
+            term = Term(title, match.group("start"), match.group("end"))
         for session_id in option.pop("parliament_sessions"):
-            sessions[session_id] = Term(title=title, start=start, end=end)
+            sessions[session_id] = term
         context.audit_data(option, ignore=["id"])
     return sessions
 
@@ -105,7 +103,8 @@ def crawl_member(
     """
     published_name = record.pop("full_name")
     # A note on the published name is the only way the source records a member leaving
-    # early; any other annotation is one this crawler cannot read.
+    # early. Any other annotation is one this crawler cannot read: the member is still
+    # worth emitting, so keep the name as published and ask for the pattern to be added.
     resigned = REGEX_RESIGNED.search(published_name)
     resigned_term, resigned_date = None, None
     if resigned is not None:
@@ -113,15 +112,12 @@ def crawl_member(
         resigned_term = resigned.group("term")
         resigned_date = resigned.group("date")
     elif "(" in published_name or ")" in published_name:
-        raise ValueError(f"Unhandled annotation in name: {published_name!r}")
+        context.log.warning("Unhandled annotation in name", name=published_name)
 
     # Members are listed once per session, so several resolve to the same Parliament.
     terms: set[Term] = set()
     for reference in record.pop("parliament_session"):
-        session_id = reference["parliament_sessions_id"]
-        if session_id not in sessions:
-            raise ValueError(f"Unknown parliamentary session: {session_id!r}")
-        terms.add(sessions[session_id])
+        terms.add(sessions[reference["parliament_sessions_id"]])
     # The label doubles as a seat type for Nominated and Non-Constituency Members, which
     # is published once per member and so belongs to no single term.
     party = context.lookup("party", record.pop("party_affliation"))
