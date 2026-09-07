@@ -139,11 +139,6 @@ lookups:
         details:
           - id_num: "660603-05-5267"
             notes: "660603-05-5267 note:issued by National Registration Department of Malaysia"
-      # UN QDi.436 (Abubakar Swalleh) records this as Zambian national identification
-      # number Z15105123 with the rest of the string as a document note. The birth date
-      # and place in the note describe the fraudulent Isaac Mupeta identity, not the
-      # listed person (UN gives 13 Jan. 1992 / 16 Mar. 1993, Mengo, Uganda), so they are
-      # kept in notes only. Isaac Mupeta is already carried in the alias column.
       - match: "Z15105123 note:fraudulently acquired under the name Isaac Mupeta, born 9 May 1993 in Lusaka, Zambia, registration number 102523/29/1"
         details:
           - id_num: "Z15105123"
