@@ -4,17 +4,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from normality import squash_spaces
-from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
-# The sitting members, who the all-Parliaments roster covers too, but without their
-# constituency, profile or year of birth.
 CURRENT_MPS_URL = "https://www.parliament.gov.sg/mps/list-of-current-mps"
-MP_DETAIL_URL = "https://www.parliament.gov.sg/mps/list-of-current-mps/mp/details/%s"
-FLIGHT_PUSH = "self.__next_f.push("
 # "Halimah Yacob (Resigned on 7 August 2017, 13th Parliament)" - the only place the
 # source records a member leaving before their Parliament was dissolved.
 REGEX_RESIGNED = re.compile(r"\s*\(Resigned on (?P<date>[^,)]+), (?P<term>[^)]+)\)\s*$")
@@ -30,49 +25,29 @@ class Term:
     end: str | None
 
 
-def fetch_streamed_page_data(context: Context, url: str) -> str:
-    """Fetch a page and reassemble the data stream it embeds.
-
-    Both rosters render client-side: the server ships their data as a Next.js
-    flight document (the React Server Components payload) — a sequence of
-    `self.__next_f.push([1, "<chunk>"])` calls whose string chunks concatenate, in
-    document order, into one document. Chunk boundaries fall at arbitrary
-    offsets, so nothing can be decoded before they are joined.
-    """
-    text = context.fetch_text(url, cache_days=1)
-    assert text
-    decoder = json.JSONDecoder()
-    chunks: list[str] = []
-    offset = text.find(FLIGHT_PUSH)
-    while offset != -1:
-        start = offset + len(FLIGHT_PUSH)
-        offset = text.find(FLIGHT_PUSH, start)
-        try:
-            pushed, _ = decoder.raw_decode(text, start)
-        except json.JSONDecodeError:
-            # The framework also pushes runtime values, e.g. `push([0])`.
-            continue
-        if (
-            isinstance(pushed, list)
-            and len(pushed) == 2
-            and pushed[0] == 1
-            and isinstance(pushed[1], str)
-        ):
-            chunks.append(pushed[1])
-    if len(chunks) == 0:
-        raise ValueError(f"No data stream chunks found: {url}")
-    return "".join(chunks)
+def fetch_page_data(context: Context, url: str) -> str:
+    """Fetch the Next.js flight document a page renders itself from."""
+    document = context.fetch_text(
+        url,
+        # Our HTTP cache keys on the URL alone, so this keeps the flight document and
+        # the page's HTML apart.
+        params={"_rsc": "1"},
+        headers={"RSC": "1"},  # Serves the document itself, not the HTML embedding it.
+        encoding="utf-8",  # `text/x-component` has no charset, so HTTP says Latin-1.
+        cache_days=1,
+    )
+    assert document is not None, url
+    return document
 
 
-def decode_page_data_value(document: str, key: str) -> Any:
-    """Decode the JSON value stored under `key` in the streamed page data.
+def decode_page_data(document: str, key: str) -> Any:
+    """Decode the JSON value stored under `key`.
 
-    The data is a stream of framed rows rather than one JSON value, so the
-    value is located by its key and consumed from there. Anything other than a
-    single occurrence means the page no longer ships the data this crawler reads
-    from it, or ships it more than once and the right copy is ambiguous.
+    The document is a stream of framed rows rather than one JSON value, so the value is
+    located by its key and consumed from there.
     """
     marker = f'"{key}":'
+    # Zero, or several with no way to tell which is the right copy.
     if document.count(marker) != 1:
         raise ValueError(f"Page data has {document.count(marker)} {key!r} values")
     value, _ = json.JSONDecoder().raw_decode(
@@ -83,7 +58,7 @@ def decode_page_data_value(document: str, key: str) -> Any:
 
 def decode_roster(document: str, key: str) -> list[dict[str, Any]]:
     """Decode a roster, checking it against the record count the page reports."""
-    roster = decode_page_data_value(document, key)
+    roster = decode_page_data(document, key)
     records: list[dict[str, Any]] = roster["data"]
     reported: int = roster["meta"]["filter_count"]
     if len(records) != reported:
@@ -94,10 +69,8 @@ def decode_roster(document: str, key: str) -> list[dict[str, Any]]:
 def parse_terms(context: Context, options: list[dict[str, Any]]) -> dict[str, Term]:
     """Map each parliamentary session to the Parliament it was part of.
 
-    The dropdown of Parliaments is the only place the source publishes term date
-    ranges, and members reference their terms indirectly, by session. The sitting
-    Parliament, listed last, is the only one published without a range; any other
-    Parliament missing one would make its members look like they never left.
+    The dropdown of Parliaments is the only place the source publishes term date ranges,
+    and members reference their terms indirectly, by session.
     """
     sessions: dict[str, Term] = {}
     for index, option in enumerate(options):
@@ -110,39 +83,20 @@ def parse_terms(context: Context, options: list[dict[str, Any]]) -> dict[str, Te
                 raise ValueError(f"Unexpected {title} date range: {content!r}")
             start, end = match.group("start"), match.group("end")
         elif index != len(options) - 1:
+            # Only the sitting Parliament, listed last, is published without a range.
+            # Any other would make its members look like they never left.
             raise ValueError(f"Parliament without a date range: {title!r}")
-        term = Term(title=title, start=start, end=end)
         for session_id in option.pop("parliament_sessions"):
-            sessions[session_id] = term
+            sessions[session_id] = Term(title=title, start=start, end=end)
         context.audit_data(option, ignore=["id"])
     return sessions
 
 
-def parse_name(published_name: str) -> tuple[str, str | None, str | None]:
-    """Split a published name into the name and any resignation note it carries.
-
-    Returns the name with the note stripped, and the date a member resigned and
-    the Parliament they left where recorded. The note appended to their published
-    name is the only place the source records a member leaving early; any other
-    annotation is one this crawler cannot read.
-    """
-    match = REGEX_RESIGNED.search(published_name)
-    if match is None:
-        if "(" in published_name or ")" in published_name:
-            raise ValueError(f"Unhandled annotation in name: {published_name!r}")
-        return published_name, None, None
-    return published_name[: match.start()], match.group("date"), match.group("term")
-
-
 def make_member(context: Context, published_name: str) -> Entity:
-    """Create the person for a member, with the name and citizenship both rosters give.
+    """Create the person for a member, keyed on the name both rosters spell alike.
 
-    Members are keyed on their published name: neither roster publishes an
-    identifier, and both spell sitting members identically, so the name is what
-    makes a member listed in either roster one entity. The honorific titles a name
-    carries are a closed set and stripped from the dataset metadata, while the
-    "family name, Western given name" ordering some members use is a judgement
-    call and left to the name review system.
+    Neither roster publishes an identifier the other shares, so the name is what makes a
+    member listed in either of them one entity.
     """
     person = context.make("Person")
     person.id = context.make_id(published_name)
@@ -153,10 +107,8 @@ def make_member(context: Context, published_name: str) -> Entity:
         llm_cleaning=True,
         lang="eng",
     )
-    # A member of Parliament is a citizen of Singapore, whether elected
-    # (Constitution of the Republic of Singapore, Article 44(2)(a)) or appointed as
-    # a Nominated Member (Fourth Schedule, paragraph 1).
-    # https://sso.agc.gov.sg/Act/CONS1963?ProvIds=pr44-
+    # Elected members and Nominated Members alike are Singapore citizens: Constitution
+    # of the Republic of Singapore, Article 44(2)(a) and Fourth Schedule, paragraph 1.
     person.add("citizenship", "sg")
     return person
 
@@ -169,38 +121,41 @@ def crawl_member(
     sessions: dict[str, Term],
 ) -> None:
     """Emit a member listed in the all-Parliaments roster, one occupancy per term."""
-    name, resigned_date, resigned_term = parse_name(record.pop("full_name"))
+    published_name = record.pop("full_name")
+    # A note on the published name is the only way the source records a member leaving
+    # early; any other annotation is one this crawler cannot read.
+    resigned = REGEX_RESIGNED.search(published_name)
+    if resigned is not None:
+        published_name = published_name[: resigned.start()]
+    elif "(" in published_name or ")" in published_name:
+        raise ValueError(f"Unhandled annotation in name: {published_name!r}")
+
     terms: set[Term] = set()
     for reference in record.pop("parliament_session"):
         session_id = reference["parliament_sessions_id"]
         if session_id not in sessions:
             raise ValueError(f"Unknown parliamentary session: {session_id!r}")
-        # Members are listed once per session, so several references resolve to the
-        # same Parliament.
+        # Members are listed once per session, so several references resolve to the same
+        # Parliament.
         terms.add(sessions[session_id])
-    # The label doubles as a seat type for Nominated and Non-Constituency Members,
-    # which is published once per member and so belongs to no single term.
+    # The label doubles as a seat type for Nominated and Non-Constituency Members, which
+    # is published once per member and so belongs to no single term.
     party = context.lookup("party", record.pop("party_affliation"))
-    context.audit_data(
-        record,
-        ignore=[
-            "photo",
-            "status",
-            # Flags service in the pre-1965 Legislative Assembly, which is outside
-            # both this dataset and the PEP relevance window.
-            "legislative_assembly",
-        ],
-    )
+    # `legislative_assembly` flags service in the pre-1965 Legislative Assembly, outside
+    # both this dataset and the PEP relevance window.
 
-    person = make_member(context, name)
+    person = make_member(context, published_name)
     if party is not None:
         person.add("political", party.values)
 
     occupancies: list[Entity] = []
     for term in terms:
-        # The sitting Parliament is published without dates, so its members have
-        # none and default to current. The roster is maintained: a member who
-        # resigned dropped off the current one within weeks.
+        end_date = None
+        if resigned is not None and term.title == resigned.group("term"):
+            end_date = resigned.group("date")
+        # The sitting Parliament is published without dates, so its members have none
+        # and default to current. The roster is maintained: a member who resigned
+        # dropped off the current one within weeks.
         occupancy = h.make_occupancy(
             context,
             person,
@@ -208,7 +163,7 @@ def crawl_member(
             categorisation=categorisation,
             period_start=term.start,
             period_end=term.end,
-            end_date=resigned_date if term.title == resigned_term else None,
+            end_date=end_date,
         )
         if occupancy is not None:
             occupancies.append(occupancy)
@@ -219,6 +174,8 @@ def crawl_member(
         context.emit(occupancy)
     context.emit(person)
 
+    context.audit_data(record, ignore=["photo", "status", "legislative_assembly"])
+
 
 def crawl_sitting_member(
     context: Context,
@@ -228,12 +185,16 @@ def crawl_sitting_member(
 ) -> None:
     """Emit what only the current roster knows about a sitting member.
 
-    The all-Parliaments roster covers the sitting Parliament as well, and both
-    rosters produce the same person and the same undated occupancy for it, so this
-    adds to those rather than duplicating them.
+    The all-Parliaments roster covers the sitting Parliament as well, and both rosters
+    produce the same person and the same undated occupancy for it, so this adds to those
+    rather than duplicating them.
+
+    The record carries 61 fields, nearly all of them content-management bookkeeping or
+    facts outside this dataset's scope: contact details, committee seats, and the dated
+    constituency and office-holding histories, which deserve entities of their own.
     """
     person = make_member(context, record["full_name"])
-    person.add("sourceUrl", MP_DETAIL_URL % record["url"])
+    person.add("sourceUrl", f"{CURRENT_MPS_URL}/mp/details/{record['url']}")
     # Only the current roster publishes a year of birth, and not for every member.
     h.apply_date(person, "birthDate", record["year_of_birth"])
 
@@ -242,8 +203,8 @@ def crawl_sitting_member(
     )
     if occupancy is None:
         return
-    # Where the source records the seat type of Nominated and Non-Constituency
-    # Members, in place of a constituency.
+    # Where the source records the seat type of Nominated and Non-Constituency Members,
+    # in place of a constituency.
     occupancy.add("constituency", record["constituency"]["constituency"])
     context.emit(occupancy)
     context.emit(person)
@@ -263,11 +224,13 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    document = fetch_streamed_page_data(context, context.data_url)
-    sessions = parse_terms(context, decode_page_data_value(document, "options"))
+    document = fetch_page_data(context, context.data_url)
+    sessions = parse_terms(context, decode_page_data(document, "options"))
     for record in decode_roster(document, "mps"):
         crawl_member(context, position, categorisation, record, sessions)
 
-    document = fetch_streamed_page_data(context, CURRENT_MPS_URL)
+    # The sitting members, who the all-Parliaments roster covers too, but without their
+    # constituency, profile or year of birth.
+    document = fetch_page_data(context, CURRENT_MPS_URL)
     for record in decode_roster(document, "initialMPs"):
         crawl_sitting_member(context, position, categorisation, record)
