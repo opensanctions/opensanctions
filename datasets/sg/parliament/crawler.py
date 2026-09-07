@@ -26,7 +26,8 @@ def fetch_page_data(context: Context, url: str) -> str:
     document = context.fetch_text(
         url,
         # Our cache keys on the URL alone; this parts the document from the HTML.
-        params={"_rsc": "1"},
+        # An empty value is served directly, where `_rsc=1` takes a 307 first.
+        params={"_rsc": ""},
         headers={"RSC": "1"},  # Serves the document itself, not the HTML embedding it.
         encoding="utf-8",  # `text/x-component` has no charset, so HTTP says Latin-1.
         cache_days=1,
