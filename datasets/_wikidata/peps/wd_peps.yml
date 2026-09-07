@@ -62,6 +62,13 @@ http:
   retry_methods:
     - GET
     - POST
+  # The position discovery queries for large territories run close to the query
+  # service's own 60s execution budget, so the default 60s read timeout leaves
+  # no headroom for queueing and result transfer and we abandon responses the
+  # server is about to deliver. Give the client more room than the server has,
+  # so a genuine overload surfaces as a retryable 502/504 instead of a read
+  # timeout. Matches the timeout of nomenklatura's own Wikidata session.
+  timeout: 90
 
 assertions:
   min:
