@@ -240,7 +240,7 @@ def crawl_group_membership(
         "eu-group" if is_eu_group else "nat-party", info.name or info.local_id
     )
     org.add("name", info.name)
-    org.add("name", info.acronym)
+    org.add("abbreviation", info.acronym)
     if is_eu_group:
         org.add("country", "eu")
     else:
