@@ -73,6 +73,10 @@ lookups:
           - Peoples Republic of China
           - "card-tags:ineligible-entities/nationality/people’s-republic-of-china"
         value: cn
+      - match: Taipei China
+        values:
+          - tw
+          - cn
       - match: "Chile, United States of America"
         values:
           - cl
