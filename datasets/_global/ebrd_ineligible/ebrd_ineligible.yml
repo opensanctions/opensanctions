@@ -73,9 +73,10 @@ lookups:
           - Peoples Republic of China
           - "card-tags:ineligible-entities/nationality/people’s-republic-of-china"
         value: cn
-      # Multilateral development bank designation for Taiwan
       - match: Taipei China
-        value: tw
+        values:
+          - tw
+          - cn
       - match: "Chile, United States of America"
         values:
           - cl
