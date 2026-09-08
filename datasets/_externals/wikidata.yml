@@ -331,6 +331,7 @@ lookups:
       - match:
           - Female
           - trans woman
+          - transgender female
           - intersex woman
           - intersex trans woman
           - cisgender woman
