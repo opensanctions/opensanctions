@@ -464,10 +464,9 @@ def test_unknown_exporter_logs_error() -> None:
         entry
         for entry in cap_logs
         if entry.get("log_level") == "error"
-        and "entities.ftm.jsn" in entry.get("event", "")
+        and "entities.ftm.jsn" in entry.get("event", "")  # jsn is the typo
     ]
     assert len(errors) == 1, cap_logs
-    assert "entities.ftm.json" in errors[0]["known_exporters"]
 
     # The other exports and the index are still produced:
     dataset_path = dataset_artifact_directory(dataset.name, settings.RUN_VERSION)

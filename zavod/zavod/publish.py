@@ -109,9 +109,9 @@ def archive_failure(dataset: Dataset, version: Version) -> None:
     the failed run stay local, and the version is registered in the history
     without becoming the last successful one.
 
-    As in publish_dataset, index.json is uploaded after the other artifacts
-    and the stable versions.json last, so the failed version only becomes
-    discoverable once everything it points at is archived."""
+    index.json is uploaded after the other artifacts and the stable versions.json
+    last, so the failed version only becomes discoverable once everything it points
+    at is archived."""
     _ensure_versions_file(dataset, version, success=False)
     write_dataset_index(dataset, version, DatasetVersionResult.FAILURE)
     for artifact in FAILURE_ARTIFACTS:

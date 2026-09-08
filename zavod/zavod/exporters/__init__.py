@@ -64,11 +64,7 @@ def get_exporters(context: Context, stats: Statistics) -> list[Exporter]:
             # the run, since the statements.pack and the other exports still
             # get published and their consumers still benefit from the update.
             # The error lands in the dataset's issues, where it is noticed.
-            log.error(
-                f"No exporter found for target: {name}",
-                dataset=context.dataset.name,
-                known_exporters=sorted(EXPORTERS),
-            )
+            log.error(f"No exporter found for target: {name}")
             continue
         exporters.append(clazz(context, stats))
     return exporters
