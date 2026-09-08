@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-from collections.abc import Generator, Iterable
+from collections.abc import Callable, Generator, Iterable
 
 from followthemoney.util import join_text
 from normality.cleaning import remove_unsafe_chars, squash_spaces
@@ -9,6 +9,13 @@ from zavod import Context
 from zavod import helpers as h
 
 TYPES = {"C": "HE", "P": "S", "O": "AE", "N": "BN", "B": "B"}
+
+# The portal has been publishing the officials distribution without a download
+# URL since 2026-09-07, while still serving the file it last published on
+# 2026-07-31. Fall back to that file for as long as the feed omits the URL.
+OFFICIALS_FALLBACK_URL = (
+    "https://data.gov.cy/sites/default/files/organisation_officials_86.csv"
+)
 
 
 def company_id(org_type: str, reg_nr: str | None) -> str | None:
@@ -20,16 +27,105 @@ def company_id(org_type: str, reg_nr: str | None) -> str | None:
     return f"oc-companies-cy-{org_type_oc}{reg_nr}".lower()
 
 
-def iter_rows(path: Path) -> Generator[dict[str, str], None, None]:
+def is_organisation_record(values: list[str]) -> bool:
+    """Check whether a line of the organisations CSV starts a record."""
+    return values[2] in TYPES
+
+
+def carried_values(values: list[str]) -> list[str]:
+    """Drop the empty fields a record fragment is padded with."""
+    end = len(values)
+    while end > 0 and len(values[end - 1]) == 0:
+        end -= 1
+    return values[:end]
+
+
+def join_fragments(width: int, fragments: list[list[str]]) -> list[str] | None:
+    """Re-join a record the publisher split across several lines.
+
+    Each fragment carries a run of the record's values, padded with empty fields
+    to the width of the header. The last fragment ends at the last column of the
+    record, so any columns the fragments don't account for are empty ones in the
+    middle of the record. Returns None if the fragments carry more values than
+    the record has columns, i.e. if they are not fragments of a single record.
+    """
+    head: list[str] = []
+    for fragment in fragments[:-1]:
+        head.extend(carried_values(fragment))
+    tail = carried_values(fragments[-1])
+    gap = width - len(head) - len(tail)
+    if gap < 0:
+        return None
+    return head + [""] * gap + tail
+
+
+def clean_row(header: list[str], values: list[str]) -> dict[str, str]:
+    data: dict[str, str] = {}
+    for key, value in zip(header, values):
+        cleaned = squash_spaces(remove_unsafe_chars(value))
+        if len(cleaned) > 0:
+            data[key] = cleaned
+    return data
+
+
+def make_row(
+    context: Context,
+    header: list[str],
+    fragments: list[list[str]],
+    is_record: Callable[[list[str]], bool],
+) -> dict[str, str] | None:
+    if len(fragments) == 1:
+        return clean_row(header, fragments[0])
+    values = join_fragments(len(header), fragments)
+    if values is None or not is_record(values):
+        context.log.error("Cannot re-join split record", fragments=fragments)
+        return None
+    return clean_row(header, values)
+
+
+def iter_rows(
+    context: Context,
+    path: Path,
+    is_record: Callable[[list[str]], bool] | None = None,
+) -> Generator[dict[str, str], None, None]:
+    """Read a source CSV into dicts of the values that are set.
+
+    The publisher sometimes breaks a record across several lines, padding each
+    fragment with empty fields to the width of the header. When `is_record` is
+    given, lines which don't start a record are re-joined with the fragments
+    preceding them.
+    """
     with open(path) as fh:
         fh.read(1)  # bom
-        for row in csv.DictReader(fh):
-            data = {}
-            for k, v in row.items():
-                sv = squash_spaces(remove_unsafe_chars(v))
-                if len(sv) > 0:
-                    data[k] = sv
-            yield data
+        reader = csv.reader(fh)
+        header = next(reader)
+        width = len(header)
+        fragments: list[list[str]] = []
+        carried = 0
+        for values in reader:
+            if len(values) == 0:  # blank line
+                continue
+            if len(values) != width:
+                context.log.error("Unexpected column count", values=values)
+                continue
+            if is_record is None:
+                yield clean_row(header, values)
+                continue
+            # A line which starts a record, or which carries more values than
+            # are left in the record being assembled, ends the previous record.
+            if len(fragments) > 0 and (
+                is_record(values) or carried + len(carried_values(values)) > width
+            ):
+                row = make_row(context, header, fragments, is_record)
+                if row is not None:
+                    yield row
+                fragments, carried = [], 0
+            fragments.append(values)
+            carried += len(carried_values(values))
+        if is_record is not None and len(fragments) > 0:
+            row = make_row(context, header, fragments, is_record)
+            if row is not None:
+                yield row
 
 
 def parse_organisations(
@@ -129,31 +225,61 @@ def load_addresses(rows: Iterable[dict[str, str]]) -> dict[str, str]:
     return addresses
 
 
-def get_path(file_paths: dict[str, Path], prefix: str) -> Path:
+def get_path(file_paths: dict[str, Path], prefix: str) -> Path | None:
     matched_files = [
         path for name, path in file_paths.items() if name.startswith(prefix)
     ]
-    assert len(matched_files) == 1, (prefix, len(matched_files))
+    assert len(matched_files) <= 1, (prefix, len(matched_files))
+    if len(matched_files) == 0:
+        return None
     return matched_files[0]
 
 
-def crawl(context: Context) -> None:
+def require_path(file_paths: dict[str, Path], prefix: str) -> Path:
+    path = get_path(file_paths, prefix)
+    if path is None:
+        raise RuntimeError(f"Source feed has no distribution for: {prefix}")
+    return path
+
+
+def fetch_files(context: Context) -> dict[str, Path]:
     headers = {"Accept": "application/json"}
     meta = context.fetch_json(context.data_url, headers=headers)
 
     files: dict[str, Path] = {}
     for dist in meta["dcat:Distribution"]:
-        dist_url = dist["dcat:downloadURL"]["@rdf:resource"]
+        download = dist.get("dcat:downloadURL")
+        if download is None:
+            # The portal keeps listing a distribution while the file it points
+            # at is missing, e.g. between two publications of the data.
+            context.log.warning(
+                "Distribution has no download URL", title=dist.get("dct:title")
+            )
+            continue
+        dist_url = download["@rdf:resource"]
         file_name = dist_url.rsplit("/")[-1]
-        file_path = context.fetch_resource(file_name, dist_url)
-        files[file_name] = file_path
+        files[file_name] = context.fetch_resource(file_name, dist_url)
+    return files
 
-    office_path = get_path(files, "registered_office_")
-    addresses = load_addresses(iter_rows(office_path))
+
+def crawl(context: Context) -> None:
+    files = fetch_files(context)
+
+    office_path = require_path(files, "registered_office_")
+    addresses = load_addresses(iter_rows(context, office_path))
     context.log.info(f"Loaded {len(addresses)} addresses")
 
-    org_path = get_path(files, "organisations_")
-    parse_organisations(context, iter_rows(org_path), addresses)
+    org_path = require_path(files, "organisations_")
+    rows = iter_rows(context, org_path, is_organisation_record)
+    parse_organisations(context, rows, addresses)
 
     officials_path = get_path(files, "organisation_officials_")
-    parse_officials(context, iter_rows(officials_path))
+    if officials_path is None:
+        context.log.warning(
+            "Officials file is missing from the source feed, using the last "
+            "one the portal published",
+            url=OFFICIALS_FALLBACK_URL,
+        )
+        file_name = OFFICIALS_FALLBACK_URL.rsplit("/")[-1]
+        officials_path = context.fetch_resource(file_name, OFFICIALS_FALLBACK_URL)
+    parse_officials(context, iter_rows(context, officials_path))
