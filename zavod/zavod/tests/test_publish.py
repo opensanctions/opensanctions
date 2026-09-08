@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 from followthemoney.dataset import Version, VersionHistory
@@ -18,6 +19,7 @@ from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.exporters.metadata import get_catalog_dataset
 from zavod.integration import get_dataset_linker
+from zavod import publish as publish_module
 from zavod.publish import publish_dataset, archive_failure
 from zavod.runtime.manifest import Manifest
 from zavod.exc import RunFailedException
@@ -42,6 +44,36 @@ def _read_history(dataset_name: str) -> VersionHistory | None:
 
 def filter_logs(cap_logs: list[dict], levels: tuple[str, ...]) -> list[dict]:
     return [log for log in cap_logs if log.get("log_level") in levels]
+
+
+HISTORY_PUBLISHED = "<publish_version_history>"
+
+
+def _record_upload_order(monkeypatch: pytest.MonkeyPatch) -> list[str]:
+    """Wrap the archive calls made by zavod.publish so that the order in which
+    artifacts are uploaded, and when the stable versions.json is published,
+    can be asserted. The real calls still happen."""
+    calls: list[str] = []
+    real_archive = publish_module.archive_artifact
+    real_history = publish_module.publish_version_history
+
+    def archive(
+        path: Path,
+        dataset_name: str,
+        version: Version,
+        artifact: str,
+        mime_type: str | None = None,
+    ) -> None:
+        calls.append(artifact)
+        real_archive(path, dataset_name, version, artifact, mime_type=mime_type)
+
+    def history(dataset_name: str, version: Version) -> None:
+        calls.append(HISTORY_PUBLISHED)
+        real_history(dataset_name, version)
+
+    monkeypatch.setattr(publish_module, "archive_artifact", archive)
+    monkeypatch.setattr(publish_module, "publish_version_history", history)
+    return calls
 
 
 def test_publish_dataset(
@@ -122,6 +154,23 @@ def test_publish_dataset(
     path = backfill_artifact(testdataset1.name, version, INDEX_FILE)
     assert path is not None
     assert path.exists()
+
+
+def test_publish_upload_order(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
+    """index.json is uploaded only after every other artifact, and the stable
+    versions.json that makes the version discoverable is published after that,
+    so a partial upload never yields a discoverable version whose index points
+    at files that are not archived yet."""
+    calls = _record_upload_order(monkeypatch)
+    version = run_dataset(testdataset1, publish=False)
+    publish_dataset(testdataset1, version)
+
+    assert calls[-2:] == [INDEX_FILE, HISTORY_PUBLISHED], calls
+    assert calls.count(INDEX_FILE) == 1, calls
+    # Both the versioned artifacts and out-of-directory resources come first:
+    earlier = set(calls[:-2])
+    assert {ISSUES_FILE, STATISTICS_FILE, "source.csv"} <= earlier, calls
+    assert STANDARD_EXPORTS <= earlier, calls
 
 
 def test_publish_collection(testdataset1: Dataset, collection: Dataset):
@@ -288,6 +337,24 @@ def test_archive_failure(testdataset1: Dataset, logger: Logger):
         # HASH_FILE,
         # DELTA_INDEX_FILE,
     }  # fmt: skip
+
+
+def test_archive_failure_upload_order(
+    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
+):
+    """The failure index is uploaded after the issues that explain it, and the
+    stable versions.json is published only after the index."""
+    calls = _record_upload_order(monkeypatch)
+    version = settings.RUN_VERSION
+    assert testdataset1.data is not None
+    testdataset1.data.format = "FAIL"
+    with pytest.raises(RunFailedException):
+        crawl_dataset(testdataset1, version)
+    archive_failure(testdataset1, version)
+
+    assert calls[-2:] == [INDEX_FILE, HISTORY_PUBLISHED], calls
+    assert calls.count(INDEX_FILE) == 1, calls
+    assert {ISSUES_FILE, MANIFEST_FILE, VERSIONS_FILE} <= set(calls[:-2]), calls
 
 
 def test_archive_collection_failure(
