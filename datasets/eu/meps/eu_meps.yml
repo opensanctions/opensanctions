@@ -47,10 +47,8 @@ assertions:
   min:
     schema_entities:
       Person: 2300
-      Organization: 600
       Position: 1
   max:
     schema_entities:
       Person: 5000
-      Organization: 1500
       Position: 5

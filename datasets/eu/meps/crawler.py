@@ -1,5 +1,5 @@
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from banal import ensure_list
@@ -39,12 +39,15 @@ TERM_IGNORE = [
     "notation_providerTemporalBodyId",  # internal EP id
 ]
 
-# A political group or national party, i.e. an `org/{id}` corporate body.
+# A political group or national party, i.e. an `org/{id}` corporate body. Only the
+# full name is kept.
 ORG_IGNORE = [
     "id",  # JSON-LD node IRI
     "type",  # JSON-LD @type tag
-    "identifier",  # equals the local_id we already keep
-    "classification",  # group/committee type, not needed on the org
+    "identifier",  # numeric body id, part of the URL already
+    "label",  # acronym, not kept
+    "classification",  # group/committee type
+    "represents",  # represented country, not kept
     "temporal",  # the body's own date range, unused
     "source",  # EP provenance flag
     "linkedTo",  # refs to related bodies
@@ -53,11 +56,13 @@ ORG_IGNORE = [
     "notation_providerTemporalBodyId",  # internal EP id
 ]
 
-# A membership of a political group or national party.
+# A membership of a political group or national party. Only the body and period
+# are kept; the group goes on the occupancy and the party on the person.
 MEMBERSHIP_IGNORE = [
     "id",  # JSON-LD node IRI
     "type",  # JSON-LD @type tag
     "identifier",  # internal membership id
+    "role",  # the member's function in the body, not kept
     "notation_codictFunctionId",  # internal EP function id
     "contactPoint",  # office address and phone, not modelled
 ]
@@ -112,14 +117,6 @@ class Term:
     number: int
     start: str | None
     end: str | None
-
-
-@dataclass
-class OrgInfo:
-    local_id: str
-    name: str | None
-    acronym: str | None
-    countries: list[str] = field(default_factory=list)
 
 
 class LeakyBucketRateLimiter:
@@ -202,76 +199,47 @@ def fetch_terms(context: Context) -> list[Term]:
     return terms
 
 
-def fetch_org(context: Context, org_ref: str, cache: dict[str, OrgInfo]) -> OrgInfo:
-    """Resolve an `org/{id}` reference to its name, acronym and countries."""
-    if org_ref in cache:
-        return cache[org_ref]
+def fetch_org_name(
+    context: Context, org_ref: str, org_names: dict[str, str | None]
+) -> str | None:
+    """Resolve an `org/{id}` reference to the body's full name.
+
+    `org_names` memoises `org/{id}` -> name for the run: the same group or party
+    is referenced by many members, so each body is resolved and audited once.
+    """
+    if org_ref in org_names:
+        return org_names[org_ref]
     local_id = org_ref.split("/", 1)[-1]
     rows = fetch_data(context, f"/corporate-bodies/{local_id}")
     assert len(rows) == 1, (org_ref, len(rows))
     data = rows[0]
-    countries = [
-        c for c in map(last_segment, ensure_list(data.pop("represents", None))) if c
-    ]
-    # prefLabel is the body's full name; altLabel is a shorter form, used as fallback.
-    # Pop both up front so audit_data does not flag the one the `or` would skip.
+    # prefLabel is the full name; altLabel is a fallback. Pop both so audit_data
+    # does not flag the one the `or` would skip. The source uses "-" to mean no name.
     pref_name = pick_label(data.pop("prefLabel"))
     alt_name = pick_label(data.pop("altLabel"))
     name = pref_name or alt_name
-    acronym = data.pop("label")
-    # The API uses "-" as a placeholder for a missing value.
     name = None if name == "-" else name
-    acronym = None if acronym == "-" else acronym
     context.audit_data(data, ignore=ORG_IGNORE)
-    info = OrgInfo(local_id=local_id, name=name, acronym=acronym, countries=countries)
-    cache[org_ref] = info
-    return info
+    org_names[org_ref] = name
+    return name
 
 
-def crawl_group_membership(
-    context: Context,
-    person: Entity,
-    membership: dict[str, Any],
-    is_eu_group: bool,
-    cache: dict[str, OrgInfo],
-) -> None:
-    """Emit the political group or national party and the person's membership in it."""
-    info = fetch_org(context, membership.pop("organization"), cache)
-
-    org = context.make("Organization")
-    # The API uses "-" where it records no party. A nameless organization, and
-    # a membership pointing at one, carry no information.
-    if info.name is None and info.acronym is None:
-        return
-    # The API models a group as a distinct body per term. Key by name so the
-    # same party or group is one entity across terms, not one per term.
-    org.id = context.make_slug(
-        "eu-group" if is_eu_group else "nat-party", info.name or info.local_id
-    )
-    org.add("name", info.name)
-    org.add("abbreviation", info.acronym)
-    if is_eu_group:
-        org.add("country", "eu")
-    else:
-        org.add("country", info.countries)
-    context.emit(org)
-
-    # memberDuring carries the start and end dates of the membership period.
+def membership_period(
+    context: Context, membership: dict[str, Any]
+) -> tuple[str, str | None]:
+    """Pop and audit a membership's period, returning its start and end dates."""
     period = membership.pop("memberDuring")
-    entity = context.make("Membership")
-    entity.id = context.make_id(
-        person.id, org.id, period.get("startDate"), period.get("endDate")
-    )
-    entity.add("member", person)
-    entity.add("organization", org)
-    role = last_segment(membership.pop("role", None))
-    if role is not None:
-        entity.add("role", role.replace("_", " ").lower())
-    h.apply_date(entity, "startDate", period.pop("startDate"))
-    h.apply_date(entity, "endDate", period.pop("endDate", None))
+    start = period.pop("startDate")
+    end = period.pop("endDate", None)
     context.audit_data(period, ignore=PERIOD_IGNORE)
-    context.audit_data(membership, ignore=MEMBERSHIP_IGNORE)
-    context.emit(entity)
+    return start, end
+
+
+def periods_overlap(
+    start: str, end: str | None, other_start: str, other_end: str | None
+) -> bool:
+    """Do two [start, end] date ranges overlap? A missing end is open-ended."""
+    return start <= (other_end or "9999") and other_start <= (end or "9999")
 
 
 def crawl_mep(
@@ -280,7 +248,7 @@ def crawl_mep(
     position: Entity,
     categorisation: PositionCategorisation,
     leadership_positions: dict[str, tuple[Entity, PositionCategorisation]],
-    cache: dict[str, OrgInfo],
+    org_names: dict[str, str | None],
 ) -> None:
     """Fetch one MEP and emit the person, their mandates and group memberships."""
     rows = fetch_data(context, f"/meps/{mep_id}")
@@ -311,13 +279,13 @@ def crawl_mep(
     memberships = ensure_list(data.pop("hasMembership", None))
     context.audit_data(data, ignore=MEP_IGNORE)
 
-    # One occupancy per term: a mandate is an EU_INSTITUTION membership in
-    # org/ep-{term}. make_occupancy decides PEP relevance from the end date and
-    # drops stale ones, so a person is emitted only if a mandate is still relevant.
+    # A mandate is an EU_INSTITUTION membership in org/ep-{term}. make_occupancy
+    # drops stale mandates, so a person is emitted only if one is still relevant.
     occupancies: list[Entity] = []
-    groups: list[tuple[bool, dict[str, Any]]] = []
+    mandate_occupancies: list[tuple[Entity, str, str | None]] = []
+    political_groups: list[tuple[str, str, str | None]] = []
     for membership in memberships:
-        # Consumed here to dispatch; popped so the group handler need not ignore it.
+        # Consumed here to dispatch; popped so the handlers need not ignore it.
         group = last_segment(membership.pop("membershipClassification", None))
         if group == "EU_INSTITUTION":
             org_ref = membership.get("organization")
@@ -333,11 +301,13 @@ def crawl_mep(
             end_date = period.get("endDate")
             # Everyone holds the mandate; a presidency role adds a second position
             # for the same period.
-            held = [(position, categorisation)]
+            held_positions = [(position, categorisation)]
             role = last_segment(membership.get("role"))
             if role is not None and role in leadership_positions:
-                held.append(leadership_positions[role])
-            for held_position, held_categorisation in held:
+                held_positions.append(leadership_positions[role])
+            for index, (held_position, held_categorisation) in enumerate(
+                held_positions
+            ):
                 # The source always lists an end date for a past-term mandate, so a
                 # missing end date only ever means the current, ongoing term.
                 occupancy = h.make_occupancy(
@@ -351,10 +321,25 @@ def crawl_mep(
                 )
                 if occupancy is not None:
                     occupancies.append(occupancy)
+                    if index == 0:
+                        mandate_occupancies.append((occupancy, start_date, end_date))
         elif group == "EU_POLITICAL_GROUP":
-            groups.append((True, membership))
+            # The parliamentary faction is recorded on each occupancy it covers.
+            group_name = fetch_org_name(
+                context, membership.pop("organization"), org_names
+            )
+            group_start, group_end = membership_period(context, membership)
+            context.audit_data(membership, ignore=MEMBERSHIP_IGNORE)
+            if group_name is not None:
+                political_groups.append((group_name, group_start, group_end))
         elif group == "NATIONAL_POLITICAL_GROUP":
-            groups.append((False, membership))
+            # The national party is a political affiliation on the person.
+            party_name = fetch_org_name(
+                context, membership.pop("organization"), org_names
+            )
+            membership_period(context, membership)
+            context.audit_data(membership, ignore=MEMBERSHIP_IGNORE)
+            person.add("political", party_name)
         elif group not in UNMODELLED_CLASSIFICATIONS:
             context.log.warning(
                 "Unknown membership classification", group=group, mep_id=mep_id
@@ -362,11 +347,14 @@ def crawl_mep(
     if not occupancies:
         return
 
+    # Attach each faction to the mandate occupancies its period overlaps.
+    for occupancy, start_date, end_date in mandate_occupancies:
+        for group_name, group_start, group_end in political_groups:
+            if periods_overlap(start_date, end_date, group_start, group_end):
+                occupancy.add("politicalGroup", group_name)
     for occupancy in occupancies:
         context.emit(occupancy)
     context.emit(person)
-    for is_eu_group, membership in groups:
-        crawl_group_membership(context, person, membership, is_eu_group, cache)
 
 
 def make_ep_position(
@@ -424,8 +412,8 @@ def crawl(context: Context) -> None:
             mep_ids.add(str(row["identifier"]))
     context.log.info("Fetched MEP roster", count=len(mep_ids))
 
-    cache: dict[str, OrgInfo] = {}
+    org_names: dict[str, str | None] = {}
     for mep_id in sorted(mep_ids):
         crawl_mep(
-            context, mep_id, position, categorisation, leadership_positions, cache
+            context, mep_id, position, categorisation, leadership_positions, org_names
         )
