@@ -37,10 +37,9 @@ data:
 lookups:
   type.gender:
     options:
-      # The source records male and female directly and uses the human-sex
-      # code NKN for a member who is neither.
+      # The source records male and female directly; NKN ("not known") is dropped.
       - match: NKN
-        value: other
+        value: null
 
 assertions:
   min:
