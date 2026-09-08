@@ -1,16 +1,16 @@
 import re
 from urllib.parse import urlencode, urljoin
+
 from lxml.etree import _Element
 from lxml.html import document_fromstring
 from normality import squash_spaces
-
-from zavod.extract import zyte_api
-from zavod import Context
 from zavod.entity import Entity
-from zavod.helpers import make_position, make_occupancy
+from zavod.extract import zyte_api
+from zavod.helpers import make_occupancy, make_position
 from zavod.stateful.positions import categorise
-from zavod import helpers as h
 
+from zavod import Context
+from zavod import helpers as h
 
 REGEX_BIRTH_PLACE_AND_DATE = re.compile(
     r"\((?P<birthyear>\d{4})\) is geboren in (?P<birthplace>.+)(\.| en woont in)"
@@ -23,7 +23,19 @@ def crawl_person(context: Context, element: _Element, position: Entity) -> None:
     assert anchor is not None, "Failed to extract anchor"
     source_url = urljoin(context.data_url, anchor.get("href"))
     section_xpath = './/main[@class="o-main"]/article/section[2]'
-    doc = zyte_api.fetch_html(context, source_url, section_xpath, cache_days=1)
+    try:
+        doc = zyte_api.fetch_html(context, source_url, section_xpath, cache_days=1)
+    except zyte_api.UnblockFailedException:
+        # The source has been seen to serve a bare HTTP 500 for the page of a
+        # newly seated member. Skip them rather than failing the whole dataset,
+        # but make it visible so we notice if it persists or spreads.
+        context.log.warning(
+            "Failed to fetch member page, skipping member",
+            url=source_url,
+            name=h.element_text(anchor),
+            party=party,
+        )
+        return
     section = doc.find(section_xpath)
     assert section is not None, "Failed to extract main section"
 
@@ -95,11 +107,11 @@ def crawl(context: Context) -> None:
 
     # This API returns a couple objects to update DOM state, out of which one
     # is a "insert" object containing the HTML we're interested in
-    html = [
+    html = next(
         obj["data"]
         for obj in data
         if "data" in obj and isinstance(obj["data"], str) and view_dom_id in obj["data"]
-    ][0]
+    )
 
     doc = document_fromstring(html)
     for element in doc.findall('.//div[@class="m-card__content"]'):
