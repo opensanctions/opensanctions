@@ -1,112 +1,419 @@
-from zavod.entity import Entity
-from zavod.extract.zyte_api import ZyteAPIRequest, ZyteScrapeType, fetch as zyte_fetch
-from zavod.stateful.positions import PositionCategorisation, categorise
-from zavod.util import Element
+import time
+from dataclasses import dataclass
+from typing import Any
+
+from banal import ensure_list
+from requests.exceptions import HTTPError
+from rigour.urls import build_url
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
+from zavod.runtime.http_ import request_hash
+from zavod.stateful.positions import PositionCategorisation, categorise
+
+# One term roster fits in a single response; a full page would mean truncation.
+ROSTER_LIMIT = 10000
+
+# Fields each record type carries that the crawler deliberately leaves unmapped.
+# Every object the API returns has `id` (the JSON-LD node IRI) and `type` (the
+# JSON-LD @type tag).
+
+# A PeriodOfTime, as carried by `temporal` and `memberDuring`.
+PERIOD_IGNORE = ["id", "type"]
+
+# A parliamentary term, i.e. the `org/ep-{n}` corporate body.
+TERM_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "identifier",  # term number, already the loop index
+    "label",  # term number as a label
+    "altLabel",  # always "European Parliament"
+    "prefLabel",  # always "European Parliament"
+    "classification",  # always EU_INSTITUTION
+    "represents",  # not set on the institution body
+    "source",  # EP provenance flag
+    "linkedTo",  # refs to related bodies
+    "isVersionOf",  # parent body ref
+    "notation_codictBodyId",  # internal EP id
+    "notation_providerTemporalBodyId",  # internal EP id
+]
+
+# A political group or national party, i.e. an `org/{id}` corporate body. Only the
+# full name is kept.
+ORG_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "identifier",  # numeric body id, part of the URL already
+    "label",  # acronym, not kept
+    "classification",  # group/committee type
+    "represents",  # represented country, not kept
+    "temporal",  # the body's own date range, unused
+    "source",  # EP provenance flag
+    "linkedTo",  # refs to related bodies
+    "isVersionOf",  # term-invariant parent group ref (e.g. org/PPE)
+    "notation_codictBodyId",  # internal EP id
+    "notation_providerTemporalBodyId",  # internal EP id
+]
+
+# A membership of a political group or national party. Only the body and period
+# are kept; the group goes on the occupancy and the party on the person.
+MEMBERSHIP_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "identifier",  # internal membership id
+    "role",  # the member's function in the body, not kept
+    "notation_codictFunctionId",  # internal EP function id
+    "contactPoint",  # office address and phone, not modelled
+]
+
+# An MEP.
+MEP_IGNORE = [
+    "id",  # JSON-LD node IRI
+    "type",  # JSON-LD @type tag
+    "notation_codictPersonId",  # internal EP id, duplicate of identifier
+    "hasEmail",  # contact detail, not screening-relevant
+    "hasHonorificPrefix",  # honorific (Mr/Ms)
+    "homepage",  # personal website, not modelled
+    "account",  # social media accounts, not modelled
+    "img",  # portrait photo URL
+    "sortLabel",  # sorting key, redundant with the name
+    "upperFamilyName",  # uppercase form of familyName
+    "upperGivenName",  # uppercase form of givenName
+    "upperOfficialFamilyName",  # uppercase form of the native family name
+    "upperOfficialGivenName",  # uppercase form of the native given name
+]
+
+# `def/ep-entities` membership classifications the crawler does not model: the
+# committees, delegations and working groups a member sits on within the
+# parliament. The mandate itself already establishes political exposure. `None`
+# is the mandate re-published without a classification, plus a few memberships
+# the source has not classified yet. An unlisted value warns instead.
+UNMODELLED_CLASSIFICATIONS: set[str | None] = {
+    "COMMITTEE_PARLIAMENTARY_STANDING",
+    "COMMITTEE_PARLIAMENTARY_SUB",
+    "COMMITTEE_PARLIAMENTARY_SPECIAL",
+    "COMMITTEE_PARLIAMENTARY_TEMPORARY",
+    "DELEGATION_PARLIAMENTARY",
+    "DELEGATION_PARLIAMENTARY_ASSEMBLY",
+    "DELEGATION_JOINT_COMMITTEE",
+    "WORKING_GROUP",
+    "GOVERNING_BODY",
+    None,
+}
+
+# A member can hold a presidency role for part of a term alongside the mandate.
+# Each is emitted as its own Position, identified by Wikidata QID.
+LEADERSHIP_POSITIONS: dict[str, tuple[str, str]] = {
+    "PRESIDENT": ("President of the European Parliament", "Q740126"),
+    "PRESIDENT_ACTING": ("President of the European Parliament", "Q740126"),
+    "PRESIDENT_VICE": ("Vice-President of the European Parliament", "Q7925068"),
+    "QUAESTOR": ("Quaestor of the European Parliament", "Q7268455"),
+}
 
 
-def split_name(name: str) -> tuple[str, str] | tuple[None, None]:
-    """Returns (first_name, last_name), or (None, None) if no uppercase suffix found."""
-    for i in range(len(name)):
-        last_name = name[i:].strip()
-        if last_name == last_name.upper():
-            last_name = last_name.strip()
-            first_name = name[:i].strip()
-            return first_name, last_name
-    return None, None
+@dataclass
+class Term:
+    number: int
+    start: str | None
+    end: str | None
 
 
-def crawl_node(
+class LeakyBucketRateLimiter:
+    """Leaky-bucket rate limiter: paces calls to `rate` per second by sleeping."""
+
+    def __init__(self, rate: float) -> None:
+        self._interval = 1.0 / rate
+        self._tat = time.monotonic()
+
+    def acquire(self) -> None:
+        now = time.monotonic()
+        self._tat = max(self._tat, now)
+        if self._tat > now:
+            time.sleep(self._tat - now)
+        self._tat += self._interval
+
+
+# The API allows 500 requests per 5 minutes (~1.67/s); 1.5/s keeps a safety margin.
+rate_limiter = LeakyBucketRateLimiter(1.5)
+
+
+def last_segment(value: Any) -> str | None:
+    """Return the last path segment of an EU authority URI, e.g.
+    `.../country/BEL` -> `BEL`, `.../human-sex/MALE` -> `MALE`."""
+    if isinstance(value, list):
+        value = value[0] if value else None
+    if not isinstance(value, str) or not value:
+        return None
+    return value.rsplit("/", 1)[-1]
+
+
+def pick_label(value: Any) -> str | None:
+    """Return a label: an API string, or English (else any) from a language-keyed dict."""
+    if isinstance(value, str):
+        return value
+    if not isinstance(value, dict):
+        return None
+    strings = [v for v in value.values() if isinstance(v, str)]
+    return (
+        value["en"] if isinstance(value.get("en"), str) else next(iter(strings), None)
+    )
+
+
+def fetch_data(
+    context: Context, path: str, cache_days: int = 7, **params: Any
+) -> list[Any]:
+    """Fetch a JSON-LD endpoint and return its `data` array."""
+    params.setdefault("format", "application/ld+json")
+    url = f"https://data.europarl.europa.eu/api/v2{path}"
+    # Ideally fetch_json would report whether this was a cache hit, or support rate
+    # limiting itself; absent that, recreate its cache fingerprint here so we only
+    # pace on a real network call.
+    fingerprint = request_hash(build_url(url, params))
+    if context.cache.get(fingerprint, max_age=cache_days) is None:
+        rate_limiter.acquire()
+    body = context.fetch_json(url, params=params, cache_days=cache_days)
+    return ensure_list(body["data"])
+
+
+def fetch_terms(context: Context) -> list[Term]:
+    """Walk the parliament institution bodies `org/ep-{n}` to learn each term's
+    date range. Stop at the first term that does not exist."""
+    terms: list[Term] = []
+    # 16 is far above any real term number; the loop stops at the first 404.
+    for number in range(1, 16):
+        try:
+            rows = fetch_data(context, f"/corporate-bodies/ep-{number}")
+        except HTTPError as err:
+            if err.response is not None and err.response.status_code == 404:
+                break
+            raise
+        assert len(rows) == 1, (number, len(rows))
+        body = rows[0]
+        temporal = body.pop("temporal")
+        term_start = temporal.pop("startDate")
+        term_end = temporal.pop("endDate", None)
+        context.audit_data(temporal, ignore=PERIOD_IGNORE)
+        context.audit_data(body, ignore=TERM_IGNORE)
+        terms.append(Term(number, term_start, term_end))
+    return terms
+
+
+def fetch_org_name(
+    context: Context, org_ref: str, org_names: dict[str, str | None]
+) -> str | None:
+    """Resolve an `org/{id}` reference to the body's full name.
+
+    `org_names` memoises `org/{id}` -> name for the run: the same group or party
+    is referenced by many members, so each body is resolved and audited once.
+    """
+    if org_ref in org_names:
+        return org_names[org_ref]
+    local_id = org_ref.split("/", 1)[-1]
+    rows = fetch_data(context, f"/corporate-bodies/{local_id}")
+    assert len(rows) == 1, (org_ref, len(rows))
+    data = rows[0]
+    # prefLabel is the full name; altLabel is a fallback. Pop both so audit_data
+    # does not flag the one the `or` would skip. The source uses "-" to mean no name.
+    pref_name = pick_label(data.pop("prefLabel"))
+    alt_name = pick_label(data.pop("altLabel"))
+    name = pref_name or alt_name
+    name = None if name == "-" else name
+    context.audit_data(data, ignore=ORG_IGNORE)
+    org_names[org_ref] = name
+    return name
+
+
+def membership_period(
+    context: Context, membership: dict[str, Any]
+) -> tuple[str, str | None]:
+    """Pop and audit a membership's period, returning its start and end dates."""
+    period = membership.pop("memberDuring")
+    start = period.pop("startDate")
+    end = period.pop("endDate", None)
+    context.audit_data(period, ignore=PERIOD_IGNORE)
+    return start, end
+
+
+def periods_overlap(
+    start: str, end: str | None, other_start: str, other_end: str | None
+) -> bool:
+    """Do two [start, end] date ranges overlap? A missing end is open-ended."""
+    return start <= (other_end or "9999") and other_start <= (end or "9999")
+
+
+def crawl_mep(
     context: Context,
-    node: Element,
+    mep_id: str,
     position: Entity,
     categorisation: PositionCategorisation,
+    leadership_positions: dict[str, tuple[Entity, PositionCategorisation]],
+    org_names: dict[str, str | None],
 ) -> None:
-    mep_id = node.findtext(".//id")
+    """Fetch one MEP and emit the person, their mandates and group memberships."""
+    rows = fetch_data(context, f"/meps/{mep_id}")
+    if not rows:
+        context.log.warning("No data for MEP", mep_id=mep_id)
+        return
+    data = rows[0]
+
     person = context.make("Person")
-    person.id = context.make_slug(mep_id)
-    url = f"http://www.europarl.europa.eu/meps/en/{mep_id}"
-    person.add("sourceUrl", url)
-    name = node.findtext(".//fullName")
-    assert name is not None
-    person.add("name", name)
-    first_name, last_name = split_name(name)
-    person.add("firstName", first_name)
-    person.add("lastName", last_name)
-    person.add("citizenship", node.findtext(".//country"))
-    person.add("topics", "role.pep")
-
-    occupancy = h.make_occupancy(
-        context,
+    person.id = context.make_slug(data.pop("identifier"))
+    # Names are plain strings, but gender and citizenship are EU authority URIs.
+    person.add("name", pick_label(data.pop("label")))
+    person.add("firstName", data.pop("givenName", None))
+    person.add("lastName", data.pop("familyName", None))
+    # Cyrillic- and Greek-name MEPs also carry their name in the native script.
+    h.apply_name(
         person,
-        position,
-        categorisation=categorisation,
+        given_name=data.pop("officialGivenName", None),
+        last_name=data.pop("officialFamilyName", None),
     )
-    if occupancy is not None:
-        context.emit(occupancy)
+    person.add("gender", last_segment(data.pop("hasGender", None)))
+    person.add("birthPlace", data.pop("placeOfBirth", None))
+    for citizenship in ensure_list(data.pop("citizenship", None)):
+        person.add("citizenship", last_segment(citizenship))
+    h.apply_date(person, "birthDate", data.pop("bday", None))
+    h.apply_date(person, "deathDate", data.pop("deathDate", None))
+    person.add("sourceUrl", f"https://www.europarl.europa.eu/meps/en/{mep_id}")
+    memberships = ensure_list(data.pop("hasMembership", None))
+    context.audit_data(data, ignore=MEP_IGNORE)
 
+    # A mandate is an EU_INSTITUTION membership in org/ep-{term}. make_occupancy
+    # drops stale mandates, so a person is emitted only if one is still relevant.
+    occupancies: list[Entity] = []
+    mandate_occupancies: list[tuple[Entity, str, str | None]] = []
+    political_groups: list[tuple[str, str, str | None]] = []
+    for membership in memberships:
+        # Consumed here to dispatch; popped so the handlers need not ignore it.
+        group = last_segment(membership.pop("membershipClassification", None))
+        if group == "EU_INSTITUTION":
+            org_ref = membership.get("organization")
+            if not isinstance(org_ref, str) or not org_ref.startswith("org/ep-"):
+                context.log.warning(
+                    "Mandate is not held in a parliamentary term",
+                    organization=org_ref,
+                    mep_id=mep_id,
+                )
+                continue
+            period = membership["memberDuring"]
+            start_date = period["startDate"]
+            end_date = period.get("endDate")
+            # Everyone holds the mandate; a presidency role adds a second position
+            # for the same period.
+            held_positions = [(position, categorisation)]
+            role = last_segment(membership.get("role"))
+            if role is not None and role in leadership_positions:
+                held_positions.append(leadership_positions[role])
+            for index, (held_position, held_categorisation) in enumerate(
+                held_positions
+            ):
+                # The source always lists an end date for a past-term mandate, so a
+                # missing end date only ever means the current, ongoing term.
+                occupancy = h.make_occupancy(
+                    context,
+                    person,
+                    held_position,
+                    start_date=start_date,
+                    end_date=end_date,
+                    no_end_implies_current=True,
+                    categorisation=held_categorisation,
+                )
+                if occupancy is not None:
+                    occupancies.append(occupancy)
+                    if index == 0:
+                        mandate_occupancies.append((occupancy, start_date, end_date))
+        elif group == "EU_POLITICAL_GROUP":
+            # The parliamentary faction is recorded on each occupancy it covers.
+            group_name = fetch_org_name(
+                context, membership.pop("organization"), org_names
+            )
+            group_start, group_end = membership_period(context, membership)
+            context.audit_data(membership, ignore=MEMBERSHIP_IGNORE)
+            if group_name is not None:
+                political_groups.append((group_name, group_start, group_end))
+        elif group == "NATIONAL_POLITICAL_GROUP":
+            # The national party is a political affiliation on the person.
+            party_name = fetch_org_name(
+                context, membership.pop("organization"), org_names
+            )
+            membership_period(context, membership)
+            context.audit_data(membership, ignore=MEMBERSHIP_IGNORE)
+            person.add("political", party_name)
+        elif group not in UNMODELLED_CLASSIFICATIONS:
+            context.log.warning(
+                "Unknown membership classification", group=group, mep_id=mep_id
+            )
+    if not occupancies:
+        return
+
+    # Attach each faction to the mandate occupancies its period overlaps.
+    for occupancy, start_date, end_date in mandate_occupancies:
+        for group_name, group_start, group_end in political_groups:
+            if periods_overlap(start_date, end_date, group_start, group_end):
+                occupancy.add("politicalGroup", group_name)
+    for occupancy in occupancies:
+        context.emit(occupancy)
     context.emit(person)
 
-    party_name = node.findtext(".//nationalPoliticalGroup")
-    if party_name not in ["Independent"]:
-        party = context.make("Organization")
-        party.id = context.make_slug("npg", party_name)
-        if party.id is not None:
-            party.add("name", party_name)
-            party.add("country", node.findtext(".//country"))
-            context.emit(party)
-            membership = context.make("Membership")
-            membership.id = context.make_id(person.id, party.id)
-            membership.add("member", person)
-            membership.add("organization", party)
-            context.emit(membership)
 
-    group_name = node.findtext(".//politicalGroup")
-    group = context.make("Organization")
-    group.id = context.make_slug("pg", group_name)
-    if group.id is not None:
-        group.add("name", group_name)
-        group.add("country", "eu")
-        context.emit(group)
-        membership = context.make("Membership")
-        membership.id = context.make_id(person.id, group.id)
-        membership.add("member", person)
-        membership.add("organization", group)
-        context.emit(membership)
-
-
-def crawl(context: Context) -> None:
-    # The European Parliament put the MEP list endpoint behind an AWS WAF
-    # JavaScript challenge (HTTP 202 with an x-amzn-waf-action: challenge
-    # header), which neither a direct fetch nor Zyte's plain HTTP mode can
-    # pass. Solve the challenge in a Zyte browser session, then reuse the
-    # issued aws-waf-token cookie for the actual XML fetch.
-    page_result = zyte_fetch(
-        context,
-        ZyteAPIRequest(
-            url=context.data_url,
-            scrape_type=ZyteScrapeType.BROWSER_HTML,
-            response_cookies=True,
-        ),
-    )
-    for cookie in page_result.cookies or []:
-        context.http.cookies[cookie["name"]] = cookie["value"]
-
-    path = context.fetch_resource("source.xml", context.data_url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-    doc = context.parse_resource_xml(path)
-
+def make_ep_position(
+    context: Context, name: str, wikidata_id: str
+) -> tuple[Entity, PositionCategorisation]:
+    """Build a European Parliament position and its PEP categorisation."""
     position = h.make_position(
         context,
-        "Member of the European Parliament",
-        wikidata_id="Q27169",
+        name,
+        wikidata_id=wikidata_id,
         country="eu",
         topics=["gov.igo", "gov.legislative"],
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    return position, categorise(context, position, default_is_pep=True)
+
+
+def crawl(context: Context) -> None:
+    """Crawl MEPs from every parliamentary term within the PEP relevance window."""
+    position, categorisation = make_ep_position(
+        context, "Member of the European Parliament", "Q27169"
+    )
+    # The position may have been un-flagged as a PEP position in the review UI.
+    if not categorisation.is_pep:
+        return
     context.emit(position)
-    for node in doc.findall(".//mep"):
-        crawl_node(context, node, position, categorisation)
+
+    leadership_positions: dict[str, tuple[Entity, PositionCategorisation]] = {}
+    for role, (name, wikidata_id) in LEADERSHIP_POSITIONS.items():
+        lead_position, lead_categorisation = make_ep_position(
+            context, name, wikidata_id
+        )
+        if lead_categorisation.is_pep:
+            context.emit(lead_position)
+            leadership_positions[role] = (lead_position, lead_categorisation)
+
+    # Keep terms that are ongoing or ended within the PEP relevance window.
+    cutoff = h.earliest_term_start(position.get("topics"))
+    terms = [t for t in fetch_terms(context) if t.end is None or t.end >= cutoff]
+    context.log.info(
+        "Crawling MEP terms within PEP relevance window",
+        cutoff=cutoff,
+        terms=[t.number for t in terms],
+    )
+
+    mep_ids: set[str] = set()
+    for term in terms:
+        rows = fetch_data(
+            context,
+            "/meps",
+            **{"parliamentary-term": term.number, "limit": ROSTER_LIMIT},
+        )
+        assert len(rows) < ROSTER_LIMIT, (term.number, len(rows))
+        for row in rows:
+            mep_ids.add(str(row["identifier"]))
+    context.log.info("Fetched MEP roster", count=len(mep_ids))
+
+    org_names: dict[str, str | None] = {}
+    for mep_id in sorted(mep_ids):
+        crawl_mep(
+            context, mep_id, position, categorisation, leadership_positions, org_names
+        )
