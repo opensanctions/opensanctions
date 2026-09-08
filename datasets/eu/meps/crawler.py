@@ -12,7 +12,7 @@ from zavod.entity import Entity
 from zavod.runtime.http_ import request_hash
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# One term roster fits in a single response; this bounds it and flags overflow.
+# One term roster fits in a single response; a full page would mean truncation.
 ROSTER_LIMIT = 10000
 
 # Fields each record type carries that the crawler deliberately leaves unmapped.
@@ -95,6 +95,15 @@ UNMODELLED_CLASSIFICATIONS: set[str | None] = {
     "WORKING_GROUP",
     "GOVERNING_BODY",
     None,
+}
+
+# A member can hold a presidency role for part of a term alongside the mandate.
+# Each is emitted as its own Position, identified by Wikidata QID.
+LEADERSHIP_POSITIONS: dict[str, tuple[str, str]] = {
+    "PRESIDENT": ("President of the European Parliament", "Q740126"),
+    "PRESIDENT_ACTING": ("President of the European Parliament", "Q740126"),
+    "PRESIDENT_VICE": ("Vice-President of the European Parliament", "Q7925068"),
+    "QUAESTOR": ("Quaestor of the European Parliament", "Q7268455"),
 }
 
 
@@ -270,6 +279,7 @@ def crawl_mep(
     mep_id: str,
     position: Entity,
     categorisation: PositionCategorisation,
+    leadership_positions: dict[str, tuple[Entity, PositionCategorisation]],
     cache: dict[str, OrgInfo],
 ) -> None:
     """Fetch one MEP and emit the person, their mandates and group memberships."""
@@ -319,19 +329,28 @@ def crawl_mep(
                 )
                 continue
             period = membership["memberDuring"]
-            occupancy = h.make_occupancy(
-                context,
-                person,
-                position,
-                start_date=period["startDate"],
-                end_date=period.get("endDate"),
+            start_date = period["startDate"]
+            end_date = period.get("endDate")
+            # Everyone holds the mandate; a presidency role adds a second position
+            # for the same period.
+            held = [(position, categorisation)]
+            role = last_segment(membership.get("role"))
+            if role is not None and role in leadership_positions:
+                held.append(leadership_positions[role])
+            for held_position, held_categorisation in held:
                 # The source always lists an end date for a past-term mandate, so a
                 # missing end date only ever means the current, ongoing term.
-                no_end_implies_current=True,
-                categorisation=categorisation,
-            )
-            if occupancy is not None:
-                occupancies.append(occupancy)
+                occupancy = h.make_occupancy(
+                    context,
+                    person,
+                    held_position,
+                    start_date=start_date,
+                    end_date=end_date,
+                    no_end_implies_current=True,
+                    categorisation=held_categorisation,
+                )
+                if occupancy is not None:
+                    occupancies.append(occupancy)
         elif group == "EU_POLITICAL_GROUP":
             groups.append((True, membership))
         elif group == "NATIONAL_POLITICAL_GROUP":
@@ -350,21 +369,39 @@ def crawl_mep(
         crawl_group_membership(context, person, membership, is_eu_group, cache)
 
 
-def crawl(context: Context) -> None:
-    """Crawl MEPs from every parliamentary term within the PEP relevance window."""
+def make_ep_position(
+    context: Context, name: str, wikidata_id: str
+) -> tuple[Entity, PositionCategorisation]:
+    """Build a European Parliament position and its PEP categorisation."""
     position = h.make_position(
         context,
-        "Member of the European Parliament",
-        wikidata_id="Q27169",
+        name,
+        wikidata_id=wikidata_id,
         country="eu",
         topics=["gov.igo", "gov.legislative"],
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    return position, categorise(context, position, default_is_pep=True)
+
+
+def crawl(context: Context) -> None:
+    """Crawl MEPs from every parliamentary term within the PEP relevance window."""
+    position, categorisation = make_ep_position(
+        context, "Member of the European Parliament", "Q27169"
+    )
     # The position may have been un-flagged as a PEP position in the review UI.
     if not categorisation.is_pep:
         return
     context.emit(position)
+
+    leadership_positions: dict[str, tuple[Entity, PositionCategorisation]] = {}
+    for role, (name, wikidata_id) in LEADERSHIP_POSITIONS.items():
+        lead_position, lead_categorisation = make_ep_position(
+            context, name, wikidata_id
+        )
+        if lead_categorisation.is_pep:
+            context.emit(lead_position)
+            leadership_positions[role] = (lead_position, lead_categorisation)
 
     # Keep terms that are ongoing or ended within the PEP relevance window.
     cutoff = h.earliest_term_start(position.get("topics"))
@@ -382,12 +419,13 @@ def crawl(context: Context) -> None:
             "/meps",
             **{"parliamentary-term": term.number, "limit": ROSTER_LIMIT},
         )
-        if len(rows) >= ROSTER_LIMIT:
-            context.log.warning("Term roster may be truncated", term=term.number)
+        assert len(rows) < ROSTER_LIMIT, (term.number, len(rows))
         for row in rows:
             mep_ids.add(str(row["identifier"]))
     context.log.info("Fetched MEP roster", count=len(mep_ids))
 
     cache: dict[str, OrgInfo] = {}
     for mep_id in sorted(mep_ids):
-        crawl_mep(context, mep_id, position, categorisation, cache)
+        crawl_mep(
+            context, mep_id, position, categorisation, leadership_positions, cache
+        )
