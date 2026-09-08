@@ -18,27 +18,61 @@ Schema = Literal[
 
 MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
 
-schema_field = Field(
-    description=(
-        "- 'Person', if the name refers to an individual human."
-        "- 'Vessel', if the name refers to a ship or vessel."
-        "- 'Airplane', if the name refers to an aircraft."
-        "- 'Company', for entities with a clear legal form (e.g., Inc, LLC, SA de CV)."
-        "- 'Organization', for groups like terrorist groups, cartels or government bodies."
-        "- 'LegalEntity', when it is unclear if the entity is a person, company or organization."
-        "NEVER invent new schema labels."
-    )
+LEGAL_FORMS = (
+    "LLC, Ltd, Limited, Inc, Corp, Corporation, Co, SA, S.A., SA de CV, SAL, SARL, "
+    "GmbH, AG, BV, NV, BVBA, SPA, SRL, PLC, Pte, FZE, FZCO, FZ LLC, DMCC, DOOEL, "
+    "AD, OU, OOO, AO, OAO, PAO, ZAO, JSC, OJSC, PJSC, Kft, EOOD, SIA"
+)
+
+SCHEMA_DESC = (
+    "- 'Person', if the name refers to an individual human.\n"
+    "- 'Vessel', if the name refers to a ship. Not for the company that owns "
+    "or manages it, even if the company name contains 'Offshore' or 'Shipping'.\n"
+    "- 'Airplane', if the name refers to an aircraft.\n"
+    f"- 'Company', for any entity whose name carries a legal form such as {LEGAL_FORMS}, "
+    "or that is described as a company, firm, bank, exchange or business.\n"
+    "- 'Organization', ONLY for unincorporated groups: terrorist groups, cartels, "
+    "criminal organizations, hacker groups, political parties, government ministries "
+    "and agencies, military and intelligence units.\n"
+    "- 'LegalEntity', when it is unclear if the entity is a person, company or organization.\n"
+    "NEVER invent new schema labels."
+)
+NAME_DESC = (
+    "The name exactly as written in the article, with these removals: "
+    "a parenthetical acronym or short reference following the name, e.g. "
+    "'Ministry of Defense and Armed Forces Logistics (MODAFL)' becomes "
+    "'Ministry of Defense and Armed Forces Logistics'; a quoted nickname inside a "
+    "name, e.g. 'Nicolas \"Nicolasito\" Ernesto Maduro Guerra' becomes "
+    "'Nicolas Ernesto Maduro Guerra'; a title, rank or honorific before the name. "
+    "Keep legal-form suffixes such as LLC or S.A."
+)
+NATIONALITY_DESC = (
+    "For a Person only: the nationality stated in the article, as a country name "
+    "('Russia', not 'Russian'). Empty if not stated or if the entity is not a Person."
+)
+IMO_DESC = "For a Vessel only: the IMO number, only when explicitly stated."
+COUNTRY_DESC = (
+    "Countries the article explicitly gives as the entity's location of residence, "
+    "registration, incorporation or operation, as country names. Do not infer a "
+    "country from a nationality, a name or a language."
+)
+RELATED_URL_DESC = (
+    "URLs in the article whose target page is specifically about this entity, "
+    "e.g. a State Department profile or rewards page for the person, an FBI wanted "
+    "page, a Justice Department indictment announcement, or an OFAC enforcement "
+    "action against the entity. Do NOT include links to OFAC 'Recent Actions' pages, "
+    "sanctions program pages, executive orders, general licenses, FAQs or other "
+    "pages that are not about this specific entity. Copy URLs exactly as written."
 )
 
 
 class Designee(BaseModel):
-    entity_schema: Schema = schema_field
-    name: str
-    aliases: list[str] = []
-    nationality: list[str] = []
-    imo: list[str] = []
-    country: list[str] = []
-    related_url: list[str] = []
+    entity_schema: Schema = Field(description=SCHEMA_DESC)
+    name: str = Field(description=NAME_DESC)
+    nationality: list[str] = Field(default_factory=list, description=NATIONALITY_DESC)
+    imo: list[str] = Field(default_factory=list, description=IMO_DESC)
+    country: list[str] = Field(default_factory=list, description=COUNTRY_DESC)
+    related_url: list[str] = Field(default_factory=list, description=RELATED_URL_DESC)
 
 
 class Designees(BaseModel):
@@ -54,6 +88,10 @@ Extract sanctions designees, linked entities, vessels and aircraft from this OFA
 - NEVER infer, assume, or generate values not directly stated in the source text
 - Extract ONLY information explicitly written in the article
 - If data is not provided for a field, leave it empty
+- Only extract entities the article names. NEVER construct a descriptive name for an
+  unnamed entity, e.g. "Turkish company that imports motion control products"
+- Do NOT extract aliases, nicknames, acronyms, online monikers, former names or any
+  other alternative names. These are captured from OFAC's structured data elsewhere.
 - Do not create or modify URLs
 - Do not invent any country information
 </strict_requirements>
@@ -64,61 +102,29 @@ EXCLUDE from extraction:
 - US federal government entities (e.g., Department of Treasury, SEC, OFAC itself)
 </exclusions>
 
-<entity_classification>
-When determining entity_schema:
-- Available options: {schema_field.description}
-</entity_classification>
-
 <name_references>
-IMPORTANT: When an entity is introduced with their full name and then referred to by a shortened
-version throughout the text, the shortened version is NOT an alias—it's simply a narrative reference.
-
-Example: If the text introduces "Sadiq Abbas Habib Sayyed" and then refers to him as "Sayyed"
-throughout, "Sayyed" is just a reference, not an alias.
+This source introduces a subject with their full name followed by a short form in
+brackets, and then uses the short form for the rest of the article, e.g.
+"Retired Major General Denis Membreno Rivas (Membreno)". The bracketed short form,
+the later references, and the rank are not part of the name. The name is
+"Denis Membreno Rivas". Emit one entry per entity, not one per way of referring to it.
 </name_references>
 
 <extraction_fields>
 For each entity found, extract these fields:
 
-1. **name**: The exact and full legal name as written in the article.
-    - If the name is followed by an acronym or reference in brackets, DO NOT include this in the name.
+1. **name**: {NAME_DESC}
 
-2. **entity_schema**: Select from available schema types: {schema_field.description}
+2. **entity_schema**: one of
+{SCHEMA_DESC}
 
-3. **aliases**: Alternative names or business names ONLY if they meet ALL these criteria:
-   - Must be explicitly marked with alias indicators: "also known as", "a.k.a.", "aka", "formerly
-     known as", "fka", "doing business as", "d/b/a", or similar explicit markers
-   - Must represent a genuinely different name, not just a shortened reference
-   - Extract ONLY the alternative name itself, not the indicator phrase
+3. **nationality**: {NATIONALITY_DESC}
 
-   NEVER extract as aliases:
-   - Parenthetical abbreviations or shortened forms of the main name
-     Example: "Sadiq Abbas Habib Sayyed (Sayyed)" → "Sayyed" is NOT an alias
-   - Subsequent narrative references using partial names
-     Example: After introducing "John Smith", later references to "Smith" are NOT aliases
-   - Company names without legal suffixes when the full name includes them
-     Example: "Acme Corporation" referred to as "Acme" is NOT an alias
-   - Pronouns or descriptive references ("the defendant", "the company", etc.)
+4. **imo**: {IMO_DESC}
 
-   Valid alias example:
-   - "KS International Traders (a.k.a. 'KS Pharmacy')" → "KS Pharmacy" IS an alias
+5. **country**: {COUNTRY_DESC}
 
-4. **nationality**: For individuals ONLY - their stated nationality
-   - Leave empty if not explicitly mentioned or if entity is not a Person
-
-5. **imo**: International Maritime Organization number
-   - For vessels ONLY when explicitly stated
-
-6. **country**: Countries mentioned as:
-   - Residence location
-   - Registration location
-   - Operation location
-   - MUST be explicitly stated, not inferred
-
-7. **related_url**: URLs specifically associated with the entity
-   - Link each URL only to its associated entity
-   - Leave empty if no URL is provided
-   - Do not modify or invent URLs
+6. **related_url**: {RELATED_URL_DESC}
 </extraction_fields>
 """
 
@@ -141,7 +147,6 @@ def crawl_item(
     if entity.schema == "Vessel":
         entity.add("imoNumber", item.imo, origin=origin)
     entity.add("country", item.country, origin=origin)
-    entity.add("alias", item.aliases, origin=origin)
     entity.add("sourceUrl", item.related_url, origin=origin)
     entity.add("sourceUrl", url)
 
@@ -161,7 +166,8 @@ def crawl_press_release(context: Context, url: str) -> None:
     article_content = article.findall(".//article[@class='entity--type-node']")
     for img in article.findall(".//img"):
         # Images pasted from Office carry a megabytes-long base64 copy of the graphic here.
-        img.attrib.pop("o:gfxdata", None)
+        if "o:gfxdata" in img.attrib:
+            del img.attrib["o:gfxdata"]
         img_src = img.get("src")
         if img_src is None or img_src.startswith("data:image"):
             img_parent = img.getparent()
