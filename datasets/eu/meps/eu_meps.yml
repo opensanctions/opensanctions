@@ -35,6 +35,14 @@ data:
   url: https://data.europarl.europa.eu/api/v2/meps
   format: JSON
 
+lookups:
+  type.gender:
+    options:
+      # The source records male and female directly and uses the human-sex
+      # code NKN for a member who is neither.
+      - match: NKN
+        value: other
+
 assertions:
   min:
     schema_entities:

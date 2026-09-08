@@ -255,7 +255,7 @@ def crawl_group_membership(
     )
     entity.add("member", person)
     entity.add("organization", org)
-    role = last_segment(membership.pop("role"))
+    role = last_segment(membership.pop("role", None))
     if role is not None:
         entity.add("role", role.replace("_", " ").lower())
     h.apply_date(entity, "startDate", period.pop("startDate"))
