@@ -13,7 +13,7 @@ from zavod import Context
 from zavod import helpers as h
 
 REGEX_BIRTH_PLACE_AND_DATE = re.compile(
-    r"\((?P<birthyear>\d{4})\) is geboren in (?P<birthplace>.+)(\.| en woont in)"
+    r"\((?P<birthyear>\d{4})\) is geboren in (?P<birthplace>.+?)(\.| en woont in)"
 )
 
 
