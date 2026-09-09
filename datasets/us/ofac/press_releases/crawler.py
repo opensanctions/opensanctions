@@ -18,6 +18,19 @@ Schema = Literal[
 
 MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
 
+BODY_FIELD_XPATH = ".//div[contains(@class, 'field--name-field-news-body')]"
+# Besides the press release itself, the Drupal node wrapper renders editorial fields,
+# e.g. the "Use featured image: Off" flag Treasury dropped from the template in August
+# 2026. Reviews are matched on the text of the source element, so such template churn
+# invalidates every accepted review. Keep only the publication date and the body.
+NON_CONTENT_FIELD_XPATH = (
+    ".//div[contains(@class, 'field--name-')]"
+    "[not(contains(@class, 'field--name-field-news-publication-date'))]"
+    "[not(contains(@class, 'field--name-field-news-body'))]"
+    # Fields nested inside the body, such as an inline image, are part of the article.
+    "[not(ancestor::div[contains(@class, 'field--name-field-news-body')])]"
+)
+
 schema_field = Field(
     description=(
         "- 'Person', if the name refers to an individual human."
@@ -161,7 +174,8 @@ def crawl_press_release(context: Context, url: str) -> None:
     article_content = article.findall(".//article[@class='entity--type-node']")
     for img in article.findall(".//img"):
         # Images pasted from Office carry a megabytes-long base64 copy of the graphic here.
-        img.attrib.pop("o:gfxdata", None)
+        if "o:gfxdata" in img.attrib:
+            del img.attrib["o:gfxdata"]
         img_src = img.get("src")
         if img_src is None or img_src.startswith("data:image"):
             img_parent = img.getparent()
@@ -169,6 +183,12 @@ def crawl_press_release(context: Context, url: str) -> None:
                 img_parent.remove(img)
     assert len(article_content) == 1
     article_element = article_content[0]
+    # Crash instead of reviewing a stripped article if the body field gets renamed.
+    h.xpath_element(article_element, BODY_FIELD_XPATH)
+    for field in h.xpath_elements(article_element, NON_CONTENT_FIELD_XPATH):
+        field_parent = field.getparent()
+        if field_parent is not None:
+            field_parent.remove(field)
     date = h.xpath_strings(article_element, ".//time[@class='datetime']/@datetime")[0]
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
