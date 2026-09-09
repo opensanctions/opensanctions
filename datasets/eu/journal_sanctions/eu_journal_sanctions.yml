@@ -19,7 +19,6 @@ http:
   timeout: 300
 publisher:
   name: Council of the European Union
-  acronym: Council
   country: eu
   url: https://european-union.europa.eu/institutions-law-budget/institutions-and-bodies/search-all-eu-institutions-and-bodies/council-european-union_en
   description: >
