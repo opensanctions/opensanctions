@@ -39,27 +39,6 @@ names:
         - "now known as"
         - "n/k/a"
   suggest_abbreviation_non_person_single_token_shorter_than: 5
-  suffixes_strip:
-    - ", Jr."
-    - "Jr."
-    - ", Jr"
-    - "Jr"
-    - ", Sr."
-    - "Sr."
-    - ", Sr"
-    - "Sr"
-    - ", II"
-    - "II"
-    - ", III"
-    - "III"
-    - ", IV"
-    - "IV"
-    - ", Esq."
-    - "Esq."
-    - ", Ph.D."
-    - "Ph.D."
-    - ", M.D."
-    - "M.D."
 
 assertions:
   min:
@@ -74,7 +53,7 @@ dates:
 lookups:
   crd:
     options:
-      # Swapped/duplicated column values: the CRD column holds a name whose
+      # Swapped/duplicated column values: the Central Registration Depository (CRD) column holds a name whose
       # entity is already pinned via type.name
       - match:
           - "Shopoff Securities; Inc."
@@ -96,6 +75,30 @@ lookups:
       # title: 'BD 17344 now 19616') — old and new BD numbers of the same entity.
       - match: "17344 19616"
         values: ["17344", "19616"]
+  # Rows with empty name columns: the subject is only recorded in the document
+  # title (name and CRD) or, for the older "_FDA_" documents, in the summary.
+  title:
+    options:
+      - match: "2020067731001 Patrick Matlock CRD 5760255 Default Decision df (2023-1682299197914).pdf"
+        name: Patrick Matlock
+        crd: "5760255"
+      - match: "2021071672302 Jordan Palmer John CRD  6924720 Default Decision df (2023-1682299197861).pdf"
+        name: Jordan Palmer John
+        crd: "6924720"
+      - match: "2021070867702 David Hixon CRD 4707468 Default Decision df (2023-1682299197862).pdf"
+        name: David Hixon
+        crd: "4707468"
+      - match:
+          - "2008012096001_FDA_TX88240 (2019-1562624357456).pdf"
+          - "2008012096001_FDA_D691939 (2019-1562374172921).pdf"
+        name: Rebecca Amy Reichman  # name in Summary/PDF instead
+      - match: "2008012102601_FDA_JX14466 (2019-1561963757956).pdf"
+        name: Brenden Christopher Lilly  # name in Summary/PDF instead
+      - match: "2006004969704_FDA_TX53431 (2019-1562377777264).pdf"
+        name: Corbin T. Jones  # name, CRD in Summary/PDF instead
+        crd: "44868964"
+      - match: "2006004691101_FDA_D571400 (2019-1562563156316).pdf"
+        name: Michelle Holton  # name in Summary/PDF instead
   # These matches also pin legacy numeric entity IDs: the raw value is slugged
   # before this lookup is applied.
   type.name:
