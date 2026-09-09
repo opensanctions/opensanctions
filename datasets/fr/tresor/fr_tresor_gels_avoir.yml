@@ -27,6 +27,7 @@ tags:
   - sector.maritime
 publisher:
   name: Direction Générale du Trésor
+  name_en: French Treasury
   acronym: DGT
   country: fr
   url: https://www.tresor.economie.gouv.fr/

@@ -16,6 +16,7 @@ tags:
   - list.pep
 publisher:
   name: Honorable Cámara de Diputados de la Nación Argentina
+  name_en: Chamber of Deputies of Argentina
   acronym: HCDN
   official: true
   description: >

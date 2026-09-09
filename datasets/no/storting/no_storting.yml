@@ -16,6 +16,7 @@ tags:
   - list.pep
 publisher:
   name: Stortinget
+  name_en: Parliament of Norway
   description: |
     The Storting (Stortinget) is the supreme legislature of Norway, consisting of 169 representatives
     elected every four years. It is a unicameral body, meaning it has only one chamber, and is

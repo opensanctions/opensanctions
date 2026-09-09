@@ -19,6 +19,7 @@ tags:
   - list.pep
 publisher:
   name: Türkiye Büyük Millet Meclisi
+  name_en: Grand National Assembly of Türkiye
   acronym: TBMM
   description: Grand National Assembly of Türkiye
   url: https://www.tbmm.gov.tr/

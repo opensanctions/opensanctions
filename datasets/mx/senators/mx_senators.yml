@@ -19,6 +19,7 @@ description: |
   Each senator serves a six-year term and, starting from 2018, can serve a second term.
 publisher:
   name: Senado de La República
+  name_en: Senate of Mexico
   description: Mexico's Senate
   url: https://www.senado.gob.mx/
   official: true
