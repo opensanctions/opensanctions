@@ -85,6 +85,8 @@ def split_individual_names(
             continue
         names.append(part)
 
+    # Central Registration Depository (an identifier for this)
+    # https://www.finra.org/registration-exams-ce/classic-crd
     if raw_crd is None:
         return [(name, None) for name in names]
 
