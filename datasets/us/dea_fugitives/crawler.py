@@ -1,22 +1,22 @@
-from time import sleep
+from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h
 
-# 1s delay seems to be enough to avoid getting blocked, while it takes a long
-# time to get unblocked after about 10 requests.
-SLEEP_SECONDS = 1
-HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "accept-language": "en-GB,en;q=0.9",
-    "pragma": "no-cache",
-    "Priority": "u=1, i",
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3.1 Safari/605.1.15 (zavod; opensanctions.org)",
-}
+# The listing pages are served behind an Akamai Bot Manager interstitial
+# challenge (HTTP 200 with a `bm-verify` redirect page and no content), so they
+# must be rendered in a browser. The individual fugitive pages are not
+# challenged when proxied, so the cheaper httpResponseBody scrape is used.
 
 
 def crawl_item(fugitive_url: str, context: Context) -> None:
-    response = context.fetch_html(fugitive_url, cache_days=7, headers=HEADERS)
+    response = zyte_api.fetch_html(
+        context,
+        fugitive_url,
+        unblock_validator='//h2[@class="fugitive__title"]',
+        html_source="httpResponseBody",
+        cache_days=7,
+    )
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
     table = response.find(".//table")
@@ -78,16 +78,23 @@ def crawl(context: Context) -> None:
     while True:
         url = base_url + "?page=" + str(page_num)
         context.log.info(f"Fetching page: {page_num}", url=url)
-        response = context.fetch_html(
-            url, cache_days=1, headers=HEADERS, absolute_links=True
+        response = zyte_api.fetch_html(
+            context,
+            url,
+            unblock_validator='//h1[@class="page-title"]',
+            cache_days=1,
+            absolute_links=True,
         )
 
+        items = response.findall('.//h3[@class="teaser__heading"]/a')
+        # An empty first page means the listing changed or we're blocked,
+        # never a legitimately empty list.
+        assert page_num > 0 or len(items) > 0, "No fugitives found on first page"
         # If there are no more fugitives, we can stop crawling.
-        if len(response.findall('.//h3[@class="teaser__heading"]/a')) == 0:
+        if len(items) == 0:
             break
 
-        for item in response.findall('.//h3[@class="teaser__heading"]/a'):
-            sleep(SLEEP_SECONDS)
+        for item in items:
             item_url = item.get("href")
             assert item_url is not None, "No href found on fugitive link"
             crawl_item(item_url, context)
