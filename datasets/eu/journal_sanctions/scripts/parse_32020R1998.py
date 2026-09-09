@@ -112,8 +112,15 @@ INLINE_AKA_RE = re.compile(r"^(.+?) a\.k\.a\.?:? (.+)$")
 # Native-script cells annotate each rendering group with its script and may
 # add an alias parenthetical: "Группа Вагнера / (a.k.a ЧВК ‘Вагнер’) /
 # (Russian spelling)". The annotation labels the group and is not name text.
-SPELLING_RE = re.compile(r"^\([A-Za-z]+ spelling\)$")
-INLINE_SPELLING_RE = re.compile(r"^(.+) \([A-Za-z]+ spelling\)$")
+# Newer entries print the script name on its own ("(Russian)", "(Chinese)")
+# and one names two scripts at once ("(Burmese/Myanmar)").
+SCRIPT_NAME = r"[A-Za-z]+(?:/[A-Za-z]+)*(?: spelling)?"
+SPELLING_RE = re.compile(r"^\(" + SCRIPT_NAME + r"\)$")
+INLINE_SPELLING_RE = re.compile(r"^(.+) \(" + SCRIPT_NAME + r"\)$")
+# Burmese and Khmer renderings are printed as images. EUR-Lex puts the
+# transcription in a hidden paragraph next to the image, behind a toggle link
+# whose text is markup, not a rendering.
+IMAGE_TOGGLE_LABEL = "Text of image"
 PAREN_AKA_RE = re.compile(r"^\(a\.k\.a\.?:? (.+)\)$")
 # Alias or former-name parentheticals at the end of a printed name:
 # "Wagner Group (a.k.a. Vagner Group, PMC Wagner)", "Kaniyat Militia
@@ -139,6 +146,7 @@ NATIVE_WRAP_PINS = frozenset(
 # Identifying-information labels → CSV column, exactly as printed.
 INFO_LABELS = {
     "DOB": "birthDate",
+    "Date of birth": "birthDate",
     "POB": "birthPlace",
     "Gender": "gender",
     "Nationality": "nationality",
@@ -152,6 +160,11 @@ INFO_LABELS = {
     "Passport No.": "passportNumber",
     "Passport no.": "passportNumber",
     "Passport number": "passportNumber",
+    "Russian passport number": "passportNumber",
+    "Ukrainian passport": "passportNumber",
+    "Ukrainian passport number": "passportNumber",
+    # As printed, including the source's misspelling of "passport".
+    "Ukrainian passeport number": "passportNumber",
     "Passport or ID number": "idNumber",
     "ID": "idNumber",
     "ID Number": "idNumber",
@@ -373,6 +386,8 @@ def parse_native_name(
     for line in cell_lines(td, ctx):
         if line == "-":
             # A printed placeholder for entries without a native rendering.
+            continue
+        if line == IMAGE_TOGGLE_LABEL:
             continue
         if SPELLING_RE.match(line) is not None:
             close_group()
