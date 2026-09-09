@@ -67,3 +67,9 @@ The crawler polls the API for new INKSNA determinations and rewrites
 `fr_notices.csv`. Read each new notice, append one `source_files/inksna.csv`
 row per designated foreign person, then commit `fr_notices.csv` and update the
 hash in `crawler.py`.
+
+The hash also changes when the State Department publishes a notice terminating
+measures before their two-year term ends. `fr_notices.csv` records imposition
+notices only, so a termination shows up in the hash alone: set the `end-date` of
+the affected `source_files/inksna.csv` row to the date the notice gives for the
+termination decision, and add the notice to that row's `source_url`.
