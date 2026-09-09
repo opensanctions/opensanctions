@@ -1,4 +1,5 @@
 import csv
+import re
 import shutil
 from pathlib import Path
 from typing import cast
@@ -24,6 +25,11 @@ CTO_API_PARAMS = {
     "_fields": "date,link",
 }
 CTO_CACHE_DAYS = 1
+# The Federal Register search is a keyword query that also returns unrelated
+# notices. INKSNA notices are generally titled
+# "Imposition/Termination/Modification/Lifting of Nonproliferation (Act) Measures ...",
+# so match on that phrase to keep every INKSNA event.
+FR_NOTICE_TITLE_RE = re.compile(r"nonproliferation (act )?measures", re.IGNORECASE)
 
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
@@ -68,10 +74,10 @@ def crawl_fr_notices(context: Context) -> None:
     # designations published in the Federal Register can take weeks or months
     # to appear in the CSL. This function monitors the FR API directly so that
     # any new notice triggers a warning.
-    # If the hash changes, review the newly listed notices — the search also
-    # returns notices terminating measures early, which fr_notices.csv does not
-    # record — and update source_files/inksna.csv accordingly. Then commit the
-    # updated fr_notices.csv and update the hash in this function.
+    # If the hash changes, review the new entries in fr_notices.csv: impositions
+    # add rows to source_files/inksna.csv, while terminations and modifications
+    # change the end-date of existing rows. Then commit the updated
+    # fr_notices.csv and update the hash in this function.
     h.assert_url_hash(context, FR_API_URL, "c18e1b039eee4811d279545dae865f8d65c3893b")
     rows: list[list[str]] = []
     url = FR_API_URL
@@ -85,7 +91,7 @@ def crawl_fr_notices(context: Context) -> None:
                 doc["pdf_url"],
             ]
             for doc in data.get("results", [])
-            if "Imposition of Nonproliferation Measures" in doc.get("title")
+            if FR_NOTICE_TITLE_RE.search(doc.get("title", ""))
         )
         url = data.get("next_page_url")
 
