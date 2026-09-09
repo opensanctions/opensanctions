@@ -454,6 +454,9 @@ lookups:
           - "9月1"
           - "9月21"
           - "9月27"
+          # Second half of "2026年８月14日及び９月４日に改訂" - the year only
+          # exists in the earlier part of the cell, which the split discards.
+          - "9月4"
           - yearunknown
           - 9月28
           - 3月13
@@ -989,6 +992,16 @@ lookups:
           - P05076602
       - match: トルコ旅券 TR-P 614 166 （2006年3月22日フランクフルトにあるトルコ 総領事館が発行、2009年9月15日失効）
         value: TR-P 614 166
+      # Ugandan ID number CM920231090NZA; Zambian ID number Z15105123 (issued
+      # 2020-08-05, fraudulently obtained under the identity of an Isaac Mupeta
+      # born 1993-05-09 in Lusaka, Zambia, using registration number
+      # 102523/29/1). Only the two ID numbers held by the designee are kept;
+      # the registration number belongs to the impersonated registration. The
+      # full cell stays on `notes` via `note_long_ids`.
+      - match: ウガンダID番号CM920231090NZA； ザンビアID番号Z15105123（2020年８月５日発行、1993年５月９日、ザンビアのLusaka生まれのIsaac Mupeta名義として登録番号102523/29/1を用いて不正に取得された）
+        values:
+          - CM920231090NZA
+          - Z15105123
       - match: クウェート旅券番号03111298； クウェート旅券番号003111298（シャフィー S M S アルジュミーの名で2010年9月16日クウェートにて発行、2020年9月15日失効、氏名のアラビア語表記： شافي سلطان محمد سلطان العجمي名義のもの。）； 0216155930
         values:
           - "03111298"
