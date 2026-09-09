@@ -64,6 +64,6 @@ that are not published as a list — Sections 889, 5949 and 154, and the Section
 ## Handling "Hash mismatch" warnings on the Federal Register API
 
 The crawler polls the API for new INKSNA determinations and rewrites
-`fr_notices.csv`. Read each new notice, append one `source_files/inksna.csv`
+`fr_notices.csv`. Read each new notice, append or update a `source_files/inksna.csv`
 row per designated foreign person, then commit `fr_notices.csv` and update the
 hash in `crawler.py`.
