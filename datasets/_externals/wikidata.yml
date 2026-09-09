@@ -222,6 +222,13 @@ lookups:
         value: Nwankwo Chukwuemeka
       - match: "Antanas Mockus's<i>Cultura Ciudadana</i>: Theatrical acts for cultural change in Bogotá, Colombia"
         value: Antanas Mockus
+      # Q122958582 is a scholarly article (a book review), not a person. Its
+      # label is a bibliographic citation that starts with the name of the
+      # reviewed book's author, which makes it a search candidate for the PEP
+      # Julia Reid (Q16976852). Drop the label rather than turning a citation
+      # into a person name.
+      - regex: "^Julia Reid,<i>Robert Louis Stevenson, Science, and the Fin de Siècle</i>"
+        value: null
       - match: "Imdadul Haq Milon <br> ইমদাদুল হক মিলন"
         values:
           - Imdadul Haq Milon
