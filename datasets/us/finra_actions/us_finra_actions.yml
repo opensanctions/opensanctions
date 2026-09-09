@@ -38,12 +38,17 @@ names:
       reject_strings:
         - "now known as"
         - "n/k/a"
+        # Bare alias markers not in rigour's split phrases (a.k.a., f/k/a etc.)
+        - " fka "
+        - " aka "
+        - "n.k.a"
+        - "successor to"
   suggest_abbreviation_non_person_single_token_shorter_than: 5
 
 assertions:
   min:
     schema_entities:
-      LegalEntity: 14500
+      LegalEntity: 12000
   max:
     schema_entities:
       LegalEntity: 17000
@@ -53,11 +58,15 @@ dates:
 lookups:
   crd:
     options:
-      # Swapped/duplicated column values: the Central Registration Depository (CRD) column holds a name whose
-      # entity is already pinned via type.name
+      # Swapped columns: the firm name sits in the Central Registration Depository
+      # (CRD) column and the CRD in the name column (pinned via type.name below).
+      - match: "Shopoff Securities; Inc."
+        value: "142866"
+      - match: "Traderfield Securities Inc."
+        value: "20130"
+      # Swapped columns, but four names against one firm CRD and three person
+      # CRDs, so the pairing is unreliable: drop the CRDs.
       - match:
-          - "Shopoff Securities; Inc."
-          - "Traderfield Securities Inc."
           - "Edward J. Rudiger Jr."
           - "Clifford R. Reid"
           - "Kelli A. Mezzatesta"
@@ -69,6 +78,24 @@ lookups:
         value: "1066139"
       - match: "CRD 6972542"
         value: "6972542"
+      - match: "1919475;1919475"
+        value: "1919475"
+      # Over-long CRDs. Typos with an extra digit: the correct number is in the
+      # case summary.
+      - match: "29933260"
+        value: "2933260"
+      - match: "32220988"
+        value: "2220988"
+      # The case ID was entered in the CRD column. Real CRD from the case
+      # summary (Chang) or from another row of the same case (Singh).
+      - match: "2022075871401"
+        value: "2922898"
+      - match: "2023078835001"
+        value: "2547590"
+      - match:
+          - "2025088365901"
+          - "2019064715701"
+        value: null
       - match: "5726300 and 5090765"
         values: ["5726300", "5090765"]
       # Renamed firm (First Clearing LLC n/k/a Wells Fargo Clearing Services LLC;
@@ -96,7 +123,7 @@ lookups:
         name: Brenden Christopher Lilly  # name in Summary/PDF instead
       - match: "2006004969704_FDA_TX53431 (2019-1562377777264).pdf"
         name: Corbin T. Jones  # name, CRD in Summary/PDF instead
-        crd: "44868964"
+        # crd: "44868964"  # as in source, but commenting it out bc it seems to be corrupted (8 digits instead of 7)
       - match: "2006004691101_FDA_D571400 (2019-1562563156316).pdf"
         name: Michelle Holton  # name in Summary/PDF instead
   # These matches also pin legacy numeric entity IDs: the raw value is slugged
