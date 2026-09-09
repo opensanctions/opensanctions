@@ -42,7 +42,6 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     program = row.pop("program")
     entity = context.make(schema)
     entity.id = context.make_slug(name)
-    entity.add("topics", topics)
     h.apply_name(entity, name)
     entity.add("alias", row.pop("aliases").split(";"))
     entity.add("country", row.pop("country"))
@@ -61,6 +60,9 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     sanction.add("description", f"Published in {report_date} report.")
     sanction.set("authority", row.pop("authority"))
     sanction.set("sourceUrl", h.multi_split(source_url, ";"))
+
+    if h.is_active(sanction):
+        entity.add("topics", topics)
 
     context.emit(entity)
     context.emit(sanction)
