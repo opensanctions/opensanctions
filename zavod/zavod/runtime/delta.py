@@ -19,9 +19,9 @@ log = get_logger(__name__)
 
 
 class HashDelta:
-    def __init__(self, dataset: Dataset, current: Version):
+    def __init__(self, dataset: Dataset, current_version: Version):
         self.dataset = dataset
-        self.curr = current
+        self.curr = current_version
         self.prev = get_last_successful_version(self.dataset.name)
         self.curr_path = dataset_artifact_path(dataset.name, self.curr, HASH_FILE)
         self.fh = self.curr_path.open("w")
