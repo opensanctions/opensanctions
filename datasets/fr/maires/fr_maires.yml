@@ -20,8 +20,8 @@ tags:
   - list.pep
   - list.pep.bulk
 publisher:
-  name: Ministère de l'Intérieur et des Outre-Mer
-  name_en: Ministry of the Interior and Overseas of France
+  name: Ministère de l'Intérieur
+  name_en: Ministry of the Interior of France
   acronym: MIOM
   description: |
     The portal data.gouv.fr, created by the Direction
