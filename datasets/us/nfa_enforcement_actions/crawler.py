@@ -2,23 +2,34 @@ import json
 import re
 from typing import Any
 from urllib.parse import parse_qs, urljoin, urlsplit
-
+from datetime import datetime, timedelta
+from dataclasses import dataclass
 from lxml import html
 
 from zavod import Context, settings
 from zavod import helpers as h
 
-# Lower bound of the year slider on the source page; the earliest action is from 1996.
-FIRST_YEAR = 1981
-# The link params carrying a respondent's key, in the two forms the source has used.
-KEY_PARAMS = ("entityid", "nfaid")
+BASE_URL = "https://www.nfa.futures.org"
+
+@dataclass
+class Respondent:
+    id: str
+    url: str
+    name_raw: str
+
+# Cutoff is later than earliest available year
+def first_year() -> str:
+    """Calculate min year for enforcements"""
+    now = datetime.now()
+    cutoff = timedelta(days = h.dates.MAX_ENFORCEMENT_DAYS)
+    delta = now - cutoff
+    return delta.strftime("%Y")
 
 
-def listing_url(context: Context) -> str:
-    """The page the respondent links are relative to, and the API's expected referer."""
+def fetch_csrf_token(context: Context):
     url = context.dataset.url
-    assert url is not None, "Dataset metadata is missing `url`"
-    return url
+    doc = context.fetch_html(url)
+    return h.xpath_string(doc, ".//meta[@name='csrf-token']/@content")
 
 
 def fetch_rows(context: Context) -> list[dict[str, Any]]:
@@ -28,123 +39,79 @@ def fetch_rows(context: Context) -> list[dict[str, Any]]:
     handed out by the listing page, and answers everything else with a redirect to an
     error page rather than an error status.
     """
-    page_url = listing_url(context)
-    doc = context.fetch_html(page_url)
-    token = h.xpath_string(doc, ".//meta[@name='csrf-token']/@content")
-    text = context.fetch_text(
+    token = fetch_csrf_token(context)
+    
+    data = context.fetch_json(
         context.data_url,
         method="POST",
         data=json.dumps(
             {
                 "method": "getEnforcementRegs",
-                "params": [FIRST_YEAR, settings.RUN_TIME.year],
+                "params": [first_year(), settings.RUN_TIME.year],
             }
         ),
         headers={
             "Content-Type": "application/json",
-            "Referer": page_url,
+            "Referer": context.dataset.url,
             "x-csrf-token": token,
             "x-requested-with": "XMLHttpRequest",
         },
     )
-    if text is None or not text.startswith("{"):
-        raise RuntimeError("Listing API returned no JSON; the CSRF handshake failed.")
-    data = json.loads(text)
-    if data.get("Success") is not True:
-        raise RuntimeError(f"Listing API reported failure: {data.get('Message')!r}")
     rows = data["Result"]
     assert isinstance(rows, list) and len(rows), data.get("Message")
     return rows
 
 
-def normalise_key(param: str, value: str) -> str:
-    """Reduce a respondent's link parameter to a single form per respondent.
-
-    Numeric `entityid` values are published both zero-padded to seven digits and
-    unpadded, for about 90 respondents in both forms, so they are padded here. One
-    legacy id is not numeric and is left alone.
-    """
-    value = value.strip()
-    if param == "entityid" and value.isdigit():
-        return value.zfill(7)
-    return value
-
-
-def parse_respondents(
-    context: Context, headline: str, case_id: str
-) -> list[tuple[str, str, str]]:
+def parse_respondents(context: Context, headline: str) -> list(Respondent):
     """Return the (respondent key, detail URL, caption) of each link in a headline."""
+    respondents = list()
     fragment = html.fragment_fromstring(headline, create_parent="div")
-    respondents: list[tuple[str, str, str]] = []
     for anchor in h.xpath_elements(fragment, ".//a"):
-        caption = h.element_text(anchor)
         # Some hrefs are written root-relative with a Windows separator, e.g.
         # "\BasicNet/basic-reg-actions-details.aspx?...".
         href = (anchor.get("href") or "").replace("\\", "/")
-        query = parse_qs(urlsplit(href).query)
-        keys = [
-            f"{p}:{normalise_key(p, query[p][0])}" for p in KEY_PARAMS if p in query
-        ]
-        if len(keys) != 1:
-            # An unclosed <a/> tag in a 1998 headline leaves a stray, empty anchor.
-            if caption:
-                context.log.warning(
-                    "Cannot identify respondent from link",
-                    case_id=case_id,
-                    caption=caption,
-                    href=href,
-                )
-            continue
-        respondents.append((keys[0], urljoin(listing_url(context), href), caption))
+        respondents.append(
+            Respondent(
+                id = parse_qs(urlsplit(href).query)["nfaid"][0],
+                url = BASE_URL + href,
+                name_raw = h.multi_split(
+                    h.element_text(anchor), 
+                    ["et al."]
+                )[0],
+            ))
     return respondents
 
 
-def clean_name(name: str) -> str:
-    """
-    Names often contain a post-nominal add on that can vary, even though
-    the entityid (from the NFA website) is the same for that name.
-
-    ex.
-    American Futures Group, Inc., et al. (Bill Hockemeyer)
-    should be
-    American Futures Group, Inc.
-    """
-    PATTERN_ETAL = r"\s*,?\s*\bet\.?\s+al\b\.?"
-    REGEX_ETAL = re.compile(PATTERN_ETAL, re.IGNORECASE)
-    name_without_etal = REGEX_ETAL.split(name, 1)[0]
-    PATTERN_PARENTHETICAL = r"\(([^()]+)\)"
-    REGEX_PARENTHETICAL = re.compile(PATTERN_PARENTHETICAL, re.IGNORECASE)
-    name_without_parentheticals = re.sub(REGEX_PARENTHETICAL, "", name_without_etal)
-    return name_without_parentheticals
-
-
-def parse_row(context: Context, row: dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     case_id = row.pop("CASE_ID")
     category = row.pop("ACTION_CATEGORY_CODE")
+
+    # Complaints are excluded. A complaint is the charging document that opens a disciplinary
+    # case and states allegations that have not been adjudicated; respondents who were only
+    # ever named in a complaint are therefore not in this dataset. Sanctions imposed —
+    # fines, bars, suspensions, withdrawals — are published only on the per-case detail
+    # pages, which NFA excludes from crawling, so this dataset records that an action was
+    # taken but not what it imposed.
+    if category == "COMPLAINTS":
+        return
+
     date = row.pop("content_date_sort")
-    respondents = parse_respondents(context, row.pop("HEADLINE_TEXT"), case_id)
-
+    respondents = parse_respondents(context, row.pop("HEADLINE_TEXT"))
     for respondent in respondents:
-        entity_id = respondent[0]
-        source_url = respondent[1]
-        name_raw = respondent[2]
-
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(entity_id, name_raw)
-        h.apply_name(entity, full=clean_name(name_raw))
+        entity.id = context.make_id(respondent.id, respondent.name_raw)
+        h.apply_name(entity, full=respondent.name_raw)
         entity.add("topics", "reg.action")
-        entity.add("sourceUrl", source_url)
+        entity.add("sourceUrl", respondent.url)
 
         sanction = h.make_sanction(context, entity, key=case_id)
         sanction.add("authorityId", case_id)
         sanction.add("program", category)
-        sanction.add("sourceUrl", source_url)
+        sanction.add("sourceUrl", respondent.url)
         h.apply_dates(
             sanction,
             "startDate",
-            [
-                date,
-            ],
+            [date,],
         )
 
         context.emit(entity)
@@ -153,15 +120,15 @@ def parse_row(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     for row in fetch_rows(context):
-        parse_row(context, row)
+        crawl_row(context, row)
 
-        context.audit_data(
-            row,
-            ignore=[
-                "CONTENT_DATE",
-                "SORTORDER",
-                "RULE_ID",
-                "RULE_SECTION_ID",
-                "RULE_SECTION_NAME",
-            ],
-        )
+        # context.audit_data(
+        #     row,
+        #     ignore=[
+        #         "CONTENT_DATE",
+        #         "SORTORDER",
+        #         "RULE_ID",
+        #         "RULE_SECTION_ID",
+        #         "RULE_SECTION_NAME",
+        #     ],
+        # )

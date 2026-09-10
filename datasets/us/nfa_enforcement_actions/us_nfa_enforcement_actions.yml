@@ -60,10 +60,10 @@ tags:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1500
+      LegalEntity: 125
   max:
     schema_entities:
-      LegalEntity: 4000
+      LegalEntity: 150
 
 lookups:
   type.name:
