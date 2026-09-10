@@ -2,16 +2,16 @@ title: Latvia's Magnitsky Law Sanctions List
 entry_point: crawler.py
 prefix: lv-mag
 summary: >-
-  The sanctions list aims to prevent foreign individuals involved in serious human 
+  The sanctions list aims to prevent foreign individuals involved in serious human
   rights violations, corruption and other forms of crime from entering Latvia.
 coverage:
   frequency: daily
   start: 2024-07-09
 load_statements: true
 description: |
-  The dataset contains information on individuals targeted by the Republic of Latvia for serious 
-  human rights violations, corruption, and other crimes. Inspired by international precedents, including the US, 
-  Estonia, Canada, the UK, and Lithuania, Latvia aims to implement targeted sanctions such as travel bans and asset 
+  The dataset contains information on individuals targeted by the Republic of Latvia for serious
+  human rights violations, corruption, and other crimes. Inspired by international precedents, including the US,
+  Estonia, Canada, the UK, and Lithuania, Latvia aims to implement targeted sanctions such as travel bans and asset
   freezes. The goal is to prevent these individuals from entering Latvia, designating them as persona non grata.
 tags:
   - list.sanction
@@ -21,8 +21,8 @@ tags:
   - issuer.west
 url: https://likumi.lv/ta/id/297012-par-aicinajumu-noteikt-sankcijas-sergeja-magnitska-lieta-iesaistitajam-personam
 publisher:
-  name: Legal Acts Of The Republic Of Latvia
-  acronym: LIKUMI
+  name: Latvijas Vēstnesis
+  name_en: Latvian Official Gazette
   description: |
     Likumi.lv is a website of legal acts that ensures free access to systematised (consolidated) legal acts of the Republic of Latvia.
     [Source: Official Website](https://likumi.lv/about.php)
