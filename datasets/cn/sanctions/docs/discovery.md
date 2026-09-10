@@ -73,12 +73,6 @@ domain list from the MFA directory and run the same Chinese and English searches
 those domains. Results need manual review because embassy sites also reproduce central
 MFA content.
 
-An initial comparison indicated missing coverage: the central index contained a
-December 2025 decision covering 20 companies and 10 executives and a March 2026
-decision concerning Furuya Keiji, neither of which was represented in the CSV. Both
-were used as the first backfill test cases and are now represented, by 30 rows and one
-row respectively, verified 2026-09-03.
-
 ## Ministry of Commerce
 
 ### Primary indexes
@@ -248,22 +242,3 @@ classification remain reviewed PR work.
 
 Stop after each authority inventory and report the number of notices found, accepted,
 missing, duplicated, and unresolved before beginning the next source family.
-
-## Review log
-
-**2026-09-03** — Authorities outside automated MFA, MOFCOM and TAO discovery: no
-designations found. Embassy domains were spot-checked only, so that sweep is still
-outstanding.
-
-Ruled out of scope, and not mutable through `reviewed_urls` because the crawler never
-raises them as candidates:
-
-- State Council, 2026-04-07: extraterritorial-jurisdiction and supply-chain security
-  regulations; no named targets.
-- MOFCOM, 2026-05-02 (公告2026年第21号): blocking order protecting five Chinese refiners.
-- MOFCOM with the Ministry of Justice, 2026-05-15: EU Foreign Subsidies Regulation
-  determination; no named targets.
-- Beijing and Shanghai Financial Courts, 2026: AFSL civil suits, not designations.
-
-Designations run through MOFCOM and MFA, both automated, so this sweep's recurring
-value is in the embassy domains.
