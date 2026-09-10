@@ -2,6 +2,7 @@ import json
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Self
 
 from followthemoney.dataset import Version
 
@@ -41,7 +42,7 @@ class Manifest:
         return json.dumps(data, indent=2, sort_keys=True)
 
     @classmethod
-    def from_json(cls, scope: Dataset, text: str) -> "Manifest":
+    def from_json(cls, scope: Dataset, text: str) -> Self:
         data = json.loads(text)
         self_data = data["self"]
         self_scope = self_data["name"]
@@ -58,12 +59,12 @@ class Manifest:
             fh.write(self.to_json())
 
     @classmethod
-    def load(cls, scope: Dataset, path: Path) -> "Manifest":
+    def load(cls, scope: Dataset, path: Path) -> Self:
         with open(path) as fh:
             return cls.from_json(scope, fh.read())
 
     @classmethod
-    def resolve(cls, dataset: Dataset, version: Version | None = None) -> "Manifest":
+    def resolve(cls, dataset: Dataset, version: Version | None = None) -> Self:
         """Pin a version for every leaf of the given scope.
 
         Args:
@@ -95,7 +96,7 @@ class Manifest:
         return cls(dataset, version or settings.RUN_VERSION, datasets)
 
     @classmethod
-    def create(cls, dataset: Dataset, version: Version) -> "Manifest":
+    def create(cls, dataset: Dataset, version: Version) -> Self:
         """Start a run: create the versioned artifact directory and write the
         manifest that pins the run's inputs."""
         create_artifact_path(dataset.name, version)
@@ -104,13 +105,13 @@ class Manifest:
         return manifest
 
     @classmethod
-    def load_artifact(cls, dataset: Dataset, version: Version) -> "Manifest":
+    def load_artifact(cls, dataset: Dataset, version: Version) -> Self:
         """Load the manifest created for a run of the given dataset."""
         path = dataset_artifact_path(dataset.name, version, MANIFEST_FILE)
         return cls.load(dataset, path)
 
     @classmethod
-    def get_transient(cls, scope: Dataset, refresh: bool = False) -> "Manifest":
+    def get_transient(cls, scope: Dataset, refresh: bool = False) -> Self:
         """Get a pinned scope for analytical runs (xref, dedupe, enrichment).
 
         The manifest persists under the scope's state directory so that

@@ -1,5 +1,6 @@
 import plyvel  # type: ignore
 from collections.abc import Iterable
+from typing import Self
 from rigour.env import ENCODING as E
 from followthemoney import Statement
 from followthemoney.dataset import Version
@@ -64,7 +65,7 @@ class TimeStampIndex:
         log.info("Index ready.", count=total_size)
 
     @classmethod
-    def build(cls, dataset: Dataset) -> "TimeStampIndex":
+    def build(cls, dataset: Dataset) -> Self:
         version = get_last_successful_version(dataset.name)
         index = cls(dataset, version)
         if index.db.get(cls.DONE_KEY) is not None:
