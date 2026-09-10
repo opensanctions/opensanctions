@@ -35,7 +35,6 @@ REPORTS = {
         pdf="https://www.regeringen.se/contentassets/15cc81b6237b4aa49578a845b7e3dc94/arlig-information-om-bolag-med-statligt-agande-2025.pdf",
     ),
 }
-# Not read from the dataset's `url`, so editing metadata can't disarm check_updates().
 SOURCE_PAGE_URL = (
     "https://www.regeringen.se/regeringens-politik/bolag-med-statligt-agande/"
 )
@@ -61,13 +60,13 @@ def check_updates(context: Context) -> None:
 
 
 def check_source_urls(row: dict[str, str]) -> None:
-    """Require source_url to be the source page plus one PDF per `report` year, so
-    the two columns can't drift apart when edited by hand."""
+    """Require source_url to be exactly one PDF per `report` year, so the two columns
+    can't drift apart when edited by hand."""
     reports = h.multi_split(row["report"], ";")
     unknown = set(reports) - set(REPORTS)
     if unknown:
         raise ValueError(f"{LEADERSHIP_FILE.name}: unknown report(s) {unknown}")
-    expected = {SOURCE_PAGE_URL} | {REPORTS[report].pdf for report in reports}
+    expected = {REPORTS[report].pdf for report in reports}
     found = set(h.multi_split(row["source_url"], ";"))
     if found != expected:
         raise ValueError(
@@ -83,8 +82,8 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     position_name = row.pop("position")
     # Validated in crawl(); source_url is what we publish.
     row.pop("report")
-    # Maintainer annotation, not the FollowTheMoney property. Not published.
-    row.pop("notes")
+    # Maintainer annotation on how the row was extracted. Not published.
+    row.pop("extraction_notes")
 
     if position_name in SKIP_POSITIONS:
         return

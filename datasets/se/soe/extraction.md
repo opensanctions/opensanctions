@@ -3,8 +3,9 @@
 How to turn an edition of the government's annual report on the state's company
 portfolio into rows in `leadership.csv`. The report PDF is the source of record.
 
-Every edition so far has changed layout, so expect to write a new throwaway parser
-rather than reuse one.
+Every edition so far has changed layout, so expect to write a new parser and/or update
+extraction instructions based on a review of the previous and current edition. If parser
+code was used as part of the extraction of a version, keep it in source control in a module named `extract_edition_{YYYY}.py` for reference.
 
 ## What each edition publishes
 
@@ -47,8 +48,8 @@ onto a second line, and line-based extraction silently truncated three of them i
 
 The chair is a labelled field, but the CEO is named only in a quote attribution:
 `"…" – Caroline Arehult, VD`. Never take a footnoted or `tf` attribution as the
-current CEO — read the footnote and record what it says, with the reason in `notes`.
-Three of 37 were out of date in the 2025 report.
+current CEO — read the footnote and record what it says, with the reason in
+`extraction_notes`. Three of 37 were out of date in the 2025 report.
 
 ## Acting officeholders
 
@@ -64,18 +65,18 @@ ownership, and get no rows here.
 ## Verify before committing
 
 - Compare each `(position, company)` slot against the previous edition. A changed
-  occupant is usually a real appointment, but can be one person under two spellings —
-  `Maria Håkansson` and `Maria Hammarskjöld Håkansson` were one person.
-- Check surnames against the company's own site. The 2025 report gives Svenska Spel's
-  CEO as `Anna Johansson`; the company spells it `Anna Johnson`.
+  occupant is usually a real appointment, but two similar names in the same slot are
+  usually one person, or one edition's typo. That discrepancy — and only that — is
+  worth settling against the company's own site: `Maria Håkansson` and
+  `Maria Hammarskjöld Håkansson` turned out to be one person, and the 2025 report's
+  `Anna Johansson` is spelled `Anna Johnson` by Svenska Spel. Names that don't move
+  between editions are not checked against another source.
 - Scan for single-token names, stray punctuation, digits and double spaces.
 
 Put a real former name in `alias`. Don't alias a typo — `Anna Johansson` is a common
-Swedish name and would cause false matches. Note it in `notes` instead.
+Swedish name and would cause false matches. Note it in `extraction_notes` instead.
 
 ## Merging
-
-The Google Sheet used until September 2026 is frozen history — edit the CSV.
 
 One row per appointment, not per edition. When an edition re-confirms an appointment,
 add its year to `report` and its PDF to `source_url`; don't add a second row. The

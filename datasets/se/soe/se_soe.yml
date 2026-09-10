@@ -12,10 +12,16 @@ load_statements: true
 manual_check:
   last_checked: "2026-02-16"
   interval: 182
-  message: |
-    Check whether a new report has been published, and extract it if so.
-    extraction.md has the procedure, the traps in these PDFs, and the
-    machine-readable alternatives already ruled out.
+  message: >-
+    For a human maintainer: the crawler already fails when the source page offers an
+    edition that is not in REPORTS; this ticket covers cases it cannot detect automatically.
+
+    1. Add new editions: If an edition is published but missing from leadership.csv,
+      extract it using datasets/se/soe/extraction.md. Review and update the extraction
+      procedure if needed.
+    2. Recheck automation: Reassess the machine-readable alternatives at the top of
+      extraction.md (data.riksdagen.se and Bolagsverket). If either is now feasible,
+      switch to automated extraction and retire leadership.csv.
 deploy:
   schedule: "@monthly"
 entry_point: crawler.py
