@@ -10,7 +10,7 @@ summary: >-
   Members of the Riigikogu, Estonia's unicameral parliament
 description: |
   This dataset comprises information about current members of the Riigikogu,
-  which is the unicameral parliament of Estonia. 
+  which is the unicameral parliament of Estonia.
 
   It is constituted with a total of 101 seats, each member is elected through
   a national election for a four year term. In addition to approving legislation,
@@ -20,6 +20,7 @@ tags:
   - list.pep
 publisher:
   name: Riigikogu
+  name_en: Parliament of Estonia
   description: Estonia Parliament
   url: https://www.riigikogu.ee/en/
   official: true

@@ -21,6 +21,7 @@ description: |
 url: https://www.camara.leg.br/
 publisher:
   name: Câmara dos Deputados
+  name_en: Chamber of Deputies of Brazil
   description: >
     The Chamber of Deputies is the lower house of the National Congress of Brazil.
   url: https://www.camara.leg.br/
