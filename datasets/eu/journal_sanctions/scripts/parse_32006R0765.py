@@ -357,6 +357,13 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
         "https://lasercut.by/": (("website", "https://lasercut.by/"),),
         "+375 17 390 30 76": (("phone", "+375 17 390 30 76"),),
     },
+    # The room list is part of one printed address; the semicolon separates
+    # the rooms from the street, it does not enumerate two addresses.
+    ("B", "62"): {
+        "Address: Room 1, 2; 4a Tenishevoy st., Smolensk, 21400, Russia": (
+            ("address", "Room 1, 2; 4a Tenishevoy st., Smolensk, 21400, Russia"),
+        ),
+    },
 }
 # Part B entries whose printed identifiers land in a Company-only column
 # (kppCode) are emitted as Company; the printed structure forces the schema.

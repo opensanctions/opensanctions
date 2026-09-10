@@ -255,6 +255,20 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
             ("registrationNumber", "06513574"),
         ),
     },
+    # One legal form qualified by a clause about the group's origin; the
+    # semicolon is prose punctuation, not an enumeration of two forms.
+    ("B", "43"): {
+        (
+            "Type of entity: Armed ethnic militia; historically a splinter "
+            "of the Karen National Union (KNU)"
+        ): (
+            (
+                "legalForm",
+                "Armed ethnic militia; historically a splinter of the "
+                "Karen National Union (KNU)",
+            ),
+        ),
+    },
 }
 # One listing date is printed with a stray trailing period ("28.5.2025.");
 # the period is list punctuation, not date wording.
