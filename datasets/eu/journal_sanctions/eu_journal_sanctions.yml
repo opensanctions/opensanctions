@@ -117,15 +117,29 @@ config:
   # The procedure for each warning is above the key that the procedure
   # changes. A comment block here holds a maximum of 32 lines: the YAML
   # check in CI rejects more before a key.
+  #
+  # The documentation is split by role. Maintainer is usually an LLM agent.
+  # Reviewer is usually an OpenSanctions data engineer.
+  key_just_to_allow_more_documentation: "whatever"
 
   # The consolidated version that each data/consolidated/{framework}.csv
   # snapshot comes from. The Makefile gives the same version to the parser.
+  #
+  # Role: Maintainer
   #
   # These two warnings show an error in this mapping. Correct the mapping.
   # - "Snapshot has no consolidation pin": a file in data/consolidated/ has no
   #   entry here. Add the pin, or delete the file.
   # - "Pinned consolidation is not published by CELLAR": the pin has an error,
   #   or CELLAR withdrew the version. Correct the pin.
+  #
+  # Role: Reviewer
+  #
+  # These warnings are deterministic cross-references - feedback to help the
+  # maintainer keep all references synchronised during an update. If they haven't
+  # been fixed in a pull request, it might be that the agent ran out of turns.
+  # A subsequent run should act on them and resolve the warnings. It's ok to
+  # merge a PR with these warnings but ensure they're resolved by a subsequent run.
   consolidation:
     32001R2580: 02001R2580-20260227
     32002R0881: 02002R0881-20260822
@@ -172,7 +186,10 @@ config:
     32024R0386: 02024R0386-20260528
     32024R1485: 02024R1485-20260713
     32024R2642: 02024R2642-20260713
+
   # ## Warning "Newer consolidated version published"
+  #
+  # Role: Maintainer
   #
   # CELLAR has a consolidated version of a framework act that is newer than the
   # pin in `consolidation`. The snapshot in data/consolidated/ is stale.
@@ -202,6 +219,23 @@ config:
   # The crawler stops to emit an amendment when the version here agrees with
   # the `consolidation` pin of its framework. The transcription stays in git
   # as provenance.
+  #
+  # Role: Reviewer
+  #
+  # Check that the maintainer's changes completely covers any consolidated act
+  # version pins that have been updated (i.e. it followed its instructions).
+  # It's ok if it hasn't resolved all the warnings, as long as it then hasn't
+  # marked those consolidated versions as up to date with an amendment if the
+  # consolidated CSV isn't up to date with that amendment.
+  #
+  # 1. Open the relevant consolidated version using the link in the warning.
+  # 2. Find a shortcut to the newly-consolidated amendment. Click
+  #    "Access initial legal act" then under Text click "Document information".
+  #    In the table of related documents, find the amendment whose date matches
+  #    the date suffix under 'latest' in the warning.
+  # 3. Find the amendment CSV using that CELEX and confirm that the modified
+  #    consolidated CSV rows match the amendment CSV rows (i.e. the consolidated
+  #    is now up to date with that amendment).
   consolidated_amendments:
     32026R1720: 02020R1998-20260730
     32026R1817: 02006R0765-20260724
@@ -212,7 +246,10 @@ config:
     32026R1895: 02020R1998-20260730
     32026R1940: 02014R0269-20260807
     32026R1960: 02002R0881-20260822
+
   # ## Warning "Amending act has no reviewed transcription"
+  #
+  # Role: Maintainer
   #
   # An act changes an annex of a framework act, and no reviewed file holds the
   # designations of that act. The designations are in no input of the dataset.
@@ -231,6 +268,13 @@ config:
   #    `python scripts/validate.py`.
   # 7. In the PR, name each annex you transcribed and the number of rows it
   #    gave. Name each annex that has no designated party.
+  #
+  # Role: Reviewer
+  #
+  # Check that the extraction to the amendment CSV is complete and accurate.
+  # It's ok if not all warnings have been resolved, but the existence of an
+  # amendment CSV indicates that its warning can be silenced, so it should only
+  # be added and merged if it is complete.
   #
   # Acts that the discovery check found and that a reviewer closed with no
   # transcription.
