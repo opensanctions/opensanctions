@@ -102,6 +102,19 @@ lookups:
       # title: 'BD 17344 now 19616') — old and new BD numbers of the same entity.
       - match: "17344 19616"
         values: ["17344", "19616"]
+  # CRD cells whose own name cell is empty. The value names the entity the
+  # CRD belongs to; null drops it.
+  orphan_crd:
+    options:
+      # Individual's CRD filed in the firm column (title: "Bryan Stuart Kocen CRD 2119036")
+      - match: "2119036"
+        value: Bryan Stuart Kocen
+      # Firm name redacted in the source (2012034932701)
+      - match: "41400"
+        value: null
+      # Persons named with these CRDs in other rows of case 2014039091903
+      - match: "4658235;1007506;2816295"
+        value: null
   # Rows with empty name columns: the subject is only recorded in the document
   # title (name and CRD) or, for the older "_FDA_" documents, in the summary.
   title:

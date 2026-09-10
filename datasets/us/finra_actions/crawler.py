@@ -57,19 +57,35 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
     assert case_id is not None, "Missing case ID"
     title = row.pop("title")
     individual_name = row.pop("individual_name")
+    individual_crd = row.pop("individual_crd")
     firm_name = row.pop("firm_name")
+    firm_crd = row.pop("firm_crd")
     summary = row.pop("summary")
+    document_type = row.pop("document_type")
+    document_link = row.pop("document_link")
+    action_date = row.pop("action_date")
+    context.audit_data(row, ignore=["has_related_cases"])
 
     if summary is not None and "<" in summary:
         summary = cast(HtmlElement, html.fromstring(summary)).text_content()
 
     name_parts: list[tuple[str, str | None]] = []
-    if individual_name is not None:
-        name_parts.extend(
-            split_parts(context, individual_name, row.pop("individual_crd"), case_id)
-        )
-    if firm_name is not None:
-        name_parts.extend(split_parts(context, firm_name, row.pop("firm_crd"), case_id))
+    for name, crd, other_crd in (
+        (individual_name, individual_crd, firm_crd),
+        (firm_name, firm_crd, individual_crd),
+    ):
+        if name is not None:
+            name_parts.extend(split_parts(context, name, crd, case_id))
+        elif crd is not None and crd not in (other_crd or "").split(";"):
+            # A CRD with no name of its own. The orphan_crd lookup names the
+            # entity it belongs to, or drops it with value: null.
+            res = context.lookup("orphan_crd", crd)
+            if res is None:
+                context.log.warning(
+                    "CRD without a name, discarded", crd=crd, case_id=case_id
+                )
+            elif res.value is not None:
+                name_parts.append((res.value, crd))
 
     if len(name_parts) == 0:
         # A few rows leave both name columns empty; the subject is then only in
@@ -96,7 +112,7 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
                 name=raw_name,
             )
         h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
-        entity.add("notes", row.pop("document_type"))
+        entity.add("notes", document_type)
         entity.add("topics", "reg.action")
         entity.add("country", "us")
 
@@ -123,11 +139,9 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
         if summary is not None:
             sanction.add("description", summary)
         sanction.add("authorityId", case_id)
-        sanction.add("sourceUrl", row.pop("document_link"))
-        h.apply_date(sanction, "date", row.pop("action_date"))
+        sanction.add("sourceUrl", document_link)
+        h.apply_date(sanction, "date", action_date)
         context.emit(sanction)
-
-        context.audit_data(row, ignore=["has_related_cases"])
 
 
 def crawl(context: Context) -> None:
