@@ -1,5 +1,6 @@
 import json
 import hashlib
+from dataclasses import dataclass
 from pathlib import Path
 
 from followthemoney.dataset import Version
@@ -16,16 +17,14 @@ from zavod.archive import iter_statements_path, stream_statements
 log = get_logger(__name__)
 
 
+@dataclass(frozen=True, slots=True)
 class Manifest:
     """The pinned composition of a dataset run: which version of each leaf
     dataset the run consumes."""
 
-    def __init__(
-        self, scope: Dataset, version: Version, datasets: dict[str, Version]
-    ) -> None:
-        self.scope = scope
-        self.version = version
-        self.datasets = datasets
+    scope: Dataset
+    version: Version
+    datasets: dict[str, Version]
 
     def digest(self) -> str:
         """A stable identifier for the pinned dataset versions."""
