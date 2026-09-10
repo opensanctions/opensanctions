@@ -58,3 +58,25 @@ assertions:
   max:
     schema_entities:
       Person: 5360
+
+lookups:
+  # Filler values published where the real CNIC is unknown. They pass stdnum
+  # validation, which only checks the length and the province and gender digits,
+  # so they have to be listed explicitly. Treated as missing, because using them
+  # as the entity ID collapses unrelated people into one entity.
+  placeholder_cnic:
+    options:
+      - match:
+          - "1111111111111"
+          - "1111111111113"
+          - "1111111111115"
+          - "1111111111116"
+          - "1111111111117"
+          - "1111111111118"
+          - "1111111111123"
+          - "1111111111125"
+          - "1111111111129"
+          - "1111111111137"
+          - "1111111111166"
+          - "1234567891011"
+        value: true
