@@ -40,12 +40,12 @@ def get_base_dataset_metadata(
     dataset: Dataset, version: Version, result: DatasetVersionResult
 ) -> dict[str, Any]:
     """Build the barebones metadata block for a dataset, without artifact URLs."""
-    viso = datetime_iso(version.dt)
+    version_time_iso = datetime_iso(version.dt)
 
     meta: dict[str, Any] = {
         "issue_levels": {},
         "issue_count": 0,
-        "updated_at": viso,
+        "updated_at": version_time_iso,
         "resources": [],
     }
     if result != DatasetVersionResult.SUCCESS:
@@ -77,7 +77,7 @@ def get_base_dataset_metadata(
             # so an emptied dataset's last change is whatever the last successful
             # run reported.
             if last_change is None:
-                last_change = viso
+                last_change = version_time_iso
             meta["last_change"] = last_change
 
     res_datas: list[dict[str, Any]] = []

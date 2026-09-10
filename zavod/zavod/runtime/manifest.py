@@ -80,13 +80,13 @@ class Manifest:
             if version is not None and leaf.name == dataset.name:
                 datasets[leaf.name] = version
                 continue
-            local = latest_local_artifact_version(leaf.name, STATEMENTS_FILE)
-            if local is not None:
-                datasets[leaf.name] = local
+            local_version = latest_local_artifact_version(leaf.name, STATEMENTS_FILE)
+            if local_version is not None:
+                datasets[leaf.name] = local_version
                 continue
-            last = get_last_successful_version(leaf.name)
-            if last is not None:
-                datasets[leaf.name] = last
+            last_successful_version = get_last_successful_version(leaf.name)
+            if last_successful_version is not None:
+                datasets[leaf.name] = last_successful_version
                 continue
             log.warning(
                 "No version available for dataset, omitting from manifest",
@@ -111,14 +111,15 @@ class Manifest:
         return cls.load(dataset, path)
 
     @classmethod
-    def get_transient(cls, scope: Dataset, refresh: bool = False) -> Self:
+    def get_transient(cls, scope: Dataset, refresh_leaf_versions: bool = False) -> Self:
         """Get a pinned scope for analytical runs (xref, dedupe, enrichment).
 
         The manifest persists under the scope's state directory so that
         consecutive commands operate on the same set of dataset versions;
-        pass refresh=True to re-resolve against the current archive state."""
+        pass refresh_leaf_versions=True to re-resolve against the current archive
+        state."""
         path = dataset_state_path(scope.name) / MANIFEST_FILE
-        if refresh:
+        if refresh_leaf_versions:
             path.unlink(missing_ok=True)
         if path.is_file():
             return cls.load(scope, path)
@@ -135,8 +136,8 @@ class Manifest:
         Args:
             external: Include statements that are enrichment candidates.
             dataset: Restrict to a single pinned dataset."""
-        names = list(self.datasets.keys()) if dataset is None else [dataset]
-        for name in names:
+        dataset_names = list(self.datasets.keys()) if dataset is None else [dataset]
+        for name in dataset_names:
             version = self.datasets.get(name)
             if version is None:
                 log.warning(

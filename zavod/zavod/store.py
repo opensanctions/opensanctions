@@ -51,9 +51,9 @@ class Store(LevelDBStore[Dataset, Entity]):
         if clear:
             self.clear()
         ds_key = f"dataset:{self.dataset.name}".encode()
-        digest = self.manifest.digest().encode("utf-8")
+        manifest_digest = self.manifest.digest().encode("utf-8")
         existing = self.db.get(ds_key)
-        if existing == digest:
+        if existing == manifest_digest:
             return
         if existing is not None:
             log.info(
@@ -74,7 +74,7 @@ class Store(LevelDBStore[Dataset, Entity]):
                         leaf=stmt.dataset,
                     )
                 writer.add_statement(stmt)
-        self.db.put(ds_key, digest)
+        self.db.put(ds_key, manifest_digest)
         self.optimize()
         log.info(
             "Local LevelDB aggregator is ready.",

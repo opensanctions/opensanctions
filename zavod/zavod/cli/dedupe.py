@@ -41,7 +41,7 @@ def xref(
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+        manifest = Manifest.get_transient(dataset, refresh_leaf_versions=rebuild_store)
         store = get_store(manifest, resolver)
         store.sync(clear=rebuild_store)
         blocking_xref(
@@ -78,7 +78,7 @@ def dedupe(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+        manifest = Manifest.get_transient(dataset, refresh_leaf_versions=rebuild_store)
         store = get_store(manifest, resolver)
         store.sync(clear=rebuild_store)
         dedupe_ui(
@@ -128,7 +128,7 @@ def wikidata_reconcile(
     session = make_session()
     resolver = get_resolver(session)
     resolver.load_into_memory()
-    manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+    manifest = Manifest.get_transient(dataset, refresh_leaf_versions=rebuild_store)
     store = get_store(manifest, resolver)
     store.sync(clear=rebuild_store)
 
@@ -205,7 +205,9 @@ def dedupe_edges(dataset_paths: list[Path], rebuild_store: bool = False) -> None
         with make_session() as session:
             resolver = get_resolver(session)
             resolver.load_into_memory()
-            manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+            manifest = Manifest.get_transient(
+                dataset, refresh_leaf_versions=rebuild_store
+            )
             store = get_store(manifest, resolver)
             store.sync(clear=rebuild_store)
             edges.dedupe_edges(resolver, session, store.view(dataset, external=True))
