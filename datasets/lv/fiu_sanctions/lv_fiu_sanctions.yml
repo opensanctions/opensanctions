@@ -44,8 +44,8 @@ publisher:
   country: lv
   official: true
 data:
-  url: https://sankcijas.fid.gov.lv/files/LV_national_v2.xml
-  format: XLSX
+  url: https://sankcijas.fid.gov.lv/lejupieladet-sarakstu/lv
+  format: XML
 dates:
   formats: ["%d/%m/%y", "%d.%m.%Y."]
 
