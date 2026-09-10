@@ -56,24 +56,20 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
     case_id = row.pop("case_id")
     assert case_id is not None, "Missing case ID"
     title = row.pop("title")
-    date = row.pop("action_date")
     individual_name = row.pop("individual_name")
-    individual_crd = row.pop("individual_crd")
     firm_name = row.pop("firm_name")
-    firm_crd = row.pop("firm_crd")
     summary = row.pop("summary")
-    document_link = row.pop("document_link")
-    context.audit_data(row, ignore=["document_type", "has_related_cases"])
+
     if summary is not None and "<" in summary:
         summary = cast(HtmlElement, html.fromstring(summary)).text_content()
 
     name_parts: list[tuple[str, str | None]] = []
     if individual_name is not None:
         name_parts.extend(
-            split_parts(context, individual_name, individual_crd, case_id)
+            split_parts(context, individual_name, row.pop("individual_crd"), case_id)
         )
     if firm_name is not None:
-        name_parts.extend(split_parts(context, firm_name, firm_crd, case_id))
+        name_parts.extend(split_parts(context, firm_name, row.pop("firm_crd"), case_id))
 
     if len(name_parts) == 0:
         # A few rows leave both name columns empty; the subject is then only in
@@ -100,6 +96,7 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
                 name=raw_name,
             )
         h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
+        entity.add("notes", row.pop("document_type"))
         entity.add("topics", "reg.action")
         entity.add("country", "us")
 
@@ -124,11 +121,13 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
 
         sanction = h.make_sanction(context, entity, key=case_id)
         if summary is not None:
-            sanction.add("description", f"{date}: {summary}")
+            sanction.add("description", summary)
         sanction.add("authorityId", case_id)
-        sanction.add("sourceUrl", document_link)
-        h.apply_date(sanction, "date", date)
+        sanction.add("sourceUrl", row.pop("document_link"))
+        h.apply_date(sanction, "date", row.pop("action_date"))
         context.emit(sanction)
+
+        context.audit_data(row, ignore=["has_related_cases"])
 
 
 def crawl(context: Context) -> None:
