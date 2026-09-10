@@ -331,7 +331,7 @@ RESIDUE_ALLOW: frozenset[str] = frozenset(
         # Zidane: the printed alias list annotates two aliases with their
         # own birth data; each annotated alias is one value.
         "Sayf-Al Adl. Date of birth: 11.4.1963. Place of birth: Monufia "
-        "Governate, Egypt. Nationality: Egyptian",
+        "Governate, Egypt. Nationality: Egyptian. In Arabic: سيف العدل",
         "Muhamad Ibrahim Makkawi. Date of birth: (i) 11.4.1960, "
         "(ii) 11.4.1963. Place of birth: Egypt. Nationality: Egyptian",
     }
@@ -418,10 +418,9 @@ VALUE_OVERRIDES: dict[str, tuple[tuple[str, str], ...]] = {
 }
 
 # Printed startDate defects, exact printed text → the intended date.
-DATE_PINS: dict[str, str] = {
-    # Ummah Tameer E-Nau: a stray space inside the printed date.
-    "24.12. 2001": "24.12.2001",
-}
+# Currently empty: the one defect this held (Ummah Tameer E-Nau's
+# "24.12. 2001") was corrected at source in 02002R0881-20260822.
+DATE_PINS: dict[str, str] = {}
 
 # Legacy entries that do not follow the entry grammar at all, hand
 # transcribed and keyed by their exact printed text. Any source change

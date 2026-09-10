@@ -35,8 +35,10 @@ entries continue into a second table row whose number and name cells are
 empty; the continuation's identifying information and reasons belong to
 the preceding entry. Delisted entries leave numbering gaps. Relational
 "Associated …" lines name other parties, have no CSV column, and are
-deliberately not transcribed. Dates are transcribed as the source prints
-them ("21.6.2021", "20 March 2022"); the crawler normalizes dates.
+deliberately not transcribed. A part B entry printing a KPP is emitted as
+Company, the only schema carrying kppCode. Dates are transcribed as the
+source prints them ("21.6.2021", "20 March 2022"); the crawler normalizes
+dates.
 
 Output: data/consolidated/32006R0765.csv (the EU Journal consolidated CSV
 contract, keyed by the framework act). The consolidated version the snapshot
@@ -58,6 +60,7 @@ from common import (
     Row,
     annex_blocks,
     annex_id,
+    bare_text,
     cell_line,
     cell_lines,
     check_consolidated_celex,
@@ -249,6 +252,11 @@ INFO_LABELS = {
     "Registration number": "registrationNumber",
     "Registration number (УНН/ИНН)": "registrationNumber",
     "OKPO": "okpoCode",
+    # Russian-registered part B entries print the Russian identifier systems
+    # under their own acronyms.
+    "INN": "innCode",
+    "OGRN": "ogrnCode",
+    "KPP": "kppCode",
     "Date of registration": "incorporationDate",
     "Date of Registration": "incorporationDate",
     "Date of establishement": "incorporationDate",
@@ -349,7 +357,17 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
         "https://lasercut.by/": (("website", "https://lasercut.by/"),),
         "+375 17 390 30 76": (("phone", "+375 17 390 30 76"),),
     },
+    # The room list is part of one printed address; the semicolon separates
+    # the rooms from the street, it does not enumerate two addresses.
+    ("B", "62"): {
+        "Address: Room 1, 2; 4a Tenishevoy st., Smolensk, 21400, Russia": (
+            ("address", "Room 1, 2; 4a Tenishevoy st., Smolensk, 21400, Russia"),
+        ),
+    },
 }
+# Part B entries whose printed identifiers land in a Company-only column
+# (kppCode) are emitted as Company; the printed structure forces the schema.
+COMPANY_PROPS = ("kppCode",)
 # Listing dates printed with a stray trailing period ("3.6.2022.",
 # "24 May 2026."); the period is list punctuation, not date wording.
 DATE_PERIOD_PINS = frozenset({("I.B", "28"), ("XXXIV", "")})
@@ -573,12 +591,22 @@ def parse_annex_i(roman: str, block: Element) -> list[Row]:
             part_rows.append(parse_annex_i_row(roman, part, schema, tr))
         if not part_rows:
             raise ParseError(f"{ctx}: no entries extracted")
+        for row in part_rows:
+            # Checked after the continuation rows have been merged, so an
+            # identifier printed in a continuation counts too.
+            if part == "B" and any(prop in row.props for prop in COMPANY_PROPS):
+                row.schema = "Company"
         rows.extend(part_rows)
     return rows
 
 
 def iter_norm_lines(roman: str, block: Element) -> list[str]:
-    """Collect the non-empty p.norm entry lines of a plain-list annex."""
+    """Collect the non-empty entry lines of a plain-list annex.
+
+    An entry is one p.norm line. The block of names most recently appended to
+    Annex V is marked up as div.list siblings instead — same one-name-per-
+    element shape, so both are read as entry lines.
+    """
     lines: list[str] = []
     for child in block.iterchildren():
         if not isinstance(child.tag, str):
@@ -595,6 +623,12 @@ def iter_norm_lines(roman: str, block: Element) -> list[str]:
             text = clean(element_text(child), roman)
             if text:
                 lines.append(text)
+            continue
+        if child.tag == "div" and cls == "list":
+            text = bare_text(child, roman)
+            if not text:
+                raise ParseError(f"{roman}: empty div.list entry")
+            lines.append(text)
             continue
         raise ParseError(f"{roman}: unexpected <{child.tag} class={cls!r}>")
     return lines
@@ -694,6 +728,7 @@ def main(celex: str, source: Path | None) -> None:
                 *(measure for _, measure, _ in NAME_DATE_TARGETS.values()),
             ],
             [
+                "Company",
                 *(schema for _, _, schema in ANNEX_I_PARTS),
                 *(schema for schema, _ in NORM_LIST_TARGETS.values()),
                 *(schema for schema, _, _ in NAME_DATE_TARGETS.values()),
