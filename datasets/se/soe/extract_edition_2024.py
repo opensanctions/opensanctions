@@ -1,5 +1,9 @@
-# This file does not run in prod, it's a one-time script to extract data from a PDF report,
-# so our requirements are relaxed.
+# The one-time script used to extract the 2024 edition
+# (Verksamhetsberattelse for bolag med statligt agande 2024) into leadership.csv.
+# Kept for reference only: it does not run in prod, the 2025 edition changed layout
+# enough that it does not apply to it, and the 'company_names' lookup it reads was
+# dropped from the dataset YAML when leadership.csv became the source of record.
+# Requirements are relaxed accordingly.
 # mypy: ignore-errors
 
 import csv
