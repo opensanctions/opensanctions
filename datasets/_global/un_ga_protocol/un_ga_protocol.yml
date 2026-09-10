@@ -26,6 +26,7 @@ publisher:
     Secretary-General and the President of the General Assembly.
   url: "https://www.un.org/dgacm/en/content/protocol"
   official: true
+  country: un
 url: "https://www.un.org/dgacm/en/content/protocol/hshgnfa"
 tags:
   - list.pep

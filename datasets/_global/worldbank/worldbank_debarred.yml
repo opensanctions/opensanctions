@@ -10,11 +10,11 @@ summary: >
   ineligible to participate in World Bank-financed contracts for the
   periods indicated.
 description: |
-  The World Bank Group (IBRD, IDA) maintain a list of companies that are not 
+  The World Bank Group (IBRD, IDA) maintain a list of companies that are not
   allowed to be awarded projects by its member organisations. Entities are added
-  either as a consequence of a sanctioning process within the bank (see [here](https://policies.worldbank.org/en/policies/all/ppfdetail/3872) 
+  either as a consequence of a sanctioning process within the bank (see [here](https://policies.worldbank.org/en/policies/all/ppfdetail/3872)
   for details), or via cross-sanctioning from one of the following other international
-  development banks: 
+  development banks:
 
   * Asian Development Bank
   * European Bank for Reconstruction and Development
@@ -36,6 +36,7 @@ publisher:
     extreme poverty.
   url: https://www.worldbank.org
   official: true
+  country: zz
 tags:
   - list.debarment
   - sector.devbank
