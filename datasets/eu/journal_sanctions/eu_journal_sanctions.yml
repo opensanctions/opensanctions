@@ -236,6 +236,9 @@ config:
   # 3. Find the amendment CSV using that CELEX and confirm that the modified
   #    consolidated CSV rows match the amendment CSV rows (i.e. the consolidated
   #    is now up to date with that amendment).
+  #
+  # No need to review the extraction script changes - it's just there to be reusable
+  # and for provenance.
   consolidated_amendments:
     32026R1720: 02020R1998-20260730
     32026R1817: 02006R0765-20260724
