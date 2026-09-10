@@ -4,67 +4,44 @@ EU sanctions take legal effect the moment they are published in the EU Official 
 
 ## Watchful monitoring and agentic extraction
 
-> Skeleton. Expand as the new workflow settles.
+Watchful has an EU Journal task monitoring CELLAR for new sanctions frameworks, amendments, and consolidation updates.
+
+It kicks off crawler jobs which result in warnings for the issues agent to work on and for us to review.
 
 ### Operations
 
 ```mermaid
 flowchart TD
-    A[Watchful checks EUR-Lex / CELLAR<br>for amendments and consolidations] --> B[Watchful posts a Slack notification]
-    A --> C[Watchful starts a crawler job]
-    C --> D[Crawler logs warnings for new work]
-    D --> E[Watchful runs the issues agent on the warnings]
-    E --> F[Issues agent opens a PR with CSV changes]
-    F --> G[Dev team reviews the PR]
-    G --> H[Merged PR releases the data changes]
+    A["1. Watchful checks EUR-Lex / CELLAR<br>for amendments and consolidations"]
+    A --> B["2. Watchful posts a Slack notification"]
+    B --> C["3. Watchful starts a crawler job"]
+    C --> D["4. Crawler logs warnings for new work"]
+    D --> E["5. Watchful runs the issues agent"]
+    E --> F["6. Issues agent checks warnings and instructions in crawler yaml"]
+    F --> G["7. Issues agent opens a PR with changes per instructions"]
+    G --> H["8. Dev team reviews the PR"]
+    H --> I["9. Merged PR reruns the crawler"]
+    I --> D
 ```
 
 The crawler itself detects new amendments and drift from the consolidated text, and reports them as warnings. Expect these on the issues dashboard for `eu_journal_sanctions`:
 
 | Warning | Meaning | Action |
 |---------|---------|--------|
-| `Amending act has no reviewed transcription` | A new amendment is on EUR-Lex but has no transcribed data yet | Wait for the issues-agent PR, then review it (see below). Chase if no PR appears within a working day. |
+| `Amending act has no reviewed transcription` | A new amendment is on EUR-Lex but has no transcribed data yet | Wait for the issues-agent PR, then review it (see below). |
 | `Newer consolidated version published` | CELLAR published a consolidation newer than the one we pin | Expect an issues-agent PR re-pinning and re-parsing. Review it. |
-| `Name not found in consolidated regulation text` | A transcribed row no longer matches the consolidated text | Entity likely delisted or mistranscribed. Check the amendment and fix or remove the row. |
-| `Row … is also present in …` / `Rows … are in other datasets` | Entities have reached `eu_fsf` or another canonical feed | Remove the rows from this dataset. |
-| Other `Could not …` warnings | Parsing or lookup failure in the crawler or a parser script | Maintainer issue. File it. |
 
 #### PR review policy
 
+Generally, familiarise yourself with the instructions to the Maintainer in the dataset yaml - usually issues-agent (an LLM), to figure out what the intended changes are for a given warning. Additional review instructions are listed for the Reviewer in the dataset yaml.
+
+Furthermore
+
 - Check that every entity in the amendment is present, and that names, IDs, dates and program match the source.
 - If identifiers such as passport numbers appear in aliases **and** in the correct columns, accept. The alias noise gets cleaned in name-cleaning data reviews.
-- If identifiers are **not** in the correct columns, reject. The extraction for that amendment must put them in the right place.
-- Merged data is picked up by the next scheduled crawler run.
+  - Look out for data reviews following a PR merge.
+- If identifiers are **not** in the correct columns, reject. Comment on the PR with @claude for it to fix.
 
-### Maintainers
-
-```mermaid
-sequenceDiagram
-    participant W as Watchful
-    participant E as EUR-Lex / CELLAR
-    participant C as eu_journal_sanctions crawler
-    participant D as Issues dashboard
-    participant A as issues-agent (GitHub Action)
-    participant R as Reviewer
-
-    W->>E: Poll sanctionsmap.eu + EUR-Lex for new amendments
-    W->>C: Trigger crawler run
-    C->>E: Query amendments and consolidated versions
-    C->>D: Log warnings (missing transcription, stale pin, …)
-    A->>D: Read warnings
-    A->>E: Fetch amendment, extract tables
-    A->>R: Open PR with data and parser changes
-    R->>A: Review, request changes or merge
-    C->>C: Next run consumes merged data
-```
-
-Components:
-
-- **Watchful** (`operations/watchful/`): detects new amendments and triggers the crawler.
-- **Crawler** (`datasets/eu/journal_sanctions/crawler.py`): queries EUR-Lex and CELLAR, compares against transcribed data, logs warnings.
-- **Parser scripts** (`datasets/eu/journal_sanctions/scripts/`): one per framework act, parse the pinned consolidated text.
-- **issues-agent** (`.github/workflows/issues-agent.yml`): reads warnings, extracts and opens PRs.
-- **Reviewer**: applies the PR review policy above.
 
 ## eu_journal EUR-LEX SOAP and manual extraction
 

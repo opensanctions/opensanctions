@@ -100,7 +100,15 @@ names:
 config:
   # This section is the registry of the EU legal acts the dataset covers. The
   # crawler compares the registry with CELLAR and gives a warning when the
-  # registry is behind the Official Journal. Two warnings ask for work here.
+  # registry is behind the Official Journal.
+  #
+  # The documentation is split by role. Maintainer is usually an LLM agent.
+  # Reviewer is usually an OpenSanctions data engineer. Additional documentation
+  # for reviewers is in the Zavod docs.
+
+  # Role: Reviewer
+  #
+  # Two warnings ask for work here.
   # Obey the full procedure for the warning you get.
   #
   # Before you write a CSV in data/, read data/FORMAT.md. It is the contract
@@ -117,14 +125,8 @@ config:
   # The procedure for each warning is above the key that the procedure
   # changes. A comment block here holds a maximum of 32 lines: the YAML
   # check in CI rejects more before a key.
-  #
-  # The documentation is split by role. Maintainer is usually an LLM agent.
-  # Reviewer is usually an OpenSanctions data engineer.
   key_just_to_allow_more_documentation: "whatever"
 
-  # The consolidated version that each data/consolidated/{framework}.csv
-  # snapshot comes from. The Makefile gives the same version to the parser.
-  #
   # Role: Maintainer
   #
   # These two warnings show an error in this mapping. Correct the mapping.
@@ -140,6 +142,9 @@ config:
   # been fixed in a pull request, it might be that the agent ran out of turns.
   # A subsequent run should act on them and resolve the warnings. It's ok to
   # merge a PR with these warnings but ensure they're resolved by a subsequent run.
+  #
+  # The consolidated version that each data/consolidated/{framework}.csv
+  # snapshot comes from. The Makefile gives the same version to the parser.
   consolidation:
     32001R2580: 02001R2580-20260227
     32002R0881: 02002R0881-20260822
