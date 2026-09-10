@@ -30,6 +30,7 @@ publisher:
     identifier for every research organization in the world.
   url: "https://ror.org/"
   official: true
+  country: zz
 url: "https://ror.org/registry/"
 
 inputs:
