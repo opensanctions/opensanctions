@@ -34,8 +34,7 @@ deprecation: |
   We are also working to relaunch the [EveryPolitician website](https://www.everypolitician.org/) as a public data
   resource in the future.
 publisher:
-  name: UK Citizens Online Democracy
-  acronym: MySociety
+  name: mySociety
   description: |
     MySociety is a non-profit group developing online technologies that empower citizens
     to participate in politics and civic life.
