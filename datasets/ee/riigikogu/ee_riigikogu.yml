@@ -2,20 +2,18 @@ title: Estonia Members of the Riigikogu
 entry_point: crawler.py
 prefix: ee-rii
 coverage:
-  frequency: daily
+  frequency: monthly
   start: "2024-02-08"
 load_statements: true
-ci_test: false
 summary: >-
-  Members of the Riigikogu, Estonia's unicameral parliament
+  Current and historical members of the Riigikogu, Estonia's unicameral parliament
 description: |
-  This dataset comprises information about current members of the Riigikogu,
-  which is the unicameral parliament of Estonia.
-
-  It is constituted with a total of 101 seats, each member is elected through
-  a national election for a four year term. In addition to approving legislation,
-  the Parliament appoints high officials, including the prime minister, and
-  elects the president.
+  Current and historical members of the Riigikogu, Estonia's unicameral
+  national legislature. Its 101 members are elected by proportional
+  representation, with regular elections held every four years. The
+  Riigikogu passes laws, approves the state budget, authorises a candidate
+  for Prime Minister to form a government, and elects the President of
+  the Republic unless the election passes to an electoral college.
 tags:
   - list.pep
 publisher:
@@ -25,16 +23,47 @@ publisher:
   url: https://www.riigikogu.ee/en/
   official: true
   country: "ee"
-url: "https://www.riigikogu.ee/en/parliament-of-estonia/composition/members-riigikogu/"
+url: "https://www.riigikogu.ee/en/parliament-of-estonia/members-of-the-riigikogu/"
 data:
-  url: https://www.riigikogu.ee/en/parliament-of-estonia/composition/members-riigikogu/
-  format: HTML
+  url: https://api.riigikogu.ee/api/plenary-members
+  format: JSON
+  lang: est
+
+lookups:
+  # Source job titles mapped to the official English titles used by the
+  # Riigikogu because automated translation gives inconsistent results between these positions.
+  # See "Board of the Riigikogu" on
+  # https://www.riigikogu.ee/en/introduction-and-history/introduction/structure-of-riigikogu/
+  position_eng:
+    required: true
+    options:
+      - match: Riigikogu liige
+        value: Member of the Riigikogu
+      - match:
+          - Riigikogu esimees
+          - esimees
+        value: President of the Riigikogu
+      - match: Riigikogu I aseesimees
+        value: First Vice-President of the Riigikogu
+      - match: Riigikogu II aseesimees
+        value: Second Vice-President of the Riigikogu
+      # The 12th composition (2011-2015) labels its presidium with the bare words
+      # for chair and deputy chair, without saying which of the two Vice-Presidents.
+      - match: aseesimees
+        value: Vice-President of the Riigikogu
 
 assertions:
   min:
     schema_entities:
-      # This is important because we skip entities whose name can't be scraped from the page.
-      Person: 90
+      Person: 155
+      Position: 4
+    entities_with_prop:
+      Occupancy:
+        holder: 220
   max:
     schema_entities:
-      Person: 120
+      Person: 800
+      Position: 10
+    entities_with_prop:
+      Occupancy:
+        holder: 1600
