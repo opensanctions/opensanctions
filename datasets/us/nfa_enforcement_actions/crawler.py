@@ -1,7 +1,6 @@
-import json
-import re
 from typing import Any
-from urllib.parse import parse_qs, urljoin, urlsplit
+import json
+from urllib.parse import parse_qs, urlsplit
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from lxml import html
@@ -11,23 +10,24 @@ from zavod import helpers as h
 
 BASE_URL = "https://www.nfa.futures.org"
 
+
 @dataclass
 class Respondent:
     id: str
     url: str
     name_raw: str
 
+
 # Cutoff is later than earliest available year
 def first_year() -> str:
     """Calculate min year for enforcements"""
     now = datetime.now()
-    cutoff = timedelta(days = h.dates.MAX_ENFORCEMENT_DAYS)
+    cutoff = timedelta(days=h.dates.MAX_ENFORCEMENT_DAYS)
     delta = now - cutoff
     return delta.strftime("%Y")
 
 
-def fetch_csrf_token(context: Context):
-    url = context.dataset.url
+def fetch_csrf_token(context: Context, url: str) -> str:
     doc = context.fetch_html(url)
     return h.xpath_string(doc, ".//meta[@name='csrf-token']/@content")
 
@@ -39,8 +39,10 @@ def fetch_rows(context: Context) -> list[dict[str, Any]]:
     handed out by the listing page, and answers everything else with a redirect to an
     error page rather than an error status.
     """
-    token = fetch_csrf_token(context)
-    
+    url = context.dataset.url
+    assert url is not None
+    token = fetch_csrf_token(context, url)
+
     data = context.fetch_json(
         context.data_url,
         method="POST",
@@ -52,7 +54,7 @@ def fetch_rows(context: Context) -> list[dict[str, Any]]:
         ),
         headers={
             "Content-Type": "application/json",
-            "Referer": context.dataset.url,
+            "Referer": url,
             "x-csrf-token": token,
             "x-requested-with": "XMLHttpRequest",
         },
@@ -62,7 +64,7 @@ def fetch_rows(context: Context) -> list[dict[str, Any]]:
     return rows
 
 
-def parse_respondents(context: Context, headline: str) -> list(Respondent):
+def parse_respondents(context: Context, headline: str) -> list[Respondent]:
     """Return the (respondent key, detail URL, caption) of each link in a headline."""
     respondents = list()
     fragment = html.fragment_fromstring(headline, create_parent="div")
@@ -72,13 +74,11 @@ def parse_respondents(context: Context, headline: str) -> list(Respondent):
         href = (anchor.get("href") or "").replace("\\", "/")
         respondents.append(
             Respondent(
-                id = parse_qs(urlsplit(href).query)["nfaid"][0],
-                url = BASE_URL + href,
-                name_raw = h.multi_split(
-                    h.element_text(anchor), 
-                    ["et al."]
-                )[0],
-            ))
+                id=parse_qs(urlsplit(href).query)["nfaid"][0],
+                url=BASE_URL + href,
+                name_raw=h.multi_split(h.element_text(anchor), ["et al."])[0],
+            )
+        )
     return respondents
 
 
@@ -111,7 +111,9 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         h.apply_dates(
             sanction,
             "startDate",
-            [date,],
+            [
+                date,
+            ],
         )
 
         context.emit(entity)
