@@ -28,21 +28,36 @@ publisher:
     [Source: Official Website](https://eiti.org/our-mission)
   url: https://eiti.org
   official: false
-url: https://soe-database.eiti.org/eiti_database/SOE~20List
+url: https://eiti-database.eiti.org/eiti_database/view_soeList
 data:
-  url: https://soe-database.eiti.org/eiti_database/SOE~20List.json
+  url: https://eiti-database.eiti.org/eiti_database/view_soeList.json
   format: JSON
 
 assertions:
   min:
     schema_entities:
-      LegalEntity: 90
+      LegalEntity: 200
   max:
     schema_entities:
-      LegalEntity: 1200
+      LegalEntity: 600
 
 lookups:
   type.url:
     options:
-      - match: "No"
+      # Placeholders in the website and audited statement columns
+      - match:
+          - "No"
+          - "Yes"
+          - "SI"
+          - "OUI (2018)"
+          - "Not available"
+          - "Not applicable"
+          - "Non-quoted"
+          - "private"
+          - "no se dispone de aquel"
+          - "SNIM"
         value: null
+      - match: "www.gnpcghana.com/speeches/2018_financial.pdf · PDF file"
+        value: http://www.gnpcghana.com/speeches/2018_financial.pdf
+      - match: "ttps://umcc.com.ua/purchase/download?file=%D0%A4%D1%96%D0%BD%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D0%B0+%D0%B7%D0%B2%D1%96%D1%82%D0%BD%D1%96%D1%81%D1%82%D1%8C+%D0%90%D0%A2+%D0%9E%D0%93%D0%A5%D0%9A+%D0%B7%D0%B0+2018+%D1%80%D1%96%D0%BA.pdf"
+        value: https://umcc.com.ua/purchase/download?file=%D0%A4%D1%96%D0%BD%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D0%B0+%D0%B7%D0%B2%D1%96%D1%82%D0%BD%D1%96%D1%81%D1%82%D1%8C+%D0%90%D0%A2+%D0%9E%D0%93%D0%A5%D0%9A+%D0%B7%D0%B0+2018+%D1%80%D1%96%D0%BA.pdf
