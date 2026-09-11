@@ -1,0 +1,491 @@
+title: Indonesia Members of the People's Representative Council
+name: id_dpr
+prefix: id-dpr
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false  # Signed GraphQL requests require Zyte API
+summary: >-
+  Lower chamber of the Indonesian parliament, elected from 84 electoral districts
+description: |
+  Current and former members of the People's Representative Council (Dewan Perwakilan
+  Rakyat, DPR), the lower chamber of Indonesia's bicameral parliament, since 1999. Its
+  current 580 members are elected from 84 electoral districts (dapil) across the provinces
+  for a five-year term and hold the country's legislative power, including passing laws
+  and approving the budget.
+url: https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan
+publisher:
+  name: Dewan Perwakilan Rakyat Republik Indonesia
+  acronym: DPR
+  description: >
+    The People's Representative Council is the lower chamber of the Indonesian parliament,
+    composed of members elected from electoral districts across the country.
+  url: https://www.dpr.go.id/
+  country: id
+  official: true
+data:
+  # GraphQL endpoint used by the client-rendered member listing
+  url: https://www.dpr.go.id/gql
+  format: JSON
+  lang: ind
+
+tags:
+  - list.pep
+
+names:
+  prefixes_strip:
+    - Prof.
+    - (Prof.)
+    - Assoc. Prof.
+    - Dr.
+    - (Dr.)
+    - Dr. (H.C.)
+    - (H.C.)
+    - (H.C)
+    - (H.C).
+    - (HC)
+    - H.C.
+    # Applied doctorate; appears as "Dr.Tr." (the "Dr." strips first)
+    - Tr.
+    - drg.
+    - drh.
+    - Drs.
+    - Dra.
+    - Ir.
+    - Apt.
+    - H.
+    - Hj.
+    - Hi.
+    - KH.
+    - K.H.
+    # Raden Haji
+    - R.H.
+    - Ny.
+    - Ust.
+    # Police/military ranks (retired)
+    - Irjen. Pol. (Purn)
+    - Irjen Pol (P)
+    - Mayjen. TNI (Purn.)
+    # Javanese noble title (Kanjeng Raden Tumenggung)
+    - K.R.T.
+  suffixes_strip:
+    # Bachelor's (Sarjana, "S.")
+    - ", S.H."
+    - ", S.H.I."
+    - ", S.E."
+    - ", S.E.I."
+    - ", S.Sos."
+    - ", S.Sos.I."
+    - ", S.T."
+    - ", S.T.P."
+    - ", S.Pd."
+    - ", S.Pd.I."
+    - ", S.Ag."
+    - ", S.Kom."
+    - ", S.I.P."
+    - ", S.IP."
+    - ", S.Ip."
+    - ", S.Si."
+    - ", S.Ked."
+    - ", S.Farm."
+    - ", S.Psi."
+    - ", S.Pt."
+    - ", S.P."
+    - ", S.Sn."
+    - ", S.Th."
+    - ", S.Th.I."
+    - ", S.Fil."
+    - ", S.Fil.I."
+    - ", S.Ud."
+    - ", S.Hut."
+    - ", S.Kel."
+    - ", S.Tr."
+    - ", S.Kep."
+    - ", S.K.M."
+    - ", S.KM."
+    - ", S.I.Kom."
+    - ", S.Ikom."
+    - ", S.A.B."
+    - ", S.AB."
+    - ", S.STP."
+    - ", S.IK."
+    - ", S.Par."
+    - ", S.S."
+    - ", S.ST."
+    - ", S.PWK."
+    - ", S.PWK"
+    - ", S.Pd.I"
+    - ", S.PdI."
+    - ", S.IAN"
+    - ", S.I.P"
+    - ", S.Mn."
+    - ", S.M."
+    - ", S.K.H."
+    - ", S.A.P."
+    - ", S.Hub.Int."
+    - ", S.Sos"
+    - ", S.Kp."
+    - ", S.Q."
+    - ", S.H"
+    # Master's (Magister, "M.")
+    - ", M.H."
+    - ", M.H.I."
+    - ", M.M."
+    - ", M.Si."
+    - ", M.T."
+    - ", M.Pd."
+    - ", M.Pd.I."
+    - ", M.A."
+    - ", M.A.P."
+    - ", M.AP."
+    - ", M.B.A."
+    - ", M.BA."
+    - ", M.E."
+    - ", M.E.I."
+    - ", M.Ec."
+    - ", M.Ec.Dev."
+    - ", M.Kom."
+    - ", M.Kes."
+    - ", M.Kep."
+    - ", M.Sos."
+    - ", M.Ag."
+    - ", M.Hum."
+    - ", M.Sc."
+    - ", M.P."
+    - ", M.I.Kom."
+    - ", M.Ikom."
+    - ", M.I.P."
+    - ", M.IP."
+    - ", M.Han."
+    - ", M.Han"
+    - ", M.Div."
+    - ", M.Th."
+    - ", M.Eng."
+    - ", M.Fil.I."
+    - ", M.Kn."
+    - ", M.Psi."
+    - ", M.Tr."
+    - ", M.I.Pol."
+    - ", M.I.Pol"
+    - ", M.K.M."
+    - ", M.KM."
+    - ", M.K.P."
+    - ", M.KP."
+    - ", M.HP."
+    - ", M.H"
+    - ", M.Hum"
+    - ", M.Si"
+    - ", M.S."
+    - ", M.S.P."
+    - ", M.M.A."
+    - ", M.M.A"
+    - ", M.M.Tr."
+    - ", M.A.P"
+    - ", M.A.B."
+    - ", M.Ak."
+    - ", M.Sn."
+    - ", M.Psi.T."
+    - ", M.PSDM."
+    - ", M.P.P."
+    - ", M.H.Kes."
+    - ", M.Mar."
+    - ", M.Bus."
+    - ", M.IR"
+    - ", MA."
+    - ", MSc."
+    - ", MCom"
+    - ", M.Comn&MediaSt."
+    # Historical records use many inconsistent spellings/capitalisations
+    - ", M div"
+    - ", M.Kes"
+    - ", Msi"
+    - ", MSi"
+    - ", MSi."
+    - ", MSI"
+    - ", M.SC"
+    - ", M.sc"
+    - ", MSC"
+    - ", M.Sc"
+    - ", MSc"
+    - ", M.A"
+    - ", MA"
+    - ", M. Ag"
+    - ", M.AG"
+    - ", M. Eng."
+    - ", M.SE"
+    - ", M.PD"
+    - ", M.Pd"
+    - ", M.Pd.I"
+    - ", M.AP"
+    - ", MAP"
+    - ", MPA."
+    - ", MPP"
+    - ", MPH"
+    - ", MPH."
+    - ", M.Ed"
+    - ", M.Arch"
+    - ", M.Kn"
+    - ", MH."
+    - ", MHUM"
+    - ", MHI."
+    - ", MT"
+    - ", MT."
+    - ", ME"
+    - ", MP"
+    - ", MP."
+    - ", MMA"
+    - ", MMA."
+    - ", MMR."
+    - ", MARS."
+    - ", MIS"
+    - ", MTP"
+    - ", MEC"
+    - ", MDE"
+    - ", MI.Pol."
+    - ", M.Com"
+    - ", MMAR"
+    - ", MM."
+    - ", M.M.T."
+    - ", M.BA"
+    - ", M. Sc."
+    - ", M.Sosio."
+    - ", M.Sp."
+    - ", M.PA."
+    - ", Med."
+    - ", M.Mar"
+    - ", M.Kum."
+    - ", M.Phil"
+    - ", M.COMM.LAW"
+    - ", ME.Con."
+    - ", M.Kom. I"
+    - ", M. Si."
+    - ", M. Kn"
+    - ", M,Mar"
+    - ", M,Si"
+    # Doctorate and professional
+    - ", Ph.D."
+    - ", Ph.D"
+    - ", LL.M."
+    - ", LLM"
+    - ", LL.B."
+    - ", B.Sc."
+    - ", B.S."
+    - ", B.A."
+    - ", B.A. (Hons)."
+    - ", B.B.A."
+    - ", B.Bus."
+    - ", B.Com."
+    - ", B.Com"
+    - ", B.Comm."
+    - ", Bc.I.P."
+    - ", M.B.A"
+    - ", MBA"
+    - ", Ak."
+    - ", Akt."
+    - ", CA."
+    - ", CA"
+    - ", CPA."
+    - ", C.N."
+    - ", C.L.A."
+    - ", A.Md."
+    - ", QIA"
+    - ", IPU."
+    - ", ACCS."
+    - ", D.E.A."
+    - ", Lc."
+    - ", Lc"
+    - ", L.c."
+    - ", Psikolog."
+    - ", PhD"
+    - ", Ph. D."
+    - ", D.Sc."
+    - ", DIC."
+    - ", D.MIN"
+    - ", APU"
+    - ", CHA"
+    - ", DCN"
+    - ", DIPL"
+    - ", DK"
+    - ", LML"
+    - ", Le"
+    - ", MC."
+    - ", PA"
+    - ", Psi."
+    - ", Sm.Hk"
+    - ", SN"
+    - ", STH"
+    - ", W.P."
+    - ", AV."
+    - ", C.F.E."
+    - ", MAF."
+    - ", A.AK."
+    - ", A.Md"
+    - ", A.Md.IP."
+    - ", Amd"
+    - ", BA"
+    - ", BA."
+    - ", BBA"
+    - ", BBA."
+    - ", BSC"
+    - ", B.Sc"
+    - ", B.Bus"
+    - ", S.HI"
+    - ", S.HI."
+    - ", SH."
+    - ", SHI"
+    - ", SE."
+    - ", S.E"
+    - ", S. E"
+    - ", ST"
+    - ", S.T"
+    - ", SP"
+    - ", SP."
+    - ", S.Pi"
+    - ", S.Pi."
+    - ", S.Pt"
+    - ", S.Pd"
+    - ", S. Pd."
+    - ", SIP"
+    - ", SIP."
+    - ", S.IP"
+    - ", S.Ip"
+    - ", S. Sos"
+    - ", S.SOS.I"
+    - ", S.Sos.I"
+    - ", S.Hum."
+    - ", S.Sy."
+    - ", S.Kep"
+    - ", S.Psi"
+    - ", SKG"
+    - ", AK"
+    - ", MS"
+    - ", MS."
+    - ", SP.B"
+    - ", SP.P"
+    - ", SP. OK"
+    - ", SP.OG (K)"
+    - ", Sp. An"
+    - ", Spog"
+    - ", SpOG"
+    - ", Sp.K.J. (SpKJ)"
+    - ", Sp.PD-KAI."
+    - ", dr. SpKK (K)"
+    - ", Par."
+    - ", S.Ag"
+    - ", S. Ag"
+    - ", S.Si"
+    - ", S.I.Kom"
+    - ", S. H."
+    - ", S.Th"
+    - ", S.Aq."
+    - ", S.PN."
+    - ", S.Pel."
+    - ", S.SOS."
+    - ", SKM."
+    - ", SM"
+    - ", PHD"
+    - ", Apt."
+    - ", Beng (Hon)"
+    - ", B. Comm"
+    - ", B.E. (Hons) MEng.Sc."
+    # Dotless variants of the most common degrees
+    - ", SH"
+    - ", SE"
+    - ", MM"
+    - ", MH"
+    # No space after the comma
+    - ",S.H."
+    - ",S.T."
+    - ",S.Th."
+    - ",S.E."
+    - ",M.B.A."
+    - ",M.H."
+    - ",M.H"
+    - ",M.A."
+    - ",M.Si"
+    - ",MSc"
+    - ",MCom"
+    - ",B.Bus.Man."
+    - ",S.H.Sp.N."
+    - ",BA"
+    - ",LC"
+    - ",MA"
+    - ",MT"
+    - ",SE"
+    - ",SH"
+    - ",SH."
+    - ",SHI"
+    - ",SP"
+    - ",S.S"
+    - ",S.Sos"
+    - ",S.Ag"
+    - ",S.I.Kom"
+    - ",S.Pi"
+    - ",M.KN"
+    - ",M.M."
+    - ",M.Sos."
+    - ",M.I.Kom"
+    - ",MH"
+    - ",MM"
+    # Malformed one-offs seen in the roster (missing commas/dots, stray spaces)
+    - ", S.E.M.A.P"
+    - ", S.I.Kom.M.IP."
+    - ", S.Sos. M.Si."
+    - ", S.H. M.Si."
+    - ", S. M."
+    - ", M. Farm"
+    - ", MSc. MM"
+    - ", MBA. MM"
+    - ", MBA. MSi"
+    - ", MM, PhD"
+    - ", MM.MBA"
+    - ", SE. MM."
+    - ", SE.MM"
+    - ", SE.M, SC"
+    - ", SH. M.Kn."
+    - ", SH. M. Hum"
+    - ", MPH.PhD"
+    - ", SH, M"
+    - ", SE. M,Si"
+    # Remaining compound/compact tails from historical records
+    - ",SP.P"
+    - ", M.M"
+    - ", BA., B,Comm."
+    - ", B, Eng"
+    - ", SE. MM"
+    - ", SH. MH."
+    - ", B.Bus., MBA."
+    - ", S.Sos. M.M."
+    - ", S.E., M.I.Kom"
+    - ", S.H. MH"
+    - ", S.Aq. MA."
+    - ", M.Si,"
+    - ", SH,M.COMM.LAW"
+    - ", S.T., M.M"
+    - ", ST."
+    - ",S.Sos. M.I.Kom"
+    - ",SH.CN"
+    - ", SE. MBA."
+    - ", MBA."
+    # Degrees appended without a comma; safe because suffixes only strip at a
+    # word boundary
+    - S.M.
+    - S.Ds.
+    - S.E.
+    - SE
+    - SH
+    - MA
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2000
+      Position: 1
+    country_entities:
+      id: 2000
+  max:
+    schema_entities:
+      Person: 2200
+      Position: 1
