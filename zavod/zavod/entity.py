@@ -69,9 +69,6 @@ class Entity(StatementEntity):
             format=format,
             origin=origin,
         ):
-            if original_value is None and clean != value:
-                original_value = value
-
             stmt = Statement(
                 entity_id=self.id,
                 prop=prop_.name,
@@ -80,7 +77,7 @@ class Entity(StatementEntity):
                 dataset=dataset or self.dataset.name,
                 lang=lang,
                 origin=origin_,
-                original_value=original_value,
+                original_value=original_value or value,
                 first_seen=seen,
                 external=external,
             )
@@ -104,7 +101,16 @@ class Entity(StatementEntity):
         """
         prop_ = self.schema.get(prop)
         if prop_ is not None:
-            return self.add(prop, values, cleaned=cleaned, fuzzy=fuzzy, format=format)
+            return self.add(
+                prop,
+                values,
+                cleaned=cleaned,
+                fuzzy=fuzzy,
+                format=format,
+                lang=lang,
+                original_value=original_value,
+                origin=origin,
+            )
 
         schema_ = model.get(schema)
         if schema_ is None:
@@ -122,15 +128,13 @@ class Entity(StatementEntity):
                 format=format,
                 origin=origin,
             ):
-                if original_value is None and clean != text:
-                    original_value = text
                 self.add_schema(schema)
                 self.unsafe_add(
                     norm_prop_,
                     clean,
                     cleaned=True,
                     lang=lang,
-                    original_value=original_value,
+                    original_value=original_value or text,
                     origin=origin_,
                 )
 
