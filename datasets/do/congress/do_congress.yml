@@ -57,6 +57,10 @@ lookups:
         value: senator
       - match: Institución del Estado
         value: null
+  district:
+    options:
+      - match: No aplica
+        value: null
 
 assertions:
   min:
