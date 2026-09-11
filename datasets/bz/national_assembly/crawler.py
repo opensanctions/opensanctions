@@ -85,6 +85,10 @@ def crawl_representatives(context: Context) -> None:
         context.data_url + "house-of-representatives/", cache_days=1
     )
     members = parse_members(house_doc)
+    # The House seats 31 elected members plus the Speaker, so a much smaller count
+    # means the page stopped listing them rather than the chamber having shrunk.
+    if len(members) < 25:
+        raise ValueError(f"Expected at least 25 representatives, found {len(members)}")
     speaker_pos, speaker_cat = make_chamber_position(
         context, "Speaker of the House of Representatives of Belize", "Q6597925"
     )
