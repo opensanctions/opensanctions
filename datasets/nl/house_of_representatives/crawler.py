@@ -29,7 +29,7 @@ def crawl_person(context: Context, element: _Element, position: Entity) -> None:
         # The source has been seen to serve a bare HTTP 500 for the page of a
         # newly seated member. Skip them rather than failing the whole dataset,
         # but make it visible so we notice if it persists or spreads.
-        context.log.warning(
+        context.log.info(
             "Failed to fetch member page, skipping member",
             url=source_url,
             name=h.element_text(anchor),
