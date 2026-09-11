@@ -1,5 +1,3 @@
-from itertools import count
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -9,6 +7,9 @@ from zavod.util import Element
 # The directory serves eight members per page by default; the page size selector
 # offers 64, which fetches the whole roster in four requests instead of twenty-nine.
 PAGE_SIZE = 64
+# Parliament has 225 seats, so four pages cover the roster. The ceiling is a
+# safety net for the pagination loop.
+MAX_PAGES = 20
 
 
 def labelled_value(el: Element, label: str) -> str | None:
@@ -22,10 +23,10 @@ def labelled_value(el: Element, label: str) -> str | None:
 def crawl_member(
     context: Context,
     card: Element,
+    href: str,
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    href = h.xpath_string(card, ".//a[contains(@href, 'mp-profile/')]/@href")
     # The profile path ends in a numeric member id, which is what the person is keyed on.
     slug = href.rstrip("/").split("/")[-1]
     raw_name = h.xpath_string(
@@ -73,7 +74,7 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    for page in count(1):
+    for page in range(1, MAX_PAGES + 1):
         doc = context.fetch_html(
             context.data_url,
             params={"page": page, "itemCount": PAGE_SIZE},
@@ -85,4 +86,7 @@ def crawl(context: Context) -> None:
         if len(cards) == 0:
             break
         for card in cards:
-            crawl_member(context, card, position, categorisation)
+            href = h.xpath_string(card, ".//a[contains(@href, 'mp-profile/')]/@href")
+            crawl_member(context, card, href, position, categorisation)
+    else:
+        raise RuntimeError("Listing pagination did not end within the page ceiling")
