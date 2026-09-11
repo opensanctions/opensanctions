@@ -11,7 +11,6 @@ from zavod.stateful.positions import (
 )
 
 TOPICS = ["gov.national", "gov.legislative"]
-PERIOD_URL = "https://service.dpd.go.id/anggota/api/v1/period"
 PER_PAGE = 300
 STATUS_SERVING = 0
 STATUS_LEFT = 1
@@ -104,7 +103,12 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     # The API host sits behind a WAF that rejects ordinary egress.
-    periods = zyte_api.fetch_json(context, PERIOD_URL, geolocation="id", cache_days=7)
+    periods = zyte_api.fetch_json(
+        context,
+        context.data_url.replace("member/public/profile", "period"),
+        geolocation="id",
+        cache_days=7,
+    )
     earliest_year = int(h.earliest_term_start(TOPICS)[:4])
     for period in sorted(periods, key=lambda p: p["endYear"], reverse=True):
         if period["endYear"] < earliest_year:
