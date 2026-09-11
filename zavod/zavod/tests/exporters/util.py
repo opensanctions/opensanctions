@@ -1,24 +1,25 @@
-from zavod.context import Context
+from followthemoney.dataset import Version
+from nomenklatura.resolver import Linker
+
+from zavod.entity import Entity
+from zavod.exporters.common import Exporter
 from zavod.exporters.consolidate import consolidate_entity
-from zavod.runtime.statistics import Statistics
-from zavod.store import get_store
 from zavod.exporters.fragment import ViewFragment
-from zavod.integration import get_dataset_linker
+from zavod.meta import Dataset
+from zavod.runtime.statistics import Statistics
+from zavod.tests.util import get_test_view, make_context
 
 
-def get_test_view(dataset, linker=None, clear=False):
-    if linker is None:
-        linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
-    store.sync(clear=clear)
-    return store.view(dataset)
-
-
-def harnessed_export(exporter_class, dataset, linker=None) -> None:
+def harnessed_export(
+    exporter_class: type[Exporter],
+    dataset: Dataset,
+    linker: Linker[Entity] | None = None,
+    version: Version | None = None,
+) -> None:
     """Run a single exporter over the dataset, mirroring the export loop."""
-    context = Context(dataset)
-    context.begin(clear=False)
-    view = get_test_view(dataset, linker=linker)
+    context = make_context(dataset, version)
+    context.begin()
+    view = get_test_view(dataset, linker=linker, version=version)
 
     stats = Statistics()
     exporter = exporter_class(context, stats)

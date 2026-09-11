@@ -7,6 +7,7 @@ from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.runner.util import check_publishability, is_analyzer_stub, should_promote
+from zavod.runtime.manifest import Manifest
 from zavod.store import get_store, View
 
 
@@ -51,7 +52,7 @@ def save_match(
 def enrich(context: Context) -> None:
     scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")
-    store = get_store(scope, context.resolver)
+    store = get_store(Manifest.get_transient(scope), context.resolver)
     # Commit the resolver's load-time read so no transaction is held open across
     # the (potentially long) store sync below; the resolver is in-memory after.
     context.flush()

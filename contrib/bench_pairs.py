@@ -24,7 +24,6 @@
 
 from collections import defaultdict
 import logging
-from typing import Dict, List
 from tempfile import TemporaryDirectory
 
 import click
@@ -39,17 +38,18 @@ from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
 from zavod.integration.duckdb_index import DuckDBIndex
 from zavod.logs import configure_logging
+from zavod.runtime.manifest import Manifest
 from zavod.store import get_store
 
 
 @click.command()
 @click.argument("dataset_paths", type=InPath, nargs=-1)
 @click.option("-c", "--clear", is_flag=True, default=False)
-def main(dataset_paths: List[Path], clear: bool) -> None:
+def main(dataset_paths: list[Path], clear: bool) -> None:
     configure_logging(level=logging.INFO)
 
     dataset = _load_datasets(dataset_paths)
-    store = get_store(dataset, Linker[Entity]({}))
+    store = get_store(Manifest.get_transient(dataset), Linker[Entity]({}))
     store.sync(clear=clear)
     view = store.default_view()
 
@@ -57,7 +57,7 @@ def main(dataset_paths: List[Path], clear: bool) -> None:
         resolver = get_resolver(session)
         linker = resolver.get_linker()
 
-    observations: Dict[str, bool] = defaultdict(bool)
+    observations: dict[str, bool] = defaultdict(bool)
 
     for idx, entity in enumerate(view.entities()):
         assert entity.id is not None
@@ -81,7 +81,7 @@ def main(dataset_paths: List[Path], clear: bool) -> None:
             if idx > 0 and idx % 1000 == 0:
                 print(f"Processed {idx} pairs")
 
-    true_false: Dict[bool, int] = defaultdict(int)
+    true_false: dict[bool, int] = defaultdict(int)
     # Count true and false
     true_false_counted = set()
     for entity_id, is_true in observations.items():
@@ -92,9 +92,9 @@ def main(dataset_paths: List[Path], clear: bool) -> None:
 
     # Print the counts and pct true
     total = sum(true_false.values())
-    print("True: %d" % true_false[True])
-    print("False: %d" % true_false[False])
-    print("Pct True: %.2f" % (true_false[True] / total * 100))
+    print(f"True: {true_false[True]}")
+    print(f"False: {true_false[False]}")
+    print(f"Pct True: {true_false[True] / total * 100:.2f}")
 
 
 if __name__ == "__main__":

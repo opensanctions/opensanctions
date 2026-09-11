@@ -4,7 +4,7 @@ from nomenklatura.wikidata import Item, WikidataClient
 from nomenklatura.wikidata.lang import LangText
 
 from zavod import settings
-from zavod.context import Context
+from zavod.tests.util import make_context
 from zavod.meta import Dataset
 from zavod.shed.wikidata.position import wikidata_position, wikidata_occupancy
 from zavod.stateful.model import position_table
@@ -72,7 +72,7 @@ def interpol_sg_item(client: StubClient) -> Item:
 
 
 def test_igo_position_enrolls_for_review(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     categorise.cache_clear()
     client = StubClient()
 
@@ -91,7 +91,7 @@ def test_igo_position_enrolls_for_review(testdataset1: Dataset):
 
 
 def test_igo_position_accepted_after_review(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     categorise.cache_clear()
     client = StubClient()
 
@@ -116,7 +116,7 @@ def test_igo_position_accepted_after_review(testdataset1: Dataset):
 def test_db_is_pep_rescues_countryless_position(testdataset1: Dataset):
     """A reviewed is_pep=True row bypasses the country gate even without a
     registry hit — the manual rescue channel."""
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     categorise.cache_clear()
     client = StubClient()
 
@@ -152,7 +152,7 @@ def test_db_is_pep_rescues_countryless_position(testdataset1: Dataset):
 def test_historical_claim_does_not_kill_position(testdataset1: Dataset):
     """A stale jurisdiction next to a current one contributes nothing —
     it must not drop the whole position."""
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     categorise.cache_clear()
     client = StubClient(items={"Q159": {"id": "Q159", "claims": {}}})
 
@@ -173,7 +173,7 @@ def test_historical_claim_does_not_kill_position(testdataset1: Dataset):
 
 
 def test_igo_occupancy_infers_no_person_country(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     client = StubClient()
 
     person = context.make("Person")

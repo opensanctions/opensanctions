@@ -36,8 +36,9 @@ from google.cloud.storage import Client  # type: ignore
 from egrul_xml import parse_xml
 from parse_context import ParseContext
 from schema import company_record_schema
-from zavod import Context
+from zavod import Context, settings
 from zavod import Dataset
+from zavod.runtime.manifest import Manifest
 
 LOCAL_BUCKET_CACHE_DIR = Path(
     os.environ.get("LOCAL_BUCKET_CACHE_DIR", tempfile.gettempdir())
@@ -773,7 +774,10 @@ def crawl(context: Context) -> None:
 
 def get_context() -> Context:
     dataset = Dataset.from_path("datasets/ru/egrul/ru_egrul.yml")
-    return Context(dataset)
+    # The context logs through the issues writer, which needs the run's
+    # artifact directory to exist.
+    Manifest.create(dataset, settings.RUN_VERSION)
+    return Context(dataset, settings.RUN_VERSION)
 
 
 def main() -> None:

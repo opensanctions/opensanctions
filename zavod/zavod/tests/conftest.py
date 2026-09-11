@@ -9,8 +9,9 @@ from nomenklatura import Resolver
 from nomenklatura.db import close_db, make_session, Session
 
 from zavod import settings
-from zavod.archive import get_versions_data
+from zavod.archive import get_version_history
 from zavod.context import Context
+from zavod.tests.util import make_context
 from zavod.entity import Entity
 from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
@@ -44,7 +45,7 @@ def wrap_test():
     shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
-    get_versions_data.cache_clear()
+    get_version_history.cache_clear()
     create_db()
     yield
     get_catalog.cache_clear()
@@ -112,17 +113,8 @@ def testdataset_enrich_subject() -> Dataset:
 
 
 @pytest.fixture(scope="function")
-def testdataset_dedupe() -> Dataset:
-    dataset = load_dataset_from_path(
-        FIXTURES_PATH / "testdataset_dedupe" / "testdataset_dedupe.yml"
-    )
-    assert dataset is not None
-    return dataset
-
-
-@pytest.fixture(scope="function")
 def vcontext(testdataset1) -> Generator[Context, None, None]:
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     yield context
     context.close()
 

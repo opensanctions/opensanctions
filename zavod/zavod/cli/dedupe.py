@@ -14,6 +14,7 @@ from zavod.archive import dataset_state_path
 from zavod.cli import cli, DatasetInPath, _load_datasets, log
 from zavod.integration import get_resolver
 from zavod.integration.dedupe import blocking_xref, merge_entities, explode_cluster
+from zavod.runtime.manifest import Manifest
 from zavod.store import get_store
 
 
@@ -40,7 +41,8 @@ def xref(
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        store = get_store(dataset, resolver)
+        manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+        store = get_store(manifest, resolver)
         store.sync(clear=rebuild_store)
         blocking_xref(
             resolver,
@@ -76,7 +78,8 @@ def dedupe(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        store = get_store(dataset, resolver)
+        manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+        store = get_store(manifest, resolver)
         store.sync(clear=rebuild_store)
         dedupe_ui(
             resolver, session, store, url_base="https://opensanctions.org/entities/%s/"
@@ -125,7 +128,8 @@ def wikidata_reconcile(
     session = make_session()
     resolver = get_resolver(session)
     resolver.load_into_memory()
-    store = get_store(dataset, resolver)
+    manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+    store = get_store(manifest, resolver)
     store.sync(clear=rebuild_store)
 
     # Cite the dataset itself when an entity carries no sourceUrl/retrieved date.
@@ -201,7 +205,8 @@ def dedupe_edges(dataset_paths: list[Path], rebuild_store: bool = False) -> None
         with make_session() as session:
             resolver = get_resolver(session)
             resolver.load_into_memory()
-            store = get_store(dataset, resolver)
+            manifest = Manifest.get_transient(dataset, refresh=rebuild_store)
+            store = get_store(manifest, resolver)
             store.sync(clear=rebuild_store)
             edges.dedupe_edges(resolver, session, store.view(dataset, external=True))
     except Exception:

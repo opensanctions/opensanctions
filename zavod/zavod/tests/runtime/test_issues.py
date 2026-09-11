@@ -1,15 +1,21 @@
 import json
-from rigour.time import iso_datetime
 import logging
-from zavod.archive import ISSUES_FILE, dataset_resource_path
-from zavod.context import Context
+
+from followthemoney.dataset import Version
+from rigour.time import iso_datetime
+
+from zavod import settings
+from zavod.archive import ISSUES_FILE, dataset_artifact_path
 from zavod.meta import Dataset
+from zavod.tests.util import make_context
 
 
 def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
-    issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
-    context = Context(testdataset1)
-    context.begin(clear=True)
+    issues_path = dataset_artifact_path(
+        testdataset1.name, settings.RUN_VERSION, ISSUES_FILE
+    )
+    context = make_context(testdataset1)
+    context.begin()
     assert not issues_path.exists()
     entity = context.make("Person")
     entity.id = "guy"
@@ -45,7 +51,8 @@ def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
             assert issue["level"] in ("warning", "error")
             assert issue["dataset"] == testdataset1.name
 
-    context = Context(testdataset1)
-    context.begin(clear=True)
+    # A fresh run is a fresh version, and starts with an empty issue log:
+    context = make_context(testdataset1, Version.new("bbb"))
+    context.begin()
     assert len(list(context.issues.all())) == 0
     context.close()

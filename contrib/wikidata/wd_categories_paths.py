@@ -1,11 +1,12 @@
 import logging
-from typing import Tuple
 from urllib.parse import urlencode
 
 import click
+from zavod import settings
 from zavod.context import Context
 from zavod.logs import configure_logging
 from zavod.meta.dataset import Dataset
+from zavod.runtime.manifest import Manifest
 
 
 def petscan(context: Context, category_title: str, language: str, depth: int) -> str:
@@ -32,7 +33,7 @@ def find_paths_downwards(
     qid: str,
     language: str,
     max_depth: int,
-    path: Tuple[str, ...] = (),
+    path: tuple[str, ...] = (),
 ) -> None:
     path = path + (category_title,)
     cursor = None
@@ -100,7 +101,10 @@ def cli(
     """
 
     fake_dataset: Dataset = Dataset({"name": "fake"})
-    context = Context(fake_dataset)
+    # The context logs through the issues writer, which needs the run's
+    # artifact directory to exist.
+    Manifest.create(fake_dataset, settings.RUN_VERSION)
+    context = Context(fake_dataset, settings.RUN_VERSION)
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)
 

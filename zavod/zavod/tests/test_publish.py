@@ -7,11 +7,10 @@ from logging import Logger
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.archive import DELTA_EXPORT_FILE, get_dataset_artifact, clear_data_path
-from zavod.archive import dataset_resource_path
-from zavod.archive import iter_dataset_statements, iter_previous_statements
+from zavod.archive import DELTA_EXPORT_FILE, backfill_artifact, clear_data_path
+from zavod.archive import dataset_artifact_path, get_best_version, stream_statements
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
-from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
+from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE, MANIFEST_FILE
 from zavod.archive import ISSUES_FILE, ISSUES_LOG, RESOURCES_FILE
 from zavod.archive import HASH_FILE, DELTA_INDEX_FILE, CATALOG_FILE
 from zavod.crawl import crawl_dataset
@@ -20,7 +19,9 @@ from zavod.exporters import export_dataset
 from zavod.exporters.metadata import get_catalog_dataset
 from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, archive_failure
+from zavod.runtime.manifest import Manifest
 from zavod.exc import RunFailedException
+from zavod.tests.util import get_manifest, get_test_view, run_dataset
 
 STANDARD_EXPORTS = {
     "entities.ftm.json",
@@ -43,7 +44,13 @@ def filter_logs(cap_logs: list[dict], levels: tuple[str, ...]) -> list[dict]:
     return [log for log in cap_logs if log.get("log_level") in levels]
 
 
-def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
+def test_publish_dataset(
+    testdataset1: Dataset,
+    monkeypatch: pytest.MonkeyPatch,
+    # including fixture configures logging, which routes the crawler's test
+    # warning into issues.log — part of the expected artifacts below.
+    logger: Logger,
+):
     """Effectively a 'zavod run' on a dataset.
 
     Checking that the files expected to be archived are present and that both the
@@ -53,46 +60,41 @@ def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch)
     purged: list[str] = []
     monkeypatch.setattr("zavod.archive.invalidate_archive_cache", purged.append)
 
-    linker = get_dataset_linker(testdataset1)
     history = _read_history(testdataset1.name)
     assert history is None
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
-    store.sync()
-    view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
+    version = run_dataset(testdataset1, publish=False)
 
     with capture_logs() as cap_logs:
-        publish_dataset(testdataset1)
+        publish_dataset(testdataset1, version)
     assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
     history = _read_history(testdataset1.name)
     assert history is not None
-    assert history.latest is not None
-    assert history.latest.id is not None
-    artifact_path = (
-        settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name / history.latest.id
-    )
+    assert history.latest == version
+    artifact_path = settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name / version.id
     artifacts = {str(p.name) for p in artifact_path.glob("*")}
     assert artifacts == {
-        # Everything gets archived
+        # Everything in the artifact directory gets archived
         INDEX_FILE,
         ISSUES_FILE,
         ISSUES_LOG,
         VERSIONS_FILE,
+        MANIFEST_FILE,
         RESOURCES_FILE,
         HASH_FILE,
         DELTA_INDEX_FILE,
         DELTA_EXPORT_FILE,
         STATEMENTS_FILE,
         STATISTICS_FILE,
+        # Registered resources outside the artifact directory:
         "source.csv",
         # Collections-only:
         # CATALOG_FILE,
     } | STANDARD_EXPORTS  # fmt: skip
 
+    release = version.dt.strftime("%Y%m%d")
     assert purged == [
         f"{ARTIFACTS}/{testdataset1.name}/{VERSIONS_FILE}",
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/*",
+        f"{DATASETS}/{release}/{testdataset1.name}/*",
         f"{DATASETS}/latest/{testdataset1.name}/*",
     ]
 
@@ -101,7 +103,7 @@ def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch)
     # URLs in the index.json point at the canonical artifacts/{dataset}/{vsn}/ path.
     index = json.loads(artifact_index)
     expected_prefix = (
-        f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{testdataset1.name}/{history.latest.id}/"
+        f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{testdataset1.name}/{version.id}/"
     )
     assert index["index_url"] == expected_prefix + INDEX_FILE
     assert len(index["resources"]) > 0
@@ -109,13 +111,16 @@ def test_publish_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch)
         assert resource["url"].startswith(expected_prefix), resource
         assert resource["url"].endswith(resource["name"]), resource
 
-    # Test backfill:
+    # Test backfill on a clean data path, as in a fresh container:
     clear_data_path(testdataset1.name)
-    assert len(list(iter_dataset_statements(testdataset1))) > 5
-    assert len(list(iter_previous_statements(testdataset1))) > 5
-    path = get_dataset_artifact(testdataset1.name, INDEX_FILE, backfill=False)
-    assert not path.exists()
-    path = get_dataset_artifact(testdataset1.name, INDEX_FILE, backfill=True)
+    assert len(list(stream_statements(testdataset1.name, version))) > 5
+    # A manifest resolved without local artifacts pins the archived version:
+    manifest = Manifest.get_transient(testdataset1)
+    assert manifest.datasets[testdataset1.name] == version
+    assert len(list(manifest.statements())) > 5
+    assert not dataset_artifact_path(testdataset1.name, version, INDEX_FILE).exists()
+    path = backfill_artifact(testdataset1.name, version, INDEX_FILE)
+    assert path is not None
     assert path.exists()
 
 
@@ -123,30 +128,30 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
     """Effectively a 'zavod run' on a collection, checking that the files
     expected to be archived are present in the right locations."""
     linker = get_dataset_linker(testdataset1)
+    version = settings.RUN_VERSION
 
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
-    store.sync()
-    view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
+    crawl_dataset(testdataset1, version)
+    view = get_test_view(testdataset1, linker=linker)
+    export_dataset(testdataset1, version, view)
 
-    export_dataset(collection, view)
+    get_manifest(collection, version)
+    export_dataset(collection, version, view)
+    view.store.close()
     with capture_logs() as cap_logs:
-        publish_dataset(collection)
+        publish_dataset(collection, version)
     assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
 
     history = _read_history(collection.name)
     assert history is not None
-    assert history.latest is not None
-    artifact_path = (
-        settings.ARCHIVE_PATH / ARTIFACTS / collection.name / history.latest.id
-    )
+    assert history.latest == version
+    artifact_path = settings.ARCHIVE_PATH / ARTIFACTS / collection.name / version.id
     artifacts = {str(p.name) for p in artifact_path.glob("*")}
     assert artifacts == {
         # Everything gets archived
         INDEX_FILE,
         ISSUES_FILE,
         VERSIONS_FILE,
+        MANIFEST_FILE,
         RESOURCES_FILE,
         HASH_FILE,
         DELTA_INDEX_FILE,
@@ -162,69 +167,54 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
     } | STANDARD_EXPORTS  # fmt: skip
 
 
-def test_empty_crawl_does_not_resurrect_archived_statements(
-    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
-):
+def test_empty_crawl_does_not_resurrect_archived_statements(testdataset1: Dataset):
     """A crawl that completes without emitting anything must yield an empty
     store view, not fall back to streaming the previous successful version's
     statements from the archive."""
     linker = get_dataset_linker(testdataset1)
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
-    store.sync()
-    export_dataset(testdataset1, store.view(testdataset1))
-    publish_dataset(testdataset1)
-    store.close()
+    run_dataset(testdataset1, linker=linker)
 
     # Run an empty crawl under a fresh version on a clean data path, as in a
     # production `zavod run`:
     clear_data_path(testdataset1.name)
-    monkeypatch.setattr(settings, "RUN_VERSION", Version.new())
+    empty_version = Version.new()
     assert testdataset1.data is not None
     testdataset1.data.format = "EMPTY"
-    stats = crawl_dataset(testdataset1)
+    stats = crawl_dataset(testdataset1, empty_version)
     assert stats.statements == 0
 
     # The archive holds the previous version's statements, but the empty local
     # statements file from this run takes precedence:
-    assert dataset_resource_path(testdataset1.name, STATEMENTS_FILE).is_file()
-    assert len(list(iter_dataset_statements(testdataset1))) == 0
+    path = dataset_artifact_path(testdataset1.name, empty_version, STATEMENTS_FILE)
+    assert path.is_file()
+    manifest = Manifest.load_artifact(testdataset1, empty_version)
+    assert len(list(manifest.statements())) == 0
 
-    store = get_store(testdataset1, linker)
+    store = get_store(manifest, linker)
     store.sync(clear=True)
     view = store.view(testdataset1, external=False)
     assert len(list(view.entities())) == 0
     store.close()
 
 
-def test_failed_run_does_not_replace_latest_metadata(
-    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
-):
+def test_failed_run_does_not_replace_latest_metadata(testdataset1: Dataset):
     """A run failing after a successful run archives an index which lists no
     resources. Everything reading the dataset's current metadata - the catalog
     above all - has to keep answering with the last successful run.
 
     https://github.com/opensanctions/operations/issues/2762
     """
-    linker = get_dataset_linker(testdataset1)
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
-    store.sync()
-    export_dataset(testdataset1, store.view(testdataset1))
-    publish_dataset(testdataset1)
-    store.close()
-    good_version = settings.RUN_VERSION
+    good_version = run_dataset(testdataset1)
 
     # A later run fails while crawling, as in a production `zavod run`:
     clear_data_path(testdataset1.name)
-    monkeypatch.setattr(settings, "RUN_VERSION", Version.new())
-    failed_version = settings.RUN_VERSION
+    failed_version = Version.new()
     assert failed_version.id != good_version.id
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     with pytest.raises(RunFailedException):
-        crawl_dataset(testdataset1)
-    archive_failure(testdataset1)
+        crawl_dataset(testdataset1, failed_version)
+    archive_failure(testdataset1, failed_version)
 
     # The failed run is the newest version of the dataset, and its index has no
     # resources to offer:
@@ -243,9 +233,13 @@ def test_failed_run_does_not_replace_latest_metadata(
         assert json.load(fh)["resources"] == []
 
     # Backfilling the index - as a catalog export in a fresh container does -
-    # skips it and lands on the last successful run:
+    # skips the failed run and lands on the last successful one:
     clear_data_path(testdataset1.name)
-    with open(get_dataset_artifact(testdataset1.name, INDEX_FILE)) as fh:
+    best = get_best_version(testdataset1.name)
+    assert best == good_version
+    path = backfill_artifact(testdataset1.name, best, INDEX_FILE)
+    assert path is not None
+    with open(path) as fh:
         index = json.load(fh)
     assert index["version"] == good_version.id
     assert index["result"] == "success"
@@ -257,25 +251,24 @@ def test_failed_run_does_not_replace_latest_metadata(
     assert {r["name"] for r in catalog_dataset["resources"]} >= STANDARD_EXPORTS
 
 
-def test_archive_failure(testdataset1: Dataset):
+def test_archive_failure(testdataset1: Dataset, logger: Logger):
     """Effectively a 'zavod run' on a dataset which fails during the crawl stage,
     checking that the very specific files we want archived are archived."""
-    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    version = settings.RUN_VERSION
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     try:
-        crawl_dataset(testdataset1)
+        crawl_dataset(testdataset1, version)
     except RunFailedException:
         with capture_logs() as cap_logs:
-            archive_failure(testdataset1)
+            archive_failure(testdataset1, version)
         assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)
     assert history is not None
-    assert history.latest is not None
-    assert history.latest.id is not None
-    artifact_path = artifacts_path / testdataset1.name / history.latest.id
+    assert history.latest == version
+    artifact_path = settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name / version.id
 
     artifacts = {str(p.name) for p in artifact_path.glob("*")}
 
@@ -286,6 +279,7 @@ def test_archive_failure(testdataset1: Dataset):
         ISSUES_FILE,
         ISSUES_LOG,
         VERSIONS_FILE,
+        MANIFEST_FILE,
         # We want to be really, really sure we'll never backfill from failed runs
         # so specifically not:
         #
@@ -305,26 +299,25 @@ def test_archive_collection_failure(
     """Effectively a 'zavod run' on a collection, checking that the the files
     expected to be archived are present in the right locations."""
     linker = get_dataset_linker(testdataset1)
-    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    version = settings.RUN_VERSION
 
     # Simulate something that logs results in an issue log during a collection run.
     collection.model.exports.add("missing.exp")
 
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
-    store.sync()
-    view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
+    crawl_dataset(testdataset1, version)
+    view = get_test_view(testdataset1, linker=linker)
+    export_dataset(testdataset1, version, view)
 
-    export_dataset(collection, view)
+    get_manifest(collection, version)
+    export_dataset(collection, version, view)
+    view.store.close()
     # let's imagine there was an exception causing abort
-    archive_failure(collection)
+    archive_failure(collection, version)
 
     history = _read_history(collection.name)
     assert history is not None
-    assert history.latest is not None
-    assert history.latest.id is not None
-    artifact_path = artifacts_path / collection.name / history.latest.id
+    assert history.latest == version
+    artifact_path = settings.ARCHIVE_PATH / ARTIFACTS / collection.name / version.id
 
     artifacts = {str(p.name) for p in artifact_path.glob("*")}
 
@@ -333,6 +326,7 @@ def test_archive_collection_failure(
         ISSUES_FILE,
         ISSUES_LOG,
         VERSIONS_FILE,
+        MANIFEST_FILE,
         # We want to be really, really sure we won't see exports from failed runs.
         # Specifically not:
         #
