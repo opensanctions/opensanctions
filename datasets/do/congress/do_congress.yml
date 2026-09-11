@@ -61,11 +61,11 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 190
+      Person: 210
       Position: 2
     country_entities:
       do: 190
   max:
     schema_entities:
-      Person: 450
+      Person: 260
       Position: 2
