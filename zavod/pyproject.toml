@@ -71,7 +71,6 @@ dev = [
     "types-openpyxl",
     "types-xlrd",
     "types-google-cloud-ndb",
-    "types-redis",
     "types-PyYAML",
     "prek",
     "dspy == 3.3.1",
