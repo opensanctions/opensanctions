@@ -27,7 +27,8 @@ class Respondent:
 
 LLM_MODEL_VERSION = "gpt-5.4"
 EXTRACT_PROMPT = """
-Extract name by removing any parenthetical clauses. For example:
+Extract name by removing any parenthetical clauses and the 
+'et al' clause. For example:
 
 X-Change Financial Access LLC et. al. (Peter Gordon Scheffler)
 
