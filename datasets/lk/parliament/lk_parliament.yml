@@ -15,7 +15,7 @@ description: |
   electoral districts by proportional representation and the rest from national party
   lists, and hold the country's legislative power, including passing laws and approving
   the budget.
-url: https://www.parliament.lk/en/members-of-parliament/directory-of-members
+url: https://www.parliament.lk/en/members-of-parliament/mp-listing
 publisher:
   name: Parliament of Sri Lanka
   description: >
@@ -25,7 +25,7 @@ publisher:
   country: lk
   official: true
 data:
-  url: https://www.parliament.lk/en/members-of-parliament/directory-of-members
+  url: https://www.parliament.lk/en/members-of-parliament/mp-listing
   format: HTML
   lang: eng
 
