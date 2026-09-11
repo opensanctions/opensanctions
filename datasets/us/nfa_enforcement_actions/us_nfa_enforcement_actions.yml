@@ -55,8 +55,6 @@ tags:
   - issuer.west
   - sector.financial
 
-# Only Thing-schema entities are counted, so the Sanctions (about one and a
-# half per respondent) cannot be asserted on here.
 assertions:
   min:
     schema_entities:
@@ -71,3 +69,13 @@ lookups:
       - match:
           - "Vincent Capital Group LLC ("
         value: Vincent Capital Group LLC
+
+names:
+  schema_rules:
+    LegalEntity:
+      reject_chars: "()"
+      reject_strings:
+        - et al
+        - et. al.
+        - et. al
+        - et al.
