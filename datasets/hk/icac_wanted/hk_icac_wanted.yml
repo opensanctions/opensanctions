@@ -1,0 +1,66 @@
+title: Hong Kong ICAC Wanted Persons
+entry_point: crawler.py
+prefix: hk-icac
+disabled: false
+coverage:
+  frequency: weekly
+  start: "2026-09-13"
+load_statements: true
+summary: >
+  Persons wanted by the Independent Commission Against Corruption (ICAC) of
+  Hong Kong in connection with corruption and related offences.
+description: |
+  The Independent Commission Against Corruption publishes the people it is
+  currently seeking, most of whom are subject to a warrant of arrest issued
+  by a Hong Kong court and are believed to have left the territory.
+
+  From the [ICAC wanted persons page](https://www.icac.org.hk/en/rc/wanted/index.html):
+
+  > The following persons are currently on ICAC's wanted persons lists. If you
+  > have any information concerning these people, please contact the ICAC at
+  > the 24-hour hotline (852) 25 266 366 or write to Hong Kong General Post
+  > Office Box 1000.
+
+  Each entry carries the person's name, any alias, the charges they face, a
+  short case brief, and personal particulars such as year of birth, place of
+  birth, nationality and sex. The Hong Kong identity card numbers published
+  alongside are partially masked at source and are not captured here.
+tags:
+  - list.wanted
+url: https://www.icac.org.hk/en/rc/wanted/index.html
+publisher:
+  name: Independent Commission Against Corruption
+  acronym: ICAC
+  description: |
+    The Independent Commission Against Corruption is the anti-corruption agency
+    of the Hong Kong Special Administrative Region. It investigates corruption
+    offences in both the public and private sectors and reports directly to the
+    Chief Executive.
+  url: https://www.icac.org.hk/en/home/index.html
+  country: hk
+  official: true
+data:
+  url: https://www.icac.org.hk/en/rc/wanted/index.html
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+  max:
+    schema_entities:
+      Person: 120
+
+lookups:
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Male
+        value: male
+      - match: Female
+        value: female
