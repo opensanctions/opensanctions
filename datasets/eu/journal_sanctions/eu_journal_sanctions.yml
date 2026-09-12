@@ -489,7 +489,6 @@ lookups:
           - 1960
           - 1963-04-30
       - match:
-          - "1960s-1970s"
           - "1960s-1970s (approx. 60 years old)"
         values:
           - 1960
@@ -505,7 +504,6 @@ lookups:
           - 1969-04-04
       - match:
           - "(a) 11.4.1963; (b) 11.4.1960"
-          - "(i) 11.4.1963, (ii) 11.4.1960"
         values:
           - 1960-04-11
           - 1963-04-11
@@ -929,10 +927,6 @@ lookups:
         values:
           - 1977
           - 1982
-      - match: "between aug. and sep. 1977"
-        values:
-          - 1977-08
-          - 1977-09
       - match: "(a) 21.10.1977; (b) 21.11.1977"
         values:
           - 1977-10-21
@@ -1141,8 +1135,6 @@ lookups:
         value: 2009
       - match: "1.1.2012 as \u2018\u043e\u0442\u043a\u0440\u044b\u0442\u043e\u0435 \u0430\u043a\u0446\u0438\u043e\u043d\u0435\u0440\u043d\u043e\u0435 \u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e \u2018\u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019\u2019"
         value: 2012-01-01
-      - match: ", previously registered as southfront.org since 30.4.2015"
-        value: 2015-04-30
       - match: "18.8.2023, previously registered as southfront.org since 30.4.2015"
         values:
           - 2015-04-30
@@ -1166,13 +1158,9 @@ lookups:
           - 7838044584
           - 381000781179
           - 11177411001388
-          - 7715980551
-          - 7717727466
           - 770701001
           - 9707028663
           - 11440513
-          - 13185231
-          - 07500548
         prop: registrationNumber
       # Consolidated act 02018R1542-20260703 prints "INN: 366217317327" for
       # Aleksey Vadimovich AKSYONOV. The number fails the 12-digit INN check
@@ -1610,20 +1598,6 @@ lookups:
   type.country:
     lowercase: true
     options:
-      - match: Crimea, Ukraine
-        value: ua-cri
-      - match: "so-called “Luhansk People’s Republic”"
-        value: ua-lpr
-      - match: "so-called “Donetsk People’s Republic”"
-        value: ua-dpr
-      - match: "Russia’s occupied part of the Donbass region"
-        values:
-          - ua-dpr
-          - ua-lpr
-      - match:
-          - "Russian-occupied regions of Zaporizhzhia and Kherson"
-          - Moscow, Russian Federation
-        value: ru
       - match: "Ukrainian, Russian"
         values:
           - ua
@@ -1703,18 +1677,12 @@ lookups:
         values:
           - "fr"
           - "tr"
-      - match:
-          - "indonesia. national identification no.: (a) 3311092409580002 (indonesian national identity card), (b) 3311092409580003 (indonesian national identity card)"
-          - "indonesian (as at december 2003)"
-          - "indonesian. national identification no.: (a) 3573010405480001 (indonesian national identity card), (b) 353010405480001 (indonesian national identity card)"
-          - "indonesian. national identification no.: 1127083101740003 (indonesian identity card under name abdul rosyid ridho ba'asyir)"
+      - match: "indonesian (as at december 2003)"
         value: "id"
       - match: "(a) indonesian, (b) malaysian"
         values:
           - "id"
           - "my"
-      - match: "iraqi. national identification no.: 00278640 (issued on 2.5.2012)"
-        value: "iq"
       - match: "iranian and us"
         values:
           - "ir"
@@ -1867,9 +1835,7 @@ lookups:
         values:
           - "sy"
           - "tr"
-      - match:
-          - "(a) tunisian"
-          - "tunisian. national identification no.: 08619445"
+      - match: "(a) tunisian"
         value: "tn"
       - match: "tunisian, french"
         values:
