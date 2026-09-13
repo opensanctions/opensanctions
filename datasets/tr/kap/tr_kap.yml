@@ -1,3 +1,7 @@
+# The company list is a JSON API behind KAP's Next.js frontend. Each company page
+# is fetched as a React Server Components stream (RSC: 1 header); the crawler
+# reads the "itemObject" records from it. Both go through Zyte: KAP answers bulk
+# page fetches with 429 after a few hundred requests.
 title: Türkiye Public Disclosure Platform (KAP) Companies
 entry_point: crawler.py
 prefix: tr-kap
@@ -24,24 +28,19 @@ description: |
   portfolio management companies, independent audit firms and other capital-market
   institutions must be filed on KAP with an electronic signature.
 
-  This dataset covers the general information pages of all KAP member companies:
-
-  * company identifiers (trade registry number and office, tax number), address,
-    website, sector and paid-in capital,
-  * shareholders holding 5% or more of the capital, directly and indirectly, with
-    their share and voting right ratios,
-  * members of the board of directors with their role, gender, profession and
-    first election date,
-  * subsidiaries, affiliates and financial investments with the share held.
+  This dataset covers all KAP members and, from their general information pages,
+  their shareholders, members of the board of directors, and subsidiaries and
+  affiliates. Listed companies disclose shareholders holding 5% or more of the
+  capital, directly and indirectly; other members disclose their full shareholding
+  structure.
 
   KAP is a disclosure platform: the content is declared by the issuing companies
   under a legal obligation and is not independently verified by MKK or the Capital
   Markets Board. Members without a general information page on KAP (issuers of
-  debt instruments that are not traded on the exchange and some other member types)
-  are included with their name and city only.
-
-  KAP publishes national identity numbers of board members inside its page data.
-  These are deliberately not included in this dataset.
+  debt instruments that are not traded on the exchange, market institutions and
+  some other member types) are included with their identifiers only. National
+  identity numbers of board members, which KAP publishes in its page data, are
+  deliberately not included.
 url: https://www.kap.org.tr/tr/sirketler/ALL
 tags:
   - juris.tr
@@ -56,12 +55,15 @@ publisher:
   url: https://www.mkk.com.tr/
   official: true
 data:
-  url: https://www.kap.org.tr/tr/sirketler/ALL
-  format: HTML
+  url: https://www.kap.org.tr/tr/api/company/items/ALL/A
+  format: JSON
   lang: tur
 
 dates:
-  formats: ["%d/%m/%Y %H:%M:%S", "%d/%m/%Y", "%Y%m%d%H%M%S"]
+  formats: ["%d/%m/%Y %H:%M:%S", "%Y%m%d%H%M%S"]
+numbers:
+  decimal: ","
+  separator: "."
 
 assertions:
   min:
@@ -77,6 +79,45 @@ assertions:
       LegalEntity: 7000
 
 lookups:
+  # KAP's own test accounts and the exchange's circuit breaker application,
+  # which are registered as members but are not organisations.
+  member_skip:
+    options:
+      - match:
+          - KAP TEST A.Ş.
+          - KAP TEST BAĞIMSIZ DENETİM A.Ş.
+          - KAP TEST YATIRIM A.Ş.
+          - BORSA İSTANBUL BISTECH DEVRE KESİCİ UYGULAMASI
+        value: skip
+  # Members that are not companies. All other members are emitted as Company.
+  member_schema:
+    options:
+      - match:
+          - SERMAYE PİYASASI KURULU
+        value: PublicBody
+      - match:
+          - KAMUYU AYDINLATMA PLATFORMU
+          - TÜRKİYE SERMAYE PİYASALARI BİRLİĞİ
+        value: Organization
+  # Rows in the shareholder tables that describe the remainder of the capital
+  # rather than a shareholder: "other" (diğer), "publicly held" (halka açık),
+  # "public offering" (halka arz), "total" (toplam), "none" (yoktur),
+  # "traded on the exchange" (işlem gören, BİST).
+  shareholder:
+    lowercase: true
+    normalize: true
+    options:
+      - match: [yoktur, toplam, bist]
+        value: skip
+      - contains: [diger, halka acik, halka arz, islem goren]
+        value: skip
+  # Numbers the filer mistyped, mapped to the source's Turkish number format.
+  number:
+    options:
+      - match: ",01"
+        value: "0,01"
+      - match: "500,"
+        value: "500"
   type.gender:
     normalize: true
     options:
@@ -84,15 +125,125 @@ lookups:
         value: male
       - match: FEMALE
         value: female
-  # Rows in the shareholder tables that describe the remainder of the capital
-  # rather than a shareholder: "other" (diğer), "publicly held" (halka açık),
-  # "public offering" (halka arz), "total" (toplam), "none" (yok / yoktur),
-  # "traded on the exchange" (işlem gören).
-  shareholder:
-    lowercase: true
-    normalize: true
+  type.identifier:
     options:
-      - match: [yok, yoktur, toplam]
-        value: skip
-      - contains: [diger, halka acik, halka arz, islem goren]
-        value: skip
+      - match: ["-", "--", "---", "YOK", "0"]
+        value: null
+      # Registry numbers entered in the LEI column of the subsidiaries table:
+      # Turkish trade registry, UK Companies House, Romanian ONRC and others.
+      - match:
+          - "642019"
+          - "711209"
+          - "13149331"
+          - "48893414"
+          - ROONRC.J202500266200
+          - 70321436-000-01-19-2
+        prop: registrationNumber
+      # Albanian tax identification number (NIPT).
+      - match: L82113028I
+        prop: taxNumber
+  type.name:
+    options:
+      # Placeholders in the representative and subsidiary name columns:
+      # "yes" (evet), "none" (yoktur, bulunmamaktadır).
+      - match: ["-", ".", "EVET", "Yoktur", "Bulunmamaktadır"]
+        value: null
+  type.string:
+    options:
+      # "Please select", left over from the filing form.
+      - match: ["-", "Seçim Yapınız"]
+        value: null
+      # "Operating licence obtained from the Capital Markets Board"
+      - match: Sermaye Piyasası Kurulundan Faaliyet Yetki Belgesi alınmıştır.
+        value: null
+  type.email:
+    options:
+      - match: "GENEL MÜDÜRLÜK : genmud@bursacimento.com.tr"
+        value: genmud@bursacimento.com.tr
+      - match: "degervarlik@hs03.kep.tr /  spfm@albarakaturk.com.tr"
+        values:
+          - degervarlik@hs03.kep.tr
+          - spfm@albarakaturk.com.tr
+      - match: "umpasholding@hs03.kep.tr\nyatirimciiliskileri@umpasholding.com.tr"
+        values:
+          - umpasholding@hs03.kep.tr
+          - yatirimciiliskileri@umpasholding.com.tr
+      - match: "yatirimci@yaylaagro.com\nir@yaylaagro.com"
+        values:
+          - yatirimci@yaylaagro.com
+          - ir@yaylaagro.com
+      # Contact form URLs and a website entered as the e-mail address.
+      - match:
+          - https://www.aktifbank.com.tr/hakkimizda/bize-ulasin/iletisim-formu
+          - https://www.tskb.com.tr/tr/hakkimizda/tskb-iletisim-formu
+          - http://www.akbank.com/tr-tr/genel/Sayfalar/Iletisim-Formu.aspx
+          - www.akdenizyh.com
+        prop: website
+  # The website field is free text; filers list several sites.
+  type.url:
+    options:
+      - match: www.gsd.com.tr  www.gsdholding.com.tr  www.gsdholding.com
+        values: [www.gsd.com.tr, www.gsdholding.com.tr, www.gsdholding.com]
+      - match: www.isyatirim.com.tr / www.isinvestment.com
+        values: [www.isyatirim.com.tr, www.isinvestment.com]
+      - match: www.meritturizm.com www.merithotels.com
+        values: [www.meritturizm.com, www.merithotels.com]
+      - match: www.turkishairlines.com / http://investor.turkishairlines.com
+        values: [www.turkishairlines.com, http://investor.turkishairlines.com]
+      - match: www.garantibbva.com.tr   www.garantibbvayatirimciiliskileri.com   www.garantibbvainvestorrelations.com
+        values:
+          - www.garantibbva.com.tr
+          - www.garantibbvayatirimciiliskileri.com
+          - www.garantibbvainvestorrelations.com
+      - match: www.zorluenerji.com.tr - www.zoren.com.tr
+        values: [www.zorluenerji.com.tr, www.zoren.com.tr]
+      - match: www.sayas-re.com; www.sayreklam.com; www.sayyatirimciiliskileri.com
+        values: [www.sayas-re.com, www.sayreklam.com, www.sayyatirimciiliskileri.com]
+      - match: www.eis.com.tr / www.eczacibasi.com.tr
+        values: [www.eis.com.tr, www.eczacibasi.com.tr]
+      - match: www.eyh.eczacibasi.com.tr, www.eczacibasi.com.tr
+        values: [www.eyh.eczacibasi.com.tr, www.eczacibasi.com.tr]
+      - match: www.frigo-pak.com.tr - www.sunpride.com.tr
+        values: [www.frigo-pak.com.tr, www.sunpride.com.tr]
+      - match: www.mavi.com www.maviyatirimciliskileri.com www.mavicompany.com
+        values: [www.mavi.com, www.maviyatirimciliskileri.com, www.mavicompany.com]
+      - match: www.idealistgyo.com & www.idealistgyo.com.tr
+        values: [www.idealistgyo.com, www.idealistgyo.com.tr]
+      - match: www.alnusyatirim.com ; www.alnusforex.com
+        values: [www.alnusyatirim.com, www.alnusforex.com]
+      - match: http://www.mega-pol.com.tr/ & http://www.megaorme.com
+        values: [http://www.mega-pol.com.tr/, http://www.megaorme.com]
+      - match: www.ulusoyun.com.tr / www.ulusoyunyatirimciliskileri.com
+        values: [www.ulusoyun.com.tr, www.ulusoyunyatirimciliskileri.com]
+      - match: http://www.mlpcare.com  http://investor.mlpcare.com
+        values: [http://www.mlpcare.com, http://investor.mlpcare.com]
+      - match: OYAK MADEN METALÜRJİ www.oyakmadenmetalurji.com.tr / EREĞLİ DEMİR VE ÇELİK FABRİKALARI T.A.Ş. www.erdemir.com.tr / İSKENDERUN DEMİR VE ÇELİK A.Ş. www.isdemir.com.tr / ERDEMİR MADENCİLİK SAN. VE TİC. A.Ş. www.erdemirmaden.com.tr / ERDEMİR MÜHENDİSLİK, YÖNETİM VE DANIŞMANLIK HİZMETLERİ A.Ş. www.muhendislikerdemir.com.tr / ERDEMİR ÇELİK SERVİS MERKEZİ SAN. VE TİC. A.Ş. www.ersem.com.tr / ERDEMİR - ROMANIA S.R.L. www.erdemir.ro / ERDEMİR ENERJİ ÜRETİM A.Ş. www.erdemirenerji.com.tr / KÜMAŞ MANYEZİT A.Ş. www.kumasref.com
+        values: [www.erdemir.com.tr]
+      - match: İSKENDERUN DEMİR VE ÇELİK A.Ş. www.isdemir.com.tr /  OYAK MADEN METALÜRJİ GRUBU www.oyakmadenmetalurji.com.tr
+        values: [www.isdemir.com.tr]
+      - match: www.birko.com.tr  - www.koyunlu.com.tr
+        values: [www.birko.com.tr, www.koyunlu.com.tr]
+      - match: www.etilermarmaris.com.tr - www.etilermarmariskuruyemis.com
+        values: [www.etilermarmaris.com.tr, www.etilermarmariskuruyemis.com]
+      - match: www.lokmanhekim.com.tr ve www.ir.lokmanhekim.com.tr
+        values: [www.lokmanhekim.com.tr, www.ir.lokmanhekim.com.tr]
+      - match: www.kron.com.tr , www.krontech.com
+        values: [www.kron.com.tr, www.krontech.com]
+      - match: www.kocaercelik.com  www.kocaersteel.com
+        values: [www.kocaercelik.com, www.kocaersteel.com]
+      - match: www.intema.com.tr / www.eczacibasi.com.tr
+        values: [www.intema.com.tr, www.eczacibasi.com.tr]
+      - match: "Kurumsal İnternet Sitesi: www.flypgs.com / Yatırımcı İlişkileri İnternet Sitesi: http://www.pegasusyatirimciiliskileri.com/tr/default.aspx"
+        values: [www.flypgs.com, http://www.pegasusyatirimciiliskileri.com/tr/default.aspx]
+      - match: www.fadefood.com / www.fadegida.com.tr
+        values: [www.fadefood.com, www.fadegida.com.tr]
+      - match: www.aydemyenilenebilir.com.tr ; https://yatirimciiliskileri.aydemyenilenebilir.com.tr/
+        values: [www.aydemyenilenebilir.com.tr, https://yatirimciiliskileri.aydemyenilenebilir.com.tr/]
+      - match: www.suwen.com.tr - www.suwencompany.com
+        values: [www.suwen.com.tr, www.suwencompany.com]
+      - match: www.kuzeyboru.com.tr ; https://kuzeyboruyatirimciiliskileri.com/
+        values: [www.kuzeyboru.com.tr, https://kuzeyboruyatirimciiliskileri.com/]
+      - match: www.seranit.com.tr / https://www.seranit.com.tr/tr/yatirimci-iliskileri/12
+        values: [www.seranit.com.tr, https://www.seranit.com.tr/tr/yatirimci-iliskileri/12]
+      - match: www.vegaportfoy.com , www.vegaportfoy.com.tr
+        values: [www.vegaportfoy.com, www.vegaportfoy.com.tr]
