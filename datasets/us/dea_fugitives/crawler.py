@@ -33,7 +33,7 @@ def fetch_sitemap(context: Context, url: str, index: bool) -> list[str]:
             resolve_entities=False, load_dtd=False, no_network=True
         )
         root = etree.fromstring(content, parser=parser)
-        if root.getroottree().docinfo.doctype:
+        if root.getroottree().docinfo.internalDTD is not None:
             raise ValueError("DEA sitemap must not contain a DTD")
         tag, entry, limit = (
             ("sitemapindex", "sitemap", MAX_SITEMAPS)

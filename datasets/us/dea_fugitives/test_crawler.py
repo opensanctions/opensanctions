@@ -133,6 +133,7 @@ def test_invalid_profile_path(monkeypatch: pytest.MonkeyPatch, url: str) -> None
         "<broken",
         "",
         '<!DOCTYPE x [<!ENTITY x SYSTEM "file:///etc/passwd">]><x>&x;</x>',
+        '<!DOCTYPE x SYSTEM "https://example.org/external.dtd"><x/>',
         sitemap([], True),
         sitemap(PARTS * 2, True),
         sitemap([f"{BASE}/sitemap.xml?page={i}" for i in range(33)], True),
