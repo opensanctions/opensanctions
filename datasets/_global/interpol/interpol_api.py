@@ -69,6 +69,8 @@ def crawl_notice(context: Context, notice: dict[str, Any]) -> None:
     try:
         notice = context.fetch_json(url, cache_days=CACHE_LONG, headers=HEADERS)
     except HTTPError as err:
+        if err.response is None:
+            raise
         if err.response.status_code == 404:
             return
         context.log.warning(
@@ -91,6 +93,9 @@ def crawl_notice(context: Context, notice: dict[str, Any]) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(entity_id)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
+    if not entity.get("name"):
+        context.log.info("Skipping notice without a name")
+        return
     # entity.add("sourceUrl", url)
     entity.add("nationality", notice.pop("nationalities", []))
     entity.add("country", notice.pop("country_of_birth_id", []))
@@ -130,6 +135,8 @@ def crawl_query(context: Context, query: dict[str, Any]) -> int:
             context.data_url, params=params, cache_days=CACHE_SHORT, headers=HEADERS
         )
     except HTTPError as err:
+        if err.response is None:
+            raise
         if err.response.status_code == 404:
             return 0
         context.log.warning(
