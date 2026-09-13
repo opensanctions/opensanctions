@@ -17,6 +17,12 @@ http:
   # `zavod --debug crawl` skips the CELLAR discovery checks, which is the fast
   # way to iterate on the reviewed CSVs.
   timeout: 300
+  # Every CELLAR query is a POST, and urllib3 does not retry POST by default, so
+  # a single slow response from the SPARQL endpoint ends the check with
+  # "Could not list consolidated versions". The queries are read-only
+  # (Content-Type: application/sparql-query), so retrying them has no effect
+  # beyond repeating the read.
+  retry_methods: [GET, POST]
 publisher:
   name: Council of the European Union
   country: eu
