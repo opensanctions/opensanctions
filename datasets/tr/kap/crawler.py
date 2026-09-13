@@ -2,6 +2,8 @@ import json
 import re
 from typing import Any
 
+from followthemoney import registry
+from normality import normalize
 from rigour.ids import LEI
 
 from zavod import Context
@@ -9,36 +11,21 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 
-# Member types that have no general information page on KAP: issuers of
-# capital market instruments that are not traded on the exchange, and other
-# members. Their pages return a not-found template with a 200 status.
-TYPES_WITHOUT_PAGE = ("IGMS", "DG")
-
-# KAP is a Next.js application that ships the full page data as a React Server
-# Components "flight" payload: a series of self.__next_f.push([1, "..."]) calls
-# whose string arguments concatenate into one JSON-like stream. The company
-# data is read from that stream rather than from the rendered HTML.
-REGEX_FLIGHT_CHUNK = re.compile(r'self\.__next_f\.push\(\[1,"(.*?)"\]\)', re.DOTALL)
-REGEX_ITEM_OBJECT = re.compile(r'"itemObject":\{')
+REGEX_ROW_ID = re.compile(rb"[0-9a-f]*:")
+REGEX_ROW_REFERENCE = re.compile(r"^\$([0-9a-f]+)$")
 # Subsidiary names are sometimes numbered by the filer: "7) Agrotech USA LLC".
 REGEX_NUMBERED = re.compile(r"^\d+\)\s*")
-REGEX_EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
-# A domain name or URL: at least one dot, no whitespace or brackets.
-REGEX_WEBSITE = re.compile(r"^(https?://)?[\w-]+(\.[\w-]+)+(/\S*)?$", re.IGNORECASE)
 # 11-digit values in a tax number field are national identity numbers (TCKN)
 # of natural persons, not the 10-digit Turkish tax number (VKN).
 REGEX_TCKN = re.compile(r"^\d{11}$")
 
-# Keys in board member records that carry national identity or tax numbers.
-# They must never be emitted, so they are consumed and dropped explicitly.
-IDENTITY_KEYS = [
-    "tcknYkn",
-    "tcknYknVkn",
-    "personWhoBehavesOnBehalfOfLegalPersonBoardMemberTcknVknYkn",
-    "credentialKey",
-    "credentialKey2",
-]
 BOARD_IGNORE = [
+    # National identity or tax numbers of the member and of the natural person
+    # acting for a legal person member, and their types. Never emitted.
+    "tcknYknVkn",
+    "credentialKey",
+    "personWhoBehavesOnBehalfOfLegalPersonBoardMemberTcknVknYkn",
+    "credentialKey2",
     "positionsHeldInTheCompanyInTheLastFiveYears",
     "currentPositionsHeldOutsideTheCompany",
     "fiveYearsExperience",
@@ -49,143 +36,213 @@ BOARD_IGNORE = [
     "satisfyTheIndependenceOrNot",
     "committeesChargedAndTask",
     "hideDelete",
-    "styleName",
 ]
-SHAREHOLDER_IGNORE = ["disableShareHolder", "hideDelete", "votingRightRatio"]
-SUBSIDIARY_IGNORE = ["monetaryUnit"]
+ITEMS_IGNORE = [
+    # Identifiers, capital and auditor, also given by the company list.
+    "kpy41_acc4_vergi_no",
+    "kpy41_acc4_vergi_dairesi",
+    "kpy41_acc4_ticaret_sicil_numarasi",
+    "kpy41_acc4_ticaret_sicil_memurlugu",
+    "kpy41_acc4_tescil_tarihi",
+    "kpy41_acc5_odenmis_sermaye",
+    "kpy41_acc5_odenmis_sermaye_2",
+    "kpy41_acc5_kayitli_sermaye_tavani",
+    "kpy41_acc5_kayitli_sermaye_tavani_2",
+    "kpy41_acc2_bdk",
+    # Phone numbers, branch offices, production sites and contact persons.
+    "kpy41_acc1_ilet_adres_tel_fax",
+    "kpy41_acc1_merkez_disi_orgutleri",
+    "kpy41_acc1_merkez_disi_orgutler_grid",
+    "kpy41_acc1_uretim_adres",
+    "kpy41_acc1_yatirimci_iliskileri",
+    # Activity description, duration, licences and services (free text).
+    "kpy41_acc2_faaliyet_konu",
+    "kpy41_acc2_sure",
+    "kpy41_acc2_yetki_belgeleri",
+    "kpy41_acc2_sunulan_yan_hizmetler",
+    "kpy41_acc2_borsa_uyelik_tarih",
+    "kpy41_acc2_pazar_piyasa",
+    "kpy41_acc8_spk_liste_giris",
+    "kpy41_acc8_spk_liste_cikis",
+    "kpy41_acc8_yabanci_lisans_anlasmasi",
+    "kpy41_acc10_diger_hususlar",
+    # Listing details, share classes and debt instruments.
+    "kpy41_acc3_endeksler",
+    "kpy41_acc3_sermaye_arac_pazar",
+    "kpy41_acc3_son_durum_borsa_piyasalar",
+    "kpy41_acc3_ortaklik_hakki_vermeyen",
+    "kpy41_acc5_fiili_dolasimdaki_pay",
+    "kpy41_acc5_sermayeyi_temsil_eden",
+    "kpy41_acc5_sermayeyi_temsil_eden_2",
+    # Senior managers, portfolio managers, other staff, partners of audit firms
+    # and the companies an audit firm audits.
+    "kpy41_acc6_yonetimde_soz_sahibi",
+    "kpy41_acc6_portfoy_yoneticileri",
+    "kpy41_acc6_sermaye_piyasa_faaliyetleri",
+    "kpy41_acc6_sirketin_diger_personel",
+    "kpy41_acc6_birimler_hizmetler",
+    "kpy41_acc6_sorumlu_ortaklar",
+    "kpy41_acc9_son_durum_denetledigi_kap",
+]
 
 
-def flight_payload(html: str) -> str:
-    """Concatenate the JSON-encoded flight chunks of a Next.js page."""
-    parts = [json.loads(f'"{chunk}"') for chunk in REGEX_FLIGHT_CHUNK.findall(html)]
-    return "".join(parts)
+def parse_rsc_rows(stream: bytes) -> dict[str, Any]:
+    """Split a React Server Components stream into its rows, keyed by row ID.
+
+    Each row is "<hex id>:<payload>". A payload is a single line of JSON, except
+    for text rows, "T<hex byte length>,<text>", whose text can span lines. Module
+    ("I") and resource hint ("HL") rows carry no data and are skipped.
+    """
+    rows: dict[str, Any] = {}
+    pos = 0
+    while pos < len(stream):
+        match = REGEX_ROW_ID.match(stream, pos)
+        if match is None:
+            raise ValueError(
+                f"Invalid RSC row at byte {pos}: {stream[pos : pos + 50]!r}"
+            )
+        row_id = match.group()[:-1].decode("ascii")
+        pos = match.end()
+        if stream.startswith(b"T", pos):
+            comma = stream.index(b",", pos)
+            end = comma + 1 + int(stream[pos + 1 : comma], 16)
+            rows[row_id] = stream[comma + 1 : end].decode("utf-8")
+            pos = end
+            continue
+        end = stream.find(b"\n", pos)
+        if end < 0:
+            end = len(stream)
+        payload = stream[pos:end]
+        pos = end + 1
+        if payload.startswith((b"I[", b"HL[")):
+            continue
+        rows[row_id] = json.loads(payload)
+    return rows
 
 
-def parse_json_at(text: str, start: int) -> Any:
-    """Parse the JSON object or array that begins at ``start``."""
-    depth = 0
-    for idx in range(start, len(text)):
-        char = text[idx]
-        if char in "[{":
-            depth += 1
-        elif char in "]}":
-            depth -= 1
-            if depth == 0:
-                return json.loads(text[start : idx + 1])
-    raise ValueError("Unterminated JSON value")
+def resolve_references(value: Any, rows: dict[str, Any]) -> Any:
+    """Replace RSC row references ("$4a") in a parsed value with the rows they
+    point to. Strings that start with "$" are escaped as "$$"."""
+    if isinstance(value, list):
+        return [resolve_references(item, rows) for item in value]
+    if isinstance(value, dict):
+        return {k: resolve_references(v, rows) for k, v in value.items()}
+    if isinstance(value, str) and value.startswith("$"):
+        if value.startswith("$$"):
+            return value[1:]
+        match = REGEX_ROW_REFERENCE.match(value)
+        if match is None:
+            raise ValueError(f"Unsupported RSC reference: {value}")
+        return rows[match.group(1)]
+    return value
 
 
-def json_after_key(text: str, key: str) -> Any:
-    """Parse the JSON value that follows the first occurrence of ``"key":``."""
-    marker = f'"{key}":'
-    idx = text.find(marker)
-    if idx < 0:
-        raise ValueError(f"Key not found in payload: {key}")
-    return parse_json_at(text, idx + len(marker))
+def collect_items(node: Any, items: dict[str, Any], rows: dict[str, Any]) -> None:
+    """Map the "itemKey" of every "itemObject" on a company page to its value."""
+    if isinstance(node, list):
+        for child in node:
+            collect_items(child, items, rows)
+    elif isinstance(node, dict):
+        item = node.get("itemObject")
+        if item is not None:
+            key = item["itemKey"]
+            value = resolve_references(item["value"], rows)
+            if key in items and items[key] != value:
+                raise ValueError(f"Conflicting values for item: {key}")
+            items[key] = value
+        for child in node.values():
+            collect_items(child, items, rows)
 
 
-def parse_items(payload: str) -> dict[str, Any]:
-    """Map each ``itemKey`` on a company page to its ``value``."""
+def fetch_items(context: Context, url: str) -> dict[str, Any]:
+    # The RSC header asks Next.js for the server component stream instead of the
+    # HTML page. KAP's cache ignores that header and can answer with a cached HTML
+    # page, which the _rsc query parameter (as the Next.js client sets) avoids.
+    # KAP throttles bulk page fetches, so the pages are fetched through Zyte and
+    # cached for a few days, so that an interrupted run resumes.
+    _, _, _, text = zyte_api.fetch_text(
+        context,
+        f"{url}?_rsc=1",
+        headers={"RSC": "1"},
+        cache_days=3,
+        expected_media_type="text/x-component",
+    )
+    rows = parse_rsc_rows(text.encode("utf-8"))
     items: dict[str, Any] = {}
-    for match in REGEX_ITEM_OBJECT.finditer(payload):
-        obj = parse_json_at(payload, match.end() - 1)
-        key = obj.get("itemKey")
-        if key is not None and key not in items:
-            items[key] = obj.get("value")
+    collect_items(list(rows.values()), items, rows)
     return items
 
 
-def clean(value: Any) -> str | None:
-    """Strip a source string, treating filer placeholders ("-", "---", "YOK",
-    meaning none) as empty."""
-    if not isinstance(value, str):
+def parse_number(context: Context, value: str | None) -> str | None:
+    """Parse a number in the source's Turkish format ("1.109.339.877,08") for a
+    string property such as a percentage."""
+    if value is None or value.strip() == "":
         return None
-    text: str = value.strip()
-    if text == "" or set(text) == {"-"} or text.casefold() == "yok":
+    result = context.lookup("number", value)
+    if result is not None and result.value is not None:
+        value = result.value
+    number, unit = registry.number.parse(
+        value,
+        decimal=context.dataset.numbers.decimal,
+        separator=context.dataset.numbers.separator,
+    )
+    if number is None or unit is not None:
+        context.log.warning("Cannot parse number", value=value)
         return None
-    return text
+    return number
 
 
-def keyed_text(value: Any) -> str | None:
-    """Return the display text of a KAP ``{"key": ..., "text": ...}`` value."""
-    if isinstance(value, dict):
-        return clean(value.get("text"))
-    return clean(value)
-
-
-def keyed_key(value: Any) -> str | None:
-    if isinstance(value, dict):
-        return clean(value.get("key"))
-    return None
-
-
-def clean_percent(value: Any) -> str | None:
-    """Turn a Turkish-formatted percentage ("43,75") into "43.75"."""
-    text = clean(value)
-    if text is None:
-        return None
-    if "," in text:
-        text = text.replace(".", "").replace(",", ".")
-    return text
-
-
-def apply_tax_number(entity: Entity, value: Any) -> None:
-    """Add a tax number. Turkish tax numbers (VKN) have 10 digits; foreign
-    subsidiaries carry their own formats. 11-digit values are national identity
-    numbers (TCKN) of natural persons and are dropped."""
-    tax_number = clean(value)
-    if tax_number is None or REGEX_TCKN.match(tax_number):
+def apply_percentage(context: Context, ownership: Entity, value: str | None) -> None:
+    percentage = parse_number(context, value)
+    if percentage is not None and float(percentage) > 100:
+        # Some filers swap the share value and ratio columns.
+        context.log.info("Percentage out of range", ownership=ownership.id, value=value)
         return
-    entity.add("taxNumber", tax_number)
+    ownership.add("percentage", percentage)
 
 
-def apply_contact(company: Entity, items: dict[str, Any]) -> None:
-    for row in items.get("kpy41_acc1_ilet_email") or []:
-        email = clean(row.get("email"))
-        if email is None:
-            continue
-        # Some filers label the address ("GENEL MÜDÜRLÜK : info@example.com")
-        # or list several; others put their contact form URL in the column.
-        if "@" in email:
-            company.add("email", REGEX_EMAIL.findall(email))
-        else:
-            company.add("website", email)
-    # The website field is free text: several URLs separated by ";" or ",",
-    # sometimes followed by the company name in brackets. Keep the URL-shaped
-    # tokens only.
-    website = clean(items.get("kpy41_acc1_int_addres"))
-    if website is not None:
-        for token in h.multi_split(website, [";", ",", " "]):
-            if REGEX_WEBSITE.match(token):
-                company.add("website", token)
+def option(value: dict[str, str] | str | None, field: str) -> str | None:
+    """Read a form field holding a selected option, such as
+    {"key": "MALE", "text": "Erkek"}. Some filers typed free text instead."""
+    if value is None or isinstance(value, str):
+        return value
+    return value[field]
+
+
+def apply_tax_number(entity: Entity, value: str | None) -> None:
+    """Turkish tax numbers (VKN) have 10 digits; foreign companies carry their
+    own formats. 11-digit values are national identity numbers (TCKN) of natural
+    persons and are dropped."""
+    if value is None or REGEX_TCKN.match(value.strip()):
+        return
+    entity.add("taxNumber", value)
 
 
 def crawl_shareholder(
     context: Context,
     company: Entity,
     row: dict[str, Any],
-    members: dict[str, str],
+    member_ids: dict[str, str],
     ownership_type: str,
 ) -> None:
-    name = clean(row.pop("shareholder", None))
-    if name is None:
-        return
-    if context.lookup_value("shareholder", name) == "skip":
-        context.audit_data(
-            row,
-            ignore=SHAREHOLDER_IGNORE
-            + ["shareInCapital", "ratioInCapital", "monetaryUnit"],
-        )
+    name = row.pop("shareholder")
+    ratio = row.pop("ratioInCapital")
+    shares = row.pop("shareInCapital")
+    currency = row.pop("monetaryUnit", None)
+    context.audit_data(
+        row, ignore=["votingRightRatio", "disableShareHolder", "hideDelete"]
+    )
+    # Rows for the remainder of the capital ("other", "publicly held") or the total.
+    if name is None or context.lookup_value("shareholder", name) == "skip":
         return
 
-    member_id = members.get(name.casefold())
-    if member_id is not None:
-        owner = context.make("Company")
-        owner.id = member_id
-    else:
-        owner = context.make("LegalEntity")
-        owner.id = context.make_id("shareholder", company.id, name)
+    title = normalize_title(name)
+    member_id = member_ids.get(title) if title is not None else None
+    owner = context.make("LegalEntity")
+    owner.id = member_id or context.make_id("shareholder", company.id, name)
     owner.add("name", name)
+    if not owner.has("name"):
+        return
     context.emit(owner)
 
     ownership = context.make("Ownership")
@@ -193,209 +250,248 @@ def crawl_shareholder(
     ownership.add("asset", company)
     ownership.add("owner", owner)
     ownership.add("ownershipType", ownership_type)
-    ownership.add("percentage", clean_percent(row.pop("ratioInCapital", None)))
-    ownership.add("sharesValue", clean(row.pop("shareInCapital", None)))
-    ownership.add("sharesCurrency", keyed_key(row.pop("monetaryUnit", None)))
+    apply_percentage(context, ownership, ratio)
+    ownership.add("sharesValue", parse_number(context, shares))
+    ownership.add("sharesCurrency", option(currency, "key"))
     context.emit(ownership)
-    context.audit_data(row, ignore=SHAREHOLDER_IGNORE)
 
 
 def crawl_board_member(context: Context, company: Entity, row: dict[str, Any]) -> None:
-    name = clean(row.pop("nameSurname", None))
-    if name is None:
-        return
-    for key in IDENTITY_KEYS:
-        row.pop(key, None)
-    representative = clean(
-        row.pop("personWhoBehavesOnBehalfOfLegalPersonBoardMember", None)
-    )
-    gender = keyed_key(row.pop("gender", None))
-    profession = keyed_text(row.pop("profession", None))
+    name = row.pop("nameSurname")
+    representative_name = row.pop("personWhoBehavesOnBehalfOfLegalPersonBoardMember")
+    gender = row.pop("gender")
+    profession = row.pop("profession")
+    if name is None or name.strip() == "":
+        # The filer entered the member in the representative column.
+        name, representative_name = representative_name, None
 
-    if representative is not None:
-        # A legal person holds the seat and a natural person acts on its behalf;
-        # the gender and profession fields then describe the representative.
-        director = context.make("LegalEntity")
-        director.id = context.make_id("director", company.id, name)
-        director.add("name", name)
-    else:
-        director = context.make("Person")
-        director.id = context.make_id("director", company.id, name)
-        director.add("name", name)
-        director.add("gender", gender)
-        director.add("profession", profession)
+    # A legal person on the board names the natural person who acts for it.
+    # Foreign natural persons are sometimes listed as their own representative,
+    # and placeholders in the column are dropped by the type.name lookup.
+    representative = context.make("Person")
+    representative.id = context.make_id(
+        "representative", company.id, name, representative_name
+    )
+    if normalize_title(representative_name) != normalize_title(name):
+        representative.add("name", representative_name)
+    is_legal_person = representative.has("name")
+
+    director = context.make("LegalEntity" if is_legal_person else "Person")
+    director.id = context.make_id("director", company.id, name)
+    director.add("name", name)
+    if not director.has("name"):
+        context.audit_data(row, ignore=BOARD_IGNORE)
+        return
+    person = representative if is_legal_person else director
+    # The gender and profession describe the natural person on the board.
+    person.add("gender", option(gender, "key"))
+    person.add("profession", option(profession, "text"))
     context.emit(director)
 
     directorship = context.make("Directorship")
     directorship.id = context.make_id("directorship", company.id, director.id)
     directorship.add("organization", company)
     directorship.add("director", director)
-    directorship.add("role", keyed_text(row.pop("title", None)))
-    h.apply_date(directorship, "startDate", clean(row.pop("firstChosenDate", None)))
+    title = row.pop("title")
+    directorship.add("role", option(title, "text"))
+    h.apply_date(directorship, "startDate", row.pop("firstChosenDate", None))
     for key in ("independentBoardMemberOrNot", "executiveOrNon"):
-        directorship.add("description", keyed_text(row.pop(key, None)))
-    if representative is not None:
-        directorship.add("description", f"Temsilci: {representative}")
+        directorship.add("description", option(row.pop(key, None), "text"))
     context.emit(directorship)
+
+    if person is not director:
+        context.emit(person)
+        representation = context.make("Representation")
+        representation.id = context.make_id("representation", director.id, person.id)
+        representation.add("agent", person)
+        representation.add("client", director)
+        representation.add("role", "Tüzel kişi yönetim kurulu üyesi adına hareket eden")
+        context.emit(representation)
     context.audit_data(row, ignore=BOARD_IGNORE)
 
 
 def crawl_subsidiary(context: Context, company: Entity, row: dict[str, Any]) -> None:
-    name = clean(row.pop("companyTitle", None))
-    if name is None:
-        return
-    name = REGEX_NUMBERED.sub("", name)
-    lei_raw = clean(row.pop("leiCode", None))
-    lei = LEI.normalize(lei_raw) if lei_raw is not None else None
-    if lei_raw is not None and lei is None:
-        context.log.warning("Invalid LEI", lei=lei_raw, company=company.id)
-
+    name = row.pop("companyTitle")
+    lei_code = row.pop("leiCode")
+    lei = LEI.normalize(lei_code) if lei_code is not None else None
     subsidiary = context.make("Company")
     if lei is not None:
-        subsidiary.id = f"lei-{lei}"
+        subsidiary.id = context.make_slug(lei, prefix="lei")
     else:
         subsidiary.id = context.make_id("subsidiary", company.id, name)
-    subsidiary.add("name", name)
-    subsidiary.add("leiCode", lei)
-    apply_tax_number(subsidiary, row.pop("taxNo", None))
-    subsidiary.add("sector", clean(row.pop("scopeOfActivitiesOfCompany", None)))
-    subsidiary.add("capital", clean(row.pop("paidInOrIssuedCapital", None)))
+    # Placeholders for "no subsidiaries" are dropped by the type.name lookup.
+    subsidiary.add("name", REGEX_NUMBERED.sub("", name) if name is not None else None)
+    if not subsidiary.has("name"):
+        return
+    subsidiary.add("leiCode", lei_code)
+    apply_tax_number(subsidiary, row.pop("taxNo"))
+    subsidiary.add("sector", row.pop("scopeOfActivitiesOfCompany"))
+    currency = option(row.pop("monetaryUnit"), "key")
+    capital = row.pop("paidInOrIssuedCapital")
+    if capital is not None:
+        h.apply_number(subsidiary, "capital", capital)
+        subsidiary.add("currency", currency)
     context.emit(subsidiary)
 
     ownership = context.make("Ownership")
     ownership.id = context.make_id("ownership", company.id, subsidiary.id)
     ownership.add("owner", company)
     ownership.add("asset", subsidiary)
+    apply_percentage(context, ownership, row.pop("ratioOfCapitalShareOfCompany"))
     ownership.add(
-        "percentage", clean_percent(row.pop("ratioOfCapitalShareOfCompany", None))
+        "sharesValue", parse_number(context, row.pop("capitalShareOfCompany"))
     )
-    ownership.add("sharesValue", clean(row.pop("capitalShareOfCompany", None)))
-    ownership.add("role", clean(row.pop("relationWithTheCompany", None)))
+    ownership.add("sharesCurrency", currency)
+    ownership.add("role", row.pop("relationWithTheCompany"))
     context.emit(ownership)
-    context.audit_data(row, ignore=SUBSIDIARY_IGNORE)
+    context.audit_data(row)
 
 
-def crawl_company_page(
+def crawl_items(
     context: Context,
     company: Entity,
-    url: str,
-    members: dict[str, str],
-) -> bool:
-    """Fill the company from its general information page. Returns False if
-    the page carries no company data."""
-    # KAP throttles direct requests after a few hundred pages, so the pages
-    # are fetched through the Zyte API. Pages are cached for a few days so
-    # that a run interrupted by a network error resumes rather than restarts.
-    _, _, _, html = zyte_api.fetch_text(context, url, cache_days=3)
-    payload = flight_payload(html)
-    # The object enclosing the first "kapMemberTitle" carries the identifiers.
-    title_at = payload.find('"kapMemberTitle":')
-    if title_at < 0:
-        return False
-    header = parse_json_at(payload, payload.rfind("{", 0, title_at))
-    items = parse_items(payload)
-
-    company.add("sourceUrl", url)
-    company.add("name", clean(header.get("kapMemberTitle")))
-    apply_tax_number(company, header.get("taxNo"))
-    company.add("registrationNumber", clean(header.get("tradeRegNo")))
-    h.apply_date(company, "incorporationDate", clean(header.get("tradeRegDate")))
-    company.add("ticker", clean(header.get("stockCode")))
-    paid_capital = header.get("paidCapital")
-    if paid_capital is not None:
-        company.add("capital", str(paid_capital))
-        company.add("currency", "TRY")
-
-    company.add("alias", clean(items.get("kpy41_acc1_isletme_adi")))
-    company.add("sector", clean(items.get("kpy41_acc2_sektor")))
-    company.add("status", clean(items.get("kpy41_acc2_faaliyet_durum")))
-    apply_contact(company, items)
-    address = clean(items.get("kpy41_acc1_merkez_adresi"))
-    if address is not None:
-        addr = h.make_address(context, full=address, country_code="tr")
-        h.copy_address(company, addr)
+    items: dict[str, Any],
+    member_ids: dict[str, str],
+) -> None:
+    company.add("alias", items.pop("kpy41_acc1_isletme_adi", None))
+    company.add("sector", items.pop("kpy41_acc2_sektor", None))
+    # Operating status, reported under one of two keys depending on member type.
+    company.add("status", items.pop("kpy41_acc2_faaliyet_durum", None))
+    company.add("status", items.pop("kpy41_acc2_faaliyet_durum_2", None))
+    company.add("website", items.pop("kpy41_acc1_int_addres"))
+    for row in items.pop("kpy41_acc1_ilet_email") or []:
+        company.add("email", row.pop("email"))
+        context.audit_data(row)
 
     # Listed companies disclose holders of 5% or more, directly and indirectly;
     # other member types disclose their full shareholding structure.
-    for row in items.get("kpy41_acc5_sermayede_dogrudan") or []:
-        crawl_shareholder(context, company, row, members, "direct")
-    for row in items.get("kpy41_acc5_ortaklik_yapisi") or []:
-        crawl_shareholder(context, company, row, members, "direct")
-    for row in items.get("kpy41_acc5_son_durum_sermayeye") or []:
-        crawl_shareholder(context, company, row, members, "indirect")
+    for row in items.pop("kpy41_acc5_sermayede_dogrudan", None) or []:
+        crawl_shareholder(context, company, row, member_ids, "direct")
+    for row in items.pop("kpy41_acc5_ortaklik_yapisi", None) or []:
+        crawl_shareholder(context, company, row, member_ids, "direct")
+    for row in items.pop("kpy41_acc5_son_durum_sermayeye", None) or []:
+        crawl_shareholder(context, company, row, member_ids, "indirect")
     for key in (
         "kpy41_acc6_yonetim_kurulu_uyeleri",
         "kpy41_acc6_yonetim_kurulu_uyeleri_2",
     ):
-        for row in items.get(key) or []:
+        for row in items.pop(key, None) or []:
             crawl_board_member(context, company, row)
-    for row in items.get("kpy41_acc7_bagli_ortakliklar") or []:
+    for row in items.pop("kpy41_acc7_bagli_ortakliklar", None) or []:
         crawl_subsidiary(context, company, row)
-    return True
+    context.audit_data(items, ignore=ITEMS_IGNORE)
+
+
+def normalize_title(name: str | None) -> str | None:
+    """Fold case and diacritics, so that "Koç Holding A.Ş." matches the member
+    title "KOÇ HOLDİNG A.Ş."."""
+    return normalize(name, lowercase=True, ascii=True)
 
 
 def crawl(context: Context) -> None:
-    # The list is one request per run and is not affected by KAP's throttling
-    # of bulk page fetches, and it is too large to fetch reliably through Zyte.
-    html = context.fetch_text(context.data_url)
-    if html is None:
-        raise RuntimeError("Empty company list page")
-    payload = flight_payload(html)
-    groups = json_after_key(payload, "data")
-    permalinks = json_after_key(payload, "companyPermaLinks")
+    members: list[dict[str, Any]] = []
+    for member in zyte_api.fetch_json(context, context.data_url):
+        # KAP's own test accounts, and a trading system registered as a member.
+        if context.lookup_value("member_skip", member["kapMemberTitle"]) == "skip":
+            continue
+        members.append(member)
 
-    # Every member has exactly one numeric KAP code, which is the first part of
-    # its permalink and is used as the entity ID.
-    links: dict[str, str] = {}
-    for link in permalinks:
-        links.setdefault(link["mkkMemberOid"], link["permaLink"])
-
-    members: list[dict[str, Any]] = [m for group in groups for m in group["content"]]
-    if len(members) < 500:
-        raise RuntimeError(f"Company list looks truncated: {len(members)} members")
+    # Shareholders are linked to a KAP member when the name is that member's title.
     member_ids: dict[str, str] = {}
+    ambiguous: set[str] = set()
     for member in members:
-        permalink = links.get(member["mkkMemberOid"])
-        if permalink is None:
-            context.log.warning("Member without permalink", member=member)
+        title = normalize_title(member["kapMemberTitle"])
+        if title is None:
             continue
-        member_id = context.make_slug(permalink.split("-", 1)[0])
-        if member_id is None:
-            context.log.warning("Cannot build member ID", permalink=permalink)
-            continue
-        member_ids[member["kapMemberTitle"].strip().casefold()] = member_id
+        if title in member_ids:
+            ambiguous.add(title)
+        member_id = context.make_slug(member["companyCode"])
+        assert member_id is not None, member
+        member_ids[title] = member_id
+    for title in ambiguous:
+        member_ids.pop(title)
 
-    without_page = 0
     for member in members:
-        permalink = links.get(member["mkkMemberOid"])
-        if permalink is None:
-            continue
-        company = context.make("Company")
-        company.id = context.make_slug(permalink.split("-", 1)[0])
-        if company.id is None:
-            continue
-        company.add("name", clean(member.pop("kapMemberTitle")))
-        company.add("ticker", clean(member.pop("stockCode", None)))
-        company.add("jurisdiction", "tr")
-        city = clean(member.pop("cityName", None))
-        if city is not None:
-            addr = h.make_address(context, city=city, country_code="tr")
-            h.copy_address(company, addr)
-        if company.get("ticker"):
-            company.add("topics", "corp.public")
+        crawl_member(context, member, member_ids)
 
-        member_type = member.pop("kapMemberType", None)
-        url = f"https://www.kap.org.tr/tr/sirket-bilgileri/genel/{permalink}"
-        if member_type in TYPES_WITHOUT_PAGE:
-            without_page += 1
-        elif not crawl_company_page(context, company, url, member_ids):
+
+def crawl_member(
+    context: Context, member: dict[str, Any], member_ids: dict[str, str]
+) -> None:
+    name = member.pop("kapMemberTitle")
+    # Most members are companies; the regulator and the industry association are not.
+    schema = context.lookup_value("member_schema", name, "Company")
+    assert schema is not None
+    company = context.make(schema)
+    company.id = context.make_slug(member.pop("companyCode"))
+    company.add("name", name)
+    company.add("jurisdiction", "tr")
+    apply_tax_number(company, member.pop("taxNo"))
+    company.add("registrationNumber", member.pop("tradeRegNo"))
+    h.apply_date(company, "incorporationDate", member.pop("tradeRegDate"))
+    paid_capital = member.pop("paidCapital")
+    if paid_capital is not None:
+        h.apply_number(company, "capital", paid_capital)
+        company.add("currency", "TRY")
+
+    # Shares of the member are traded on Borsa İstanbul. The member codes are
+    # its share tickers and, for banks and brokers, also its three-letter
+    # exchange member code.
+    codes = h.multi_split(member.pop("stockCode"), [","])
+    if member.pop("payIslemDurumu") == "1":
+        company.add("topics", "corp.public")
+        for code in codes:
+            if len(code) > 3:
+                company.add("ticker", code)
+
+    state = member.pop("kapMemberState")
+    if state != "A":
+        context.log.warning("Unknown member state", state=state, company=company.id)
+
+    # Member types without a general information page: issuers of capital market
+    # instruments that are not traded on the exchange (IGMS), other members (DG)
+    # and market institutions such as the exchange and the regulator (DDK).
+    member_type = member.pop("kapMemberType")
+    full_address = None
+    if member_type not in ("IGMS", "DG", "DDK"):
+        url = f"https://www.kap.org.tr/tr/sirket-bilgileri/genel/{member.pop('mkkMemberOid')}"
+        items = fetch_items(context, url)
+        if len(items) == 0:
             context.log.warning(
                 "No company data on general information page",
                 url=url,
                 member_type=member_type,
             )
-        context.emit(company)
-        context.audit_data(
-            member, ignore=["mkkMemberOid", "relatedMemberOid", "relatedMemberTitle"]
-        )
-    context.log.info("Members without a general information page", count=without_page)
+        else:
+            company.add("sourceUrl", url)
+            full_address = items.pop("kpy41_acc1_merkez_adresi")
+            crawl_items(context, company, items, member_ids)
+    # The headquarters address from the page, or the city from the company list.
+    city = member.pop("cityName")
+    if full_address is not None and full_address.strip() != "":
+        address = h.make_address(context, full=full_address, country_code="tr")
+    else:
+        address = h.make_address(context, city=city, country_code="tr")
+    h.copy_address(company, address)
+    context.emit(company)
+
+    context.audit_data(
+        member,
+        ignore=[
+            "kapMemberOid",
+            "mkkMemberOid",
+            "kapTypes",
+            "financialType",
+            "nonInactiveCount",
+            "abcdCode",
+            "sgbfOrtaklikYapisi",
+            "faaliyetDurumu",
+            "taxOffice",
+            "tradeRegOffice",
+            # The registered capital ceiling has no FollowTheMoney equivalent.
+            "kayitliSermayeTavani",
+            # The member's independent auditor, or the member itself for audit firms.
+            "relatedMemberOid",
+            "relatedMemberTitle",
+        ],
+    )
