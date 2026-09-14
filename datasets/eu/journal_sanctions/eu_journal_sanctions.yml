@@ -17,6 +17,11 @@ http:
   # `zavod --debug crawl` skips the CELLAR discovery checks, which is the fast
   # way to iterate on the reviewed CSVs.
   timeout: 300
+  # Every CELLAR metadata query is a POST carrying a read-only SPARQL SELECT,
+  # and POST is not in urllib3's default retry set, so a single slow response
+  # drops the whole consolidation check for that run ("Could not list
+  # consolidated versions"). The queries are idempotent, so retry them.
+  retry_methods: [GET, POST]
 publisher:
   name: Council of the European Union
   country: eu
