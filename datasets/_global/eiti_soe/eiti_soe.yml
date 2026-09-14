@@ -28,6 +28,7 @@ publisher:
     [Source: Official Website](https://eiti.org/our-mission)
   url: https://eiti.org
   official: false
+  country: zz
 url: https://eiti-database.eiti.org/eiti_database/view_soeList
 data:
   url: https://eiti-database.eiti.org/eiti_database/view_soeList.json
