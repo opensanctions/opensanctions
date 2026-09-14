@@ -140,6 +140,8 @@ jobs:
             | head -1)
           curl -fsSL -o /tmp/qsv.zip "$URL"
           sudo unzip -o -j /tmp/qsv.zip qsv -d /usr/local/bin
+          # Release archives may not preserve executable permissions.
+          sudo chmod 755 /usr/local/bin/qsv
           qsv --version
 
       - name: Install zavod
