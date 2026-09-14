@@ -96,6 +96,11 @@ names:
   # belong in weakAlias.
   suggest_weak_alias_person_single_token: true
 
+###############################################################################
+## The following is effectively a prompt for the issues-agent LLM. Changes
+## could affect its behaviour so it should be modified with caution.
+###############################################################################
+
 config:
   # This section is the registry of the EU legal acts the dataset covers. The
   # crawler compares the registry with CELLAR and gives a warning when the
@@ -171,6 +176,7 @@ config:
     32024R0386: 02024R0386-20260528
     32024R1485: 02024R1485-20260713
     32024R2642: 02024R2642-20260713
+
   # ## Warning "Newer consolidated version published"
   #
   # CELLAR has a consolidated version of a framework act that is newer than the
@@ -211,6 +217,7 @@ config:
     32026R1895: 02020R1998-20260730
     32026R1940: 02014R0269-20260807
     32026R1960: 02002R0881-20260822
+
   # ## Warning "Amending act has no reviewed transcription"
   #
   # An act changes an annex of a framework act, and no reviewed file holds the
