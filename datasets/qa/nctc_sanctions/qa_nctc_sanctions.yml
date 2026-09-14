@@ -285,3 +285,5 @@ lookups:
         value: 1961-02-23
       - match: EXACT_14/07/1975_1975__
         value: 1975-07-14
+      - match: EXACT_30/09/1989_1989__
+        value: 1989-09-30
