@@ -16,6 +16,7 @@ DOB_LABEL = "Datëlindja"
 BIO_PROPS = {
     "Gjinia": "gender",
     "Përkatësia etnike": "ethnicity",
+    "Etnia": "ethnicity",
     "Vendlindja": "birthPlace",
     "Arsimimi": "education",
 }
@@ -28,6 +29,7 @@ BIO_IGNORE = [
     "Gjuhë tjetër përveç amtares",  # other languages spoken
     "Gjuhë tjetër përveç amtare",  # idem; one profile drops the trailing "s"
     "Aktivitete dhe funksione paraprake apo të tanishme",  # prior/current occupations
+    "Funksione paraprake apo të tanishme",  # idem; without the "Aktivitete dhe" prefix
 ]
 
 # All labels we recognise, longest first so prefix matching is unambiguous. Used to
