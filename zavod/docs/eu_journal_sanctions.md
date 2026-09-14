@@ -6,9 +6,7 @@ EU sanctions take legal effect the moment they are published in the EU Official 
 
 Watchful has an EU Journal task monitoring CELLAR for new sanctions frameworks, amendments, and consolidation updates.
 
-It kicks off crawler jobs which result in warnings for the issues agent to work on and for us to review.
-
-### Operations
+It keeps track of the EU Journal document versions it's seen. When it sees new relevant changes, it kicks off crawler jobs which results in warnings for the issues agent to work on if needed. The issues agent then makes a pull request based on the work it did. We must review that pull request.
 
 ```mermaid
 flowchart TD
@@ -18,28 +16,27 @@ flowchart TD
     C --> D["4. Crawler logs warnings for new work"]
     D --> E["5. Watchful runs the issues agent"]
     E --> F["6. Issues agent checks warnings and instructions in crawler yaml"]
-    F --> G["7. Issues agent opens a PR with changes per instructions"]
+    F --> G["7. Issues agent opens a PR with changes per its instructions in eu_journal_sanctions.yml"]
     G --> H["8. Dev team reviews the PR"]
     H --> I["9. Merged PR reruns the crawler"]
     I --> D
 ```
 
-The crawler itself detects new amendments and drift from the consolidated text, and reports them as warnings. Expect these on the issues dashboard for `eu_journal_sanctions`:
+There are two common kinds of updates: **a new amendment**, and **an update to a consolidated text**.
 
-| Warning | Meaning | Action |
+The following table shows the warnings, what they mean, and what the issues agent should do with them. In all cases, familiarise yourself with the instructions to the issues agent in `eu_journal_sanctions.yml`.
+
+| Warning | Meaning | Issues agent action |
 |---------|---------|--------|
-| `Amending act has no reviewed transcription` | A new amendment is on EUR-Lex but has no transcribed data yet | Wait for the issues-agent PR, then review it (see below). |
-| `Newer consolidated version published` | CELLAR published a consolidation newer than the one we pin | Expect an issues-agent PR re-pinning and re-parsing. Review it. |
+| `Amending act has no reviewed transcription` | A new amendment is on EUR-Lex. If this lists/delists/updates any sanctioned entities, we need to update our data. | It should transcribe the entities in the amendment to a new CSV. We don't maintain python scripts for these. |
+| `Newer consolidated version published` | The consolidated version of an act has been updated to include one more more recent amendments. Once we update the consolidation parser, CSV and consolidation pin, we'll ignore any amendments now included in this consolidation. | Update the crawler for that consolidation if needed to handle the changes. Rerun the consolidation's script and update the consolidation CSV. Pin the consolidation to the new version. |
+| `Snapshot has no consolidation pin` or `Pinned consolidation is not published by CELLAR` | These are deterministic cross-referencing checks.  If these warnings remain, we need to look at recent changes and figure out what the correct state is to resolve. | Normally these warnings help the issues agent get all the references right before making a PR. |
 
-#### PR review policy
+### Review policy
 
-Generally, familiarise yourself with the instructions to the Maintainer in the dataset yaml - usually issues-agent (an LLM), to figure out what the intended changes are for a given warning. Additional review instructions are listed for the Reviewer in the dataset yaml.
-
-Furthermore
-
-- Check that every entity in the amendment is present, and that names, IDs, dates and program match the source.
-- If identifiers such as passport numbers appear in aliases **and** in the correct columns, accept. The alias noise gets cleaned in name-cleaning data reviews.
-  - Look out for data reviews following a PR merge.
+- Check that every updated entity in the amendment/consolidation is present, and that names, IDs, dates and program match the source.
+- If identifiers such as passport numbers appear in aliases **and** in the correct columns, accept.
+    - Expect such alias noise to show up as name-cleaning data reviews and review after the next run.
 - If identifiers are **not** in the correct columns, reject. Comment on the PR with @claude for it to fix.
 
 
