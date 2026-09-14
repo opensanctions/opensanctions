@@ -55,20 +55,23 @@ def get_base_dataset_metadata(dataset: Dataset) -> dict[str, Any]:
             meta["target_count"] = targets.get("total", 0)
             things = stats.get("things", {})
             meta["thing_count"] = things.get("total", 0)
-            last_change = stats.get("last_change")
-            # Stopgap: an empty export (no statements) has no entity to derive
-            # last_change from, so it stays null and fails catalog validation
-            # downstream in kombinat
-            # (https://github.com/opensanctions/opensanctions/issues/4643). Fall
-            # back to the run time so the field is always populated.
+
+            ## last_change limitations:
             #
-            # TODO: The permanent fix is to backfill last_change from the last
-            # successful run, which needs the versioned-artifact semantics from
-            # https://github.com/opensanctions/operations/issues/2675 — tracked
-            # in https://github.com/opensanctions/opensanctions/issues/5017.
-            # Counter-intuitive but correct: last_change doesn't track deletions,
-            # so an emptied dataset's last change is whatever the last successful
-            # run reported.
+            ### Always updates when dataset is empty
+            # While Statistics calculates last_change as max(last_change) of entities,
+            # an empty export has no entity to derive last_change from, so we fall back
+            # to the crawl run time, meaning it always updates even without changes.
+            #
+            ### Can go back in time when the latest changed entity gets removed
+            # Because removing max(last_change) means it's now a less recently updated
+            # entity's last_change.
+            #
+            ### Doesn't change when only change is removal of any other entity
+            # Because last_change is derived from the max(last_change) of entities,
+            # removing an entity that is not the most recently changed one does not affect it.
+
+            last_change = stats.get("last_change")
             if last_change is None:
                 last_change = settings.RUN_TIME_ISO
             meta["last_change"] = last_change
