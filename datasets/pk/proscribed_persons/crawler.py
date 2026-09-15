@@ -28,25 +28,23 @@ def crawl_person(context: Context, row: dict[str, str]) -> None:
 
     entity = context.make("Person")
     if cnic is None or is_placeholder_cnic(context, cnic):
-        # Either no number at all, or a filler that identifies nobody. Neither may
-        # become the entity ID, and neither may be published as an identifier.
+        # No number, or a filler that identifies nobody: unusable either way.
         entity.id = context.make_slug(person_name, district, province)
         cnic = None
     elif cnic_validator.is_valid(cnic):
         cnic = cnic_validator.compact(cnic)
         entity.id = context.make_slug(cnic, prefix="pk-cnic")
     else:
-        # The number is malformed, usually a wrong province or gender digit, but it
-        # is still what the publisher holds for this person, so keep it searchable.
-        # A fragment shorter than a full CNIC identifies nobody, so drop it.
+        # Malformed, usually a wrong province or gender digit, but still what the
+        # publisher holds, so keep it searchable. Fragments identify nobody: drop
+        # them and warn, so a maintainer can add them to placeholder_cnic.
         entity.id = context.make_slug(person_name, district, province)
         cnic = cnic_validator.compact(cnic)
         if len(cnic) != CNIC_LENGTH:
             context.log.warning("Discarding CNIC fragment", cnic=cnic, name=person_name)
             cnic = None
     entity.add("idNumber", cnic)
-    # Everyone on the 4th Schedule is proscribed by a Pakistani authority, so the
-    # country holds whether or not the CNIC is usable.
+    # Proscription is by a Pakistani authority, so country holds either way.
     entity.add("country", "pk")
 
     name_split = person_name.split("@")
