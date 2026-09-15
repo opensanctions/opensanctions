@@ -330,6 +330,11 @@ def collect_reviewed_urls(
         str(url) for url in discovery_config.get("reviewed_urls", []) if url
     }
     reviewed_urls.update(row["Source URL"] for row in rows if row["Source URL"])
+    reviewed_urls.update(
+        row["Current status source URL"]
+        for row in rows
+        if row.get("Current status source URL")
+    )
     return reviewed_urls
 
 
@@ -357,8 +362,12 @@ def crawl(context: Context) -> None:
         entity.add("alias", row.pop("Chinese name"), lang="zho")
         entity.add("country", row.pop("Country", None))
         entity.add("address", row.pop("Address", None))
-        entity.add("notes", row.pop("Summary", None), lang="eng")
-        entity.add("notes", row.pop("Chinese summary", None), lang="zho")
+        summary = row.pop("Summary", "")
+        chinese_summary = row.pop("Chinese summary", "")
+        if summary or chinese_summary:
+            raise ValueError(
+                "Summary fields must contain only source text; migrate them"
+            )
         entity.add("topics", row.pop("Topics").split(";"))
         program = row.pop("List", None)
         sanction = h.make_sanction(
@@ -368,6 +377,13 @@ def crawl(context: Context) -> None:
             program_key=h.lookup_sanction_program_key(context, program),
         )
         sanction.set("authority", row.pop("Body", None))
+        notice_id = row.pop("Notice ID", None)
+        if notice_id:
+            sanction.set("recordId", notice_id)
+        designation_quote = row.pop("Designation quote", None)
+        designation_language = row.pop("Designation quote language", None)
+        if designation_quote:
+            sanction.add("provisions", designation_quote, lang=designation_language)
         h.apply_date(
             sanction,
             "startDate",
@@ -380,7 +396,27 @@ def crawl(context: Context) -> None:
             row.pop("End date", None),
             two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
         )
-        sanction.add("sourceUrl", row.pop("Source URL", None))
+        source_url = row.pop("Source URL", None)
+        sanction.add("sourceUrl", source_url)
+        current_status = row.pop("Current status (source)", None)
+        row.pop("Notice title", None)
+        row.pop("Current status notice title", None)
+        row.pop("Current status date", None)
+        current_status_url = row.pop("Current status source URL", None)
+        current_status_quote = row.pop("Current status quote", None)
+        current_status_language = row.pop("Current status quote language", None)
+        if current_status and (not current_status_url or not current_status_quote):
+            raise ValueError(f"Current status lacks source URL or quote for {name!r}")
+        sanction.add("sourceUrl", current_status_url)
+        if current_status_quote:
+            sanction.add(
+                "provisions", current_status_quote, lang=current_status_language
+            )
+        if current_status and current_status.startswith(("暂停", "继续暂停")):
+            sanction.set("status", "suspended")
+        elif current_status and current_status.startswith("移出"):
+            sanction.set("status", "inactive")
+        row.pop("Current status quote language", None)
         context.emit(sanction)
         context.emit(entity)
         context.audit_data(row)

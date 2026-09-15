@@ -111,6 +111,9 @@ config:
     # - Chinese name: source spelling, when present.
     # - Country: ISO 3166-1 alpha-2 code when identifiable.
     # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision, which may differ from the publication date in the URL.
+    # - Notice ID/Notice title: source instrument identifier and verbatim title, retained in CSV.
+    # - Designation quote/Current status quote: exact source text only, with explicit language codes.
+    # - Current status (source), date, notice title, and source URL: latest-state values only; do not encode history or editorial translations.
     # - Address: preserve the official address as one value.
     # - QID: optional; add only when the identity is certain.
     # - Body: Ministry of Foreign Affairs or Ministry of Commerce.
