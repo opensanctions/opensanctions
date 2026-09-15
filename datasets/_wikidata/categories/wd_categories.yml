@@ -1388,7 +1388,7 @@ config:
         country: ve
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
     - category: Políticos_de_Venezuela
       country: ve
       language: es
@@ -1439,7 +1439,7 @@ config:
         country: ni
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
     - category: Nicaraguan_politicians
       country: ni
     # retired 2026-08-23; 65/67 already hold Q852448; 2 leave the dataset (born-before-1920, long-dead)
@@ -1467,7 +1467,7 @@ config:
         country: ni
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
     - category: Políticos_de_Nicaragua
       country: ni
       language: es
@@ -1573,7 +1573,7 @@ config:
         country: gt
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
 
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
@@ -1880,6 +1880,7 @@ config:
         country: cz
         topics:
           - gov.head
+          - gov.national
     - category: Ministři_vlád_České_republiky
       country: cz
       language: cs
@@ -2074,7 +2075,7 @@ config:
         name: President of the autonomous community of Spain
         country: es
         topics:
-          - gov.head
+          - gov.executive
           - gov.state
     - category: Ministers_of_Spanish_autonomous_communities
       country: es
@@ -2087,7 +2088,7 @@ config:
         wikidata_id: Q5663900
         country: es
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
     - category: 21st-century_Spanish_politicians
       country: es
@@ -3220,7 +3221,7 @@ config:
         name: Governor of a Russian Region
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.state
 
       # "Региональные законодатели"  # Regional legislators
@@ -4210,7 +4211,7 @@ config:
         wikidata_id: Q1837906
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
 
     # "Местное самоуправление"  # Local self-government
@@ -4224,7 +4225,7 @@ config:
         wikidata_id: Q4139102
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
 
     - category: Главы районов России # Heads of districts of Russia
@@ -4236,7 +4237,7 @@ config:
         wikidata_id: Q4139102
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
     # - category: Главы сельских поселений России  # Heads of rural settlements of Russia
     #   topic: role.pep

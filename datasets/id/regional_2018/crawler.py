@@ -89,7 +89,7 @@ def crawl(context: Context) -> None:
             "Wakil Gubernur",
             "Deputy Governor",
             "provinsi",
-            ["gov.head", "gov.state"],
+            ["gov.executive", "gov.state"],
         )
 
     for row in h.parse_xlsx_sheet(
@@ -103,5 +103,5 @@ def crawl(context: Context) -> None:
             "Wakil Bupati atau Wakil Walikota",
             "Deputy Regent or Deputy Mayor",
             "kabupaten_kota",
-            ["gov.head", "gov.muni"],
+            ["gov.executive", "gov.muni"],
         )
