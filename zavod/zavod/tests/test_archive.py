@@ -8,7 +8,7 @@ from zavod.archive import archive_artifact, backfill_artifact, invalidate_datase
 from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_path
 from zavod.archive import create_artifact_path, dataset_artifact_path
 from zavod.archive import get_archive_backend, get_artifact_object
-from zavod.archive import get_best_version, get_last_successful_version
+from zavod.archive import get_last_successful_version
 from zavod.archive import get_version_history
 from zavod.archive import publish_version_history
 from zavod.archive import ARTIFACTS, DATASETS, LATEST, VERSIONS_FILE
@@ -96,7 +96,6 @@ def test_version_selection_uses_last_successful_version(testdataset1: Dataset):
     _archive_run(testdataset1, failed, successful=False)
 
     assert get_last_successful_version(testdataset1.name) == succeeded
-    assert get_best_version(testdataset1.name) == succeeded
 
     prefix = f"{ARTIFACTS}/{testdataset1.name}"
     object = get_artifact_object(testdataset1.name, succeeded, RESOURCE_NAME)
@@ -110,13 +109,11 @@ def test_version_selection_uses_last_successful_version(testdataset1: Dataset):
 
 
 def test_version_selection_without_successful_version(testdataset1: Dataset):
-    """Until a run has succeeded there is no last successful version; only
-    get_best_version falls back to the newest run (for metadata purposes)."""
+    """Until a run has succeeded there is no last successful version."""
     failed = Version.from_string("20260101000000-aaa")
     _archive_run(testdataset1, failed, successful=False)
 
     assert get_last_successful_version(testdataset1.name) is None
-    assert get_best_version(testdataset1.name) == failed
 
 
 def test_get_artifact_object_does_not_mix_runs(testdataset1: Dataset):
@@ -157,12 +154,12 @@ def test_artifact_backfill(testdataset1: Dataset):
     # But nothing answers version discovery until the history is published:
     versions_file = artifacts_path / VERSIONS_FILE
     assert not versions_file.exists()
-    assert get_best_version(testdataset1.name) is None
+    assert get_last_successful_version(testdataset1.name) is None
 
     _archive_run(testdataset1, version, archive_resource=False)
     assert versions_file.exists()
-    best = get_best_version(testdataset1.name)
-    assert best == version
-    path = backfill_artifact(testdataset1.name, best, name)
+    last_successful_version = get_last_successful_version(testdataset1.name)
+    assert last_successful_version == version
+    path = backfill_artifact(testdataset1.name, last_successful_version, name)
     assert path is not None
     assert path.exists()

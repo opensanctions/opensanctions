@@ -3,7 +3,7 @@ import logging
 
 from followthemoney.dataset import Version
 from nomenklatura import Resolver
-from pytest import MonkeyPatch
+from pytest import MonkeyPatch, raises
 from structlog.testing import capture_logs
 
 from zavod import settings
@@ -17,6 +17,38 @@ from zavod.meta import Dataset
 from zavod.exporters.metadata.model import CatalogDatasetModel
 from zavod.publish import publish_dataset
 from zavod.tests.util import get_manifest, get_test_view, make_context
+
+
+def test_catalog_dataset_without_successful_version(
+    testdataset1: Dataset, monkeypatch: MonkeyPatch
+) -> None:
+    monkeypatch.setattr(metadata, "get_last_successful_version", lambda *_: None)
+
+    with capture_logs() as cap_logs:
+        catalog_dataset = metadata.get_catalog_dataset(testdataset1)
+
+    assert catalog_dataset is None
+    assert any(
+        entry.get("log_level") == "warning"
+        and entry.get("dataset") == testdataset1.name
+        and entry.get("event")
+        == (
+            f"No last successful version found for {testdataset1.name}, "
+            "returning None from get_catalog_dataset"
+        )
+        for entry in cap_logs
+    )
+
+
+def test_catalog_dataset_requires_index(
+    testdataset1: Dataset, monkeypatch: MonkeyPatch
+) -> None:
+    version = Version.new("aaa")
+    monkeypatch.setattr(metadata, "get_last_successful_version", lambda *_: version)
+    monkeypatch.setattr(metadata, "backfill_artifact", lambda *_: None)
+
+    with raises(RuntimeError, match="No index file found"):
+        metadata.get_catalog_dataset(testdataset1)
 
 
 def test_metadata_collection_export(
@@ -66,15 +98,12 @@ def test_metadata_collection_export(
         catalog = json.load(fh)
 
     assert catalog["updated_at"] == settings.RUN_TIME_ISO
-    assert len(catalog["datasets"]) == len(collection.datasets)
+    assert len(catalog["datasets"]) == 1
+    assert catalog["datasets"][0]["name"] == testdataset1.name
     for ds in catalog["datasets"]:
         assert ds["updated_at"] == settings.RUN_TIME_ISO
         if ds["name"] == testdataset1.name:
             assert len(ds["resources"]) > 2
-        if ds["name"] == collection.name:
-            # The collection itself has no published version yet, so its own
-            # catalog entry carries no run information.
-            assert "resources" not in ds
 
 
 def test_metadata_collection_issue_count(

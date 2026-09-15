@@ -169,13 +169,6 @@ def get_last_successful_version(dataset_name: str) -> Version | None:
     return history.last_successful
 
 
-def get_best_version(dataset_name: str) -> Version | None:
-    """Get the best version of a dataset, ie. the last successful one if available,
-    otherwise the latest one."""
-    history = get_version_history(dataset_name)
-    return history.last_successful or history.latest
-
-
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
     """Iterate over all versions of a given dataset."""
     history = get_version_history(dataset_name)
