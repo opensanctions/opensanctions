@@ -1,0 +1,95 @@
+title: Singapore Members of Parliament
+name: sg_parliament
+prefix: sg-parl
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+summary: >-
+  Current and historical members of the Parliament of Singapore, the country's unicameral legislature.
+description: |
+  Members of the Parliament of Singapore, which shares legislative authority with the President.
+  Most Members of Parliament (MPs) are elected for terms of up to five years, representing either
+  a Group Representation Constituency (GRC) or a Single Member Constituency (SMC).
+
+  The Parliament also includes Non-Constituency Members of Parliament (NCMPs), who are selected
+  from the best-performing unsuccessful candidates from opposition parties, and Nominated
+  Members of Parliament (NMPs), who are appointed by the President to provide independent
+  and non-partisan perspectives.
+url: https://www.parliament.gov.sg/history/list-of-mps-by-parliament
+publisher:
+  name: Parliament of Singapore
+  description: >
+    The Parliament of Singapore is the unicameral legislature of the Republic of Singapore.
+  url: https://www.parliament.gov.sg/
+  country: sg
+  official: true
+data:
+  url: https://www.parliament.gov.sg/history/list-of-mps-by-parliament
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+dates:
+  formats: ["%d.%m.%Y", "%d %B %Y"]
+
+names:
+  suffixes_strip:
+    - ", Assoc Prof"
+    - ", Dr"
+    - ", Haji"
+    - ", Mdm"
+    - ", Prof"
+
+lookups:
+  party:
+    required: true
+    normalize: true
+    lowercase: true
+    options:
+      - match: People's Action Party
+        value: People's Action Party
+      - match: Workers' Party
+        value: Workers' Party
+      - match: Barisan Sosialis
+        value: Barisan Sosialis
+      - match: Progress Singapore Party
+        value: Progress Singapore Party
+      - match: Singapore Democratic Party
+        value: Singapore Democratic Party
+      - match: Singapore Democratic Alliance
+        value: Singapore Democratic Alliance
+      - match: Singapore People's Party
+        value: Singapore People's Party
+      - match: Independent Singapore Party Alliance
+        value: Independent Singapore Party Alliance
+      - match: People's Action Party, Barisan Sosialis
+        values:
+          - People's Action Party
+          - Barisan Sosialis
+      - match:
+          - Nominated Member of Parliament
+          - Non-Constituency Member of Parliament
+          - NA
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Position: 1
+    country_entities:
+      sg: 200
+    entities_with_prop:
+      Occupancy:
+        constituency: 90
+        periodEnd: 300
+      Person:
+        birthDate: 50
+  max:
+    schema_entities:
+      Person: 400
+      Position: 1
