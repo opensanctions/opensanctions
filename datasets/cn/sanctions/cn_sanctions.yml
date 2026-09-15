@@ -143,6 +143,17 @@ config:
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_aab677e956c943808cebf8c06a28ff0e.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_6607ea694b704da8ac5e863a5568e47c.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2025/art/2025/art_6af71ac99d00410d895a50abc044d148.html
+      # MOFCOM spokesperson notices and export-control information-network summaries
+      # that change the status of previously designated groups.
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_09a94ead2b57413eb851369fc15ba900.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_2d1e85ffaebf4ed9913f35f2afb5c436.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_53ec1f591dba49a39b65fd89b6d73e6f.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_3cd57285290044edb3036563bc4c7352.html
+      - https://exportcontrol.mofcom.gov.cn/article/gndt/202508/1155.html
+      - https://exportcontrol.mofcom.gov.cn/article/gndt/202511/1186.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_7e09fc75390f4a078466b56ac9d6503a.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_7122e97907384bd2bb89a848301abb7f.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_10b299e3e1334d23b4bad116fd38a7b7.html
       # MOFCOM industry-security (aqygzj) mirrors of export-control announcements already
       # represented in sanctions.csv under their blgg/zwgk URLs; muted after confirming each
       # notice's target list matches its existing CSV row group by name, count, and date.
