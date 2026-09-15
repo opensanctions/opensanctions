@@ -18,7 +18,7 @@ from zavod.archive import (
     ISSUES_FILE,
     backfill_artifact,
     dataset_artifact_path,
-    get_best_version,
+    get_last_successful_version,
 )
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
 from zavod.archive import UNLISTED_RESOURCES
@@ -162,30 +162,41 @@ def write_dataset_index(
         write_json(meta, fh)
 
 
-def get_catalog_dataset(dataset: Dataset) -> dict[str, Any]:
-    """Get a metadata description of a single dataset for the catalog.
+def get_catalog_dataset(dataset: Dataset) -> dict[str, Any] | None:
+    """Build one catalog entry from a dataset's last successful version.
 
-    Uses run information from the latest published index file, but patches it with the latest metadata from
-    the dataset object to allow us to quickly patch the catalog without waiting for another export.
+    The function reads operational metadata from the version's index artifact. It
+    then patches in the current metadata from the local dataset definition. This
+    allows metadata corrections to appear without another dataset export.
+
+    The function emits a warning and returns ``None`` when the dataset has no last
+    successful version.
+
+    Returns:
+        The combined catalog metadata, or ``None`` when no last successful version
+        exists.
+
+    Raises:
+        RuntimeError: The selected version has no index artifact.
     """
-    meta = {}
-    # Use the latest published index file, if available.
-    version = get_best_version(dataset.name)
-    if version is not None:
-        path = backfill_artifact(dataset.name, version, INDEX_FILE)
-        if path is not None:
-            with open(path) as fh:
-                meta.update(json.load(fh))
-        else:
-            log.warn(
-                "No index file found, dataset likely hasn't run yet",
-                report_issue=False,
-            )
-    else:
-        log.warn(
-            "No successful version found for dataset, catalog will be incomplete",
+    version = get_last_successful_version(dataset.name)
+    if version is None:
+        # Only datasets that have never completed a successful run reach this
+        # edge case, so no run metadata exists for their catalog entries.
+        log.warning(
+            f"No last successful version found for {dataset.name}, "
+            "returning None from get_catalog_dataset",
             dataset=dataset.name,
         )
+        return None
+
+    index_file_path = backfill_artifact(dataset.name, version, INDEX_FILE)
+    if index_file_path is None:
+        raise RuntimeError(
+            f"No index file found for {dataset.name} at version {version.id}"
+        )
+    with open(index_file_path) as fh:
+        meta: dict[str, Any] = json.load(fh)
 
     # Overwrite with latest metadata (without any run information), useful to quickly patch up the catalog
     # for datasets that don't get exported often.
@@ -194,9 +205,36 @@ def get_catalog_dataset(dataset: Dataset) -> dict[str, Any]:
 
 
 def get_catalog_datasets(scope: Dataset) -> list[dict[str, Any]]:
+    """Build catalog entries for every dataset in a scope.
+
+    The result includes the scope itself, all nested collection scopes, and all leaf
+    datasets. Each entry uses its last successful version.
+
+    Each entry reads operational metadata from the selected version's index artifact.
+    It then patches in the current metadata from the local dataset definition. This
+    allows metadata corrections to appear without another dataset export.
+
+    Zavod writes these entries to the dataset-level ``catalog.json`` for each
+    collection export. Kombinat also uses them to write the frequently refreshed
+    root catalog at ``datasets/latest/index.json``.
+
+    The function omits a dataset without a last successful version, but this is a
+    real edge case that only occurs when a dataset has never completed a successful
+    run.
+
+    This is a bit of a legacy function because its entries can reference a somewhat
+    willy-nilly mix of versions instead of versions pinned by a Manifest. Yente
+    relies on these catalogs and requires them to include nested collection scopes,
+    so the catalog format is unlikely to change.
+
+    Returns:
+        Metadata dictionaries for the scope, its nested collections, and its leaves.
+    """
     datasets = []
     for dataset in scope.datasets:
-        datasets.append(get_catalog_dataset(dataset))
+        catalog_dataset = get_catalog_dataset(dataset)
+        if catalog_dataset is not None:
+            datasets.append(catalog_dataset)
     return datasets
 
 
@@ -254,8 +292,15 @@ def write_delta_index(
 
 
 def write_catalog(scope: Dataset, version: Version) -> None:
-    """Export a Nomenklatura-style data catalog file to represent all the datasets
-    within this scope."""
+    """Write the dataset-level ``catalog.json`` for a collection scope.
+
+    The file contains catalog entries for the collection itself, its nested
+    collections, and its leaf datasets. Each entry uses its independently selected
+    last successful version. The function does nothing for a leaf dataset.
+
+    Returns:
+        None.
+    """
     if not scope.is_collection:
         return
     catalog_path = dataset_artifact_path(scope.name, version, CATALOG_FILE)

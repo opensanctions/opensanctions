@@ -8,7 +8,8 @@ from logging import Logger
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import DELTA_EXPORT_FILE, backfill_artifact, clear_data_path
-from zavod.archive import dataset_artifact_path, get_best_version, stream_statements
+from zavod.archive import dataset_artifact_path, stream_statements
+from zavod.archive import get_last_successful_version
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
 from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE, MANIFEST_FILE
 from zavod.archive import ISSUES_FILE, ISSUES_LOG, RESOURCES_FILE
@@ -235,9 +236,9 @@ def test_failed_run_does_not_replace_latest_metadata(testdataset1: Dataset):
     # Backfilling the index - as a catalog export in a fresh container does -
     # skips the failed run and lands on the last successful one:
     clear_data_path(testdataset1.name)
-    best = get_best_version(testdataset1.name)
-    assert best == good_version
-    path = backfill_artifact(testdataset1.name, best, INDEX_FILE)
+    last_successful_version = get_last_successful_version(testdataset1.name)
+    assert last_successful_version == good_version
+    path = backfill_artifact(testdataset1.name, last_successful_version, INDEX_FILE)
     assert path is not None
     with open(path) as fh:
         index = json.load(fh)
@@ -246,6 +247,7 @@ def test_failed_run_does_not_replace_latest_metadata(testdataset1: Dataset):
     assert len(index["resources"]) > 0
 
     catalog_dataset = get_catalog_dataset(testdataset1)
+    assert catalog_dataset is not None
     assert catalog_dataset["version"] == good_version.id
     assert catalog_dataset["last_change"] == index["last_change"]
     assert {r["name"] for r in catalog_dataset["resources"]} >= STANDARD_EXPORTS
