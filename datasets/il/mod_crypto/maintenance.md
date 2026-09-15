@@ -75,13 +75,9 @@ designation, and it is what a user needs in order to verify the entry. Two relat
 
 ## Dates
 
-Write dates as `YYYY-MM-DD`. Every date in the file is ISO, and it should stay that
-way. `DD.MM.YYYY` and `DD/MM/YYYY` still parse (see `dates.formats` in
-`il_mod_crypto.yml`), but only the ISO form is unambiguous: slash dates are read
-day-first, so a date a spreadsheet has reformatted to US `MM/DD/YYYY` is parsed with day
-and month swapped, silently and without a warning, for the first twelve days of any
-month. ISO also pins the century — a two-digit year is resolved relative to the year the
-crawler runs, so `dob` values written `%m.%d.%y` would drift as time passes.
+Write dates as `YYYY-MM-DD`, or `YYYY-MM` / `YYYY` where the order gives only that
+much. ISO is the only form the crawler parses; anything else is kept verbatim as
+unparsed text.
 
 ## After editing
 
