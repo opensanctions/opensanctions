@@ -28,8 +28,9 @@ person or organisation is designated again under a different measure or on a
 different date. Duplicate listings are expected: entities are merged downstream,
 while the rows retain the provenance of each designation event.
 
-For additions, create one row for every named target. For removals or expiries,
-update `End date` on the matching designation row rather than deleting its history.
+For additions, create one row for every named target. For removals or expiries, update
+`End date` on the matching designation row rather than deleting its history. Update
+the current-status fields to the latest source state; the row is not a historical log.
 Do not infer a removal from changed wording, an inaccessible URL, or absence from a
 later notice.
 
@@ -46,14 +47,24 @@ Keep the existing header and column order.
 | `Chinese name` | Preserve the name as written in the Chinese notice. |
 | `Country` | Use the target's country when it can be established from the notice. Prefer an ISO 3166-1 alpha-2 code. |
 | `Topics` | Map the measure using the table below. Separate multiple topics with semicolons. |
-| `Summary` | Add only source-supported context that materially identifies the designation. |
-| `Chinese summary` | Chinese equivalent of `Summary`, when available. |
+| `Summary` | Leave empty. Editorial explanations and translations are not source data. |
+| `Chinese summary` | Leave empty. Use the quote fields below for verbatim source text. |
 | `Body` | Use the English name of the issuing authority. |
 | `List` | Use the source-facing list name mapped below, not the internal program key. |
 | `Date` | Use the effective date in `DD.MM.YYYY` format. |
 | `End date` | Set only when an official action ends the designation. |
 | `Source URL` | Use the exact official notice URL. Every row must have one. |
 | `Address` | Preserve an address published for that target, including its postal code. |
+| `Notice ID` | Stable identifier for the original designation instrument; reproducible from the official source. |
+| `Notice title` | Verbatim title of the original designation notice; CSV-only provenance. |
+| `Designation quote` | Exact source-language passage establishing the target and measure. |
+| `Designation quote language` | Language code for `Designation quote`. |
+| `Current status (source)` | Exact status/action wording from the latest official status notice. This is not a translation. |
+| `Current status date` | Effective date stated for the latest status. |
+| `Current status notice title` | Verbatim title of the latest status notice; CSV-only provenance. |
+| `Current status source URL` | Official source for the latest status. |
+| `Current status quote` | Exact source-language passage supporting the latest status and target scope. |
+| `Current status quote language` | Language code for `Current status quote`. |
 
 Use these established mappings:
 
