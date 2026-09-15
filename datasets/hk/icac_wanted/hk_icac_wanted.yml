@@ -7,24 +7,14 @@ coverage:
   start: 2026-09-15
 load_statements: true
 summary: >
-  Persons wanted by the Independent Commission Against Corruption (ICAC) of
-  Hong Kong in connection with corruption and related offences.
+  People sought under arrest warrants for bribery, fraud and election offences
 description: |
-  The Independent Commission Against Corruption publishes the people it is
-  currently seeking, most of whom are subject to a warrant of arrest issued
-  by a Hong Kong court and are believed to have left the territory.
-
-  From the [ICAC wanted persons page](https://www.icac.org.hk/en/rc/wanted/index.html):
-
-  > The following persons are currently on ICAC's wanted persons lists. If you
-  > have any information concerning these people, please contact the ICAC at
-  > the 24-hour hotline (852) 25 266 366 or write to Hong Kong General Post
-  > Office Box 1000.
-
-  Each entry carries the person's name, any alias, the charges they face, a
-  short case brief, and personal particulars such as year of birth, place of
-  birth, nationality and sex. The Hong Kong identity card numbers published
-  alongside are partially masked at source and are not captured here.
+  The people the Independent Commission Against Corruption is currently
+  seeking, most of them subject to a warrant of arrest issued by a Hong Kong
+  court and believed to have left the territory. The charges are mainly
+  bribery offences, which Hong Kong law frames as offering or accepting an
+  "advantage", alongside conspiracy to defraud, forgery, handling the proceeds
+  of crime, and election offences such as inciting others not to vote.
 tags:
   - list.wanted
 url: https://www.icac.org.hk/en/rc/wanted/index.html
@@ -44,16 +34,13 @@ data:
   format: HTML
   lang: eng
 
-dates:
-  formats: ["%Y"]
-
 assertions:
   min:
     schema_entities:
       Person: 40
   max:
     schema_entities:
-      Person: 120
+      Person: 100
 
 lookups:
   # The "Personal Particular" block is free text and its labels drift, e.g.
