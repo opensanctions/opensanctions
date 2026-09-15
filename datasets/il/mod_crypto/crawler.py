@@ -1,9 +1,11 @@
 import csv
+import shutil
 from pathlib import Path
 from typing import cast
 from lxml.html import HtmlElement
 
 from normality import squash_spaces
+from rigour.mime.types import CSV
 from rigour.text.scripts import is_latin
 from zavod.extract.zyte_api import fetch_html
 
@@ -65,6 +67,7 @@ HOMOGLYPHS = {
 
 ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
 LOCAL_PATH = Path(__file__).parent
+SOURCE_FILE = "seizures.csv"
 
 
 def remove_zero_width_space(row: dict[str, str]) -> dict[str, str]:
@@ -211,7 +214,8 @@ def crawl(context: Context) -> None:
     # The key things to check are
     # - the table of releases - are there any new ones?
     # - The table of persons/wallets - does it look like anything's been added there?
-    # If updated, reflect changes in the Google Sheet and commit the new CSV:
+    # If updated, reflect changes in seizures.csv and commit it with the new CSV:
+    # git add -f datasets/il/mod_crypto/seizures.csv
     # git add -f datasets/il/mod_crypto/releases.csv
     # git add -f datasets/il/mod_crypto/wallets.csv
     tables = h.xpath_elements(
@@ -222,9 +226,14 @@ def crawl(context: Context) -> None:
     h.assert_dom_hash(container, "009da07ce2c833cbed4837620cce8a17e4c6b0c6")
 
     # At the time of writing, the table on the web page is missing some public keys,
-    # so we maintain the data manually in a google sheet, but dump the table to csv
-    # to be able to see what changed quickly.
-    src = context.fetch_resource("source.csv", context.data_url)
+    # so we maintain the data by hand in seizures.csv next to this crawler (see
+    # maintenance.md), but dump the table to csv to see what changed quickly.
+    # The file is read from the checkout rather than fetched from data_url, so that
+    # a pull request is crawled with its own edit instead of the copy on main.
+    src = LOCAL_PATH / SOURCE_FILE
+    resource_path = context.get_resource_path("source.csv")
+    shutil.copy(src, resource_path)
+    context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
     with open(src) as f:
         reader = csv.DictReader(f)
         for row in reader:
