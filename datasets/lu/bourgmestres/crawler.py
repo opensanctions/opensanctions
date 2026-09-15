@@ -29,6 +29,7 @@ def crawl_record(
         name=f"{position_name} of {commune_label}",
         country="lu",
         subnational_area=commune_label,
+        topics=["gov.muni", "gov.executive"],
         lang="fra",
     )
     categorisation = categorise(context, position)

@@ -64,6 +64,7 @@ def crawl_page(context: Context, person_url: str) -> None:
             context,
             name=position,
             country="Cayman Islands",
+            topics=["gov.national", "gov.judicial"],
         )
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
