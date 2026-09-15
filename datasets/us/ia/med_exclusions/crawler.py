@@ -62,12 +62,12 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         "Federal Authority",
         "On Payment Plan",
     ]:
-        if sanction_end_date == "1 year":
+        if sanction_end_date == "2 Years":
             # TODO(Leon Handreke): Maybe use date.replace(year=start_date.year + 2)
             # to more accurately represent the semantics intended by the publisher?
             sanction_end_datetime = datetime.strptime(
                 sanction_start_date, "%Y-%m-%d"
-            ) + timedelta(days=1 * YEAR_DAYS)
+            ) + timedelta(days=2 * YEAR_DAYS)
             sanction_end_date = sanction_end_datetime.date().isoformat()
         h.apply_date(sanction, "endDate", sanction_end_date)
 
@@ -93,5 +93,5 @@ def crawl(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
     assert wb.active is not None
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+    for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)
