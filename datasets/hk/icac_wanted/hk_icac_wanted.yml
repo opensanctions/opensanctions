@@ -1,0 +1,143 @@
+title: Hong Kong ICAC Wanted Persons
+entry_point: crawler.py
+prefix: hk-icac
+disabled: false
+coverage:
+  frequency: daily
+  start: 2026-09-15
+load_statements: true
+summary: >
+  People sought under arrest warrants for bribery, fraud and election offences
+description: |
+  The people the Independent Commission Against Corruption is currently
+  seeking, most of them subject to a warrant of arrest issued by a Hong Kong
+  court and believed to have left the territory. The charges are mainly
+  bribery offences, which Hong Kong law frames as offering or accepting an
+  "advantage", alongside conspiracy to defraud, forgery, handling the proceeds
+  of crime, and election offences such as inciting others not to vote.
+tags:
+  - list.wanted
+url: https://www.icac.org.hk/en/rc/wanted/index.html
+publisher:
+  name: Independent Commission Against Corruption
+  acronym: ICAC
+  description: |
+    The Independent Commission Against Corruption is the anti-corruption agency
+    of the Hong Kong Special Administrative Region. It investigates corruption
+    offences in both the public and private sectors and reports directly to the
+    Chief Executive.
+  url: https://www.icac.org.hk/en/home/index.html
+  country: hk
+  official: true
+data:
+  url: https://www.icac.org.hk/en/rc/wanted/index.html
+  format: HTML
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+  max:
+    schema_entities:
+      Person: 100
+
+lookups:
+  # The "Personal Particular" block is free text and its labels drift, e.g.
+  # "HKIC No." and "HKIC" for the same thing. Each label maps to a property, or
+  # to null where we don't capture it. An unmapped label warns.
+  details:
+    normalize: true
+    lowercase: true
+    options:
+      - match: Year of Birth
+        value: birthDate
+      - match: Place of Birth
+        value: birthPlace
+      - match: Sex
+        value: gender
+      - match: Nationality
+        value: nationality
+      - match: Occupation
+        value: profession
+      - match: Race
+        value: ethnicity
+      - match: Hair
+        value: hairColor
+      - match: Eyes
+        value: eyeColor
+      - match: Dialects spoken
+        value: spokenLanguage
+      - match:
+          - Build
+          - Complexion
+          - Complex
+          - Height
+          - Native
+          - Remarks
+          - Scars & Marks
+          - Scars and Marks
+          - Scars Marks
+          - Weight
+        value: null
+      # Masked at source, e.g. "P868xxx(x)".
+      - match:
+          - HKIC
+          - HKIC No.
+          - Hong Kong ID No.
+          - HK Re-entry Permit
+          - Exit-Entry Permit for Traveling to and from Hong Kong and Macau No.
+          - Macau ID Card No.
+          - Macau Identity Card
+          - Mainland ID No.
+          - PRC ID No.
+          - Passport No.
+          - British Passport No.
+          - China Passport No.
+          - Chinese Passport No.
+          - Hungarian Passport No.
+          - Malaysia Passport No.
+          - Malaysian Passport No.
+          - PRC Passport No.
+          - Singaporean Passport No.
+          - Slovakia Passport No.
+        value: null
+  # Placeholders published where a particular is not known.
+  type.string:
+    lowercase: true
+    options:
+      - match:
+          - Unknown
+          - N/A
+          - "-"
+        value: null
+  type.name:
+    lowercase: true
+    options:
+      - match:
+          - Unknown
+          - N/A
+          - "-"
+        value: null
+  type.country:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - Unknown
+          - N/A
+          - "-"
+        value: null
+      - match: British National (Overseas)
+        value: GB
+      - match: Canadian Permanent Resident
+        prop: country
+        value: CA
+  type.language:
+    normalize: true
+    options:
+      - match:
+          - Cantonese
+          - Putonghua
+          - Chaozhou
+        value: zho
