@@ -1,145 +1,111 @@
-from normality import collapse_spaces
+from normality import squash_spaces
+from zavod.util import Element
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.util import Element
-
-# Personal particulars are published as "Label : Value" text nodes separated by
-# <br/>, not as a table, and the labels drift between profiles. Anything not
-# mapped below is kept as a note rather than dropped.
-BIRTH_YEAR = "Year of Birth"
-BIRTH_PLACE = "Place of Birth"
-SEX = "Sex"
-NATIONALITY = "Nationality"
-OCCUPATION = "Occupation"
-
-# Values published as unknown carry no information.
-UNKNOWN_VALUES = {"unknown", "n/a", "-"}
-
-# Every identity card and passport number on this source is partially masked
-# (e.g. "P868xxx(x)", "BB24XXXXX"). That holds for all of them across every
-# profile, so none are emitted as idNumber or passportNumber; they are kept as
-# notes so the record still shows which documents the ICAC listed.
-IDENTIFIER_HINTS = ("passport", "hkic", " id ", "id no", "identity", "permit")
 
 
-def is_identifier_label(label: str) -> bool:
-    padded = f" {label.lower()} "
-    return any(hint in padded for hint in IDENTIFIER_HINTS)
+def parse_detail_table(doc: Element) -> dict[str, Element]:
+    """Read the Name / Alias / Charge(s) table, leaving the cells unparsed.
 
-
-def parse_detail_table(doc: Element) -> dict[str, str]:
-    """Read the Name / Alias / Charge(s) table at the top of a profile page."""
-    values: dict[str, str] = {}
-    for row in doc.findall('.//div[@class="wpInfoDetail"]//tr'):
-        label_el = row.find("./th")
-        value_el = row.find("./td")
-        if label_el is None or value_el is None:
-            continue
-        label = collapse_spaces(h.element_text(label_el))
-        value = collapse_spaces(h.element_text(value_el))
-        if not label or not value:
-            continue
-        values[label.rstrip(" :")] = value
-    return values
-
-
-def parse_bio(doc: Element) -> dict[str, str]:
-    """Read the "Personal Particular" block.
-
-    The fields are separated by <br/>, so the direct text nodes are one field
-    each. element_text() would squash the line breaks away.
+    Several charges are listed as <br/>-separated lines, which element_text()
+    would run together into one string.
     """
+    cells: dict[str, Element] = {}
+    rows = h.xpath_elements(
+        doc, './/div[contains(@class, "wpInfoDetail")]//tr', expect_exactly=3
+    )
+    for row in rows:
+        label = h.element_text(h.xpath_element(row, "./th")).rstrip(" :")
+        cells[label] = h.xpath_element(row, "./td")
+    return cells
+
+
+def parse_details(doc: Element, url: str) -> dict[str, str]:
+    """Read the "Personal Particular" block into one entry per label.
+
+    Fields are separated by <br/>, so each direct text node is one line. A
+    value too long for its line continues on the next one, which has no label.
+    """
+    block = h.xpath_element(doc, './/div[contains(@class, "wanted-bio")]')
     values: dict[str, str] = {}
-    for line in h.xpath_strings(doc, './/div[@class="wanted-bio"]/text()'):
-        raw_label, sep, raw_value = line.partition(":")
-        if not sep:
+    label: str | None = None
+    for text in h.xpath_strings(block, "./text()"):
+        line = squash_spaces(text)
+        if not line:
             continue
-        label = collapse_spaces(raw_label)
-        value = collapse_spaces(raw_value)
-        if not label or not value or value.lower() in UNKNOWN_VALUES:
+        raw_label, separator, raw_value = line.partition(":")
+        if not separator:
+            # Unlabelled document numbers, masked at source like the labelled ones.
+            if "No." in line:
+                continue
+            assert label is not None, (line, url)
+            values[label] = f"{values[label]} {line}".strip()
             continue
-        values[label] = value
+        label = squash_spaces(raw_label)
+        assert label not in values, (label, url)
+        values[label] = squash_spaces(raw_value)
+    assert len(values) > 0, url
     return values
 
 
-def crawl_person(context: Context, url: str, last_name: str | None) -> None:
+def crawl_person(context: Context, url: str, last_name: str) -> None:
     doc = context.fetch_html(url, cache_days=1)
-    details = parse_detail_table(doc)
-    bio = parse_bio(doc)
 
-    name = details.get("Name")
-    if name is None:
-        context.log.warning("No name on profile page", url=url)
-        return
+    cells = parse_detail_table(doc)
+    name = h.element_text(cells.pop("Name"))
+    alias = h.element_text(cells.pop("Alias"))
+    charges = cells.pop("Charge(s)")
+    context.audit_data(cells)
 
     person = context.make("Person")
-    person.id = context.make_id(name, bio.get(BIRTH_YEAR), url)
-    person.add("name", name)
+    person.id = context.make_id(url)
+    h.apply_name(person, full=name, last_name=last_name)
     person.add("topics", "crime")
     person.add("topics", "wanted")
     person.add("country", "hk")
     person.add("sourceUrl", url)
+    for charge in h.xpath_strings(charges, ".//text()"):
+        person.add("notes", squash_spaces(charge))
 
-    # The index page carries the family name separately, which is the only
-    # reliable way to split these names.
-    person.add("lastName", last_name)
+    for alias_name in h.multi_split(alias, ["/"]):
+        alias_prop = "alias" if " " in alias_name else "weakAlias"
+        person.add(alias_prop, alias_name)
 
-    for raw_alias in details.get("Alias", "").split("/"):
-        alias = collapse_spaces(raw_alias)
-        if alias is not None:
-            prop = "alias" if " " in alias else "weakAlias"
-            person.add(prop, alias)
-
-    charges = details.get("Charge(s)")
-    if charges is not None:
-        person.add("notes", f"Charge(s): {charges}")
-
-    birth_year = bio.pop(BIRTH_YEAR, None)
-    if birth_year is not None:
-        h.apply_date(person, "birthDate", birth_year)
-
-    person.add("birthPlace", bio.pop(BIRTH_PLACE, None))
-    person.add("gender", bio.pop(SEX, None))
-    person.add("position", bio.pop(OCCUPATION, None))
-
-    # Some entries carry two nationalities separated by a slash, and some carry
-    # a trailing slash with nothing after it.
-    for raw_nationality in bio.pop(NATIONALITY, "").split("/"):
-        person.add("nationality", collapse_spaces(raw_nationality))
-
-    # Physical description, dialects spoken, remarks and the masked document
-    # numbers have no property of their own but are worth keeping.
-    for label, value in bio.items():
-        if is_identifier_label(label):
-            person.add("notes", f"{label} (masked at source): {value}")
+    for label, value in parse_details(doc, url).items():
+        result = context.lookup("details", label)
+        if result is None:
+            context.log.warning("Unknown details label", label=label, url=url)
+            continue
+        prop = result.value
+        if prop is None:
+            continue
+        if prop == "birthDate":
+            h.apply_date(person, prop, value)
+        elif prop in ("nationality", "spokenLanguage"):
+            person.add(prop, h.multi_split(value, ["/", " and "]))
         else:
-            person.add("notes", f"{label}: {value}")
+            person.add(prop, value)
 
-    case_brief = doc.find('.//div[@class="caseBrief"]')
-    if case_brief is not None:
-        person.add("notes", h.element_text(case_brief))
+    brief = h.xpath_element(doc, './/div[contains(@class, "caseBrief")]')
+    person.add("notes", h.element_text(brief))
 
     context.emit(person)
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
+    links = h.xpath_elements(doc, './/a[contains(@href, "index_id_")]')
+    assert len(links) > 0, "No wanted person links on the index page"
 
     seen: set[str] = set()
-    for link in h.xpath_elements(doc, './/a[contains(@href, "index_id_")]'):
+    for link in links:
         url = link.get("href")
-        # People recently added appear both in the "Newly Wanted Person(s)"
-        # block and again in the main list below it.
-        if url is None or url in seen:
+        assert url is not None, "Wanted person link has no href"
+        # Recent additions appear both in "Newly Wanted Person(s)" and the main list.
+        if url in seen:
             continue
         seen.add(url)
-
-        family_name = link.find('.//span[@class="hf_family_name"]')
-        last_name = None
-        if family_name is not None:
-            last_name = collapse_spaces(h.element_text(family_name))
-
-        crawl_person(context, url, last_name)
-
-    assert len(seen) > 30, "Suspiciously few wanted persons on the index page"
+        # The family name has its own span, the only reliable way to split these names.
+        span = h.xpath_element(link, './/span[contains(@class, "hf_family_name")]')
+        crawl_person(context, url, h.element_text(span))
