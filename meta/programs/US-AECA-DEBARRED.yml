@@ -2,12 +2,22 @@ id: 46
 title: AECA Debarred List
 key: US-AECA-DEBARRED
 url: https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0
-summary: This list, maintained by the U.S. Department of State under the Arms Export
-  Control Act (AECA), identifies individuals and entities that are debarred from participating
-  in defense exports and services. Debarment is imposed for violations of the AECA
-  and the International Traffic in Arms Regulations (ITAR), aiming to enforce compliance
-  and safeguard U.S. national security interests.
+summary: Identifies persons debarred by the US Department of State from
+  participating, directly or indirectly, in the export of defense articles,
+  defense services, and related technical data regulated under the International
+  Traffic in Arms Regulations. Statutory debarment follows automatically from a
+  conviction for violating or conspiring to violate the Arms Export Control Act,
+  while administrative debarment is imposed through civil enforcement
+  proceedings. Debarred persons are generally ineligible for export licenses and
+  other approvals from the Directorate of Defense Trade Controls.
 issuer: us_state
-dataset: us_trade_csl
+dataset: us_ddtc_debarred
+aliases:
+  - Debarred Parties
+  - Statutorily Debarred Parties
+  - Administratively Debarred Parties
+  - ITAR Debarred (DTC)
+  - AECA Section 38(g)(4)
+  - 22 CFR § 127.7
 measures:
-- Export control
+  - Arms restrictions
