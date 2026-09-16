@@ -227,7 +227,7 @@ def crawl(context: Context) -> None:
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data by hand in seizures.csv next to this crawler (see
-    # maintenance.md), but dump the table to csv to see what changed quickly.
+    # maintenance.md).
     # The file is read from the checkout rather than fetched from data_url, so that
     # a pull request is crawled with its own edit instead of the copy on main.
     src = LOCAL_PATH / SOURCE_FILE
