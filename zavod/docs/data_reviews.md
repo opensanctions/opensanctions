@@ -137,3 +137,14 @@ Use model documentation (e.g. `fieldname: MyEnum = Field(description="...")`) to
 included in the JSON schema so it's made available to the human reviewer in Zavod UI.
 
 OpenAI's structured output API doesn't seem to support JSON schema description properties yet so also include it explicitly in the prompt. See example above.
+
+
+### Evaluating prompt changes against accepted reviews
+
+Accepted reviews are ground truth for what an extraction prompt should produce.
+Before changing a prompt, export accepted reviews as fixtures and evaluate the
+prompt against them, so a change that fixes one class of edits doesn't stop
+extracting entities reviewers previously accepted. The tooling and workflow are
+documented in
+[`contrib/prompt_evals`](https://github.com/opensanctions/opensanctions/tree/main/contrib/prompt_evals),
+and fixtures live in an `evals/` directory next to the crawler.
