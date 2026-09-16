@@ -1,6 +1,14 @@
-from rigour.mime.types import PDF
+import string
+from urllib.parse import urlencode, urljoin
 
-from zavod import Context, helpers as h
+from openpyxl import load_workbook
+from rigour.mime.types import XLSX
+from zavod.extract import zyte_api
+
+from zavod import Context
+from zavod import helpers as h
+
+EXPORT_PATH = "Search/ExportResults"
 
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
@@ -43,18 +51,22 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     context.audit_data(row)
 
 
-def translate_keys(
-    context: Context, lookup: str, row: dict[str, str | None]
-) -> dict[str, str | None]:
-    return {context.lookup_value(lookup, k, k) or k: v for k, v in row.items()}
-
-
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", context.data_url)
-    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    export_url = urljoin(context.data_url, EXPORT_PATH)
+    for letter in string.ascii_lowercase:
+        url = f"{export_url}?{urlencode({'Names[0]': letter})}"
+        _, _, _, path = zyte_api.fetch_resource(
+            context,
+            f"source-{letter}.xlsx",
+            url,
+            expected_media_type=XLSX,
+            geolocation="US",
+        )
+        context.export_resource(
+            path, XLSX, title=f"{context.SOURCE_TITLE} - search '{letter}'"
+        )
 
-    for item in h.parse_pdf_table(context, path, headers_per_page=True):
-        if all([v == "" for v in item.values()]):
-            continue
-        item = translate_keys(context, "headers", item)
-        crawl_item(item, context)
+        workbook = load_workbook(path, read_only=True)
+        assert workbook.active is not None
+        for item in h.parse_xlsx_sheet(context, workbook.active, skiprows=7):
+            crawl_item(item, context)
