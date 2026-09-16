@@ -4,12 +4,13 @@ import { json } from "@codemirror/lang-json";
 import { syntaxTree } from "@codemirror/language";
 import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
-import { createHighlighter } from '@/lib/codemirror';
+import { createHighlighter, createMissingValueHighlighter } from '@/lib/codemirror';
+import { findValuesNotInSource, getSourceSearchText } from '@/lib/matching';
 import { translationTooltip } from '@/lib/translate';
 import { yamlSchema } from "codemirror-json-schema/yaml";
 import { compileSchema, draft04, JsonSchema } from 'json-schema-library';
 import { parse as parseYaml, stringify as stringifyToYaml, YAMLParseError } from 'yaml';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -96,15 +97,27 @@ interface ExtractionViewProps {
   dataset: string;
   search: (query: string) => void;
   highlightQuery?: string;
+  sourceValue: string;
+  sourceMimeType: string;
 }
 
-export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search, highlightQuery }: ExtractionViewProps) {
+export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search, highlightQuery, sourceValue, sourceMimeType }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
   const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, { indent: 2, lineWidth: 0 }));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   const editorRef = useRef<any>(null);
+
+  const sourceSearchText = useMemo(
+    () => getSourceSearchText(sourceValue, sourceMimeType),
+    [sourceValue, sourceMimeType]
+  );
+  const rawMissingValues = useMemo(
+    () => findValuesNotInSource(rawData, sourceSearchText),
+    [rawData, sourceSearchText]
+  );
+  const rawMissingHighlighter = createMissingValueHighlighter(rawMissingValues);
 
   function triggerFlash() {
     setFlashInvalid(true);
@@ -117,9 +130,10 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
 
   let result: { valid: boolean };
   let errorSummary: string | null = null;
+  let editorExtractedParsed: unknown = null;
 
   try {
-    const editorExtractedParsed = parseYaml(editorExtracted);
+    editorExtractedParsed = parseYaml(editorExtracted);
     const validationResult = schemaNode.validate(editorExtractedParsed);
     result = validationResult;
     const errors = validationResult.errors.map(err => err.message);
@@ -132,6 +146,11 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
       throw e;
     }
   }
+
+  // editorExtractedParsed is already re-parsed above on every render, so this
+  // doesn't warrant its own useMemo.
+  const editorMissingValues = findValuesNotInSource(editorExtractedParsed, sourceSearchText);
+  const editorMissingHighlighter = createMissingValueHighlighter(editorMissingValues);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -200,7 +219,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     <div className="entry-tabs flex-grow-1 d-flex flex-column" style={{ height: '100%' }}>
       <div className="d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
         <Tabs defaultActiveKey="extracted" className="flex-shrink-0">
-          <Tab eventKey="raw" title="Original extraction">
+          <Tab
+            eventKey="raw"
+            title={rawMissingValues.length > 0
+              ? `Original extraction (${rawMissingValues.length} not in source)`
+              : "Original extraction"}
+          >
             <div style={{ height: '100%' }}>
               <CodeMirror
                 value={stringifyToYaml(rawData, null, { indent: 2, lineWidth: 0 })}
@@ -208,7 +232,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
                   yamlSchema(schema),
                   EditorView.lineWrapping,
                   translationTooltip,
-                  ...(highlighter ? [highlighter] : [])
+                  ...(highlighter ? [highlighter] : []),
+                  ...(rawMissingHighlighter ? [rawMissingHighlighter] : [])
                 ]}
                 editable={false}
                 height="100%"
@@ -217,7 +242,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               />
             </div>
           </Tab>
-          <Tab eventKey="extracted" title="Edit extracted data">
+          <Tab
+            eventKey="extracted"
+            title={editorMissingValues.length > 0
+              ? `Edit extracted data (${editorMissingValues.length} not in source)`
+              : "Edit extracted data"}
+          >
             <div style={{ height: '100%' }} className={flashInvalid ? 'editor-flash-invalid' : ''}>
               <CodeMirror
                 ref={editorRef}
@@ -227,7 +257,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
                   EditorView.lineWrapping,
                   escapeBlurKeymap,
                   translationTooltip,
-                  ...(highlighter ? [highlighter] : [])
+                  ...(highlighter ? [highlighter] : []),
+                  ...(editorMissingHighlighter ? [editorMissingHighlighter] : [])
                 ]}
                 height="100%"
                 style={{ height: '100%' }}

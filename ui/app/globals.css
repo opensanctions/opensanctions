@@ -39,3 +39,8 @@
     background-color: yellow;
     color: black;
 }
+
+.cm-missingSource {
+    background-color: #f8d7da;
+    border-bottom: 2px solid #dc3545;
+}

@@ -57,6 +57,8 @@ export default function DataView({ entry, dataset, entryKey, relatedEntities }: 
           dataset={dataset}
           search={setSourceSearchQuery}
           highlightQuery={extractionSearchQuery}
+          sourceValue={entry.source_value}
+          sourceMimeType={entry.source_mime_type}
         />
       </Col>
     </>
