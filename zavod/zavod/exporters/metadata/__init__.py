@@ -236,6 +236,9 @@ def get_catalog_datasets(scope: Dataset) -> list[dict[str, Any]]:
     datasets = []
     for dataset in scope.datasets:
         catalog_dataset = get_catalog_dataset(dataset)
+        # This is a real edge case. It only occurs for new datasets that have never
+        # completed a successful run. They have no export to advertise. A later
+        # successful run adds them to the catalog.
         if catalog_dataset is not None:
             datasets.append(catalog_dataset)
     return datasets
