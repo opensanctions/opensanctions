@@ -56,7 +56,7 @@ assertions:
       Organization: 50
 
 lookups:
-  # The XML labels each field with its column number and heading. Both the
+  # The tables head each column with its number and heading. Both the
   # individual and the group table are mapped here; headings are unique across
   # the two because they carry the (differing) column number.
   columns:
@@ -85,25 +85,6 @@ lookups:
     options:
       - match: 'Philippines (Permanent Resident in Malaysia)'
         value: Philippines
-  type.address:
-    options:
-      - match: Iraq Syria
-        values: ["Iraq", "Syria"]
-      - match: Algeria Mali Mauritania Morocco Niger Tunisia
-        values:
-          - Algeria
-          - Mali
-          - Mauritania
-          - Morocco
-          - Niger
-          - Tunisia
-  type.name:
-    options:
-      # Two names run together without the pipe the source uses elsewhere.
-      - match: Le Groupe Salafiste pour La Prédication et le Combat (GSPC) Salafist Group for Call and Combat
-        values:
-          - Le Groupe Salafiste pour La Prédication et le Combat (GSPC)
-          - Salafist Group for Call and Combat
   type.date:
     options:
       - match: 20.2.1976 13.2.1975 15.2.1976 7.1.1977
