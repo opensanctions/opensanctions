@@ -64,9 +64,6 @@ def crawl(context: Context) -> None:
             expected_media_type=XLSX,
             geolocation="US",
         )
-        context.export_resource(
-            path, XLSX, title=f"{context.SOURCE_TITLE} - search '{letter}'"
-        )
 
         workbook = load_workbook(path, read_only=True)
         assert workbook.active is not None
