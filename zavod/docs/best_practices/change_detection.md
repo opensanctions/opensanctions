@@ -13,20 +13,10 @@ its URL is stable.
 ## Separate discovery from extraction
 
 If a crawler can discover revisions reliably but cannot interpret them reliably in code,
-split discovery from extraction:
-
-- Keep the reviewed extraction in a repository-owned CSV or similar static file. The
-  crawler reads this file to produce the dataset.
-- Poll an authoritative index, document table, or version feed for stable sentinels that
-  identify source revisions.
-- Treat a sentinel as reviewed when rows in the static file cite it, or when it is
-  explicitly recorded as having no data impact. Warn about every other sentinel and
-  include enough source context to begin a review.
-
-Put a short extraction runbook in the dataset metadata next to the reviewed-sentinel
-configuration. Resolving a warning means inspecting the source, updating the static data
-when needed, and acknowledging the sentinel in the same pull request. A human or agent can
-draft the extraction. The repository diff is the unit that a maintainer reviews.
+keep the reviewed extraction in a repository-owned static file and poll the source for
+stable sentinels that identify revisions. See [curating a dataset in the
+repository](curated_datasets.md) for the conventions that file follows, how discovery
+produces a review queue, and how removals are detected.
 
 This pattern is a good fit when discovery is deterministic, a stable sentinel exists, and
 the curated extraction is small enough to review in Git. If the source publishes structured
