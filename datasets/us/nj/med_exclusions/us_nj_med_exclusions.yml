@@ -56,6 +56,10 @@ http:
 
 dates:
   formats: ["%m/%d/%Y"]
+names:
+  schema_rules:
+    LegalEntity:
+      reject_strings: [" aka "]
 assertions:
   min:
     schema_entities:

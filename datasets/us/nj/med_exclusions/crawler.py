@@ -4,6 +4,7 @@ from urllib.parse import urlencode, urljoin
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from zavod.extract import zyte_api
+from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context
 from zavod import helpers as h
@@ -14,10 +15,11 @@ EXPORT_PATH = "Search/ExportResults"
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
     zip_code = row.pop("zip")
     npi = row.pop("npi_number")
+    name_raw = row.pop("provider_name")
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(npi, row.get("provider_name"), zip_code)
-    entity.add("name", h.multi_split(row.pop("provider_name"), ["a.k.a."]))
+    entity.id = context.make_id(npi, name_raw, zip_code)
+    h.apply_reviewed_name_string(context, entity, string=name_raw, llm_cleaning=True)
     entity.add("sector", row.pop("title"))
     entity.add("npiCode", h.multi_split((npi or "").replace("\n", ""), ";/"))
     entity.add("country", "us")
@@ -70,3 +72,5 @@ def crawl(context: Context) -> None:
         assert workbook.active is not None
         for item in h.parse_xlsx_sheet(context, workbook.active, skiprows=7):
             crawl_item(item, context)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
