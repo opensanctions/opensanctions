@@ -82,6 +82,13 @@ class Manifest:
                 continue
             local_version = latest_local_artifact_version(leaf.name, STATEMENTS_FILE)
             if local_version is not None:
+                log.warning(
+                    "Using statements from local version instead of last successful "
+                    "archived version. This should only happen in local development.",
+                    dataset=leaf.name,
+                    scope=dataset.name,
+                    version=local_version.id,
+                )
                 datasets[leaf.name] = local_version
                 continue
             last_successful_version = get_last_successful_version(leaf.name)
