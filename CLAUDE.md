@@ -43,6 +43,7 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 
 * Writing a PEP crawler: use the `/crawler-pep` skill
 * Writing a sanctions crawler: use the `/crawler-sanctions` skill
+* Writing a crawler for an article-based source (press releases, enforcement notices): use the `/crawler-article` skill
 * Debugging a failing crawler: use the `/debug-crawler` skill
 * Standardising a dataset's metadata: use the `/dataset-metadata` skill
 * General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
