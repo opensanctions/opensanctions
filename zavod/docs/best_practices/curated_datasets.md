@@ -10,7 +10,7 @@ Because the file is tracked in git, every change to the data carries an author, 
 
 ### Every cell is verbatim or a metadata column
 
-The metadata columns are the ones extraction assigns: `type`, `topics`, the program key and the QID. Every other cell holds the source's own text, unmodified.
+The metadata columns are the ones extraction assigns: e.g. `type`, `topics`, the program key and the QID. Every other cell holds the source's own text, unmodified.
 
 Cleaning belongs downstream, in the crawler and in [datapatch lookups](datapatch_lookups.md), where one option corrects every row carrying the value and the correction re-runs on the next crawl. A value tidied up in the file applies to that row alone, fixed to whichever model extracted it, and nothing can re-derive it when the cleaning rules change.
 
