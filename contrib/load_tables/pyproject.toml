@@ -1,0 +1,15 @@
+[project]
+name = "load-tables"
+version = "0.1.0"
+description = "Load dumps of the production zavod tables into a local database."
+requires-python = ">=3.12"
+dependencies = [
+    "click",
+    "sqlalchemy",
+    "psycopg2-binary",
+]
+
+# A standalone script rather than a package: uv installs the dependencies and
+# runs load_tables.py without trying to build anything.
+[tool.uv]
+package = false
