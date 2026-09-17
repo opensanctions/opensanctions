@@ -6,7 +6,7 @@ from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import archive_artifact, backfill_artifact, invalidate_dataset_urls
 from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_path
-from zavod.archive import create_artifact_path, dataset_artifact_path
+from zavod.archive import create_artifact_directory, dataset_artifact_path
 from zavod.archive import get_archive_backend, get_artifact_object
 from zavod.archive import get_last_successful_version
 from zavod.archive import get_version_history
@@ -69,7 +69,7 @@ def _archive_run(
     """Archive a run of the dataset: its copy of the resource, and the version
     history as it stands once the run is over - mirroring what publish_dataset
     does for a success and archive_failure for a failure."""
-    create_artifact_path(dataset.name, version)
+    create_artifact_directory(dataset.name, version)
     if archive_resource:
         path = dataset_resource_path(dataset.name, RESOURCE_NAME)
         with open(path, "w") as fh:

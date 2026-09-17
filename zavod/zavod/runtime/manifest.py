@@ -10,7 +10,7 @@ from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import MANIFEST_FILE, STATEMENTS_FILE, StatementGen
-from zavod.archive import create_artifact_path, dataset_artifact_path
+from zavod.archive import create_artifact_directory, dataset_artifact_path
 from zavod.archive import dataset_state_path
 from zavod.archive import get_last_successful_version, latest_local_artifact_version
 from zavod.archive import iter_statements_path, stream_statements
@@ -106,7 +106,7 @@ class Manifest:
     def create(cls, dataset: Dataset, version: Version) -> Self:
         """Start a run: create the versioned artifact directory and write the
         manifest that pins the run's inputs."""
-        create_artifact_path(dataset.name, version)
+        create_artifact_directory(dataset.name, version)
         manifest = cls.resolve(dataset, version)
         manifest.save(dataset_artifact_path(dataset.name, version, MANIFEST_FILE))
         return manifest
