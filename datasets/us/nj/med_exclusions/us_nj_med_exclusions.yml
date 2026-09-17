@@ -82,12 +82,19 @@ lookups:
     options:
       - match: "1"
         value: null
+      - match: 108368003  # dropped a zero: NPI 1083680003 is NIRANJAN MITTAL, MD
+        value: 1083680003
       - match: 143737727
         value: 1437373727
       - match: 145788392
         value: 1457883928
       - match: 159889479
         value: 1598889479
+      # Final digit typo'd: NPI 1255451746 is PALISADES SURGICAL ASSOCIATES, P.C.,
+      # 309 Newark Ave, Point Pleasant Beach NJ - the address on this row - whose
+      # authorized official is Maurizio Miglietta.
+      - match: 1255451745
+        value: 1255451746
       - match:
           - 1104949149
           - 260849555
