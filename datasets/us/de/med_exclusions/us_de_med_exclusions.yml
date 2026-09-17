@@ -267,7 +267,7 @@ lookups:
           - 0001-282341
       - match: "RN741306\n(PA)"
         values: ["RN741306"]
-      - match: "OK\nO000003(PA)"
+      - match: "OKO000003(PA)"
         values: ["OKO000003"]
       - match: "RN757358/\nPN270730"
         values: ["RN757358", "PN270730"]

@@ -25,7 +25,6 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
         context,
         fugitive_url,
         unblock_validator='//h2[@class="fugitive__title"]',
-        html_source="httpResponseBody",
         cache_days=7,
     )
 

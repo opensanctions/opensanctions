@@ -5,7 +5,7 @@ import structlog
 
 from zavod import Entity, settings
 from zavod.context import Context
-from zavod.helpers.sanctions import make_sanction, is_active
+from zavod.helpers.sanctions import make_risk, make_sanction, is_active
 
 
 def test_sanctions_helper(vcontext: Context):
@@ -181,3 +181,109 @@ def test_make_sanction_prefix_end_date_status(vcontext: Context, person: Entity)
         vcontext, person, key="last-year", end_date=str(settings.RUN_TIME.year - 1)
     )
     assert sanction.get("status") == ["inactive"]
+
+
+def test_risk_helper(vcontext: Context):
+    person = vcontext.make("Person")
+    with pytest.raises(AssertionError):
+        make_risk(vcontext, person)
+
+    person.id = "jeff"
+    risk = make_risk(vcontext, person)
+    assert risk.schema.name == "Risk"
+    assert "OpenSanctions" in risk.get("authority")
+    assert "jeff" in risk.get("entity")
+
+    risk2 = make_risk(vcontext, person)
+    assert risk.id == risk2.id
+
+    risk3 = make_risk(vcontext, person, key="other")
+    assert risk.id != risk3.id
+
+
+def test_risk_id_differs_from_sanction(vcontext: Context):
+    # A risk and a sanction for the same entity are distinct objects, so the
+    # schema has to take part in the ID.
+    person = vcontext.make("Person")
+    person.id = "jeff"
+    assert make_risk(vcontext, person).id != make_sanction(vcontext, person).id
+
+
+def test_risk_helper_with_program(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+    risk = make_risk(
+        vcontext, person, program_name="Test Program", program_key="US-BIS-DPL"
+    )
+
+    assert risk.get("program")[0] == "Test Program"
+    assert risk.get("programUrl") == [
+        "https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl"
+    ]
+    assert risk.get("programId")[0] == "US-BIS-DPL"
+    # The key is mirrored onto the listed entity, as make_sanction does.
+    assert person.get("programId") == ["US-BIS-DPL"]
+
+
+def test_risk_helper_with_unknown_program(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+    with structlog.testing.capture_logs() as caplogs:
+        risk = make_risk(
+            vcontext, person, program_name="Test Program", program_key="OS-TEST"
+        )
+
+    assert risk.get("program")[0] == "Test Program"
+    assert risk.get("programUrl") == []
+    assert risk.get("programId") == []
+    assert person.get("programId") == []
+    assert {
+        "event": "Program with key 'OS-TEST' not found.",
+        "log_level": "warning",
+        "entity_id": person.id,
+    } in caplogs
+
+
+def test_risk_status_agrees_with_is_active(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    # Future start and end date: not yet active, status must agree.
+    future_start = (settings.RUN_TIME + timedelta(days=20)).date().isoformat()
+    future_end = (settings.RUN_TIME + timedelta(days=30)).date().isoformat()
+    risk = make_risk(vcontext, person, start_date=future_start, end_date=future_end)
+    assert not is_active(risk)
+    assert risk.get("status") == ["inactive"]
+
+    # Started in the past, ends in the future: active.
+    past_start = (settings.RUN_TIME - timedelta(days=20)).date().isoformat()
+    risk = make_risk(
+        vcontext, person, key="b", start_date=past_start, end_date=future_end
+    )
+    assert is_active(risk)
+    assert risk.get("status") == ["active"]
+
+    # Ended in the past: inactive.
+    past_end = (settings.RUN_TIME - timedelta(days=10)).date().isoformat()
+    risk = make_risk(
+        vcontext, person, key="c", start_date=past_start, end_date=past_end
+    )
+    assert not is_active(risk)
+    assert risk.get("status") == ["inactive"]
+
+
+def test_risk_without_end_date_has_no_status(vcontext: Context):
+    # An open-ended listing gets no status, matching make_sanction.
+    person = vcontext.make("Person")
+    person.id = "jeff"
+    risk = make_risk(vcontext, person, start_date="2018-01-29")
+    assert risk.get("startDate") == ["2018-01-29"]
+    assert risk.get("status") == []
+
+
+def test_risk_unparseable_end_date_raises(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    with pytest.raises(ValueError, match=r"Risk.*'see annex'.*'jeff'"):
+        make_risk(vcontext, person, end_date="see annex")
