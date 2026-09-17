@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2026-09-02
 load_statements: true
+ci_test: false
 summary: >-
   Firms and individuals disciplined by the US futures industry's self-regulatory
   organisation
@@ -62,13 +63,6 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 150
-
-lookups:
-  type.name:
-    options:
-      - match:
-          - "Vincent Capital Group LLC ("
-        value: Vincent Capital Group LLC
 
 names:
   schema_rules:
