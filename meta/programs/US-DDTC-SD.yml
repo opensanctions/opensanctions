@@ -1,13 +1,23 @@
+# DEPRECATED — do not reference. Statutory and administrative ITAR debarments
+# are both recorded under US-AECA-DEBARRED as of July 2026; no crawler emits
+# this key anymore. The file is kept only so the key stays resolvable while
+# published statements age out. Delete it once none remain.
 id: 288
 title: US DDTC Statutory Debarment List
 key: US-DDTC-SD
 url: https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=7188dac6db3cd30044f9ff621f961914
-summary: The US Department of State's Directorate of Defense Trade Controls (DDTC)
-  maintains the Statutory Debarment List pursuant to Section 38(g)(4) of the Arms
-  Export Control Act (AECA) and Section 127.7 of the International Traffic in Arms
-  Regulations (ITAR). Persons listed have been convicted of violating or conspiracy
-  to violate the AECA, resulting in automatic statutory debarment that prohibits them
-  from participating directly or indirectly in the export of defense articles, technical
-  data, and defense services.
+summary: Lists persons statutorily debarred by the US Department of State
+  following a criminal conviction for violating, or conspiring to violate, the
+  Arms Export Control Act. Debarment is automatic upon conviction and prohibits
+  the person from participating, directly or indirectly, in the export of
+  defense articles, defense services, and related technical data regulated under
+  the International Traffic in Arms Regulations. Reinstatement requires a
+  separate decision by the Department of State.
 issuer: us_state
 dataset: us_ddtc_debarred
+aliases:
+  - Statutorily Debarred Parties
+  - AECA Section 38(g)(4)
+  - 22 CFR § 127.7
+measures:
+  - Arms restrictions
