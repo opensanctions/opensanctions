@@ -220,7 +220,7 @@ def backfill_artifact(
     return target_path
 
 
-def create_artifact_path(dataset_name: str, version: Version) -> None:
+def create_artifact_directory(dataset_name: str, version: Version) -> None:
     """Force an empty local artifact directory for a given run."""
     directory = dataset_artifact_directory(dataset_name, version)
     shutil.rmtree(directory, ignore_errors=True)
