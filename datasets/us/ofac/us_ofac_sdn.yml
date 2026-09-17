@@ -159,8 +159,8 @@ lookups:
           - SUDAN-EO14098
         value: US-DARFUR
       - match:
-          # OFAC groups HRIT-SY (EO 13606) under PAARSS since the 2025
-          # revocation of the country-wide Syria program.
+          # HRIT-SY is EO 13606, which EO 14312 did not revoke: OFAC lists
+          # it in the PAARSS legal framework, not under the ended Syria program.
           - HRIT-SY
           - PAARSSR-EO13894
         value: US-SYR-REL
