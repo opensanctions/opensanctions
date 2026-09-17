@@ -19,6 +19,59 @@ def lookup_sanction_program_key(context: Context, source_key: str | None) -> str
     return res.value
 
 
+def _apply_program_and_dates(
+    context: Context,
+    entity: Entity,
+    interval: Entity,
+    source_program_key: str | None,
+    program_key: str | None,
+    start_date: str | None,
+    end_date: str | None,
+) -> None:
+    """Resolve the program key onto an interval and apply its date range.
+
+    Shared by `make_sanction` and `make_risk`, which differ only in the schema
+    they construct.
+
+    Args:
+        context: The runner context with dataset metadata.
+        entity: The entity the interval is linked to.
+        interval: The Sanction or Risk to apply the program and dates to.
+        source_program_key: Program key at the source, will be set as the original value for programId.
+        program_key: An optional OpenSanction program key.
+        start_date: An optional start date for the interval.
+        end_date: An optional end date for the interval.
+    """
+    if program_key is not None:
+        program = programs.get_program_by_key(program_key)
+        if program:
+            interval.set(
+                "programId",
+                program_key,
+                original_value=source_program_key,
+                origin=ORIGIN_METADATA,
+            )
+            entity.add("programId", program_key, origin=ORIGIN_METADATA)
+            interval.add("programUrl", program.url, origin=ORIGIN_METADATA)
+        else:
+            context.log.warn(
+                f"Program with key {program_key!r} not found.",
+                entity_id=entity.id,
+            )
+
+    if start_date:
+        h.apply_date(interval, "startDate", start_date)
+    if end_date:
+        h.apply_date(interval, "endDate", end_date)
+        if not interval.get("endDate"):
+            raise ValueError(
+                f"{interval.schema.name} end_date {end_date!r} could not be parsed "
+                f"as a date (entity {entity.id!r}). Add a datepatterns entry or a "
+                "lookup to clean the value."
+            )
+        interval.add("status", "active" if is_active(interval) else "inactive")
+
+
 def make_sanction(
     context: Context,
     entity: Entity,
@@ -64,36 +117,15 @@ def make_sanction(
     sanction.add("authority", dataset.publisher.name, origin=ORIGIN_METADATA)
     sanction.add("sourceUrl", dataset.url, origin=ORIGIN_METADATA)
     sanction.set("program", program_name)
-
-    if program_key is not None:
-        program = programs.get_program_by_key(program_key)
-        if program:
-            sanction.set(
-                "programId",
-                program_key,
-                original_value=source_program_key,
-                origin=ORIGIN_METADATA,
-            )
-            entity.add("programId", program_key, origin=ORIGIN_METADATA)
-            sanction.add("programUrl", program.url, origin=ORIGIN_METADATA)
-        else:
-            context.log.warn(
-                f"Program with key {program_key!r} not found.",
-                entity_id=entity.id,
-            )
-
-    if start_date:
-        h.apply_date(sanction, "startDate", start_date)
-    if end_date:
-        h.apply_date(sanction, "endDate", end_date)
-        if not sanction.get("endDate"):
-            raise ValueError(
-                f"Sanction end_date {end_date!r} could not be parsed as a date "
-                f"(entity {entity.id!r}). Add a datepatterns entry or a lookup "
-                "to clean the value."
-            )
-        sanction.add("status", "active" if is_active(sanction) else "inactive")
-
+    _apply_program_and_dates(
+        context,
+        entity,
+        sanction,
+        source_program_key,
+        program_key,
+        start_date,
+        end_date,
+    )
     return sanction
 
 
@@ -148,36 +180,15 @@ def make_risk(
     risk.add("authority", dataset.publisher.name, origin=ORIGIN_METADATA)
     risk.add("sourceUrl", dataset.url, origin=ORIGIN_METADATA)
     risk.set("program", program_name)
-
-    if program_key is not None:
-        program = programs.get_program_by_key(program_key)
-        if program:
-            risk.set(
-                "programId",
-                program_key,
-                original_value=source_program_key,
-                origin=ORIGIN_METADATA,
-            )
-            entity.add("programId", program_key, origin=ORIGIN_METADATA)
-            risk.add("programUrl", program.url, origin=ORIGIN_METADATA)
-        else:
-            context.log.warn(
-                f"Program with key {program_key!r} not found.",
-                entity_id=entity.id,
-            )
-
-    if start_date:
-        h.apply_date(risk, "startDate", start_date)
-    if end_date:
-        h.apply_date(risk, "endDate", end_date)
-        if not risk.get("endDate"):
-            raise ValueError(
-                f"Risk end_date {end_date!r} could not be parsed as a date "
-                f"(entity {entity.id!r}). Add a datepatterns entry or a lookup "
-                "to clean the value."
-            )
-        risk.add("status", "active" if is_active(risk) else "inactive")
-
+    _apply_program_and_dates(
+        context,
+        entity,
+        risk,
+        source_program_key,
+        program_key,
+        start_date,
+        end_date,
+    )
     return risk
 
 
