@@ -36,6 +36,7 @@ REVIEW_SOURCES = {
     "review": f"{BUCKET}/data_reviews/review.csv.gz",
     "review_entity": f"{BUCKET}/data_reviews/review_entity.csv.gz",
 }
+POSITION_SOURCES = {"position": f"{BUCKET}/positions/position.csv.gz"}
 
 
 def get_engine() -> Engine:
@@ -202,6 +203,12 @@ def resolver_command(yes: bool) -> None:
 @yes_option
 def reviews_command(yes: bool) -> None:
     load(REVIEW_SOURCES, yes)
+
+
+@cli.command("positions", help="Load the PEP position table.")
+@yes_option
+def positions_command(yes: bool) -> None:
+    load(POSITION_SOURCES, yes)
 
 
 @cli.command("tables", help="Load named tables, e.g. review=data/review.csv.gz")
