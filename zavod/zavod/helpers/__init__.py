@@ -99,6 +99,7 @@ from zavod.helpers.positions import make_occupancy, make_position, earliest_term
 from zavod.helpers.sanctions import (
     is_active,
     lookup_sanction_program_key,
+    make_risk,
     make_sanction,
 )
 from zavod.helpers.securities import make_security
@@ -118,6 +119,7 @@ __all__ = [
     "copy_address",
     "postcode_pobox",
     "make_sanction",
+    "make_risk",
     "make_article",
     "make_documentation",
     "is_active",
