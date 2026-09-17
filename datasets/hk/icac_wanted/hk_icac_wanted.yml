@@ -4,7 +4,7 @@ prefix: hk-icac
 disabled: false
 coverage:
   frequency: daily
-  start: 2026-09-15
+  start: 2026-09-17
 load_statements: true
 summary: >
   People sought under arrest warrants for bribery, fraud and election offences
