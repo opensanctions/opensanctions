@@ -7,10 +7,12 @@ from json import load, loads
 from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
 from datetime import datetime
+from structlog.testing import capture_logs
 
 from zavod import settings
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
+from zavod.exporters.common import Exporter, ExportView
 from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
@@ -21,6 +23,9 @@ from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
 from zavod.tests.util import get_test_view, make_context
+from zavod.runtime.resources import DatasetResources
+from zavod.runtime.statistics import Statistics
+import pytest
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -406,3 +411,67 @@ def test_consolidate_names_never_remove_ofac_names():
     assert set(entities[0].get("name")) == {"John Doe", "The Tiger"}
     # "Tigger" is demoted (even though it's a name in xx_garbage) because it's a weakAlias in xx_garbage
     assert set(entities[0].get("weakAlias")) == {"Tigger", "The Tiger"}
+
+
+class NoOutputExporter(Exporter):
+    """An exporter that never writes its file."""
+
+    TITLE = "Broken exporter"
+    FILE_NAME = "broken.json"
+    MIME_TYPE = "application/json"
+
+    def feed(self, entity: Entity, view: ExportView) -> None:
+        pass
+
+
+def test_exporter_missing_output_raises(testdataset1: Dataset):
+    """An exporter that fails to produce its file must fail the export rather
+    than log a warning, so a broken exporter never yields a published dataset
+    with a silently missing artifact."""
+    clear_data_path(testdataset1.name)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
+    context = make_context(testdataset1)
+    context.begin()
+    view = get_test_view(testdataset1)
+    exporter = NoOutputExporter(context, Statistics())
+    exporter.setup()
+    assert not exporter.path.exists()
+    with pytest.raises(FileNotFoundError):
+        exporter.finish(view)
+    context.close()
+    view.store.close()
+
+    # Nothing was registered for publication:
+    names = {r.name for r in DatasetResources(testdataset1, context.version).all()}
+    assert NoOutputExporter.FILE_NAME not in names
+
+
+def test_unknown_exporter_logs_error() -> None:
+    """A misspelt name in a dataset's exports is logged as an error but does
+    not fail the run: the statements and the remaining exports are still
+    published, so their consumers still benefit from the update."""
+    catalog = get_catalog()
+    dataset = Dataset(
+        {"name": "test_bad_exports", "exports": ["entities.ftm.jsn", "names.txt"]}
+    )
+    catalog.add(dataset)
+    emit_entity(dataset, "Person", id_="bad-exports-1", properties={"name": ["Jo"]})
+
+    with capture_logs() as cap_logs:
+        export(dataset)
+
+    errors = [
+        entry
+        for entry in cap_logs
+        if entry.get("log_level") == "error"
+        and "entities.ftm.jsn" in entry.get("event", "")  # jsn is the typo
+    ]
+    assert len(errors) == 1, cap_logs
+
+    # The other exports and the index are still produced:
+    dataset_path = dataset_artifact_directory(dataset.name, settings.RUN_VERSION)
+    assert (dataset_path / "names.txt").is_file()
+    assert (dataset_path / "statistics.json").is_file()
+    with open(dataset_path / "index.json") as fh:
+        resources = {r["name"] for r in load(fh)["resources"]}
+    assert resources == {"names.txt"}

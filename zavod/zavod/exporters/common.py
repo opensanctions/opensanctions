@@ -38,20 +38,18 @@ class Exporter:
         pass
 
     def finish(self, view: ExportView) -> None:
-        try:
-            resource = self.context.export_resource(
-                self.path,
-                mime_type=self.MIME_TYPE,
-                title=self.TITLE,
-            )
-            self.context.log.info(
-                f"Exported: {self.TITLE}",
-                path=self.path,
-                size=resource.size,
-            )
-        except ValueError as ve:
-            self.context.log.warning(
-                f"Export failed: {ve}",
-                path=self.path,
-            )
-            return
+        """Register the exported file as a dataset resource.
+
+        Raises FileNotFoundError if the exporter did not produce its file, so
+        that a missing artifact fails the export instead of being silently
+        left out of the published resources."""
+        resource = self.context.export_resource(
+            self.path,
+            mime_type=self.MIME_TYPE,
+            title=self.TITLE,
+        )
+        self.context.log.info(
+            f"Exported: {self.TITLE}",
+            path=self.path,
+            size=resource.size,
+        )
