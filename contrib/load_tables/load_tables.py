@@ -30,6 +30,11 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.engine.url import make_url
 
 BUCKET = "gs://prod-etl-dev-dumps.opensanctions.org"
+# The bucket grants this service account rather than staff directly, and the
+# crawler team may impersonate it, so downloads work from your own gcloud login
+# without a key file. It is also the account the dev docs set up for reading
+# production data.
+IMPERSONATE = "etl-crawlerteam-sa@opensanctions-ops.iam.gserviceaccount.com"
 DOWNLOAD_PATH = Path("data/dev-dumps")
 RESOLVER_SOURCES = {"resolver": f"{BUCKET}/resolver/resolver.csv.gz"}
 REVIEW_SOURCES = {
@@ -78,7 +83,17 @@ def fetch(source: str) -> Path:
     path = DOWNLOAD_PATH / source.rsplit("/", 1)[-1]
     click.echo(f"Downloading {source} to {path}...")
     try:
-        subprocess.run(["gcloud", "storage", "cp", source, str(path)], check=True)
+        subprocess.run(
+            [
+                "gcloud",
+                "storage",
+                f"--impersonate-service-account={IMPERSONATE}",
+                "cp",
+                source,
+                str(path),
+            ],
+            check=True,
+        )
     except (subprocess.CalledProcessError, FileNotFoundError) as exc:
         raise click.ClickException(f"Could not download {source}: {exc}")
     return path
