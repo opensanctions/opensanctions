@@ -2,13 +2,13 @@ from typing import Any
 import json
 from urllib.parse import parse_qs, urlsplit
 from datetime import datetime, timedelta
-from dataclasses import dataclass
 from lxml import html
 from pydantic import BaseModel
 from lxml.html import HtmlElement
 
 from zavod import Context, settings
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     TextSourceValue,
@@ -82,14 +82,14 @@ def fetch_rows(context: Context) -> list[dict[str, Any]]:
 
 
 def crawl_respondent(
-        context: Context, 
-        case_id: str, 
-        anchor: HtmlElement, 
-        category: str,
-        date: str,
-) -> str:
+    context: Context,
+    case_id: str,
+    anchor: HtmlElement,
+    category: str,
+    date: str,
+) -> Entity | None:
     href = (anchor.get("href") or "").replace("\\", "/")
-    url = BASE_URL + href,
+    url = (BASE_URL + href,)
     nfaid = parse_qs(urlsplit(href).query)["nfaid"][0]
     name_raw = h.multi_split(h.element_text(anchor), ["et al."])[0]
 
@@ -119,12 +119,10 @@ def crawl_respondent(
 
         if not review.accepted:
             # The crawl warns about what's still outstanding once every record is read.
-            return
+            return None
         if not review.extracted_data.name:
-            context.log.warning(
-                "Accepted extraction has no name", entity_id=entity.id
-            )
-            return
+            context.log.warning("Accepted extraction has no name", entity_id=entity.id)
+            return None
         name = review.extracted_data.name
 
     h.apply_name(entity, full=name)
@@ -171,36 +169,33 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     url = BASE_URL + href
 
     article = h.articles.make_article(
-        context, 
-        url, 
-        key_extra=None, 
-        title=headline_text, 
-        published_at=date
+        context, url, key_extra=None, title=headline_text, published_at=date
     )
     article.id = context.make_id(url)
-    
+
+    documentations = 0
     for anchor in anchors:
         entity = crawl_respondent(context, case_id, anchor, category, date)
 
-        documentation = h.make_documentation(
-            context,
-            entity,
-            article
-        )
-        context.emit(documentation)
+        if entity is not None:
+            documentation = h.make_documentation(context, entity, article)
+            documentations += 1
+            context.emit(documentation)
 
-    context.emit(article)
+    # only emit article if there are documentations
+    if documentations > 0:
+        context.emit(article)
 
     context.audit_data(
-            row,
-            ignore=[
-                "CONTENT_DATE",
-                "SORTORDER",
-                "RULE_ID",
-                "RULE_SECTION_ID",
-                "RULE_SECTION_NAME",
-            ],
-        )
+        row,
+        ignore=[
+            "CONTENT_DATE",
+            "SORTORDER",
+            "RULE_ID",
+            "RULE_SECTION_ID",
+            "RULE_SECTION_NAME",
+        ],
+    )
 
 
 def crawl(context: Context) -> None:
@@ -208,4 +203,3 @@ def crawl(context: Context) -> None:
         crawl_row(context, row)
 
     assert_all_accepted(context, raise_on_unaccepted=False)
-
