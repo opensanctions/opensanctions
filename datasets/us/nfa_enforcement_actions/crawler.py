@@ -165,14 +165,18 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     date = row.pop("content_date_sort")
     fragment = html.fragment_fromstring(row.pop("HEADLINE_TEXT"), create_parent="div")
 
-
     article = context.make("Article")
     article.make_id(case_id)
+    article.add('date', date)
+    article.add()
 
     for anchor in h.xpath_elements(fragment, ".//a"):
         entity = crawl_respondent(context, case_id, anchor, category, date)
 
-        
+        documentation = context.make("Documentation")
+        documentation.id = context.make_id(article.id, entity.id)
+        documentation.add()
+        documentation.add()
 
 
     context.audit_data(
