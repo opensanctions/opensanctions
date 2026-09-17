@@ -24,7 +24,9 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         msg = "Mentioned in 2018 CAATSA report on Russian oligarchs"
         entity.add("notes", msg, lang="eng")
         entity.add("sourceUrl", CAATSA_URL)
-        entity.add("programId", CAATSA_PROGRAM)
+        # The report identifies people without designating them
+        risk = h.make_risk(context, entity, program_key=CAATSA_PROGRAM)
+        context.emit(risk)
     # context.inspect(entity)
     context.emit(entity)
 
