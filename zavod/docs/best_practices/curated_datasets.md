@@ -79,7 +79,7 @@ The default is no program: read the document, write the rows.
 
 Write one when the extraction recurs against the same document shape — each new edition of a report, each new version of a regulation. Recurrence is the trigger, not size: no row count makes a parser necessary, so a one-off transcription of a several-hundred-entry PDF gets none, while a twenty-row annex reissued every few months does.
 
-Keep the program next to the crawler and name it for what it parses, so the next edition is a change to reviewable code rather than a fresh extraction. `datasets/se/soe/extract_edition_2024.py` is one module per report edition.
+Keep the program next to the crawler and name it for what it parses, so the next edition is a change to reviewable code rather than a fresh extraction. `datasets/se/soe/extract_edition_2024.py` is one module per annual report edition.
 
 ## Migrating from a Google Sheet
 
