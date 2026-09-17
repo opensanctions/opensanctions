@@ -163,21 +163,33 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         return
 
     date = row.pop("content_date_sort")
-    fragment = html.fragment_fromstring(row.pop("HEADLINE_TEXT"), create_parent="div")
+    headline = row.pop("HEADLINE_TEXT")
+    fragment = html.fragment_fromstring(headline, create_parent="div")
+    headline_text = h.element_text(fragment)
+    anchors = h.xpath_elements(fragment, ".//a")
+    href = (anchors[0].get("href") or "").replace("\\", "/")
+    url = BASE_URL + href
 
-    article = context.make("Article")
-    article.make_id(case_id)
-    article.add('date', date)
-    article.add()
-
-    for anchor in h.xpath_elements(fragment, ".//a"):
+    article = h.articles.make_article(
+        context, 
+        url, 
+        key_extra=None, 
+        title=headline_text, 
+        published_at=date
+    )
+    article.id = context.make_id(url)
+    
+    for anchor in anchors:
         entity = crawl_respondent(context, case_id, anchor, category, date)
 
-        documentation = context.make("Documentation")
-        documentation.id = context.make_id(article.id, entity.id)
-        documentation.add()
-        documentation.add()
+        documentation = h.make_documentation(
+            context,
+            entity,
+            article
+        )
+        context.emit(documentation)
 
+    context.emit(article)
 
     context.audit_data(
             row,
