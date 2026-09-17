@@ -71,7 +71,7 @@ Detecting that a designation has ended is as important as detecting a new one. W
 - **Consolidated sources** republish the complete current list, so a row vanishing from the source is the signal. Discovery compares the source's membership against the reviewed file; without that comparison the dataset records only additions and grows on every update.
 - **Event sources** publish a stream of notices, so the removal is its own notice, extracted like any other event. Absence from a later notice is not a removal, and neither is a URL that stops resolving.
 
-Until the mechanism exists, set the end date rather than deleting the row. Deleting discards the record of which notice designated the entity and when, which both the next extraction and the next review read.
+Set the end date rather than deleting the row. Deleting discards the record of which notice designated the entity and when, which both the next extraction and the next review read.
 
 ### Write a parser program when the extraction recurs
 
