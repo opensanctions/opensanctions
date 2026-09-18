@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from functools import partial
 from lxml.html import HtmlElement
 from normality import squash_spaces
 
@@ -9,9 +10,7 @@ from zavod.stateful.positions import categorise
 
 UNBLOCK_VALIDATOR = "//table[@width='100%']"
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
-# Every page we parse is server-rendered ColdFusion HTML with no JavaScript involved,
-# so the fetches ask Zyte for httpResponseBody rather than its default browserHtml.
-HTML_SOURCE = "httpResponseBody"
+PROFILE_HTML_SOURCE = "httpResponseBody"
 # Retry patiently: when throttled, the site answers with a table-less IIS 403 page.
 RETRIES = 7
 
@@ -20,7 +19,7 @@ RETRIES = 7
 #   Dutch:  "Geboren te Namen op 14 januari 1981."
 #   Sometimes the profile on a french page is in Dutch.
 BORN_DATE_RE = re.compile(
-    r"(Née?\b.+?\ble\b|Geboren\b.+?\bop)\s+(?P<date>\d{1,2}(?:i?er)?\s+\w+\s+\d{4})",
+    r"(Née?\b.+?\ble\b|Geboren\b.+?\bop)\s+(?P<date>\d{1,2}(?:i?er)?\s+\w+\s+\d{4}|\d{2}/\d{2}/\d{4})",
     re.IGNORECASE | re.DOTALL,
 )
 HEADERS = ["name", "group", "email", "website"]
@@ -57,15 +56,22 @@ def crawl_person(
     political_group = group_texts[0].strip() if group_texts else ""
 
     context.log.info("Crawling bio", name=squash_spaces(name), profile_url=profile_url)
-    pep_doc = zyte_api.fetch_html(
+    fetch_profile = partial(
+        zyte_api.fetch_html,
         context,
         profile_url,
         unblock_validator="//table",
-        html_source=HTML_SOURCE,
         absolute_links=True,
         cache_days=30,
         retries=RETRIES,
     )
+    try:
+        # The F5 in front of the site refuses a plain HTTP fetch whenever it doesn't
+        # trust the exit IP, so fall back to the browser that gets the list pages through.
+        pep_doc = fetch_profile(html_source=PROFILE_HTML_SOURCE)
+    except zyte_api.UnblockFailedException:
+        context.log.info("Refused a plain fetch, rendering", profile_url=profile_url)
+        pep_doc = fetch_profile(javascript=True)
     bio_texts = h.xpath_strings(
         pep_doc,
         './/td/p[contains(., "Né ") or contains(., "Ne ") or contains(., "Née ") or contains(., "Geboren")]/text()',
@@ -128,7 +134,7 @@ def crawl_term(context: Context, legislature: Legislature) -> None:
         context,
         legislature.url,
         unblock_validator=UNBLOCK_VALIDATOR,
-        html_source=HTML_SOURCE,
+        javascript=True,
         absolute_links=True,
         cache_days=1,
     )
@@ -145,7 +151,7 @@ def crawl(context: Context) -> None:
         context,
         context.data_url,
         unblock_validator=UNBLOCK_VALIDATOR,
-        html_source=HTML_SOURCE,
+        javascript=True,
         absolute_links=True,
         cache_days=1,
     )
