@@ -16,15 +16,17 @@ Cleaning belongs downstream, in the crawler and in [datapatch lookups](datapatch
 
 ### Split a corrected column into `x_original` and `x_clean`
 
-When the printed value is not usable, add a second column instead of overwriting the first. `x_original` holds what the source prints and `x_clean` the correction; the crawler reads `_clean` and falls back to `_original`.
+When the printed value is not usable, add a second column instead of overwriting the first. `x_original` holds what the source prints and `x_clean` the value to use; both carry a value on every row, so where the printed value stands `x_clean` repeats it unchanged. The crawler reads `_clean` and falls back to `_original`.
 
-Use the same two suffixes on every column that takes corrections, so a reviewer can tell which values came from the source without reading the crawler.
+Use the same two suffixes on every column that takes corrections, so a reviewer can tell which values came from the source without reading the crawler. Explain a correction in the file's shared `notes` column rather than adding a notes column per corrected field.
 
-On the emit side the crawler passes the correction as the value and the source text as `original_value=`, so the statement records both: `entity.add("name", clean_name, original_value=raw_name)`, as in `datasets/us/dod_chinese_milcorps/crawler.py`.
+On the emit side the crawler adds the `_clean` value and passes `_original` as `original_value=` only where the two differ: `entity.add("name", clean, original_value=raw if raw != clean else None)`. Passing it unconditionally would record an original statement identical to the value on every uncorrected row, which is most of the file.
 
 ### One row per designation, not per entity
 
-The same person designated twice under different measures, or re-listed after a removal, gets a row for each designation. Entities are merged downstream, while the rows retain the program, the dates and the source of each one.
+Normally the same person designated twice under different measures, or re-listed after a removal, gets a row for each designation. The crawler can then emit one `Sanction`, or one `Occupancy` for a term of office, straight from the row; entities are merged downstream, while the rows retain the program, the dates and the source of each one.
+
+Keep to a row per designation even where the source publishes notices, wherever that is practical. A row per notice makes the crawler group events under a common key to reconstruct each designation, which produces duplicate entities wherever the key is imperfect, and is harder to review.
 
 One row per entity has nowhere to record the date a single designation ended, so end dates and removals cannot be expressed at all.
 
@@ -34,25 +36,13 @@ The source URL is mandatory and never blank. A row without one cannot be checked
 
 For event sources the row carries the notice identity as well: the issuing authority and its decree or announcement number. The URL locates the notice on the current site, while the decree number still identifies it after a site redesign.
 
-### Name columns in snake_case, after the FtM property
+### Name columns in snake_case, after the source's own terms
 
-Use the FollowTheMoney property name wherever one exists, and descriptive snake_case English for columns that are not properties. `datasets/se/soe/leadership.csv` heads its columns `name`, `alias`, `position`, `company`, `report` and `source_url`.
-
-A column named after the property it populates states what the crawler does with the cell, and one spelling across datasets lets a reviewer read any curated file without first reading its crawler.
+Use snake_case English, and name each column for what the source calls it: where the source labels a field `explanation`, the column is `explanation`, not `notes`. The crawler maps it to the FollowTheMoney property. The transcription then stays a faithful representation of the source.
 
 ### Separate multiple values with a semicolon
 
 Pack multiple values into one cell with `;` and split them in the crawler. The delimiter is the same in every curated dataset: a per-dataset delimiter means the splitting rule has to be read out of the crawler before a cell can be interpreted.
-
-### Force-add the file: `*.csv` is gitignored
-
-`.gitignore` ignores `*.csv`, so `git add` skips a new curated file and leaves it untracked:
-
-```bash
-git add -f datasets/xx/source/sanctions.csv
-```
-
-The crawler opens the file from the working directory, so an untracked file crawls correctly on the machine that wrote it and fails in CI.
 
 ## Updating the file as the source changes
 
@@ -73,13 +63,11 @@ Detecting that a designation has ended is as important as detecting a new one. W
 
 Set the end date rather than deleting the row. Deleting discards the record of which notice designated the entity and when, which both the next extraction and the next review read.
 
-### Write a parser program when the extraction recurs
+### Write an extraction script only where it helps
 
-The default is no program: read the document, write the rows.
+The default is no script: read the document, write the rows. Where a document yields to inference but not to parsing, that inference is the extraction, and no script is owed.
 
-Write one when the extraction recurs against the same document shape — each new edition of a report, each new version of a regulation. Recurrence is the trigger, not size: no row count makes a parser necessary, so a one-off transcription of a several-hundred-entry PDF gets none, while a twenty-row annex reissued every few months does.
-
-Keep the program next to the crawler and name it for what it parses, so the next edition is a change to reviewable code rather than a fresh extraction. `datasets/se/soe/extract_edition_2024.py` is one module per annual report edition.
+Where a script does help, keep it small and reusable, next to the crawler and named for what it parses. `datasets/se/soe/extract_edition_2024.py` is one module per annual report edition. This pays off most when the extraction recurs against the same document shape, each new edition of a report or version of a regulation, and recurrence is what justifies one rather than size: no row count makes a script necessary.
 
 ## Migrating from a Google Sheet
 
