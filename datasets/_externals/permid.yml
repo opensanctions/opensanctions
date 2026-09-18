@@ -20,12 +20,7 @@ http:
     - GET
     # a match in PermID is a POST request
     - POST
-  # The match endpoint intermittently stalls: a request occasionally consumes
-  # the full read timeout on every attempt until the retry budget runs out, and
-  # the entity is dropped from that run. The stalls are short-lived, so what
-  # helps is more attempts spread over a longer window rather than a longer
-  # timeout per attempt - a request that has already hit the read timeout three
-  # times is not one that is about to answer late.
+  # The match endpoint stalls briefly now and then, so retry over a wider window.
   total_retries: 5
   backoff_factor: 2
 load_statements: true
