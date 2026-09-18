@@ -313,6 +313,8 @@ config:
     # Russia
     - category: United_Russia_politicians
       topic: role.pep
+      negcats: |
+        People_listed_in_Russia_as_foreign_agents
     - category: Candidates_in_the_2012_Russian_presidential_election
       topic: role.pep
     - category: Candidates_in_the_2018_Russian_presidential_election
@@ -322,6 +324,8 @@ config:
     - category: 21st-century_Russian_politicians
       topic: role.pep
       country: ru
+    
+    
 
     # Myanmar
     - category: Individuals_related_to_Myanmar_sanctions
