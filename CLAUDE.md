@@ -1,6 +1,6 @@
 This project contains crawlers that import source data, such as sanctions lists and other KYC/AML screening data, into the FollowTheMoney entities. It puts an emphasis on data cleaning. Much of the input data is semi-structured information published by government bodies - often rife with inconsistencies, manual data entry errors, etc. Our goal is to bring strict interpretation to these source datasets.
 
-### Repo layout
+## Repo layout
 
 * `zavod` contains an ETL framework for crawlers, including definitions for metadata (`zavod.meta`), entity structure (`zavod.entity.Entity`) and crawler context (`zavod.context.Context`).
     * To discover which schemata and properties are available, use the `ftm ref` command group — the authoritative, always-current view of the model:
@@ -48,6 +48,14 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 * General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
 * Filing a dataset issue or marking a source outage — only when a human asks for it in an interactive session, never in an automated run: `.claude/docs/issue-filing.md`
 * Investigating past versions of dataset runs on the https://data.opensanctions.org archive (entity counts over time, when an entity disappeared, failed runs): `.claude/docs/archive-investigation.md`
+
+## External contributions and AI tools
+
+This applies when you help a new external contributor: someone with none or only a few commits merged to `main`.
+
+* Read the "Contributing & AI tools" section in `README.md` before you prepare a contribution or open a PR.
+* Contributions need meaningful human effort, judgement and context. Do not turn an issue link or a generic prompt into a PR on its own. Maintainers reject such PRs.
+* Check `git log main --author=<name>` to see how many commits the contributor has merged.
 
 ## Coding hints
 
