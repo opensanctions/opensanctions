@@ -1,11 +1,10 @@
 # Maintaining il_mod_crypto
 
 The crawler reads its entity data from `seizures.csv` next to this file, not from the
-NBCTF web page. It is edited by hand, as a pull request against that file; the Google
-Sheet the data used to live in is retired, and `seizures.csv` began as a verbatim export
-of it, so the two produce identical entities. The page is only fetched to snapshot the two
-tables into `releases.csv` and `wallets.csv`, so that `git diff` shows what changed on
-the source. When the diff shows a new order or new wallets, add the rows by hand.
+NBCTF web page. It is edited by hand, as a pull request against that file. The page is
+only fetched to snapshot the two tables into `releases.csv` and `wallets.csv`, so that
+`git diff` shows what changed on the source. When the diff shows a new order or new
+wallets, add the rows by hand.
 
 The crawler reads the file out of the checkout, so a run always uses the copy in front
 of it and a pull request is crawled with its own edit. `data.url` in `il_mod_crypto.yml`
@@ -75,14 +74,9 @@ designation, and it is what a user needs in order to verify the entry. Two relat
 
 ## Dates
 
-Prefer `YYYY-MM-DD` for anything you add. `DD.MM.YYYY` and `DD/MM/YYYY` are also
-accepted (see `dates.formats` in `il_mod_crypto.yml`), and the file — exported from the
-sheet the data used to live in — currently holds a mix of all three. Only the ISO form
-is unambiguous: slash dates are read day-first, so a date a spreadsheet editor has
-reformatted to US `MM/DD/YYYY` is parsed with day and month swapped, silently and
-without a warning, for the first twelve days of any month. Converting the existing
-values is a separate change: it rewrites most rows, so do it on its own rather than
-inside a data update.
+Record a date exactly as the source writes it and let the crawler parse it; the forms
+accepted are listed under `dates.formats` in `il_mod_crypto.yml`. Slash and dot dates
+are read day-first, which is how the source page writes them.
 
 ## After editing
 
