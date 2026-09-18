@@ -1,17 +1,21 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
+from followthemoney.dataset import Version
 
-import zavod
 from zavod import settings
 from zavod.archive import ARTIFACTS
 
+if TYPE_CHECKING:
+    from zavod.entity import Entity
 
-def make_artifact_url(dataset_name: str, version: str, path: str) -> str:
+
+def make_artifact_url(dataset_name: str, version: Version, path: str) -> str:
     """Generate a public URL for a file within the dataset context."""
-    return f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{dataset_name}/{version}/{path}"
+    return f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{dataset_name}/{version.id}/{path}"
 
 
-def make_entity_url(entity: zavod.entity.Entity) -> str | None:
+def make_entity_url(entity: Entity) -> str | None:
     """Generate a public URL for a file within the dataset context."""
     # TODO: implement check if the entity is in default, if not return None
     if entity.id is None:

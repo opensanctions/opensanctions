@@ -2,8 +2,9 @@ import logging
 import os
 
 import zavod
-from zavod import Context, Dataset
-from zavod.archive import dataset_resource_path, ISSUES_FILE
+from zavod import Dataset, settings
+from zavod.archive import dataset_artifact_path, ISSUES_FILE
+from zavod.tests.util import make_context
 from zavod.logs import (
     RedactingProcessor,
     configure_redactor,
@@ -98,9 +99,11 @@ def test_redacts_issue_logger(testdataset1: Dataset):
     logger = zavod.logs.configure_logging()
 
     try:
-        issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
-        context = Context(testdataset1)
-        context.begin(clear=True)
+        issues_path = dataset_artifact_path(
+            testdataset1.name, settings.RUN_VERSION, ISSUES_FILE
+        )
+        context = make_context(testdataset1)
+        context.begin()
         assert not issues_path.exists()
 
         context.log.warn(
