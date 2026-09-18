@@ -63,6 +63,7 @@ lookups:
           - DNI Argentino para Extranjero
           - CC Colombiana
           - CI Paraguaya
+          - CI RG  # Cédula de Identidad / Registro Geral, Brazil
           - PRONTUARIO PARAGUAYO
           - ID
           - National ID
@@ -81,6 +82,7 @@ lookups:
 
       - match:
           - CUIT  # Clave Única de Identificación Tributaria, Argentina
+          - CPF  # Cadastro de Pessoas Físicas, Brazil
         prop: taxNumber
 
   type.address:

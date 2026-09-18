@@ -25,7 +25,9 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
         context,
         fugitive_url,
         unblock_validator='//h2[@class="fugitive__title"]',
+        javascript=True,
         cache_days=7,
+        geolocation="US",
     )
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
