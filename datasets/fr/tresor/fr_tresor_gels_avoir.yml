@@ -4327,6 +4327,11 @@ lookups:
           jurisdiction: fr
           registrationNumber: W595030728
           incorporationDate: 2018-02-23
+      - match: "RNA W595038732, déclarée à la préfecture du Nord (59) le 18 mars 2021"
+        props:
+          jurisdiction: fr
+          registrationNumber: W595038732
+          incorporationDate: 2021-03-18
       - match: "déclarée à la préfecture du Rhône (69) le 23 novembre 2009 sous le numéro W691075246: W691075246"
         props:
           jurisdiction: fr
