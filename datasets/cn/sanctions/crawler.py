@@ -1,19 +1,19 @@
 import csv
 import re
 import shutil
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Any, cast
-from collections.abc import Mapping
 from urllib.parse import urljoin, urlparse
 
 import requests
 from lxml import html
 from rigour.mime.types import CSV
+
 from zavod import Context
 from zavod import helpers as h
-
 
 LOCAL_PATH = Path(__file__).parent
 # China started to publish counter-sanctions in 2019.
@@ -21,6 +21,18 @@ TWO_DIGIT_SANCTION_YEAR_BASE = 2010
 INDEX_CACHE_DAYS = 2
 MFA_INDEX_URL = "https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/"
 MOFCOM_INDEX_URL = "https://www.mofcom.gov.cn/zcfb/blgg/gg/{year}/index.html"
+MOFCOM_SPOKESPERSON_API = (
+    "https://www.mofcom.gov.cn/api-gateway/jpaas-publish-server/front/page/build/unit"
+)
+MOFCOM_SPOKESPERSON_PARAMS = {
+    "parseType": "bulidstatic",
+    "webId": "8f43c7ad3afc411fb56f281724b73708",
+    "tplSetId": "52551ea0e2c14bca8c84792f7aa37ead",
+    "pageType": "column",
+    "tagId": "分页列表",
+    "pageId": "625b494d0adc47c885f5e1a18ee42b94",
+    "paramJson": '{"pageNo":1,"pageSize":99999}',
+}
 MFA_NOTICE_PATH = re.compile(r"/(\d{6})/(t\d+_\d+)\.shtml$")
 MOFCOM_NOTICE_KEY = re.compile(r"商务部公告(\d{4})年第(\d+)号")
 MOFCOM_UEL_KEY = re.compile(r"不可靠实体清单工作机制公告〔(\d{4})〕(\d+)号")
@@ -33,6 +45,7 @@ MOFCOM_CANDIDATE_PATTERNS = (
         r"(?:出口管制管控名单|关注名单|不可靠实体清单|反制措施)"
     ),
 )
+MOFCOM_LIST_TERMS = ("出口管制管控名单", "关注名单", "不可靠实体清单", "反制措施")
 
 # TAO designation hub: aggregates the two formal Taiwan-independence lists and
 # spokesperson announcements. Served as GB2312/GB18030, not UTF-8.
@@ -84,7 +97,9 @@ def parse_mfa_index(content: str, base_url: str = MFA_INDEX_URL) -> list[Candida
 
 
 def is_mofcom_candidate(title: str) -> bool:
-    return any(pattern.search(title) for pattern in MOFCOM_CANDIDATE_PATTERNS)
+    return any(pattern.search(title) for pattern in MOFCOM_CANDIDATE_PATTERNS) or any(
+        term in title for term in MOFCOM_LIST_TERMS
+    )
 
 
 def mofcom_logical_key(title: str, url: str) -> str:
@@ -182,6 +197,29 @@ def parse_mofcom_aqygzj(payload: Any, base_url: str) -> list[Candidate]:
     return list(candidates.values())
 
 
+def parse_mofcom_spokesperson(payload: Any, base_url: str) -> list[Candidate]:
+    """Find list-related spokesperson notices, including status changes."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("data"), dict):
+        raise TypeError("MOFCOM spokesperson response missing 'data'")
+    markup = payload["data"].get("html")
+    if not isinstance(markup, str):
+        raise TypeError("MOFCOM spokesperson response missing 'data.html'")
+    root = html.fromstring(markup)
+    candidates: dict[str, Candidate] = {}
+    for anchor in h.xpath_elements(root, "//a[@href]"):
+        title = h.element_text(anchor)
+        href = cast(str, anchor.get("href"))
+        url = urljoin(base_url, href)
+        if not title or not is_mofcom_candidate(title):
+            continue
+        if "/xwfb/xwfyrth/" not in urlparse(url).path:
+            continue
+        candidates[url] = Candidate(
+            "MOFCOM", mofcom_logical_key(title, url), title, url
+        )
+    return list(candidates.values())
+
+
 def discover_candidates(context: Context) -> list[Candidate]:
     """Find official notices that may require a data update or review."""
     candidates: list[Candidate] = []
@@ -227,6 +265,20 @@ def discover_candidates(context: Context) -> list[Candidate]:
                 url=url,
                 error=str(exc),
             )
+
+    try:
+        payload = context.fetch_json(
+            MOFCOM_SPOKESPERSON_API,
+            params=MOFCOM_SPOKESPERSON_PARAMS,
+            cache_days=INDEX_CACHE_DAYS,
+        )
+        candidates.extend(parse_mofcom_spokesperson(payload, MOFCOM_SPOKESPERSON_API))
+    except requests.RequestException as exc:
+        context.log.warning(
+            "MOFCOM spokesperson index request failed",
+            url=MOFCOM_SPOKESPERSON_API,
+            error=str(exc),
+        )
 
     try:
         payload = context.fetch_json(
@@ -278,6 +330,11 @@ def collect_reviewed_urls(
         str(url) for url in discovery_config.get("reviewed_urls", []) if url
     }
     reviewed_urls.update(row["Source URL"] for row in rows if row["Source URL"])
+    reviewed_urls.update(
+        row["Current status source URL"]
+        for row in rows
+        if row.get("Current status source URL")
+    )
     return reviewed_urls
 
 
@@ -305,8 +362,12 @@ def crawl(context: Context) -> None:
         entity.add("alias", row.pop("Chinese name"), lang="zho")
         entity.add("country", row.pop("Country", None))
         entity.add("address", row.pop("Address", None))
-        entity.add("notes", row.pop("Summary", None), lang="eng")
-        entity.add("notes", row.pop("Chinese summary", None), lang="zho")
+        summary = row.pop("Summary", "")
+        chinese_summary = row.pop("Chinese summary", "")
+        if summary or chinese_summary:
+            raise ValueError(
+                "Summary fields must contain only source text; migrate them"
+            )
         entity.add("topics", row.pop("Topics").split(";"))
         program = row.pop("List", None)
         sanction = h.make_sanction(
@@ -316,6 +377,13 @@ def crawl(context: Context) -> None:
             program_key=h.lookup_sanction_program_key(context, program),
         )
         sanction.set("authority", row.pop("Body", None))
+        notice_id = row.pop("Notice ID", None)
+        if notice_id:
+            sanction.set("recordId", notice_id)
+        designation_quote = row.pop("Designation quote", None)
+        designation_language = row.pop("Designation quote language", None)
+        if designation_quote:
+            sanction.add("provisions", designation_quote, lang=designation_language)
         h.apply_date(
             sanction,
             "startDate",
@@ -328,7 +396,27 @@ def crawl(context: Context) -> None:
             row.pop("End date", None),
             two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
         )
-        sanction.add("sourceUrl", row.pop("Source URL", None))
+        source_url = row.pop("Source URL", None)
+        sanction.add("sourceUrl", source_url)
+        current_status = row.pop("Current status (source)", None)
+        row.pop("Notice title", None)
+        row.pop("Current status notice title", None)
+        row.pop("Current status date", None)
+        current_status_url = row.pop("Current status source URL", None)
+        current_status_quote = row.pop("Current status quote", None)
+        current_status_language = row.pop("Current status quote language", None)
+        if current_status and (not current_status_url or not current_status_quote):
+            raise ValueError(f"Current status lacks source URL or quote for {name!r}")
+        sanction.add("sourceUrl", current_status_url)
+        if current_status_quote:
+            sanction.add(
+                "provisions", current_status_quote, lang=current_status_language
+            )
+        if current_status and current_status.startswith(("暂停", "继续暂停")):
+            sanction.set("status", "suspended")
+        elif current_status and current_status.startswith("移出"):
+            sanction.set("status", "inactive")
+        row.pop("Current status quote language", None)
         context.emit(sanction)
         context.emit(entity)
         context.audit_data(row)
