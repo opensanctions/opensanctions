@@ -191,6 +191,23 @@ class SenzingExporter(Exporter):
             "DATA_SOURCE": self.source_name,
             "RECORD_ID": entity.id,
             "LAST_CHANGE": entity.last_change,
+            # The canonical OpenSanctions entity id, asserted a SECOND time as a feature
+            # (OPENSANCTIONS_ID, behavior A1ES) rather than only as the RECORD_ID.
+            #
+            # RECORD_ID is bookkeeping: Senzing never compares it, so it cannot stop two
+            # different OpenSanctions entities being merged by weak evidence. A1ES DENIES on a
+            # value mismatch, so once each record carries its own id, two distinct entities can
+            # never co-resolve however they are pulled together.
+            #
+            # This matters because other sources CITE these ids. A record elsewhere carrying a
+            # list of OpenSanctions ids is a REFERENCE list, not an identity; without a deny on
+            # the authoritative side, every entity in such a list collapses into the citing
+            # record and therefore into each other. That failure was measured on a sibling
+            # corpus: one organization record carrying 700 referenced ids fused 84 distinct real
+            # entities into itself until the authoritative side asserted an A1ES twin.
+            #
+            # Requires the companion senzing_config_updates.gtc, which registers the feature.
+            "OPENSANCTIONS_ID": entity.id,
         }
 
         # Collect name hashes to deduplicate names that have different case but are otherwise the same

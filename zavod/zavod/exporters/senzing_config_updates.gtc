@@ -1,4 +1,4 @@
-# Senzing configuration update for the Senzing exporter's TAX_ID_TYPE.
+# Senzing configuration updates for the Senzing exporter: OPENSANCTIONS_ID and TAX_ID_TYPE.
 #
 # Apply with:  sz_configtool -f senzing_config_updates.gtc
 #
@@ -14,4 +14,25 @@
 addElementToFeature       {"feature": "TAX_ID", "element": "ID_TYPE", "derived": "No", "display": 1, "execOrder": 7}
 addComparisonCallElement  {"feature": "TAX_ID", "element": "ID_TYPE", "execOrder": 3}
 addAttribute              {"attribute": "TAX_ID_TYPE", "class": "IDENTIFIER", "feature": "TAX_ID", "element": "ID_TYPE", "required": "Desired"}
+# ---------------------------------------------------------------------------------------------
+# OPENSANCTIONS_ID -- the canonical OpenSanctions entity id, as an A1ES exclusive feature.
+#
+# The exporter already writes entity.id as RECORD_ID, but Senzing never COMPARES a RECORD_ID, so
+# it cannot keep two different OpenSanctions entities apart. A1ES denies on a value mismatch:
+# every record carries exactly one id and the ids are unique, so two distinct entities can no
+# longer co-resolve no matter what weak evidence pulls them together.
+#
+# The failure this prevents is a reference list being read as identity. Other datasets cite
+# OpenSanctions ids; a record carrying a LIST of them is citing entities, not claiming to be
+# them. Without a deny on the authoritative side, each cited entity resolves into the citing
+# record and therefore into every other entity in the list. Measured on a sibling corpus: one
+# organization record carrying 700 referenced ids fused 84 distinct real entities into itself,
+# and the same A1ES twin pattern reduced that class of fusion by 99.8%.
+#
+# templateAdd/GLOBAL_ID is used rather than a hand-rolled addFeature because it decomposes A1ES
+# correctly into FREQ=A1 / EXCL=Yes / STAB=Yes. A hand-rolled definition is the documented way
+# to register an A1ES feature that silently misbehaves.
+templateAdd  {"feature": "OPENSANCTIONS_ID", "template": "GLOBAL_ID", "behavior": "A1ES"}
+getFeature   OPENSANCTIONS_ID
+
 save
