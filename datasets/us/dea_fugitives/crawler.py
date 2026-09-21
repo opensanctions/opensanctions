@@ -9,6 +9,17 @@ from zavod import helpers as h
 
 # Profile slugs look like /fugitives/jane-doe. /fugitives/all is the listing.
 PROFILE_PATH = re.compile(r"/fugitives/(?!all$)[a-z0-9-]+")
+# The profile heading: the unblock validator, and what the browser waits for.
+TITLE_XPATH = '//h2[@class="fugitive__title"]'
+# Akamai's interstitial clears itself with a scripted redirect, so browser rendering
+# alone still snapshots the challenge page. Wait for the heading instead.
+ACTIONS = [
+    {
+        "action": "waitForSelector",
+        "selector": {"type": "xpath", "value": TITLE_XPATH},
+        "timeout": 15,
+    },
+]
 
 
 def crawl_sitemap(context: Context, url: str, tag: str) -> list[str]:
@@ -24,7 +35,8 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
     response = zyte_api.fetch_html(
         context,
         fugitive_url,
-        unblock_validator='//h2[@class="fugitive__title"]',
+        unblock_validator=TITLE_XPATH,
+        actions=ACTIONS,
         javascript=True,
         cache_days=7,
         geolocation="US",
