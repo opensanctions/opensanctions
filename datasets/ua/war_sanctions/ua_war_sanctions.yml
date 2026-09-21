@@ -486,6 +486,11 @@ lookups:
           - 1409544P
           - 202101009245
         prop: registrationNumber
+      # Sberbank's SWIFT row runs its head-office and 012 branch codes together.
+      - match: SABRRUMMSABRRUMM012
+        values:
+          - SABRRUMM
+          - SABRRUMM012
       - match: 10477970849
         value: 1047797084940
       - match: ".0276915630"

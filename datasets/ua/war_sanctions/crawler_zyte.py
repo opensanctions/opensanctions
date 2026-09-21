@@ -47,13 +47,30 @@ VESSEL_SKIP_LABELS = {
 
 # Entity-page (col-sm-8) labels we don't emit as properties. "Within the structure of
 # Rostec" is handled separately (parsed into Ownership edges), not skipped.
-COMPANY_SKIP_LABELS = {"Products"}
+COMPANY_SKIP_LABELS = {
+    "Products",
+    # A relationship to other entities, not a property of this one.
+    "Banks that serve the enterprise",
+    # A repeating block listing the machine tools at the plant, which we don't model.
+    # "Name" here is a tool's name, not a company name — the company name is read from
+    # COMPANY_NAME_LABEL. If the source ever moved the company name into this row,
+    # crawl_entity_page would find no name and warn instead of emitting a nameless entity.
+    "Name",
+    "Serial number",
+    "Manufacturer",
+    "Manufacturer`s country",
+    "Plant of the location",
+    "Plant`s involvement in weapons production",
+}
 
 # Liquidated companies render a status badge inside the name label, so the label text reads
 # "Full name of legal entity Liquidated 30.05.2025" rather than the bare field name. We match
 # the name label by prefix and lift any trailing "Liquidated <date>" into a dissolution date.
 COMPANY_NAME_LABEL = "Full name of legal entity"
 LIQUIDATED_RE = re.compile(r"\bLiquidated\b\s*(?P<date>[\d.]*)")
+
+# Trailing connection status on a SWIFT row: "ROSYRU2PXXX (Disconnected)".
+SWIFT_STATUS_RE = re.compile(r"\s*\([^)]*\)\s*$")
 
 # Person-page label aliases — they vary by section (war sections vs partner sanctions vs
 # executives). Each FtM property is fed from any of its aliases.
@@ -65,6 +82,8 @@ PERSON_CITIZENSHIP_LABELS = ["Citizenship"]
 PERSON_JURISDICTION_LABELS = ["Jurisdiction"]
 
 PERSON_DOB_LABELS = ["Date and place of birth", "DOB"]
+PERSON_BIRTHPLACE_LABELS = ["Place of birth"]
+PERSON_PASSPORT_LABELS = ["Passport", "Foreign passport"]
 PERSON_POSITION_LABELS = [
     "Position",
     "Positions or membership in the governance bodies of the russian MIC",
@@ -305,6 +324,13 @@ def crawl_entity_page(
     )
     entity.add("registrationNumber", pop_text(pairs, "Registration number"))
     entity.add("taxNumber", pop_text(pairs, "TIN"))
+    # Populated on the finances/companies (bank) pages, empty elsewhere. bikCode is
+    # Company-only, so a bank is cast up from LegalEntity; an empty row leaves it alone.
+    swift = pop_text(pairs, "SWIFT")
+    if swift is not None:
+        entity.add("swiftBic", SWIFT_STATUS_RE.sub("", swift))
+    entity.add_cast("Company", "bikCode", pop_text(pairs, "BIC"))
+    entity.add("licenseNumber", pop_text(pairs, "Bank license"))
     entity.add("country", pop_text(pairs, "Country"))
     entity.add("address", pop_text(pairs, "Address"))
     if topic is not None:
@@ -313,6 +339,8 @@ def crawl_entity_page(
 
     # A page with no name/identifiers means the layout didn't match (e.g. a non-company
     # detail page or a dead id). Skip loudly rather than emit a hollow entity.
+    if not entity.has("name"):
+        context.log.warning("Entity page yielded no name", url=url)
     if not entity.has("name") and not entity.has("registrationNumber"):
         context.log.warning("Entity page yielded no name/identifiers", url=url)
         return entity_id
@@ -559,6 +587,10 @@ def crawl_person_page(
         person.add("citizenship", take_lines(label))
     for label in PERSON_JURISDICTION_LABELS:
         person.add("jurisdiction", take_lines(label))
+    for label in PERSON_BIRTHPLACE_LABELS:
+        person.add("birthPlace", take_lines(label))
+    for label in PERSON_PASSPORT_LABELS:
+        person.add("passportNumber", take_lines(label))
     for label in PERSON_POSITION_LABELS:
         for position in take_lines(label):
             person.add("position", position)
@@ -700,6 +732,7 @@ ENTITY_SECTIONS = [
     ("stolen/companies", "UA-WS-STEALERS", "poi"),
     ("components/companies", "UA-WS-MILIND", "poi"),
     ("rostec", "UA-WS-MILIND", "poi"),
+    ("finances/companies", "UA-WS-FINANCES", "poi"),
     ("sanctions/companies", None, None),
 ]
 # Tools factories are crawled by crawl_tools (descended from equipment pages), not here,
@@ -714,6 +747,7 @@ PERSON_SECTIONS = [
     ("propaganda/persons", "UA-WS-PROPAGANDISTS", "poi"),
     ("stolen/persons", "UA-WS-STEALERS", "poi"),
     ("executives", "UA-WS-EXECUTIVES", "poi"),
+    ("scientists/persons", "UA-WS-SCIENTISTS", "poi"),
     ("sanctions/persons", None, None),
 ]
 
