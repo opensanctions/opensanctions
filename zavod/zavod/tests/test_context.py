@@ -9,20 +9,20 @@ from rigour.urls import build_url
 from followthemoney.statement import read_statements, PACK
 
 from zavod import settings
-from zavod.archive import iter_dataset_statements, dataset_resource_path
-from zavod.archive import STATEMENTS_FILE
-from zavod.context import Context
+from zavod.archive import dataset_artifact_path, STATEMENTS_FILE
 from zavod.crawl import crawl_dataset
 from zavod.entity import Entity
 from zavod.exc import RunFailedException
 from zavod.meta import Dataset
 from zavod.runtime.http_ import request_hash
 from zavod.runtime.loader import load_entry_point
+from zavod.runtime.manifest import Manifest
 from zavod.tests.conftest import XML_DOC
+from zavod.tests.util import make_context
 
 
 def test_context_helpers(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     assert context.dataset == testdataset1
     assert "docs.google.com" in context.data_url
     assert testdataset1.name in repr(context)
@@ -102,18 +102,8 @@ def test_request_hash_normalizes_optional_headers() -> None:
     )
 
 
-def test_context_dry_run(testdataset1: Dataset):
-    context = Context(testdataset1, dry_run=True)
-    assert context.dataset == testdataset1
-    context.begin(clear=True)
-    assert context.dry_run
-    context.log.error("Test error")
-    context.close()
-    assert list(context.issues.all()) == []
-
-
 def test_context_get_fetchers(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
 
     with requests_mock.Mocker() as m:
         m.get("/bla", text="Hello, World!")
@@ -179,7 +169,7 @@ def test_context_get_fetchers(testdataset1: Dataset):
 
 
 def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     url = "https://test.com/encoding"
     body = "商务部".encode()
 
@@ -203,7 +193,7 @@ def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
 
 
 def test_context_post_fetchers(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
 
     with requests_mock.Mocker() as m:
         m.post("/bla", text="Hello, World!")
@@ -251,7 +241,7 @@ def test_context_post_fetchers(testdataset1: Dataset):
 
 
 def test_context_fetchers_exceptions(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
 
     with pytest.raises(ValueError, match="Unsupported HTTP method.+"):
         context.fetch_text("https://test.com/bla", cache_days=0, method="PLOP")
@@ -298,7 +288,7 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
 
 
 def test_context_clear_url(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     url = "https://test.com/bla"
 
     with requests_mock.Mocker() as m:
@@ -341,12 +331,8 @@ def test_context_clear_url(testdataset1: Dataset):
 
 
 def test_crawl_dataset(testdataset1: Dataset):
-    path = dataset_resource_path(testdataset1.name, STATEMENTS_FILE)
-    if path.is_file():
-        path.unlink()
-    assert len(list(iter_dataset_statements(testdataset1))) == 0
-    context = Context(testdataset1)
-    context.begin(clear=True)
+    context = make_context(testdataset1)
+    context.begin()
     assert len(context.resources.all()) == 0
     func = load_entry_point(testdataset1)
     func(context)
@@ -356,45 +342,44 @@ def test_crawl_dataset(testdataset1: Dataset):
     )
     assert len(context.resources.all()) == 1
     context.close()
-    assert len(list(iter_dataset_statements(testdataset1))) == context.stats.statements
+    manifest = Manifest.load_artifact(testdataset1, context.version)
+    assert len(list(manifest.statements())) == context.stats.statements
 
 
 def test_crawl_dataset_wrapper(testdataset1: Dataset):
-    stats = crawl_dataset(testdataset1)
+    stats = crawl_dataset(testdataset1, settings.RUN_VERSION)
     assert stats.entities > 10
 
     testdataset1.model.disabled = True
-    stats = crawl_dataset(testdataset1)
+    stats = crawl_dataset(testdataset1, settings.RUN_VERSION)
     assert stats.entities == 0
 
     testdataset1.model.disabled = False
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     with pytest.raises(RunFailedException):
-        crawl_dataset(testdataset1)
+        crawl_dataset(testdataset1, settings.RUN_VERSION)
 
 
 def test_crawl_dataset_empty(testdataset1: Dataset):
     """A crawl that completes without emitting anything still writes an
     (empty) statements file, so that downstream stages read this run's output
     instead of falling back to a previous version from the archive."""
-    path = dataset_resource_path(testdataset1.name, STATEMENTS_FILE)
+    version = settings.RUN_VERSION
+    path = dataset_artifact_path(testdataset1.name, version, STATEMENTS_FILE)
     assert testdataset1.data is not None
     testdataset1.data.format = "EMPTY"
 
-    stats = crawl_dataset(testdataset1, dry_run=True)
-    assert stats.statements == 0
-    assert not path.exists()
-
-    stats = crawl_dataset(testdataset1)
+    stats = crawl_dataset(testdataset1, version)
     assert stats.statements == 0
     assert path.is_file()
     assert path.stat().st_size == 0
-    assert len(list(iter_dataset_statements(testdataset1))) == 0
+    manifest = Manifest.load_artifact(testdataset1, version)
+    assert len(list(manifest.statements())) == 0
 
 
 def test_dataset_sink(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     assert context._writer_path.is_relative_to(settings.DATA_PATH)
     entity = context.make("Person")
     entity.id = "foo"

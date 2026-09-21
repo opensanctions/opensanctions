@@ -276,6 +276,5 @@ def log_issue(_: Any, __: str, event_dict: Event) -> Event:
             from zavod.context import Context
 
             if isinstance(context, Context):
-                if not context.dry_run:
-                    context.issues.write(data)
+                context.issues.write(data)
     return data

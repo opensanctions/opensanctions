@@ -1,23 +1,25 @@
 from sqlalchemy import select
 from nomenklatura.db import make_statement_table
 
+from zavod import settings
 from zavod.db import meta, get_engine
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.integration.dedupe import get_dataset_linker
-from zavod.archive import iter_dataset_statements
+from zavod.tests.util import get_manifest
 
 
 def test_load_db(testdataset1: Dataset):
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     linker = get_dataset_linker(testdataset1)
+    manifest = get_manifest(testdataset1)
 
-    stmts = list(iter_dataset_statements(testdataset1))
+    stmts = list(manifest.statements())
     assert len(stmts) > 0
 
     batch_size = (len(stmts) // 2) - 1
-    load_dataset_to_db(testdataset1, linker, batch_size=batch_size)
+    load_dataset_to_db(manifest, linker, batch_size=batch_size)
 
     engine = get_engine()
     table = make_statement_table(meta)
