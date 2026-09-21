@@ -1320,7 +1320,10 @@ lookups:
         value: "1200075689"
       - match: "Passport of the Russian Federation no. 3914857478, issued 20.4.2015"
         value: "3914857478"
-      - match: "01503093 (Afhgan passport, issued on 25.8.2016 in Kabul, Afghanistan and expired on 25.8.2021)"
+      - match:
+          # 32026R2143 replaced the entry to correct the "Afhgan" spelling.
+          - "01503093 (Afhgan passport, issued on 25.8.2016 in Kabul, Afghanistan and expired on 25.8.2021)"
+          - "01503093 (Afghan passport, issued on 25.8.2016 in Kabul, Afghanistan and expired on 25.8.2021)"
         value: "01503093"
       - match: "SE-011697 (Afghan passport number issued on 25 Jan. 1988 in Kabul, expired on 23 Feb. 2000)"
         value: "SE-011697"
@@ -1578,6 +1581,10 @@ lookups:
           - "3987189"
           - "13080011550"
           - "5877002"
+      - match: "(a) CM920231090NZA (Uganda); (b) Z15105123 (Zambian, issued on 5.8.2020, fraudulently acquired under the name Isaac Mupeta, born 9.5.1993 in Lusaka, Zambia, registration number 102523/29/1)"
+        values:
+          - "CM920231090NZA"
+          - "Z15105123"
       - match: "7730239877, KPP 773001001, OKPO 20239393"
         value: "7730239877"
       - match: "3525023010 OKPO: 07500548 KPP: 352501001"
