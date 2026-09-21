@@ -39,6 +39,28 @@ data:
 dates:
   formats: ["%d/%m/%Y"]
 
+lookups:
+  # A handful of profiles have the current year typed into "Fecha de nacimiento",
+  # giving a birth date in 2026. Deputies must be at least 18 (Constitution art. 149),
+  # so these are always data-entry errors.
+  type.date:
+    options:
+      # Her profile biography states "Nació el 8 de diciembre de 1990".
+      # https://diputados.gob.bo/diputados/jhaneline-kerdy-cortez/
+      - match: "2026-12-08"
+        value: "1990-12-08"
+      # Her profile biography states "nació el 7 de abril de 1985".
+      # https://diputados.gob.bo/diputados/yvis-sanez-cardo/
+      - match: "2026-04-07"
+        value: "1985-04-07"
+      # Leonardo Salguero Machicado (24/06/2026) and Rolando Kobayashi Rojas
+      # (24/01/2026). Neither biography gives a birth year, so the day and month
+      # cannot be dated and the value is dropped.
+      - match:
+          - "2026-06-24"
+          - "2026-01-24"
+        value: null
+
 tags:
   - list.pep
 

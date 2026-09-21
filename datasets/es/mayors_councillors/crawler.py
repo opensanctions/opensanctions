@@ -18,7 +18,7 @@ IGNORE = [
     "column_17",
 ]
 DEFAULT_TOPICS = ["gov.muni"]
-MAYOR_TOPICS = ["gov.muni", "gov.head"]
+MAYOR_TOPICS = ["gov.muni", "gov.executive"]
 COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 
 

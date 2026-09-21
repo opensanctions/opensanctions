@@ -31,13 +31,17 @@ data:
 
 dates:
   formats: ["%m/%d/%Y"]
+# Individual providers arrive twice, as the excluded LegalEntity and as the Person who
+# owns it, and dedupe merges the pair into a Person - so LegalEntity drains into Person.
 assertions:
   min:
     schema_entities:
-      LegalEntity: 100
+      LegalEntity: 50
+      Person: 100
   max:
     schema_entities:
       LegalEntity: 300
+      Person: 250
 lookups:
   type.identifier:
     options:

@@ -44,6 +44,11 @@ data:
   format: XML
   lang: eng
 
+validators:
+  # OFAC states ownership of parties it only describes as Organizations, so
+  # Ownership:asset references land outside the Asset range.
+  entity_reference: false
+
 assertions:
   min:
     schema_entities:
@@ -153,10 +158,13 @@ lookups:
           - BPI-Sudan-14098
           - SUDAN-EO14098
         value: US-DARFUR
-      - match: PAARSSR-EO13894
+      - match:
+          # HRIT-SY is EO 13606, which EO 14312 did not revoke: OFAC lists
+          # it in the PAARSS legal framework, not under the ended Syria program.
+          - HRIT-SY
+          - PAARSSR-EO13894
         value: US-SYR-REL
       - match:
-          - HRIT-SY
           - SYRIA
           - SYRIA-CAESAR
         value: US-SYR
@@ -753,6 +761,8 @@ lookups:
         value: Mozambique
       - match: gambia (false)
         value: Gambia
+      - match: Botswana False
+        value: Botswana
   type.gender:
     lowercase: true
     normalize: true

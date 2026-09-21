@@ -68,7 +68,7 @@ assertions:
 
 Key rules:
 - Always set `load_statements: true`.
-- Set assertions on the counts you expect. They are checked by `zavod validate`, not by
+- Set assertions on the counts you expect. They are checked by `zavod export`, not by
   `zavod crawl`. For the band widths, the metrics and the comparison semantics, follow
   the "Data assertions" section of `zavod/docs/metadata.md`.
 - `title`, `summary` and `description` conventions live in `zavod/docs/metadata.md`.

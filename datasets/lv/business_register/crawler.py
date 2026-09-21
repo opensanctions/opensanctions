@@ -130,7 +130,8 @@ def parse_officers(context: Context, row: Item) -> None:
 
 def parse_beneficial_owners(context: Context, row: Item) -> None:
     officer = make_officer(context, row)
-    officer.add("nationality", row["nationality"])
+    # The nationality column holds a semicolon-separated list for dual nationals.
+    officer.add("nationality", h.multi_split(row["nationality"], [";"]))
     officer.add("country", row["residence"])
     if not officer.properties:
         # Name-only officer whose name was dropped by the type.name lookup and

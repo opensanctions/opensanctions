@@ -27,7 +27,7 @@ publisher:
   country: iq
 url: https://aml.iq
 data:
-  url: https://api.aml-iq.com/api/localsanctionslist/getall/1
+  url: https://api.aml.iq/api/localsanctionslist/getall/1
   format: JSON
 tags:
   - list.sanction

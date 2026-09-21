@@ -7,7 +7,7 @@ from zavod.extract import zyte_api
 RESOLUTIONS_CSV = Path(__file__).parent / "resolutions.csv"
 # The cards are rendered client-side, well after the document has loaded, so the
 # browser has to be told to wait for them rather than snapshotting the empty shell.
-RESOLUTION_XPATH = ".//h3[starts-with(normalize-space(text()), 'TF-')]"
+RESOLUTION_XPATH = ".//h3[contains(., 'TF-')]"
 ACTIONS = [
     {
         "action": "waitForSelector",
@@ -36,8 +36,8 @@ def crawl_resolutions(context: Context) -> None:
     )
     published: dict[str, str] = {}
     for element in h.xpath_elements(doc, RESOLUTION_XPATH):
-        title = h.element_text(element)
-        # The XPath guarantees each heading opens with its resolution id.
+        # Drop the wrapping quotes; the heading then opens with its resolution id.
+        title = h.element_text(element).strip('"')
         published[title.split(" ", 1)[0]] = title
 
     with open(RESOLUTIONS_CSV) as fh:

@@ -42,12 +42,12 @@ FIELDS = {
 
 
 def crawl_person(context: Context, source_url: str) -> None:
-    title_xpath = ".//h1[@test-id='title']"
+    title_xpath = ".//h1[@data-testid='title']"
     doc = fetch_html(context, source_url, title_xpath, cache_days=7)
 
     facts: dict[str, str] = {}
     for fact_text in h.xpath_strings(
-        doc, "//ul[@test-id='dossier-report-list']/li/text()"
+        doc, "//ul[@data-testid='dossier-report-list']/li/text()"
     ):
         if ": " not in fact_text:
             context.log.warn(
@@ -76,7 +76,7 @@ def crawl_person(context: Context, source_url: str) -> None:
     person.add("name", name)
 
     intro_desc = h.xpath_strings(doc, "//p[contains(@class, 'p-intro')]/text()")
-    other_descs = h.xpath_strings(doc, "//div[@test-id='html']/p/text()")
+    other_descs = h.xpath_strings(doc, "//div[@data-testid='html']/p/text()")
 
     descs = h.clean_note(intro_desc + other_descs)
     person.add("notes", "\n".join(descs))
@@ -99,7 +99,7 @@ def crawl_person(context: Context, source_url: str) -> None:
 
 def crawl(context: Context) -> None:
     for next_page in count(1):
-        detail_url_xpath = "//a[contains(@test-id, 'wantedmissing-link')]/@href"
+        detail_url_xpath = "//a[@data-testid='wantedmissing-link']/@href"
         url = f"{context.data_url}?page={next_page}"
         doc = fetch_html(context, url, detail_url_xpath, absolute_links=True)
         detail_urls = h.xpath_strings(doc, detail_url_xpath)
@@ -108,7 +108,9 @@ def crawl(context: Context) -> None:
             if detail_url.startswith(FUGITIVES_URL_PREFIX):
                 crawl_person(context, detail_url)
         next_button = h.xpath_element(
-            doc, ".//*[@id='paginator-next-button' and @type='button']"
+            # use Zyte: the paginator button is JS-rendered
+            doc,
+            ".//*[@id='paginator-next-button' and @type='button']",
         )
 
         # <button disabled> is '', <button> is None.

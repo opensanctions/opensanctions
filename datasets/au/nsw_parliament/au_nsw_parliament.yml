@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: "2026-06-11"
 load_statements: true
-ci_test: false
+ci_test: false  # Zyte, cloudflare
 summary: >-
   Current members of both chambers of the Parliament of New South Wales.
 description: |

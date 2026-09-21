@@ -5,11 +5,12 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 IGNORE = [
-    "OrganizationName",
-    "PositionStatus",
-    "PaymentPlanDescription",
-    "LevelGradePay",
+    "Organization",
+    "Position Status",
+    "Pay Plan",
+    "Level, Grade, or Pay",
     "Tenure",
+    "Individual Unique ID",
 ]
 
 
@@ -18,17 +19,17 @@ def crawl(context: Context) -> None:
     with open(path, encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
-            agency_name = row.pop("AgencyName")
-            position_title = row.pop("PositionTitle")
-            appointment_type = row.pop("AppointmentTypeDescription")
-            start_date = row.pop("IncumbentBeginDate")
+            agency_name = row.pop("Agency")
+            position_title = row.pop("Position Title")
+            appointment_type = row.pop("Appointment Type")
+            start_date = row.pop("Begin Date")
             # 'Expiration date (for term and time-limited appointments) is the date
             #  when the person has to vacate the position
-            # 'IncumbentVacateDate' is the date when the person vacated the position
-            end_date = row.pop("IncumbentVacateDate", row.pop("ExpirationDate"))
-            location = row.pop("Location")
-            incumbent_first_name = row.pop("IncumbentFirstName")
-            incumbent_last_name = row.pop("IncumbentLastName")
+            # 'Vacate Date' is the date when the person vacated the position
+            end_date = row.pop("Vacate Date", row.pop("Expiration Date"))
+            location = row.pop("Duty Location")
+            incumbent_first_name = row.pop("First Name")
+            incumbent_last_name = row.pop("Last Name")
             position_name = f"{position_title}, {agency_name}"
 
             if not incumbent_first_name or not incumbent_last_name:

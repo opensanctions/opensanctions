@@ -254,6 +254,9 @@ lookups:
         value: Vessel
       - match:
           - eu-fsf-eu-12692-74
+          # A research arm of the AEOI, published by the EU with
+          # subjectType code="person".
+          - eu-fsf-eu-13894-78 # Nuclear Research Center for Agriculture and Medicine
         value: Organization
   contact_info:
     options:

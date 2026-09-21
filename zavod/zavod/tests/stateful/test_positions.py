@@ -11,12 +11,12 @@ from zavod.stateful.positions import (
 )
 from zavod.stateful.model import position_table
 from zavod.meta import Dataset
-from zavod.context import Context
+from zavod.tests.util import make_context
 from zavod.helpers.positions import make_position
 
 
 def test_occupancy_status(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     person = context.make("Person")
     person.id = "thabo"
 
@@ -195,7 +195,7 @@ def test_occupancy_status(testdataset1: Dataset):
 
 
 def test_categorise_flow(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     position = make_position(
         context, "A position", country="ls", subnational_area="Maseru"
     )
@@ -236,7 +236,7 @@ def test_categorise_flow(testdataset1: Dataset):
 def test_categorised_position_qids_returns_reviewed_verdicts(
     testdataset1: Dataset,
 ):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     values = [
         {
             "entity_id": "Q100",
@@ -278,7 +278,7 @@ def test_categorised_position_qids_returns_reviewed_verdicts(
 def test_categorise_updates_changed_metadata(testdataset1: Dataset):
     """When caption/countries/subnationalArea on a position change, the
     existing row is updated in place rather than a new one being inserted."""
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
 
     position = make_position(
         context, "Minister of Health", country="us", subnational_area="California"

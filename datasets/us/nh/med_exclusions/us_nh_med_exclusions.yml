@@ -38,11 +38,13 @@ dates:
   formats: ["%Y-%m-%d", "%m/%d/%Y"]
 ci_test: false  # Zyte is not available in CI
 
+# One row per NPI, so a company with several NPIs arrives several times and dedupe
+# collapses them: 13 Company records are 9 distinct companies.
 assertions:
   min:
     schema_entities:
       Person: 50
-      Company: 10
+      Company: 6
   max:
     schema_entities:
       Person: 125

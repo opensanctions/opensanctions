@@ -14,9 +14,10 @@ description: |
   This copy of the data is only updated occasionally.
 publisher:
   name: Lietuvos bankas
+  name_en: Bank of Lithuania
   acronym: LB
   description: >
-    The Bank of Lithuania is the Lithuanian member of the Eurosystem and has been 
+    The Bank of Lithuania is the Lithuanian member of the Eurosystem and has been
     the monetary authority for Lithuania from 1922 to 2024.
   url: https://www.lb.lt
   country: lt

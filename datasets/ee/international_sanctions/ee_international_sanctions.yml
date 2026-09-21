@@ -22,6 +22,7 @@ tags:
   - issuer.west
 publisher:
   name: Välisministeerium
+  name_en: Ministry of Foreign Affairs of Estonia
   description: Ministry of Foreign Affairs
   url: https://www.vm.ee/
   official: true

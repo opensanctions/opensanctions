@@ -20,8 +20,8 @@ description: |
   alongside the sitting one.
 url: https://datacatalog.senate.go.th/dataset/sec_03_1101
 publisher:
-  name: Secretariat of the Senate
-  acronym: Senate
+  name: สำนักงานเลขาธิการวุฒิสภา
+  name_en: Secretariat of the Senate of Thailand
   description: >
     The Secretariat of the Senate publishes the roster of the Senate of Thailand, the
     upper chamber of the National Assembly, through its open-data catalogue.

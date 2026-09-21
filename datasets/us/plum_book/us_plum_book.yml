@@ -55,7 +55,7 @@ data:
   lang: eng
 
 dates:
-  formats: ["%m/%d/%Y 00:00:00", "%m/%d/%Y %I:%M:%S %p", "%Y-%m-%dT%H:%M:%S"]
+  formats: ["%m/%d/%Y 00:00:00", "%m/%d/%Y %I:%M:%S %p", "%Y-%m-%dT%H:%M:%S", "%m/%d/%Y"]
 assertions:
   min:
     schema_entities:
@@ -71,3 +71,7 @@ lookups:
         value: 2024-11-02
       - match: 3024-03-09T00:00:00
         value: 2024-03-09
+      - match: "0001-01-01"
+        value: null
+      - match: 3024-11-02
+        value: 2024-11-02

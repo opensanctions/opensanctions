@@ -38,7 +38,11 @@ data:
 assertions:
   min:
     schema_entities:
-      Organization: 500
+      # The owned side of each row, previously counted as Organization.
+      Company: 2200
+      # Shareholders which never appear as an owned company: XPCC divisions and
+      # state asset supervision commissions.
+      Organization: 20
 
 dates:
   formats: ["%m/%d/%y"]

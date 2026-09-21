@@ -376,6 +376,26 @@ lookups:
         values:
           - Colombia
           - Spain
+      # Dual nationalities, given once in Japanese and once in English on two
+      # lines of the same 国籍 cell in the Taliban sheet.
+      - match:
+          - インドネシア； マレーシア
+          - Indonesia; Malaysia
+        values:
+          - Indonesia
+          - Malaysia
+      - match:
+          - ドイツ； モロッコ
+          - Germany; Morocco
+        values:
+          - Germany
+          - Morocco
+      - match:
+          - フランス； チュニジア
+          - France; Tunisia
+        values:
+          - France
+          - Tunisia
   type.date:
     options:
       - match:
@@ -402,6 +422,7 @@ lookups:
           - "11月26"
           - "11月29"
           - "12月10"
+          - "12月14"
           - "12月2"
           - "12月20"
           - "12月21"
@@ -427,9 +448,15 @@ lookups:
           - "7月30"
           - "7月31"
           - "8月13"
+          - "8月14"
+          - "8月18"
+          - "8月27"
           - "9月1"
           - "9月21"
           - "9月27"
+          # Second half of "2026年８月14日及び９月４日に改訂" - the year only
+          # exists in the earlier part of the cell, which the split discards.
+          - "9月4"
           - yearunknown
           - 9月28
           - 3月13
@@ -784,7 +811,11 @@ lookups:
         value: 4117921
       - match: クウェート国民ID番号（Kuwaiti Civil Identification number） 281020505755 （Said Jan 'Abd al-Salamの名義）
         value: 281020505755
-      - match: サウジアラビア旅券 F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+      # The source re-typed the single-digit months and days as full-width, so
+      # both spellings of the same cell are listed here.
+      - match:
+          - サウジアラビア旅券 F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+          - サウジアラビア旅券 F654645（2005年４月30日発行、2010年３月７日失効、ヒジュラ暦では、1426年６月24日発行、1431年３月21日失効）
         value: F654645
       - match: パキスタン旅券 FA0157612（2009年7月23日発行、2014年7月22日失効、2013年時点で公式に失効措置済み。アラー・ムハンマドの名義で発行されている）
         value: FA0157612
@@ -893,6 +924,11 @@ lookups:
         values:
           - D00009723
           - D0010098
+      - match: "アフガニスタン外交旅券 D00009723; アフガニスタン外交旅券 D0010098 (2023年４月４日にアフガニスタン・カブールで発行、2028年４月４日に失効、氏名の英字表記：Abdul Salam Hanafi、氏名のアラビア語表記：عبدالسلام حنفي); P03078281（ドバイで2020年２月９日に発行、2030年２月９日に失効）"
+        values:
+          - D00009723
+          - D0010098
+          - P03078281
       - match: "アフガニスタン外交旅券D0009720（２０２１年１０月１２日にアフガニスタンのカブールで発行、２０２６年１０月１２日に失効、氏名の英字表記：Abdul Latif Mansoor、２０２６年１０月１２日に失効）; アフガニスタン外交旅券D0010442（２０２４年１１月１３日発行、２０２９年１１月１３日失効）"
         values:
           - D0009720
@@ -954,6 +990,23 @@ lookups:
           - P00032260
           - D0010367
           - P05076602
+      - match: トルコ旅券 TR-P 614 166 （2006年3月22日フランクフルトにあるトルコ 総領事館が発行、2009年9月15日失効）
+        value: TR-P 614 166
+      # Ugandan ID number CM920231090NZA; Zambian ID number Z15105123 (issued
+      # 2020-08-05, fraudulently obtained under the identity of an Isaac Mupeta
+      # born 1993-05-09 in Lusaka, Zambia, using registration number
+      # 102523/29/1). Only the two ID numbers held by the designee are kept;
+      # the registration number belongs to the impersonated registration. The
+      # full cell stays on `notes` via `note_long_ids`.
+      - match: ウガンダID番号CM920231090NZA； ザンビアID番号Z15105123（2020年８月５日発行、1993年５月９日、ザンビアのLusaka生まれのIsaac Mupeta名義として登録番号102523/29/1を用いて不正に取得された）
+        values:
+          - CM920231090NZA
+          - Z15105123
+      - match: クウェート旅券番号03111298； クウェート旅券番号003111298（シャフィー S M S アルジュミーの名で2010年9月16日クウェートにて発行、2020年9月15日失効、氏名のアラビア語表記： شافي سلطان محمد سلطان العجمي名義のもの。）； 0216155930
+        values:
+          - "03111298"
+          - "003111298"
+          - "0216155930"
   type.name:
     lowercase: true
     normalize: true

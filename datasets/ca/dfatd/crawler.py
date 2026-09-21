@@ -57,23 +57,25 @@ def parse_entry(context: Context, node: Element) -> None:
             if text:
                 row[child.tag] = text
 
-    entity_name = row.pop("EntityOrShip", None)
-    given_name = row.pop("GivenName", None)
-    last_name = row.pop("LastName", None)
-    dob = row.pop("DateOfBirthOrShipBuildDate", None)
+    entity_name = row.pop("EntityOrShip-EntiteOuNavire", None)
+    given_name = row.pop("GivenName-Prenom", None)
+    last_name = row.pop("LastName-NomDeFamille", None)
+    dob = row.pop(
+        "DateOfBirthOrShipBuildDate-DateDeNaissanceOuDateDeConstructionDuNavire", None
+    )
     dob_original = dob
     if dob is not None:
         excel_date = h.convert_excel_date(dob)
         if excel_date is not None:
             dob = excel_date
-    title = row.pop("TitleOrShip", None)
-    imo_number = row.pop("ShipIMONumber", None)
-    schedule = row.pop("Schedule", None)
+    title = row.pop("TitleOrShipType-TitreOuTypeDeNavire", None)
+    imo_number = row.pop("ShipIMONumber-NumeroOMIDuNavire", None)
+    schedule = row.pop("Schedule-Annexe", None)
     if schedule in ("N/A", None):
         schedule = ""
     if entity_name is None:
         entity_name = h.make_name(given_name=given_name, last_name=last_name)
-    program = row.pop("Country")
+    program = row.pop("Country-Pays")
     country = program
     if program is not None and "/" in program:
         country, _ = program.split("/", 1)
@@ -120,10 +122,12 @@ def parse_entry(context: Context, node: Element) -> None:
     )
     sanction.add("program", program)
     sanction.add("reason", schedule)
-    sanction.add("authorityId", row.pop("Item"))
-    h.apply_date(sanction, "listingDate", row.pop("DateOfListing", None))
+    sanction.add("authorityId", row.pop("Item-NumeroDarticle"))
+    h.apply_date(
+        sanction, "listingDate", row.pop("DateOfListing-DateDinscription", None)
+    )
 
-    names = squash_spaces(row.pop("Aliases", ""))
+    names = squash_spaces(row.pop("Aliases-Alias", ""))
     for name in h.multi_split(names, ALIAS_SPLITS):
         trim_name = squash_spaces(name)
         # if " or " in trim_name:

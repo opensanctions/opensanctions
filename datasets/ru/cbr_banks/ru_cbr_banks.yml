@@ -35,6 +35,10 @@ data:
   url: https://cbr.ru/scripts/XML_bic2.asp
   format: XML
   lang: rus
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_methods: [GET, POST]
 dates:
   formats: ["%d.%m.%Y", "%Y-%m-%dT00:00:00+03:00", "%Y-%m-%dT00:00:00+04:00"]
 names:

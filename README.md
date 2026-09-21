@@ -39,4 +39,4 @@ Crawlers that use [Data Reviews](https://zavod.opensanctions.org/data_reviews/) 
 
 ## Licensing
 
-The code within this repository is licensed under the MIT License. For content and data, we adhere to [CC 4.0 Attribution-NonCommercial](https://www.opensanctions.org/licensing/).
+The code within this repository is licensed under the MIT License. Data files produced by OpenSanctions are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), and some files under `datasets/` are unmodified copies of third-party material that we cannot license at all. See [COPYRIGHT.md](COPYRIGHT.md) for which applies to what, and [our licensing page](https://www.opensanctions.org/licensing/) for commercial use.

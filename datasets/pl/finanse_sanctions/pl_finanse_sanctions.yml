@@ -25,6 +25,7 @@ description: |
   and our [Standard collection of datasets](https://www.opensanctions.org/datasets/default/)
 publisher:
   name: Generalny Inspektor Informacji Finansowej
+  name_en: General Inspector of Financial Information of Poland
   acronym: GIIF
   description: |
     The Inspector General of Financial Information in the Polish Ministry of Finance

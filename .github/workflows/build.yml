@@ -185,18 +185,7 @@ jobs:
               echo Crawling $dataset
               zavod crawl --clear-data $dataset
           done
-      - name: Validate modified datasets
-        if: ${{ steps.changed.outputs.any == 'true' && github.ref != 'refs/heads/main'}}
-        run: |
-          set -euo pipefail
-          mapfile -t files < datasets.txt
-          datasets=$(python contrib/ci_datasets.py "${files[@]}")
-          for dataset in $datasets
-          do
-              echo Validating $dataset
-              zavod validate --rebuild-store $dataset
-          done
-      - name: Export modified datasets
+      - name: Export and validate modified datasets
         if: ${{ steps.changed.outputs.any == 'true' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail

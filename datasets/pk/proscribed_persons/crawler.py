@@ -9,24 +9,43 @@ from zavod import helpers as h
 
 # 4th Schedule under the Anti Terrorism Act, 1997
 PROGRAM_KEY = "PK-ATA1997"
+CNIC_LENGTH = 13
 
 LOCAL_PATH = Path(__file__).parent
+
+
+def is_placeholder_cnic(context: Context, cnic: str) -> bool:
+    """Check the CNIC against the filler values listed in the dataset metadata."""
+    return context.lookup("placeholder_cnic", cnic) is not None
 
 
 def crawl_person(context: Context, row: dict[str, str]) -> None:
     person_name = row.pop("Name")
     father_name = row.pop("FatherName")
-    cnic = row.pop("CNIC")
+    cnic: str | None = row.pop("CNIC")
     province = row.pop("Province")
     district = row.pop("District")
 
     entity = context.make("Person")
-    if cnic_validator.is_valid(cnic):
-        entity.id = context.make_slug(cnic, prefix="pk-cnic")
-        entity.add("idNumber", cnic)
-        entity.add("country", "pk")
-    else:
+    if cnic is None or is_placeholder_cnic(context, cnic):
+        # No number, or a filler that identifies nobody: unusable either way.
         entity.id = context.make_slug(person_name, district, province)
+        cnic = None
+    elif cnic_validator.is_valid(cnic):
+        cnic = cnic_validator.compact(cnic)
+        entity.id = context.make_slug(cnic, prefix="pk-cnic")
+    else:
+        # Malformed, usually a wrong province or gender digit, but still what the
+        # publisher holds, so keep it searchable. Fragments identify nobody: drop
+        # them and warn, so a maintainer can add them to placeholder_cnic.
+        entity.id = context.make_slug(person_name, district, province)
+        cnic = cnic_validator.compact(cnic)
+        if len(cnic) != CNIC_LENGTH:
+            context.log.warning("Discarding CNIC fragment", cnic=cnic, name=person_name)
+            cnic = None
+    entity.add("idNumber", cnic)
+    # Proscription is by a Pakistani authority, so country holds either way.
+    entity.add("country", "pk")
 
     name_split = person_name.split("@")
     if len(name_split) > 1:

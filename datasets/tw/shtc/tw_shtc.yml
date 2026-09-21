@@ -42,9 +42,9 @@ names:
       min_length: 8
       require_space: true
       reject_strings:
-        - 永久參考號 # Permanent Reference Number
-        - 繁體中文 # Traditional Chinese
-        - 簡體中文 # Simplified Chinese
+        - 永久參考號  # Permanent Reference Number
+        - 繁體中文  # Traditional Chinese
+        - 簡體中文  # Simplified Chinese
         - alias
   suggest_abbreviation_non_person_single_token_shorter_than: 5
 
@@ -139,6 +139,10 @@ lookups:
         details:
           - id_num: "660603-05-5267"
             notes: "660603-05-5267 note:issued by National Registration Department of Malaysia"
+      - match: "Z15105123 note:fraudulently acquired under the name Isaac Mupeta, born 9 May 1993 in Lusaka, Zambia, registration number 102523/29/1"
+        details:
+          - id_num: "Z15105123"
+            notes: "Z15105123 note:fraudulently acquired under the name Isaac Mupeta, born 9 May 1993 in Lusaka, Zambia, registration number 102523/29/1"
       - match: "Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         details:
           - address: "Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan"

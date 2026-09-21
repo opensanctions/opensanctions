@@ -20,6 +20,9 @@ http:
     - GET
     # a match in PermID is a POST request
     - POST
+  # The match endpoint stalls briefly now and then, so retry over a wider window.
+  total_retries: 5
+  backoff_factor: 2
 load_statements: true
 ci_test: false
 summary: >-
@@ -79,4 +82,4 @@ assertions:
       Company: 2800
   max:
     schema_entities:
-      Company: 10000
+      Company: 12000

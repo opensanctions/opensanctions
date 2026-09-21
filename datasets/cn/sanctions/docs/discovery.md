@@ -1,6 +1,6 @@
 ---
 description: Plan for finding historical and newly published Chinese sanctions notices across official authorities.
-date: 2026-06-29
+date: 2026-09-03
 tags: [cn_sanctions, discovery, backfill, official-sources]
 ---
 
@@ -72,11 +72,6 @@ Some measures appear first or only on a Chinese embassy or consulate website. Bu
 domain list from the MFA directory and run the same Chinese and English searches over
 those domains. Results need manual review because embassy sites also reproduce central
 MFA content.
-
-An initial comparison already indicates missing coverage: the central index contains
-a December 2025 decision covering 20 companies and 10 executives and a March 2026
-decision concerning Furuya Keiji, neither of which is currently represented in the
-CSV. These should be the first backfill test cases.
 
 ## Ministry of Commerce
 

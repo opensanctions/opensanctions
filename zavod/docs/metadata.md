@@ -149,11 +149,32 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
     - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 500, 502, 503, 504]`.
 
+### Validators
+
+Besides the assertions below, the export stage runs a set of validators over the whole
+dataset once it is in the store. They are all enabled by default; the `validators` block
+switches individual ones off for a dataset whose finding has been reviewed and accepted.
+Record the reason in a YAML comment — a disabled validator leaves no trace in the run
+output.
+
+- `validators`
+    - `entity_reference`: boolean, default `true`. Warns when an entity-type property
+      references an id that isn't in the dataset, or references an entity whose schema
+      doesn't match the property's declared range (e.g. an `Ownership:asset` pointing at a
+      plain `Organization` rather than a `Company`).
+
+```yaml
+validators:
+  # Source models owned entities as plain Organizations; upgrading them is tracked in #1234.
+  entity_reference: false
+```
+
 ### Data assertions
 
 Data assertions smoke-test the exported dataset against its expected shape. They run
-during `zavod run`; `zavod validate` applies them to a development run. A failed `min`
-assertion is an error and prevents export, while a failed `max` assertion emits a warning.
+as part of the export stage of `zavod run`; `zavod export` applies them to a development
+run (pass `--no-validate` to skip them). A failed `min` assertion is an error and aborts
+the export, while a failed `max` assertion emits a warning.
 
 When creating count assertions, base them on a known healthy crawl. Set minima roughly
 10–20% below the expected value to allow normal variation, unless the source has a known

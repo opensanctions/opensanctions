@@ -17,3 +17,9 @@ For datasets with a single program, hardcode the key directly:
 PROGRAM_KEY = "US-BIS-DPL"
 ```
 For datasets covering multiple programs, pass the source's own program identifier via `source_program_key`. The helper resolves it to the canonical OpenSanctions key via `h.lookup_sanction_program_key()`. If the source key has no mapping, the helper logs a warning and returns `None`.
+
+### Listings that impose no measures
+
+Use [`h.make_risk`][zavod.helpers.make_risk] when the source names an entity without designating it: an advisory register, a watchlist of persons of interest, or a report to a legislature. It builds a [`Risk`](https://opensanctions.org/reference/#schema.Risk), flagging heightened exposure or scrutiny rather than a legally binding restriction.
+
+`h.make_risk` takes the same arguments as [`h.make_sanction`][zavod.helpers.make_sanction] and fills the same properties from the dataset metadata and the resolved program key. Both helpers also add `programId` to the listed entity.

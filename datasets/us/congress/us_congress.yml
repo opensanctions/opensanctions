@@ -33,7 +33,6 @@ data:
   lang: eng
 publisher:
   name: United States Congress
-  acronym: Congress
   country: us
   url: https://www.loc.gov/
   official: true

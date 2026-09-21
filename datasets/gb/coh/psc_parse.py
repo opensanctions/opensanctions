@@ -1,4 +1,5 @@
 import csv
+import html
 import orjson
 import re
 import yaml
@@ -28,6 +29,11 @@ PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
 PSC_DESCRIPTIONS_URL = "https://raw.githubusercontent.com/companieshouse/api-enumerations/master/psc_descriptions.yml"
 
 PERCENTAGE_RE = re.compile(r"(\d+)-to-(\d+)-percent")
+
+# A complete HTML character reference: numeric (&#39; / &#x27;) or named (&amp;).
+HTML_ENTITY_RE = re.compile(
+    r"&(?:#\d{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});"
+)
 
 KINDS = {
     "individual-person-with-significant-control": "Person",
@@ -64,6 +70,17 @@ IGNORE_BASE_COLUMNS = [
 def company_id(company_nr: str) -> str:
     nr = company_nr.lower()
     return f"oc-companies-gb-{nr}"
+
+
+def unescape_name(name: str) -> str:
+    """Decode HTML character references left in Companies House name fields.
+
+    The base data export escapes some characters before upper-casing the name,
+    so an apostrophe is published as ``CHINZE&#039;S ART LTD`` and an ampersand
+    as ``A&AMP;A DESIGN LIMITED``. Only complete references are decoded, which
+    leaves a literal ampersand in a name (``A&B LIMITED``) untouched.
+    """
+    return HTML_ENTITY_RE.sub(lambda m: html.unescape(m.group(0)), name)
 
 
 def fetch_psc_short_descriptions(context: Context) -> dict[str, str]:
@@ -113,13 +130,35 @@ def get_base_data_url(context: Context) -> str:
     raise RuntimeError("No base data URL found!")
 
 
-def read_base_data_csv(path: PathLike) -> Generator[dict[str, str], None, None]:
-    with ZipFile(path, "r") as zip:
-        for name in zip.namelist():
-            with zip.open(name, "r") as fh:
+def read_base_data_csv(
+    context: Context, path: PathLike
+) -> Generator[dict[str, str], None, None]:
+    """Yield base data rows keyed by their whitespace-stripped column header.
+
+    Companies House occasionally publishes a row that does not fit the header —
+    a company carrying a fifth SIC code where the format provides four columns,
+    for instance. Every value behind the surplus field is then shifted by one
+    column, so the row cannot be interpreted and is reported and skipped instead
+    of being emitted with values in the wrong properties.
+    """
+    with ZipFile(path, "r") as archive:
+        for name in archive.namelist():
+            with archive.open(name, "r") as fh:
                 with TextIOWrapper(fh) as fhtext:
-                    for row in csv.DictReader(fhtext):
-                        yield {k.strip(): v for (k, v) in row.items()}
+                    reader = csv.reader(fhtext)
+                    headers = [col.strip() for col in next(reader)]
+                    for row in reader:
+                        if not len(row):
+                            continue
+                        if len(row) != len(headers):
+                            context.log.warning(
+                                "Skipping base data row with unexpected field count",
+                                expected=len(headers),
+                                actual=len(row),
+                                row=row[:2],
+                            )
+                            continue
+                        yield dict(zip(headers, row))
 
 
 def parse_base_data(context: Context) -> set[str]:
@@ -137,7 +176,7 @@ def parse_base_data(context: Context) -> set[str]:
 
     company_numbers: set[str] = set()
     context.log.info(f"Loading: {data_path}")
-    for idx, row in enumerate(read_base_data_csv(data_path)):
+    for idx, row in enumerate(read_base_data_csv(context, data_path)):
         if idx > 0 and idx % 100_000 == 0:
             context.log.info(f"Base data: {idx}...")
             context.flush()
@@ -145,7 +184,7 @@ def parse_base_data(context: Context) -> set[str]:
         company_numbers.add(company_nr)
         entity = context.make("Company")
         entity.id = company_id(company_nr)
-        entity.add("name", row.pop("CompanyName"))
+        entity.add("name", unescape_name(row.pop("CompanyName")))
         entity.add("registrationNumber", company_nr)
         entity.add("status", row.pop("CompanyStatus"))
         entity.add("legalForm", row.pop("CompanyCategory"))
@@ -170,7 +209,8 @@ def parse_base_data(context: Context) -> set[str]:
 
         for i in range(1, 11):
             row.pop(f"PreviousName_{i}.CONDATE")
-            entity.add("previousName", row.pop(f"PreviousName_{i}.CompanyName"))
+            prev_name = row.pop(f"PreviousName_{i}.CompanyName")
+            entity.add("previousName", unescape_name(prev_name))
 
         addr_country = row.pop("RegAddress.Country")
         street = join_text(

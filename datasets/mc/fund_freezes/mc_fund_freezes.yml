@@ -18,9 +18,8 @@ description: |
   Updates to the list are published via ministerial decisions.
   [Read More](https://geldefonds.gouv.mc/a-propos-de-la-liste-nationale-de-gel-des-fonds)
 publisher:
-  name: La Principauté de Monaco
-  name_en: The Principality of Monaco
-  acronym: Monaco
+  name: Principauté de Monaco
+  name_en: Principality of Monaco
   description: Official Monaco Government
   url: https://www.gouv.mc/
   country: mc
@@ -413,6 +412,10 @@ lookups:
         value: 1980-06-06
       - match: "15/04/1974 (pour l’alias Mikhail Stepanov)"
         value: 1974-04-15
+      - match: "03/03/1979 (date figurant sur le faux passeport)"
+        value: 1979-03-03
+      - match: "08/08/1980 (informations provenant du passeport indonésien falsifié n° S335026)"
+        value: 1980-08-08
   type.country:
     lowercase: true
     normalize: true

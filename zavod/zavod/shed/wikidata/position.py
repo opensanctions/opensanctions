@@ -32,6 +32,8 @@ SUB_TYPES: dict[str, set[str]] = {
     "Q48352": {"role.pep", "gov.head"},  # head of state
     "Q3099723": {"role.pep", "gov.head"},  # minister-president
     "Q4175034": {"gov.legislative"},  # legislator
+    "Q1758037": {"role.pep", "gov.legislative"},  # speaker
+    "Q15686806": {"role.pep", "gov.legislative"},  # senator
     "Q486839": {"role.pep", "gov.legislative"},  # member of parliament
     "Q83307": {"role.pep", "gov.executive"},  # minister
     "Q7330070": {"role.pep", "gov.executive"},  # foreign minister
@@ -70,6 +72,8 @@ SUB_TYPES: dict[str, set[str]] = {
     "Q29645886": {"role.pep", "role.diplo"},  # ambassador to a country
     "Q303618": {"role.diplo"},  # diplomatic rank
     "Q707492": {"role.pep", "gov.national", "gov.security"},  # military chief of staff
+    "Q1402561": {"role.pep", "gov.security"},  # military leader
+    "Q105079980": {"role.pep", "gov.religion"},  # anglican archbishop
 }
 
 # Positions dissolved before this date never confer PEP status; the cutoff
@@ -109,35 +113,60 @@ ALLOW_TYPES: set[str] = {
     "Q2033341",  # cardinal priest
     "Q2361374",  # cardinal-deacon
     "Q19808790",  # Episcopal Co-Prince (joint head of state of Andorra)
+    "Q600751",  # prosecutor
+    "Q112684029",  # government attorney
+    "Q4594605",  # magistrate
+    "Q4573805",  # municipal commissioner
+    # "Q2994387",  # advisor
 }
 ALLOW_TYPES.update(SUB_TYPES.keys())
 
 # TEMP: We're starting to include municipal PEPs for specific countries
 MUNI_COUNTRIES = {
+    # "at",
     "au",
     "be",
+    "bg",
     "br",
     "by",
     "ca",
+    "ch",
+    "cn",
     "co",
+    "cy",
     "cz",
+    "dk",
+    "ee",
     "es",
+    "fi",
     "fr",
     "gb",
+    "gr",
     "gt",
     "hu",
     "id",
+    "ie",
+    "il",
     "is",
     "it",
+    "jp",
     "ke",
     "kr",
+    "lt",
+    "lu",
+    "lv",
     "mx",
+    "ng",
     "ni",
     "nl",
+    "no",
     "pl",
+    "pt",
     "ro",
     "ru",
+    "se",
     "sk",
+    "tr",
     "ua",
     "us",
     "ve",

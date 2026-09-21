@@ -148,7 +148,7 @@ for name in h.multi_split(names, SPLITS):
 
 ## Reference entities that fit the property range
 
-Every entity-type property declares the schema its target must have (`ftm ref prop Ownership:asset`), and `zavod validate` warns when a reference doesn't fit. The mistake we make most often is emitting a business that someone owns as an `Organization`, which is not an `Asset` and so can't be the `asset` of an `Ownership` — use `Company`, which inherits from both.
+Every entity-type property declares the schema its target must have (`ftm ref prop Ownership:asset`), and `zavod export` warns when a reference doesn't fit. The mistake we make most often is emitting a business that someone owns as an `Organization`, which is not an `Asset` and so can't be the `asset` of an `Ownership` — use `Company`, which inherits from both.
 
 ## Addresses
 

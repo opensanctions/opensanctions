@@ -4,7 +4,7 @@ prefix: cl-cd
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-24
+  start: 2026-08-19
 load_statements: true
 # Sitting deputies' email and district come from Cloudflare-protected profile pages
 # fetched via Zyte, which CI has no credentials for. Run this crawler locally when

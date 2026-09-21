@@ -1,0 +1,19 @@
+title: CAATSA Section 241 Report on Russian Oligarchs and Parastatal Entities
+key: US-CAATSA-241
+url: https://home.treasury.gov/news/press-releases/sm0271
+summary: >
+  Identifies senior Russian political figures, oligarchs, and parastatal
+  entities in a report submitted by the US Department of the Treasury to Congress
+  under Section 241 of CAATSA. Inclusion is informational: it imposes no sanctions
+  or other restrictions and is not a determination that a person meets the criteria
+  for designation under any sanctions program.
+issuer: us_treasury
+dataset: wd_oligarchs
+aliases:
+  - CAATSA Section 241 Report
+  - Report on Senior Foreign Political Figures and Oligarchs in the Russian
+    Federation
+  - Public Law 115-44, Section 241
+target_territories:
+  - ru
+measures: []

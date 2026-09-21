@@ -1,3 +1,5 @@
+from followthemoney import registry
+
 from zavod.meta.dataset import Dataset
 from zavod.entity import Entity
 
@@ -35,6 +37,13 @@ def test_is_name_irregular(testdataset1: Dataset):
     # single_token_min_length
     assert is_name_irregular(org, "Aaa")  # too short
     assert not is_name_irregular(org, "Aaaa")  # long enough
+
+    # max_length, defaulting to the FtM name type limit
+    limit = registry.name.max_length
+    assert not is_name_irregular(org, "Aa" + "a" * (limit - 2))
+    assert is_name_irregular(org, "Aa" + "a" * (limit - 1))
+    # dense scripts are exempt from min_length but not from max_length
+    assert is_name_irregular(org, "벡셀" * limit)
 
     # Require space
     assert is_name_irregular(person, "Johnson")

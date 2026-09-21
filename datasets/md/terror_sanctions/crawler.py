@@ -5,6 +5,11 @@ from rigour.mime.types import HTML
 from zavod import Context
 from zavod import helpers as h
 
+# UN Security Council permanent reference numbers, e.g. QDi.436, TAe.010, KPe.075.
+# The two-letter prefix identifies the sanctions committee, the "i"/"e" suffix
+# distinguishes individuals from entities.
+UNSC_ID_REGEX = re.compile(r"^[A-Z]{2}[ie]\.\d{3,}$")
+
 SPLITS = [
     "si",
     ";",
@@ -61,6 +66,14 @@ def crawl(context: Context) -> None:
             h.apply_date(entity, "birthDate", date)
 
         sanction = h.make_sanction(context, entity)
+        ref_num = str_row.pop("numar_de_referinta") or None
+        if ref_num is not None:
+            if UNSC_ID_REGEX.match(ref_num):
+                sanction.add("unscId", ref_num)
+            else:
+                # Row numbers within the annexes, or resolution references for
+                # the lists which don't use UNSC permanent reference numbers.
+                sanction.add("authorityId", ref_num)
         sanction.add("program", str_row.pop("sanctiuni_teroriste") or None, lang="mol")
         sanction.add(
             "program", str_row.pop("sanctiuni_de_proliferare") or None, lang="mol"

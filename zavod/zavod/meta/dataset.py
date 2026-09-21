@@ -23,7 +23,7 @@ from zavod.meta.http import HTTP
 from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.names import NamesSpec
 from zavod.meta.numbers import NumbersSpec
-from zavod.runtime.urls import make_published_url
+from zavod.meta.validators import ValidatorsSpec
 
 if TYPE_CHECKING:
     from zavod.meta.catalog import ArchiveBackedCatalog
@@ -114,6 +114,11 @@ class Dataset(FollowTheMoneyDataset):
         self.numbers: NumbersSpec = NumbersSpec.model_validate(data.get("numbers", {}))
         """Number parsing configuration for this dataset."""
 
+        self.validators: ValidatorsSpec = ValidatorsSpec.model_validate(
+            data.get("validators", {})
+        )
+        """Which post-crawl validators are enabled for this dataset."""
+
     @cached_property
     def lookups(self) -> dict[str, Lookup]:
         config = self._data.get("lookups", {})
@@ -132,14 +137,16 @@ class Dataset(FollowTheMoneyDataset):
         path: Path,
         mime_type: str | None = None,
         title: str | None = None,
+        name: str | None = None,
     ) -> "DataResource":
         """Create a resource description object from a local file path."""
         if not path.exists():
             raise ValueError(f"File does not exist: {path}")
         if mime_type is None:
             mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=False)
-        dataset_path_ = dataset_data_path(self.name)
-        name = path.relative_to(dataset_path_).as_posix()
+        if name is None:
+            dataset_path_ = dataset_data_path(self.name)
+            name = path.relative_to(dataset_path_).as_posix()
 
         digest = sha1()
         size = 0
@@ -157,7 +164,6 @@ class Dataset(FollowTheMoneyDataset):
             checksum=checksum,
             mime_type=mime_type,
             size=size,
-            url=make_published_url(self.name, name),
         )
 
     def to_dict(self) -> dict[str, Any]:

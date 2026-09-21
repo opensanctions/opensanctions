@@ -15,7 +15,7 @@ class DeltaExporter(Exporter):
 
     def setup(self) -> None:
         super().setup()
-        self.delta = HashDelta(self.dataset)
+        self.delta = HashDelta(self.dataset, self.context.version)
         self.delta.backfill()
         self.counts = {
             "ADD": 0,
@@ -37,6 +37,9 @@ class DeltaExporter(Exporter):
             entity = consolidate_entity(view.store.linker, entity)
             yield {"op": op, "entity": entity.to_dict()}
 
+    def close(self) -> None:
+        self.delta.close()
+
     def finish(self, view: ExportView) -> None:
         with open(self.path, "wb") as fh:
             for op in self.generate(view):
@@ -45,7 +48,7 @@ class DeltaExporter(Exporter):
         self.delta.close()
         self.context.log.info(
             "Delta export complete",
-            version=str(self.context.version),
+            version=self.context.version.id,
             metric="delta_counts",
             added=self.counts["ADD"],
             modified=self.counts["MOD"],
