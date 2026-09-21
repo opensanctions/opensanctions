@@ -25,6 +25,16 @@ from zavod.tests.exporters.util import harnessed_export
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
+# Every RECORD_TYPE the Senzing exporter can emit (zavod/exporters/senzing.py).
+# testdataset1 only holds Person/Organization, but the set must track the code.
+SENZING_RECORD_TYPES = {
+    "PERSON",
+    "ORGANIZATION",
+    "AIRCRAFT",
+    "VESSEL",
+    "VEHICLE",
+}
+
 default_exports = {
     "entities.ftm.json",
     "names.txt",
@@ -100,8 +110,14 @@ def test_export(testdataset1: Dataset):
     with open(dataset_path / "senzing.json") as senzing_file:
         entities = [loads(line) for line in senzing_file.readlines()]
         assert len(entities) == 8
+        # RECORD_TYPE is a feature inside the single-list FEATURES schema, like every
+        # other feature; only DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL stay top-level.
         for ent in entities:
-            assert ent["RECORD_TYPE"] in {"PERSON", "ORGANIZATION"}
+            record_types = [
+                f["RECORD_TYPE"] for f in ent["FEATURES"] if "RECORD_TYPE" in f
+            ]
+            assert len(record_types) == 1, record_types
+            assert record_types[0] in SENZING_RECORD_TYPES
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
