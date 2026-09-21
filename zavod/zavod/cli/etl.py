@@ -5,7 +5,8 @@ import click
 from followthemoney.dataset import Version
 
 from zavod import settings
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, latest_local_artifact_version
+from zavod.archive import STATEMENTS_FILE
 from zavod.cli import cli, DatasetInPath, _load_dataset, log
 from zavod.crawl import crawl_dataset
 from zavod.exc import RunFailedException
@@ -42,21 +43,43 @@ def crawl(
 
 @cli.command("export", help="Export and validate data from a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.argument("version", type=str)
+@click.option("-v", "--version", default=None)
 @click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
 @click.option("--validate/--no-validate", is_flag=True, default=True)
 def export(
-    dataset_path: Path, version: str, rebuild_store: bool = True, validate: bool = True
+    dataset_path: Path,
+    version: str | None = None,
+    rebuild_store: bool = True,
+    validate: bool = True,
 ) -> None:
     dataset = _load_dataset(dataset_path)
-    run_version = Version.from_string(version)
     if dataset.model.disabled:
         log.info(f"Dataset is disabled, skipping: {dataset.name}")
         sys.exit(0)
     linker = get_dataset_linker(dataset)
+
     if dataset.is_collection:
+        # A collection has no crawl step, so mint a new version when none is given.
+        run_version = (
+            Version.from_string(version)
+            if version is not None
+            else settings.RUN_VERSION
+        )
         manifest = Manifest.create(dataset, run_version)
     else:
+        if version is not None:
+            run_version = Version.from_string(version)
+        else:
+            # Without a version, fall back to the latest local crawl (written by
+            # zavod crawl).
+            local_version = latest_local_artifact_version(dataset.name, STATEMENTS_FILE)
+            if local_version is None:
+                raise click.UsageError("No local crawl found, pass a version with -v")
+            log.warning(
+                f"No version given, using the latest local version {local_version.id}.",
+                dataset=dataset.name,
+            )
+            run_version = local_version
         try:
             manifest = Manifest.load_artifact(dataset, run_version)
         except FileNotFoundError:

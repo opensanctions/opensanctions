@@ -39,18 +39,21 @@ def test_crawl_dataset():
 def test_export_dataset():
     version = settings.RUN_VERSION
     runner = CliRunner()
-    result = runner.invoke(cli, ["export", "/dev/null", version.id])
+    result = runner.invoke(cli, ["export", "/dev/null", "-v", version.id])
     assert result.exit_code != 0, result.output
-    # The version argument is required:
+    # Without a version and without a local crawl, export finds nothing to export:
     result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix()])
     assert result.exit_code != 0, result.output
     # Exporting a run that was never crawled fails:
-    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix(), version.id])
+    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix(), "-v", version.id])
     assert result.exit_code != 0, result.output
 
     result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix(), version.id])
+    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix(), "-v", version.id])
+    assert result.exit_code == 0, result.output
+    # Without a version, export falls back to the latest local crawl:
+    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     shutil.rmtree(settings.DATA_PATH)
 
@@ -63,7 +66,7 @@ def test_export_validation_failed(testdataset3: Dataset):
     assert result.exit_code == 0, result.output
 
     # Validation is on by default and testdataset3 fails its min assertions.
-    result = runner.invoke(cli, ["export", DATASET_3_YML.as_posix(), version.id])
+    result = runner.invoke(cli, ["export", DATASET_3_YML.as_posix(), "-v", version.id])
     assert result.exit_code != 0, result.output
     assert "Assertion countries failed" in result.output, result.output
     # Partial export files may remain in the artifact directory, but the abort
@@ -77,7 +80,7 @@ def test_export_validation_failed(testdataset3: Dataset):
         assert "entities.ftm.json" not in resources_path.read_text()
 
     result = runner.invoke(
-        cli, ["export", "--no-validate", DATASET_3_YML.as_posix(), version.id]
+        cli, ["export", "--no-validate", DATASET_3_YML.as_posix(), "-v", version.id]
     )
     assert result.exit_code == 0, result.output
     assert (artifact_dir / "entities.ftm.json").exists()
