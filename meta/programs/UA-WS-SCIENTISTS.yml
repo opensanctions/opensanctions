@@ -1,0 +1,27 @@
+id: 327
+title: Scientists and engineers developing Russian weapons
+key: UA-WS-SCIENTISTS
+url: https://war-sanctions.gur.gov.ua/en/scientists/persons
+summary: |
+  Ukraine's GUR lists scientists and engineers of the russian defence industry:
+
+  > The russian scientific community plays a key role in supporting and developing its
+  > military potential. Russian scientists and engineers are working in the fields of
+  > development of missile weapons, unmanned systems, electronic warfare equipment,
+  > guidance systems and artificial intelligence.
+  >
+  > Despite these activities, russian scientists continue to be part of the global
+  > scientific community, receive international grants and collaborate with foreign
+  > research institutions. Engineers and developers from the russian defence industry
+  > represent the russian federation at international events.
+  >
+  > The experience gained from such cooperation is subsequently used by the russian
+  > federation not only to create weapons of mass destruction, but also to form a
+  > strategic advantage in the modern technological arms race.
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr
