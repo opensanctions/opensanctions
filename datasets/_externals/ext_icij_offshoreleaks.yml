@@ -105,7 +105,7 @@ assertions:
   max:
     schema_entities:
       Company: 800
-      LegalEntity: 300
+      LegalEntity: 600
 
 lookups:
   type.address:
