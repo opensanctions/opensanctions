@@ -24,7 +24,9 @@ def test_canonical_national_id_type():
     assert canonical_national_id_type("CURP") == "CURP"
     assert canonical_national_id_type("dni") == "DNI"
     # C.U.I. and C.U.I.T. must NOT collide.
-    assert canonical_national_id_type("C.U.I.") != canonical_national_id_type("C.U.I.T.")
+    assert canonical_national_id_type("C.U.I.") != canonical_national_id_type(
+        "C.U.I.T."
+    )
     # Generic or unrecognized -> blank (None); Senzing learns the untyped id.
     assert canonical_national_id_type("National ID No.") is None
     assert canonical_national_id_type("Identification Number") is None

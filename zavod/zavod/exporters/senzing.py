@@ -297,19 +297,66 @@ class SenzingExporter(Exporter):
         tax_type = "TAX_ID_TYPE"
         tax_ctry = "TAX_ID_COUNTRY"
         # Generic defaults -> blank TYPE.
-        map(entity, "idNumber", record, "IDENTIFIERS", id_num, None, id_country, id_ctry)
-        map(entity, "taxNumber", record, "IDENTIFIERS", tax_num, None, id_country, tax_ctry)
+        map(
+            entity, "idNumber", record, "IDENTIFIERS", id_num, None, id_country, id_ctry
+        )
+        map(
+            entity,
+            "taxNumber",
+            record,
+            "IDENTIFIERS",
+            tax_num,
+            None,
+            id_country,
+            tax_ctry,
+        )
         # Distinct schemes -> canonical (upper-case) *_TYPE.
-        map(entity, "registrationNumber", record, "IDENTIFIERS", id_num, id_type, id_country, id_ctry,
-            type_val="REGISTRATION_NUMBER")
-        map(entity, "innCode", record, "IDENTIFIERS", tax_num, tax_type, id_country, tax_ctry,
-            type_val="INN")
-        map(entity, "vatCode", record, "IDENTIFIERS", tax_num, tax_type, id_country, tax_ctry,
-            type_val="VAT")
+        map(
+            entity,
+            "registrationNumber",
+            record,
+            "IDENTIFIERS",
+            id_num,
+            id_type,
+            id_country,
+            id_ctry,
+            type_val="REGISTRATION_NUMBER",
+        )
+        map(
+            entity,
+            "innCode",
+            record,
+            "IDENTIFIERS",
+            tax_num,
+            tax_type,
+            id_country,
+            tax_ctry,
+            type_val="INN",
+        )
+        map(
+            entity,
+            "vatCode",
+            record,
+            "IDENTIFIERS",
+            tax_num,
+            tax_type,
+            id_country,
+            tax_ctry,
+            type_val="VAT",
+        )
         # ogrnCode = one of several RU registration registries -> SUBTYPE under REGISTRATION_NUMBER.
         map(
-            entity, "ogrnCode", record, "IDENTIFIERS", id_num, id_type, id_country, id_ctry,
-            type_val="REGISTRATION_NUMBER", subtype_attr=id_subtype, subtype_val="OGRN",
+            entity,
+            "ogrnCode",
+            record,
+            "IDENTIFIERS",
+            id_num,
+            id_type,
+            id_country,
+            id_ctry,
+            type_val="REGISTRATION_NUMBER",
+            subtype_attr=id_subtype,
+            subtype_val="OGRN",
         )
         map(entity, "socialSecurityNumber", record, "IDENTIFIERS", "SSN_NUMBER")
         map(entity, "leiCode", record, "IDENTIFIERS", "LEI_NUMBER")
