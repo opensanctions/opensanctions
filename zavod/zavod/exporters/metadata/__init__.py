@@ -165,24 +165,32 @@ def write_dataset_index(
         write_json(meta, fh)
 
 
-def get_catalog_dataset(dataset: Dataset) -> dict[str, Any] | None:
-    """Build one catalog entry from a dataset's last successful version.
+def get_catalog_dataset(
+    dataset: Dataset, version: Version | None = None
+) -> dict[str, Any] | None:
+    """Build one catalog entry for a dataset.
+
+    Args:
+        dataset: The dataset to describe.
+        version: The version being produced by the current run, when the dataset
+            is the one being exported. ``None`` selects the dataset's last
+            successful version in the archive.
 
     The function reads operational metadata from the version's index artifact. It
     then patches in the current metadata from the local dataset definition. This
     allows metadata corrections to appear without another dataset export.
 
-    The function emits a warning and returns ``None`` when the dataset has no last
-    successful version.
+    The function emits a warning and returns ``None`` when no version is given and
+    the dataset has no last successful version.
 
     Returns:
-        The combined catalog metadata, or ``None`` when no last successful version
-        exists.
+        The combined catalog metadata, or ``None`` when no version is available.
 
     Raises:
         RuntimeError: The selected version has no index artifact.
     """
-    version = get_last_successful_version(dataset.name)
+    if version is None:
+        version = get_last_successful_version(dataset.name)
     if version is None:
         # Only datasets that have never completed a successful run reach this
         # edge case, so no run metadata exists for their catalog entries.
@@ -207,11 +215,20 @@ def get_catalog_dataset(dataset: Dataset) -> dict[str, Any] | None:
     return meta
 
 
-def get_catalog_datasets(scope: Dataset) -> list[dict[str, Any]]:
+def get_catalog_datasets(
+    scope: Dataset, version: Version | None = None
+) -> list[dict[str, Any]]:
     """Build catalog entries for every dataset in a scope.
 
+    Args:
+        scope: The collection to enumerate.
+        version: The version being produced by the current run of the scope. When
+            given, the scope's own entry describes this run instead of its last
+            successful version in the archive. ``None`` when the scope is not being
+            produced, as in the root catalog refresh.
+
     The result includes the scope itself, all nested collection scopes, and all leaf
-    datasets. Each entry uses its last successful version.
+    datasets. Every entry except the scope's own uses its last successful version.
 
     Each entry reads operational metadata from the selected version's index artifact.
     It then patches in the current metadata from the local dataset definition. This
@@ -235,7 +252,10 @@ def get_catalog_datasets(scope: Dataset) -> list[dict[str, Any]]:
     """
     datasets = []
     for dataset in scope.datasets:
-        catalog_dataset = get_catalog_dataset(dataset)
+        # The scope's own run is not yet in the archive's version history while
+        # its catalog is written, so its entry must come from the run version.
+        dataset_version = version if dataset.name == scope.name else None
+        catalog_dataset = get_catalog_dataset(dataset, dataset_version)
         # This is a real edge case. It only occurs for new datasets that have never
         # completed a successful run. They have no export to advertise. A later
         # successful run adds them to the catalog.
@@ -301,8 +321,9 @@ def write_catalog(scope: Dataset, version: Version) -> None:
     """Write the dataset-level ``catalog.json`` for a collection scope.
 
     The file contains catalog entries for the collection itself, its nested
-    collections, and its leaf datasets. Each entry uses its independently selected
-    last successful version. The function does nothing for a leaf dataset.
+    collections, and its leaf datasets. The collection's own entry describes the
+    current run. Every other entry uses its independently selected last successful
+    version. The function does nothing for a leaf dataset.
 
     Returns:
         None.
@@ -313,7 +334,7 @@ def write_catalog(scope: Dataset, version: Version) -> None:
     log.info("Writing collection as catalog...", path=catalog_path.as_posix())
     with open(catalog_path, "wb") as fh:
         data = {
-            "datasets": get_catalog_datasets(scope),
+            "datasets": get_catalog_datasets(scope, version),
             "updated_at": settings.RUN_TIME_ISO,
         }
         write_json(data, fh)
