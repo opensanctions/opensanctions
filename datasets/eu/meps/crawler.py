@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from banal import ensure_list
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RetryError
 from rigour.urls import build_url
 
 from zavod import Context
@@ -13,7 +13,10 @@ from zavod.runtime.http_ import request_hash
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 # One term roster fits in a single response; a full page would mean truncation.
-ROSTER_LIMIT = 10000
+# The API's backend fails on very large limits (it answers 200 with an `error`
+# body and no `data`), so stay well below that: the largest term roster is under
+# 1000 members, and a limit of 5000 is served fine.
+ROSTER_LIMIT = 2000
 
 # Fields each record type carries that the crawler deliberately leaves unmapped.
 # Every object the API returns has `id` (the JSON-LD node IRI) and `type` (the
@@ -184,6 +187,11 @@ def fetch_terms(context: Context) -> list[Term]:
     for number in range(1, 16):
         try:
             rows = fetch_data(context, f"/corporate-bodies/ep-{number}")
+        except RetryError:
+            # The dataset retries 404 (see the `http` block in the YAML), so the
+            # probe for a term that does not exist exhausts its retries rather
+            # than surfacing a 404 response.
+            break
         except HTTPError as err:
             if err.response is not None and err.response.status_code == 404:
                 break
