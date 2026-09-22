@@ -33,6 +33,12 @@ url: https://data.europarl.europa.eu/en/data/browse-data/mep
 data:
   url: https://data.europarl.europa.eu/api/v2/meps
   format: JSON
+http:
+  # The API backend intermittently answers 404 for resources that do exist, a
+  # different URL each run. Retry these spurious 404s so one does not abort the
+  # run. Note that `fetch_terms` probes for a term that is genuinely absent, and
+  # so exhausts these retries once per run.
+  additional_retry_statuses: [404]
 
 lookups:
   type.gender:
