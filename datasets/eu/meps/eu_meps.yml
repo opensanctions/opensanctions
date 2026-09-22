@@ -35,11 +35,9 @@ data:
   format: JSON
 http:
   # The API backend intermittently answers 404 for resources that do exist, a
-  # different URL on each run, under the ~4000 requests a full crawl makes. A
-  # single one of these aborts the run, so retry them. The default three
-  # attempts are ample: the spurious codes have never repeated on one URL.
-  # Note that `fetch_terms` probes for a term that genuinely is absent, and so
-  # sees urllib3 exhaust these retries once per run.
+  # different URL each run. Retry these spurious 404s so one does not abort the
+  # run. Note that `fetch_terms` probes for a term that is genuinely absent, and
+  # so exhausts these retries once per run.
   additional_retry_statuses: [404]
 
 lookups:

@@ -188,9 +188,9 @@ def fetch_terms(context: Context) -> list[Term]:
         try:
             rows = fetch_data(context, f"/corporate-bodies/ep-{number}")
         except RetryError:
-            # The dataset retries 404 (see the `http` block in the YAML), so the
-            # probe for a term that does not exist exhausts its retries rather
-            # than surfacing a 404 response.
+            # The dataset retries 404s because of spurious 404s (see the `http`
+            # block in the YAML), so the probe for a term that does not exist
+            # exhausts its retries rather than surfacing a 404 response.
             break
         except HTTPError as err:
             if err.response is not None and err.response.status_code == 404:
