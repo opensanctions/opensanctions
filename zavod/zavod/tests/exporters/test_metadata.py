@@ -98,12 +98,16 @@ def test_metadata_collection_export(
         catalog = json.load(fh)
 
     assert catalog["updated_at"] == settings.RUN_TIME_ISO
-    assert len(catalog["datasets"]) == 1
-    assert catalog["datasets"][0]["name"] == testdataset1.name
-    for ds in catalog["datasets"]:
+    entries = {ds["name"]: ds for ds in catalog["datasets"]}
+    assert set(entries) == {testdataset1.name, collection.name}
+    for ds in entries.values():
         assert ds["updated_at"] == settings.RUN_TIME_ISO
-        if ds["name"] == testdataset1.name:
-            assert len(ds["resources"]) > 2
+        assert ds["version"] == version.id
+    assert len(entries[testdataset1.name]["resources"]) > 2
+    # The collection has no published version yet. Its own entry must still
+    # describe the current run, with the resources this export just wrote.
+    assert len(entries[collection.name]["resources"]) > 2
+    assert entries[collection.name]["index_url"] == collection_index["index_url"]
 
 
 def test_metadata_collection_issue_count(
