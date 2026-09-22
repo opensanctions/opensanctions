@@ -38,6 +38,7 @@ def crawl(context: Context) -> None:
         entity.add("sourceUrl", url)
         entity.add("country", country)
         entity.add("topics", "export.risk")
+        entity.add("topics", "reg.action")
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(
