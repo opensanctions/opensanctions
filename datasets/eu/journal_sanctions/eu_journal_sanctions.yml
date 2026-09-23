@@ -72,6 +72,7 @@ dates:
       "%d %B %Y",
       "%B %Y",
       "%d %b. %Y",
+      "%d. %b %Y",
       "%d %b %Y",
       "%d %b.%Y",
       "%b. %Y",
@@ -135,7 +136,7 @@ config:
   #   or CELLAR withdrew the version. Correct the pin.
   consolidation:
     32001R2580: 02001R2580-20260227
-    32002R0881: 02002R0881-20260822
+    32002R0881: 02002R0881-20260828
     32003R1210: 02003R1210-20251224
     32004R0314: 02004R0314-20260219
     32005R1183: 02005R1183-20251210
@@ -219,7 +220,8 @@ config:
     32026R1883: 02012R0267-20260801
     32026R1895: 02020R1998-20260730
     32026R1940: 02014R0269-20260807
-    32026R1960: 02002R0881-20260822
+    32026R1960: 02002R0881-20260828
+    32026R1965: 02002R0881-20260828
 
   # ## Warning "Amending act has no reviewed transcription"
   #
@@ -311,7 +313,9 @@ lookups:
           - "approximately 1944"
           - "circa 1944"
         value: 1944
-      - match: "approximately 1945-1950"
+      - match:
+          - "approximately 1945-1950"
+          - "between 1945 and 1950"
         values:
           - 1945
           - 1950
@@ -375,7 +379,9 @@ lookups:
         values:
           - 1955
           - 1956
-      - match: "approximately 1955-1958"
+      - match:
+          - "approximately 1955-1958"
+          - "between 1955 and 1958"
         values:
           - 1955
           - 1958
@@ -488,7 +494,9 @@ lookups:
         values:
           - 1960
           - 1961-08
-      - match: "between 1960 and 1962 (approximately)"
+      - match:
+          - "between 1960 and 1962"
+          - "between 1960 and 1962 (approximately)"
         values:
           - 1960
           - 1962
@@ -1085,6 +1093,18 @@ lookups:
         values:
           - 1992-07-22
           - 2014-08-13
+      - match: "15.9.1992, 21.6.1994"
+        values:
+          - 1992-09-15
+          - 1994-06-21
+      - match: "2.12.1992, 23.9.2002"
+        values:
+          - 1992-12-02
+          - 2002-09-23
+      - match: "5.1.1993, 23.9.2002"
+        values:
+          - 1993-01-05
+          - 2002-09-23
       - match: "24.3.1993, 31.12.2002"
         values:
           - 1993-03-24
@@ -1115,6 +1135,10 @@ lookups:
         values:
           - 1997
           - 2019-01-09
+      - match: "24.7.1997, 17.1.2003"
+        values:
+          - 1997-07-24
+          - 2003-01-17
       - match: "1.12.1997 as \u2018\u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019"
         value: 1997-12-01
       - match: "7.7.1998 (previous entity), 27.11.2002"
@@ -1143,6 +1167,10 @@ lookups:
         value: 2009
       - match: "1.1.2012 as \u2018\u043e\u0442\u043a\u0440\u044b\u0442\u043e\u0435 \u0430\u043a\u0446\u0438\u043e\u043d\u0435\u0440\u043d\u043e\u0435 \u043e\u0431\u0449\u0435\u0441\u0442\u0432\u043e \u2018\u0431\u0435\u043b\u043e\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u043c\u0435\u0442\u0430\u043b\u043b\u0443\u0440\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0437\u0430\u0432\u043e\u0434\u2019\u2019"
         value: 2012-01-01
+      - match: "27.3.2023 / 27.3.2013"
+        values:
+          - 2013-03-27
+          - 2023-03-27
       - match: "18.8.2023, previously registered as southfront.org since 30.4.2015"
         values:
           - 2015-04-30
@@ -1608,6 +1636,61 @@ lookups:
       # registration number the act states rather than asserted to be an OGRN.
       - match: "11203400006072"
         prop: registrationNumber
+      # Council Implementing Regulation (EU) 2026/2138 prints each Taliban
+      # entry's passport with its issue and expiry wording; the identifier is
+      # the document number.
+      - match: "Afghanistan diplomatic passport D0009716 (issued on 25 Sep. 2021 in Kabul, Afghanistan under the name Amir Khan Mutaqi; expires 25 Sep. 2026)"
+        value: "D0009716"
+      - match: "Afghanistan diplomatic passport D0009720 (issued on 12 Oct. 2021 in Kabul, Afghanistan, under the name Abdul Latif Mansoor; expires 12 Oct. 2026)"
+        value: "D0009720"
+      - match: "Afghanistan diplomatic passport D0009721 (issued 12 Oct. 2021, under the name Hamidullah Saeed; expires 12 Oct. 2026)"
+        value: "D0009721"
+      - match: "Afghanistan diplomatic passport D0009724 (issued on 13 Oct. 2021 in Kabul, Afghanistan under the name of Abdul Baqi Haqqani; expires on 13 Oct. 2026)"
+        value: "D0009724"
+      - match: "Afghanistan diplomatic passport D0009726 (issued on 13 Oct. 2021 in Kabul, Afghanistan, under the name of Mohammad Fadel Aakhund; expires 13 Oct. 2026)"
+        value: "D0009726"
+      - match: "Afghanistan diplomatic passport D0009731 (issued on 13 Oct. 2021 in Kabul, Afghanistan under the name of Iadenamohammad Nazri Mohammad; expires on 13 Oct. 2026)"
+        value: "D0009731"
+      - match: "Afghanistan diplomatic passport D0009751 (issued on 16 Oct. 2021 in Kabul, Afghanistan; expires 16 Oct. 2026)"
+        value: "D0009751"
+      - match: "Afghanistan diplomatic passport D0009755, issued on 23 Oct. 2021 (under the name of Abdulhaq Waseeq; expires on 23 Oct. 2026)"
+        value: "D0009755"
+      - match: "Afghanistan diplomatic passport number D0009770, issued on 31 Oct. 2021 in Kabul, Afghanistan, expires 31 Oct. 2026)"
+        value: "D0009770"
+      - match: "Afghanistan diplomatic passport D0009803 (issued on 13 Dec. 2021; expires on 13 Dec. 2026)"
+        value: "D0009803"
+      - match: "Afghanistan diplomatic passport D0009871 (issued on 06 Feb. 2022 in Kabul, Afghanistan under the name Najeebullah Hayat; expires on 6 Feb. 2027)"
+        value: "D0009871"
+      - match: "Afghanistan diplomatic passport D0009914 (issued 10 May 2022 in Afghanistan under the name Noor Mohammed Saqeb; expires 10 May 2027)"
+        value: "D0009914"
+      - match: "Afghanistan diplomatic passport D0009925 (issued on 22 May 2022 in Kabul, Afghanistan under the name Abdul Kabir Muhammad Jan; expires 22 May 2027)"
+        value: "D0009925"
+      - match: "Afghanistan diplomatic passport D0010098 (issued on 4 Apr. 2023 in Kabul, Afghanistan under the name of Abdul Salam Hanafi, expires 4 Apr. 2028)"
+        value: "D0010098"
+      - match: "Afghanistan number D0010367 (issued on 18 May 2024 in Kabul, Afghanistan, under the name Sirajuddin Haqqani; expires 18 May 2029)"
+        value: "D0010367"
+      - match: "Afghanistan diplomatic passport D0010402 (issued on 4 Aug. 2024 in Kabul, Afghanistan under the name Mohammad Eisa Sani; expires on 4 Aug. 2029)"
+        value: "D0010402"
+      - match: "Afghanistan diplomatic passport D0010408 (issued on 26 Aug. 2024 in Kabul, Afghanistan under the name Hedayatullah Badri; expires 26 Aug. 2029)"
+        value: "D0010408"
+      - match: "Afghanistan diplomatic passport D0010409, issued on 29 Aug. 2024 in Kabul, Afghanistan under the name Noor Ahmad Agha; expires 29 Aug. 2029)"
+        value: "D0010409"
+      - match: "Afghanistan diplomatic passport D0010442 (issued on 13 Nov 2024; expires 13 Nov. 2029)"
+        value: "D0010442"
+      - match: "Afghanistan number D0010694 (issued on 7 Apr. 2026 in Kabul, Afghanistan under the name Hamdullah Numani; expires 7 Apr. 2031)"
+        value: "D0010694"
+      - match: "Afghanistan number P00032260 (issued on 30. Jun 2022 in Kabul, Afghanistan under the name of Abdul Satar Abdullah; expires 30. Jun 2032.)"
+        value: "P00032260"
+      - match: "Afghanistan P00429243 (issued on 15 Dec. 2021 in Kabul, Afghanistan under the name Mullah Noordin Torabi; expires 15 Aug. 2031)"
+        value: "P00429243"
+      - match: "Afghanistan passport P02504168 (issued 12 Nov 2019 in Dubai, United Arab Emirates under the name Azizurahman Abdul Ahad; expires 12 Nov 2029)"
+        value: "P02504168"
+      - match: "Afghanistan passport P03318995, issued on 29. Jul 2020 (under the name Hedayatullah Hedayat; expires 29. Jul 2025)"
+        value: "P03318995"
+      - match: "Afghanistan P04581926 (issued on 7 Aug. 2024 in Kandahar, Afghanistan; expires 7 Aug. 2034)"
+        value: "P04581926"
+      - match: "Afghanistan P04999950 (issued on 4 Feb. 2025, expires 4 Feb. 2035)"
+        value: "P04999950"
       - match: "Does not exist"
         value: null
   type.country:
@@ -1761,6 +1844,10 @@ lookups:
         values:
           - "ru"
           - "ae"
+      - match: "Russian, Armenian"
+        values:
+          - "ru"
+          - "am"
       - match:
           - "russian and belarusian"
           - "russian, belarusian"
@@ -1914,6 +2001,11 @@ lookups:
           - "isb@domrf.ru"
       - match: "avangard2004@yandex.ru,"
         value: "avangard2004@yandex.ru"
+      - match: "avangard2004@yandex.ru, fkpavangard-buh@mail.ru, fkp-avangard-ppo@yandex.ru"
+        values:
+          - "avangard2004@yandex.ru"
+          - "fkpavangard-buh@mail.ru"
+          - "fkp-avangard-ppo@yandex.ru"
       - match: "avto@siagat.ru, mail@siagat.ru, okad@siagat.ru"
         values:
           - "avto@siagat.ru"
@@ -2036,6 +2128,10 @@ lookups:
         values:
           - "news@spastv.ru"
           - "office@spastv.ru"
+      - match: "nhk@tnnh.tatneft.ru, rotkinaeg@tnnh.tatneft.ru"
+        values:
+          - "nhk@tnnh.tatneft.ru"
+          - "rotkinaeg@tnnh.tatneft.ru"
       - match: "npzkanc@ponpz.ru, salesru@npzoptics.ru, sales@npzoptics.ru"
         values:
           - "npzkanc@ponpz.ru"
@@ -2218,7 +2314,9 @@ lookups:
           - "Office number 3, Near Fatima Jinnah Road, Dr. Bano Road, Quetta, Baluchistan Province, Pakistan"
           - "Kachara Road, Nasrullah Khan Chowk, Quetta, Baluchistan Province, Pakistan"
           - "Wazir Mohammad Road, Quetta, Baluchistan Province, Pakistan"
-      - match: "(Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com)"
+      - match:
+          - "(Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com)"
+          - "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com)"
         value: "Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan"
       - match: "(Branch Office 7: (i) Shops number 21 and 22, 2nd Floor, Kandahar City Sarafi Market, Kandahar City, Kandahar Province, Afghanistan, (ii) New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan, (iii) Safi Market, Kandahar City, Kandahar Province, Afghanistan)"
         values:
