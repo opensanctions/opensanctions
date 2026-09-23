@@ -89,7 +89,7 @@ SECTION_NOTE = (
 )
 ANNEX_IA_TITLE = "Natural person referred to in Article 2(3a)"
 
-# The per-entry designation-date labels, exactly as printed (nine observed
+# The per-entry designation-date labels, exactly as printed (ten observed
 # punctuation variants). The date is always the entry's final sentence.
 DESIG_LABELS = (
     "Date of designation referred to in Article 2a (4) (b):",
@@ -100,6 +100,7 @@ DESIG_LABELS = (
     "Date of designation referred to in Article 7d(2)(i):",
     "Date of designation referred to in Article 7d(2), point (i):",
     "Date of designation referred to in Article 7e(e):",
+    "Date of designation referred to in Article 7e, point (e):",
     "Date of Designation: referred to in Article 2a (4) (b):",
 )
 
@@ -289,6 +290,11 @@ MISPRINT_REPAIRS: dict[str, str] = {
     "Subhah Muhammad Sayf. | Date of designation": (
         "Subhah Muhammad Sayf. Date of designation"
     ),
+    # Islamic Jihad Group: the designation label is printed without the space
+    # after "Article"; every other entry spells the same label out in full.
+    "Date of designation referred to in Article7e, point (e):": (
+        "Date of designation referred to in Article 7e, point (e):"
+    ),
     # Atabiev: missing sentence stop before "Date of birth:".
     "(alias Abu Jihad) Date of birth:": "(alias Abu Jihad). Date of birth:",
     # Chataev: missing sentence stop before "Date of birth:".
@@ -318,6 +324,16 @@ MISPRINT_REPAIRS: dict[str, str] = {
     # Al-Mansur: the Arabic-script name parentheticals never close.
     "(name in Arabic script: منصور ال محمد مصطفى سالم; (b)": (
         "(name in Arabic script: منصور ال محمد مصطفى سالم); (b)"
+    ),
+    # Umar Patek: the other-information list prints "(c)" twice, so the tail
+    # runs (a) (b) (c) (c) (d). Renumber the two trailing items: without it
+    # the repeated marker stops the split and leaks into the previous value.
+    "; (c) Released on parole in 2022 and as at late 2025, he operated a "
+    "business in Surabaya, Indonesia; (d) Remains in custody in Indonesia "
+    "as at May 2015.": (
+        "; (d) Released on parole in 2022 and as at late 2025, he operated a "
+        "business in Surabaya, Indonesia; (e) Remains in custody in Indonesia "
+        "as at May 2015."
     ),
     "(name in Arabic script: محمد مصطفى سالم. Address:": (
         "(name in Arabic script: محمد مصطفى سالم). Address:"
