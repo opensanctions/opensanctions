@@ -35,7 +35,7 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
             {
                 "action": "waitForSelector",
                 "selector": {"type": "xpath", "value": title_xpath},
-                "timeout": 30,
+                "timeout": 15,
             },
         ],
         javascript=True,
