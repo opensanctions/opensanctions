@@ -89,7 +89,7 @@ SECTION_NOTE = (
 )
 ANNEX_IA_TITLE = "Natural person referred to in Article 2(3a)"
 
-# The per-entry designation-date labels, exactly as printed (nine observed
+# The per-entry designation-date labels, exactly as printed (eleven observed
 # punctuation variants). The date is always the entry's final sentence.
 DESIG_LABELS = (
     "Date of designation referred to in Article 2a (4) (b):",
@@ -100,6 +100,10 @@ DESIG_LABELS = (
     "Date of designation referred to in Article 7d(2)(i):",
     "Date of designation referred to in Article 7d(2), point (i):",
     "Date of designation referred to in Article 7e(e):",
+    "Date of designation referred to in Article 7e, point (e):",
+    # 02002R0881-20260828 prints the Islamic Jihad Group entry's label with
+    # the space before the article number missing.
+    "Date of designation referred to in Article7e, point (e):",
     "Date of Designation: referred to in Article 2a (4) (b):",
 )
 
