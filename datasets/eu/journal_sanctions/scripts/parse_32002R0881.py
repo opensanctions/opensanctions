@@ -182,6 +182,12 @@ DOTLBL_AT_RE = re.compile(
 DESIG_AT_RE = re.compile(
     r"(?:" + "|".join(re.escape(label) for label in DESIG_LABELS) + r")\s*"
 )
+# Any designation-date wording, known punctuation or not. An amending act
+# that renumbers the article it cites prints a label DESIG_LABELS does not
+# carry, and an unrecognized one is invisible in the output: the date
+# silently stays prose in an "Other information" value. Values are checked
+# against this looser shape so the new spelling fails the parse instead.
+DESIG_ANY_RE = re.compile(r"Date of [Dd]esignation[^:]{0,80}:\s*")
 
 # Labels checked for inside extracted values: a known label left in a
 # value marks a missed split (a printing defect to pin) or an embedded
@@ -195,6 +201,12 @@ RESIDUE_RE = re.compile(
     )
     + r"):\s*"
 )
+
+# A bracketed enumeration marker of any letter, used to catch a list that
+# reuses a letter its run has already passed. Letters ahead of the expected
+# one are left alone: an item may carry a nested roman-numeral sub-list
+# ("Date of birth: (i) 11.4.1960, (ii) 11.4.1963").
+STRAY_ENUM_RE = re.compile(r"\(([a-z])\) ")
 
 # Alias-list sublabels inside the name region's parentheticals; a group
 # may chain several, separated by "; " ("(good quality alias: X; low
@@ -295,6 +307,23 @@ MISPRINT_REPAIRS: dict[str, str] = {
     "Date of designation referred to in Article7e, point (e):": (
         "Date of designation referred to in Article 7e, point (e):"
     ),
+    # Tunisian Combatant Group: alias marker (b) printed with a trailing
+    # comma, which detaches it from the item it introduces.
+    "Tunisien, (b), Groupe Islamiste": "Tunisien, (b) Groupe Islamiste",
+    # Ansar Al-shari'a in Tunisia: three alias markers printed without the
+    # space that separates them from their item.
+    (
+        "Tunisia; (c)Ansar al-Shari'ah in Tunisia; (d)Ansar al-Shari'ah; "
+        "(e) Ansar al-Sharia; (f)Supporters of Islamic Law"
+    ): (
+        "Tunisia; (c) Ansar al-Shari'ah in Tunisia; (d) Ansar al-Shari'ah; "
+        "(e) Ansar al-Sharia; (f) Supporters of Islamic Law"
+    ),
+    # Uthman Omar Mahmoud: the last alias marker repeats (e) instead of
+    # continuing the run at (h).
+    "(g) Umar, Abu Umar, (e) Abu Ismail": "(g) Umar, Abu Umar, (h) Abu Ismail",
+    # Angelo Ramirez Trinidad: the "Other information" list repeats (b).
+    "Jemaah Islamiyah; (b) In detention": "Jemaah Islamiyah; (c) In detention",
     # Atabiev: missing sentence stop before "Date of birth:".
     "(alias Abu Jihad) Date of birth:": "(alias Abu Jihad). Date of birth:",
     # Chataev: missing sentence stop before "Date of birth:".
@@ -604,7 +633,7 @@ def check_residue(ctx: str, column: str, value: str) -> None:
         depth = paren_step(value, i, depth)
         if depth != 0:
             continue
-        match = RESIDUE_RE.match(value, i) or DESIG_AT_RE.match(value, i)
+        match = RESIDUE_RE.match(value, i) or DESIG_ANY_RE.match(value, i)
         if match is not None and (i == 0 or not value[i - 1].isalnum()):
             raise ParseError(
                 f"{ctx}: label {match.group(0)[:40]!r} left inside "
@@ -635,7 +664,9 @@ def split_enum(content: str, ctx: str) -> list[str]:
 
     Observed forms: "(a) X, (b) Y", "a) X b) Y", and plain single values.
     Enumeration letters must run consecutively from "a"; splitting happens
-    only at parenthesis depth 0. Commas inside one item stay put.
+    only at parenthesis depth 0. Commas inside one item stay put. A marker
+    reusing a letter the run has passed — the observed defect — is an error
+    rather than a silent merge of two items into one.
     """
     content = content.strip()
     if not content:
@@ -653,6 +684,12 @@ def split_enum(content: str, ctx: str) -> list[str]:
                 letter = chr(ord(letter) + 1)
                 i += 4
                 continue
+            stray = STRAY_ENUM_RE.match(content, i) if depth == 0 else None
+            if stray is not None and marks and stray.group(1) <= letter:
+                raise ParseError(
+                    f"{ctx}: enumeration expected '({letter})', found "
+                    f"{content[i : i + 3]!r} in {content[:60]!r}"
+                )
         if depth == 0 and char == letter and content[i + 1 : i + 3] == ") ":
             boundary = i == 0 or content[i - 1] == " "
             if boundary:
