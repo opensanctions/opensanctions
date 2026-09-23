@@ -89,7 +89,7 @@ SECTION_NOTE = (
 )
 ANNEX_IA_TITLE = "Natural person referred to in Article 2(3a)"
 
-# The per-entry designation-date labels, exactly as printed (nine observed
+# The per-entry designation-date labels, exactly as printed (eleven observed
 # punctuation variants). The date is always the entry's final sentence.
 DESIG_LABELS = (
     "Date of designation referred to in Article 2a (4) (b):",
@@ -100,6 +100,11 @@ DESIG_LABELS = (
     "Date of designation referred to in Article 7d(2)(i):",
     "Date of designation referred to in Article 7d(2), point (i):",
     "Date of designation referred to in Article 7e(e):",
+    # The "point (e)" spelling of Article 7e(e), and the same spelling with
+    # the space after "Article" dropped by a printing defect, both first
+    # printed in 02002R0881-20260828.
+    "Date of designation referred to in Article 7e, point (e):",
+    "Date of designation referred to in Article7e, point (e):",
     "Date of Designation: referred to in Article 2a (4) (b):",
 )
 
@@ -288,6 +293,15 @@ MISPRINT_REPAIRS: dict[str, str] = {
     # Al-Juburi: a stray pipe before the designation date.
     "Subhah Muhammad Sayf. | Date of designation": (
         "Subhah Muhammad Sayf. Date of designation"
+    ),
+    # Umar Patek: the fourth "Other information" item is lettered "(c)" like
+    # the third, so the enumeration stops running and items three and four
+    # merge into one value. Amending act 32026R1965, which introduced the
+    # entry, prints the same defect. Relettering the tail restores the five
+    # printed items.
+    "(c) Released on parole in 2022": "(d) Released on parole in 2022",
+    "Surabaya, Indonesia; (d) Remains in custody in Indonesia as at May 2015": (
+        "Surabaya, Indonesia; (e) Remains in custody in Indonesia as at May 2015"
     ),
     # Atabiev: missing sentence stop before "Date of birth:".
     "(alias Abu Jihad) Date of birth:": "(alias Abu Jihad). Date of birth:",
