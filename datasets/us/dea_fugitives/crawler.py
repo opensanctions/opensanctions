@@ -22,19 +22,24 @@ def crawl_sitemap(context: Context, url: str, tag: str) -> list[str]:
 
 def crawl_item(fugitive_url: str, context: Context) -> None:
     context.log.info("Fetching fugitive profile via Zyte", url=fugitive_url)
-    # The profile heading: the unblock validator, and what the browser waits for.
     title_xpath = '//h2[@class="fugitive__title"]'
+    # The sitemap can list profiles that were taken down, which render a
+    # "Page Not Found" page instead of a profile.
+    not_found_xpath = '//h1[@class="page-title"][normalize-space()="Page Not Found"]'
+    # Either heading proves we got past the bot protection, so both serve as
+    # the unblock validator and as what the browser waits for.
+    page_xpath = f"{title_xpath} | {not_found_xpath}"
     # Akamai's interstitial clears itself with a scripted redirect, so browser
     # rendering alone still snapshots the challenge page. Wait for the heading
     # instead.
     response = zyte_api.fetch_html(
         context,
         fugitive_url,
-        unblock_validator=title_xpath,
+        unblock_validator=page_xpath,
         actions=[
             {
                 "action": "waitForSelector",
-                "selector": {"type": "xpath", "value": title_xpath},
+                "selector": {"type": "xpath", "value": page_xpath},
                 "timeout": 15,
             },
         ],
@@ -42,6 +47,12 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
         cache_days=7,
         geolocation="US",
     )
+
+    # The sitemap lists some profiles that no longer exist on the site. These
+    # are expected, so skip them without a warning.
+    if h.xpath_elements(response, not_found_xpath):
+        context.log.info("Fugitive profile not found, skipping", url=fugitive_url)
+        return
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
     table = response.find(".//table")
