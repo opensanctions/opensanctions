@@ -13,7 +13,7 @@ PROFILE_PATH = re.compile(r"/fugitives/(?!all$)[a-z0-9-]+")
 
 def crawl_sitemap(context: Context, url: str, tag: str) -> list[str]:
     """Fetch a sitemap index or sitemap and return the locations it lists."""
-    _, _, _, text = zyte_api.fetch_text(context, url, cache_days=1)
+    _, _, _, text = zyte_api.fetch_text(context, url)
     root = etree.fromstring(text.encode("utf-8"))
     h.remove_namespace(root)
     assert root.tag == tag, (url, root.tag)
