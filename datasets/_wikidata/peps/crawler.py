@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import lru_cache
 
 from nomenklatura.wikidata import WikidataClient
+from requests.exceptions import RequestException
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
 from rigour.territories.territory import Territory
@@ -258,7 +259,17 @@ def crawl(context: Context) -> None:
         if position is None:
             continue
         context.log.info(f"Position [{position.id}]: {position.caption}")
-        for person_qid, modified_at in position_holders(client, position_item).items():
+        try:
+            holders = position_holders(client, position_item)
+        except RequestException as exc:
+            # Holders are re-queried on the next crawl
+            context.log.warning(
+                "Position holder query failed",
+                position=position_qid,
+                error=str(exc),
+            )
+            continue
+        for person_qid, modified_at in holders.items():
             if person_qid in done_persons:
                 continue
             done_persons.add(person_qid)
