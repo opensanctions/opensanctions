@@ -6759,6 +6759,126 @@ lookups:
           address:
             - "Phnom Penh, Cambodge"
             - "Sihanoukville, Cambodge"
+      - match: "504201001 - KPP"
+        props:
+          kppCode: "504201001"
+      - match: "7709827690: Numéro d'identification fiscale"
+        props:
+          taxNumber: "7709827690"
+      - match: "Date d'enregistrement: 5.1.1993, 23.9.2002"
+        props:
+          incorporationDate:
+            - "1993-01-05"
+            - "2002-09-23"
+      - match: "INN/KPP 5008011331/771701001"
+        props:
+          innCode: "5008011331"
+          kppCode: "771701001"
+      - match: "JSC “NORTH-WEST REGIONAL CENTER OF THE ALMAZ-ANTEY AIR AND SPACE DEFENCE CORPORATION – OBUKHOV PLANT” (société par actions “Centre régional du Nord-Ouest de l’Entreprise de défense aérienne et spatiale Almaz-Antey – Usine Obukhov) (Autre dénomination: ‘JSC Obukhov Plant’): Entité associée"
+        associates:
+          - "JSC NORTH-WEST REGIONAL CENTER OF THE ALMAZ-ANTEY AIR AND SPACE DEFENCE CORPORATION – OBUKHOV PLANT"
+      - match: "Lieu d’enregistrement: 630004, Ulitsa Lenina d. 52, Novosibirsk, Fédération de Russie - Type d’entité: société à responsabilité limitée - Date d’enregistrement: 27.4.2015 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "630004, Ulitsa Lenina d. 52, Novosibirsk, Fédération de Russie"
+          legalForm: société à responsabilité limitée
+          incorporationDate: "2015-04-27"
+      - match: "Numéro d'enregistrement ; Type d'entité: société par actions ; Date d'enregistrement: 8.11.2011 ; Numéro d’enregistrement: 1112130014325: 1112130014325"
+        props:
+          legalForm: société par actions
+          incorporationDate: "2011-11-08"
+          registrationNumber: "1112130014325"
+      - match: "Numéro d'enregistrement: 1137746264930 et 1137746264940"
+        props:
+          registrationNumber:
+            - "1137746264930"
+            - "1137746264940"
+      - match: "Numéro d’enregistrement: 1027739360110 et 1027810229908"
+        props:
+          registrationNumber:
+            - "1027739360110"
+            - "1027810229908"
+      - match: "Numéro d’enregistrement: 1027739407189. Entités associées: GTLK Europe, GTLK Asia, GTLK Middle East. Numéro d’identification fiscale: 7720261827. Numéro OMI: 5213962: Type d’entité: société de transport  Lieu d’enregistrement: Moscou, Fédération de Russie  Date d’enregistrement: 19.11.2001  Principal établissement: Fédération de Russie"
+        associates:
+          - GTLK Europe
+          - GTLK Asia
+          - GTLK Middle East
+        props:
+          registrationNumber: "1027739407189"
+          taxNumber: "7720261827"
+          imoNumber: "5213962"
+          legalForm: société de transport
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2001-11-19"
+      - match: "Numéro d’enregistrement: 6161021690 - Principal établissement: Fédération de Russie: Type d’entité: société publique par actions  Lieu d’enregistrement: Rostov, Moscou, Fédération de Russie  Date d’enregistrement: 2.12.1992, 23.9.2002"
+        props:
+          registrationNumber: "6161021690"
+          jurisdiction: ru
+          legalForm: société publique par actions
+          address: "Rostov, Moscou, Fédération de Russie"
+          incorporationDate:
+            - "1992-12-02"
+            - "2002-09-23"
+      # The entity is a military unit, so the source's "Type d'entité" names the parent
+      # body it belongs to rather than a legal form.
+      - match: "Type d'entité: fait partie du ministère russe de la défense - Lieu d'enregistrement: Fédération de Russie - Date d’enregistrement: 25.4.2016 - Principal établissement: Fédération de Russie"
+        props:
+          description: fait partie du ministère russe de la défense
+          jurisdiction: ru
+          incorporationDate: "2016-04-25"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 15.9.1992, 21.6.1994 - Principal établissement: Fédération de Russie - Date de constitution: 16.10.2002"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate:
+            - "1992-09-15"
+            - "1994-06-21"
+            - "2002-10-16"
+      - match: "Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie - Date d'enregistrement: 27.3.2023 / 27.3.2013"
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: ru
+          incorporationDate:
+            - "2023-03-27"
+            - "2013-03-27"
+      - match: "Type d’entité: entreprise fédérale d’État - Lieu d’enregistrement: Fédération de Russie, 393192, région de Tambov, Kotovsk, Truda Ave., 23- Date d’enregistrement: 16.8.2000 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: entreprise fédérale d’État
+          jurisdiction: ru
+          address: "Fédération de Russie, 393192, région de Tambov, Kotovsk, Truda Ave., 23"
+          incorporationDate: "2000-08-16"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 24.7.1997, 17.1.2003- Principal établissement: Fédération de Russie"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate:
+            - "1997-07-24"
+            - "2003-01-17"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Saint-Pétersbourg et Moscou, Fédération de Russie - Date d’enregistrement: 31.7.2002 - Numéro d’enregistrement: 1027739028712: 1027739028712"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          address: "Saint-Pétersbourg et Moscou, Fédération de Russie"
+          incorporationDate: "2002-07-31"
+          registrationNumber: "1027739028712"
+      - match: "Type d’entité: société par actions; Lieu d’enregistrement: Saint-Pétersbourg, Fédération de Russie; Date d’enregistrement: 10.12.1992; Numéro d’enregistrement: 1027802749061; Principal établissement: Saint-Pétersbourg, Fédération de Russie: Numéro d'enregistrement: 1027802749061"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          address: "Saint-Pétersbourg, Fédération de Russie"
+          incorporationDate: "1992-12-10"
+          registrationNumber: "1027802749061"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Numéro d’enregistrement: 1157847407156 - Date d’enregistrement: 27.11.2015 - Entité associée: Special Technology Center Ltd. (Autre dénomination: STC, Ltd) - Principal établissement: Fédération de Russie"
+        associates:
+          - Special Technology Center Ltd.
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: ru
+          registrationNumber: "1157847407156"
+          incorporationDate: "2015-11-27"
+      - match: "la Military unit a été créée le 1er décembre 1983. Le 924th State Center for Unmanned Aviation du ministère russe de la défense a été créé en 2009: Autres informations"
+        note: true
   # =====================================
   #
   #  ADDRESSES
@@ -6793,6 +6913,10 @@ lookups:
       - match: "Fédération de Russie, Moscou, Smolnaya street, 14 ; 11 floor 24 office; Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
         addresses:
           - Fédération de Russie, Moscou, Smolnaya street, 14; 11 floor 24 office
+          - Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie
+      - match: "125493  Fédération de Russie, Moscou, Smolnaya street, 14 ; 11 floor 24 office; Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
+        addresses:
+          - 125493 Fédération de Russie, Moscou, Smolnaya street, 14; 11 floor 24 office
           - Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie
       - match: "249100, région de Kalouga, district de Tarusa, Tarusa, 18, rue R. Luxemburg; 142181, région de Moscou, Podolsk, quartier de Klimovsk, rue Zavodskaya 2."
         addresses:
@@ -6938,3 +7062,6 @@ lookups:
       # A single address where ";" only separates its components.
       - match: "Bureaux 1, 2; 4a Tenishevoy st., Smolensk, 21400, Russie"
         addresses: "Bureaux 1, 2, 4a Tenishevoy st., Smolensk, 21400, Russie"
+      # A single address with a trailing ";".
+      - match: "142450, région de Moscou, Bogorodsky G., G. Staraya Kupavna, G Staraya Kupavna, Tup Maly, D. 3, Pomeshch. 74, Fédération de Russie;"
+        addresses: "142450, région de Moscou, Bogorodsky G., G. Staraya Kupavna, G Staraya Kupavna, Tup Maly, D. 3, Pomeshch. 74, Fédération de Russie"
