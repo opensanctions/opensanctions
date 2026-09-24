@@ -262,13 +262,7 @@ def crawl(context: Context) -> None:
         try:
             holders = position_holders(client, position_item)
         except RequestException as exc:
-            # One truncated or refused query response out of the tens of
-            # thousands issued here used to abort the whole run, discarding
-            # hours of crawling. Skip the position instead, as the discovery
-            # phase does: its holders are re-queried on the next crawl, most
-            # of them are also reachable via their other positions, and the
-            # minimum-count assertions still fail the run if the query service
-            # is broken enough for this to happen at scale.
+            # Holders are re-queried on the next crawl
             context.log.warning(
                 "Position holder query failed",
                 position=position_qid,
