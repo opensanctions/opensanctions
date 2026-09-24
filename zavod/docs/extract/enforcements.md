@@ -65,9 +65,6 @@ next to the constant:
 MAX_AGE_DAYS = (date.today() - date(2016, 7, 5)).days
 ```
 
-A longer window because the data "seems useful" is not such a reason: it buys history at
-the cost of review effort.
-
 ### Dates must parse before they can be compared
 
 `within_max_age` parses with `fallback_to_original=False`, so an unparseable date raises
@@ -75,9 +72,7 @@ the cost of review effort.
 in [`dates.formats`](../best_practices/dates_meta.md), and let the exception stand: an
 index whose date column stopped parsing is a structural change.
 
-Where a source genuinely publishes undated notices, catch it at the point you read the
-date, warn, and skip the notice — an article with no date has no `publishedAt` and cannot
-be age-filtered, so it isn't publishable either way.
+Where a notice genuinely has no date, warn and skip it at the point you read it.
 
 
 ## Create Article and Documentation entities
@@ -147,9 +142,8 @@ be a person, a company, or three of each in a list. Take the first rung that hol
 3. **The review framework**, when the names and entity types can only be had by reading
    the text (see [data reviews](../data_reviews.md) for the full mechanism). This is the
    normal answer for enforcement prose. Do not reach for regular expressions to split a
-   list of defendants out of a sentence: the cases that matter are the ones a regex gets
-   wrong — `A, B and C, d/b/a D`, an alias in parentheses, a company whose name contains
-   ` and `.
+   list of defendants out of a sentence: real defendant lists break simple patterns too
+   often, e.g. `A, B and C, d/b/a D`.
 
 Rungs 2 and 3 combine. A crawler can run a cheap heuristic over every name and route only
 the irregular ones to review: [`h.is_name_irregular`][zavod.helpers.is_name_irregular]
@@ -183,22 +177,7 @@ affects**, not how bad any single one looks.
 
 - **Add a lookup** when the deviation is a known, enumerable value rather than a one-off
   failure: a notice type the source added, an entity type label, a topic that is out of
-  scope, a date the source misspelled. The lookup entry is the documented decision, it
-  lives in the YAML where a non-programmer can extend it, and the unmatched case stays
-  loud for the next new value.
-
-Never encode a single notice's exception as a condition in the crawler:
-
-```python
-# Anti-pattern: this is a lookup, written in the wrong file.
-if url == "https://www.example.gov/press-releases/7274-15":
-    return None
-```
-
-A URL test in code has no audit trail, no comment explaining what was wrong with that
-notice, and no room for the second one.
+  scope, a date the source misspelled, or one specific notice to exclude.
 
 An article that names no entities is not an error, either. Plenty of press releases are
-about policy, personnel or statistics. Filter out-of-scope categories on the source's own
-topic labels via a lookup, and let an unknown label warn, so a new category is a decision
-someone makes rather than a silent inclusion.
+about policy, personnel or statistics rather than any entity worth recording.
