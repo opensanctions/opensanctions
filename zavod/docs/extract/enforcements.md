@@ -46,6 +46,7 @@ you establish by reading it rather than assuming:
     ```python
     def crawl_index_page(context: Context, doc: Element) -> bool:
         """Crawl one index page. Returns False if we should stop paginating."""
+        table = h.xpath_element(doc, ".//table")
         for row in h.parse_html_table(table):
             if not h.within_max_age(context, h.element_text(row["date"])):
                 return False
@@ -71,7 +72,7 @@ next to the constant:
 
 ```python
 # Notices issued before 5 July 2016 are PDFs, which this crawler doesn't parse.
-MAX_AGE_DAYS = (date.today() - date(2016, 7, 8)).days
+MAX_AGE_DAYS = (date.today() - date(2016, 7, 5)).days
 ```
 
 A longer window because the data "seems useful" is not such a reason: it buys history at
@@ -163,7 +164,7 @@ be a person, a company, or three of each in a list. Take the first rung that hol
 
 Rungs 2 and 3 combine. A crawler can run a cheap heuristic over every name and route only
 the irregular ones to review — [`h.is_name_irregular`][zavod.helpers.is_name_irregular]
-and `rigour.names.split_phrases.contains_split_phrase` both answer "does this need a
+and `rigour.names.contains_split_phrase` both answer "does this need a
 human?". Names have their own helpers,
 [`h.apply_reviewed_name_string`][zavod.helpers.apply_reviewed_name_string] and
 [`h.apply_reviewed_names`][zavod.helpers.apply_reviewed_names]; see

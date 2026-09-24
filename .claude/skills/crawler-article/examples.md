@@ -84,6 +84,11 @@ both the prompt and the human reviewer, so write it for someone holding the arti
 Schema = Literal["Person", "Company", "LegalEntity"]
 
 
+class RelatedCompany(BaseModel):
+    name: str
+    relationship: str
+
+
 class Defendant(BaseModel):
     entity_schema: Schema = Field(
         description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
@@ -98,6 +103,7 @@ class Defendant(BaseModel):
         ),
     )
     country: list[str] = []
+    related_companies: list[RelatedCompany] = []
 
 
 class Defendants(BaseModel):
@@ -193,7 +199,7 @@ same article. The `UnknownLink` joining them is an edge, not a `Thing`, and gets
 
 When most strings are one clean name and only a handful are lists, don't pay for an LLM
 call per row: test each string with `h.is_name_irregular` or
-`rigour.names.split_phrases.contains_split_phrase`, split the irregular ones naively with
+`rigour.names.contains_split_phrase`, split the irregular ones naively with
 `h.multi_split`, and pass only those to `review_extraction` with `origin="heuristic"` for
 a reviewer to correct. For names, `h.apply_reviewed_name_string(context, entity,
 string=raw_name)` does the detection, review and application in one call.
@@ -272,8 +278,7 @@ def get_release_id(url: str) -> str:
 
 def get_title(article: Element) -> str:
     # Every release carries the release number in the first h1, the title in the second.
-    titles = h.xpath_elements(article, ".//h1")
-    assert len(titles) == 2, titles
+    titles = h.xpath_elements(article, ".//h1", expect_exactly=2)
     assert "Release Number" in h.element_text(titles[0]), titles
     return h.element_text(titles[1])
 ```
