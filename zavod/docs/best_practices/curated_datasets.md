@@ -24,7 +24,7 @@ Use the same two suffixes on every column that takes corrections, so a reviewer 
 
 Normally, the same person designated twice under different measures — or re-listed after a removal — gets a row for each designation. The crawler can then emit one `Sanction`, or one `Occupancy` for a term of office, straight from the row. [Entities are merged downstream](entity_id.md), while the rows keep the program, the dates and the source for each designation.
 
-Keep to a row per designation even when the source publishes notices, as far as that is practical. A row per notice forces the crawler to group events under a common key to reconstruct each designation — which produces duplicate entities whenever the key is imperfect, and makes the file harder to review.
+Keep to a row per designation even when the source publishes notices, as far as that is practical. A row per notice forces the crawler to group events under a common key to reconstruct each designation, which produces duplicate entities whenever the key is imperfect, and makes the file harder to review.
 
 One row per entity leaves nowhere to record the date a single designation ended, so end dates and removals cannot be expressed at all.
 
@@ -36,7 +36,7 @@ For event sources, the row also carries the notice's identity — the issuing au
 
 ### Name columns in snake_case, after the source's own terms
 
-Use snake_case English, and name each column for what the source calls it — when the source labels a field `explanation`, the column is `explanation`, not `notes`. The crawler maps it to the FollowTheMoney property, so the transcription stays a faithful representation of the source.
+Use snake_case English, and name each column for what the source calls it: when the source labels a field `explanation`, the column is `explanation`, not `notes`. The crawler maps it to the FollowTheMoney property, so the transcription stays a faithful representation of the source.
 
 ### Separate multiple values with a semicolon
 
@@ -56,16 +56,16 @@ Discovery produces a review queue and does not write to the CSV. Deciding who is
 
 Detecting that a designation has ended matters as much as detecting a new one. Which mechanism applies depends on what the source publishes.
 
-- **Consolidated sources** republish the complete current list, so a row vanishing from the source is the signal. Discovery compares the source's current membership against the reviewed file; without that comparison, the dataset only ever records additions and grows with every update.
+- **Consolidated sources** republish the complete current list, so a row vanishing from the source is the signal. Discovery compares the source's current state against the reviewed file; without that comparison, the dataset only ever records additions and grows with every update.
 - **Event sources** publish a stream of notices, so a removal is its own notice, extracted like any other event. Absence from a later notice is not a removal, and neither is a URL that stops resolving.
 
-Set the end date rather than deleting the row. Deleting the row throws away the record of which notice designated the entity and when, while both the next extraction and the next review depend on reading that.
+Always prefer setting the end date rather than deleting the row altogether. Removing the row throws away the record of which notice designated the entity and when, while both the next extraction and the next review depend on reading that.
 
 ### Write an extraction script only where it helps
 
 The default is no script: read the document, write the rows. When a document yields to inference but not to parsing, that inference is the extraction, and no script is owed.
 
-When a script does help, keep it small and reusable, next to the crawler, and name it for what it parses — `datasets/se/soe/extract_edition_2024.py` is one module per annual report edition. This pays off most when the extraction recurs against the same document shape: each new edition of a report, or version of a regulation. It is that recurrence that justifies a script, not the row count.
+When a script does help, keep it small and reusable, next to the crawler, and name it for what it parses (e.g. `datasets/se/soe/extract_edition_2024.py` is one module per annual report edition). This pays off most when the extraction recurs against the same document shape: each new edition of a report, or version of a regulation. It is only that recurrence that justifies a script.
 
 ## Migrating from a Google Sheet
 
