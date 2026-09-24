@@ -45,7 +45,8 @@ you establish by reading it rather than assuming:
 
 - **The index is in any other order** — oldest-first, grouped by programme, sorted by
   name — then an out-of-age item says nothing about the next one. **Skip the item and
-  carry on**; never break out of the loop.
+  carry on**; never break out of the loop over an out-of-age item. Only pagination
+  running out ends the crawl.
 
 - **The index carries no date**, only the article does. The age check then moves into the
   per-article function, after the fetch, and pagination has no signal to stop on.
@@ -176,8 +177,8 @@ title and release ID with [`h.xpath_element`][zavod.helpers.xpath_element] or
 
 **Warn and skip when one notice deviates** and its siblings still parse — a release
 published as a PDF, a stub page, a notice with no date. Use `context.log.warning` with
-the URL and `continue`, never an `assert` on an individual item: an assertion here stops
-the crawl over one bad document and loses the hundreds that parsed.
+the URL and `continue`, never an `assert` over this kind of deviation: an assertion here
+stops the crawl over one bad document and loses the hundreds that parsed.
 
 **Add a lookup when the deviation is a known, enumerable value** rather than a one-off
 failure: a notice type the source added, an entity type label, a topic that is out of

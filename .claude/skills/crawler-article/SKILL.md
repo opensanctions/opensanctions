@@ -90,7 +90,8 @@ enforcement age limit". The decision:
 
 - **Newest-first index** → the first out-of-age item ends the crawl. Have the per-page
   function return `bool` and `break` the pagination loop on `False`.
-- **Any other order** → skip the item and carry on. Never `break`.
+- **Any other order** → skip the item and carry on. Never `break` on an out-of-age
+  item. Only pagination running out ends the crawl.
 - **No date on the index** → the age check moves into the per-article function, after the
   fetch, and pagination has nothing to stop on.
 
@@ -141,7 +142,7 @@ shape". The test is how many notices the deviation affects:
 | Situation | Response |
 |---|---|
 | A structural selector (body, title, release ID) matches the wrong number of elements | **Crash.** `h.xpath_element` / `expect_exactly=` / `assert` with a message. |
-| One notice deviates while its siblings parse — PDF-only, stub, no date | **`context.log.warning` + `continue`.** Never `assert` on an individual item. |
+| One notice deviates while its siblings parse — PDF-only, stub, no date | **`context.log.warning` + `continue`.** Never `assert` over this kind of deviation. |
 | A categorical value is new or unknown — notice type, entity type, topic | **Lookup**, with the miss loud. Never a bare `else` or default schema. |
 | A value is well-formed but wrong — a misspelled month, an invented country | **`type.*` lookup.** |
 | One specific notice must be excluded | **Lookup with a comment**, not a URL test in the crawler. |
