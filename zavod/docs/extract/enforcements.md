@@ -1,15 +1,15 @@
 # Developing article-based crawlers
 
-Some sources don't publish a register. They publish a stream of documents: enforcement
-notices, press releases, debarment announcements, disciplinary findings. The entities we
-care about are named in prose inside those documents, and one document may name none,
-one, or a dozen of them. The unit of crawl is the **article**, not the row: the crawler
-walks a listing page, follows it to each article, and reads the entities out of the
-article's text.
+Some sources publish a stream of documents rather than a register: enforcement notices,
+press releases, debarment announcements, disciplinary findings. The entities we care
+about are named in prose inside those documents, and one document may name none, one, or
+a dozen of them. The unit of crawl is the **article**, not the row. The crawler walks a
+listing page, follows it to each article, and reads the entities out of the article's
+text.
 
 The general rules still apply. Structured parts of the source — the index table, a CSV of
 actions — are parsed destructively and audited, per
-[strict interpretation](../best_practices/strict_interpretation.md); the article body is
+[strict interpretation](../best_practices/strict_interpretation.md). The article body is
 free-form HTML, where strictness lives in the selectors.
 
 
@@ -35,13 +35,13 @@ check whether an action date is within scope:
 ### Stop the loop, or skip the row?
 
 Getting this wrong is the most common defect in an article crawler, and it is silent
-either way: stopping too early truncates the dataset, and never stopping walks the
+either way: stopping too early truncates the dataset, while never stopping walks the
 source's whole archive on every run. The answer depends on the order of the index, which
 you establish by reading it rather than assuming:
 
 - **The index is newest-first.** The first out-of-age item means every later one is older
   too, so **stop paginating**. Have the per-page function return `False` on that item, and
-  leave the loop to `crawl()` — code: `examples.md`, Pattern A.
+  leave the loop to `crawl()`.
 
 - **The index is in any other order** — oldest-first, grouped by programme, sorted by
   name — then an out-of-age item says nothing about the next one. **Skip the item and
@@ -51,8 +51,8 @@ you establish by reading it rather than assuming:
 - **The index carries no date**, only the article does. The age check then moves into the
   per-article function, after the fetch, and pagination has no signal to stop on.
 
-The two tests look identical in code, so **say which case you are in, in a comment**, and
-name the evidence: the index's sort column, or the order you observed.
+The two tests look identical in code, so note which case applies in a comment, and name
+the evidence: the index's sort column, or the order you observed.
 
 ### Overriding the default period
 
@@ -110,13 +110,13 @@ for item in defendants:
     context.emit(h.make_documentation(context, entity, article))
 ```
 
-`make_article` is keyed on the URL, so building it inside the loop produces the same
-entity ID and is not *wrong* — but it re-emits one entity per defendant and obscures the
+`make_article` is keyed on the URL, so building it inside the loop still produces the
+same entity ID. The cost is that it re-emits one entity per defendant and obscures the
 one-article-many-entities structure the Documentation entities exist to express.
 
-**Every `Thing` the notice causes you to emit gets a Documentation**, not only the
-principal subject: a defendant's related company, a vessel named alongside its owner. The
-entity was read out of that document, and the Documentation records where it came from.
+Give every `Thing` the notice causes you to emit a Documentation, not only the principal
+subject: a defendant's related company, a vessel named alongside its owner. The entity
+was read out of that document, and the Documentation records where it came from.
 
 `Documentation:entity` has range `Thing`, so it covers `Person`, `Company`,
 `LegalEntity`, `Vessel` and their kin. `Sanction` (an `Interval`) and relationship edges
@@ -125,7 +125,7 @@ are already anchored to entities that have one. Put the notice URL on
 `Sanction:sourceUrl` instead.
 
 `key_extra` is there for when the URL alone doesn't identify what you're making an entity
-for — one page carrying several distinct notices, say.
+for, e.g. one page carrying several distinct notices.
 
 
 ## Reading entities out of prose
@@ -135,7 +135,7 @@ be a person, a company, or three of each in a list. Take the first rung that hol
 
 1. **Deterministic parsing**, when the prose is formulaic — a heading that is always
    `In the Matter of <name>`, a parenthetical `(born 12 March 1970)`. Assert the shape
-   you rely on, so the day it changes you hear about it.
+   you rely on, so a change in the source fails loudly instead of passing silently.
 2. **A lookup**, for a bounded set of values that don't parse. Two distinct uses:
     - a **categorical** lookup for interpretation-bearing values — notice type, entity
       type, whether the article is in scope at all. Enumerate every known value and make
@@ -144,16 +144,17 @@ be a person, a company, or three of each in a list. Take the first rung that hol
       that option needs a comment saying so.
     - a **`type.*`** lookup for values that are well-formed but wrong: a misspelled month
       in a published date, a country string the source invented.
-3. **The [review framework](../data_reviews.md)**, when the names and entity types can
-   only be had by reading the text. This is the normal answer for enforcement prose. Do
-   not reach for regular expressions to split a list of defendants out of a sentence: the
-   cases that matter are the ones a regex gets wrong — `A, B and C, d/b/a D`, an alias in
-   parentheses, a company whose name contains ` and `.
+3. **The review framework**, when the names and entity types can only be had by reading
+   the text (see [data reviews](../data_reviews.md) for the full mechanism). This is the
+   normal answer for enforcement prose. Do not reach for regular expressions to split a
+   list of defendants out of a sentence: the cases that matter are the ones a regex gets
+   wrong — `A, B and C, d/b/a D`, an alias in parentheses, a company whose name contains
+   ` and `.
 
 Rungs 2 and 3 combine. A crawler can run a cheap heuristic over every name and route only
-the irregular ones to review — [`h.is_name_irregular`][zavod.helpers.is_name_irregular]
-and `rigour.names.contains_split_phrase` both answer "does this need a
-human?". Names have their own helpers,
+the irregular ones to review: [`h.is_name_irregular`][zavod.helpers.is_name_irregular]
+and `rigour.names.contains_split_phrase` both flag whether a name needs a human to look
+at it. Names have their own helpers,
 [`h.apply_reviewed_name_string`][zavod.helpers.apply_reviewed_name_string] and
 [`h.apply_reviewed_names`][zavod.helpers.apply_reviewed_names]; see
 [name cleaning](names.md).
@@ -167,26 +168,26 @@ A crawler using LLM extraction sets `ci_test: false` (no API key in CI) and ends
 ## When a notice doesn't fit the expected shape
 
 Free-form HTML gives you no record to audit, so the decision — crash, warn and skip, or
-add a lookup — is made per selector. The question is not "how bad is this?" but **"how
-many notices does this affect?"**
+add a lookup — is made per selector. What matters is **how many notices the deviation
+affects**, not how bad any single one looks.
 
-**Crash when the breakage is structural**, meaning it would affect every notice on the
-site and the parse is invalid if the assumption is false. Select the article container,
-title and release ID with [`h.xpath_element`][zavod.helpers.xpath_element] or
-`expect_exactly=`, which raise on the wrong count, and assert what you rely on.
+- **Crash** when the breakage is structural, meaning it would affect every notice on the
+  site and the parse is invalid if the assumption is false. Select the article container,
+  title and release ID with [`h.xpath_element`][zavod.helpers.xpath_element] or
+  `expect_exactly=`, which raise on the wrong count, and assert what you rely on.
 
-**Warn and skip when one notice deviates** and its siblings still parse — a release
-published as a PDF, a stub page, a notice with no date. Use `context.log.warning` with
-the URL and `continue`, never an `assert` over this kind of deviation: an assertion here
-stops the crawl over one bad document and loses the hundreds that parsed.
+- **Warn and skip** when one notice deviates and its siblings still parse — a release
+  published as a PDF, a stub page, a notice with no date. Use `context.log.warning` with
+  the URL and `continue`, never an `assert` over this kind of deviation: an assertion
+  here stops the crawl over one bad document and loses the hundreds that parsed.
 
-**Add a lookup when the deviation is a known, enumerable value** rather than a one-off
-failure: a notice type the source added, an entity type label, a topic that is out of
-scope, a date the source misspelled. The lookup entry is the documented decision, it
-lives in the YAML where a non-programmer can extend it, and the unmatched case stays loud
-for the next new value.
+- **Add a lookup** when the deviation is a known, enumerable value rather than a one-off
+  failure: a notice type the source added, an entity type label, a topic that is out of
+  scope, a date the source misspelled. The lookup entry is the documented decision, it
+  lives in the YAML where a non-programmer can extend it, and the unmatched case stays
+  loud for the next new value.
 
-**Never** encode a single notice's exception as a condition in the crawler:
+Never encode a single notice's exception as a condition in the crawler:
 
 ```python
 # Anti-pattern: this is a lookup, written in the wrong file.
@@ -197,7 +198,7 @@ if url == "https://www.example.gov/press-releases/7274-15":
 A URL test in code has no audit trail, no comment explaining what was wrong with that
 notice, and no room for the second one.
 
-Finally, **an article that names no entities is not an error.** Plenty of press releases
-are about policy, personnel or statistics. Filter out-of-scope categories on the source's
-own topic labels via a lookup, and let an unknown label warn, so a new category is a
-decision someone makes rather than a silent inclusion.
+An article that names no entities is not an error, either. Plenty of press releases are
+about policy, personnel or statistics. Filter out-of-scope categories on the source's own
+topic labels via a lookup, and let an unknown label warn, so a new category is a decision
+someone makes rather than a silent inclusion.
