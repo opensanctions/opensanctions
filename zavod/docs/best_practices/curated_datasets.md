@@ -12,7 +12,7 @@ The file is tracked in git, so every change to the data carries an author, a dat
 
 The metadata columns are the ones extraction assigns: e.g. `type`, `topics`, the program key, the QID. Every other cell holds the source's own text, unmodified.
 
-Cleaning belongs downstream, in the crawler and in [datapatch lookups](datapatch_lookups.md) or name-cleaning Data Reviews, where one option corrects every row carrying the value and the correction re-runs on the next crawl. A value tidied up in the file applies to that row alone, fixed to whichever model extracted it, and nothing can re-derive it when the cleaning rules change.
+Cleaning belongs downstream, in the crawler and in [datapatch lookups](datapatch_lookups.md) or [name-cleaning Data Reviews](../extract/names.md), where one option corrects every row carrying the value and the correction re-runs on the next crawl. A value tidied up in the file applies to that row alone, fixed to whichever model extracted it, and nothing can re-derive it when the cleaning rules change.
 
 ### Split a corrected column into `x_original` and `x_clean`
 
@@ -22,7 +22,7 @@ Use the same two suffixes on every column that takes corrections, so a reviewer 
 
 ### One row per designation, not per entity
 
-Normally, the same person designated twice under different measures — or re-listed after a removal — gets a row for each designation. The crawler can then emit one `Sanction`, or one `Occupancy` for a term of office, straight from the row. Entities are merged downstream, while the rows keep the program, the dates and the source for each designation.
+Normally, the same person designated twice under different measures — or re-listed after a removal — gets a row for each designation. The crawler can then emit one `Sanction`, or one `Occupancy` for a term of office, straight from the row. [Entities are merged downstream](entity_id.md), while the rows keep the program, the dates and the source for each designation.
 
 Keep to a row per designation even when the source publishes notices, as far as that is practical. A row per notice forces the crawler to group events under a common key to reconstruct each designation — which produces duplicate entities whenever the key is imperfect, and makes the file harder to review.
 
