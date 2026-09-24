@@ -109,9 +109,7 @@ entities". In short:
 - `Sanction` and relationship edges (`UnknownLink`, `Ownership`) are not `Thing`s and get
   no Documentation. Put the notice URL on `Sanction:sourceUrl`.
 
-The signatures are `make_article(context, url, key_extra=None, title=None,
-published_at=None)` and `make_documentation(context, entity, article, key_extra=None,
-date=None)`. Don't invent parameters.
+Don't invent parameters — check the signatures rendered in `enforcements.md`.
 
 ## Step 5: Getting entities out of the prose
 

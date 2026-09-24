@@ -40,19 +40,8 @@ source's whole archive on every run. The answer depends on the order of the inde
 you establish by reading it rather than assuming:
 
 - **The index is newest-first.** The first out-of-age item means every later one is older
-  too, so **stop paginating**. Have the per-page function report it, and leave the loop
-  to `crawl()`:
-
-    ```python
-    def crawl_index_page(context: Context, doc: Element) -> bool:
-        """Crawl one index page. Returns False if we should stop paginating."""
-        table = h.xpath_element(doc, ".//table")
-        for row in h.parse_html_table(table):
-            if not h.within_max_age(context, h.element_text(row["date"])):
-                return False
-            crawl_notice(context, h.xpath_string(row["notice"], ".//a/@href"))
-        return True
-    ```
+  too, so **stop paginating**. Have the per-page function return `False` on that item, and
+  leave the loop to `crawl()` — code: `examples.md`, Pattern A.
 
 - **The index is in any other order** — oldest-first, grouped by programme, sorted by
   name — then an out-of-age item says nothing about the next one. **Skip the item and
@@ -134,8 +123,6 @@ such as `UnknownLink` and `Ownership` are not `Thing`s and take no Documentation
 are already anchored to entities that have one. Put the notice URL on
 `Sanction:sourceUrl` instead.
 
-`make_documentation` defaults the Documentation's `date` to the article's `publishedAt`.
-Pass `date=` only when the entity's involvement is dated differently from the article.
 `key_extra` is there for when the URL alone doesn't identify what you're making an entity
 for — one page carrying several distinct notices, say.
 
