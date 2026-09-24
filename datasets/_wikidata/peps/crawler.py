@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import lru_cache
 
 from nomenklatura.wikidata import WikidataClient
+from requests.exceptions import RequestException
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
 from rigour.territories.territory import Territory
@@ -258,7 +259,23 @@ def crawl(context: Context) -> None:
         if position is None:
             continue
         context.log.info(f"Position [{position.id}]: {position.caption}")
-        for person_qid, modified_at in position_holders(client, position_item).items():
+        try:
+            holders = position_holders(client, position_item)
+        except RequestException as exc:
+            # One truncated or refused query response out of the tens of
+            # thousands issued here used to abort the whole run, discarding
+            # hours of crawling. Skip the position instead, as the discovery
+            # phase does: its holders are re-queried on the next crawl, most
+            # of them are also reachable via their other positions, and the
+            # minimum-count assertions still fail the run if the query service
+            # is broken enough for this to happen at scale.
+            context.log.warning(
+                "Position holder query failed",
+                position=position_qid,
+                error=str(exc),
+            )
+            continue
+        for person_qid, modified_at in holders.items():
             if person_qid in done_persons:
                 continue
             done_persons.add(person_qid)
