@@ -93,6 +93,22 @@ lookups:
         value: CN-TAO-ACCOMP
       - match: ""
         value: null
+  # Latest-status phrases copied verbatim from MOFCOM notices. `ends` decides whether
+  # the notice closes the designation (endDate) or suspends it (modifiedAt).
+  current_status:
+    options:
+      - match:
+          - 停止上述相关措施
+          - 停止执行相关措施
+          - 停止3月4日公告（不可靠实体清单工作机制公告〔2025〕5号和6号）相关措施
+          - 停止4月9日公告（不可靠实体清单工作机制〔2025〕8号）相关措施
+          - 移出反制清单
+        ends: true
+      - match:
+          - 继续暂停上述相关措施1年
+          - 继续暂停4月4日公告（不可靠实体清单工作机制公告〔2025〕7号）相关措施1年
+          - 暂停商务部令二〇二五年第6号（《关于对韩华海洋株式会社5家美国相关子公司采取反制措施的决定》）相关措施一年
+        ends: false
 
 config:
   discovery:
@@ -111,6 +127,13 @@ config:
     # - Chinese name: source spelling, when present.
     # - Country: ISO 3166-1 alpha-2 code when identifiable.
     # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision, which may differ from the publication date in the URL.
+    # - Source URL: the official notice that names the target.
+    # - Summary/Chinese summary: role or identity note for the target as published in the notice; emitted as `notes`.
+    # - Notice ID: instrument key matching the discovery logical key (MOFCOM-2025-13, MOFCOM-UEL-2025-7); 商务部令 orders use MOFCOM-ORDER-<year>-<n>.
+    # - Notice title/Current status notice title: verbatim titles, CSV-only.
+    # - Designation quote/Current status quote: full sentences copied exactly from the cited page, with language codes.
+    # - Current status (source): verbatim phrase from the latest status notice; it must be a substring of the quote and be listed in the `current_status` lookup.
+    # - Current status date: effective date of that notice; becomes endDate for ending phrases and modifiedAt for suspensions. End date must match it when both are set.
     # - Address: preserve the official address as one value.
     # - QID: optional; add only when the identity is certain.
     # - Body: Ministry of Foreign Affairs or Ministry of Commerce.
@@ -143,6 +166,21 @@ config:
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_aab677e956c943808cebf8c06a28ff0e.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_6607ea694b704da8ac5e863a5568e47c.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2025/art/2025/art_6af71ac99d00410d895a50abc044d148.html
+      # MOFCOM spokesperson notices and export-control information-network summaries
+      # that change the status of previously designated groups.
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_09a94ead2b57413eb851369fc15ba900.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_2d1e85ffaebf4ed9913f35f2afb5c436.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_53ec1f591dba49a39b65fd89b6d73e6f.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_3cd57285290044edb3036563bc4c7352.html
+      - https://exportcontrol.mofcom.gov.cn/article/gndt/202508/1155.html
+      - https://exportcontrol.mofcom.gov.cn/article/gndt/202511/1186.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_7122e97907384bd2bb89a848301abb7f.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_10b299e3e1334d23b4bad116fd38a7b7.html
+      # MOFCOM spokesperson Q&A that restate export-control listings already in sanctions.csv
+      # (14 EU entities 24.07.2026, 10 US entities 22.06.2026, 7 EU entities 24.04.2026).
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_21b4467c09fc435d8d4aee6f310f9f8a.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_239eb37f45434cb09769ade0f7a78092.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_bc53fd7837ae481cb8f790976b3cf7e4.html
       # MOFCOM industry-security (aqygzj) mirrors of export-control announcements already
       # represented in sanctions.csv under their blgg/zwgk URLs; muted after confirming each
       # notice's target list matches its existing CSV row group by name, count, and date.
@@ -191,3 +229,16 @@ config:
       # TAO: consolidated "Taiwan independence henchmen and accomplices" list snapshot;
       # all 12 named persons are represented from their original naming notices.
       - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/yfcjtdwgfzjdsbx/202601/t20260112_12745760.htm
+      # aqygzj mirrors of the 2024 and January/March 2025 UEL announcements cited in
+      # sanctions.csv under their www.mofcom.gov.cn URLs.
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2024/art_e78af9c314b2466daa7f96b49766a158.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_b81f6a3e44cc4ab5995b16378a5408e2.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_2aaf11cceb1c4986ad7c4c2a37725b0a.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_e3de33abcac74ea7b8c63ceff76b2aab.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_aff099315f8a453dbcb4d28b34c8f313.html
+      # Spokesperson Q&A that do not designate targets or restate rows already in
+      # sanctions.csv: port-fee countermeasures on US shipping (October 2025), the
+      # FCC/DHS countermeasure order (August 2026), and the PVH investigation (2024).
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_295bac78cb6f4079abb7cd1db19f0a83.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_e247be3a58d7425e9cfd0813ae7c2695.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2024/art_f5ac8919a05743f78a3c25f3d0c138f5.html
