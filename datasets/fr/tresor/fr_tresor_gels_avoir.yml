@@ -181,6 +181,12 @@ lookups:
           - Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran.
       - match: Gao
         value: Gao
+      # The source appends phone numbers and an e-mail address to the address, which
+      # pushes it past the 250-character limit of the address type. The landlines and
+      # the e-mail address are also published in the TELEPHONE and COURRIEL fields of
+      # the same record (fr-ga-3299), so only the two mobile numbers are dropped here.
+      - match: "Succursale 6 - numéro 237, Shah Zada Market (aussi connu sous le nom de Sarai Shahzada), secteur de Puli Khisti, district de police 1, Kaboul - téléphone: +93-202-103386, +93-202-101714, 0202-104748, mobile: +93-797-059059, +93-702-222222, courriel: helmand_exchange_msp@yahoo.com)"
+        value: "Succursale 6 - numéro 237, Shah Zada Market (aussi connu sous le nom de Sarai Shahzada), secteur de Puli Khisti, district de police 1, Kaboul"
   type.email:
     options:
       - contains: hotelminsk@udp.gov.by
