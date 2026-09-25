@@ -88,6 +88,25 @@ lookups:
       # Suspended; unclear whether the seat is still held.
       - match: NonAktif
         value: unknown
+  # Factions are named after their party.
+  type.political:
+    options:
+      - match: Fraksi Partai Demokrasi Indonesia Perjuangan
+        value: Partai Demokrasi Indonesia Perjuangan
+      - match: Fraksi Partai Golongan Karya
+        value: Partai Golongan Karya
+      - match: Fraksi Partai Gerakan Indonesia Raya
+        value: Partai Gerakan Indonesia Raya
+      - match: Fraksi Partai Kebangkitan Bangsa
+        value: Partai Kebangkitan Bangsa
+      - match: Fraksi Partai Keadilan Sejahtera
+        value: Partai Keadilan Sejahtera
+      - match: Fraksi Partai NasDem
+        value: Partai NasDem
+      - match: Fraksi Partai Demokrat
+        value: Partai Demokrat
+      - match: Fraksi Partai Amanat Nasional
+        value: Partai Amanat Nasional
 
 assertions:
   min:

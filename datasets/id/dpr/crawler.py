@@ -33,8 +33,6 @@ SIGNING_SECRET = os.environ.get("OPENSANCTIONS_ID_DPR_SIGNING_SECRET")
 # Legislature labels, e.g. "Periode 2024 - 2029".
 PERIODE_RE = re.compile(r"(?:Periode\s+)?(?P<start>\d{4})\s*-\s*(?P<end>\d{4})")
 
-PERIODE_QUERY = "{ getAllPeriode { id data } }"
-
 # Trimmed from the site's own query; formatted with page size and legislature ID.
 ROSTER_QUERY = """
 {
@@ -43,6 +41,7 @@ ROSTER_QUERY = """
     wherePeriode: { column: ID, operator: EQ, value: %d }
   ) {
     data {
+      idAnggota
       statusOff
       dapil { dapil }
       anggota { id nama tempatLahir tanggalLahir }
@@ -112,7 +111,7 @@ def query_gql(context: Context, query: str) -> Any:
 def fetch_legislatures(context: Context) -> list[Legislature]:
     """Fetch the legislative periods and parse their term years."""
     legislatures: list[Legislature] = []
-    for periode in query_gql(context, PERIODE_QUERY)["getAllPeriode"]:
+    for periode in query_gql(context, "{ getAllPeriode { id data } }")["getAllPeriode"]:
         match = PERIODE_RE.fullmatch(periode["data"].strip())
         if match is None:
             raise ValueError(f"Cannot parse legislature period: {periode!r}")
@@ -170,9 +169,7 @@ def crawl_member(
     person.add("citizenship", "id")
     faction = member["riwayatFraksi"]
     if faction is not None and faction["fraksi"] is not None:
-        # e.g. "Fraksi Partai Golongan Karya"
-        party = faction["fraksi"]["fraksi"].removeprefix("Fraksi ")
-        person.add("political", party, lang="ind")
+        person.add("political", faction["fraksi"]["fraksi"], lang="ind")
     # e.g. "Dr-H-C-PUAN-MAHARANI-287"
     slug = re.sub(r"[^A-Za-z0-9]+", "-", raw_name)
     person.add("sourceUrl", f"{MEMBER_URL}{slug}-{member_id}")
