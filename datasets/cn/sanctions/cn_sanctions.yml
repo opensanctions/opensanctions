@@ -93,6 +93,22 @@ lookups:
         value: CN-TAO-ACCOMP
       - match: ""
         value: null
+  # Latest-status phrases copied verbatim from MOFCOM notices. `ends` decides whether
+  # the notice closes the designation (endDate) or suspends it (modifiedAt).
+  current_status:
+    options:
+      - match:
+          - 停止上述相关措施
+          - 停止执行相关措施
+          - 停止3月4日公告（不可靠实体清单工作机制公告〔2025〕5号和6号）相关措施
+          - 停止4月9日公告（不可靠实体清单工作机制〔2025〕8号）相关措施
+          - 移出反制清单
+        ends: true
+      - match:
+          - 继续暂停上述相关措施1年
+          - 继续暂停4月4日公告（不可靠实体清单工作机制公告〔2025〕7号）相关措施1年
+          - 暂停商务部令二〇二五年第6号（《关于对韩华海洋株式会社5家美国相关子公司采取反制措施的决定》）相关措施一年
+        ends: false
 
 config:
   discovery:
@@ -111,9 +127,13 @@ config:
     # - Chinese name: source spelling, when present.
     # - Country: ISO 3166-1 alpha-2 code when identifiable.
     # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision, which may differ from the publication date in the URL.
-    # - Notice ID/Notice title: source instrument identifier and verbatim title, retained in CSV.
-    # - Designation quote/Current status quote: exact source text only, with explicit language codes.
-    # - Current status (source), date, notice title, and source URL: latest-state values only; do not encode history or editorial translations.
+    # - Source URL: official notice URL(s), semicolon-separated when a second page is needed to support the name.
+    # - Summary/Chinese summary: role or identity note for the target as published in the notice; emitted as `notes`.
+    # - Notice ID: instrument key matching the discovery logical key (MOFCOM-2025-13, MOFCOM-UEL-2025-7); 商务部令 orders use MOFCOM-ORDER-<year>-<n>.
+    # - Notice title/Current status notice title: verbatim titles, CSV-only.
+    # - Designation quote/Current status quote: full sentences copied exactly from the cited page, with language codes.
+    # - Current status (source): verbatim phrase from the latest status notice; it must be a substring of the quote and be listed in the `current_status` lookup.
+    # - Current status date: effective date of that notice; becomes endDate for ending phrases and modifiedAt for suspensions. End date must match it when both are set.
     # - Address: preserve the official address as one value.
     # - QID: optional; add only when the identity is certain.
     # - Body: Ministry of Foreign Affairs or Ministry of Commerce.
@@ -154,9 +174,13 @@ config:
       - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_3cd57285290044edb3036563bc4c7352.html
       - https://exportcontrol.mofcom.gov.cn/article/gndt/202508/1155.html
       - https://exportcontrol.mofcom.gov.cn/article/gndt/202511/1186.html
-      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_7e09fc75390f4a078466b56ac9d6503a.html
       - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_7122e97907384bd2bb89a848301abb7f.html
       - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_10b299e3e1334d23b4bad116fd38a7b7.html
+      # MOFCOM spokesperson Q&A that restate export-control listings already in sanctions.csv
+      # (14 EU entities 24.07.2026, 10 US entities 22.06.2026, 7 EU entities 24.04.2026).
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_21b4467c09fc435d8d4aee6f310f9f8a.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_239eb37f45434cb09769ade0f7a78092.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_bc53fd7837ae481cb8f790976b3cf7e4.html
       # MOFCOM industry-security (aqygzj) mirrors of export-control announcements already
       # represented in sanctions.csv under their blgg/zwgk URLs; muted after confirming each
       # notice's target list matches its existing CSV row group by name, count, and date.

@@ -11,6 +11,7 @@ from urllib.parse import urljoin, urlparse
 import requests
 from lxml import html
 from rigour.mime.types import CSV
+from zavod.entity import Entity
 
 from zavod import Context
 from zavod import helpers as h
@@ -31,21 +32,20 @@ MOFCOM_SPOKESPERSON_PARAMS = {
     "pageType": "column",
     "tagId": "分页列表",
     "pageId": "625b494d0adc47c885f5e1a18ee42b94",
-    "paramJson": '{"pageNo":1,"pageSize":99999}',
+    # The API caps the response at roughly the latest 100 notices whatever pageSize says.
+    "paramJson": '{"pageNo":1,"pageSize":100}',
 }
 MFA_NOTICE_PATH = re.compile(r"/(\d{6})/(t\d+_\d+)\.shtml$")
 MOFCOM_NOTICE_KEY = re.compile(r"商务部公告(\d{4})年第(\d+)号")
 MOFCOM_UEL_KEY = re.compile(r"不可靠实体清单工作机制公告〔(\d{4})〕(\d+)号")
 MOFCOM_ARTICLE_PATH = re.compile(r"/zcfb/blgg/gg/\d{4}[^/]*/art/")
-MOFCOM_CANDIDATE_PATTERNS = (
-    re.compile(r"列入.*(?:出口管制管控名单|关注名单|不可靠实体清单)"),
-    re.compile(r"采取反制"),
-    re.compile(
-        r"(?:移出|暂停|恢复|继续暂停|停止|取消|调整).*"
-        r"(?:出口管制管控名单|关注名单|不可靠实体清单|反制措施)"
-    ),
+MOFCOM_CANDIDATE_TERMS = (
+    "出口管制管控名单",
+    "关注名单",
+    "不可靠实体清单",
+    "反制措施",
+    "采取反制",
 )
-MOFCOM_LIST_TERMS = ("出口管制管控名单", "关注名单", "不可靠实体清单", "反制措施")
 
 # TAO designation hub: aggregates the two formal Taiwan-independence lists and
 # spokesperson announcements. Served as GB2312/GB18030, not UTF-8.
@@ -97,9 +97,7 @@ def parse_mfa_index(content: str, base_url: str = MFA_INDEX_URL) -> list[Candida
 
 
 def is_mofcom_candidate(title: str) -> bool:
-    return any(pattern.search(title) for pattern in MOFCOM_CANDIDATE_PATTERNS) or any(
-        term in title for term in MOFCOM_LIST_TERMS
-    )
+    return any(term in title for term in MOFCOM_CANDIDATE_TERMS)
 
 
 def mofcom_logical_key(title: str, url: str) -> str:
@@ -329,13 +327,59 @@ def collect_reviewed_urls(
     reviewed_urls = {
         str(url) for url in discovery_config.get("reviewed_urls", []) if url
     }
-    reviewed_urls.update(row["Source URL"] for row in rows if row["Source URL"])
-    reviewed_urls.update(
-        row["Current status source URL"]
-        for row in rows
-        if row.get("Current status source URL")
-    )
+    for row in rows:
+        reviewed_urls.update(split_urls(row["Source URL"]))
+        reviewed_urls.update(split_urls(row.get("Current status source URL")))
     return reviewed_urls
+
+
+def split_urls(value: str | None) -> list[str]:
+    """Split a semicolon-separated CSV cell of URLs into its non-empty parts."""
+    if value is None:
+        return []
+    return [url.strip() for url in value.split(";") if url.strip()]
+
+
+def apply_current_status(
+    context: Context,
+    sanction: Entity,
+    name: str,
+    end_date: str | None,
+    row: dict[str, str],
+) -> None:
+    """Project the latest official status of a designation onto its Sanction.
+
+    The status phrase is emitted verbatim; the ``current_status`` lookup only decides
+    whether the notice ends the measure (``endDate``) or suspends it (``modifiedAt``).
+    """
+    phrase = row.pop("Current status (source)", None)
+    status_date = row.pop("Current status date", None)
+    row.pop("Current status notice title", None)
+    status_url = row.pop("Current status source URL", None)
+    quote = row.pop("Current status quote", None)
+    language = row.pop("Current status quote language", None)
+    if not phrase:
+        if status_date or status_url or quote:
+            raise ValueError(f"Status columns without a status phrase for {name!r}")
+        return
+    if not status_date or not status_url or not quote or not language:
+        raise ValueError(f"Incomplete current status columns for {name!r}")
+    if phrase not in quote:
+        raise ValueError(
+            f"Status phrase {phrase!r} is not part of its quote ({name!r})"
+        )
+    res = context.lookup("current_status", phrase)
+    if res is None:
+        raise ValueError(f"Unmapped status phrase {phrase!r} for {name!r}")
+    sanction.add("status", phrase, lang="zho")
+    sanction.add("sourceUrl", split_urls(status_url))
+    sanction.add("provisions", quote, lang=language)
+    if res.ends:
+        if end_date and end_date != status_date:
+            raise ValueError(f"End date and status date differ for {name!r}")
+        h.apply_date(sanction, "endDate", status_date)
+    else:
+        h.apply_date(sanction, "modifiedAt", status_date)
 
 
 def crawl(context: Context) -> None:
@@ -362,24 +406,25 @@ def crawl(context: Context) -> None:
         entity.add("alias", row.pop("Chinese name"), lang="zho")
         entity.add("country", row.pop("Country", None))
         entity.add("address", row.pop("Address", None))
-        summary = row.pop("Summary", "")
-        chinese_summary = row.pop("Chinese summary", "")
-        if summary or chinese_summary:
-            raise ValueError(
-                "Summary fields must contain only source text; migrate them"
-            )
+        entity.add("notes", row.pop("Summary", None), lang="eng")
+        entity.add("notes", row.pop("Chinese summary", None), lang="zho")
         entity.add("topics", row.pop("Topics").split(";"))
         program = row.pop("List", None)
+        source_urls = split_urls(row.pop("Source URL", None))
+        if len(source_urls) == 0:
+            raise ValueError(f"Row for {name!r} has no Source URL")
+        # One Sanction per designation row: the same target is often listed under
+        # several MOFCOM and MFA measures whose status diverges.
         sanction = h.make_sanction(
             context,
             entity,
+            key=f"{source_urls[0]}|{program}",
             program_name=program,
             program_key=h.lookup_sanction_program_key(context, program),
         )
         sanction.set("authority", row.pop("Body", None))
-        notice_id = row.pop("Notice ID", None)
-        if notice_id:
-            sanction.set("recordId", notice_id)
+        sanction.add("recordId", row.pop("Notice ID", None))
+        row.pop("Notice title", None)
         designation_quote = row.pop("Designation quote", None)
         designation_language = row.pop("Designation quote language", None)
         if designation_quote:
@@ -390,33 +435,15 @@ def crawl(context: Context) -> None:
             row.pop("Date", None),
             two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
         )
+        end_date = row.pop("End date", None)
         h.apply_date(
             sanction,
             "endDate",
-            row.pop("End date", None),
+            end_date,
             two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
         )
-        source_url = row.pop("Source URL", None)
-        sanction.add("sourceUrl", source_url)
-        current_status = row.pop("Current status (source)", None)
-        row.pop("Notice title", None)
-        row.pop("Current status notice title", None)
-        row.pop("Current status date", None)
-        current_status_url = row.pop("Current status source URL", None)
-        current_status_quote = row.pop("Current status quote", None)
-        current_status_language = row.pop("Current status quote language", None)
-        if current_status and (not current_status_url or not current_status_quote):
-            raise ValueError(f"Current status lacks source URL or quote for {name!r}")
-        sanction.add("sourceUrl", current_status_url)
-        if current_status_quote:
-            sanction.add(
-                "provisions", current_status_quote, lang=current_status_language
-            )
-        if current_status and current_status.startswith(("暂停", "继续暂停")):
-            sanction.set("status", "suspended")
-        elif current_status and current_status.startswith("移出"):
-            sanction.set("status", "inactive")
-        row.pop("Current status quote language", None)
+        sanction.add("sourceUrl", source_urls)
+        apply_current_status(context, sanction, name, end_date, row)
         context.emit(sanction)
         context.emit(entity)
         context.audit_data(row)

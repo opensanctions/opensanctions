@@ -29,10 +29,13 @@ different date. Duplicate listings are expected: entities are merged downstream,
 while the rows retain the provenance of each designation event.
 
 For additions, create one row for every named target. For removals or expiries, update
-`End date` on the matching designation row rather than deleting its history. Update
-the current-status fields to the latest source state; the row is not a historical log.
-Do not infer a removal from changed wording, an inaccessible URL, or absence from a
-later notice.
+`End date` on the matching designation row rather than deleting its history. Record a
+later suspension, cessation or removal in the current-status fields; a row carries only
+the latest state, not a log of every notice. Do not infer a removal from changed
+wording, an inaccessible URL, or absence from a later notice.
+
+The crawler emits one `Sanction` per row, so the status of one measure never leaks onto
+another measure against the same target.
 
 ## Map the CSV fields
 
@@ -47,23 +50,23 @@ Keep the existing header and column order.
 | `Chinese name` | Preserve the name as written in the Chinese notice. |
 | `Country` | Use the target's country when it can be established from the notice. Prefer an ISO 3166-1 alpha-2 code. |
 | `Topics` | Map the measure using the table below. Separate multiple topics with semicolons. |
-| `Summary` | Leave empty. Editorial explanations and translations are not source data. |
-| `Chinese summary` | Leave empty. Use the quote fields below for verbatim source text. |
+| `Summary` | The role or identity note the notice publishes for the target (for example a job title), in English. Emitted as `notes`. |
+| `Chinese summary` | The same note as written in the Chinese notice, when available. Emitted as `notes`. |
 | `Body` | Use the English name of the issuing authority. |
 | `List` | Use the source-facing list name mapped below, not the internal program key. |
 | `Date` | Use the effective date in `DD.MM.YYYY` format. |
-| `End date` | Set only when an official action ends the designation. |
-| `Source URL` | Use the exact official notice URL. Every row must have one. |
+| `End date` | Set only when an official action ends the designation. When `Current status (source)` is an ending phrase, it must equal `Current status date`. |
+| `Source URL` | The exact official notice URL. Every row must have one. When the official notice does not name the target, append the page that does, separated by a semicolon. |
 | `Address` | Preserve an address published for that target, including its postal code. |
-| `Notice ID` | Stable identifier for the original designation instrument; reproducible from the official source. |
+| `Notice ID` | Instrument key in the form the discovery step derives from titles: `MOFCOM-<year>-<n>` for 商务部公告, `MOFCOM-UEL-<year>-<n>` for UEL announcements, `MOFCOM-ORDER-<year>-<n>` for 商务部令 orders. Emitted as `recordId`. |
 | `Notice title` | Verbatim title of the original designation notice; CSV-only provenance. |
-| `Designation quote` | Exact source-language passage establishing the target and measure. |
+| `Designation quote` | A complete sentence or list entry copied character-for-character from the page in `Source URL`, naming the target and the measure. Emitted as `provisions`. |
 | `Designation quote language` | Language code for `Designation quote`. |
-| `Current status (source)` | Exact status/action wording from the latest official status notice. This is not a translation. |
-| `Current status date` | Effective date stated for the latest status. |
+| `Current status (source)` | The action clause copied character-for-character from the latest status notice, such as `停止执行相关措施`. It must be a substring of `Current status quote` and listed in the `current_status` lookup in the dataset metadata, which records whether the phrase ends the measure. Emitted as `status`. |
+| `Current status date` | Effective date stated for the latest status. Ending phrases (停止…, 移出…) project it to `endDate`; suspensions (暂停…) project it to `modifiedAt`. |
 | `Current status notice title` | Verbatim title of the latest status notice; CSV-only provenance. |
-| `Current status source URL` | Official source for the latest status. |
-| `Current status quote` | Exact source-language passage supporting the latest status and target scope. |
+| `Current status source URL` | Official source for the latest status. Prefer the primary www.mofcom.gov.cn page over mirrors such as exportcontrol.mofcom.gov.cn. |
+| `Current status quote` | The complete sentence containing the status clause, copied character-for-character from that page. Emitted as `provisions`. |
 | `Current status quote language` | Language code for `Current status quote`. |
 
 Use these established mappings:
@@ -106,7 +109,8 @@ Then verify notice-specific invariants:
 
 - the number of rows using the source URL matches the number of extracted targets;
 - every row has the same expected authority, list, topic, and effective date;
-- names and addresses correspond one-to-one with the source entries; and
+- names and addresses correspond one-to-one with the source entries;
+- every quote is a character-for-character substring of the cited page; and
 - no pre-existing rows were changed unintentionally.
 
 Finally run the crawler and inspect its issues. This checks dates, countries,
