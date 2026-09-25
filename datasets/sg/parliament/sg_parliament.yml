@@ -4,9 +4,9 @@ prefix: sg-parl
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-23
+  start: 2026-09-25
 load_statements: true
-ci_test: false  # Fetches through Zyte, whose key CI does not have.
+ci_test: false  # Fetches through Zyte.
 summary: >-
   Current and historical members of the Parliament of Singapore, the country's unicameral legislature.
 description: |
