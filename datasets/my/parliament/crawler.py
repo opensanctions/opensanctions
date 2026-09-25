@@ -7,6 +7,7 @@ from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 
 # Chamber roster pages. `lang=en` yields English field labels on the linked
 # detail pages (see `parse_detail`).
@@ -40,7 +41,16 @@ def parse_detail(context: Context, url: str) -> dict[str, str]:
     `lang=en` yields English field labels ("Name", "Position in the Parliament",
     ...); the detail links on the roster pages omit it, so it is requested here.
     """
-    doc = context.fetch_html(url, params={"lang": "en"}, cache_days=7)
+    if "?" not in url:
+        raise ValueError(f"Member link without query string: {url}")
+    doc = zyte_api.fetch_html(
+        context,
+        f"{url}&lang=en",
+        unblock_validator=".//tr[td/strong]",
+        html_source="httpResponseBody",
+        cache_days=7,
+        geolocation="my",
+    )
     data: dict[str, str] = {}
     for row in h.xpath_elements(doc, ".//tr[td/strong]"):
         cells = h.xpath_elements(row, "./td")
@@ -237,7 +247,15 @@ def iter_member_links(context: Context, roster_url: str) -> Iterator[tuple[str, 
 
     A roster that returns too few members is caught by the dataset assertions
     (the per-chamber `entities_with_prop` minimums), not here."""
-    doc = context.fetch_html(roster_url, absolute_links=True, cache_days=1)
+    doc = zyte_api.fetch_html(
+        context,
+        roster_url,
+        unblock_validator=".//ul[contains(@class,'member-of-parliament')]",
+        html_source="httpResponseBody",
+        absolute_links=True,
+        cache_days=1,
+        geolocation="my",
+    )
     links = h.xpath_strings(
         doc,
         ".//ul[contains(@class,'member-of-parliament')]/li//a[contains(@href,'id=')]/@href",
@@ -287,5 +305,5 @@ def crawl_negara(context: Context) -> None:
 
 def crawl(context: Context) -> None:
     crawl_rakyat(context)
-    crawl_negara(context)
+    # crawl_negara(context)
     assert_all_accepted(context, raise_on_unaccepted=False)
