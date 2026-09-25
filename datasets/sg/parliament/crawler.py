@@ -8,6 +8,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 CURRENT_MPS_URL = "https://www.parliament.gov.sg/mps/list-of-current-mps"
+FLIGHT_PUSH = "self.__next_f.push("
 # e.g. "Halimah Yacob (Resigned on 7 August 2017, 13th Parliament)".
 REGEX_RESIGNED = re.compile(r"\s*\(Resigned on (?P<date>[^,)]+), (?P<term>[^)]+)\)\s*$")
 REGEX_TERM_RANGE = re.compile(r"^\((?P<start>[\d.]+)\s*-\s*(?P<end>[\d.]+)\)$")
@@ -22,18 +23,32 @@ class Term(NamedTuple):
 
 
 def fetch_page_data(context: Context, url: str) -> str:
-    """Fetch the Next.js flight document a page renders itself from."""
-    document = context.fetch_text(
-        url,
-        # Our cache keys on the URL alone; this parts the document from the HTML.
-        # An empty value is served directly, where `_rsc=1` takes a 307 first.
-        params={"_rsc": ""},
-        headers={"RSC": "1"},  # Serves the document itself, not the HTML embedding it.
-        encoding="utf-8",  # `text/x-component` has no charset, so HTTP says Latin-1.
-        cache_days=1,
-    )
-    assert document is not None, url
-    return document
+    """Join the Next.js flight document a page embeds in `push` chunks.
+
+    Requesting the document directly (`RSC: 1`) comes back empty from CI.
+    """
+    text = context.fetch_text(url, cache_days=1)
+    assert text is not None, url
+    decoder = json.JSONDecoder()
+    chunks: list[str] = []
+    offset = text.find(FLIGHT_PUSH)
+    while offset != -1:
+        start = offset + len(FLIGHT_PUSH)
+        offset = text.find(FLIGHT_PUSH, start)
+        try:
+            pushed, _ = decoder.raw_decode(text, start)
+        except json.JSONDecodeError:
+            continue
+        if (
+            isinstance(pushed, list)
+            and len(pushed) == 2
+            and pushed[0] == 1
+            and isinstance(pushed[1], str)
+        ):
+            chunks.append(pushed[1])
+    if len(chunks) == 0:
+        raise ValueError(f"No flight document chunks in {url} ({len(text)} chars)")
+    return "".join(chunks)
 
 
 def decode_page_data(document: str, key: str) -> Any:
