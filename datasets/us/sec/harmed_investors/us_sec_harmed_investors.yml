@@ -1171,7 +1171,7 @@ lookups:
           - Platinum Management (NY) LLC
       # Admin. Proc. File No. 3-20067 was instituted against the adviser and its
       # founder/CEO as two separate respondents.
-      - match: platinum wealth partners inc. and david l. potter
+      - match: Platinum Wealth Partners Inc. and David L. Potter
         names:
           - Platinum Wealth Partners Inc.
           - David L. Potter
