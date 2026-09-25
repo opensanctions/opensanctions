@@ -89,22 +89,31 @@ def crawl_term(
     period_start: str | None,
     period_end: str | None,
 ) -> None:
-    # Paginated rosters shift as members are added, so only concluded terms,
-    # which are settled, are cached.
-    cache_days = None if period_end is None else 30
+    # Paginated rosters shift across page boundaries when members are added, so
+    # the sitting term is never cached and concluded terms only for same-day retries.
+    cache_days = None if period_end is None else 1
     for house in HOUSES:
         query = {"members_search": "1", "keywords": "", "pid": pid, "house": house}
         url: str | None = f"{context.data_url}?{urlencode(query)}"
+        total: int | None = None
+        rows: list[Element] = []
         while url is not None:
             doc = context.fetch_html(url, cache_days=cache_days)
-            for row in h.xpath_elements(
-                doc, './/div[contains(@class, "sf_result_list")]/a'
-            ):
-                crawl_member(
-                    context, position, categorisation, row, period_start, period_end
+            if total is None:
+                total = int(
+                    h.xpath_strings(doc, '//span[@class="result_total"]/text()')[0]
                 )
+            rows.extend(
+                h.xpath_elements(doc, './/div[contains(@class, "sf_result_list")]/a')
+            )
             next_urls = h.xpath_strings(doc, './/a[@rel="next"]/@href')
             url = next_urls[0] if next_urls else None
+        # A failed page would otherwise end the roster early without an error.
+        assert len(rows) == total, (pid, house, len(rows), total)
+        for row in rows:
+            crawl_member(
+                context, position, categorisation, row, period_start, period_end
+            )
 
 
 def crawl(context: Context) -> None:
