@@ -45,6 +45,7 @@ MOFCOM_CANDIDATE_TERMS = (
     "不可靠实体清单",
     "反制措施",
     "采取反制",
+    "实施反制",
 )
 
 # TAO designation hub: aggregates the two formal Taiwan-independence lists and

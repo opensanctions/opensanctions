@@ -60,7 +60,7 @@ Keep the existing header and column order.
 | `End date` | Set only when an official action ends the designation. When `Current status (source)` is an ending phrase, it must equal `Current status date`. |
 | `Source URL` | The exact official notice URL. Every row must have one, and the notice must name the target; a designation known only from press reporting is not included. |
 | `Address` | Preserve an address published for that target, including its postal code. |
-| `Notice ID` | Instrument key in the form the discovery step derives from titles: `MOFCOM-<year>-<n>` for 商务部公告, `MOFCOM-UEL-<year>-<n>` for UEL announcements, `MOFCOM-ORDER-<year>-<n>` for 商务部令 orders. Emitted as `recordId`. |
+| `Notice ID` | Instrument key: `MOFCOM-<year>-<n>` for 商务部公告, `MOFCOM-UEL-<year>-<n>` for UEL announcements, `MOFCOM-ORDER-<year>-<n>` for 商务部令 orders. The first two match the logical key discovery derives from titles. Emitted as `recordId`. |
 | `Notice title` | Verbatim title of the original designation notice; CSV-only provenance. |
 | `Designation quote` | A complete sentence or list entry copied character-for-character from the page in `Source URL`, naming the target and the measure. Emitted as `provisions`. |
 | `Designation quote language` | Language code for `Designation quote`. |
