@@ -26,13 +26,21 @@ http:
   # The enricher posts one bulk CSV of up to 999 name/country combinations per
   # subject entity, so heavily-merged entities (e.g. the "Massandra" cluster with
   # ~230 names across RU and UA) send a request two orders of magnitude larger
-  # than the typical one. Those are the ones that recur in the run errors, either
-  # as a read timeout at the default 60s or as "Response ended prematurely"; all
-  # other entities come back fine. Give the largest queries more room before
-  # abandoning a response the server may still be assembling. Keep this bounded:
-  # with total_retries above, an entity the endpoint never answers for costs
-  # roughly timeout * 6 plus backoff before the run moves on.
+  # than the typical one. Those were the entities hitting a read timeout at the
+  # default 60s; giving the largest queries more room stopped that class of error
+  # (no read timeout in any run since 2026-09-18). Keep this bounded: with
+  # total_retries above, an entity the endpoint never answers for costs roughly
+  # timeout * 6 plus backoff before the run moves on.
   timeout: 120
+  # Note that none of the settings above touch the remaining "Response ended
+  # prematurely" errors: that is a ChunkedEncodingError raised while reading the
+  # body, which urllib3 does not retry (urllib3#2751), and the server hanging up
+  # early is not a slow response, so the timeout is irrelevant to it too.
+  # nomenklatura's Enricher.http_post_json_cached retries it once itself, with a
+  # count that is not configurable from here. It hits small queries as readily as
+  # large ones (2026-09-25 lost a single-name, single-country ru_nsd_isin fund),
+  # so it is upstream flakiness rather than payload size; the affected entity is
+  # simply queried again on the next daily run.
 load_statements: true
 ci_test: false
 summary: >-
