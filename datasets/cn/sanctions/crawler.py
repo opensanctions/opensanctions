@@ -402,7 +402,7 @@ def crawl(context: Context) -> None:
         entity.add("address", row.pop("Address", None))
         entity.add("notes", row.pop("Summary", None), lang="eng")
         entity.add("notes", row.pop("Chinese summary", None), lang="zho")
-        entity.add("topics", row.pop("Topics").split(";"))
+        topics = row.pop("Topics").split(";")
         program = row.pop("List", None)
         source_url = row.pop("Source URL", None)
         if not source_url:
@@ -438,6 +438,10 @@ def crawl(context: Context) -> None:
         )
         sanction.add("sourceUrl", source_url)
         apply_current_status(context, sanction, name, end_date, row)
+        # An ended designation stays in the dataset as history but no longer
+        # flags the target.
+        if h.is_active(sanction):
+            entity.add("topics", topics)
         context.emit(sanction)
         context.emit(entity)
         context.audit_data(row)

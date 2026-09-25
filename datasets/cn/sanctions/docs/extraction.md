@@ -35,7 +35,9 @@ the latest state, not a log of every notice. Do not infer a removal from changed
 wording, an inaccessible URL, or absence from a later notice.
 
 The crawler emits one `Sanction` per row, so the status of one measure never leaks onto
-another measure against the same target.
+another measure against the same target. A row whose designation has ended (an `End date`
+in the past) keeps its target and `Sanction` but no longer adds its `Topics` to the
+target, so the entity remains searchable as history without being flagged.
 
 ## Map the CSV fields
 
