@@ -2,6 +2,7 @@ from collections.abc import Generator, Iterator
 from datetime import datetime
 from datapatch import Lookup
 from normality import slugify_text, stringify
+from rigour.time import datetime_iso
 from xlrd import (
     XL_CELL_DATE,
     XL_CELL_EMPTY,
@@ -36,8 +37,8 @@ def convert_excel_cell(book: Book, cell: Cell) -> str | None:
     if cell.ctype == XL_CELL_DATE:
         assert isinstance(cell.value, float)
         dt = xldate_as_datetime(cell.value, book.datemode)
-        # Naive ISO 8601, e.g. "2023-07-26T00:00:00" — Excel cells carry no timezone.
-        return dt.isoformat(sep="T", timespec="seconds")
+        # e.g. "2023-07-26T00:00:00" — Excel cells carry no timezone.
+        return datetime_iso(dt)
     else:
         if cell.value is None:
             return None
@@ -65,8 +66,8 @@ def convert_excel_date(value: str | int | float | None) -> str | None:
     if value < 4_000 or value > 100_000:
         return None
     dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + value - 2)
-    # Naive ISO 8601, e.g. "2022-11-11T00:00:00" — Excel dates carry no timezone.
-    return dt.isoformat(sep="T", timespec="seconds")
+    # e.g. "2022-11-11T00:00:00" — Excel dates carry no timezone.
+    return datetime_iso(dt)
 
 
 def parse_xls_sheet(
@@ -83,6 +84,7 @@ def parse_xls_sheet(
     Cells with links are included as keys with _url appended to the original key.
     """
     headers: list[str] | None = None
+    headers_validated = False
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
             continue
@@ -120,6 +122,15 @@ def parse_xls_sheet(
                         cell = f"column_{idx}"
                     headers.append(slugify_text(cell, "_") or "")
             continue
+
+        if not headers_validated:
+            # Headers are final once the first data row is reached (they may
+            # span several rows via join_header_rows). Records are built by
+            # zipping headers with cells, so a duplicate header would silently
+            # drop the earlier column's cell.
+            duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+            assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
+            headers_validated = True
 
         for header, value in zip(headers, cells):
             record[header] = stringify(value)
@@ -171,6 +182,10 @@ def parse_xlsx_sheet(
                 if header_slug is None and header is not None:
                     header_slug = f"column_{idx}"
                 headers.append(header_slug)
+            duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+            # Records are built by zipping headers with cells, so a duplicate
+            # header would silently drop the earlier column's cell.
+            assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
             continue
 
         record: dict[str, str | None] = {}

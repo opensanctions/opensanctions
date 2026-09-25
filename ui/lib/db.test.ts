@@ -16,8 +16,9 @@ describe('updateExtractionEntry integration', () => {
       .addColumn('source_label', 'text')
       .addColumn('source_url', 'text')
       .addColumn('accepted', 'boolean')
-      .addColumn('model_version', 'integer')
-      .addColumn('orig_extraction_data', 'json')
+      .addColumn('crawler_version', 'integer')
+      .addColumn('original_extraction', 'json')
+      .addColumn('origin', 'text')
       .addColumn('extracted_data', 'json')
       .addColumn('last_seen_version', 'text')
       .addColumn('modified_at', 'text')
@@ -40,13 +41,13 @@ describe('updateExtractionEntry integration', () => {
       source_label: 'lbl',
       source_url: 'url',
       accepted: false,
-      orig_extraction_data: { a: 1 },
+      original_extraction: { a: 1 },
       extracted_data: { b: 2 },
       last_seen_version: 'v1',
       modified_at: now,
       modified_by: 'zavod ui',
       deleted_at: null,
-      model_version: 1,
+      crawler_version: 1,
     };
     // Insert initial row
     await (await getDb()).insertInto('review').values(initial).execute();
@@ -87,7 +88,7 @@ describe('updateExtractionEntry integration', () => {
     expect(newRows[0].dataset).toBe(initial.dataset);
     expect(newRows[0].key).toBe(initial.key);
     expect(newRows[0].extraction_schema).toEqual(initial.extraction_schema);
-    expect(newRows[0].orig_extraction_data).toEqual(initial.orig_extraction_data);
+    expect(newRows[0].original_extraction).toEqual(initial.original_extraction);
     expect(newRows[0].source_value).toBe(initial.source_value);
     expect(newRows[0].source_mime_type).toBe(initial.source_mime_type);
     expect(newRows[0].source_label).toBe(initial.source_label);

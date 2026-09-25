@@ -9,6 +9,12 @@ older slice of the (shifting) list, so records skip or duplicate across pages.
 
 Mitigations:
 
+- We sort by case ID (an unexposed but accepted sort key) instead of the
+  default newest-first action date. Case IDs are near-unique, so the origin's
+  unstable ordering among sort-key ties (which reshuffles rows across page
+  boundaries between fetches under the date sort) has almost nothing to act
+  on, and new cases get the highest IDs so they append at the end of the
+  listing instead of shifting every page.
 - Every request carries a per-run `cache_bust` query parameter so Varnish
   treats each page URL as unique and fetches fresh from origin.
 - The Zyte fetch validator requires a populated table and rejects the
@@ -20,15 +26,10 @@ Mitigations:
 
 from lxml.etree import _Element
 from secrets import token_urlsafe
-from urllib.parse import parse_qs, urljoin, urlparse
+from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
-
-RESULT_ROW_VALIDATOR = (
-    ".//table[not(ancestor-or-self::*//div"
-    "[contains(concat(' ', normalize-space(@class), ' '), ' view-empty ')])]//tr[td]"
-)
 
 
 def crawl_item(context: Context, row: dict[str, _Element]) -> None:
@@ -50,7 +51,7 @@ def crawl_item(context: Context, row: dict[str, _Element]) -> None:
     source_url = case_id_el.get("href")
     if source_url is not None:
         source_url = urljoin(context.data_url, source_url)
-    date = h.element_text(row.pop("action_date_sort_ascending"))
+    date = h.element_text(row.pop("action_date"))
 
     for name in names:
         entity = context.make("LegalEntity")
@@ -93,22 +94,48 @@ def get_max_page(response: _Element) -> int | None:
     return int(params["page"][0])
 
 
+def fetch_page(context: Context, page_num: int, retries: int = 2) -> _Element:
+    """Fetch given page number.
+
+    Each request uses a new cache busting token.
+
+    Retries also use a new cache busting token, since non-matching pages might
+    be cached on their side."""
+    # We've seen blank results pages which wouldn't match this validator
+
+    result_row_xpath = (
+        ".//table[not(ancestor-or-self::*//div"
+        "[contains(concat(' ', normalize-space(@class), ' '), ' view-empty ')])]//tr[td]"
+    )
+    params = {
+        "order": "field_fda_case_id_txt",
+        "sort": "asc",
+        "page": page_num,
+        "cache_bust": token_urlsafe(8),
+    }
+    url = f"{context.data_url}?{urlencode(params)}"
+    try:
+        # Zyte because occasional cloudflare javascript challenge.
+        return zyte_api.fetch_html(context, url, result_row_xpath, absolute_links=True)
+    except zyte_api.UnblockFailedException as e:
+        if retries > 0:
+            context.log.info(f"Retrying page {page_num} after {e}")
+            return fetch_page(context, page_num=page_num, retries=retries - 1)
+        else:
+            raise
+
+
 def crawl(context: Context) -> None:
     # Each page only displays 15 rows at a time. We determine the last page from
     # the pagination buttons because intermediate pages may report no results even
     # when later pages still have data.
     page_num = 0
     max_page = None
-    # A single token for the whole crawl bypasses Varnish's stale per-page
-    # entries without varying between our own pages within one run.
-    cache_bust = token_urlsafe(8)
+    prev_case_id = ""
+    ordering_warned = False
     while max_page is None or page_num <= max_page:
         context.log.info(f"Crawling page {page_num} of {max_page}")
-        url = f"{context.data_url}?page={page_num}&cache_bust={cache_bust}"
-        # Zyte because occasional cloudflare javascript challenge.
-        response = zyte_api.fetch_html(
-            context, url, RESULT_ROW_VALIDATOR, absolute_links=True
-        )
+        response = fetch_page(context, page_num)
 
         # Check the page count each iteration in case pagination changes.
         new_max = get_max_page(response)
@@ -126,6 +153,20 @@ def crawl(context: Context) -> None:
         assert table is not None, "Validated FINRA page did not contain a table"
 
         for row in h.parse_html_table(table):
+            # Duplicate IDs are legitimate (one row per document of a case),
+            # so equality is fine; only a decrease means the sort parameters
+            # are no longer being respected.
+            case_id = h.element_text(row["case_id"])
+            if case_id < prev_case_id and not ordering_warned:
+                context.log.warning(
+                    "Case IDs are no longer in ascending order — is the "
+                    "sort parameter still respected?",
+                    case_id=case_id,
+                    previous_case_id=prev_case_id,
+                    page=page_num,
+                )
+                ordering_warned = True
+            prev_case_id = case_id
             crawl_item(context, row)
 
         page_num += 1

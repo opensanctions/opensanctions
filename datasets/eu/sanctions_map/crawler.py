@@ -1,3 +1,7 @@
+import csv
+from pathlib import Path
+from typing import Any
+
 import openpyxl
 
 from zavod import Context
@@ -5,6 +9,7 @@ from zavod import helpers as h
 
 DATA_URL = "https://www.sanctionsmap.eu/api/v1/data?"
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
+PROGRAMS_PATH = Path(__file__).parent / "programs.csv"
 
 # Why do we parse vessels separately?
 #   > Entities contained in Annex IV of Council Regulation (EU) No 833/2014 are subject to
@@ -37,8 +42,32 @@ PROGRAM_KEY = "EU-MARE"
 TYPES = {"E": "LegalEntity", "P": "Person"}
 
 
+def load_known_regime_ids() -> set[int]:
+    """Load the reviewed regime inventory used to detect newly introduced programs."""
+    with PROGRAMS_PATH.open(encoding="utf-8", newline="") as fh:
+        rows = csv.DictReader(fh)
+        return {int(row["regime_id"]) for row in rows}
+
+
+def warn_new_regimes(context: Context, regimes: list[dict[str, Any]]) -> None:
+    """Warn when the Sanctions Map exposes a regime absent from our snapshot."""
+    known_ids = load_known_regime_ids()
+    for regime in regimes:
+        regime_id = int(regime["id"])
+        if regime_id in known_ids:
+            continue
+        context.log.warning(
+            "New EU restrictive measures regime discovered",
+            regime_id=regime_id,
+            program_keys=regime.get("programme", []),
+            name=regime.get("specification"),
+            url=f"https://www.sanctionsmap.eu/#/main/details/{regime_id}",
+        )
+
+
 def crawl_regime(context: Context) -> None:
     regime = context.fetch_json(REGIME_URL, cache_days=1)
+    warn_new_regimes(context, regime["data"])
     for item in regime["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
         regime_data = context.fetch_json(regime_url, cache_days=1)["data"]

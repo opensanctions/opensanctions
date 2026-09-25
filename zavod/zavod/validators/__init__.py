@@ -1,40 +1,89 @@
-from followthemoney import registry
+from collections import Counter, defaultdict
+from followthemoney import registry, Property, Schema
+from nomenklatura.store import View
 
-from zavod.archive import dataset_data_path
 from zavod.context import Context
-from zavod.exc import RunFailedException
-from zavod.meta.dataset import Dataset
-from zavod.store import View
 from zavod.entity import Entity
+from zavod.meta.dataset import Dataset
+from zavod.runtime.statistics import Statistics
 from zavod.validators.assertions import (
     StatisticsAssertionsValidator,
 )
 from zavod.validators.common import BaseValidator
 
+# How many offending references to name per property/schema combination. Some
+# datasets get this wrong thousands of times over; a handful of ids is enough to
+# find the crawler code responsible.
+MAX_RANGE_EXAMPLES = 5
 
-class DanglingReferencesValidator(BaseValidator):
-    """Warns if an entity references an entity that is not in the store."""
 
-    def feed(self, entity: Entity) -> None:
+class EntityReferenceValidator(BaseValidator):
+    """Warn if an entity reference doesn't resolve, or points at the wrong kind
+    of entity.
+
+    Every entity-type property declares a `range`: the schema its target is
+    supposed to have (an `Ownership:asset` must be an `Asset`, an
+    `Occupancy:holder` must be a `Person`). Nothing can enforce that while the
+    crawler runs, because the referenced entity usually doesn't exist yet when
+    the reference is made. Once the whole dataset is in the store, it becomes
+    checkable - a company emitted as an `Organization` rather than a `Company`
+    shows up here.
+
+    Enabled by default; set `validators.entity_reference` to `false` in the
+    dataset metadata to switch it off.
+    """
+
+    @classmethod
+    def enabled(cls, dataset: Dataset) -> bool:
+        return dataset.validators.entity_reference
+
+    def __init__(self, context: Context, stats: Statistics) -> None:
+        super().__init__(context, stats)
+        self.out_of_range: Counter[tuple[Property, Schema]] = Counter()
+        self.examples: dict[tuple[Property, Schema], list[str]] = defaultdict(list)
+
+    def feed(self, entity: Entity, view: View[Dataset, Entity]) -> None:
         for prop in entity.iterprops():
             if prop.type != registry.entity:
                 continue
             for other_id in entity.get(prop):
-                if self.view.has_entity(other_id):
+                other = view.get_entity(other_id)
+                if other is None:
+                    self.context.log.warning(
+                        f"{entity.id} property {prop.name} references missing id {other_id}"
+                    )
                     continue
-                self.context.log.warning(
-                    f"{entity.id} property {prop.name} references missing id {other_id}"
-                )
+                if prop.range is None or other.schema.is_a(prop.range):
+                    continue
+                key = (prop, other.schema)
+                self.out_of_range[key] += 1
+                examples = self.examples[key]
+                if len(examples) < MAX_RANGE_EXAMPLES:
+                    examples.append(f"{entity.id} -> {other_id}")
+
+    def finish(self) -> None:
+        for (prop, schema), count in self.out_of_range.most_common():
+            assert prop.range is not None
+            # TODO: Re-enable after the team retreat in August 2026.
+            # self.context.log.warning(
+            #     f"{prop.qname} should reference {prop.range.name}, "
+            #     f"but {count} references point at {schema.name}",
+            #     prop=prop.qname,
+            #     range=prop.range.name,
+            #     referenced_schema=schema.name,
+            #     count=count,
+            #     examples=self.examples[(prop, schema)],
+            # )
 
 
 # FollowTheMoney prevents direct self-references so we check 1 level deep
 class SelfReferenceValidator(BaseValidator):
     """Info level log if an entity references itself via one adjacent entity."""
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: View[Dataset, Entity]) -> None:
         if not entity.schema.is_a("Thing"):
             return
-        for prop, other in self.view.get_adjacent(entity):
+        for prop, other in view.get_adjacent(entity):
             for other_prop in other.iterprops():
                 if other_prop.type != registry.entity:
                     continue
@@ -49,11 +98,11 @@ class SelfReferenceValidator(BaseValidator):
 class EmptyValidator(BaseValidator):
     """Warn if no entities are validated."""
 
-    def __init__(self, context: Context, view: View):
-        super().__init__(context, view)
+    def __init__(self, context: Context, stats: Statistics):
+        super().__init__(context, stats)
         self.is_empty = True
 
-    def feed(self, entity: Entity) -> None:
+    def feed(self, entity: Entity, view: View[Dataset, Entity]) -> None:
         self.is_empty = False
 
     def finish(self) -> None:
@@ -62,43 +111,18 @@ class EmptyValidator(BaseValidator):
 
 
 VALIDATORS: list[type[BaseValidator]] = [
-    DanglingReferencesValidator,
+    EntityReferenceValidator,
     SelfReferenceValidator,
     StatisticsAssertionsValidator,
     EmptyValidator,
 ]
 
 
-def validate_dataset(dataset: Dataset, view: View) -> None:
-    """
-    Run all validators on the given view.
-
-    Returns True if publication should be aborted.
-    """
-    context = Context(dataset)
-    try:
-        context.begin(clear=False)
-        context.log.info(
-            "Validating dataset",
-            path=dataset_data_path(dataset.name),
-        )
-
-        validators = [validator(context, view) for validator in VALIDATORS]
-        for idx, entity in enumerate(view.entities()):
-            if idx > 0 and idx % 10000 == 0:
-                context.log.info(f"Validated {idx} entities...", dataset=dataset.name)
-
-            for validator in validators:
-                validator.feed(entity)
-
-        abort = False
-        for validator in validators:
-            validator.finish()
-            if validator.abort:
-                abort = True
-
-        if abort:
-            raise RunFailedException("Validation caused abort.")
-
-    finally:
-        context.close()
+def get_validators(context: Context, stats: Statistics) -> list[BaseValidator]:
+    """Instantiate the validators enabled for the context's dataset."""
+    validators: list[BaseValidator] = []
+    for clazz in VALIDATORS:
+        if not clazz.enabled(context.dataset):
+            continue
+        validators.append(clazz(context, stats))
+    return validators

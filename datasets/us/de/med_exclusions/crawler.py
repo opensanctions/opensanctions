@@ -58,7 +58,11 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     )
     for license_num in h.multi_split(license_numbers, [",", ";"]):
         if "\n" in license_num:
-            res = context.lookup("license_numbers", license_num)
+            # The PDF wraps long cells mid-token, and the wrap position shifts between
+            # publications, so retry the lookup with all whitespace removed.
+            res = context.lookup("license_numbers", license_num) or context.lookup(
+                "license_numbers", re.sub(r"\s+", "", license_num)
+            )
             if res:
                 assert res.values, res
                 entity.add("idNumber", res.values, original_value=license_num)
@@ -75,7 +79,14 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     assert (authority := row.pop("oig_medicaid_sanction")) is not None
     sanction.set("authority", squash_spaces(authority))
 
-    h.apply_date(sanction, "startDate", row.pop("effective_date"))
+    h.apply_date(
+        sanction,
+        "startDate",
+        row.pop("effective_date"),
+        # Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
+        # Amendments.
+        two_digit_year_base=1977,
+    )
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)
 

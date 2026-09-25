@@ -60,7 +60,11 @@ def read_csv_rows(
 
         with zip.open(file_name) as zfh:
             fh = io.TextIOWrapper(zfh, encoding="utf-8-sig")
-            reader = DictReader(fh, delimiter=",", quotechar='"')
+            # The source escapes quotes inside quoted fields with a backslash
+            # (e.g. "JU OŠ \"Maršal Tito\"") rather than by doubling them.
+            # Without escapechar the reader leaves the field in a mangled state
+            # and can even split it on a subsequent comma.
+            reader = DictReader(fh, delimiter=",", quotechar='"', escapechar="\\")
             return list(reader)
 
 

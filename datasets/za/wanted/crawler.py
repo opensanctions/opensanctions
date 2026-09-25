@@ -49,8 +49,11 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str) -> None
         for key, xpath in details.items()
     }
     status = doc.findtext(".//p[@align='center']/font[@color='blue']")
+    # The source sometimes publishes listings without a status. These are incomplete, and it's usually only a few at a time.
+    if not status:
+        return
     if status not in {"Wanted", "Suspect"}:
-        context.log.warning("Unknown or missing status", status=status, url=source_url)
+        context.log.warning("Unknown status", status=status, url=source_url)
         status = None
 
     if info.get("aliases"):

@@ -17,6 +17,7 @@ description: |
   are described as “potential clone”.
 publisher:
   name: Suruhanjaya Sekuriti Malaysia
+  name_en: Securities Commission Malaysia
   acronym: SC
   description: |
     The Securities Commission Malaysia is a Malaysian statutory body with
@@ -40,6 +41,14 @@ assertions:
       LegalEntity: 3000
 
 lookups:
+  # When the name is blank, use value EMIT to emit the entity without name, but
+  # with whatever identifying information is available. Remark field is used for
+  # entity id, so only do this if it's unique.
+  # If there's no identifying information to emit, use value SKIP.
+  empty_name_action:
+    options:
+      - contains: "Misusing the name and credentials of Level 17 Capital Sdn Bhd (eCMSL/A0385/2023)"
+        value: SKIP
   type.url:
     lowercase: true
     options:
@@ -60,6 +69,10 @@ lookups:
           - www.dubalex.com
       - match: "(https://telegram.org/k/#@pelaburanrakiyat25"
         value: "https://telegram.org/k/#@pelaburanrakiyat25"
+      - match: "(https://t.me/ASBMALAYSIA1"
+        value: https://t.me/ASBMALAYSIA1
+      - match: "(https://t.me/XMBROKERSUCCES27"
+        value: https://t.me/XMBROKERSUCCES27
       - match: "https:islamicinc.asia/"
         value: https://islamicinc.asia/
       - match: "http://www.xeraya-capital.com (clone website)"

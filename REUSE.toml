@@ -1,0 +1,14 @@
+# Licensing of this repository, in machine-readable form (REUSE spec 3.3).
+#
+# Source code is MIT; that default is declared here and nothing else is. Data files carry a
+# different license and are annotated in datasets/REUSE.toml, which sits deeper in the tree and
+# therefore takes precedence for the paths it matches. Individual vendored files are annotated
+# deeper still. See COPYRIGHT.md for the human-readable version and the rule that decides which
+# bucket a new file belongs in.
+
+version = 1
+
+[[annotations]]
+path = "**"
+SPDX-FileCopyrightText = "2015-2026 OpenSanctions Datenbanken GmbH and contributors"
+SPDX-License-Identifier = "MIT"

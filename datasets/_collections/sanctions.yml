@@ -49,12 +49,14 @@ children:
   - au_listed_terrorist_orgs
   - az_fiu_sanctions
   - be_fod_sanctions
+  - bg_mft_national
   - bg_omnio_poi
   - ca_dfatd_sema_sanctions
   - ca_facfoa
   - ca_listed_terrorists
   - ca_named_research_orgs
   - ca_sema_sanctions_news
+  - ch_fiaa_freezes
   - ch_seco_sanctions
   - cn_sanctions
   - cz_national_sanctions

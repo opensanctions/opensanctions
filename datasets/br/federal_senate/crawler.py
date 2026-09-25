@@ -27,7 +27,9 @@ def crawl(context: Context) -> None:
         person.add("name", info.pop("NomeParlamentar"), lang="por")
         person.add("name", info.pop("NomeCompletoParlamentar"), lang="por")
         person.add("gender", info.pop("SexoParlamentar"))
-        person.add("email", info.pop("EmailParlamentar"))
+        # Suplentes standing in for a titular senator may have no
+        # institutional address published.
+        person.add("email", info.pop("EmailParlamentar", None))
         person.add("political", info.pop("SiglaPartidoParlamentar"), lang="por")
         person.add("sourceUrl", info.pop("UrlPaginaParlamentar"))
         # Senators must be Brazilian nationals (Constitution of Brazil 1988,

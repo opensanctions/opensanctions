@@ -1,21 +1,27 @@
-import shutil
+import pytest
+
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.runtime.versions import make_version
-from zavod.archive import get_dataset_artifact, publish_artifact, archive_artifact
+from zavod.archive import archive_artifact, backfill_artifact, invalidate_dataset_urls
 from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_path
-from zavod.archive import publish_version_history, get_archive_backend
+from zavod.archive import create_artifact_directory, dataset_artifact_path
+from zavod.archive import get_archive_backend, get_artifact_object
+from zavod.archive import get_last_successful_version
+from zavod.archive import get_version_history
+from zavod.archive import publish_version_history
 from zavod.archive import ARTIFACTS, DATASETS, LATEST, VERSIONS_FILE
 
+RESOURCE_NAME = "foo.json"
 
-def test_archive_then_publish(testdataset1: Dataset):
+
+def test_archive_artifact(testdataset1: Dataset):
     name = "foo.json"
     version = settings.RUN_VERSION
     data_path = dataset_data_path(testdataset1.name)
     local_path = dataset_resource_path(testdataset1.name, name)
     artifacts_root = settings.ARCHIVE_PATH / ARTIFACTS
-    datasets_root = settings.ARCHIVE_PATH / DATASETS
 
     assert not local_path.exists()
     with open(local_path, "w") as fh:
@@ -27,52 +33,133 @@ def test_archive_then_publish(testdataset1: Dataset):
     archive_artifact(local_path, testdataset1.name, version, name)
     assert artifact_path.exists()
 
-    # publish_artifact then server-side copies into /datasets/{RELEASE}/.
-    release_path = datasets_root / settings.RELEASE / testdataset1.name / name
-    assert not release_path.exists()
-    publish_artifact(testdataset1.name, version.id, name, republish_to_latest=False)
-    assert release_path.exists()
-    assert release_path.read_bytes() == artifact_path.read_bytes()
-
-    # republish_to_latest=True also writes /datasets/latest/.
-    latest_path = datasets_root / LATEST / testdataset1.name / name
-    assert not latest_path.exists()
-    publish_artifact(testdataset1.name, version.id, name, republish_to_latest=True)
-    assert latest_path.exists()
-    assert latest_path.read_bytes() == artifact_path.read_bytes()
-
     backend = get_archive_backend()
     assert backend.get_object(
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{name}"
+        f"{ARTIFACTS}/{testdataset1.name}/{version.id}/{name}"
     ).exists()
     assert not backend.get_object(
-        f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{name}.xxx"
+        f"{ARTIFACTS}/{testdataset1.name}/{version.id}/{name}.xxx"
     ).exists()
 
-    shutil.rmtree(datasets_root / LATEST)
     assert data_path.is_dir()
     clear_data_path(testdataset1.name)
     assert not data_path.exists()
 
 
+def test_invalidate_dataset_urls(
+    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
+):
+    purged: list[str] = []
+    monkeypatch.setattr("zavod.archive.invalidate_archive_cache", purged.append)
+
+    version = settings.RUN_VERSION
+    invalidate_dataset_urls(testdataset1.name, version)
+    assert purged == [
+        f"{DATASETS}/{version.dt.strftime('%Y%m%d')}/{testdataset1.name}/*",
+        f"{DATASETS}/{LATEST}/{testdataset1.name}/*",
+    ]
+
+
+def _archive_run(
+    dataset: Dataset,
+    version: Version,
+    successful: bool = True,
+    archive_resource: bool = True,
+) -> None:
+    """Archive a run of the dataset: its copy of the resource, and the version
+    history as it stands once the run is over - mirroring what publish_dataset
+    does for a success and archive_failure for a failure."""
+    create_artifact_directory(dataset.name, version)
+    if archive_resource:
+        path = dataset_resource_path(dataset.name, RESOURCE_NAME)
+        with open(path, "w") as fh:
+            fh.write(version.id)
+        archive_artifact(path, dataset.name, version, RESOURCE_NAME)
+    # The version history snapshot is written when the run concludes:
+    history = get_version_history(dataset.name).append(version)
+    if successful:
+        history.last_successful = version
+    vsn_path = dataset_artifact_path(dataset.name, version, VERSIONS_FILE)
+    with open(vsn_path, "w") as fh:
+        fh.write(history.to_json())
+    publish_version_history(dataset.name, version)
+
+
+def test_version_selection_uses_last_successful_version(testdataset1: Dataset):
+    """Version discovery answers with the last successful run, not the newest
+    one. See https://github.com/opensanctions/operations/issues/2762"""
+    succeeded = Version.from_string("20260101000000-aaa")
+    failed = Version.from_string("20260102000000-bbb")
+    _archive_run(testdataset1, succeeded)
+    # The failed run even has a copy of the resource, so this can only pass by
+    # consulting the version history, not by finding the newest copy:
+    _archive_run(testdataset1, failed, successful=False)
+
+    assert get_last_successful_version(testdataset1.name) == succeeded
+
+    prefix = f"{ARTIFACTS}/{testdataset1.name}"
+    object = get_artifact_object(testdataset1.name, succeeded, RESOURCE_NAME)
+    assert object is not None
+    assert object.name == f"{prefix}/{succeeded.id}/{RESOURCE_NAME}"
+
+    # A version the caller names explicitly is honoured, failed or not.
+    object = get_artifact_object(testdataset1.name, failed, RESOURCE_NAME)
+    assert object is not None
+    assert object.name == f"{prefix}/{failed.id}/{RESOURCE_NAME}"
+
+
+def test_version_selection_without_successful_version(testdataset1: Dataset):
+    """Until a run has succeeded there is no last successful version."""
+    failed = Version.from_string("20260101000000-aaa")
+    _archive_run(testdataset1, failed, successful=False)
+
+    assert get_last_successful_version(testdataset1.name) is None
+
+
+def test_get_artifact_object_does_not_mix_runs(testdataset1: Dataset):
+    """A resource the last successful run didn't archive is not substituted from
+    an earlier run, whose data the rest of the current metadata doesn't
+    describe: artifact lookups pin an exact version."""
+    older = Version.from_string("20260101000000-aaa")
+    newer = Version.from_string("20260103000000-ccc")
+    _archive_run(testdataset1, older)
+    _archive_run(testdataset1, newer, archive_resource=False)
+
+    assert get_last_successful_version(testdataset1.name) == newer
+    assert get_artifact_object(testdataset1.name, newer, RESOURCE_NAME) is None
+
+
 def test_artifact_backfill(testdataset1: Dataset):
     name = "foo.json"
+    version = settings.RUN_VERSION
     local_path = dataset_resource_path(testdataset1.name, name)
     assert not local_path.exists()
     with open(local_path, "w") as fh:
         fh.write("hello, world!\n")
 
     artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name
-    archive_artifact(local_path, testdataset1.name, settings.RUN_VERSION, name)
+    archive_artifact(local_path, testdataset1.name, version, name)
     assert artifacts_path.is_dir()
     local_path.unlink()
-    local_path = get_dataset_artifact(testdataset1.name, name)
-    # Data is unpublished:
+
+    # A resource the version never archived cannot be backfilled:
+    assert backfill_artifact(testdataset1.name, version, "missing.json") is None
+
+    # Backfill of an explicitly named version works regardless of the version
+    # history:
+    path = backfill_artifact(testdataset1.name, version, name)
+    assert path is not None
+    assert path.read_text() == "hello, world!\n"
+
+    # But nothing answers version discovery until the history is published:
     versions_file = artifacts_path / VERSIONS_FILE
     assert not versions_file.exists()
-    assert not local_path.exists()
-    make_version(testdataset1, settings.RUN_VERSION)
-    publish_version_history(testdataset1.name)
+    assert get_last_successful_version(testdataset1.name) is None
+
+    _archive_run(testdataset1, version, archive_resource=False)
     assert versions_file.exists()
-    local_path = get_dataset_artifact(testdataset1.name, name)
-    assert local_path.exists()
+    last_successful_version = get_last_successful_version(testdataset1.name)
+    assert last_successful_version == version
+    path = backfill_artifact(testdataset1.name, last_successful_version, name)
+    assert path is not None
+    assert path.exists()

@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 
 from lxml.etree import _Element
 
-from zavod import Context
+from parse_context import ParseContext
 from zavod import helpers as h
 
 
@@ -40,11 +40,11 @@ def elattr(el: Optional[_Element], attr: str) -> Any:
         return el.get(attr)
 
 
-def parse_address(context: Context, el: _Element) -> Optional[str]:
+def parse_address(pc: ParseContext, el: _Element) -> Optional[str]:
     """
     Parse an address from the XML element and set to entity.
     Args:
-        context: The processing context.
+        pc: The parsing context.
         el: The XML element.
     """
     data: Dict[str, List[str]] = defaultdict(list)
@@ -54,20 +54,26 @@ def parse_address(context: Context, el: _Element) -> Optional[str]:
     # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
 
     # According to this source: https://www.garant.ru/products/ipo/prime/doc/74812994/
-    if el.tag in [
-        "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
-        "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
-        "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
-    ]:
+    if (
+        el.tag
+        in [
+            "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
+            "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
+            "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
+        ]
+    ):
         pass
-    elif el.tag in [
-        "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
-        "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
-        # Сведения о месте нахождения юридического лица
-    ]:
+    elif (
+        el.tag
+        in [
+            "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
+            "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
+            # Сведения о месте нахождения юридического лица
+        ]
+    ):
         return None  # ignore this one entirely
     else:
-        context.log.warn("Unknown address type", tag=el.tag)
+        pc.log.warn("Unknown address type", tag=el.tag)
         return None
 
     # Still a mess, but at least I gave it some love and order
@@ -117,7 +123,7 @@ def parse_address(context: Context, el: _Element) -> Optional[str]:
         dput(
             data,
             "house_number",
-            f"{bld.get("Тип") or ""} {bld.get("Номер") or ""}".strip(),
+            f"{bld.get('Тип') or ''} {bld.get('Номер') or ''}".strip(),
         )
 
     # To @pudo: this is an apartment/flat number/floor number/office number which is not

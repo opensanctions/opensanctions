@@ -2,7 +2,12 @@
 name: Issues agent
 
 "on":
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Always run this dataset; empty scans all eligible datasets"
+        required: false
+        type: string
   schedule:
     - cron: "0 3 * * 1-5"
     # 12:00 UTC = 14:00 CEST (summer) / 13:00 CET (winter). GHA cron is always
@@ -35,8 +40,13 @@ jobs:
         id: gen
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_DATASET: ${{ inputs.dataset }}
         run: |
-          MATRIX=$(python -m contrib.maintenance.issues_agent --prompts-dir task-prompts)
+          args=(--prompts-dir task-prompts)
+          if [ -n "$TARGET_DATASET" ]; then
+            args+=(--dataset "$TARGET_DATASET")
+          fi
+          MATRIX=$(python -m contrib.maintenance.issues_agent "${args[@]}")
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
       # The prompts travel as an artifact, not inside the matrix output: they
@@ -54,9 +64,9 @@ jobs:
     needs: generate-matrix
     runs-on: ubuntu-latest
     name: ${{ matrix.task.name }}
-    # Match build.yml so `zavod crawl` behaves the same as in normal CI: the
-    # agent runs the crawler to verify its fixes (for datasets where ci_test
-    # allows it), so it needs a working zavod install, not just lookup edits.
+    # Match build.yml so an agent can run `zavod crawl` when the change warrants
+    # it and ci_test allows it. Local crawler edits also need the same environment
+    # for linting and type-checking even when the crawler cannot run in CI.
     env:
       OPENSSL_CONF: "contrib/openssl.cnf"
       FTM_USER_AGENT: "Mozilla/5.0 (compatible; github-actions-zavod/0.8; tech@opensanctions.org)"
@@ -98,8 +108,8 @@ jobs:
           # instead of rebuilt every time.
           cache-dependency-path: zavod/pyproject.toml
 
-      # The full zavod install is only needed for crawler datasets (mypy +
-      # crawling). Enrichment and lookup-only datasets edit YAML only, but the
+      # The full zavod install is only needed when local crawler code is editable
+      # (mypy and, when warranted, crawling). Enrichment datasets edit YAML only, but the
       # agent still needs the contrib.maintenance tools (diagnose,
       # aggregate_issues) that the prompt's diagnostic report points at.
       - name: Install maintenance tool dependencies
@@ -108,33 +118,30 @@ jobs:
           # prek + yamllint back contrib/lint_dataset.sh, which the agent runs to
           # verify its edits; zavod[dev] supplies them on the crawler path.
           pip install requests pyyaml prek yamllint
-          # poppler-utils (pdftotext/pdftoppm) so the agent can read PDF source
-          # documents even for datasets whose task doesn't install zavod.
-          sudo apt-get install -y -qq poppler-utils
 
       - name: Install system dependencies
-        if: ${{ matrix.task.needs_zavod }}
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # libicu-dev/poppler-utils for zavod; jq + xmllint for the agent to
-          # inspect JSON issue logs and XML source documents while debugging.
+          # Give every agent the same source-inspection tools. libicu-dev backs
+          # zavod's ICU dependency when the full package is installed.
           sudo apt-get install -y -qq libicu-dev poppler-utils jq libxml2-utils
 
       - name: Install qsv
-        if: ${{ matrix.task.needs_zavod }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # qsv is the standard tool for spot-checking emitted data
-          # (e.g. `qsv frequency -s prop statements.pack`), see crawler-guide.md.
+          # qsv is the standard tool for spot-checking emitted data, e.g.
+          # `qsv frequency -s prop statements.pack`.
           # Resolve the latest release asset rather than pinning a version.
           URL=$(gh release view --repo dathere/qsv --json assets \
             -q '.assets[] | select(.name | test("^qsv-.*x86_64-unknown-linux-gnu.zip$")) | .url' \
             | head -1)
           curl -fsSL -o /tmp/qsv.zip "$URL"
           sudo unzip -o -j /tmp/qsv.zip qsv -d /usr/local/bin
+          # Release archives may not preserve executable permissions.
+          sudo chmod 755 /usr/local/bin/qsv
           qsv --version
 
       - name: Install zavod
@@ -142,25 +149,36 @@ jobs:
         working-directory: zavod
         run: |
           python -m pip install --upgrade pip wheel
-          pip install --no-cache-dir -e ".[dev]"
+          pip install -e ".[dev]"
 
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Watchful dispatches maintainer-requested /zavod-fix runs. Keep this
+          # allowlist exact so other bots cannot start an agent implicitly.
+          allowed_bots: opensanctions-watchful
           prompt: ${{ env.TASK_PROMPT }}
-          claude_args: "--model ${{ matrix.task.model }} --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
+          claude_args: "--model claude-opus-5 --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
 
       # The agent opens its PR via mcp__github__create_pull_request, which takes no
       # labels. The branch name is deterministic, so label it here rather than trusting
-      # the agent to do it. Fails harmlessly when no PR was opened (no fixes needed).
+      # the agent to do it. No PR is a valid outcome when no fixes were needed.
       - name: Label the PR
         if: always()
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr edit "${{ matrix.task.branch }}" \
+          PR_NUMBER=$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --head "${{ matrix.task.branch }}" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+          if [ -z "$PR_NUMBER" ]; then
+            echo "::notice::No PR was created; skipping label"
+            exit 0
+          fi
+          gh pr edit "$PR_NUMBER" \
             --repo "${{ github.repository }}" \
             --add-label daily-issues
-

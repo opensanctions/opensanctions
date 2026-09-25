@@ -5,11 +5,19 @@ from followthemoney.dataset import VersionHistory
 from nomenklatura.db import make_session
 
 from zavod import settings
-from zavod.archive import dataset_state_path, dataset_resource_path, VERSIONS_FILE
+from zavod.archive import ARTIFACTS, VERSIONS_FILE, dataset_artifact_directory
+from zavod.archive import dataset_state_path
 from zavod.cli import cli
 from zavod.integration import get_resolver
 from zavod.meta import Dataset
 from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML
+
+
+def _read_history(dataset_name: str) -> VersionHistory | None:
+    fn = settings.ARCHIVE_PATH / ARTIFACTS / dataset_name / VERSIONS_FILE
+    if not fn.exists():
+        return None
+    return VersionHistory.from_json(fn.read_text())
 
 
 def test_crawl_dataset():
@@ -29,20 +37,54 @@ def test_crawl_dataset():
 
 
 def test_export_dataset():
+    version = settings.RUN_VERSION
     runner = CliRunner()
-    result = runner.invoke(cli, ["export", "/dev/null"])
+    result = runner.invoke(cli, ["export", "/dev/null", "-v", version.id])
     assert result.exit_code != 0, result.output
+    # Without a version and without a local crawl, export finds nothing to export:
+    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    # Exporting a run that was never crawled fails:
+    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix(), "-v", version.id])
+    assert result.exit_code != 0, result.output
+
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix(), "-v", version.id])
+    assert result.exit_code == 0, result.output
+    # Without a version, export falls back to the latest local crawl:
     result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_validate_dataset():
+def test_export_validation_failed(testdataset3: Dataset):
+    version = settings.RUN_VERSION
+    artifact_dir = dataset_artifact_directory(testdataset3.name, version)
     runner = CliRunner()
-    result = runner.invoke(cli, ["validate", "/dev/null"])
-    assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["crawl", DATASET_3_YML.as_posix()])
     assert result.exit_code == 0, result.output
+
+    # Validation is on by default and testdataset3 fails its min assertions.
+    result = runner.invoke(cli, ["export", DATASET_3_YML.as_posix(), "-v", version.id])
+    assert result.exit_code != 0, result.output
+    assert "Assertion countries failed" in result.output, result.output
+    # Partial export files may remain in the artifact directory, but the abort
+    # must not produce any success markers: exporters never finish, so nothing
+    # is registered as a resource and no success index is written. Keeping the
+    # partial files out of the archive is archive_failure's job.
+    assert not (artifact_dir / "statistics.json").exists()
+    assert not (artifact_dir / "index.json").exists()
+    resources_path = artifact_dir / "resources.json"
+    if resources_path.exists():
+        assert "entities.ftm.json" not in resources_path.read_text()
+
+    result = runner.invoke(
+        cli, ["export", "--no-validate", DATASET_3_YML.as_posix(), "-v", version.id]
+    )
+    assert result.exit_code == 0, result.output
+    assert (artifact_dir / "entities.ftm.json").exists()
+    assert (artifact_dir / "index.json").exists()
     shutil.rmtree(settings.DATA_PATH)
 
 
@@ -50,6 +92,8 @@ def test_load_db():
     runner = CliRunner()
     result = runner.invoke(cli, ["load-db", "/dev/null"])
     assert result.exit_code != 0, result.output
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(cli, ["load-db", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
 
@@ -59,6 +103,8 @@ def test_dump_file():
     out_path = dataset_state_path("x") / "out.csv"
     result = runner.invoke(cli, ["dump-file", "/dev/null", out_path.as_posix()])
     assert result.exit_code != 0, result.output
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(
         cli, ["dump-file", DATASET_1_YML.as_posix(), out_path.as_posix()]
     )
@@ -66,54 +112,61 @@ def test_dump_file():
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_run_dataset(testdataset1: Dataset):
-    latest_path = settings.ARCHIVE_PATH / "datasets" / "latest" / testdataset1.name
+def test_run_publish_dataset(testdataset1: Dataset):
     artifacts_path = (
-        settings.ARCHIVE_PATH
-        / "artifacts"
-        / testdataset1.name
-        / settings.RUN_VERSION.id
+        settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name / settings.RUN_VERSION.id
     )
-    assert not latest_path.exists()
     assert not artifacts_path.exists()
     runner = CliRunner()
+    # zavod run
     result = runner.invoke(cli, ["run", "/dev/null"])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    assert latest_path.exists()
-    assert latest_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("entities.ftm.json").exists()
-    # Validation issues in a published run are published
+    assert artifacts_path.joinpath("index.json").exists()
+    assert artifacts_path.joinpath("entities.ftm.json").exists()
+    # Warning issues in a published run are published
     with open(artifacts_path / "issues.json") as f:
         assert "This is a test warning" in f.read()
-    shutil.rmtree(latest_path)
+    shutil.rmtree(artifacts_path)
 
-    result = runner.invoke(cli, ["publish", "/dev/null"])
+    # zavod publish
+    assert not artifacts_path.exists()
+    result = runner.invoke(cli, ["publish", "/dev/null", settings.RUN_VERSION.id])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["publish", "--latest", DATASET_1_YML.as_posix()])
+    # The version argument is required:
+    result = runner.invoke(cli, ["publish", DATASET_1_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    result = runner.invoke(
+        cli, ["publish", DATASET_1_YML.as_posix(), settings.RUN_VERSION.id]
+    )
     assert result.exit_code == 0, result.output
-    assert latest_path.exists()
-    assert latest_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("entities.ftm.json").exists()
-    # shutil.rmtree(settings.DATA_PATH)
+    assert artifacts_path.joinpath("index.json").exists()
+    assert artifacts_path.joinpath("entities.ftm.json").exists()
 
 
 def test_run_validation_failed(testdataset3: Dataset):
     artifacts_path = (
-        settings.ARCHIVE_PATH
-        / "artifacts"
-        / testdataset3.name
-        / settings.RUN_VERSION.id
+        settings.ARCHIVE_PATH / ARTIFACTS / testdataset3.name / settings.RUN_VERSION.id
     )
     assert not (artifacts_path / "issues.json").exists()
     runner = CliRunner()
-    result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     # Validation issues in an aborted run are published
     assert "Assertion countries failed" in result.output, result.output
     with open(artifacts_path / "issues.json") as f:
         assert "Assertion countries failed" in f.read()
+    # Only failure information is archived - never partial export artifacts,
+    # even though the abort happened mid-export.
+    archived = {p.name for p in artifacts_path.iterdir()}
+    assert archived == {
+        "index.json",
+        "issues.json",
+        "issues.log",
+        "versions.json",
+        "manifest.json",
+    }
     shutil.rmtree(settings.DATA_PATH)
 
 
@@ -122,18 +175,20 @@ def test_run_update_last_successful_version(
 ):
     runner = CliRunner()
 
-    # testdataset3 has validation errors, so last_successful should NOT be set
-    result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
+    # testdataset3 has validation errors: the failed version is registered in
+    # the history, but last_successful is never set.
+    result = runner.invoke(cli, ["run", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
-    versions_path = dataset_resource_path(testdataset3.name, VERSIONS_FILE)
-    assert not versions_path.exists(), "versions.json should not exist after failed run"
+    history = _read_history(testdataset3.name)
+    assert history is not None
+    assert history.latest == settings.RUN_VERSION
+    assert history.last_successful is None
 
     # testdataset1 succeeds, so last_successful should be set
-    result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
+    result = runner.invoke(cli, ["run", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    versions_path = dataset_resource_path(testdataset1.name, VERSIONS_FILE)
-    assert versions_path.exists(), "versions.json should exist after run"
-    history = VersionHistory.from_json(versions_path.read_text())
+    history = _read_history(testdataset1.name)
+    assert history is not None
     assert history.last_successful is not None
     assert history.last_successful == settings.RUN_VERSION
     shutil.rmtree(settings.DATA_PATH)

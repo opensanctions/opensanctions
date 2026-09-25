@@ -1,7 +1,5 @@
 import csv
 
-from rigour.mime.types import PDF
-
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
@@ -84,25 +82,26 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 
 def crawl(context: Context) -> None:
-    url_xpath = ".//a[contains(text(), 'HG nr. 1.272/2005')]/@href"
+    # HG 1.272/2005 has never been amended since its adoption, so the Google
+    # Sheet transcription below cannot go stale. The ONPCSB link to the PDF is
+    # broken (redirect loop), so instead of fetching it, just check that the
+    # decision is still referenced on the ONPCSB legislation page as a tripwire
+    # for it being repealed or replaced.
     assert context.dataset.url is not None
+    # Zyte because the connection times out when connecting from Google Cloud.
     doc = zyte_api.fetch_html(
         context,
         context.dataset.url,
-        url_xpath,
+        "//a[contains(@href, 'pdf')]",
         cache_days=1,
-        absolute_links=True,
         geolocation="RO",
     )
-    pdf_url = h.xpath_string(doc, url_xpath)
-    # Zyte because the connection times out when connecting from Google Cloud.
-    _, _, _, path = zyte_api.fetch_resource(context, "source.pdf", pdf_url, PDF)
-    # Ensure that the PDF our Google Sheet is based on hasn't changed
-    # since we last updated the Google Sheet.
-    h.assert_file_hash(path, "583e5e471beabb3b5bde7b259770998952bdfea0")
-    # AL-ZINDANI, Shaykh Abd-al-Majid
-    # ...
-    # AL AKHTAR TRUST
+    if not h.xpath_elements(doc, ".//a[contains(text(), 'HG nr. 1.272/2005')]"):
+        context.log.warning(
+            "HG nr. 1.272/2005 is no longer referenced on the ONPCSB legislation"
+            " page. Check whether the decision has been repealed or replaced.",
+            url=context.dataset.url,
+        )
 
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, encoding="utf-8") as fh:

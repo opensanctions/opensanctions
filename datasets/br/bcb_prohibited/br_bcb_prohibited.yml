@@ -8,13 +8,14 @@ load_statements: true
 summary: >
   The QGP is a dataset from the Central Bank of Brazil featuring names of individuals and entities temporarily barred from providing auditing services to financial institutions authorized by the Central Bank.
 description: |
-  The QGP, managed by the Central Bank of Brazil, is essential for regulatory 
+  The QGP, managed by the Central Bank of Brazil, is essential for regulatory
   compliance in the financial industry. It details names of persons and entities
   facing temporary bans from offering auditing services to Central Bank-regulated institutions.
   These restrictions, often a result of penalties in administrative proceedings,
   aim to ensure the reliability and integrity of those in key auditing roles.
 publisher:
   name: Banco Central do Brasil
+  name_en: Central Bank of Brazil
   acronym: BCB
   description: The Central Bank of Brazil
   url: https://www.bcb.gov.br

@@ -65,7 +65,10 @@ review_table = Table(
     Column("extracted_data", JSON, nullable=False),
     Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
     Column("modified_at", DateTime, nullable=False),
+    # The reviewer who last accepted or edited this, or MODIFIED_BY_CRAWLER
+    # for a revision the crawler wrote itself.
     Column("modified_by", Unicode(KEY_LEN), nullable=False),
+    # Set on the superseded rows of a review, which are kept as its history.
     Column("deleted_at", DateTime, nullable=True, index=True),
 )
 

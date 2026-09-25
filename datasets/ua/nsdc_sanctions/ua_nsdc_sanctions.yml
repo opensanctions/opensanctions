@@ -62,6 +62,7 @@ lookups:
       - match:
           - "tax:inn"
           - "tax:inn2"
+          - "tax:usrt" # Russian Unified State Register of Taxpayers (individual INN)
         prop: innCode
       - match:
           - "tax:number"

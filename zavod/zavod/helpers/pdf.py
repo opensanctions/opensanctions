@@ -116,8 +116,31 @@ def parse_pdf_table(
                 headers = [
                     header_slug(cell or "", preserve_header_newlines) for cell in row
                 ]
+                duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+                # Rows are built with dict(zip(headers, row)), so a duplicate
+                # header (e.g. two empty header cells, which both slugify to
+                # "") would silently drop the earlier column's cell.
+                assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
                 continue
             assert len(headers) == len(row), (headers, row)
+            row_slugs = [
+                header_slug(cell or "", preserve_header_newlines) for cell in row
+            ]
+            if row_slugs == headers:
+                # Tables that repeat their header row on every page would
+                # otherwise emit the repeated headers as a data row. Warn
+                # rather than skip silently: the table probably wants
+                # headers_per_page (and skiprows) so that any rows above the
+                # repeated header, e.g. comments, are skipped too.
+                context.log.warning(
+                    (
+                        "Skipping repeated header row. Consider headers_per_page "
+                        "in case comment rows need skipping on each page."
+                    ),
+                    page=page.page_number,
+                    row=row,
+                )
+                continue
             yield dict(zip(headers, row))
 
         page.close()

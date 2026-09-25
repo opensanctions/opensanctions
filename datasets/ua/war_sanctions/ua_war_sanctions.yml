@@ -78,7 +78,11 @@ assertions:
       Organization: 10
       Person: 5000
       Vessel: 1000
-      LegalEntity: 7000
+      # Companies the source places inside the Rostec holding structure are emitted as
+      # Company rather than LegalEntity (~580 of them), and more shift over as the source
+      # documents more of the structure. The two counts together stay around 8800.
+      LegalEntity: 5500
+      Company: 1600
     country_entities:
       ru: 790
       ua: 130
@@ -95,6 +99,7 @@ assertions:
       Person: 7000
       Vessel: 2500
       LegalEntity: 9000
+      Company: 3000
 
 lookups:
   type.date:
@@ -233,8 +238,7 @@ lookups:
       # Historical state; map to modern Yemen.
       - match: "People's Democratic Republic of Yemen"
         value: ye
-      # Multi-citizenship persons: the source lists several countries in one
-      # comma-separated citizenship line. Split each into its component countries.
+      # Cells naming more than one country, comma-separated. Split into components.
       - match: "Angola, Portugal"
         values:
           - "Angola"
@@ -482,6 +486,11 @@ lookups:
           - 1409544P
           - 202101009245
         prop: registrationNumber
+      # Sberbank's SWIFT row runs its head-office and 012 branch codes together.
+      - match: SABRRUMMSABRRUMM012
+        values:
+          - SABRRUMM
+          - SABRRUMM012
       - match: 10477970849
         value: 1047797084940
       - match: ".0276915630"

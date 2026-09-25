@@ -1,22 +1,58 @@
-from time import sleep
+import re
+from urllib.parse import urlsplit
+
+from lxml import etree
+from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h
 
-# 1s delay seems to be enough to avoid getting blocked, while it takes a long
-# time to get unblocked after about 10 requests.
-SLEEP_SECONDS = 1
-HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "accept-language": "en-GB,en;q=0.9",
-    "pragma": "no-cache",
-    "Priority": "u=1, i",
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3.1 Safari/605.1.15 (zavod; opensanctions.org)",
-}
+# Profile slugs look like /fugitives/jane-doe. /fugitives/all is the listing.
+PROFILE_PATH = re.compile(r"/fugitives/(?!all$)[a-z0-9-]+")
+
+
+def crawl_sitemap(context: Context, url: str, tag: str) -> list[str]:
+    """Fetch a sitemap index or sitemap and return the locations it lists."""
+    _, _, _, text = zyte_api.fetch_text(context, url)
+    root = etree.fromstring(text.encode("utf-8"))
+    h.remove_namespace(root)
+    assert root.tag == tag, (url, root.tag)
+    return h.xpath_strings(root, "./*/loc/text()")
 
 
 def crawl_item(fugitive_url: str, context: Context) -> None:
-    response = context.fetch_html(fugitive_url, cache_days=7, headers=HEADERS)
+    context.log.info("Fetching fugitive profile via Zyte", url=fugitive_url)
+    title_xpath = '//h2[@class="fugitive__title"]'
+    # The sitemap can list profiles that were taken down, which render a
+    # "Page Not Found" page instead of a profile.
+    not_found_xpath = '//h1[@class="page-title"][normalize-space()="Page Not Found"]'
+    # Either heading proves we got past the bot protection, so both serve as
+    # the unblock validator and as what the browser waits for.
+    page_xpath = f"{title_xpath} | {not_found_xpath}"
+    # Akamai's interstitial clears itself with a scripted redirect, so browser
+    # rendering alone still snapshots the challenge page. Wait for the heading
+    # instead.
+    response = zyte_api.fetch_html(
+        context,
+        fugitive_url,
+        unblock_validator=page_xpath,
+        actions=[
+            {
+                "action": "waitForSelector",
+                "selector": {"type": "xpath", "value": page_xpath},
+                "timeout": 15,
+            },
+        ],
+        javascript=True,
+        cache_days=7,
+        geolocation="US",
+    )
+
+    # The sitemap lists some profiles that no longer exist on the site. These
+    # are expected, so skip them without a warning.
+    if h.xpath_elements(response, not_found_xpath):
+        context.log.info("Fugitive profile not found, skipping", url=fugitive_url)
+        return
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
     table = response.find(".//table")
@@ -71,25 +107,11 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    # Each page only displays 10 fugitives at a time, so we need to loop until we don't find any more fugitives
-    base_url = context.data_url
-    page_num = 0
-
-    while True:
-        url = base_url + "?page=" + str(page_num)
-        context.log.info(f"Fetching page: {page_num}", url=url)
-        response = context.fetch_html(
-            url, cache_days=1, headers=HEADERS, absolute_links=True
-        )
-
-        # If there are no more fugitives, we can stop crawling.
-        if len(response.findall('.//h3[@class="teaser__heading"]/a')) == 0:
-            break
-
-        for item in response.findall('.//h3[@class="teaser__heading"]/a'):
-            sleep(SLEEP_SECONDS)
-            item_url = item.get("href")
-            assert item_url is not None, "No href found on fugitive link"
-            crawl_item(item_url, context)
-
-        page_num += 1
+    urls: set[str] = set()
+    for sitemap_url in crawl_sitemap(context, context.data_url, "sitemapindex"):
+        for url in crawl_sitemap(context, sitemap_url, "urlset"):
+            if PROFILE_PATH.fullmatch(urlsplit(url).path):
+                urls.add(url)
+    context.log.info("Discovered fugitive profiles", count=len(urls))
+    for url in sorted(urls):
+        crawl_item(url, context)

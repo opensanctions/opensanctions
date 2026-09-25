@@ -172,6 +172,26 @@ lookups:
         value: 1951-06
       - match: "1942-02-29"
         value: 1942-02
+      - match: "1930-02-30"
+        value: 1930-02
+      - match: "1945-06-31"
+        value: 1945-06
+      - match: "1993-11-31"
+        value: 1993-11
+      - match: "1996-11-31"
+        value: 1996-11
+      - match: "2005-09-31"
+        value: 2005-09
+      - match: "2006-09-31"
+        value: 2006-09
+      - match: "2015-04-31"
+        value: 2015-04
+      - match: "2022-06-31"
+        value: 2022-06
+      - match: "2022-11-31"
+        value: 2022-11
+      - match: "2029-09-31"
+        value: 2029-09
 
 config:
   # These are person QIDs that shouldn't be found. If they are, we're probably including
@@ -179,6 +199,7 @@ config:
   exclusion_checks:
     - Q5234712 # Came in via Dallas categories under Category:George_M._Dallas
     - Q546195 # Khuit II, Queen Consort of Ancient Egypt
+    - Q7292512 # was included incorrectly due to Category:Candidates_in_the_2018_United_States_Senate_elections
   categories:
     # Position names defined here (the `position.name` field) should be written
     # in English — make_position tags them with lang="eng".
@@ -195,10 +216,13 @@ config:
       depth: 8
     - category: Political_office-holders_in_North_America
       depth: 8
+      # TODO: replace once we have a better way of excluding mixed PEP/non-PEP subcategories
+      # than negcats. https://github.com/opensanctions/opensanctions/issues/5485
       negcats: |
         Polk_administration_cabinet_members
         19th-century_presidents_of_the_United_States
         George_M._Dallas
+        Candidates_in_the_2018_United_States_Senate_elections
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
@@ -238,6 +262,7 @@ config:
       country: sa
       position:
         name: Crown Prince of Saudi Arabia
+        wikidata_id: Q12251224
         country: sa
     - category: Government_ministers_of_Bahrain
       topic: role.pep
@@ -268,7 +293,7 @@ config:
     - category: Politicians_from_the_Gaza_Strip
       topic: role.pep
       country: ps
-    - category: Hamas_military_members
+    - category: Hamas_military_commanders
       topic: mil
     - category: Members_of_the_Palestinian_Legislative_Council
       topic: role.pep
@@ -278,9 +303,9 @@ config:
       country: ps
 
     # Syria
-    - category: Al-Assad_family
+    - category: Assad_family
       topic: poi
-    - category: Syrian_individuals_subject_to_the_European_Union_sanctions
+    - category: Syrian_individuals_subject_to_European_Union_sanctions
     - category: Syrian_individuals_subject_to_U.S._Department_of_the_Treasury_sanctions
     - category: Syrian_individuals_subject_to_United_Kingdom_sanctions
     - category: Individuals_sanctioned_by_the_United_States_Department_of_State
@@ -288,6 +313,8 @@ config:
     # Russia
     - category: United_Russia_politicians
       topic: role.pep
+      negcats: |
+        People_listed_in_Russia_as_foreign_agents
     - category: Candidates_in_the_2012_Russian_presidential_election
       topic: role.pep
     - category: Candidates_in_the_2018_Russian_presidential_election
@@ -297,6 +324,8 @@ config:
     - category: 21st-century_Russian_politicians
       topic: role.pep
       country: ru
+    
+    
 
     # Myanmar
     - category: Individuals_related_to_Myanmar_sanctions
@@ -377,6 +406,7 @@ config:
       country: kp
       position:
         name: Member of the Supreme People's Assembly
+        wikidata_id: Q21328639
         country: kp
         topics:
           - gov.legislative
@@ -486,20 +516,23 @@ config:
       topic: role.pep
       position:
         name: Secretary-General of the United Nations
+        wikidata_id: Q81066
         country: zz
         topics:
           - gov.igo
-    - category: Under-Secretaries-General_of_the_United_Nations
+    - category: Under-secretaries-general_of_the_United_Nations
       topic: role.pep
       position:
         name: Under-Secretary-General of the United Nations
+        wikidata_id: Q2932400
         country: zz
         topics:
           - gov.igo
-    - category: OSCE_Secretaries_General
+    - category: OSCE_secretaries_general
       topic: role.pep
       position:
         name: Secretary General of the OSCE
+        wikidata_id: Q110934652
         country: zz
         topics:
           - gov.igo
@@ -510,10 +543,11 @@ config:
         country: zz
         topics:
           - gov.igo
-    - category: Council_of_Europe_Secretaries-General
+    - category: Secretaries_general_of_the_Council_of_Europe
       topic: role.pep
       position:
         name: Secretary General of the Council of Europe
+        wikidata_id: Q2942251
         country: eu
         topics:
           - gov.igo
@@ -521,6 +555,7 @@ config:
       topic: role.pep
       position:
         name: President of the International Criminal Court
+        wikidata_id: Q7241113
         country: zz
         topics:
           - gov.igo
@@ -528,6 +563,7 @@ config:
       topic: role.pep
       position:
         name: Judge at the International Criminal Court
+        wikidata_id: Q965043
         country: zz
         topics:
           - role.judge
@@ -536,6 +572,7 @@ config:
       topic: role.pep
       position:
         name: Prosecutor of the International Criminal Court
+        wikidata_id: Q7250572
         country: zz
         topics:
           - gov.igo
@@ -549,6 +586,7 @@ config:
       topic: role.pep
       position:
         name: President of the World Bank Group
+        wikidata_id: Q4166474
         country: zz
         topics:
           - gov.igo
@@ -556,6 +594,7 @@ config:
       topic: role.pep
       position:
         name: Managing Director of the International Monetary Fund
+        wikidata_id: Q20054152
         country: zz
         topics:
           - gov.igo
@@ -563,10 +602,11 @@ config:
       topic: role.pep
     - category: International_Telecommunication_Union_people
       topic: role.pep
-    - category: World_Health_Organization_director-generals
+    - category: World_Health_Organization_directors-general
       topic: role.pep
       position:
         name: Director-General of the World Health Organization
+        wikidata_id: Q62070236
         country: zz
         topics:
           - gov.igo
@@ -574,32 +614,38 @@ config:
       topic: role.pep
       position:
         name: Secretary General of OPEC
+        wikidata_id: Q6596647
         topics:
           - gov.igo
     - category: NATO_Supreme_Allied_Commanders
       topic: role.pep
       position:
         name: NATO Supreme Allied Commander
+        wikidata_id: Q1640949
         topics:
           - gov.igo
           - mil
-    - category: Secretaries_general_of_NATO
-      topic: role.pep
-      position:
-        name: Secretary General of NATO
-        topics:
-          - gov.igo
-          - mil
+    # retired 2026-08-23; 16/17 already hold Q167662; 1 leave the dataset (born-before-1920)
+    # - category: Secretaries_general_of_NATO
+    #   topic: role.pep
+    #   position:
+    #     name: Secretary General of NATO
+    #     wikidata_id: Q167662
+    #     topics:
+    #       - gov.igo
+    #       - mil
     - category: Chairpersons_of_the_African_Union_Commission
       topic: role.pep
       position:
         name: Chairperson of the African Union Commission
+        wikidata_id: Q2571270
         topics:
           - gov.igo
     - category: Secretaries_general_of_the_Organization_of_American_States
       topic: role.pep
       position:
         name: Secretary General of the Organization of American States
+        wikidata_id: Q6123153
         topics:
           - gov.igo
     - category: Organization_of_American_States_people
@@ -614,20 +660,24 @@ config:
       topic: role.pep
       position:
         name: Secretary General of the Arab League
+        wikidata_id: Q12180685
         country: zz
         topics:
           - gov.igo
-    - category: Secretaries-general_of_the_Gulf_Cooperation_Council
-      topic: role.pep
-      position:
-        name: Secretary General of the Gulf Cooperation Council
-        country: zz
-        topics:
-          - gov.igo
+    # retired 2026-08-23; 5/5 already hold Q104127429
+    # - category: Secretaries-general_of_the_Gulf_Cooperation_Council
+    #   topic: role.pep
+    #   position:
+    #     name: Secretary General of the Gulf Cooperation Council
+    #     wikidata_id: Q104127429
+    #     country: zz
+    #     topics:
+    #       - gov.igo
     - category: Presidents_of_Interpol
       topic: role.pep
       position:
         name: President of Interpol
+        wikidata_id: Q19698214
         country: zz
         topics:
           - gov.igo
@@ -635,6 +685,7 @@ config:
       topic: role.pep
       position:
         name: President of the Inter-American Development Bank
+        wikidata_id: Q58281251
         country: zz
         topics:
           - gov.igo
@@ -650,6 +701,7 @@ config:
       topic: role.pep
       position:
         name: President of the United Nations General Assembly
+        wikidata_id: Q1161813
         country: zz
         topics:
           - gov.igo
@@ -657,12 +709,13 @@ config:
       topic: role.pep
     - category: African_Union_officials
       topic: role.pep
-    - category: Directors-General_of_the_World_Trade_Organization
+    - category: Directors-general_of_the_World_Trade_Organization
       topic: role.pep
     - category: Presidents_of_FIFA
       topic: poi
       position:
         name: President of FIFA
+        wikidata_id: Q22955080
         country: zz
         topics:
           - gov.igo
@@ -670,6 +723,7 @@ config:
       topic: poi
       position:
         name: President of the International Olympic Committee
+        wikidata_id: Q7241513
         country: zz
         topics:
           - gov.igo
@@ -688,7 +742,7 @@ config:
     - category: Governors_of_Zhejiang
       topic: role.pep
       country: cn
-    - category: Regional_leaders_in_the_People's_Republic_of_China
+    - category: Regional_leaders_in_China
       depth: 7
       search_max_results: 5000
       topic: role.pep
@@ -712,42 +766,48 @@ config:
       topic: poi
     - category: People_associated_with_the_2020_United_States_presidential_election
     - category: People_associated_with_the_2016_United_States_presidential_election
-    - category: Current_justices_of_the_Supreme_Court_of_the_United_States
+    - category: Justices_of_the_Supreme_Court_of_the_United_States
       topic: role.pep
       country: us
       position:
         name: Justice of the Supreme Court of the United States
+        wikidata_id: Q20706330
         country: us
         topics:
           - role.judge
-    - category: Presidents_of_the_United_States
-      depth: 0
-      topic: role.pep
-      country: us
-      position:
-        name: President of the United States
-        country: us
-        topics:
-          - gov.head
-    - category: Chief_justices_of_the_United_States
-      topic: role.pep
-      country: us
-      position:
-        name: Chief Justice of the United States
-        country: us
-        topics:
-          - role.judge
+    # retired 2026-08-23; 45/45 already hold Q11696
+    # - category: Presidents_of_the_United_States
+    #   depth: 0
+    #   topic: role.pep
+    #   country: us
+    #   position:
+    #     name: President of the United States
+    #     wikidata_id: Q11696
+    #     country: us
+    #     topics:
+    #       - gov.head
+    # retired 2026-08-23; 17/17 already hold Q11147
+    # - category: Chief_justices_of_the_United_States
+    #   topic: role.pep
+    #   country: us
+    #   position:
+    #     name: Chief Justice of the United States
+    #     wikidata_id: Q11147
+    #     country: us
+    #     topics:
+    #       - role.judge
     - category: United_States_presidential_advisors
       topic: role.pep
       country: us
       position:
         name: US Presidential Advisor
         country: us
-    - category: White_House_Counsels
+    - category: White_House_counsels
       topic: role.pep
       country: us
       position:
         name: White House Counsel
+        wikidata_id: Q1296423
         country: us
         topics:
           - role.lawyer
@@ -760,6 +820,10 @@ config:
       # country: us
     - category: Political_office-holders_in_the_United_States
       topic: role.pep
+      # TODO: replace once we have a better way of excluding mixed PEP/non-PEP subcategories
+      # than negcats. https://github.com/opensanctions/opensanctions/issues/5485
+      negcats: |
+        Candidates_in_the_2018_United_States_Senate_elections
     - category: Second_Trump_administration_personnel
       topic: role.pep
     - category: Biden_administration_personnel
@@ -781,15 +845,16 @@ config:
     # Canada
     - category: 21st-century_Canadian_federal_ministers
       topic: role.pep
-    - category: 21st-century_members_of_the_House_of_Commons_of_Canada
-      topic: role.pep
-      position:
-        name: Member of Parliament of Canada
-        wikidata_id: Q15964890
-        country: ca
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 1179/1179 already hold Q15964890
+    # - category: 21st-century_members_of_the_House_of_Commons_of_Canada
+    #   topic: role.pep
+    #   position:
+    #     name: Member of Parliament of Canada
+    #     wikidata_id: Q15964890
+    #     country: ca
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: 21st-century_members_of_the_Senate_of_Canada
       topic: role.pep
       position:
@@ -912,6 +977,7 @@ config:
       topic: role.pep
       position:
         name: President of the European Commission
+        wikidata_id: Q8882
         country: eu
         topics:
           - gov.igo
@@ -924,6 +990,7 @@ config:
       country: eu
       position:
         name: President of the European Council
+        wikidata_id: Q735587
         country: eu
         topics:
           - gov.igo
@@ -940,6 +1007,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q18534310
         country: mx
         topics:
           - gov.legislative
@@ -949,6 +1017,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q18534310
         country: mx
         topics:
           - gov.legislative
@@ -958,6 +1027,7 @@ config:
       topic: role.pep
       position:
         name: Members of the Senate of the Republic
+        wikidata_id: Q19971999
         country: mx
         topics:
           - gov.legislative
@@ -967,6 +1037,7 @@ config:
       topic: role.pep
       position:
         name: Members of the Senate of the Republic
+        wikidata_id: Q19971999
         country: mx
         topics:
           - gov.legislative
@@ -1011,6 +1082,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q21295982
         country: ec
         topics:
           - gov.legislative
@@ -1020,6 +1092,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Congress
+        wikidata_id: Q22230757
         country: ec
         topics:
           - gov.legislative
@@ -1029,6 +1102,7 @@ config:
       topic: role.pep
       position:
         name: President of the National Assembly
+        wikidata_id: Q6085548
         country: ec
         topics:
           - gov.legislative
@@ -1056,6 +1130,7 @@ config:
       topic: role.pep
       position:
         name: President of Ecuador
+        wikidata_id: Q732562
         country: ec
         topics:
           - gov.head
@@ -1065,6 +1140,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Ecuador
+        wikidata_id: Q4261569
         country: ec
         topics:
           - gov.executive
@@ -1081,6 +1157,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q21295982
         country: ec
         topics:
           - gov.legislative
@@ -1101,6 +1178,7 @@ config:
       topic: role.pep
       position:
         name: President of Ecuador
+        wikidata_id: Q732562
         country: ec
         topics:
           - gov.head
@@ -1111,6 +1189,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Ecuador
+        wikidata_id: Q4261569
         country: ec
         topics:
           - gov.executive
@@ -1137,37 +1216,44 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidents_of_Colombia
-      country: co
-      topic: role.pep
-      depth: 0
-      position:
-        name: President of Colombia
-        country: co
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 31/38 already hold Q853475; 7 leave the dataset (born-before-1920)
+    # - category: Presidents_of_Colombia
+    #   country: co
+    #   topic: role.pep
+    #   depth: 0
+    #   position:
+    #     name: President of Colombia
+    #     wikidata_id: Q853475
+    #     country: co
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Government_ministers_of_Colombia
       country: co
       topic: role.pep
-    - category: Mayors_of_Bogotá
-      country: co
-      topic: role.pep
-      position:
-        name: Mayor of Bogotá
-        country: co
-        topics:
-          - gov.muni
-          - gov.head
+    # retired 2026-08-23; 16/28 already hold Q21994938; 12 leave the dataset (born-before-1920, long-dead)
+    # - category: Mayors_of_Bogotá
+    #   country: co
+    #   topic: role.pep
+    #   position:
+    #     name: Mayor of Bogotá
+    #     wikidata_id: Q21994938
+    #     country: co
+    #     topics:
+    #       - gov.muni
+    #       - gov.head
     - category: Lists_of_political_office-holders_in_Colombia
       country: co
       topic: role.pep
+    # restored 2026-08-24; the retirement measurement (0/0) queried en.wikipedia
+    # instead of es.wikipedia and saw an empty category; the real query has ~636 members
     - category: Senadores_de_Colombia
       country: co
       language: es
       topic: role.pep
       position:
         name: Senator
+        wikidata_id: Q19254253
         country: co
         topics:
           - gov.legislative
@@ -1176,23 +1262,26 @@ config:
       country: co
       language: es
       topic: role.pep
-    - category: Presidentes_de_Colombia
-      country: co
-      language: es
-      topic: role.pep
-      depth: 0
-      position:
-        name: President of Colombia
-        country: co
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 61/106 already hold Q853475; 45 leave the dataset (born-before-1920)
+    # - category: Presidentes_de_Colombia
+    #   country: co
+    #   language: es
+    #   topic: role.pep
+    #   depth: 0
+    #   position:
+    #     name: President of Colombia
+    #     wikidata_id: Q853475
+    #     country: co
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vicepresidencia_de_Colombia
       country: co
       language: es
       topic: role.pep
       position:
         name: Vice President of Colombia
+        wikidata_id: Q17104133
         country: co
         topics:
           - gov.executive
@@ -1209,32 +1298,37 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q20011182
         country: ve
         topics:
           - gov.legislative
           - gov.national
-    - category: Members_of_the_Senate_of_Venezuela
-      country: ve
-      negcats: |
-        Nicolás_Maduro
-      topic: role.pep
-      position:
-        name: Member of the Senate of Venezuela
-        country: ve
-        topics:
-          - gov.legislative
-          - gov.national
-    - category: Presidents_of_Venezuela
-      country: ve
-      negcats: |
-        Nicolás_Maduro
-      topic: role.pep
-      position:
-        name: President of Venezuela
-        country: ve
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 30/33 already hold Q20081434; 3 leave the dataset (born-before-1920)
+    # - category: Members_of_the_Senate_of_Venezuela
+    #   country: ve
+    #   negcats: |
+    #     Nicolás_Maduro
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the Senate of Venezuela
+    #     wikidata_id: Q20081434
+    #     country: ve
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
+    # retired 2026-08-23; 50/52 already hold Q11942698; 2 leave the dataset (born-before-1920)
+    # - category: Presidents_of_Venezuela
+    #   country: ve
+    #   negcats: |
+    #     Nicolás_Maduro
+    #   topic: role.pep
+    #   position:
+    #     name: President of Venezuela
+    #     wikidata_id: Q11942698
+    #     country: ve
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vice_presidents_of_Venezuela
       country: ve
       negcats: |
@@ -1242,6 +1336,7 @@ config:
       topic: role.pep
       position:
         name: Vice President of Venezuela
+        wikidata_id: Q3556895
         country: ve
         topics:
           - gov.executive
@@ -1263,22 +1358,25 @@ config:
       topic: role.pep
       position:
         name: Deputy of Venezuela
+        wikidata_id: Q20011182
         country: ve
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidentes_de_Venezuela
-      country: ve
-      language: es
-      negcats: |
-        Nicolás_Maduro
-      topic: role.pep
-      position:
-        name: President of Venezuela
-        country: ve
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 29/31 already hold Q11942698; 2 leave the dataset (born-before-1920)
+    # - category: Presidentes_de_Venezuela
+    #   country: ve
+    #   language: es
+    #   negcats: |
+    #     Nicolás_Maduro
+    #   topic: role.pep
+    #   position:
+    #     name: President of Venezuela
+    #     wikidata_id: Q11942698
+    #     country: ve
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Ministros_por_presidente_de_Venezuela
       country: ve
       language: es
@@ -1294,7 +1392,7 @@ config:
         country: ve
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
     - category: Políticos_de_Venezuela
       country: ve
       language: es
@@ -1307,24 +1405,28 @@ config:
       topic: role.pep
       position:
         name: Member of the National Assembly
+        wikidata_id: Q18616113
         country: ni
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidents_of_Nicaragua
-      country: ni
-      topic: role.pep
-      position:
-        name: President of Nicaragua
-        country: ni
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 66/68 already hold Q852448; 2 leave the dataset (born-before-1920, long-dead)
+    # - category: Presidents_of_Nicaragua
+    #   country: ni
+    #   topic: role.pep
+    #   position:
+    #     name: President of Nicaragua
+    #     wikidata_id: Q852448
+    #     country: ni
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vice_presidents_of_Nicaragua
       country: ni
       topic: role.pep
       position:
         name: Vice President of Nicaragua
+        wikidata_id: Q3649507
         country: ni
         topics:
           - gov.executive
@@ -1337,22 +1439,25 @@ config:
       topic: role.pep
       position:
         name: Mayor of Managua
+        wikidata_id: Q104881755
         country: ni
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
     - category: Nicaraguan_politicians
       country: ni
-    - category: Presidentes_de_Nicaragua
-      country: ni
-      language: es
-      topic: role.pep
-      position:
-        name: President of Nicaragua
-        country: ni
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 65/67 already hold Q852448; 2 leave the dataset (born-before-1920, long-dead)
+    # - category: Presidentes_de_Nicaragua
+    #   country: ni
+    #   language: es
+    #   topic: role.pep
+    #   position:
+    #     name: President of Nicaragua
+    #     wikidata_id: Q852448
+    #     country: ni
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Ministros_de_Nicaragua
       country: ni
       language: es
@@ -1366,7 +1471,7 @@ config:
         country: ni
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
     - category: Políticos_de_Nicaragua
       country: ni
       language: es
@@ -1377,20 +1482,23 @@ config:
     - category: Political_office-holders_in_Guatemala
       country: gt
       topic: role.pep
-    - category: Presidents_of_Guatemala
-      country: gt
-      topic: role.pep
-      position:
-        name: President of Guatemala
-        country: gt
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 21/25 already hold Q6085537; 4 leave the dataset (born-before-1920)
+    # - category: Presidents_of_Guatemala
+    #   country: gt
+    #   topic: role.pep
+    #   position:
+    #     name: President of Guatemala
+    #     wikidata_id: Q6085537
+    #     country: gt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vice_presidents_of_Guatemala
       country: gt
       topic: role.pep
       position:
         name: Vice President of Guatemala
+        wikidata_id: Q5340773
         country: gt
         topics:
           - gov.executive
@@ -1398,20 +1506,23 @@ config:
     - category: Government_ministers_of_Guatemala
       country: gt
       topic: role.pep
-    - category: Mayors_of_Guatemala_City
-      country: gt
-      topic: role.pep
-      position:
-        name: Mayor of Guatemala City
-        country: gt
-        topics:
-          - gov.muni
-          - gov.head
+    # retired 2026-08-23; 7/9 already hold Q116790781; 2 leave the dataset (born-before-1920)
+    # - category: Mayors_of_Guatemala_City
+    #   country: gt
+    #   topic: role.pep
+    #   position:
+    #     name: Mayor of Guatemala City
+    #     wikidata_id: Q116790781
+    #     country: gt
+    #     topics:
+    #       - gov.muni
+    #       - gov.head
     - category: Members_of_the_Congress_of_Guatemala
       country: gt
       topic: role.pep
       position:
         name: Member of the Congress of Guatemala
+        wikidata_id: Q18277108
         country: gt
         topics:
           - gov.legislative
@@ -1419,22 +1530,25 @@ config:
     - category: Políticos_de_Guatemala
       country: gt
       language: es
-    - category: Presidentes_de_Guatemala
-      country: gt
-      language: es
-      topic: role.pep
-      position:
-        name: President of Guatemala
-        country: gt
-        topics:
-          - gov.head
-          - gov.national
+    # retired 2026-08-23; 48/50 already hold Q6085537; 2 leave the dataset (born-before-1920, long-dead)
+    # - category: Presidentes_de_Guatemala
+    #   country: gt
+    #   language: es
+    #   topic: role.pep
+    #   position:
+    #     name: President of Guatemala
+    #     wikidata_id: Q6085537
+    #     country: gt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
     - category: Vicepresidentes_de_Guatemala
       country: gt
       language: es
       topic: role.pep
       position:
         name: Vice President of Guatemala
+        wikidata_id: Q5340773
         country: gt
         topics:
           - gov.executive
@@ -1449,6 +1563,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Congress of Guatemala
+        wikidata_id: Q18277108
         country: gt
         topics:
           - gov.legislative
@@ -1462,7 +1577,7 @@ config:
         country: gt
         topics:
           - gov.muni
-          - gov.head
+          - gov.executive
 
     # European countries
     - category: Members_of_the_parliaments_of_the_Belgian_communities_and_regions
@@ -1478,120 +1593,143 @@ config:
     - category: Government_ministers_of_Belarus
       country: by
       topic: role.pep
-    - category: Prime_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Prime Minister
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 11/17 already hold Q12379704; 6 leave the dataset (born-before-1920)
+    # - category: Prime_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Prime Minister
+    #     wikidata_id: Q12379704
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
     - category: Deputy_prime_ministers_of_Belarus
       country: by
       topic: role.pep
       position:
         name: Deputy Prime Minister
+        wikidata_id: Q18690228
         country: by
         topics:
           - gov.executive
           - gov.national
-    - category: Foreign_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Foreign Affairs
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Defence_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Defence
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Finance_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Finance
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Interior_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Internal Affairs
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Justice_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Justice
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Health_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Health Care
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Transport_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Transport and Communications
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 9/10 already hold Q2045068; 1 leave the dataset (long-dead)
+    # - category: Foreign_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Foreign Affairs
+    #     wikidata_id: Q2045068
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 7/7 already hold Q44035369
+    # - category: Defence_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Defence
+    #     wikidata_id: Q44035369
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 3/3 already hold Q106510813
+    # - category: Finance_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Finance
+    #     wikidata_id: Q106510813
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 5/6 already hold Q100699741; 1 leave the dataset (born-before-1920)
+    # - category: Interior_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Internal Affairs
+    #     wikidata_id: Q100699741
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 7/7 already hold Q106510814
+    # - category: Justice_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Justice
+    #     wikidata_id: Q106510814
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 4/4 already hold Q89775465
+    # - category: Health_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Health Care
+    #     wikidata_id: Q89775465
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 2/2 already hold Q60676745
+    # - category: Transport_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Transport and Communications
+    #     wikidata_id: Q60676745
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
     - category: Communications_ministers_of_Belarus
       country: by
       topic: role.pep
       position:
         name: Minister of Telecommunications and Informatisation
+        wikidata_id: Q28598480
         country: by
         topics:
           - gov.executive
           - gov.national
-    - category: Industry_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Industry
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
-    - category: Information_ministers_of_Belarus
-      country: by
-      topic: role.pep
-      position:
-        name: Minister of Information
-        country: by
-        topics:
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 4/4 already hold Q106508605
+    # - category: Industry_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Industry
+    #     wikidata_id: Q106508605
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
+    # retired 2026-08-23; 3/3 already hold Q106399613
+    # - category: Information_ministers_of_Belarus
+    #   country: by
+    #   topic: role.pep
+    #   position:
+    #     name: Minister of Information
+    #     wikidata_id: Q106399613
+    #     country: by
+    #     topics:
+    #       - gov.executive
+    #       - gov.national
 
     - category: Members_of_the_Polish_Sejm_2023–2027
       country: pl
       topic: role.pep
       position:
         name: Member of the Sejm
+        wikidata_id: Q19269361
         country: pl
         topics:
           - gov.legislative
@@ -1601,6 +1739,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Sejm
+        wikidata_id: Q19269361
         country: pl
         topics:
           - gov.legislative
@@ -1610,15 +1749,16 @@ config:
       topic: role.pep
       position:
         name: Senator of the Republic of Poland
+        wikidata_id: Q81747225
         country: pl
         topics:
           - gov.legislative
     - category: Members_of_the_Senate_of_Poland_2023–2027
       country: pl
-      language: pl
       topic: role.pep
       position:
         name: Senator of the Republic of Poland
+        wikidata_id: Q81747225
         country: pl
         topics:
           - gov.legislative
@@ -1708,44 +1848,56 @@ config:
       language: cs
     - category: Poslanci_Parlamentu_České_republiky_(2021–2025)
       country: cz
+      language: cs
       topic: role.pep
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q19803234
         country: cz
         topics:
           - gov.legislative
     # We don't mark these as peps, since some of them have been out of office for more than 20 years
     - category: Poslanci_Parlamentu_České_republiky
       country: cz
+      language: cs
       position:
         name: Member of the Chamber of Deputies
+        wikidata_id: Q19803234
         country: cz
         topics:
           - gov.legislative
     - category: Senátoři_Parlamentu_České_republiky
       country: cz
+      language: cs
       position:
         name: Senator of the Czech Republic
+        wikidata_id: Q18941264
         country: cz
         topics:
           - gov.legislative
     - category: Prezidenti_České_republiky
       country: cz
+      language: cs
       position:
         name: President of the Czech Republic
+        wikidata_id: Q1819381
         country: cz
         topics:
           - gov.head
+          - gov.national
     - category: Ministři_vlád_České_republiky
       country: cz
+      language: cs
       topic: role.pep
       position:
         name: Minister of the Czech Republic
+        wikidata_id: Q68081922
         country: cz
         topics:
           - gov.executive
     - category: Soudci_Nejvyššího_soudu_České_republiky
       country: cz
+      language: cs
       position:
         name: Judge of the Supreme Court of the Czech Republic
         country: cz
@@ -1753,6 +1905,7 @@ config:
           - gov.judicial
     - category: Soudci_Nejvyššího_správního_soudu_České_republiky
       country: cz
+      language: cs
       position:
         name: Judge of the Supreme Administrative Court of the Czech Republic
         country: cz
@@ -1760,8 +1913,10 @@ config:
           - gov.judicial
     - category: Soudci_Ústavního_soudu_České_republiky
       country: cz
+      language: cs
       position:
         name: Judge of the Constitutional Court of the Czech Republic
+        wikidata_id: Q59773473
         country: cz
         topics:
           - gov.judicial
@@ -1776,6 +1931,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Council
+        wikidata_id: Q19967563
         country: sk
         topics:
           - gov.legislative
@@ -1785,6 +1941,7 @@ config:
       topic: role.pep
       position:
         name: Member of the National Council
+        wikidata_id: Q19967563
         country: sk
         topics:
           - gov.legislative
@@ -1799,23 +1956,27 @@ config:
 
     - category: Political_office-holders_in_Hungary
       country: hu
-    - category: Members_of_the_National_Assembly_of_Hungary_(2022–2026)
-      country: hu
-      topic: role.pep
-      position:
-        name: Member of the National Assembly of Hungary
-        country: hu
-        topics:
-          - gov.legislative
-    - category: Országgyűlési_képviselők_(2022–2026)
-      country: hu
-      language: hu
-      topic: role.pep
-      position:
-        name: Member of the National Assembly of Hungary
-        country: hu
-        topics:
-          - gov.legislative
+    # retired 2026-08-23; 172/172 already hold Q17590876
+    # - category: Members_of_the_National_Assembly_of_Hungary_(2022–2026)
+    #   country: hu
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the National Assembly of Hungary
+    #     wikidata_id: Q17590876
+    #     country: hu
+    #     topics:
+    #       - gov.legislative
+    # retired 2026-08-23; 209/209 already hold Q17590876
+    # - category: Országgyűlési_képviselők_(2022–2026)
+    #   country: hu
+    #   language: hu
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the National Assembly of Hungary
+    #     wikidata_id: Q17590876
+    #     country: hu
+    #     topics:
+    #       - gov.legislative
     - category: Országgyűlési_képviselők
       country: hu
       language: hu
@@ -1841,6 +2002,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Congress of Deputies
+        wikidata_id: Q18171345
         country: es
         topics:
           - gov.legislative
@@ -1850,6 +2012,7 @@ config:
       topic: role.pep
       position:
         name: Senator of Spain
+        wikidata_id: Q19323171
         country: es
         topics:
           - gov.legislative
@@ -1859,33 +2022,39 @@ config:
       topic: role.pep
       position:
         name: President of the Congress of Deputies
+        wikidata_id: Q17014422
         country: es
         topics:
           - gov.legislative
           - gov.national
-    - category: Presidents_of_the_Senate_of_Spain
-      country: es
-      topic: role.pep
-      position:
-        name: President of the Senate of Spain
-        country: es
-        topics:
-          - gov.legislative
-          - gov.national
-    - category: Prime_ministers_of_Spain
-      country: es
-      topic: role.pep
-      position:
-        name: Prime Minister of Spain
-        country: es
-        topics:
-          - gov.head
-          - gov.national
-    - category: Deputy_Prime_Ministers_of_Spain
+    # retired 2026-08-23; 36/39 already hold Q1335465; 3 leave the dataset (born-before-1920)
+    # - category: Presidents_of_the_Senate_of_Spain
+    #   country: es
+    #   topic: role.pep
+    #   position:
+    #     name: President of the Senate of Spain
+    #     wikidata_id: Q1335465
+    #     country: es
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
+    # retired 2026-08-23; 15/116 already hold Q844587; 101 leave the dataset (born-before-1920)
+    # - category: Prime_ministers_of_Spain
+    #   country: es
+    #   topic: role.pep
+    #   position:
+    #     name: Prime Minister of Spain
+    #     wikidata_id: Q844587
+    #     country: es
+    #     topics:
+    #       - gov.head
+    #       - gov.national
+    - category: Deputy_prime_ministers_of_Spain
       country: es
       topic: role.pep
       position:
         name: Deputy Prime Minister of Spain
+        wikidata_id: Q3113035
         country: es
         topics:
           - gov.executive
@@ -1895,6 +2064,7 @@ config:
       topic: role.pep
       position:
         name: Minister of Spain
+        wikidata_id: Q20899145
         country: es
         topics:
           - gov.executive
@@ -1909,7 +2079,7 @@ config:
         name: President of the autonomous community of Spain
         country: es
         topics:
-          - gov.head
+          - gov.executive
           - gov.state
     - category: Ministers_of_Spanish_autonomous_communities
       country: es
@@ -1919,9 +2089,10 @@ config:
       topic: role.pep
       position:
         name: Mayor (Spain)
+        wikidata_id: Q5663900
         country: es
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
     - category: 21st-century_Spanish_politicians
       country: es
@@ -1936,6 +2107,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Senate
+        wikidata_id: Q19305384
         country: nl
         topics:
           - gov.legislative
@@ -1945,6 +2117,7 @@ config:
       topic: role.pep
       position:
         name: Member of the House of Representatives
+        wikidata_id: Q18887908
         country: nl
         topics:
           - gov.legislative
@@ -1954,30 +2127,23 @@ config:
     - category: Political_office-holders_in_Germany
       country: de
       topic: role.pep
-    - category: Members_of_the_Bundestag
-      country: de
-      topic: role.pep
-      position:
-        name: Member of the Bundestag
-        country: de
-        topics:
-          - gov.legislative
-          - gov.national
-    - category: Members_of_the_German_Bundesrat
-      country: de
-      topic: role.pep
-      position:
-        name: Member of the Bundesrat
-        country: de
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 1/1 already hold Q1939555
+    # - category: Members_of_the_Bundestag
+    #   country: de
+    #   topic: role.pep
+    #   position:
+    #     name: Member of the Bundestag
+    #     wikidata_id: Q1939555
+    #     country: de
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
 
     # country: Sweden
     - category: Political_office-holders_in_Sweden
       country: se
       topic: role.pep
-    - category: Svenske_politikere
+    - category: Svenska_politiker
       language: "sv"
     - category: Lists_of_political_office-holders_in_Norway
       country: "no"
@@ -2057,24 +2223,182 @@ config:
       topic: role.pep
     - category: Lists_of_political_office-holders_in_Finland
       country: fi
-    - category: Lists_of_office-holders_in_Finland
-      country: fi
     - category: Political_office-holders_in_Finland
       country: fi
     - category: Suomen_hallinto
       language: fi
 
+    # country: Lithuania
     - category: Lietuvos_politikai
       language: lt
       country: lt
-    - category: Lietuvos_parlamentų_nariai
+
+    # retired 2026-08-23; 4/4 already hold Q878222
+    # - category: Lietuvos_prezidentai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: President of Lithuania
+    #     wikidata_id: Q878222
+    #     country: lt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
+    # retired 2026-08-23; 18/19 already hold Q845439; 1 leave the dataset (long-dead)
+    # - category: Lietuvos_ministrai_pirmininkai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: Prime Minister of Lithuania
+    #     wikidata_id: Q845439
+    #     country: lt
+    #     topics:
+    #       - gov.head
+    #       - gov.national
+    - category: Lietuvos_vicepremjerai
       language: lt
       country: lt
       topic: role.pep
+    # Excluded: ministers of polities other than the present-day republic, being
+    # the Soviet LSSR and the 1941 Provisional Government.
     - category: Lietuvos_ministrai
       language: lt
       country: lt
       topic: role.pep
+      negcats: |
+        Lietuvos_TSR_ministrai
+        Lietuvos_laikinosios_vyriausybės_ministrai
+    - category: Lietuvos_viceministrai
+      language: lt
+      country: lt
+      topic: role.pep
+      negcats: |
+        Lietuvos_TSR_viceministrai
+
+    # Lietuvos_parlamentų_nariai spans every parliament back to the Grand Duchy,
+    # so no one position fits it. Seimo_nariai is the Seimas of the restored
+    # republic; the QID is the one lt_seimas uses, so it's the same entity.
+    - category: Lietuvos_parlamentų_nariai
+      language: lt
+      country: lt
+      topic: role.pep
+    - category: Seimo_nariai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Member of the Seimas of Lithuania
+        wikidata_id: Q18507240
+        country: lt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: LR_Seimo_pirmininkai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Speaker of the Seimas of Lithuania
+        wikidata_id: Q12663218
+        country: lt
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Europos_Parlamento_nariai_(Lietuva)
+      language: lt
+      country: lt
+      topic: role.pep
+
+    # Courts of final instance only - Court of Appeal decisions can still be
+    # appealed to the Supreme Court, so its judges aren't PEPs by definition.
+    - category: LR_Konstitucinio_Teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Justice of the Constitutional Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_Aukščiausiojo_Teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Judge of the Supreme Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_vyriausiojo_administracinio_teismo_teisėjai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Judge of the Supreme Administrative Court of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: Lietuvos_generaliniai_prokurorai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Prosecutor General of Lithuania
+        wikidata_id: Q132068652
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+    - category: LR_generalinio_prokuroro_pavaduotojai
+      language: lt
+      country: lt
+      topic: role.pep
+      position:
+        name: Deputy Prosecutor General of Lithuania
+        country: lt
+        topics:
+          - gov.judicial
+          - gov.national
+
+    # retired 2026-08-23; 5/10 already hold Q109496871; 5 leave the dataset (born-before-1920)
+    # - category: Lietuvos_banko_vadovai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: Governor of the Bank of Lithuania
+    #     wikidata_id: Q109496871
+    #     country: lt
+    #     topics:
+    #       - gov.financial
+    #       - gov.national
+    # retired 2026-08-23; 7/16 already hold Q55607326; 9 leave the dataset (born-before-1920)
+    # - category: Lietuvos_kariuomenės_vadai
+    #   language: lt
+    #   country: lt
+    #   topic: role.pep
+    #   position:
+    #     name: Chief of Defence of Lithuania
+    #     wikidata_id: Q55607326
+    #     country: lt
+    #     topics:
+    #       - gov.security
+    #       - gov.national
+
+    # Lietuvos_diplomatai as a whole also holds consuls and junior diplomats,
+    # so only the ambassadors are marked.
+    - category: Lietuvos_ambasadoriai
+      language: lt
+      country: lt
+      topic: role.pep
+
+    # Deputy mayors are left out: lt isn't in MUNI_COUNTRIES in
+    # zavod.shed.wikidata.position, so LT municipal positions get dropped.
     - category: Lietuvos_apskričių_viršininkai
       language: lt
       country: lt
@@ -2098,6 +2422,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Saeima
+        wikidata_id: Q21191589
         country: lv
         topics:
           - gov.legislative
@@ -2108,6 +2433,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Saeima
+        wikidata_id: Q21191589
         country: lv
         topics:
           - gov.legislative
@@ -2225,18 +2551,9 @@ config:
     - category: Singaporean_military_leaders
       topic: role.pep
       country: sg
-    - category: List_of_serving_general_and_flag_officers_of_the_Singapore_Armed_Forces
-      topic: role.pep
-      country: sg
-      position:
-        name: Senior Military Leadership
-        country: sg
-        topics:
-          - mil
-          - gov.national
 
     # country: Timor-Leste
-    - category: Political_office-holders_in_East_Timor
+    - category: Political_office-holders_in_Timor-Leste
       topic: role.pep
       country: tl
 
@@ -2245,14 +2562,16 @@ config:
       topic: role.pep
       country: bn
 
-    - category: Australian_MPs_2022–2025
-      topic: role.pep
-      country: au
-      position:
-        name: Member of the Australian Parliament
-        country: au
-        topics:
-          - gov.legislative
+    # retired 2026-08-23; 155/155 already hold Q18912794
+    # - category: Australian_MPs_2022–2025
+    #   topic: role.pep
+    #   country: au
+    #   position:
+    #     name: Member of the Australian Parliament
+    #     wikidata_id: Q18912794
+    #     country: au
+    #     topics:
+    #       - gov.legislative
     - category: 21st-century_Australian_politicians
       country: au
     - category: Political_office-holders_in_Australia
@@ -2262,6 +2581,7 @@ config:
       country: au
       position:
         name: Australian Senator
+        wikidata_id: Q6814428
         country: au
         topics:
           - gov.legislative
@@ -2447,7 +2767,7 @@ config:
       country: lb
 
     # country: State of Palestine
-    - category: Political_office-holders_in_the_State_of_Palestine
+    - category: Political_office-holders_in_Palestine
       topic: role.pep
       country: ps
 
@@ -2489,6 +2809,7 @@ config:
       language: el
     - category: Βουλευτές_ΙΒ΄_Κοινοβουλευτικής_Περιόδου_(Κύπρος)
       country: cy
+      language: el
       topic: role.pep
 
     - category: Greek_MPs_2023–
@@ -2504,6 +2825,7 @@ config:
       topic: role.pep
       position:
         name: Member of the Hellenic Parliament
+        wikidata_id: Q18915989
         country: gr
         topics:
           - gov.legislative
@@ -2551,29 +2873,33 @@ config:
       language: ru
       position:
         name: Head of the Administration of the President of Russia
+        wikidata_id: Q4488944
         country: ru
         topics:
           - gov.executive
           - gov.national
 
     # "Премьер-министр и министры"  # Prime Minister and Ministers
-    - category: Председатели Правительства РФ # Prime Ministers of the Russian Federation
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Prime Minister of the Russian Federation
-        country: ru
-        topics:
-          - gov.head
-          - gov.executive
-          - gov.national
+    # retired 2026-08-23; 12/12 already hold Q842386
+    # - category: Председатели Правительства РФ # Prime Ministers of the Russian Federation
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Prime Minister of the Russian Federation
+    #     wikidata_id: Q842386
+    #     country: ru
+    #     topics:
+    #       - gov.head
+    #       - gov.executive
+    #       - gov.national
     - category: Первые заместители председателя Правительства Российской Федерации # First Deputy Prime Ministers of the Russian Federation
       topic: role.pep
       country: ru
       language: ru
       position:
         name: First Deputy Prime Minister of the Russian Federation
+        wikidata_id: Q1965788
         country: ru
         topics:
           - gov.executive
@@ -2584,6 +2910,7 @@ config:
       country: ru
       position:
         name: Deputy Prime Minister of the Russian Federation
+        wikidata_id: Q14805701
         country: ru
         topics:
           - gov.executive
@@ -2594,6 +2921,7 @@ config:
       country: ru
       position:
         name: Head of the Apparatus of the Government of the Russian Federation
+        wikidata_id: Q107883642
         country: ru
         topics:
           - gov.executive
@@ -2659,26 +2987,30 @@ config:
       language: ru
       position:
         name: Deputy of the State Duma of the Russian Federation
+        wikidata_id: Q17276321
         country: ru
         topics:
           - gov.legislative
           - gov.national
-    - category: Депутаты Государственной думы Российской Федерации VII созыва # Deputies of the State Duma of the Russian Federation VII convocation
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Deputy of the State Duma of the Russian Federation
-        country: ru
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 498/498 already hold Q17276321
+    # - category: Депутаты Государственной думы Российской Федерации VII созыва # Deputies of the State Duma of the Russian Federation VII convocation
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Deputy of the State Duma of the Russian Federation
+    #     wikidata_id: Q17276321
+    #     country: ru
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Депутаты Государственной думы Российской Федерации VIII созыва # Deputies of the State Duma of the Russian Federation VIII convocation
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the State Duma of the Russian Federation
+        wikidata_id: Q17276321
         country: ru
         topics:
           - gov.legislative
@@ -2701,6 +3033,7 @@ config:
       language: ru
       position:
         name: Deputy of the Federation Council of Russia
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
@@ -2711,6 +3044,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council of Russia
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
@@ -2721,6 +3055,7 @@ config:
       language: ru
       position:
         name: Member of the Federation Council of Russia
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
@@ -2731,6 +3066,7 @@ config:
       language: ru
       position:
         name: Chairman of the Federation Council of Russia
+        wikidata_id: Q4376672
         country: ru
         topics:
           - gov.legislative
@@ -2751,52 +3087,61 @@ config:
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         country: ru
         topics:
           - gov.legislative
           - gov.national
-    - category: Члены Совета Федерации России от Камчатского края # Members of the Federation Council of Russia from Kamchatka Krai
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Member of the Federation Council
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 4/4 already hold Q4516946
+    # - category: Члены Совета Федерации России от Камчатского края # Members of the Federation Council of Russia from Kamchatka Krai
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Federation Council
+    #     wikidata_id: Q4516946
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Члены Совета Федерации России от Республики Крым # Members of the Federation Council of Russia from the Republic of Crimea
       topic: role.pep
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         country: ua-cri
         topics:
           - gov.legislative
           - gov.national
-    - category: Члены Совета Федерации России от Приморского края # Members of the Federation Council of Russia from Primorsky Krai
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Member of the Federation Council
-        topics:
-          - gov.legislative
-          - gov.national
-    - category: Члены Совета Федерации России от Рязанской области # Members of the Federation Council of Russia from Ryazan Oblast
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Member of the Federation Council
-        topics:
-          - gov.legislative
-          - gov.national
+    # retired 2026-08-23; 10/11 already hold Q4516946; 1 leave the dataset (long-dead)
+    # - category: Члены Совета Федерации России от Приморского края # Members of the Federation Council of Russia from Primorsky Krai
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Federation Council
+    #     wikidata_id: Q4516946
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
+    # retired 2026-08-23; 13/14 already hold Q4516946; 1 leave the dataset (long-dead)
+    # - category: Члены Совета Федерации России от Рязанской области # Members of the Federation Council of Russia from Ryazan Oblast
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Member of the Federation Council
+    #     wikidata_id: Q4516946
+    #     topics:
+    #       - gov.legislative
+    #       - gov.national
     - category: Члены Совета Федерации России от Хабаровского края # Members of the Federation Council of Russia from Khabarovsk Krai
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Member of the Federation Council
+        wikidata_id: Q4516946
         topics:
           - gov.legislative
           - gov.national
@@ -2821,6 +3166,7 @@ config:
       language: ru
       position:
         name: Chairman of the Supreme Court of the Russian Federation
+        wikidata_id: Q4431732
         country: ru
         topics:
           - gov.judicial
@@ -2879,7 +3225,7 @@ config:
         name: Governor of a Russian Region
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.state
 
       # "Региональные законодатели"  # Regional legislators
@@ -2889,6 +3235,7 @@ config:
       country: ua-cri
       position:
         name: Deputy of the State Council of Crimea
+        wikidata_id: Q133268428
         country: ua-cri
         topics:
           - gov.legislative
@@ -2899,6 +3246,7 @@ config:
       country: ua-cri
       position:
         name: Deputy of the Legislative Assembly of Sevastopol
+        wikidata_id: Q133268430
         country: ua-cri
         topics:
           - gov.legislative
@@ -2918,6 +3266,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Republic of Adygea
+        wikidata_id: Q133268354
         country: ru
         topics:
           - gov.legislative
@@ -2928,6 +3277,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Altai Republic
+        wikidata_id: Q133268350
         country: ru
         topics:
           - gov.legislative
@@ -2938,6 +3288,7 @@ config:
       language: ru
       position:
         name: Deputy of the Altai Krai Legislative Assembly
+        wikidata_id: Q133268339
         country: ru
         topics:
           - gov.legislative
@@ -2948,6 +3299,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Amur Oblast
+        wikidata_id: Q133268365
         country: ru
         topics:
           - gov.legislative
@@ -2958,6 +3310,7 @@ config:
       language: ru
       position:
         name: Deputy of the Arkhangelsk Region Assembly of Deputies
+        wikidata_id: Q133268342
         country: ru
         topics:
           - gov.legislative
@@ -2968,6 +3321,7 @@ config:
       language: ru
       position:
         name: Deputy of the Duma of Astrakhan Oblast
+        wikidata_id: Q133268349
         country: ru
         topics:
           - gov.legislative
@@ -2978,26 +3332,29 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Republic of Bashkortostan
+        wikidata_id: Q133268352
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Белгородской областной Думы # Deputies of the Belgorod Oblast Duma
+    - category: Депутаты Белгородской областной думы # Deputies of the Belgorod Oblast Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Belgorod Oblast Duma
+        wikidata_id: Q133268343
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Брянской областной Думы # Deputies of the Bryansk Regional Duma
+    - category: Депутаты Брянской областной думы # Deputies of the Bryansk Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Bryansk Oblast Duma
+        wikidata_id: Q133268434
         country: ru
         topics:
           - gov.legislative
@@ -3008,6 +3365,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Hural of the Republic of Buryatia
+        wikidata_id: Q133268401
         country: ru
         topics:
           - gov.legislative
@@ -3018,16 +3376,18 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Vladimir Oblast
+        wikidata_id: Q133268370
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Волгоградской областной Думы # Deputies of the Volgograd Regional Duma
+    - category: Депутаты Волгоградской областной думы # Deputies of the Volgograd Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Volgograd Oblast Duma
+        wikidata_id: Q101483020
         country: ru
         topics:
           - gov.legislative
@@ -3038,6 +3398,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Vologda Oblast
+        wikidata_id: Q133268362
         country: ru
         topics:
           - gov.legislative
@@ -3048,6 +3409,7 @@ config:
       language: ru
       position:
         name: Deputy of the Voronezh Oblast Duma
+        wikidata_id: Q133268348
         country: ru
         topics:
           - gov.legislative
@@ -3058,6 +3420,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Assembly of the Republic of Dagestan
+        wikidata_id: Q115242140
         country: ru
         topics:
           - gov.legislative
@@ -3068,26 +3431,29 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Jewish Autonomous Oblast
+        wikidata_id: Q133268367
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Законодательного Собрания Забайкальского края # Deputies of the Legislative Assembly of the Trans-Baikal Territory
+    - category: Депутаты Законодательного собрания Забайкальского края # Deputies of the Legislative Assembly of the Trans-Baikal Territory
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Trans-Baikal Territory
+        wikidata_id: Q133268368
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Ивановской областной Думы # Deputies of the Ivanovo Regional Duma
+    - category: Депутаты Ивановской областной думы # Deputies of the Ivanovo Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Ivanovo Oblast Duma
+        wikidata_id: Q133268390
         country: ru
         topics:
           - gov.legislative
@@ -3098,6 +3464,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Assembly of the Republic of Ingushetia
+        wikidata_id: Q133268422
         country: ru
         topics:
           - gov.legislative
@@ -3108,6 +3475,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Irkutsk Oblast
+        wikidata_id: Q133268426
         country: ru
         topics:
           - gov.legislative
@@ -3118,6 +3486,7 @@ config:
       language: ru
       position:
         name: Deputy of the Parliament of Kabardino-Balkarian Republic
+        wikidata_id: Q133268405
         country: ru
         topics:
           - gov.legislative
@@ -3128,6 +3497,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kaliningrad Oblast
+        wikidata_id: Q133268391
         country: ru
         topics:
           - gov.legislative
@@ -3138,6 +3508,7 @@ config:
       language: ru
       position:
         name: Deputy of the People's Hural of the Republic of Kalmykia
+        wikidata_id: Q133268400
         country: ru
         topics:
           - gov.legislative
@@ -3148,6 +3519,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kaluga Oblast
+        wikidata_id: Q133268372
         country: ru
         topics:
           - gov.legislative
@@ -3158,6 +3530,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kamchatka Krai
+        wikidata_id: Q133268373
         country: ru
         topics:
           - gov.legislative
@@ -3168,6 +3541,7 @@ config:
       language: ru
       position:
         name: Deputy of the  People's Assembly of the Karachay-Cherkess Republic
+        wikidata_id: Q133268399
         country: ru
         topics:
           - gov.legislative
@@ -3178,6 +3552,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Republic of Karelia
+        wikidata_id: Q133268366
         country: ru
         topics:
           - gov.legislative
@@ -3188,6 +3563,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kemerovo Oblast
+        wikidata_id: Q133268417
         country: ru
         topics:
           - gov.legislative
@@ -3198,6 +3574,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Kirov Oblast
+        wikidata_id: Q133268371
         country: ru
         topics:
           - gov.legislative
@@ -3208,6 +3585,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Komi Republic
+        wikidata_id: Q111236573
         country: ru
         topics:
           - gov.legislative
@@ -3222,12 +3600,13 @@ config:
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Костромской областной Думы # Deputies of the Kostroma Regional Duma
+    - category: Депутаты Костромской областной думы # Deputies of the Kostroma Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Kostroma Oblast Duma
+        wikidata_id: Q133268393
         country: ru
         topics:
           - gov.legislative
@@ -3238,6 +3617,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Krasnodar Krai
+        wikidata_id: Q133268363
         country: ru
         topics:
           - gov.legislative
@@ -3248,16 +3628,18 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Krasnoyarsk Krai
+        wikidata_id: Q133268376
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Курганской областной Думы # Deputies of the Kurgan Regional Duma
+    - category: Депутаты Курганской областной думы # Deputies of the Kurgan Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Kurgan Oblast Duma
+        wikidata_id: Q133268421
         country: ru
         topics:
           - gov.legislative
@@ -3268,6 +3650,7 @@ config:
       language: ru
       position:
         name: Deputy of the Kursk Oblast Duma
+        wikidata_id: Q133268394
         country: ru
         topics:
           - gov.legislative
@@ -3278,6 +3661,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Leningrad Oblast
+        wikidata_id: Q133268377
         country: ru
         topics:
           - gov.legislative
@@ -3288,6 +3672,7 @@ config:
       language: ru
       position:
         name: Deputy of the Lipetsk Oblast Council of Deputies
+        wikidata_id: Q133268395
         country: ru
         topics:
           - gov.legislative
@@ -3298,6 +3683,7 @@ config:
       language: ru
       position:
         name: Deputy of the Magadan Oblast Duma
+        wikidata_id: Q133268396
         country: ru
         topics:
           - gov.legislative
@@ -3308,6 +3694,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Mari El Republic
+        wikidata_id: Q133268424
         country: ru
         topics:
           - gov.legislative
@@ -3318,6 +3705,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly of the Republic of Mordovia
+        wikidata_id: Q133268353
         country: ru
         topics:
           - gov.legislative
@@ -3328,6 +3716,7 @@ config:
       language: ru
       position:
         name: Deputy of the Moscow City Duma
+        wikidata_id: Q96324124
         country: ru
         topics:
           - gov.legislative
@@ -3338,16 +3727,18 @@ config:
       language: ru
       position:
         name: Deputy of the Moscow Oblast Duma
+        wikidata_id: Q110805962
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Мурманской областной Думы # Deputies of the Murmansk Regional Duma
+    - category: Депутаты Мурманской областной думы # Deputies of the Murmansk Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Murmansk Oblast Duma
+        wikidata_id: Q133268397
         country: ru
         topics:
           - gov.legislative
@@ -3358,6 +3749,7 @@ config:
       language: ru
       position:
         name: Deputy of the Assembly of Deputies of the Nenets Autonomous Okrug
+        wikidata_id: Q133268415
         country: ru
         topics:
           - gov.legislative
@@ -3368,6 +3760,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Nizhny Novgorod Oblast
+        wikidata_id: Q133268374
         country: ru
         topics:
           - gov.legislative
@@ -3378,6 +3771,7 @@ config:
       language: ru
       position:
         name: Deputy of the Novgorod Oblast Duma
+        wikidata_id: Q133268402
         country: ru
         topics:
           - gov.legislative
@@ -3388,6 +3782,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Novosibirsk Oblast
+        wikidata_id: Q133268380
         country: ru
         topics:
           - gov.legislative
@@ -3398,6 +3793,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Omsk Oblast
+        wikidata_id: Q133268379
         country: ru
         topics:
           - gov.legislative
@@ -3408,6 +3804,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Orenburg Oblast
+        wikidata_id: Q111242479
         country: ru
         topics:
           - gov.legislative
@@ -3418,6 +3815,7 @@ config:
       language: ru
       position:
         name: Deputy of the Oryol Oblast Council of People's Deputies
+        wikidata_id: Q133268404
         country: ru
         topics:
           - gov.legislative
@@ -3428,6 +3826,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Penza Oblast
+        wikidata_id: Q133268378
         country: ru
         topics:
           - gov.legislative
@@ -3438,6 +3837,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Perm Krai
+        wikidata_id: Q133268384
         country: ru
         topics:
           - gov.legislative
@@ -3448,6 +3848,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Primorsky Krai
+        wikidata_id: Q133268382
         country: ru
         topics:
           - gov.legislative
@@ -3458,6 +3859,7 @@ config:
       language: ru
       position:
         name: Deputy of the Pskov Oblast Assembly of Deputies
+        wikidata_id: Q133268408
         country: ru
         topics:
           - gov.legislative
@@ -3468,16 +3870,18 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Rostov Oblast
+        wikidata_id: Q133268385
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Рязанской областной Думы # Deputies of the Ryazan Regional Duma
+    - category: Депутаты Рязанской областной думы # Deputies of the Ryazan Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Ryazan Oblast Duma
+        wikidata_id: Q133268409
         country: ru
         topics:
           - gov.legislative
@@ -3488,6 +3892,7 @@ config:
       language: ru
       position:
         name: Deputy of the Samara Regional Duma
+        wikidata_id: Q133268410
         country: ru
         topics:
           - gov.legislative
@@ -3498,6 +3903,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of St. Petersburg
+        wikidata_id: Q111242469
         country: ru
         topics:
           - gov.legislative
@@ -3508,6 +3914,7 @@ config:
       language: ru
       position:
         name: Deputy of the Saratov Oblast Duma
+        wikidata_id: Q133268412
         country: ru
         topics:
           - gov.legislative
@@ -3518,6 +3925,7 @@ config:
       language: ru
       position:
         name: Deputy of the Sakhalin Oblast Duma
+        wikidata_id: Q133268413
         country: ru
         topics:
           - gov.legislative
@@ -3528,6 +3936,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Sverdlovsk Oblast
+        wikidata_id: Q133268383
         country: ru
         topics:
           - gov.legislative
@@ -3548,6 +3957,7 @@ config:
       language: ru
       position:
         name: Deputy of the Parliament of the Republic of North Ossetia — Alania
+        wikidata_id: Q133268406
         country: ru
         topics:
           - gov.legislative
@@ -3558,6 +3968,7 @@ config:
       language: ru
       position:
         name: Deputy of the Smolensk Oblast Duma
+        wikidata_id: Q133268414
         country: ru
         topics:
           - gov.legislative
@@ -3568,6 +3979,7 @@ config:
       language: ru
       position:
         name: Deputy of the Duma of Stavropol Krai
+        wikidata_id: Q133268359
         country: ru
         topics:
           - gov.legislative
@@ -3578,6 +3990,7 @@ config:
       language: ru
       position:
         name: Deputy of the Tambov Oblast Duma
+        wikidata_id: Q133268432
         country: ru
         topics:
           - gov.legislative
@@ -3588,6 +4001,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Republic of Tatarstan
+        wikidata_id: Q133268355
         country: ru
         topics:
           - gov.legislative
@@ -3598,6 +4012,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Tver Oblast
+        wikidata_id: Q133268388
         country: ru
         topics:
           - gov.legislative
@@ -3608,6 +4023,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Duma of Tomsk Oblast
+        wikidata_id: Q133268360
         country: ru
         topics:
           - gov.legislative
@@ -3618,6 +4034,7 @@ config:
       language: ru
       position:
         name: Deputy of the Tula Oblast Duma
+        wikidata_id: Q133268418
         country: ru
         topics:
           - gov.legislative
@@ -3628,16 +4045,18 @@ config:
       language: ru
       position:
         name: Deputy of the Great Khural of the Tuva Republic
+        wikidata_id: Q133268346
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Тюменской областной Думы # Deputies of the Tyumen Regional Duma
+    - category: Депутаты Тюменской областной думы # Deputies of the Tyumen Regional Duma
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Tyumen Oblast Duma
+        wikidata_id: Q62653950
         country: ru
         topics:
           - gov.legislative
@@ -3648,6 +4067,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Udmurt Republic
+        wikidata_id: Q108610448
         country: ru
         topics:
           - gov.legislative
@@ -3658,6 +4078,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Ulyanovsk Oblast
+        wikidata_id: Q133268389
         country: ru
         topics:
           - gov.legislative
@@ -3668,6 +4089,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Duma of Khabarovsk Krai
+        wikidata_id: Q133268361
         country: ru
         topics:
           - gov.legislative
@@ -3678,26 +4100,30 @@ config:
       language: ru
       position:
         name: Deputy of the Supreme Council of the Republic of Khakassia
+        wikidata_id: Q133268344
         country: ru
         topics:
           - gov.legislative
           - gov.state
-    - category: Депутаты Думы Ханты-Мансийского автономного округа — Югры # Deputies of the Duma of the Khanty-Mansi Autonomous Okrug — Yugra
-      topic: role.pep
-      country: ru
-      language: ru
-      position:
-        name: Deputy of the Duma of Khanty-Mansi Autonomous Okrug — Yugra
-        country: ru
-        topics:
-          - gov.legislative
-          - gov.state
+    # retired 2026-08-23; 13/13 already hold Q124755389
+    # - category: Депутаты Думы Ханты-Мансийского автономного округа — Югры # Deputies of the Duma of the Khanty-Mansi Autonomous Okrug — Yugra
+    #   topic: role.pep
+    #   country: ru
+    #   language: ru
+    #   position:
+    #     name: Deputy of the Duma of Khanty-Mansi Autonomous Okrug — Yugra
+    #     wikidata_id: Q124755389
+    #     country: ru
+    #     topics:
+    #       - gov.legislative
+    #       - gov.state
     - category: Депутаты Законодательного собрания Челябинской области # Deputies of the Legislative Assembly of the Chelyabinsk Region
       topic: role.pep
       country: ru
       language: ru
       position:
         name: Deputy of the Legislative Assembly of Chelyabinsk Oblast
+        wikidata_id: Q133268386
         country: ru
         topics:
           - gov.legislative
@@ -3708,6 +4134,7 @@ config:
       language: ru
       position:
         name: Deputy of the Parliament of the Chechen Republic
+        wikidata_id: Q133268407
         country: ru
         topics:
           - gov.legislative
@@ -3718,6 +4145,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Council of the Chuvash Republic
+        wikidata_id: Q133268356
         country: ru
         topics:
           - gov.legislative
@@ -3728,6 +4156,7 @@ config:
       language: ru
       position:
         name: Deputy of the Duma of the Chukotka Autonomous Okrug
+        wikidata_id: Q133268427
         country: ru
         topics:
           - gov.legislative
@@ -3748,6 +4177,7 @@ config:
       language: ru
       position:
         name: Deputy of the State Assembly (Il Tumen) of the Republic of Sakha (Yakutia)
+        wikidata_id: Q133268316
         country: ru
         topics:
           - gov.legislative
@@ -3758,6 +4188,7 @@ config:
       language: ru
       position:
         name: Deputy of the Legislative Assembly of the Yamalo-Nenets Autonomous Okrug
+        wikidata_id: Q133268431
         country: ru
         topics:
           - gov.legislative
@@ -3768,6 +4199,7 @@ config:
       language: ru
       position:
         name: Deputy of the Yaroslavl Oblast Duma
+        wikidata_id: Q133268420
         country: ru
         topics:
           - gov.legislative
@@ -3780,9 +4212,10 @@ config:
       language: ru
       position:
         name: Mayor of Moscow
+        wikidata_id: Q1837906
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
 
     # "Местное самоуправление"  # Local self-government
@@ -3793,9 +4226,10 @@ config:
       language: ru
       position:
         name: Head of a municipality
+        wikidata_id: Q4139102
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
 
     - category: Главы районов России # Heads of districts of Russia
@@ -3804,9 +4238,10 @@ config:
       language: ru
       position:
         name: Head of a district
+        wikidata_id: Q4139102
         country: ru
         topics:
-          - gov.head
+          - gov.executive
           - gov.muni
     # - category: Главы сельских поселений России  # Heads of rural settlements of Russia
     #   topic: role.pep

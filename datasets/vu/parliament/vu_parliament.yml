@@ -4,12 +4,12 @@ prefix: vu-parl
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-17
+  start: 2026-08-12
 load_statements: true
 # Zyte fetching requires API credentials unavailable in CI.
 ci_test: false
 summary: >-
-  The unicameral national legislature of the Republic of Vanuatu
+  Unicameral national legislature, 52 members elected for four-year terms
 description: |
   Current and historical members of the Parliament of Vanuatu, the country's unicameral
   national legislature. Its 52 members are directly elected from multi- and single-member
@@ -17,12 +17,10 @@ description: |
   motions of no confidence and by-elections — and hold the country's legislative power,
   including passing laws and approving the budget.
 
-  This dataset records each member with their name, political party, and constituency,
-  reaching back over the terms in which service still implies political exposure. Members
-  who left partway through a term — by death, court sentence or electoral petition — are
-  included, with a note on the circumstance where the source gives one. The ministerial,
-  committee and presiding-officer roles the source lists next to each member are not
-  captured.
+  Coverage reaches back over the terms in which service still implies political exposure.
+  Members who left partway through a term — by death, court sentence or electoral petition —
+  are included, with a note on the circumstance where the source gives one. The ministerial,
+  committee and presiding-officer roles the source lists beside each member are not captured.
 url: https://parliament.gov.vu/
 publisher:
   name: Parliament of the Republic of Vanuatu
@@ -42,6 +40,17 @@ names:
   prefixes_strip:
     - "Hon "
     - Hon.
+
+lookups:
+  # The 7th legislature states each member's constituency inside its home-island column.
+  # Where a cell holds something else instead, name the constituency here, or map it to
+  # null if the source offers no way to recover it.
+  home_island_seat:
+    options:
+      # Maxime Carlot Korman's cell holds a portfolio. The 6th, 8th and 9th legislature
+      # rosters all give his constituency as Port Vila, as do the rows around his.
+      - match: Minister of Education
+        value: Port Vila
 
 tags:
   - list.pep

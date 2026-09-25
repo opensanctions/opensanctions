@@ -143,11 +143,13 @@ def crawl_item(
 
     context.audit_data(
         input_dict,
-        # Since we're adding same position for all, we don't need these fields
+        # Since we're adding same position for all, we don't need the position
+        # fields, and we don't capture the stated reason for a resignation.
         ignore=[
             "position_before_death",
             "position_before_resignation",
             "position_before_dismissal",
+            "reason_for_resignation",
         ],
     )
     return entity.id

@@ -1,5 +1,6 @@
+import pytest
 import xlrd  # type: ignore
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
 from zavod.context import Context
 from zavod.helpers.excel import (
     convert_excel_cell,
@@ -80,3 +81,21 @@ def test_parse_xlsx_sheet(vcontext: Context):
         "text_url": "http://example.com/hello",
         "column_4": "blank_header_value",
     }
+
+
+def test_parse_xls_sheet_duplicate_headers(vcontext: Context):
+    # Headers that collide after slugification would silently drop the
+    # earlier column's cell ({"name": "latin", "dob": "1970"}).
+    book = xlrd.open_workbook(XLS_BOOK.as_posix())
+    sheet = book.sheet_by_name("duplicate headers")
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(parse_xls_sheet(vcontext, sheet))
+
+
+def test_parse_xlsx_sheet_duplicate_headers(vcontext: Context):
+    book = Workbook()
+    sheet = book.active
+    sheet.append(["Name", "Name", "DOB"])
+    sheet.append(["original", "latin", "1970"])
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(parse_xlsx_sheet(vcontext, sheet))

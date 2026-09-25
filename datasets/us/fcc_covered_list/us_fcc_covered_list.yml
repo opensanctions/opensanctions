@@ -32,12 +32,13 @@ description: |
   > outlined in sections 2(b)(2)(A), (B), or (C) of the Secure and Trusted Communications
   > Networks Act of 2019, 47 U.S.C. § 1601(b)(2)(A)-(C).
 
-  As of December 22, 2025, the source listing also includes a broad entry that covers
-  all uncrewed aircraft systems (UAS) and UAS critical components produced in a foreign
-  country (with some exceptions) as well as all communications and video surveillance
-  equipment specified in Section 1709(a)(1) of the FY25 National Defense Authorization Act.
-  These are not included in this dataset, as they amount to sector-level debarments rather
-  than a list of entities.
+  The source listing also includes broad entries that name a category of equipment rather
+  than an entity, each with its own exceptions and conditional approvals: uncrewed aircraft
+  systems (UAS) and UAS critical components produced in a foreign country, together with all
+  communications and video surveillance equipment specified in Section 1709(a)(1) of the FY25
+  National Defense Authorization Act; foreign-produced routers; and foreign-produced power
+  inverters and advanced robotic devices. These are not included in this dataset, as they
+  amount to sector-level debarments rather than a list of entities.
 
   This dataset is manually maintained and is updated shortly after changes to the source.
 

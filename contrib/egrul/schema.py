@@ -3,6 +3,15 @@ from pyspark.sql.types import StringType, StructType, StructField, DateType, Arr
 entity_fields = [
     StructField("id", StringType(), nullable=False),
     StructField("seen_date", DateType(), nullable=False),
+    # Which source files this record was built from, as
+    # "<archive zip name>/<XML file name within the zip>".
+    #
+    # Provenance is tracked per entity, which is coarser than reality: a single
+    # record can carry values from several files (an expired Ownership's end_date
+    # comes from the archive that stopped listing it, everything else from the
+    # archive that first listed it), and the origin list can't say which value came
+    # from where.
+    StructField("origin", ArrayType(StringType()), nullable=False),
 ]
 
 person_schema = StructType(

@@ -13,18 +13,26 @@ def crawl(context: Context) -> None:
         for row in csv.DictReader(fh):
             name_zho = row.pop("Company_Name_Chinese")
             addr_zho = row.pop("Registered_Address")
-            entity = context.make("Organization")
+            entity = context.make("Company")
             entity.id = context.make_id(name_zho)
             entity.add("name", name_zho, lang="zho")
             entity.add("name", row.pop("Company_Name_English"), lang="eng")
             entity.add("country", "cn")
-            h.apply_date(entity, "incorporationDate", row.pop("Date_of_Establishment"))
+            h.apply_date(
+                entity,
+                "incorporationDate",
+                row.pop("Date_of_Establishment"),
+                # The XPCC was founded in 1954, so no company is older.
+                two_digit_year_base=1950,
+            )
             entity.add("sector", row.pop("Industry"), lang="zho")
             entity.add("address", addr_zho, lang="zho")
             entity.add("topics", "export.risk")
             entity.add("topics", "forced.labor")
             context.emit(entity)
 
+            # Shareholders include XPCC divisions and state asset supervision
+            # commissions besides companies, so they should be Organizations.
             owner = context.make("Organization")
             owner_name = row.pop("Shareholding_Company_Name")
             if owner_name == name_zho:

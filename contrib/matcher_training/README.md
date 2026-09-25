@@ -12,8 +12,10 @@ evidence a human decider saw at judgement time.
 
 - A zavod environment with the OpenSanctions metadata catalog available (run
   from the `opensanctions` repo).
-- `NOMENKLATURA_DB_URL` pointing at the production resolver database (or a
-  local copy) — the replay reads all live judgement edges (~3M rows).
+- `ZAVOD_DATABASE_URI` (or `OPENSANCTIONS_DATABASE_URI`) pointing at the
+  production resolver database (or a local copy) — the replay reads all live
+  judgement edges (~3M rows). `NOMENKLATURA_DB_URL` has no effect here:
+  `zavod.settings` overrides it on import.
 - Archive access for the scope's datasets: the script builds a local LevelDB
   store from dataset statements on first run.
 

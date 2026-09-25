@@ -1,6 +1,7 @@
 title: US New Jersey Ineligible Medicaid Providers
 entry_point: crawler.py
 prefix: us-mednj
+ci_test: false  # The source blocks direct requests and is fetched through Zyte.
 coverage:
   schedule: "27 4 1,15 * *"
   start: "2024-11-07"
@@ -30,20 +31,35 @@ publisher:
     The New Jersey Office of the State Comptroller works to improve efficiency,
     transparency, and analysis to the operation of all levels of government in
     New Jersey. It has an Audit, Investigations, Medicaid Fraud, and Procurement division.
-  acronym: OIFP
-  url: https://www.njoag.gov
+  acronym: OSC
+  url: https://www.nj.gov/comptroller/
   official: true
   country: "us"
-url: "https://www.njoag.gov/about/divisions-and-offices/office-of-the-insurance-fraud-prosecutor-home/medicaid-fraud-control-unit/"
+url: "https://www.nj.gov/comptroller/about/work/medicaid/ineligibleprovider.shtml"
 data:
-  url: https://www.nj.gov/comptroller/doc/nj_debarment_list.pdf
-  format: PDF
+  # Treasury maintains a central register of debarments reported by state agencies.
+  # https://www.nj.gov/treasury/revenue/debarment/debarsearch-medical.shtml
+  # That list differs from this in two ways:
+  # 1. it includes names of companies related to some of the people listed here -
+  #    maybe something we want.
+  # 2. it doesn't contain all the names in the state comptroller's list.
+  # Since the differences appear to be a matter of the treasury list not being
+  # updated perfectly to match the state comptroller's list, let's treat the
+  # state comptroller's list as the authoritative source.
+  # NJ Human Services explicitly instructs providers to check multiple lists,
+  # including both of these. The other lists could form additional sources.
+  url: https://wwwdnet2-tre.nj.gov/OSC_IPS/
+  format: XLSX
   lang: eng
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 opensanctions.org zavod
 
 dates:
   formats: ["%m/%d/%Y"]
+names:
+  schema_rules:
+    LegalEntity:
+      reject_strings: [" aka "]
 assertions:
   min:
     schema_entities:
@@ -66,18 +82,22 @@ lookups:
     options:
       - match: "1"
         value: null
+      - match: 108368003  # dropped a zero: NPI 1083680003 is NIRANJAN MITTAL, MD
+        value: 1083680003
       - match: 143737727
         value: 1437373727
       - match: 145788392
         value: 1457883928
       - match: 159889479
         value: 1598889479
+      # Final digit typo'd: NPI 1255451746 is PALISADES SURGICAL ASSOCIATES, P.C.,
+      # 309 Newark Ave, Point Pleasant Beach NJ - the address on this row - whose
+      # authorized official is Maurizio Miglietta.
+      - match: 1255451745
+        value: 1255451746
       - match:
           - 1104949149
           - 260849555
         prop: idNumber
       - match: 1174803234  # looks like it could be the same person 1174803233, but not sure
         value: null
-  headers:
-    map:
-      sta_te: state

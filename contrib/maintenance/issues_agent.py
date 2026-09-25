@@ -4,6 +4,9 @@ Invoked by .github/workflows/issues-agent.yml as:
 
     python -m contrib.maintenance.issues_agent
 
+Pass ``--dataset <name>`` to run one dataset regardless of the eligibility
+filters used by the scheduled scan.
+
 Emits the matrix JSON on stdout and writes each task's prompt to
 <prompts-dir>/<dataset>.md; everything human-readable goes to stderr. The
 prompts travel to the run-tasks job as a workflow artifact rather than inside
@@ -12,17 +15,19 @@ GitHub silently drops a job output when it spots anything resembling a secret
 in it ("Skip output 'matrix' since it may contain secret"), which breaks the
 fromJson() strategy expression downstream.
 
-This module holds only agent policy — model/turn selection, branch naming and
-PR dedup. The shared mechanics live in the sibling modules of this package.
+This module holds only agent policy — turn budgets, branch naming and PR dedup.
+The shared mechanics live in the sibling modules of this package.
 """
 
 import argparse
 import json
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 from jinja2 import Template
+from requests import RequestException
 
 from .archive import MAX_ISSUES, get_issues, get_versions, iter_catalog_datasets
 from .datasets import get_code_path, get_path_from_name, read_dataset_meta
@@ -36,17 +41,10 @@ from .github import (
 )
 from .issues import is_issue_ignored, issues_checksum
 
-# Match compute to task difficulty. Lookup/assertion edits on YAML are mechanical,
-# so a mid-tier model with few turns suffices. Datasets with a crawler may need an
-# actual code fix — stronger reasoning, plus turns to run mypy, crawl, and iterate.
-MODEL_LOOKUP = "claude-sonnet-5"
-MODEL_CODE = "claude-opus-5"
-MAX_TURNS_LOOKUP = 30
-MAX_TURNS_CODE_VERIFIABLE = 100  # ci_test true: edit, then crawl-verify and iterate
-MAX_TURNS_CODE_BLIND = 60  # ci_test false: edit + mypy/ruff, no crawl loop
-# Rendered per dataset with the diagnostic context (paths, branch, ci_test) so
-# the prompt can branch between lookup-only and code-fix instructions. autoescape
-# stays off (default) so markdown and YAML examples pass through untouched.
+DEFAULT_MAX_TURNS = 80
+# Rendered per dataset with the diagnostic context (paths, branch, ci_test) so the
+# prompt can state its edit scope and whether end-to-end verification is available.
+# Autoescape stays off (default) so Markdown and YAML examples pass through untouched.
 PROMPT = Template(
     (Path(__file__).parent / "prompt.md").read_text(),
     trim_blocks=True,
@@ -63,12 +61,69 @@ def log(message: str) -> None:
     print(message, file=sys.stderr)
 
 
-def index_jobs(prompts_dir: Path) -> None:
-    outage_datasets = get_outage_datasets()
-    open_autofix_branches = get_open_autofix_branches()
-    tasks: list[Any] = []
+def should_spawn_agent(
+    dataset: dict[str, Any],
+    outage_datasets: set[str],
+    open_autofix_branches: set[str],
+) -> bool:
+    """Apply the eligibility policy used by unfiltered scans."""
+    name = dataset.get("name")
+    if not name:
+        return False
+    if dataset.get("type") == "collection":
+        return False
 
-    for dataset in iter_catalog_datasets():
+    levels = dataset.get("issue_levels", {})
+    if levels.get("warning", 0) + levels.get("error", 0) == 0:
+        return False
+    if name in outage_datasets:
+        log(f"Documented outage: {name}")
+        return False
+    if dataset_has_open_pr(name, open_autofix_branches):
+        log(f"Open PR exists: {name}")
+        return False
+
+    versions = get_versions(name)
+    if versions is None or versions.latest is None:
+        log(f"No archived runs: {name}")
+        return False
+    issues = get_issues(name, versions.latest) or []
+    if len(issues) > MAX_ISSUES:
+        log(f"Fubar: {name} ({MAX_ISSUES}+ issues in latest run)")
+        return False
+    if not any(i.get("level") in ("warning", "error") for i in issues):
+        log(f"Latest run is clean: {name}")
+        return False
+    # Don't spawn an agent when a run produced nothing anyone can act on.
+    # Mixed runs (an ignored infrastructure error alongside real issues)
+    # still get a task.
+    if all(is_issue_ignored(i) for i in issues):
+        log(f"Only transient infrastructure issues: {name}")
+        return False
+
+    checksum = issues_checksum(issues)
+    branch = f"{branch_prefix(name)}{checksum[:10]}"
+    if has_closed_pr_for_branch(branch):
+        log(f"Already handled (closed PR): {name} ({branch})")
+        return False
+    return True
+
+
+def index_jobs(prompts_dir: Path, dataset_name: str | None = None) -> None:
+    tasks: list[Any] = []
+    datasets: Iterable[dict[str, Any]]
+
+    if dataset_name is not None:
+        # A targeted run should not depend on any of the remote policy inputs.
+        datasets = [{"name": dataset_name}]
+        outage_datasets: set[str] = set()
+        open_autofix_branches: set[str] = set()
+    else:
+        datasets = iter_catalog_datasets()
+        outage_datasets = get_outage_datasets()
+        open_autofix_branches = get_open_autofix_branches()
+
+    for dataset in datasets:
         name = dataset.get("name")
         if not name:
             continue
@@ -77,42 +132,29 @@ def index_jobs(prompts_dir: Path) -> None:
         # and counts come from the latest run in versions.json below — the
         # same run the embedded diagnostic report describes, which can be
         # fresher than the catalog snapshot.
-        levels = dataset.get("issue_levels", {})
-        if levels.get("warning", 0) + levels.get("error", 0) == 0:
-            continue
-        if name in outage_datasets:
-            log(f"Documented outage: {name}")
+        if dataset_name is None and not should_spawn_agent(
+            dataset, outage_datasets, open_autofix_branches
+        ):
             continue
 
-        if dataset_has_open_pr(name, open_autofix_branches):
-            log(f"Open PR exists: {name}")
-            continue
-
-        versions = get_versions(name)
-        if versions is None or versions.latest is None:
-            log(f"No archived runs: {name}")
-            continue
-        issues = get_issues(name, versions.latest) or []
-        if len(issues) > MAX_ISSUES:
-            log(f"Fubar: {name} ({MAX_ISSUES}+ issues in latest run)")
-            continue
+        # Targeted manual runs deliberately bypass eligibility. Missing or
+        # unavailable archive state becomes diagnostic context for the agent
+        # instead of preventing the task from being created.
+        try:
+            versions = get_versions(name)
+            issues = (
+                get_issues(name, versions.latest) or []
+                if versions is not None and versions.latest is not None
+                else []
+            )
+        except (RequestException, json.JSONDecodeError) as exc:
+            log(f"Could not load latest issues for {name}: {exc}")
+            issues = []
         errors = sum(1 for i in issues if i.get("level") == "error")
         warnings = sum(1 for i in issues if i.get("level") == "warning")
-        if warnings + errors == 0:
-            log(f"Latest run is clean: {name}")
-            continue
-        # Don't spawn an agent when a run produced nothing anyone can act on.
-        # Mixed runs (an ignored infrastructure error alongside real issues)
-        # still get a task.
-        if all(is_issue_ignored(i) for i in issues):
-            log(f"Only transient infrastructure issues: {name}")
-            continue
 
         checksum = issues_checksum(issues)
         branch = f"{branch_prefix(name)}{checksum[:10]}"
-        if has_closed_pr_for_branch(branch):
-            log(f"Already handled (closed PR): {name} ({branch})")
-            continue
 
         path = get_path_from_name(name)
         crawler_dir = Path(path).parent.as_posix()
@@ -121,21 +163,11 @@ def index_jobs(prompts_dir: Path) -> None:
         ci_test = dataset_meta.get("ci_test", True)
         code_path = get_code_path(path, entry_point)
 
-        # Only crawler datasets can require code, so only they need zavod
-        # installed (for mypy and crawling) and the heavier model/turn budget.
-        if code_path is not None:
-            model = MODEL_CODE
-            max_turns = MAX_TURNS_CODE_VERIFIABLE if ci_test else MAX_TURNS_CODE_BLIND
-            needs_zavod = True
-        else:
-            model = MODEL_LOOKUP
-            max_turns = MAX_TURNS_LOOKUP
-            needs_zavod = False
-
+        # Local crawler code needs zavod's development dependencies for linting and
+        # type-checking even when ci_test is false and the crawler cannot run in CI.
+        needs_zavod = code_path is not None
         deploy_config = dataset_meta.get("deploy", {})
-        max_turns = deploy_config.get("issues_turns", max_turns)
-        if max_turns > MAX_TURNS_CODE_VERIFIABLE:
-            model = MODEL_CODE
+        max_turns = deploy_config.get("issues_turns", DEFAULT_MAX_TURNS)
 
         # The report is the prompt's single source of runtime facts (run
         # verdict, artifact links, the issues themselves); the template only
@@ -156,14 +188,14 @@ def index_jobs(prompts_dir: Path) -> None:
             for n, label in ((errors, "error"), (warnings, "warning"))
             if n > 0
         ]
-        title = f"[{name}]: {', '.join(counts)}"
+        summary = ", ".join(counts) if counts else "targeted run"
+        title = f"[{name}]: {summary}"
         (prompts_dir / f"{name}.md").write_text(prompt)
         tasks.append(
             {
                 "dataset": name,
                 "name": title,
                 "branch": branch,
-                "model": model,
                 "max_turns": max_turns,
                 "needs_zavod": needs_zavod,
             }
@@ -182,6 +214,10 @@ if __name__ == "__main__":
         default=Path("task-prompts"),
         help="directory to write one <dataset>.md prompt file per task into",
     )
+    parser.add_argument(
+        "--dataset",
+        help="always run this dataset; omit to scan every eligible dataset",
+    )
     args = parser.parse_args()
     args.prompts_dir.mkdir(parents=True, exist_ok=True)
-    index_jobs(args.prompts_dir)
+    index_jobs(args.prompts_dir, dataset_name=args.dataset)

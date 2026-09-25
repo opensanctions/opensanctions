@@ -7,6 +7,7 @@ __pycache__/
 *.sqlite3
 *.perf
 *.csv
+!datasets/eu/sanctions_map/programs.csv
 *.sql
 .env
 .envrc
@@ -24,6 +25,7 @@ balkhashdb
 .Python
 env/
 venv/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -74,6 +76,8 @@ docs/_build/
 target/
 
 data/
+!datasets/eu/journal_sanctions/data/
+!datasets/eu/journal_sanctions/data/**/*.csv
 env*/
 
 _site/

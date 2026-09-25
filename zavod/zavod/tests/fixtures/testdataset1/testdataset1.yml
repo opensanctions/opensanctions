@@ -28,6 +28,7 @@ http:
 dates:
   formats:
     - "%d. %b %Y"
+    - "%d-%b-%y"
   months:
     mar: März
 names:

@@ -16,6 +16,7 @@ tags:
   - list.pep
 publisher:
   name: Riksdagen
+  name_en: Parliament of Sweden
   description: |
     The Riksdag is the national legislature and the supreme decision-making body of Sweden.
     It consists of 349 members who are elected every four years.

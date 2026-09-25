@@ -60,7 +60,7 @@ assertions:
   max:
     schema_entities:
       Person: 7200
-      Organization: 2090
+      Organization: 3000
       Vessel: 800
 
 lookups:
@@ -1717,6 +1717,69 @@ lookups:
       - match: "USCC: 914403006803743126 "
         props:
           uscCode: "914403006803743126"
+      - match: "'0427410 (IMO Company Number)"
+        props:
+          imoNumber: "0427410"
+      - match: "ACU-3032 (Indian Ministry of Corporate Affairs ID Number)"
+        props:
+          registrationNumber: "ACU-3032"
+      - match: "INN: 7702760164OGRN: 1117746322320"
+        props:
+          innCode: "7702760164"
+          ogrnCode: "1117746322320"
+      - match: "INN: 6229080110OGRN: 1166234055481"
+        props:
+          innCode: "6229080110"
+          ogrnCode: "1166234055481"
+      - match: "INN: 4027052701OGRN: 1024001177606"
+        props:
+          innCode: "4027052701"
+          ogrnCode: "1024001177606"
+      - match: "INN: 7703438961 OGRN: 5177746318976 "
+        props:
+          innCode: "7703438961"
+          ogrnCode: "5177746318976"
+      - match: "TIN: 9703077050OGRN: 1227700133792Central Bank of Russia licence - 3542"
+        props:
+          taxNumber: "9703077050"
+          ogrnCode: "1227700133792"
+          registrationNumber: "3542"
+      - match: "Central Bank of Russia licence: 2790"
+        props:
+          registrationNumber: "2790"
+      - match: "Russian INN - 6163011391"
+        props:
+          innCode: "6163011391"
+      - match: "Russian KPP - 616301001"
+        props:
+          kppCode: "616301001"
+      - match: "Russian OGRN - 1026100001949"
+        props:
+          ogrnCode: "1026100001949"
+      - match: "Russia INN - 3801002781"
+        props:
+          innCode: "3801002781"
+      - match: "Russia OGRN - 1023800000124"
+        props:
+          ogrnCode: "1023800000124"
+      - match: "SWIFT/BIC - BIJORU66"
+        props:
+          swiftBic: "BIJORU66"
+      - match: "Legal Entity Identifier - 2534007T2QFUSCHQPU36"
+        props:
+          leiCode: "2534007T2QFUSCHQPU36"
+      - match: "INN – 2634028786"
+        props:
+          innCode: "2634028786"
+      - match: "OGRN - 1022600000092"
+        props:
+          ogrnCode: "1022600000092"
+      - match: "OKPO 09141558"
+        props:
+          okpoCode: "09141558"
+      - match: "OKVED 64.19"
+        props:
+          okvedCode: "64.19"
   companies:
     normalize: true
     options:
@@ -2387,6 +2450,13 @@ lookups:
           - Seadar Shipping Co Ltd
           - Tika Shipping Ltd
           - Wu Yi Shan Shipmanagement Co
+          - Fan Rong Xuan Ltd
+          - "LLC 'BUREAUCRAT'"
+          - Lam Kee Shipping Ltd
+          - Ming Rong Tai Ltd
+          - SMP Tech Management LLP
+          - Wulio Shipping Ltd
+          - Yuen Fat Shipping Ltd
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -2396,6 +2466,10 @@ lookups:
         values:
           - Rida Engineering
           - Sudamin Mining Company
+      - match: "Thenamaris Ships Management, Sundrop Shipping Ltd"
+        values:
+          - Thenamaris Ships Management
+          - Sundrop Shipping Ltd
       - match: "Carrier Tanker Inc, Fornax Ship Management"
         values:
           - Carrier Tanker Inc
