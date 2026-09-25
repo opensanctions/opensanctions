@@ -56,7 +56,7 @@ Keep the existing header and column order.
 | `List` | Use the source-facing list name mapped below, not the internal program key. |
 | `Date` | Use the effective date in `DD.MM.YYYY` format. |
 | `End date` | Set only when an official action ends the designation. When `Current status (source)` is an ending phrase, it must equal `Current status date`. |
-| `Source URL` | The exact official notice URL. Every row must have one. When the official notice does not name the target, append the page that does, separated by a semicolon. |
+| `Source URL` | The exact official notice URL. Every row must have one, and the notice must name the target; a designation known only from press reporting is not included. |
 | `Address` | Preserve an address published for that target, including its postal code. |
 | `Notice ID` | Instrument key in the form the discovery step derives from titles: `MOFCOM-<year>-<n>` for 商务部公告, `MOFCOM-UEL-<year>-<n>` for UEL announcements, `MOFCOM-ORDER-<year>-<n>` for 商务部令 orders. Emitted as `recordId`. |
 | `Notice title` | Verbatim title of the original designation notice; CSV-only provenance. |

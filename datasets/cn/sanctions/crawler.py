@@ -32,7 +32,7 @@ MOFCOM_SPOKESPERSON_PARAMS = {
     "pageType": "column",
     "tagId": "分页列表",
     "pageId": "625b494d0adc47c885f5e1a18ee42b94",
-    # The API caps the response at roughly the latest 100 notices whatever pageSize says.
+    # The API returns at most the latest ~100 notices whatever pageSize says.
     "paramJson": '{"pageNo":1,"pageSize":100}',
 }
 MFA_NOTICE_PATH = re.compile(r"/(\d{6})/(t\d+_\d+)\.shtml$")
@@ -328,16 +328,10 @@ def collect_reviewed_urls(
         str(url) for url in discovery_config.get("reviewed_urls", []) if url
     }
     for row in rows:
-        reviewed_urls.update(split_urls(row["Source URL"]))
-        reviewed_urls.update(split_urls(row.get("Current status source URL")))
+        reviewed_urls.add(row["Source URL"])
+        if row.get("Current status source URL"):
+            reviewed_urls.add(row["Current status source URL"])
     return reviewed_urls
-
-
-def split_urls(value: str | None) -> list[str]:
-    """Split a semicolon-separated CSV cell of URLs into its non-empty parts."""
-    if value is None:
-        return []
-    return [url.strip() for url in value.split(";") if url.strip()]
 
 
 def apply_current_status(
@@ -372,7 +366,7 @@ def apply_current_status(
     if res is None:
         raise ValueError(f"Unmapped status phrase {phrase!r} for {name!r}")
     sanction.add("status", phrase, lang="zho")
-    sanction.add("sourceUrl", split_urls(status_url))
+    sanction.add("sourceUrl", status_url)
     sanction.add("provisions", quote, lang=language)
     if res.ends:
         if end_date and end_date != status_date:
@@ -410,15 +404,15 @@ def crawl(context: Context) -> None:
         entity.add("notes", row.pop("Chinese summary", None), lang="zho")
         entity.add("topics", row.pop("Topics").split(";"))
         program = row.pop("List", None)
-        source_urls = split_urls(row.pop("Source URL", None))
-        if len(source_urls) == 0:
+        source_url = row.pop("Source URL", None)
+        if not source_url:
             raise ValueError(f"Row for {name!r} has no Source URL")
         # One Sanction per designation row: the same target is often listed under
         # several MOFCOM and MFA measures whose status diverges.
         sanction = h.make_sanction(
             context,
             entity,
-            key=f"{source_urls[0]}|{program}",
+            key=f"{source_url}|{program}",
             program_name=program,
             program_key=h.lookup_sanction_program_key(context, program),
         )
@@ -442,7 +436,7 @@ def crawl(context: Context) -> None:
             end_date,
             two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
         )
-        sanction.add("sourceUrl", source_urls)
+        sanction.add("sourceUrl", source_url)
         apply_current_status(context, sanction, name, end_date, row)
         context.emit(sanction)
         context.emit(entity)

@@ -127,7 +127,7 @@ config:
     # - Chinese name: source spelling, when present.
     # - Country: ISO 3166-1 alpha-2 code when identifiable.
     # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision, which may differ from the publication date in the URL.
-    # - Source URL: official notice URL(s), semicolon-separated when a second page is needed to support the name.
+    # - Source URL: the official notice that names the target.
     # - Summary/Chinese summary: role or identity note for the target as published in the notice; emitted as `notes`.
     # - Notice ID: instrument key matching the discovery logical key (MOFCOM-2025-13, MOFCOM-UEL-2025-7); 商务部令 orders use MOFCOM-ORDER-<year>-<n>.
     # - Notice title/Current status notice title: verbatim titles, CSV-only.
