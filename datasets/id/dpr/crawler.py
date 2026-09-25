@@ -22,14 +22,11 @@ from zavod.stateful.positions import (
 )
 from zavod.stateful.review import assert_all_accepted
 
-# Comfortably above the chamber's 580 seats plus mid-term replacements, so each
-# legislature fits in one page.
+# Above the 580 seats plus mid-term replacements: one page per legislature.
 PAGE_SIZE = 1000
 
-# The frontend signs every GraphQL request with a static token and an HMAC secret,
-# both read from the site's axios interceptor. If the endpoint starts returning
-# 401/403, they have likely rotated: re-extract by grepping the site's JS bundles
-# (/_next/static/chunks/*.js) for "x-api-signature".
+# Taken from the site's axios interceptor. On 401/403, re-extract them by grepping
+# /_next/static/chunks/*.js for "x-api-signature".
 API_TOKEN = os.environ.get("OPENSANCTIONS_ID_DPR_API_TOKEN")
 SIGNING_SECRET = os.environ.get("OPENSANCTIONS_ID_DPR_SIGNING_SECRET")
 
@@ -38,8 +35,7 @@ PERIODE_RE = re.compile(r"(?:Periode\s+)?(?P<start>\d{4})\s*-\s*(?P<end>\d{4})")
 
 PERIODE_QUERY = "{ getAllPeriode { id data } }"
 
-# A trimmed subset of the site's own getDaftarRiwayatAnggota operation, formatted
-# with the page size and legislature ID.
+# Trimmed from the site's own query; formatted with page size and legislature ID.
 ROSTER_QUERY = """
 {
   getDaftarRiwayatAnggota(
@@ -104,8 +100,7 @@ def query_gql(context: Context, query: str) -> Any:
             headers=headers,
             geolocation="id",
         ),
-        # Signatures are timestamped and single-use, so a signed request must not
-        # be replayed from cache.
+        # Signatures are single-use, so never replay from cache.
         cache_days=None,
     )
     data = orjson.loads(result.response_text)
@@ -148,8 +143,7 @@ def crawl_member(
 ) -> None:
     member_data = member["anggota"]
     if member_data is None:
-        # A few historical roster rows point to member records which have since
-        # been removed from the site, leaving no name to create a Person from.
+        # A few historical rows point to member records removed from the site.
         context.log.warning(
             "Skipping roster record with missing member details",
             period_id=legislature.id,
@@ -176,15 +170,15 @@ def crawl_member(
     person.add("citizenship", "id")
     faction = member["riwayatFraksi"]
     if faction is not None and faction["fraksi"] is not None:
-        # Factions are named after their party, e.g. "Fraksi Partai Golongan Karya".
+        # e.g. "Fraksi Partai Golongan Karya"
         party = faction["fraksi"]["fraksi"].removeprefix("Fraksi ")
         person.add("political", party, lang="ind")
-    # The site slugs the raw name, titles included, e.g. "Dr-H-C-PUAN-MAHARANI-287".
+    # e.g. "Dr-H-C-PUAN-MAHARANI-287"
     slug = re.sub(r"[^A-Za-z0-9]+", "-", raw_name)
     person.add("sourceUrl", f"{MEMBER_URL}{slug}-{member_id}")
 
     status = None
-    # Ended terms are left to the period end date; their statusOff is often blank.
+    # Ended terms are left to the period end; their statusOff is often blank.
     if legislature.end >= str(settings.RUN_TIME.year):
         value = context.lookup_value(
             "occupancy_status", member["statusOff"], "unknown", warn_unmatched=True
