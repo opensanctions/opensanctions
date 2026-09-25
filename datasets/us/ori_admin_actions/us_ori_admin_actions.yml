@@ -1,0 +1,70 @@
+title: US ORI PHS Administrative Actions
+entry_point: crawler.py
+prefix: us-ori
+coverage:
+  frequency: daily
+  start: "2026-08-26"
+load_statements: true
+summary: >-
+  Researchers currently subject to administrative actions imposed by the US Office of
+  Research Integrity for research misconduct in Public Health Service funded research
+description: |
+  The PHS Administrative Action Bulletin Board lists individuals who currently have
+  administrative actions imposed against them by the Office of Research Integrity
+  (ORI), the Assistant Secretary for Health and/or the Department of Health and
+  Human Services (HHS), following findings of research misconduct (fabrication,
+  falsification or plagiarism) in research supported by the US Public Health Service.
+
+  The actions imposed vary by case and are listed together with their expiry date.
+  They include:
+
+  * **Debarment** from eligibility for any contracting or subcontracting with any
+    agency of the United States Government, and from eligibility for or involvement
+    in non-procurement programs of the United States Government.
+  * **No PHS Advisory** - prohibition from serving in any advisory or consultant
+    capacity to PHS, including but not limited to service on any PHS advisory
+    committee, board, or peer review committee.
+  * **Supervision** of any PHS-supported research in which the individual participates.
+  * **Certification of work** - a requirement that the institution certify the
+    accuracy of the individual's contributions to PHS-supported research.
+
+  Some actions are imposed for life. Where an action has expired, it is still included
+  here as long as the individual remains on the bulletin board, and the corresponding
+  sanction record is marked as inactive.
+
+  The bulletin board only covers actions imposed by ORI, the Assistant Secretary for
+  Health and HHS. Separate lists of debarred or restricted clinical investigators are
+  maintained by the Food and Drug Administration.
+url: https://ori.hhs.gov/phs-administrative-action-bulletin-board
+tags:
+  - list.sanction
+  - juris.us
+publisher:
+  name: Office of Research Integrity
+  acronym: ORI
+  description: |
+    The Office of Research Integrity (ORI) is part of the Office of the Assistant
+    Secretary for Health within the US Department of Health and Human Services. ORI
+    oversees and directs Public Health Service (PHS) research integrity activities,
+    reviews institutional investigations of research misconduct, makes findings of
+    research misconduct and recommends administrative actions to the Assistant
+    Secretary for Health.
+  country: us
+  url: https://ori.hhs.gov/
+  official: true
+data:
+  url: https://ori.hhs.gov/ORI_PHS_alert.rss
+  format: XML
+  lang: eng
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20
+    countries: 1
+  max:
+    schema_entities:
+      Person: 80
