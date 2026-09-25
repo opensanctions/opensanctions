@@ -1,0 +1,95 @@
+title: Trinidad and Tobago Members of Parliament
+entry_point: crawler.py
+prefix: tt-parl
+coverage:
+  frequency: monthly
+  start: 2026-08-20
+load_statements: true
+summary: >-
+  Current and recent Members of the House of Representatives and the Senate
+description: |
+  Current and recent members of the Parliament of the Republic of Trinidad and
+  Tobago, the country's bicameral national legislature. The 41 members of the House
+  of Representatives are elected from single-member constituencies for a five-year
+  term. The 31 members of the Senate are appointed by the President: 16 on the advice
+  of the Prime Minister, 6 on the advice of the Leader of the Opposition, and 9 at the
+  President's own discretion. Together they hold the country's legislative power,
+  including passing laws and approving the budget.
+
+  Temporary senators appointed to act for an absent senator are included, as is the
+  Speaker of the House, who need not be an elected member.
+url: https://www.ttparliament.org/members/
+publisher:
+  name: Parliament of the Republic of Trinidad and Tobago
+  description: |
+    The bicameral national legislature of Trinidad and Tobago, consisting of the
+    House of Representatives and the Senate.
+  url: https://www.ttparliament.org/
+  country: tt
+  official: true
+data:
+  url: https://www.ttparliament.org/members/find-members/
+  format: HTML
+  lang: eng
+
+dates:
+  formats:
+    - "%d %b %Y"
+
+http:
+  # The default python-requests User-Agent gets a 403.
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+names:
+  prefixes_strip:
+    - Senator
+    - The Honourable
+    - the Hon.
+    - Dr.
+    - Mr.
+    - Mrs.
+    - Ms.
+    - Prof.
+    # Religious titles
+    - Rev.
+    - Imam
+    - Pundit
+    # Military ranks, stripped token by token, e.g. "Brig. Gen."
+    - Brig.
+    - Gen.
+    - Maj.
+  suffixes_strip:
+    - ", MP"
+    - " SC"
+
+tags:
+  - list.pep
+
+lookups:
+  party:
+    options:
+      - match: "-"
+        value: null
+  # current_status describes the person, so it is only read for the sitting term.
+  occupancy_status:
+    options:
+      - match: Current Member
+        value: current
+      - match: Former Member
+        value: ended
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 450
+  max:
+    schema_entities:
+      Person: 700
+      Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 1100
