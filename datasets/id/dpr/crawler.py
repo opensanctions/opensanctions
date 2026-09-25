@@ -169,7 +169,9 @@ def crawl_member(
     person.add("citizenship", "id")
     faction = member["riwayatFraksi"]
     if faction is not None and faction["fraksi"] is not None:
-        person.add("political", faction["fraksi"]["fraksi"], lang="ind")
+        name = faction["fraksi"]["fraksi"]
+        party = context.lookup_value("parties", name, name, warn_unmatched=True)
+        person.add("political", party, lang="ind")
     # e.g. "Dr-H-C-PUAN-MAHARANI-287"
     slug = re.sub(r"[^A-Za-z0-9]+", "-", raw_name)
     person.add("sourceUrl", f"{MEMBER_URL}{slug}-{member_id}")

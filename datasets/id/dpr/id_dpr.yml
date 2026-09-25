@@ -88,8 +88,9 @@ lookups:
       # Suspended; unclear whether the seat is still held.
       - match: NonAktif
         value: unknown
-  # Factions are named after their party.
-  type.political:
+  # Maps each parliamentary faction to the party it is named after. Unlisted
+  # factions are kept as-is with a warning.
+  parties:
     options:
       - match: Fraksi Partai Demokrasi Indonesia Perjuangan
         value: Partai Demokrasi Indonesia Perjuangan
