@@ -19,7 +19,7 @@ classifiers = [
 requires-python = ">= 3.12"
 dependencies = [
     "followthemoney == 4.11.0",
-    "nomenklatura @ git+https://github.com/opensanctions/nomenklatura.git@52628c0e6a5091ed9c9757962f983e82524d21ab",
+    "nomenklatura == 4.17.0",
     "plyvel == 1.5.1", # Also update macOS install docs
     "rigour == 2.5.0",
     "datapatch >= 1.2.4, < 1.3",
