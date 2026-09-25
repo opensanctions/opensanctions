@@ -2,6 +2,7 @@ import json
 import re
 from typing import Any, NamedTuple
 
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 from zavod import Context, Entity
@@ -9,6 +10,7 @@ from zavod import helpers as h
 
 CURRENT_MPS_URL = "https://www.parliament.gov.sg/mps/list-of-current-mps"
 FLIGHT_PUSH = "self.__next_f.push("
+FLIGHT_SCRIPTS = f"//script[contains(text(), '{FLIGHT_PUSH}')]"
 # e.g. "Halimah Yacob (Resigned on 7 August 2017, 13th Parliament)".
 REGEX_RESIGNED = re.compile(r"\s*\(Resigned on (?P<date>[^,)]+), (?P<term>[^)]+)\)\s*$")
 REGEX_TERM_RANGE = re.compile(r"^\((?P<start>[\d.]+)\s*-\s*(?P<end>[\d.]+)\)$")
@@ -25,10 +27,11 @@ class Term(NamedTuple):
 def fetch_page_data(context: Context, url: str) -> str:
     """Join the Next.js flight document a page embeds in `push` chunks.
 
-    Requesting the document directly (`RSC: 1`) comes back empty from CI.
+    Rendered through Zyte: the site sends CI an empty page and some requests an AWS
+    WAF JavaScript challenge, which the validator keeps out of the cache.
     """
-    text = context.fetch_text(url, cache_days=1)
-    assert text is not None, url
+    doc = zyte_api.fetch_html(context, url, FLIGHT_SCRIPTS, cache_days=1)
+    text = "".join(h.xpath_strings(doc, f"{FLIGHT_SCRIPTS}/text()"))
     decoder = json.JSONDecoder()
     chunks: list[str] = []
     offset = text.find(FLIGHT_PUSH)
@@ -47,7 +50,7 @@ def fetch_page_data(context: Context, url: str) -> str:
         ):
             chunks.append(pushed[1])
     if len(chunks) == 0:
-        raise ValueError(f"No flight document chunks in {url} ({len(text)} chars)")
+        raise ValueError(f"No flight document chunks in {url}")
     return "".join(chunks)
 
 
