@@ -9,17 +9,18 @@ summary: Targets persons connected to Iran's ballistic missile programme or the
   and US persons are generally prohibited from dealing with them. Measures
   vary by designation, because a determination under Section 231 may instead
   select from the menu of non-blocking sanctions in Section 235, which ranges
-  from
-  denial of export licences and restrictions on loans from US financial
+  from denial of export licences and restrictions on loans from US financial
   institutions to visa restrictions on an entity's corporate officers.
 issuer: us_treasury
 dataset: us_ofac_sdn
 aliases:
-- CAATSA
-- CAATSA - IRAN
-- CAATSA - RUSSIA
+  - CAATSA
+  - CAATSA - IRAN
+  - CAATSA - RUSSIA
 target_territories:
-- ir
-- ru
+  - ir
+  - ru
 measures:
-- Asset freeze
+  - Asset freeze
+  - Export control
+  - Financial restrictions
