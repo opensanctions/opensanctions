@@ -305,5 +305,5 @@ def crawl_negara(context: Context) -> None:
 
 def crawl(context: Context) -> None:
     crawl_rakyat(context)
-    #crawl_negara(context)
+    # crawl_negara(context)
     assert_all_accepted(context, raise_on_unaccepted=False)
