@@ -5,8 +5,8 @@ description = "Load dumps of the production zavod tables into a local database."
 requires-python = ">=3.12"
 dependencies = [
     "click",
-    "sqlalchemy",
-    "psycopg2-binary",
+    "sqlalchemy >= 2.1.0",
+    "psycopg[binary] >= 3.0, < 4.0",
 ]
 
 # A standalone script rather than a package: uv installs the dependencies and

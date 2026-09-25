@@ -133,7 +133,9 @@ def load_postgres(engine: Engine, table: Table, path: Path, header: list[str]) -
             sql = (
                 f'COPY "{table.name}" ({columns}) FROM STDIN WITH (FORMAT csv, HEADER)'
             )
-            cursor.copy_expert(sql, fh)
+            with cursor.copy(sql) as copy:
+                while chunk := fh.read(1024 * 1024):
+                    copy.write(chunk)
         if "id" in table.c:
             # The dump keeps the ids, so move the sequence past them.
             cursor.execute(

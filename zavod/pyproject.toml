@@ -19,7 +19,7 @@ classifiers = [
 requires-python = ">= 3.12"
 dependencies = [
     "followthemoney == 4.11.0",
-    "nomenklatura == 4.15.0",
+    "nomenklatura @ git+https://github.com/opensanctions/nomenklatura.git@52628c0e6a5091ed9c9757962f983e82524d21ab",
     "plyvel == 1.5.1", # Also update macOS install docs
     "rigour == 2.5.0",
     "datapatch >= 1.2.4, < 1.3",
@@ -35,12 +35,12 @@ dependencies = [
     "ijson > 3.2, < 4.0",
     "pdfplumber == 0.11.10",
     "prefixdate == 0.6.1",
-    "psycopg2-binary",
+    "psycopg[binary] >= 3.0, < 4.0",
     "pyicu == 2.16.2",
     "openai >= 1.33.0, < 4.0.0",
     "requests[security]",
     "urllib3>=2.0",
-    "sqlalchemy[mypy] < 2.1.0",
+    "sqlalchemy[mypy] >= 2.1.0",
     "structlog",
     "xlrd == 2.0.2",
     "cryptography",
