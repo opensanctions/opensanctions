@@ -229,3 +229,16 @@ config:
       # TAO: consolidated "Taiwan independence henchmen and accomplices" list snapshot;
       # all 12 named persons are represented from their original naming notices.
       - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/yfcjtdwgfzjdsbx/202601/t20260112_12745760.htm
+      # aqygzj mirrors of the 2024 and January/March 2025 UEL announcements cited in
+      # sanctions.csv under their www.mofcom.gov.cn URLs.
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2024/art_e78af9c314b2466daa7f96b49766a158.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_b81f6a3e44cc4ab5995b16378a5408e2.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_2aaf11cceb1c4986ad7c4c2a37725b0a.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_e3de33abcac74ea7b8c63ceff76b2aab.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_aff099315f8a453dbcb4d28b34c8f313.html
+      # Spokesperson Q&A that do not designate targets or restate rows already in
+      # sanctions.csv: port-fee countermeasures on US shipping (October 2025), the
+      # FCC/DHS countermeasure order (August 2026), and the PVH investigation (2024).
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2025/art_295bac78cb6f4079abb7cd1db19f0a83.html
+      - https://www.mofcom.gov.cn/xwfb/xwfyrth/art/2026/art_e247be3a58d7425e9cfd0813ae7c2695.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2024/art_f5ac8919a05743f78a3c25f3d0c138f5.html
