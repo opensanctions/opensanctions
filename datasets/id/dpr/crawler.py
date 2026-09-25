@@ -33,36 +33,20 @@ PAGE_SIZE = 1000
 API_TOKEN = os.environ.get("OPENSANCTIONS_ID_DPR_API_TOKEN")
 SIGNING_SECRET = os.environ.get("OPENSANCTIONS_ID_DPR_SIGNING_SECRET")
 
-# statusOff records whether, and why, a member left their seat.
-IN_OFFICE = "Dalam masa jabatan"
-LEFT_OFFICE = {
-    "Selesai masa jabatan",  # term finished
-    "Diberhentikan",  # dismissed
-    "Mengundurkan diri",  # resigned
-    "Meninggal dunia",  # died
-    "Menduduki Jabatan Lain",  # took up another office
-    "Lain-lain",  # other
-}
-# Suspended: it is unclear whether the member still holds the seat.
-SUSPENDED = "NonAktif"
-
 # Legislature labels, e.g. "Periode 2024 - 2029".
 PERIODE_RE = re.compile(r"(?:Periode\s+)?(?P<start>\d{4})\s*-\s*(?P<end>\d{4})")
 
-PERIODE_QUERY = "query getAllPeriode { getAllPeriode { id data } }"
+PERIODE_QUERY = "{ getAllPeriode { id data } }"
 
-# The roster query, a trimmed subset of the site's own getDaftarRiwayatAnggota
-# operation selecting only the fields we map. Formatted with the page size and
-# legislature ID.
+# A trimmed subset of the site's own getDaftarRiwayatAnggota operation, formatted
+# with the page size and legislature ID.
 ROSTER_QUERY = """
 {
   getDaftarRiwayatAnggota(
     first: %d
     wherePeriode: { column: ID, operator: EQ, value: %d }
   ) {
-    paginatorInfo { hasMorePages }
     data {
-      idAnggota
       statusOff
       dapil { dapil }
       anggota { id nama tempatLahir tanggalLahir }
@@ -70,7 +54,7 @@ ROSTER_QUERY = """
     }
   }
 }
-""".strip()
+"""
 
 MEMBER_URL = (
     "https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan/detail-anggota/"
@@ -92,10 +76,8 @@ def sign_request(body: bytes) -> dict[str, str]:
     request_id = str(uuid.uuid4())
     request_body = hashlib.sha256(body).hexdigest()
     message = f"POST:{request_body}:{request_at}:{request_id}"
-    digest = hmac.new(
-        SIGNING_SECRET.encode("utf-8"), message.encode("utf-8"), hashlib.sha256
-    ).hexdigest()
-    signature = b64encode(digest.encode("utf-8")).decode("utf-8")
+    digest = hmac.new(SIGNING_SECRET.encode(), message.encode(), "sha256").hexdigest()
+    signature = b64encode(digest.encode()).decode()
     return {
         "x-api-token": API_TOKEN,
         "x-request-at": request_at,
@@ -153,32 +135,8 @@ def fetch_roster(context: Context, legislature: Legislature) -> list[dict[str, A
     """Fetch the full roster of one legislature."""
     query = ROSTER_QUERY % (PAGE_SIZE, legislature.id)
     roster = query_gql(context, query)["getDaftarRiwayatAnggota"]
-    assert not roster["paginatorInfo"]["hasMorePages"], legislature
     members: list[dict[str, Any]] = roster["data"]
     return members
-
-
-def occupancy_status(
-    context: Context, member: dict[str, Any], legislature: Legislature
-) -> OccupancyStatus | None:
-    """Derive the occupancy status from the roster row's statusOff value."""
-    if legislature.end < str(settings.RUN_TIME.year):
-        # Leave terms which have ended to the period end date and the
-        # after-office threshold. Their statusOff is often blank.
-        return None
-    status_off = member["statusOff"]
-    if status_off == IN_OFFICE:
-        return OccupancyStatus.CURRENT
-    if status_off in LEFT_OFFICE:
-        return OccupancyStatus.ENDED
-    if status_off != SUSPENDED:
-        context.log.warning(
-            "Unknown member status",
-            status_off=status_off,
-            period_id=legislature.id,
-            id_anggota=member["idAnggota"],
-        )
-    return None
 
 
 def crawl_member(
@@ -190,7 +148,7 @@ def crawl_member(
 ) -> None:
     member_data = member["anggota"]
     if member_data is None:
-        # Some historical roster rows point to member records which have since
+        # A few historical roster rows point to member records which have since
         # been removed from the site, leaving no name to create a Person from.
         context.log.warning(
             "Skipping roster record with missing member details",
@@ -216,18 +174,22 @@ def crawl_member(
     # DPR members must be Indonesian citizens (Law No. 7 of 2017 on General
     # Elections, Article 240 paragraph (1)). https://peraturan.bpk.go.id/Details/37644
     person.add("citizenship", "id")
-    faction_history = member["riwayatFraksi"]
-    if faction_history is not None and faction_history["fraksi"] is not None:
-        faction = faction_history["fraksi"]["fraksi"]
+    faction = member["riwayatFraksi"]
+    if faction is not None and faction["fraksi"] is not None:
         # Factions are named after their party, e.g. "Fraksi Partai Golongan Karya".
-        party = faction.removeprefix("Fraksi ")
-        if party == faction:
-            context.log.warning("Unexpected faction name", faction=faction)
+        party = faction["fraksi"]["fraksi"].removeprefix("Fraksi ")
         person.add("political", party, lang="ind")
     # The site slugs the raw name, titles included, e.g. "Dr-H-C-PUAN-MAHARANI-287".
     slug = re.sub(r"[^A-Za-z0-9]+", "-", raw_name)
     person.add("sourceUrl", f"{MEMBER_URL}{slug}-{member_id}")
 
+    status = None
+    # Ended terms are left to the period end date; their statusOff is often blank.
+    if legislature.end >= str(settings.RUN_TIME.year):
+        value = context.lookup_value(
+            "occupancy_status", member["statusOff"], "unknown", warn_unmatched=True
+        )
+        status = OccupancyStatus(value)
     occupancy = h.make_occupancy(
         context,
         person,
@@ -235,7 +197,7 @@ def crawl_member(
         categorisation=categorisation,
         period_start=legislature.start,
         period_end=legislature.end,
-        status=occupancy_status(context, member, legislature),
+        status=status,
     )
     if occupancy is None:
         return

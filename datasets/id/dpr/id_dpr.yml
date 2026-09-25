@@ -72,6 +72,24 @@ names:
         - "Ph.D"
         - "PhD"
 
+lookups:
+  # statusOff records whether, and why, a member left their seat.
+  occupancy_status:
+    options:
+      - match: Dalam masa jabatan
+        value: current
+      - match:
+          - Selesai masa jabatan # term finished
+          - Diberhentikan # dismissed
+          - Mengundurkan diri # resigned
+          - Meninggal dunia # died
+          - Menduduki Jabatan Lain # took up another office
+          - Lain-lain # other
+        value: ended
+      # Suspended: it is unclear whether the member still holds the seat.
+      - match: NonAktif
+        value: unknown
+
 assertions:
   min:
     schema_entities:
