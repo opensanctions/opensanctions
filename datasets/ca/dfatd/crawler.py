@@ -1,4 +1,5 @@
 from normality import squash_spaces
+from rigour.ids import IMO
 from rigour.mime.types import XML
 from followthemoney.types import registry
 
@@ -41,6 +42,22 @@ def split_name(name: str) -> list[str]:
     return parts
 
 
+def parse_imo_number(context: Context, value: str | None) -> str | None:
+    """Return the IMO number of a record, if the ship column really holds one.
+
+    The presence of an IMO number is what makes a record a ship, so a value that
+    is not an IMO number must not reach the vessel branch. The source
+    occasionally spills another column into this one; known cases are resolved
+    in the `imo_number` lookup, anything else is surfaced as a warning.
+    """
+    if value is None or IMO.is_valid(value):
+        return value
+    res = context.lookup("imo_number", value, warn_unmatched=True)
+    if res is None:
+        return None
+    return res.value
+
+
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
@@ -69,7 +86,9 @@ def parse_entry(context: Context, node: Element) -> None:
         if excel_date is not None:
             dob = excel_date
     title = row.pop("TitleOrShipType-TitreOuTypeDeNavire", None)
-    imo_number = row.pop("ShipIMONumber-NumeroOMIDuNavire", None)
+    imo_number = parse_imo_number(
+        context, row.pop("ShipIMONumber-NumeroOMIDuNavire", None)
+    )
     schedule = row.pop("Schedule-Annexe", None)
     if schedule in ("N/A", None):
         schedule = ""
