@@ -73,6 +73,26 @@ assertions:
       LegalEntity: 2480
 
 lookups:
+  # Values the source publishes in the ship IMO number column that are not IMO
+  # numbers. The presence of this column is what marks a record as a ship, so
+  # these have to be resolved before the entity schema is chosen.
+  imo_number:
+    normalize: true
+    asciify: false
+    options:
+      # Items 116-120 of Iran Schedule 1, Part 2 (listed 2026-09-22) are
+      # individuals, and these are Persian-script personal names that belong in
+      # the Aliases-Alias column, where neighbouring items carry them. They are
+      # also misaligned against the Latin names of the rows they sit on
+      # (item 117 carries item 116's name, 118 carries 117's, 119 carries
+      # 118's), so they cannot be attached to a person and are dropped.
+      - match:
+          - مجتبی خامنهای
+          - داوود معظمی گودرزی
+          - اسکندر مهمی
+          - رسول جلیلی
+          - · روح الله مؤمن نسب
+        value: null
   sanction.program:
     options:
       - match:
