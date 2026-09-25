@@ -1068,7 +1068,7 @@ lookups:
           - Richard Urciuoli
       - match: becton, dickinson, and company
         names:
-          - Becton, Dickinson and Company # This is a full company name, see Q813780
+          - Becton, Dickinson and Company  # This is a full company name, see Q813780
       - match: andrew defrancesco, marlio mauricio diaz cardona, carlos felipe rezk, nikola faukovic, and catherine defrancesco (cool holdings inc.)
         names:
           - Andrew Defrancesco
@@ -1169,3 +1169,9 @@ lookups:
           - Scott A. Taylor
           - David B. Bodner
           - Platinum Management (NY) LLC
+      # Admin. Proc. File No. 3-20067 was instituted against the adviser and its
+      # founder/CEO as two separate respondents.
+      - match: platinum wealth partners inc. and david l. potter
+        names:
+          - Platinum Wealth Partners Inc.
+          - David L. Potter
