@@ -1,0 +1,21 @@
+title: Hong Kong implementation of UN sanctions concerning Sudan
+key: HK-UNSO-SUDAN
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+summary: >
+  Hong Kong's implementation of the UN Security Council sanctions concerning
+  Sudan under the United Nations Sanctions Ordinance. It targets individuals and
+  entities who impede the peace process, threaten stability in Darfur or commit
+  violations of international humanitarian or human rights law in Sudan, as
+  designated by the Security Council committee established under resolution
+  1591. Designated persons and entities are subject to an asset freeze, and
+  designated individuals are barred from entering or transiting Hong Kong.
+issuer: hk_cedb
+dataset: hk_cedb_sanctions
+aliases:
+  - United Nations Sanctions (Sudan) Regulation
+  - Resolution 1591
+target_territories:
+  - sd
+measures:
+  - Asset freeze
+  - Travel ban

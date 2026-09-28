@@ -1,0 +1,21 @@
+title: Hong Kong implementation of UN sanctions concerning Haiti
+key: HK-UNSO-HAITI
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+summary: >
+  Hong Kong's implementation of the UN Security Council sanctions concerning
+  Haiti under the United Nations Sanctions Ordinance. It targets gang leaders,
+  their financiers and others engaging in or supporting acts that threaten the
+  peace, security or stability of Haiti, as designated by the Security Council
+  committee established under resolution 2653. Designated persons and entities
+  are subject to an asset freeze, and designated individuals are barred from
+  entering or transiting Hong Kong.
+issuer: hk_cedb
+dataset: hk_cedb_sanctions
+aliases:
+  - United Nations Sanctions (Haiti) Regulation (Cap. 537CO)
+  - Resolution 2653
+target_territories:
+  - ht
+measures:
+  - Asset freeze
+  - Travel ban
