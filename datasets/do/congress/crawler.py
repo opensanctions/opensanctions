@@ -1,6 +1,7 @@
 from itertools import count
 from urllib.parse import urljoin
 
+from followthemoney.util import join_text
 from normality import squash_spaces
 
 from zavod.entity import Entity
@@ -29,40 +30,17 @@ IGNORE_REPRESENTATION = [
 ]
 
 
-def discover_legislator_ids(context: Context) -> set[int]:
-    ids: set[int] = set()
-    # Search is required to run at all (an empty keyword returns zero results), but
-    # the keyword is substring-matched against several fields including `funcion`,
-    # and every role the source uses (Diputado/a, Senador/a, Institución del Estado)
-    # contains an "a", so this one search returns every record regardless of name.
-    for page in count(1):
-        data = context.fetch_json(
-            urljoin(context.data_url, "legisladores"),
-            params={"page": page, "keyword": "a"},
-            cache_days=1,
-        )
-        for result in data.pop("results"):
-            ids.add(result.pop("legisladorId"))
-        total = data.pop("total")
-        page_size = data.pop("pageSize")
-        context.audit_data(data, ignore=["page"])
-        if page * page_size >= total:
-            assert len(ids) == total, (len(ids), total)
-            break
-    return ids
-
-
 def crawl_legislator(
     context: Context,
     positions: dict[str, tuple[Entity, PositionCategorisation]],
-    legislador_id: int,
+    legislador_id: str,
 ) -> None:
     data = context.fetch_json(
         urljoin(context.data_url, f"legislador/{legislador_id}"), cache_days=1
     )
 
     person = context.make("Person")
-    person.id = context.make_slug("person", str(legislador_id))
+    person.id = context.make_slug(legislador_id)
     h.apply_name(
         person,
         first_name=squash_spaces(data.pop("nombres")),
@@ -82,7 +60,7 @@ def crawl_legislator(
 
     representation = data.pop("representacion")
 
-    role = context.lookup("role", representation.pop("funcion"), warn_unmatched=True)
+    role = context.lookup("role", representation.pop("funcion"))
     if role is None or role.value is None:
         return
     position, categorisation = positions[role.value]
@@ -91,14 +69,13 @@ def crawl_legislator(
 
     district = representation.pop("circunscripcion")
     district = context.lookup_value("district", district, district)
-    constituency = ", ".join(
-        part for part in (representation.pop("provincia"), district) if part is not None
-    )
+    constituency = join_text(representation.pop("provincia"), district, sep=", ")
 
     occupancy = h.make_occupancy(
         context,
         person,
         position,
+        # The source keeps stale records, so a missing end date doesn't mean still in office.
         no_end_implies_current=False,
         # The member's own dates: substitutes start mid-term, and early departures
         # (e.g. to an executive post) end before the term does.
@@ -140,5 +117,15 @@ def crawl(context: Context) -> None:
     context.emit(deputy_position)
     context.emit(senator_position)
 
-    for legislador_id in sorted(discover_legislator_ids(context)):
-        crawl_legislator(context, positions, legislador_id)
+    # An empty keyword returns nothing, but the search also matches `funcion`, and
+    # every role (Diputado/a, Senador/a, Institución del Estado) contains an "a".
+    for page in count(1):
+        data = context.fetch_json(
+            urljoin(context.data_url, "legisladores"),
+            params={"page": page, "keyword": "a"},
+            cache_days=1,
+        )
+        for result in data["results"]:
+            crawl_legislator(context, positions, str(result["legisladorId"]))
+        if page * data["pageSize"] >= data["total"]:
+            break
