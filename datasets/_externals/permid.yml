@@ -32,15 +32,6 @@ http:
   # total_retries above, an entity the endpoint never answers for costs roughly
   # timeout * 6 plus backoff before the run moves on.
   timeout: 120
-  # Note that none of the settings above touch the remaining "Response ended
-  # prematurely" errors: that is a ChunkedEncodingError raised while reading the
-  # body, which urllib3 does not retry (urllib3#2751), and the server hanging up
-  # early is not a slow response, so the timeout is irrelevant to it too.
-  # nomenklatura's Enricher.http_post_json_cached retries it once itself, with a
-  # count that is not configurable from here. It hits small queries as readily as
-  # large ones (2026-09-25 lost a single-name, single-country ru_nsd_isin fund),
-  # so it is upstream flakiness rather than payload size; the affected entity is
-  # simply queried again on the next daily run.
 load_statements: true
 ci_test: false
 summary: >-
