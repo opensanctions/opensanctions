@@ -5,18 +5,14 @@ from datetime import UTC
 from typing import Any
 from urllib.parse import urlencode
 
-from lxml import html
+from lxml import etree, html
+from urllib3 import Retry
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
-from zavod.util import Element
 
 START_YEAR = 2019
 START_MONTH = 1
-# The source intermittently answers a month request with a 500 error page, so give
-# each month a few attempts before giving up on it.
-MONTH_ATTEMPTS = 4
-RETRY_BACKOFF = 5
 
 
 def emit_linked_org(
@@ -113,66 +109,6 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     context.audit_data(row, ["Place", "#"])
 
 
-def fetch_month_table(
-    context: Context, headers: dict[str, str], year: int, month: int
-) -> Element | None:
-    """Fetch the detention table for one month.
-
-    Transient 500 error pages are retried with a backoff. Returns the table
-    element, or None once the attempts for the month are exhausted.
-    """
-    data = {
-        "month": f"{month:02}",  # pad month to two digits
-        "year": str(year),
-        "auth": "0",
-        "held": "0",
-    }
-    for attempt in range(1, MONTH_ATTEMPTS + 1):
-        zyte_result = zyte_api.fetch(
-            context,
-            zyte_api.ZyteAPIRequest(
-                url=context.data_url,
-                headers=headers,
-                body=urlencode(data).encode("utf-8"),
-                method="POST",
-            ),
-            cache_days=1,
-        )
-
-        try:
-            doc = html.fromstring(zyte_result.response_text)
-            table = h.xpath_element(doc, "//table[@id='dvData']")
-        except Exception:
-            # Don't keep an error page around for the rest of the crawl.
-            zyte_result.invalidate_cache(context)
-            if attempt == MONTH_ATTEMPTS:
-                context.log.exception(
-                    "Failed to fetch HTML or find table for month",
-                    month=month,
-                    year=year,
-                    status_code=zyte_result.status_code,
-                    from_cache=zyte_result.from_cache,
-                    attempts=attempt,
-                )
-                return None
-            context.log.info(
-                "No table for month, retrying",
-                month=month,
-                year=year,
-                status_code=zyte_result.status_code,
-                attempt=attempt,
-            )
-            time.sleep(RETRY_BACKOFF * 2**attempt)
-            continue
-
-        # fetch() deliberately leaves caching to the caller, so only cache the
-        # response once we know it contains the table we're after.
-        if not zyte_result.from_cache:
-            context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)
-        return table
-    return None
-
-
 def crawl(context: Context) -> None:
     headers = {
         "X-Requested-With": "XMLHttpRequest",
@@ -184,10 +120,48 @@ def crawl(context: Context) -> None:
     year = START_YEAR
     month = START_MONTH
     while (year, month) <= (now.year, now.month):
-        table = fetch_month_table(context, headers, year, month)
-        if table is not None:
-            for row in h.parse_html_table(table, slugify_headers=False):
-                crawl_row(context, h.cells_to_str(row))
+        data = {
+            "month": f"{month:02}",  # pad month to two digits
+            "year": str(year),
+            "auth": "0",
+            "held": "0",
+        }
+        retry = Retry(total=3, backoff_factor=5)
+        while not retry.is_exhausted():
+            zyte_result = zyte_api.fetch(
+                context,
+                zyte_api.ZyteAPIRequest(
+                    url=context.data_url,
+                    headers=headers,
+                    body=urlencode(data).encode("utf-8"),
+                    method="POST",
+                ),
+                cache_days=1,
+            )
+            try:
+                doc = html.fromstring(zyte_result.response_text)
+                table = h.xpath_element(doc, "//table[@id='dvData']")
+                break
+            except (etree.ParserError, ValueError) as exc:
+                # ParserError: the response body is empty. ValueError: the page has
+                # no dvData table. The source intermittently answers with such a
+                # 500 error page, and a retry usually gets the table.
+                context.log.info(
+                    "No table for month, retrying",
+                    month=month,
+                    year=year,
+                    status_code=zyte_result.status_code,
+                )
+                # increment() raises MaxRetryError once the retries are exhausted.
+                retry = retry.increment(url=context.data_url, error=exc)
+                retry.sleep()
+
+        # fetch() leaves caching to the caller, so that error pages stay uncached.
+        if not zyte_result.from_cache:
+            context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)
+
+        for row in h.parse_html_table(table, slugify_headers=False):
+            crawl_row(context, h.cells_to_str(row))
 
         # Random sleep to avoid overwhelming the server (and hitting 500 Server Error)
         time.sleep(random.uniform(0.5, 2.0))  # sleep for 1.5–3 seconds
