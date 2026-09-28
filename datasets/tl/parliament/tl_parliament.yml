@@ -1,0 +1,148 @@
+title: Timor-Leste Members of the National Parliament
+name: tl_parliament
+prefix: tl-pn
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+summary: >-
+  Unicameral legislature, 65 members elected in one nationwide constituency
+description: |
+  Current members of the National Parliament (Parlamento Nacional), the unicameral
+  legislature of Timor-Leste. Its 65 members are elected from a single nationwide
+  constituency under closed-list proportional representation for a five-year term and
+  hold the country's legislative power, including passing laws and approving the budget.
+url: https://www.parlamento.tl/membros
+publisher:
+  name: Parlamento Nacional de Timor-Leste
+  description: >
+    The National Parliament is the unicameral legislature of the Democratic Republic of
+    Timor-Leste, whose members are elected under nationwide proportional representation.
+  url: https://www.parlamento.tl/
+  country: tl
+  official: true
+data:
+  url: https://www.parlamento.tl/bancadas
+  format: HTML
+  lang: por
+
+dates:
+  formats:
+    - "%d de %B de %Y"
+    - "%d de %B %Y"
+    - "%d/%m/%Y"
+  months:
+    January: janeiro
+    February: fevereiro
+    March: março
+    April: abril
+    May: maio
+    June: junho
+    July: julho
+    August: agosto
+    September: setembro
+    October: outubro
+    November: novembro
+    December: dezembro
+
+tags:
+  - list.pep
+
+lookups:
+  # Profile page field labels, which vary in spelling, case and punctuation.
+  details:
+    normalize: true
+    lowercase: true
+    options:
+      - match: Data de Nascimento
+        value: birth_date
+      - match:
+          - Local de Nascimento
+          - ocal de Nascimento  # sic
+        value: birth_place
+      - match:
+          - Município
+          - unicípio  # sic
+          - Distrito
+        value: municipality
+      - match:
+          - Início de Funções Como Deputado
+          - Início Funções Como Deputado
+          - Início da Funções Como Deputado
+        value: start_date
+      - match:
+          - Legislatura
+          - Legislatura e Partidos como Deputado
+          - Legislatura, Período e Partidos como Deputado
+          - Legislatura, Períodos e Partidos como Deputado
+          # Combines place and date as free text, e.g. "Bihala, 15-11-1969".
+          - Local e Data de Nascimento
+          - Nome
+          - Bancada Parlamentar
+          - Profissão
+          - Profissão Exercida Anteriormente
+          - Habilitação Literária
+          - Habilitações Literárias
+          - Habilitações Académicas
+          - Estudo e Grau de Escolaridade
+          - Comissão a que pertence do Parlamento Nacional
+          - Comissões a que pertence do Parlamento Nacional
+          - Comissões a que pertence, ou pertenceu, no Parlamento Nacional
+          - Cargos que desempenha e outros que já exerceu
+          - Funções Políticas ou Sociais
+          - Obras Publicada
+          - Obras Publicadas
+          - Condecoração
+          - Condecorações
+          - Missões Oficiais
+          - Seminários, Conferencias e Congressos
+          - Outras Informações Relevantes
+        value: null
+  # Party modal headings on /bancadas; an unmatched one is a new party group.
+  party:
+    options:
+      - match: CNRT - Deputados
+        value: CNRT
+      - match: FRETILIN - Deputados
+        value: FRETILIN
+      - match: KHUNTO - Deputados
+        value: KHUNTO
+      - match: PD - Deputados
+        value: PD
+      - match: PLP - Deputados
+        value: PLP
+  # The sitting term, as labelled by the /membros selector's default option.
+  # An unmatched label means a new parliament: update the crawler for it.
+  term:
+    options:
+      - match: VI Legislatura
+        value: VI
+  type.date:
+    options:
+      - match: 19 de março de 2024, da VI legislatura
+        value: 2024-03-19
+      # A term, not a date.
+      - match: VI Legislatura 2023-2028
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 50
+    country_entities:
+      tl: 50
+    property_fill_rate:
+      Person:
+        birthDate: 0.75  # 86%: a few profiles are prose-only
+  max:
+    schema_entities:
+      Person: 80
+      Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 80
