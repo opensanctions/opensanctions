@@ -43,8 +43,7 @@ def crawl_member(
     for party in h.xpath_strings(
         row, './/div[contains(@class, "member_affiliation")]/text()'
     ):
-        res = context.lookup("party", party)
-        person.add("political", party if res is None else res.value)
+        person.add("political", party if party != "-" else None)
     # Constitution of the Republic of Trinidad and Tobago, ss. 41 (Senate) and 47
     # (House of Representatives), both requiring Trinidad and Tobago citizenship:
     # https://www.constituteproject.org/constitution/Trinidad_and_Tobago_2007

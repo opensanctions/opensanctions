@@ -66,10 +66,6 @@ tags:
   - list.pep
 
 lookups:
-  party:
-    options:
-      - match: "-"
-        value: null
   # current_status describes the person, so it is only read for the sitting term.
   occupancy_status:
     options:
