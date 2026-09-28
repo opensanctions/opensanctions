@@ -303,7 +303,9 @@ lookups:
         values:
           - 1975
           - 1979
-      - match: Entre 1969 et 1971
+      - match:
+          - Entre 1969 et 1971
+          - entre 1969 et 1971
         values:
           - 1969
           - 1971
