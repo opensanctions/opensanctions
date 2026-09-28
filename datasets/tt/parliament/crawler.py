@@ -41,10 +41,9 @@ def crawl_member(
     person.id = context.make_id(raw_name)
     person.add("name", name, original_value=raw_name if name != raw_name else None)
     for party in h.xpath_strings(
-        row, './/div[starts-with(@class, "member_affiliation")]/text()'
+        row, './/div[contains(@class, "member_affiliation")]/text()'
     ):
-        res = context.lookup("party", party)
-        person.add("political", party if res is None else res.value)
+        person.add("political", context.lookup_value("party", party, party))
     # Constitution of the Republic of Trinidad and Tobago, ss. 41 (Senate) and 47
     # (House of Representatives), both requiring Trinidad and Tobago citizenship:
     # https://www.constituteproject.org/constitution/Trinidad_and_Tobago_2007
@@ -136,9 +135,9 @@ def crawl(context: Context) -> None:
             continue
         period_start, period_end = parse_term(h.xpath_string(option, "./text()"))
         if period_end is not None:
-            end = h.extract_date(
+            end_date = h.extract_date(
                 context.dataset, period_end, fallback_to_original=False
             )
-            if end[0] < h.earliest_term_start(categorisation.topics):
+            if end_date[0] < h.earliest_term_start(categorisation.topics):
                 continue
         crawl_term(context, position, categorisation, pid, period_start, period_end)
