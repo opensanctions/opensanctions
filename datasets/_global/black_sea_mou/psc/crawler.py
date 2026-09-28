@@ -34,7 +34,7 @@ SEARCH_DATA = {
     "sort3": "0",
     "sort4": "DESC",
 }
-LLM_VERSION = "gpt-4o"
+LLM_VERSION = "gpt-6-sol"
 PROMPT = """This is an image of a numeric CAPTCHA.
 Extract the 5-digit number shown in the image and return it as JSON: {"code": "XXXXX"}.
 Preserve leading zeros. The answer is always exactly 5 digits."""
