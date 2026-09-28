@@ -1204,6 +1204,14 @@ lookups:
       # rather than asserted to be a valid INN.
       - match: "366217317327"
         prop: taxNumber
+      # Council Implementing Regulation (EU) 2026/2184 prints both tax
+      # identifiers of Anna Stanislavovna MOLCHANOVA with the country whose
+      # system issued them ("INN: 920150546734 (Russia)"); the identifier is
+      # the number.
+      - match: "920150546734 (Russia)"
+        value: "920150546734"
+      - match: "3253604269 (Ukraine)"
+        value: "3253604269"
       - match: "M307707 (Tunisian passport issued on 12.4.2000 which expired on 11.4.2005)"
         value: "M307707"
       - match: "E590976 (Tunisian passport issued on 19.6.1987 which expired on 18.6.1992)"
@@ -1999,6 +2007,12 @@ lookups:
         values:
           - "aleksandr.babuchin@domrf.ru"
           - "isb@domrf.ru"
+      # Council Implementing Regulation (EU) 2026/2184 prints Aleksandr
+      # Mikhailovich KALYAGIN's two addresses separated by a space.
+      - match: "am.kalyagin@mon.zo.gov.ru kalyaginam_mgudt@bk.ru"
+        values:
+          - "am.kalyagin@mon.zo.gov.ru"
+          - "kalyaginam_mgudt@bk.ru"
       - match: "avangard2004@yandex.ru,"
         value: "avangard2004@yandex.ru"
       - match: "avangard2004@yandex.ru, fkpavangard-buh@mail.ru, fkp-avangard-ppo@yandex.ru"
