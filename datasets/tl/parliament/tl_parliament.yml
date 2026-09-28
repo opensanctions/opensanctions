@@ -112,9 +112,18 @@ assertions:
     schema_entities:
       Person: 50
       Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 50
     country_entities:
       tl: 50
+    property_fill_rate:
+      Person:
+        birthDate: 0.75  # 86%: a few profiles are prose-only
   max:
     schema_entities:
       Person: 80
       Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 80
