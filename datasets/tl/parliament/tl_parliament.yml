@@ -99,6 +99,12 @@ lookups:
           - Seminários, Conferencias e Congressos
           - Outras Informações Relevantes
         value: null
+  # The sitting term, as labelled by the /membros selector's default option.
+  # An unmatched label means a new parliament: update the crawler for it.
+  term:
+    options:
+      - match: VI Legislatura
+        value: VI
   type.date:
     options:
       - match: 19 de março de 2024, da VI legislatura

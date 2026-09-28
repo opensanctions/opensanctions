@@ -8,6 +8,7 @@ from zavod import Context
 from zavod import helpers as h
 
 PROFILE_URL = "https://www.parlamento.tl/deputados/"
+MEMBERS_URL = "https://www.parlamento.tl/membros"
 # Each party's members are listed in a modal headed e.g. "CNRT - Deputados".
 HEADING_SUFFIX = " - Deputados"
 # Nicknames are quoted inline, e.g. 'Maria Rosa da Câmara "Bisoi"'.
@@ -83,6 +84,12 @@ def crawl(context: Context) -> None:
     if not categorisation.is_pep:
         return
     context.emit(position)
+
+    # /bancadas doesn't name the term it lists, but the /membros term selector
+    # defaults to the sitting one, so an unmatched label means a new parliament.
+    members = context.fetch_html(MEMBERS_URL, cache_days=1)
+    term = h.xpath_element(members, '//select[@name="legislatura"]/option[@selected]')
+    context.lookup("term", h.element_text(term), warn_unmatched=True)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
     for modal in h.xpath_elements(doc, '//div[starts-with(@id, "modal-")]'):
