@@ -52,6 +52,7 @@ names:
     - Mrs
     - Ms.
     - Ms
+    - Mme.
     - Dr.
     - Prof.
     - Assoc.
@@ -62,6 +63,7 @@ names:
     - Col.
     - Col
     - H.E.
+    - Hon.
   suffixes_strip:
     - PHD
     - ", PH.D"
