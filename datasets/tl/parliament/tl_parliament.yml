@@ -99,6 +99,19 @@ lookups:
           - Seminários, Conferencias e Congressos
           - Outras Informações Relevantes
         value: null
+  # Party modal headings on /bancadas; an unmatched one is a new party group.
+  party:
+    options:
+      - match: CNRT - Deputados
+        value: CNRT
+      - match: FRETILIN - Deputados
+        value: FRETILIN
+      - match: KHUNTO - Deputados
+        value: KHUNTO
+      - match: PD - Deputados
+        value: PD
+      - match: PLP - Deputados
+        value: PLP
   # The sitting term, as labelled by the /membros selector's default option.
   # An unmatched label means a new parliament: update the crawler for it.
   term:
