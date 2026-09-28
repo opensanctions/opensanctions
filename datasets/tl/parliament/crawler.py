@@ -14,6 +14,23 @@ HEADING_SUFFIX = " - Deputados"
 NICKNAME_RE = re.compile(r'\s*"([^"]+)"')
 
 
+def parse_details(doc: Element, context: Context) -> dict[str, str]:
+    details: dict[str, str] = {}
+    for strong in h.xpath_elements(doc, '//p/strong[contains(., ":")]'):
+        key = context.lookup_value(
+            "details", h.element_text(strong), warn_unmatched=True
+        )
+        if key is None:
+            continue
+        # Most labels sit in their own paragraph; a few carry the value inline.
+        value = (strong.tail or "").strip()
+        if not value:
+            sibling = h.xpath_element(strong, "../following-sibling::p[1]")
+            value = h.element_text(sibling)
+        details[key] = value
+    return details
+
+
 def crawl_member(
     context: Context,
     position: Entity,
@@ -34,8 +51,18 @@ def crawl_member(
     person.add("citizenship", "tl")
     person.add("sourceUrl", url)
 
+    doc = context.fetch_html(url, cache_days=7)
+    details = parse_details(doc, context)
+    h.apply_date(person, "birthDate", details.get("birth_date"))
+    person.add("birthPlace", details.get("birth_place"))
+    person.add("address", details.get("municipality"))
+
     occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
+        context,
+        person,
+        position,
+        start_date=details.get("start_date"),
+        categorisation=categorisation,
     )
     if occupancy is None:
         return

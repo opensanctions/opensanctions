@@ -27,8 +27,85 @@ data:
   format: HTML
   lang: por
 
+dates:
+  formats:
+    - "%d de %B de %Y"
+    - "%d de %B %Y"
+    - "%d/%m/%Y"
+  months:
+    January: janeiro
+    February: fevereiro
+    March: março
+    April: abril
+    May: maio
+    June: junho
+    July: julho
+    August: agosto
+    September: setembro
+    October: outubro
+    November: novembro
+    December: dezembro
+
 tags:
   - list.pep
+
+lookups:
+  # Profile page field labels, which vary in spelling, case and punctuation.
+  details:
+    normalize: true
+    lowercase: true
+    options:
+      - match: Data de Nascimento
+        value: birth_date
+      - match:
+          - Local de Nascimento
+          - ocal de Nascimento  # sic
+        value: birth_place
+      - match:
+          - Município
+          - unicípio  # sic
+          - Distrito
+        value: municipality
+      - match:
+          - Início de Funções Como Deputado
+          - Início Funções Como Deputado
+          - Início da Funções Como Deputado
+        value: start_date
+      - match:
+          - Legislatura
+          - Legislatura e Partidos como Deputado
+          - Legislatura, Período e Partidos como Deputado
+          - Legislatura, Períodos e Partidos como Deputado
+          # Combines place and date as free text, e.g. "Bihala, 15-11-1969".
+          - Local e Data de Nascimento
+          - Nome
+          - Bancada Parlamentar
+          - Profissão
+          - Profissão Exercida Anteriormente
+          - Habilitação Literária
+          - Habilitações Literárias
+          - Habilitações Académicas
+          - Estudo e Grau de Escolaridade
+          - Comissão a que pertence do Parlamento Nacional
+          - Comissões a que pertence do Parlamento Nacional
+          - Comissões a que pertence, ou pertenceu, no Parlamento Nacional
+          - Cargos que desempenha e outros que já exerceu
+          - Funções Políticas ou Sociais
+          - Obras Publicada
+          - Obras Publicadas
+          - Condecoração
+          - Condecorações
+          - Missões Oficiais
+          - Seminários, Conferencias e Congressos
+          - Outras Informações Relevantes
+        value: null
+  type.date:
+    options:
+      - match: 19 de março de 2024, da VI legislatura
+        value: 2024-03-19
+      # A term, not a date.
+      - match: VI Legislatura 2023-2028
+        value: null
 
 assertions:
   min:
