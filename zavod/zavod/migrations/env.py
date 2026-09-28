@@ -56,13 +56,14 @@ def run_migrations(connection: Connection) -> None:
 
 
 def run_migrations_online() -> None:
-    database_uri = environ.get(
+    database_uri = config.get_main_option("sqlalchemy.url") or environ.get(
         "ZAVOD_DATABASE_URI", environ.get("OPENSANCTIONS_DATABASE_URI")
     )
     if database_uri is None:
         raise RuntimeError(
-            "No database URL configured: set ZAVOD_DATABASE_URI or "
-            "OPENSANCTIONS_DATABASE_URI."
+            "No database URL configured: set sqlalchemy.url in the Alembic "
+            "configuration, or ZAVOD_DATABASE_URI or OPENSANCTIONS_DATABASE_URI "
+            "in the environment."
         )
     engine = create_engine(database_uri, poolclass=pool.NullPool)
     try:
