@@ -277,6 +277,44 @@ def test_fetch_text(testdataset1: Dataset):
         assert charset == "utf-8", charset
         assert text == "Hello, World!", text
         assert m.call_count == 1
+        assert "customHttpRequestHeaders" not in m.request_history[0].json()
+
+    context.close()
+
+
+def test_fetch_text_headers(testdataset1: Dataset):
+    context = Context(testdataset1)
+    url = "https://test.com/page"
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode(b'0:{"page": 1}').decode(),
+                "httpResponseHeaders": [
+                    {"name": "content-type", "value": "text/x-component"}
+                ],
+                "statusCode": 200,
+            },
+        )
+        cached, media_type, _, text = fetch_text(
+            context, url, headers={"RSC": "1"}, cache_days=1
+        )
+        assert not cached
+        assert media_type == "text/x-component", media_type
+        assert text == '0:{"page": 1}', text
+        request_body = m.request_history[0].json()
+        assert request_body["customHttpRequestHeaders"] == [
+            {"name": "RSC", "value": "1"}
+        ], request_body
+
+        # The headers are part of the cache key: the same URL without them is
+        # a different response and must not be served from the cache.
+        cached, _, _, _ = fetch_text(context, url, headers={"RSC": "1"}, cache_days=1)
+        assert cached
+        cached, _, _, _ = fetch_text(context, url, cache_days=1)
+        assert not cached
+        assert m.call_count == 2
 
     context.close()
 
