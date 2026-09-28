@@ -51,6 +51,22 @@ tags:
   - list.sanction
   - sector.financial
 
+config:
+  # The XML files (without .xml) the dataset page is expected to list, one per
+  # regime. The crawler warns when the page lists a different set.
+  expected_files:
+    - afghanistan
+    - central_african_republic
+    - dprk
+    - drcongo
+    - haiti
+    - isil_and_al_qaida
+    - libya
+    - somalia
+    - south_sudan
+    - sudan
+    - yemen
+
 assertions:
   min:
     schema_entities:

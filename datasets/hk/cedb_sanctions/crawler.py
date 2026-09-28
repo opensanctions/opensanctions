@@ -370,6 +370,18 @@ def crawl(context: Context) -> None:
     if len(files) == 0:
         raise ValueError(f"No XML resources found on {context.data_url}")
 
+    # Compare against the files we expect, so that a regime being added to or
+    # dropped from the page is noticed. Unexpected files are still crawled.
+    expected = context.dataset.config.get("expected_files")
+    if not isinstance(expected, list) or not all(isinstance(e, str) for e in expected):
+        raise ValueError("config.expected_files must be a list of file names")
+    missing = set(expected) - set(files)
+    if missing:
+        context.log.warning("Expected files missing from page", files=sorted(missing))
+    unexpected = set(files) - set(expected)
+    if unexpected:
+        context.log.warning("Unexpected files on page", files=sorted(unexpected))
+
     for name, url in sorted(files.items()):
         title = name.replace("_", " ").title()
         crawl_file(context, name, url, title, un_refs)
