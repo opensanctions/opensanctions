@@ -18,6 +18,7 @@ classifiers = [
 ]
 requires-python = ">= 3.12"
 dependencies = [
+    "alembic == 1.20.0",
     "followthemoney == 4.11.0",
     "nomenklatura == 4.17.0",
     "plyvel == 1.5.1", # Also update macOS install docs
