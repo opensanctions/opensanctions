@@ -24,9 +24,11 @@ ALIAS_SPLITS = [
     "Arabic:",
     "Arabic :",
     "Belarusian:",
+    "Belarussian:",
     "Belarussian :",
     "Russian:",
     "Russian :",
+    "Cyrillic:",
     "Ukrainian:",
     "Ukrainian :",
 ]
