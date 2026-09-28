@@ -36,7 +36,12 @@ def split_name(name: str) -> list[str]:
     name = squash_spaces(name)
     parts: list[str] = []
     for part in h.multi_split(name, NAME_SPLITS):
-        part = part.rstrip(")").rstrip(";")
+        part = part.rstrip(";")
+        # Splitting on " (also known as" leaves the closing ")" of the alias
+        # behind. A balanced ")" belongs to the name, e.g. an acronym such as
+        # "Marine Industries Organization (MIO)", so only strip unmatched ones.
+        while part.endswith(")") and part.count(")") > part.count("("):
+            part = part[:-1]
         if len(part):
             parts.append(part)
     return parts
