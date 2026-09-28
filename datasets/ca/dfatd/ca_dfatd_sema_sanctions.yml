@@ -44,6 +44,24 @@ data:
 dates:
   formats: ["%Y", "%d-%m-%Y", "%b-%y"]
 
+names:
+  schema_rules:
+    # The alias column packs many aliases into one string, separated by ",",
+    # ";", " or ", " and " and language labels such as "Russian:". Rigour's
+    # split phrases cover none of these. Entity names also hold acronyms and
+    # short forms in parentheses. " and " also flags many single names such as
+    # "Research and Production Corporation", which is accepted to catch the
+    # real splits.
+    LegalEntity:
+      reject_chars: "(),:"
+      reject_strings: [" or ", " and "]
+    Vessel:
+      reject_chars: ","
+      reject_strings: [" or ", " and "]
+    Person:
+      reject_chars: ","
+      reject_strings: [" or ", " and "]
+
 assertions:
   min:
     schema_entities:

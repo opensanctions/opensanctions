@@ -5,6 +5,7 @@ from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 from zavod.util import Element
 
 NAME_SPLITS = [
@@ -71,6 +72,7 @@ def crawl(context: Context) -> None:
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//record"):
         parse_entry(context, node)
+    assert_all_accepted(context, raise_on_unaccepted=False)
 
 
 def parse_entry(context: Context, node: Element) -> None:
@@ -106,6 +108,8 @@ def parse_entry(context: Context, node: Element) -> None:
     if program is not None and "/" in program:
         country, _ = program.split("/", 1)
 
+    original = h.Names()
+    suggested = h.Names()
     entity = context.make("LegalEntity")
     country_code = registry.country.clean(country)
     entity.id = context.make_id(schedule, country_code, entity_name)
@@ -114,7 +118,10 @@ def parse_entry(context: Context, node: Element) -> None:
         entity.id = context.make_id(schedule, country_code, entity_name, imo_number)
         entity.add("imoNumber", imo_number)
         if entity_name is not None:
-            entity.add("name", squash_spaces(entity_name))
+            vessel_name = squash_spaces(entity_name)
+            entity.add("name", vessel_name)
+            original.add("name", vessel_name)
+            suggested.add("name", vessel_name)
         entity.add("type", title)
         h.apply_date(entity, "buildDate", dob, original_value=dob_original)
     elif given_name is not None or last_name is not None or dob is not None:
@@ -132,7 +139,10 @@ def parse_entry(context: Context, node: Element) -> None:
         )
         entity.add("title", title)
     elif entity_name is not None:
-        entity.add("name", split_name(entity_name))
+        original.add("name", squash_spaces(entity_name))
+        for name in split_name(entity_name):
+            entity.add("name", name)
+            suggested.add("name", name)
         h.apply_date(entity, "incorporationDate", dob, original_value=dob_original)
         assert dob is None, (dob, entity_name)
 
@@ -154,11 +164,25 @@ def parse_entry(context: Context, node: Element) -> None:
     )
 
     names = squash_spaces(row.pop("Aliases-Alias", ""))
+    if names:
+        original.add("alias", names)
     for name in h.multi_split(names, ALIAS_SPLITS):
         trim_name = squash_spaces(name)
         # if " or " in trim_name:
         #     print("ALIAS", trim_name)
         entity.add("alias", trim_name)
+        suggested.add("alias", trim_name)
+
+    # Person names are built from the separate name part columns, so only
+    # their aliases go to review.
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
 
     context.audit_data(row)
     context.emit(entity)
