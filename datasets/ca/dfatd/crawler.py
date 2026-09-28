@@ -139,7 +139,7 @@ def parse_entry(context: Context, node: Element) -> None:
         )
         entity.add("title", title)
     elif entity_name is not None:
-        original.add("name", squash_spaces(entity_name))
+        original.add("name", entity_name)
         for name in split_name(entity_name):
             entity.add("name", name)
             suggested.add("name", name)
