@@ -75,6 +75,8 @@ lookups:
         values: [BE, RU]
       - match: BIAŁORUŚ BEZPAŃSTWOWIEC
         values: [BY]
+      - match: BIAŁORUŚ NIEMCY
+        values: [BY, DE]
       - match: FRANCJA GRUZJA
         values: [FR, GE]
       - match: FRANCJA KAMERUN
