@@ -2,6 +2,7 @@ import re
 import time
 
 from lxml.etree import _Element
+from normality import squash_spaces
 from requests.exceptions import RequestException
 
 from zavod import Context
@@ -131,10 +132,21 @@ def crawl_member(
         )
         return
 
-    name = h.element_text(h.xpath_element(doc, NAME_XPATH))
+    # Members of the Permanent Bureau carry their office after a <br> in the name
+    # heading, e.g. "Sorin-Mihai GRINDEANU<br>President of the Chamber of Deputies".
+    name_lines = [
+        squash_spaces(text)
+        for text in h.xpath_strings(h.xpath_element(doc, NAME_XPATH), "./text()")
+    ]
+    name_lines = [line for line in name_lines if line != ""]
+    if len(name_lines) not in (1, 2):
+        raise ValueError(f"Unexpected name heading {name_lines!r} on {url}")
+    name = name_lines[0]
     person = context.make("Person")
     person.id = context.make_id(name, idm)
     person.add("name", name)
+    if len(name_lines) == 2:
+        person.add("position", name_lines[1], lang="eng")
     person.add("sourceUrl", url)
     # Members of the Chamber of Deputies must be Romanian citizens: Constitution of
     # Romania, Article 37(1) (right to be elected), read with Article 16(3) (public
