@@ -109,7 +109,6 @@ def export_fixtures(
                 expected_output=extracted,
                 metadata=CaseMeta(
                     review_key=review["key"],
-                    accepted_by=review["modified_by"],
                     accepted_at=review["modified_at"].isoformat(),
                     edited=edited,
                     original_extraction=original if edited else None,

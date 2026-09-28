@@ -19,12 +19,18 @@ class CaseInputs(BaseModel):
 
 class CaseMeta(BaseModel):
     review_key: str
-    accepted_by: str
     accepted_at: str
+    """When the review was accepted or last edited. Who accepted it is
+    deliberately not recorded: it can inform which reviews become fixtures,
+    but a fixture should not carry a reviewer's identity."""
     edited: bool
     """Whether the reviewer changed the original extraction before accepting it."""
     original_extraction: Extraction | None = None
     """The model output before reviewer edits. Only stored when it was edited."""
+    rules: list[str] = []
+    """Hand-written slugs for the rules a case was chosen to demonstrate, usually
+    the rationale for a reviewer's correction (e.g. `unnamed-entity-skipped`).
+    Rules that can be derived from the data are computed by `coverage` instead."""
 
 
 FixtureDataset = Dataset[CaseInputs, Extraction, CaseMeta]

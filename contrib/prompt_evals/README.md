@@ -26,8 +26,10 @@ A case holds:
 - `inputs`: the source file, its label and URL
 - `expected_output`: the accepted `extracted_data`, stored as plain JSON so
   fixtures outlive model changes
-- `metadata`: review key, who accepted it and when, whether it was edited, and
-  the `original_extraction` when it was
+- `metadata`: review key, when it was accepted, whether it was edited, the
+  `original_extraction` when it was, and hand-written `rules` slugs. The
+  reviewer's identity is not kept: it may help decide which reviews to turn
+  into fixtures, but does not belong in one.
 
 The crawler must expose the prompt and the response model as module attributes
 of its entry point. By default the tool reads `PROMPT` and `MAX_TOKENS`, and the
@@ -63,6 +65,51 @@ quoted nicknames removed, so a policy change on those shows up as a
 Fields present in fixtures but no longer in the model (for instance a
 deprecated field) are ignored, so old fixtures keep working after a field is
 removed.
+
+## Choosing which reviews become fixtures
+
+Every fixture is human-reviewed and every inconsistency between fixtures
+confuses the prompt work, so the set should be as small as still covers every
+rule several times. The `coverage` command derives rule slugs for each case
+from its expected output and source text (which schemata appear, which fields
+are non-empty, whether the source has parenthetical acronyms, quoted
+nicknames, a vessel identified as blocked property, a State Department
+co-designation, an enforcement agency acting as a bystander, and how many
+designees: 0, 1, 2 or a large batch). Hand-written slugs in `metadata.rules`
+add rules that cannot be derived, usually the rationale for a reviewer's
+correction such as `unnamed-entity-skipped`.
+
+```bash
+python -m contrib.prompt_evals export  <dataset.yml> --response-type Designees --before 2026-09-08
+python -m contrib.prompt_evals coverage <dataset.yml> [--per-case]
+python -m contrib.prompt_evals select   <dataset.yml> --target 5 --max-items 25 \
+    --keep sm606 --keep jy2473 --write
+```
+
+`select` greedily picks the fewest cases such that every rule is covered by
+`--target` cases (or all that exist), keeping one case per press release,
+skipping cases with more than `--max-items` designees unless named in
+`--keep`, and preferring corrected cases and shorter ones on ties. `--write`
+replaces the fixtures file with the selection and deletes unreferenced source
+files. Name the known failures in `--keep`: a case where a prompt change lost
+an entity is worth more than any derived tag.
+
+To review the fixtures themselves, render them as one page per dataset:
+
+```bash
+python -m contrib.prompt_evals render <dataset.yml> --ide-link 'vscode://file/{path}:{line}'
+open data/prompt_evals/<dataset>_fixtures.html
+```
+
+Each case shows the source document beside the accepted extraction, the
+reviewer's corrections when there were any, its rule tags, and the fixture
+path with the line number of the case so it can be opened in an editor. The
+page is only for looking at fixtures; edit them in `cases.yaml`.
+
+After selecting, bring expected outputs in line with current policy before
+committing. Fixtures encode the review policy at the time of acceptance, and
+accepted mistakes exist (a prison accepted as a Vessel, an enforcement agency
+accepted as a designee).
 
 ## Workflow 1: evaluate the current prompt
 

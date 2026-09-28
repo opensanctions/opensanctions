@@ -171,10 +171,6 @@
           "title": "Review Key",
           "type": "string"
         },
-        "accepted_by": {
-          "title": "Accepted By",
-          "type": "string"
-        },
         "accepted_at": {
           "title": "Accepted At",
           "type": "string"
@@ -195,11 +191,18 @@
           ],
           "default": null,
           "title": "Original Extraction"
+        },
+        "rules": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Rules",
+          "type": "array"
         }
       },
       "required": [
         "review_key",
-        "accepted_by",
         "accepted_at",
         "edited"
       ],

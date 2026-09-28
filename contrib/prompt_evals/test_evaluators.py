@@ -105,3 +105,39 @@ def test_item_list_match_reports_missing_names() -> None:
 
 def test_item_list_match_without_expected_output_does_not_apply() -> None:
     assert ItemListMatch().evaluate(Ctx(None, {"designees": []})) == {}  # type: ignore[arg-type]
+
+
+def test_describe_edits_lists_added_removed_renamed_and_field_changes() -> None:
+    from contrib.prompt_evals.render import describe_edits
+
+    expected: list[dict[str, Any]] = [
+        {
+            "name": "Nicolas Maduro Guerra",
+            "entity_schema": "Person",
+            "country": ["Venezuela"],
+        },
+        {"name": "New Co", "entity_schema": "Company"},
+    ]
+    original: list[dict[str, Any]] = [
+        {
+            "name": "Nicolas Nicolasito Maduro Guerra",
+            "entity_schema": "Person",
+            "country": [],
+        },
+        {"name": "Turkish Company", "entity_schema": "Company"},
+    ]
+    edits = describe_edits(expected, original)
+    assert edits == [
+        "added: New Co",
+        "removed: Turkish Company",
+        "renamed: 'Nicolas Nicolasito Maduro Guerra' -> 'Nicolas Maduro Guerra'",
+        "Nicolas Maduro Guerra country: [] -> ['Venezuela']",
+    ]
+
+
+def test_case_line_numbers(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from contrib.prompt_evals.render import case_line_numbers
+
+    f = tmp_path / "cases.yaml"
+    f.write_text("name: ds\ncases:\n- name: sm719\n  inputs: {}\n- name: 'jy2127'\n")
+    assert case_line_numbers(f) == {"sm719": 3, "jy2127": 5}

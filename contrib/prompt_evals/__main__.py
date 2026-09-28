@@ -7,6 +7,7 @@ import click
 from zavod.extract.llm import DEFAULT_MODEL
 from zavod.logs import configure_logging
 
+from contrib.prompt_evals.coverage import coverage_counts, select_cases, tag_cases
 from contrib.prompt_evals.crawler import (
     CrawlerPrompt,
     fixtures_path,
@@ -14,7 +15,14 @@ from contrib.prompt_evals.crawler import (
     make_context,
 )
 from contrib.prompt_evals.evaluate import compare, run, save_summary, summarise
-from contrib.prompt_evals.fixtures import export_fixtures
+from contrib.prompt_evals.fixtures import (
+    SOURCES_DIR,
+    export_fixtures,
+    load_fixtures,
+    save_fixtures,
+)
+from contrib.prompt_evals.models import FixtureDataset
+from contrib.prompt_evals.render import render_dataset
 
 
 @click.group()
@@ -98,6 +106,11 @@ def export(
 @click.option(
     "--show-output", is_flag=True, help="Include model output in the report table"
 )
+@click.option(
+    "--fresh",
+    is_flag=True,
+    help="Ignore cached model responses, to measure run-to-run variation of an unchanged prompt",
+)
 def evaluate(
     dataset_path: Path,
     response_type: str,
@@ -140,6 +153,103 @@ def evaluate(
         click.echo(f"\nChanges against baseline {baseline}:")
         for line in lines or ["  none"]:
             click.echo(f"  {line}")
+
+
+@cli.command()
+@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--per-case", is_flag=True, help="Also list the rules each case exercises"
+)
+def coverage(dataset_path: Path, per_case: bool) -> None:
+    """Count how many fixture cases exercise each rule."""
+    dataset = load_dataset(dataset_path)
+    fixtures_file = fixtures_path(dataset)
+    fixtures = load_fixtures(fixtures_file)
+    tags_by_case = tag_cases(fixtures, fixtures_file.parent)
+    click.echo(f"{len(fixtures.cases)} cases")
+    for tag, count in sorted(coverage_counts(tags_by_case).items()):
+        click.echo(f"{count:4d}  {tag}")
+    if per_case:
+        click.echo()
+        for name, tags in tags_by_case.items():
+            click.echo(f"{name}: {', '.join(sorted(tags))}")
+
+
+@cli.command()
+@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--target", default=3, show_default=True, help="Cases wanted per rule")
+@click.option("--keep", multiple=True, help="Case names to include regardless")
+@click.option(
+    "--max-items",
+    type=int,
+    default=None,
+    help="Skip cases with more extracted items than this unless kept; they cost the most to review",
+)
+@click.option(
+    "--write",
+    is_flag=True,
+    help="Replace the fixtures file with the selection and prune unused sources",
+)
+def select(
+    dataset_path: Path,
+    target: int,
+    keep: tuple[str, ...],
+    max_items: int | None,
+    write: bool,
+) -> None:
+    """Pick the smallest set of cases that still covers every rule `target` times."""
+    dataset = load_dataset(dataset_path)
+    fixtures_file = fixtures_path(dataset)
+    fixtures = load_fixtures(fixtures_file)
+    tags_by_case = tag_cases(fixtures, fixtures_file.parent)
+    chosen = select_cases(fixtures, tags_by_case, target, set(keep), max_items)
+    click.echo(f"Selected {len(chosen)} of {len(fixtures.cases)} cases:")
+    for name in chosen:
+        click.echo(f"  {name}: {', '.join(sorted(tags_by_case[name]))}")
+    if write:
+        cases = [c for c in fixtures.cases if c.name in chosen]
+        save_fixtures(
+            fixtures_file,
+            FixtureDataset(
+                name=fixtures.name, cases=cases, evaluators=fixtures.evaluators
+            ),
+        )
+        referenced = {c.inputs.source_file for c in cases}
+        pruned = 0
+        for path in (fixtures_file.parent / SOURCES_DIR).iterdir():
+            if f"{SOURCES_DIR}/{path.name}" not in referenced:
+                path.unlink()
+                pruned += 1
+        click.echo(
+            f"Wrote {len(cases)} cases to {fixtures_file}, pruned {pruned} unused sources"
+        )
+
+
+@cli.command()
+@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--out",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output HTML file (default data/prompt_evals/<dataset>_fixtures.html)",
+)
+@click.option(
+    "--ide-link",
+    default=None,
+    help="Link template to open a case in an editor, e.g. 'vscode://file/{path}:{line}'",
+)
+def render(dataset_path: Path, out: Path | None, ide_link: str | None) -> None:
+    """Write a static HTML page showing every fixture's source beside its accepted extraction."""
+    dataset = load_dataset(dataset_path)
+    fixtures_file = fixtures_path(dataset)
+    fixtures = load_fixtures(fixtures_file)
+    tags_by_case = tag_cases(fixtures, fixtures_file.parent)
+    page = render_dataset(fixtures, fixtures_file, tags_by_case, ide_link)
+    if out is None:
+        out = Path("data/prompt_evals") / f"{dataset.name}_fixtures.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(page)
+    click.echo(f"Wrote {out} ({out.stat().st_size // 1024} KB)")
 
 
 if __name__ == "__main__":
