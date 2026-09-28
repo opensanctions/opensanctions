@@ -1,5 +1,5 @@
 title: Timor-Leste Members of the National Parliament
-name: tl_national_parliament
+name: tl_parliament
 prefix: tl-pn
 entry_point: crawler.py
 coverage:
