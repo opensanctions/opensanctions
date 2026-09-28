@@ -6,7 +6,6 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: false  # The source is only reachable via the Zyte API.
 summary: >-
   Unicameral legislature, 65 members elected in one nationwide constituency
 description: |
@@ -14,7 +13,7 @@ description: |
   legislature of Timor-Leste. Its 65 members are elected from a single nationwide
   constituency under closed-list proportional representation for a five-year term and
   hold the country's legislative power, including passing laws and approving the budget.
-url: https://www.parlamento.tl/data-tables
+url: https://www.parlamento.tl/membros
 publisher:
   name: Parlamento Nacional de Timor-Leste
   description: >
@@ -24,7 +23,7 @@ publisher:
   country: tl
   official: true
 data:
-  url: https://www.parlamento.tl/data-tables
+  url: https://www.parlamento.tl/bancadas
   format: HTML
   lang: por
 
