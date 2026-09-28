@@ -33,6 +33,7 @@ publisher:
   country: do
   official: true
 data:
+  # Keep the trailing slash: the crawler urljoin()s endpoint names onto it.
   url: https://www.diputadosrd.gob.do/sil/api/legislador/
   format: JSON
   lang: spa

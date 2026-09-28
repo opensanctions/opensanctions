@@ -1,4 +1,5 @@
 from itertools import count
+from urllib.parse import urljoin
 
 from normality import squash_spaces
 
@@ -7,6 +8,25 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 
 from zavod import Context
 from zavod import helpers as h
+
+# Fields of a legislator record that are deliberately not extracted.
+IGNORE_LEGISLATOR = [
+    "id",
+    "legisladorId",
+    "nombreCompleto",
+    "telefonoOficina",
+    "correoInstitucional",
+]
+IGNORE_REPRESENTATION = [
+    "circunscripcionId",
+    # "En Curso" even for members whose term ended years ago.
+    "ejercicio",
+    "funcionId",
+    "nivelId",
+    "nivelRepresentacion",
+    "periodo",
+    "provinciaId",
+]
 
 
 def discover_legislator_ids(context: Context) -> set[int]:
@@ -17,7 +37,7 @@ def discover_legislator_ids(context: Context) -> set[int]:
     # contains an "a", so this one search returns every record regardless of name.
     for page in count(1):
         data = context.fetch_json(
-            context.data_url + "legisladores",
+            urljoin(context.data_url, "legisladores"),
             params={"page": page, "keyword": "a"},
             cache_days=1,
         )
@@ -38,7 +58,7 @@ def crawl_legislator(
     legislador_id: int,
 ) -> None:
     data = context.fetch_json(
-        context.data_url + f"legislador/{legislador_id}", cache_days=1
+        urljoin(context.data_url, f"legislador/{legislador_id}"), cache_days=1
     )
 
     person = context.make("Person")
@@ -54,40 +74,36 @@ def crawl_legislator(
     # cross-references Art. 79):
     # https://drlawyer.com/espanol/leyes/constitucion-de-la-republica-dominicana/
     person.add("citizenship", "do")
-    person.add("profession", data.pop("profesion", None))
-    person.add("email", data.pop("correoInstitucional", None))
+    person.add("profession", data.pop("profesion"))
 
     party = data.pop("partido")
     if party is not None:
         person.add("political", party.pop("nombre"))
 
     representation = data.pop("representacion")
-    context.audit_data(
-        data, ignore=["id", "legisladorId", "nombreCompleto", "telefonoOficina"]
-    )
 
-    district = representation.pop("circunscripcion")
-    province = representation.pop("provincia")
-
-    role = context.lookup("role", representation.pop("funcion"))
+    role = context.lookup("role", representation.pop("funcion"), warn_unmatched=True)
     if role is None or role.value is None:
         return
     position, categorisation = positions[role.value]
     if not categorisation.is_pep:
         return
 
-    district_res = context.lookup("district", district)
-    if district_res is not None:
-        district = district_res.value
-    constituency = province if district is None else f"{province}, {district}"
+    district = representation.pop("circunscripcion")
+    district = context.lookup_value("district", district, district)
+    constituency = ", ".join(
+        part for part in (representation.pop("provincia"), district) if part is not None
+    )
 
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         no_end_implies_current=False,
-        period_start=representation.pop("inicio"),
-        period_end=representation.pop("fin"),
+        # The member's own dates: substitutes start mid-term, and early departures
+        # (e.g. to an executive post) end before the term does.
+        start_date=representation.pop("inicio"),
+        end_date=representation.pop("fin"),
         categorisation=categorisation,
     )
     if occupancy is None:
@@ -96,18 +112,8 @@ def crawl_legislator(
     context.emit(occupancy)
     context.emit(person)
 
-    context.audit_data(
-        representation,
-        ignore=[
-            "circunscripcionId",
-            "ejercicio",
-            "funcionId",
-            "nivelId",
-            "nivelRepresentacion",
-            "periodo",
-            "provinciaId",
-        ],
-    )
+    context.audit_data(data, ignore=IGNORE_LEGISLATOR)
+    context.audit_data(representation, ignore=IGNORE_REPRESENTATION)
 
 
 def crawl(context: Context) -> None:
