@@ -26,8 +26,11 @@ def parse_details(doc: Element, context: Context) -> dict[str, str]:
         # Most labels sit in their own paragraph; a few carry the value inline.
         value = (strong.tail or "").strip()
         if not value:
-            sibling = h.xpath_element(strong, "../following-sibling::p[1]")
-            value = h.element_text(sibling)
+            # An empty field is followed directly by the next label, not a value.
+            siblings = h.xpath_elements(
+                strong, "../following-sibling::p[1][not(strong)]"
+            )
+            value = h.element_text(siblings[0]) if siblings else ""
         details[key] = value
     return details
 
