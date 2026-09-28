@@ -8,7 +8,6 @@ __pycache__/
 *.perf
 *.csv
 !datasets/eu/sanctions_map/programs.csv
-*.sql
 .env
 .envrc
 .vscode/launch.json

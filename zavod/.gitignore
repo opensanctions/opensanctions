@@ -12,3 +12,4 @@ dist/
 data/
 textual.log
 uv.lock
+.venv
