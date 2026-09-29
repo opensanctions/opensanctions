@@ -14,6 +14,7 @@ cases:
         - 'renamed: ''Iran’s Ministry of Defense and Armed Forces Logistics (MODAFL)''
           -> ''Iran’s Ministry of Defense and Armed Forces Logistics'''
       rules:
+        - country-base-only
         - name-acronym-stripped
     expected_output:
       designees:
@@ -21,8 +22,6 @@ cases:
           name: KOHANA
           imo:
             - '9254082'
-          country:
-            - Panama
         - entity_schema: Company
           name: Kohana Company Limited
           country:
@@ -70,6 +69,7 @@ cases:
         - 'removed: Energy Engineers Procurement and Construction'
         - 'Wael Bazzi country: [''Belgium'', ''Lebanon''] -> [''Belgium'']'
       rules:
+        - country-base-only
         - name-not-an-alias-of-other-designee
     expected_output:
       designees:
@@ -79,15 +79,10 @@ cases:
             - Belgium
         - entity_schema: Person
           name: Mohammad Bazzi
-          country:
-            - Belgium
-            - Lebanon
-            - Iraq
         - entity_schema: Person
           name: Hassan Tabaja
           country:
             - Lebanon
-            - United Arab Emirates
         - entity_schema: Person
           name: Adham Tabaja
         - entity_schema: Company
@@ -182,13 +177,12 @@ cases:
       edited: false
       corrections: []
       rules:
+        - country-base-only
         - vessel-mentioned-in-narrative
     expected_output:
       designees:
         - entity_schema: Person
           name: Ibrahim Jadhran
-          country:
-            - Libya
           related_url:
             - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20180912.aspx
         - entity_schema: Vessel
@@ -541,7 +535,8 @@ cases:
       accepted_at: '2026-05-07T12:05:42'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - country-base-only
     expected_output:
       designees:
         - entity_schema: Company
@@ -550,14 +545,10 @@ cases:
           name: Pedram Pirouzan
           nationality:
             - Iran
-          country:
-            - Dominica
         - entity_schema: Person
           name: Hossein Mohammad Rezaei
           nationality:
             - Iran
-          country:
-            - Dominica
         - entity_schema: Person
           name: Masoud Mohammad Rezaei
         - entity_schema: Company
@@ -566,8 +557,6 @@ cases:
           name: Nasser Ghasemi Rad
           nationality:
             - Iran
-          country:
-            - Saint Kitts and Nevis
         - entity_schema: Company
           name: Tahayyori and Associates Partnership Company
         - entity_schema: Person
@@ -616,11 +605,14 @@ cases:
       edited: false
       corrections: []
       rules:
+        - country-base-only
         - vessel-blocked-property
     expected_output:
       designees:
         - entity_schema: LegalEntity
           name: Mehrdad Geramian Nik and Partners Company
+          country:
+            - Iran
         - entity_schema: Person
           name: Mehrdad Geramian Nik
           nationality:
@@ -640,26 +632,46 @@ cases:
             - Turkey
         - entity_schema: Company
           name: Butani Trading LLC
+          country:
+            - United Arab Emirates
         - entity_schema: Company
           name: Dundlod Trading FZE
+          country:
+            - United Arab Emirates
         - entity_schema: Company
           name: ADH Energy FZE
+          country:
+            - United Arab Emirates
         - entity_schema: Company
           name: Sahel Star Oil and Gas Company LLC
+          country:
+            - United Arab Emirates
         - entity_schema: Company
           name: Shanghai Qianye Energy Co., Ltd.
+          country:
+            - China
         - entity_schema: Company
           name: Limra Gas Limited
         - entity_schema: Company
           name: Ecoseas Maritime Limited
+          country:
+            - Liberia
         - entity_schema: Company
           name: Blue Sea Marine Incorporated and Faateh Maritime Incorporated
+          country:
+            - Marshall Islands
         - entity_schema: Company
           name: Adamas Shipping Inc
+          country:
+            - Marshall Islands
         - entity_schema: Company
           name: Black Gold Trade Corporation
+          country:
+            - Marshall Islands
         - entity_schema: Company
           name: Gas GMS Limited
+          country:
+            - Marshall Islands
         - entity_schema: Vessel
           name: LPG SEVAN
           related_url:
@@ -703,18 +715,16 @@ cases:
       accepted_at: '2026-08-22T08:37:11'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - country-base-only
     expected_output:
       designees:
         - entity_schema: Company
           name: Cryptex
           country:
             - St. Vincent and the Grenadines
-            - Russia
         - entity_schema: Person
           name: Sergey Sergeevich Ivanov
-          country:
-            - Russia
         - entity_schema: Organization
           name: PM2BTC
           related_url:
@@ -736,7 +746,8 @@ cases:
       accepted_at: '2026-08-22T08:41:51'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - country-base-only
     expected_output:
       designees:
         - entity_schema: Person
@@ -754,7 +765,6 @@ cases:
         - entity_schema: Person
           name: Dusko Perovic
           country:
-            - Bosnia and Herzegovina
             - Russia
         - entity_schema: Person
           name: Miodrag Davidovic
@@ -806,7 +816,6 @@ cases:
           name: Nenad Popovic
           country:
             - Serbia
-            - Russia
         - entity_schema: Company
           name: Asset Electro LLC
           country:
@@ -918,7 +927,8 @@ cases:
       accepted_at: '2025-09-06T08:33:11'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - country-base-only
     expected_output:
       designees:
         - entity_schema: Person
@@ -931,22 +941,34 @@ cases:
           name: Aman Holding
         - entity_schema: Company
           name: ASM International Trading, LLC
+          country:
+            - United Arab Emirates
         - entity_schema: Company
           name: Silverpine DMCC
         - entity_schema: Company
           name: MENA Crystal Sugar Company Limited
+          country:
+            - Syria
         - entity_schema: Company
           name: MAINPHARMA
+          country:
+            - Syria
         - entity_schema: Company
           name: Aman Damascus Joint Stock Company
         - entity_schema: Company
           name: Foz for Trading
+          country:
+            - Syria
         - entity_schema: Company
           name: AI-Mohaimen for Transportation & Contracting
+          country:
+            - Syria
         - entity_schema: Company
           name: Orient Club
         - entity_schema: Company
           name: Lana TV
+          country:
+            - Lebanon
         - entity_schema: Company
           name: Synergy SAL (Offshore)
         - entity_schema: Company
@@ -1084,7 +1106,8 @@ cases:
       accepted_at: '2025-10-28T17:46:53'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - country-base-only
     expected_output:
       designees:
         - entity_schema: Vessel
@@ -1093,12 +1116,16 @@ cases:
             - '9421960'
         - entity_schema: Company
           name: Lumber Marine SA
+          country:
+            - United Arab Emirates
         - entity_schema: Vessel
           name: Yasa Golden Bosphorus
           imo:
             - '9334038'
         - entity_schema: Company
           name: Ice Pearl Navigation Corp
+          country:
+            - Turkey
     evaluators: []
   - name: sb0509
     inputs:
