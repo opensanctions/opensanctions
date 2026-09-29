@@ -13,7 +13,6 @@ def crawl_row(
     context: Context,
     row: dict[str, Element],
 ) -> None:
-    response_cell = row.pop("response_from_business_enterprise")
     str_row = h.cells_to_str(row)
     name = str_row.pop("business_enterprise")
     home_state = str_row.pop("home_state")
@@ -43,10 +42,6 @@ def crawl_row(
     if footnote is not None:
         entity.add("previousName", footnote.previousName)
         entity.add("alias", footnote.alias)
-    response_links = h.links_to_dict(response_cell)
-    if h.element_text(response_cell) != "":
-        entity.add("sourceUrl", response_links.pop("response"))
-    assert response_links == {}, response_links
 
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     if activities is not None:
@@ -59,7 +54,7 @@ def crawl_row(
         f"Type of involvement in adverse impact on the right to self-determination: {involvement}",
     )
 
-    context.audit_data(str_row, ["no"])
+    context.audit_data(str_row, ["no", "response_from_business_enterprise"])
     context.emit(entity)
     context.emit(sanction)
 
