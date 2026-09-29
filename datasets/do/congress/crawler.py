@@ -3,9 +3,12 @@ from urllib.parse import urljoin
 
 from followthemoney.util import join_text
 from normality import squash_spaces
-
 from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
 
 from zavod import Context
 from zavod import helpers as h
@@ -75,13 +78,15 @@ def crawl_legislator(
         context,
         person,
         position,
-        # The source keeps stale records, so a missing end date doesn't mean still in office.
-        no_end_implies_current=False,
         # The member's own dates: substitutes start mid-term, and early departures
         # (e.g. to an executive post) end before the term does.
         start_date=representation.pop("inicio"),
         end_date=representation.pop("fin"),
         categorisation=categorisation,
+        # The API holds a single term per member and doesn't update it on re-election:
+        # re-elected deputies still carry their 2020-2024 term, so the dates don't show
+        # who is in office now.
+        status=OccupancyStatus.UNKNOWN,
     )
     if occupancy is None:
         return
