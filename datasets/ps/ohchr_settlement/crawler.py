@@ -16,10 +16,6 @@ def crawl_row(
     str_row = h.cells_to_str(row)
     name = str_row.pop("business_enterprise")
     home_state = str_row.pop("home_state")
-    activities = str_row.pop("listed_activity_subparagraph_of_paragraph_96")
-    involvement = str_row.pop(
-        "type_of_involvement_in_adverse_impact_on_the_right_to_self_determination"
-    )
     assert name is not None and home_state is not None, str_row
 
     footnote = context.lookup("name_footnotes", name)
@@ -44,17 +40,23 @@ def crawl_row(
         entity.add("alias", footnote.alias)
 
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
-    if activities is not None:
-        sanction.add(
-            "reason", f"Listed activities (subparagraph of paragraph 96): {activities}"
-        )
-    assert involvement is not None, name
-    sanction.add(
-        "summary",
-        f"Type of involvement in adverse impact on the right to self-determination: {involvement}",
-    )
 
-    context.audit_data(str_row, ["no", "response_from_business_enterprise"])
+    context.audit_data(
+        str_row,
+        [
+            # The row number is not stable enough to build an ID from: rows
+            # are numbered alphabetically, so the numbers shift when a report
+            # adds or removes an enterprise.
+            "no",
+            "response_from_business_enterprise",
+            # The listed activities are only letters that refer to the
+            # subparagraphs of paragraph 96 in A/HRC/22/63, which makes them hard
+            # to crawl into useful text. The type of involvement is not very
+            # informative. Both are left out.
+            "listed_activity_subparagraph_of_paragraph_96",
+            "type_of_involvement_in_adverse_impact_on_the_right_to_self_determination",
+        ],
+    )
     context.emit(entity)
     context.emit(sanction)
 
