@@ -18,10 +18,12 @@ Return an empty string for unset fields.
 
 def crawl_pdf_url(context: Context) -> str:
     html = context.fetch_html(context.data_url)
-    for a in html.findall('.//div[@class="content"]//a'):
-        if "list.pdf" in a.get("href", ""):
-            return urljoin(context.data_url, a.get("href"))
-    raise ValueError("No PDF found")
+    href = h.xpath_string(
+        html,
+        './/div[@class="content"]//a[normalize-space(text())="Download"]'
+        '[contains(@href, ".pdf")]/@href',
+    )
+    return urljoin(context.data_url, href)
 
 
 def crawl(context: Context) -> None:
