@@ -1,3 +1,5 @@
+import re
+
 from lxml.etree import _Element as Element
 from zavod.extract import zyte_api
 
@@ -24,6 +26,14 @@ def crawl_row(
     footnote = context.lookup("name_footnotes", name)
     if footnote is not None:
         name = footnote.name
+    # Footnote markers are a lowercase letter after the final full stop of the
+    # name, directly or after a space: "Davidov Garages Ltd.b".
+    elif re.search(r"\. ?[a-z]$", name):
+        context.log.warning(
+            "Name looks like it ends with a footnote marker. Add it to the "
+            "name_footnotes lookup.",
+            name=name,
+        )
 
     entity = context.make("Company")
     entity.id = context.make_id(name, home_state)
@@ -43,12 +53,10 @@ def crawl_row(
         sanction.add(
             "reason", f"Listed activities (subparagraph of paragraph 96): {activities}"
         )
-    res = context.lookup("type_of_involvement", involvement)
-    if res is None:
-        raise ValueError(f"Unknown type of involvement: {involvement!r}")
+    assert involvement is not None, name
     sanction.add(
         "summary",
-        f"Type of involvement in adverse impact on the right to self-determination: {res.value}",
+        f"Type of involvement in adverse impact on the right to self-determination: {involvement}",
     )
 
     context.audit_data(str_row, ["no"])
