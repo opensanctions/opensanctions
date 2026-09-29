@@ -10,7 +10,7 @@ from zavod.stateful.positions import (
     categorise,
 )
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 
 # Fields of a legislator record that are deliberately not extracted.
@@ -74,19 +74,25 @@ def crawl_legislator(
     district = context.lookup_value("district", district, district)
     constituency = join_text(representation.pop("provincia"), district, sep=", ")
 
+    # The member's own dates: substitutes start mid-term, and early departures
+    # (e.g. to an executive post) end before the term does.
+    start_date = representation.pop("inicio")
+    end_date = representation.pop("fin")
+    # The API holds a single term per member and doesn't always update it on
+    # re-election: many re-elected deputies still carry their 2020-2024 term. Only a
+    # future end date proves the record covers the current term; a past one may be
+    # stale, so it can't show whether the member is still in office.
+    status = None
+    if end_date is None or end_date < settings.RUN_TIME_ISO:
+        status = OccupancyStatus.UNKNOWN
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        # The member's own dates: substitutes start mid-term, and early departures
-        # (e.g. to an executive post) end before the term does.
-        start_date=representation.pop("inicio"),
-        end_date=representation.pop("fin"),
+        start_date=start_date,
+        end_date=end_date,
         categorisation=categorisation,
-        # The API holds a single term per member and doesn't update it on re-election:
-        # re-elected deputies still carry their 2020-2024 term, so the dates don't show
-        # who is in office now.
-        status=OccupancyStatus.UNKNOWN,
+        status=status,
     )
     if occupancy is None:
         return
