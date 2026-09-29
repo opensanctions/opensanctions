@@ -1,5 +1,3 @@
-import re
-from typing import Any
 from urllib.parse import urlencode
 
 from zavod import Context
@@ -8,23 +6,6 @@ from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
-
-BASE_URL = "https://www.parliament.nsw.gov.au"
-MEMBER_URL = BASE_URL + "/members-and-electorates/members-and-ministers/members-details"
-# The members listing is rendered client-side from this Funnelback search index.
-# `query` is the match-nothing-in-particular sentinel the site itself sends to
-# retrieve the unfiltered member list; `SF` picks the metadata fields returned
-# (without it the response carries base64 portrait photos and no gender).
-SEARCH_PARAMS = {
-    "collection": "pon1~sp-members",
-    "profile": "members-current",
-    "query": "!FunDoesNotExist:padrenull",
-    "num_ranks": "500",
-    "SF": "[memberName,lastName,gender,houseName,party,electorate]",
-}
-# The index URL of each result is the only place the member's numeric ID appears.
-INDEX_URL_PK = re.compile(r"/member/(\d+)$")
-MEMBER_BANNER_XPATH = "//div[contains(@class, 'pims-member-banner')]"
 
 POSITIONS: dict[str, dict[str, str]] = {
     "Legislative Assembly": {
@@ -96,44 +77,26 @@ def extract_biography(detail: Element) -> str | None:
 
 def crawl_member(
     context: Context,
-    house_positions: dict[str, tuple[Entity, PositionCategorisation, str]],
-    result: dict[str, Any],
+    house_positions: dict[str, tuple[Entity, PositionCategorisation, str] | None],
+    meta: dict[str, list[str]],
 ) -> None:
-    meta = result["listMetadata"]
-    index_url = result["indexUrl"]
-    match = INDEX_URL_PK.search(index_url)
-    if match is None:
-        context.log.warning("Unexpected member index URL", index_url=index_url)
-        return
-    pk = match.group(1)
-    profile_url = f"{MEMBER_URL}?memberId={pk}"
-
-    # The listing carries the full name and the surname, but not the given name.
-    full_name = meta["memberName"][0]
-    last_name = meta["lastName"][0]
-    if not full_name.endswith(last_name):
-        context.log.warning(
-            "Surname is not a suffix of the full name",
-            name=full_name,
-            last_name=last_name,
-        )
-        return
-    first_name = full_name[: -len(last_name)].strip()
-
-    house = meta["houseName"][0]
-    party = meta["party"][0] if meta.get("party") else None
-    gender = meta["gender"][0] if meta.get("gender") else None
-
+    (pk,) = meta.pop("memberId")
+    profile_url = (
+        "https://www.parliament.nsw.gov.au/members-and-electorates/"
+        f"members-and-ministers/members-details?memberId={pk}"
+    )
+    (house,) = meta.pop("houseName")
     if house not in house_positions:
         context.log.warning("Unknown house code", house=house)
         return
-
-    position, categorisation, chamber = house_positions[house]
+    house_position = house_positions[house]
+    if house_position is None:
+        return
+    position, categorisation, chamber = house_position
 
     # Electorate is only listed for Legislative Assembly members; Legislative
     # Council members are elected statewide and have no single electorate.
-    electorates = meta.get("electorate", [])
-    constituency = electorates[0] if electorates else None
+    constituency = meta.pop("electorate", None)
 
     # The listing has no term dates or biography; both live on the profile page.
     # Cloudflare bans Zyte plain HTTP fetches of profile pages (HTTP 520), but
@@ -141,7 +104,7 @@ def crawl_member(
     detail = zyte_api.fetch_html(
         context,
         profile_url,
-        unblock_validator=MEMBER_BANNER_XPATH,
+        unblock_validator="//div[contains(@class, 'pims-member-banner')]",
         html_source="browserHtml",
         cache_days=14,
     )
@@ -150,9 +113,14 @@ def crawl_member(
 
     person = context.make("Person")
     person.id = context.make_slug("member", pk)
+    # `firstName` holds the full given names, `memberName` the name the member
+    # goes by (e.g. "Jennifer Kathleen" vs "Jenny Aitchison").
+    (first_name,) = meta.pop("firstName")
+    (last_name,) = meta.pop("lastName")
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="eng")
-    person.add("political", party)
-    person.add("gender", gender)
+    person.add("name", meta.pop("memberName"), lang="eng")
+    person.add("political", meta.pop("party"))
+    person.add("gender", meta.pop("gender"))
     person.add("sourceUrl", profile_url)
     person.add("biography", biography)
     # Candidates must be enrolled to vote; enrolment requires Australian
@@ -168,14 +136,35 @@ def crawl_member(
         start_date=start_date,
     )
     if occupancy is not None:
-        if constituency is not None:
-            occupancy.add("constituency", constituency)
+        occupancy.add("constituency", constituency)
         context.emit(occupancy)
         context.emit(person)
 
+    context.audit_data(
+        meta,
+        ignore=[
+            # Search index bookkeeping, display variants of the name, and the photo.
+            "d",
+            "t",
+            "globalSearchDisplayTitle",
+            "surnameFilterKey",
+            "seniority",
+            "isCurrent",
+            "photo",
+            # Offices and term details beyond the membership and its start date.
+            "portfolio",
+            "currentMinistries",
+            "currentOffices",
+            "isMinister",
+            "isShadowMinister",
+            "isParliamentarySecretary",
+            "termOfServiceExpiry",
+        ],
+    )
+
 
 def crawl(context: Context) -> None:
-    house_positions: dict[str, tuple[Entity, PositionCategorisation, str]] = {}
+    house_positions: dict[str, tuple[Entity, PositionCategorisation, str] | None] = {}
     for house_name, config in POSITIONS.items():
         position = h.make_position(
             context,
@@ -186,10 +175,24 @@ def crawl(context: Context) -> None:
             lang="eng",
         )
         categorisation = categorise(context, position)
+        if not categorisation.is_pep:
+            house_positions[house_name] = None
+            continue
         context.emit(position)
         house_positions[house_name] = (position, categorisation, config["chamber"])
 
-    search_url = f"{context.data_url}?{urlencode(SEARCH_PARAMS)}"
+    # The members listing is rendered client-side from this Funnelback search
+    # index. `query` is the match-nothing-in-particular sentinel the site itself
+    # sends to retrieve the unfiltered member list; `SF` selects the metadata
+    # fields returned.
+    search_params = {
+        "collection": "pon1~sp-members",
+        "profile": "members-current",
+        "query": "!FunDoesNotExist:padrenull",
+        "num_ranks": "500",
+        "SF": "[.*]",
+    }
+    search_url = f"{context.data_url}?{urlencode(search_params)}"
     data = zyte_api.fetch_json(context, search_url)  # Cloudflare
     packet = data["response"]["resultPacket"]
     results = packet["results"]
@@ -198,4 +201,4 @@ def crawl(context: Context) -> None:
     if total != len(results):
         raise ValueError(f"Got {len(results)} of {total} members from the listing")
     for result in results:
-        crawl_member(context, house_positions, result)
+        crawl_member(context, house_positions, result["listMetadata"])
