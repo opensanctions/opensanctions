@@ -8,6 +8,7 @@ from pydantic_evals.evaluators.evaluator import EvaluatorOutput
 
 from contrib.prompt_evals.models import CaseInputs, CaseMeta, Extraction
 
+COMPARED_FIELDS = ["entity_schema", "nationality", "country", "related_url", "imo"]
 PARENTHETICAL_RE = re.compile(r"\([^)]*\)|[\"“”'‘’][^\"“”'‘’]*[\"“”'‘’]")
 
 
@@ -133,3 +134,22 @@ class ItemListMatch(Evaluator[CaseInputs, Extraction, CaseMeta]):
                 results["unscored_fields"] = ", ".join(unscored)
         results["all_match"] = all_match
         return results
+
+
+def describe_edits(
+    expected: list[dict[str, Any]], original: list[dict[str, Any]], key: str = "name"
+) -> list[str]:
+    """Human-readable list of what the reviewer changed between the model's
+    original extraction and the accepted extraction."""
+    pairs, missing, spurious = pair_items(expected, original, key)
+    edits = [f"added: {name}" for name in missing]
+    edits += [f"removed: {name}" for name in spurious]
+    for exp, orig in pairs:
+        if exp[key] != orig[key]:
+            edits.append(f"renamed: {orig[key]!r} -> {exp[key]!r}")
+        for field in COMPARED_FIELDS:
+            if norm_value(exp.get(field)) != norm_value(orig.get(field)):
+                edits.append(
+                    f"{exp[key]} {field}: {orig.get(field)!r} -> {exp.get(field)!r}"
+                )
+    return edits

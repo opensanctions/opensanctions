@@ -10,36 +10,9 @@ cases:
     review_key: https-home-treasury-gov-news-press-releases-jy2127
     accepted_at: '2025-09-05T09:57:03'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Vessel
-        name: KOHANA
-        nationality: []
-        imo:
-        - '9254082'
-        country:
-        - Panama
-        related_url: []
-      - entity_schema: Organization
-        name: Kohana Company Limited
-        nationality: []
-        imo: []
-        country:
-        - Hong Kong
-        related_url: []
-      - entity_schema: Organization
-        name: Iridescent Co Ltd
-        nationality: []
-        imo: []
-        country:
-        - Marshall Islands
-        related_url: []
-      - entity_schema: Organization
-        name: Iran’s Ministry of Defense and Armed Forces Logistics (MODAFL)
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
+    corrections:
+    - 'renamed: ''Iran’s Ministry of Defense and Armed Forces Logistics (MODAFL)''
+      -> ''Iran’s Ministry of Defense and Armed Forces Logistics'''
     rules:
     - name-acronym-stripped
   expected_output:
@@ -81,27 +54,8 @@ cases:
   metadata:
     review_key: 47ac1b88c53172755458e65087c01746da1b9792
     accepted_at: '2025-09-16T08:46:35'
-    edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Yuliya Vladimirovna Pankratova
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Person
-        name: Denis Olegovich Degtyarenko
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Organization
-        name: Cyber Army of Russia Reborn (CARR)
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
+    edited: false
+    corrections: []
     rules:
     - group-of-designated-members
   expected_output:
@@ -134,66 +88,11 @@ cases:
     review_key: https-home-treasury-gov-news-press-releases-sm668
     accepted_at: '2025-09-19T10:42:51'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Wael Bazzi
-        nationality: []
-        imo: []
-        country:
-        - Belgium
-        - Lebanon
-        related_url: []
-      - entity_schema: Person
-        name: Mohammad Bazzi
-        nationality: []
-        imo: []
-        country:
-        - Belgium
-        - Lebanon
-        - Iraq
-        related_url: []
-      - entity_schema: Person
-        name: Hassan Tabaja
-        nationality: []
-        imo: []
-        country:
-        - Lebanon
-        - United Arab Emirates
-        related_url: []
-      - entity_schema: Company
-        name: Voltra Transcor Energy BVBA
-        nationality: []
-        imo: []
-        country:
-        - Belgium
-        related_url: []
-      - entity_schema: Company
-        name: OFFISCOOP NV
-        nationality: []
-        imo: []
-        country:
-        - Belgium
-        related_url: []
-      - entity_schema: Company
-        name: BSQRD Limited
-        nationality: []
-        imo: []
-        country:
-        - United Kingdom
-        related_url: []
-      - entity_schema: Company
-        name: Energy Engineers Procurement and Construction
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Organization
-        name: Hizballah
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
+    corrections:
+    - 'added: Adham Tabaja'
+    - 'added: Global Trading Group NV'
+    - 'removed: Energy Engineers Procurement and Construction'
+    - 'Wael Bazzi country: [''Belgium'', ''Lebanon''] -> [''Belgium'']'
     rules:
     - name-not-an-alias-of-other-designee
   expected_output:
@@ -210,7 +109,6 @@ cases:
       nationality: []
       imo: []
       country:
-      # "Mohammad Bazzi, who operates or transacts in or through Belgium, Lebanon, Iraq, and several countries in West Africa"
       - Belgium
       - Lebanon
       - Iraq
@@ -268,31 +166,9 @@ cases:
     review_key: https-home-treasury-gov-news-press-releases-sm606
     accepted_at: '2025-09-19T12:41:25'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Evren Kayakiran
-        nationality:
-        - Turkish
-        imo: []
-        country:
-        - Turkey
-        related_url:
-        - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20190207.aspx
-        - https://www.treasury.gov/resource-center/sanctions/CivPen/Documents/20190207_kollmorgen.pdf
-      - entity_schema: Company
-        name: Kollmorgen Corporation
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Company
-        name: Turkish Company (imports, distributes, and installs motion control products)
-        nationality: []
-        imo: []
-        country:
-        - Turkey
-        related_url: []
+    corrections:
+    - 'removed: Turkish Company (imports, distributes, and installs motion control
+      products)'
     rules:
     - unnamed-entity-skipped
   expected_output:
@@ -323,7 +199,7 @@ cases:
     review_key: cb4564a9dca28eaa4e8a385940978f4075c07586
     accepted_at: '2025-09-19T12:52:25'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -373,7 +249,7 @@ cases:
     review_key: 6ff7f1abfe68e23dbd03800d8826ff77048335a3
     accepted_at: '2025-09-22T08:33:54'
     edited: false
-    original_extraction: null
+    corrections: []
     rules:
     - vessel-mentioned-in-narrative
   expected_output:
@@ -402,7 +278,7 @@ cases:
     review_key: ee19680e972de1a6029c24df0dec35fffb7196f4
     accepted_at: '2025-09-22T08:35:27'
     edited: false
-    original_extraction: null
+    corrections: []
     rules:
     - vessel-mentioned-in-narrative
   expected_output:
@@ -469,7 +345,7 @@ cases:
     review_key: e6f7a602a72ebeca00674eba986553dd503ed17f
     accepted_at: '2025-09-22T09:19:24'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -531,7 +407,7 @@ cases:
     review_key: 50b830dddd283fc127596c7bf2638a30dd761dbf
     accepted_at: '2025-10-28T16:43:47'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -601,15 +477,9 @@ cases:
     review_key: 013e40be35d13b7bce6fe5d92e206aa644a3f1ed
     accepted_at: '2025-10-28T16:57:38'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Organization
-        name: 15 Khordad Foundation
-        nationality: []
-        imo: []
-        country: []
-        related_url:
-        - https://home.treasury.gov/policy-issues/financial-sanctions/recent-actions/20221028
+    corrections:
+    - '15 Khordad Foundation related_url: [''https://home.treasury.gov/policy-issues/financial-sanctions/recent-actions/20221028'']
+      -> []'
     rules:
     - related-url-recent-actions-excluded
   expected_output:
@@ -630,7 +500,7 @@ cases:
     review_key: fe8b62776d391b7451f732a775b846afedccd295
     accepted_at: '2025-10-28T16:59:07'
     edited: false
-    original_extraction: null
+    corrections: []
     rules:
     - company-owned-by-designee
   expected_output:
@@ -658,7 +528,7 @@ cases:
     review_key: 70d368138e7d64df63b0d7cfbbfd463b7ffb9100
     accepted_at: '2025-10-28T17:20:33'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -750,16 +620,9 @@ cases:
     review_key: 75a073331bec7a1dfd9cdd70d81eb7b3e30558fe
     accepted_at: '2025-10-28T17:21:00'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Ashot Mkrtychev
-        nationality:
-        - Slovakian
-        imo: []
-        country: []
-        related_url:
-        - https://home.treasury.gov/policy-issues/financial-sanctions/recent-actions/20230330
+    corrections:
+    - 'Ashot Mkrtychev related_url: [''https://home.treasury.gov/policy-issues/financial-sanctions/recent-actions/20230330'']
+      -> []'
     rules:
     - related-url-recent-actions-excluded
   expected_output:
@@ -781,45 +644,9 @@ cases:
     review_key: f0e9d9ed6dcf1faf157acf874e9916a5b1df95de
     accepted_at: '2025-10-28T17:27:32'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Joaquin Guzman Lopez
-        nationality: []
-        imo: []
-        country: []
-        related_url:
-        - https://www.state.gov/narcotics-rewards-program-target-information-wanted/joaquin-guzman-lopez/
-      - entity_schema: Person
-        name: Raymundo Perez Uribe
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Person
-        name: Saul Paez Lopez
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Person
-        name: Mario Esteban Ogazon Sedano
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Company
-        name: Sumilab, S.A. de C.V.
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Company
-        name: Urbanizacion, Inmobiliaria y Construccion de Obras, S.A. de C.V.
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
+    corrections:
+    - 'Joaquin Guzman Lopez related_url: [''https://www.state.gov/narcotics-rewards-program-target-information-wanted/joaquin-guzman-lopez/'']
+      -> []'
     rules:
     - related-url-only-about-entity
   expected_output:
@@ -870,16 +697,9 @@ cases:
     review_key: a07f8f4ea909b98d191ddff68211825b2314f068
     accepted_at: '2025-10-28T17:32:53'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Aleksandar Vulin
-        nationality: []
-        imo: []
-        country:
-        - Serbia
-        related_url:
-        - https://ofac.treasury.gov/recent-actions/20230711
+    corrections:
+    - 'Aleksandar Vulin related_url: [''https://ofac.treasury.gov/recent-actions/20230711'']
+      -> []'
     rules:
     - related-url-recent-actions-excluded
   expected_output:
@@ -901,16 +721,9 @@ cases:
     review_key: 09b40bbfca95aeae60491be3e14501e896e1b6e7
     accepted_at: '2025-10-28T17:33:31'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Jordan "Orce" Kamcev
-        nationality: []
-        imo: []
-        country:
-        - North Macedonia
-        related_url:
-        - https://ofac.treasury.gov/recent-actions/20230719
+    corrections:
+    - 'Jordan "Orce" Kamcev related_url: [''https://ofac.treasury.gov/recent-actions/20230719'']
+      -> []'
     rules:
     - related-url-recent-actions-excluded
   expected_output:
@@ -932,7 +745,7 @@ cases:
     review_key: 70d31598b5e97046484ee9eb748c4fa8169d6238
     accepted_at: '2025-10-29T08:35:24'
     edited: false
-    original_extraction: null
+    corrections: []
     rules:
     - state-dept-codesignation
   expected_output:
@@ -965,14 +778,9 @@ cases:
     review_key: https-home-treasury-gov-news-press-releases-sm719
     accepted_at: '2025-11-17T11:28:38'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Nicolas 'Nicolasito' Ernesto Maduro Guerra
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
+    corrections:
+    - 'renamed: "Nicolas ''Nicolasito'' Ernesto Maduro Guerra" -> ''Nicolas Ernesto
+      Maduro Guerra'''
     rules:
     - name-quoted-nickname-stripped
   expected_output:
@@ -993,7 +801,7 @@ cases:
     review_key: d63074f160ecd3a40109baeade9296aa555fe698
     accepted_at: '2026-05-07T12:05:42'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -1152,7 +960,7 @@ cases:
     review_key: 678ed21d9f36947970dfa6ff49735b17b2a5104b
     accepted_at: '2026-08-22T08:35:49'
     edited: false
-    original_extraction: null
+    corrections: []
     rules:
     - vessel-blocked-property
   expected_output:
@@ -1324,7 +1132,7 @@ cases:
     review_key: 893e418059d1eecf3be6d706fde81aff168e318d
     accepted_at: '2026-08-22T08:37:11'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -1372,205 +1180,8 @@ cases:
   metadata:
     review_key: aa75b669edcddf376dccf1983d0fb9b8ad90f3f8
     accepted_at: '2026-08-22T08:41:51'
-    edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Savo Cvijetinovic
-        nationality: []
-        imo: []
-        country:
-        - Bosnia and Herzegovina
-        related_url: []
-      - entity_schema: Company
-        name: BN Inzinjering
-        nationality: []
-        imo: []
-        country:
-        - Bosnia and Herzegovina
-        related_url: []
-      - entity_schema: Person
-        name: Petar Djokic
-        nationality: []
-        imo: []
-        country:
-        - Bosnia and Herzegovina
-        related_url: []
-      - entity_schema: Person
-        name: Dusko Perovic
-        nationality: []
-        imo: []
-        country:
-        - Bosnia and Herzegovina
-        - Russia
-        related_url: []
-      - entity_schema: Person
-        name: Miodrag Davidovic
-        nationality: []
-        imo: []
-        country:
-        - Montenegro
-        related_url: []
-      - entity_schema: Person
-        name: Branislav Micunovic
-        nationality: []
-        imo: []
-        country:
-        - Montenegro
-        related_url: []
-      - entity_schema: Person
-        name: Sergey Samsonenko
-        nationality:
-        - Russia
-        - North Macedonia
-        imo: []
-        country:
-        - North Macedonia
-        related_url: []
-      - entity_schema: Person
-        name: Irina Samsonenko
-        nationality:
-        - Russia
-        - North Macedonia
-        imo: []
-        country:
-        - North Macedonia
-        related_url: []
-      - entity_schema: Organization
-        name: Kamchev Konsalting Skopje DOOEL
-        nationality: []
-        imo: []
-        country:
-        - North Macedonia
-        related_url: []
-      - entity_schema: Organization
-        name: Orka Fajnans Skopje DOOEL
-        nationality: []
-        imo: []
-        country:
-        - North Macedonia
-        related_url: []
-      - entity_schema: Organization
-        name: Orka Holding AD
-        nationality: []
-        imo: []
-        country:
-        - North Macedonia
-        related_url: []
-      - entity_schema: Organization
-        name: Sistina Lajf Kear Sentar Skopje DOOEL
-        nationality: []
-        imo: []
-        country:
-        - North Macedonia
-        related_url: []
-      - entity_schema: Organization
-        name: Bet City International DOO Skopje
-        nationality: []
-        imo: []
-        country:
-        - North Macedonia
-        related_url: []
-      - entity_schema: Person
-        name: Misa Vacic
-        nationality: []
-        imo: []
-        country:
-        - Serbia
-        related_url: []
-      - entity_schema: Person
-        name: Nenad Popovic
-        nationality: []
-        imo: []
-        country:
-        - Serbia
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: Asset Electro LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: Asset Automation LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: Mosen Esset Menedzhment LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: Joint Stock Company All-Russian Scientific Research Design and Technological
-          Institute of Relay Engineering with Experimental Production
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: VNIIR Promelektro LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: ABS Electrotekhnika LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: VNIIR Gidroelektroavtomatika JSC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: JSC VNIIR Progress
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: VNIIR Transstroi LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: JSC ABS ZEiM Automation
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: Dominion Tverskaya Yaroslavskaya LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
-      - entity_schema: Company
-        name: Dominion Nikolski LLC
-        nationality: []
-        imo: []
-        country:
-        - Russia
-        related_url: []
+    edited: false
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -1780,51 +1391,9 @@ cases:
     review_key: ce6680a04f8afe8d96e379773102137e0792862b
     accepted_at: '2026-08-22T08:45:55'
     edited: true
-    original_extraction:
-      designees:
-      - entity_schema: Person
-        name: Jesus Alfredo Beltran Guzman
-        nationality:
-        - Mexican
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Organization
-        name: Beltran Leyva Organization
-        nationality: []
-        imo: []
-        country: []
-        related_url:
-        - https://georgewbush-whitehouse.archives.gov/news/releases/2008/05/20080530-5.html
-        - https://home.treasury.gov/news/press-releases/jy0535
-        - https://home.treasury.gov/news/press-releases/tg1824
-        - https://www.state.gov/fausto-isidro-meza-flores/
-        - https://www.fbi.gov/news/stories/fausto-isidro-meza-flores-added-to-fbis-ten-most-wanted-fugitives-list
-      - entity_schema: Person
-        name: Fausto Isidro Meza Flores
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Organization
-        name: Sinaloa Cartel
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
-      - entity_schema: Company
-        name: Financial Crimes Enforcement Network
-        nationality: []
-        imo: []
-        country: []
-        related_url:
-        - https://www.fincen.gov/sites/default/files/shared/FinCEN-FTA-Fentanyl.pdf
-      - entity_schema: Organization
-        name: Mexican Secretariat of Security and Citizen Protection
-        nationality: []
-        imo: []
-        country: []
-        related_url: []
+    corrections:
+    - 'removed: Financial Crimes Enforcement Network'
+    - 'removed: Mexican Secretariat of Security and Citizen Protection'
     rules:
     - bystander-agency-excluded
   expected_output:
@@ -1869,7 +1438,7 @@ cases:
     review_key: https-home-treasury-gov-news-press-releases-sm718
     accepted_at: '2025-09-05T15:38:26'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -1895,7 +1464,7 @@ cases:
     review_key: https-home-treasury-gov-news-press-releases-sm704
     accepted_at: '2025-09-06T08:33:11'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -1999,7 +1568,7 @@ cases:
     review_key: 7e774509927a2d2367ae5b9274bcd452a4a98f8a
     accepted_at: '2025-09-19T13:29:03'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees: []
@@ -2013,7 +1582,7 @@ cases:
     review_key: c2b3f2bfda6e8c85cf8915bf9cf766e66de90a40
     accepted_at: '2025-09-19T13:31:58'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -2041,7 +1610,7 @@ cases:
     review_key: e4d9feb677cd86c335261b9b6e68821e4cd52063
     accepted_at: '2025-10-21T09:14:57'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees: []
@@ -2055,7 +1624,7 @@ cases:
     review_key: 1f19384e9e2f94ce219125645bc632e2fddd924d
     accepted_at: '2025-10-21T19:32:43'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees: []
@@ -2069,7 +1638,7 @@ cases:
     review_key: 314375b3c6995901ddfb5c52abaa494a746936f2
     accepted_at: '2025-10-21T19:59:27'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -2173,7 +1742,7 @@ cases:
     review_key: 9453770c931844f7e4f4d887cc8f495286aaee11
     accepted_at: '2025-10-22T15:29:35'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees: []
@@ -2187,7 +1756,7 @@ cases:
     review_key: 906b8eaf440d523f056a430df4f0f1f4717e8f3b
     accepted_at: '2025-10-28T17:46:53'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees:
@@ -2227,7 +1796,7 @@ cases:
     review_key: 497d63fc45fd011e418df11f796347e51c626fa7
     accepted_at: '2026-05-29T08:31:43'
     edited: false
-    original_extraction: null
+    corrections: []
     rules: []
   expected_output:
     designees: []

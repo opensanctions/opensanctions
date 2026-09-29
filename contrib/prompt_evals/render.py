@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from lxml.html import HtmlElement, fromstring, tostring
 from pydantic_evals import Case
 
-from contrib.prompt_evals.coverage import COMPARED_FIELDS, coverage_counts
-from contrib.prompt_evals.evaluators import norm_value, pair_items
+from contrib.prompt_evals.coverage import coverage_counts
 from contrib.prompt_evals.models import CaseInputs, CaseMeta, Extraction, FixtureDataset
 
 STYLE = """
@@ -34,6 +34,89 @@ nav ol { columns: 3; font-size: .9rem; }
 """
 
 
+SKIP_HIGHLIGHT_FIELDS = {"entity_schema"}
+"""Fields whose values are labels rather than source text, e.g. 'Person' would
+otherwise highlight the word wherever the article uses it."""
+
+
+def extracted_strings(extraction: Extraction) -> list[str]:
+    """Every string value in the extraction, longest first so that a longer
+    value is highlighted in preference to a shorter one it contains."""
+    found: set[str] = set()
+
+    def walk(value: Any) -> None:
+        if isinstance(value, str):
+            if value.strip():
+                found.add(value.strip())
+        elif isinstance(value, list):
+            for item in value:
+                walk(item)
+        elif isinstance(value, dict):
+            for key, item in value.items():
+                if key not in SKIP_HIGHLIGHT_FIELDS:
+                    walk(item)
+
+    walk(extraction)
+    return sorted(found, key=len, reverse=True)
+
+
+def _mark_text(
+    text: str | None, pattern: re.Pattern[str]
+) -> tuple[str | None, list[HtmlElement]]:
+    """Split `text` at matches, returning the leading unmatched text and a list of
+    <mark> elements whose tails carry the unmatched text that follows each."""
+    if not text or not pattern.search(text):
+        return text, []
+    parts = pattern.split(text)
+    marks: list[HtmlElement] = []
+    for index in range(1, len(parts), 2):
+        mark: HtmlElement = fromstring("<mark></mark>")
+        mark.text = parts[index]
+        mark.tail = parts[index + 1] or None
+        marks.append(mark)
+    return parts[0] or None, marks
+
+
+def highlight_html(source: str, terms: list[str]) -> str:
+    """Wrap case-insensitive occurrences of `terms` in the text of `source` with
+    <mark>, and mark links whose target is one of the terms."""
+    if not terms:
+        return source
+    pattern = re.compile(
+        "(" + "|".join(re.escape(t) for t in terms) + ")", re.IGNORECASE
+    )
+    hrefs = {t.casefold() for t in terms}
+    root: HtmlElement = fromstring(source)
+    for element in list(root.iter()):
+        if not isinstance(element.tag, str) or element.tag in ("script", "style"):
+            continue
+        if element.tag == "a" and (element.get("href") or "").casefold() in hrefs:
+            element.set("style", "background: #ff0")
+        element.text, marks = _mark_text(element.text, pattern)
+        for offset, mark in enumerate(marks):
+            element.insert(offset, mark)
+        for child in list(element):
+            child.tail, marks = _mark_text(child.tail, pattern)
+            position = element.index(child)
+            for offset, mark in enumerate(marks, start=1):
+                element.insert(position + offset, mark)
+    return str(tostring(root, encoding="unicode"))
+
+
+def highlight_text(source: str, terms: list[str]) -> str:
+    """HTML-escaped plain text with case-insensitive occurrences of `terms` marked."""
+    if not terms:
+        return html.escape(source)
+    pattern = re.compile(
+        "(" + "|".join(re.escape(t) for t in terms) + ")", re.IGNORECASE
+    )
+    parts = pattern.split(source)
+    return "".join(
+        f"<mark>{html.escape(part)}</mark>" if index % 2 else html.escape(part)
+        for index, part in enumerate(parts)
+    )
+
+
 def case_line_numbers(fixtures_file: Path) -> dict[str, int]:
     """Line of each `- name:` entry in the fixtures file, for jumping to it in an editor."""
     lines: dict[str, int] = {}
@@ -42,25 +125,6 @@ def case_line_numbers(fixtures_file: Path) -> dict[str, int]:
         if match:
             lines[match.group(1).strip().strip("'\"")] = number
     return lines
-
-
-def describe_edits(
-    expected: list[dict[str, Any]], original: list[dict[str, Any]], key: str = "name"
-) -> list[str]:
-    """Human-readable list of what the reviewer changed between the model's
-    original extraction and the accepted extraction."""
-    pairs, missing, spurious = pair_items(expected, original, key)
-    edits = [f"added: {name}" for name in missing]
-    edits += [f"removed: {name}" for name in spurious]
-    for exp, orig in pairs:
-        if exp[key] != orig[key]:
-            edits.append(f"renamed: {orig[key]!r} -> {exp[key]!r}")
-        for field in COMPARED_FIELDS:
-            if norm_value(exp.get(field)) != norm_value(orig.get(field)):
-                edits.append(
-                    f"{exp[key]} {field}: {orig.get(field)!r} -> {exp.get(field)!r}"
-                )
-    return edits
 
 
 def render_case(
@@ -94,23 +158,23 @@ def render_case(
         f'<span class="tag">{html.escape(t)}</span>'
         for t in sorted(tags - set(case.metadata.rules))
     )
+    terms = extracted_strings(case.expected_output)
     if case.inputs.source_file.endswith(".html"):
+        marked = highlight_html(source, terms)
         source_html = (
-            f'<iframe sandbox="" srcdoc="{html.escape(source, quote=True)}"></iframe>'
+            f'<iframe sandbox="" srcdoc="{html.escape(marked, quote=True)}"></iframe>'
         )
     else:
-        source_html = f"<pre>{html.escape(source)}</pre>"
+        source_html = f"<pre>{highlight_text(source, terms)}</pre>"
     expected_yaml = yaml.safe_dump(
         case.expected_output, sort_keys=False, allow_unicode=True
     )
 
     edits_html = ""
-    if case.metadata.edited and case.metadata.original_extraction is not None:
-        original = case.metadata.original_extraction.get("designees") or []
-        edits = describe_edits(items, original)
+    if case.metadata.corrections:
         edits_html = (
             "<h3>Reviewer's corrections</h3><ul class='edits'>"
-            + "".join(f"<li>{html.escape(e)}</li>" for e in edits)
+            + "".join(f"<li>{html.escape(e)}</li>" for e in case.metadata.corrections)
             + "</ul>"
         )
 

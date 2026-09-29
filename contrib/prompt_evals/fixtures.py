@@ -10,10 +10,11 @@ from zavod.context import Context
 from zavod.stateful.model import review_table
 from zavod.stateful.review import model_hash
 
-from contrib.prompt_evals.evaluators import ItemListMatch
+from contrib.prompt_evals.evaluators import ItemListMatch, describe_edits
 from contrib.prompt_evals.models import CaseInputs, CaseMeta, Extraction, FixtureDataset
 
 SOURCES_DIR = "sources"
+ITEMS_KEY = "designees"
 EVALUATOR_TYPES = [ItemListMatch]
 
 
@@ -94,6 +95,13 @@ def export_fixtures(
         edited = normalised(extracted, response_type) != normalised(
             original, response_type
         )
+        corrections = (
+            describe_edits(
+                list(extracted[ITEMS_KEY] or []), list(original[ITEMS_KEY] or [])
+            )
+            if edited
+            else []
+        )
         name = case_name(review["source_url"], review["key"], taken)
         suffix = ".html" if "html" in review["source_mime_type"] else ".txt"
         source_file = f"{SOURCES_DIR}/{name}{suffix}"
@@ -111,7 +119,7 @@ def export_fixtures(
                     review_key=review["key"],
                     accepted_at=review["modified_at"].isoformat(),
                     edited=edited,
-                    original_extraction=original if edited else None,
+                    corrections=corrections,
                 ),
             )
         )

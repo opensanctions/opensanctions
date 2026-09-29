@@ -25,8 +25,11 @@ class CaseMeta(BaseModel):
     but a fixture should not carry a reviewer's identity."""
     edited: bool
     """Whether the reviewer changed the original extraction before accepting it."""
-    original_extraction: Extraction | None = None
-    """The model output before reviewer edits. Only stored when it was edited."""
+    corrections: list[str] = []
+    """One line per change the reviewer made before accepting, written at export
+    time from the review's original extraction, e.g. `removed: Turkish Company`.
+    The original extraction itself is not kept: it is model output under a
+    prompt that no longer exists, so it goes stale and cannot be maintained."""
     rules: list[str] = []
     """Hand-written slugs for the rules a case was chosen to demonstrate, usually
     the rationale for a reviewer's correction (e.g. `unnamed-entity-skipped`).

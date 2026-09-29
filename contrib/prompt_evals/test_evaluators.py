@@ -5,6 +5,7 @@ from pydantic_evals.evaluators import EvaluationReason
 
 from contrib.prompt_evals.evaluators import (
     ItemListMatch,
+    describe_edits,
     match_key,
     norm_value,
     pair_items,
@@ -108,8 +109,6 @@ def test_item_list_match_without_expected_output_does_not_apply() -> None:
 
 
 def test_describe_edits_lists_added_removed_renamed_and_field_changes() -> None:
-    from contrib.prompt_evals.render import describe_edits
-
     expected: list[dict[str, Any]] = [
         {
             "name": "Nicolas Maduro Guerra",
@@ -141,3 +140,35 @@ def test_case_line_numbers(tmp_path) -> None:  # type: ignore[no-untyped-def]
     f = tmp_path / "cases.yaml"
     f.write_text("name: ds\ncases:\n- name: sm719\n  inputs: {}\n- name: 'jy2127'\n")
     assert case_line_numbers(f) == {"sm719": 3, "jy2127": 5}
+
+
+def test_highlight_html_marks_terms_in_text_and_links() -> None:
+    from contrib.prompt_evals.render import extracted_strings, highlight_html
+
+    extraction = {
+        "designees": [
+            {
+                "name": "Global Trading Group NV",
+                "country": ["Belgium"],
+                "related_url": ["https://x.test/p"],
+            },
+        ]
+    }
+    terms = extracted_strings(extraction)
+    assert terms[0] == "Global Trading Group NV"
+    assert "Company" not in terms
+    source = (
+        "<div><p>OFAC designated <b>GLOBAL Trading Group NV</b>, a Belgium-based firm, "
+        'see <a href="https://x.test/p">profile</a>.</p><script>var belgium=1</script></div>'
+    )
+    out = highlight_html(source, terms)
+    assert "<b><mark>GLOBAL Trading Group NV</mark></b>" in out
+    assert "a <mark>Belgium</mark>-based" in out
+    assert '<a href="https://x.test/p" style="background: #ff0">' in out
+    assert "<script>var belgium=1</script>" in out
+
+
+def test_highlight_text_escapes_and_marks() -> None:
+    from contrib.prompt_evals.render import highlight_text
+
+    assert highlight_text("A & b co", ["B CO"]) == "A &amp; <mark>b co</mark>"

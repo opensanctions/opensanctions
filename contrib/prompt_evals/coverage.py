@@ -9,7 +9,7 @@ from pathlib import Path
 from lxml.html import HtmlElement, fromstring
 from pydantic_evals import Case
 
-from contrib.prompt_evals.evaluators import norm_value, pair_items
+from contrib.prompt_evals.evaluators import COMPARED_FIELDS
 from contrib.prompt_evals.models import CaseInputs, CaseMeta, Extraction, FixtureDataset
 
 LEGAL_FORM_RE = re.compile(
@@ -19,7 +19,6 @@ LEGAL_FORM_RE = re.compile(
 )
 ACRONYM_PAREN_RE = re.compile(r"[A-Za-z][\w'’ \-]+ \(([A-Z][A-Za-z\-]{1,10})\)")
 QUOTED_NICKNAME_RE = re.compile(r"[\"“][A-Z][\w ]+[\"”] [A-Z]")
-COMPARED_FIELDS = ["entity_schema", "nationality", "country", "related_url", "imo"]
 # Enforcement and government bodies that act in a press release but are never
 # designees. A case where the source names one and the expected output does not
 # demonstrates the bystander exclusion.
@@ -84,21 +83,14 @@ def derive_tags(
             tags.add("bystander-agency-accepted-as-designee")
         else:
             tags.add("bystander-agency-excluded")
-    if case.metadata is not None and case.metadata.edited:
-        original = case.metadata.original_extraction
-        assert original is not None
-        pairs, missing, spurious = pair_items(items, list(original[items_key]), "name")
-        if missing:
-            tags.add("edit-designee-added")
-        if spurious:
-            tags.add("edit-designee-removed")
-        for expected, produced in pairs:
-            if expected["name"] != produced["name"]:
-                tags.add("edit-name")
-            for field in COMPARED_FIELDS:
-                if norm_value(expected.get(field)) != norm_value(produced.get(field)):
-                    tags.add(f"edit-{field}")
     if case.metadata is not None:
+        for correction in case.metadata.corrections:
+            kind = correction.split(":", 1)[0]
+            if kind in ("added", "removed", "renamed"):
+                tags.add(f"edit-{kind}")
+            for field in COMPARED_FIELDS:
+                if f" {field}: " in correction:
+                    tags.add(f"edit-{field}")
         tags.update(case.metadata.rules)
     return tags
 

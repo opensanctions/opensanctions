@@ -26,8 +26,10 @@ A case holds:
 - `inputs`: the source file, its label and URL
 - `expected_output`: the accepted `extracted_data`, stored as plain JSON so
   fixtures outlive model changes
-- `metadata`: review key, when it was accepted, whether it was edited, the
-  `original_extraction` when it was, and hand-written `rules` slugs. The
+- `metadata`: review key, when it was accepted, whether it was edited, one
+  line per reviewer correction (written at export time, e.g. `removed:
+  Turkish Company`), and hand-written `rules` slugs. The model's original
+  extraction is not kept: it is output under a prompt that no longer exists. The
   reviewer's identity is not kept: it may help decide which reviews to turn
   into fixtures, but does not belong in one.
 
