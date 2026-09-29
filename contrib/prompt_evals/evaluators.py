@@ -8,7 +8,14 @@ from pydantic_evals.evaluators.evaluator import EvaluatorOutput
 
 from contrib.prompt_evals.models import CaseInputs, CaseMeta, Extraction
 
-COMPARED_FIELDS = ["entity_schema", "nationality", "country", "related_url", "imo"]
+COMPARED_FIELDS = [
+    "entity_schema",
+    "nationality",
+    "country",
+    "related_url",
+    "imo",
+    "flag",
+]
 PARENTHETICAL_RE = re.compile(r"\([^)]*\)|[\"“”'‘’][^\"“”'‘’]*[\"“”'‘’]")
 
 

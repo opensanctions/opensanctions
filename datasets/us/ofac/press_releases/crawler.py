@@ -51,6 +51,18 @@ NATIONALITY_DESC = (
     "('Russia', not 'Russian'). Empty if not stated or if the entity is not a Person."
 )
 IMO_DESC = "For a Vessel only: the IMO number, only when explicitly stated."
+FLAG_DESC = (
+    "For a Vessel only: the country whose flag it flies, as a country name, e.g. "
+    "'Panama-flagged' gives 'Panama'. Only when explicitly stated. The flag is "
+    "not the vessel's country; leave country empty for a vessel."
+)
+# A good example of why we're restrictive about country is that it becomes less and less
+# meaningful when you include every country someone or something operates or transacts in:
+# Are we to include several countries in West Africa here too?
+# "Mohammad Bazzi, who operates or transacts in or through Belgium, Lebanon, Iraq, and several
+# countries in West Africa"
+# We usually do find sources which can confirm the primary country of an entity, even if
+# this article didn't for Mohammad Bazzi.
 COUNTRY_DESC = (
     "The country where the entity is based: where a person resides, or where a "
     "company or organization is registered, incorporated or headquartered, as "
@@ -75,6 +87,7 @@ class Designee(BaseModel):
     name: str = Field(description=NAME_DESC)
     nationality: list[str] = Field(default_factory=list, description=NATIONALITY_DESC)
     imo: list[str] = Field(default_factory=list, description=IMO_DESC)
+    flag: list[str] = Field(default_factory=list, description=FLAG_DESC)
     country: list[str] = Field(default_factory=list, description=COUNTRY_DESC)
     related_url: list[str] = Field(default_factory=list, description=RELATED_URL_DESC)
 
@@ -126,9 +139,11 @@ For each entity found, extract these fields:
 
 4. **imo**: {IMO_DESC}
 
-5. **country**: {COUNTRY_DESC}
+5. **flag**: {FLAG_DESC}
 
-6. **related_url**: {RELATED_URL_DESC}
+6. **country**: {COUNTRY_DESC}
+
+7. **related_url**: {RELATED_URL_DESC}
 </extraction_fields>
 """
 
@@ -150,6 +165,7 @@ def crawl_item(
     entity.add(nationality_prop, item.nationality, origin=origin)
     if entity.schema == "Vessel":
         entity.add("imoNumber", item.imo, origin=origin)
+        entity.add("flag", item.flag, origin=origin)
     entity.add("country", item.country, origin=origin)
     entity.add("sourceUrl", item.related_url, origin=origin)
     entity.add("sourceUrl", url)

@@ -57,7 +57,7 @@ def derive_tags(
         tags.add(f"schema-{item['entity_schema']}")
         if item["entity_schema"] == "Company" and LEGAL_FORM_RE.search(item["name"]):
             tags.add("schema-company-legal-form")
-        for field in ("nationality", "imo", "country", "related_url"):
+        for field in ("nationality", "imo", "flag", "country", "related_url"):
             if item.get(field):
                 tags.add(f"field-{field}")
     if not items:

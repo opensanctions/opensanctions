@@ -16,12 +16,15 @@ cases:
       rules:
         - country-base-only
         - name-acronym-stripped
+        - vessel-flag
     expected_output:
       designees:
         - entity_schema: Vessel
           name: KOHANA
           imo:
             - '9254082'
+          flag:
+            - Panama
         - entity_schema: Company
           name: Kohana Company Limited
           country:
@@ -607,6 +610,7 @@ cases:
       rules:
         - country-base-only
         - vessel-blocked-property
+        - vessel-flag
     expected_output:
       designees:
         - entity_schema: LegalEntity
@@ -684,26 +688,38 @@ cases:
           name: MD 23
           imo:
             - '9158240'
+          flag:
+            - Palau
         - entity_schema: Vessel
           name: GLENDALE
           imo:
             - '9139945'
+          flag:
+            - Panama
         - entity_schema: Vessel
           name: AMIR GAS
           imo:
             - '9167409'
+          flag:
+            - Saint Kitts and Nevis
         - entity_schema: Vessel
           name: GAS LAGOON
           imo:
             - '9386304'
+          flag:
+            - Panama
         - entity_schema: Vessel
           name: MILE
           imo:
             - '8910897'
+          flag:
+            - Panama
         - entity_schema: Vessel
           name: GAZ GMS
           imo:
             - '9131539'
+          flag:
+            - Panama
     evaluators: []
   - name: jy2616
     inputs:
