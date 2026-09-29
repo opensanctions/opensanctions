@@ -1409,6 +1409,14 @@ lookups:
         value: "103-00653129-22"
       - match: "Congo service passport number SA0020249 , issued on 22 January 2019 (expires on 21 January 2022)"
         value: "SA0020249"
+      # Council Implementing Regulation (EU) 2026/2191 prints both passports of
+      # John Imani NZENZE with the issuing country and the expiry date
+      # ("Passport Number: a) Democratic Republic of the Congo number OP0204168,
+      # expires 5 July 2022"); the identifier is the number.
+      - match: "Democratic Republic of the Congo number OP0204168, expires 5 July 2022"
+        value: "OP0204168"
+      - match: "Democratic Republic of the Congo number OB0072391, expires 28 December 2014"
+        value: "OB0072391"
       - match: "Diplomatic Passport D014433, issued on 21 Feb. 2013 (Expired on 21 Feb. 2015)"
         value: "D014433"
       - match: "Diplomatic Passport D009889, issued on 17 Feb. 2011 (Expired on 17 Feb. 2013)"
