@@ -23,7 +23,8 @@ publisher:
   description: >
     The Chamber of Deputies is the lower chamber of the bicameral National Congress
     of the Dominican Republic. It operates the Sistema de Información Legislativa
-    (SIL), a shared legislator database that also covers the Senate.
+    (SIL), which tracks the Chamber's bills, sessions and votes, and whose legislator
+    directory also lists the members of the Senate.
   url: https://camaradediputados.gob.do/
   country: do
   official: true
