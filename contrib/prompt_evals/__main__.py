@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import click
 from zavod.extract.llm import DEFAULT_MODEL
@@ -111,6 +112,12 @@ def export(
     is_flag=True,
     help="Ignore cached model responses, to measure run-to-run variation of an unchanged prompt",
 )
+@click.option(
+    "--outputs",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Write the model output for every case to this JSON file, keyed by case name",
+)
 def evaluate(
     dataset_path: Path,
     response_type: str,
@@ -124,10 +131,12 @@ def evaluate(
     baseline: Path | None,
     show_output: bool,
     fresh: bool,
+    outputs: Path | None,
 ) -> None:
     """Run the crawler's current prompt against its fixtures and report."""
     dataset = load_dataset(dataset_path)
     crawler = CrawlerPrompt(dataset, response_type, crawler_file)
+    collected: dict[str, Any] = {}
     report = run(
         dataset,
         crawler,
@@ -138,7 +147,11 @@ def evaluate(
         model,
         concurrency,
         fresh,
+        collected if outputs is not None else None,
     )
+    if outputs is not None:
+        outputs.parent.mkdir(parents=True, exist_ok=True)
+        outputs.write_text(json.dumps(collected, indent=2, ensure_ascii=False))
     report.print(
         include_reasons=True,
         include_output=show_output,

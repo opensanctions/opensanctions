@@ -101,6 +101,25 @@ PROMPT = f"""
 Extract sanctions designees, linked entities, vessels and aircraft from this OFAC press release.
 </task>
 
+<scope>
+The press release provides context for sanctions designations, so the scope is wide.
+Include every NAMED entity that is:
+- designated, sanctioned, identified as blocked property or otherwise the subject of
+  this action, or
+- designated or sanctioned previously and named in this press release, including
+  designations recalled as background or as related recent actions, or
+- linked to any of the above by a relationship the article states: owned or controlled
+  by, acting for or on behalf of, a subsidiary, front, partner, counterparty, customer,
+  supplier, employer, family member, associate, or the organization a person leads.
+  Linked entities shouldn't include the organization an entity is a member of unless
+  the press release is about the designation of that organization too.
+Do NOT include entire governments (e.g. "Government of Iran") or vague nationwide
+groups (e.g. "Assad regime") unless their designation is specifically mentioned.
+Do NOT include entities that are only named for background and are not designated,
+sanctioned or linked to a designee, and never include an entity the article does not
+name (e.g. "an Iranian entity", "a Turkish company").
+</scope>
+
 <strict_requirements>
 - NEVER infer, assume, or generate values not directly stated in the source text
 - Extract ONLY information explicitly written in the article

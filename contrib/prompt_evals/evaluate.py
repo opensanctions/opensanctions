@@ -71,10 +71,14 @@ def run(
     model: str,
     max_concurrency: int,
     fresh: bool = False,
+    outputs: dict[str, Extraction] | None = None,
 ) -> EvaluationReport[CaseInputs, Extraction, CaseMeta]:
+    """Run the prompt over the fixtures. When `outputs` is given, the model output
+    for each case is stored in it keyed by case name."""
     fixtures = select_cases(load_fixtures(fixtures_file), names, edited_only, limit)
     base_dir = fixtures_file.parent
     pool = ContextPool(dataset)
+    name_by_source = {c.inputs.source_file: str(c.name) for c in fixtures.cases}
 
     def task(inputs: CaseInputs) -> Extraction:
         context = pool.get()
@@ -90,7 +94,10 @@ def run(
             model=model,
         )
         context.flush()
-        return result.model_dump()
+        dumped = result.model_dump()
+        if outputs is not None:
+            outputs[name_by_source[inputs.source_file]] = dumped
+        return dumped
 
     try:
         return fixtures.evaluate_sync(task, max_concurrency=max_concurrency, name=model)
