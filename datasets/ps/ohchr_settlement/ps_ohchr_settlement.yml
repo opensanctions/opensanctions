@@ -4,7 +4,6 @@ prefix: ohchr
 coverage:
   frequency: weekly
   start: 2024-02-09
-  end: 2025-10-01
 load_statements: true
 ci_test: false
 summary: >-
@@ -68,13 +67,27 @@ publisher:
   official: true
 url: https://www.ohchr.org/en/business/bhr-database
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT17qv7NxgWJnqmJJiGTncmAQeWI2QKW9Z92CZOXxWJi071xJr5V8CxtnB3AxgFkFZLCg2eGgBizxXs/pub?output=csv
-  format: CSV
+  url: https://www.ohchr.org/en/business/bhr-database
+  format: HTML
 
+# This is a sensitive list. The counts are exact and match list A of the
+# database in report A/HRC/63/20 (25 September 2026): 214 enterprises. When the
+# count changes, verify that OHCHR published a new report or moved an
+# enterprise to list B before you update it.
 assertions:
   min:
     schema_entities:
-      Company: 140
+      Company: 214
   max:
     schema_entities:
-      Company: 300
+      Company: 214
+
+lookups:
+  type_of_involvement:
+    options:
+      - match: Contribution
+        value: Contribution
+      - match:
+          - Direct linkage
+          - Direct Linkage
+        value: Direct linkage
