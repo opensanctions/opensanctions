@@ -11,8 +11,6 @@ from zavod.util import Element
 from zavod import Context
 from zavod import helpers as h
 
-HOUSES = ["House of Representatives", "Senate"]
-
 
 def parse_term(label: str) -> tuple[str | None, str | None]:
     """Split a label like "12th Republican Parliament (28 Aug 2020 - 18 Mar 2025)"
@@ -82,8 +80,7 @@ def crawl_member(
 
 def crawl_term(
     context: Context,
-    position: Entity,
-    categorisation: PositionCategorisation,
+    positions: dict[str, tuple[Entity, PositionCategorisation]],
     pid: str,
     period_start: str | None,
     period_end: str | None,
@@ -91,7 +88,7 @@ def crawl_term(
     # Paginated rosters shift across page boundaries when members are added, so
     # the sitting term is never cached and concluded terms only for same-day retries.
     cache_days = None if period_end is None else 1
-    for house in HOUSES:
+    for house, (position, categorisation) in positions.items():
         query = {"members_search": "1", "keywords": "", "pid": pid, "house": house}
         url: str | None = f"{context.data_url}?{urlencode(query)}"
         total: int | None = None
@@ -116,17 +113,30 @@ def crawl_term(
 
 
 def crawl(context: Context) -> None:
-    position = h.make_position(
-        context,
-        name="Member of the Parliament of Trinidad and Tobago",
-        country="tt",
-        topics=["gov.national", "gov.legislative"],
-        lang="eng",
-    )
-    categorisation = categorise(context, position)
-    if not categorisation.is_pep:
-        return
-    context.emit(position)
+    topics = ["gov.national", "gov.legislative"]
+    # Keyed on the `house` query parameter each chamber's roster is requested with.
+    positions: dict[str, tuple[Entity, PositionCategorisation]] = {}
+    for house, name, wikidata_id in [
+        (
+            "House of Representatives",
+            "Member of the House of Representatives of Trinidad and Tobago",
+            "Q18719159",
+        ),
+        ("Senate", "Member of the Senate of Trinidad and Tobago", "Q19319420"),
+    ]:
+        position = h.make_position(
+            context,
+            name=name,
+            country="tt",
+            topics=topics,
+            wikidata_id=wikidata_id,
+            lang="eng",
+        )
+        categorisation = categorise(context, position)
+        if not categorisation.is_pep:
+            continue
+        context.emit(position)
+        positions[house] = (position, categorisation)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
     for option in h.xpath_elements(doc, '//select[@name="pid"]/option'):
@@ -138,6 +148,6 @@ def crawl(context: Context) -> None:
             end_date = h.extract_date(
                 context.dataset, period_end, fallback_to_original=False
             )
-            if end_date[0] < h.earliest_term_start(categorisation.topics):
+            if end_date[0] < h.earliest_term_start(topics):
                 continue
-        crawl_term(context, position, categorisation, pid, period_start, period_end)
+        crawl_term(context, positions, pid, period_start, period_end)

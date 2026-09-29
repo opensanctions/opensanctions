@@ -78,14 +78,14 @@ assertions:
   min:
     schema_entities:
       Person: 300
-      Position: 1
+      Position: 2
     entities_with_prop:
       Occupancy:
         holder: 450
   max:
     schema_entities:
       Person: 700
-      Position: 1
+      Position: 2
     entities_with_prop:
       Occupancy:
         holder: 1100
