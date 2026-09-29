@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from pydantic_evals.evaluators import EvaluationReason
@@ -149,10 +150,10 @@ def test_describe_edits_lists_added_removed_renamed_and_field_changes() -> None:
     ]
 
 
-def test_case_line_numbers(tmp_path) -> None:  # type: ignore[no-untyped-def]
+def test_case_line_numbers(tmp_path: Path) -> None:
     from contrib.prompt_evals.render import case_line_numbers
 
-    f = tmp_path / "cases.yaml"
+    f = tmp_path / "cases.yml"
     f.write_text("name: ds\ncases:\n- name: sm719\n  inputs: {}\n- name: 'jy2127'\n")
     assert case_line_numbers(f) == {"sm719": 3, "jy2127": 5}
 
@@ -187,3 +188,31 @@ def test_highlight_text_escapes_and_marks() -> None:
     from contrib.prompt_evals.render import highlight_text
 
     assert highlight_text("A & b co", ["B CO"]) == "A &amp; <mark>b co</mark>"
+
+
+def test_save_fixtures_indents_sequences_and_round_trips(tmp_path: Path) -> None:
+    from pydantic_evals import Case
+
+    from contrib.prompt_evals.evaluators import ItemListMatch
+    from contrib.prompt_evals.fixtures import load_fixtures, save_fixtures
+    from contrib.prompt_evals.models import CaseInputs, CaseMeta, FixtureDataset
+
+    case = Case(
+        name="x",
+        inputs=CaseInputs(source_file="sources/x.html", source_label="Press Release"),
+        expected_output={"designees": [{"name": "A", "country": ["Iran"], "imo": []}]},
+        metadata=CaseMeta(review_key="k", accepted_at="2026-01-01", edited=False),
+    )
+    dataset = FixtureDataset(name="ds", cases=[case], evaluators=[ItemListMatch()])
+    path = tmp_path / "cases.yml"
+    save_fixtures(path, dataset)
+    text = path.read_text()
+    assert text.startswith("# yaml-language-server: $schema=cases_schema.json\n")
+    assert "cases:\n  - name: x\n" in text
+    assert "          country:\n            - Iran\n" in text
+    assert "imo" not in text
+    assert (tmp_path / "cases_schema.json").exists()
+    loaded = load_fixtures(path)
+    assert loaded.cases[0].expected_output == {
+        "designees": [{"name": "A", "country": ["Iran"]}]
+    }

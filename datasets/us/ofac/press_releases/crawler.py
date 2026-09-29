@@ -52,9 +52,13 @@ NATIONALITY_DESC = (
 )
 IMO_DESC = "For a Vessel only: the IMO number, only when explicitly stated."
 COUNTRY_DESC = (
-    "Countries the article explicitly gives as the entity's location of residence, "
-    "registration, incorporation or operation, as country names. Do not infer a "
-    "country from a nationality, a name or a language."
+    "The country where the entity is based: where a person resides, or where a "
+    "company or organization is registered, incorporated or headquartered, as "
+    "country names, e.g. 'Iran-based', 'Hong Kong-registered', 'a resident of Malta'. "
+    "NOT countries where the entity merely operated, traded, shipped goods, held "
+    "accounts, travelled or was seen: a Turkish company that ships to Iran is "
+    "based in Turkey only. Do not infer a country from a nationality, a name, a "
+    "flag or a language."
 )
 RELATED_URL_DESC = (
     "URLs in the article whose target page is specifically about this entity, "

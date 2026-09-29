@@ -16,8 +16,8 @@ checked for regressions before it reaches production reviewers.
 ```
 contrib/prompt_evals/               the tool (dataset-agnostic)
 datasets/<path>/<crawler dir>/evals/
-    cases.yaml                      the fixtures: one pydantic-evals Case per review
-    cases_schema.json               generated JSON schema, gives editor support in cases.yaml
+    cases.yml                      the fixtures: one pydantic-evals Case per review
+    cases_schema.json               generated JSON schema, gives editor support in cases.yml
     sources/<case>.html             the source document each case was extracted from
 ```
 
@@ -106,7 +106,7 @@ open data/prompt_evals/<dataset>_fixtures.html
 Each case shows the source document beside the accepted extraction, the
 reviewer's corrections when there were any, its rule tags, and the fixture
 path with the line number of the case so it can be opened in an editor. The
-page is only for looking at fixtures; edit them in `cases.yaml`.
+page is only for looking at fixtures; edit them in `cases.yml`.
 
 After selecting, bring expected outputs in line with current policy before
 committing. Fixtures encode the review policy at the time of acceptance, and
@@ -199,7 +199,7 @@ python -m contrib.prompt_evals export datasets/us/ofac/press_releases/us_ofac_pr
     --response-type Designees --since 2026-09-08
 ```
 
-`export` appends accepted, non-deleted reviews to `cases.yaml`, skipping any
+`export` appends accepted, non-deleted reviews to `cases.yml`, skipping any
 review key already present, and writes their source documents to `sources/`.
 `--since` and `--before` filter on the review's `modified_at`, which is when it
 was accepted or last edited. Commit the new cases together with the prompt
@@ -207,7 +207,7 @@ change that motivated them.
 
 Fixtures encode the review policy at the time they were accepted. When policy
 changes, for example acronyms moving out of the name field, the affected
-expected outputs in `cases.yaml` must be edited by hand or the case removed, or
+expected outputs in `cases.yml` must be edited by hand or the case removed, or
 the old policy will be scored as correct forever. The `metadata.accepted_at`
 and `edited` fields help find which cases predate a policy change.
 

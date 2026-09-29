@@ -21,9 +21,9 @@ def load_dataset(dataset_path: Path) -> Dataset:
 
 
 def fixtures_path(dataset: Dataset) -> Path:
-    """Fixtures live next to the crawler code, in `evals/cases.yaml`."""
+    """Fixtures live next to the crawler code, in `evals/cases.yml`."""
     assert dataset.base_path is not None
-    return dataset.base_path / "evals" / "cases.yaml"
+    return dataset.base_path / "evals" / "cases.yml"
 
 
 def load_module(path: Path) -> ModuleType:

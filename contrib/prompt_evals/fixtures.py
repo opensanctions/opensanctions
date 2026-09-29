@@ -4,6 +4,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import yaml
+from pydantic_core import to_json
 from pydantic_evals import Case
 from sqlalchemy import select
 from zavod.context import Context
@@ -38,12 +40,32 @@ def load_fixtures(path: Path) -> FixtureDataset:
     return FixtureDataset.from_file(path, custom_evaluator_types=EVALUATOR_TYPES)
 
 
+class IndentedDumper(yaml.SafeDumper):
+    """Indent sequence items under their parent key, as yamllint's default
+    `indent-sequences` rule expects. PyYAML's default writes them at the parent's
+    indentation, which pydantic-evals' `to_file` offers no way to change."""
+
+    def increase_indent(self, flow: bool = False, indentless: bool = False) -> None:
+        super().increase_indent(flow, False)
+
+
 def save_fixtures(path: Path, dataset: FixtureDataset) -> None:
+    """Write the fixtures YAML and its JSON schema. Mirrors `Dataset.to_file`,
+    but with sequences indented so the file passes the repo's yamllint hook."""
     path.parent.mkdir(parents=True, exist_ok=True)
     for case in dataset.cases:
         if case.expected_output is not None:
             case.expected_output = prune_empty(case.expected_output)
-    dataset.to_file(path, custom_evaluator_types=EVALUATOR_TYPES)
+    schema_path = path.with_name(f"{path.stem}_schema.json")
+    schema = FixtureDataset.model_json_schema_with_evaluators(EVALUATOR_TYPES)
+    schema_path.write_text(to_json(schema, indent=2).decode() + "\n")
+    data = dataset.model_dump(
+        mode="json", by_alias=True, context={"use_short_form": True}
+    )
+    content = yaml.dump(
+        data, Dumper=IndentedDumper, sort_keys=False, allow_unicode=True
+    )
+    path.write_text(f"# yaml-language-server: $schema={schema_path.name}\n{content}")
 
 
 def case_name(url: str | None, key: str, taken: set[str]) -> str:
