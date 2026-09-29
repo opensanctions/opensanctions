@@ -35,7 +35,6 @@ def upgrade() -> None:
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_position_created_at'), 'position', ['created_at'], unique=False)
     op.create_index(op.f('ix_position_deleted_at'), 'position', ['deleted_at'], unique=False)
     op.create_index(op.f('ix_position_entity_id'), 'position', ['entity_id'], unique=False)
     op.create_table('program',
@@ -101,5 +100,4 @@ def downgrade() -> None:
     op.drop_table('program')
     op.drop_index(op.f('ix_position_entity_id'), table_name='position')
     op.drop_index(op.f('ix_position_deleted_at'), table_name='position')
-    op.drop_index(op.f('ix_position_created_at'), table_name='position')
     op.drop_table('position')

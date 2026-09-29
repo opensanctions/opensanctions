@@ -28,7 +28,7 @@ position_table = Table(
     Column("is_pep", Boolean, nullable=True),
     Column("topics", JSON, nullable=False),
     Column("dataset", Unicode(VALUE_LEN), nullable=False),
-    Column("created_at", DateTime, nullable=False, index=True),  # Index for sorting
+    Column("created_at", DateTime, nullable=False),
     # Should not be null when edited by a user, only for instances created by a crawler.
     Column("modified_at", DateTime, nullable=True),
     Column("modified_by", Unicode(KEY_LEN), nullable=True),
