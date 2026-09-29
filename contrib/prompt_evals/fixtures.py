@@ -18,12 +18,31 @@ ITEMS_KEY = "designees"
 EVALUATOR_TYPES = [ItemListMatch]
 
 
+def prune_empty(extraction: Extraction) -> Extraction:
+    """Drop item fields whose value is null or an empty list, so fixtures only
+    spell out the fields that have a value. The evaluators treat a missing field,
+    null and [] alike. Top-level keys are kept, so `designees: []` still says
+    explicitly that a source has no designees."""
+
+    def prune(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {k: prune(v) for k, v in value.items() if v is not None and v != []}
+        if isinstance(value, list):
+            return [prune(v) for v in value]
+        return value
+
+    return {k: prune(v) for k, v in extraction.items()}
+
+
 def load_fixtures(path: Path) -> FixtureDataset:
     return FixtureDataset.from_file(path, custom_evaluator_types=EVALUATOR_TYPES)
 
 
 def save_fixtures(path: Path, dataset: FixtureDataset) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    for case in dataset.cases:
+        if case.expected_output is not None:
+            case.expected_output = prune_empty(case.expected_output)
     dataset.to_file(path, custom_evaluator_types=EVALUATOR_TYPES)
 
 

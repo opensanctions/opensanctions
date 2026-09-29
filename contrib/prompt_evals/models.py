@@ -5,8 +5,8 @@ from pydantic_evals import Dataset
 
 # The extraction output is kept as a plain dict rather than the crawler's pydantic
 # model so that fixtures survive model changes: fields dropped from the model are
-# ignored by the evaluators, and fields added to the model are reported as unscored
-# until the fixtures are re-exported.
+# ignored by the evaluators, and fields added to the model are scored as empty
+# until the fixtures are updated.
 Extraction = dict[str, Any]
 
 

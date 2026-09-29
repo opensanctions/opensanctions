@@ -73,9 +73,9 @@ class ItemListMatch(Evaluator[CaseInputs, Extraction, CaseMeta]):
     of matched items whose name is exactly the accepted one, one score per field
     for the share of matched items where the field value equals the accepted value,
     and an `all_match` assertion that passes only when everything agrees.
-    Fields present in the accepted data but absent from the output (deprecated
-    fields) are ignored. Fields present in the output but absent from the accepted
-    data are listed under `unscored_fields` so fixtures can be updated.
+    Every field the output carries is scored; a field missing from the accepted
+    item means it has no value there. Fields present only in the accepted data
+    (deprecated fields) are ignored.
     """
 
     items: str = "designees"
@@ -111,14 +111,7 @@ class ItemListMatch(Evaluator[CaseInputs, Extraction, CaseMeta]):
             results["name_exact"] = exact / len(pairs)
             all_match = all_match and exact == len(pairs)
 
-            fields = sorted(
-                {f for _, out in pairs for f in out if f != self.key}
-                & {f for exp, _ in pairs for f in exp}
-            )
-            unscored = sorted(
-                {f for _, out in pairs for f in out}
-                - {f for exp, _ in pairs for f in exp}
-            )
+            fields = sorted({f for _, out in pairs for f in out if f != self.key})
             for field in fields:
                 mismatches = [
                     f"{exp[self.key]}: {exp.get(field)!r} != {out.get(field)!r}"
@@ -130,8 +123,6 @@ class ItemListMatch(Evaluator[CaseInputs, Extraction, CaseMeta]):
                     value=score, reason="; ".join(mismatches) if mismatches else None
                 )
                 all_match = all_match and not mismatches
-            if unscored:
-                results["unscored_fields"] = ", ".join(unscored)
         results["all_match"] = all_match
         return results
 

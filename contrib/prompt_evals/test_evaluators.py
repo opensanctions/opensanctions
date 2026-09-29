@@ -79,17 +79,32 @@ def test_item_list_match_perfect() -> None:
     assert result["all_match"] is True
 
 
-def test_item_list_match_ignores_deprecated_and_reports_unscored_fields() -> None:
+def test_item_list_match_ignores_deprecated_and_scores_omitted_fields() -> None:
     expected = {
         "designees": [{"name": "A (ABC)", "aliases": ["ABC"], "country": ["Iran"]}]
     }
-    output = {"designees": [{"name": "A", "country": ["Iran"], "imo": []}]}
+    output = {
+        "designees": [
+            {"name": "A", "country": ["Iran"], "imo": [], "nationality": ["Iran"]}
+        ]
+    }
     result = evaluate(expected, output)
     assert result["recall"] == 1.0
     assert result["name_exact"] == 0.0
     assert "aliases" not in result
-    assert result["unscored_fields"] == "imo"
+    assert result["imo"] == 1.0
+    assert result["nationality"] == 0.0
     assert result["all_match"] is False
+
+
+def test_prune_empty_drops_null_and_empty_lists_within_items() -> None:
+    from contrib.prompt_evals.fixtures import prune_empty
+
+    data = {
+        "designees": [{"name": "A", "country": [], "imo": None, "nationality": ["x"]}]
+    }
+    assert prune_empty(data) == {"designees": [{"name": "A", "nationality": ["x"]}]}
+    assert prune_empty({"designees": []}) == {"designees": []}
 
 
 def test_item_list_match_reports_missing_names() -> None:

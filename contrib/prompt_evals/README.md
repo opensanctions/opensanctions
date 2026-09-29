@@ -25,7 +25,8 @@ A case holds:
 
 - `inputs`: the source file, its label and URL
 - `expected_output`: the accepted `extracted_data`, stored as plain JSON so
-  fixtures outlive model changes
+  fixtures outlive model changes. Fields with no value are omitted rather
+  than written as `[]` or `null`
 - `metadata`: review key, when it was accepted, whether it was edited, one
   line per reviewer correction (written at export time, e.g. `removed:
   Turkish Company`), and hand-written `rules` slugs. The model's original
@@ -60,9 +61,8 @@ quoted nicknames removed, so a policy change on those shows up as a
 | `recall` | share of accepted entities the prompt found; the reason lists missing names |
 | `precision` | share of extracted entities that were accepted; the reason lists spurious names |
 | `name_exact` | share of paired entities whose name string matches exactly |
-| one score per field | share of paired entities where the field equals the accepted value (`null` and `[]` are equal, list order and case are ignored) |
+| one score per field | share of paired entities where the field equals the accepted value (a missing field, `null` and `[]` are equal, list order and case are ignored) |
 | `all_match` | assertion, passes only when everything above is perfect |
-| `unscored_fields` | fields the model now emits that the fixture has no expected value for |
 
 Fields present in fixtures but no longer in the model (for instance a
 deprecated field) are ignored, so old fixtures keep working after a field is

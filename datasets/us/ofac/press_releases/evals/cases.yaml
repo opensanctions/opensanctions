@@ -19,32 +19,20 @@ cases:
     designees:
     - entity_schema: Vessel
       name: KOHANA
-      nationality: []
       imo:
       - '9254082'
       country:
       - Panama
-      related_url: []
     - entity_schema: Company
       name: Kohana Company Limited
-      nationality: []
-      imo: []
       country:
       - Hong Kong
-      related_url: []
     - entity_schema: Company
       name: Iridescent Co Ltd
-      nationality: []
-      imo: []
       country:
       - Marshall Islands
-      related_url: []
     - entity_schema: Organization
       name: Iran’s Ministry of Defense and Armed Forces Logistics
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy2473
   inputs:
@@ -62,22 +50,10 @@ cases:
     designees:
     - entity_schema: Person
       name: Yuliya Vladimirovna Pankratova
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Denis Olegovich Degtyarenko
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: Cyber Army of Russia Reborn
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm668
   inputs:
@@ -99,63 +75,37 @@ cases:
     designees:
     - entity_schema: Person
       name: Wael Bazzi
-      nationality: []
-      imo: []
       country:
       - Belgium
-      related_url: []
     - entity_schema: Person
       name: Mohammad Bazzi
-      nationality: []
-      imo: []
       country:
       - Belgium
       - Lebanon
       - Iraq
-      related_url: []
     - entity_schema: Person
       name: Hassan Tabaja
-      nationality: []
-      imo: []
       country:
       - Lebanon
       - United Arab Emirates
-      related_url: []
     - entity_schema: Person
       name: Adham Tabaja
     - entity_schema: Company
       name: Voltra Transcor Energy BVBA
-      nationality: []
-      imo: []
       country:
       - Belgium
-      related_url: []
     - entity_schema: Company
       name: OFFISCOOP NV
-      nationality: []
-      imo: []
       country:
       - Belgium
-      related_url: []
     - entity_schema: Company
       name: BSQRD Limited
-      nationality: []
-      imo: []
       country:
       - United Kingdom
-      related_url: []
     - entity_schema: Company
       name: Global Trading Group NV
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: Hizballah
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm606
   inputs:
@@ -177,7 +127,6 @@ cases:
       name: Evren Kayakiran
       nationality:
       - Turkey
-      imo: []
       country:
       - Turkey
       related_url:
@@ -185,10 +134,6 @@ cases:
       - https://www.treasury.gov/resource-center/sanctions/CivPen/Documents/20190207_kollmorgen.pdf
     - entity_schema: Company
       name: Kollmorgen Corporation
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm533
   inputs:
@@ -205,40 +150,26 @@ cases:
     designees:
     - entity_schema: Person
       name: Tan Wee Beng
-      nationality: []
-      imo: []
       country:
       - Singapore
       related_url:
       - https://www.fbi.gov/wanted/counterintelligence/tan-wee-beng
     - entity_schema: Company
       name: Wee Tiong (S) Pte Ltd
-      nationality: []
-      imo: []
       country:
       - Singapore
-      related_url: []
     - entity_schema: Company
       name: WT Marine Pte Ltd
-      nationality: []
-      imo: []
       country:
       - Singapore
-      related_url: []
     - entity_schema: Vessel
       name: JW JEWEL
-      nationality: []
       imo:
       - '9402964'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: NYMEX STAR
-      nationality: []
       imo:
       - '9078191'
-      country: []
-      related_url: []
   evaluators: []
 - name: sm477
   inputs:
@@ -256,18 +187,12 @@ cases:
     designees:
     - entity_schema: Person
       name: Ibrahim Jadhran
-      nationality: []
-      imo: []
       country:
       - Libya
       related_url:
       - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20180912.aspx
     - entity_schema: Vessel
       name: Morning Glory
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm853
   inputs:
@@ -285,56 +210,28 @@ cases:
     designees:
     - entity_schema: Person
       name: Abdolhossein Khedri
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Khedri Jahan Darya Co
-      nationality: []
-      imo: []
       country:
       - Iran
-      related_url: []
     - entity_schema: Company
       name: Maritime Silk Road LLC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Genava 11
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Genava 12
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Gatewick LLC
-      nationality: []
-      imo: []
       country:
       - United Arab Emirates
-      related_url: []
     - entity_schema: Company
       name: Jahan Destination Travel and Tourism LLC
-      nationality: []
-      imo: []
       country:
       - United Arab Emirates
-      related_url: []
     - entity_schema: Company
       name: Gomei Air Services Co., Ltd.
-      nationality: []
-      imo: []
       country:
       - Hong Kong
-      related_url: []
   evaluators: []
 - name: sm841
   inputs:
@@ -351,52 +248,30 @@ cases:
     designees:
     - entity_schema: Vessel
       name: Esperanza
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Icaro
-      nationality: []
       imo:
       - '9038842'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Luisa Caceres de Arismendi
-      nationality: []
       imo:
       - '9117478'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Manuela Saenz
-      nationality: []
       imo:
       - '9117492'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Paramaconi
-      nationality: []
       imo:
       - '9543512'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Terepaima
-      nationality: []
       imo:
       - '9552496'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Yare
-      nationality: []
       imo:
       - '9543500'
-      country: []
-      related_url: []
   evaluators: []
 - name: jy0712
   inputs:
@@ -413,60 +288,36 @@ cases:
     designees:
     - entity_schema: Person
       name: Aqif Rakipi
-      nationality: []
-      imo: []
       country:
       - Albania
-      related_url: []
     - entity_schema: Person
       name: Ylli Ndroqi
-      nationality: []
-      imo: []
       country:
       - Albania
-      related_url: []
     - entity_schema: Person
       name: Asim Sarajlic
-      nationality: []
-      imo: []
       country:
       - Bosnia and Herzegovina
-      related_url: []
     - entity_schema: Person
       name: Gordana Tadic
-      nationality: []
-      imo: []
       country:
       - Bosnia and Herzegovina
-      related_url: []
     - entity_schema: Person
       name: Svetozar Marovic
-      nationality: []
-      imo: []
       country:
       - Montenegro
-      related_url: []
     - entity_schema: Person
       name: Nikola Gruevski
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Company
       name: I.C.I.C. KFT
-      nationality: []
-      imo: []
       country:
       - Hungary
-      related_url: []
     - entity_schema: Person
       name: Sasho Mijalkov
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
   evaluators: []
 - name: jy1059
   inputs:
@@ -486,10 +337,6 @@ cases:
     designees:
     - entity_schema: Organization
       name: 15 Khordad Foundation
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy1086
   inputs:
@@ -509,15 +356,8 @@ cases:
       name: Kyaw Min Oo
       nationality:
       - Burma
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Sky Aviator Company Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy1365
   inputs:
@@ -534,82 +374,30 @@ cases:
     designees:
     - entity_schema: Company
       name: Open Joint Stock Company Belarusian Automobile Plant
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Sergei Olegovich Nikiforovich
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Open Joint Stock Company Minsk Automobile Plant
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Valery Valerievich Ivankovich
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: Central Election Commission of the Republic of Belarus
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Ihar Vasilyevich Karpenka
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Alena Anatolieuna Baldouskaya
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Dzyanis Uladzimiravich Duk
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Alena Kanstantsinauna Kuntsevich
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Alyaksandr Henadzievich Tkachou
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Katsyaryna Alyaksandrauna Fedasenka
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Alyaksandr Uladzimiravich Yuzhyk
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Airplane
       name: EW-001PA
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy1377
   inputs:
@@ -631,9 +419,6 @@ cases:
       name: Ashot Mkrtychev
       nationality:
       - Slovakia
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy1467
   inputs:
@@ -653,40 +438,16 @@ cases:
     designees:
     - entity_schema: Person
       name: Joaquin Guzman Lopez
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Raymundo Perez Uribe
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Saul Paez Lopez
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Mario Esteban Ogazon Sedano
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Sumilab, S.A. de C.V.
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Urbanizacion, Inmobiliaria y Construccion de Obras, S.A. de C.V.
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy1606
   inputs:
@@ -706,11 +467,8 @@ cases:
     designees:
     - entity_schema: Person
       name: Aleksandar Vulin
-      nationality: []
-      imo: []
       country:
       - Serbia
-      related_url: []
   evaluators: []
 - name: jy1628
   inputs:
@@ -730,11 +488,8 @@ cases:
     designees:
     - entity_schema: Person
       name: Jordan "Orce" Kamcev
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
   evaluators: []
 - name: jy2622
   inputs:
@@ -752,22 +507,10 @@ cases:
     designees:
     - entity_schema: Organization
       name: Hilltop Youth
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Eitan Yardeni
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Avichai Suissa
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm719
   inputs:
@@ -787,10 +530,6 @@ cases:
     designees:
     - entity_schema: Person
       name: Nicolas Ernesto Maduro Guerra
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sb0483
   inputs:
@@ -807,149 +546,64 @@ cases:
     designees:
     - entity_schema: Company
       name: Pedram Pirouzan and Associates Partnership Company
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Pedram Pirouzan
       nationality:
       - Iran
-      imo: []
       country:
       - Dominica
-      related_url: []
     - entity_schema: Person
       name: Hossein Mohammad Rezaei
       nationality:
       - Iran
-      imo: []
       country:
       - Dominica
-      related_url: []
     - entity_schema: Person
       name: Masoud Mohammad Rezaei
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Nasser Ghasemi Rad and Associates Partnership Company
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Nasser Ghasemi Rad
       nationality:
       - Iran
-      imo: []
       country:
       - Saint Kitts and Nevis
-      related_url: []
     - entity_schema: Company
       name: Tahayyori and Associates Partnership Company
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Ehsan Tahayyori
       nationality:
       - Iran
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Mullingar Trading Company Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Atlas International Trading Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Blinche Trading Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Central Park Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Lightborn Goods Trading Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Sinobos Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Sisu Prime Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Teroda International Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Verdita Trading Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Zoella Trading Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Al Sahra Trade Petro DMCC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Bab Al Khandaq Trading Company LLC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Wigan Trading LLC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Deccan Star Trading L.L.C
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Architectonic Corp Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sb0524
   inputs:
@@ -967,161 +621,77 @@ cases:
     designees:
     - entity_schema: LegalEntity
       name: Mehrdad Geramian Nik and Partners Company
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Mehrdad Geramian Nik
       nationality:
       - Iran
       - Dominica
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Romina Geramian Nik
       nationality:
       - Iran
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Sarbaz Abdul Zada
       nationality:
       - Afghanistan
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Mohammad Shakol Mihandoust
       nationality:
       - Turkey
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Butani Trading LLC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Dundlod Trading FZE
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: ADH Energy FZE
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Sahel Star Oil and Gas Company LLC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Shanghai Qianye Energy Co., Ltd.
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Limra Gas Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Ecoseas Maritime Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Blue Sea Marine Incorporated and Faateh Maritime Incorporated
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Adamas Shipping Inc
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Black Gold Trade Corporation
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Gas GMS Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: LPG SEVAN
-      nationality: []
-      imo: []
-      country: []
       related_url:
       - https://home.treasury.gov/news/press-releases/sb0472
     - entity_schema: Vessel
       name: GAS ZEINA
-      nationality: []
-      imo: []
-      country: []
       related_url:
       - https://home.treasury.gov/news/press-releases/sb0275
     - entity_schema: Vessel
       name: MD 23
-      nationality: []
       imo:
       - '9158240'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: GLENDALE
-      nationality: []
       imo:
       - '9139945'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: AMIR GAS
-      nationality: []
       imo:
       - '9167409'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: GAS LAGOON
-      nationality: []
       imo:
       - '9386304'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: MILE
-      nationality: []
       imo:
       - '8910897'
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: GAZ GMS
-      nationality: []
       imo:
       - '9131539'
-      country: []
-      related_url: []
   evaluators: []
 - name: jy2616
   inputs:
@@ -1138,39 +708,23 @@ cases:
     designees:
     - entity_schema: Company
       name: Cryptex
-      nationality: []
-      imo: []
       country:
       - St. Vincent and the Grenadines
       - Russia
-      related_url: []
     - entity_schema: Person
       name: Sergey Sergeevich Ivanov
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Organization
       name: PM2BTC
-      nationality: []
-      imo: []
-      country: []
       related_url:
       - https://www.fincen.gov/resources/statutes-regulations/federal-register-notices/imposition-special-measure-prohibiting-0
     - entity_schema: LegalEntity
       name: UAPS
-      nationality: []
-      imo: []
-      country: []
       related_url:
       - https://www.operation-endgame.com/
     - entity_schema: Person
       name: Timur Shakhmametov
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy1916
   inputs:
@@ -1187,200 +741,121 @@ cases:
     designees:
     - entity_schema: Person
       name: Savo Cvijetinovic
-      nationality: []
-      imo: []
       country:
       - Bosnia and Herzegovina
-      related_url: []
     - entity_schema: Company
       name: BN Inzinjering
-      nationality: []
-      imo: []
       country:
       - Bosnia and Herzegovina
-      related_url: []
     - entity_schema: Person
       name: Petar Djokic
-      nationality: []
-      imo: []
       country:
       - Bosnia and Herzegovina
-      related_url: []
     - entity_schema: Person
       name: Dusko Perovic
-      nationality: []
-      imo: []
       country:
       - Bosnia and Herzegovina
       - Russia
-      related_url: []
     - entity_schema: Person
       name: Miodrag Davidovic
-      nationality: []
-      imo: []
       country:
       - Montenegro
-      related_url: []
     - entity_schema: Person
       name: Branislav Micunovic
-      nationality: []
-      imo: []
       country:
       - Montenegro
-      related_url: []
     - entity_schema: Person
       name: Sergey Samsonenko
       nationality:
       - Russia
       - North Macedonia
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Person
       name: Irina Samsonenko
       nationality:
       - Russia
       - North Macedonia
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Company
       name: Kamchev Konsalting Skopje DOOEL
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Company
       name: Orka Fajnans Skopje DOOEL
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Organization
       name: Orka Holding AD
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Company
       name: Sistina Lajf Kear Sentar Skopje DOOEL
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Organization
       name: Bet City International DOO Skopje
-      nationality: []
-      imo: []
       country:
       - North Macedonia
-      related_url: []
     - entity_schema: Person
       name: Misa Vacic
-      nationality: []
-      imo: []
       country:
       - Serbia
-      related_url: []
     - entity_schema: Person
       name: Nenad Popovic
-      nationality: []
-      imo: []
       country:
       - Serbia
       - Russia
-      related_url: []
     - entity_schema: Company
       name: Asset Electro LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: Asset Automation LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: Mosen Esset Menedzhment LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: Joint Stock Company All-Russian Scientific Research Design and Technological
         Institute of Relay Engineering with Experimental Production
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: VNIIR Promelektro LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: ABS Electrotekhnika LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: VNIIR Gidroelektroavtomatika JSC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: JSC VNIIR Progress
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: VNIIR Transstroi LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: JSC ABS ZEiM Automation
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: Dominion Tverskaya Yaroslavskaya LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
     - entity_schema: Company
       name: Dominion Nikolski LLC
-      nationality: []
-      imo: []
       country:
       - Russia
-      related_url: []
   evaluators: []
 - name: sb0076
   inputs:
@@ -1402,14 +877,8 @@ cases:
       name: Jesus Alfredo Beltran Guzman
       nationality:
       - Mexico
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: Beltran Leyva Organization
-      nationality: []
-      imo: []
-      country: []
       related_url:
       - https://georgewbush-whitehouse.archives.gov/news/releases/2008/05/20080530-5.html
       - https://home.treasury.gov/news/press-releases/jy0535
@@ -1418,16 +887,8 @@ cases:
       - https://www.fbi.gov/news/stories/fausto-isidro-meza-flores-added-to-fbis-ten-most-wanted-fugitives-list
     - entity_schema: Person
       name: Fausto Isidro Meza Flores
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: Sinaloa Cartel
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm718
   inputs:
@@ -1444,16 +905,8 @@ cases:
     designees:
     - entity_schema: Person
       name: Luis Alfredo Motta Dominguez
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Eustiquio Jose Lugo Gomez
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm704
   inputs:
@@ -1470,94 +923,34 @@ cases:
     designees:
     - entity_schema: Person
       name: Samer Foz
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Amer Foz
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Husen Foz
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Aman Holding
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: ASM International Trading, LLC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Silverpine DMCC
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: MENA Crystal Sugar Company Limited
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: MAINPHARMA
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Aman Damascus Joint Stock Company
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Foz for Trading
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: AI-Mohaimen for Transportation & Contracting
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Orient Club
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Lana TV
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Synergy SAL (Offshore)
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Company
       name: BS Company (Offshore)
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sm0322
   inputs:
@@ -1588,16 +981,10 @@ cases:
     designees:
     - entity_schema: Company
       name: Zhongxing Telecommunications Equipment Corporation
-      nationality: []
-      imo: []
-      country: []
       related_url:
       - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20170307.aspx
     - entity_schema: Company
       name: ZTE Kangxun Telecommunications Ltd.
-      nationality: []
-      imo: []
-      country: []
       related_url:
       - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20170307.aspx
   evaluators: []
@@ -1644,94 +1031,34 @@ cases:
     designees:
     - entity_schema: Person
       name: Aleksandr Bortnikov
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Andrei Yarin
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Sergei Kiriyenko
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Aleksey Krivoruchko
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Pavel Popov
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Alexander Kalashnikov
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Igor Krasnov
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Sergei Menyailo
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: Federal Security Service
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: GosNIIOKhT
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: 33rd TsNIII
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: 27th Scientific Center
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Organization
       name: GRU
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Alexander Yevgeniyevich Mishkin
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Person
       name: Anatoliy Vladimirovich Chepiga
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: jy0410
   inputs:
@@ -1762,30 +1089,16 @@ cases:
     designees:
     - entity_schema: Vessel
       name: SCF Primorye
-      nationality: []
       imo:
       - '9421960'
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Lumber Marine SA
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
     - entity_schema: Vessel
       name: Yasa Golden Bosphorus
-      nationality: []
       imo:
       - '9334038'
-      country: []
-      related_url: []
     - entity_schema: Company
       name: Ice Pearl Navigation Corp
-      nationality: []
-      imo: []
-      country: []
-      related_url: []
   evaluators: []
 - name: sb0509
   inputs:
