@@ -127,6 +127,10 @@ lookups:
       # Placeholder emitted by the extraction model instead of an empty country list.
       - match: No country indicated
         value: null
+      # The most-wanted fugitive releases describe links to a region of a country,
+      # e.g. "He is believed to have links to southern Spain."
+      - match: southern Spain
+        value: es
   type.date:
     options:
       - match: 23 Janaury 2025. # january typo!
