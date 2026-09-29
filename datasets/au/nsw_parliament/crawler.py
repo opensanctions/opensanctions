@@ -136,12 +136,13 @@ def crawl_member(
     constituency = electorates[0] if electorates else None
 
     # The listing has no term dates or biography; both live on the profile page.
-    # Cloudflare
+    # Cloudflare bans Zyte plain HTTP fetches of profile pages (HTTP 520), but
+    # lets browser-rendered fetches through.
     detail = zyte_api.fetch_html(
         context,
         profile_url,
         unblock_validator=MEMBER_BANNER_XPATH,
-        html_source="httpResponseBody",
+        html_source="browserHtml",
         cache_days=14,
     )
     start_date = extract_term_start(detail, chamber)
