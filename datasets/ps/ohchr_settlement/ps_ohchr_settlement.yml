@@ -70,14 +70,15 @@ data:
   url: https://www.ohchr.org/en/business/bhr-database
   format: HTML
 
-# This is a sensitive list. The counts are exact and match list A of the
-# database in report A/HRC/63/20 (25 September 2026): 214 enterprises. When the
-# count changes, verify that OHCHR published a new report or moved an
-# enterprise to list B before you update it.
+# This is a sensitive list. The max count is exact and matches list A of the
+# database in report A/HRC/63/20 (25 September 2026): 214 enterprises. When it
+# changes, verify that OHCHR published a new report or moved an enterprise to
+# list B before you update it. The min count is about 10% lower, because the
+# resolver merges some of the listed enterprises with each other.
 assertions:
   min:
     schema_entities:
-      Company: 214
+      Company: 192
   max:
     schema_entities:
       Company: 214
