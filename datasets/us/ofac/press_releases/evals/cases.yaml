@@ -204,13 +204,13 @@ cases:
       imo: []
       country:
       - Belgium
-      - Lebanon
       related_url: []
     - entity_schema: Person
       name: Mohammad Bazzi
       nationality: []
       imo: []
       country:
+      # "Mohammad Bazzi, who operates or transacts in or through Belgium, Lebanon, Iraq, and several countries in West Africa"
       - Belgium
       - Lebanon
       - Iraq
@@ -223,6 +223,8 @@ cases:
       - Lebanon
       - United Arab Emirates
       related_url: []
+    - entity_schema: Person
+      name: Adham Tabaja
     - entity_schema: Company
       name: Voltra Transcor Energy BVBA
       nationality: []
