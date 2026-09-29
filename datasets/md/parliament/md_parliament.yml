@@ -42,6 +42,24 @@ tags:
   - list.pep
 
 lookups:
+  faction:
+    options:
+      - match:
+          - "Parliamentary Faction ”Action and Solidarity Party”"
+          - "”Action and Solidarity Party” Parliamentary Faction"
+        value: Action and Solidarity Party Parliamentary Faction
+      - match: "”Alternativa” Parliamentary Faction"
+        value: Alternativa Parliamentary Faction
+      - match: "”Democracy at Home” Parliamentary Faction"
+        value: Democracy at Home Parliamentary Faction
+      - match: "”Our Party” Parliamentary Faction"
+        value: Our Party Parliamentary Faction
+      - match: Parliamentary Faction of the Bloc of Communists and Socialists
+        value: Parliamentary Faction of the Bloc of Communists and Socialists
+      - match: Parliamentary Faction of the Party of Communists of the Republic of Moldova
+        value: Parliamentary Faction of the Party of Communists of the Republic of Moldova
+      - match: Parliamentary Faction of the Party of Socialists of the Republic of Moldova
+        value: Parliamentary Faction of the Party of Socialists of the Republic of Moldova
   # Without a faction ID the title holds a status label, not a faction name. A match
   # emits no politicalGroup; an unmatched label halts the crawl - it may be a faction.
   faction_status:
