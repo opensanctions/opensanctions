@@ -113,7 +113,9 @@ def crawl_member(
         context.lookup("faction_status", faction, warn_unmatched=True)
         political_group = None
     else:
-        political_group = faction
+        political_group = context.lookup_value(
+            "faction", faction, faction, warn_unmatched=True
+        )
 
     # RoleId marks offices within the chamber; the source documents no values. Audit
     # before the early return below, which would skip members whose term has lapsed.
@@ -169,6 +171,7 @@ def crawl(context: Context) -> None:
         name="Member of the Parliament of the Republic of Moldova",
         country="md",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q18390049",
         lang="eng",
     )
     categorisation = categorise(context, position)
