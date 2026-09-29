@@ -5,6 +5,7 @@ coverage:
   schedule: "31 4 1,15 * *"
   start: "2024-09-26"
 load_statements: true
+ci_test: false
 summary: >
   Medical providers convicted of medicaid fraud in the state of Oregon
 description: |
