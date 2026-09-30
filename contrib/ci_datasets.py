@@ -2,7 +2,6 @@ import click
 import logging
 import re
 from pathlib import Path
-from typing import Set, Tuple
 from glob import glob
 
 from zavod.logs import configure_logging
@@ -12,14 +11,13 @@ from followthemoney.cli.util import InPath
 
 @click.command()
 @click.argument("file_paths", type=InPath, nargs=-1)
-def main(file_paths: Tuple[Path]):
+def main(file_paths: tuple[Path]):
     """
     Takes a list of file paths and outputs the paths of dataset yaml files
     whose ci_test flag is not False.
     """
-    # stdout carries only the dataset paths, which CI splits on whitespace.
     configure_logging(level=logging.INFO)
-    dataset_paths: Set[Path] = set()
+    dataset_paths: set[Path] = set()
     for path in file_paths:
         if re.match(r"\.ya?ml", path.suffix):
             dataset_paths.add(path)
@@ -31,7 +29,7 @@ def main(file_paths: Tuple[Path]):
         dataset = load_dataset_from_path(path)
         path_name = path.as_posix()
         if dataset is None:
-            raise click.BadParameter("Invalid dataset path: %s" % path_name)
+            raise click.BadParameter(f"Invalid dataset path: {path_name}")
         if dataset.model.ci_test:
             print(path_name)
 
