@@ -71,6 +71,15 @@ final report and proceed.
 
 - Tag `list.pep`. For `title`, `description` and `coverage.frequency` apply
   `/legislature-metadata` (legislatures), and `/dataset-metadata` for the rest.
+- Base `assertions` bands on the entity counts the crawl actually emitted, not on the
+  seat count: a multi-term crawl holds several cohorts and grows every election.
+- Constants (gender maps, headers, date formats, column labels) belong in the YAML,
+  not the crawler — use `/crawler-constants-to-yml` if you've written one in code.
+- Pass `topics=` to `make_position` for positions the crawler names itself
+  (`["gov.national", "gov.legislative"]`, …); omit it for positions read from the
+  source, where the review system decides.
+- Set every person property `make_occupancy` reads (`birthDate`, `deathDate`) before
+  calling it, and emit the person after it — it adds `role.pep` to the person.
 - For judicial positions, also add `role.judge` to the person's topics.
 - Honorifics: `zavod/docs/best_practices/name_titles.md`. LLM-assisted or reviewed name
   cleaning is acceptable for PEP data (unlike sanctions): `zavod/docs/extract/names.md`.
@@ -101,11 +110,14 @@ python .claude/skills/crawler-pep/scripts/pep_summary.py <dataset_name>
 
 The `current` column should come close to each body's seats (for a multi-term source,
 the sitting term). A bigger gap means the dates don't mean what the crawler assumes —
-find which records are affected and why, from the source itself. When the dates can't
-be trusted, keep them, let `make_occupancy` derive status only where they prove it, and
-pass `status=OccupancyStatus.UNKNOWN` for the rest. Don't reconstruct status from other
-endpoints (votes, rosters): if you think a workaround is needed, bring the evidence and
-options to the user instead of building it.
+find which records are affected and why, from the source itself. When some of the
+source's dates are stale (e.g. re-elected members still carrying their previous term),
+keep them and let `make_occupancy` derive the status anyway; explain the gap in a
+maintainer comment in the YAML. Don't pass `status=` to paper over stale dates: an
+explicit status skips `make_occupancy`'s checks entirely, so members who left long ago
+or have died are still emitted. Don't reconstruct status from other endpoints (votes,
+rosters): if you think a workaround is needed, bring the evidence and options to the
+user instead of building it.
 
 Then run the integrity checks in `.claude/skills/crawler-pep/validation.md` (each
 should print nothing), and review your diff against

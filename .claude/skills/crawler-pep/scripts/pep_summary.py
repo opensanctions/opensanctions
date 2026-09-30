@@ -2,9 +2,10 @@
 
 Usage: python .claude/skills/crawler-pep/scripts/pep_summary.py <dataset_name>
 
-Reads the statements of the latest `zavod crawl` run and prints, for each Position, how many occupancies are current/ended/unknown and the
-span of their start and end dates. Compare the `current` column with the number of
-seats the body actually has — see the crawler-pep skill, Step 3.
+Reads the statements of the latest `zavod crawl` run and prints, for each Position,
+how many occupancies are current/ended/unknown and the span of their start and end
+dates. Compare the `current` column with the number of seats the body actually has —
+see the crawler-pep skill, Step 3.
 """
 
 import csv
@@ -54,6 +55,7 @@ def main(dataset: str) -> None:
     ends: dict[str, list[str]] = defaultdict(list)
     for props in occupancies.values():
         for post in props["post"]:
+            # make_occupancy never writes an `unknown` status, so a missing one is it.
             status[post][props["status"][0] if props["status"] else "unknown"] += 1
             starts[post].extend(props["startDate"] + props["periodStart"])
             ends[post].extend(props["endDate"] + props["periodEnd"])

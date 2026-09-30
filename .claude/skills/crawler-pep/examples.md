@@ -2,10 +2,11 @@
 
 ## Reference crawler: a finished national legislature
 
-This is what "done" looks like: `lu_chamber` (Luxembourg's Chamber of Deputies,
-`datasets/lu/chamber/`), cleaned up to current practice. One position, a current-only
-roster published as a CSV, per-person start dates. Match its shape before reaching for
-anything more elaborate; the other patterns in this file are variations on it.
+This is what "done" looks like: a crawler for Luxembourg's Chamber of Deputies, written
+to current practice. One position, a current-only roster published as a CSV, per-person
+start dates. Match its shape before reaching for anything more elaborate; the other
+patterns in this file are variations on it. It's based on `lu_chamber`, but work from
+this version: the crawler in the repo predates these conventions.
 
 ```python
 import csv
@@ -174,7 +175,10 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
 Key differences from the reference crawler:
 - `default_is_pep=None` — positions start uncategorised; the UI must mark them.
 - `no_end_implies_current=False` — a declaration doesn't prove current office.
-- `status=OccupancyStatus.UNKNOWN` — end date reliability is low.
+- `status=OccupancyStatus.UNKNOWN` — the declaration gives no dates to derive a status
+  from, and with none `make_occupancy` would drop the person. This is the one case
+  where overriding is right; if the source does give dates, pass them and drop the
+  override, since an explicit status also skips the death and age checks.
 - Position is created per-record (each unique role string becomes a position).
 
 ### Subnational variant (per-municipality / per-region positions)
