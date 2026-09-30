@@ -11,7 +11,7 @@ entry_point: crawler.py
 prefix: md-parl
 coverage:
   frequency: monthly
-  start: "2026-08-19"
+  start: "2026-09-30"
 load_statements: true
 ci_test: false  # needs Zyte browser rendering, see the note above
 summary: >-

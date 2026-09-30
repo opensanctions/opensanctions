@@ -88,6 +88,7 @@ children:
   - de_bundesrat
   - de_bundestag
   - dk_pep
+  - do_congress
   - dz_apn
   - dz_council_nation
   - ee_riigikogu
@@ -148,6 +149,7 @@ children:
   - ma_house_councillors
   - ma_representatives
   - mc_conseil_national
+  - md_parliament
   - me_acp_peps
   - me_skupstina
   - mh_nitijela
@@ -194,6 +196,7 @@ children:
   - se_riksdag
   - se_soe
   - sg_gov_dir
+  - sg_parliament
   - si_dz_rs
   - si_zvezoskop
   - sk_nrsr_poslanci
@@ -210,6 +213,7 @@ children:
   - tn_arp
   - to_legislative_assembly
   - tr_parliament
+  - tt_parliament
   - tw_legislature
   - tz_bunge
   - ua_rada

@@ -4,13 +4,9 @@ from urllib.parse import urljoin
 from followthemoney.util import join_text
 from normality import squash_spaces
 from zavod.entity import Entity
-from zavod.stateful.positions import (
-    OccupancyStatus,
-    PositionCategorisation,
-    categorise,
-)
+from zavod.stateful.positions import PositionCategorisation, categorise
 
-from zavod import Context, settings
+from zavod import Context
 from zavod import helpers as h
 
 # Fields of a legislator record that are deliberately not extracted.
@@ -71,28 +67,20 @@ def crawl_legislator(
         return
 
     district = representation.pop("circunscripcion")
-    district = context.lookup_value("district", district, district)
+    district_lookup = context.lookup("district", district)
+    if district_lookup is not None:
+        district = district_lookup.value
     constituency = join_text(representation.pop("provincia"), district, sep=", ")
 
     # The member's own dates: substitutes start mid-term, and early departures
     # (e.g. to an executive post) end before the term does.
-    start_date = representation.pop("inicio")
-    end_date = representation.pop("fin")
-    # The API holds a single term per member and doesn't always update it on
-    # re-election: many re-elected deputies still carry their 2020-2024 term. Only a
-    # future end date proves the record covers the current term; a past one may be
-    # stale, so it can't show whether the member is still in office.
-    status = None
-    if end_date is None or end_date < settings.RUN_TIME_ISO:
-        status = OccupancyStatus.UNKNOWN
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        start_date=start_date,
-        end_date=end_date,
+        start_date=representation.pop("inicio"),
+        end_date=representation.pop("fin"),
         categorisation=categorisation,
-        status=status,
     )
     if occupancy is None:
         return

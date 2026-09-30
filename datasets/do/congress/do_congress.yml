@@ -3,18 +3,20 @@ entry_point: crawler.py
 prefix: do-cgso
 coverage:
   frequency: monthly
-  start: 2026-08-19
+  start: 2026-09-30
 load_statements: true
 ci_test: true
 summary: >-
   Deputies and senators of the bicameral National Congress of the Dominican Republic
 description: |
-  Members of the National Congress (Congreso Nacional) of the Dominican Republic, the country's
-  bicameral national legislature. The Chamber of Deputies (Cámara de Diputados) has 190 members
-  elected by proportional representation from provincial, national-list and overseas constituencies;
-  the Senate (Senado) has 32, one for each province and the National District. Members of both
-  chambers serve four-year terms and hold the country's legislative power, including passing laws
-  and approving the budget.
+  This dataset lists the members of the National Congress (Congreso Nacional), the
+  bicameral legislature of the Dominican Republic.
+
+  The Chamber of Deputies (Cámara de Diputados) has 190 members, elected by proportional
+  representation from provincial, national and overseas constituencies. The Senate
+  (Senado) has 32 members, one for each province and one for the National District.
+  Members of both chambers serve four-year terms. Together, the two chambers pass the
+  country's laws and approve its budget.
 url: https://camaradediputados.gob.do/
 publisher:
   name: Cámara de Diputados de la República Dominicana
@@ -28,6 +30,9 @@ publisher:
   url: https://camaradediputados.gob.do/
   country: do
   official: true
+# The API holds a single term per member and doesn't always update it on re-election:
+# some re-elected members still carry their 2020-2024 term, so they show as ended in
+# 2024. We take the source's dates as given until it corrects those records.
 data:
   # Keep the trailing slash: the crawler urljoin()s endpoint names onto it.
   url: https://www.diputadosrd.gob.do/sil/api/legislador/
