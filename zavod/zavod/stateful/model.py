@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     JSON,
     Index,
+    MetaData,
     text,
 )
 from nomenklatura.db import make_statement_table
@@ -34,7 +35,9 @@ position_table = Table(
     Column("modified_by", Unicode(KEY_LEN), nullable=True),
     Column("deleted_at", DateTime, nullable=True, index=True),  # Index for filtering
 )
-statement_table = make_statement_table(meta)
+# Nomenklatura's table: kept off ``meta`` (the Alembic target) so the
+# migrations don't manage it; created where it is written.
+statement_table = make_statement_table(MetaData())
 
 
 program_table = Table(
