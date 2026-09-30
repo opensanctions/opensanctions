@@ -1,0 +1,96 @@
+title: Zimbabwe Members of Parliament
+entry_point: crawler.py
+prefix: zw-parl
+coverage:
+  frequency: monthly
+  start: 2026-09-30
+load_statements: true
+ci_test: false  # fetched via the Zyte API (the portal is behind a Cloudflare JS challenge)
+summary: >-
+  Current and historical members of the National Assembly and Senate of Zimbabwe
+description: |
+  Current and historical members of the Parliament of Zimbabwe, the country's
+  bicameral national legislature. The National Assembly has 280 members: 210
+  elected in single-member constituencies, plus 60 women and 10 youth members
+  elected by proportional representation. The Senate has 80 members: 60 elected
+  by proportional representation from the provinces, 18 chiefs and two
+  representatives of persons with disabilities. Both houses sit for a five-year
+  term and hold the country's legislative power, including passing laws and
+  approving the budget.
+
+  The dataset covers the sitting Parliament and earlier Parliaments whose members
+  remain politically exposed.
+# Maintainer notes:
+# - Members of the sitting Parliament who leave mid-term are archived by the portal
+#   without an end date, and their successors are often not entered. Archived members
+#   are emitted with an unknown status, so the current count sits below the seat count.
+# - Records of the 7th-9th Parliaments are shared across those terms, with a single
+#   house and party per record: a member who changed chambers is listed in the latest
+#   chamber for every term.
+url: https://e-portal.parlzim.gov.zw/parliamentarians
+tags:
+  - list.pep
+publisher:
+  name: Parliament of Zimbabwe
+  description: |
+    The Parliament of Zimbabwe consists of the National Assembly and the Senate.
+    It publishes a directory of current and former members on its e-portal.
+  country: zw
+  url: https://www.parlzim.gov.zw/
+  official: true
+data:
+  url: https://e-portal.parlzim.gov.zw/api
+  format: JSON
+  lang: eng
+dates:
+  formats: ["%Y-%m-%dT%H:%M:%S.%fZ"]
+names:
+  prefixes_strip:
+    - "Chief "
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1
+      Position: 2
+  max:
+    schema_entities:
+      Person: 100000
+
+lookups:
+  type.gender:
+    options:
+      # Data entry errors: both gender values are filled in.
+      - match: ["Male: Female", "Male: Male"]
+        value: null
+  type.name:
+    options:
+      - match: ["N/A", "Brig- Gen.RTD"]
+        value: null
+      - match: "Jay Jay|"
+        value: Jay Jay
+  title:
+    options:
+      - match: ["", "Mr", "Mr.", "MR", "Mrs", "Ms", "Ms.", "Miss", "Hon", "HON.", "Honorable", "MP", "Chief", "Chief "]
+        value: null
+      - match: "HON. Dr"
+        value: Dr
+  party:
+    options:
+      - match: ZANU-PF
+        value: ZANU-PF
+      - match: CCC
+        value: Citizens Coalition for Change
+      - match: MDC
+        value: Movement for Democratic Change
+      - match: MDC Alliance
+        value: MDC Alliance
+      - match: MDC-T
+        value: Movement for Democratic Change – Tsvangirai
+      - match: MDC-M
+        value: Movement for Democratic Change – Mutambara
+      - match: PF-ZAPU
+        value: PF-ZAPU
+      # Not parties: the chiefs' bloc in the Senate, and independent members.
+      - match: [Chiefs, Independent]
+        value: null
