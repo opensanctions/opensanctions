@@ -9,20 +9,14 @@ ci_test: true
 summary: >-
   Deputies and senators of the bicameral National Congress of the Dominican Republic
 description: |
-  Members of the National Congress (Congreso Nacional) of the Dominican Republic, the country's
-  bicameral national legislature. The Chamber of Deputies (Cámara de Diputados) has 190 members
-  elected by proportional representation from provincial, national-list and overseas constituencies;
-  the Senate (Senado) has 32, one for each province and the National District. Members of both
-  chambers serve four-year terms and hold the country's legislative power, including passing laws
-description: |
- This dataset lists members of the National Congress (Congreso Nacional) of the Dominican Republic, the country's
- bicameral national legislature.
- 
- The Chamber of Deputies (Cámara de Diputados) has 190 members
- elected by proportional representation from provincial, national-list and overseas constituencies;
- the Senate (Senado) has 32, one for each province and the National District. Members of both
- chambers serve four-year terms and hold the country's legislative power, including passing laws
- and approving the budget.
+  This dataset lists the members of the National Congress (Congreso Nacional), the
+  bicameral legislature of the Dominican Republic.
+
+  The Chamber of Deputies (Cámara de Diputados) has 190 members, elected by proportional
+  representation from provincial, national and overseas constituencies. The Senate
+  (Senado) has 32 members, one for each province and one for the National District.
+  Members of both chambers serve four-year terms. Together, the two chambers pass the
+  country's laws and approve its budget.
 url: https://camaradediputados.gob.do/
 publisher:
   name: Cámara de Diputados de la República Dominicana
