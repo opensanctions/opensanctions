@@ -14,15 +14,15 @@ REGEX_CLEAN_NAME = re.compile(
 
 def get_name_pos(container: Element, context: Context) -> tuple[str, str | None, str]:
     """Returns (name, position, details) for a judge container element."""
-    name_el = container.xpath(".//h2[@class='tlp-member-title']")
-    position_el = container.xpath(".//div[@class='tlp-position']")
-    details_el = container.xpath(".//div[@class='tlp-member-detail']")
+    name_el = h.xpath_elements(container, ".//h2[@class='tlp-member-title']")
+    position_el = h.xpath_elements(container, ".//div[@class='tlp-position']")
+    details_el = h.xpath_elements(container, ".//div[@class='tlp-member-detail']")
 
-    name = name_el[0].text_content().strip()
+    name = h.element_text(name_el[0], squash=False).strip()
     # Check for the position_el for cases when position is in the same element as name
     # Only needed for chief justice at the moment
-    position = position_el[0].text_content().strip() if position_el else None
-    details = details_el[0].text_content().strip()
+    position = h.element_text(position_el[0]) if position_el else None
+    details = h.element_text(details_el[0])
 
     override_res = context.lookup("overrides", name)
     if override_res:
@@ -31,7 +31,9 @@ def get_name_pos(container: Element, context: Context) -> tuple[str, str | None,
     elif "chief justice" in name.lower() or position is None:
         context.log.warning(f'No override found for "{name}" and "{position}"')
 
-    name = collapse_spaces(REGEX_CLEAN_NAME.sub("", name))
+    clean_name = collapse_spaces(REGEX_CLEAN_NAME.sub("", name))
+    assert clean_name is not None
+    name = clean_name
     # Check for titles not captured by the regex
     word_count = len(name.split())
     if word_count >= 4:
@@ -43,8 +45,8 @@ def get_name_pos(container: Element, context: Context) -> tuple[str, str | None,
 
 def crawl_page(context: Context, person_url: str) -> None:
     doc = context.fetch_html(person_url, cache_days=1)
-    containers = doc.xpath(
-        '//div[contains(@class, "tlp-member-description-container")]'
+    containers = h.xpath_elements(
+        doc, '//div[contains(@class, "tlp-member-description-container")]'
     )
     for judge_container in containers:
         name, position, details = get_name_pos(judge_container, context)
@@ -60,22 +62,22 @@ def crawl_page(context: Context, person_url: str) -> None:
         # Section 6.2
         person_proxy.add("country", "ky")
 
-        position = h.make_position(
+        position_entity = h.make_position(
             context,
             name=position,
             country="Cayman Islands",
             topics=["gov.national", "gov.judicial"],
         )
-        categorisation = categorise(context, position, default_is_pep=True)
+        categorisation = categorise(context, position_entity, default_is_pep=True)
         if not categorisation.is_pep:
             continue
         occupancy = h.make_occupancy(
-            context, person_proxy, position, True, categorisation=categorisation
+            context, person_proxy, position_entity, True, categorisation=categorisation
         )
         if not occupancy:
             continue
         context.emit(person_proxy)
-        context.emit(position)
+        context.emit(position_entity)
         context.emit(occupancy)
 
 
@@ -83,14 +85,14 @@ def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     profile_links = [
         link
-        for link in doc.xpath('//ul[@id="menu-judicial-officers"]//a/@href')
+        for link in h.xpath_strings(doc, '//ul[@id="menu-judicial-officers"]//a/@href')
         if link != "#"
     ]
     assert len(profile_links) >= 6, profile_links
     for url in profile_links:
         doc = context.fetch_html(url, cache_days=1)
-        person_urls = doc.xpath(
-            '//div[@class="single-team-area"]//a[@class="rt-ream-me-btn"]/@href'
+        person_urls = h.xpath_strings(
+            doc, '//div[@class="single-team-area"]//a[@class="rt-ream-me-btn"]/@href'
         )
         for person_url in person_urls:
             crawl_page(context, person_url)
