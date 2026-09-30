@@ -1,10 +1,10 @@
 from sqlalchemy import select
-from nomenklatura.db import make_statement_table
 
 from zavod import settings
-from zavod.db import meta, get_engine
+from zavod.db import get_engine
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
+from zavod.stateful.model import statement_table
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.tests.util import get_manifest
@@ -22,8 +22,7 @@ def test_load_db(testdataset1: Dataset):
     load_dataset_to_db(manifest, linker, batch_size=batch_size)
 
     engine = get_engine()
-    table = make_statement_table(meta)
     with engine.connect() as conn:
-        results = conn.execute(select(table.c.id)).fetchall()
+        results = conn.execute(select(statement_table.c.id)).fetchall()
         ids = [r.id for r in results]
         assert len(ids) == len(stmts)

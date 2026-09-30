@@ -10,7 +10,6 @@ from sqlalchemy import (
     text,
 )
 from nomenklatura.db import make_statement_table
-from zavod.db import get_engine
 from zavod.db import meta as meta  # explicit re-export
 
 KEY_LEN = 255
@@ -101,19 +100,3 @@ review_entity_table = Table(
         unique=True,
     ),
 )
-
-
-def create_db() -> None:
-    """Create all stateful database tables."""
-    engine = get_engine()
-    meta.create_all(
-        bind=engine,
-        checkfirst=True,
-        tables=[
-            position_table,
-            statement_table,
-            program_table,
-            review_table,
-            review_entity_table,
-        ],
-    )
