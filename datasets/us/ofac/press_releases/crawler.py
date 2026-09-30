@@ -113,6 +113,8 @@ Include every NAMED entity that is:
   supplier, employer, family member, associate, or the organization a person leads.
   Linked entities shouldn't include the organization an entity is a member of unless
   the press release is about the designation of that organization too.
+  The organization lead by a person should be excluded if it's a government department,
+  agency or unit unless it is itself designated.
 Do NOT include entire governments (e.g. "Government of Iran") or vague nationwide
 groups (e.g. "Assad regime") unless their designation is specifically mentioned.
 Do NOT include entities that are only named for background and are not designated,

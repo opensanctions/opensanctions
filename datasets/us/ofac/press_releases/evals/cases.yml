@@ -16,6 +16,7 @@ cases:
       rules:
         - country-base-only
         - name-acronym-stripped
+        - scope-linked-entities
         - vessel-flag
     expected_output:
       designees:
@@ -35,6 +36,10 @@ cases:
             - Marshall Islands
         - entity_schema: Organization
           name: Iran’s Ministry of Defense and Armed Forces Logistics
+          country:
+            - Iran
+        - entity_schema: Organization
+          name: Islamic Revolutionary Guard Corps-Qods Force
     evaluators: []
   - name: jy2473
     inputs:
@@ -48,6 +53,7 @@ cases:
       corrections: []
       rules:
         - group-of-designated-members
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -56,6 +62,24 @@ cases:
           name: Denis Olegovich Degtyarenko
         - entity_schema: Organization
           name: Cyber Army of Russia Reborn
+        - entity_schema: Person
+          name: Dmitry Khoroshev
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2326
+        - entity_schema: Organization
+          name: LockBit
+        - entity_schema: Person
+          name: Ivan Kondratiev
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2114
+        - entity_schema: Person
+          name: Artur Sungatov
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2114
+        - entity_schema: Person
+          name: Alexander Ermakov
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2041
     evaluators: []
   - name: sm668
     inputs:
@@ -74,6 +98,7 @@ cases:
       rules:
         - country-base-only
         - name-not-an-alias-of-other-designee
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -104,6 +129,18 @@ cases:
           name: Global Trading Group NV
         - entity_schema: Organization
           name: Hizballah
+        - entity_schema: Company
+          name: Al-Inmaa Group for Tourism Works
+          country:
+            - LebanonIslamic Jihad
+        - entity_schema: Person
+          name: Husayn Ali Faour
+        - entity_schema: Person
+          name: Yahya Jammeh
+        - entity_schema: Person
+          name: Mohamad Noureddine
+          nationality:
+            - Lebanon
     evaluators: []
   - name: sm606
     inputs:
@@ -202,6 +239,7 @@ cases:
       edited: false
       corrections: []
       rules:
+        - scope-linked-entities
         - vessel-mentioned-in-narrative
     expected_output:
       designees:
@@ -229,6 +267,10 @@ cases:
           name: Gomei Air Services Co., Ltd.
           country:
             - Hong Kong
+        - entity_schema: Organization
+          name: Islamic Revolutionary Guards Corps-Qods Force
+        - entity_schema: Company
+          name: Mahan Air
     evaluators: []
   - name: sm841
     inputs:
@@ -240,7 +282,8 @@ cases:
       accepted_at: '2025-09-22T09:19:24'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Vessel
@@ -269,6 +312,14 @@ cases:
           name: Yare
           imo:
             - '9543500'
+        - entity_schema: Company
+          name: Petroleos de Venezuela, S.A.
+        - entity_schema: Company
+          name: Caroil Transport Marine Ltd.
+        - entity_schema: Company
+          name: Cubametales
+          country:
+            - Cuba
     evaluators: []
   - name: jy0712
     inputs:
@@ -280,7 +331,8 @@ cases:
       accepted_at: '2025-10-28T16:43:47'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -315,6 +367,10 @@ cases:
           name: Sasho Mijalkov
           country:
             - North Macedonia
+        - entity_schema: Person
+          name: Milorad Dodik
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy0549Party
     evaluators: []
   - name: jy1059
     inputs:
@@ -330,6 +386,7 @@ cases:
           -> []'
       rules:
         - related-url-recent-actions-excluded
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Organization
@@ -347,6 +404,7 @@ cases:
       corrections: []
       rules:
         - company-owned-by-designee
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -355,6 +413,10 @@ cases:
             - Burma
         - entity_schema: Company
           name: Sky Aviator Company Limited
+        - entity_schema: Organization
+          name: Burmese military
+        - entity_schema: Organization
+          name: Burma’s military regime
     evaluators: []
   - name: jy1365
     inputs:
@@ -366,7 +428,8 @@ cases:
       accepted_at: '2025-10-28T17:20:33'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Company
@@ -395,6 +458,8 @@ cases:
           name: Alyaksandr Uladzimiravich Yuzhyk
         - entity_schema: Airplane
           name: EW-001PA
+        - entity_schema: Person
+          name: Alyaksandr Hryhoryavich Lukashenka
     evaluators: []
   - name: jy1377
     inputs:
@@ -431,6 +496,7 @@ cases:
           -> []'
       rules:
         - related-url-only-about-entity
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -445,6 +511,37 @@ cases:
           name: Sumilab, S.A. de C.V.
         - entity_schema: Company
           name: Urbanizacion, Inmobiliaria y Construccion de Obras, S.A. de C.V.
+        - entity_schema: Person
+          name: Ivan Archivaldo Guzman Salazar
+          related_url:
+            - https://www.justice.gov/usao-ndil/pr/chapitos-charged-departments-latest-actions-disrupt-flow-illegal-fentanyl-and-other
+            - https://www.state.gov/ivan-archivaldo-guzman-salazar/#:~:text=He%20was%20first%20charged%20in,of%20Ivan%20Archivaldo%20Guzm%C3%A1n%20Salazar.
+        - entity_schema: Person
+          name: Jesus Alfredo Guzman Salazar
+          related_url:
+            - https://www.justice.gov/usao-ndil/pr/chapitos-charged-departments-latest-actions-disrupt-flow-illegal-fentanyl-and-other
+            - https://www.state.gov/jesus-alfredo-guzman-salazar/
+        - entity_schema: Person
+          name: Ovidio Guzman Lopez
+          related_url:
+            - https://www.justice.gov/usao-ndil/pr/chapitos-charged-departments-latest-actions-disrupt-flow-illegal-fentanyl-and-other
+            - https://www.state.gov/narcotics-rewards-program-target-information-wanted/ovidio-guzman-lopez/
+        - entity_schema: Person
+          name: Joaquin Guzman Loera
+        - entity_schema: Person
+          name: Ismael Zambada Garcia
+        - entity_schema: Person
+          name: Ludim Zamudio Lerma
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy1288
+        - entity_schema: Person
+          name: Luis Alfonso Zamudio Lerma
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy1288
+        - entity_schema: Organization
+          name: Sinaloa Cartel
+        - entity_schema: Organization
+          name: Los Chapitos
     evaluators: []
   - name: jy1606
     inputs:
@@ -460,11 +557,16 @@ cases:
           -> []'
       rules:
         - related-url-recent-actions-excluded
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
           name: Aleksandar Vulin
           country:
+            - Serbia
+        - entity_schema: Person
+          name: Slobodan Tesic
+          nationality:
             - Serbia
     evaluators: []
   - name: jy1628
@@ -499,6 +601,7 @@ cases:
       edited: false
       corrections: []
       rules:
+        - scope-linked-entities
         - state-dept-codesignation
     expected_output:
       designees:
@@ -508,6 +611,8 @@ cases:
           name: Eitan Yardeni
         - entity_schema: Person
           name: Avichai Suissa
+        - entity_schema: LegalEntity
+          name: Hashomer Yosh
     evaluators: []
   - name: sm719
     inputs:
@@ -523,10 +628,35 @@ cases:
           Maduro Guerra'''
       rules:
         - name-quoted-nickname-stripped
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
           name: Nicolas Ernesto Maduro Guerra
+        - entity_schema: Person
+          name: Nicolas Maduro Moros
+        - entity_schema: Person
+          name: Francisco Jose Ameliach Orta
+        - entity_schema: Person
+          name: Adan Coromoto Chavez Frias
+        - entity_schema: Person
+          name: Erika del Valle Farias Pena
+        - entity_schema: Person
+          name: Carmen Teresa Melendez Rivas
+        - entity_schema: Person
+          name: Ramon Dario Vivas Velasco
+        - entity_schema: Person
+          name: Hermann Eduardo Escarra Malave
+        - entity_schema: Person
+          name: Tania D'Amelio Cardiet
+        - entity_schema: Person
+          name: Humberto Lugo Armas
+        - entity_schema: Person
+          name: Diosdado Cabello Rondon
+        - entity_schema: Person
+          name: Cilia Flores
+        - entity_schema: Organization
+          name: Corps of Inspectors of the Presidency
     evaluators: []
   - name: sb0483
     inputs:
@@ -540,6 +670,7 @@ cases:
       corrections: []
       rules:
         - country-base-only
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Company
@@ -596,6 +727,14 @@ cases:
           name: Deccan Star Trading L.L.C
         - entity_schema: Company
           name: Architectonic Corp Limited
+        - entity_schema: Company
+          name: Central Bank of Iran
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sm780
+        - entity_schema: Company
+          name: National Iranian Oil Company
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sm1165
     evaluators: []
   - name: sb0524
     inputs:
@@ -609,6 +748,7 @@ cases:
       corrections: []
       rules:
         - country-base-only
+        - scope-linked-entities
         - vessel-blocked-property
         - vessel-flag
     expected_output:
@@ -720,6 +860,34 @@ cases:
             - '9131539'
           flag:
             - Panama
+        - entity_schema: Company
+          name: Radin Exchange
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sb0483
+        - entity_schema: Company
+          name: Arz Iran Exchange
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sb0483
+        - entity_schema: Company
+          name: Opal Exchange
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sb0483
+        - entity_schema: Company
+          name: Amin Exchange
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sb0502
+        - entity_schema: Company
+          name: Bank Tejarat
+          related_url:
+            - https://home.treasury.gov/news/press-releases/tg1397
+        - entity_schema: Company
+          name: Bank Mellat
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sm524
+        - entity_schema: Company
+          name: Bank Pasargad
+          related_url:
+            - https://home.treasury.gov/news/press-releases/sm1147
     evaluators: []
   - name: jy2616
     inputs:
@@ -733,6 +901,7 @@ cases:
       corrections: []
       rules:
         - country-base-only
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Company
@@ -751,6 +920,26 @@ cases:
             - https://www.operation-endgame.com/
         - entity_schema: Person
           name: Timur Shakhmametov
+        - entity_schema: Company
+          name: Garantex
+        - entity_schema: Company
+          name: Genesis Market
+        - entity_schema: Organization
+          name: Cyber Army of Russia Reborn
+        - entity_schema: Person
+          name: Dmitry Khoroshev
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2326
+        - entity_schema: Organization
+          name: LockBit
+        - entity_schema: Person
+          name: Ivan Kondratiev
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2114
+        - entity_schema: Person
+          name: Artur Sungatov
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2114
     evaluators: []
   - name: jy1916
     inputs:
@@ -764,6 +953,7 @@ cases:
       corrections: []
       rules:
         - country-base-only
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -881,6 +1071,29 @@ cases:
           name: Dominion Nikolski LLC
           country:
             - Russia
+        - entity_schema: Person
+          name: Milorad Dodik
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy0549
+            - https://home.treasury.gov/news/press-releases/jl0708
+        - entity_schema: Organization
+          name: Alliance of Independent Social Democrats
+        - entity_schema: Person
+          name: Vladimir Putin
+        - entity_schema: Person
+          name: Dragi Rashkovski
+        - entity_schema: Person
+          name: Zoran Zaev
+        - entity_schema: Person
+          name: Jordan Kamcev
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy1628
+        - entity_schema: Person
+          name: Ratka Kunoska Kamceva
+        - entity_schema: Organization
+          name: Serbian Right Party
+        - entity_schema: Organization
+          name: Serbian People’s Party
     evaluators: []
   - name: sb0076
     inputs:
@@ -896,6 +1109,7 @@ cases:
         - 'removed: Mexican Secretariat of Security and Citizen Protection'
       rules:
         - bystander-agency-excluded
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -914,6 +1128,12 @@ cases:
           name: Fausto Isidro Meza Flores
         - entity_schema: Organization
           name: Sinaloa Cartel
+        - entity_schema: Person
+          name: Arturo Beltran Leyva
+        - entity_schema: Person
+          name: Alfredo Beltran Leyva
+        - entity_schema: Person
+          name: Joaquin Guzman Loera
     evaluators: []
   - name: sm718
     inputs:
@@ -925,13 +1145,19 @@ cases:
       accepted_at: '2025-09-05T15:38:26'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
           name: Luis Alfredo Motta Dominguez
         - entity_schema: Person
           name: Eustiquio Jose Lugo Gomez
+        - entity_schema: Person
+          name: Manuel Ricardo Cristopher Figuera
+        - entity_schema: Company
+          name: National Electric Corporation
+        - entity_schema: Organization
     evaluators: []
   - name: sm704
     inputs:
@@ -945,6 +1171,7 @@ cases:
       corrections: []
       rules:
         - country-base-only
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -989,6 +1216,30 @@ cases:
           name: Synergy SAL (Offshore)
         - entity_schema: Company
           name: BS Company (Offshore)
+        - entity_schema: Person
+          name: Bashar Al-Assad
+        - entity_schema: Person
+          name: Mohammad Bara Qatirji
+        - entity_schema: Company
+          name: Al-Mohaimen for Transportation and Contracting
+          country:
+            - Syria
+          related_url:
+            - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20190611.aspx
+        - entity_schema: LegalEntity
+          name: Four Seasons Damascus
+          related_url:
+            - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20190611.aspx
+        - entity_schema: Company
+          name: Banias Refinery Company
+        - entity_schema: Company
+          name: Damascus Cham PJSC
+        - entity_schema: Company
+          name: Qatirji Group
+        - entity_schema: Company
+          name: Syrian International Islamic Bank
+        - entity_schema: Company
+          name: Al Baraka Bank Syria
     evaluators: []
   - name: sm0322
     inputs:
@@ -1064,7 +1315,8 @@ cases:
       accepted_at: '2025-10-21T19:59:27'
       edited: false
       corrections: []
-      rules: []
+      rules:
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Person
@@ -1097,6 +1349,8 @@ cases:
           name: Alexander Yevgeniyevich Mishkin
         - entity_schema: Person
           name: Anatoliy Vladimirovich Chepiga
+        - entity_schema: Company
+          name: Kalashnikov Concern
     evaluators: []
   - name: jy0410
     inputs:
@@ -1124,6 +1378,7 @@ cases:
       corrections: []
       rules:
         - country-base-only
+        - scope-linked-entities
     expected_output:
       designees:
         - entity_schema: Vessel
@@ -1142,6 +1397,10 @@ cases:
           name: Ice Pearl Navigation Corp
           country:
             - Turkey
+        - entity_schema: Vessel
+          name: YasaGolden Bosphorus
+          imo:
+            - '9334038'
     evaluators: []
   - name: sb0509
     inputs:
