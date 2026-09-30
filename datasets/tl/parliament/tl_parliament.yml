@@ -32,6 +32,7 @@ dates:
     - "%d de %B de %Y"
     - "%d de %B %Y"
     - "%d/%m/%Y"
+    - "%d-%m-%Y"
   months:
     January: janeiro
     February: fevereiro
@@ -57,15 +58,13 @@ lookups:
     options:
       - match: Data de Nascimento
         value: birth_date
+      # Place and date together, e.g. "Bihala, 15-11-1969"; the crawler splits them.
+      - match: Local e Data de Nascimento
+        value: birth_place_date
       - match:
           - Local de Nascimento
           - ocal de Nascimento  # sic
         value: birth_place
-      - match:
-          - Município
-          - unicípio  # sic
-          - Distrito
-        value: municipality
       - match:
           - Início de Funções Como Deputado
           - Início Funções Como Deputado
@@ -76,8 +75,11 @@ lookups:
           - Legislatura e Partidos como Deputado
           - Legislatura, Período e Partidos como Deputado
           - Legislatura, Períodos e Partidos como Deputado
-          # Combines place and date as free text, e.g. "Bihala, 15-11-1969".
-          - Local e Data de Nascimento
+          # The member's home municipality: the parliament has a single nationwide
+          # constituency, and it isn't an address.
+          - Município
+          - unicípio  # sic
+          - Distrito
           - Nome
           - Bancada Parlamentar
           - Profissão
