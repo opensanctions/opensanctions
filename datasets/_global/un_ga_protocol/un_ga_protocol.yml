@@ -70,12 +70,19 @@ lookups:
         value: 2021-11
       - match: Aug-19
         value: 2019-08
-      - match: Feb-23
-        value: 2023-02
-      - match: Nov-21
-        value: 2021-11
       - match: May-21
         value: 2021-05
+      # In a Commonwealth realm the head-of-state cell holds two office-holders
+      # (the Sovereign and the Governor-General) and their two appointment dates
+      # are rendered on top of each other, e.g. Saint Vincent and the Grenadines
+      # reads "09-Sep-2208-Jan-26" ("09-Sep-22" plus "08-Jan-26"). The extraction
+      # splits that cell and can pair either half with either person, so a bare
+      # month-year tail cannot be attributed to an office-holder: in the
+      # 2026-09-29 run "Jan-26" landed on King Charles III, whose tenure as head
+      # of state of Saint Vincent began in September 2022. Drop it rather than
+      # assert a date we cannot place.
+      - match: Jan-26
+        value: null
       - match: 09-Jan-0721
         value: 2007-01-09
       # Both San Marino Captains Regent share a cell rendering "01-Apr-2601-Apr-26"
