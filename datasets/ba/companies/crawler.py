@@ -6,6 +6,7 @@ import requests
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 # Known failure mode: detail links the registry itself emits broken.
 #
@@ -25,12 +26,21 @@ from zavod import helpers as h
 # listing row, but without legal form, status, JIB, founders or managers.
 # 459 of 53,382 records in the 2026-08-21 run.
 #
-# Separately, a handful of names containing "&" are rejected before they reach
-# APEX by the registry's web application firewall, which answers
-# "The requested URL was rejected. [...] Your support ID is: ..." for the
-# fully-encoded URL over both GET and POST, while other "&" names go through
-# untouched (7 records in the same run). That is also outside our control, but
-# it is rare and the rule may change, so it stays at warning level.
+# Separately, the registry's web application firewall rejects a handful of detail
+# URLs before they reach APEX, answering HTTP 200 with its own
+# "The requested URL was rejected. [...] Your support ID is: ..." page in place of
+# the record. An earlier investigation saw the same rejection over both GET and
+# POST and for every encoding of the name it could produce. Most of the affected
+# names contain a "&" - though other "&" names go through untouched - and some
+# contain neither "&" nor anything else that sets them apart, so which URLs the
+# firewall objects to is not ours to predict.
+# Re-checked on 2026-09-15: all seven URLs that the 2026-09-11 run reported as an
+# empty details page answer with this rejection page, including
+# '"SELECT RENT-A CAR" d.o.o. ... Srebrenik, u likvidaciji', which carries no "&".
+# The rejection is recognised from the response (see `rejected_by_waf`) and logged
+# per record at info level rather than as a warning, since there is nothing to fix
+# on our side. It does count towards EXPECTED_ERRORS, so a firewall rule that
+# starts swallowing records in bulk still fails the run.
 EXPECTED_ERRORS = 100
 
 # A well-formed detail link carries eight colon-delimited APEX arguments - app,
@@ -96,6 +106,14 @@ SPLITS = [
 ]
 REMOVE_REGEX = re.compile("|".join(REMOVE_PATTERNS), flags=re.IGNORECASE)
 
+# The register occasionally holds a placeholder where a company name should be:
+# both the name and the abbreviation of 32-01-0059-24 are literally ".". The
+# `type.name` lookup drops such values, so no company can be emitted from the
+# record - and since the register publishes no name for it, there is none to
+# recover. Records shaped like this are reported at info level; a record that
+# lost its name to our own cleaning instead is still a warning.
+REGEX_PLACEHOLDER_NAME = re.compile(r"^[.\-/\s]*$")
+
 
 def roughly_valid_regno(regno: str) -> bool:
     """
@@ -137,6 +155,22 @@ def apex_link_broken(url: str) -> bool:
     prefix, _, _ = url.rpartition("&cs=")
     args = (prefix or url).partition("f?p=")[2]
     return args.count(":") > APEX_ARG_COLONS
+
+
+def rejected_by_waf(page: Element) -> bool:
+    """Check whether the registry's web application firewall blocked the request.
+
+    The firewall answers HTTP 200 and serves its own rejection page in place of the
+    record, so the block is only visible in the response body; see the note at the
+    top of this file. The title is matched exactly, so a rejection page we no
+    longer recognise falls back to being reported as a warning.
+
+    Args:
+        page: The parsed response to a details page request.
+    Returns:
+        True if the firewall rejected the request, False otherwise.
+    """
+    return h.xpath_strings(page, "//title/text()") == ["Request Rejected"]
 
 
 def get_secret_param(context: Context) -> str:
@@ -290,6 +324,9 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
     """
     details_url = record["details_url"]
     assert details_url is not None
+    # The company is still emitted from its listing row when the details page is
+    # unreachable, so the outcome is tracked rather than returned early.
+    ok = True
     try:
         details_page = context.fetch_html(details_url, cache_days=CACHE_DAYS)
     except requests.exceptions.HTTPError as exc:
@@ -348,6 +385,12 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
                 "Details page unreachable: registry link has an unescaped colon",
                 url=details_url,
             )
+        elif rejected_by_waf(details_page):
+            context.log.info(
+                "Details page unreachable: rejected by the registry's firewall",
+                url=details_url,
+            )
+            ok = False
         else:
             context.log.warning("Details page empty", url=details_url)
     else:
@@ -449,8 +492,16 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
                 entity.add("name", names[0], lang="bos")
                 entity.add("alias", names[1:], lang="bos")
         if not entity.has("name"):
-            context.log.warning("No valid name found", url=record["details_url"])
-            return True
+            raw_names = [record["name"], record["abbreviation"]]
+            if all(REGEX_PLACEHOLDER_NAME.match(raw or "") for raw in raw_names):
+                context.log.info(
+                    "Register publishes no name for this company",
+                    regno=record["registration_number"],
+                    url=record["details_url"],
+                )
+            else:
+                context.log.warning("No valid name found", url=record["details_url"])
+            return ok
         entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
@@ -557,7 +608,7 @@ def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
             rel.add("organization", entity)
 
             context.emit(rel)
-        return True
+        return ok
 
 
 def generate_periods(
