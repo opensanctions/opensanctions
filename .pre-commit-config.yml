@@ -56,7 +56,6 @@ repos:
           (?x)^(
           datasets/eu/journal_sanctions|
           datasets/gb/coh|
-          datasets/ky/judicial|
           datasets/lt/pep_declarations|
           datasets/ng/join_dots|
           datasets/za/wanted
