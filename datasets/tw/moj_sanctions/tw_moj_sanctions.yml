@@ -1,0 +1,65 @@
+title: Taiwan MOJ Counter-Terrorism Financing Act Sanctions
+prefix: tw-moj
+entry_point: crawler.py
+coverage:
+  frequency: daily
+  start: 2026-08-14
+load_statements: true
+ci_test: false  # llm for pdf parsing
+
+summary: >-
+  Individuals and companies sanctioned under Article 4(1) of Taiwan's CFT Act
+description: |
+  Individuals and companies designated as sanctioned by Taiwan's Ministry of
+  Justice under Article 4, Paragraph 1 of the Counter-Terrorism
+  Financing Act (資恐防制法).
+url: https://www.mjib.gov.tw/EditPage/?PageID=2f940503-6044-4a8f-baeb-3499ade2dd57
+publisher:
+  name: 法務部
+  name_en: Ministry of Justice
+  acronym: MOJ
+  description: >-
+    Taiwan's Ministry of Justice publishes these designations through the
+    Investigation Bureau (MJIB) Anti-Money Laundering Division page.
+  url: https://www.moj.gov.tw/
+  country: tw
+  official: true
+data:
+  url: https://www.mjib.gov.tw/EditPage/?PageID=2f940503-6044-4a8f-baeb-3499ade2dd57
+  format: HTML
+  lang: zho
+
+tags:
+  - list.sanction
+
+lookups:
+  type.country:
+    options:
+      - match:
+          - British Virgin Islands
+          - 英屬維京群島
+        value: vg
+      - match:
+          - Marshall Islands
+          - 馬紹爾群島
+          - 馬紹爾群島共和國
+        value: mh
+  relationship.type:
+    required: true
+    options:
+      - match: 負責人及唯一股東
+        ownership: true
+        directorship: true
+      - regex: ^由.+百分之百持股$
+        ownership: true
+        percentage: "100"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1
+      Company: 4
+  max:
+    schema_entities:
+      Person: 1
+      Company: 4
