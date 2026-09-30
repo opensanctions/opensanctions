@@ -1,9 +1,11 @@
+import logging
+
 from nomenklatura.resolver import Identifier
 from nomenklatura.db import make_session
 from followthemoney.schema import Schema
 from followthemoney.property import Property
 
-from zavod.logs import get_logger
+from zavod.logs import configure_logging, get_logger
 from zavod.meta import Dataset, get_catalog
 from zavod.integration import get_resolver
 from zavod.runtime.manifest import Manifest
@@ -50,5 +52,6 @@ def cleanup_relations(dataset: Dataset) -> None:
 
 
 if __name__ == "__main__":
+    configure_logging(level=logging.INFO)
     dataset = get_catalog().require("all")
     cleanup_relations(dataset)
