@@ -30,6 +30,9 @@ publisher:
   url: https://camaradediputados.gob.do/
   country: do
   official: true
+# The API holds a single term per member and doesn't always update it on re-election:
+# some re-elected members still carry their 2020-2024 term, so they show as ended in
+# 2024. We take the source's dates as given until it corrects those records.
 data:
   # Keep the trailing slash: the crawler urljoin()s endpoint names onto it.
   url: https://www.diputadosrd.gob.do/sil/api/legislador/
