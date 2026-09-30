@@ -70,7 +70,6 @@ def crawl_member(
         context,
         person,
         position,
-        start_date=details.get("start_date"),
         categorisation=categorisation,
     )
     if occupancy is None:
