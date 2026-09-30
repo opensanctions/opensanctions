@@ -153,8 +153,6 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
     if not categorisation.is_pep:
         return  # UI has not (yet) marked this position as PEP
 
-    context.emit(position)
-
     person = context.make("Person")
     person.id = context.make_id(row.pop("id"))
     # ... set person props ...
@@ -168,7 +166,10 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
         no_end_implies_current=False,         # no end date != still in office
     )
     if occupancy is not None:
+        # Emit the position only once an occupancy holds it: positions are per-record
+        # here, so emitting earlier leaves some with no occupancy.
         context.emit(occupancy)
+        context.emit(position)
         context.emit(person)
 ```
 

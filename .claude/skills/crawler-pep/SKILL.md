@@ -13,8 +13,8 @@ and/or a GitHub issue URL: $ARGUMENTS
 If given a GitHub issue URL, fetch it first to extract the data source URL and any
 context about the dataset.
 
-**Read upfront.** These are the rules; this skill is only the procedure for applying
-them, so it doesn't repeat them:
+**Read upfront.** These are the rules; this skill is the procedure for applying them,
+and repeats only the few rules the docs don't cover yet:
 
 1. `zavod/docs/peps.md` — the PEP model, properties, position naming, categorisation,
    occupancy dates and status, historical terms.
