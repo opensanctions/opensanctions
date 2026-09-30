@@ -52,6 +52,7 @@ nav:
   - install.md
   - Tutorial: tutorial.md
   - Command-line usage: usage.md
+  - Database: database.md
   - metadata.md
   - context.md
   - helpers.md
