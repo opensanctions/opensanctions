@@ -279,6 +279,11 @@ lookups:
         values:
           - Kokaew Pikulthong
           - ก่อแก้ว พิกุลทอง
+      # Kei Takagi (Q41805239): the two spellings differ only in 高 / 髙 (itaiji variant)
+      - match: "高木啓<br>髙木啓"
+        values:
+          - 高木啓
+          - 髙木啓
   type.date:
     options:
       - match:
