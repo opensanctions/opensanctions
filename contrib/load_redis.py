@@ -1,11 +1,14 @@
+import logging
+
 from nomenklatura.store.redis_ import RedisStore
 
-from zavod.logs import get_logger
+from zavod.logs import configure_logging, get_logger
 from zavod.meta import get_catalog
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.runtime.manifest import Manifest
 
 log = get_logger(__name__)
+configure_logging(level=logging.INFO)
 
 catalog = get_catalog()
 dataset = catalog.require("sanctions")

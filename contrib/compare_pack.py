@@ -3,13 +3,12 @@ import shutil
 import click
 from nomenklatura.resolver import Linker
 from nomenklatura.store.base import View as BaseView
-from tempfile import mkdtemp
-from followthemoney.cli.util import InPath
 import json
+import logging
 
 from zavod.archive import StatementGen, _read_fh_statements
 from zavod.dedupe import get_dataset_resolver
-from zavod.logs import get_logger
+from zavod.logs import configure_logging, get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_catalog
 from zavod.store import Store as BaseStore
@@ -41,7 +40,7 @@ class Store(BaseStore):
         self.statements_path = statements_path
 
     def iter_dataset_statements(self, external: bool = False) -> StatementGen:
-        with open(self.statements_path, "r") as fh:
+        with open(self.statements_path) as fh:
             yield from _read_fh_statements(fh, external)
         return
 
@@ -74,6 +73,7 @@ def dump_dict(filename, dict_):
 @click.argument("a_path", type=Dir)
 @click.command()
 def main(a_path: Path, b_path: Path, working_dir: Path, clear: bool = False):
+    configure_logging(level=logging.INFO)
     if clear:
         shutil.rmtree(working_dir, ignore_errors=True)
     a_external_store_path = working_dir / "a.external"

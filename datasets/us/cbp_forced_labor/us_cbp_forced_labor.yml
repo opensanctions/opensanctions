@@ -41,7 +41,7 @@ assertions:
       Vessel: 3
   max:
     schema_entities:
-      LegalEntity: 70
+      LegalEntity: 80
       Vessel: 10
 
 lookups:
@@ -343,3 +343,9 @@ lookups:
       - match: "Casual Wear Apparel L.L.C."
         entities:
           - name: Casual Wear Apparel L.L.C.
+      - match: "Mitra Aneka Rezeki"
+        entities:
+          - name: Mitra Aneka Rezeki
+      - match: "Hardaya Inti Plantation"
+        entities:
+          - name: Hardaya Inti Plantation
