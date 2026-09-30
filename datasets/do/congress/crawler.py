@@ -67,7 +67,9 @@ def crawl_legislator(
         return
 
     district = representation.pop("circunscripcion")
-    district = context.lookup_value("district", district, district)
+    district_lookup = context.lookup("district", district)
+    if district_lookup is not None:
+        district = district_lookup.value
     constituency = join_text(representation.pop("provincia"), district, sep=", ")
 
     # The member's own dates: substitutes start mid-term, and early departures
