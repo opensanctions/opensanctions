@@ -10,7 +10,8 @@ from sqlalchemy import (
     text,
 )
 from nomenklatura.db import make_statement_table
-from zavod.db import meta, get_engine
+from zavod.db import get_engine
+from zavod.db import meta as meta  # explicit re-export
 
 KEY_LEN = 255
 VALUE_LEN = 65535
