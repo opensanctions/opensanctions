@@ -1,8 +1,6 @@
 import csv
 
-import openpyxl
-import xlrd
-from rigour.mime.types import XLS
+from rigour.mime.types import CSV
 
 from zavod import Context
 from zavod import helpers as h
@@ -56,39 +54,23 @@ def crawl(context: Context) -> None:
     url = urls[0]
     path = context.fetch_resource("source.whoknows", url)
 
-    rows = None
-    if ".xls" in url:
-        context.log.info("Reading as XLS", url=url)
-        wb = xlrd.open_workbook(path)
-        assert wb.sheet_names() == ["dpl", "Sheet2", "Sheet3"]
-        path = path.rename(path.with_suffix(".xls"))
-        context.export_resource(path, XLS, title=context.SOURCE_TITLE)
-        rows = h.parse_xls_sheet(context, wb["dpl"])
-    elif ".xlsx" in url:
-        context.log.info("Reading as XLSX", url=url)
-        workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-        assert set(workbook.sheetnames) == ["dpl", "Sheet2", "Sheet3"]
-        path = path.rename(path.with_suffix(".xlsx"))
-        rows = h.parse_xlsx_sheet(path, context.get_lookup("columns"))
-    elif ".csv" in url:
-        context.log.info("Reading as CSV", url=url)
-        path = path.rename(path.with_suffix(".csv"))
-        with open(path, encoding="utf-8-sig") as infh:
-            reader = csv.DictReader(infh)
-            fieldnames = reader.fieldnames
-        norm_fieldnames = []
-        for field in fieldnames:
-            field = field.lower().replace(" ", "_")
-            field = context.lookup_value("columns", field, field)
-            norm_fieldnames.append(field)
-        with open(path, encoding="utf-8-sig") as infh:
-            reader = csv.DictReader(infh, fieldnames=norm_fieldnames)
-            next(reader)  # Skip header row
-            rows = list(reader)
-    else:
+    if ".csv" not in url:
         raise Exception(f"No known extension for {path}")
+    path = path.rename(path.with_suffix(".csv"))
+    with open(path, encoding="utf-8-sig") as infh:
+        reader = csv.DictReader(infh)
+        fieldnames = reader.fieldnames
+    norm_fieldnames = []
+    for field in fieldnames:
+        field = field.lower().replace(" ", "_")
+        field = context.lookup_value("columns", field, field)
+        norm_fieldnames.append(field)
+    with open(path, encoding="utf-8-sig") as infh:
+        reader = csv.DictReader(infh, fieldnames=norm_fieldnames)
+        next(reader)  # Skip header row
+        rows = list(reader)
 
-    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
     for row in rows:
         row = {(k.lower()): v for k, v in row.items()}
