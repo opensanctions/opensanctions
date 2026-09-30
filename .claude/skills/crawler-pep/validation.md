@@ -1,12 +1,14 @@
 # PEP crawl output integrity checks
 
-Spot-check the crawl output with qsv against `data/datasets/<dataset>/statements.pack`.
+Spot-check the crawl output with qsv against the latest run's `statements.pack`.
 The `prop` column is `Schema:property`, so entity type is recoverable; within one
 dataset's pack `entity_id` matches the ids that `Occupancy:holder`/`post` reference (this
 is pre-resolution crawl output). Each integrity check below should print nothing:
 
 ```bash
-P=data/datasets/<dataset>/statements.pack
+# The latest run's statements (older zavod versions write them to the dataset folder).
+P=$(ls data/datasets/<dataset>/_artifacts/*/statements.pack 2>/dev/null | tail -1)
+P=${P:-data/datasets/<dataset>/statements.pack}
 
 # Entity counts — sanity-check against the assertions block
 for s in Person Position Occupancy; do
