@@ -151,21 +151,23 @@ lookups:
       - match: hhttps://archives.nseindia.com/content/circulars/INVG47784.zip
         value: https://archives.nseindia.com/content/circulars/INVG47784.zip
       # The source workbook links some circulars via the file paths they had on
-      # the publisher's own machine, instead of their public URL. Paths under
-      # the publisher's Downloads folder are a local scratch copy we cannot
-      # resolve to a public URL, so drop them.
-      - contains: C:\\Users\\rmangutkar\\Downloads\\
-        value: null
-      # The remaining local paths do identify a published circular. Their
-      # prefix keeps changing between crawls (relative path, full
-      # "C:\Users\...\" path), so match on the circular archive name, which is
-      # stable and identifies the circular.
-      - contains: INVG75388.zip
+      # the publisher's own machine, instead of their public URL.
+      - match: ../SEBI Order -24-07-2026/Circulars/INVG75388/INVG75388.zip
         value: https://archives.nseindia.com/content/circulars/INVG75388.zip
-      - contains: INVG75399.zip
+      - match: ../SEBI Order -24-07-2026/Circulars/INVG75399/INVG75399.zip
         value: https://archives.nseindia.com/content/circulars/INVG75399.zip
-      - contains: INVG75403.zip
+      - match: ../SEBI Order -24-07-2026/Circulars/INVG75403/INVG75403.zip
         value: https://archives.nseindia.com/content/circulars/INVG75403.zip
+      - match: b'Circulars\\2\\INVG75492.zip'
+        value: https://archives.nseindia.com/content/circulars/INVG75492.zip
+      - match: b'Circulars\\3\\INVG75529.zip'
+        value: https://archives.nseindia.com/content/circulars/INVG75529.zip
+      - match: b'Circulars\\4\\INVG75531.zip'
+        value: https://archives.nseindia.com/content/circulars/INVG75531.zip
+      # Some links are absolute paths on the publisher's own machine, which we
+      # cannot resolve to a public URL, so drop them.
+      - contains: C:\\Users
+        value: null
   type.identifier:
     options:
       - match: NA
