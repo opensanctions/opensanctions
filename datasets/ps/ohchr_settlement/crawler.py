@@ -1,6 +1,5 @@
 import re
 
-from lxml.etree import _Element as Element
 from zavod.extract import zyte_api
 
 from zavod import Context
@@ -11,9 +10,9 @@ PROGRAM_KEY = "OHCHR-BHR"
 
 def crawl_row(
     context: Context,
-    row: dict[str, Element],
+    str_row: dict[str, str | None],
+    seen_rows: dict[str, str | None],
 ) -> None:
-    str_row = h.cells_to_str(row)
     name = str_row.pop("business_enterprise")
     home_state = str_row.pop("home_state")
     assert name is not None and home_state is not None, str_row
@@ -32,6 +31,21 @@ def crawl_row(
 
     entity = context.make("Company")
     entity.id = context.make_id(name, home_state)
+    assert entity.id is not None, str_row
+    # The ID is built from the name and the home state, so two rows that repeat
+    # both are stored as one company and the entity count drops below the number
+    # of rows in list A without any other trace in the run.
+    previous_no = seen_rows.get(entity.id)
+    if previous_no is not None:
+        context.log.warning(
+            "Row repeats the name and home state of an earlier row, so both "
+            "rows are emitted as one company.",
+            name=name,
+            home_state=home_state,
+            no=str_row["no"],
+            previous_no=previous_no,
+        )
+    seen_rows[entity.id] = str_row["no"]
     entity.add("name", name)
     entity.add("country", home_state)
     entity.add("topics", "debarment")
@@ -86,5 +100,6 @@ def crawl(context: Context) -> None:
         expect_exactly=1,
     )[0]
     table = h.xpath_elements(section, ".//table", expect_exactly=1)[0]
+    seen_rows: dict[str, str | None] = {}
     for row in h.parse_html_table(table):
-        crawl_row(context, row)
+        crawl_row(context, h.cells_to_str(row), seen_rows)
