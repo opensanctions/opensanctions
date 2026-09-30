@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from followthemoney.types import registry
 from normality import slugify
 from pydantic_evals.evaluators import EvaluationReason, Evaluator, EvaluatorContext
 from pydantic_evals.evaluators.evaluator import EvaluatorOutput
@@ -32,16 +33,34 @@ def match_key(name: str) -> str:
     return re.sub(r"^the ", "", key)
 
 
-def norm_value(value: Any) -> Any:
-    """Normalise a field value for comparison: null and [] are the same, list order
-    and string case do not matter."""
+COUNTRY_FIELDS = {"country", "nationality", "flag"}
+URL_FIELDS = {"related_url"}
+
+
+def norm_scalar(value: Any, field: str | None = None) -> Any:
+    """Normalise one value the way the crawler's FTM properties would: country-type
+    fields compare as country codes ("Turkey", "Turkiye" and "Türkiye" are one
+    value), URLs compare without a trailing slash, everything else by casefolded
+    text."""
+    if not isinstance(value, str):
+        return value
+    text = value.strip()
+    if field in COUNTRY_FIELDS:
+        code = registry.country.clean(text)
+        return code if code is not None else text.casefold()
+    if field in URL_FIELDS:
+        return text.rstrip("/").casefold()
+    return text.casefold()
+
+
+def norm_value(value: Any, field: str | None = None) -> Any:
+    """Normalise a field value for comparison: a missing field, null and [] are the
+    same, and list order does not matter. See `norm_scalar` for values."""
     if value is None:
         return []
     if isinstance(value, list):
-        return sorted(str(v).strip().casefold() for v in value)
-    if isinstance(value, str):
-        return value.strip().casefold()
-    return value
+        return sorted(str(norm_scalar(v, field)) for v in value)
+    return norm_scalar(value, field)
 
 
 def pair_items(
@@ -123,7 +142,8 @@ class ItemListMatch(Evaluator[CaseInputs, Extraction, CaseMeta]):
                 mismatches = [
                     f"{exp[self.key]}: {exp.get(field)!r} != {out.get(field)!r}"
                     for exp, out in pairs
-                    if norm_value(exp.get(field)) != norm_value(out.get(field))
+                    if norm_value(exp.get(field), field)
+                    != norm_value(out.get(field), field)
                 ]
                 score = 1 - len(mismatches) / len(pairs)
                 results[field] = EvaluationReason(
@@ -146,7 +166,7 @@ def describe_edits(
         if exp[key] != orig[key]:
             edits.append(f"renamed: {orig[key]!r} -> {exp[key]!r}")
         for field in COMPARED_FIELDS:
-            if norm_value(exp.get(field)) != norm_value(orig.get(field)):
+            if norm_value(exp.get(field), field) != norm_value(orig.get(field), field):
                 edits.append(
                     f"{exp[key]} {field}: {orig.get(field)!r} -> {exp.get(field)!r}"
                 )

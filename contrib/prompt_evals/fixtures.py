@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from pydantic import BaseModel, ValidationError
 from pydantic_core import to_json
 from pydantic_evals import Case
 from sqlalchemy import select
@@ -12,7 +13,7 @@ from zavod.context import Context
 from zavod.stateful.model import review_table
 from zavod.stateful.review import model_hash
 
-from contrib.prompt_evals.evaluators import ItemListMatch, describe_edits
+from contrib.prompt_evals.evaluators import ItemListMatch, describe_edits, match_key
 from contrib.prompt_evals.models import CaseInputs, CaseMeta, Extraction, FixtureDataset
 
 SOURCES_DIR = "sources"
@@ -36,8 +37,50 @@ def prune_empty(extraction: Extraction) -> Extraction:
     return {k: prune(v) for k, v in extraction.items()}
 
 
-def load_fixtures(path: Path) -> FixtureDataset:
-    return FixtureDataset.from_file(path, custom_evaluator_types=EVALUATOR_TYPES)
+class FixtureError(Exception):
+    pass
+
+
+def check_fixtures(
+    dataset: FixtureDataset, response_type: type[BaseModel] | None = None
+) -> None:
+    """Fail loudly on fixtures that would silently skew scores: an item without a
+    name, two items with the same name in one case, or, when the crawler's
+    response model is given, an expected output that does not validate against it."""
+    problems: list[str] = []
+    for case in dataset.cases:
+        if case.expected_output is None:
+            problems.append(f"{case.name}: no expected_output")
+            continue
+        seen: set[str] = set()
+        for item in case.expected_output.get(ITEMS_KEY) or []:
+            name = item.get("name")
+            if not isinstance(name, str) or not name.strip():
+                problems.append(f"{case.name}: item without a name: {item!r}")
+                continue
+            key = match_key(name)
+            if key in seen:
+                problems.append(f"{case.name}: duplicate item {name!r}")
+            seen.add(key)
+        if response_type is not None:
+            try:
+                response_type.model_validate(case.expected_output)
+            except ValidationError as exc:
+                problems.append(
+                    f"{case.name}: {exc.error_count()} validation errors: {exc}"
+                )
+    if problems:
+        raise FixtureError("\n".join(problems))
+
+
+def load_fixtures(
+    path: Path, response_type: type[BaseModel] | None = None
+) -> FixtureDataset:
+    """Load and check the fixtures. Pass the crawler's response model to also
+    validate every expected output against it."""
+    dataset = FixtureDataset.from_file(path, custom_evaluator_types=EVALUATOR_TYPES)
+    check_fixtures(dataset, response_type)
+    return dataset
 
 
 class IndentedDumper(yaml.SafeDumper):

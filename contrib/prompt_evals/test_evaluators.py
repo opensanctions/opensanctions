@@ -23,6 +23,51 @@ def test_match_key_strips_acronyms_and_nicknames() -> None:
     assert match_key("The Taliban") == match_key("Taliban")
 
 
+def test_norm_value_normalises_countries_and_urls_by_field() -> None:
+    assert norm_value(["Turkey"], "country") == norm_value(["Türkiye"], "country")
+    assert norm_value(["St. Kitts and Nevis"], "flag") == norm_value(
+        ["Saint Kitts and Nevis"], "flag"
+    )
+    assert norm_value(["Russian"], "nationality") == norm_value(
+        ["Russia"], "nationality"
+    )
+    assert norm_value(["Narnia"], "country") == ["narnia"]
+    assert norm_value(["https://x.test/p/"], "related_url") == norm_value(
+        ["https://x.test/p"], "related_url"
+    )
+    assert norm_value("Turkey", "name") != norm_value("Türkiye", "name")
+
+
+def test_check_fixtures_rejects_empty_and_duplicate_names() -> None:
+    import pytest
+    from pydantic_evals import Case
+
+    from contrib.prompt_evals.fixtures import FixtureError, check_fixtures
+    from contrib.prompt_evals.models import CaseInputs, CaseMeta, FixtureDataset
+
+    def case(name: str, items: list[dict[str, Any]]) -> Case[CaseInputs, Any, CaseMeta]:
+        return Case(
+            name=name,
+            inputs=CaseInputs(source_file="s", source_label="l"),
+            expected_output={"designees": items},
+            metadata=CaseMeta(review_key="k", accepted_at="2026-01-01", edited=False),
+        )
+
+    ok = FixtureDataset(name="d", cases=[case("a", [{"name": "X"}, {"name": "Y"}])])
+    check_fixtures(ok)
+    bad = FixtureDataset(
+        name="d",
+        cases=[
+            case("a", [{"name": None}]),
+            case("b", [{"name": "X (ABC)"}, {"name": "X"}]),
+        ],
+    )
+    with pytest.raises(FixtureError) as err:
+        check_fixtures(bad)
+    assert "a: item without a name" in str(err.value)
+    assert "b: duplicate item 'X'" in str(err.value)
+
+
 def test_norm_value_treats_null_and_empty_list_alike() -> None:
     assert norm_value(None) == norm_value([])
     assert norm_value(["Russia", "iran"]) == norm_value(["Iran", "russia"])

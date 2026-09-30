@@ -72,10 +72,14 @@ def run(
     max_concurrency: int,
     fresh: bool = False,
     outputs: dict[str, Extraction] | None = None,
+    repeat: int = 1,
 ) -> EvaluationReport[CaseInputs, Extraction, CaseMeta]:
-    """Run the prompt over the fixtures. When `outputs` is given, the model output
-    for each case is stored in it keyed by case name."""
-    fixtures = select_cases(load_fixtures(fixtures_file), names, edited_only, limit)
+    """Run the prompt over the fixtures, `repeat` times each. When `outputs` is
+    given, the model output for each case (the last one, when repeated) is stored
+    in it keyed by case name."""
+    fixtures = select_cases(
+        load_fixtures(fixtures_file, crawler.response_type), names, edited_only, limit
+    )
     base_dir = fixtures_file.parent
     pool = ContextPool(dataset)
     name_by_source = {c.inputs.source_file: str(c.name) for c in fixtures.cases}
@@ -100,7 +104,9 @@ def run(
         return dumped
 
     try:
-        return fixtures.evaluate_sync(task, max_concurrency=max_concurrency, name=model)
+        return fixtures.evaluate_sync(
+            task, max_concurrency=max_concurrency, name=model, repeat=repeat
+        )
     finally:
         pool.close()
 
@@ -108,21 +114,56 @@ def run(
 def summarise(
     report: EvaluationReport[CaseInputs, Extraction, CaseMeta],
 ) -> dict[str, Any]:
-    """A compact, JSON-serialisable view of a report for saving as a baseline."""
-    cases: dict[str, Any] = {}
+    """A compact, JSON-serialisable view of a report for saving as a baseline.
+
+    When the report holds repeated runs of each case, scores are averaged and
+    assertions become pass rates, so a case that fails two runs in five reads
+    as 0.4. `spread` lists every metric that differed between runs with its
+    minimum and maximum, and `reasons` keeps one distinct reason per metric.
+    """
+    runs: dict[str, list[Any]] = {}
     for case in report.cases:
-        cases[case.name] = {
-            "scores": {k: v.value for k, v in case.scores.items()},
-            "assertions": {k: v.value for k, v in case.assertions.items()},
-            "reasons": {
-                k: v.reason
-                for k, v in {**case.scores, **case.assertions}.items()
-                if v.reason
+        runs.setdefault(case.source_case_name or case.name, []).append(case)
+    cases: dict[str, Any] = {}
+    for name, items in runs.items():
+        values: dict[str, list[float]] = {}
+        reasons: dict[str, list[str]] = {}
+        for case in items:
+            for metric, result in {**case.scores, **case.assertions}.items():
+                values.setdefault(metric, []).append(float(result.value))
+                if result.reason and result.reason not in reasons.setdefault(
+                    metric, []
+                ):
+                    reasons[metric].append(result.reason)
+        score_names = {k for case in items for k in case.scores}
+        entry: dict[str, Any] = {
+            "runs": len(items),
+            "scores": {
+                k: sum(v) / len(v) for k, v in values.items() if k in score_names
             },
+            "assertions": {
+                k: sum(v) / len(v) for k, v in values.items() if k not in score_names
+            },
+            "reasons": {k: " | ".join(v) for k, v in reasons.items() if v},
         }
+        spread = {k: [min(v), max(v)] for k, v in values.items() if min(v) != max(v)}
+        if spread:
+            entry["spread"] = spread
+        cases[name] = entry
     for failure in report.failures:
-        cases[failure.name] = {"error": str(failure.error_message)}
+        cases[failure.source_case_name or failure.name] = {
+            "error": str(failure.error_message)
+        }
     return {"name": report.name, "cases": cases}
+
+
+def stability_lines(summary: dict[str, Any]) -> list[str]:
+    """One line per case and metric that varied between repeated runs."""
+    lines: list[str] = []
+    for name, case in sorted(summary["cases"].items()):
+        for metric, (low, high) in sorted(case.get("spread", {}).items()):
+            lines.append(f"{name}: {metric} varies {low:.2f}..{high:.2f}")
+    return lines
 
 
 def save_summary(

@@ -9,6 +9,7 @@ from typing import Any, cast
 
 from pydantic import BaseModel
 from zavod.context import Context
+from zavod.extract.llm import DEFAULT_MODEL
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.runtime.loader import load_entry_point
 
@@ -50,6 +51,7 @@ class CrawlerPrompt:
         crawler_file: Path | None = None,
         prompt_attr: str = "PROMPT",
         max_tokens_attr: str = "MAX_TOKENS",
+        model_attr: str = "LLM_MODEL",
     ) -> None:
         module = load_module(crawler_file) if crawler_file is not None else None
 
@@ -64,6 +66,10 @@ class CrawlerPrompt:
             self.max_tokens = cast(int, attr(max_tokens_attr))
         except (RuntimeError, AttributeError):
             self.max_tokens = 3000
+        try:
+            self.model = cast(str, attr(model_attr))
+        except (RuntimeError, AttributeError):
+            self.model = DEFAULT_MODEL
 
 
 def make_context(dataset: Dataset) -> Context:

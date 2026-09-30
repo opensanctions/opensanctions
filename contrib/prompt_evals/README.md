@@ -152,8 +152,13 @@ calls, roughly two cents per press release on gpt-4o.
 ### Reading the numbers
 
 Model output varies between runs of the same prompt. Measure the noise floor
-before judging a change: run the current prompt with `--fresh` and compare it
-against its own saved summary. As a reference point, re-running the
+before judging a change: run the current prompt with `--fresh --repeat 5`.
+Scores are then averaged per case, `all_match` becomes a pass rate, and the
+report lists every metric that varied between runs. A case that fails five
+runs out of five is a prompt or fixture problem; one that fails two out of
+five is an ambiguity the prompt leaves open, and a single-run pass after a
+prompt edit proves nothing about it. Save the repeated run as the baseline
+that later single runs are compared against. As a reference point, re-running the
 production prompt for us_ofac_press_releases on gpt-4o over its own accepted
 output misses entities in 19 of 179 cases. A change is real when it moves several cases in the same
 direction, or when the per-entity field averages move by more than the noise

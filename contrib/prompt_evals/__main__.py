@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 import click
-from zavod.extract.llm import DEFAULT_MODEL
 from zavod.logs import configure_logging
 
 from contrib.prompt_evals.coverage import coverage_counts, select_cases, tag_cases
@@ -15,7 +14,13 @@ from contrib.prompt_evals.crawler import (
     load_dataset,
     make_context,
 )
-from contrib.prompt_evals.evaluate import compare, run, save_summary, summarise
+from contrib.prompt_evals.evaluate import (
+    compare,
+    run,
+    save_summary,
+    stability_lines,
+    summarise,
+)
 from contrib.prompt_evals.fixtures import (
     SOURCES_DIR,
     export_fixtures,
@@ -90,7 +95,11 @@ def export(
     help="Only cases where the reviewer edited the extraction",
 )
 @click.option("--limit", type=int, default=None)
-@click.option("--model", default=DEFAULT_MODEL, show_default=True)
+@click.option(
+    "--model",
+    default=None,
+    help="Model to run; defaults to the crawler's LLM_MODEL, else zavod's default",
+)
 @click.option("--concurrency", default=4, show_default=True)
 @click.option(
     "--save",
@@ -113,6 +122,12 @@ def export(
     help="Ignore cached model responses, to measure run-to-run variation of an unchanged prompt",
 )
 @click.option(
+    "--repeat",
+    default=1,
+    show_default=True,
+    help="Run every case this many times; scores are averaged and assertions become pass rates",
+)
+@click.option(
     "--outputs",
     type=click.Path(path_type=Path),
     default=None,
@@ -125,17 +140,19 @@ def evaluate(
     names: tuple[str, ...],
     edited_only: bool,
     limit: int | None,
-    model: str,
+    model: str | None,
     concurrency: int,
     save: Path | None,
     baseline: Path | None,
     show_output: bool,
     fresh: bool,
+    repeat: int,
     outputs: Path | None,
 ) -> None:
     """Run the crawler's current prompt against its fixtures and report."""
     dataset = load_dataset(dataset_path)
     crawler = CrawlerPrompt(dataset, response_type, crawler_file)
+    model = model or crawler.model
     collected: dict[str, Any] = {}
     report = run(
         dataset,
@@ -148,21 +165,39 @@ def evaluate(
         concurrency,
         fresh,
         collected if outputs is not None else None,
+        repeat,
     )
     if outputs is not None:
         outputs.parent.mkdir(parents=True, exist_ok=True)
         outputs.write_text(json.dumps(collected, indent=2, ensure_ascii=False))
-    report.print(
-        include_reasons=True,
-        include_output=show_output,
-        include_durations=False,
-        width=200,
-    )
+    click.echo(f"Model: {model}")
+    summary = summarise(report)
+    if repeat == 1:
+        report.print(
+            include_reasons=True,
+            include_output=show_output,
+            include_durations=False,
+            width=200,
+        )
+    else:
+        click.echo(f"\n{repeat} runs per case. Metrics that varied between runs:")
+        for line in stability_lines(summary) or ["  none"]:
+            click.echo(f"  {line}")
+        click.echo("\nAverages over all runs:")
+        totals: dict[str, list[float]] = {}
+        for case in summary["cases"].values():
+            for metric, value in {
+                **case.get("scores", {}),
+                **case.get("assertions", {}),
+            }.items():
+                totals.setdefault(metric, []).append(value)
+        for metric, values in totals.items():
+            click.echo(f"  {metric}: {sum(values) / len(values):.3f}")
     if save is not None:
         save_summary(report, save)
         click.echo(f"Saved summary to {save}")
     if baseline is not None:
-        lines = compare(summarise(report), json.loads(baseline.read_text()))
+        lines = compare(summary, json.loads(baseline.read_text()))
         click.echo(f"\nChanges against baseline {baseline}:")
         for line in lines or ["  none"]:
             click.echo(f"  {line}")
