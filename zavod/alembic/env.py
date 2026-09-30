@@ -1,4 +1,4 @@
-"""Online-only Alembic environment for the packaged zavod migrations."""
+"""Online-only Alembic environment for the zavod migrations."""
 
 from logging.config import fileConfig
 from os import environ
@@ -37,7 +37,6 @@ def run_migrations(connection: Connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
-        version_table="zavod_alembic_version",
         include_name=include_zavod_name,
         compare_type=True,
     )
