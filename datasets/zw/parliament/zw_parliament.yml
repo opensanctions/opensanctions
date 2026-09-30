@@ -51,44 +51,43 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 1
+      Person: 1000
       Position: 2
   max:
     schema_entities:
-      Person: 100000
+      Person: 2300
+      Position: 2
 
 lookups:
   type.gender:
     options:
       # Data entry errors: both gender values are filled in.
-      - match: ["Male: Female", "Male: Male"]
+      - match: 
+          - "Male: Female"
+          - "Male: Male"
         value: null
   type.name:
     options:
-      - match: ["N/A", "Brig- Gen.RTD"]
+      - match: 
+          - "N/A"
+          - "Brig- Gen.RTD"
         value: null
       - match: "Jay Jay|"
         value: Jay Jay
-  title:
-    options:
-      - match: ["", "Mr", "Mr.", "MR", "Mrs", "Ms", "Ms.", "Miss", "Hon", "HON.", "Honorable", "MP", "Chief", "Chief "]
-        value: null
-      - match: "HON. Dr"
-        value: Dr
   party:
     options:
       - match: ZANU-PF
         value: ZANU-PF
       - match: CCC
-        value: Citizens Coalition for Change
+        value: CCC
       - match: MDC
-        value: Movement for Democratic Change
+        value: MDC
       - match: MDC Alliance
         value: MDC Alliance
       - match: MDC-T
-        value: Movement for Democratic Change – Tsvangirai
+        value: MDC-T
       - match: MDC-M
-        value: Movement for Democratic Change – Mutambara
+        value: MDC-M
       - match: PF-ZAPU
         value: PF-ZAPU
       # Not parties: the chiefs' bloc in the Senate, and independent members.
