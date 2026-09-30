@@ -70,7 +70,8 @@ COUNTRY_DESC = (
     "NOT countries where the entity merely operated, traded, shipped goods, held "
     "accounts, travelled or was seen: a Turkish company that ships to Iran is "
     "based in Turkey only. Do not infer a country from a nationality, a name, a "
-    "flag or a language."
+    "flag, a language, or a city, region or province: 'Culiacan, Sinaloa-based' or "
+    "'a Dubai office' does not give a country unless the article also names it."
 )
 RELATED_URL_DESC = (
     "URLs in the article whose target page is specifically about this entity, "

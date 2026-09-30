@@ -38,8 +38,12 @@ cases:
           name: Iran’s Ministry of Defense and Armed Forces Logistics
           related_url:
             - https://ofac.treasury.gov/news/press-releases/sm639
+          country:
+            - Iran
         - entity_schema: Organization
           name: Islamic Revolutionary Guard Corps-Qods Force
+          country:
+            - Iran
     evaluators: []
   - name: jy2473
     inputs:
@@ -251,7 +255,7 @@ cases:
     expected_output:
       designees:
         - entity_schema: Person
-          name:
+          name: Abdolhossein Khedri
           nationality:
             - Iran
         - entity_schema: Company
@@ -455,6 +459,8 @@ cases:
           name: Valery Valerievich Ivankovich
         - entity_schema: Organization
           name: Central Election Commission of the Republic of Belarus
+          country:
+            - Belarus
         - entity_schema: Person
           name: Ihar Vasilyevich Karpenka
         - entity_schema: Person
@@ -517,16 +523,31 @@ cases:
           related_url:
             - https://www.state.gov/narcotics-rewards-program-target-information-wanted/joaquin-guzman-lopez/
             - https://www.justice.gov/usao-ndil/pr/chapitos-charged-departments-latest-actions-disrupt-flow-illegal-fentanyl-and-other
+            - https://ofac.treasury.gov/system/files/2023-05/20230509_sinaloa_guzman_chart.pdf
         - entity_schema: Person
           name: Raymundo Perez Uribe
+          related_url:
+            - https://ofac.treasury.gov/system/files/2023-05/20230509_sinaloa_guzman_chart.pdf
         - entity_schema: Person
           name: Saul Paez Lopez
+          related_url:
+            - https://ofac.treasury.gov/system/files/2023-05/20230509_sinaloa_guzman_chart.pdf
         - entity_schema: Person
           name: Mario Esteban Ogazon Sedano
+          related_url:
+            - https://ofac.treasury.gov/system/files/2023-05/20230509_sinaloa_guzman_chart.pdf
         - entity_schema: Company
           name: Sumilab, S.A. de C.V.
+          country:
+            - Mexico
+          related_url:
+            - https://ofac.treasury.gov/system/files/2023-05/20230509_sinaloa_guzman_chart.pdf
         - entity_schema: Company
           name: Urbanizacion, Inmobiliaria y Construccion de Obras, S.A. de C.V.
+          country:
+            - Mexico
+          related_url:
+            - https://ofac.treasury.gov/system/files/2023-05/20230509_sinaloa_guzman_chart.pdf
         - entity_schema: Person
           name: Ivan Archivaldo Guzman Salazar
           related_url:
@@ -558,6 +579,8 @@ cases:
           name: Sinaloa Cartel
         - entity_schema: Organization
           name: Los Chapitos
+          related_url:
+            - https://www.justice.gov/usao-ndil/pr/chapitos-charged-departments-latest-actions-disrupt-flow-illegal-fentanyl-and-other
     evaluators: []
   - name: jy1606
     inputs:
@@ -699,10 +722,12 @@ cases:
           name: Pedram Pirouzan
           nationality:
             - Iran
+            - Dominica
         - entity_schema: Person
           name: Hossein Mohammad Rezaei
           nationality:
             - Iran
+            - Dominica
         - entity_schema: Person
           name: Masoud Mohammad Rezaei
         - entity_schema: Company
@@ -713,6 +738,7 @@ cases:
           name: Nasser Ghasemi Rad
           nationality:
             - Iran
+            - Saint Kitts and Nevis
         - entity_schema: Company
           name: Tahayyori and Associates Partnership Company
           country:
@@ -946,6 +972,8 @@ cases:
             - St. Vincent and the Grenadines
         - entity_schema: Person
           name: Sergey Sergeevich Ivanov
+          nationality:
+            - Russia
         - entity_schema: Organization
           name: PM2BTC
           related_url:
@@ -956,6 +984,8 @@ cases:
             - https://www.operation-endgame.com/
         - entity_schema: Person
           name: Timur Shakhmametov
+          nationality:
+            - Russia
         - entity_schema: Company
           name: Garantex
         - entity_schema: Company
@@ -968,6 +998,9 @@ cases:
             - https://home.treasury.gov/news/press-releases/jy2326
         - entity_schema: Organization
           name: LockBit
+          related_url:
+            - https://home.treasury.gov/news/press-releases/jy2326
+            - https://home.treasury.gov/news/press-releases/jy2114
         - entity_schema: Person
           name: Ivan Kondratiev
           related_url:
@@ -1191,6 +1224,8 @@ cases:
           name: Eustiquio Jose Lugo Gomez
         - entity_schema: Person
           name: Manuel Ricardo Cristopher Figuera
+          nationality:
+            - Venezuela
         - entity_schema: Company
           name: National Electric Corporation
     evaluators: []
@@ -1211,6 +1246,8 @@ cases:
       designees:
         - entity_schema: Person
           name: Samer Foz
+          nationality:
+            - Syria
         - entity_schema: Person
           name: Amer Foz
         - entity_schema: Person
@@ -1356,18 +1393,32 @@ cases:
       designees:
         - entity_schema: Person
           name: Aleksandr Bortnikov
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Andrei Yarin
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Sergei Kiriyenko
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Aleksey Krivoruchko
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Pavel Popov
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Alexander Kalashnikov
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Igor Krasnov
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Sergei Menyailo
         - entity_schema: Organization
