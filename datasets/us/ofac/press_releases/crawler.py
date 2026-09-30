@@ -2,7 +2,7 @@ from typing import Literal
 
 from lxml.html import tostring
 from pydantic import BaseModel, Field
-from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
@@ -16,7 +16,7 @@ Schema = Literal[
     "Person", "Organization", "Company", "LegalEntity", "Vessel", "Airplane"
 ]
 
-MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
+LLM_MODEL = "gpt-6.1-sol"
 
 LEGAL_FORMS = (
     "LLC, Ltd, Limited, Inc, Corp, Corporation, Co, SA, S.A., SA de CV, SAL, SARL, "
@@ -78,7 +78,9 @@ RELATED_URL_DESC = (
     "page, a Justice Department indictment announcement, or an OFAC enforcement "
     "action against the entity. Do NOT include links to OFAC 'Recent Actions' pages, "
     "sanctions program pages, executive orders, general licenses, FAQs or other "
-    "pages that are not about this specific entity. Copy URLs exactly as written."
+    "pages that are not about this specific entity. Copy URLs exactly as written. "
+    "Include links to further identifying information of a designee. Exclude links "
+    "broadly about sanctions policy but not specifically about the named entity."
 )
 
 
@@ -138,6 +140,8 @@ name (e.g. "an Iranian entity", "a Turkish company").
 EXCLUDE from extraction:
 - US Treasury officials (e.g., Secretary, Under Secretary)
 - US federal government entities (e.g., Department of Treasury, SEC, OFAC itself)
+- Other law enforcement officials or entities involved in the investigation, enforcement
+  or prosecution of designated entities or their affiliates.
 </exclusions>
 
 <name_references>
@@ -227,13 +231,13 @@ def crawl_press_release(context: Context, url: str) -> None:
         url=url,
     )
     prompt_result = run_typed_text_prompt(
-        context, PROMPT, source_value.value_string, Designees, MAX_TOKENS
+        context, PROMPT, source_value.value_string, Designees
     )
     review = review_extraction(
         context,
         source_value=source_value,
         original_extraction=prompt_result,
-        origin=DEFAULT_MODEL,
+        origin=LLM_MODEL,
     )
     if not review.accepted:
         return

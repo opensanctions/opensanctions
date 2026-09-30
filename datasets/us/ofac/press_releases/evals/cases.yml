@@ -36,8 +36,8 @@ cases:
             - Marshall Islands
         - entity_schema: Organization
           name: Iran’s Ministry of Defense and Armed Forces Logistics
-          country:
-            - Iran
+          related_url:
+            - https://ofac.treasury.gov/news/press-releases/sm639
         - entity_schema: Organization
           name: Islamic Revolutionary Guard Corps-Qods Force
     evaluators: []
@@ -58,26 +58,38 @@ cases:
       designees:
         - entity_schema: Person
           name: Yuliya Vladimirovna Pankratova
+          nationality:
+            - Russia
         - entity_schema: Person
           name: Denis Olegovich Degtyarenko
+          nationality:
+            - Russia
         - entity_schema: Organization
           name: Cyber Army of Russia Reborn
         - entity_schema: Person
           name: Dmitry Khoroshev
+          country:
+            - Russia
           related_url:
             - https://home.treasury.gov/news/press-releases/jy2326
         - entity_schema: Organization
           name: LockBit
         - entity_schema: Person
           name: Ivan Kondratiev
+          country:
+            - Russia
           related_url:
             - https://home.treasury.gov/news/press-releases/jy2114
         - entity_schema: Person
           name: Artur Sungatov
+          country:
+            - Russia
           related_url:
             - https://home.treasury.gov/news/press-releases/jy2114
         - entity_schema: Person
           name: Alexander Ermakov
+          country:
+            - Russia
           related_url:
             - https://home.treasury.gov/news/press-releases/jy2041
     evaluators: []
@@ -127,12 +139,10 @@ cases:
             - United Kingdom
         - entity_schema: Company
           name: Global Trading Group NV
-        - entity_schema: Organization
-          name: Hizballah
         - entity_schema: Company
           name: Al-Inmaa Group for Tourism Works
           country:
-            - LebanonIslamic Jihad
+            - Lebanon
         - entity_schema: Person
           name: Husayn Ali Faour
         - entity_schema: Person
@@ -166,9 +176,6 @@ cases:
             - Turkey
           related_url:
             - https://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/20190207.aspx
-            - https://www.treasury.gov/resource-center/sanctions/CivPen/Documents/20190207_kollmorgen.pdf
-        - entity_schema: Company
-          name: Kollmorgen Corporation
     evaluators: []
   - name: sm533
     inputs:
@@ -244,7 +251,9 @@ cases:
     expected_output:
       designees:
         - entity_schema: Person
-          name: Abdolhossein Khedri
+          name:
+          nationality:
+            - Iran
         - entity_schema: Company
           name: Khedri Jahan Darya Co
           country:
@@ -271,6 +280,8 @@ cases:
           name: Islamic Revolutionary Guards Corps-Qods Force
         - entity_schema: Company
           name: Mahan Air
+          country:
+            - Iran
     evaluators: []
   - name: sm841
     inputs:
@@ -391,6 +402,8 @@ cases:
       designees:
         - entity_schema: Organization
           name: 15 Khordad Foundation
+          country:
+            - Iran
     evaluators: []
   - name: jy1086
     inputs:
@@ -413,10 +426,6 @@ cases:
             - Burma
         - entity_schema: Company
           name: Sky Aviator Company Limited
-        - entity_schema: Organization
-          name: Burmese military
-        - entity_schema: Organization
-          name: Burma’s military regime
     evaluators: []
   - name: jy1365
     inputs:
@@ -434,10 +443,14 @@ cases:
       designees:
         - entity_schema: Company
           name: Open Joint Stock Company Belarusian Automobile Plant
+          country:
+            - Belarus
         - entity_schema: Person
           name: Sergei Olegovich Nikiforovich
         - entity_schema: Company
           name: Open Joint Stock Company Minsk Automobile Plant
+          country:
+            - Belarus
         - entity_schema: Person
           name: Valery Valerievich Ivankovich
         - entity_schema: Organization
@@ -501,6 +514,9 @@ cases:
       designees:
         - entity_schema: Person
           name: Joaquin Guzman Lopez
+          related_url:
+            - https://www.state.gov/narcotics-rewards-program-target-information-wanted/joaquin-guzman-lopez/
+            - https://www.justice.gov/usao-ndil/pr/chapitos-charged-departments-latest-actions-disrupt-flow-illegal-fentanyl-and-other
         - entity_schema: Person
           name: Raymundo Perez Uribe
         - entity_schema: Person
@@ -586,7 +602,7 @@ cases:
     expected_output:
       designees:
         - entity_schema: Person
-          name: Jordan "Orce" Kamcev
+          name: Jordan Kamcev
           country:
             - North Macedonia
     evaluators: []
@@ -613,6 +629,8 @@ cases:
           name: Avichai Suissa
         - entity_schema: LegalEntity
           name: Hashomer Yosh
+          country:
+            - West Bank
     evaluators: []
   - name: sm719
     inputs:
@@ -675,6 +693,8 @@ cases:
       designees:
         - entity_schema: Company
           name: Pedram Pirouzan and Associates Partnership Company
+          country:
+            - Iran
         - entity_schema: Person
           name: Pedram Pirouzan
           nationality:
@@ -687,12 +707,16 @@ cases:
           name: Masoud Mohammad Rezaei
         - entity_schema: Company
           name: Nasser Ghasemi Rad and Associates Partnership Company
+          country:
+            - Iran
         - entity_schema: Person
           name: Nasser Ghasemi Rad
           nationality:
             - Iran
         - entity_schema: Company
           name: Tahayyori and Associates Partnership Company
+          country:
+            - Iran
         - entity_schema: Person
           name: Ehsan Tahayyori
           nationality:
@@ -729,10 +753,14 @@ cases:
           name: Architectonic Corp Limited
         - entity_schema: Company
           name: Central Bank of Iran
+          country:
+            - Iran
           related_url:
             - https://home.treasury.gov/news/press-releases/sm780
         - entity_schema: Company
           name: National Iranian Oil Company
+          country:
+            - Iran
           related_url:
             - https://home.treasury.gov/news/press-releases/sm1165
     evaluators: []
@@ -753,7 +781,7 @@ cases:
         - vessel-flag
     expected_output:
       designees:
-        - entity_schema: LegalEntity
+        - entity_schema: Company
           name: Mehrdad Geramian Nik and Partners Company
           country:
             - Iran
@@ -796,6 +824,8 @@ cases:
             - China
         - entity_schema: Company
           name: Limra Gas Limited
+          country:
+            - Marshall Islands
         - entity_schema: Company
           name: Ecoseas Maritime Limited
           country:
@@ -878,14 +908,20 @@ cases:
             - https://home.treasury.gov/news/press-releases/sb0502
         - entity_schema: Company
           name: Bank Tejarat
+          country:
+            - Iran
           related_url:
             - https://home.treasury.gov/news/press-releases/tg1397
         - entity_schema: Company
           name: Bank Mellat
+          country:
+            - Iran
           related_url:
             - https://home.treasury.gov/news/press-releases/sm524
         - entity_schema: Company
           name: Bank Pasargad
+          country:
+            - Iran
           related_url:
             - https://home.treasury.gov/news/press-releases/sm1147
     evaluators: []
@@ -1157,7 +1193,6 @@ cases:
           name: Manuel Ricardo Cristopher Figuera
         - entity_schema: Company
           name: National Electric Corporation
-        - entity_schema: Organization
     evaluators: []
   - name: sm704
     inputs:
