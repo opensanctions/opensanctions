@@ -22,13 +22,14 @@ def split_name_address(name_and_address: str) -> tuple[str, str | None]:
 def parse_row(context: Context, row: dict[str, str | None]) -> None:
     entity = context.make("LegalEntity")
     name_and_address = row.pop("name_and_address")
+    assert name_and_address is not None
     name, address = split_name_address(name_and_address)
 
     entity.id = context.make_id(name, address)
     entity.add("name", name)
     entity.add("notes", row.pop("type_of_denial"))
-    address = h.make_address(context, full=address)
-    h.copy_address(entity, address)
+    address_entity = h.make_address(context, full=address)
+    h.copy_address(entity, address_entity)
 
     citation = row.pop("appropriate_federal_register_citations")
     # We don't link it to the website here, since it's included in the us_trade_csl
@@ -49,7 +50,9 @@ def parse_row(context: Context, row: dict[str, str | None]) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
-    urls = doc.xpath(".//a[contains(normalize-space(.), 'Export as CSV')]/@href")
+    urls = h.xpath_strings(
+        doc, ".//a[contains(normalize-space(.), 'Export as CSV')]/@href"
+    )
     assert len(urls) == 1, "Expected exactly one URL"
     url = urls[0]
     path = context.fetch_resource("source.whoknows", url)
@@ -60,11 +63,13 @@ def crawl(context: Context) -> None:
     with open(path, encoding="utf-8-sig") as infh:
         reader = csv.DictReader(infh)
         fieldnames = reader.fieldnames
-    norm_fieldnames = []
+    assert fieldnames is not None
+    norm_fieldnames: list[str] = []
     for field in fieldnames:
         field = field.lower().replace(" ", "_")
-        field = context.lookup_value("columns", field, field)
-        norm_fieldnames.append(field)
+        norm_field = context.lookup_value("columns", field, field)
+        assert norm_field is not None
+        norm_fieldnames.append(norm_field)
     with open(path, encoding="utf-8-sig") as infh:
         reader = csv.DictReader(infh, fieldnames=norm_fieldnames)
         next(reader)  # Skip header row

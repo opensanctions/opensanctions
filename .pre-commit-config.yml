@@ -59,7 +59,6 @@ repos:
           datasets/ky/judicial|
           datasets/lt/pep_declarations|
           datasets/ng/join_dots|
-          datasets/us/bis_denied|
           datasets/za/wanted
           )
         args: ['--strict', '--explicit-package-bases']
