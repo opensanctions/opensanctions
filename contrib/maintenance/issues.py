@@ -11,6 +11,16 @@ from typing import Any
 HEX_ADDR_RE = re.compile(r"0x[0-9a-fA-F]+")
 
 
+def is_issue_skipped(issue: dict[str, Any]) -> bool:
+    """True for issues a crawler logged with `agent="skip"`.
+
+    Crawlers set the attribute on warnings that need a human outside this
+    repository, such as the review UI backlog.
+    """
+    data = issue.get("data")
+    return isinstance(data, dict) and data.get("agent") == "skip"
+
+
 def issues_checksum(issues: list[Any]) -> str:
     """Return a checksum that identifies a constant set of crawl issues.
 
@@ -25,10 +35,15 @@ def issues_checksum(issues: list[Any]) -> str:
     page-content hashes that live in `data` (e.g. the expected/actual values of a
     "DOM hash changed" warning) are stable and are kept, so a real source change
     still moves the checksum.
+
+    Skipped issues are left out: their messages often carry a count that
+    changes every run, e.g. the review backlog size, and would otherwise
+    move the checksum while the actionable issues stay the same.
     """
     normalized = [
         {k: issue.get(k) for k in ("level", "module", "message", "entity", "data")}
         for issue in issues
+        if not is_issue_skipped(issue)
     ]
     # Sort so the order issues happen to appear in the log doesn't affect the hash.
     normalized.sort(key=lambda i: json.dumps(i, sort_keys=True, ensure_ascii=False))
@@ -67,9 +82,12 @@ def is_issue_ignored(issue: dict[str, Any]) -> bool:
     Use this to avoid spawning an agent for a run whose issues it could never
     fix: transient infrastructure noise (a database deadlock, a dropped
     connection, a timeout) and review-system backlog, which a human clears in
-    the review UI. The match is deliberately narrow: exact markers for known
-    cases, so anything unrecognized stays visible.
+    the review UI. The match is deliberately narrow: issues a crawler logged
+    with `agent="skip"`, plus exact message markers for known cases, so
+    anything unrecognized stays visible.
     """
+    if is_issue_skipped(issue):
+        return True
     message = str(issue.get("message", ""))
     return any(pattern in message for pattern in IGNORED_MESSAGES)
 
