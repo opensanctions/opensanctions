@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-import os
 import re
 import uuid
 from base64 import b64encode
@@ -22,39 +21,6 @@ from zavod.stateful.positions import (
 )
 from zavod.stateful.review import assert_all_accepted
 
-# Above the 580 seats plus mid-term replacements: one page per legislature.
-PAGE_SIZE = 1000
-
-# Taken from the site's axios interceptor. On 401/403, re-extract them by grepping
-# /_next/static/chunks/*.js for "x-api-signature".
-API_TOKEN = os.environ.get("OPENSANCTIONS_ID_DPR_API_TOKEN")
-SIGNING_SECRET = os.environ.get("OPENSANCTIONS_ID_DPR_SIGNING_SECRET")
-
-# Legislature labels, e.g. "Periode 2024 - 2029".
-PERIODE_RE = re.compile(r"(?:Periode\s+)?(?P<start>\d{4})\s*-\s*(?P<end>\d{4})")
-
-# Trimmed from the site's own query; formatted with page size and legislature ID.
-ROSTER_QUERY = """
-{
-  getDaftarRiwayatAnggota(
-    first: %d
-    wherePeriode: { column: ID, operator: EQ, value: %d }
-  ) {
-    data {
-      idAnggota
-      statusOff
-      dapil { dapil }
-      anggota { id nama tempatLahir tanggalLahir }
-      riwayatFraksi { fraksi { fraksi } }
-    }
-  }
-}
-"""
-
-MEMBER_URL = (
-    "https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan/detail-anggota/"
-)
-
 
 @dataclass
 class Legislature:
@@ -65,16 +31,18 @@ class Legislature:
 
 def sign_request(body: bytes) -> dict[str, str]:
     """Build the signing headers required by the /gql endpoint."""
-    assert API_TOKEN is not None, "OPENSANCTIONS_ID_DPR_API_TOKEN is not set"
-    assert SIGNING_SECRET is not None, "OPENSANCTIONS_ID_DPR_SIGNING_SECRET is not set"
     request_at = datetime.now(UTC).isoformat(timespec="milliseconds")[:-6] + "Z"
     request_id = str(uuid.uuid4())
     request_body = hashlib.sha256(body).hexdigest()
     message = f"POST:{request_body}:{request_at}:{request_id}"
-    digest = hmac.new(SIGNING_SECRET.encode(), message.encode(), "sha256").hexdigest()
+    # The secret and the API token below are public values from the site's axios
+    # interceptor. On 401/403, re-extract them by grepping
+    # /_next/static/chunks/*.js for "x-api-signature".
+    secret = b"LfmqpWYMaEuQA42LcDvmgbBgG4NDmZp73yr8G8pZ"
+    digest = hmac.new(secret, message.encode(), "sha256").hexdigest()
     signature = b64encode(digest.encode()).decode()
     return {
-        "x-api-token": API_TOKEN,
+        "x-api-token": "48a07687-2a14-4647-9d42-23d7f8ebfa45",
         "x-request-at": request_at,
         "x-request-id": request_id,
         "x-request-body": request_body,
@@ -82,9 +50,11 @@ def sign_request(body: bytes) -> dict[str, str]:
     }
 
 
-def query_gql(context: Context, query: str) -> Any:
+def query_gql(
+    context: Context, query: str, variables: dict[str, Any] | None = None
+) -> Any:
     """Send a signed GraphQL request and return its data."""
-    body = orjson.dumps({"query": query})
+    body = orjson.dumps({"query": query, "variables": variables})
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -112,7 +82,11 @@ def fetch_legislatures(context: Context) -> list[Legislature]:
     """Fetch the legislative periods and parse their term years."""
     legislatures: list[Legislature] = []
     for periode in query_gql(context, "{ getAllPeriode { id data } }")["getAllPeriode"]:
-        match = PERIODE_RE.fullmatch(periode["data"].strip())
+        # Legislature labels, e.g. "Periode 2024 - 2029".
+        match = re.fullmatch(
+            r"(?:Periode\s+)?(?P<start>\d{4})\s*-\s*(?P<end>\d{4})",
+            periode["data"].strip(),
+        )
         if match is None:
             raise ValueError(f"Cannot parse legislature period: {periode!r}")
         legislatures.append(
@@ -127,8 +101,27 @@ def fetch_legislatures(context: Context) -> list[Legislature]:
 
 def fetch_roster(context: Context, legislature: Legislature) -> list[dict[str, Any]]:
     """Fetch the full roster of one legislature."""
-    query = ROSTER_QUERY % (PAGE_SIZE, legislature.id)
-    roster = query_gql(context, query)["getDaftarRiwayatAnggota"]
+    # Trimmed from the site's own query. The page size is above the 580 seats plus
+    # mid-term replacements, so one page holds a whole legislature.
+    query = """
+    query ($periode: Mixed) {
+      getDaftarRiwayatAnggota(
+        first: 1000
+        wherePeriode: { column: ID, operator: EQ, value: $periode }
+      ) {
+        data {
+          idAnggota
+          statusOff
+          dapil { dapil }
+          anggota { id nama tempatLahir tanggalLahir }
+          riwayatFraksi { fraksi { fraksi } }
+        }
+      }
+    }
+    """
+    roster = query_gql(context, query, {"periode": legislature.id})[
+        "getDaftarRiwayatAnggota"
+    ]
     members: list[dict[str, Any]] = roster["data"]
     return members
 
@@ -174,7 +167,11 @@ def crawl_member(
         person.add("political", party, lang="ind")
     # e.g. "Dr-H-C-PUAN-MAHARANI-287"
     slug = re.sub(r"[^A-Za-z0-9]+", "-", raw_name)
-    person.add("sourceUrl", f"{MEMBER_URL}{slug}-{member_id}")
+    person.add(
+        "sourceUrl",
+        "https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan/detail-anggota/"
+        f"{slug}-{member_id}",
+    )
 
     status = None
     # Ended terms are left to the period end; their statusOff is often blank.
