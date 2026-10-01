@@ -38,7 +38,7 @@ def crawl_member(
     period: dict[str, Any],
 ) -> None:
     person = context.make("Person")
-    person.id = context.make_slug(str(member.pop("id")))
+    person.id = context.make_slug(member.pop("id"))
     raw_name = member.pop("fullName")
     clean_name = h.strip_name_titles(context, raw_name)
     person.add(
