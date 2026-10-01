@@ -12,8 +12,6 @@ from zavod.stateful.positions import (
 
 TOPICS = ["gov.national", "gov.legislative"]
 PER_PAGE = 300
-STATUS_SERVING = 0
-STATUS_LEFT = 1
 UNSET_DATE = "0001-01-01T00:00:00Z"
 IGNORE = [
     "photoUrl",
@@ -27,6 +25,7 @@ IGNORE = [
     "youtube",
     "twitter",
     "website",
+    "email",
 ]
 
 
@@ -51,8 +50,6 @@ def crawl_member(
     person.add("birthPlace", member.pop("placeOfBirth"))
     h.apply_date(person, "birthDate", member.pop("dateOfBirth"))
     person.add("biography", member.pop("profile"))
-    person.add("email", member.pop("email"))
-    # DPD members must be Indonesian citizens (Law No. 7 of 2017, Article 182a).
     person.add("citizenship", "id")
     # memberPeriods spans a member's whole career, so pick out this term's mandate.
     mandates = [
@@ -63,11 +60,11 @@ def crawl_member(
         mandates = [m for m in mandates if m["inaugurationDate"] != UNSET_DATE]
     assert len(mandates) == 1, (person.id, len(mandates))
     mandate = mandates[0]
-    status = mandate["memberStatus"]
-    if status not in (STATUS_SERVING, STATUS_LEFT):
-        context.log.warning(f"{person.id} has unknown memberStatus {status!r}")
+    status = context.lookup_value(
+        "member_status", mandate["memberStatus"], warn_unmatched=True
+    )
     # In a running term, no end date implies still serving, so say when they left.
-    left_early = status == STATUS_LEFT and period["endYear"] >= settings.RUN_TIME.year
+    left_early = status == "ended" and period["endYear"] >= settings.RUN_TIME.year
     occupancy = h.make_occupancy(
         context,
         person,
