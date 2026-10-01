@@ -1,21 +1,23 @@
 title: DR Congo Members of the National Assembly
 entry_point: crawler.py
 name: cd_national_assembly
-prefix: cd-na
+prefix: cd-assembly
 coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: true
+# A full crawl fetches every deputy's profile page (~570), well past the CI budget.
+ci_test: false
 summary: >-
-  Lower house of Parliament, 500 deputies from multi-member constituencies
+  Deputies of the lower house, including substitutes who have taken up a seat
 description: |
-  Current members of the National Assembly (Assemblée nationale), the lower house
-  of the bicameral Parliament of the Democratic Republic of the Congo. Its 500 deputies are
-  elected for five-year terms in multi-member constituencies and hold the country's legislative
-  power, including passing laws and approving the budget. Substitutes who have taken up a seat,
-  and deputies whose mandate has ended or been suspended, are included alongside the sitting
-  members.
+  Current members of the National Assembly (Assemblée nationale), the lower house of the
+  bicameral Parliament of the Democratic Republic of the Congo. Its 500 deputies are elected
+  for a five-year term in single- and multi-member constituencies and hold the country's
+  legislative power, including passing laws and approving the budget.
+
+  The dataset covers the sitting legislature. Substitutes who have taken up a seat are
+  included, as are deputies whose mandate has ended or been suspended during the term.
 url: https://assembleenationale.cd/tous-les-deputes/
 publisher:
   name: Assemblée nationale de la République démocratique du Congo
@@ -34,6 +36,41 @@ data:
 tags:
   - list.pep
 
+dates:
+  formats: ["%d/%m/%Y", "%Y%m%d"]
+
+lookups:
+  # The mandate taxonomy, as an occupancy status override. The source never dates a
+  # mandate, so only ended and suspended ones are set; make_occupancy decides the rest.
+  mandate:
+    options:
+      - match: En cours
+        value: null
+      - match: Terminé
+        value: ended
+      # A suspended deputy keeps the seat without exercising it; their substitute
+      # sits in their place. Neither current nor ended.
+      - match: Suspendu
+        value: unknown
+  # Labelled items on a deputy's profile page.
+  details:
+    options:
+      - match: Lieu de naissance
+        value: birth_place
+      - match: Date de naissance
+        value: birth_date
+      # The deputy a substitute took over from, or who took over the seat.
+      - match:
+          - En remplacement de
+          - Remplacé(e) par
+        value: null
+  type.string:
+    options:
+      # A birth date entered as the birth place.
+      - match: 07/03/1967
+        prop: birthDate
+        value: 1967-03-07
+
 assertions:
   min:
     schema_entities:
@@ -41,6 +78,11 @@ assertions:
       Position: 1
     country_entities:
       cd: 490
+    # Read from the profile pages: catches a template change that hides the fields.
+    property_fill_rate:
+      Person:
+        birthDate: 0.9
+        political: 0.9
   max:
     schema_entities:
       Person: 1100
