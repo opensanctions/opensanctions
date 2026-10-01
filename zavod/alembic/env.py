@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, pool
 from sqlalchemy.engine import Connection
 
 from zavod.stateful import model
-from zavod.shed.funes import model as funes_model  # noqa: F401
+from zavod.shed.funes import model as funes_model
 from pravda.db import Base as pravda_base
 
 config = context.config
@@ -17,16 +17,20 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Pravda defines its snapshot table on its own metadata; this migration
-# chain owns the table even though the definition lives in the pravda
-# package.
-target_metadata = [model.meta, pravda_base.metadata]
+# Each metadata is passed explicitly: the stateful tables on the shared
+# ``zavod.db.meta``, funes and pravda on their own metadata. The pravda
+# snapshot table is owned by this chain even though its definition lives
+# in the pravda package.
+target_metadata = [model.meta, funes_model.funes_meta, pravda_base.metadata]
 
 # The database hosts other projects' tables, e.g. the nomenklatura resolver,
-# which autogenerate must never see. The stateful and funes models register
-# their tables on the shared ``zavod.db.meta``; pravda defines its snapshot
-# table on its own metadata, but the table is owned by this chain.
-ZAVOD_TABLES = frozenset(model.meta.tables) | frozenset(pravda_base.metadata.tables)
+# which autogenerate must never see. The sets below are the tables owned
+# by this migration chain.
+ZAVOD_TABLES = (
+    frozenset(model.meta.tables)
+    | frozenset(funes_model.funes_meta.tables)
+    | frozenset(pravda_base.metadata.tables)
+)
 
 
 def include_zavod_name(
