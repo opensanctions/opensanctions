@@ -48,7 +48,27 @@ IGNORE = [
 ]
 
 
-def parse_details(context: Context, person: Entity, profile_url: str) -> None:
+def crawl_member(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    period_start: str,
+    period_end: str,
+    record: dict[str, Any],
+) -> None:
+    # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
+    taxonomies: dict[str, list[str]] = defaultdict(list)
+    for terms in record.get("_embedded", {}).get("wp:term", []):
+        for term in terms:
+            taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
+
+    person = context.make("Person")
+    person.id = context.make_slug(record.pop("id"))
+    person.add("name", unescape(record.pop("title")["rendered"]).strip())
+    person.add("citizenship", "cd")
+    profile_url = record.pop("link")
+    person.add("sourceUrl", profile_url)
+
     profile = context.fetch_html(profile_url, cache_days=7)
     # "Informations personnelles" and the mandate notes, as "Label : value" items.
     for item in h.xpath_elements(
@@ -60,40 +80,15 @@ def parse_details(context: Context, person: Entity, profile_url: str) -> None:
             person.add("birthPlace", value)
         elif field == "birth_date":
             h.apply_date(person, "birthDate", value)
-    # The party and parliamentary group widgets hold a linked heading, or "N/A".
+    # The party and group widgets hold a linked heading, or "N/A"; selecting the
+    # widget itself fails loudly if the page template changes.
     party_widget = h.xpath_element(profile, '//div[@data-id="0459684"]')
-    for party in h.xpath_elements(party_widget, ".//h2"):
-        person.add("political", h.element_text(party))
+    person.add("political", h.xpath_strings(party_widget, ".//h2//text()"))
+    group_widget = h.xpath_element(profile, '//div[@data-id="976268c"]')
+    political_groups = h.xpath_strings(group_widget, ".//h2//text()")
 
-
-def crawl_member(
-    context: Context,
-    record: dict[str, Any],
-    period_start: str,
-    period_end: str,
-    position: Entity,
-    categorisation: PositionCategorisation,
-) -> None:
-
-    person = context.make("Person")
-    person.id = context.make_slug(record.pop("id"))
-    person.add("name", unescape(record.pop("title")["rendered"]).strip())
-    person.add("citizenship", "cd")
-    profile_url = record.pop("link")
-    person.add("sourceUrl", profile_url)
-    context.audit_data(record, ignore=IGNORE)
-
-    profile = context.fetch_html(profile_url, cache_days=7)
-    parse_details(context, person, profile_url)
-
-    # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
-    taxonomies: dict[str, list[str]] = defaultdict(list)
-    for terms in record.get("_embedded", {}).get("wp:term", []):
-        for term in terms:
-            taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
     # Only ended and suspended mandates override the status; make_occupancy decides the rest.
     mandate = context.lookup_value("mandate", next(iter(taxonomies["mandats"]), None))
-    status = OccupancyStatus(mandate) if mandate is not None else None
     occupancy = h.make_occupancy(
         context,
         person,
@@ -101,19 +96,19 @@ def crawl_member(
         categorisation=categorisation,
         period_start=period_start,
         period_end=period_end,
-        status=status,
+        status=OccupancyStatus(mandate) if mandate is not None else None,
     )
     if occupancy is None:
         return
-    constituency = join_text(
-        *taxonomies["circonscriptions"], *taxonomies["provinces"], sep=", "
+    occupancy.add(
+        "constituency",
+        join_text(*taxonomies["circonscriptions"], *taxonomies["provinces"], sep=", "),
     )
-    occupancy.add("constituency", constituency)
-    group_widget = h.xpath_element(profile, '//div[@data-id="976268c"]')
-    for group in h.xpath_elements(group_widget, ".//h2"):
-        occupancy.add("politicalGroup", h.element_text(group))
+    occupancy.add("politicalGroup", political_groups)
     context.emit(occupancy)
     context.emit(person)
+
+    context.audit_data(record, ignore=IGNORE)
 
 
 def crawl(context: Context) -> None:
@@ -144,13 +139,13 @@ def crawl(context: Context) -> None:
     # `offset`, not `page`: the API 400s past the last page. Uncached, because a
     # paginated listing shifts. The chamber seats 500, so 5000 bounds the loop.
     for offset in range(0, 5000, PER_PAGE):
-        params = {"per_page": PER_PAGE, "_embed": 1, "offset": offset}
-        data = context.fetch_json(context.data_url, params=params)
+        data = context.fetch_json(
+            context.data_url,
+            params={"per_page": PER_PAGE, "_embed": 1, "offset": offset},
+        )
         for record in data:
             crawl_member(
-                context, record, period_start, period_end, position, categorisation
+                context, position, categorisation, period_start, period_end, record
             )
         if len(data) < PER_PAGE:
             break
-    else:
-        raise RuntimeError("Paging never reached a short page: is `offset` ignored?")
