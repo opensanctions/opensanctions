@@ -137,28 +137,20 @@ def crawl(context: Context) -> None:
         params={"per_page": "1", "orderby": "name", "order": "desc"},
         cache_days=1,
     )
-    latest_term = REGEX_TERM.fullmatch(terms[0]["name"].strip())
-    assert latest_term is not None, terms[0]["name"]
-    period_start, period_end = latest_term.group(1), latest_term.group(2)
+    term = REGEX_TERM.fullmatch(terms[0]["name"].strip())
+    assert term is not None, terms[0]["name"]
+    period_start, period_end = term.groups()
 
-    records = 0
-    while True:
-        # `offset`, not `page`: the API 400s past the last page, which an exact multiple
-        # of PER_PAGE would hit. Uncached, because a paginated listing shifts.
-        data = context.fetch_json(
-            context.data_url,
-            params={
-                "per_page": str(PER_PAGE),
-                "_embed": "1",
-                "offset": str(records),
-            },
-        )
+    # `offset`, not `page`: the API 400s past the last page. Uncached, because a
+    # paginated listing shifts. The chamber seats 500, so 5000 bounds the loop.
+    for offset in range(0, 5000, PER_PAGE):
+        params = {"per_page": PER_PAGE, "_embed": 1, "offset": offset}
+        data = context.fetch_json(context.data_url, params=params)
         for record in data:
             crawl_member(
                 context, record, period_start, period_end, position, categorisation
             )
-        records += len(data)
-        # The chamber seats 500; ten times that means `offset` stopped paging.
-        assert records < 5000, records
         if len(data) < PER_PAGE:
             break
+    else:
+        raise RuntimeError("Paging never reached a short page: is `offset` ignored?")
