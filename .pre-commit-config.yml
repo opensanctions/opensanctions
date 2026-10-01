@@ -54,13 +54,7 @@ repos:
         files: "datasets/"
         exclude: |
           (?x)^(
-          datasets/eu/journal_sanctions|
-          datasets/gb/coh|
-          datasets/ky/judicial|
-          datasets/lt/pep_declarations|
-          datasets/ng/join_dots|
-          datasets/us/bis_denied|
-          datasets/za/wanted
+          datasets/eu/journal_sanctions
           )
         args: ['--strict', '--explicit-package-bases']
   - repo: local

@@ -6,7 +6,7 @@ from zavod import Context, helpers as h
 
 AKA_MATCH = r"\(aka ([^)]+)\)"
 
-SKIPROWS = 10
+SKIPROWS = 1
 
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
