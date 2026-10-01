@@ -52,13 +52,14 @@ def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    period_start: str,
-    period_end: str,
+    term_name: str,
+    period_start: str | None,
+    period_end: str | None,
     record: dict[str, Any],
 ) -> None:
     # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
     taxonomies: dict[str, list[str]] = defaultdict(list)
-    for terms in record["_embedded"]["wp:term"]:
+    for terms in record.get("_embedded", {}).get("wp:term", []):
         for term in terms:
             taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
 
@@ -87,10 +88,11 @@ def crawl_member(
     group_widget = h.xpath_element(profile, '//div[@data-id="976268c"]')
     political_groups = h.xpath_strings(group_widget, ".//h2//text()")
 
+    # The term's dates go only on records the source tags with that term.
+    if term_name not in taxonomies["legislature"]:
+        period_start = period_end = None
     # Only ended and suspended mandates override the status; make_occupancy decides the rest.
-    mandate = context.lookup_value(
-        "mandate", next(iter(taxonomies["mandats"]), None), warn_unmatched=True
-    )
+    mandate = context.lookup_value("mandate", next(iter(taxonomies["mandats"]), None))
     occupancy = h.make_occupancy(
         context,
         person,
@@ -134,8 +136,9 @@ def crawl(context: Context) -> None:
         params={"per_page": "1", "orderby": "name", "order": "desc"},
         cache_days=1,
     )
-    term = REGEX_TERM.fullmatch(terms[0]["name"].strip())
-    assert term is not None, terms[0]["name"]
+    term_name = unescape(terms[0]["name"]).strip()
+    term = REGEX_TERM.fullmatch(term_name)
+    assert term is not None, term_name
     period_start, period_end = term.groups()
 
     # `offset`, not `page`: the API 400s past the last page. Uncached, because a
@@ -147,7 +150,13 @@ def crawl(context: Context) -> None:
         )
         for record in data:
             crawl_member(
-                context, position, categorisation, period_start, period_end, record
+                context,
+                position,
+                categorisation,
+                term_name,
+                period_start,
+                period_end,
+                record,
             )
         if len(data) < PER_PAGE:
             break
