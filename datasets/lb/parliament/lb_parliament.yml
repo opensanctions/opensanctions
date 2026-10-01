@@ -1,0 +1,125 @@
+title: Lebanon Members of Parliament
+name: lb_parliament
+prefix: lb-parl
+entry_point: crawler.py
+# A cold run fetches one page per term plus one per member, ~320 requests over
+# roughly three minutes, which is beyond what CI runs inline.
+ci_test: false
+coverage:
+  frequency: monthly
+  start: 2026-10-01
+load_statements: true
+summary: >-
+  Unicameral legislature, 128 members elected across 15 districts
+description: |
+  Current and historical members of the Parliament of Lebanon (مجلس النواب, Majlis
+  al-Nuwab), the country's unicameral national legislature. Its 128 seats are divided
+  equally between Christian and Muslim confessions and are filled under proportional
+  representation across 15 electoral districts for a four-year term. Parliament holds
+  the country's legislative power, including passing laws, approving the budget and
+  electing the President of the Republic.
+
+  Coverage runs back to the term elected in 2005, the earliest roster the parliament
+  publishes. Alongside the membership itself, the dataset records each term's Speaker
+  and Deputy Speaker, who are elected from among the members and keep their seat while
+  presiding.
+url: https://www.lp.gov.lb/ViewHouses.aspx
+publisher:
+  name: مجلس النواب اللبناني
+  name_en: Parliament of Lebanon
+  description: >
+    The Parliament of Lebanon is the country's unicameral national legislature. It
+    elects the President of the Republic, approves the government and legislates, and
+    publishes the roster of each parliamentary term on its own website.
+  url: https://www.lp.gov.lb/
+  country: lb
+  official: true
+data:
+  url: https://www.lp.gov.lb/ViewHouses.aspx
+  format: HTML
+  lang: ara
+
+dates:
+  formats: ["%d %m %Y"]
+  # Levantine Arabic month names, as used for both election and birth dates.
+  months:
+    "01": كانون الثاني
+    "02": شباط
+    "03": آذار
+    "04": نيسان
+    "05": أيار
+    "06": حزيران
+    "07": تموز
+    "08": آب
+    "09": أيلول
+    "10": تشرين الأول
+    "11": تشرين الثاني
+    "12": كانون الأول
+
+tags:
+  - list.pep
+
+lookups:
+  # The confession (المذهب) of the member's seat, published only for sitting members.
+  religion:
+    options:
+      - match: ماروني
+        value: Maronite
+      - match: شيعي
+        value: Shia
+      - match: سني
+        value: Sunni
+      - match: روم أرثوذكس
+        value: Greek Orthodox
+      - match: روم كاثوليك
+        value: Melkite Greek Catholic
+      - match: درزي
+        value: Druze
+      - match: أرمن أرثوذكس
+        value: Armenian Orthodox
+      - match: علوي
+        value: Alawite
+      - match: أرمن كاثوليك
+        value: Armenian Catholic
+      - match: إنجيلي
+        value: Protestant
+      # The seat reserved for Lebanon's smaller Christian denominations (Syriac,
+      # Assyrian, Chaldean, Coptic). It is a seat category, not a confession.
+      - match: أقليات
+        value: null
+  # The source locates a seat by governorate (المحافظة) rather than by the finer
+  # electoral district the member was actually elected in.
+  constituency:
+    options:
+      - match: بيروت
+        value: Beirut
+      - match: جبل لبنان
+        value: Mount Lebanon
+      - match: الشمال
+        value: North Lebanon
+      - match: الجنوب
+        value: South Lebanon
+      - match: البقاع
+        value: Beqaa
+
+assertions:
+  min:
+    schema_entities:
+      Person: 250
+      Position: 3
+    entities_with_prop:
+      Occupancy:
+        holder: 420
+        constituency: 100
+    country_entities:
+      lb: 250
+    property_fill_rate:
+      Person:
+        birthDate: 0.15
+  max:
+    schema_entities:
+      Person: 630
+      Position: 6
+    entities_with_prop:
+      Occupancy:
+        holder: 1060
