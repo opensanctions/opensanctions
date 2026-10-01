@@ -19,7 +19,7 @@ from pathlib import Path
 
 import click
 
-from common import AMENDMENT_COLUMNS, DATASET_DIR
+from .common import AMENDMENT_COLUMNS, DATASET_DIR
 
 AMENDMENT_DIR = DATASET_DIR / "data" / "amendments"
 

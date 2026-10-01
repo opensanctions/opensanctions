@@ -48,7 +48,7 @@ import re
 from pathlib import Path
 
 import click
-from common import (
+from .common import (
     LABELLED_RE,
     MARKER_ROW_RE,
     SKIP_P_CLASSES,

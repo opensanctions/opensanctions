@@ -40,7 +40,7 @@ import re
 from pathlib import Path
 
 import click
-from common import (
+from .common import (
     LABELLED_RE,
     ParseError,
     Row,

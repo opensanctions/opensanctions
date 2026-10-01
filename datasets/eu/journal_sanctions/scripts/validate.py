@@ -24,7 +24,7 @@ from rigour.dates import prefix_interval
 from zavod.shed.ojeu.celex import normalize as normalize_celex
 from zavod.stateful.programs import Measure, get_program_by_key
 
-from common import (
+from .common import (
     AMENDMENT_COLUMNS,
     CONSOLIDATED_COLUMNS,
     DATASET_DIR,

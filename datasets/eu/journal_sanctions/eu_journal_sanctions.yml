@@ -120,7 +120,12 @@ config:
   #     python -m zavod.shed.ojeu.cellar <CELEX> --body-only --output act.html
   #
   # This dataset has ci_test: false. Do not crawl. Verify a change with
-  # `python scripts/validate.py` and `contrib/lint_dataset.sh <dataset>.yml`.
+  # `python -m scripts.validate` and `contrib/lint_dataset.sh`. Run the lint
+  # script from the repository root. Give it the path from the root of the
+  # dataset YAML and of each file in scripts/ that you changed:
+  #
+  #     contrib/lint_dataset.sh datasets/eu/journal_sanctions/eu_journal_sanctions.yml \
+  #       datasets/eu/journal_sanctions/scripts/<changed>.py
   #
   # The procedure for each warning is above the key that the procedure
   # changes. A comment block here holds a maximum of 32 lines: the YAML
@@ -187,7 +192,7 @@ config:
   # pin in `consolidation`. The snapshot in data/consolidated/ is stale.
   #
   # 1. Open the `url` in the warning. Read the change.
-  # 2. Run `python scripts/parse_<framework>.py <latest>` from this directory.
+  # 2. Run `python -m scripts.parse_<framework> <latest>` from this directory.
   #    The parser stops with an error when the document has a structure that
   #    the parser does not know. Change that one parser, and teach it only the
   #    structure that the document shows. Do not add a general fallback.
@@ -201,7 +206,7 @@ config:
   #    rows with the new snapshot. If the snapshot has the designations, add
   #    the amendment below with the new version. If the snapshot does not have
   #    them, do not change the entry. Do not delete the amendment file.
-  # 6. Run `python scripts/validate.py`. Put all of these changes in one
+  # 6. Run `python -m scripts.validate`. Put all of these changes in one
   #    commit.
   #
   # There is deliberately no mute list for this warning: a stale pin means the
@@ -238,8 +243,8 @@ config:
   # 5. Write all designations of the act to data/amendments/<CELEX>.csv. One
   #    file holds the complete act. A part of the act is not sufficient.
   #    data/FORMAT.md gives the columns, the fidelity rules and the row rules.
-  # 6. Run `python scripts/format.py data/amendments/<CELEX>.csv`, then
-  #    `python scripts/validate.py`.
+  # 6. Run `python -m scripts.format data/amendments/<CELEX>.csv`, then
+  #    `python -m scripts.validate`.
   # 7. In the PR, name each annex you transcribed and the number of rows it
   #    gave. Name each annex that has no designated party.
   #
