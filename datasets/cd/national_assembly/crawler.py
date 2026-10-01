@@ -58,7 +58,7 @@ def crawl_member(
 ) -> None:
     # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
     taxonomies: dict[str, list[str]] = defaultdict(list)
-    for terms in record.get("_embedded", {}).get("wp:term", []):
+    for terms in record["_embedded"]["wp:term"]:
         for term in terms:
             taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
 
@@ -88,7 +88,9 @@ def crawl_member(
     political_groups = h.xpath_strings(group_widget, ".//h2//text()")
 
     # Only ended and suspended mandates override the status; make_occupancy decides the rest.
-    mandate = context.lookup_value("mandate", next(iter(taxonomies["mandats"]), None))
+    mandate = context.lookup_value(
+        "mandate", next(iter(taxonomies["mandats"]), None), warn_unmatched=True
+    )
     occupancy = h.make_occupancy(
         context,
         person,
