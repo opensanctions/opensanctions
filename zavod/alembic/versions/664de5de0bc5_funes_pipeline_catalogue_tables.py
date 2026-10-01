@@ -77,19 +77,34 @@ def upgrade() -> None:
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("candidate_id", sa.Uuid(), nullable=False),
         sa.Column("snapshot_id", sa.Uuid(), nullable=False),
-        sa.Column("captured_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
             server_default=sa.func.now(),
             nullable=False,
         ),
+        sa.Column("status", sa.Text(), nullable=False),
+        sa.Column("outcome", sa.Text(), nullable=True),
+        sa.Column("reason", sa.Text(), nullable=True),
+        sa.Column("model", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["candidate_id"], ["funes_candidate.id"], ondelete="CASCADE"
         ),
         sa.ForeignKeyConstraint(["snapshot_id"], ["snapshot.id"], ondelete="RESTRICT"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("snapshot_id"),
+        sa.CheckConstraint("status IN ('usable', 'broken')"),
+        sa.CheckConstraint("outcome IS NOT NULL OR status = 'broken'"),
+        sa.CheckConstraint(
+            "outcome IS NULL OR (status = 'usable' AND outcome IN ('hit', 'miss'))"
+        ),
+        sa.CheckConstraint(
+            "reason IS NULL OR status = 'broken' OR outcome = 'miss'"
+        ),
+        sa.CheckConstraint(
+            "reason IS NOT NULL OR (status = 'usable' AND outcome = 'hit')"
+        ),
+        sa.CheckConstraint("model IS NOT NULL OR status = 'broken'"),
     )
     op.create_index(
         "ix_funes_attempt_candidate_created",
@@ -97,48 +112,10 @@ def upgrade() -> None:
         ["candidate_id", "created_at"],
         unique=False,
     )
-    op.create_table(
-        "funes_snapshot_assessment",
-        sa.Column("snapshot_id", sa.Uuid(), nullable=False),
-        sa.Column("status", sa.Text(), nullable=False),
-        sa.Column("reason", sa.Text(), nullable=True),
-        sa.Column("model", sa.Text(), nullable=True),
-        sa.Column(
-            "assessed_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.func.now(),
-            nullable=False,
-        ),
-        sa.ForeignKeyConstraint(
-            ["snapshot_id"], ["funes_attempt.snapshot_id"], ondelete="CASCADE"
-        ),
-        sa.PrimaryKeyConstraint("snapshot_id"),
-    )
-    op.create_table(
-        "funes_inspection",
-        sa.Column("id", sa.Uuid(), nullable=False),
-        sa.Column("attempt_id", sa.Uuid(), nullable=False),
-        sa.Column("outcome", sa.Text(), nullable=False),
-        sa.Column("reason", sa.Text(), nullable=True),
-        sa.Column("model", sa.Text(), nullable=False),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.func.now(),
-            nullable=False,
-        ),
-        sa.ForeignKeyConstraint(
-            ["attempt_id"], ["funes_attempt.id"], ondelete="CASCADE"
-        ),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("attempt_id"),
-    )
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_table("funes_inspection")
-    op.drop_table("funes_snapshot_assessment")
     op.drop_index(
         "ix_funes_attempt_candidate_created", table_name="funes_attempt"
     )
