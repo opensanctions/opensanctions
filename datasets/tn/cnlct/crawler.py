@@ -12,7 +12,7 @@ from zavod.entity import Entity
 
 # Birth date written day-first inside the combined "DOB + place" field,
 # e.g. "16/04/1972 à Tunis".
-DOB_DMY_RE = re.compile(r"\b(\d{1,2}/\d{1,2}/\d{4})\b")
+DOB_DMY_RE = re.compile(r"(?<!\d)(\d{1,2}/\d{1,2}/\d{4})(?!\d)")
 # Cells that openpyxl read as real dates arrive as ISO strings ("1972-02-21").
 DOB_ISO_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 # A listing/renewal decree: "Arrêté n° 01 du 9 novembre 2018". Captures the
