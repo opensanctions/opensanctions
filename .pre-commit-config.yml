@@ -54,8 +54,7 @@ repos:
         files: "datasets/"
         exclude: |
           (?x)^(
-          datasets/eu/journal_sanctions|
-          datasets/gb/coh
+          datasets/eu/journal_sanctions
           )
         args: ['--strict', '--explicit-package-bases']
   - repo: local
