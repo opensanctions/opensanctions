@@ -10,7 +10,7 @@ from sqlalchemy import (
     MetaData,
     text,
 )
-from nomenklatura.db import make_statement_table
+from nomenklatura.db import make_cache_table, make_resolver_table, make_statement_table
 from zavod.db import meta as meta  # explicit re-export
 
 KEY_LEN = 255
@@ -38,6 +38,9 @@ position_table = Table(
 # Nomenklatura's table: kept off ``meta`` (the Alembic target) so the
 # migrations don't manage it; created where it is written.
 statement_table = make_statement_table(MetaData())
+# Nomenklatura's tables, managed by the zavod migrations.
+resolver_table = make_resolver_table(meta)
+cache_table = make_cache_table(meta)
 
 
 program_table = Table(

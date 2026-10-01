@@ -17,8 +17,8 @@ if config.config_file_name is not None:
 
 target_metadata = model.meta
 
-# The database hosts other projects' tables, e.g. the nomenklatura resolver,
-# which autogenerate must never see.
+# The database may host relations that zavod doesn't declare, which
+# autogenerate must never see (or propose to drop).
 ZAVOD_TABLES = frozenset(target_metadata.tables)
 
 

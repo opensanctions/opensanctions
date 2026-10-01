@@ -4,14 +4,16 @@ Zavod keeps runtime state in a SQL database: sqlite by default, Postgres in
 production. The database is shared between zavod and the nomenklatura
 components it embeds:
 
-| Tables                                                   | Schema defined in          | Created by                   |
-| -------------------------------------------------------- | -------------------------- | ---------------------------- |
-| `cache`, `resolver` (nomenklatura)                       | the component constructors | the components, on first use |
-| `statement` (nomenklatura)                               | `nomenklatura.db`          | `load_dataset_to_db`         |
-| `position`, `program`, `review`, `review_entity` (zavod) | `zavod/stateful/model.py`  | Alembic migrations           |
+| Tables                                                   | Schema defined in         | Created by           |
+| -------------------------------------------------------- | ------------------------- | -------------------- |
+| `cache`, `resolver` (nomenklatura)                       | `nomenklatura.db`         | Alembic migrations   |
+| `statement` (nomenklatura)                               | `nomenklatura.db`         | `load_dataset_to_db` |
+| `position`, `program`, `review`, `review_entity` (zavod) | `zavod/stateful/model.py` | Alembic migrations   |
 
-The nomenklatura tables are not managed by zavod's Alembic setup: they are
-created when missing by whoever uses them.
+The `statement` table is not managed by zavod's Alembic setup: it is created
+when missing by `load_dataset_to_db`. The `cache` and `resolver` tables are
+registered on zavod's metadata from nomenklatura's table definitions, so zavod
+constructs `Cache` and `Resolver` without `create`.
 
 The zavod schema is versioned with [Alembic](https://alembic.sqlalchemy.org/): only the
 migrations in `zavod/alembic/` create or change these tables. Production runs
