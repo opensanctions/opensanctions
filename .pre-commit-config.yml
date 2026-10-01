@@ -56,8 +56,7 @@ repos:
           (?x)^(
           datasets/eu/journal_sanctions|
           datasets/gb/coh|
-          datasets/lt/pep_declarations|
-          datasets/za/wanted
+          datasets/lt/pep_declarations
           )
         args: ['--strict', '--explicit-package-bases']
   - repo: local
