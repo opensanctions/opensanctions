@@ -87,9 +87,6 @@ def crawl_member(
         f"members-and-ministers/members-details?memberId={pk}"
     )
     (house,) = meta.pop("houseName")
-    if house not in house_positions:
-        context.log.warning("Unknown house code", house=house)
-        return
     house_position = house_positions[house]
     if house_position is None:
         return
