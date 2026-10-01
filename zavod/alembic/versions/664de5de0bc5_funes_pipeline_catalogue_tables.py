@@ -127,9 +127,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index(
-        "ix_funes_attempt_candidate_created", table_name="funes_attempt"
-    )
+    op.drop_index("ix_funes_attempt_candidate_created", table_name="funes_attempt")
     op.drop_table("funes_attempt")
     op.drop_table("funes_candidate")
     op.drop_table("funes_subject")
