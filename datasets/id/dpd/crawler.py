@@ -1,5 +1,6 @@
 from typing import Any
 
+from normality import squash_spaces
 from zavod import Context, settings
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -49,7 +50,7 @@ def crawl_member(
     person.add("gender", member.pop("gender"))
     person.add("birthPlace", member.pop("placeOfBirth"))
     h.apply_date(person, "birthDate", member.pop("dateOfBirth"))
-    person.add("biography", member.pop("profile"))
+    person.add("biography", squash_spaces(member.pop("profile")))
     person.add("citizenship", "id")
     # memberPeriods spans a member's whole career, so pick out this term's mandate.
     mandates = [
@@ -104,16 +105,15 @@ def crawl(context: Context) -> None:
         context,
         context.data_url.replace("member/public/profile", "period"),
         geolocation="id",
-        cache_days=7,
+        cache_days=1,
     )
-    earliest_year = int(h.earliest_term_start(TOPICS)[:4])
+    cutoff_year = int(h.earliest_term_start(TOPICS)[:4])
     for period in sorted(periods, key=lambda p: p["endYear"], reverse=True):
-        if period["endYear"] < earliest_year:
+        if period["endYear"] < cutoff_year:
             break
         url = f"{context.data_url}?periodId={period['id']}&perPage={PER_PAGE}"
-        members = zyte_api.fetch_json(context, url, geolocation="id", cache_days=7)
+        members = zyte_api.fetch_json(context, url, geolocation="id", cache_days=1)
         assert len(members) < PER_PAGE, (period["id"], len(members))
-        term = f"{period['startYear']}-{period['endYear']}"
-        context.log.info("Crawling term", term=term, members=len(members))
+        context.log.info("Crawling term", period=period["id"], members=len(members))
         for member in members:
             crawl_member(context, position, categorisation, member, period)
