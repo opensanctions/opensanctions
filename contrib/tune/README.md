@@ -18,9 +18,7 @@ The tool has its own uv environment:
 Real runs need `$OPENAI_API_KEY`.
 
 By default, `optimise` writes the optimised program to
-`zavod/zavod/extract/names/single_entity_program.json`. That file is a
-committed, shipped artifact — production code reads the prompt from it — so
-the usual loop is optimise, review the diff, commit.
+`zavod/zavod/extract/names/single_entity_program.json`. That file is a committed artifact.
 
 ## Warning
 
