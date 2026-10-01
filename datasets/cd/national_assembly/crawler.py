@@ -4,6 +4,8 @@ from html import unescape
 from typing import Any
 from urllib.parse import urljoin
 
+from followthemoney.util import join_text
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -54,25 +56,10 @@ def crawl_member(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
-    taxonomies: dict[str, list[str]] = defaultdict(list)
-    for terms in record["_embedded"]["wp:term"]:
-        for term in terms:
-            taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
-
-    # The "mandats" term labels the mandate as running, ended or suspended,
-    # even for the current sitting term, setting the occupancy status accordingly.
-    status = None
-    if len(taxonomies["mandats"]) > 0:
-        res = context.lookup("mandate", taxonomies["mandats"][0], warn_unmatched=True)
-        if res is not None:
-            status = OccupancyStatus(res.value)
 
     person = context.make("Person")
-    person.id = context.make_slug("depute", record.pop("id"))
+    person.id = context.make_slug(record.pop("id"))
     person.add("name", unescape(record.pop("title")["rendered"]).strip())
-    # Deputies must be Congolese nationals (Constitution Art. 102(1): "être Congolais").
-    # https://www.constituteproject.org/constitution/Democratic_Republic_of_the_Congo_2011
     person.add("citizenship", "cd")
     profile_url = record.pop("link")
     person.add("sourceUrl", profile_url)
@@ -93,6 +80,17 @@ def crawl_member(
     for party in h.xpath_elements(profile, '//div[@data-id="0459684"]//h2'):
         person.add("political", h.element_text(party))
 
+    # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
+    taxonomies: dict[str, list[str]] = defaultdict(list)
+    for terms in record["_embedded"]["wp:term"]:
+        for term in terms:
+            taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
+    # "mandats" says whether the sitting mandate is running, ended or suspended.
+    status = None
+    for mandate in taxonomies["mandats"]:
+        status = OccupancyStatus(
+            context.lookup_value("mandate", mandate, warn_unmatched=True)
+        )
     occupancy = h.make_occupancy(
         context,
         person,
@@ -105,8 +103,10 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", taxonomies["circonscriptions"])
-    occupancy.add("constituency", taxonomies["provinces"])
+    constituency = join_text(
+        *taxonomies["circonscriptions"], *taxonomies["provinces"], sep=", "
+    )
+    occupancy.add("constituency", constituency)
     for group in h.xpath_elements(profile, '//div[@data-id="976268c"]//h2'):
         occupancy.add("politicalGroup", h.element_text(group))
     context.emit(occupancy)
