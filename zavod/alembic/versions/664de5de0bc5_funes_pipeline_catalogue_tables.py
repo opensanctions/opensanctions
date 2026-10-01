@@ -93,18 +93,29 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["snapshot_id"], ["snapshot.id"], ondelete="RESTRICT"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("snapshot_id"),
-        sa.CheckConstraint("status IN ('usable', 'broken')"),
-        sa.CheckConstraint("outcome IS NOT NULL OR status = 'broken'"),
         sa.CheckConstraint(
-            "outcome IS NULL OR (status = 'usable' AND outcome IN ('hit', 'miss'))"
+            "status IN ('usable', 'broken')", name="ck_funes_attempt_status_domain"
         ),
         sa.CheckConstraint(
-            "reason IS NULL OR status = 'broken' OR outcome = 'miss'"
+            "outcome IS NOT NULL OR status = 'broken'",
+            name="ck_funes_attempt_outcome_required_if_usable",
         ),
         sa.CheckConstraint(
-            "reason IS NOT NULL OR (status = 'usable' AND outcome = 'hit')"
+            "outcome IS NULL OR (status = 'usable' AND outcome IN ('hit', 'miss'))",
+            name="ck_funes_attempt_outcome_implies_usable",
         ),
-        sa.CheckConstraint("model IS NOT NULL OR status = 'broken'"),
+        sa.CheckConstraint(
+            "reason IS NULL OR status = 'broken' OR outcome = 'miss'",
+            name="ck_funes_attempt_hit_without_reason",
+        ),
+        sa.CheckConstraint(
+            "reason IS NOT NULL OR (status = 'usable' AND outcome = 'hit')",
+            name="ck_funes_attempt_reason_required_unless_hit",
+        ),
+        sa.CheckConstraint(
+            "model IS NOT NULL OR status = 'broken'",
+            name="ck_funes_attempt_model_required_unless_broken",
+        ),
     )
     op.create_index(
         "ix_funes_attempt_candidate_created",

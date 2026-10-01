@@ -170,16 +170,29 @@ attempt_table = Table(
     Column("reason", Text, nullable=True),
     Column("model", Text, nullable=True),
     UniqueConstraint("snapshot_id"),
-    CheckConstraint("status IN ('usable', 'broken')"),
-    CheckConstraint("outcome IS NOT NULL OR status = 'broken'"),
     CheckConstraint(
-        "outcome IS NULL OR (status = 'usable' AND outcome IN ('hit', 'miss'))"
+        "status IN ('usable', 'broken')", name="ck_funes_attempt_status_domain"
     ),
-    CheckConstraint("reason IS NULL OR status = 'broken' OR outcome = 'miss'"),
     CheckConstraint(
-        "reason IS NOT NULL OR (status = 'usable' AND outcome = 'hit')"
+        "outcome IS NOT NULL OR status = 'broken'",
+        name="ck_funes_attempt_outcome_required_if_usable",
     ),
-    CheckConstraint("model IS NOT NULL OR status = 'broken'"),
+    CheckConstraint(
+        "outcome IS NULL OR (status = 'usable' AND outcome IN ('hit', 'miss'))",
+        name="ck_funes_attempt_outcome_implies_usable",
+    ),
+    CheckConstraint(
+        "reason IS NULL OR status = 'broken' OR outcome = 'miss'",
+        name="ck_funes_attempt_hit_without_reason",
+    ),
+    CheckConstraint(
+        "reason IS NOT NULL OR (status = 'usable' AND outcome = 'hit')",
+        name="ck_funes_attempt_reason_required_unless_hit",
+    ),
+    CheckConstraint(
+        "model IS NOT NULL OR status = 'broken'",
+        name="ck_funes_attempt_model_required_unless_broken",
+    ),
 )
 
 Index(
