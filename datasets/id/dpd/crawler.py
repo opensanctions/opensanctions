@@ -1,5 +1,6 @@
 from typing import Any
 
+from normality import squash_spaces
 from zavod import Context, settings
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -12,8 +13,6 @@ from zavod.stateful.positions import (
 
 TOPICS = ["gov.national", "gov.legislative"]
 PER_PAGE = 300
-STATUS_SERVING = 0
-STATUS_LEFT = 1
 UNSET_DATE = "0001-01-01T00:00:00Z"
 IGNORE = [
     "photoUrl",
@@ -27,6 +26,7 @@ IGNORE = [
     "youtube",
     "twitter",
     "website",
+    "email",
 ]
 
 
@@ -38,7 +38,7 @@ def crawl_member(
     period: dict[str, Any],
 ) -> None:
     person = context.make("Person")
-    person.id = context.make_slug(str(member.pop("id")))
+    person.id = context.make_slug(member.pop("id"))
     raw_name = member.pop("fullName")
     clean_name = h.strip_name_titles(context, raw_name)
     person.add(
@@ -50,9 +50,7 @@ def crawl_member(
     person.add("gender", member.pop("gender"))
     person.add("birthPlace", member.pop("placeOfBirth"))
     h.apply_date(person, "birthDate", member.pop("dateOfBirth"))
-    person.add("biography", member.pop("profile"))
-    person.add("email", member.pop("email"))
-    # DPD members must be Indonesian citizens (Law No. 7 of 2017, Article 182a).
+    person.add("biography", squash_spaces(member.pop("profile")))
     person.add("citizenship", "id")
     # memberPeriods spans a member's whole career, so pick out this term's mandate.
     mandates = [
@@ -63,11 +61,11 @@ def crawl_member(
         mandates = [m for m in mandates if m["inaugurationDate"] != UNSET_DATE]
     assert len(mandates) == 1, (person.id, len(mandates))
     mandate = mandates[0]
-    status = mandate["memberStatus"]
-    if status not in (STATUS_SERVING, STATUS_LEFT):
-        context.log.warning(f"{person.id} has unknown memberStatus {status!r}")
+    status = context.lookup_value(
+        "member_status", mandate["memberStatus"], warn_unmatched=True
+    )
     # In a running term, no end date implies still serving, so say when they left.
-    left_early = status == STATUS_LEFT and period["endYear"] >= settings.RUN_TIME.year
+    left_early = status == "ended" and period["endYear"] >= settings.RUN_TIME.year
     occupancy = h.make_occupancy(
         context,
         person,
@@ -107,16 +105,15 @@ def crawl(context: Context) -> None:
         context,
         context.data_url.replace("member/public/profile", "period"),
         geolocation="id",
-        cache_days=7,
+        cache_days=1,
     )
-    earliest_year = int(h.earliest_term_start(TOPICS)[:4])
+    cutoff_year = int(h.earliest_term_start(TOPICS)[:4])
     for period in sorted(periods, key=lambda p: p["endYear"], reverse=True):
-        if period["endYear"] < earliest_year:
+        if period["endYear"] < cutoff_year:
             break
         url = f"{context.data_url}?periodId={period['id']}&perPage={PER_PAGE}"
-        members = zyte_api.fetch_json(context, url, geolocation="id", cache_days=7)
+        members = zyte_api.fetch_json(context, url, geolocation="id", cache_days=1)
         assert len(members) < PER_PAGE, (period["id"], len(members))
-        term = f"{period['startYear']}-{period['endYear']}"
-        context.log.info("Crawling term", term=term, members=len(members))
+        context.log.info("Crawling term", period=period["id"], members=len(members))
         for member in members:
             crawl_member(context, position, categorisation, member, period)
