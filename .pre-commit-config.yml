@@ -55,8 +55,7 @@ repos:
         exclude: |
           (?x)^(
           datasets/eu/journal_sanctions|
-          datasets/gb/coh|
-          datasets/lt/pep_declarations
+          datasets/gb/coh
           )
         args: ['--strict', '--explicit-package-bases']
   - repo: local
