@@ -6,7 +6,7 @@ from tempfile import mkdtemp
 import logging
 from sqlalchemy import MetaData
 from nomenklatura import Resolver
-from nomenklatura.db import close_db, make_session, Session
+from nomenklatura.db import close_db, get_engine, make_session, Session
 
 from zavod import settings
 from zavod.archive import get_version_history
@@ -15,8 +15,8 @@ from zavod.tests.util import make_context
 from zavod.entity import Entity
 from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
-from zavod.db import get_engine, meta
 from zavod.integration import get_resolver
+from zavod.stateful.model import meta
 
 settings.nk.TESTING = True
 settings.nk.DB_URL = "sqlite:///:memory:"

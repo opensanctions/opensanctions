@@ -1,7 +1,7 @@
+from nomenklatura.db import get_engine
 from sqlalchemy import select
 
 from zavod import settings
-from zavod.db import get_engine
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
 from zavod.stateful.model import statement_table

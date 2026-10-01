@@ -1,8 +1,7 @@
 from nomenklatura.resolver import Linker
-from nomenklatura.db import insert_statements
+from nomenklatura.db import get_engine, insert_statements
 from nomenklatura.settings import STATEMENT_BATCH
 
-from zavod.db import get_engine
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.stateful.model import statement_table
