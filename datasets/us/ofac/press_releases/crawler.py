@@ -11,12 +11,20 @@ from zavod.stateful.review import (
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 Schema = Literal[
     "Person", "Organization", "Company", "LegalEntity", "Vessel", "Airplane"
 ]
 
 MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
+
+# The press release node is rendered by Drupal as a set of field wrappers inside
+# the article element. Only these two carry press release content.
+CONTENT_FIELDS = {
+    "field--name-field-news-publication-date",
+    "field--name-field-news-body",
+}
 
 schema_field = Field(
     description=(
@@ -123,6 +131,33 @@ For each entity found, extract these fields:
 """
 
 
+def drop_non_content_fields(article_element: Element) -> None:
+    """Remove Drupal field wrappers which don't carry press release content.
+
+    The site renders some of the node's display configuration as ordinary fields
+    inside the article element, e.g. a "Use featured image"/"Off" label pair which
+    was present on every press release until late August 2026. That text is part of
+    the review source value, so toggling it invalidates every stored review without
+    any press release actually having changed.
+    """
+    for field in h.xpath_elements(
+        article_element, ".//div[contains(@class, 'field--name-')]"
+    ):
+        classes = set((field.get("class") or "").split())
+        if classes & CONTENT_FIELDS:
+            continue
+        parent = field.getparent()
+        assert parent is not None, field.get("class")
+        parent.remove(field)
+
+    remaining = set()
+    for field in h.xpath_elements(
+        article_element, ".//div[contains(@class, 'field--name-')]"
+    ):
+        remaining.update(set((field.get("class") or "").split()) & CONTENT_FIELDS)
+    assert remaining == CONTENT_FIELDS, remaining
+
+
 def crawl_item(
     context: Context,
     item: Designee,
@@ -161,7 +196,8 @@ def crawl_press_release(context: Context, url: str) -> None:
     article_content = article.findall(".//article[@class='entity--type-node']")
     for img in article.findall(".//img"):
         # Images pasted from Office carry a megabytes-long base64 copy of the graphic here.
-        img.attrib.pop("o:gfxdata", None)
+        if "o:gfxdata" in img.attrib:
+            del img.attrib["o:gfxdata"]
         img_src = img.get("src")
         if img_src is None or img_src.startswith("data:image"):
             img_parent = img.getparent()
@@ -169,6 +205,7 @@ def crawl_press_release(context: Context, url: str) -> None:
                 img_parent.remove(img)
     assert len(article_content) == 1
     article_element = article_content[0]
+    drop_non_content_fields(article_element)
     date = h.xpath_strings(article_element, ".//time[@class='datetime']/@datetime")[0]
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
