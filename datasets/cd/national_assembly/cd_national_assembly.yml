@@ -34,6 +34,23 @@ data:
 tags:
   - list.pep
 
+dates:
+  formats: ["%d/%m/%Y"]
+
+lookups:
+  # Labelled items on a deputy's profile page.
+  details:
+    options:
+      - match: Lieu de naissance
+        value: birth_place
+      - match: Date de naissance
+        value: birth_date
+      # The deputy a substitute took over from, or who took over the seat.
+      - match:
+          - En remplacement de
+          - Remplacé(e) par
+        value: null
+
 assertions:
   min:
     schema_entities:

@@ -73,13 +73,29 @@ def crawl_member(
         context.log.warning("Unknown mandate status", mandate=mandate)
 
     person = context.make("Person")
-    person.id = context.make_slug("depute", str(record.pop("id")))
+    person.id = context.make_slug("depute", record.pop("id"))
     person.add("name", unescape(record.pop("title")["rendered"]).strip())
     # Deputies must be Congolese nationals (Constitution Art. 102(1): "être Congolais").
     # https://www.constituteproject.org/constitution/Democratic_Republic_of_the_Congo_2011
     person.add("citizenship", "cd")
-    person.add("sourceUrl", record.pop("link"))
+    profile_url = record.pop("link")
+    person.add("sourceUrl", profile_url)
     context.audit_data(record, ignore=IGNORE)
+
+    profile = context.fetch_html(profile_url, cache_days=7)
+    # "Informations personnelles" and the mandate notes, as "Label : value" items.
+    for item in h.xpath_elements(
+        profile, '//span[@class="elementor-icon-list-text"][contains(., " : ")]'
+    ):
+        label, _, value = h.element_text(item).partition(" : ")
+        field = context.lookup_value("details", label, warn_unmatched=True)
+        if field == "birth_place":
+            person.add("birthPlace", value)
+        elif field == "birth_date":
+            h.apply_date(person, "birthDate", value)
+    # The party and parliamentary group widgets hold a linked heading, or "N/A".
+    for party in h.xpath_elements(profile, '//div[@data-id="0459684"]//h2'):
+        person.add("political", h.element_text(party))
 
     occupancy = h.make_occupancy(
         context,
@@ -95,6 +111,8 @@ def crawl_member(
         return
     occupancy.add("constituency", taxonomies["circonscriptions"])
     occupancy.add("constituency", taxonomies["provinces"])
+    for group in h.xpath_elements(profile, '//div[@data-id="976268c"]//h2'):
+        occupancy.add("politicalGroup", h.element_text(group))
     context.emit(occupancy)
     context.emit(person)
 
