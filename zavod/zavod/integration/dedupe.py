@@ -24,7 +24,7 @@ def get_resolver(session: Session) -> Resolver[Entity]:
 
     The session owns the unit of work: callers commit/checkpoint it (e.g. a
     zavod Context shares its own session; a standalone CLI command owns one)."""
-    resolver = Resolver[Entity](session, create=True)
+    resolver = Resolver[Entity](session)
     log.info(f"Using resolver: {resolver!r}")
     return resolver
 

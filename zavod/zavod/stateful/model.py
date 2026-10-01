@@ -35,8 +35,8 @@ position_table = Table(
     Column("modified_by", Unicode(KEY_LEN), nullable=True),
     Column("deleted_at", DateTime, nullable=True, index=True),  # Index for filtering
 )
-# Nomenklatura's table: kept off ``meta`` (the Alembic target) so the
-# migrations don't manage it; created where it is written.
+# Nomenklatura's table, created by its migrations (see ``alembic/env.py``),
+# so it is kept off ``meta``, which holds the tables zavod's own revisions manage.
 statement_table = make_statement_table(MetaData())
 
 

@@ -140,7 +140,7 @@ def wikidata_reconcile(
     # A throwaway FtM dataset namespaces the shared Wikidata API cache and the
     # candidate-entity projection built by the reconciler.
     wikidata = FTMDataset.make({"name": "wikidata", "title": "Wikidata"})
-    cache = Cache(session, wikidata, create=True)
+    cache = Cache(session, wikidata)
     client = WikidataClient(cache)
     try:
         # reconcile_ui checkpoints the session per judgement, so we don't hold a

@@ -17,8 +17,10 @@ import orjson
 import requests
 from lxml import etree, html
 from nomenklatura.cache import Cache
+from nomenklatura.db import make_cache_table
 from nomenklatura.db import make_session as make_db_session
 from requests import Session
+from sqlalchemy import MetaData
 
 from zavod.helpers.html import xpath_element
 from zavod.meta import Dataset
@@ -632,9 +634,11 @@ def cli_client() -> Iterator[CellarClient]:
     """Create an isolated client for commands that run without a crawler Context."""
     dataset = Dataset({"name": "ojeu_cli"})
     db = make_db_session("sqlite:///:memory:")
+    # A throwaway database, so not worth migrating: just the cache table.
+    make_cache_table(MetaData()).create(bind=db.connection, checkfirst=True)
     session = make_session(HTTP({}))
     try:
-        yield CellarClient(session, Cache(db, dataset, create=True))
+        yield CellarClient(session, Cache(db, dataset))
     finally:
         session.close()
         db.close()

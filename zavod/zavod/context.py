@@ -110,7 +110,7 @@ class Context:
     def cache(self) -> Cache:
         """A cache object for storing HTTP responses and other data."""
         if self._cache is None:
-            self._cache = Cache(self.db, self.dataset, create=True)
+            self._cache = Cache(self.db, self.dataset)
         return self._cache
 
     @property

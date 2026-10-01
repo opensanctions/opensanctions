@@ -6,7 +6,7 @@ from tempfile import mkdtemp
 import logging
 from sqlalchemy import MetaData
 from nomenklatura import Resolver
-from nomenklatura.db import close_db, make_session, Session
+from nomenklatura.db import close_db, make_schema_metadata, make_session, Session
 
 from zavod import settings
 from zavod.archive import get_version_history
@@ -45,7 +45,9 @@ def wrap_test():
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
     get_version_history.cache_clear()
+    # The tables the migrations create: zavod's own and nomenklatura's.
     meta.create_all(bind=get_engine())
+    make_schema_metadata().create_all(bind=get_engine())
     yield
     get_catalog.cache_clear()
     # Cache and Resolver own per-instance MetaData, so dropping a fixed list of
