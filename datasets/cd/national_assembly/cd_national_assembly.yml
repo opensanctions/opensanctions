@@ -6,7 +6,8 @@ coverage:
   frequency: monthly
   start: 2026-07-23
 load_statements: true
-ci_test: true
+# A full crawl fetches every deputy's profile page (~570), well past the CI budget.
+ci_test: false
 summary: >-
   Deputies of the lower house, including substitutes who have taken up a seat
 description: |

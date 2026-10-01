@@ -48,6 +48,24 @@ IGNORE = [
 ]
 
 
+def parse_details(context: Context, person: Entity, profile_url: str) -> None:
+    profile = context.fetch_html(profile_url, cache_days=7)
+    # "Informations personnelles" and the mandate notes, as "Label : value" items.
+    for item in h.xpath_elements(
+        profile, '//span[@class="elementor-icon-list-text"][contains(., " : ")]'
+    ):
+        label, _, value = h.element_text(item).partition(" : ")
+        field = context.lookup_value("details", label, warn_unmatched=True)
+        if field == "birth_place":
+            person.add("birthPlace", value)
+        elif field == "birth_date":
+            h.apply_date(person, "birthDate", value)
+    # The party and parliamentary group widgets hold a linked heading, or "N/A".
+    party_widget = h.xpath_element(profile, '//div[@data-id="0459684"]')
+    for party in h.xpath_elements(party_widget, ".//h2"):
+        person.add("political", h.element_text(party))
+
+
 def crawl_member(
     context: Context,
     record: dict[str, Any],
@@ -66,32 +84,16 @@ def crawl_member(
     context.audit_data(record, ignore=IGNORE)
 
     profile = context.fetch_html(profile_url, cache_days=7)
-    # "Informations personnelles" and the mandate notes, as "Label : value" items.
-    for item in h.xpath_elements(
-        profile, '//span[@class="elementor-icon-list-text"][contains(., " : ")]'
-    ):
-        label, _, value = h.element_text(item).partition(" : ")
-        field = context.lookup_value("details", label, warn_unmatched=True)
-        if field == "birth_place":
-            person.add("birthPlace", value)
-        elif field == "birth_date":
-            h.apply_date(person, "birthDate", value)
-    # The party and parliamentary group widgets hold a linked heading, or "N/A".
-    party_widget = h.xpath_element(profile, '//div[@data-id="0459684"]')
-    for party in h.xpath_elements(party_widget, ".//h2"):
-        person.add("political", h.element_text(party))
+    parse_details(context, person, profile_url)
 
     # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
     taxonomies: dict[str, list[str]] = defaultdict(list)
     for terms in record.get("_embedded", {}).get("wp:term", []):
         for term in terms:
             taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
-    # "mandats" says whether the sitting mandate is running, ended or suspended.
-    status = None
-    for mandate in taxonomies["mandats"]:
-        res = context.lookup("mandate", mandate, warn_unmatched=True)
-        if res is not None and res.value is not None:
-            status = OccupancyStatus(res.value)
+    # Only ended and suspended mandates override the status; make_occupancy decides the rest.
+    mandate = context.lookup_value("mandate", next(iter(taxonomies["mandats"]), None))
+    status = OccupancyStatus(mandate) if mandate is not None else None
     occupancy = h.make_occupancy(
         context,
         person,
