@@ -59,7 +59,9 @@ def crawl_person(context: Context, url: str) -> tuple[Entity, str | None]:
     person.add("citizenship", "lb")
     religion = field(doc, "spanMazhab")
     if religion is not None:
-        person.add("religion", context.lookup_value("religion", religion, warn_unmatched=True))
+        person.add(
+            "religion", context.lookup_value("religion", religion, warn_unmatched=True)
+        )
 
     # The source publishes these four labels with no value for every member on
     # record. audit_data warns if that ever changes, since the party and the
@@ -74,6 +76,7 @@ def crawl_person(context: Context, url: str) -> tuple[Entity, str | None]:
     )
     constituency = field(doc, "spanMohafaza")
     return person, context.lookup_value("constituency", constituency)
+
 
 def crawl_term(
     context: Context,
