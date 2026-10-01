@@ -36,14 +36,15 @@ tags:
   - list.pep
 
 dates:
-  formats: ["%d/%m/%Y"]
+  formats: ["%d/%m/%Y", "%Y%m%d"]
 
 lookups:
-  # The mandate taxonomy, as an occupancy status. The source never dates a mandate.
+  # The mandate taxonomy, as an occupancy status override. The source never dates a
+  # mandate, so only ended and suspended ones are set; make_occupancy decides the rest.
   mandate:
     options:
       - match: En cours
-        value: current
+        value: null
       - match: Terminé
         value: ended
       # A suspended deputy keeps the seat without exercising it; their substitute
@@ -62,6 +63,12 @@ lookups:
           - En remplacement de
           - Remplacé(e) par
         value: null
+  type.string:
+    options:
+      # A birth date entered as the birth place.
+      - match: 07/03/1967
+        prop: birthDate
+        value: 1967-03-07
 
 assertions:
   min:
@@ -70,6 +77,11 @@ assertions:
       Position: 1
     country_entities:
       cd: 490
+    # Read from the profile pages: catches a template change that hides the fields.
+    property_fill_rate:
+      Person:
+        birthDate: 0.9
+        political: 0.9
   max:
     schema_entities:
       Person: 1100

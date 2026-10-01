@@ -77,20 +77,21 @@ def crawl_member(
         elif field == "birth_date":
             h.apply_date(person, "birthDate", value)
     # The party and parliamentary group widgets hold a linked heading, or "N/A".
-    for party in h.xpath_elements(profile, '//div[@data-id="0459684"]//h2'):
+    party_widget = h.xpath_element(profile, '//div[@data-id="0459684"]')
+    for party in h.xpath_elements(party_widget, ".//h2"):
         person.add("political", h.element_text(party))
 
     # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
     taxonomies: dict[str, list[str]] = defaultdict(list)
-    for terms in record["_embedded"]["wp:term"]:
+    for terms in record.get("_embedded", {}).get("wp:term", []):
         for term in terms:
             taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
     # "mandats" says whether the sitting mandate is running, ended or suspended.
     status = None
     for mandate in taxonomies["mandats"]:
-        status = OccupancyStatus(
-            context.lookup_value("mandate", mandate, warn_unmatched=True)
-        )
+        res = context.lookup("mandate", mandate, warn_unmatched=True)
+        if res is not None and res.value is not None:
+            status = OccupancyStatus(res.value)
     occupancy = h.make_occupancy(
         context,
         person,
@@ -98,7 +99,6 @@ def crawl_member(
         categorisation=categorisation,
         period_start=period_start,
         period_end=period_end,
-        no_end_implies_current=False,
         status=status,
     )
     if occupancy is None:
@@ -107,7 +107,8 @@ def crawl_member(
         *taxonomies["circonscriptions"], *taxonomies["provinces"], sep=", "
     )
     occupancy.add("constituency", constituency)
-    for group in h.xpath_elements(profile, '//div[@data-id="976268c"]//h2'):
+    group_widget = h.xpath_element(profile, '//div[@data-id="976268c"]')
+    for group in h.xpath_elements(group_widget, ".//h2"):
         occupancy.add("politicalGroup", h.element_text(group))
     context.emit(occupancy)
     context.emit(person)
@@ -127,8 +128,8 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # Members are published against the sitting legislature only, which the taxonomy
-    # hands over as the newest term by name. Undated records carry no legislature.
+    # Members are published against the sitting legislature, which the taxonomy hands
+    # over as the newest term by name. A few sitting deputies were never tagged with it.
     terms = context.fetch_json(
         urljoin(context.data_url, "legislature"),
         params={"per_page": "1", "orderby": "name", "order": "desc"},
@@ -147,7 +148,6 @@ def crawl(context: Context) -> None:
             params={
                 "per_page": str(PER_PAGE),
                 "_embed": "1",
-                "legislature": str(terms[0]["id"]),
                 "offset": str(records),
             },
         )
