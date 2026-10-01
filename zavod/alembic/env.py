@@ -9,17 +9,22 @@ from sqlalchemy import create_engine, pool
 from sqlalchemy.engine import Connection
 
 from zavod.stateful import model
+from pravda.db import Base as pravda_base
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = model.meta
+# Pravda defines its snapshot table on its own metadata; this migration
+# chain owns the table even though the definition lives in the pravda
+# package.
+target_metadata = [model.meta, pravda_base.metadata]
 
 # The database hosts other projects' tables, e.g. the nomenklatura resolver,
-# which autogenerate must never see.
-ZAVOD_TABLES = frozenset(target_metadata.tables)
+# which autogenerate must never see. Both metadatas above register
+# zavod-owned tables.
+ZAVOD_TABLES = frozenset(model.meta.tables) | frozenset(pravda_base.metadata.tables)
 
 
 def include_zavod_name(
@@ -27,7 +32,7 @@ def include_zavod_name(
     type_: NameFilterType,
     parent_names: NameFilterParentNames,
 ) -> bool:
-    """Limit schema comparison to the stateful tables owned by zavod."""
+    """Limit schema comparison to the tables owned by zavod."""
     if type_ == "table":
         return name in ZAVOD_TABLES
     return True
