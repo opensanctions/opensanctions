@@ -38,6 +38,17 @@ dates:
   formats: ["%d/%m/%Y"]
 
 lookups:
+  # The mandate taxonomy, as an occupancy status. The source never dates a mandate.
+  mandate:
+    options:
+      - match: En cours
+        value: current
+      - match: Terminé
+        value: ended
+      # A suspended deputy keeps the seat without exercising it; their substitute
+      # sits in their place. Neither current nor ended.
+      - match: Suspendu
+        value: unknown
   # Labelled items on a deputy's profile page.
   details:
     options:

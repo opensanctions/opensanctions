@@ -16,14 +16,6 @@ from zavod.stateful.positions import (
 PER_PAGE = 100
 # A legislature is named for the years it runs, e.g. "2024 - 2028".
 REGEX_TERM = re.compile(r"(\d{4})\s*-\s*(\d{4})")
-# The taxonomy says whether a mandate runs or has ended, never when.
-MANDATE_STATUSES = {
-    "En cours": OccupancyStatus.CURRENT,
-    "Terminé": OccupancyStatus.ENDED,
-    # A suspended deputy keeps the seat without exercising it; their substitute sits
-    # in their place. Neither current nor ended, and the source never dates it.
-    "Suspendu": OccupancyStatus.UNKNOWN,
-}
 IGNORE = [
     # Read from `_embedded`, where these carry term names rather than ids.
     "legislature",
@@ -68,9 +60,13 @@ def crawl_member(
         for term in terms:
             taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
 
-    mandate = taxonomies["mandats"][0] if taxonomies["mandats"] else ""
-    if len(mandate) > 0 and mandate not in MANDATE_STATUSES:
-        context.log.warning("Unknown mandate status", mandate=mandate)
+    # The "mandats" term labels the mandate as running, ended or suspended,
+    # even for the current sitting term, setting the occupancy status accordingly.
+    status = None
+    if len(taxonomies["mandats"]) > 0:
+        res = context.lookup("mandate", taxonomies["mandats"][0], warn_unmatched=True)
+        if res is not None:
+            status = OccupancyStatus(res.value)
 
     person = context.make("Person")
     person.id = context.make_slug("depute", record.pop("id"))
@@ -105,7 +101,7 @@ def crawl_member(
         period_start=period_start,
         period_end=period_end,
         no_end_implies_current=False,
-        status=MANDATE_STATUSES.get(mandate),
+        status=status,
     )
     if occupancy is None:
         return
