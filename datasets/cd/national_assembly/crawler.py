@@ -92,7 +92,12 @@ def crawl_member(
     if term_name not in taxonomies["legislature"]:
         period_start = period_end = None
     # Only ended and suspended mandates override the status; make_occupancy decides the rest.
-    mandate = context.lookup_value("mandate", next(iter(taxonomies["mandats"]), None))
+    mandates = taxonomies["mandats"]
+    mandate = (
+        context.lookup_value("mandate", mandates[0], warn_unmatched=True)
+        if mandates
+        else None
+    )
     occupancy = h.make_occupancy(
         context,
         person,
