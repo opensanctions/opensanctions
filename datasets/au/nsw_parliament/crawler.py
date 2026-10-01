@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urlencode
 
 from zavod import Context
@@ -193,7 +194,15 @@ def crawl(context: Context) -> None:
         "SF": "[.*]",
     }
     search_url = f"{context.data_url}?{urlencode(search_params)}"
-    data = zyte_api.fetch_json(context, search_url)  # Cloudflare
+    # Fetched with browser rendering, like the profile pages, which Cloudflare
+    # bans for Zyte plain HTTP fetches. The browser wraps the JSON in a <pre>.
+    doc = zyte_api.fetch_html(
+        context,
+        search_url,
+        unblock_validator="//pre",
+        html_source="browserHtml",
+    )
+    data = json.loads(h.element_text(h.xpath_element(doc, "//pre"), squash=False))
     packet = data["response"]["resultPacket"]
     results = packet["results"]
     # Guard against the listing being silently truncated by the page size.
