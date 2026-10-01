@@ -17,10 +17,8 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Each metadata is passed explicitly: the stateful tables on the shared
-# ``zavod.db.meta``, funes and pravda on their own metadata. The pravda
-# snapshot table is owned by this chain even though its definition lives
-# in the pravda package.
+# The pravda snapshot table is owned by this chain even though its
+# definition lives in the pravda package.
 target_metadata = [model.meta, funes_model.funes_meta, pravda_base.metadata]
 
 # The database hosts other projects' tables, e.g. the nomenklatura resolver,
