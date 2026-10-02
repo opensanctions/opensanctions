@@ -1,0 +1,210 @@
+title: Hong Kong Targeted Financial Sanctions (Cap. 537)
+entry_point: crawler.py
+prefix: hk-cedb
+coverage:
+  frequency: daily
+  start: 2026-09-28
+load_statements: true
+summary: >-
+  Persons and entities subject to targeted financial sanctions under Hong
+  Kong's regulations implementing UN Security Council sanctions
+description: |
+  Hong Kong has no autonomous sanctions regime. It gives effect to UN Security
+  Council sanctions through regulations made under the United Nations
+  Sanctions Ordinance (Cap. 537), one regulation per UN regime. The Commerce
+  and Economic Development Bureau publishes the persons and entities subject
+  to targeted financial sanctions under those regulations as one XML file per
+  regime, covering Afghanistan, the Central African Republic, the Democratic
+  Republic of the Congo, North Korea, Haiti, ISIL (Da'esh) and Al-Qaida,
+  Libya, Somalia, South Sudan, Sudan and Yemen. Banks and other institutions
+  supervised by the Hong Kong Monetary Authority screen against these lists.
+
+  Each file is a snapshot of the corresponding part of the [UN Security
+  Council consolidated list](/datasets/un_sc_sanctions/), in the UN's own
+  format. The snapshots are refreshed irregularly and can lag the UN list by
+  months or years, so recent UN designations may be missing. The Libya file only
+  covers asset-freeze listings and omits people and entities designated
+  under the travel ban alone. No files are published for the Iran, Iraq or
+  Guinea-Bissau regimes.
+
+  Contains data from DATA.GOV.HK, provided by the Commerce and Economic
+  Development Bureau of the Government of the Hong Kong Special
+  Administrative Region.
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+publisher:
+  name: Commerce and Economic Development Bureau
+  acronym: CEDB
+  description: |
+    The Commerce and Economic Development Bureau is the policy bureau of the
+    Hong Kong government responsible for commerce, trade and industry. It
+    administers the implementation of UN Security Council sanctions in Hong
+    Kong under the United Nations Sanctions Ordinance.
+  url: https://www.cedb.gov.hk/en/
+  country: hk
+  official: true
+data:
+  url: https://data.gov.hk/en-data/dataset/hk-cedb-cedb_hq-tfslists
+  format: XML
+  lang: eng
+tags:
+  - list.sanction
+  - sector.financial
+
+config:
+  # The XML files (without .xml) the dataset page is expected to list, one per
+  # regime. The crawler warns when the page lists a different set.
+  expected_files:
+    - afghanistan
+    - central_african_republic
+    - dprk
+    - drcongo
+    - haiti
+    - isil_and_al_qaida
+    - libya
+    - somalia
+    - south_sudan
+    - sudan
+    - yemen
+
+assertions:
+  min:
+    schema_entities:
+      Person: 500
+      LegalEntity: 150
+  max:
+    schema_entities:
+      Person: 1200
+      LegalEntity: 400
+
+lookups:
+  # UN_LIST_TYPE, as used in the UN consolidated list, to the HK program
+  # implementing that regime.
+  sanction.program:
+    options:
+      - match: Taliban
+        value: HK-UNSO-AFGHANISTAN
+      - match: Al-Qaida
+        value: HK-UNSO-ISIL
+      - match: CAR
+        value: HK-UNSO-CAR
+      - match: DRC
+        value: HK-UNSO-DRC
+      - match: DPRK
+        value: HK-UNSO-DPRK
+      - match: Haiti
+        value: HK-UNSO-HAITI
+      - match: Libya
+        value: HK-UNSO-LIBYA
+      - match: Somalia
+        value: HK-UNSO-SOMALIA
+      - match: SouthSudan
+        value: HK-UNSO-SSUDAN
+      - match: Sudan
+        value: HK-UNSO-SUDAN
+      - match: Yemen
+        value: HK-UNSO-YEMEN
+  # UN_LIST_TYPE to the name of the Cap. 537 regulation, used as the
+  # sanction's program label.
+  regulation:
+    options:
+      - match: Taliban
+        value: United Nations Sanctions (Afghanistan) Regulation 2022
+      - match: Al-Qaida
+        value: United Nations Sanctions (ISIL and Al-Qaida) Regulation
+      - match: CAR
+        value: United Nations Sanctions (Central African Republic) Regulation 2020
+      - match: DRC
+        value: United Nations Sanctions (Democratic Republic of the Congo) Regulation 2019
+      - match: DPRK
+        value: United Nations Sanctions (Democratic People's Republic of Korea) Regulation
+      - match: Haiti
+        value: United Nations Sanctions (Haiti) Regulation
+      - match: Libya
+        value: United Nations Sanctions (Libya) Regulation 2019
+      - match: Somalia
+        value: United Nations Sanctions (Somalia) Regulation 2019
+      - match: SouthSudan
+        value: United Nations Sanctions (South Sudan) Regulation 2019
+      - match: Sudan
+        value: United Nations Sanctions (Sudan) Regulation
+      - match: Yemen
+        value: United Nations Sanctions (Yemen) Regulation 2019
+  # Alias QUALITY to the name property it feeds. An empty quality only
+  # occurs on empty alias records.
+  alias_quality:
+    options:
+      - match: Good
+        value: alias
+      - match: a.k.a.
+        value: alias
+      - match: Low
+        value: weakAlias
+      - match: f.k.a.
+        value: previousName
+  document_type:
+    normalize: true
+    options:
+      - match:
+          - National Identification Number
+          - National identification no.
+        passport: false
+      - match:
+          - Passport
+          - Numéro de passeport
+          - Número de pasaporte
+        passport: true
+  # Documents whose number appears only in the free text of TYPE_OF_DOCUMENT2
+  # or NOTE. A null value marks a document that has no number at all.
+  document_number:
+    options:
+      - contains: tazkira) number 57388
+        value: "57388"
+      - contains: Residential card number 665
+        value: "665"
+      - contains: SSN 156-92-9858
+        value: 156-92-9858
+        country: us
+      - contains: Libyan passport number 347834
+        value: "347834"
+        country: ly
+      - contains: Tunisian passport number L 191609
+        value: L191609
+        country: tn
+      - contains: Tunisian passport number L723315
+        value: L723315
+        country: tn
+      - contains: 04643632 issued on 18 Jun. 1999
+        value: "04643632"
+      - contains: "Italian Fiscal Code: DAOMMD74T11Z352Z"
+        value: DAOMMD74T11Z352Z
+        country: it
+      - contains: Tunisian national identity number W334061
+        value: W334061
+        country: tn
+      - contains: Moroccan national identity card DE- 473900
+        value: DE473900
+        country: ma
+      - contains: Indonesian National Identity Card number 1127083101740003
+        value: "1127083101740003"
+        country: id
+      - contains:
+          - issued for Djamel Mostefa, born on 25 Sep. 1973
+          - issued in 1993, under name Muhammad Jamal Abd-Al Rahim Ahmad Al-Kashif
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Possibly Ethiopian
+        value: et
+      - match: United States. Also believed to hold Syrian nationality
+        values:
+          - us
+          - sy
+  type.identifier:
+    normalize: true
+    options:
+      - match: >-
+          Central African Republic armed forces (FACA) Military identification
+          number 911-10-77
+        value: FACA 911-10-77

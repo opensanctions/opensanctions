@@ -1,0 +1,23 @@
+title: Hong Kong implementation of UN sanctions concerning Afghanistan
+key: HK-UNSO-AFGHANISTAN
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+summary: >
+  Hong Kong's implementation of the UN Security Council sanctions concerning
+  Afghanistan under the United Nations Sanctions Ordinance. It targets
+  individuals, groups, undertakings and entities associated with the Taliban in
+  threatening the peace, stability and security of Afghanistan, as designated by
+  the Security Council committee established under resolution 1988. Designated
+  persons and entities are subject to an asset freeze, and designated
+  individuals are barred from entering or transiting Hong Kong. Supplying arms
+  and related materiel to designated persons and entities is also prohibited.
+issuer: hk_cedb
+dataset: hk_cedb_sanctions
+aliases:
+  - United Nations Sanctions (Afghanistan) Regulation 2022 (Cap. 537CN)
+  - Resolution 1988
+target_territories:
+  - af
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms restrictions
