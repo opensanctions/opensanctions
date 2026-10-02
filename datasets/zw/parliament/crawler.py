@@ -112,7 +112,7 @@ def crawl(context: Context) -> None:
     for parliament in sorted(parliaments, key=lambda p: p["startedOn"], reverse=True):
         if parliament["endedOn"] is not None and parliament["endedOn"] < cutoff:
             context.log.info(
-                "Parliament predates the PEP window", number=parliament["number"]
+                "Parliament predates the PEP window", parliament_no=parliament["number"]
             )
             break
         # `parliaments` filters by the internal id, not the parliament's number.
