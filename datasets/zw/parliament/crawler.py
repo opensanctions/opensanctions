@@ -53,19 +53,15 @@ def crawl_member(
     person.add("citizenship", "zw")
     party = member.pop("party")
     if party is not None:
-        person.add(
-            "political",
-            context.lookup_value("party", party["name"], warn_unmatched=True),
-        )
+        person.add("political", party["name"])
 
     # The record carries a single house, so for a member who changed chambers between
     # the 7th and 9th Parliaments, the older terms take the house of the latest one.
     position, categorisation = positions[member.pop("house")]
     if not categorisation.is_pep:
         return
-    # The portal archives members who leave the sitting parliament (recalls, deaths)
-    # without recording when: the source says they left, so mark them ended.
-    left_early = member.pop("archived") and parliament["endedOn"] is None
+    # Archived sitting members may have left or still serve: status unknown.
+    archived = member.pop("archived") and parliament["endedOn"] is None
     occupancy = h.make_occupancy(
         context,
         person,
@@ -73,7 +69,7 @@ def crawl_member(
         categorisation=categorisation,
         period_start=parliament["startedOn"],
         period_end=parliament["endedOn"],
-        status=OccupancyStatus.ENDED if left_early else None,
+        status=OccupancyStatus.UNKNOWN if archived else None,
     )
     if occupancy is None:
         return

@@ -18,9 +18,8 @@ description: |
   houses sit for a five-year term and hold the country's legislative power,
   including passing laws and approving the budget.
 # Maintainer notes:
-# - Members of the sitting Parliament who leave mid-term are archived by the portal
-#   without an end date, and their successors are often not entered. Archived members
-#   are emitted as ended, so the current count sits below the seat count.
+# - "Archived" sitting members include both members who left (the 2023 CCC recalls)
+#   and members still in office, so they're emitted with an unknown status.
 # - The portal keeps one record per member, reused for each of the 7th-9th Parliaments
 #   they sat in, with a single house and party: the latest ones. A member who moved
 #   between chambers is listed under their latest chamber for every term.
@@ -86,22 +85,3 @@ lookups:
         value: null
       - match: "Jay Jay|"
         value: Jay Jay
-  party:
-    options:
-      - match: ZANU-PF
-        value: ZANU-PF
-      - match: CCC
-        value: CCC
-      - match: MDC
-        value: MDC
-      - match: MDC Alliance
-        value: MDC Alliance
-      - match: MDC-T
-        value: MDC-T
-      - match: MDC-M
-        value: MDC-M
-      - match: PF-ZAPU
-        value: PF-ZAPU
-      # Not parties: the chiefs' bloc in the Senate, and independent members.
-      - match: [Chiefs, Independent]
-        value: null
