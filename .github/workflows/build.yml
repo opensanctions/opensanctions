@@ -78,7 +78,7 @@ jobs:
         with:
           python-version: "3.13"
       - name: Set up uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: true
           # Keep source-built wheels (pyicu, plyvel) but drop prebuilt ones
@@ -166,7 +166,7 @@ jobs:
         with:
           python-version: "3.13"
       - name: Set up uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: true
           # Keep source-built wheels (pyicu, plyvel) but drop prebuilt ones
