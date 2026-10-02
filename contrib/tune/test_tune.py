@@ -37,7 +37,8 @@ def assert_exit_status_zero(result: Result) -> None:
 
 def test_production_format_adapter():
     """The adapter must mirror the exact wire format production uses:
-    one user message, the prompt and the input JSON as two text parts."""
+    one user message, the prompt instructions and the input JSON as two
+    text parts. The input framing lives in the tuned instructions."""
     messages = ProductionFormatAdapter().format(
         CleanNamesSignature,
         [],
@@ -51,7 +52,6 @@ def test_production_format_adapter():
                 {
                     "type": "text",
                     "text": (
-                        "The entity schema and name strings as JSON:\n\n"
                         "{\n"
                         '  "entity_schema": "Person",\n'
                         '  "strings": [\n'

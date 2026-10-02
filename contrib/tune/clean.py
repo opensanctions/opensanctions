@@ -47,29 +47,22 @@ class CleanNamesSignature(dspy.Signature):  # type: ignore
     )
 
 
-def format_input_string(entity_schema: str, strings: list[str]) -> str:
-    """Format the LLM input exactly as production does.
-
-    Keep in sync with the ``input_string`` construction in
-    ``zavod.extract.names.clean.clean_names``.
-    """
-    input_data = {"entity_schema": entity_schema, "strings": strings}
-    return "The entity schema and name strings as JSON:\n\n" + json.dumps(
-        input_data, indent=2, ensure_ascii=False
-    )
-
-
 class ProductionFormatAdapter(dspy.JSONAdapter):  # type: ignore
     """Run LM calls with exactly the wire format production uses.
 
     Production (``zavod.extract.llm.run_typed_text_prompt``) sends one user
-    message with the prompt and the input JSON as two text parts, and
-    constrains the response with a JSON schema. This adapter formats calls
-    the same way, so GEPA optimises the prompt and ``compare`` evaluates it
-    under deployment conditions rather than inside dspy's default chat
-    scaffolding, which production never sends. The JSON-schema-constrained
-    output is inherited from JSONAdapter, which requests an OpenAI-style
-    ``response_format``.
+    message with the prompt instructions and the input JSON as two text
+    parts, and constrains the response with a JSON schema. This adapter
+    formats calls the same way, so GEPA optimises the prompt and ``compare``
+    evaluates it under deployment conditions rather than inside dspy's
+    default chat scaffolding, which production never sends. The
+    JSON-schema-constrained output is inherited from JSONAdapter, which
+    requests an OpenAI-style ``response_format``.
+
+    The framing of the JSON input is part of the tuned instructions in the
+    program artifact, so both sides agree on it by construction; keep the
+    JSON serialization in sync with
+    ``zavod.extract.names.clean.clean_names``.
 
     Few-shot demos have no production equivalent, so their presence is an
     error rather than a silent divergence.
@@ -79,17 +72,20 @@ class ProductionFormatAdapter(dspy.JSONAdapter):  # type: ignore
         self, signature: Any, demos: list[Any], inputs: dict[str, Any]
     ) -> list[dict[str, Any]]:
         assert not demos, "demos cannot be rendered in the production format"
+        input_string = json.dumps(
+            {
+                "entity_schema": inputs["entity_schema"],
+                "strings": inputs["strings"],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
         return [
             {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": signature.instructions},
-                    {
-                        "type": "text",
-                        "text": format_input_string(
-                            inputs["entity_schema"], inputs["strings"]
-                        ),
-                    },
+                    {"type": "text", "text": input_string},
                 ],
             }
         ]

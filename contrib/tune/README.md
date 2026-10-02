@@ -34,12 +34,13 @@ rather than mismapping fields.
 
 The prompt is optimised and evaluated through `ProductionFormatAdapter`
 (`clean.py`), which formats LM calls exactly as production does: one user
-message with the prompt and the input JSON as two text parts, and an
-OpenAI-style JSON-schema-constrained output (inherited from dspy's
+message with the prompt instructions and the input JSON as two text parts,
+and an OpenAI-style JSON-schema-constrained output (inherited from dspy's
 `JSONAdapter`). This keeps optimisation honest: the prompt is not tuned inside
-dspy's default chat scaffolding, which production never sends. The input
-formatting mirrors `zavod.extract.names.clean.clean_names`; keep the two in
-sync (a test pins the format).
+dspy's default chat scaffolding, which production never sends. The framing of
+the JSON input is part of the tuned instructions in the artifact, so both
+sides agree on it by construction; only the JSON serialization of the input
+is written on both sides.
 
 ## Run
 
