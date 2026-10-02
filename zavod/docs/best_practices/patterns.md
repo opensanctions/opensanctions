@@ -200,6 +200,12 @@ Logs are essential for monitoring progress and debugging, but info-level and low
     context.log.warning("Unhandled entity type", type=entity_type)
     ```
 
+    Some warnings need action outside the crawler code, for example a backlog in the review UI. Pass `agent="skip"` on such a warning. The automated issues agent then does not start for it, but the warning still shows on the Issues page.
+
+    ```python
+    context.log.warning("There are 3 unaccepted items", agent="skip")
+    ```
+
 ## Data assertions
 
 Build crawlers with robust assertions to catch missing data during runtime. Instead of manually inspecting logs, implement checks to ensure that expected data is present or that invalid data doesn't slip through:
