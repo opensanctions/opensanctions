@@ -120,6 +120,7 @@ children:
   - hr_public_officials
   - hr_sabor
   - hu_national_assembly
+  - id_dpr
   - id_regional_2018
   - ie_parliament
   - il_knesset_members
@@ -236,3 +237,4 @@ children:
   - xk_assembly
   - za_mm_officials
   - za_pmg_legislators
+  - zw_parliament
