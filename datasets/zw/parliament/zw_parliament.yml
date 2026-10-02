@@ -20,10 +20,10 @@ description: |
 # Maintainer notes:
 # - Members of the sitting Parliament who leave mid-term are archived by the portal
 #   without an end date, and their successors are often not entered. Archived members
-#   are emitted with an unknown status, so the current count sits below the seat count.
-# - Records of the 7th-9th Parliaments are shared across those terms, with a single
-#   house and party per record: a member who changed chambers is listed in the latest
-#   chamber for every term.
+#   are emitted as ended, so the current count sits below the seat count.
+# - The portal keeps one record per member, reused for each of the 7th-9th Parliaments
+#   they sat in, with a single house and party: the latest ones. A member who moved
+#   between chambers is listed under their latest chamber for every term.
 url: https://e-portal.parlzim.gov.zw/parliamentarians
 tags:
   - list.pep

@@ -1,7 +1,11 @@
 from typing import Any
 
 from zavod.extract import zyte_api
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -59,9 +63,9 @@ def crawl_member(
     position, categorisation = positions[member.pop("house")]
     if not categorisation.is_pep:
         return
-    # The portal archives members who leave mid-term (recalls, deaths) without
-    # recording when, so an archived member's open-ended membership is not current.
-    archived = member.pop("archived")
+    # The portal archives members who leave the sitting parliament (recalls, deaths)
+    # without recording when: the source says they left, so mark them ended.
+    left_early = member.pop("archived") and parliament["endedOn"] is None
     occupancy = h.make_occupancy(
         context,
         person,
@@ -69,7 +73,7 @@ def crawl_member(
         categorisation=categorisation,
         period_start=parliament["startedOn"],
         period_end=parliament["endedOn"],
-        no_end_implies_current=parliament["endedOn"] is None and not archived,
+        status=OccupancyStatus.ENDED if left_early else None,
     )
     if occupancy is None:
         return
