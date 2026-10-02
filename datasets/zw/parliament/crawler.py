@@ -36,14 +36,14 @@ def crawl_member(
     parliament: dict[str, Any],
     member: dict[str, Any],
 ) -> None:
-    raw_name = member.pop("fullName")
     person = context.make("Person")
     person.id = context.make_slug(member.pop("id"))
-    name = h.strip_name_titles(context, raw_name)
-    person.add("name", name, original_value=raw_name if name != raw_name else None)
+    person.add("name", member.pop("fullName"))
     h.apply_date(person, "birthDate", member.pop("dateOfBirth"))
     person.add("weakAlias", member.pop("nickName"))
-    person.add("title", member.pop("title"))
+    title = member.pop("title")
+    title_lookup = context.lookup("title", title)
+    person.add("title", title if title_lookup is None else title_lookup.value)
     person.add("gender", member.pop("gender"))
     person.add("birthPlace", member.pop("placeOfBirth"))
     person.add("citizenship", "zw")
