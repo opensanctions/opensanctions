@@ -81,6 +81,7 @@ lookups:
     # documents (details.csv rows) are.
     options:
       - match:
+          - "A7 Network Sub-Agents"
           - "Convertible Virtual Currency Mixing"
           - "Mexican Gambling Establishments"
         value: true
