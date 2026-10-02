@@ -72,11 +72,12 @@ names:
         - "PhD"
 
 lookups:
-  # statusOff records whether, and why, a member left their seat.
+  # statusOff records whether, and why, a member left their seat. Only a departure
+  # overrides the status; a sitting member is left to make_occupancy.
   occupancy_status:
     options:
       - match: Dalam masa jabatan
-        value: current
+        value: null
       - match:
           - Selesai masa jabatan # term finished
           - Diberhentikan # dismissed

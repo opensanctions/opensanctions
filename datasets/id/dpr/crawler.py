@@ -3,7 +3,6 @@ import hmac
 import re
 import uuid
 from base64 import b64encode
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
@@ -20,13 +19,6 @@ from zavod.stateful.positions import (
     categorise,
 )
 from zavod.stateful.review import assert_all_accepted
-
-
-@dataclass
-class Legislature:
-    id: int
-    start: str
-    end: str
 
 
 def sign_request(body: bytes) -> dict[str, str]:
@@ -78,71 +70,23 @@ def query_gql(
     return data["data"]
 
 
-def fetch_legislatures(context: Context) -> list[Legislature]:
-    """Fetch the legislative periods and parse their term years."""
-    legislatures: list[Legislature] = []
-    for periode in query_gql(context, "{ getAllPeriode { id data } }")["getAllPeriode"]:
-        # Legislature labels, e.g. "Periode 2024 - 2029".
-        match = re.fullmatch(
-            r"(?:Periode\s+)?(?P<start>\d{4})\s*-\s*(?P<end>\d{4})",
-            periode["data"].strip(),
-        )
-        if match is None:
-            raise ValueError(f"Cannot parse legislature period: {periode!r}")
-        legislatures.append(
-            Legislature(
-                id=int(periode["id"]),
-                start=match.group("start"),
-                end=match.group("end"),
-            )
-        )
-    return legislatures
-
-
-def fetch_roster(context: Context, legislature: Legislature) -> list[dict[str, Any]]:
-    """Fetch the full roster of one legislature."""
-    # Trimmed from the site's own query. The page size is above the 580 seats plus
-    # mid-term replacements, so one page holds a whole legislature.
-    query = """
-    query ($periode: Mixed) {
-      getDaftarRiwayatAnggota(
-        first: 1000
-        wherePeriode: { column: ID, operator: EQ, value: $periode }
-      ) {
-        data {
-          idAnggota
-          statusOff
-          dapil { dapil }
-          anggota { id nama tempatLahir tanggalLahir }
-          riwayatFraksi { fraksi { fraksi } }
-        }
-      }
-    }
-    """
-    roster = query_gql(context, query, {"periode": legislature.id})[
-        "getDaftarRiwayatAnggota"
-    ]
-    members: list[dict[str, Any]] = roster["data"]
-    return members
-
-
 def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    legislature: Legislature,
+    period_start: str,
+    period_end: str,
     member: dict[str, Any],
 ) -> None:
     member_data = member["anggota"]
     if member_data is None:
         # A few historical rows point to member records removed from the site.
-        context.log.warning(
+        context.log.info(
             "Skipping roster record with missing member details",
-            period_id=legislature.id,
             id_anggota=member["idAnggota"],
         )
         return
-    member_id = str(member_data["id"])
+    member_id = member_data["id"]
 
     person = context.make("Person")
     person.id = context.make_slug(member_id)
@@ -173,20 +117,22 @@ def crawl_member(
         f"{slug}-{member_id}",
     )
 
+    # Only a member who left the running term overrides the status: ended terms are
+    # left to the period end (their statusOff is often blank), and make_occupancy
+    # decides the rest.
     status = None
-    # Ended terms are left to the period end; their statusOff is often blank.
-    if legislature.end >= str(settings.RUN_TIME.year):
+    if period_end >= str(settings.RUN_TIME.year):
         value = context.lookup_value(
-            "occupancy_status", member["statusOff"], "unknown", warn_unmatched=True
+            "occupancy_status", member["statusOff"], warn_unmatched=True
         )
-        status = OccupancyStatus(value)
+        status = OccupancyStatus(value) if value is not None else None
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         categorisation=categorisation,
-        period_start=legislature.start,
-        period_end=legislature.end,
+        period_start=period_start,
+        period_end=period_end,
         status=status,
     )
     if occupancy is None:
@@ -212,10 +158,36 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    for legislature in fetch_legislatures(context):
-        if legislature.end < h.earliest_term_start(categorisation.topics):
+    # Trimmed from the site's own query. The page size is above the 580 seats plus
+    # mid-term replacements, so one page holds a whole legislature.
+    roster_query = """
+    query ($periode: Mixed) {
+      getDaftarRiwayatAnggota(
+        first: 1000
+        wherePeriode: { column: ID, operator: EQ, value: $periode }
+      ) {
+        data {
+          idAnggota
+          statusOff
+          dapil { dapil }
+          anggota { id nama tempatLahir tanggalLahir }
+          riwayatFraksi { fraksi { fraksi } }
+        }
+      }
+    }
+    """
+    for periode in query_gql(context, "{ getAllPeriode { id data } }")["getAllPeriode"]:
+        # Legislature labels, e.g. "Periode 2024 - 2029".
+        match = re.fullmatch(
+            r"(?:Periode\s+)?(\d{4})\s*-\s*(\d{4})", periode["data"].strip()
+        )
+        if match is None:
+            raise ValueError(f"Cannot parse legislature period: {periode!r}")
+        start, end = match.groups()
+        if end < h.earliest_term_start(categorisation.topics):
             continue
-        for member in fetch_roster(context, legislature):
-            crawl_member(context, position, categorisation, legislature, member)
+        roster = query_gql(context, roster_query, {"periode": int(periode["id"])})
+        for member in roster["getDaftarRiwayatAnggota"]["data"]:
+            crawl_member(context, position, categorisation, start, end, member)
 
     assert_all_accepted(context, raise_on_unaccepted=False)
