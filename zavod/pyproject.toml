@@ -75,7 +75,9 @@ dev = [
     "types-PyYAML",
     "prek",
     "dspy == 3.4.0",
-    "litellm>=1.64.0,<=1.103.0", # required by dspy, pinned following litellm compromise
+    # Imported by dspy at import time but undeclared in its metadata; litellm
+    # supplied it transitively before the [tool.uv] override removed litellm.
+    "jsonschema",
 ]
 docs = [
     "pillow",
@@ -119,3 +121,13 @@ src_paths = ["zavod"]
 # UP (pyupgrade) is enabled deliberately now that the tree is clean.
 select = ["E4", "E7", "E9", "F"]
 extend-select = ["UP"]
+
+[tool.uv]
+# dspy declares litellm as a hard dependency but only imports it lazily, and
+# zavod's tuning code uses the OpenAI-native engine. Excluding litellm from
+# the graph entirely keeps its openai version ceiling out of the lockfile
+# resolution. pip ignores this table, so install with `uv pip install`
+# (as CI does).
+exclude-dependencies = [
+    { package = { name = "dspy" }, dependencies = ["litellm"] },
+]

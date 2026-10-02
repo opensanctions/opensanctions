@@ -59,14 +59,27 @@ jobs:
         if: ${{ steps.changed.outputs.files == 'true' }}
         with:
           python-version: '3.13'
-          cache: 'pip'
-          # The default requirements glob only finds unrelated contrib files.
-          cache-dependency-path: zavod/pyproject.toml
+      - name: Set up uv
+        if: ${{ steps.changed.outputs.files == 'true' }}
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+          # Keep source-built wheels (pyicu, plyvel) but drop prebuilt ones
+          # before saving the cache, per uv's CI guidance.
+          prune-cache: true
+          # Only zavod/pyproject.toml feeds these installs; the default glob
+          # also keys on unrelated contrib/ requirements and lock files.
+          cache-dependency-glob: zavod/pyproject.toml
       - name: Install python linting dependencies
         if: ${{ steps.changed.outputs.files == 'true' }}
         working-directory: zavod
+        env:
+          # uv pip requires a virtual environment by default; install into
+          # the setup-python environment instead, as pip did.
+          UV_SYSTEM_PYTHON: 1
         run: |
-          pip install -q -e ".[dev]"
+          # pip would ignore the [tool.uv] overrides in pyproject.toml.
+          uv pip install -q -e ".[dev]"
       - name: Lint modified dataset python
         if: ${{ steps.changed.outputs.python == 'true' }}
         run: |
