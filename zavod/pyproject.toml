@@ -124,7 +124,10 @@ extend-select = ["UP"]
 
 [tool.uv]
 # dspy declares litellm as a hard dependency but only imports it lazily, and
-# zavod's tuning code uses the OpenAI-native engine. Drop litellm from
-# resolution instead of version-pinning it. pip ignores this table, so install
-# with `uv pip install` (as CI does).
-override-dependencies = ["litellm ; sys_platform == 'never'"]
+# zavod's tuning code uses the OpenAI-native engine. Excluding litellm from
+# the graph entirely keeps its openai version ceiling out of the lockfile
+# resolution. pip ignores this table, so install with `uv pip install`
+# (as CI does).
+exclude-dependencies = [
+    { package = { name = "dspy" }, dependencies = ["litellm"] },
+]

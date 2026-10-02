@@ -19,7 +19,7 @@ from zavod.logs import get_logger
 DEFAULT_MODEL = "gpt-4o"
 
 log = get_logger(__name__)
-logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpx2").setLevel(logging.WARNING)
 
 ResponseType = TypeVar("ResponseType", bound=BaseModel)
 
