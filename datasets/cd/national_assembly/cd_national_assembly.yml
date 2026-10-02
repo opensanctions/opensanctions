@@ -4,7 +4,7 @@ name: cd_national_assembly
 prefix: cd-assembly
 coverage:
   frequency: monthly
-  start: 2026-07-23
+  start: 2026-10-02
 load_statements: true
 # A full crawl fetches every deputy's profile page (~570), well past the CI budget.
 ci_test: false
