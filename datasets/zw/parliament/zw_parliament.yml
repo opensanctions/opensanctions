@@ -85,10 +85,9 @@ lookups:
         value: null
   type.gender:
     options:
-      # Data entry errors: both gender values are filled in.
-      - match:
-          - "Male: Female"
-          - "Male: Male"
+      - match: "Male: Male"
+        value: male
+      - match: "Male: Female"
         value: null
   type.name:
     options:
