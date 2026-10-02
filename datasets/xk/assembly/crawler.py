@@ -8,33 +8,58 @@ from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# Albanian biography labels in the collapsed ".bio-hidden" block, mapped to the
-# FollowTheMoney property they populate. Labels not listed here are passed to
-# audit_data() so a new or renamed field fails loudly.
+# Biography labels in the collapsed ".bio-hidden" block, mapped to the FollowTheMoney
+# property they populate. Labels not listed here are passed to audit_data() so a new or
+# renamed field fails loudly.
+# The block is free text maintained per profile, so the same field appears under several
+# spellings: Albanian is the norm, minority-community profiles sometimes use the Serbian
+# label, and a group of profiles has had the whole block replaced with an English
+# translation whose wording differs from profile to profile.
 # Date of birth is handled separately (apply_date + backslash normalisation).
-DOB_LABEL = "Datëlindja"
+DOB_LABELS = ["Datëlindja", "Date of birth"]
 BIO_PROPS = {
     "Gjinia": "gender",
+    "Pol": "gender",  # Serbian
+    "Gender": "gender",
     "Përkatësia etnike": "ethnicity",
     "Etnia": "ethnicity",
+    "Etniat": "ethnicity",
+    "Ethnicity": "ethnicity",
     "Vendlindja": "birthPlace",
+    "Place of birth": "birthPlace",
     "Arsimimi": "education",
+    "Education": "education",
 }
 # "Partia" (party) also appears in the bio block, but we take it from the structural
 # PARTIA row in ".bio", which is present even when the collapsed bio is empty.
 # Bio labels we deliberately drop: no suitable FTM property / not useful for matching.
 BIO_IGNORE = [
-    "Partia",  # party — taken from the structural PARTIA row instead
-    "Statusi civil",  # marital status
-    "Gjuhë tjetër përveç amtares",  # other languages spoken
+    # party — taken from the structural PARTIA row instead
+    "Partia",
+    "Party",
+    "Political party",
+    # marital status
+    "Statusi civil",
+    "Marital status",
+    "Civil status",
+    # other languages spoken
+    "Gjuhë tjetër përveç amtares",
     "Gjuhë tjetër përveç amtare",  # idem; one profile drops the trailing "s"
-    "Aktivitete dhe funksione paraprake apo të tanishme",  # prior/current occupations
+    "Non-native languages",
+    "Other language(s) besides the mother tongue",
+    "Languages other than the mother tongue",
+    # prior/current occupations
+    "Aktivitete dhe funksione paraprake apo të tanishme",
     "Funksione paraprake apo të tanishme",  # idem; without the "Aktivitete dhe" prefix
+    "Previous or current functions",
+    "Previous or current activities",
+    "Previous or Current Positions",
+    "Current or Previous Positions",
 ]
 
 # All labels we recognise, longest first so prefix matching is unambiguous. Used to
 # recover rows where the source dropped the ":" separator (e.g. "Gjinia Mashkull").
-KNOWN_BIO_LABELS = sorted({DOB_LABEL, *BIO_PROPS, *BIO_IGNORE}, key=len, reverse=True)
+KNOWN_BIO_LABELS = sorted({*DOB_LABELS, *BIO_PROPS, *BIO_IGNORE}, key=len, reverse=True)
 
 
 def recover_unlabelled(text: str) -> tuple[str | None, str]:
@@ -124,7 +149,10 @@ def crawl_member(
     bio = parse_bio(context, doc)
     # Dates use "/", "\" (e.g. 29\03\1970) or "." (e.g. 16.12.1985) as the separator;
     # normalise all to "/" to match the dataset's %d/%m/%Y format.
-    dob = bio.pop(DOB_LABEL, "").replace("\\", "/").replace(".", "/")
+    # Only the first matching label is popped; a profile carrying two of them leaves the
+    # other in `bio` and trips audit_data() rather than silently picking one.
+    dob = next((bio.pop(label) for label in DOB_LABELS if label in bio), "")
+    dob = dob.replace("\\", "/").replace(".", "/")
     h.apply_date(person, "birthDate", dob)
     for bio_label, prop in BIO_PROPS.items():
         person.add(prop, bio.pop(bio_label, ""))
