@@ -172,6 +172,11 @@ jobs:
           # Retain locally built wheels for source-only dependencies.
           pip install -q -e ".[dev]"
           pip freeze
+      # Only migrations create zavod's tables. The crawls below use the default
+      # SQLite database in data/, relative to the repository root, so create
+      # it there.
+      - name: Set up the zavod database
+        run: alembic -c zavod/alembic.ini upgrade head
       - name: Test crawlers with tests
         run: pytest datasets
 
