@@ -11,10 +11,10 @@ import click
 import yaml
 from followthemoney.cli.util import InPath, OutPath
 
+from compare import compare_single_entity
+from example_data import EXAMPLES_PATH
+from optimise import LEVELS, optimise_single_entity
 from zavod.extract.names.clean import SINGLE_ENTITY_PROGRAM_PATH
-from zavod.extract.names.dspy.compare import compare_single_entity
-from zavod.extract.names.dspy.example_data import EXAMPLES_PATH
-from zavod.extract.names.dspy.optimise import LEVELS, optimise_single_entity
 
 LEVEL_OPTIONS = click.Choice(LEVELS, case_sensitive=False)
 

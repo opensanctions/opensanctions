@@ -74,8 +74,6 @@ dev = [
     "types-google-cloud-ndb",
     "types-PyYAML",
     "prek",
-    "dspy == 3.4.0",
-    "litellm>=1.64.0,<=1.102.1", # required by dspy, pinned following litellm compromise
 ]
 docs = [
     "pillow",
@@ -87,7 +85,6 @@ docs = [
 
 [project.scripts]
 zavod = "zavod.cli:cli"
-zavod-tune = "zavod.tune:cli"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["zavod", "LICENSE", "README.md"]
