@@ -12,6 +12,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q18964326",
         lang="eng",
     )
+    # this is the fun bit
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
