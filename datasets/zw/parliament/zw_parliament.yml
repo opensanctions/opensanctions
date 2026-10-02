@@ -43,12 +43,25 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 1000
+      Person: 1050
       Position: 2
+    entities_with_prop:
+      Occupancy:
+        holder: 1200
+    country_entities:
+      zw: 1050
+    property_fill_rate:
+      Person:
+        political: 0.9  # 95%
+        birthDate: 0.15  # 19%: mostly missing for older parliaments
   max:
+    # Room for one more Parliament's intake (~250 new people, 360 occupancies).
     schema_entities:
-      Person: 2300
+      Person: 1600
       Position: 2
+    entities_with_prop:
+      Occupancy:
+        holder: 1900
 
 lookups:
   # Plain honorifics in the title field carry nothing; meaningful titles (Dr, Prof,
