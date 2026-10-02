@@ -28,13 +28,25 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-          cache: 'pip'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          # Keep source-built wheels (pyicu, plyvel) but drop prebuilt ones
+          # before saving the cache, per uv's CI guidance.
+          prune-cache: true
+          # Only zavod/pyproject.toml feeds these installs; the default glob
+          # also keys on unrelated contrib/ requirements and lock files.
+          cache-dependency-glob: zavod/pyproject.toml
       - name: Install requirements
         working-directory: zavod
+        env:
+          # uv pip requires a virtual environment by default; install into
+          # the setup-python environment instead, as pip did.
+          UV_SYSTEM_PYTHON: 1
         run: |
-          python -m pip install --upgrade pip
-          pip install --no-cache-dir -q -e ".[dev]"
-          pip install --no-cache-dir -q -e ".[docs]"
+          # pip would ignore the [tool.uv] overrides in pyproject.toml.
+          uv pip install -q -e ".[dev,docs]"
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v6
