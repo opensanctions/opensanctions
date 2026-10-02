@@ -1,23 +1,18 @@
 """Very lightly check that the optimise/compare commands keep working."""
 
-# Load leveldb before importing dspy to prevent
-# src/tcmalloc.cc:309] Attempt to free invalid pointer 0x600002f2ede0
-# on exit. See: https://github.com/google/leveldb/issues/634
-import plyvel  #  type: ignore  # isort:skip  # noqa: F401
-
 from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 from unittest.mock import MagicMock, patch
 from copy import deepcopy
 from traceback import format_exception
 
+import pytest
 import yaml
 from click.testing import CliRunner, Result
 from dspy import Prediction
 
-from clean import load_optimised_module
+from clean import CleanNamesSignature, ProductionFormatAdapter, load_optimised_module
 from tune import cli
-from zavod.extract.names.clean import SimpleNames
 
 example = {
     "entity_schema": "Person",
@@ -34,12 +29,54 @@ examples = [example, deepcopy(example), deepcopy(example)]
 def assert_exit_status_zero(result: Result) -> None:
     if result.exit_code != 0:
         raise AssertionError(
-            "'zavod-run compare' invocation exited non-zero.\n\n"
+            "CLI invocation exited non-zero.\n\n"
             f"Output: {result.output}\n"
             f"{''.join(format_exception(*result.exc_info))}"
         )
 
 
+def test_production_format_adapter():
+    """The adapter must mirror the exact wire format production uses:
+    one user message, the prompt and the input JSON as two text parts."""
+    messages = ProductionFormatAdapter().format(
+        CleanNamesSignature,
+        [],
+        {"entity_schema": "Person", "strings": ["John (Johnny) Doe"]},
+    )
+    assert messages == [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": CleanNamesSignature.instructions},
+                {
+                    "type": "text",
+                    "text": (
+                        "The entity schema and name strings as JSON:\n\n"
+                        "{\n"
+                        '  "entity_schema": "Person",\n'
+                        '  "strings": [\n'
+                        '    "John (Johnny) Doe"\n'
+                        "  ]\n"
+                        "}"
+                    ),
+                },
+            ],
+        }
+    ]
+
+
+def test_production_format_adapter_rejects_demos():
+    """Demos cannot be rendered in the production format and must not pass
+    silently: the shipped prompt must not depend on few-shot examples."""
+    with pytest.raises(AssertionError, match="demos"):
+        ProductionFormatAdapter().format(
+            CleanNamesSignature,
+            [{"strings": ["John Doe"]}],
+            {"entity_schema": "Person", "strings": ["John Doe"]},
+        )
+
+
+@patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"})
 @patch("optimise.dspy.GEPA")
 def test_optimise(mock_gepa: MagicMock) -> None:
     """Very rough integration test of the optimise command."""
@@ -58,6 +95,7 @@ def test_optimise(mock_gepa: MagicMock) -> None:
     program_path = Path(mkdtemp()) / "program.json"
 
     runner = CliRunner()
+
     result = runner.invoke(
         cli,
         [
@@ -76,22 +114,15 @@ def test_optimise(mock_gepa: MagicMock) -> None:
 
 
 @patch("compare.load_optimised_module")
-@patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
+def test_compare(mock_dspy_load: MagicMock):
     # Mock DSPy module prediction
     mock_optimised_module = MagicMock()
     mock_dspy_load.return_value = mock_optimised_module
     mock_optimised_module.return_value = Prediction(
         name=["John Doe"],
-        alias=[],
+        alias=["Johnny"],
         weakAlias=[],
         previousName=[],
-    )
-
-    # Mock direct OpenAI call
-    run_typed_text_prompt.return_value = SimpleNames(
-        name=[],
-        alias=["John Doe"],
     )
 
     with NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
@@ -111,7 +142,6 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
     assert_exit_status_zero(result)
 
     assert mock_optimised_module.called, mock_optimised_module.call_args_list
-    assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
     with open(output_path) as f:
         program_data = f.read()

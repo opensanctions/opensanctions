@@ -6,11 +6,9 @@ requires-python = ">= 3.12"
 dependencies = [
     "dspy == 3.4.0",
     "litellm >= 1.64.0, <= 1.102.1", # required by dspy, pinned following litellm compromise
-    "zavod",
+    "click >= 8",
+    "pyyaml",
 ]
-
-[tool.uv.sources]
-zavod = { path = "../../zavod", editable = true }
 
 [dependency-groups]
 dev = ["pytest"]

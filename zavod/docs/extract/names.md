@@ -330,17 +330,18 @@ LLMs can do a lot of the categorisation and cleaning for us. We pair this with [
 
     This is not part of normal crawler development. This is carried out by the platform team from time to time as necessary improvements are identified.
 
-We use [DSPy](https://dspy.ai/) to write, optimise, and evaluate the prompt. The tooling lives in `contrib/tune/` in the opensanctions repository, in its own uv environment, so that dspy and its dependencies don't constrain zavod's own dependency resolution. See the [`contrib/tune` README](https://github.com/opensanctions/opensanctions/blob/main/contrib/tune/README.md) for setup (including extra steps on a Mac) and the full commands.
+We use [DSPy](https://dspy.ai/) to write, optimise, and evaluate the prompt. The tooling lives in `contrib/tune/` in the opensanctions repository, in its own uv environment, so that dspy and its dependencies don't constrain zavod's own dependency resolution. See the [`contrib/tune` README](https://github.com/opensanctions/opensanctions/blob/main/contrib/tune/README.md) for setup and the full commands.
 
 The process is
 
 1. Ensure we have good example data in `contrib/tune/single_entity_examples.yml`
 2. Run `tune.py optimise` to find the ideal prompt for the data
 3. Run `tune.py compare`
-    - This shows us how well the prompt works on the validation set
-    - It also shows us how well it works directly, compared with via the DSPy client.
+    - This shows us how well the prompt works on the validation set.
 
-We use the prompt directly, rather than via DSPy, to avoid introducing DSPy as a production ETL dependency with significant additional dependencies. There is also a bug in leveldb which interacts with something in DSPy, which is a bit scary to have to dance around in production code.
+We use the prompt directly, rather than via DSPy, to avoid introducing DSPy as a production ETL dependency with significant additional dependencies.
+
+The tooling optimises and evaluates the prompt under the exact wire format production uses (see `ProductionFormatAdapter` in `contrib/tune/clean.py`), so a prompt that scores well in tuning also works when zavod runs it without DSPy.
 
 
 ### Optimising the prompt
@@ -366,7 +367,7 @@ Examples take the form
 
 String represents the input string. The fields to extract are defined in `contrib/tune/clean.py` `CleanNamesSignature`
 
-The "optimised program" in DSPy speak is saved to `zavod/extract/names/single_entity_program.json`. This contains the prompt and some metadata.
+The "optimised program" in DSPy speak is saved to `zavod/extract/names/single_entity_program.json`. Besides the prompt it carries the contract zavod validates on load: the `model` the prompt is tuned for and served with, and the `input_fields` and `output_fields` it works with. `zavod.extract.names.clean.load_single_entity_program` fails loudly if the artifact and the code drift apart.
 
 
 #### Evaluate the prompt
@@ -377,15 +378,11 @@ Some progress information and overall statistics are printed, and details for ea
 
 ```
 ...
-DSPy score: 43.660000000000004 out of 47 (92.8936170212766%)
-Direct GPT score: 39.284 out of 47 (83.58297872340425%)
-Agreement: 35.0 out of 47 (74.46808510638297%)
+Score: 43.660000000000004 out of 47 (92.8936170212766%)
 ```
 
-We probably want to be careful not to let the Direct GPT score go below 80.
+We probably want to be careful not to let the score go below 80.
 
 The scores aren't precisely a percentage, but 0 is given if none of the names are correct, 1 is given if all the names are correct, and partial correctness results in a score in between.
-
-Agreement is when the same example results in precisely the same results via DSPy and directly.
 
 Ideally add these lines to your commit message when you update the prompt.
