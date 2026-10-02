@@ -10,16 +10,13 @@ summary: >-
   Current and historical members of the National Assembly and Senate of Zimbabwe
 description: |
   Current and historical members of the Parliament of Zimbabwe, the country's
-  bicameral national legislature. The National Assembly has 280 members: 210
-  elected in single-member constituencies, plus 60 women and 10 youth members
-  elected by proportional representation. The Senate has 80 members: 60 elected
-  by proportional representation from the provinces, 18 chiefs and two
-  representatives of persons with disabilities. Both houses sit for a five-year
-  term and hold the country's legislative power, including passing laws and
-  approving the budget.
-
-  The dataset covers the sitting Parliament and earlier Parliaments whose members
-  remain politically exposed.
+  bicameral national legislature. The National Assembly has 280 members: 210 elected
+  in single-member constituencies and 70 elected by proportional representation
+  under the women's quota (60 seats) and the youth quota (10 seats). The Senate has
+  80 members: 60 elected by proportional representation from the provinces, 18
+  traditional chiefs and two representatives of persons with disabilities. Both
+  houses sit for a five-year term and hold the country's legislative power,
+  including passing laws and approving the budget.
 # Maintainer notes:
 # - Members of the sitting Parliament who leave mid-term are archived by the portal
 #   without an end date, and their successors are often not entered. Archived members
