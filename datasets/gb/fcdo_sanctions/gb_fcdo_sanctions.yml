@@ -2457,6 +2457,10 @@ lookups:
           - SMP Tech Management LLP
           - Wulio Shipping Ltd
           - Yuen Fat Shipping Ltd
+          - Alasonya Denizcilik Tic Ltd
+          - PJSC GAZPROM
+          - Sharaf Shipping Agency LLC
+          - Tudor Maritime Ltd
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -2829,3 +2833,19 @@ lookups:
         values:
           - EKC AG Turkey Madencilik Anonim Sirketi
           - EK Resources LLC
+      - match: "Tudor Maritime Ltd, CryoLine Management LLC"
+        values:
+          - Tudor Maritime Ltd
+          - CryoLine Management LLC
+      - match: "Maran Gas Maritime Inc, Angelicoussis Shipping Group"
+        values:
+          - Maran Gas Maritime Inc
+          - Angelicoussis Shipping Group
+      - match: "Novatek, SPG Shipping"
+        values:
+          - Novatek
+          - SPG Shipping
+      - match: "Novatek, SPG Shipping-2"
+        values:
+          - Novatek
+          - SPG Shipping-2
