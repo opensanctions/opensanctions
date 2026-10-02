@@ -68,6 +68,7 @@ children:
   - ca_commons
   - ca_foreign_reps
   - ca_senate
+  - cd_national_assembly
   - ch_parlament
   - ci_national_assembly
   - ci_senate
@@ -120,6 +121,7 @@ children:
   - hr_public_officials
   - hr_sabor
   - hu_national_assembly
+  - id_dpd
   - id_dpr
   - id_regional_2018
   - ie_parliament
