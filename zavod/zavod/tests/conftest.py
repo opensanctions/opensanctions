@@ -17,7 +17,6 @@ from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.db import get_engine, meta
 from zavod.integration import get_resolver
-from zavod.stateful.model import create_db
 
 settings.nk.TESTING = True
 settings.nk.DB_URL = "sqlite:///:memory:"
@@ -46,7 +45,7 @@ def wrap_test():
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
     get_version_history.cache_clear()
-    create_db()
+    meta.create_all(bind=get_engine())
     yield
     get_catalog.cache_clear()
     # Cache and Resolver own per-instance MetaData, so dropping a fixed list of
@@ -58,7 +57,6 @@ def wrap_test():
     drop_meta.reflect(bind=engine)
     drop_meta.drop_all(bind=engine)
     close_db()
-    meta.clear()
 
 
 @pytest.fixture(scope="function")

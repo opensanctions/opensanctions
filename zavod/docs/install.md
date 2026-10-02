@@ -61,7 +61,7 @@ $ zavod --help
 
 ## Running a database
 
-Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database. Zavod uses sqlite by default, but once you need concurrent access to the database, use Postgres. Zavod creates the tables automatically.
+Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database. Zavod uses sqlite by default, but once you need concurrent access to the database, use Postgres. Most of these tables are created automatically on first use; the tables zavod manages itself are created with Alembic (see [Database](database.md)): from the repository root, `cd zavod && alembic upgrade head`.
 
 If you run zavod using docker-compose:
 

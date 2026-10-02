@@ -28,6 +28,10 @@ def load_dataset_to_db(
         external: Include statements that are enrichment candidates.
     """
     engine = get_engine()
+    # Not Alembic-managed, so no migration creates it. checkfirst skips an
+    # existing table entirely.
+    statement_table.create(bind=engine, checkfirst=True)
+
     for dataset_name in manifest.datasets.keys():
         # Duplicate statement IDs are left to the upsert in insert_statements,
         # which keeps the first row of a conflict just like an in-process

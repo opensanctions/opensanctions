@@ -2,10 +2,14 @@ from os import environ as env
 from pathlib import Path
 
 from banal import as_bool
-from nomenklatura import settings as nk
+import nomenklatura.settings
 from followthemoney.dataset import Version
 from rigour.env import env_str
 from rigour.time import datetime_iso
+
+# Assigned rather than imported under an alias so that it is exported:
+# zavod configures nomenklatura here, and callers read it back as settings.nk.
+nk = nomenklatura.settings
 
 # Logging configuration
 LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
