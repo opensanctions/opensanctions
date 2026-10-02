@@ -8,8 +8,13 @@ from pydantic import BaseModel
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
 
-LLM_MODEL_VERSION = "gpt-5.4"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "single_entity_program.json"
+# The input and output fields the tuned prompt works with, as declared in the
+# program artifact written by contrib/tune. The artifact is validated against
+# these on load so the tuning tooling and this module cannot drift apart
+# silently. ``abbreviation`` is analyst-only and is never requested from the LLM.
+SINGLE_ENTITY_INPUT_FIELDS = ["entity_schema", "strings"]
+SINGLE_ENTITY_OUTPUT_FIELDS = ["name", "alias", "weakAlias", "previousName"]
 # Properties that shouldn't be shown to the reviewer if they are empty,
 # so that they aren't tempted into populating them unless they had a value in the
 # original extraction.
@@ -211,6 +216,16 @@ class DSPySignature(BaseModel):
 
 
 class PredictProgramData(BaseModel):
+    """The name cleaning program artifact written by ``contrib/tune``.
+
+    Besides the serialised DSPy program (of which only the prompt instructions
+    are used here), the artifact carries a plain contract: which model the
+    prompt was tuned for, and which input and output fields it expects.
+    """
+
+    model: str
+    input_fields: list[str]
+    output_fields: list[str]
     signature: DSPySignature
 
 
@@ -232,16 +247,36 @@ def is_empty_string(text: str | LangText | None) -> bool:
 
 
 @cache
-def load_single_entity_prompt() -> str:
+def load_single_entity_program() -> PredictProgramData:
+    """Load the tuned program artifact, validating its field contract."""
     with open(SINGLE_ENTITY_PROGRAM_PATH) as program_file:
         program = PredictProgramData.model_validate_json(program_file.read())
-        prompt = program.signature.instructions
-    return prompt
+    if sorted(program.input_fields) != sorted(SINGLE_ENTITY_INPUT_FIELDS):
+        raise ValueError(
+            f"Program artifact {SINGLE_ENTITY_PROGRAM_PATH} declares input "
+            f"fields {program.input_fields}, expected {SINGLE_ENTITY_INPUT_FIELDS}. "
+            "Regenerate the artifact with contrib/tune "
+            "(see zavod/docs/extract/names.md)."
+        )
+    if sorted(program.output_fields) != sorted(SINGLE_ENTITY_OUTPUT_FIELDS):
+        raise ValueError(
+            f"Program artifact {SINGLE_ENTITY_PROGRAM_PATH} declares output "
+            f"fields {program.output_fields}, expected {SINGLE_ENTITY_OUTPUT_FIELDS}. "
+            "Regenerate the artifact with contrib/tune "
+            "(see zavod/docs/extract/names.md)."
+        )
+    return program
+
+
+def load_single_entity_prompt() -> str:
+    """Load the prompt instructions from the tuned program artifact."""
+    return load_single_entity_program().signature.instructions
 
 
 def clean_names(context: Context, raw_names: SourceNames) -> SimpleNames:
     """Use an LLM to clean and categorise names."""
-    prompt = load_single_entity_prompt()
+    program = load_single_entity_program()
+    prompt = program.signature.instructions
 
     strings: list[str] = []
     for _prop, names in raw_names.original.as_langtexts():
@@ -263,5 +298,5 @@ def clean_names(context: Context, raw_names: SourceNames) -> SimpleNames:
         prompt=prompt,
         string=input_string,
         response_type=SimpleNames,
-        model=LLM_MODEL_VERSION,
+        model=program.model,
     )

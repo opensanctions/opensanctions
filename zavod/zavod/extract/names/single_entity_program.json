@@ -1,4 +1,15 @@
 {
+  "model": "gpt-5.4",
+  "input_fields": [
+    "entity_schema",
+    "strings"
+  ],
+  "output_fields": [
+    "name",
+    "alias",
+    "weakAlias",
+    "previousName"
+  ],
   "traces": [],
   "train": [],
   "demos": [],
