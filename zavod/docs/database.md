@@ -27,7 +27,8 @@ From the `zavod/` directory:
 alembic upgrade head
 ```
 
-The connection URL is taken from `ZAVOD_DATABASE_URI`, falling back to `OPENSANCTIONS_DATABASE_URI`.
+Migrations connect to the same database as zavod. For Postgres, extend statement
+timeout by setting `NOMENKLATURA_DB_STMT_TIMEOUT` (`0` to disable it).
 
 ## Changing the schema
 

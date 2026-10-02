@@ -1,13 +1,13 @@
 """Online-only Alembic environment for the zavod migrations."""
 
 from logging.config import fileConfig
-from os import environ
 
 from alembic import context
 from alembic.runtime.environment import NameFilterParentNames, NameFilterType
-from sqlalchemy import create_engine, pool
+from nomenklatura.db import get_engine
 from sqlalchemy.engine import Connection
 
+from zavod import settings
 from zavod.stateful import model
 
 config = context.config
@@ -45,21 +45,10 @@ def run_migrations(connection: Connection) -> None:
 
 
 def run_migrations_online() -> None:
-    database_uri = config.get_main_option("sqlalchemy.url") or environ.get(
-        "ZAVOD_DATABASE_URI", environ.get("OPENSANCTIONS_DATABASE_URI")
-    )
-    if database_uri is None:
-        raise RuntimeError(
-            "No database URL configured: set sqlalchemy.url in the Alembic "
-            "configuration, or ZAVOD_DATABASE_URI or OPENSANCTIONS_DATABASE_URI "
-            "in the environment."
-        )
-    engine = create_engine(database_uri, poolclass=pool.NullPool)
-    try:
-        with engine.connect() as connection:
-            run_migrations(connection)
-    finally:
-        engine.dispose()
+    url = config.get_main_option("sqlalchemy.url") or settings.nk.DB_URL
+    engine = get_engine(url)
+    with engine.connect() as connection:
+        run_migrations(connection)
 
 
 if context.is_offline_mode():
