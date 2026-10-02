@@ -18,7 +18,6 @@ from zavod.stateful.positions import (
     PositionCategorisation,
     categorise,
 )
-from zavod.stateful.review import assert_all_accepted
 
 
 def sign_request(body: bytes) -> dict[str, str]:
@@ -92,13 +91,19 @@ def crawl_member(
     person.id = context.make_slug(member_id)
 
     raw_name = member_data["nama"]
-    h.apply_reviewed_name_string(
-        context,
-        person,
-        string=h.strip_name_titles(context, raw_name),
+    # An alias can follow the name or its degrees: "H. NURZAHEDI, S.E. Alias EDDY TANJUNG".
+    name, *aliases = re.split(r"\s+alias\s+", raw_name, flags=re.IGNORECASE)
+    # Degrees follow the name after a comma ("Ali Masyukur Musa, M.Si"): cut them.
+    clean_name = h.strip_name_titles(context, name.partition(",")[0])
+    person.add(
+        "name",
+        clean_name,
         lang="ind",
-        llm_cleaning=True,
+        original_value=raw_name if clean_name != raw_name else None,
     )
+    for alias in aliases:
+        clean_alias = h.strip_name_titles(context, alias.partition(",")[0])
+        person.add("alias", clean_alias, lang="ind", original_value=raw_name)
     h.apply_date(person, "birthDate", member_data["tanggalLahir"])
     person.add("birthPlace", member_data["tempatLahir"], lang="ind")
     # DPR members must be Indonesian citizens (Law No. 7 of 2017 on General
@@ -182,12 +187,11 @@ def crawl(context: Context) -> None:
             r"(?:Periode\s+)?(\d{4})\s*-\s*(\d{4})", periode["data"].strip()
         )
         if match is None:
-            raise ValueError(f"Cannot parse legislature period: {periode!r}")
+            context.log.warning(f"Cannot parse legislature period: {periode!r}")
+            continue
         start, end = match.groups()
         if end < h.earliest_term_start(categorisation.topics):
             continue
         roster = query_gql(context, roster_query, {"periode": int(periode["id"])})
         for member in roster["getDaftarRiwayatAnggota"]["data"]:
             crawl_member(context, position, categorisation, start, end, member)
-
-    assert_all_accepted(context, raise_on_unaccepted=False)

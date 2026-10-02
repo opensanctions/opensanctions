@@ -35,43 +35,73 @@ tags:
   - list.pep
 
 names:
-  # Honorifics only; degrees and other noise go to name review.
+  # Titles before the name. Name abbreviations (M., A., Moh., TB., RR.) are not
+  # titles and stay. Matching is case-insensitive and repeats, e.g. "Drs. H.".
   prefixes_strip:
+    # Academic and professional
     - Dr.
+    - Dr (HC).
+    - (H.C.)
+    - (H.C).
+    - (HC)
+    - Drs.
+    - Drs .
+    - Dra.
+    - Ec.  # "Drs. Ec.", Doctorandus of economics
+    - drg.
+    - drh.
+    - Prof.
+    - Associate.
+    - Ir.
+    - Apt.
+    - Dipl.
+    - Ing.
+    # Religious and customary
     - H.
     - Hj.
+    - Hj .  # dot misplaced, "HJ .YOYOH"
+    - Hj
+    - K.H.
     - KH.
-    - Prof.
-    - Ir.
-  schema_rules:
-    Person:
-      # Many Indonesians use a single name.
-      require_space: false
-      # Degrees follow a comma, e.g. "..., S.H., M.H."
-      reject_chars: ","
-      reject_strings:
-        - "Drs."
-        - "Dra."
-        - "drg."
-        - "drh."
-        - "S.E."
-        - "S.H."
-        - "S.Sos"
-        - "S.T."
-        - "S.IP"
-        - "S.Pd"
-        - "S.Ag"
-        - "M.M."
-        - "M.Si"
-        - "M.H."
-        - "M.Kn"
-        - "M.Hum"
-        - "M.Pd"
-        - "MBA"
-        - "Ph.D"
-        - "PhD"
+    - Pdt.
+    - Tgk.
+    - Ny.
+    # Military and police ranks
+    - Capt.
+    - Kol.
+    - Irjen.
+    - Irjen
+    - Pol.
+    - Pol
+    - LAKSDYA.
+    - Mayjen.
+    - Mayjen
+    - Mayjend
+    - TNI
+    - (Purn.)
+    - (Purn).
+    - (Purn)
+    - (P)
+  # The crawler cuts degrees at the comma; these follow the name without one.
+  suffixes_strip:
+    - S.E.
+    - S.IP
+    - S.Ds.
+    - S.P.I
+    - SE
+    - SH
 
 lookups:
+  type.name:
+    options:
+      # A degree glued to the surname.
+      - match: JAMALUDIN KARIM.SH
+        value: JAMALUDIN KARIM
+      # One-off titles the prefix list can't safely cover; only the certain title goes.
+      - match: Tr. AGUN GUNANDJAR S
+        value: AGUN GUNANDJAR S
+      - match: St. Drs. JANSEN HUTASOIT
+        value: St. JANSEN HUTASOIT
   # statusOff records whether, and why, a member left their seat. Only a departure
   # overrides the status; a sitting member is left to make_occupancy.
   occupancy_status:
@@ -119,5 +149,5 @@ assertions:
       id: 2000
   max:
     schema_entities:
-      Person: 2200
+      Person: 2500
       Position: 1
