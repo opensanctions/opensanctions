@@ -27,24 +27,19 @@ def crawl_member(
     sitting: bool,
 ) -> None:
     name = row.pop("name")
-    constituency = row.pop("constituency")
     party = row.pop("party")
     clean_name = h.strip_name_titles(context, name)
-    assert clean_name is not None, row
+    assert clean_name is not None, name
 
     person = context.make("Person")
     person.id = context.make_id(name, party)
     person.add(
         "name",
         clean_name,
-        lang="khm",
         original_value=name if clean_name != name else None,
     )
     apply_translit_full_name(context, person, LangText(clean_name, "khm"))
-    person.add("political", party, lang="khm")
-    # Candidates for the National Assembly must hold Khmer nationality by birth
-    # (Constitution of Cambodia, Article 76).
-    # https://constitutionnet.org/sites/default/files/Cambodia%20Constitution.pdf
+    person.add("political", party)
     person.add("citizenship", "kh")
 
     occupancy = h.make_occupancy(
@@ -59,7 +54,7 @@ def crawl_member(
         no_end_implies_current=sitting,
     )
     if occupancy is not None:
-        occupancy.add("constituency", constituency, lang="khm")
+        occupancy.add("constituency", row.pop("constituency"))
         context.emit(occupancy)
         context.emit(person)
 
