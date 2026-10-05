@@ -22,7 +22,6 @@ def crawl_member(
     *,
     period_start: str,
     period_end: str,
-    sitting: bool,
 ) -> None:
     name = row.pop("name")
     party = row.pop("party")
@@ -47,8 +46,6 @@ def crawl_member(
         categorisation=categorisation,
         period_start=period_start,
         period_end=period_end,
-        # Only the sitting legislature's list is kept up to date.
-        no_end_implies_current=sitting,
     )
     if occupancy is not None:
         occupancy.add("constituency", row.pop("constituency"))
@@ -66,7 +63,6 @@ def crawl_legislature(
     *,
     period_start: str,
     period_end: str,
-    sitting: bool,
 ) -> None:
     doc = context.fetch_html(url, cache_days=1)
     listing = h.xpath_element(doc, '//table[@id="ContentPlaceHolder1_DListEmp"]')
@@ -96,7 +92,6 @@ def crawl_legislature(
             row,
             period_start=period_start,
             period_end=period_end,
-            sitting=sitting,
         )
 
 
@@ -132,6 +127,4 @@ def crawl(context: Context) -> None:
             url,
             period_start=period_start,
             period_end=period_end,
-            # The newest legislature is in session.
-            sitting=ordinal == max(legislatures),
         )

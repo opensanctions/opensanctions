@@ -60,6 +60,21 @@ names:
     - ឯកឧត្តមសាស្រ្តាចារ្យ  # His Excellency Professor
     - ឯកឧត្តមអភិសន្តិបណ្ឌិត  # His Excellency, eminent doctor of peace
 
+assertions:
+  min:
+    schema_entities:
+      Person: 215
+      Position: 1
+    country_entities:
+      kh: 215
+    property_fill_rate:
+      Person:
+        political: 0.95
+  max:
+    schema_entities:
+      Person: 490
+      Position: 1
+
 lookups:
   # Legislatures without a text roster: the 1st, 2nd and 4th are scanned images (e.g.
   # https://nac.org.kh/Images/NA4_name1.jpg), the 3rd lists no members
@@ -79,18 +94,3 @@ lookups:
         value: constituency
       - match: គណបក្សនយោបាយ
         value: party
-
-assertions:
-  min:
-    schema_entities:
-      Person: 215
-      Position: 1
-    country_entities:
-      kh: 215
-    property_fill_rate:
-      Person:
-        political: 0.95
-  max:
-    schema_entities:
-      Person: 490
-      Position: 1
