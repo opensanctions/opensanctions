@@ -56,7 +56,7 @@ def fetch_designated(context: Context, content_type: str) -> list[list[Item]]:
     by_lang = {lang: fetch_content(context, content_type, lang) for lang in LANGS}
     designated: list[list[Item]] = []
     for item_id, item in by_lang["en"].items():
-        flag = item["properties"].get("isDesignated")
+        flag = item["properties"]["isDesignated"]
         if flag is False:
             continue
         if flag is not True:
@@ -83,19 +83,10 @@ def drop_fallbacks(
     return name_en, name_he, name_ar
 
 
-def apply_alternative_names(entity: Entity, variants: list[Item]) -> None:
+def apply_aliases(entity: Entity, variants: list[Item], prop: str) -> None:
     for item, lang in zip(variants, LANGS.values()):
-        for alias in item["properties"].get("alternativeNames") or []:
+        for alias in item["properties"][prop] or []:
             entity.add("alias", h.multi_split(alias, SPLITS), lang=lang)
-
-
-def get_properties(item: Item) -> dict[str, Any]:
-    """Non-empty properties of an item, to be popped and then audited."""
-    return {
-        k: v
-        for k, v in item["properties"].items()
-        if v is not None and v != [] and v != ""
-    }
 
 
 def pop_blocks(
@@ -105,14 +96,14 @@ def pop_blocks(
 
     Umbraco block list values look like
     `[{"elementType": "addressBlock", "properties": {"city": ..., ...}}]`.
-    Raises if a block isn't of the expected `element_type`. Null properties are
-    dropped, so callers can pop the fields they use and audit the rest.
+    Raises if a block isn't of the expected `element_type`. Callers pop the
+    fields they use from each block and audit the rest.
     """
     blocks: list[dict[str, Any]] = []
-    for block in props.pop(key, []):
+    for block in props.pop(key) or []:
         if block["elementType"] != element_type:
             raise ValueError(f"Unexpected block type in {key}: {block}")
-        blocks.append({k: v for k, v in block["properties"].items() if v is not None})
+        blocks.append(dict(block["properties"]))
     return blocks
 
 
@@ -156,7 +147,7 @@ def apply_partial_date(
     context: Context,
     entity: Entity,
     prop: str,
-    dates: list[str],
+    dates: list[str | None],
     comments: list[str] | None,
 ) -> None:
     """Apply dates, or the partial date of a comment saying the day is a placeholder."""
@@ -178,9 +169,9 @@ def apply_designation(
     props: dict[str, Any],
     comments: dict[str, list[str]],
 ) -> None:
-    apply_date(sanction, "startDate", props.pop("temporaryDesignationDate", None))
-    apply_date(sanction, "startDate", props.pop("permanentDesignationDate", None))
-    apply_date(sanction, "endDate", props.pop("cancellationDate", None))
+    apply_date(sanction, "startDate", props.pop("temporaryDesignationDate"))
+    apply_date(sanction, "startDate", props.pop("permanentDesignationDate"))
+    apply_date(sanction, "endDate", props.pop("cancellationDate"))
     for value in comments.pop("West Bank designation date", []):
         h.apply_date(sanction, "startDate", value)
     for key in ("Designation date", "Cancellation date"):
@@ -191,8 +182,8 @@ def apply_designation(
     for comment in comments.pop("Cancellation", []):
         if comment != "הכרזה בוטלה":
             context.log.warning("Unexpected cancellation comment", comment=comment)
-    sanction.add("authority", props.pop("localDesignator", None))
-    sanction.add("recordId", props.pop("foreignDesignationReferenceNumber", None))
+    sanction.add("authority", props.pop("localDesignator"))
+    sanction.add("recordId", props.pop("foreignDesignationReferenceNumber"))
 
 
 def split_ids(value: str | None) -> list[str]:
@@ -202,16 +193,15 @@ def split_ids(value: str | None) -> list[str]:
     return h.multi_split(value.replace(":\n", ": "), SPLITS)
 
 
-def source_url(item: Item) -> str | None:
-    path = item["cultures"].get("en", {}).get("path")
-    return None if path is None else f"{BASE_URL}{path}"
+def source_url(item: Item) -> str:
+    return f"{BASE_URL}{item['route']['path']}"
 
 
 def apply_address(context: Context, entity: Entity, block: dict[str, Any]) -> None:
-    country = block.pop("country", None)
+    country = block.pop("country")
     if country == "Unknown":
         country = None
-    notes = block.pop("notes", None)
+    notes = block.pop("notes")
     if notes is not None:
         # Only used to give the country when it's not set, e.g. "Gaza Strip"
         if country is not None:
@@ -219,9 +209,9 @@ def apply_address(context: Context, entity: Entity, block: dict[str, Any]) -> No
         country = html_text(notes)
     address = h.make_address(
         context,
-        street=block.pop("street", None),
-        city=block.pop("city", None),
-        postal_code=block.pop("postalCode", None),
+        street=block.pop("street"),
+        city=block.pop("city"),
+        postal_code=block.pop("postalCode"),
         country=country,
     )
     h.apply_address(context, entity, address)
@@ -264,37 +254,36 @@ def crawl_organization(
     if entity.id is None:
         context.log.warning("Organization without name", id=item["id"])
         return
-    props = get_properties(item)
+    props = dict(item["properties"])
     props.pop("organizationName")
     number = props.pop("designationNumber")
     org_ids[item["id"]] = (entity.id, number)
-    for linked in props.pop("linkedOrganizations", []):
+    for linked in props.pop("linkedOrganizations") or []:
         links.append((item["id"], linked["id"]))
 
     entity.add("name", name_en, lang="eng")
     entity.add("name", name_he, lang="heb")
     entity.add("alias", h.multi_split(name_ar, SPLITS), lang="ara")
-    apply_alternative_names(entity, variants)
-    props.pop("alternativeNames", None)
+    apply_aliases(entity, variants, "alternativeNames")
+    props.pop("alternativeNames")
     entity.add("topics", "crime.terror")
     entity.add("sourceUrl", source_url(item))
 
-    comments, notes = parse_comments(props.pop("comments", None))
+    comments, notes = parse_comments(props.pop("comments"))
     entity.add("notes", notes)
-    entity.add("legalForm", props.pop("corporationType", None))
-    entity.add("registrationNumber", props.pop("corporationID", None))
-    entity.add("jurisdiction", props.pop("formationLocation", None))
-    corporation_date = props.pop("corporationDate", None)
+    entity.add("legalForm", props.pop("corporationType"))
+    entity.add("registrationNumber", props.pop("corporationID"))
+    entity.add("jurisdiction", props.pop("formationLocation"))
     apply_partial_date(
         context,
         entity,
         "incorporationDate",
-        [] if corporation_date is None else [corporation_date],
+        [props.pop("corporationDate")],
         comments.pop("Date of incorporation", None),
     )
-    entity.add("phone", props.pop("phoneNumbers", None))
-    entity.add("email", props.pop("emailAddresses", None))
-    entity.add("website", props.pop("websites", None))
+    entity.add("phone", props.pop("phoneNumbers"))
+    entity.add("email", props.pop("emailAddresses"))
+    entity.add("website", props.pop("websites"))
     for block in pop_blocks(props, "addresses", "addressBlock"):
         apply_address(context, entity, block)
 
@@ -306,7 +295,7 @@ def crawl_organization(
         sanction.add("reason", html_text(block.pop("justification")))
         context.audit_data(block)
     for block in pop_blocks(props, "lastPublicationDetails", "regulationFileBlock"):
-        sanction.add("publisher", block.pop("regulationFileName", None))
+        sanction.add("publisher", block.pop("regulationFileName"))
         context.audit_data(block)
     apply_designation(context, sanction, props, comments)
 
@@ -341,20 +330,20 @@ def crawl_operative(
         context.log.warning("Operative without name", id=item["id"])
         return
     person_ids[item["id"]] = entity.id
-    props = get_properties(item)
+    props = dict(item["properties"])
     props.pop("fullName")
-    for linked in props.pop("relatedOrganizations", []):
+    for linked in props.pop("relatedOrganizations") or []:
         links.append((item["id"], linked["id"]))
 
     entity.add("name", name_en, lang="eng")
     entity.add("name", name_he, lang="heb")
     entity.add("name", name_ar, lang="ara")
-    apply_alternative_names(entity, variants)
-    props.pop("alternativeNames", None)
+    apply_aliases(entity, variants, "additionalNames")
+    props.pop("additionalNames")
     entity.add("topics", "crime.terror")
     entity.add("sourceUrl", source_url(item))
 
-    comments, notes = parse_comments(props.pop("comments", None))
+    comments, notes = parse_comments(props.pop("comments"))
     entity.add("notes", notes)
     entity.add("notes", comments.pop("Additional information", None))
     dobs = [b.pop("date") for b in pop_blocks(props, "datesOfBirth", "dateBlock")]
@@ -362,24 +351,24 @@ def crawl_operative(
         context, entity, "birthDate", dobs, comments.pop("Date of birth", None)
     )
     for block in pop_blocks(props, "passportDetails", "passportDetailsBlock"):
-        entity.add("nationality", h.multi_split(block.pop("nationality", None), ["\n"]))
-        number = block.pop("passportNumber", None)
+        entity.add("nationality", h.multi_split(block.pop("nationality"), ["\n"]))
+        number = block.pop("passportNumber")
         if number != "Unknown":
             entity.add("idNumber", split_ids(number))
         context.audit_data(block, ignore=["country"])
     for block in pop_blocks(
         props, "identificationDocuments", "identificationDocumentBlock"
     ):
-        entity.add("idNumber", split_ids(block.pop("identificationNumber", None)))
+        entity.add("idNumber", split_ids(block.pop("identificationNumber")))
         context.audit_data(block, ignore=["country", "documentType"])
-    entity.add("phone", props.pop("phoneNumbers", None))
-    entity.add("email", props.pop("emailAddresses", None))
+    entity.add("phone", props.pop("phoneNumbers"))
+    entity.add("email", props.pop("emailAddresses"))
 
     sanction = h.make_sanction(context, entity)
     for block in pop_blocks(props, "justifications", "justificationBlock"):
         sanction.add("program", html_text(block.pop("justification")))
         context.audit_data(block)
-    sanction.add("program", props.pop("foreignDesignator", None))
+    sanction.add("program", props.pop("foreignDesignator"))
     sanction.add("sourceUrl", source_url(item))
     apply_designation(context, sanction, props, comments)
 
