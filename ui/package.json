@@ -20,13 +20,13 @@
     "jose": "^6.2.12",
     "json-schema-library": "^11.6.2",
     "kysely": "^0.29.6",
-    "next": "16.3.6",
-    "pg": "^8.23.0",
+    "next": "16.3.8",
+    "pg": "^8.23.1",
     "query-string": "^9.5.1",
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-icons": "^1.11.6",
     "react-dom": "^19.3.0",
-    "sass": "^1.105.0",
+    "sass": "^1.105.1",
     "turndown": "^7.2.4",
     "yaml": "^2.9.1"
   },
@@ -41,7 +41,7 @@
     "ts-jest": "^29.4.14",
     "typescript": "^6",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.6",
+    "eslint-config-next": "^16.3.8",
     "eslint-plugin-import": "^2.32.0"
   },
   "overrides": {
