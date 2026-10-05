@@ -35,48 +35,50 @@ tags:
   - list.pep
 
 names:
-  # Khmer honorifics and academic titles the roster prefixes to member names.
+  # Honorifics prefixed to member names.
   prefixes_strip:
-    - ឯកឧត្តម
-    - លោកជំទាវ
-    - ឯកឧត្តមបណ្ឌិត
-    - ឯកឧត្តមកិត្តិសេដ្ឋាបណ្ឌិត
-    - សម្តេចក្រឡាហោម
-    - សម្តេចពិជ័យសេនា
-    - សម្តេចអគ្គមហាពញាចក្រី
-    - ឯកឧត្តមកិត្តិនីតិកោសលបណ្ឌិត
-    - លោកជំទាវកិត្តិសង្គហបណ្ឌិត
-    - សម្តេចចៅហ្វាវាំងវរវៀងជ័យអធិបតីស្រឹង្គារ
-    - សម្តេចអគ្គមហាសេនាបតីតេជោ
-    - ឯកឧត្តមកិត្តិបណ្ឌិត
-    - ឯកឧត្តមអគ្គបណ្ឌិតសភាចារ្យ
-    - ព្រះអង្គម្ចាស់
-    - សម្តេចកិត្តិសង្គហបណ្ឌិត
-    - សម្តេចក្រុមព្រះ
-    - សម្តេចមហាបវរធិបតី
-    - សម្តេចមហារដ្ឋសភាធិការធិបតី
-    - ឯកឧត្តមបណ្ឌិតរដ្ឋ
-    - ឯកឧត្តមសន្តិបណ្ឌិត
-    - ឯកឧត្តមសាស្រ្តាចារ្យ
-    - ឯកឧត្តមអភិសន្តិបណ្ឌិត
+    - ឯកឧត្តម  # His Excellency
+    - លោកជំទាវ  # Her Excellency
+    - ឯកឧត្តមបណ្ឌិត  # His Excellency Dr.
+    - ឯកឧត្តមកិត្តិសេដ្ឋាបណ្ឌិត  # His Excellency, honorary doctor of economics
+    - សម្តេចក្រឡាហោម  # Samdech, navy minister (royal title)
+    - សម្តេចពិជ័យសេនា  # Samdech, victorious general
+    - សម្តេចអគ្គមហាពញាចក្រី  # Samdech, supreme great lord of the realm
+    - ឯកឧត្តមកិត្តិនីតិកោសលបណ្ឌិត  # His Excellency, honorary doctor of law
+    - លោកជំទាវកិត្តិសង្គហបណ្ឌិត  # Her Excellency, honorary doctor of social welfare
+    - សម្តេចចៅហ្វាវាំងវរវៀងជ័យអធិបតីស្រឹង្គារ  # Samdech, royal grand chamberlain
+    - សម្តេចអគ្គមហាសេនាបតីតេជោ  # Samdech, supreme great commander
+    - ឯកឧត្តមកិត្តិបណ្ឌិត  # His Excellency, honorary doctor
+    - ឯកឧត្តមអគ្គបណ្ឌិតសភាចារ្យ  # His Excellency, academician
+    - ព្រះអង្គម្ចាស់  # His Royal Highness Prince
+    - សម្តេចកិត្តិសង្គហបណ្ឌិត  # Samdech, honorary doctor of social welfare
+    - សម្តេចក្រុមព្រះ  # Samdech, royal prince
+    - សម្តេចមហាបវរធិបតី  # Samdech, great excellent leader
+    - សម្តេចមហារដ្ឋសភាធិការធិបតី  # Samdech, great president of the National Assembly
+    - ឯកឧត្តមបណ្ឌិតរដ្ឋ  # His Excellency, state doctor
+    - ឯកឧត្តមសន្តិបណ្ឌិត  # His Excellency, doctor of peace
+    - ឯកឧត្តមសាស្រ្តាចារ្យ  # His Excellency Professor
+    - ឯកឧត្តមអភិសន្តិបណ្ឌិត  # His Excellency, eminent doctor of peace
 
-config:
-  # The roster table's column headings, mapped to the keys the crawler reads.
-  roster_columns:
-    ល.រ: number
-    នាម និង គោត្តនាម: name
-    មណ្ឌល: constituency
-    គណបក្សនយោបាយ: party
-  # Legislatures whose members cannot be read off the site. The 1st, 2nd and 4th publish
-  # their rosters only as scanned images (e.g. https://nac.org.kh/Images/NA4_name1.jpg),
-  # and https://nac.org.kh/group-article/49 publishes no member names at all for the 3rd,
-  # only the list of its constituencies. This is a closed set: every other legislature in
-  # the switcher must publish a roster table, or the crawl fails.
-  legislatures_without_roster:
-    - 1
-    - 2
-    - 3
-    - 4
+lookups:
+  # Legislatures without a text roster: the 1st, 2nd and 4th are scanned images (e.g.
+  # https://nac.org.kh/Images/NA4_name1.jpg), the 3rd lists no members
+  # (https://nac.org.kh/group-article/49). Any other one without a roster fails.
+  legislatures:
+    options:
+      - match: ["1", "2", "3", "4"]
+        value: skip
+  # Roster column headings -> crawler keys.
+  columns:
+    options:
+      - match: ល.រ
+        value: number
+      - match: នាម និង គោត្តនាម
+        value: name
+      - match: មណ្ឌល
+        value: constituency
+      - match: គណបក្សនយោបាយ
+        value: party
 
 assertions:
   min:

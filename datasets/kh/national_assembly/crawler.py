@@ -8,11 +8,9 @@ from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import LangText
 
-# Khmer digits U+17E0..U+17E9 -> ASCII, so years can be read off the page without
-# embedding Khmer numerals in the source.
+# Khmer digits -> ASCII, to read the years off the page.
 KHMER_DIGITS = {0x17E0 + i: str(i) for i in range(10)}
-# The site's navigation labels each legislature with its ordinal and years, e.g.
-# "<Khmer for legislature no.>7 (2023-2028)".
+# Navigation label of a legislature, e.g. "<Khmer for legislature no.>7 (2023-2028)".
 LEGISLATURE_LABEL = re.compile(r"(\d+)\s*\(\s*(\d{4})\s*-\s*(\d{4})\s*\)\s*$")
 
 
@@ -49,8 +47,7 @@ def crawl_member(
         categorisation=categorisation,
         period_start=period_start,
         period_end=period_end,
-        # Only the sitting legislature's list is still revised as members are replaced,
-        # so only there does the lack of an end date mean they still serve.
+        # Only the sitting legislature's list is kept up to date.
         no_end_implies_current=sitting,
     )
     if occupancy is not None:
@@ -73,9 +70,8 @@ def crawl_legislature(
 ) -> None:
     doc = context.fetch_html(url, cache_days=1)
     listing = h.xpath_element(doc, '//table[@id="ContentPlaceHolder1_DListEmp"]')
-    # The listing links the revisions of the list of members, newest first, alongside
-    # out-of-scope per-member PDFs. Take the newest revision published as a table: some
-    # carry the list as a scanned image instead, e.g. https://nac.org.kh/article/6531.
+    # Revisions of the member list, newest first. Take the newest table; some are
+    # scanned images, e.g. https://nac.org.kh/article/6531.
     for href in h.xpath_strings(listing, './/a[starts-with(@href, "/article/")]/@href'):
         revision = context.fetch_html(urljoin(url, href.strip()), cache_days=1)
         tables = h.xpath_elements(
@@ -87,12 +83,12 @@ def crawl_legislature(
     else:
         raise ValueError(f"No list of members is published as a table: {url}")
 
-    # Keyed by heading, so a renamed column fails here instead of mixing up properties.
-    columns: dict[str, str] = context.dataset.config["roster_columns"]
     for cells in h.parse_html_table(tables[0], header_tag="td", slugify_headers=False):
-        row = {
-            columns[heading]: text for heading, text in h.cells_to_str(cells).items()
-        }
+        row: dict[str, str | None] = {}
+        for heading, text in h.cells_to_str(cells).items():
+            key = context.lookup_value("columns", heading, warn_unmatched=True)
+            if key is not None:
+                row[key] = text
         crawl_member(
             context,
             position,
@@ -127,7 +123,7 @@ def crawl(context: Context) -> None:
             legislatures[int(match.group(1))] = (match.group(2), match.group(3), url)
 
     for ordinal, (period_start, period_end, url) in legislatures.items():
-        if ordinal in context.dataset.config["legislatures_without_roster"]:
+        if context.lookup_value("legislatures", str(ordinal)) == "skip":
             continue
         crawl_legislature(
             context,
@@ -136,6 +132,6 @@ def crawl(context: Context) -> None:
             url,
             period_start=period_start,
             period_end=period_end,
-            # The newest legislature listed is the one in session.
+            # The newest legislature is in session.
             sitting=ordinal == max(legislatures),
         )
