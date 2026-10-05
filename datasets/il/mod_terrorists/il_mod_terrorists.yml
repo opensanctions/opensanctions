@@ -208,19 +208,10 @@ lookups:
         operatives:
           - schema: Person
             name: Farid Ae Rahman Mohammed Abu Dayer
-            idNumber: 926760927
-            birthDate: 1983-01-25
-            phone: 0905076536228
           - schema: Person
             name: Mohamed Merouan Ae Raouf Khaledi
-            idNumber: 801289307
-            birthDate: 1987-02-18
-            phone: 0905315044351
           - schema: Person
             name: Ahmed Dahesh Mahmoud Abu Nada
-            idNumber: 400032637
-            birthDate: 1994-06-14
-            phone: 0905316527351
       - match: "Hafiz Muhammad Saeed"
         operatives:
           - name: Hafiz Muhammad Saeed
