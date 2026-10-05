@@ -34,11 +34,11 @@ publisher:
   official: true
 url: https://matal.mod.gov.il/en/sanctions/
 data:
-  url: https://matal.mod.gov.il/en/sanctions/
-  format: HTML
+  url: https://matal.mod.gov.il/umbraco/delivery/api/v2/content?filter=contentType:organization
+  format: JSON
 dates:
   formats:
-    ["%d %B %Y", "%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%d %m %Y", "%m %Y", "%d %b. %Y"]
+    ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%d %m %Y", "%m %Y", "%d %b. %Y"]
   months:
     "03": מרס
     "05": "May"
