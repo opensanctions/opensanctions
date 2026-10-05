@@ -35,7 +35,6 @@ publisher:
   official: true
 tags:
   - list.sanction
-  - list.sanction.eu
   - issuer.west
   - sector.maritime
 url: https://eur-lex.europa.eu/
