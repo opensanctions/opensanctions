@@ -5,7 +5,9 @@ url: https://ofac.treasury.gov/sanctions-programs-and-country-information/paarss
 summary: Targets Bashar al-Assad and his associates, persons responsible for
   human rights abuses in Syria, Captagon traffickers, persons linked to Syria's
   past proliferation activities, and other destabilizing regional actors under
-  Executive Order 13894, as amended. It is the principal remaining US sanctions
+  Executive Order 13894, as amended, as well as persons who facilitated the
+  Syrian government's grave human rights abuses through information technology
+  under Executive Order 13606. It is the principal remaining US sanctions
   authority for Syria after the broader Syria sanctions program was revoked
   effective July 1, 2025. Designated persons are subject to an asset freeze and
   barred from entry into the United States, and foreign financial institutions
@@ -16,11 +18,13 @@ dataset: us_ofac_sdn
 aliases:
   - PAARSS
   - Syria-Related Sanctions
+  - EO 13606
   - EO 13894
   - EO 14142
   - EO 14312
   - 31 CFR Part 569
   - PAARSSR-EO13894
+  - HRIT-SY
 target_territories:
   - sy
 measures:

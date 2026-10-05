@@ -12,7 +12,7 @@ description: |
   Stock Exchange of India (NSE) based on orders / directions from the Securities
   and Exchange Board of India (SEBI) and other Competent Authorities.
   The debarred entities are prohibited from selling securities in the market.
-ci_test: false # Uses Zyte for requests, which is not supported in CI
+ci_test: false  # Uses Zyte for requests, which is not supported in CI
 
 publisher:
   name: National Stock Exchange of India Limited
@@ -164,6 +164,10 @@ lookups:
         value: https://archives.nseindia.com/content/circulars/INVG75529.zip
       - match: b'Circulars\\4\\INVG75531.zip'
         value: https://archives.nseindia.com/content/circulars/INVG75531.zip
+      # Some links are absolute paths on the publisher's own machine, which we
+      # cannot resolve to a public URL, so drop them.
+      - contains: C:\\Users
+        value: null
   type.identifier:
     options:
       - match: NA

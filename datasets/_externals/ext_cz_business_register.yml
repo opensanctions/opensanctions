@@ -22,6 +22,7 @@ summary: >-
   from the open data xml dump by ARES.
 publisher:
   name: Administrativní registr ekonomických subjektů
+  name_en: Administrative Register of Economic Entities of the Czech Republic
   acronym: ARES
   url: http://wwwinfo.mfcr.cz/ares/ares.html.en
   description: |

@@ -1,5 +1,9 @@
 import re
+from typing import Any
+
 from lxml.html import HtmlElement
+from requests.exceptions import HTTPError
+from urllib3.util import Retry
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -8,6 +12,25 @@ from zavod.extract.zyte_api import fetch_html
 
 DEPUTY_RE = re.compile(r"single-deputy/(\d+)")
 YEAR_RE = re.compile(r"^\d{4}$")
+
+
+def fetch_html_with_retry(context: Context, url: str, **kwargs: Any) -> HtmlElement:
+    # Zyte answers 421 "Website Connection Error" when its exit node fails to open a
+    # connection to mejlis.gov.tm. As of 2026-09-25, a few percent of requests through
+    # the automatically chosen exits fail this way and TM exits fail every time, while
+    # DE exits seem fine for the moment. This may change in the future as the winds of
+    # BGP change direction.
+    retry = Retry(total=5, backoff_factor=3)
+    while True:
+        try:
+            return fetch_html(context, url, geolocation="DE", **kwargs)
+        except HTTPError as err:
+            if err.response is None or err.response.status_code != 421:
+                raise
+            context.log.info("Zyte connection error, retrying", url=url)
+            # retry.increment raises MaxRetryError once the retries are exhausted
+            retry = retry.increment(url=url, error=err)
+            retry.sleep()
 
 
 def parse_deputy_ids(doc: HtmlElement) -> list[str]:
@@ -41,7 +64,7 @@ def crawl_deputy(
 ) -> None:
     url = f"https://mejlis.gov.tm/single-deputy/{deputy_id}"
     right_block_xpath = "//div[contains(@class, 'right_block')]"
-    doc = fetch_html(
+    doc = fetch_html_with_retry(
         context,
         f"{url}?lang=en",
         unblock_validator=right_block_xpath,
@@ -95,7 +118,7 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    doc = fetch_html(
+    doc = fetch_html_with_retry(
         context,
         f"{context.data_url}?lang=en",
         unblock_validator="//a[contains(@href, 'single-deputy/')]",

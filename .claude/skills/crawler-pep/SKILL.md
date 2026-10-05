@@ -1,6 +1,8 @@
 ---
 name: crawler-pep
-description: Scaffold a new PEP (Politically Exposed Persons) crawler from a source URL or GitHub issue
+description: Scaffold a new PEP (Politically Exposed Persons) crawler — members of a parliament, legislature, senate, chamber of deputies, cabinet, judiciary, or an asset-declaration register — from a source URL or GitHub issue. Creates the dataset .yml plus a crawler emitting Person, Position and Occupancy entities via make_position/categorise/make_occupancy. Use when asked to add, write or scaffold a PEP or members-of-parliament crawler.
+argument-hint: "[target path | source URL | GitHub issue URL]"
+allowed-tools: Read, Edit, Write, Glob, Grep, Bash, WebFetch, WebSearch, Agent
 ---
 
 # New PEP Crawler
@@ -11,182 +13,113 @@ and/or a GitHub issue URL: $ARGUMENTS
 If given a GitHub issue URL, fetch it first to extract the data source URL and any
 context about the dataset.
 
-**Read upfront**:
+**Read upfront.** These are the rules; this skill is the procedure for applying them,
+and repeats only the few rules the docs don't cover yet:
 
-1. `.claude/docs/crawler-guide.md` — shared crawler patterns (YAML, fetching, entities, helpers, lookups)
+1. `zavod/docs/peps.md` — the PEP model, properties, position naming, categorisation,
+   occupancy dates and status, historical terms.
+2. `.claude/docs/crawler-guide.md` — shared crawler patterns, YAML template, lookups.
+3. `.claude/skills/crawler-pep/examples.md` → **"Reference crawler"** — a complete,
+   reviewed crawler. Yours should look like it: the shortest code that still handles
+   every source field explicitly. Each helper, constant, guard or extra request you
+   add beyond it needs a reason a reviewer can see — first drafts fail review far more
+   often from added machinery than from missing it.
 
-**Consult on demand** (open only when you actually need the section — don't pre-load):
-
-- `.claude/skills/crawler-pep/examples.md` — full code examples (Patterns A/B/C, subnational variant, occupancy date edge cases, associates). Open when you're stuck on a pattern or want a worked example.
-- `zavod/docs/peps.md` — depth on Position naming, `categorise()`, Occupancy duration rules, and which person/PEP properties to capture (its "Properties to capture" section). Open if you need more than the summary in this skill.
-- `zavod/docs/metadata.md` — full YAML field reference. Open if you're using a field not covered by the template in `crawler-guide.md`.
-- `zavod/docs/extract/names.md` — open only if you're doing LLM-assisted or reviewed name cleaning.
-
-**Prefer section reads over full reads.** All of these docs are well-headered — use `Grep` to find the symbol/topic you need (`make_occupancy`, `apply_date`, `coverage.start`, etc.) and `Read` with `offset`/`limit` instead of reading the whole file.
-
-**Ground the crawler in the files listed above — they are the only source you need.**
-They are the curated, current best practice, and `examples.md` is the maintained version
-of "show me a crawler like this one." The wider crawler codebase is large and old, so many
-crawlers have drifted from current practice — which is exactly why the docs, not the
-corpus, are authoritative here.
+Open the rest of `examples.md` when your source differs from the reference (mixed
+datasets, several positions, multi-term, subnational). Ground the crawler
+in these files, not in other crawlers: the codebase is old and many have drifted from
+current practice.
 
 ## Step 1: Understand the source
 
-In addition to the general checks (fields, date formats, language, record count):
+Do this before writing any code. A wrong endpoint or a misread date produces a crawler
+that looks finished and is worthless.
 
-- Is there a Wikidata ID for the position(s)? (See `zavod/docs/peps.md`; skip QIDs for per-municipality / per-region positions.) Before using one, check on Wikidata that the item is `instance of (P31): position` and that its `applies to jurisdiction (P1001)` matches the country — a plausible label is not enough. The item's English label usually makes a good position name.
-- What are the position types (parliament, cabinet, judiciary, etc.)?
-- Current members only, or historical terms too?
-- Are start/end dates provided?
-- **Term-bounded data?** Note any *structural* freshness signal (a new page URL, file name, or term id per term) so the crawler fails loudly when a new term lands. Record-count ranges are not a freshness signal — they belong in the `assertions` block, not the crawler.
-- **Does the position legally require citizenship?** Don't assume from position type — national parliaments usually do (UK is an exception), but sub-national elected positions (mayors, councils) often don't. Spawn a subagent (`Agent` with `WebSearch`/`WebFetch`) to find the **legal document** (electoral law, constitution, official government guidance) that stipulates the citizenship requirement for this specific position. In a code comment next to the `person.add("citizenship", ...)` call — or, if citizenship is not required, next to the omission — include the URL to that legal document.
+- **Find the underlying JSON/XML endpoint before parsing HTML** — page source, network
+  calls, JS bundles. Parliament sites very often have an API behind the rendered page.
+- **Prove the source is blocked before reaching for Zyte.** In order: a browser
+  `http.user_agent`; a language cookie or `Accept-Language`; a format suffix (`.json`)
+  or `Accept:` header. Zyte costs you `ci_test: false`.
+- **Establish the pagination contract from the response** — the per-page cap, the
+  total or `next` link. An API that silently caps page size truncates without error.
+- **Enumerate every field** the source returns and decide each one: emit, or ignore.
+- **Find the terms the source exposes** — a term switcher, an `ElectionId` parameter,
+  a `/legislaturas` endpoint — and whether dates are per person or per term.
+- **Wikidata QIDs:** check on Wikidata that the item is `instance of (P31): position`
+  and `applies to jurisdiction (P1001)` matches the country; a plausible label is not
+  enough. Never pass one QID to two positions — it becomes the entity ID, and they'd
+  collapse into one.
+- **Citizenship:** spawn a subagent (`WebSearch`/`WebFetch`) to find the legal document
+  (constitution, electoral law) that requires citizenship for this specific position.
+  Cite its URL in a comment next to `person.add("citizenship", ...)`, or next to its
+  omission if not required.
+- **Term-bounded source** (fixed mandates, per-term pages)? Note a *structural*
+  signature (page URL, file name, term id) and fail in `crawl()` when it changes, so a
+  new term can't go unnoticed.
+- **Check the records against reality.** Count them by role and by term, and compare
+  with the seats the body actually has. Could a record's dates be stale (e.g. a
+  re-elected member still carrying their previous term)?
 
-## Step 2: YAML metadata — PEP-specific parts
+**Checkpoint: show the user a short recon note and wait before writing code** —
+endpoints and pagination; every field with its decision; the terms exposed; counts by
+role and term against the seats; anything the source contradicts itself on, with the
+simplest options. A wrong assumption corrected here costs one message; found in review
+it costs a rewrite. In an automated run with no user, put the note at the top of your
+final report and proceed.
 
-Full field reference: `zavod/docs/metadata.md`. PEP-specific additions:
+## Step 2: Write the YAML and crawler
 
-```yaml
-tags:
-  - list.pep
+- Tag `list.pep`. For `title`, `description` and `coverage.frequency` apply
+  `/legislature-metadata` (legislatures), and `/dataset-metadata` for the rest.
+- Base `assertions` bands on the entity counts the crawl actually emitted, not on the
+  seat count: a multi-term crawl holds several cohorts and grows every election.
+- Constants (gender maps, headers, date formats, column labels) belong in the YAML,
+  not the crawler — use `/crawler-constants-to-yml` if you've written one in code.
+- Pass `topics=` to `make_position` for positions the crawler names itself
+  (`["gov.national", "gov.legislative"]`, …); omit it for positions read from the
+  source, where the review system decides.
+- Set every person property `make_occupancy` reads (`birthDate`, `deathDate`) before
+  calling it, and emit the person after it — it adds `role.pep` to the person.
+- For judicial positions, also add `role.judge` to the person's topics.
+- Honorifics: `zavod/docs/best_practices/name_titles.md`. LLM-assisted or reviewed name
+  cleaning is acceptable for PEP data (unlike sanctions): `zavod/docs/extract/names.md`.
 
-assertions:
-  min:
-    schema_entities:
-      Person: 100        # ~80% of expected count
-      Position: 1
-    country_entities:
-      cc: 50
-  max:
-    schema_entities:
-      Person: 1000       # ~150% of expected count
-```
+## Step 3: Validate
 
-- Include `Position` counts in assertions when the crawler creates multiple position types.
-- `coverage.frequency`: house default for PEP sources is `monthly` — see the frequency defaults in `zavod/docs/metadata.md`.
-- Lookups rarely go past `type.*` for PEP crawlers. (Non-English role labels are handled by `translate_name=True` in `make_position`; a `position` translation lookup is only worth it when the source has very few distinct labels.)
-
-## Step 3: Write the crawler module
-
-### Required imports
-
-```python
-from zavod import Context
-from zavod import helpers as h
-from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
-```
-
-### Person properties
-
-Capture properties by priority — don't chase every field. For people, capture when
-available: name(s), date/place/country of birth, citizenship/nationality, and ID
-numbers. Don't extract private addresses or phone numbers. Full PEP property ladder
-(Must/Could/Won't) and the generic framing: `zavod/docs/peps.md` → "Properties to
-capture".
-
-### Position naming
-
-Build position names with `h.make_position`. Rules:
-
-- **Always pass `lang=`** (ISO 639-3, e.g. `lang="eng"`, `lang="fra"`) declaring the
-  language the position name is in. If omitted, `make_position` falls back to the
-  dataset's `data.lang` (`lang or context.lang`) — so an English name over a
-  non-English source must set `lang="eng"` explicitly. Two cases:
-    - **Crawler-supplied names** (the standard case — e.g. a parliament crawler where
-      the name is always `Member of the ... Parliament`): write the name in English
-      and pass `lang="eng"`. Use the standard English term for the role; keep
-      native-language terminology only for proper nouns of specific institutions
-      (e.g. `Landtag of Mecklenburg-Vorpommern`). Pass `lang="eng"` even when the
-      dataset's `data.lang` is another language (e.g. a `data.lang: spa` source whose
-      crawler emits `Member of the Congress of the Republic` still passes
-      `lang="eng"`) — otherwise the English name is treated as being in the dataset
-      language and, with `translate_name=True`, wrongly sent to the translator.
-    - **Source-supplied names** (role labels read from the data): pass them through
-      as-is with the source language as `lang=` and `translate_name=True` —
-      `make_position` translates the name to English via LLM and keys the entity ID
-      on the untranslated original, so the ID stays stable. Only when the source has
-      very few distinct labels, a `position` YAML lookup translating them to English
-      (then `lang="eng"`) is fine instead — see the subnational variant in
-      `examples.md`.
-- Include the role, the organisational body where relevant, and the geographic jurisdiction. For members of national parliaments, include `citizenship` (except UK Parliament).
-- A national position's name must be recognizable as belonging to that country when read
-  on its own — either a nationality adjective (`Member of the Swedish Riksdag`) or an
-  of-phrase (`Member of the Senate of the Italian Republic`).
-- **Pass `topics=`** for positions the crawler names itself (`["gov.national", "gov.legislative"]`,
-  `["gov.state", ...]` for sub-national, `gov.executive`/`gov.judicial` by branch). Omit them
-  for positions read out of the source data, where the review and classification system
-  decides. Vocabulary:
-  https://www.opensanctions.org/docs/pep/methodology/
-- Avoid: legislative term, an elected official's constituency, or the country for sub-national representatives.
-- `wikidata_id` becomes the position's entity ID, so never pass the same QID to multiple distinct positions — they'd collapse into one entity. Per-municipality/region positions usually omit `wikidata_id` (per-locality QIDs rarely exist on Wikidata) and rely on `subnational_area=...` to disambiguate; pass a QID only when each subnational position has its own unique Wikidata entry.
-
-Depth on edge cases: `zavod/docs/peps.md` → "Selecting a position name".
-
-### Position categorisation
-
-Full reference: `zavod/docs/peps.md`. `categorise()` is a stateful DB operation; `is_pep`/`topics` only matter on first insertion — subsequent crawls return DB values (including UI edits).
-
-**`default_is_pep` calling patterns:**
-
-| `default_is_pep` arg | When to use |
-|---|---|
-| `True` | Source definitionally contains PEPs (parliament, cabinet, judges) |
-| `None` | Mixed dataset, or per-locality positions where the UI decides PEP status |
-
-Pass the returned `categorisation` to `make_occupancy()`.
-
-### Critical rules (in addition to `zavod/docs/peps.md`)
-
-- Set ALL person props (birthDate, deathDate, etc.) BEFORE calling `make_occupancy()` — it reads them to determine PEP status.
-- `make_occupancy()` returns `None` if the occupancy doesn't meet PEP criteria. Only emit persons with at least one valid occupancy.
-- Emit the person AFTER `make_occupancy` — it mutates `person.topics`.
-- For judicial crawlers, also `person.add("topics", "role.judge")`.
-- **Term-bounded sources** (fixed mandates, per-term archives): fail in `crawl()` when the source's *structural* signature changes (new page URL, file name, term id). Don't hardcode record-count bands and `raise` — count sanity is the `assertions` block's job. A continuously-updated roster (a parliament refilled by by-elections) is not term-bounded.
-
-### `no_end_implies_current`
-
-- `True` (default): no end date → still in office. Use for live official rosters.
-- `False`: no end date → unknown. Use for declarations, point-in-time snapshots, historical data.
-
-### Name cleaning
-
-LLM-assisted (`h.clean_names()`) and reviewed-name (`h.apply_reviewed_names()`) helpers are both acceptable for PEP data — full reference: `zavod/docs/extract/names.md`. (Unlike sanctions, where LLM cleaning is forbidden.)
-
-## Step 4: Validate
-
-Run `zavod crawl <path>` then `zavod validate <path>`.
-
-Spot-check the crawl output with qsv against `data/datasets/<dataset>/statements.pack`.
-The `prop` column is `Schema:property`, so entity type is recoverable; within one
-dataset's pack `entity_id` matches the ids that `Occupancy:holder`/`post` reference (this
-is pre-resolution crawl output). Each integrity check below should print nothing:
+**A crawler that has not completed a successful `zavod crawl` is not deliverable.** If
+the source can't be fetched, stop and report the blocker with the evidence from your
+recon note — don't ship a parser validated against an archived copy.
 
 ```bash
-P=data/datasets/<dataset>/statements.pack
-
-# Entity counts — sanity-check against the assertions block
-for s in Person Position Occupancy; do
-  echo "$s: $(qsv search -s prop "^${s}:id\$" "$P" | qsv behead | wc -l)"
-done
-
-# 1. Occupancy.post referencing a Position that wasn't emitted
-comm -23 \
-  <(qsv search -s prop '^Occupancy:post$' "$P" | qsv select value     | qsv behead | sort -u) \
-  <(qsv search -s prop '^Position:'       "$P" | qsv select entity_id | qsv behead | sort -u)
-
-# 2. Occupancy.holder referencing a Person that wasn't emitted
-comm -23 \
-  <(qsv search -s prop '^Occupancy:holder$' "$P" | qsv select value     | qsv behead | sort -u) \
-  <(qsv search -s prop '^Person:'           "$P" | qsv select entity_id | qsv behead | sort -u)
-
-# 3. role.pep Person that never holds an Occupancy
-comm -23 \
-  <(qsv search -s prop '^Person:topics$' "$P" | qsv search -s value '^role\.pep$' | qsv select entity_id | qsv behead | sort -u) \
-  <(qsv search -s prop '^Occupancy:holder$' "$P" | qsv select value | qsv behead | sort -u)
-
-# 4. PEP Person with no country/citizenship/nationality (make_occupancy no longer
-#    back-fills country from the position, so this must be set explicitly)
-comm -23 \
-  <(qsv search -s prop '^Person:topics$' "$P" | qsv search -s value '^role\.pep$' | qsv select entity_id | qsv behead | sort -u) \
-  <(qsv search -s prop '^Person:(citizenship|country|nationality)$' "$P" | qsv select entity_id | qsv behead | sort -u)
+zavod crawl <path>               # then read the run's issues — they must be clean (see below)
+zavod export <path>              # runs the dataset validators and assertions
+contrib/lint_dataset.sh <path>   # ruff + mypy + pre-commit exactly as CI runs them
 ```
+
+Use the lint script rather than bare `ruff`/`mypy`, which lack the repo config. A run's
+issues and statements are in `data/datasets/<dataset>/_artifacts/<run version>/`
+(`issues.json`), or directly in `data/datasets/<dataset>/` (`issues.log`) on older
+zavod versions.
+
+**Check that the status is true, not just well-formed.** A wrong `current`/`ended`
+status is the costliest PEP defect, and no validator or assertion catches it:
+
+```bash
+python .claude/skills/crawler-pep/scripts/pep_summary.py <dataset_name>
+```
+
+The `current` column should come close to each body's seats (for a multi-term source,
+the sitting term). A bigger gap means the dates don't mean what the crawler assumes —
+find which records are affected and why, from the source itself. When some of the
+source's dates are stale (e.g. re-elected members still carrying their previous term),
+keep them and let `make_occupancy` derive the status anyway; explain the gap in a
+maintainer comment in the YAML. Don't pass `status=` to paper over stale dates: an
+explicit status skips `make_occupancy`'s checks entirely, so members who left long ago
+or have died are still emitted. Don't reconstruct status from other endpoints (votes,
+rosters): if you think a workaround is needed, bring the evidence and options to the
+user instead of building it.
+
+Then run the integrity checks in `.claude/skills/crawler-pep/validation.md` (each
+should print nothing), and review your diff against
+`zavod/docs/best_practices/merge_checklist.md`. Include the `pep_summary.py` table in
+your final report.

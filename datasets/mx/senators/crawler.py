@@ -1,10 +1,12 @@
 import re
 from typing import Any
 
-from zavod import Context, helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.extract.zyte_api import fetch_html, fetch_json
+from zavod.stateful.positions import PositionCategorisation, categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 SPLITS = [
     ", ",
@@ -15,14 +17,18 @@ def get_json_url(context: Context) -> str:
     """
     Fetches the JSON URL from the main page.
     The URL for the data depends on which legislature it is at.
-    For example, as of today we are at the 65th legislature and thus
-    the link for the raw data will be https://www.senado.gob.mx/65/datosAbiertos/senadoresDatosAb.json
+    For example, as of today we are at the 66th legislature and thus
+    the link for the raw data will be https://www.senado.gob.mx/66/datosAbiertos/senadoresDatosAb.json
+
+    The main page redirects to the current legislature using a script like
+    `window.location.replace("66/")`. It used to use a meta refresh tag,
+    which is now commented out.
 
     :param context: The context object.
 
     :return: The URL for the JSON file.
     """
-    redirect_xpath = ".//meta[@http-equiv='Refresh']"
+    redirect_xpath = ".//script[contains(text(), 'window.location.replace')]"
     doc = fetch_html(
         context,
         context.data_url,
@@ -31,14 +37,17 @@ def get_json_url(context: Context) -> str:
         geolocation="MX",
         cache_days=1,
     )
-    main_website = h.xpath_string(doc, redirect_xpath + "/@content")
-    url_pattern = r"url=\b(\d{2})/"
-    match = re.search(url_pattern, main_website)
+    script = h.xpath_string(doc, redirect_xpath + "/text()")
+    # Both the desktop ("66/") and mobile ("66/movil/") redirects share the
+    # legislature number, so all matches are expected to agree.
+    legislatures = set(re.findall(r'window\.location\.replace\("(\d{2})/', script))
+    if len(legislatures) != 1:
+        raise RuntimeError(f"Expected one legislature number, found {legislatures!r}")
+    legislature = legislatures.pop()
 
-    if match is None:
-        raise RuntimeError("Senators URL not found")
-
-    return f"https://www.senado.gob.mx/{match.group(1)}/datosAbiertos/senadoresDatosAb.json"
+    return (
+        f"https://www.senado.gob.mx/{legislature}/datosAbiertos/senadoresDatosAb.json"
+    )
 
 
 def crawl_item(

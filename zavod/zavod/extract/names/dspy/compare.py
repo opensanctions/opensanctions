@@ -3,6 +3,7 @@ from pathlib import Path
 
 from followthemoney import Model
 
+from zavod import settings
 from zavod.context import Context
 from zavod.extract.names.clean import Names, SourceNames, clean_names
 from zavod.extract.names.dspy.clean import load_optimised_module
@@ -20,7 +21,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
     _train_set, _val_set, test_set = load_data(examples_path)
 
     fake_dataset: Dataset = Dataset({"name": "fake"})
-    context = Context(fake_dataset)
+    context = Context(fake_dataset, settings.RUN_VERSION)
 
     results = []
 

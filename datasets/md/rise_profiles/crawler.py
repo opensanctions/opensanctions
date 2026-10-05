@@ -153,9 +153,15 @@ def make_legal_entity(
     if regno is not None:
         identification.append(regno)
     entity.id = context.make_id(*identification)
+    # The source doesn't state a type for these, so we can only tell an
+    # organization or company from the name.
+    schema = context.lookup_value("schema_by_name", name)
+    if schema is not None:
+        entity.add_schema(schema)
     entity.add("sourceUrl", url)
     entity.add("name", name)
     if name.startswith("Partidul"):
+        entity.add_schema("Organization")
         entity.add("topics", "pol.party")
 
     if "data-fondarii" in attributes:
@@ -181,6 +187,48 @@ def make_legal_entity(
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
     return entity
+
+
+def fits_range(entity: Entity, relation: Entity, prop_name: str) -> bool:
+    """Check whether the entity is of the schema the relation property expects."""
+    prop = relation.schema.get(prop_name)
+    assert prop is not None, (relation.schema.name, prop_name)
+    return prop.range is None or entity.schema.is_a(prop.range)
+
+
+def orient_relation(
+    context: Context,
+    relation: Entity,
+    source: Entity,
+    dest: Entity,
+    source_key: str,
+    dest_key: str,
+) -> tuple[str, str]:
+    """Work out which side of the relation the crawled and the connected entity go.
+
+    The role stated in a connection describes a person's part in the relationship,
+    not the direction of the link: a party profile lists its president, and a
+    company profile lists its founder, just like a person's profile lists the party
+    they preside over. Return the properties for the crawled and the connected
+    entity, swapped where that is the only assignment the schema allows.
+    """
+    if fits_range(source, relation, source_key) and fits_range(
+        dest, relation, dest_key
+    ):
+        return source_key, dest_key
+    if fits_range(dest, relation, source_key) and fits_range(
+        source, relation, dest_key
+    ):
+        return dest_key, source_key
+    context.log.warning(
+        "Relation doesn't fit its schema in either direction",
+        schema=relation.schema.name,
+        source=source.id,
+        source_schema=source.schema.name,
+        dest=dest.id,
+        dest_schema=dest.schema.name,
+    )
+    return source_key, dest_key
 
 
 def make_relation(
@@ -210,6 +258,9 @@ def make_relation(
 
     relation = context.make(schema)
     relation.id = context.make_id(dest.id, "related to", source.id)
+    source_key, dest_key = orient_relation(
+        context, relation, source, dest, source_key, dest_key
+    )
     relation.add(source_key, source.id)
     relation.add(dest_key, dest.id)
     relation.add(description_key, description)

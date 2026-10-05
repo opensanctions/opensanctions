@@ -9,6 +9,10 @@ from zavod.helpers import dates
 
 
 FROZEN_ASSETS_URL = "https://sankcijas.fid.gov.lv/uploads/sankciju_subjekti_tabula.xlsx"
+# The XML URL requires a POST including a CSRF token. The CSRF token can be
+# fetched using a GET to the search URL, which is where a browser-based user
+# would click the button to download the XML.
+SEARCH_URL = "https://sankcijas.fid.gov.lv/lv/meklet-sankciju-sarakstos/1/1"
 
 
 def crawl_person(context: Context, node: _Element) -> Entity | None:
@@ -126,7 +130,20 @@ def crawl_organization(context: Context, node: _Element) -> Entity | None:
 
 
 def crawl_sanctions_xml(context: Context) -> None:
-    path = context.fetch_resource("source.xml", context.data_url)
+    search_page = context.fetch_html(SEARCH_URL)
+    csrf_input = h.xpath_element(
+        search_page, ".//form[@id='fullFileDownloadForm']//input[@name='csrf']"
+    )
+    csrf = csrf_input.get("value")
+    if not csrf:
+        raise ValueError(f"No CSRF token found on search page: {SEARCH_URL}")
+
+    path = context.fetch_resource(
+        "source.xml",
+        context.data_url,
+        method="POST",
+        data={"csrf": csrf, "fileType": "xml"},
+    )
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     clean_doc = h.remove_namespace(doc)

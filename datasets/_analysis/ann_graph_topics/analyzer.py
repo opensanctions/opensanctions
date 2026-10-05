@@ -77,6 +77,7 @@ from nomenklatura.store.base import View as BaseView
 from zavod import Context, Entity
 from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.constants import ANALYZER_DATASETS, ORIGIN_INFERRED
+from zavod.runtime.manifest import Manifest
 from zavod.store import get_store
 from zavod.integration import get_dataset_linker
 
@@ -346,7 +347,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
 def crawl(context: Context) -> None:
     scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
-    store = get_store(scope, linker)
+    store = get_store(Manifest.get_transient(scope), linker)
     store.sync()
     view = store.view(scope, external=True)
 

@@ -7,14 +7,12 @@ from zavod import helpers as h
 
 STATUTORY_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=27c46b251baf29102b6ca932f54bcb20"
 ADMINISTRATIVE_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=9f8bbc2f1b8f29d0c6c3866ae54bcbdb"
-US_DDTC_SD = "US-DDTC-SD"
-US_DDTC_AD = "US-DDTC-AD"
 
 
 def crawl_debarment(
     context: Context,
     row: dict[str, Any],
-    program_key: str,
+    program_name: str,
     name_field: str,
     notice_date_field: str,
 ) -> None:
@@ -41,7 +39,14 @@ def crawl_debarment(
         llm_cleaning=True,
     )
 
-    sanction = h.make_sanction(context, entity, program_key=program_key)
+    # Statutory and administrative debarment are two entry paths into the same
+    # ITAR § 127.7 regime, so both lists map to the US-AECA-DEBARRED program.
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=program_name,
+        program_key="US-AECA-DEBARRED",
+    )
     sanction.add("listingDate", row.pop(notice_date_field))
     sanction.add("listingDate", row.pop("corrected_notice_date", None))
     sanction.add(
@@ -66,10 +71,14 @@ def crawl(context: Context) -> None:
     context.export_resource(path, XLSX, title="Statutory Debarments")
     wb = openpyxl.load_workbook(path, read_only=True)
     for row in h.parse_xlsx_sheet(context, wb.worksheets[0]):
-        crawl_debarment(context, row, US_DDTC_SD, "party_name", "notice_date")
+        crawl_debarment(
+            context, row, "Statutorily Debarred Parties", "party_name", "notice_date"
+        )
 
     path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
     context.export_resource(path, XLSX, title="Administrative Debarments")
     wb = openpyxl.load_workbook(path, read_only=True)
     for row in h.parse_xlsx_sheet(context, wb.worksheets[0]):
-        crawl_debarment(context, row, US_DDTC_AD, "name", "date")
+        crawl_debarment(
+            context, row, "Administratively Debarred Parties", "name", "date"
+        )

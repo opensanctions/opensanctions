@@ -7,10 +7,11 @@ from sqlalchemy import (
     Boolean,
     JSON,
     Index,
+    MetaData,
     text,
 )
 from nomenklatura.db import make_statement_table
-from zavod.db import meta, get_engine
+from zavod.db import meta as meta  # explicit re-export
 
 KEY_LEN = 255
 VALUE_LEN = 65535
@@ -28,13 +29,15 @@ position_table = Table(
     Column("is_pep", Boolean, nullable=True),
     Column("topics", JSON, nullable=False),
     Column("dataset", Unicode(VALUE_LEN), nullable=False),
-    Column("created_at", DateTime, nullable=False, index=True),  # Index for sorting
+    Column("created_at", DateTime, nullable=False),
     # Should not be null when edited by a user, only for instances created by a crawler.
     Column("modified_at", DateTime, nullable=True),
     Column("modified_by", Unicode(KEY_LEN), nullable=True),
     Column("deleted_at", DateTime, nullable=True, index=True),  # Index for filtering
 )
-statement_table = make_statement_table(meta)
+# Nomenklatura's table: kept off ``meta`` (the Alembic target) so the
+# migrations don't manage it; created where it is written.
+statement_table = make_statement_table(MetaData())
 
 
 program_table = Table(
@@ -65,7 +68,10 @@ review_table = Table(
     Column("extracted_data", JSON, nullable=False),
     Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
     Column("modified_at", DateTime, nullable=False),
+    # The reviewer who last accepted or edited this, or MODIFIED_BY_CRAWLER
+    # for a revision the crawler wrote itself.
     Column("modified_by", Unicode(KEY_LEN), nullable=False),
+    # Set on the superseded rows of a review, which are kept as its history.
     Column("deleted_at", DateTime, nullable=True, index=True),
 )
 
@@ -97,19 +103,3 @@ review_entity_table = Table(
         unique=True,
     ),
 )
-
-
-def create_db() -> None:
-    """Create all stateful database tables."""
-    engine = get_engine()
-    meta.create_all(
-        bind=engine,
-        checkfirst=True,
-        tables=[
-            position_table,
-            statement_table,
-            program_table,
-            review_table,
-            review_entity_table,
-        ],
-    )

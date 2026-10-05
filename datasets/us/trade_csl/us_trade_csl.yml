@@ -576,7 +576,9 @@ lookups:
           - north korea (dprk)
           - dprk individual
         value: North Korea
-      - match: "people's republic of china (prc)"
+      - match:
+          - "people's republic of china (prc)"
+          - "peoples republic of china (prc)"
         value: China
       - match: russian individual
         value: Russia

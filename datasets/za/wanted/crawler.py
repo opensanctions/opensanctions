@@ -1,12 +1,10 @@
 from urllib.parse import parse_qs, urlparse
 
-from lxml import html
-from normality import collapse_spaces
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import Element
 
 
 UNKNOWNS = {"unknown", "uknown"}
@@ -45,12 +43,19 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str) -> None
         # "investigator_email": "//td[b[contains(text(), 'E-mail:')]]/following-sibling::td/a/text()",
     }
     info = {
-        key: (doc.xpath(xpath)[0].strip() if doc.xpath(xpath) else "")
+        key: (
+            h.xpath_strings(doc, xpath)[0].strip()
+            if h.xpath_strings(doc, xpath)
+            else ""
+        )
         for key, xpath in details.items()
     }
     status = doc.findtext(".//p[@align='center']/font[@color='blue']")
+    # The source sometimes publishes listings without a status. These are incomplete, and it's usually only a few at a time.
+    if not status:
+        return
     if status not in {"Wanted", "Suspect"}:
-        context.log.warning("Unknown or missing status", status=status, url=source_url)
+        context.log.warning("Unknown status", status=status, url=source_url)
         status = None
 
     if info.get("aliases"):
@@ -70,18 +75,18 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str) -> None
     context.emit(person)
 
 
-def crawl_person(context: Context, row: dict[str, html.HtmlElement]) -> None:
-    detail_url = row["Surname"].xpath(".//a/@href")[0]
+def crawl_person(context: Context, row: dict[str, Element]) -> None:
+    detail_url = h.xpath_strings(row["Surname"], ".//a/@href")[0]
 
     # There can be additional text outside the link, e.g. "international sought"
-    names_els = row.pop("Name").xpath("./a")
+    names_els = h.xpath_elements(row.pop("Name"), "./a")
     assert len(names_els) == 1, len(names_els)
-    forenames = names_els[0].text_content()
+    forenames = h.element_text(names_els[0], squash=False)
     forename_list = forenames.split(" ")
 
-    last_name_els = row.pop("Surname").xpath(".//a")
+    last_name_els = h.xpath_elements(row.pop("Surname"), ".//a")
     assert len(last_name_els) == 1, len(last_name_els)
-    last_name = last_name_els[0].text_content()
+    last_name = h.element_text(last_name_els[0], squash=False)
 
     names = [last_name] + forename_list
 
@@ -122,12 +127,11 @@ def crawl(context: Context) -> None:
         # cache_days=1, Don't cache index pages. Cached links to deleted listings break the crawler.
         absolute_links=True,
     )
-    tables = doc.xpath("//table")
-    assert len(tables) == 1, len(tables)
-    trs = tables[0].xpath(".//tr")
-    headers = [collapse_spaces(h.text_content()) for h in trs[2].xpath(".//th")]
+    table = h.xpath_element(doc, "//table")
+    trs = h.xpath_elements(table, ".//tr")
+    headers = [h.element_text(th) for th in h.xpath_elements(trs[2], ".//th")]
     for tr in trs[3:]:
-        cells = [c for c in tr.xpath(".//*[self::td or self::th]")]
+        cells = [c for c in h.xpath_elements(tr, ".//*[self::td or self::th]")]
         if not cells:
             continue
         row = dict(zip(headers, cells))

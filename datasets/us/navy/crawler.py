@@ -52,7 +52,9 @@ def emit_person(
     person.add("title", title)
     person.add("biography", bio)
 
-    position = h.make_position(context, role, country=country, topics=["gov.security"])
+    position = h.make_position(
+        context, role, country=country, topics=["gov.national", "gov.security"]
+    )
 
     categorisation = categorise(context, position, default_is_pep=True)
     if categorisation.is_pep:

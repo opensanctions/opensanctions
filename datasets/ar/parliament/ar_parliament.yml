@@ -16,6 +16,7 @@ tags:
   - list.pep
 publisher:
   name: Honorable Cámara de Diputados de la Nación Argentina
+  name_en: Chamber of Deputies of Argentina
   acronym: HCDN
   official: true
   description: >
@@ -24,11 +25,11 @@ publisher:
   url: https://www.hcdn.gob.ar/index.html
 url: https://datos.hcdn.gob.ar/dataset/legisladores
 data:
-  url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/bed68ccd-81f4-4165-89b5-2b3ff9720cac/download/diputados_actuales1.8.csv
-  format: CSV
+  url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/16cd699d-83fb-4d5f-afd4-0af9b47b1bd7/download/diputados2.0.json
+  format: JSON
   lang: spa
 dates:
-  formats: ["%d/%m/%Y"]
+  formats: ["%Y-%m-%dT%H:%M:%S"]
 
 assertions:
   min:

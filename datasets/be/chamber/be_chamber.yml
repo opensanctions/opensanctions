@@ -32,7 +32,7 @@ data:
   url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm
   format: HTML
 dates:
-  formats: ["%d %B %Y", "%der %B %Y", "%dier %B %Y"]
+  formats: ["%d %B %Y", "%der %B %Y", "%dier %B %Y", "%d/%m/%Y"]
   months:
     "january": ["janvier", "januari"]
     "february": ["février", "februari"]
@@ -54,6 +54,11 @@ assertions:
       Position: 1
     country_entities:
       be: 1
+    # A drop here means the regex has stopped matching a date format the site uses,
+    # which silently splits a member into two entities, since make_id() keys on the birth date.
+    property_fill_rate:
+      Person:
+        birthDate: 0.95
 
 lookups:
   type.date:

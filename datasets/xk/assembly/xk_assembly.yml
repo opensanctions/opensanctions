@@ -20,8 +20,8 @@ description: |
   birth, gender, ethnicity, and education.
 url: https://www.kuvendikosoves.org/shq/deputetet/
 publisher:
-  name: Assembly of the Republic of Kosovo
-  acronym: Kuvendi
+  name: Kuvendi i Republikës së Kosovës
+  name_en: Assembly of Kosovo
   description: >
     The Assembly is the unicameral parliament of the Republic of Kosovo, exercising
     legislative power under the Constitution. Its 120 deputies are elected for
@@ -47,6 +47,16 @@ assertions:
       Position: 1
     country_entities:
       xk: 100
+    # Party and group rows are present on every profile, so a drop means the crawler
+    # stopped parsing them. Bio fill rates follow how complete the source profiles are
+    # and vary widely, so their floor only catches a crawler that parses none of them.
+    property_fill_rate:
+      Person:
+        political: 0.95
+        gender: 0.4
+        birthDate: 0.4
+      Occupancy:
+        politicalGroup: 0.9
   max:
     schema_entities:
       Person: 200

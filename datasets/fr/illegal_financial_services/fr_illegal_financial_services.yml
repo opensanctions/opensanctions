@@ -1,5 +1,6 @@
 title: France AMF Illegal Financial Services list
 entry_point: crawler.py
+ci_test: false
 prefix: fr-il-fin
 coverage:
   frequency: daily
@@ -35,10 +36,10 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 2400
+      LegalEntity: 3000
   max:
     schema_entities:
-      LegalEntity: 3400
+      LegalEntity: 4000
 
 lookups:
   type.email:

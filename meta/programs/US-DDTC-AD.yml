@@ -1,3 +1,7 @@
+# DEPRECATED — do not reference. Statutory and administrative ITAR debarments
+# are both recorded under US-AECA-DEBARRED as of September 2026; no crawler
+# emits this key anymore. The file is kept only so the key stays resolvable
+# while published statements age out. Delete it once none remain.
 id: 289
 title: US DDTC Administrative Debarment List
 key: US-DDTC-AD
@@ -10,3 +14,8 @@ summary: The US Department of State's Directorate of Defense Trade Controls (DDT
   designated persons from participating in defense trade activities.
 issuer: us_state
 dataset: us_ddtc_debarred
+aliases:
+  - Administratively Debarred Parties
+  - 22 CFR § 127.7(a)
+measures:
+  - Arms restrictions

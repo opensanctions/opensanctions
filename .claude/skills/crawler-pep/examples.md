@@ -1,77 +1,138 @@
 # PEP Crawler Examples
 
-## Pattern A: Known PEPs with `default_is_pep=True` (most common)
+## Reference crawler: a finished national legislature
 
-For sources that definitionally list PEPs (e.g. a national parliament):
+This is what "done" looks like: a crawler for Luxembourg's Chamber of Deputies, written
+to current practice. One position, a current-only roster published as a CSV, per-person
+start dates. Match its shape before reaching for anything more elaborate; the other
+patterns in this file are variations on it. It's based on `lu_chamber`, but work from
+this version: the crawler in the repo predates these conventions.
 
 ```python
+import csv
 from typing import Any
+from urllib.parse import urljoin
 
-from zavod import Context
-from zavod import helpers as h
-from zavod.entity import Entity
+from rigour.mime.types import CSV
 from zavod.stateful.positions import PositionCategorisation, categorise
 
+from zavod import Context, Entity
+from zavod import helpers as h
 
-def crawl_member(
+
+def crawl_row(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
     row: dict[str, Any],
 ) -> None:
-    name = row.pop("name")
-    dob = row.pop("dob", None)
+    first_name = row.pop("pph_prenom")
+    last_name = row.pop("pph_nom")
+    dob = row.pop("pph_date_naissance")
+
     person = context.make("Person")
-    # name + DOB; anchor on a clean source ID instead when one exists. See entity_id.md.
-    person.id = context.make_id(name, dob)
-
-    person.add("name", name)  # name variants all go to `name`, not `alias`/`title`
+    person.id = context.make_id(first_name, last_name, dob)
+    h.apply_name(person, first_name=first_name, last_name=last_name)
     h.apply_date(person, "birthDate", dob)
-    person.add("gender", row.pop("gender", None))
-    person.add("political", row.pop("party", None))
-    person.add("country", "xx")  # set explicitly when you omit citizenship
-    person.add("sourceUrl", row.pop("profile_url", None))  # source-provided links only
-
-    # IMPORTANT: set ALL person props BEFORE calling make_occupancy.
-    # make_occupancy reads birthDate/deathDate from the entity to determine PEP status.
+    person.add("gender", row.pop("per_titre"))
+    person.add("political", row.pop("rattachement_abrv"))
+    # Deputies must be Luxembourgish: Constitution of Luxembourg (2023), Art. 64(1)
+    # and (2). https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-REF(2023)013-f
+    person.add("citizenship", "lu")
 
     occupancy = h.make_occupancy(
         context,
         person,
         position,
+        start_date=row.pop("date_debut_depute"),
         categorisation=categorisation,
-        start_date=row.pop("term_start", None),
-        end_date=row.pop("term_end", None),
     )
-    if occupancy is not None:
-        context.emit(occupancy)
-        # IMPORTANT: emit person AFTER make_occupancy — it adds role.pep to
-        # person.topics. Don't add role.pep yourself.
-        context.emit(person)
+    if occupancy is None:
+        return
+    occupancy.add("constituency", row.pop("derniere_circonscription"))
+    context.emit(occupancy)
+    context.emit(person)
 
-    context.audit_data(row, ignore=["photo_url"])
+    context.audit_data(
+        row,
+        ignore=[
+            # "Groupe politique"/"Sensibilité politique": the group's parliamentary
+            # standing, which has no FollowTheMoney property.
+            "rattachement_type",
+            # Contact details are not extracted for PEPs.
+            "address",
+            "phone_ext",
+            "phone_mobile",
+            "email",
+        ],
+    )
 
 
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of the Parliament of Examplia",
-        country="xx",
-        topics=["gov.national", "gov.legislative"],
-        wikidata_id="Q...",
-        lang="eng",  # crawler-supplied names are always English
+        name="Deputy of the Chamber of Deputies of Luxembourg",
+        wikidata_id="Q21328592",
+        country="lu",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
-    # Gate even with default_is_pep=True: the position may have been un-flagged
-    # in the review UI, in which case emit nothing.
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
     context.emit(position)
 
-    data = context.fetch_json(context.data_url)
-    for member in data["members"]:
-        crawl_member(context, position, categorisation, member)
+    # The catalog republishes the CSV daily under a new timestamped URL and deletes
+    # the old one, so resolve the current file from the dataset's metadata on every
+    # run, uncached.
+    dataset = context.fetch_json(
+        urljoin(
+            context.data_url,
+            "la-liste-des-deputes-actifs-a-la-chambre-des-deputes-du-luxembourg/",
+        )
+    )
+    csv_urls = [r["url"] for r in dataset["resources"] if r["format"] == "csv"]
+    assert len(csv_urls) == 1, csv_urls
+
+    path = context.fetch_resource("deputies.csv", csv_urls[0])
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    # The source exports as Windows-1252, not UTF-8. Detection is unreliable here:
+    # byte 0xe8 is valid in several single-byte codepages, so a detector mistakes the
+    # French/Luxembourgish text for cp1250 and yields mojibake.
+    with open(path, encoding="cp1252") as fh:
+        for row in csv.DictReader(fh):
+            crawl_row(context, position, categorisation, row)
 ```
+
+The YAML side — date formats and the gender values live in metadata, not in code:
+
+```yaml
+data:
+  url: https://data.public.lu/api/1/datasets/
+  format: CSV
+dates:
+  formats: ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d"]
+
+lookups:
+  type.gender:
+    options:
+      - match: Monsieur
+        value: male
+      - match: Madame
+        value: female
+```
+
+What first drafts most often get wrong, and this gets right:
+
+- **The row loop feeds `crawl_row` directly** — no discovery helper collecting IDs
+  first, no repeated requests "to be safe", no hand-written row-count check (the YAML
+  `assertions` own totals).
+- **`categorise` runs once, in `crawl()`**, next to the position it gates.
+- **Each workaround carries its reason** (the uncached catalog lookup, the `cp1252`
+  encoding), so a reviewer can tell necessary code from machinery.
+- **Status comes from the dates.** This roster is republished daily and drops departed
+  members, so `make_occupancy`'s defaults are right. Where dates can't be trusted,
+  see SKILL.md, Step 3.
 
 ## Pattern B: Mixed dataset with `default_is_pep=None` (declaration-style)
 
@@ -92,8 +153,6 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
     if not categorisation.is_pep:
         return  # UI has not (yet) marked this position as PEP
 
-    context.emit(position)
-
     person = context.make("Person")
     person.id = context.make_id(row.pop("id"))
     # ... set person props ...
@@ -107,14 +166,20 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
         no_end_implies_current=False,         # no end date != still in office
     )
     if occupancy is not None:
+        # Emit the position only once an occupancy holds it: positions are per-record
+        # here, so emitting earlier leaves some with no occupancy.
         context.emit(occupancy)
+        context.emit(position)
         context.emit(person)
 ```
 
-Key differences from Pattern A:
+Key differences from the reference crawler:
 - `default_is_pep=None` — positions start uncategorised; the UI must mark them.
 - `no_end_implies_current=False` — a declaration doesn't prove current office.
-- `status=OccupancyStatus.UNKNOWN` — end date reliability is low.
+- `status=OccupancyStatus.UNKNOWN` — the declaration gives no dates to derive a status
+  from, and with none `make_occupancy` would drop the person. This is the one case
+  where overriding is right; if the source does give dates, pass them and drop the
+  override, since an explicit status also skips the death and age checks.
 - Position is created per-record (each unique role string becomes a position).
 
 ### Subnational variant (per-municipality / per-region positions)
@@ -142,7 +207,7 @@ position = h.make_position(
 )
 categorisation = categorise(context, position, default_is_pep=None)
 if not categorisation.is_pep:
-    return
+    return  # one locality among many — skip it, as in Pattern B
 ```
 
 YAML side — declare the translation lookup:
@@ -157,79 +222,182 @@ lookups:
         value: Alderman
 ```
 
-## Pattern C: Multi-position crawler with `default_is_pep=True`
+## Pattern C: Several positions in one crawler
 
-For sources that list officials across known, enumerable position types:
+Where a position's definition belongs — a `position` lookup keyed on the source's own
+label, or arguments to `h.make_position` in the crawler — is decided in `zavod/docs/peps.md`
+→ "Where a position's definition belongs". Read that first; this is only the code shape
+for the lookup case.
+
+```yaml
+lookups:
+  position:
+    normalize: true
+    options:
+      - match: House of Representatives
+        name: United States representative
+        wikidata_id: Q13218630
+        topics: [gov.national, gov.legislative]
+      - match: Senate
+        name: United States senator
+        wikidata_id: Q4416090
+        topics: [gov.national, gov.legislative]
+      - match: Territorial delegation
+        value: null
+```
 
 ```python
-POSITIONS: dict[str, dict[str, Any]] = {
-    "dail": {
-        "name": "Member of the Dáil of Ireland",
-        "wikidata_id": "Q654291",
-    },
-    "seanad": {
-        "name": "Senator of Ireland",
-        "wikidata_id": "Q18043391",
-    },
-}
+res = context.lookup("position", row.pop("chamber"), warn_unmatched=True)
+if res is None or res.name is None:
+    return
+position = h.make_position(
+    context,
+    name=res.name,
+    country="us",
+    topics=res.topics,
+    wikidata_id=res.wikidata_id,
+    lang="eng",
+)
+categorisation = categorise(context, position)
+if not categorisation.is_pep:
+    return
+context.emit(position)
+```
+
+### One label, several held positions
+
+When a role label implies more than one held office — a Speaker is elected from among
+the members and keeps their seat — map the label to every held position name with a
+multi-`values` lookup option, and make an occupancy for each
+(`zavod/docs/peps.md` → "One person, several positions"):
+
+```yaml
+lookups:
+  position:
+    required: true
+    options:
+      - match: Member of Parliament
+        value: Member of the Parliament of Examplia
+      - match: Speaker
+        values:
+          - Speaker of the Parliament of Examplia
+          - Member of the Parliament of Examplia
+```
+
+```python
+# Only the member seat has a Wikidata item.
+POSITION_QIDS = {"Member of the Parliament of Examplia": "Q..."}
+
+# required: true only halts the crawl via context.lookup —
+# context.lookup_value catches the exception and returns None.
+res = context.lookup("position", role)
+assert res is not None, role
+for title in res.values:
+    position = h.make_position(
+        context,
+        name=title,
+        country="xx",
+        topics=["gov.national", "gov.legislative"],
+        wikidata_id=POSITION_QIDS.get(title),
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        continue
+    occupancy = h.make_occupancy(
+        context, person, position, categorisation=categorisation
+    )
+    if occupancy is not None:
+        context.emit(occupancy)
+        # Repeated emits of the same position/person are fine.
+        context.emit(position)
+        context.emit(person)
+```
+
+## Multi-term source
+
+The default shape whenever the source exposes past terms, not just the sitting roster.
+Term bounds go in `period_start`/`period_end` (identical for everyone who served that
+term); a personal entry or exit date, where the source gives one, goes in
+`start_date`/`end_date` alongside them.
+
+```python
+from dataclasses import dataclass
+
+TOPICS = ["gov.national", "gov.legislative"]
+
+
+@dataclass(frozen=True)
+class Term:
+    """A parliamentary term. `period_end` is None for the sitting parliament."""
+
+    id: str
+    period_start: str
+    period_end: str | None
+
+
+def crawl_member(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    term: Term,
+    row: dict[str, Any],
+) -> None:
+    person = context.make("Person")
+    person.id = context.make_id(row.pop("member_id"))  # a stable source id, not the name
+    person.add("name", row.pop("name"), lang="eng")
+    person.add("citizenship", "xx")  # cite the electoral law in a comment here
+    # ... remaining person props, all set BEFORE make_occupancy ...
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        categorisation=categorisation,
+        period_start=term.period_start,
+        period_end=term.period_end,
+        # Per occupancy, not per dataset: only the sitting term is still open.
+        no_end_implies_current=term.period_end is None,
+    )
+    if occupancy is None:
+        return
+    occupancy.add("constituency", row.pop("district", None))
+    # The parliamentary faction, distinct from Person:political party membership.
+    occupancy.add("politicalGroup", row.pop("group", None))
+    context.emit(occupancy)
+    context.emit(person)
+    context.audit_data(row, ignore=["photo_url"])
+
 
 def crawl(context: Context) -> None:
-    positions: dict[str, tuple[Entity, PositionCategorisation]] = {}
-    for key, config in POSITIONS.items():
-        position = h.make_position(
-            context,
-            name=config["name"],
-            country="ie",
-            topics=["gov.national", "gov.legislative"],
-            wikidata_id=config.get("wikidata_id"),
-            lang="eng",
-        )
-        categorisation = categorise(context, position, default_is_pep=True)
-        context.emit(position)
-        positions[key] = (position, categorisation)
+    position = h.make_position(
+        context,
+        name="Member of the Parliament of Examplia",
+        country="xx",
+        topics=TOPICS,
+        wikidata_id="Q...",
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
+    context.emit(position)
 
-    # Then match each record to the right position + categorisation
+    cutoff = h.earliest_term_start(TOPICS)
+    # Newest first, so the first out-of-window term ends the loop rather than
+    # skipping one term and carrying on through the whole archive. Sort on the
+    # start date, not on a term id — numeric ids held as strings sort "10" < "9".
+    terms = sorted(discover_terms(context), key=lambda t: t.period_start, reverse=True)
+    for term in terms:
+        # ISO strings compare correctly here, including year-only term bounds.
+        if term.period_end is not None and term.period_end < cutoff:
+            context.log.info("Term predates the PEP window; skipping", term=term.id)
+            break
+        crawl_term(context, position, categorisation, term)
 ```
 
-## Current-only positions (no dates)
-
-When the source only lists current officeholders with no term dates, call
-`make_occupancy` with no dates and it records a `current` occupancy:
-
-```python
-occupancy = h.make_occupancy(
-    context,
-    person,
-    position,
-    categorisation=categorisation,
-)
-```
-
-## Ambiguous end dates
-
-When the source has unclear or unreliable end dates, use `OccupancyStatus.UNKNOWN`:
-
-```python
-from zavod.stateful.positions import OccupancyStatus
-
-occupancy = h.make_occupancy(
-    context,
-    person,
-    position,
-    categorisation=categorisation,
-    start_date=start,
-    end_date=end,
-    status=OccupancyStatus.UNKNOWN,
-)
-```
-
-## Associates (for parliamentary staff/collaborators)
-
-```python
-assoc = context.make("Associate")
-assoc.id = context.make_id(person.id, "associate", staff_name)
-assoc.add("person", person)
-assoc.add("associate", staff_entity)
-assoc.add("relationship", "parliamentary assistant")
-context.emit(assoc)
-```
+`discover_terms` reads the terms from the source (a term switcher in the HTML, an
+`ElectionId` parameter, a `/legislaturas` endpoint). Where the source labels terms but
+gives no dates, map the ordinal to its election year in a module-level table and
+**warn on an ordinal missing from it**, so a newly added term surfaces as maintenance
+work instead of being emitted with guessed dates.

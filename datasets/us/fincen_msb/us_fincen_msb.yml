@@ -8,12 +8,12 @@ coverage:
   frequency: weekly
   start: 2024-09-10
 summary: >
-  The Money Services Business (MSB) Registrant List includes individuals and entities 
+  The Money Services Business (MSB) Registrant List includes individuals and entities
   registered as MSBs operating in the United States.
 description: |
-  The MSB Registrant List is a directory of businesses and individuals engaged in money 
-  services within the United States, as mandated by the Financial Crimes Enforcement 
-  Network (FinCEN). These services include money transmitting businesses, currency dealers 
+  The MSB Registrant List is a directory of businesses and individuals engaged in money
+  services within the United States, as mandated by the Financial Crimes Enforcement
+  Network (FinCEN). These services include money transmitting businesses, currency dealers
   or exchangers, check cashers, issuers of traveler's checks, money orders, or stored value,
   the US Postal Service, etc.
 tags:
@@ -23,7 +23,7 @@ publisher:
   acronym: FinCEN
   official: true
   description: |
-    The Financial Crimes Enforcement Network (FinCEN) is a bureau of the U.S. Department of 
+    The Financial Crimes Enforcement Network (FinCEN) is a bureau of the U.S. Department of
     the Treasury that collects and analyzes information about financial transactions to
     combat domestic and international money laundering, terrorist financing, and other
     financial crimes.
@@ -47,15 +47,10 @@ assertions:
 lookups:
   type.name:
     options:
-      - match:
-          - 31000195963940
-          - 31000229195772
-          - 883644604
-          - 08-12-1985
-          - 05/17/2015
-          - 333063634
-          - 11/04/1985
-          - 20201595711
-          - "+18595391350"
-          - "2"
+      # The DBA NAME column occasionally holds a date of birth, a phone number or an
+      # identifier instead of a trade name. The source reformats these values between
+      # runs (e.g. "11/04/1985" became "11/4/1985", "+18595391350" became
+      # "18595391350"), so match the class rather than the individual literals.
+      # Nothing consisting only of digits and punctuation passes rigour's is_name().
+      - regex: '^[0-9+()./\s-]+$'
         value: null

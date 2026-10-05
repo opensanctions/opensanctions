@@ -43,7 +43,10 @@ def crawl(context: Context, data: dict[str, Any]) -> None:
             elif header in ("Remarks", "Details"):
                 entity.add("description", value)
             elif header == "Internet":
-                entity.add("website", value)
+                for v in h.multi_split(
+                    value, [",", "; ", " / ", " and ", " und ", " & "]
+                ):
+                    entity.add("website", v)
             elif header in ("Commercial register"):
                 continue
             else:

@@ -1,10 +1,17 @@
+import time
+
+from zavod.util import Element
+
 from zavod import Context
 from zavod import helpers as h
 
 # Extract details using XPath based on the provided HTML structure
 # required, key, xpath
 ATTRIBUTES = [
-    (True, "birth_date", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
+    # The birth date is occasionally missing from an otherwise well-formed profile.
+    # It is not required here so that a single such profile doesn't abort the crawl;
+    # crawl_person skips the person instead (see below).
+    (False, "birth_date", "//p[contains(text(), 'Data urodzenia:')]/strong/text()"),
     (True, "full_name", "//div[@class='head']/h2/text()"),
     (True, "gender", "//p[contains(text(), 'Płeć:')]/strong/text()"),
     (False, "middle_name", "//p[contains(text(), 'Drugie imię:')]/strong/text()"),
@@ -12,32 +19,74 @@ ATTRIBUTES = [
     (False, "birth_place", "//p[contains(text(), 'Miejsce urodzenia:')]/strong/text()"),
     (False, "citizenship", "//p[contains(text(), 'Obywatelstwo:')]/strong/text()"),
     (False, "eye_color", "//p[contains(text(), 'Kolor oczu:')]/strong/text()"),
-    (False, "father_name", "//p[contains(text(), 'Imię ojca:')]/strong/text()"),
     (False, "height", "//p[contains(text(), 'Wzrost:')]/strong/text()"),
-    (
-        False,
-        "mother_maiden_name",
-        "//p[contains(text(), 'Nazwisko panieńskie matki:')]/strong/text()",
-    ),
-    (False, "mother_name", "//p[contains(text(), 'Imię matki:')]/strong/text()"),
     (False, "hair_color", "//li[contains(text(), 'WŁOSY:')]/text()"),
+    # The source also gives the father's given name and the mother's given and maiden
+    # names. Those are deliberately not extracted: they are personal data of people the
+    # register asserts nothing about, and they add nothing to matching that full name,
+    # birth date and birth place don't already carry. See
+    # https://github.com/opensanctions/opensanctions/issues/5336
 ]
 
 
-def crawl_person(context: Context, url: str) -> None:
-    doc = context.fetch_html(url, cache_days=7)
+def extract_attributes(doc: Element, url: str) -> dict[str, str]:
+    """Read the labelled fields off a profile page, without judging completeness.
 
-    info = dict()
-    for required, key, xpath in ATTRIBUTES:
+    Fields the source gives as '-' come back as empty strings. Required fields are
+    deliberately not enforced here: on a shell page every field is missing at once,
+    and that has to be told apart from a real profile with a gap in it, so the
+    `required` flag is checked by the caller once the page is known to have rendered.
+    """
+    info: dict[str, str] = {}
+    for _, key, xpath in ATTRIBUTES:
         matches = h.xpath_strings(doc, xpath)
         text = ""
-        if required or matches:
+        if matches:
             assert len(matches) == 1, (key, url, matches)
             text = matches[0].strip()
-        text = "" if text == "-" else text
+        info[key] = "" if text == "-" else text
+    return info
+
+
+def fetch_person(context: Context, url: str) -> tuple[Element, dict[str, str]] | None:
+    """Fetch a profile page, returning None if the source never rendered the record.
+
+    The site intermittently serves a shell page: every field reads '-', the photo and
+    physical-description blocks are absent, and only the name survives because it is
+    drawn from the page title. Since responses are cached for a week, a single such
+    response would keep breaking the crawl for days, so the cache entry is evicted and
+    the request retried before the profile is given up on.
+    """
+    for attempt in range(4):
+        if attempt:
+            time.sleep(2**attempt)
+        doc = context.fetch_html(url, cache_days=7)
+        info = extract_attributes(doc, url)
+        # A real profile always states at least one of these, so all three being
+        # blank means the record body didn't render rather than being unknown.
+        if any(info[key] for key in ("birth_date", "gender", "citizenship")):
+            return doc, info
+        context.clear_url(url)
+        context.log.info("Profile did not render, evicted it from the cache", url=url)
+    context.log.warning("Skipping profile the source failed to render", url=url)
+    return None
+
+
+def crawl_person(context: Context, url: str) -> None:
+    fetched = fetch_person(context, url)
+    if fetched is None:
+        return
+    doc, info = fetched
+
+    for required, key, _ in ATTRIBUTES:
         if required:
-            assert text, (key, url)
-        info[key] = text
+            assert info[key], (key, url)
+
+    if not info["birth_date"]:
+        # The birth date is what distinguishes namesakes in the entity ID, so without
+        # it we would risk merging distinct people into one entity.
+        context.log.warning("Skipping person without a birth date", url=url)
+        return
 
     person = context.make("Person")
     person.id = context.make_id(info.get("full_name"), info.get("birth_date"))
@@ -52,9 +101,6 @@ def crawl_person(context: Context, url: str) -> None:
     person.add("birthPlace", info.pop("birth_place", None))
     person.add("gender", info.pop("gender"))
     person.add("alias", info.pop("alias", None))
-    person.add("fatherName", info.pop("father_name", None))
-    person.add("motherName", info.pop("mother_name", None))
-    person.add("motherName", info.pop("mother_maiden_name", None))
     person.add("height", info.pop("height", None))
     person.add("eyeColor", info.pop("eye_color", None))
     person.add("hairColor", info.pop("hair_color", "").replace("WŁOSY:", ""))
@@ -78,7 +124,7 @@ def crawl_person(context: Context, url: str) -> None:
         "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul[1]//li",
     )
     if not crimes:
-        context.log.warn("No crimes found for person", entity_id=person.id, url=url)
+        context.log.warning("No crimes found for person", entity_id=person.id, url=url)
     for crime in crimes:
         person.add("notes", h.element_text(crime))
 

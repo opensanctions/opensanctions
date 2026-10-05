@@ -1,6 +1,7 @@
 from lxml import etree
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 REQUEST_DATA = """
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -27,12 +28,21 @@ NAMESPACES = {
 
 
 def crawl(context: Context) -> None:
-    response = context.fetch_text(
-        context.data_url, headers=HEADERS, data=REQUEST_DATA, method="POST"
+    # www.oregon.gov fails to resolve in the production environment, so the
+    # request goes through Zyte, which resolves the host on its own network.
+    result = zyte_api.fetch(
+        context,
+        zyte_api.ZyteAPIRequest(
+            url=context.data_url,
+            method="POST",
+            body=REQUEST_DATA.encode("utf-8"),
+            headers=HEADERS,
+        ),
     )
-    assert response is not None
+    assert result.status_code == 200, result.status_code
+    assert result.media_type == "text/xml", result.media_type
 
-    tree = etree.fromstring(response.encode("utf-8"))
+    tree = etree.fromstring(result.response_text.encode("utf-8"))
 
     for item in [
         val

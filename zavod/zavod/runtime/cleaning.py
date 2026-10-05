@@ -1,6 +1,7 @@
 import unicodedata
 from typing import TYPE_CHECKING
 from collections.abc import Generator
+from rigour.dates import starts_after
 from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
@@ -8,6 +9,7 @@ from followthemoney import registry, Property, model
 from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
 from zavod.constants import ORIGIN_INFERRED, ORIGIN_LOOKUP
+from zavod.settings import RUN_TIME
 from zavod.logs import get_logger
 from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
 from zavod.runtime.safety import check_xss_html_smell
@@ -112,16 +114,7 @@ def value_clean(
         ) and clean is not None:
             clean = unicodedata.normalize("NFC", clean)
 
-            # FIXME: this is a work-around to introduce the abbreviation prop.
-            # It should be ready to go out in Q3/Q4 2026. See:
-            # https://github.com/opensanctions/opensanctions/issues/3297
-            if prop_.name == "abbreviation" and clean is not None:
-                weak_prop = entity.schema.get("weakAlias")
-                if weak_prop is not None:
-                    yield weak_prop, clean, origin
-                # Allow abbreviations that are not valid names
-
-            elif entity.schema.is_a("LegalEntity") and not is_name(clean):
+            if entity.schema.is_a("LegalEntity") and not is_name(clean):
                 if not is_type_lookup_value(entity, registry.name, item):
                     log.warning(
                         f"Property value {value!r} is not a valid name.",
@@ -134,6 +127,23 @@ def value_clean(
         if prop_.type == registry.date and clean is not None:
             # none of the information in OpenSanctions is time-critical
             clean = clean[: Precision.DAY.value]
+            if prop_.name == "birthDate":
+                # A birth date in the future is always a parsing error.
+                try:
+                    is_future = starts_after(clean, RUN_TIME)
+                except ValueError:
+                    # Not a canonical date (e.g. added with cleaned=True);
+                    # leave it to the validity checks below.
+                    is_future = False
+                if is_future:
+                    log.warning(
+                        f"Rejecting future birth date: {value}",
+                        entity_id=entity.id,
+                        prop=prop_.name,
+                        value=value,
+                        clean=clean,
+                    )
+                    continue
         if clean is not None:
             if len(clean) > prop_.max_length:
                 log.warning(
@@ -167,19 +177,6 @@ def value_clean(
 
         if prop_.type == registry.phone:
             # Do not have capacity to clean all phone numbers, allow broken ones
-            yield prop_, item, origin
-            continue
-
-        # HACK HACK HACK REMOVE BY AUG 2026
-        # We want to onboard new URL cleaning without dropping lots of invalid values
-        # as they're getting fixed.
-        if prop_.type == registry.url:
-            log.warning(
-                f"Invalid property value [{prop_.name}]: {value}",
-                entity_id=entity.id,
-                prop=prop_.name,
-                value=value,
-            )
             yield prop_, item, origin
             continue
 

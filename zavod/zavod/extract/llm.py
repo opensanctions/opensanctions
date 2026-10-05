@@ -73,7 +73,7 @@ def run_image_prompt(
             }
         ],
         response_format={"type": "json_object"},
-        max_tokens=max_tokens,
+        max_completion_tokens=max_tokens,
     )
     assert len(response.choices) > 0
     assert response.choices[0].message is not None
@@ -117,7 +117,7 @@ def run_typed_image_prompt[ResponseType: BaseModel](
             }
         ],
         response_format=response_type,
-        max_tokens=max_tokens,
+        max_completion_tokens=max_tokens,
     )
     assert len(response.choices) > 0
     assert response.choices[0].message is not None
@@ -171,7 +171,7 @@ def run_text_prompt(
             }
         ],
         response_format={"type": "json_object"},
-        max_tokens=max_tokens,
+        max_completion_tokens=max_tokens,
     )
     assert len(response.choices) > 0
     assert response.choices[0].message is not None

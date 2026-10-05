@@ -73,6 +73,11 @@ lookups:
           - be-fod-1466e18fc1e237298e4f20761990fd017d0a9f3e # Unica
           - be-fod-a3f9b33940d9a6301f5d997f5afc951cfc3396a5 # New Konk
         value: Vessel
+      # A research arm of the Iranian AEOI, mirrored from the EU list with
+      # type P (person).
+      - match:
+          - be-fod-dc9e8a8d9bc74548046ae55dc2f155bb7614c371 # Nuclear Research Center for Agriculture and Medicine
+        value: Organization
   identifier_prop:
     options:
       - match:

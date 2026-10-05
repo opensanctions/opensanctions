@@ -17,6 +17,7 @@ description: |
   allocated to each constituency are fixed by legislation
 publisher:
   name: Alþingi
+  name_en: Parliament of Iceland
   description: The parliament of Iceland
   url: https://www.althingi.is/
   official: true

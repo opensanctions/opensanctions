@@ -6,7 +6,7 @@ coverage:
   start: 2024-09-23
   end: 2024-06-30
 manual_check:
-  last_checked: "2026-06-01"
+  last_checked: "2026-09-01"
   interval: 90
   message: |
     Download the latest file from the website, see if it's newer than the version being referenced in the crawler (unfortunately, the website does not reveal a last-updated date).
@@ -54,8 +54,11 @@ assertions:
   min:
     schema_entities:
       Company: 22200
-      Organization: 1100
-      LegalEntity: 130
+      # Entities that appear as the owned side of an ownership are emitted as
+      # Company (Ownership:asset needs an Asset), which moved ~190 entities out
+      # of Organization and LegalEntity.
+      Organization: 950
+      LegalEntity: 85
     country_entities:
       cn: 6400
       us: 1500
@@ -295,6 +298,22 @@ lookups:
         value: https://www.brownsgroup.lk/
       - match: "ttps://www.bpi.ir"
         value: https://www.bpi.ir
+      # Truncated in the May 2026 sheet; the March 2026 edition of the same
+      # source had https://www.bem-ka.com.tr/home-page for this entity.
+      - match: "https://www.bem-ka.com.t"
+        value: https://www.bem-ka.com.tr
+      - match: "http:www.cjsdig.com"
+        value: http://www.cjsdig.com
+      # www. prefixed to a bare IP address
+      - match: "http://www.183.221.170.134"
+        value: http://183.221.170.134
+      # Trailing characters after the port; no way to tell whether they are a path
+      - match: "http://120.68.253.27:8082mgq2680033"
+        value: null
+      - match: "http://tepk-invest.ru or https://web.archive.org/web/20220614102750/http://tepk-invest.ru/proekty/coal.html"
+        values:
+          - http://tepk-invest.ru
+          - https://web.archive.org/web/20220614102750/http://tepk-invest.ru/proekty/coal.html
   type.address:
     options:
       - match:
@@ -312,10 +331,16 @@ lookups:
           - 6500004766
           - 7802942672
           - U40107DL2008PLC179263
+          - 02.315.580/0001-31
+          - 5036181392
         prop: registrationNumber
       - match:
           - 253400U464BV6CWFSP06
+          - 549300ED64PCB8PIL726
         prop: leiCode
+      - match: 5086807410 Company
+        value: 5086807410
+        prop: permId
       - match:
           - 4205070630
           - 7722515837
@@ -742,9 +767,19 @@ lookups:
           - 9731001285
           - 9731011220
           - 7729722060
+          - 7801212360
+          - 7736186950
+          - 7705721371
+          - 7702005813
+          - 3808066311
+          - 7704455695
+          - 7708339516
+          - 0318015873
+          - 7736030085
         prop: innCode
       - match:
           - not found
+          - not  found
           - not applicable
           - not ofund
           - not sure

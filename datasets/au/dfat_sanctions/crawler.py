@@ -11,6 +11,8 @@ from zavod import Context
 from zavod import helpers as h
 
 SPLITS = [f" {char})" for char in string.ascii_lowercase]
+# Itemised values, e.g. "a) 30/04/1963 b) 1960"
+ENUM_SPLITS = [f"{char}) " for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [
     ";",
     "iii) ",
@@ -42,14 +44,7 @@ def clean_date(date: str) -> list[str]:
         "Approximately",
         ", and,",
         " and ",
-        "g), ",
-        "h), ",
-        "i), ",
-        "j), ",
-        "g) ",
-        "h) ",
-        "i) ",
-        "j) ",
+        *ENUM_SPLITS,
         ", ",
         " ,",
         ",\xa0",

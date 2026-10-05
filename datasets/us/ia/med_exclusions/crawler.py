@@ -13,13 +13,13 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     npi = row.pop("npi")
     license_type = row.pop("state_license_type")
     license_number = row.pop("state_license_number")
+    first_name = row.pop("first_name")
+    last_name = row.pop("last_name")
 
     if enrollment_type is None:
         return
 
     if enrollment_type.lower() in {"individual", "indivdual", "indvidual"}:
-        first_name = row.pop("first_name")
-        last_name = row.pop("last_name")
         entity = context.make("Person")
         entity.id = context.make_id(first_name, last_name, npi)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
@@ -28,6 +28,9 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity = context.make("Organization")
         entity.id = context.make_id(business_name, npi)
         entity.add("name", business_name)
+        # The source also names an individual behind some organizations
+        if first_name or last_name:
+            entity.add("alias", h.make_name(first_name=first_name, last_name=last_name))
     else:
         context.log.warning("Enrollment type not recognized: " + enrollment_type)
         return
@@ -57,6 +60,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if sanction_end_date and sanction_end_date not in [
         "Indefinite",
         "Federal Authority",
+        "On Payment Plan",
     ]:
         if sanction_end_date == "2 Years":
             # TODO(Leon Handreke): Maybe use date.replace(year=start_date.year + 2)
@@ -89,5 +93,5 @@ def crawl(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
     assert wb.active is not None
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+    for item in h.parse_xlsx_sheet(context, wb.active):
         crawl_item(item, context)

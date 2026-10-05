@@ -15,6 +15,7 @@ description: |
 entry_point: crawler.py
 publisher:
   name: Secretaría Nacional para la Lucha contra el Lavado de Activos y Financiamiento del Terrorismo
+  name_en: National Secretariat for Combating Money Laundering and Terrorist Financing of Uruguay
   acronym: SENACLAFT
   description: The National Secretariat for the Fight against Money Laundering and Financing of Terrorism
   country: uy

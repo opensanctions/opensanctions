@@ -9,7 +9,8 @@ from zavod.util import Element
 SUBTITLE_PATTERN = re.compile(
     r"""
 ^(Sanctions?|Décisions?|amende)\s(administratives?)\s
-((prononcées?\s)?à\sl’encontre\sd[eu]|imposée\sà)\s
+# "de"/"du" are elided to "d’" before a vowel, and then carry no trailing space.
+((prononcées?\s)?à\sl’encontre\s(d[eu]\s|d’)|imposée\sà\s)
 (
     gestionnaire\sde\sfonds\sd’investissement\salternatifs?|
     gestionnaire\sde\sfonds\sd’investissement|

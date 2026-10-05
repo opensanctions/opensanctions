@@ -40,7 +40,11 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - tables
 
 nav:
@@ -48,11 +52,14 @@ nav:
   - install.md
   - Tutorial: tutorial.md
   - Command-line usage: usage.md
+  - Database: database.md
   - metadata.md
   - context.md
   - helpers.md
   - Best practices:
       - best_practices/strict_interpretation.md
+      - best_practices/change_detection.md
+      - best_practices/curated_datasets.md
       - best_practices/caching.md
       - best_practices/patterns.md
       - best_practices/addresses.md

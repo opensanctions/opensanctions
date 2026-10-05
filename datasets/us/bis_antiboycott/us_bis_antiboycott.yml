@@ -37,6 +37,9 @@ url: https://www.bis.gov/about-bis/bis-leadership-and-offices/OAC/alleged-antibo
 tags:
   - list.export
   - juris.us
+  - issuer.west
+  - sector.financial
+  - list.enforcement
 data:
   url: https://www.bis.gov/about-bis/bis-leadership-and-offices/OAC/alleged-antiboycott-violations
   format: html

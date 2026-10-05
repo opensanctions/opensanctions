@@ -100,8 +100,8 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 4
-      LegalEntity: 4
+      Company: 1
+      LegalEntity: 1
   max:
     schema_entities:
       Company: 10

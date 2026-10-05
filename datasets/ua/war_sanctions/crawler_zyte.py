@@ -47,7 +47,21 @@ VESSEL_SKIP_LABELS = {
 
 # Entity-page (col-sm-8) labels we don't emit as properties. "Within the structure of
 # Rostec" is handled separately (parsed into Ownership edges), not skipped.
-COMPANY_SKIP_LABELS = {"Products"}
+COMPANY_SKIP_LABELS = {
+    "Products",
+    # A relationship to other entities, not a property of this one.
+    "Banks that serve the enterprise",
+    # A repeating block listing the machine tools at the plant, which we don't model.
+    # "Name" here is a tool's name, not a company name — the company name is read from
+    # COMPANY_NAME_LABEL. If the source ever moved the company name into this row,
+    # crawl_entity_page would find no name and warn instead of emitting a nameless entity.
+    "Name",
+    "Serial number",
+    "Manufacturer",
+    "Manufacturer`s country",
+    "Plant of the location",
+    "Plant`s involvement in weapons production",
+}
 
 # Liquidated companies render a status badge inside the name label, so the label text reads
 # "Full name of legal entity Liquidated 30.05.2025" rather than the bare field name. We match
@@ -55,15 +69,29 @@ COMPANY_SKIP_LABELS = {"Products"}
 COMPANY_NAME_LABEL = "Full name of legal entity"
 LIQUIDATED_RE = re.compile(r"\bLiquidated\b\s*(?P<date>[\d.]*)")
 
+# Trailing connection status on a SWIFT row: "ROSYRU2PXXX (Disconnected)".
+SWIFT_STATUS_RE = re.compile(r"\s*\([^)]*\)\s*$")
+
 # Person-page label aliases — they vary by section (war sections vs partner sanctions vs
 # executives). Each FtM property is fed from any of its aliases.
-PERSON_CITIZENSHIP_LABELS = ["Citizenship", "Jurisdiction"]
+PERSON_CITIZENSHIP_LABELS = ["Citizenship"]
+
+# Person sections carry a "Jurisdiction" field, which maps to the FtM property of the same
+# name: the country a person is listed as operating under. Some cells name two ("Israel,
+# russian federation"); the type.country lookups split those into components.
+PERSON_JURISDICTION_LABELS = ["Jurisdiction"]
+
 PERSON_DOB_LABELS = ["Date and place of birth", "DOB"]
+PERSON_BIRTHPLACE_LABELS = ["Place of birth"]
+PERSON_PASSPORT_LABELS = ["Passport", "Foreign passport"]
 PERSON_POSITION_LABELS = [
     "Position",
     "Positions or membership in the governance bodies of the russian MIC",
     "Other positions",
+    "Previous positions",
     "Former position in the management bodies of the Russian military-industrial complex",
+    # Left untranslated by the /en site: "Former positions".
+    "Колишні посади",
 ]
 
 PERSON_LINK_LABELS = ["Links", "Archive links"]
@@ -226,6 +254,23 @@ def emit_succession(
     context.emit(rel)
 
 
+def rostec_parent_id(context: Context, structure_el: Element | None) -> str | None:
+    """The immediate holding parent from a 'Within the structure of Rostec' chain.
+
+    The row links the company itself first, then its ancestry up to Rostec State Corporation,
+    so the 2nd link is the immediate parent. Returns None when the row is absent or names only
+    the company itself (the top of a holding), i.e. when we learn no owner from it. The chain
+    always uses /rostec/<id> links, also on pages outside the rostec section.
+    """
+    if structure_el is None:
+        return None
+    chain = h.xpath_strings(structure_el, ".//a/@href")
+    parents = [m.group(1) for href in chain if (m := re.search(r"/rostec/(\d+)", href))]
+    if len(parents) < 2:
+        return None
+    return context.make_slug("entity", parents[1])
+
+
 def entity_label_map(doc: Element) -> dict[str, Element]:
     """Label -> value map for an entity (company) page: col-sm-8 value, prev-sibling label."""
     pairs: dict[str, Element] = {}
@@ -246,7 +291,7 @@ def crawl_entity_page(
     program_key: str | None,
     topic: str | None,
 ) -> str:
-    """Emit a LegalEntity from any company-type page (col-sm-8 layout); return its id.
+    """Emit a legal entity from any company-type page (col-sm-8 layout); return its id.
 
     Shared by ships-company (descended inline from vessels) and every */companies-style
     listing section. Keyed `ua-ws-entity-<url_id>` to match the retiring API crawler.
@@ -256,10 +301,18 @@ def crawl_entity_page(
     )
     pairs = entity_label_map(doc)
 
+    # Read the Rostec holding chain before the entity is made: it decides the schema. An
+    # `Ownership:asset` has to be an `Asset`, so a company we assert is owned by its holding
+    # parent is emitted as a `Company` (which inherits from both LegalEntity and Asset).
+    # Everything else stays a bare LegalEntity — nothing here tells us it is a business.
+    parent_id = rostec_parent_id(
+        context, pairs.pop("Within the structure of Rostec", None)
+    )
+
     entity_id = context.make_slug("entity", url_id_of(url))
     if entity_id is None:
         raise ValueError(f"Cannot build entity id from {url!r}")
-    entity = context.make("LegalEntity")
+    entity = context.make("Company" if parent_id is not None else "LegalEntity")
     entity.id = entity_id
     name_el, name_label = pop_prefixed(pairs, COMPANY_NAME_LABEL)
     entity.add("name", value_lines(name_el))
@@ -271,6 +324,13 @@ def crawl_entity_page(
     )
     entity.add("registrationNumber", pop_text(pairs, "Registration number"))
     entity.add("taxNumber", pop_text(pairs, "TIN"))
+    # Populated on the finances/companies (bank) pages, empty elsewhere. bikCode is
+    # Company-only, so a bank is cast up from LegalEntity; an empty row leaves it alone.
+    swift = pop_text(pairs, "SWIFT")
+    if swift is not None:
+        entity.add("swiftBic", SWIFT_STATUS_RE.sub("", swift))
+    entity.add_cast("Company", "bikCode", pop_text(pairs, "BIC"))
+    entity.add("licenseNumber", pop_text(pairs, "Bank license"))
     entity.add("country", pop_text(pairs, "Country"))
     entity.add("address", pop_text(pairs, "Address"))
     if topic is not None:
@@ -279,6 +339,8 @@ def crawl_entity_page(
 
     # A page with no name/identifiers means the layout didn't match (e.g. a non-company
     # detail page or a dead id). Skip loudly rather than emit a hollow entity.
+    if not entity.has("name"):
+        context.log.warning("Entity page yielded no name", url=url)
     if not entity.has("name") and not entity.has("registrationNumber"):
         context.log.warning("Entity page yielded no name/identifiers", url=url)
         return entity_id
@@ -291,23 +353,15 @@ def crawl_entity_page(
     context.emit(entity)
     context.emit(sanction)
 
-    # Rostec holding chain: "Within the structure of Rostec" links self, then ancestry.
-    # The 2nd link is the immediate parent → one Ownership edge (each company emits its own,
-    # so the full tree is built incrementally), mirroring the API's rostec/structure.
-    structure_el = pairs.pop("Within the structure of Rostec", None)
-    if structure_el is not None:
-        chain = h.xpath_strings(structure_el, ".//a/@href")
-        parents = [
-            m.group(1) for href in chain if (m := re.search(r"/rostec/(\d+)", href))
-        ]
-        if len(parents) >= 2:
-            parent_id = context.make_slug("entity", parents[1])
-            rel = context.make("Ownership")
-            rel.id = context.make_id(parent_id, "subsidiary of", entity_id)
-            rel.add("owner", parent_id)
-            rel.add("asset", entity_id)
-            rel.add("role", "subsidiary of")
-            context.emit(rel)
+    # One Ownership edge to the immediate holding parent. Each company emits only its own, so
+    # the full tree is built incrementally, mirroring the API's rostec/structure.
+    if parent_id is not None:
+        rel = context.make("Ownership")
+        rel.id = context.make_id(parent_id, "subsidiary of", entity_id)
+        rel.add("owner", parent_id)
+        rel.add("asset", entity_id)
+        rel.add("role", "subsidiary of")
+        context.emit(rel)
 
     # Liquidated companies name their legal successor in an "Assignee" row.
     successor_el = pairs.pop("Assignee", None)
@@ -494,8 +548,11 @@ def person_label_map(doc: Element) -> dict[str, Element]:
     for label_el in h.xpath_elements(doc, xpath):
         label = h.element_text(label_el)
         value_el = label_el.getnext()
-        if label and value_el is not None:
-            pairs.setdefault(label, value_el)
+        if not label or value_el is None:
+            continue
+        if len(value_el) == 0 and not (value_el.text or "").strip():
+            continue
+        pairs.setdefault(label, value_el)
     return pairs
 
 
@@ -528,6 +585,12 @@ def crawl_person_page(
     person.add("taxNumber", take_lines("TIN"))
     for label in PERSON_CITIZENSHIP_LABELS:
         person.add("citizenship", take_lines(label))
+    for label in PERSON_JURISDICTION_LABELS:
+        person.add("jurisdiction", take_lines(label))
+    for label in PERSON_BIRTHPLACE_LABELS:
+        person.add("birthPlace", take_lines(label))
+    for label in PERSON_PASSPORT_LABELS:
+        person.add("passportNumber", take_lines(label))
     for label in PERSON_POSITION_LABELS:
         for position in take_lines(label):
             person.add("position", position)
@@ -669,6 +732,7 @@ ENTITY_SECTIONS = [
     ("stolen/companies", "UA-WS-STEALERS", "poi"),
     ("components/companies", "UA-WS-MILIND", "poi"),
     ("rostec", "UA-WS-MILIND", "poi"),
+    ("finances/companies", "UA-WS-FINANCES", "poi"),
     ("sanctions/companies", None, None),
 ]
 # Tools factories are crawled by crawl_tools (descended from equipment pages), not here,
@@ -683,6 +747,7 @@ PERSON_SECTIONS = [
     ("propaganda/persons", "UA-WS-PROPAGANDISTS", "poi"),
     ("stolen/persons", "UA-WS-STEALERS", "poi"),
     ("executives", "UA-WS-EXECUTIVES", "poi"),
+    ("scientists/persons", "UA-WS-SCIENTISTS", "poi"),
     ("sanctions/persons", None, None),
 ]
 

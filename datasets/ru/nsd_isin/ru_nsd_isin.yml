@@ -89,6 +89,8 @@ lookups:
           - "Номер решения о формировании имущественного пула" # Number of the decision on the formation of the property pool
           - "Дата государственной регистрации правил фонда" # Date of state registration of fund rules
           - "Класс инвестиционных паев" # Investment share class (A/B)
+          - "Номер изменений и дополнений в ПДУ о классе пая"  #  Registration number of amendments to the trust management rules regarding this unit class
+          - "Дата регистрации (согласования) изменений и дополнений в ПДУ"  # Date of the amendments to the trust management rules
         prop: null
       - match:
           - "ISIN код"

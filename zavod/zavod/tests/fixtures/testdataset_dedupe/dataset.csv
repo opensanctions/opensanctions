@@ -1,8 +1,0 @@
-schema,name,country,id_number
-Person,John Smith,US,
-Person,Jane Smith,US,
-Person,John Doe,US,
-Person,John Smith,UK,
-Person,John Gregory Smith,US,
-Person,James Bond,UK,007
-Company,John Smith Inc,US,

@@ -12,30 +12,34 @@ $ zavod clear datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 # Crawl the ICIJ OffshoreLeaks database:
 $ zavod crawl datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 
-# You can also export a dataset without re-crawling the sources:
+# You can also export a dataset without re-crawling the sources. This also
+# runs the dataset validators and assertions; a fatal validation failure
+# aborts the export. Pass --no-validate to skip them:
 $ zavod export datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 
 # You can publish a dataset to the archive:
-$ zavod publish  --latest datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
+$ zavod publish datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 
 # Combine crawl, export and publish in one command:
-$ zavod run --latest datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
+$ zavod run datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 ```
 
 When you are developing a crawler, it can be handy to rerun the crawler a number
 of times using the data source cache, then export the data rebuilding the intermediate
 storage.
 
-First run the crawler without `--clear` until you are ready to export:
+First run the crawler with `--keep-data` to reuse cached source data:
 
 ```bash
-$ zavod crawl ...
+$ zavod crawl --keep-data ...
 ```
 
-Then run the exporter with `--clear` to ensure the latest statements are included in the output:
+Then run the exporter. It rebuilds the intermediate store by default, so the
+latest statements are included in the output (pass `--keep-store` to skip the
+rebuild):
 
 ```bash
-$ zavod export --clear ...
+$ zavod export ...
 ```
 
 # Debugging Crawlers in VSCode

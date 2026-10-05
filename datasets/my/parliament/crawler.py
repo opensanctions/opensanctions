@@ -1,7 +1,12 @@
 import re
 from collections.abc import Iterator
+from typing import Any
 
+from lxml.html import HtmlElement
+from requests.exceptions import HTTPError
+from urllib3.util import Retry
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.stateful.review import assert_all_accepted
 
@@ -34,13 +39,39 @@ SENATOR_IGNORE = [
 ]
 
 
+def fetch_html_with_retry(context: Context, url: str, **kwargs: Any) -> HtmlElement:
+    # Zyte answers 421 "Certificate Issue" when the TLS certificate check against
+    # parlimen.gov.my fails. As of 2026-09-28, this hits roughly one request in a few
+    # hundred, and the same page loads on a later request. Without a retry, a single
+    # such response aborts the crawl.
+    retry = Retry(total=5, backoff_factor=3)
+    while not retry.is_exhausted():
+        try:
+            return zyte_api.fetch_html(context, url, **kwargs)
+        except HTTPError as err:
+            if err.response is None or err.response.status_code != 421:
+                raise
+            context.log.info("Zyte 421 error, retrying", url=url)
+            # retry.increment raises MaxRetryError once the retries are exhausted
+            retry = retry.increment(url=url, error=err)
+            retry.sleep()
+
+
 def parse_detail(context: Context, url: str) -> dict[str, str]:
     """Return the label -> value pairs of a member's `MAKLUMAT` info table.
 
     `lang=en` yields English field labels ("Name", "Position in the Parliament",
     ...); the detail links on the roster pages omit it, so it is requested here.
     """
-    doc = context.fetch_html(url, params={"lang": "en"}, cache_days=7)
+    if "?" not in url:
+        raise ValueError(f"Member link without query string: {url}")
+    doc = fetch_html_with_retry(
+        context,
+        f"{url}&lang=en",
+        unblock_validator=".//tr[td/strong]",
+        html_source="httpResponseBody",
+        cache_days=7,
+    )
     data: dict[str, str] = {}
     for row in h.xpath_elements(doc, ".//tr[td/strong]"):
         cells = h.xpath_elements(row, "./td")
@@ -237,7 +268,14 @@ def iter_member_links(context: Context, roster_url: str) -> Iterator[tuple[str, 
 
     A roster that returns too few members is caught by the dataset assertions
     (the per-chamber `entities_with_prop` minimums), not here."""
-    doc = context.fetch_html(roster_url, absolute_links=True, cache_days=1)
+    doc = fetch_html_with_retry(
+        context,
+        roster_url,
+        unblock_validator=".//ul[contains(@class,'member-of-parliament')]",
+        html_source="httpResponseBody",
+        absolute_links=True,
+        cache_days=1,
+    )
     links = h.xpath_strings(
         doc,
         ".//ul[contains(@class,'member-of-parliament')]/li//a[contains(@href,'id=')]/@href",

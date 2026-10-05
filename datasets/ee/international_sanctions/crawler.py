@@ -138,7 +138,8 @@ def crawl_human_rights(context: Context, url: str) -> None:
 def crawl_rus(context: Context, url: str) -> None:
     doc = context.fetch_html(url)
     main_container = h.xpath_element(doc, ".//article")
-    h.assert_dom_hash(main_container, "ee2ce6c8eaec412ae93ecb4e38a305ba627d7a47")
+    # Reviewed 2026-09-29: KANTOR, ISMAILOVA, USMANOV, FRIDMAN
+    h.assert_dom_hash(main_container, "d3dd9334db72807b61cf4f45662e08524edc9dfe")
     raw_names = h.xpath_elements(main_container, ".//p")
     names = [h.element_text(p) for p in raw_names]
     for raw_name in names:

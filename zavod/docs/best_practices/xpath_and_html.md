@@ -78,19 +78,10 @@ items = h.xpath_elements(doc, ".//h2[text()='The Section']/following-sibling::ul
 assert len(items) > 0, items
 ```
 
-## Use content hashes to flag silent changes
+## Detect changes in hand-parsed content
 
-To get a warning when page content changes from a previously hardcoded hash, use [`h.assert_dom_hash`][zavod.helpers.assert_dom_hash]. This catches drift that would otherwise need to be noticed manually: data extracted by hand, or a new section that should trigger a review of the parser. Scope the hash to a specific block of content, not the whole document, so frequently changing parts of the site (headers, footers, ads) do not trigger spurious warnings.
-
-By default, `h.assert_dom_hash` logs a warning and returns `False` when the hash does not match, allowing the crawler to continue. Use the return value to log a maintainer-facing message that explains what to recheck before updating the hash:
-
-```python
-expected = "30aca6ba4b245649db4bee16e0798d661080bd9a"
-if not h.assert_dom_hash(article, expected, text_only=True):
-    context.log.warning(
-        "Page hash changed: confirm the referenced lists are still the "
-        "UNSC Taliban and Al-Qaida lists before updating the hash."
-    )
-```
-
-Pass `text_only=True` to ignore markup churn (class renames, added wrappers) and hash only the visible text. Pass `raise_exc=True` to turn the check into a hard failure when continuing past a change is unacceptable. For checking a whole page by URL rather than a sub-tree, use [`h.assert_html_url_hash`][zavod.helpers.assert_html_url_hash].
+Use [`h.assert_dom_hash`][zavod.helpers.assert_dom_hash] when a change to a particular
+HTML region needs human review, such as content extracted by hand or prose that controls
+crawler configuration. Pass `text_only=True` to ignore markup churn and monitor visible
+text. The [change-detection guide](change_detection.md) covers monitor selection, scoping
+and the rules for accepting a new hash.

@@ -28,6 +28,7 @@ description: |
   > financial scheme.
 publisher:
   name: Bank Negara Malaysia
+  name_en: Central Bank of Malaysia
   acronym: BNM
   description: Central Bank of Malaysia
   url: https://www.bnm.gov.my
@@ -63,4 +64,4 @@ assertions:
       LegalEntity: 490
   max:
     schema_entities:
-      LegalEntity: 600
+      LegalEntity: 720

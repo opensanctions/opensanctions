@@ -5,6 +5,7 @@ from zavod.constants import ORIGIN_INFERRED
 from zavod.integration import get_dataset_linker
 from zavod.meta import get_catalog, get_multi_dataset
 from zavod.stateful.positions import OccupancyStatus, categorise_many
+from zavod.runtime.manifest import Manifest
 from zavod.store import get_store
 
 INFLUENCE_TOPIC_LABELS = {
@@ -111,7 +112,7 @@ def analyze_position(context: Context, entity: Entity) -> set[str]:
 def crawl(context: Context) -> None:
     scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
-    store = get_store(scope, linker)
+    store = get_store(Manifest.get_transient(scope), linker)
     store.sync()
     view = store.view(scope)
     pep_count = 0

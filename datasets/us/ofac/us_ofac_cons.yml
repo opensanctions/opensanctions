@@ -47,6 +47,11 @@ data:
   format: XML
   lang: eng
 
+validators:
+  # OFAC states ownership of parties it only describes as Organizations, so
+  # Ownership:asset references land outside the Asset range.
+  entity_reference: false
+
 assertions:
   min:
     schema_entities:

@@ -7,13 +7,13 @@ from json import load, loads
 from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
 from datetime import datetime
+from structlog.testing import capture_logs
 
-from zavod import Context, settings
+from zavod import settings
 from zavod.entity import Entity
-from zavod.integration.dedupe import get_dataset_linker
-from zavod.store import get_store
 from zavod.exporters import export_dataset
-from zavod.archive import clear_data_path, DATASETS
+from zavod.exporters.common import Exporter, ExportView
+from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
@@ -22,6 +22,10 @@ from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
+from zavod.tests.util import get_test_view, make_context
+from zavod.runtime.resources import DatasetResources
+from zavod.runtime.statistics import Statistics
+import pytest
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -41,7 +45,7 @@ def emit_entity(
     id_: str | None = None,
     properties: dict[str, list[str]] = {},
 ) -> Entity:
-    context = Context(ds)
+    context = make_context(ds)
     context.begin()
 
     entity = Entity.from_data(
@@ -55,23 +59,20 @@ def emit_entity(
 
 
 def export(dataset: Dataset) -> None:
-    linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
-    store.sync(clear=True)
-    view = store.view(dataset)
-    export_dataset(dataset, view)
+    view = get_test_view(dataset, clear=True)
+    export_dataset(dataset, settings.RUN_VERSION, view)
 
 
 def read_exported_entities(dataset: Dataset) -> list[ValueEntity]:
-    dataset_path = settings.DATA_PATH / DATASETS / dataset.name
+    dataset_path = dataset_artifact_directory(dataset.name, settings.RUN_VERSION)
     return list(path_entities(dataset_path / "entities.ftm.json", ValueEntity))
 
 
 def test_export(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     export(testdataset1)
 
     # it parses and finds expected number of entities
@@ -122,10 +123,10 @@ def test_export(testdataset1: Dataset):
 
 def test_minimal_export_config(testdataset2: Dataset):
     """Test export when dataset.exporters is empty list"""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2.name
+    dataset_path = dataset_artifact_directory(testdataset2.name, settings.RUN_VERSION)
     clear_data_path(testdataset2.name)
 
-    crawl_dataset(testdataset2)
+    crawl_dataset(testdataset2, settings.RUN_VERSION)
     export(testdataset2)
 
     with open(dataset_path / "index.json") as index_file:
@@ -147,10 +148,12 @@ def test_minimal_export_config(testdataset2: Dataset):
 
 def test_custom_export_config(testdataset2_export: Dataset):
     """Test export when dataset.exporters has custom exports listed"""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
+    dataset_path = dataset_artifact_directory(
+        testdataset2_export.name, settings.RUN_VERSION
+    )
     clear_data_path(testdataset2_export.name)
 
-    crawl_dataset(testdataset2_export)
+    crawl_dataset(testdataset2_export, settings.RUN_VERSION)
     export(testdataset2_export)
 
     with open(dataset_path / "index.json") as index_file:
@@ -172,7 +175,7 @@ def test_custom_export_config(testdataset2_export: Dataset):
 def test_ftm(testdataset1: Dataset):
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(FtMExporter, testdataset1)
 
     entities = read_exported_entities(testdataset1)
@@ -202,7 +205,7 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
     testdataset1.resolve = True
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(FtMExporter, testdataset1, linker=resolver)
 
     entities = read_exported_entities(testdataset1)
@@ -224,7 +227,7 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
     assert dataset2 is not None
     collection = load_dataset_from_path(COLLECTION_YML)
     assert collection is not None
-    crawl_dataset(dataset2)
+    crawl_dataset(dataset2, settings.RUN_VERSION)
     other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection, linker=resolver)
     entities = read_exported_entities(collection)
@@ -247,10 +250,10 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
 
 
 def test_names(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(NamesExporter, testdataset1)
 
     with open(dataset_path / "names.txt") as names_file:
@@ -264,10 +267,10 @@ def test_names(testdataset1: Dataset):
 
 
 def test_targets_simple(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(SimpleCSVExporter, testdataset1)
 
     with open(dataset_path / "targets.simple.csv") as csv_file:
@@ -317,10 +320,10 @@ def test_targets_simple(testdataset1: Dataset):
 
 
 def test_statements(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_artifact_directory(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     harnessed_export(StatementsCSVExporter, testdataset1)
 
     path = dataset_path / "statements.csv"
@@ -354,7 +357,7 @@ def test_statements_preserves_consolidated_removals() -> None:
 
     export(collection)
 
-    dataset_path = settings.DATA_PATH / DATASETS / collection.name
+    dataset_path = dataset_artifact_directory(collection.name, settings.RUN_VERSION)
 
     # Statements export must contain both the original variants, even though
     # consolidation removes "JOHN DOE" as a case-duplicate of "John Doe".
@@ -408,3 +411,67 @@ def test_consolidate_names_never_remove_ofac_names():
     assert set(entities[0].get("name")) == {"John Doe", "The Tiger"}
     # "Tigger" is demoted (even though it's a name in xx_garbage) because it's a weakAlias in xx_garbage
     assert set(entities[0].get("weakAlias")) == {"Tigger", "The Tiger"}
+
+
+class NoOutputExporter(Exporter):
+    """An exporter that never writes its file."""
+
+    TITLE = "Broken exporter"
+    FILE_NAME = "broken.json"
+    MIME_TYPE = "application/json"
+
+    def feed(self, entity: Entity, view: ExportView) -> None:
+        pass
+
+
+def test_exporter_missing_output_raises(testdataset1: Dataset):
+    """An exporter that fails to produce its file must fail the export rather
+    than log a warning, so a broken exporter never yields a published dataset
+    with a silently missing artifact."""
+    clear_data_path(testdataset1.name)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
+    context = make_context(testdataset1)
+    context.begin()
+    view = get_test_view(testdataset1)
+    exporter = NoOutputExporter(context, Statistics())
+    exporter.setup()
+    assert not exporter.path.exists()
+    with pytest.raises(FileNotFoundError):
+        exporter.finish(view)
+    context.close()
+    view.store.close()
+
+    # Nothing was registered for publication:
+    names = {r.name for r in DatasetResources(testdataset1, context.version).all()}
+    assert NoOutputExporter.FILE_NAME not in names
+
+
+def test_unknown_exporter_logs_error() -> None:
+    """A misspelt name in a dataset's exports is logged as an error but does
+    not fail the run: the statements and the remaining exports are still
+    published, so their consumers still benefit from the update."""
+    catalog = get_catalog()
+    dataset = Dataset(
+        {"name": "test_bad_exports", "exports": ["entities.ftm.jsn", "names.txt"]}
+    )
+    catalog.add(dataset)
+    emit_entity(dataset, "Person", id_="bad-exports-1", properties={"name": ["Jo"]})
+
+    with capture_logs() as cap_logs:
+        export(dataset)
+
+    errors = [
+        entry
+        for entry in cap_logs
+        if entry.get("log_level") == "error"
+        and "entities.ftm.jsn" in entry.get("event", "")  # jsn is the typo
+    ]
+    assert len(errors) == 1, cap_logs
+
+    # The other exports and the index are still produced:
+    dataset_path = dataset_artifact_directory(dataset.name, settings.RUN_VERSION)
+    assert (dataset_path / "names.txt").is_file()
+    assert (dataset_path / "statistics.json").is_file()
+    with open(dataset_path / "index.json") as fh:
+        resources = {r["name"] for r in load(fh)["resources"]}
+    assert resources == {"names.txt"}

@@ -34,6 +34,7 @@ IGNORE = [
     "senatorAndOthers",
     "judge",
     "government",
+    "ovmName",
 ]
 
 
@@ -141,7 +142,7 @@ def crawl(context: Context) -> None:
                 assert detail is not None, "Expected JSON response"
                 crawl_person(context, detail)
             except HTTPError as e:
-                if e.response.status_code == 404:
+                if e.response.status_code in [404, 500]:
                     context.log.info("Failed to fetch detail", item=item, error=e)
                 else:
                     raise

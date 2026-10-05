@@ -21,6 +21,7 @@ publisher:
   url: https://www.mha.gov.in/en/page/about-ministry
   official: true
 url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
+ci_test: false  # Zyte
 data:
   url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
   format: HTML

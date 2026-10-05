@@ -1,9 +1,11 @@
 from normality import squash_spaces
+from rigour.ids import IMO
 from rigour.mime.types import XML
 from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 from zavod.util import Element
 
 NAME_SPLITS = [
@@ -23,9 +25,11 @@ ALIAS_SPLITS = [
     "Arabic:",
     "Arabic :",
     "Belarusian:",
+    "Belarussian:",
     "Belarussian :",
     "Russian:",
     "Russian :",
+    "Cyrillic:",
     "Ukrainian:",
     "Ukrainian :",
 ]
@@ -35,10 +39,31 @@ def split_name(name: str) -> list[str]:
     name = squash_spaces(name)
     parts: list[str] = []
     for part in h.multi_split(name, NAME_SPLITS):
-        part = part.rstrip(")").rstrip(";")
+        part = part.rstrip(";")
+        # Splitting on " (also known as" leaves the closing ")" of the alias
+        # behind. A balanced ")" belongs to the name, e.g. an acronym such as
+        # "Marine Industries Organization (MIO)", so only strip unmatched ones.
+        while part.endswith(")") and part.count(")") > part.count("("):
+            part = part[:-1]
         if len(part):
             parts.append(part)
     return parts
+
+
+def parse_imo_number(context: Context, value: str | None) -> str | None:
+    """Return the IMO number of a record, if the ship column really holds one.
+
+    The presence of an IMO number is what makes a record a ship, so a value that
+    is not an IMO number must not reach the vessel branch. The source
+    occasionally spills another column into this one; known cases are resolved
+    in the `imo_number` lookup, anything else is surfaced as a warning.
+    """
+    if value is None or IMO.is_valid(value):
+        return value
+    res = context.lookup("imo_number", value, warn_unmatched=True)
+    if res is None:
+        return None
+    return res.value
 
 
 def crawl(context: Context) -> None:
@@ -47,6 +72,7 @@ def crawl(context: Context) -> None:
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//record"):
         parse_entry(context, node)
+    assert_all_accepted(context, raise_on_unaccepted=False)
 
 
 def parse_entry(context: Context, node: Element) -> None:
@@ -57,27 +83,33 @@ def parse_entry(context: Context, node: Element) -> None:
             if text:
                 row[child.tag] = text
 
-    entity_name = row.pop("EntityOrShip", None)
-    given_name = row.pop("GivenName", None)
-    last_name = row.pop("LastName", None)
-    dob = row.pop("DateOfBirthOrShipBuildDate", None)
+    entity_name = row.pop("EntityOrShip-EntiteOuNavire", None)
+    given_name = row.pop("GivenName-Prenom", None)
+    last_name = row.pop("LastName-NomDeFamille", None)
+    dob = row.pop(
+        "DateOfBirthOrShipBuildDate-DateDeNaissanceOuDateDeConstructionDuNavire", None
+    )
     dob_original = dob
     if dob is not None:
         excel_date = h.convert_excel_date(dob)
         if excel_date is not None:
             dob = excel_date
-    title = row.pop("TitleOrShip", None)
-    imo_number = row.pop("ShipIMONumber", None)
-    schedule = row.pop("Schedule", None)
+    title = row.pop("TitleOrShipType-TitreOuTypeDeNavire", None)
+    imo_number = parse_imo_number(
+        context, row.pop("ShipIMONumber-NumeroOMIDuNavire", None)
+    )
+    schedule = row.pop("Schedule-Annexe", None)
     if schedule in ("N/A", None):
         schedule = ""
     if entity_name is None:
         entity_name = h.make_name(given_name=given_name, last_name=last_name)
-    program = row.pop("Country")
+    program = row.pop("Country-Pays")
     country = program
     if program is not None and "/" in program:
         country, _ = program.split("/", 1)
 
+    original = h.Names()
+    suggested = h.Names()
     entity = context.make("LegalEntity")
     country_code = registry.country.clean(country)
     entity.id = context.make_id(schedule, country_code, entity_name)
@@ -86,16 +118,31 @@ def parse_entry(context: Context, node: Element) -> None:
         entity.id = context.make_id(schedule, country_code, entity_name, imo_number)
         entity.add("imoNumber", imo_number)
         if entity_name is not None:
-            entity.add("name", squash_spaces(entity_name))
+            vessel_name = squash_spaces(entity_name)
+            entity.add("name", vessel_name)
+            original.add("name", vessel_name)
+            suggested.add("name", vessel_name)
         entity.add("type", title)
         h.apply_date(entity, "buildDate", dob, original_value=dob_original)
     elif given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
-        h.apply_date(entity, "birthDate", dob, original_value=dob_original)
+        h.apply_date(
+            entity,
+            "birthDate",
+            dob,
+            original_value=dob_original,
+            # The list holds birth dates from 1924, before the default 100-year
+            # window. A sanctioned person is old enough to have acted, so their
+            # birth date can be another 15 years back.
+            two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE - 15,
+        )
         entity.add("title", title)
     elif entity_name is not None:
-        entity.add("name", split_name(entity_name))
+        original.add("name", entity_name)
+        for name in split_name(entity_name):
+            entity.add("name", name)
+            suggested.add("name", name)
         h.apply_date(entity, "incorporationDate", dob, original_value=dob_original)
         assert dob is None, (dob, entity_name)
 
@@ -111,15 +158,31 @@ def parse_entry(context: Context, node: Element) -> None:
     )
     sanction.add("program", program)
     sanction.add("reason", schedule)
-    sanction.add("authorityId", row.pop("Item"))
-    h.apply_date(sanction, "listingDate", row.pop("DateOfListing", None))
+    sanction.add("authorityId", row.pop("Item-NumeroDarticle"))
+    h.apply_date(
+        sanction, "listingDate", row.pop("DateOfListing-DateDinscription", None)
+    )
 
-    names = squash_spaces(row.pop("Aliases", ""))
+    names = squash_spaces(row.pop("Aliases-Alias", ""))
+    if names:
+        original.add("alias", names)
     for name in h.multi_split(names, ALIAS_SPLITS):
         trim_name = squash_spaces(name)
         # if " or " in trim_name:
         #     print("ALIAS", trim_name)
         entity.add("alias", trim_name)
+        suggested.add("alias", trim_name)
+
+    # Person names are built from the separate name part columns, so only
+    # their aliases go to review.
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
 
     context.audit_data(row)
     context.emit(entity)

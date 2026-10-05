@@ -22,7 +22,7 @@ def get_csv_url(context: Context) -> str:
     doc = fetch_html(
         context,
         context.data_url,
-        unblock_validator="//select[@id='links-meses']",
+        unblock_validator="//a[contains(@href, '/download-de-dados/pep/')]",
         geolocation="BR",
         absolute_links=True,
     )

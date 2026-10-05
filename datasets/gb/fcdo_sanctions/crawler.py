@@ -349,6 +349,12 @@ def csv_make_legal_entity(
         parent.add("name", name)
         context.emit(parent)
 
+        # Ownership:asset must reference an Asset, which Organization isn't.
+        # A designated entity the source gives a parent company for is a
+        # business, so make it a Company, which is both an Organization and
+        # an Asset.
+        entity.add_schema("Company")
+
         ownership = context.make("Ownership")
         ownership.id = context.make_id(parent.id, "owns", entity.id)
         ownership.add("owner", parent)

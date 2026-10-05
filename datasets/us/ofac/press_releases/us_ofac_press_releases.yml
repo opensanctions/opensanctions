@@ -69,5 +69,9 @@ lookups:
         values:
           - eg
           - mt
+      - match: Swiss-Russian
+        values:
+          - ch
+          - ru
       - match: U.S. National
         value: us

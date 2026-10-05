@@ -9,7 +9,6 @@ import requests
 from zavod import settings
 from zavod.logs import configure_logging, get_logger, set_logging_context_dataset_name
 from zavod.meta import load_dataset_from_path, get_catalog, get_multi_dataset, Dataset
-from zavod.stateful.model import create_db
 
 log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
@@ -63,7 +62,6 @@ def cli(debug: bool = False, ping_heartbeat_url: str | None = None) -> None:
 
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)
-    create_db()
 
 
 @cli.result_callback()

@@ -4,7 +4,6 @@ prefix: ohchr
 coverage:
   frequency: weekly
   start: 2024-02-09
-  end: 2025-10-01
 load_statements: true
 ci_test: false
 summary: >-
@@ -61,20 +60,81 @@ description: |
 publisher:
   name: United Nations Human Rights Council
   acronym: OHCHR
-  country: zz
+  country: un
   url: https://www.ohchr.org/
   description: |
     > The Human Rights Council is an intergovernmental body within the United Nations system made up of 47 States responsible for the promotion and protection of all human rights around the globe.
   official: true
 url: https://www.ohchr.org/en/business/bhr-database
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT17qv7NxgWJnqmJJiGTncmAQeWI2QKW9Z92CZOXxWJi071xJr5V8CxtnB3AxgFkFZLCg2eGgBizxXs/pub?output=csv
-  format: CSV
+  url: https://www.ohchr.org/en/business/bhr-database
+  format: HTML
 
+# This is a sensitive list. The max count is exact and matches list A of the
+# database in report A/HRC/63/20 (25 September 2026): 214 enterprises. When it
+# changes, verify that OHCHR published a new report or moved an enterprise to
+# list B before you update it. The min count is about 10% lower, because the
+# resolver merges some of the listed enterprises with each other.
 assertions:
   min:
     schema_entities:
-      Company: 140
+      Company: 192
   max:
     schema_entities:
-      Company: 300
+      Company: 214
+
+lookups:
+  # Some names in the list A table end with a footnote marker, a letter such
+  # as the "b" in "Davidov Garages Ltd.b". The footnotes below the table give
+  # an earlier name for each marker: "Formerly X" maps to previousName, and
+  # "Previously listed as X" maps to alias.
+  name_footnotes:
+    options:
+      # a- Formerly Ashdar Building Company.
+      - match: "Ashtrom Residential Development Ltd. a"
+        name: "Ashtrom Residential Development Ltd."
+        previousName: "Ashdar Building Company"
+      # b- Formerly Mayer Davidov Garages Ltd.
+      - match: "Davidov Garages Ltd.b"
+        name: "Davidov Garages Ltd."
+        previousName: "Mayer Davidov Garages Ltd."
+      # c- Formerly Chish Nofei Israel Ltd.
+      - match: "Db Billiards Ltd.c"
+        name: "Db Billiards Ltd."
+        previousName: "Chish Nofei Israel Ltd."
+      # d- Formerly Naaman Group Ltd.
+      - match: "Extra Retail Group Ltd.d"
+        name: "Extra Retail Group Ltd."
+        previousName: "Naaman Group Ltd."
+      # e- Previously listed as Lipski Installation and Sanitation Ltd.
+      - match: "Harsa Studio – Sanitaryware Manufacturers Ltd.e"
+        name: "Harsa Studio – Sanitaryware Manufacturers Ltd."
+        alias: "Lipski Installation and Sanitation Ltd."
+      # f- Previously listed as Re/Max Israel.
+      - match: "Impact Property Development Ltd.f"
+        name: "Impact Property Development Ltd."
+        alias: "Re/Max Israel"
+      # g- Formerly Shikun Dayarim Ltd.
+      - match: "Mizrachi & Sons Investments Group Ltd.g"
+        name: "Mizrachi & Sons Investments Group Ltd."
+        previousName: "Shikun Dayarim Ltd."
+      # h- Formerly Paz Oil Company Ltd.
+      - match: "Paz Retail and Energy Ltd.h"
+        name: "Paz Retail and Energy Ltd."
+        previousName: "Paz Oil Company Ltd."
+      # i- Formerly Solegreen Ltd.
+      - match: "Powergen Solar A Ltd.i"
+        name: "Powergen Solar A Ltd."
+        previousName: "Solegreen Ltd."
+      # j- Previously listed as Angel Bakery.
+      - match: "Salomon A. Angel Ltd.j"
+        name: "Salomon A. Angel Ltd."
+        alias: "Angel Bakery"
+      # k- Previously listed as D.B.S Satellite Services Ltd.
+      - match: "Yes TV and Communications Services Ltd.k"
+        name: "Yes TV and Communications Services Ltd."
+        alias: "D.B.S Satellite Services Ltd."
+      # l- Previously listed as Z.F. Development and Construction.
+      - match: "Z.F. Building Company Ltd.l"
+        name: "Z.F. Building Company Ltd."
+        alias: "Z.F. Development and Construction"

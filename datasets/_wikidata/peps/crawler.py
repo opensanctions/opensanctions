@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import lru_cache
 
 from nomenklatura.wikidata import WikidataClient
+from requests.exceptions import RequestException
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
 from rigour.territories.territory import Territory
@@ -68,18 +69,24 @@ def query_usage_positions(
 
     All the territory's QIDs are swept, not just the primary one: aliases cover
     entities like the Russia/Belarus Union State (an alias of `ru`), whose organ
-    positions would otherwise be invisible to jurisdiction-based discovery."""
-    values = " ".join(f"wd:{qid}" for qid in sorted(territory.qids))
-    query = f"""
-    SELECT DISTINCT ?position ?abolished WHERE {{
-        ?position wdt:P1001|wdt:P17 ?territory .
-        VALUES ?territory {{ {values} }}
-        {{ ?holder wdt:P39 ?position . ?holder wdt:P31 wd:Q5 . }}
-        UNION {{ ?position wdt:P1308 ?officeholder . }}
-        {ABOLISHED_CLAUSE}
-    }}
-    """
-    return collect_positions(context, client, query)
+    positions would otherwise be invisible to jurisdiction-based discovery.
+
+    One query per QID: batching them into a single `VALUES` block makes the
+    query planner give up on large territories — the six QIDs of `gb` together
+    exceed the query service's own execution limit, while each on its own is
+    comfortably inside it."""
+    positions: set[str] = set()
+    for qid in sorted(territory.qids):
+        query = f"""
+        SELECT DISTINCT ?position ?abolished WHERE {{
+            ?position wdt:P1001|wdt:P17 wd:{qid} .
+            {{ ?holder wdt:P39 ?position . ?holder wdt:P31 wd:Q5 . }}
+            UNION {{ ?position wdt:P1308 ?officeholder . }}
+            {ABOLISHED_CLAUSE}
+        }}
+        """
+        positions.update(collect_positions(context, client, query))
+    return positions
 
 
 def query_occupation_positions(
@@ -252,7 +259,17 @@ def crawl(context: Context) -> None:
         if position is None:
             continue
         context.log.info(f"Position [{position.id}]: {position.caption}")
-        for person_qid, modified_at in position_holders(client, position_item).items():
+        try:
+            holders = position_holders(client, position_item)
+        except RequestException as exc:
+            # Holders are re-queried on the next crawl
+            context.log.warning(
+                "Position holder query failed",
+                position=position_qid,
+                error=str(exc),
+            )
+            continue
+        for person_qid, modified_at in holders.items():
             if person_qid in done_persons:
                 continue
             done_persons.add(person_qid)

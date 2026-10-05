@@ -75,6 +75,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Representatives of Thailand",
         country="th",
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21290865",
         lang="eng",
     )

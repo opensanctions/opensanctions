@@ -96,3 +96,7 @@ lookups:
         value: Langenhagstrasse 31, CH-9424 Rheineck
       - match: Friedenstrasse 18, 9320 Arbon
         value: Friedenstrasse 18, CH-9320 Arbon
+      # 9495 Triesen is a Liechtenstein municipality; domestic addresses are
+      # published without a country prefix.
+      - match: Landstrasse 95, 9495 Triesen
+        value: Landstrasse 95, FL-9495 Triesen

@@ -23,7 +23,14 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("term_date"))
+    h.apply_date(
+        sanction,
+        "startDate",
+        row.pop("term_date"),
+        # Exclusions cannot predate the 1977 Medicare-Medicaid Anti-Fraud and Abuse
+        # Amendments.
+        two_digit_year_base=1977,
+    )
     h.apply_date(sanction, "date", row.pop("letter_date"))
     sanction.add("reason", row.pop("termination_reason"))
 
@@ -34,8 +41,14 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
+    # The publisher varies the capitalisation of the upload file name
+    # (Sanction-List-... vs sanction-list-...), so match case-insensitively.
+    href_lower = (
+        "translate(@href, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')"
+    )
     excel_xpath = (
-        ".//a[contains(@href, 'Sanction-List') and contains(@href, '.xlsx')]/@href"
+        f".//a[contains({href_lower}, 'sanction-list')"
+        f" and contains({href_lower}, '.xlsx')]/@href"
     )
     landing_page = zyte_api.fetch_html(
         context,

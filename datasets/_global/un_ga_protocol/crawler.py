@@ -18,10 +18,12 @@ Return an empty string for unset fields.
 
 def crawl_pdf_url(context: Context) -> str:
     html = context.fetch_html(context.data_url)
-    for a in html.findall('.//div[@class="content"]//a'):
-        if "list.pdf" in a.get("href", ""):
-            return urljoin(context.data_url, a.get("href"))
-    raise ValueError("No PDF found")
+    href = h.xpath_string(
+        html,
+        './/div[@class="content"]//a[normalize-space(text())="Download"]'
+        '[contains(@href, ".pdf")]/@href',
+    )
+    return urljoin(context.data_url, href)
 
 
 def crawl(context: Context) -> None:
@@ -73,7 +75,13 @@ def crawl(context: Context) -> None:
             )
             start_date = start_date if len(start_date) < 18 else None
             occupancy = h.make_occupancy(
-                context, entity, position, start_date=start_date
+                context,
+                entity,
+                position,
+                start_date=start_date,
+                # As of 2026, longest current head started tenure 1982 (Teodoro Mbasogo).
+                # https://www.guinnessworldrecords.com/world-records/65343-longest-serving-president-current
+                two_digit_year_base=1980,
             )
 
             # entity.add("date_of_appointment", )

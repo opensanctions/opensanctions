@@ -50,7 +50,9 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 100
+      # Keep it tight with the expected number of members
+      # We skip member pages with errors, which seems to happen for new members.
+      Person: 145
   max:
     schema_entities:
       Person: 170

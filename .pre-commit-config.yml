@@ -14,11 +14,14 @@ repos:
         language: fail
         files: 'datasets/.*\.yaml$'
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.0
+    rev: v0.16.1
     hooks:
+      # Ruff finds no configuration for files outside zavod/, so without --config it
+      # falls back to its built-in defaults.
       - id: ruff-check
-        args: ['--fix']
+        args: ['--fix', '--config', 'zavod/pyproject.toml']
       - id: ruff-format
+        args: ['--config', 'zavod/pyproject.toml']
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.37.1
     hooks:
@@ -49,16 +52,6 @@ repos:
         # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
         language: system
         files: "datasets/"
-        exclude: |
-          (?x)^(
-          datasets/eu/journal_sanctions|
-          datasets/gb/coh|
-          datasets/ky/judicial|
-          datasets/lt/pep_declarations|
-          datasets/ng/join_dots|
-          datasets/us/bis_denied|
-          datasets/za/wanted
-          )
         args: ['--strict', '--explicit-package-bases']
   - repo: local
     hooks:

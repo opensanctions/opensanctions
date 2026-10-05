@@ -91,6 +91,9 @@ def crawl_notice(context: Context, notice: dict[str, Any]) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(entity_id)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
+    if not entity.get("name"):
+        context.log.info("Skipping notice without a name", entity_id=entity_id, url=url)
+        return
     # entity.add("sourceUrl", url)
     entity.add("nationality", notice.pop("nationalities", []))
     entity.add("country", notice.pop("country_of_birth_id", []))

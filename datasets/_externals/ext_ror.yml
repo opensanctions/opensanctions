@@ -30,6 +30,7 @@ publisher:
     identifier for every research organization in the world.
   url: "https://ror.org/"
   official: true
+  country: zz
 url: "https://ror.org/registry/"
 
 inputs:
@@ -96,4 +97,5 @@ assertions:
       Organization: 30
   max:
     schema_entities:
-      Organization: 500
+      # Grows as matches are accepted in review: 290 (2026-07-03) -> 465 (2026-08-14).
+      Organization: 1000

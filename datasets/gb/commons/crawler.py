@@ -93,7 +93,7 @@ def crawl_member(
             previous_position = h.make_position(
                 context,
                 name=post["name"],
-                topics=["gov.national"],
+                topics=["gov.national", "gov.executive"],
                 country="gb",
             )
             categorisation = categorise(context, previous_position)

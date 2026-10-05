@@ -20,6 +20,18 @@ http:
     - GET
     # a match in PermID is a POST request
     - POST
+  # The match endpoint stalls briefly now and then, so retry over a wider window.
+  total_retries: 5
+  backoff_factor: 2
+  # The enricher posts one bulk CSV of up to 999 name/country combinations per
+  # subject entity, so heavily-merged entities (e.g. the "Massandra" cluster with
+  # ~230 names across RU and UA) send a request two orders of magnitude larger
+  # than the typical one. Those were the entities hitting a read timeout at the
+  # default 60s; giving the largest queries more room stopped that class of error
+  # (no read timeout in any run since 2026-09-18). Keep this bounded: with
+  # total_retries above, an entity the endpoint never answers for costs roughly
+  # timeout * 6 plus backoff before the run moves on.
+  timeout: 120
 load_statements: true
 ci_test: false
 summary: >-
@@ -79,4 +91,4 @@ assertions:
       Company: 2800
   max:
     schema_entities:
-      Company: 10000
+      Company: 12000

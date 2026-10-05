@@ -1,0 +1,28 @@
+id: 326
+title: Russian financial sector supporting the war
+key: UA-WS-FINANCES
+url: https://war-sanctions.gur.gov.ua/en/finances/companies
+summary: |
+  Ukraine's GUR lists banks and other financial institutions:
+
+  > The russian financial sector is one of the key components of the russian
+  > federation's capacity to wage war against Ukraine.
+  >
+  > Russian banks serve enterprises of the military-industrial complex (MIC), provide
+  > financial support for state defense contracts, disburse pay and bonuses to
+  > servicemen of the russian armed forces, operate in the temporarily occupied
+  > territories of Ukraine.
+  >
+  > Banks and other financial institutions in the russian federation are directly
+  > involved in the creation and development of a parallel payment infrastructure
+  > (including the use of virtual assets) for conducting cross-border payments —
+  > particularly in the interests of the russian military-industrial complex — by
+  > engaging entities from "friendly" jurisdictions to bypass the traditional
+  > financial system.
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr

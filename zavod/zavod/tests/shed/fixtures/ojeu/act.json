@@ -1,0 +1,25 @@
+{
+  "head": {"vars": ["title", "doc_date", "type", "eli", "amends_celex", "based_on_celex", "cons_celex"]},
+  "results": {
+    "bindings": [
+      {
+        "title": {"type": "literal", "value": "Council Implementing Regulation (EU) 2026/1708"},
+        "doc_date": {"type": "literal", "value": "2026-07-13"},
+        "type": {"type": "uri", "value": "http://publications.europa.eu/resource/authority/resource-type/REG_IMPL"},
+        "eli": {"type": "uri", "value": "http://data.europa.eu/eli/reg_impl/2026/1708/oj"},
+        "amends_celex": {"type": "literal", "value": "32024R1485"},
+        "based_on_celex": {"type": "literal", "value": "32024R1485"},
+        "cons_celex": {"type": "literal", "value": "02024R1485-20260701"}
+      },
+      {
+        "title": {"type": "literal", "value": "Council Implementing Regulation (EU) 2026/1708"},
+        "doc_date": {"type": "literal", "value": "2026-07-13"},
+        "type": {"type": "uri", "value": "http://publications.europa.eu/resource/authority/resource-type/REG_IMPL"},
+        "eli": {"type": "uri", "value": "http://data.europa.eu/eli/reg_impl/2026/1708/oj"},
+        "amends_celex": {"type": "literal", "value": "32024R1485"},
+        "based_on_celex": {"type": "literal", "value": "12012E/TXT"},
+        "cons_celex": {"type": "literal", "value": "02024R1485-20260713"}
+      }
+    ]
+  }
+}

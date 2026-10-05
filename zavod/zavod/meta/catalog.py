@@ -2,8 +2,15 @@ import yaml
 from pathlib import Path
 from followthemoney.dataset import DataCatalog
 
+from zavod.logs import get_logger
 from zavod.meta.dataset import Dataset
-from zavod.archive import get_dataset_artifact, INDEX_FILE
+from zavod.archive import (
+    INDEX_FILE,
+    backfill_artifact,
+    get_last_successful_version,
+)
+
+log = get_logger(__name__)
 
 
 class ArchiveBackedCatalog(DataCatalog[Dataset]):
@@ -30,7 +37,18 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
         dataset = super().get(name)
         if dataset is not None:
             return dataset
-        path = get_dataset_artifact(name, INDEX_FILE)
-        if path.exists():
+
+        version = get_last_successful_version(name)
+        if version is None:
+            # Only datasets that have never completed a successful run reach this
+            # edge case, so the archive cannot provide usable metadata for them.
+            log.warning(
+                "No last successful version found",
+                dataset=name,
+                report_issue=False,
+            )
+            return None
+        path = backfill_artifact(name, version, INDEX_FILE)
+        if path is not None:
             return self.load_yaml(path)
         return None

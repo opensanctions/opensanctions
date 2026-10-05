@@ -20,6 +20,7 @@ description: |
   representation. Each deputy serves a three-year term.
 publisher:
   name: Cámara de Diputados
+  name_en: Chamber of Deputies of Mexico
   description: Mexico's Chamber of Deputies
   url: https://www.diputados.gob.mx/
   official: true

@@ -12,13 +12,11 @@ description: |
   Members of the Cyprus House of Representatives (Greek: Βουλή των Αντιπροσώπων,
   Turkish: Temsilciler Meclisi), the unicameral legislative body of the Republic of Cyprus.
 
-  The House of Representatives consists of 80 members elected by proportional representation
-  for a five-year term. Seats are allocated across six electoral districts corresponding to
+  The House has 80 seats, of which 24 are reserved for the Turkish Cypriot community
+  and have been vacant since 1964. The remaining 56 members are elected by proportional
+  representation for a five-year term across six electoral districts corresponding to
   the administrative districts of Cyprus.
-
-  The data is sourced from the official website of the Cyprus House of Representatives,
-  containing biographical information for current members of parliament.
-url: https://www.parliament.cy/en/general-information/election-composition-and-dissolution-of-the-house-of-representatives
+url: https://www.parliament.cy/el/general-information/composition/members-of-the-house
 tags:
   - list.pep
 publisher:
@@ -31,15 +29,16 @@ publisher:
   url: https://www.parliament.cy/en/
   official: true
 data:
-  url: https://www.parliament.cy/en/general-information/composition/members-of-the-house/biographical-notes
+  url: https://www.parliament.cy/el/general-information/composition/members-of-the-house/εκλογικές-περιφέρειες
   format: HTML
-  lang: eng
+  lang: ell
 
 assertions:
   min:
     schema_entities:
       Person: 50
       Position: 1
-
-dates:
-  formats: ["%d %B %Y."]
+  max:
+    schema_entities:
+      Person: 60
+      Position: 1

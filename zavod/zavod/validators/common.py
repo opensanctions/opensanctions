@@ -1,15 +1,27 @@
+from nomenklatura.store import View
+
 from zavod.context import Context
-from zavod.store import View
+from zavod.meta.dataset import Dataset
 from zavod.entity import Entity
+from zavod.runtime.statistics import Statistics
 
 
 class BaseValidator:
-    def __init__(self, context: Context, view: View) -> None:
+    """A check on the final output of a dataset, run as part of the export traversal."""
+
+    def __init__(self, context: Context, stats: Statistics) -> None:
         self.context = context
-        self.view = view
+        self.stats = stats
         self.abort = False
 
-    def feed(self, entity: Entity) -> None:
+    @classmethod
+    def enabled(cls, dataset: Dataset) -> bool:
+        """Whether this validator should run for the given dataset. Validators
+        that can be switched off in the `validators:` metadata block override
+        this; the rest always run."""
+        return True
+
+    def feed(self, entity: Entity, view: View[Dataset, Entity]) -> None:
         raise NotImplementedError()
 
     def finish(self) -> None:

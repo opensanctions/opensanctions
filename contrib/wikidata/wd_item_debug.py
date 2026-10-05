@@ -3,8 +3,8 @@
 Provides two subcommands that run the same helpers used by the
 ``_wikidata/peps`` crawler against a single Wikidata QID and print the
 resulting statements in the packed CSV format zavod writes to disk
-during a real crawl. Nothing is written to the archive — the underlying
-``Context`` is built in ``dry_run`` mode.
+during a real crawl. Nothing is written to the archive — statements are
+streamed to stdout instead of the run's local artifact directory.
 
 * ``human <QID>`` — runs ``wikidata_basic_human`` against the QID and,
   for every ``P39`` (position held) claim, runs ``wikidata_position`` +
@@ -47,7 +47,7 @@ import sys
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
+from collections.abc import Iterator
 
 import click
 from followthemoney.statement.serialize import PackStatementWriter
@@ -59,6 +59,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.logs import configure_logging
 from zavod.meta import load_dataset_from_path
+from zavod.runtime.manifest import Manifest
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
 from zavod.stateful.model import create_db
@@ -88,8 +89,9 @@ def _run_context(dataset_path: Path) -> Iterator[RunContext]:
     dataset = load_dataset_from_path(dataset_path)
     if dataset is None:
         raise click.BadParameter(f"Invalid dataset path: {dataset_path}")
-    context = Context(dataset, dry_run=True)
-    context.begin(clear=False)
+    Manifest.create(dataset, settings.RUN_VERSION)
+    context = Context(dataset, settings.RUN_VERSION)
+    context.begin()
     writer = PackStatementWriter(sys.stdout)
     client = WikidataClient(context.cache, context.http)
     try:

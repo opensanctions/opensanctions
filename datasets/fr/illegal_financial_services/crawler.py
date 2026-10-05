@@ -3,6 +3,7 @@ from rigour.mime.types import CSV
 from normality import slugify
 
 from zavod import Context, helpers as h
+from zavod.extract.zyte_api import fetch_resource
 from followthemoney.types import registry
 
 
@@ -36,7 +37,10 @@ def crawl(context: Context) -> None:
     csv_url = h.xpath_string(
         response, './/*[@title="Télécharger le fichier en csv"]/@href'
     )
-    path = context.fetch_resource("source.csv", csv_url)
+    # The object storage host serving the CSV blocks our production network,
+    # so the download is routed via Zyte. It serves the file as an unlabelled
+    # binary blob (application/octet-stream), so the media type isn't asserted.
+    _, _, _, path = fetch_resource(context, "source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
     with open(path) as fh:

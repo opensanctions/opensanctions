@@ -3,6 +3,7 @@ from nomenklatura import Resolver
 from nomenklatura.db import Session
 from nomenklatura.judgement import Judgement
 
+from zavod import settings
 from zavod.archive import dataset_state_path
 from zavod.entity import Entity
 from zavod.meta import Dataset
@@ -10,16 +11,17 @@ from zavod.store import get_store
 from zavod.crawl import crawl_dataset
 from zavod.integration.dedupe import blocking_xref
 from zavod.integration.dedupe import merge_entities, explode_cluster
+from zavod.tests.util import get_manifest
 
 
 def test_store_access(
     testdataset1: Dataset, resolver: Resolver[Entity], session: Session
 ):
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
     assert list(resolver.get_candidates()) == []
     assert list(resolver.get_judgements()) == []
 
-    store = get_store(testdataset1, resolver)
+    store = get_store(get_manifest(testdataset1), resolver)
     store.sync()
     state_path = dataset_state_path(testdataset1.name)
     blocking_xref(resolver, session, store, state_path)
@@ -35,13 +37,13 @@ def test_store_access(
 
 
 def test_resolve_dedupe(testdataset1: Dataset, resolver: Resolver[Entity]):
-    stats = crawl_dataset(testdataset1)
+    stats = crawl_dataset(testdataset1, settings.RUN_VERSION)
     assert list(resolver.get_candidates()) == []
     assert list(resolver.get_judgements()) == []
     canonical = resolver.decide(
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
-    store = get_store(testdataset1, resolver)
+    store = get_store(get_manifest(testdataset1), resolver)
     store.sync()
     view = store.default_view()
     for ent in view.entities():

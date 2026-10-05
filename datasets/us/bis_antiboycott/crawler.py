@@ -38,9 +38,16 @@ def crawl(context: Context) -> None:
         entity.add("sourceUrl", url)
         entity.add("country", country)
         entity.add("topics", "export.risk")
+        entity.add("topics", "reg.action")
 
         sanction = h.make_sanction(context, entity)
-        h.apply_date(sanction, "listingDate", str_row.pop("order_date"))
+        h.apply_date(
+            sanction,
+            "listingDate",
+            str_row.pop("order_date"),
+            # The U.S. antiboycott regulations came into force in 1977.
+            two_digit_year_base=1977,
+        )
 
         context.emit(entity)
         context.emit(sanction)

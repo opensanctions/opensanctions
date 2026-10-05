@@ -46,13 +46,14 @@ def issues_checksum(issues: list[Any]) -> str:
 # HTTPError is deliberately absent: a persistent 404/403 means a moved or
 # bot-blocked source, which is actionable. All other exceptions are logged as
 # "Runner failed: {str(exc)}", where a database deadlock surfaces the
-# qualified psycopg2 class name.
+# qualified driver exception name.
 IGNORED_MESSAGES = [
     "Runner failed with ConnectionError",
     "Runner failed with ConnectTimeout",
     "Runner failed with ReadTimeout",
     "Runner failed with Timeout",
     "psycopg2.errors.DeadlockDetected",
+    "psycopg.errors.DeadlockDetected",
     # zavod.stateful.review.assert_all_accepted — cleared by a human in the
     # review UI, which the agent has no access to. Occurs both as a warning
     # and, raised, as "Runner failed: There are N unaccepted items...".

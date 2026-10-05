@@ -77,6 +77,7 @@ lookups:
       补选日期: date_of_by_election
       辞职日期: date_of_resignation
       辞职前职务: position_before_resignation
+      辞职原因: reason_for_resignation
       去世日期: date_of_death
       生前职务: position_before_death
       罢免日期: date_of_dismissal

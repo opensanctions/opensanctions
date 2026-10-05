@@ -30,8 +30,8 @@ tags:
   - list.wanted
 url: "https://www.dea.gov/fugitives/all"
 data:
-  url: https://www.dea.gov/fugitives/all
-  format: HTML
+  url: https://www.dea.gov/sitemap.xml
+  format: XML
 ci_test: false
 
 assertions:

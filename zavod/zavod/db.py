@@ -1,11 +1,13 @@
+from sqlalchemy import MetaData
 from sqlalchemy.engine import Engine
 from nomenklatura.db import get_engine as get_nk_engine
-from nomenklatura.db import get_metadata as get_nk_metadata
 
 from zavod.logs import get_logger
 
 log = get_logger(__name__)
-meta = get_nk_metadata()
+
+# Owned by zavod, not nomenklatura's shared ``get_metadata()`` singleton.
+meta = MetaData()
 
 
 def get_engine() -> Engine:

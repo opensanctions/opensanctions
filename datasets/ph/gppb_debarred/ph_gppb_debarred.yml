@@ -59,6 +59,15 @@ assertions:
       Organization: 250
 
 lookups:
+  type.identifier:
+    options:
+      # Joint venture entry listing the PhilGEPS registration number of each
+      # member company alongside its name.
+      - match: Active Business Solutions, Inc - 2008-44783; Evolutionary Systems
+          Company Ltd. - 2019-267485
+        values:
+          - "2008-44783"
+          - "2019-267485"
   type.name:
     options:
       - match: "453453"

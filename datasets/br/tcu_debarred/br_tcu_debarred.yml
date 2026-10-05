@@ -13,6 +13,7 @@ description: |
   Processes that are ongoing or whose decisions have not become final are not considered.
 publisher:
   name: Tribunal de Contas da União
+  name_en: Federal Court of Accounts of Brazil
   acronym: TCU
   description: Brazil's Federal Court of Accounts
   url: https://portal.tcu.gov.br/inicio/

@@ -1,0 +1,170 @@
+title: Indonesia Members of the People's Representative Council
+name: id_dpr
+prefix: id-dpr
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-23
+load_statements: true
+ci_test: false  # Signed GraphQL requests require Zyte API
+summary: >-
+  Lower chamber of the Indonesian parliament, elected from 84 electoral districts
+description: |
+  Current and former members of the People's Representative Council (Dewan Perwakilan
+  Rakyat, DPR), the lower chamber of Indonesia's bicameral parliament. Its current 580
+  members are elected from 84 electoral districts (dapil) across the provinces for
+  a five-year term and hold the country's legislative power, including passing laws
+  and approving the budget.
+url: https://www.dpr.go.id/en/tentang-dpr/informasi-anggota-dewan
+publisher:
+  name: Dewan Perwakilan Rakyat Republik Indonesia
+  acronym: DPR
+  description: >
+    The People's Representative Council is the lower chamber of the Indonesian parliament,
+    composed of members elected from electoral districts across the country.
+  url: https://www.dpr.go.id/
+  country: id
+  official: true
+data:
+  # GraphQL endpoint used by the client-rendered member listing
+  url: https://www.dpr.go.id/gql
+  format: JSON
+  lang: ind
+
+tags:
+  - list.pep
+
+names:
+  # Titles before the name. Name abbreviations (M., A., Moh., TB., RR.) are not
+  # titles and stay. Matching is case-insensitive and repeats, e.g. "Drs. H.".
+  prefixes_strip:
+    # Academic and professional
+    - Dr.
+    - Dr (HC).
+    - (H.C.)
+    - (H.C).
+    - (HC)
+    - Drs.
+    - Drs .
+    - Dra.
+    - Ec.  # "Drs. Ec.", Doctorandus of economics
+    - drg.
+    - drh.
+    - Prof.
+    - Associate.
+    - Ir.
+    - Apt.
+    - Dipl.
+    - Ing.
+    # Religious and customary
+    - H.
+    - Hj.
+    - Hj .  # dot misplaced, "HJ .YOYOH"
+    - Hj
+    - K.H.
+    - KH.
+    - Pdt.
+    - Tgk.
+    - Ny.
+    # Military and police ranks
+    - Capt.
+    - Kol.
+    - Irjen.
+    - Irjen
+    - Pol.
+    - Pol
+    - LAKSDYA.
+    - Mayjen.
+    - Mayjen
+    - Mayjend
+    - TNI
+    - (Purn.)
+    - (Purn).
+    - (Purn)
+    - (P)
+  # The crawler cuts degrees at the comma; these follow the name without one.
+  suffixes_strip:
+    - S.E.
+    - S.IP
+    - S.Ds.
+    - S.P.I
+    - SE
+    - SH
+
+lookups:
+  type.date:
+    options:
+      # Record timestamps entered as birth dates: each falls after the member's own
+      # term began (2009-2014 and 2014-2019 members).
+      - match:
+          - "2013-05-22"
+          - "2013-05-27"
+          - "2013-05-28"
+          - "2013-06-12"
+          - "2013-06-19"
+          - "2013-06-25"
+          - "2013-06-26"
+          - "2013-10-25"
+          - "2014-09-02"
+          - "2018-03-22"
+          - "2018-04-02"
+        value: null
+  type.name:
+    options:
+      # A degree glued to the surname.
+      - match: JAMALUDIN KARIM.SH
+        value: JAMALUDIN KARIM
+      # One-off titles the prefix list can't safely cover; only the certain title goes.
+      - match: Tr. AGUN GUNANDJAR S
+        value: AGUN GUNANDJAR S
+      - match: St. Drs. JANSEN HUTASOIT
+        value: St. JANSEN HUTASOIT
+  # statusOff records whether, and why, a member left their seat. Only a departure
+  # overrides the status; a sitting member is left to make_occupancy.
+  occupancy_status:
+    options:
+      - match: Dalam masa jabatan
+        value: null
+      - match:
+          - Selesai masa jabatan # term finished
+          - Diberhentikan # dismissed
+          - Mengundurkan diri # resigned
+          - Meninggal dunia # died
+          - Menduduki Jabatan Lain # took up another office
+          - Lain-lain # other
+        value: ended
+      # Suspended; unclear whether the seat is still held.
+      - match: NonAktif
+        value: unknown
+  # Maps each parliamentary faction to the party it is named after. Unlisted
+  # factions are kept as-is with a warning.
+  parties:
+    options:
+      - match: Fraksi Partai Demokrasi Indonesia Perjuangan
+        value: Partai Demokrasi Indonesia Perjuangan
+      - match: Fraksi Partai Golongan Karya
+        value: Partai Golongan Karya
+      - match: Fraksi Partai Gerakan Indonesia Raya
+        value: Partai Gerakan Indonesia Raya
+      - match: Fraksi Partai Kebangkitan Bangsa
+        value: Partai Kebangkitan Bangsa
+      - match: Fraksi Partai Keadilan Sejahtera
+        value: Partai Keadilan Sejahtera
+      - match: Fraksi Partai NasDem
+        value: Partai NasDem
+      - match: Fraksi Partai Demokrat
+        value: Partai Demokrat
+      - match: Fraksi Partai Amanat Nasional
+        value: Partai Amanat Nasional
+
+assertions:
+  min:
+    schema_entities:
+      Person: 2000
+      Position: 1
+    country_entities:
+      id: 2000
+  max:
+    schema_entities:
+      Person: 2500
+      Position: 1

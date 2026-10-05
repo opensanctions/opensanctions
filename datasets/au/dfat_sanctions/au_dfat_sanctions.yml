@@ -303,6 +303,8 @@ lookups:
         value: 9422457
       - match: 9434980
         value: 9434890
+      - match: 947115
+        value: 9417115  # appears to be a typo, see: https://www.marinetraffic.com/en/ais/details/ships/shipid:5344879/mmsi:0/imo:9417115/vessel:KOTI
   type.country:
     options:
       - match: Guinea-Bisau

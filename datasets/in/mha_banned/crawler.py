@@ -6,11 +6,13 @@ from zavod import Context
 from zavod.entity import Entity
 from zavod import helpers as h
 from zavod.util import Element
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
 ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 ORGANISATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
+UNBLOCK_VALIDATOR = f".//td[contains(text(), '{ASSOCIATIONS_LABEL}')]"
 
 REGEX_ACRONYM_PARENS = re.compile(r"^(?P<name>.+?)(?P<acronym>\s+\([A-Z-]+\))?$")
 REGEX_NUM_NAME = re.compile(r"(\d+)\.\s*")
@@ -132,7 +134,7 @@ def crawl_common(
 def crawl_organisations(
     context: Context, url: str, filename: str, program: str
 ) -> None:
-    path = context.fetch_resource(filename, url)
+    _, _, _, path = fetch_resource(context, filename, url, expected_media_type=HTML)
     context.export_resource(path, HTML, filename)
     with open(path, "rb") as fh:
         doc = html.fromstring(fh.read())
@@ -150,7 +152,7 @@ def crawl_organisations(
 
 
 def crawl_individuals(context: Context, url: str, filename: str, program: str) -> None:
-    path = context.fetch_resource(filename, url)
+    _, _, _, path = fetch_resource(context, filename, url, expected_media_type=HTML)
     context.export_resource(path, HTML, filename)
     with open(path, "rb") as fh:
         doc = html.fromstring(fh.read())
@@ -185,7 +187,15 @@ def parse_names(field: str) -> list[str]:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
+    # the runner cannot resolve the site (NameResolutionError), fetch through Zyte
+    doc = fetch_html(
+        context,
+        context.data_url,
+        UNBLOCK_VALIDATOR,
+        html_source="httpResponseBody",
+        cache_days=1,
+        absolute_links=True,
+    )
 
     associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
     assert associations_url is not None

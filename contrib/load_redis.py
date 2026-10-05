@@ -1,11 +1,14 @@
+import logging
+
 from nomenklatura.store.redis_ import RedisStore
 
-from zavod.logs import get_logger
+from zavod.logs import configure_logging, get_logger
 from zavod.meta import get_catalog
 from zavod.integration.dedupe import get_dataset_linker
-from zavod.archive import iter_dataset_statements
+from zavod.runtime.manifest import Manifest
 
 log = get_logger(__name__)
+configure_logging(level=logging.INFO)
 
 catalog = get_catalog()
 dataset = catalog.require("sanctions")
@@ -13,7 +16,7 @@ resolver = get_dataset_linker(dataset)
 store = RedisStore(dataset, resolver, "redis://localhost:6666/0")
 idx = 0
 with store.writer() as writer:
-    stmts = iter_dataset_statements(dataset, external=True)
+    stmts = Manifest.get_transient(dataset).statements(external=True)
     for idx, stmt in enumerate(stmts):
         if idx > 0 and idx % 100000 == 0:
             log.info(

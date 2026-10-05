@@ -14,6 +14,7 @@ description: |
   Elections are scheduled to be held once every four years.
 publisher:
   name: Saeima
+  name_en: Parliament of Latvia
   description: Latvia's parliament
   url: https://www.saeima.lv/en
   official: true

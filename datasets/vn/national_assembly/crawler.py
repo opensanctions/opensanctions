@@ -141,7 +141,7 @@ def crawl_deputy(context: Context, url: str, province: str, deputy: str) -> None
         context,
         name="Member of the National Assembly of Vietnam",
         country="vn",
-        topics=["gov.national"],
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q10841192",
         lang="eng",
     )

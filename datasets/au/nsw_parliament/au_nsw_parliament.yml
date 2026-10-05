@@ -6,17 +6,20 @@ coverage:
   frequency: monthly
   start: "2026-06-11"
 load_statements: true
-ci_test: false
+ci_test: false  # Zyte, cloudflare
 summary: >-
-  Current members of both chambers of the Parliament of New South Wales.
+  Current members of the Legislative Assembly and the Legislative Council
 description: |
-  Current members of the parliament of New South Wales, the bicameral state legislature of
-  New South Wales, Australia. This dataset covers members of both chambers:
-
-  - The Legislative Assembly (lower house), with each member representing
-    a single-member electorate, elected under first-past-the-post voting.
-  - The Legislative Council (upper house), with each member serving 8-year
-    staggered terms, elected statewide by proportional representation.
+  Current members of the Parliament of New South Wales, the bicameral legislature
+  of the Australian state of New South Wales. The Legislative Assembly (lower
+  house) has 93 members. Each member represents a single-member electorate,
+  elected by optional preferential voting for a fixed four-year term. The
+  Legislative Council (upper house) has 42 members, elected statewide by
+  proportional representation for eight-year terms. Half of its seats are filled
+  at each state election. Together, the two houses hold the state's legislative
+  power, including passing laws, approving the budget and scrutinising the
+  government.
+url: https://www.parliament.nsw.gov.au/members-and-electorates/members-and-ministers/all-members
 publisher:
   name: Australia State Parliament of New South Wales
   description: >

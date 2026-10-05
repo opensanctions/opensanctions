@@ -1,5 +1,6 @@
 import csv
-import json
+import html
+import orjson
 import re
 import yaml
 from typing import Any, cast
@@ -28,6 +29,11 @@ PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
 PSC_DESCRIPTIONS_URL = "https://raw.githubusercontent.com/companieshouse/api-enumerations/master/psc_descriptions.yml"
 
 PERCENTAGE_RE = re.compile(r"(\d+)-to-(\d+)-percent")
+
+# A complete HTML character reference: numeric (&#39; / &#x27;) or named (&amp;).
+HTML_ENTITY_RE = re.compile(
+    r"&(?:#\d{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});"
+)
 
 KINDS = {
     "individual-person-with-significant-control": "Person",
@@ -64,6 +70,17 @@ IGNORE_BASE_COLUMNS = [
 def company_id(company_nr: str) -> str:
     nr = company_nr.lower()
     return f"oc-companies-gb-{nr}"
+
+
+def unescape_name(name: str) -> str:
+    """Decode HTML character references left in Companies House name fields.
+
+    The base data export escapes some characters before upper-casing the name,
+    so an apostrophe is published as ``CHINZE&#039;S ART LTD`` and an ampersand
+    as ``A&AMP;A DESIGN LIMITED``. Only complete references are decoded, which
+    leaves a literal ampersand in a name (``A&B LIMITED``) untouched.
+    """
+    return HTML_ENTITY_RE.sub(lambda m: html.unescape(m.group(0)), name)
 
 
 def fetch_psc_short_descriptions(context: Context) -> dict[str, str]:
@@ -113,30 +130,61 @@ def get_base_data_url(context: Context) -> str:
     raise RuntimeError("No base data URL found!")
 
 
-def read_base_data_csv(path: PathLike) -> Generator[dict[str, str], None, None]:
-    with ZipFile(path, "r") as zip:
-        for name in zip.namelist():
-            with zip.open(name, "r") as fh:
+def read_base_data_csv(
+    context: Context, path: PathLike
+) -> Generator[dict[str, str], None, None]:
+    """Yield base data rows keyed by their whitespace-stripped column header.
+
+    Companies House occasionally publishes a row that does not fit the header —
+    a company carrying a fifth SIC code where the format provides four columns,
+    for instance. Every value behind the surplus field is then shifted by one
+    column, so the row cannot be interpreted and is reported and skipped instead
+    of being emitted with values in the wrong properties.
+    """
+    with ZipFile(path, "r") as archive:
+        for name in archive.namelist():
+            with archive.open(name, "r") as fh:
                 with TextIOWrapper(fh) as fhtext:
-                    for row in csv.DictReader(fhtext):
-                        yield {k.strip(): v for (k, v) in row.items()}
+                    reader = csv.reader(fhtext)
+                    headers = [col.strip() for col in next(reader)]
+                    for row in reader:
+                        if not len(row):
+                            continue
+                        if len(row) != len(headers):
+                            context.log.warning(
+                                "Skipping base data row with unexpected field count",
+                                expected=len(headers),
+                                actual=len(row),
+                                row=row[:2],
+                            )
+                            continue
+                        yield dict(zip(headers, row))
 
 
-def parse_base_data(context: Context) -> None:
+def parse_base_data(context: Context) -> set[str]:
+    """Emit a Company for every entry on the live UK register.
+
+    Returns the set of company numbers seen, which the PSC pass uses to
+    discard statements about companies that have since been dissolved. The
+    base data snapshot only covers companies still on the register, so a
+    company number absent from it is a company that no longer exists.
+    """
     base_data_url = get_base_data_url(context)
     if base_data_url is None:
         raise RuntimeError("Base data zip URL not found!")
     data_path = context.fetch_resource("base_data.zip", base_data_url)
 
+    company_numbers: set[str] = set()
     context.log.info(f"Loading: {data_path}")
-    for idx, row in enumerate(read_base_data_csv(data_path)):
+    for idx, row in enumerate(read_base_data_csv(context, data_path)):
         if idx > 0 and idx % 100_000 == 0:
             context.log.info(f"Base data: {idx}...")
             context.flush()
         company_nr = row.pop("CompanyNumber")
+        company_numbers.add(company_nr)
         entity = context.make("Company")
         entity.id = company_id(company_nr)
-        entity.add("name", row.pop("CompanyName"))
+        entity.add("name", unescape_name(row.pop("CompanyName")))
         entity.add("registrationNumber", company_nr)
         entity.add("status", row.pop("CompanyStatus"))
         entity.add("legalForm", row.pop("CompanyCategory"))
@@ -161,7 +209,8 @@ def parse_base_data(context: Context) -> None:
 
         for i in range(1, 11):
             row.pop(f"PreviousName_{i}.CONDATE")
-            entity.add("previousName", row.pop(f"PreviousName_{i}.CompanyName"))
+            prev_name = row.pop(f"PreviousName_{i}.CompanyName")
+            entity.add("previousName", unescape_name(prev_name))
 
         addr_country = row.pop("RegAddress.Country")
         street = join_text(
@@ -182,6 +231,7 @@ def parse_base_data(context: Context) -> None:
         context.emit(entity)
 
     data_path.unlink()
+    return company_numbers
 
 
 def get_psc_data_url(context: Context) -> str:
@@ -194,21 +244,23 @@ def get_psc_data_url(context: Context) -> str:
 
 
 def read_psc_data(path: PathLike) -> Generator[dict[str, Any], None, None]:
+    # Fed the raw bytes: orjson decodes UTF-8 itself, so wrapping the zip
+    # member in a TextIOWrapper would only add a decode pass over ~15M lines.
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
-                with TextIOWrapper(fh) as fhtext:
-                    for line in fhtext:
-                        yield json.loads(line)
+                for line in fh:
+                    yield cast(dict[str, Any], orjson.loads(line))
 
 
-def parse_psc_data(context: Context) -> None:
+def parse_psc_data(context: Context, company_numbers: set[str]) -> None:
     short_descriptions = fetch_psc_short_descriptions(context)
     psc_data_url = get_psc_data_url(context)
     if psc_data_url is None:
         raise RuntimeError("PSC data zip URL not found!")
     data_path = context.fetch_resource("psc_data.zip", psc_data_url)
     context.log.info(f"Loading: {data_path}")
+    dissolved = 0
     for idx, row in enumerate(read_psc_data(data_path)):
         if idx > 0 and idx % 100_000 == 0:
             context.log.info(f"PSC statements: {idx}...")
@@ -218,6 +270,13 @@ def parse_psc_data(context: Context) -> None:
         company_nr = row.pop("company_number", None)
         if company_nr is None:
             context.log.warning(f"No company number: {row!r}")
+            continue
+        # The snapshot keeps PSC statements long after a company leaves the
+        # register. Nothing on the statement itself marks that — ceased_on
+        # refers to the PSC's own tenure — so absence from the base data is
+        # the only available signal, and those statements are dropped.
+        if company_nr not in company_numbers:
+            dissolved += 1
             continue
         data = row.pop("data")
         data.pop("etag", None)
@@ -297,14 +356,6 @@ def parse_psc_data(context: Context) -> None:
         # if len(ident):
         #     pprint(ident)
         asset_id = company_id(company_nr)
-
-        # Generate at least a stub of a company for dissolved companies which
-        # aren't in the base data.
-        asset = context.make("Company")
-        asset.id = asset_id
-        asset.add("registrationNumber", company_nr)
-        asset.add("jurisdiction", "gb")
-
         natures = data.pop("natures_of_control", None) or []
         notified_on = data.pop("notified_on")
         ceased_on = data.pop("ceased_on", None)
@@ -363,11 +414,11 @@ def parse_psc_data(context: Context) -> None:
             ],
         )
         context.emit(psc)
-        context.emit(asset)
 
+    context.log.info(f"Skipped {dissolved} PSC statements on dissolved companies")
     data_path.unlink()
 
 
 def crawl(context: Context) -> None:
-    parse_base_data(context)
-    parse_psc_data(context)
+    company_numbers = parse_base_data(context)
+    parse_psc_data(context, company_numbers)

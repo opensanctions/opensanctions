@@ -42,6 +42,8 @@ assertions:
     schema_entities:
       Person: 180
       Organization: 90
+      # Designated organizations with a stated owner are emitted as companies.
+      Company: 5
       Vessel: 5
     country_entities:
       sa: 1
@@ -49,6 +51,7 @@ assertions:
     schema_entities:
       Person: 400
       Organization: 200
+      Company: 20
       Vessel: 30
 
 lookups:

@@ -1,6 +1,7 @@
 title: Philippines Anti-Money Laundering Council Sanctions
 entry_point: crawler.py
 prefix: ph-amlc
+ci_test: false  # it is fetched through Zyte
 coverage:
   frequency: weekly
   start: "2025-06-02"
@@ -22,7 +23,7 @@ publisher:
     prevent money laundering and terrorism financing.
   url: http://www.amlc.gov.ph
   official: true
-url: http://www.amlc.gov.ph/laws/terrorism-financing/resolution-related-to-terrorism-financing
+url: https://www.amlc.gov.ph/terrorism-financing-resolutions
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSx2vPQN4-ngJcicYOHesRnRDU6qm8fRGwQuuFGWszngpqEUQUtMJZDUr8ohjb8-f_i3F_ku3grsdkW/pub?output=csv
   format: csv

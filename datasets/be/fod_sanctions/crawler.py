@@ -70,7 +70,15 @@ def crawl_row(
         entity.add("gender", row.pop("Gender"))
         entity.add("birthPlace", row.pop("Birth place"))
         entity.add("country", row.pop("Birth country"))
-        h.apply_dates(entity, "birthDate", row.pop("Birth date"))
+        h.apply_dates(
+            entity,
+            "birthDate",
+            row.pop("Birth date"),
+            # The list holds birth dates from 1925, before the default 100-year
+            # window. A sanctioned person is old enough to have acted, so their
+            # birth date can be another 15 years back.
+            two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE - 15,
+        )
         entity.add("position", row.pop("Function"))
     else:
         # There's an organization with the following Firstname
@@ -81,7 +89,13 @@ def crawl_row(
 
     sanction = h.make_sanction(context, entity)
     for listing_date in row.pop("Publication date"):
-        h.apply_date(sanction, "listingDate", listing_date)
+        h.apply_date(
+            sanction,
+            "listingDate",
+            listing_date,
+            # The oldest measures implement UN Security Council Resolution 1267 (1999).
+            two_digit_year_base=1990,
+        )
     for embargo in row.pop("Embargos"):
         program_id = h.lookup_sanction_program_key(context, embargo)
         sanction.add("programId", program_id)

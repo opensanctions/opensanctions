@@ -84,6 +84,7 @@ lookups:
       - match:
           - "Ordinance of 4 March 2022 on measures related to the situation in Ukraine (RS 946.231.176.72), annexes 2, 8, 9, 10, 11, 12,13, 14, 14a, 15, 15a, 15b, 25 and 33"
           - "Ordinance of 4 March 2022 on measures related to the situation in Ukraine (RS 946.231.176.72), annexes 2, 8, 9, 10, 11, 12,13, 14, 14a, 15, 15a, 15b, 15c, 25 and 33"
+          - "Ordinance of 4 March 2022 on measures related to the situation in Ukraine (RS 946.231.176.72), annexes 2, 8, 9, 10, 11, 12,13, 14, 14a, 15, 15a, 15b, 15c, 25, 33, 35, 36, 37, 39, 40 and 41"
         value: SECO-UKRAINE
       - match: "Ordinance of 14 March 2014  on measures against the Central African Republic (RS 946.231.123.6), annex"
         value: SECO-CAR

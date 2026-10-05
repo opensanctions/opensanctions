@@ -22,6 +22,7 @@ summary: >-
 url: https://data.gov.lv/dati/lv/dataset/uz
 publisher:
   name: Latvijas Republikas Uzņēmumu reģistrs
+  name_en: Register of Enterprises of the Republic of Latvia
   acronym: UR
   url: https://www.ur.gov.lv/lv/
   country: lv
@@ -46,24 +47,8 @@ assertions:
       Company: 800_000
 
 lookups:
-  type.country:
-    options:
-      - match: IL;RU
-        values:
-          - IL
-          - RU
-      - match: RU;MD
-        values:
-          - RU
-          - MD
-      - match: US;LV
-        values:
-          - US
-          - LV
-      - match: IL;LV
-        values:
-          - IL
-          - LV
+  # Dual nationalities (e.g. `IL;RU`) are split in the crawler, so no
+  # per-combination `type.country` lookups are needed.
   type.name:
     options:
       - match:

@@ -421,6 +421,10 @@ def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Regularity | No
     if not is_dense_script(string) and len(string) < spec.min_length:
         return Regularity(is_irregular=True)
 
+    # spec.max_length
+    if len(string) > spec.max_length:
+        return Regularity(is_irregular=True)
+
     # spec.single_token_min_length
     if _is_single_token(string) and len(string) < spec.single_token_min_length:
         return Regularity(is_irregular=True)

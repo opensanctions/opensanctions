@@ -2,7 +2,7 @@ from functools import cached_property
 from typing import Any
 from logging import getLogger
 
-from followthemoney import Model
+from followthemoney import Model, registry
 from followthemoney.schema import Schema
 from pydantic import BaseModel, ConfigDict, field_validator
 
@@ -37,6 +37,8 @@ class CleaningSpec(BaseModel):
     """
     min_length: int = 2
     """Minimum length for names. Does not apply to "dense" writing systems like Han for Chinese."""
+    max_length: int = registry.name.max_length
+    """Maximum length for names. Defaults to the limit of the FtM name type."""
     single_token_min_length: int = 2
     """Minimum length for names with no spaces, i.e. a single token.
     Does not apply to writing systems that don't use spaces to separate name parts, e.g. Han for Chinese"""

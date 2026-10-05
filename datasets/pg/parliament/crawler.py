@@ -109,6 +109,7 @@ def crawl_member(
             name=f"Governor of {province_name}",
             country="pg",
             subnational_area=province_name,
+            topics=["gov.state", "gov.executive"],
             wikidata_id=wikidata_id,
             lang="eng",
         )

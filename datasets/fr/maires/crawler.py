@@ -52,7 +52,7 @@ def crawl_row(
         name=f"Mayor of {municipality}",
         country="fr",
         subnational_area=f"{municipality}, {region}",
-        topics=["gov.muni", "gov.head"],
+        topics=["gov.muni", "gov.executive"],
     )
 
     # is_pep=True because we expect all mayors to be PEPs

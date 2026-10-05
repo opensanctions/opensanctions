@@ -4,6 +4,7 @@ prefix: bs-mou
 coverage:
   frequency: weekly
   start: "2025-06-06"
+ci_test: false  # Zyte is not available in CI
 load_statements: true
 summary: >
   Ships detained by Port State Control (PSC) authorities within the Black Sea MoU region.

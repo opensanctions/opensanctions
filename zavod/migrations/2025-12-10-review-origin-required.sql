@@ -1,1 +1,0 @@
-ALTER TABLE review ALTER COLUMN origin SET NOT NULL;

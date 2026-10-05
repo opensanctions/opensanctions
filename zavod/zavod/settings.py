@@ -2,9 +2,14 @@ from os import environ as env
 from pathlib import Path
 
 from banal import as_bool
-from nomenklatura import settings as nk
+import nomenklatura.settings
 from followthemoney.dataset import Version
 from rigour.env import env_str
+from rigour.time import datetime_iso
+
+# Assigned rather than imported under an alias so that it is exported:
+# zavod configures nomenklatura here, and callers read it back as settings.nk.
+nk = nomenklatura.settings
 
 # Logging configuration
 LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
@@ -29,10 +34,13 @@ DATASETS_PATH = Path(
     env.get("ZAVOD_DATASETS_PATH") or _REPO_ROOT / "datasets"
 ).resolve()
 
-# Per-run timestamp
-RUN_VERSION = Version.from_env("ZAVOD_VERSION")
+# Per-run timestamp. Pin a version explicitly via the CLI arguments; the
+# process default is a fresh version.
+RUN_VERSION = Version.new()
 RUN_TIME = RUN_VERSION.dt
-RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
+_run_time_iso = datetime_iso(RUN_TIME)
+assert _run_time_iso is not None
+RUN_TIME_ISO = _run_time_iso
 RUN_DATE = RUN_VERSION.dt.date().isoformat()
 
 ENRICH_TOPICS = {
@@ -46,9 +54,6 @@ ENRICH_TOPICS = {
     "gov.soe",
 }
 
-# Release version
-RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
-
 # Public URL version
 ARCHIVE_SITE = env_str("ZAVOD_ARCHIVE_SITE", "https://data.opensanctions.org")
 WEB_SITE = env_str("ZAVOD_WEB_SITE", "https://www.opensanctions.org")
@@ -58,10 +63,6 @@ ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "FileSystemBackend")
 ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
-ARCHIVE_BACKFILL_STATEMENTS = as_bool(
-    env_str("ZAVOD_ARCHIVE_BACKFILL_STATEMENTS", "false")
-)
-BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # HTTP settings
 # Connect and read timeout in seconds for the context HTTP session. Can be

@@ -17,12 +17,12 @@ description: |
   > legal action.
   >
   > It contains two main types of information:
-  > 
+  >
   > Information to identify the wanted person, such as their name, date of
   > birth, nationality, hair and eye colour, photographs and fingerprints
   > if available.
   > Information related to the crime they are wanted for, which can typically
-  > be murder, rape, child abuse or armed robbery. 
+  > be murder, rape, child abuse or armed robbery.
   > Red Notices are published by INTERPOL at the request of a member country,
   > and must comply with INTERPOL’s Constitution and Rules. A Red Notice is
   > not an international arrest warrant.
@@ -30,6 +30,7 @@ publisher:
   name: INTERPOL
   url: https://www.interpol.int/
   official: true
+  country: zz
 tags:
   - list.wanted
 url: https://www.interpol.int/How-we-work/Notices/View-Red-Notices

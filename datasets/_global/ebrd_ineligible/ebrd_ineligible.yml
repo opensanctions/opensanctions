@@ -73,6 +73,10 @@ lookups:
           - Peoples Republic of China
           - "card-tags:ineligible-entities/nationality/people’s-republic-of-china"
         value: cn
+      - match: Taipei China
+        values:
+          - tw
+          - cn
       - match: "Chile, United States of America"
         values:
           - cl
@@ -116,6 +120,8 @@ lookups:
           - id
       - match: "card-tags:ineligible-entities/nationality/république-démocratique-du-congo"
         value: cd
+      - match: "card-tags:ineligible-entities/nationality/ecuatorial-guinea"
+        value: gq
   type.date:
     normalize: true
     lowercase: true

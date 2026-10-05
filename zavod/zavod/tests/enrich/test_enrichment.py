@@ -5,8 +5,9 @@ from nomenklatura.enrich import Enricher
 from nomenklatura.judgement import Judgement
 from normality import slugify
 
-from zavod.archive import iter_dataset_statements
+from zavod import settings
 from zavod.crawl import crawl_dataset
+from zavod.tests.util import get_manifest
 from nomenklatura.db import make_session
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
@@ -46,18 +47,18 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
         resolver.load_into_memory()
         assert list(resolver.get_candidates()) == []
         assert list(resolver.get_judgements()) == []
-    crawl_dataset(testdataset1)
+    crawl_dataset(testdataset1, settings.RUN_VERSION)
 
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
         assert list(resolver.get_candidates()) == []
         assert list(resolver.get_judgements()) == []
-    stats = crawl_dataset(enricher)
+    stats = crawl_dataset(enricher, settings.RUN_VERSION)
     assert stats.entities > 0, stats.entities
-    internals = list(iter_dataset_statements(enricher, external=False))
+    internals = list(get_manifest(enricher).statements(external=False))
     assert len(internals) == 0, internals
-    externals = list(iter_dataset_statements(enricher, external=True))
+    externals = list(get_manifest(enricher).statements(external=True))
     assert len(externals) > 5, externals
 
     # Now merge one of the enriched entities with an internal one. The `with`
@@ -73,15 +74,15 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
         )
         assert canon_id.id.startswith("NK-")
         assert len(resolver.connected(canon_id)) == 3
-    stats = crawl_dataset(enricher)
-    internals = list(iter_dataset_statements(enricher, external=False))
+    stats = crawl_dataset(enricher, settings.RUN_VERSION)
+    internals = list(get_manifest(enricher).statements(external=False))
     assert len(internals) > 2, internals
     internal_ids = {statement.entity_id for statement in internals}
     assert "enrich-john-doe" in internal_ids
     assert "enrich-john-doe-relative" not in internal_ids
     assert "enrich-john-doe-family" not in internal_ids
 
-    all_statements = list(iter_dataset_statements(enricher, external=True))
+    all_statements = list(get_manifest(enricher).statements(external=True))
     external_ids = {
         statement.entity_id for statement in all_statements if statement.external
     }

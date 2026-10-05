@@ -23,8 +23,8 @@ description: |
   This dataset publishes the name, position, date of birth, place of birth and occupancy of
   Members of Seimas
 publisher:
-  name: Seimas of the Republic of Lithuania
-  acronym: Seimas
+  name: Lietuvos Respublikos Seimas
+  name_en: Parliament of Lithuania
   description: >
     The Seimas of the Republic of Lithuania exercises legislative power in Lithuania.
     The powers of the Seimas are defined by the Constitution and the laws of Lithuania.
