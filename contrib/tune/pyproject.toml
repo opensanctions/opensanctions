@@ -7,6 +7,7 @@ dependencies = [
     "dspy == 3.4.0",
     "litellm >= 1.64.0, <= 1.102.1", # required by dspy, pinned following litellm compromise
     "click >= 8",
+    "normality",
     "pyyaml",
 ]
 

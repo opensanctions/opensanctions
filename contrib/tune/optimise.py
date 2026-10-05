@@ -1,9 +1,8 @@
 import json
-import re
-import unicodedata
 from pathlib import Path
 from typing import Any
 
+from normality import slugify
 from clean import (
     MODEL,
     CleanNamesSignature,
@@ -15,17 +14,6 @@ from example_data import FIELDS, load_data
 import dspy  # type: ignore
 
 LEVELS = ["light", "heavy"]
-
-
-def slugify(text: str) -> str:
-    """A near-match key for the metric: casefolded, punctuation collapsed.
-
-    Unlike ``normality.slugify`` this does not transliterate non-Latin
-    scripts (which would require PyICU); names in such scripts still match
-    exactly after casefolding.
-    """
-    text = unicodedata.normalize("NFKD", text).casefold()
-    return re.sub(r"\W+", "-", text, flags=re.UNICODE).strip("-")
 
 
 def metric_with_feedback(
