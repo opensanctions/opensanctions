@@ -1,0 +1,18 @@
+[project]
+name = "positions-annotate"
+version = "0.1.0"
+description = "Annotate position labels with level, function and seniority"
+requires-python = ">=3.12"
+dependencies = [
+    "click",
+    "psycopg[binary]",
+    "pydantic",
+    "pydantic-ai-slim[anthropic,openai]",
+    "pydantic-evals",
+    "rich",
+    "sqlalchemy",
+    "textual",
+]
+
+[tool.uv]
+package = false
