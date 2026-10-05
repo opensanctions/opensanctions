@@ -15,10 +15,8 @@ BASE_URL = "https://matal.mod.gov.il"
 API_URL = f"{BASE_URL}/umbraco/delivery/api/v2/content"
 LANGS = {"en": "eng", "he": "heb", "ar": "ara"}
 SPLITS = [";", "Id Number", "a) ", "b) ", "c) ", " :", "\n", "• "]
-HEBREW = re.compile(r"[֐-׿]")
-ARABIC = re.compile(r"[؀-ۿ]")
-# The CMS appends " (1)" etc. to make names unique
-DEDUPE_SUFFIX = re.compile(r"\s*\(\d+\)$")
+HEBREW = re.compile(r"[\u0590-\u05FF]")
+ARABIC = re.compile(r"[\u0600-\u06FF]")
 # e.g. 'the source states only the year ("2010"), so the day shown is a placeholder.'
 PARTIAL_DATE = re.compile(
     r'^the source states only the (?:year|month and year) \("([^"]+)"\)'
@@ -73,13 +71,11 @@ def fetch_designated(context: Context, content_type: str) -> list[list[Item]]:
     return designated
 
 
-def clean_names(variants: list[Item]) -> tuple[str | None, str | None, str | None]:
-    """Primary names in [en, he, ar], dropping fallbacks to another language."""
-    names = []
-    for item in variants:
-        name = DEDUPE_SUFFIX.sub("", item["name"]).strip()
-        names.append(name or None)
-    name_en, name_he, name_ar = names
+def drop_fallbacks(
+    variants: list[Item], prop: str
+) -> tuple[str | None, str | None, str | None]:
+    """Names in [en, he, ar], dropping copies from another language."""
+    name_en, name_he, name_ar = [item["properties"][prop] for item in variants]
     if name_en == name_he and HEBREW.search(name_he or "") is not None:
         name_en = None
     if name_ar in (name_en, name_he) and ARABIC.search(name_ar or "") is None:
@@ -105,6 +101,13 @@ def get_properties(item: Item) -> dict[str, Any]:
 def pop_blocks(
     props: dict[str, Any], key: str, element_type: str
 ) -> list[dict[str, Any]]:
+    """Pop a block list property and return the properties of each block.
+
+    Umbraco block list values look like
+    `[{"elementType": "addressBlock", "properties": {"city": ..., ...}}]`.
+    Raises if a block isn't of the expected `element_type`. Null properties are
+    dropped, so callers can pop the fields they use and audit the rest.
+    """
     blocks: list[dict[str, Any]] = []
     for block in props.pop(key, []):
         if block["elementType"] != element_type:
@@ -255,13 +258,14 @@ def crawl_organization(
     links: list[tuple[str, str]],
 ) -> None:
     item = variants[0]
-    name_en, name_he, name_ar = clean_names(variants)
+    name_en, name_he, name_ar = drop_fallbacks(variants, "organizationName")
     entity = context.make("Organization")
     entity.id = context.make_id(name_en, name_he)
     if entity.id is None:
         context.log.warning("Organization without name", id=item["id"])
         return
     props = get_properties(item)
+    props.pop("organizationName")
     number = props.pop("designationNumber")
     org_ids[item["id"]] = (entity.id, number)
     for linked in props.pop("linkedOrganizations", []):
@@ -317,7 +321,6 @@ def crawl_organization(
         ignore=[
             "isDesignated",
             "status",
-            "organizationName",
             "foreignDesignator",
             "foreignDesignationDate",
         ],
@@ -331,7 +334,7 @@ def crawl_operative(
     links: list[tuple[str, str]],
 ) -> None:
     item = variants[0]
-    name_en, name_he, name_ar = clean_names(variants)
+    name_en, name_he, name_ar = drop_fallbacks(variants, "fullName")
     entity = context.make("Person")
     entity.id = context.make_id(name_en, name_he, name_ar)
     if entity.id is None:
@@ -339,6 +342,7 @@ def crawl_operative(
         return
     person_ids[item["id"]] = entity.id
     props = get_properties(item)
+    props.pop("fullName")
     for linked in props.pop("relatedOrganizations", []):
         links.append((item["id"], linked["id"]))
 
@@ -383,7 +387,7 @@ def crawl_operative(
     context.emit(sanction)
     context.audit_data(comments)
     context.audit_data(
-        props, ignore=["isDesignated", "status", "fullName", "foreignDesignationDate"]
+        props, ignore=["isDesignated", "status", "foreignDesignationDate"]
     )
 
 
