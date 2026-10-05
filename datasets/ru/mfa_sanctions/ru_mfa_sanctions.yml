@@ -34,7 +34,6 @@ data:
   format: HTML
 tags:
   - list.sanction.counter
-  - target.us
 
 assertions:
   min:

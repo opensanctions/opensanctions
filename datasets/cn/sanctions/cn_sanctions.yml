@@ -62,7 +62,6 @@ dates:
 tags:
   - list.sanction.counter
   - list.export
-  - target.us
 
 assertions:
   min:
