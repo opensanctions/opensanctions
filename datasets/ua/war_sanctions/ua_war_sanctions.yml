@@ -64,6 +64,7 @@ publisher:
 tags:
   - target.ru
   - sector.maritime
+  - sector.defense
 url: https://war-sanctions.gur.gov.ua/en
 data:
   url: "https://war-sanctions.gur.gov.ua/en"
