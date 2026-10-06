@@ -9,6 +9,8 @@ from genai_prices import UpdatePrices
 from pydantic_ai import Agent, AgentRunResult, NativeOutput
 from pydantic_ai.models.anthropic import AnthropicModelSettings
 from pydantic_ai.models.openai import OpenAIResponsesModelSettings
+from pydantic_ai.native_tools import WebSearchTool
+from pydantic_ai.capabilities import NativeTool
 from pydantic_ai.messages import ModelResponse
 from pydantic_ai.usage import RequestUsage
 from rich.console import Console
@@ -29,6 +31,11 @@ from ui import STATE_STYLES, ListApp, ReviewApp, record_state
 PRIMARY_MODEL = "anthropic:claude-opus-5-5"
 REVIEW_MODEL = "openai:gpt-6.1-sol"
 CODEBOOK = (Path(__file__).parent / "codebook.md").read_text()
+WEB_SEARCH_MAX_USES = 5
+WEB_SEARCH_NOTE = f"""Web search is available, up to {WEB_SEARCH_MAX_USES} searches: facts found
+through web research count as evidence. Use it to check facts about the office or
+its organization, for example whether a body is public or which government level
+it belongs to."""
 
 ANNOTATOR_PROMPT = f"""Classify the position label below by government level, role and
 seniority, following the codebook. The dataset name, countries and subnational areas
@@ -36,6 +43,8 @@ describe where the label was published. Use them as context for the title.
 
 Where the codebook says a dimension is undecided, answer 'undecided' for level or
 seniority, and give no roles. Do not guess.
+
+{WEB_SEARCH_NOTE}
 
 <codebook>
 {CODEBOOK}
@@ -49,7 +58,10 @@ Veto — escalating the label to a human — only if the annotation itself is un
 contradicts a codebook rule, it ignores information in the label or its context, or it
 assigns a value that the evidence does not support where the codebook requires
 'undecided'. A misstated detail in the reasoning is not a reason to veto if the
-annotation still holds: note it in your reasoning and approve.
+annotation still holds: note it in your reasoning and approve. Verify web facts
+that the annotator cites before you rely on them.
+
+{WEB_SEARCH_NOTE}
 
 <codebook>
 {CODEBOOK}
@@ -124,6 +136,7 @@ async def run_models(
         PRIMARY_MODEL,
         instructions=ANNOTATOR_PROMPT,
         output_type=NativeOutput(AnnotatorResponse),
+        capabilities=[NativeTool(WebSearchTool(max_uses=WEB_SEARCH_MAX_USES))],
         model_settings=AnthropicModelSettings(
             thinking="medium", anthropic_cache_instructions=True
         ),
@@ -132,8 +145,12 @@ async def run_models(
         REVIEW_MODEL,
         instructions=REVIEWER_PROMPT,
         output_type=NativeOutput(VetoResponse),
+        capabilities=[NativeTool(WebSearchTool())],
         model_settings=OpenAIResponsesModelSettings(
-            thinking="medium", openai_prompt_cache_key="positions-review"
+            thinking="medium",
+            openai_prompt_cache_key="positions-review",
+            # pydantic-ai sends max_uses only to Anthropic; max_tool_calls caps OpenAI searches.
+            extra_body={"max_tool_calls": WEB_SEARCH_MAX_USES},
         ),
     )
     responses.setdefault(PRIMARY_MODEL, [])
