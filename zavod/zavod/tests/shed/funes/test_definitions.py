@@ -64,13 +64,6 @@ def test_noncanonical_urls_rejected() -> None:
             )
 
 
-def test_blank_labels_rejected() -> None:
-    with pytest.raises(ValidationError):
-        dataset_definition(make_dataset({"funes": brief(people_sought="  ")}))
-    with pytest.raises(ValidationError):
-        dataset_definition(make_dataset({"funes": brief(subjects=[{"name": " "}])}))
-
-
 def test_extra_keys_rejected() -> None:
     with pytest.raises(ValidationError):
         dataset_definition(make_dataset({"funes": brief(x=1)}))

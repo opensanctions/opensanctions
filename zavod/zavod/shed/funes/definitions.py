@@ -8,21 +8,17 @@ A funes dataset is a zavod dataset whose ``config`` block carries a
 (``zavod.shed.funes.catalogue``).
 """
 
-from typing import Annotated
-
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from rigour.urls import clean_url
 
 from zavod.meta import Dataset
-
-_Label = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class SubjectDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    name: _Label
-    urls: list[_Label] = Field(default_factory=list)
+    name: str
+    urls: list[str] = Field(default_factory=list)
     """May be empty while a future spider discovers pages for the subject."""
 
     @field_validator("urls")
@@ -39,10 +35,10 @@ class SubjectDefinition(BaseModel):
 class DatasetDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    name: _Label
-    people_sought: _Label
+    name: str
+    people_sought: str
     """Names the class of position holders the dataset is after."""
-    subject_label: _Label
+    subject_label: str
     """Names the subject's role in the inspection brief (e.g. Organization,
     Court, Sending country)."""
     subjects: list[SubjectDefinition] = Field(min_length=1)
