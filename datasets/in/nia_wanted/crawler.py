@@ -1,75 +1,39 @@
-import re
 from urllib.parse import urljoin
 
 from lxml.etree import _Element as Element
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.review import assert_all_accepted
-
-# Charge-sheet accused numbers appended to names and aliases, e.g. "Masud K A (A-5)",
-# "Shaik Mohammed Imran Akram, (A-8)", "Niu Niu WA-1", "@ Rafikl Mia (A-4)."
-ACCUSED_NO = re.compile(r"[\s,]*\(?\bW?A-\d+\)?\.?\s*$")
-# Aliases are separated by "@", occasionally by "alias".
-ALIAS_SPLIT = re.compile(r"@|\balias\b", re.IGNORECASE)
-# "Son of" markers, e.g. "S/o Narendar Singh" in the alias field.
-SON_OF = re.compile(r"^s/o\s+", re.IGNORECASE)
-# Several addresses in one field, e.g. "Vill. Mangror, Punjab and Present Address: ...",
-# "716, Sri Ganga Nagar, Rajasthan Address in UK Number 3, ...".
-ADDRESS_SPLIT = re.compile(
-    r"(?:\band\s+)?\b(?:(?:present|permanent|work)\s+address\s*:|address in \w+\b"
-    r"|presently r/o\b)",
-    re.IGNORECASE,
-)
-RESIDENT_OF = re.compile(r"^(r/o|resident of)(\s+|$)", re.IGNORECASE)
-# Approximate ages without a reference date, e.g. "31 years", "About 55 Yrs".
-AGE = re.compile(r"^(about[\s-]*)?\d+ (years|yrs)$", re.IGNORECASE)
 
 
-def clean_part(value: str) -> str:
-    return ACCUSED_NO.sub("", value).strip(" ,.")
-
-
-def crawl_case_title(context: Context, url: str) -> str:
-    doc = context.fetch_html(url, cache_days=7)
-    return h.xpath_string(
-        doc,
-        "//div[contains(@class, 'view-nia-cases')]//b[text()='Case Title']"
-        "/following-sibling::p[1]/text()",
-    ).strip()
+def strip_accused_number(value: str) -> str:
+    """Strip a trailing accused number: "Masud K A (A-5)", "Niu Niu WA-1"."""
+    for separator in ("(", " "):
+        head, _, tail = value.rpartition(separator)
+        number = tail.removeprefix("W").rstrip(").")
+        if number.startswith("A-") and number[2:].isdigit():
+            return head.rstrip(" ,")
+    return value
 
 
 def crawl_person(context: Context, card: Element, page_url: str) -> None:
-    fields: dict[str, Element] = {}
-    for row in h.xpath_elements(card, ".//div[@class='modal-detail-sec']/div"):
-        label = h.element_text(h.xpath_element(row, "./div[contains(@class, 'lab')]"))
-        fields[label.rstrip(" :")] = h.xpath_element(
-            row, "./div[contains(@class, 'val')]"
-        )
+    row: dict[str, str] = {}
+    for field in h.xpath_elements(card, ".//div[@class='modal-detail-sec']/div"):
+        label = h.element_text(h.xpath_element(field, "./div[contains(@class, 'lab')]"))
+        value = h.xpath_element(field, "./div[contains(@class, 'val')]")
+        row[label.rstrip(" :")] = h.element_text(value)
 
-    name = h.element_text(fields.pop("Name"))
-    aliases = h.element_text(fields.pop("Aliases"))
-    wanted_in = fields.pop("Wanted in")
-    wanted_in_text = h.element_text(wanted_in)
-
+    name = row.pop("Name")
+    aliases = row.pop("Aliases")
     person = context.make("Person")
-    person.id = context.make_id(name, aliases, wanted_in_text)
+    person.id = context.make_id(name, aliases, row.pop("Wanted in"))
+    person.add("name", strip_accused_number(name))
+    for alias in h.multi_split(aliases, "@"):
+        alias = strip_accused_number(alias)
+        person.add("alias" if " " in alias else "weakAlias", alias)
+    h.copy_address(person, h.make_address(context, full=row.pop("Address")))
     person.add("topics", "wanted")
-
-    names = h.Names(name=clean_part(name))
-    for part in ALIAS_SPLIT.split(aliases):
-        part = clean_part(part)
-        if SON_OF.match(part):
-            person.add("fatherName", SON_OF.sub("", part))
-        elif part != "":
-            names.add("alias", part)
-    h.apply_reviewed_names(context, person, original=names, llm_cleaning=True)
-
-    for address in ADDRESS_SPLIT.split(h.element_text(fields.pop("Address"))):
-        address = RESIDENT_OF.sub("", clean_part(address))
-        h.copy_address(person, h.make_address(context, full=address))
-
-    status = h.element_text(fields.pop("Accused Status"))
+    status = row.pop("Accused Status")
     if status != "":
         person.add(
             "status",
@@ -77,42 +41,24 @@ def crawl_person(context: Context, card: Element, page_url: str) -> None:
             original_value=status,
         )
 
-    # Ages are given without the date they were recorded, so no birth date
-    # can be derived from them.
-    age = h.element_text(fields.pop("Age/DOB (Approx)"))
-    if age != "" and not AGE.match(age):
-        context.log.warning("Unexpected age value", name=name, age=age)
-
-    # Parentage and Organization are empty for every listed person so far.
-    for label in ("Parentage", "Organization"):
-        value = h.element_text(fields.pop(label))
-        if value != "":
-            context.log.warning(f"Unhandled {label} value", name=name, value=value)
-    if fields:
-        context.log.warning("Unhandled fields", name=name, fields=list(fields))
-
-    case_links = h.xpath_elements(wanted_in, ".//a[@href!='']")
-    for link in case_links:
-        case_no = h.element_text(link)
+    # One link per case the person is wanted in.
+    for link in h.xpath_elements(card, ".//a[starts-with(@href, '/rc-')]"):
         case_url = urljoin(page_url, link.get("href"))
-        case_title = crawl_case_title(context, case_url)
-        person.add("notes", f"Wanted in NIA case {case_no}: {case_title}")
-    if len(case_links) == 0 and wanted_in_text != "":
-        context.log.warning("Unlinked case number", name=name, value=wanted_in_text)
+        person.add("sourceUrl", case_url)
 
     context.emit(person)
+    context.audit_data(
+        row,
+        # Undated approximate ages ("31 years"): no birth date derivable.
+        ignore=["Age/DOB (Approx)"],
+    )
 
 
 def crawl(context: Context) -> None:
     page_url: str | None = context.data_url
     while page_url is not None:
         doc = context.fetch_html(page_url, cache_days=1)
-        cards = h.xpath_elements(doc, "//div[@class='wanted-modal-card']")
-        if len(cards) == 0:
-            raise ValueError(f"No wanted persons found on {page_url}")
-        for card in cards:
+        for card in h.xpath_elements(doc, "//div[@class='wanted-modal-card']"):
             crawl_person(context, card, page_url)
         next_links = h.xpath_strings(doc, "//a[@rel='next']/@href")
         page_url = urljoin(page_url, next_links[0]) if next_links else None
-
-    assert_all_accepted(context, raise_on_unaccepted=False)

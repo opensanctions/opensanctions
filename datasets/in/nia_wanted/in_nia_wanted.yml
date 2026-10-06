@@ -1,10 +1,4 @@
-# The listing is a paginated Drupal view; each person's details live in a modal
-# on the listing page, keyed only by position on the page (no stable person ID).
-# Case titles come from the linked case pages (e.g. /rc-362022niadli).
-#
-# Names carry charge-sheet accused numbers such as "(A-5)" or "WA-1"; the crawler
-# strips these, splits the "@"-separated aliases and sends the rest through the
-# name review framework (LLM cleaning, so ci_test is off).
+# Paginated Drupal view; person details sit in modals with no stable person ID.
 title: India NIA Most Wanted
 entry_point: crawler.py
 prefix: in-nia
@@ -12,7 +6,6 @@ coverage:
   frequency: daily
   start: "2026-10-05"
 load_statements: true
-ci_test: false
 summary: >-
   Fugitives sought by India's federal counter-terrorism agency in its criminal cases
 description: |
@@ -44,11 +37,6 @@ data:
   format: HTML
   lang: eng
 
-names:
-  schema_rules:
-    Person:
-      reject_chars: ",."
-
 assertions:
   min:
     schema_entities:
@@ -58,8 +46,7 @@ assertions:
       Person: 1000
 
 lookups:
-  # The "Accused Status" field, normalised to a short status. One record has
-  # its age in this field; that is dropped.
+  # "Accused Status", normalised; a misplaced age is dropped.
   accused_status:
     options:
       - match: Wanted Accused
