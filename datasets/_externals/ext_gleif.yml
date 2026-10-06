@@ -48,6 +48,9 @@ publisher:
   url: https://www.gleif.org/en/about/this-is-gleif
   country: zz
 
+tags:
+  - sector.securities
+
 inputs:
   - ann_graph_topics
   - debarment
