@@ -153,7 +153,11 @@ def apply_partial_date(
     dates: list[str | None],
     comments: list[str] | None,
 ) -> None:
-    """Apply dates, or the partial date of a comment saying the day is a placeholder."""
+    """Takes a date and a list of comments about that date field.
+
+    Applies the date unless there's a comment. Known comments indicate that part
+    of the date is a placeholder and shouldn't be used as whole, so we use the
+    year from the comment instead."""
     if comments is None:
         for date in dates:
             apply_date(entity, prop, date)
