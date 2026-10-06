@@ -1,5 +1,6 @@
 import os
 import random
+from collections import defaultdict
 from datetime import datetime
 
 import click
@@ -45,6 +46,27 @@ def get_database_uri() -> str:
     return uri
 
 
+def sample_across_datasets(
+    items: list[Item], size: int, rng: random.Random
+) -> list[Item]:
+    """Take items round-robin from shuffled datasets, so no single large dataset
+    dominates the sample."""
+    by_dataset: dict[str, list[Item]] = defaultdict(list)
+    for item in items:
+        by_dataset[item.dataset].append(item)
+    queues = list(by_dataset.values())
+    rng.shuffle(queues)
+    for queue in queues:
+        rng.shuffle(queue)
+
+    sample: list[Item] = []
+    while len(sample) < size:
+        for queue in queues:
+            if queue and len(sample) < size:
+                sample.append(queue.pop())
+    return sample
+
+
 @click.command()
 @click.option(
     "--sample", default=50, show_default=True, help="Size of the test subset."
@@ -84,7 +106,7 @@ def main(sample: int, seed: int, since: datetime) -> None:
     all_items = sorted(items, key=lambda item: item.id)
     if sample > len(all_items):
         raise click.UsageError(f"Sample {sample} exceeds {len(all_items)} items.")
-    test_items = random.Random(seed).sample(all_items, sample)
+    test_items = sample_across_datasets(all_items, sample, random.Random(seed))
 
     write_jsonl(DATA_DIR / "all.jsonl", all_items)
     write_jsonl(DATA_DIR / "test.jsonl", test_items)
