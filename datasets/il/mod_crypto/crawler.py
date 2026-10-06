@@ -12,6 +12,7 @@ from zavod.shed.il_mod import (
     drop_fallbacks,
     fetch_content,
     fetch_variants,
+    is_placeholder,
     source_url,
 )
 
@@ -25,12 +26,6 @@ WALLET_HOLDER_PROPS = [
     "designatedOrganizations",
     "nonDesignatedOrganizations",
 ]
-# Stand-in name for holders identified only by an ID number
-UNKNOWN_NAME = "Unknown_Name_User"
-# "Anonymous", given as the holder of wallets whose holder isn't known
-ANONYMOUS = "אנונימי"
-# Given as ID or passport numbers when there is none
-NO_NUMBER = {"Unknown", "NOT AVAILABLE"}
 CURRENCY_CODE = re.compile(r"^[A-Z]{2,5}$")
 
 
@@ -40,24 +35,28 @@ def operative_key(props: dict[str, Any], name: str | None) -> str | None:
     API."""
     for block in props["identificationDocuments"] or []:
         number = block["properties"]["identificationNumber"]
-        if number is not None and number not in NO_NUMBER:
+        if not is_placeholder(number):
             return str(number)
     for block in props["passportDetails"] or []:
         number = block["properties"]["passportNumber"]
-        if number is not None and number not in NO_NUMBER:
+        if not is_placeholder(number):
             return str(number)
     return name
 
 
-def make_operative(context: Context, variants: list[Item]) -> Entity:
+def make_operative(context: Context, variants: list[Item]) -> Entity | None:
+    """Make the holder Person, or None for a placeholder such as "אנונימי"
+    (anonymous), given for wallets whose holder isn't known."""
     item = variants[0]
     names = drop_fallbacks(variants, "fullName")
-    name_en, name_he, name_ar = [None if n == UNKNOWN_NAME else n for n in names]
+    # e.g. "Unknown_Name_User" for holders identified only by an ID number
+    name_en, name_he, name_ar = [None if is_placeholder(n) else n for n in names]
     props = dict(item["properties"])
     entity = context.make("Person")
-    entity.id = context.make_id(operative_key(props, name_en))
+    # Using name remaining after removing to avoid unintentional merges.
+    entity.id = context.make_id(operative_key(props, name_en or name_he or name_ar))
     if entity.id is None:
-        raise ValueError(f"Holder without name or ID: {item['id']}")
+        return None
     props.pop("fullName")
     entity.add("name", name_en, lang="eng")
     entity.add("name", name_he, lang="heb")
@@ -92,31 +91,20 @@ def make_organization(context: Context, variants: list[Item]) -> Entity:
     return entity
 
 
-def order_key(order: Item) -> str:
-    """The key of the sanction ID for an order.
-
-    Orders followed by forfeiture are listed as "FO", but keep the number and date
-    of the original seizure order (ASO). The crawler keyed sanctions as "ASO 5/24"
-    before switching to the API."""
-    number, year = order["properties"]["orderNumber"].split("/")
-    return f"ASO {int(number)}/{year}"
-
-
 def apply_address(context: Context, wallet: Entity, address: str, coin: str) -> None:
     res = context.lookup("coin_type", coin)
     if res is not None:
         wallet.add("managingExchange", res.exchange)
-        wallet.add("currency", res.currency)
-    elif CURRENCY_CODE.match(coin) is not None:
-        wallet.add("currency", coin)
-    else:
+    elif CURRENCY_CODE.match(coin) is None:
         context.log.warning("Unknown coin type", coin=coin, address=address)
     # Exchange account numbers are given where a wallet address would be, and
-    # not always with the exchange as the coin type.
+    # not always with the exchange as the coin type. The coin type of such an
+    # account isn't the currency of the account, so is only used for addresses.
     if (res is not None and res.account) or address.isdigit():
         wallet.add("accountId", address)
-    else:
-        wallet.add("publicKey", address)
+        return
+    wallet.add("publicKey", address)
+    wallet.add("currency", res.currency if res is not None else coin)
 
 
 def crawl_wallet(
@@ -136,13 +124,13 @@ def crawl_wallet(
     wallet_holders: list[Entity] = []
     for holder_prop in WALLET_HOLDER_PROPS:
         for holder_ref in wallet_props.pop(holder_prop) or []:
-            if holder_ref["name"] == ANONYMOUS:
-                continue
             holder_id = holder_ref["id"]
             if holder_id in operatives:
                 holder = make_operative(context, operatives[holder_id])
             else:
                 holder = make_organization(context, orgs[holder_id])
+            if holder is None:
+                continue
             context.emit(holder)
             wallet_holders.append(holder)
 
@@ -159,7 +147,9 @@ def crawl_wallet(
         wallet.add("holder", wallet_holders)
         wallet.add("sourceUrl", source_url(wallet_item))
 
-        sanction = h.make_sanction(context, wallet, key=order_key(order))
+        sanction = h.make_sanction(
+            context, wallet, key=order["properties"]["orderNumber"]
+        )
         sanction.add("authorityId", order["name"])
         sanction.add("provisions", order_props["orderType"])
         apply_date(sanction, "startDate", order_props["orderDate"])

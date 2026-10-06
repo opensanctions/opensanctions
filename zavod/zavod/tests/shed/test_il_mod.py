@@ -11,6 +11,7 @@ from zavod.shed.il_mod import (
     drop_fallbacks,
     fetch_content,
     fetch_variants,
+    is_placeholder,
     pop_blocks,
     split_ids,
 )
@@ -72,12 +73,38 @@ def test_drop_fallbacks() -> None:
         "עלי",
         None,
     )
-    # Latin names in all variants are kept as English and Hebrew
+    # Latin names in all variants are kept as English only
     assert drop_fallbacks(variants("Ali", "Ali", "Ali"), "fullName") == (
         "Ali",
-        "Ali",
+        None,
         None,
     )
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        "Unknown",
+        "NOT AVAILABLE",
+        " not  available ",
+        "Unknown_Name_User",
+        "N/A",
+        "אנונימי",
+    ],
+)
+def test_is_placeholder(value: str | None) -> None:
+    assert is_placeholder(value)
+
+
+@pytest.mark.parametrize("value", ["Ali", "123", "Unknown Soldier", "EID"])
+def test_is_not_placeholder(value: str) -> None:
+    assert not is_placeholder(value)
+
+
+def test_drop_fallbacks_keeps_placeholders() -> None:
+    variants = [make_item("a", fullName="Unknown_Name_User") for _ in range(3)]
+    assert drop_fallbacks(variants, "fullName") == ("Unknown_Name_User", None, None)
 
 
 def test_pop_blocks() -> None:
@@ -125,7 +152,15 @@ def test_apply_operative_details(vcontext: Context) -> None:
                     "country": None,
                     "documentType": None,
                 },
-            }
+            },
+            {
+                "elementType": "identificationDocumentBlock",
+                "properties": {
+                    "identificationNumber": "NOT AVAILABLE",
+                    "country": None,
+                    "documentType": None,
+                },
+            },
         ],
         "phoneNumbers": ["970599000000"],
         "emailAddresses": ["a@example.com"],

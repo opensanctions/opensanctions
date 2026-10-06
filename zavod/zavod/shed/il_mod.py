@@ -19,6 +19,20 @@ PARTIAL_DATE = re.compile(
 )
 # Stand-ins for "no date"; a comment explains 9999-09-09 where it's used
 NO_DATES = {"9999-09-09", "0001-01-01"}
+# Given as names or ID numbers when there are none, compared after normalize_value.
+# Seen: "Unknown", "NOT AVAILABLE", "Unknown_Name_User" and "אנונימי" (anonymous).
+PLACEHOLDERS = {
+    "unknown",
+    "not available",
+    "n/a",
+    "none",
+    "unknown name user",
+    "anonymous",
+    "אנונימי",
+    "לא ידוע",
+    "غير معروف",
+    "مجهول",
+}
 
 Item = dict[str, Any]
 
@@ -57,6 +71,15 @@ def fetch_variants(context: Context, content_type: str) -> dict[str, list[Item]]
     }
 
 
+def is_placeholder(value: str | None) -> bool:
+    """Whether a name or ID number stands in for a missing one, e.g. "Unknown",
+    "NOT AVAILABLE" or "Unknown_Name_User"."""
+    if value is None:
+        return True
+    normalized = " ".join(value.replace("_", " ").casefold().split())
+    return normalized in PLACEHOLDERS
+
+
 def source_url(item: Item) -> str:
     return f"{BASE_URL}{item['route']['path']}"
 
@@ -64,10 +87,21 @@ def source_url(item: Item) -> str:
 def drop_fallbacks(
     variants: list[Item], prop: str
 ) -> tuple[str | None, str | None, str | None]:
-    """Names in [en, he, ar], dropping copies from another language."""
+    """Names in [en, he, ar], dropping copies from another language.
+
+    The CMS fills in a missing culture variant with the value of another, so a
+    name is dropped where it's an exact copy of another variant and lacks the
+    script of its own language. The crawlers make entity IDs from the result, so
+    this must not clean anything else.
+
+    Do not clean anything else here - we use raw values for making IDs.
+    Do further cleaning after make_id."""
     name_en, name_he, name_ar = [item["properties"][prop] for item in variants]
-    if name_en == name_he and HEBREW.search(name_he or "") is not None:
-        name_en = None
+    if name_en == name_he:
+        if HEBREW.search(name_he or "") is not None:
+            name_en = None
+        else:
+            name_he = None
     if name_ar in (name_en, name_he) and ARABIC.search(name_ar or "") is None:
         name_ar = None
     return name_en, name_he, name_ar
@@ -147,13 +181,15 @@ def apply_operative_details(
     for block in pop_blocks(props, "passportDetails", "passportDetailsBlock"):
         entity.add("nationality", h.multi_split(block.pop("nationality"), ["\n"]))
         number = block.pop("passportNumber")
-        if number != "Unknown":
+        if not is_placeholder(number):
             entity.add("idNumber", split_ids(number))
         context.audit_data(block, ignore=["country"])
     for block in pop_blocks(
         props, "identificationDocuments", "identificationDocumentBlock"
     ):
-        entity.add("idNumber", split_ids(block.pop("identificationNumber")))
+        number = block.pop("identificationNumber")
+        if not is_placeholder(number):
+            entity.add("idNumber", split_ids(number))
         context.audit_data(block, ignore=["country", "documentType"])
     entity.add("phone", props.pop("phoneNumbers"))
     entity.add("email", props.pop("emailAddresses"))
