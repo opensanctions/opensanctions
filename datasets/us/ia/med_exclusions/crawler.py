@@ -38,7 +38,9 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity.add("npiCode", npi)
     entity.add("npiCode", row.pop("affiliated_npi"))
     entity.add("country", "us")
-    entity.add("sector", row.pop("specialty"))
+    sector = row.pop("specialty")
+    if sector != "N/A":
+        entity.add("sector", sector)
 
     if license_number is not None and license_number != "N/A":
         entity.add(

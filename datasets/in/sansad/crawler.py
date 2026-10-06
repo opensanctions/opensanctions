@@ -4,6 +4,7 @@ from typing import Any
 from lxml.html import fromstring
 from prefixdate import parse_formats
 from requests.exceptions import RequestException
+from rigour.text import is_nullword
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -32,6 +33,13 @@ def clean_text(text: str | None) -> str | None:
         return None
     text = h.element_text(fromstring(text))
     return text
+
+
+def clean_notes(text: str | None) -> str | None:
+    notes = clean_text(text)
+    if notes is not None and is_nullword(notes, normalize=True):
+        return None
+    return notes
 
 
 def emit_rca(context: Context, person: Entity, raw_name: str | None, role: str) -> None:
@@ -114,7 +122,7 @@ def crawl_ls_member(
         h.apply_date(person, "birthDate", biodata.pop("dateOfBirth", None))
         person.add("education", clean_text(biodata.pop("qualification", None)))
         person.add("education", clean_text(biodata.pop("education", None)))
-        person.add("notes", clean_text(biodata.pop("otherInfo", None)))
+        person.add("notes", clean_notes(biodata.pop("otherInfo", None)))
         person.add("political", clean_text(biodata.pop("partyFname", None)))
         person.add("address", clean_text(biodata.pop("permanentFaddr", None)))
         person.add("address", clean_text(biodata.pop("presentFaddr", None)))
@@ -217,7 +225,7 @@ def crawl_rs_member(context: Context, position: Entity, member: dict[str, Any]) 
         emit_rca(context, person, biodata.get("fatherName"), "father")
         emit_rca(context, person, biodata.get("motherName"), "mother")
         person.add("education", clean_text(biodata.pop("qualification", None)))
-        person.add("notes", clean_text(biodata.pop("essentialInformation", None)))
+        person.add("notes", clean_notes(biodata.pop("essentialInformation", None)))
     except RequestException as exc:
         context.log.info(f"Broken MP biodata for {person.id}", exc=str(exc))
 

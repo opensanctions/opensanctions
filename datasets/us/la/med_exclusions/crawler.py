@@ -70,7 +70,9 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
             context.emit(link)
 
     entity.add("country", "us")
-    entity.add("sector", row.pop(" Title or Provider Type"))
+    sector = row.pop(" Title or Provider Type")
+    if sector.upper() != "N/A":
+        entity.add("sector", sector)
     entity.add("address", address)
 
     if npi != "NRF":
