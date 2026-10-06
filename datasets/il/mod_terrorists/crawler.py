@@ -56,6 +56,9 @@ def fetch_designated(context: Context, content_type: str) -> list[list[Item]]:
     by_lang = {lang: fetch_content(context, content_type, lang) for lang in LANGS}
     designated: list[list[Item]] = []
     for item_id, item in by_lang["en"].items():
+        # isDesignated separates designation records, active or cancelled, from
+        # entities which are only named in seizure orders. It doesn't change when a
+        # designation is cancelled; that's given by status and cancellationDate.
         flag = item["properties"]["isDesignated"]
         if flag is False:
             continue
@@ -219,6 +222,14 @@ def apply_address(context: Context, entity: Entity, block: dict[str, Any]) -> No
     context.audit_data(block)
 
 
+def apply_status_topic(context: Context, entity: Entity, status: str | None) -> None:
+    """Apply the topic if the designation is active"""
+    if status == "Active":
+        entity.add("topics", "crime.terror")
+    elif status != "Cancelled":
+        context.log.warning("Unexpected status", entity_id=entity.id, status=status)
+
+
 def emit_key_operatives(context: Context, entity: Entity, operatives: str) -> None:
     res = context.lookup("key_operatives", operatives)
     if res is None:
@@ -266,11 +277,9 @@ def crawl_organization(
     entity.add("alias", h.multi_split(name_ar, SPLITS), lang="ara")
     apply_aliases(entity, variants, "alternativeNames")
     props.pop("alternativeNames")
-    entity.add("topics", "crime.terror")
     entity.add("sourceUrl", source_url(item))
 
     comments, notes = parse_comments(props.pop("comments"))
-    entity.add("notes", notes)
     entity.add("legalForm", props.pop("corporationType"))
     entity.add("registrationNumber", props.pop("corporationID"))
     entity.add("jurisdiction", props.pop("formationLocation"))
@@ -290,6 +299,7 @@ def crawl_organization(
     sanction = h.make_sanction(context, entity)
     sanction.add("recordId", number)
     sanction.add("program", comments.pop("Designation type", None))
+    sanction.add("program", props.pop("foreignDesignator"))
     sanction.add("sourceUrl", source_url(item))
     for block in pop_blocks(props, "justifications", "justificationBlock"):
         sanction.add("reason", html_text(block.pop("justification")))
@@ -302,6 +312,7 @@ def crawl_organization(
     for operatives in comments.pop("Key operatives", []):
         emit_key_operatives(context, entity, operatives)
 
+    apply_status_topic(context, entity, props.pop("status"))
     context.emit(entity)
     context.emit(sanction)
     context.audit_data(comments)
@@ -309,9 +320,8 @@ def crawl_organization(
         props,
         ignore=[
             "isDesignated",
-            "status",
-            "foreignDesignator",
             "foreignDesignationDate",
+            "notes",
         ],
     )
 
@@ -340,7 +350,6 @@ def crawl_operative(
     entity.add("name", name_ar, lang="ara")
     apply_aliases(entity, variants, "additionalNames")
     props.pop("additionalNames")
-    entity.add("topics", "crime.terror")
     entity.add("sourceUrl", source_url(item))
 
     comments, notes = parse_comments(props.pop("comments"))
@@ -372,12 +381,11 @@ def crawl_operative(
     sanction.add("sourceUrl", source_url(item))
     apply_designation(context, sanction, props, comments)
 
+    apply_status_topic(context, entity, props.pop("status"))
     context.emit(entity)
     context.emit(sanction)
     context.audit_data(comments)
-    context.audit_data(
-        props, ignore=["isDesignated", "status", "foreignDesignationDate"]
-    )
+    context.audit_data(props, ignore=["isDesignated", "foreignDesignationDate"])
 
 
 def emit_links(
@@ -390,7 +398,7 @@ def emit_links(
     for source_id, linked_id in links:
         linked = org_ids.get(linked_id)
         if linked is None:
-            context.log.info("Linked organization not designated", id=linked_id)
+            context.log.warning("Linked ID not found", linked_id=linked_id)
             continue
         linked_entity_id, linked_number = linked
         source = org_ids.get(source_id)
