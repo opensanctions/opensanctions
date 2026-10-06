@@ -1,3 +1,4 @@
+import re
 from urllib.parse import urljoin
 
 from lxml.etree import _Element as Element
@@ -5,15 +6,8 @@ from lxml.etree import _Element as Element
 from zavod import Context
 from zavod import helpers as h
 
-
-def strip_accused_number(value: str) -> str:
-    """Strip a trailing accused number: "Masud K A (A-5)", "Niu Niu WA-1"."""
-    for separator in ("(", " "):
-        head, _, tail = value.rpartition(separator)
-        number = tail.removeprefix("W").rstrip(").")
-        if number.startswith("A-") and number[2:].isdigit():
-            return head.rstrip(" ,")
-    return value
+# Trailing accused number: "Masud K A (A-5)", "Niu Niu WA-1".
+ACCUSED_NO = re.compile(r"[\s,]*\(?\bW?A-\d+\)?\.?$")
 
 
 def crawl_person(context: Context, card: Element, page_url: str) -> None:
@@ -27,10 +21,12 @@ def crawl_person(context: Context, card: Element, page_url: str) -> None:
     aliases = row.pop("Aliases")
     person = context.make("Person")
     person.id = context.make_id(name, aliases, row.pop("Wanted in"))
-    person.add("name", strip_accused_number(name))
+    person.add("name", ACCUSED_NO.sub("", name))
     for alias in h.multi_split(aliases, "@"):
-        alias = strip_accused_number(alias)
+        alias = ACCUSED_NO.sub("", alias)
+        # Treat single-word aliases as weak.
         person.add("alias" if " " in alias else "weakAlias", alias)
+    print(person.get("alias"))
     h.copy_address(person, h.make_address(context, full=row.pop("Address")))
     person.add("topics", "wanted")
     status = row.pop("Accused Status")
@@ -43,9 +39,8 @@ def crawl_person(context: Context, card: Element, page_url: str) -> None:
 
     # One link per case the person is wanted in.
     for link in h.xpath_elements(card, ".//a[starts-with(@href, '/rc-')]"):
-        case_url = urljoin(page_url, link.get("href"))
-        person.add("sourceUrl", case_url)
-
+        person.add("sourceUrl", urljoin(page_url, link.get("href")))
+        person.add("notes", h.element_text(link))
     context.emit(person)
     context.audit_data(
         row,

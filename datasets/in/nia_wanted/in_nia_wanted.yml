@@ -61,3 +61,12 @@ lookups:
         value: Surrendered
       - match: age-28 years
         value: null
+  type.name:
+    options:
+      # "S/o": son of, so the father's name listed among the aliases.
+      - match: S/o Narendar Singh
+        value: Narendar Singh
+        prop: fatherName
+      - match: s/o Farooque Tanki
+        value: Farooque Tanki
+        prop: fatherName
