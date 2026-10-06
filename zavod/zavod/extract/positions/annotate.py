@@ -1,12 +1,16 @@
 import asyncio
 import time
+from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import click
-from pydantic_ai import Agent, NativeOutput
+from genai_prices import UpdatePrices
+from pydantic_ai import Agent, AgentRunResult, NativeOutput
 from pydantic_ai.models.anthropic import AnthropicModelSettings
 from pydantic_ai.models.openai import OpenAIResponsesModelSettings
-from pydantic_ai.usage import RunUsage
+from pydantic_ai.messages import ModelResponse
+from pydantic_ai.usage import RequestUsage
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
@@ -24,11 +28,6 @@ from ui import STATE_STYLES, ListApp, ReviewApp, record_state
 
 PRIMARY_MODEL = "anthropic:claude-opus-5-5"
 REVIEW_MODEL = "openai:gpt-6.1-sol"
-# USD per million tokens: uncached input, cache read, cache write, output.
-PRICES: dict[str, tuple[float, float, float, float]] = {
-    PRIMARY_MODEL: (4.00, 0.20, 5.00, 20.00),
-    REVIEW_MODEL: (2.00, 0.10, 2.00, 10.00),
-}
 CODEBOOK = (Path(__file__).parent / "codebook.md").read_text()
 
 ANNOTATOR_PROMPT = f"""Classify the position label below by government level, role and
@@ -107,11 +106,15 @@ class Saver:
             self.last_save = time.monotonic()
 
 
+def model_responses(result: AgentRunResult[Any]) -> list[ModelResponse]:
+    return [m for m in result.all_messages() if isinstance(m, ModelResponse)]
+
+
 async def run_models(
     records: list[AnnotationRecord],
     saver: Saver,
     concurrency: int,
-    usage: dict[str, RunUsage],
+    responses: dict[str, list[ModelResponse]],
 ) -> None:
     pending = [r for r in records if r.primary is None or r.review is None]
     if not pending:
@@ -133,8 +136,8 @@ async def run_models(
             thinking="medium", openai_prompt_cache_key="positions-review"
         ),
     )
-    usage.setdefault(PRIMARY_MODEL, RunUsage())
-    usage.setdefault(REVIEW_MODEL, RunUsage())
+    responses.setdefault(PRIMARY_MODEL, [])
+    responses.setdefault(REVIEW_MODEL, [])
     semaphore = asyncio.Semaphore(concurrency)
 
     with Progress() as progress:
@@ -145,7 +148,7 @@ async def run_models(
                 try:
                     if record.primary is None:
                         primary_result = await annotator.run(render_item(record.item))
-                        usage[PRIMARY_MODEL].incr(primary_result.usage)
+                        responses[PRIMARY_MODEL].extend(model_responses(primary_result))
                         record.primary = primary_result.output
                         record.primary_model = PRIMARY_MODEL
                         saver.save()
@@ -156,7 +159,7 @@ async def run_models(
                             f"{record.primary.model_dump_json(indent=2)}\n</annotation>"
                         )
                         review_result = await reviewer.run(message)
-                        usage[REVIEW_MODEL].incr(review_result.usage)
+                        responses[REVIEW_MODEL].extend(model_responses(review_result))
                         record.review = review_result.output
                         record.review_model = REVIEW_MODEL
                         if not record.review.veto:
@@ -181,7 +184,7 @@ def review_by_human(records: list[AnnotationRecord], saver: Saver) -> None:
         ReviewApp(queue, lambda: saver.save(force=True)).run()
 
 
-def print_usage(console: Console, usage: dict[str, RunUsage]) -> None:
+def print_usage(console: Console, responses: dict[str, list[ModelResponse]]) -> None:
     table = Table(title="Token usage this run")
     for column in (
         "Model",
@@ -193,30 +196,27 @@ def print_usage(console: Console, usage: dict[str, RunUsage]) -> None:
         "USD",
     ):
         table.add_column(column, justify="left" if column == "Model" else "right")
-    total = 0.0
-    for model, run_usage in usage.items():
-        input_price, read_price, write_price, output_price = PRICES[model]
-        # input_tokens includes the cache reads and writes.
-        uncached = (
-            run_usage.input_tokens
-            - run_usage.cache_read_tokens
-            - run_usage.cache_write_tokens
-        )
-        cost = (
-            uncached * input_price
-            + run_usage.cache_read_tokens * read_price
-            + run_usage.cache_write_tokens * write_price
-            + run_usage.output_tokens * output_price
-        ) / 1_000_000
+    total = Decimal(0)
+    for model, model_responses in responses.items():
+        usage = RequestUsage()
+        cost = Decimal(0)
+        unpriced = 0
+        # Price each response on its own: price tiers depend on the request size.
+        for response in model_responses:
+            usage = usage + response.usage
+            try:
+                cost += response.cost().total_price
+            except LookupError:
+                unpriced += 1
         total += cost
         table.add_row(
             model.partition(":")[2],
-            str(run_usage.requests),
-            f"{run_usage.input_tokens:,}",
-            f"{run_usage.cache_read_tokens:,}",
-            f"{run_usage.cache_write_tokens:,}",
-            f"{run_usage.output_tokens:,}",
-            f"{cost:.2f}",
+            str(len(model_responses)),
+            f"{usage.input_tokens:,}",
+            f"{usage.cache_read_tokens:,}",
+            f"{usage.cache_write_tokens:,}",
+            f"{usage.output_tokens:,}",
+            f"{cost:.2f}" + (f" (+{unpriced} unpriced)" if unpriced else ""),
         )
     table.add_row("Total", "", "", "", "", "", f"{total:.2f}", style="bold")
     console.print(table)
@@ -268,9 +268,9 @@ def run(
     )
     records = load_records(read_items(input_path), output_path)
     saver = Saver(output_path, records)
-    usage: dict[str, RunUsage] = {}
+    responses: dict[str, list[ModelResponse]] = {}
     try:
-        asyncio.run(run_models(records, saver, concurrency, usage))
+        asyncio.run(run_models(records, saver, concurrency, responses))
         saver.save(force=True)
         if not no_human:
             review_by_human(records, saver)
@@ -279,8 +279,16 @@ def run(
     finally:
         saver.save(force=True)
     print_summary(console, records)
-    if usage:
-        print_usage(console, usage)
+    if any(responses.values()):
+        prices = UpdatePrices()
+        # A failed download leaves the prices bundled with genai-prices in use.
+        try:
+            prices.start(wait=30)
+        except Exception as exc:
+            console.print(f"[yellow]Price update failed: {exc!r}[/yellow]")
+        finally:
+            prices.stop()  # type: ignore[no-untyped-call]
+        print_usage(console, responses)
     console.print(f"Wrote {output_path}")
 
 
