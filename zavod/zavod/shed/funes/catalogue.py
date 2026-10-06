@@ -4,13 +4,12 @@ import uuid
 
 from sqlalchemy import select
 
-from nomenklatura.db import Session
-
+from zavod.context import Context
 from zavod.shed.funes.definitions import DatasetDefinition
 from zavod.shed.funes.model import candidate_table, dataset_table, subject_table
 
 
-def sync_catalogue(session: Session, definition: DatasetDefinition) -> None:
+def sync_catalogue(context: Context, definition: DatasetDefinition) -> None:
     """Sync one dataset definition into the catalogue tables.
 
     Called at the start of each dataset's inspection run with the brief
@@ -19,6 +18,7 @@ def sync_catalogue(session: Session, definition: DatasetDefinition) -> None:
     metadata stays the source of truth; subjects and candidates are
     append-only and survive brief edits.
     """
+    session = context.db
     dataset_upsert = session.insert(dataset_table).values(
         name=definition.name,
         people_sought=definition.people_sought,
@@ -64,3 +64,4 @@ def sync_catalogue(session: Session, definition: DatasetDefinition) -> None:
             .values(candidates)
             .on_conflict_do_nothing(index_elements=["subject_id", "url"])
         )
+    context.flush()

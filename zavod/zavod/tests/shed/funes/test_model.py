@@ -6,7 +6,7 @@ import uuid
 
 import pytest
 from nomenklatura.db import Session
-from pravda.db import Base as pravda_base, SnapshotRecord
+from pravda.db import SnapshotRecord
 from sqlalchemy import insert
 from sqlalchemy.exc import IntegrityError
 
@@ -14,21 +14,10 @@ from zavod.shed.funes.model import (
     attempt_table,
     candidate_table,
     dataset_table,
-    funes_meta,
     InspectionOutcome,
     SnapshotStatus,
     subject_table,
 )
-
-
-@pytest.fixture(scope="function")
-def funes_db(session: Session) -> Session:
-    """The database session with the funes tables created. The pravda-owned
-    ``snapshot`` table is created first: ``funes_attempt`` references it
-    across metadata boundaries."""
-    pravda_base.metadata.create_all(bind=session.connection)
-    funes_meta.create_all(bind=session.connection)
-    return session
 
 
 def make_candidate(session: Session) -> tuple[uuid.UUID, uuid.UUID]:
