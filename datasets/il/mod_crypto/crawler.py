@@ -19,7 +19,7 @@ from zavod import Context
 from zavod import helpers as h
 
 # The holders of a wallet or account, as given on wallets
-HOLDER_PROPS = [
+WALLET_HOLDER_PROPS = [
     "designatedOperatives",
     "nonDesignatedOperatives",
     "designatedOrganizations",
@@ -122,19 +122,19 @@ def apply_address(context: Context, wallet: Entity, address: str, coin: str) -> 
 def crawl_wallet(
     context: Context,
     wallet_item: Item,
-    orders: list[Item],
+    order: Item,
     operatives: dict[str, list[Item]],
     orgs: dict[str, list[Item]],
     # TODO: Remove after the rekey run (see rekey_wallet)
     old_wallet_ids: dict[str, set[str]],
 ) -> None:
     """Emit the wallets of a wallet item, with their holders and a sanction for
-    each order."""
+    the order."""
     wallet_props = dict(wallet_item["properties"])
     if wallet_props.pop("assetType") != "Crypto Wallet":
         raise ValueError(f"Unexpected asset type: {wallet_item}")
     wallet_holders: list[Entity] = []
-    for holder_prop in HOLDER_PROPS:
+    for holder_prop in WALLET_HOLDER_PROPS:
         for holder_ref in wallet_props.pop(holder_prop) or []:
             if holder_ref["name"] == ANONYMOUS:
                 continue
@@ -146,6 +146,7 @@ def crawl_wallet(
             context.emit(holder)
             wallet_holders.append(holder)
 
+    order_props = order["properties"]
     coin = wallet_props.pop("coinType")
     # A single item can give an Ethereum and a TRON address, comma-separated
     for address in h.multi_split(wallet_props.pop("walletAddress"), [", "]):
@@ -158,22 +159,61 @@ def crawl_wallet(
         wallet.add("holder", wallet_holders)
         wallet.add("sourceUrl", source_url(wallet_item))
 
-        # Create a sanction for each Order
-        for order in orders:
-            order_props = order["properties"]
-            sanction = h.make_sanction(context, wallet, key=order_key(order))
-            sanction.add("authorityId", order["name"])
-            sanction.add("provisions", order_props["orderType"])
-            apply_date(sanction, "startDate", order_props["orderDate"])
-            apply_date(sanction, "endDate", order_props["validityDate"])
-            sanction.add("sourceUrl", source_url(order))
-            if h.is_active(sanction):
-                wallet.add("topics", "crime.terror")
-            context.emit(sanction)
-        if len(orders) == 0:
-            context.log.warning("Wallet without order", address=address)
+        sanction = h.make_sanction(context, wallet, key=order_key(order))
+        sanction.add("authorityId", order["name"])
+        sanction.add("provisions", order_props["orderType"])
+        apply_date(sanction, "startDate", order_props["orderDate"])
+        apply_date(sanction, "endDate", order_props["validityDate"])
+        sanction.add("sourceUrl", source_url(order))
+        if h.is_active(sanction):
+            wallet.add("topics", "crime.terror")
+        context.emit(sanction)
         context.emit(wallet)
     context.audit_data(wallet_props)
+
+
+def crawl_order(
+    context: Context,
+    order: Item,
+    wallets: dict[str, Item],
+    operatives: dict[str, list[Item]],
+    orgs: dict[str, list[Item]],
+    # TODO: Remove after the rekey run (see rekey_wallet)
+    old_wallet_ids: dict[str, set[str]],
+) -> None:
+    """Emit the wallets seized by an Administrative Seizure Order (ASO) or
+    Forfeiture Order (FO)."""
+    order_props = dict(order["properties"])
+    hidden = order_props.pop("isHidden")
+    if hidden is True:
+        context.log.warning("Skipping hidden order", order=order["name"])
+        return
+    if hidden is not False:
+        raise ValueError(f"Unexpected isHidden: {hidden!r} ({order['name']})")
+    # Assets also include other property, given as generalAsset items
+    for asset in order_props.pop("assets") or []:
+        if asset["id"] in wallets:
+            crawl_wallet(
+                context,
+                wallets[asset["id"]],
+                order,
+                operatives,
+                orgs,
+                old_wallet_ids,
+            )
+    context.audit_data(
+        order_props,
+        ignore=[
+            # Used in crawl_wallet
+            "orderType",
+            "orderNumber",
+            "orderDate",
+            "validityDate",
+            # Also given on the wallets, but the order lists holders of all
+            # seized assets
+            *WALLET_HOLDER_PROPS,
+        ],
+    )
 
 
 def crawl(context: Context) -> None:
@@ -181,51 +221,11 @@ def crawl(context: Context) -> None:
     wallets = fetch_content(context, "cryptocurrencyWallet", "en")
     operatives = fetch_variants(context, "operative")
     orgs = fetch_variants(context, "organization")
-
-    # Map wallet IDs to the Administrative Seizure Orders (ASO)
-    # and Forfeiture Orders (FO) they are involved in.
-    # wallet_orders["ca5ce146-…"] == [<FO 55/23>, <FO 19/23>, <FO 56/23>]
-    wallet_orders: dict[str, list[Item]] = {}
-    for order in orders.values():
-        hidden = order["properties"]["isHidden"]
-        if hidden is True:
-            context.log.warning("Skipping hidden order", order=order["name"])
-            continue
-        if hidden is not False:
-            raise ValueError(f"Unexpected isHidden: {hidden!r} ({order['name']})")
-        for asset in order["properties"]["assets"] or []:
-            if asset["id"] in wallets:
-                wallet_orders.setdefault(asset["id"], []).append(order)
-
     # TODO: Remove after the rekey run (see rekey_wallet)
     old_wallet_ids = load_old_wallet_ids(context, wallets)
-    for wallet_id, wallet_item in wallets.items():
-        crawl_wallet(
-            context,
-            wallet_item,
-            wallet_orders.get(wallet_id, []),
-            operatives,
-            orgs,
-            old_wallet_ids,
-        )
 
     for order in orders.values():
-        order_props = dict(order["properties"])
-        context.audit_data(
-            order_props,
-            ignore=[
-                # Used in crawl_wallet and for wallet_orders
-                "isHidden",
-                "orderType",
-                "orderNumber",
-                "orderDate",
-                "validityDate",
-                "assets",
-                # Also given on the wallets, but the order lists holders of all
-                # seized assets
-                *HOLDER_PROPS,
-            ],
-        )
+        crawl_order(context, order, wallets, operatives, orgs, old_wallet_ids)
 
 
 # TODO: Remove everything below, seizures.csv, and the code marked with TODOs above
