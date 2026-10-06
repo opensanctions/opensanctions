@@ -39,7 +39,6 @@ dates:
   formats: ["%d.%m.%Y", "%Y"]
 tags:
   - list.sanction
-  - target.ge
 
 assertions:
   min:

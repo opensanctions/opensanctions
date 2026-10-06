@@ -37,7 +37,6 @@ data:
   format: json
 tags:
   - list.regulatory # Regulation and compliance
-  - target.fr # Focused on entities in France
   - sector.financial # Focuses on financial market regulations
 
 assertions:
