@@ -1,11 +1,9 @@
-import csv  # TODO: Remove after the rekey run (see rekey_seizures_csv)
+import csv  # TODO: Remove after the rekey run (see rekey_wallet)
 import re
-import unicodedata  # TODO: Remove after the rekey run (see rekey_seizures_csv)
-from pathlib import Path  # TODO: Remove after the rekey run (see rekey_seizures_csv)
+import unicodedata  # TODO: Remove after the rekey run (see rekey_wallet)
+from pathlib import Path  # TODO: Remove after the rekey run (see rekey_wallet)
 from typing import Any
 
-import orjson
-from rigour.mime.types import JSON
 from zavod.entity import Entity
 from zavod.shed.il_mod import (
     Item,
@@ -31,13 +29,9 @@ HOLDER_PROPS = [
 UNKNOWN_NAME = "Unknown_Name_User"
 # "Anonymous", given as the holder of wallets whose holder isn't known
 ANONYMOUS = "אנונימי"
+# Given as ID or passport numbers when there is none
+NO_NUMBER = {"Unknown", "NOT AVAILABLE"}
 CURRENCY_CODE = re.compile(r"^[A-Z]{2,5}$")
-
-
-def export_items(context: Context, name: str, items: Any) -> None:
-    path = context.get_resource_path(f"{name}.json")
-    path.write_bytes(orjson.dumps(items))
-    context.export_resource(path, JSON, title=f"{context.SOURCE_TITLE} ({name})")
 
 
 def operative_key(props: dict[str, Any], name: str | None) -> str | None:
@@ -46,11 +40,11 @@ def operative_key(props: dict[str, Any], name: str | None) -> str | None:
     API."""
     for block in props["identificationDocuments"] or []:
         number = block["properties"]["identificationNumber"]
-        if number is not None:
+        if number is not None and number not in NO_NUMBER:
             return str(number)
     for block in props["passportDetails"] or []:
         number = block["properties"]["passportNumber"]
-        if number is not None and number != "Unknown":
+        if number is not None and number not in NO_NUMBER:
             return str(number)
     return name
 
@@ -125,6 +119,63 @@ def apply_address(context: Context, wallet: Entity, address: str, coin: str) -> 
         wallet.add("publicKey", address)
 
 
+def crawl_wallet(
+    context: Context,
+    wallet_item: Item,
+    orders: list[Item],
+    operatives: dict[str, list[Item]],
+    orgs: dict[str, list[Item]],
+    # TODO: Remove after the rekey run (see rekey_wallet)
+    old_wallet_ids: dict[str, set[str]],
+) -> None:
+    """Emit the wallets of a wallet item, with their holders and a sanction for
+    each order."""
+    wallet_props = dict(wallet_item["properties"])
+    if wallet_props.pop("assetType") != "Crypto Wallet":
+        raise ValueError(f"Unexpected asset type: {wallet_item}")
+    wallet_holders: list[Entity] = []
+    for holder_prop in HOLDER_PROPS:
+        for holder_ref in wallet_props.pop(holder_prop) or []:
+            if holder_ref["name"] == ANONYMOUS:
+                continue
+            holder_id = holder_ref["id"]
+            if holder_id in operatives:
+                holder = make_operative(context, operatives[holder_id])
+            else:
+                holder = make_organization(context, orgs[holder_id])
+            context.emit(holder)
+            wallet_holders.append(holder)
+
+    coin = wallet_props.pop("coinType")
+    # A single item can give an Ethereum and a TRON address, comma-separated
+    for address in h.multi_split(wallet_props.pop("walletAddress"), [", "]):
+        wallet = context.make("CryptoWallet")
+        wallet.id = context.make_id(address)
+        assert wallet.id is not None
+        # TODO: Remove after the rekey run (see rekey_wallet)
+        rekey_wallet(context, old_wallet_ids, address, wallet.id)
+        apply_address(context, wallet, address, coin)
+        wallet.add("holder", wallet_holders)
+        wallet.add("sourceUrl", source_url(wallet_item))
+
+        # Create a sanction for each Order
+        for order in orders:
+            order_props = order["properties"]
+            sanction = h.make_sanction(context, wallet, key=order_key(order))
+            sanction.add("authorityId", order["name"])
+            sanction.add("provisions", order_props["orderType"])
+            apply_date(sanction, "startDate", order_props["orderDate"])
+            apply_date(sanction, "endDate", order_props["validityDate"])
+            sanction.add("sourceUrl", source_url(order))
+            if h.is_active(sanction):
+                wallet.add("topics", "crime.terror")
+            context.emit(sanction)
+        if len(orders) == 0:
+            context.log.warning("Wallet without order", address=address)
+        context.emit(wallet)
+    context.audit_data(wallet_props)
+
+
 def crawl(context: Context) -> None:
     orders = fetch_content(context, "seizureAndForfeitureOrder", "en")
     wallets = fetch_content(context, "cryptocurrencyWallet", "en")
@@ -136,103 +187,57 @@ def crawl(context: Context) -> None:
     # wallet_orders["ca5ce146-…"] == [<FO 55/23>, <FO 19/23>, <FO 56/23>]
     wallet_orders: dict[str, list[Item]] = {}
     for order in orders.values():
+        hidden = order["properties"]["isHidden"]
+        if hidden is True:
+            context.log.warning("Skipping hidden order", order=order["name"])
+            continue
+        if hidden is not False:
+            raise ValueError(f"Unexpected isHidden: {hidden!r} ({order['name']})")
         for asset in order["properties"]["assets"] or []:
             if asset["id"] in wallets:
                 wallet_orders.setdefault(asset["id"], []).append(order)
 
-    holders: dict[str, Entity] = {}
-    holder_variants: dict[str, list[Item]] = {}
-    # TODO: Remove after the rekey run (see rekey_seizures_csv)
-    # Wallet address -> (wallet ID, holder IDs), for rekeying
-    new_ids: dict[str, tuple[str, list[str]]] = {}
-    for wallet_item in wallets.values():
-        wallet_props = dict(wallet_item["properties"])
-        if wallet_props.pop("assetType") != "Crypto Wallet":
-            raise ValueError(f"Unexpected asset type: {wallet_item}")
-        wallet_holders: list[Entity] = []
-        for holder_prop in HOLDER_PROPS:
-            for holder_ref in wallet_props.pop(holder_prop) or []:
-                if holder_ref["name"] == ANONYMOUS:
-                    continue
-                if holder_ref["id"] not in holders:
-                    if holder_ref["id"] in operatives:
-                        holder_variants[holder_ref["id"]] = operatives[holder_ref["id"]]
-                        holders[holder_ref["id"]] = make_operative(
-                            context, operatives[holder_ref["id"]]
-                        )
-                    else:
-                        holder_variants[holder_ref["id"]] = orgs[holder_ref["id"]]
-                        holders[holder_ref["id"]] = make_organization(
-                            context, orgs[holder_ref["id"]]
-                        )
-                wallet_holders.append(holders[holder_ref["id"]])
-        # TODO: Remove after the rekey run (see rekey_seizures_csv)
-        holder_ids = [holder.id for holder in wallet_holders if holder.id is not None]
-
-        coin = wallet_props.pop("coinType")
-        # A single item can give an Ethereum and a TRON address, comma-separated
-        for address in h.multi_split(wallet_props.pop("walletAddress"), [", "]):
-            wallet = context.make("CryptoWallet")
-            wallet.id = context.make_id(address)
-            assert wallet.id is not None
-            apply_address(context, wallet, address, coin)
-            wallet.add("holder", wallet_holders)
-            wallet.add("sourceUrl", source_url(wallet_item))
-            # TODO: Remove after the rekey run (see rekey_seizures_csv)
-            new_ids[address] = (wallet.id, holder_ids)
-
-            # Create a sanction for each Order
-            for order in wallet_orders.get(wallet_item["id"], []):
-                order_props = order["properties"]
-                sanction = h.make_sanction(context, wallet, key=order_key(order))
-                sanction.add("authorityId", order["name"])
-                sanction.add("provisions", order_props["orderType"])
-                apply_date(sanction, "startDate", order_props["orderDate"])
-                apply_date(sanction, "endDate", order_props["validityDate"])
-                sanction.add("sourceUrl", source_url(order))
-                if h.is_active(sanction):
-                    wallet.add("topics", "crime.terror")
-                context.emit(sanction)
-            if wallet_item["id"] not in wallet_orders:
-                context.log.warning("Wallet without order", address=address)
-            context.emit(wallet)
-        context.audit_data(wallet_props)
-
-    for holder in holders.values():
-        context.emit(holder)
+    # TODO: Remove after the rekey run (see rekey_wallet)
+    old_wallet_ids = load_old_wallet_ids(context, wallets)
+    for wallet_id, wallet_item in wallets.items():
+        crawl_wallet(
+            context,
+            wallet_item,
+            wallet_orders.get(wallet_id, []),
+            operatives,
+            orgs,
+            old_wallet_ids,
+        )
 
     for order in orders.values():
-        wallet_props = dict(order["properties"])
-        for key in ("orderType", "orderNumber", "orderDate", "validityDate", "assets"):
-            wallet_props.pop(key)
-        if wallet_props.pop("isHidden") is not False:
-            context.log.warning("Hidden order", order=order["name"])
+        order_props = dict(order["properties"])
         context.audit_data(
-            wallet_props,
+            order_props,
             ignore=[
+                # Used in crawl_wallet and for wallet_orders
+                "isHidden",
+                "orderType",
+                "orderNumber",
+                "orderDate",
+                "validityDate",
+                "assets",
                 # Also given on the wallets, but the order lists holders of all
                 # seized assets
                 *HOLDER_PROPS,
             ],
         )
 
-    export_items(
-        context,
-        "wallets",
-        {"wallets": wallets, "orders": orders, "holders": holder_variants},
-    )
-    # TODO: Remove after the rekey run (see rekey_seizures_csv)
-    rekey_seizures_csv(context, new_ids)
-
 
 # TODO: Remove everything below, seizures.csv, and the code marked with TODOs above
 # once this has run in production.
 # Before switching to the API, the crawler read seizures.csv, maintained by hand
 # from the old NBCTF site. Its values were obfuscated with homoglyphs and invisible
-# characters, so some of the IDs made from them differ from the IDs made from the
-# API. Map the old IDs to the new ones by joining on the wallet address.
+# characters, so some of the wallet IDs made from them differ from the IDs made from
+# the API. Map the old IDs to the new ones by joining on the wallet address.
+#
+# Holders aren't rekeyed: for some wallets the API gives a different holder than
+# seizures.csv did, and rekeying those would merge different people.
 SEIZURES_CSV = Path(__file__).parent / "seizures.csv"
-ADDRESS_TAG = re.compile(r" \(Address tag \d+\)$")
 HOMOGLYPHS = {
     "ᴄ": "c",
     "ᴑ": "o",
@@ -298,15 +303,18 @@ def join_key(value: str) -> str:
     return normalize_address(visible).rstrip("*").strip()
 
 
-def rekey_seizures_csv(
-    context: Context, new_ids: dict[str, tuple[str, list[str]]]
-) -> None:
-    by_key = {join_key(addr): ids for addr, ids in new_ids.items()}
-    # seizures.csv gives one Stellar address without its tag
-    for addr, addr_ids in new_ids.items():
-        by_key.setdefault(join_key(ADDRESS_TAG.sub("", addr)), addr_ids)
-    # Old ID -> candidate new IDs, one set per seizures.csv row
-    candidates: dict[str, list[set[str]]] = {}
+def load_old_wallet_ids(
+    context: Context, wallets: dict[str, Item]
+) -> dict[str, set[str]]:
+    """Map the join keys of the wallet addresses in seizures.csv to the wallet IDs
+    the old crawler made from them."""
+    api_keys = {
+        join_key(address)
+        for item in wallets.values()
+        for address in h.multi_split(item["properties"]["walletAddress"], [", "])
+    }
+    by_address: dict[str, set[str]] = {}
+    by_phone: dict[str, set[str]] = {}
     with open(SEIZURES_CSV) as fh:
         for row in csv.DictReader(fh):
             # As the old crawler read the row
@@ -314,35 +322,24 @@ def rekey_seizures_csv(
             identifier = row["wallet_address"] or row["account_id"]
             if identifier == "":
                 continue
-            old_wallet_id = context.make_id(normalize_address(identifier))
-            old_holder_id = None
-            name = row["name"] or None
-            if row["schema"] == "Person":
-                old_holder_id = context.make_id(
-                    row["id_no"] or row["passport_no"] or name
-                )
-            elif row["schema"] == "LegalEntity":
-                old_holder_id = context.make_id(name)
+            old_id = context.make_id(normalize_address(identifier))
+            assert old_id is not None
+            by_address.setdefault(join_key(identifier), set()).add(old_id)
+            # Only rows whose own address isn't a wallet in the API: some people's
+            # account and phone number are both given as wallets.
+            if row["phone"] != "" and join_key(identifier) not in api_keys:
+                by_phone.setdefault(join_key(row["phone"]), set()).add(old_id)
+    # Some Binance account numbers in the API are in the phone column of
+    # seizures.csv, which has other numbers as the account. Only use a phone
+    # number if it's on a single account.
+    for phone, old_ids in by_phone.items():
+        if len(old_ids) == 1 and phone not in by_address:
+            by_address[phone] = old_ids
+    return by_address
 
-            # Some Binance account numbers in the API are in the phone column of
-            # seizures.csv, which has other numbers as the account.
-            ids = by_key.get(join_key(identifier)) or by_key.get(join_key(row["phone"]))
-            if ids is None:
-                context.log.info("No API wallet for seizures.csv row", id=identifier)
-                continue
-            new_wallet_id, new_holder_ids = ids
-            assert old_wallet_id is not None
-            candidates.setdefault(old_wallet_id, []).append({new_wallet_id})
-            if old_holder_id is not None and len(new_holder_ids) > 0:
-                candidates.setdefault(old_holder_id, []).append(set(new_holder_ids))
 
-    for old_id, sets in candidates.items():
-        # Some wallets have two holders, so narrow down to the holder common to
-        # all the wallets of the old entity.
-        if any(old_id in new for new in sets):
-            continue
-        common = set.intersection(*sets)
-        if len(common) != 1:
-            context.log.info("Not rekeying ambiguous ID", old_id=old_id, new=common)
-            continue
-        context.rekey(old_id, common.pop())
+def rekey_wallet(
+    context: Context, old_wallet_ids: dict[str, set[str]], address: str, new_id: str
+) -> None:
+    for old_id in old_wallet_ids.get(join_key(address), set()):
+        context.rekey(old_id, new_id)
