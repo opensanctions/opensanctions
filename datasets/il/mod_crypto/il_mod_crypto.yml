@@ -2,7 +2,7 @@ title: Israel Sanctioned Crypto Wallets List
 entry_point: crawler.py
 prefix: il-nbctf
 coverage:
-  frequency: never
+  frequency: daily
   start: 2021-10-22
 deploy:
   schedule: "0 */6 * * *"
@@ -13,9 +13,6 @@ summary: >-
 description: |
   A list of seizure orders issued by the Israeli government against crypto wallets
   with the most regularly seen authrorization being the Anti-Terrorism law 5776-2016.
-
-  The NBCTF website uses scraping protection which makes it impossible for us to
-  update the data fully automatically. It is periodically checked for freshness.
 
   **The initial version of this dataset was prepared by our partners at
   [Thetaray](https://www.thetaray.com/).**
@@ -28,15 +25,14 @@ publisher:
     financial infrastructure of terrorist organizations, perpetrators and parties involved
     in Terror Financing.
   country: il
-  url: https://nbctf.mod.gov.il/en/aboutus/Pages/mandate.aspx
+  url: https://matal.mod.gov.il/en/about-nbctf/
   official: true
-url: https://nbctf.mod.gov.il/he/MinisterSanctions/PropertyPerceptions/Pages/Blockchain.aspx
+url: https://matal.mod.gov.il/en/sanctions/
 data:
-  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/il/mod_crypto/seizures.csv
-  format: CSV
-ci_test: false # No Zyte key in CI
-dates:
-  formats: ["%d/%m/%Y", "%d.%m.%Y", "%m.%d.%Y", "%m.%d.%y"]
+  url: https://matal.mod.gov.il/umbraco/delivery/api/v2/content?filter=contentType:cryptocurrencyWallet
+  format: JSON
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 (zavod; opensanctions.org)"
 tags:
   - list.sanction
   - sector.crypto
@@ -48,11 +44,11 @@ assertions:
       CryptoWallet: 1200
       LegalEntity: 1
     property_fill_rate:
-      # The source identifies a minority of sanctioned persons by government ID or
-      # passport number only, with no name. We deliberately emit these (see the
-      # id_no/passport_no branch in the crawler), so the Person.name fill rate sits
-      # below the 0.95 default. Lower the floor while still catching a regression
-      # where name extraction breaks entirely.
+      # The source identifies a minority of holders by government ID or passport
+      # number only, with the name "Unknown_Name_User". We emit these without a
+      # name, so the Person.name fill rate sits below the 0.95 default. Lower the
+      # floor while still catching a regression where name extraction breaks
+      # entirely.
       Person:
         name: 0.9
   max:
@@ -60,3 +56,21 @@ assertions:
       Person: 1500
       CryptoWallet: 2000
       LegalEntity: 10
+
+lookups:
+  coin_type:
+    options:
+      - match: חשבון Binance
+        exchange: Binance
+        account: true
+      - match: חשבון OKX
+        exchange: OKX
+        account: true
+      - match: Unknown
+        currency: null
+      - match: Bitcoin
+        currency: BTC
+      - match: Ethereum
+        currency: ETH
+      - match: USDT (TRON)
+        currency: USDT
