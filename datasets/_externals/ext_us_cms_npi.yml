@@ -34,7 +34,7 @@ description: |
 
   Note: An NPI does not ensure or validate that the health care provider is licensed or credentialed.
 tags:
-  - sector.medical
+  - sector.health
 publisher:
   name: Centers for Medicare & Medicaid Services
   acronym: CMS
