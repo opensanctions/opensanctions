@@ -21,7 +21,7 @@ from textual.widgets import (
     Static,
 )
 
-from models import FUNCTIONS, LEVELS, SENIORITIES, Annotation, AnnotationRecord
+from models import LEVELS, ROLES, SENIORITIES, Annotation, AnnotationRecord
 
 STATE_STYLES = {"pending": "dim", "approved": "green", "vetoed": "red", "human": "blue"}
 
@@ -42,9 +42,7 @@ def format_annotation(annotation: Annotation) -> Table:
         table.add_row("[bold]Out of scope[/bold]")
         return table
     table.add_row("Level", str(annotation.level))
-    table.add_row(
-        "Functions", ", ".join(annotation.functions) or "[dim]undecided[/dim]"
-    )
+    table.add_row("Roles", ", ".join(annotation.roles) or "[dim]undecided[/dim]")
     table.add_row("Seniority", str(annotation.seniority))
     return table
 
@@ -103,7 +101,7 @@ class EditScreen(ModalScreen[Annotation | None]):
     #labels { height: auto; margin-top: 1; }
     #labels > Vertical { width: 1fr; height: auto; padding-right: 1; }
     #labels Label { text-style: bold; }
-    #functions { height: auto; }
+    #roles { height: auto; }
     #buttons { height: auto; margin-top: 1; align-horizontal: right; }
     #buttons Button { margin-left: 1; }
     """
@@ -123,10 +121,10 @@ class EditScreen(ModalScreen[Annotation | None]):
                         for level in LEVELS:
                             yield RadioButton(level, value=level == current.level)
                 with Vertical():
-                    yield Label("Functions")
+                    yield Label("Roles")
                     yield SelectionList[str](
-                        *((f, f, f in current.functions) for f in FUNCTIONS),
-                        id="functions",
+                        *((role, role, role in current.roles) for role in ROLES),
+                        id="roles",
                     )
                 with Vertical():
                     yield Label("Seniority")
@@ -160,7 +158,7 @@ class EditScreen(ModalScreen[Annotation | None]):
     def action_save(self) -> None:
         if self.query_one("#out-of-scope", Checkbox).value:
             self.dismiss(
-                Annotation(out_of_scope=True, level=None, functions=[], seniority=None)
+                Annotation(out_of_scope=True, level=None, roles=[], seniority=None)
             )
             return
         level_index = self.query_one("#level", RadioSet).pressed_index
@@ -168,12 +166,12 @@ class EditScreen(ModalScreen[Annotation | None]):
         if level_index < 0 or seniority_index < 0:
             self.notify("Select a level and a seniority.", severity="error")
             return
-        selected = self.query_one("#functions", SelectionList).selected
+        selected = self.query_one("#roles", SelectionList).selected
         self.dismiss(
             Annotation(
                 out_of_scope=False,
                 level=LEVELS[level_index],
-                functions=[f for f in FUNCTIONS if f in selected],
+                roles=[role for role in ROLES if role in selected],
                 seniority=SENIORITIES[seniority_index],
             )
         )
@@ -261,7 +259,7 @@ class ListScreen(Screen[None]):
         self.sub_title = f"{len(self.records)} records"
         table = self.query_one("#records", DataTable)
         table.add_columns(
-            "#", "Title", "Dataset", "State", "Level", "Functions", "Seniority"
+            "#", "Title", "Dataset", "State", "Level", "Roles", "Seniority"
         )
         for index, record in enumerate(self.records, 1):
             state = record_state(record)
@@ -275,7 +273,7 @@ class ListScreen(Screen[None]):
             else:
                 labels = [
                     str(annotation.level),
-                    ", ".join(annotation.functions),
+                    ", ".join(annotation.roles),
                     str(annotation.seniority),
                 ]
             table.add_row(

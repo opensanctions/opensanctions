@@ -9,7 +9,7 @@ DATA_DIR = Path(__file__).parent / "data"
 ITEM_NAMESPACE = UUID("2f4f5a8e-1c1e-4a5e-9a52-8c9f2b6d7e10")
 
 Level = Literal["gov.national", "gov.state", "gov.muni", "gov.igo", "none", "undecided"]
-Function = Literal[
+Role = Literal[
     "gov.head",
     "gov.executive",
     "gov.legislative",
@@ -22,10 +22,10 @@ Function = Literal[
     "pol.party",
     "gov.religion",
 ]
-Seniority = Literal["leadership", "senior", "other", "undecided"]
+Seniority = Literal["leadership", "senior", "middle", "junior", "undecided"]
 
 LEVELS: tuple[Level, ...] = Level.__args__  # type: ignore[attr-defined]
-FUNCTIONS: tuple[Function, ...] = Function.__args__  # type: ignore[attr-defined]
+ROLES: tuple[Role, ...] = Role.__args__  # type: ignore[attr-defined]
 SENIORITIES: tuple[Seniority, ...] = Seniority.__args__  # type: ignore[attr-defined]
 
 
@@ -45,7 +45,7 @@ class Item(BaseModel):
 
 
 class Annotation(BaseModel):
-    """The level, function and seniority of a position, as defined in codebook.md."""
+    """The level, role and seniority of a position, as defined in codebook.md."""
 
     out_of_scope: bool = Field(
         description="True if the position is a confirmed private or unrelated role."
@@ -57,20 +57,20 @@ class Annotation(BaseModel):
             "Null if out of scope."
         )
     )
-    functions: list[Function] = Field(
+    roles: list[Role] = Field(
         description=(
-            "The functions of the office. Empty if out of scope or if the evidence "
-            "does not establish a function."
+            "The roles of the office. Empty if out of scope or if the evidence "
+            "does not establish a role."
         )
     )
     seniority: Seniority | None = Field(
-        description="The rank the title denotes. Null if out of scope."
+        description="The rank within the level/role combination. Null if out of scope."
     )
 
     @model_validator(mode="after")
     def check_scope(self) -> Self:
         if self.out_of_scope:
-            if self.level is not None or self.functions or self.seniority is not None:
+            if self.level is not None or self.roles or self.seniority is not None:
                 raise ValueError("An out-of-scope annotation must not assign labels.")
         elif self.level is None or self.seniority is None:
             raise ValueError("An in-scope annotation must assign level and seniority.")
