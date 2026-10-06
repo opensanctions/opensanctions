@@ -9,17 +9,15 @@ load_statements: true
 summary: >-
   Fugitives sought by India's federal counter-terrorism agency in its criminal cases
 description: |
-  The National Investigation Agency publishes a list of persons it is seeking in
-  connection with the cases it investigates. The NIA is India's central agency for
-  terrorism and other offences affecting national security, such as attacks by
-  militant groups, terror financing and counterfeit currency.
-
-  Each person is listed with the NIA case numbers in which they are wanted, and in
-  some cases their aliases, last known address and the status of their case. Many
-  entries name accused persons believed to be living outside India.
-url: https://www.nia.gov.in/most-wanted-photos
+  People sought by the National Investigation Agency, India's federal agency for
+  terrorism and other offences against national security, in its own cases. The
+  list covers absconders at every stage of the warrant process: those declared
+  proclaimed offenders by a court, those subject to a proclamation to appear, and
+  those wanted under an arrest warrant alone. The dataset lists names, aliases,
+  case numbers, and addresses in some cases.
 tags:
   - list.wanted
+url: https://www.nia.gov.in/most-wanted-photos
 publisher:
   name: National Investigation Agency
   acronym: NIA
