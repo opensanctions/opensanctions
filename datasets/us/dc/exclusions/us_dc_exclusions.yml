@@ -15,8 +15,7 @@ description: |
   including Medicaid.
 tags:
   - list.debarment
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: DC Office of Contracting and Procurement
   acronym: OCP
