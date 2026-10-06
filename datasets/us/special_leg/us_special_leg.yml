@@ -73,6 +73,7 @@ description: |
   **This dataset is manually maintained and not automatically updated with new legislation.**
 tags:
   - list.debarment
+  - sector.academic
 publisher:
   name: United States Congress
   description: >
