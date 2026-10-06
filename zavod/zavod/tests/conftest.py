@@ -60,9 +60,10 @@ def wrap_test():
 
 @pytest.fixture(scope="function")
 def zavod_db() -> None:
-    """Engine-bound, not session-bound like ``funes_db``: the code under
-    test reaches the database through ``context.db``, and on in-memory
-    SQLite every pooled connection is a separate database."""
+    """The stateful tables, created engine-bound: ``create_all`` commits
+    its DDL inside ``engine.begin()``, so the schema is visible to any
+    later pooled connection, such as the session the code under test
+    opens lazily via ``context.db``."""
     meta.create_all(bind=get_engine())
 
 

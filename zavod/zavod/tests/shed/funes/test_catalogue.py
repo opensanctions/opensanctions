@@ -3,7 +3,6 @@ tables."""
 
 from typing import Any
 
-from nomenklatura.db import Session
 from sqlalchemy import select
 
 from zavod.meta import Dataset
@@ -30,7 +29,7 @@ def definition(**overrides: Any) -> DatasetDefinition:
     return DatasetDefinition.model_validate(data)
 
 
-def test_sync_creates_rows(testdataset1: Dataset, funes_db: Session) -> None:
+def test_sync_creates_rows(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(context, definition())
     assert len(context.db.execute(dataset_table.select()).fetchall()) == 1
@@ -42,14 +41,14 @@ def test_sync_creates_rows(testdataset1: Dataset, funes_db: Session) -> None:
     assert people_sought == "board members"
 
 
-def test_resync_idempotent(testdataset1: Dataset, funes_db: Session) -> None:
+def test_resync_idempotent(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(context, definition())
     sync_catalogue(context, definition())
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
 
 
-def test_brief_synced_on_change(testdataset1: Dataset, funes_db: Session) -> None:
+def test_brief_synced_on_change(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(context, definition())
     sync_catalogue(context, definition(people_sought="chief executives"))
@@ -60,7 +59,7 @@ def test_brief_synced_on_change(testdataset1: Dataset, funes_db: Session) -> Non
     assert people_sought == "chief executives"
 
 
-def test_removed_subject_and_url_kept(testdataset1: Dataset, funes_db: Session) -> None:
+def test_removed_subject_and_url_kept(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(context, definition())
     sync_catalogue(
@@ -72,7 +71,7 @@ def test_removed_subject_and_url_kept(testdataset1: Dataset, funes_db: Session) 
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
 
 
-def test_added_subject_and_url(testdataset1: Dataset, funes_db: Session) -> None:
+def test_added_subject_and_url(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(context, definition())
     sync_catalogue(
@@ -92,7 +91,7 @@ def test_added_subject_and_url(testdataset1: Dataset, funes_db: Session) -> None
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 5
 
 
-def test_same_url_two_subjects(testdataset1: Dataset, funes_db: Session) -> None:
+def test_same_url_two_subjects(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(
         context,
@@ -106,7 +105,7 @@ def test_same_url_two_subjects(testdataset1: Dataset, funes_db: Session) -> None
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 2
 
 
-def test_two_datasets_share_url(testdataset1: Dataset, funes_db: Session) -> None:
+def test_two_datasets_share_url(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(context, definition())
     sync_catalogue(
