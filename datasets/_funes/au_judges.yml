@@ -1,0 +1,87 @@
+name: au_judges
+title: Judges of Australian courts
+disabled: true  # until the funes inspection runner is ported to zavod
+ci_test: false
+config:
+  funes:
+    people_sought: Judges, justices, magistrates, and other judicial officers of the court.
+    subject_label: Court
+    subjects:
+      - name: High Court of Australia
+        urls:
+          - https://www.hcourt.gov.au/justices/current-justices
+      - name: Federal Court of Australia
+        urls:
+          - https://www.fedcourt.gov.au/about/judges/current-judges-appointment
+      - name: Federal Circuit and Family Court of Australia (Division 1)
+        urls:
+          - https://www.fcfcoa.gov.au/Judges
+      - name: Federal Circuit and Family Court of Australia (Division 2)
+        urls:
+          - https://www.fcfcoa.gov.au/Judges
+      - name: Supreme Court of New South Wales
+        urls:
+          - https://supremecourt.nsw.gov.au/about-us/contact-us/judicial-officer-contacts.html
+          - https://supremecourt.nsw.gov.au/about-us/judges/trial-judges.html
+          - https://supremecourt.nsw.gov.au/about-us/judges/judges-of-appeal.html
+      - name: District Court of New South Wales
+        urls:
+          - https://districtcourt.nsw.gov.au/about-the-court/chief-judge-and-judicial-officers/judicial-officers.html
+      - name: Supreme Court of Victoria
+        urls:
+          - https://www.supremecourt.vic.gov.au/about-the-court/our-judiciary/judges
+      - name: County Court of Victoria
+        urls:
+          - https://www.countycourt.vic.gov.au/contact-us/judicial-support
+      - name: Magistrates' Court of Victoria
+        urls:
+          - https://www.mcv.vic.gov.au/judicial-officers
+      - name: Supreme Court of Queensland
+        urls:
+          - https://www.courts.qld.gov.au/the-courts/supreme-court/judges-of-the-supreme-court
+      - name: District Court of Queensland
+        urls:
+          - https://www.courts.qld.gov.au/the-courts/district-court/judges-of-the-district-court
+      - name: Magistrates Court of Queensland
+        urls:
+          - https://www.courts.qld.gov.au/the-courts/magistrates-court/magistrates-in-queensland
+      - name: Supreme Court of Western Australia
+        urls:
+          - https://www.supremecourt.wa.gov.au/C/current_judges_and_masters.aspx
+      - name: District Court of Western Australia
+        urls:
+          - https://www.districtcourt.wa.gov.au/J/judges.aspx
+      - name: Magistrates Court of Western Australia
+        urls:
+          - https://www.magistratescourt.wa.gov.au/J/judicial_officers.aspx
+      - name: Family Court of Western Australia
+        urls:
+          - https://www.familycourt.wa.gov.au/J/judicial_officers.aspx
+      - name: Supreme Court of South Australia
+        urls:
+          - https://www.courts.sa.gov.au/our-judiciary/
+      - name: District Court of South Australia
+        urls:
+          - https://www.courts.sa.gov.au/our-judiciary/
+      - name: Magistrates Court of South Australia
+        urls:
+          - https://www.courts.sa.gov.au/our-judiciary/
+      - name: Supreme Court of Tasmania
+        urls:
+          - https://www.supremecourt.tas.gov.au/the-court/judges/current-judges/
+      - name: Magistrates Court of Tasmania
+        urls:
+          - https://www.magistratescourt.tas.gov.au/about_us/magistrates
+      - name: Supreme Court of the Australian Capital Territory
+        urls:
+          - https://www.courts.act.gov.au/supreme/about-the-courts/judiciary
+          - https://www.courts.act.gov.au/supreme/about-the-courts/judiciary/Chronological-list-of-Former-and-Current-Judges,-Associate-Judge-and-Masters
+      - name: Magistrates Court of the Australian Capital Territory
+        urls:
+          - https://www.courts.act.gov.au/magistrates/about-the-courts/magistrates-court-judiciary
+      - name: Supreme Court of the Northern Territory
+        urls:
+          - https://supremecourt.nt.gov.au/about/judges
+      - name: Local Court of the Northern Territory
+        urls:
+          - https://localcourt.nt.gov.au/about-us/judges
