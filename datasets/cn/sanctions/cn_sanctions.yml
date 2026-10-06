@@ -62,6 +62,11 @@ dates:
 tags:
   - list.sanction.counter
   - list.export
+  - target.us
+  - target.jp
+  - target.tw
+  - target.ca
+  - target.gb
 
 assertions:
   min:
