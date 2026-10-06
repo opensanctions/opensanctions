@@ -173,6 +173,10 @@ INFO_LABELS = {
     "OGRN": "ogrnCode",
     "KPP": "kppCode",
     "Website": "website",
+    # Social-media profiles are printed as plain account URLs; the contract
+    # has no social-media column, so they go to `website` like any other URL.
+    "X account": "website",
+    "Instagram account": "website",
     "Phone number": "phone",
 }
 # Columns whose labelled value legitimately continues onto bare follow-on
