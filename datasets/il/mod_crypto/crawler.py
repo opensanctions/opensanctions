@@ -1,7 +1,7 @@
-import csv
+import csv  # TODO: Remove after the rekey run (see rekey_seizures_csv)
 import re
-import unicodedata
-from pathlib import Path
+import unicodedata  # TODO: Remove after the rekey run (see rekey_seizures_csv)
+from pathlib import Path  # TODO: Remove after the rekey run (see rekey_seizures_csv)
 from typing import Any
 
 import orjson
@@ -129,8 +129,11 @@ def crawl(context: Context) -> None:
     orders = fetch_content(context, "seizureAndForfeitureOrder", "en")
     wallets = fetch_content(context, "cryptocurrencyWallet", "en")
     operatives = fetch_variants(context, "operative")
-    organizations = fetch_variants(context, "organization")
+    orgs = fetch_variants(context, "organization")
 
+    # Map wallet IDs to the Administrative Seizure Orders (ASO)
+    # and Forfeiture Orders (FO) they are involved in.
+    # wallet_orders["ca5ce146-…"] == [<FO 55/23>, <FO 19/23>, <FO 56/23>]
     wallet_orders: dict[str, list[Item]] = {}
     for order in orders.values():
         for asset in order["properties"]["assets"] or []:
@@ -139,42 +142,46 @@ def crawl(context: Context) -> None:
 
     holders: dict[str, Entity] = {}
     holder_variants: dict[str, list[Item]] = {}
+    # TODO: Remove after the rekey run (see rekey_seizures_csv)
     # Wallet address -> (wallet ID, holder IDs), for rekeying
     new_ids: dict[str, tuple[str, list[str]]] = {}
     for wallet_item in wallets.values():
-        props = dict(wallet_item["properties"])
-        if props.pop("assetType") != "Crypto Wallet":
+        wallet_props = dict(wallet_item["properties"])
+        if wallet_props.pop("assetType") != "Crypto Wallet":
             raise ValueError(f"Unexpected asset type: {wallet_item}")
         wallet_holders: list[Entity] = []
-        for prop in HOLDER_PROPS:
-            for ref in props.pop(prop) or []:
-                if ref["name"] == ANONYMOUS:
+        for holder_prop in HOLDER_PROPS:
+            for holder_ref in wallet_props.pop(holder_prop) or []:
+                if holder_ref["name"] == ANONYMOUS:
                     continue
-                if ref["id"] not in holders:
-                    if ref["id"] in operatives:
-                        holder_variants[ref["id"]] = operatives[ref["id"]]
-                        holders[ref["id"]] = make_operative(
-                            context, operatives[ref["id"]]
+                if holder_ref["id"] not in holders:
+                    if holder_ref["id"] in operatives:
+                        holder_variants[holder_ref["id"]] = operatives[holder_ref["id"]]
+                        holders[holder_ref["id"]] = make_operative(
+                            context, operatives[holder_ref["id"]]
                         )
                     else:
-                        holder_variants[ref["id"]] = organizations[ref["id"]]
-                        holders[ref["id"]] = make_organization(
-                            context, organizations[ref["id"]]
+                        holder_variants[holder_ref["id"]] = orgs[holder_ref["id"]]
+                        holders[holder_ref["id"]] = make_organization(
+                            context, orgs[holder_ref["id"]]
                         )
-                wallet_holders.append(holders[ref["id"]])
+                wallet_holders.append(holders[holder_ref["id"]])
+        # TODO: Remove after the rekey run (see rekey_seizures_csv)
         holder_ids = [holder.id for holder in wallet_holders if holder.id is not None]
 
-        coin = props.pop("coinType")
+        coin = wallet_props.pop("coinType")
         # A single item can give an Ethereum and a TRON address, comma-separated
-        for address in h.multi_split(props.pop("walletAddress"), [", "]):
+        for address in h.multi_split(wallet_props.pop("walletAddress"), [", "]):
             wallet = context.make("CryptoWallet")
             wallet.id = context.make_id(address)
             assert wallet.id is not None
             apply_address(context, wallet, address, coin)
             wallet.add("holder", wallet_holders)
             wallet.add("sourceUrl", source_url(wallet_item))
+            # TODO: Remove after the rekey run (see rekey_seizures_csv)
             new_ids[address] = (wallet.id, holder_ids)
 
+            # Create a sanction for each Order
             for order in wallet_orders.get(wallet_item["id"], []):
                 order_props = order["properties"]
                 sanction = h.make_sanction(context, wallet, key=order_key(order))
@@ -189,19 +196,19 @@ def crawl(context: Context) -> None:
             if wallet_item["id"] not in wallet_orders:
                 context.log.warning("Wallet without order", address=address)
             context.emit(wallet)
-        context.audit_data(props)
+        context.audit_data(wallet_props)
 
     for holder in holders.values():
         context.emit(holder)
 
     for order in orders.values():
-        props = dict(order["properties"])
+        wallet_props = dict(order["properties"])
         for key in ("orderType", "orderNumber", "orderDate", "validityDate", "assets"):
-            props.pop(key)
-        if props.pop("isHidden") is not False:
+            wallet_props.pop(key)
+        if wallet_props.pop("isHidden") is not False:
             context.log.warning("Hidden order", order=order["name"])
         context.audit_data(
-            props,
+            wallet_props,
             ignore=[
                 # Also given on the wallets, but the order lists holders of all
                 # seized assets
@@ -214,10 +221,12 @@ def crawl(context: Context) -> None:
         "wallets",
         {"wallets": wallets, "orders": orders, "holders": holder_variants},
     )
+    # TODO: Remove after the rekey run (see rekey_seizures_csv)
     rekey_seizures_csv(context, new_ids)
 
 
-# TODO: Remove with seizures.csv once this has run in production.
+# TODO: Remove everything below, seizures.csv, and the code marked with TODOs above
+# once this has run in production.
 # Before switching to the API, the crawler read seizures.csv, maintained by hand
 # from the old NBCTF site. Its values were obfuscated with homoglyphs and invisible
 # characters, so some of the IDs made from them differ from the IDs made from the

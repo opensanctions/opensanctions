@@ -51,6 +51,11 @@ assertions:
       # entirely.
       Person:
         name: 0.9
+      # Wallets get crime.terror while one of their orders is valid. 82% did at
+      # the time of writing. Orders covering about half the wallets are valid
+      # until 2026-12-09, so this fails then unless the source extends them.
+      CryptoWallet:
+        topics: 0.75
   max:
     schema_entities:
       Person: 1500

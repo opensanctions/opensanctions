@@ -1,7 +1,5 @@
 """Helpers for the Umbraco Content Delivery API behind the Israeli Ministry of
-Defense's National Bureau for Counter Terror Financing (NBCTF) site.
-
-Used by il_mod_terrorists and il_mod_crypto."""
+Defense's National Bureau for Counter Terror Financing (NBCTF) site."""
 
 import re
 from typing import Any
