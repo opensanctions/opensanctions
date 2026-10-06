@@ -45,7 +45,6 @@ def wrap_test():
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
     get_version_history.cache_clear()
-    meta.create_all(bind=get_engine())
     yield
     get_catalog.cache_clear()
     # Cache and Resolver own per-instance MetaData, so dropping a fixed list of
@@ -57,6 +56,14 @@ def wrap_test():
     drop_meta.reflect(bind=engine)
     drop_meta.drop_all(bind=engine)
     close_db()
+
+
+@pytest.fixture(scope="function")
+def zavod_db() -> None:
+    """Engine-bound, not session-bound like ``funes_db``: the code under
+    test reaches the database through ``context.db``, and on in-memory
+    SQLite every pooled connection is a separate database."""
+    meta.create_all(bind=get_engine())
 
 
 @pytest.fixture(scope="function")
