@@ -31,19 +31,19 @@ PRICES: dict[str, tuple[float, float, float, float]] = {
 }
 CODEBOOK = (Path(__file__).parent / "codebook.md").read_text()
 
-ANNOTATOR_PROMPT = f"""Classify the position label below by government level, function and
+ANNOTATOR_PROMPT = f"""Classify the position label below by government level, role and
 seniority, following the codebook. The dataset name, countries and subnational areas
 describe where the label was published. Use them as context for the title.
 
 Where the codebook says a dimension is undecided, answer 'undecided' for level or
-seniority, and give no functions. Do not guess.
+seniority, and give no roles. Do not guess.
 
 <codebook>
 {CODEBOOK}
 </codebook>
 """
 
-REVIEWER_PROMPT = f"""An annotator classified a position label by government level, function
+REVIEWER_PROMPT = f"""An annotator classified a position label by government level, role
 and seniority, using the codebook below. Re-check the annotation against the label.
 
 Veto — escalating the label to a human — only if the annotation itself is unsafe: it
@@ -95,7 +95,7 @@ class Saver:
 
     def __init__(
         self, path: Path, records: list[AnnotationRecord], interval: float = 5.0
-    ):
+    ) -> None:
         self.path = path
         self.records = records
         self.interval = interval
