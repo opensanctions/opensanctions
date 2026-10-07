@@ -1,10 +1,12 @@
 import asyncio
 import time
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 import click
+import yaml  # type: ignore[import-untyped]
 from genai_prices import UpdatePrices
 from pydantic_ai import Agent, AgentRunResult, NativeOutput
 from pydantic_ai.models.anthropic import AnthropicModelSettings
@@ -20,8 +22,10 @@ from zavod.meta import Dataset, load_directory_catalog
 
 from models import (
     DATA_DIR,
+    DATASETS_DIR,
     AnnotationRecord,
     AnnotatorResponse,
+    DatasetConfig,
     Item,
     VetoResponse,
     read_items,
@@ -36,7 +40,9 @@ WEB_SEARCH_MAX_USES = 5
 
 ANNOTATOR_PROMPT = f"""Classify the position label below by government level, role and
 seniority, following the codebook. The dataset, countries and subnational areas
-describe where the label was published. Use them as context for the title.
+describe where the label was published. Use them as context for the title. A
+dataset note, if given, states facts about all positions in the dataset: treat it as
+evidence.
 
 Where the codebook says a dimension is undecided, answer 'undecided' for level or
 seniority, and give no roles. Do not guess.
@@ -65,7 +71,8 @@ assigns a value that the evidence does not support where the codebook requires
 annotation still holds: note it in your reasoning and approve.
 
 The annotator could search the web; you cannot. You may use the evidence in
-key_evidence, including web facts with a source URL and a verbatim quote.
+key_evidence, including web facts with a source URL and a verbatim quote. A dataset
+note, if given, states facts about all positions in the dataset: treat it as evidence.
 
 <codebook>
 {CODEBOOK}
@@ -73,7 +80,15 @@ key_evidence, including web facts with a source URL and a verbatim quote.
 """
 
 
-def render_item(item: Item, dataset: Dataset) -> str:
+@dataclass(frozen=True)
+class DatasetContext:
+    dataset: Dataset
+    config: DatasetConfig
+
+
+def render_item(item: Item, context: DatasetContext) -> str:
+    model = context.dataset.model
+    addendum = context.config.prompt_addendum
     return (
         "<position>\n"
         f"Title: {item.caption}\n"
@@ -81,17 +96,42 @@ def render_item(item: Item, dataset: Dataset) -> str:
         f"Subnational areas: {'; '.join(item.subnational_areas) or '-'}\n"
         "</position>\n\n"
         "<dataset>\n"
-        f"Name: {dataset.name}\n"
-        f"Title: {dataset.model.title}\n"
-        f"Summary: {(dataset.model.summary or '-').strip()}\n"
-        f"Description:\n{(dataset.model.description or '-').strip()}\n"
+        f"Name: {context.dataset.name}\n"
+        f"Title: {model.title}\n"
+        f"Summary: {(model.summary or '-').strip()}\n"
+        f"Description:\n{(model.description or '-').strip()}\n"
         "</dataset>"
+        + (
+            f"\n\n<dataset_note>\n{addendum.strip()}\n</dataset_note>"
+            if addendum
+            else ""
+        )
     )
 
 
-def load_datasets(items: list[Item]) -> dict[str, Dataset]:
+def load_dataset_configs() -> dict[str, DatasetConfig]:
+    configs: dict[str, DatasetConfig] = {}
+    for path in sorted(DATASETS_DIR.glob("**/*.yml")):
+        if path.stem in configs:
+            raise click.ClickException(f"Duplicate dataset config: {path}")
+        with path.open() as fh:
+            configs[path.stem] = DatasetConfig.model_validate(yaml.safe_load(fh))
+    return configs
+
+
+def load_datasets(items: list[Item]) -> dict[str, DatasetContext]:
     catalog = load_directory_catalog()
-    return {name: catalog.require(name) for name in sorted({i.dataset for i in items})}
+    configs = load_dataset_configs()
+    # A config named after no known dataset is a typo that would silently do nothing.
+    for name in configs:
+        catalog.require(name)
+    return {
+        name: DatasetContext(
+            dataset=catalog.require(name),
+            config=configs.get(name, DatasetConfig()),
+        )
+        for name in sorted({i.dataset for i in items})
+    }
 
 
 def load_records(items: list[Item], output: Path) -> list[AnnotationRecord]:
@@ -138,7 +178,7 @@ def model_responses(result: AgentRunResult[Any]) -> list[ModelResponse]:
 
 async def run_models(
     records: list[AnnotationRecord],
-    datasets: dict[str, Dataset],
+    datasets: dict[str, DatasetContext],
     saver: Saver,
     concurrency: int,
     responses: dict[str, list[ModelResponse]],
