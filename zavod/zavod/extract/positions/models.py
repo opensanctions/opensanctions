@@ -1,6 +1,7 @@
 from collections.abc import Sequence
+from datetime import datetime
 from pathlib import Path
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 from uuid import UUID, uuid5
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -56,34 +57,68 @@ class DatasetConfig(BaseModel):
 class Annotation(BaseModel):
     """The level, role and seniority of a position, as defined in codebook.md."""
 
-    out_of_scope: bool = Field(
-        description="True if the position is a confirmed private or unrelated role."
-    )
-    level: Level | None = Field(
+    level: Level = Field(
         description=(
             "The governing jurisdiction. 'none' if no government level applies, "
-            "'undecided' if one applies but the evidence does not identify it. "
-            "Null if out of scope."
+            "'undecided' if one applies but the evidence does not identify it."
         )
     )
     roles: list[Role] = Field(
+        description="The roles of the office. Empty if the evidence does not establish a role."
+    )
+    seniority: Seniority = Field(
         description=(
-            "The roles of the office. Empty if out of scope or if the evidence "
-            "does not establish a role."
+            "The rank within the level/role combination. 'undecided' if the "
+            "evidence does not establish it."
         )
     )
-    seniority: Seniority | None = Field(
-        description="The rank within the level/role combination. Null if out of scope."
-    )
 
-    @model_validator(mode="after")
-    def check_scope(self) -> Self:
-        if self.out_of_scope:
-            if self.level is not None or self.roles or self.seniority is not None:
-                raise ValueError("An out-of-scope annotation must not assign labels.")
-        elif self.level is None or self.seniority is None:
-            raise ValueError("An in-scope annotation must assign level and seniority.")
-        return self
+    def labels(self) -> "Annotation":
+        return Annotation(
+            level=self.level, roles=list(self.roles), seniority=self.seniority
+        )
+
+
+class GoldenAnnotation(Annotation):
+    """A reference annotation for evaluation."""
+
+    type: Literal["golden"] = "golden"
+    note: str = Field(description="Why the item is in the golden set.")
+
+
+class Review(BaseModel):
+    created_at: datetime
+    model: str
+    reasoning: str
+    veto: bool
+
+
+class PrimaryAnnotation(Annotation):
+    type: Literal["primary"] = "primary"
+    id: UUID
+    created_at: datetime
+    model: str
+    # A hash of the item as rendered for the models, including the dataset context.
+    context_hash: str
+    key_evidence: str
+    reasoning: str
+    review: Review | None = None
+
+
+class HumanAnnotation(Annotation):
+    """A human decision on a vetoed primary annotation."""
+
+    type: Literal["human"] = "human"
+    created_at: datetime
+    author: str
+    target: UUID
+    note: str | None = None
+
+
+AnyAnnotation = Annotated[
+    GoldenAnnotation | PrimaryAnnotation | HumanAnnotation,
+    Field(discriminator="type"),
+]
 
 
 class AnnotatorResponse(BaseModel):
@@ -108,13 +143,59 @@ class VetoResponse(BaseModel):
 class AnnotationRecord(BaseModel):
     id: UUID
     item: Item
-    primary_model: str | None = None
-    primary: AnnotatorResponse | None = None
-    review_model: str | None = None
-    review: VetoResponse | None = None
-    human: Annotation | None = None
-    # The primary annotation if the reviewer approves it, otherwise the human one.
-    annotation: Annotation | None = None
+    annotations: list[AnyAnnotation] = []
+
+    @model_validator(mode="after")
+    def check_annotations(self) -> Self:
+        if len([a for a in self.annotations if isinstance(a, GoldenAnnotation)]) > 1:
+            raise ValueError(f"Record {self.id} has more than one golden annotation.")
+        primary_ids = {a.id for a in self.primaries()}
+        targets = [a.target for a in self.annotations if isinstance(a, HumanAnnotation)]
+        if not set(targets) <= primary_ids:
+            raise ValueError(f"Record {self.id} has a human annotation without target.")
+        if len(set(targets)) != len(targets):
+            raise ValueError(
+                f"Record {self.id} has two human annotations on one target."
+            )
+        return self
+
+    def primaries(self) -> list[PrimaryAnnotation]:
+        return [a for a in self.annotations if isinstance(a, PrimaryAnnotation)]
+
+    def latest_primary(self) -> PrimaryAnnotation | None:
+        primaries = self.primaries()
+        return primaries[-1] if primaries else None
+
+    def golden(self) -> GoldenAnnotation | None:
+        for annotation in self.annotations:
+            if isinstance(annotation, GoldenAnnotation):
+                return annotation
+        return None
+
+    def human_on(self, primary: PrimaryAnnotation) -> HumanAnnotation | None:
+        for annotation in self.annotations:
+            if (
+                isinstance(annotation, HumanAnnotation)
+                and annotation.target == primary.id
+            ):
+                return annotation
+        return None
+
+    def final_annotation(self) -> Annotation | None:
+        """The golden annotation, else the human decision on the latest primary
+        annotation, else the latest primary annotation if the reviewer approved it."""
+        golden = self.golden()
+        if golden is not None:
+            return golden.labels()
+        primary = self.latest_primary()
+        if primary is None:
+            return None
+        human = self.human_on(primary)
+        if human is not None:
+            return human.labels()
+        if primary.review is not None and not primary.review.veto:
+            return primary.labels()
+        return None
 
 
 def read_items(path: Path) -> list[Item]:

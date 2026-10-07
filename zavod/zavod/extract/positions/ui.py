@@ -1,4 +1,6 @@
+import getpass
 from collections.abc import Callable
+from datetime import UTC, datetime
 
 from rich.console import Group
 from rich.panel import Panel
@@ -10,7 +12,6 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen, Screen
 from textual.widgets import (
     Button,
-    Checkbox,
     DataTable,
     Footer,
     Header,
@@ -21,26 +22,41 @@ from textual.widgets import (
     Static,
 )
 
-from models import LEVELS, ROLES, SENIORITIES, Annotation, AnnotationRecord
+from models import (
+    LEVELS,
+    ROLES,
+    SENIORITIES,
+    Annotation,
+    AnnotationRecord,
+    GoldenAnnotation,
+    HumanAnnotation,
+    PrimaryAnnotation,
+)
 
-STATE_STYLES = {"pending": "dim", "approved": "green", "vetoed": "red", "human": "blue"}
+STATE_STYLES = {
+    "pending": "dim",
+    "approved": "green",
+    "vetoed": "red",
+    "human": "blue",
+    "golden": "yellow",
+}
 
 
 def record_state(record: AnnotationRecord) -> str:
-    if record.review is None:
+    if record.golden() is not None:
+        return "golden"
+    primary = record.latest_primary()
+    if primary is None or primary.review is None:
         return "pending"
-    if not record.review.veto:
+    if not primary.review.veto:
         return "approved"
-    if record.human is None:
+    if record.human_on(primary) is None:
         return "vetoed"
     return "human"
 
 
 def format_annotation(annotation: Annotation) -> Table:
     table = Table.grid(padding=(0, 2))
-    if annotation.out_of_scope:
-        table.add_row("[bold]Out of scope[/bold]")
-        return table
     table.add_row("Level", str(annotation.level))
     table.add_row("Roles", ", ".join(annotation.roles) or "[dim]undecided[/dim]")
     table.add_row("Seniority", str(annotation.seniority))
@@ -59,36 +75,54 @@ def render_record(record: AnnotationRecord) -> Group:
     item_table.add_row("State", Text(state, style=STATE_STYLES[state]))
 
     panels: list[Panel] = [Panel(item_table, title="Position")]
-    if record.primary is not None:
-        panels.append(
-            Panel(
-                Group(
-                    format_annotation(record.primary.annotation),
-                    "",
-                    Text("Key evidence", style="bold"),
-                    Text(record.primary.key_evidence),
-                    "",
-                    Text("Reasoning", style="bold"),
-                    Text(record.primary.reasoning),
-                ),
-                title=f"Annotation — {record.primary_model}",
-                border_style="cyan",
-            )
-        )
-    if record.review is not None:
-        verdict = "Veto" if record.review.veto else "Approval"
-        panels.append(
-            Panel(
-                Text(record.review.reasoning),
-                title=f"{verdict} — {record.review_model}",
-                border_style="red" if record.review.veto else "green",
-            )
-        )
-    if record.human is not None:
-        panels.append(
-            Panel(format_annotation(record.human), title="Human", border_style="blue")
-        )
+    for annotation in record.annotations:
+        panels.extend(annotation_panels(annotation))
     return Group(*panels)
+
+
+def annotation_panels(
+    annotation: GoldenAnnotation | PrimaryAnnotation | HumanAnnotation,
+) -> list[Panel]:
+    if isinstance(annotation, GoldenAnnotation):
+        body = Group(format_annotation(annotation), "", Text(annotation.note))
+        return [Panel(body, title="Golden", border_style="yellow")]
+    if isinstance(annotation, HumanAnnotation):
+        parts: list[Table | Text | str] = [format_annotation(annotation)]
+        if annotation.note is not None:
+            parts.extend(["", Text(annotation.note)])
+        return [
+            Panel(
+                Group(*parts),
+                title=f"Human — {annotation.author}",
+                border_style="blue",
+            )
+        ]
+    panels = [
+        Panel(
+            Group(
+                format_annotation(annotation),
+                "",
+                Text("Key evidence", style="bold"),
+                Text(annotation.key_evidence),
+                "",
+                Text("Reasoning", style="bold"),
+                Text(annotation.reasoning),
+            ),
+            title=f"Annotation — {annotation.model}",
+            border_style="cyan",
+        )
+    ]
+    review = annotation.review
+    if review is not None:
+        verdict = "Veto" if review.veto else "Approval"
+        panels.append(
+            Panel(
+                Text(review.reasoning),
+                title=f"{verdict} — {review.model}",
+                border_style="red" if review.veto else "green",
+            )
+        )
+    return panels
 
 
 class EditScreen(ModalScreen[Annotation | None]):
@@ -117,7 +151,6 @@ class EditScreen(ModalScreen[Annotation | None]):
     def compose(self) -> ComposeResult:
         current = self.current
         with Vertical(id="dialog"):
-            yield Checkbox("Out of scope", current.out_of_scope, id="out-of-scope")
             with Horizontal(id="labels"):
                 with Vertical():
                     yield Label("Level")
@@ -141,15 +174,6 @@ class EditScreen(ModalScreen[Annotation | None]):
                 yield Button("Save (ctrl+s)", variant="primary", id="save")
                 yield Button("Cancel (esc)", id="cancel")
 
-    def on_mount(self) -> None:
-        self.set_scope(self.current.out_of_scope)
-
-    def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
-        self.set_scope(event.value)
-
-    def set_scope(self, out_of_scope: bool) -> None:
-        self.query_one("#labels").disabled = out_of_scope
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":
             self.action_save()
@@ -160,11 +184,6 @@ class EditScreen(ModalScreen[Annotation | None]):
         self.dismiss(None)
 
     def action_save(self) -> None:
-        if self.query_one("#out-of-scope", Checkbox).value:
-            self.dismiss(
-                Annotation(out_of_scope=True, level=None, roles=[], seniority=None)
-            )
-            return
         level_index = self.query_one("#level", RadioSet).pressed_index
         seniority_index = self.query_one("#seniority", RadioSet).pressed_index
         if level_index < 0 or seniority_index < 0:
@@ -173,7 +192,6 @@ class EditScreen(ModalScreen[Annotation | None]):
         selected = self.query_one("#roles", SelectionList).selected
         self.dismiss(
             Annotation(
-                out_of_scope=False,
                 level=LEVELS[level_index],
                 roles=[role for role in ROLES if role in selected],
                 seniority=SENIORITIES[seniority_index],
@@ -217,20 +235,30 @@ class ReviewScreen(Screen[None]):
         self.sub_title = f"Vetoed {self.position + 1}/{len(self.queue)}"
         self.query_one("#record", Static).update(render_record(self.record))
 
+    @property
+    def primary(self) -> PrimaryAnnotation:
+        primary = self.record.latest_primary()
+        assert primary is not None
+        return primary
+
     def decide(self, annotation: Annotation) -> None:
-        self.record.human = annotation
-        self.record.annotation = annotation
+        self.record.annotations.append(
+            HumanAnnotation(
+                **annotation.model_dump(),
+                created_at=datetime.now(UTC),
+                author=getpass.getuser(),
+                target=self.primary.id,
+            )
+        )
         self.on_change()
         self.position += 1
         self.show_current()
 
     def action_accept(self) -> None:
-        assert self.record.primary is not None
-        self.decide(self.record.primary.annotation.model_copy(deep=True))
+        self.decide(self.primary.labels())
 
     def action_edit(self) -> None:
-        assert self.record.primary is not None
-        self.app.push_screen(EditScreen(self.record.primary.annotation), self.on_edited)
+        self.app.push_screen(EditScreen(self.primary.labels()), self.on_edited)
 
     def on_edited(self, annotation: Annotation | None) -> None:
         if annotation is not None:
@@ -267,13 +295,9 @@ class ListScreen(Screen[None]):
         )
         for index, record in enumerate(self.records, 1):
             state = record_state(record)
-            annotation = record.annotation
-            if annotation is None and record.primary is not None:
-                annotation = record.primary.annotation
+            annotation = record.final_annotation() or record.latest_primary()
             if annotation is None:
                 labels = ["", "", ""]
-            elif annotation.out_of_scope:
-                labels = ["out of scope", "", ""]
             else:
                 labels = [
                     str(annotation.level),
