@@ -49,8 +49,10 @@ describe where the label was published. Use them as context for the title. A
 dataset note, if given, states facts about all positions in the dataset: treat it as
 evidence.
 
-Where the codebook says a dimension is undecided, answer 'undecided' for level or
-seniority, and give no roles. Do not guess.
+Assume all enterprises encountered in our datasets meet the SOE criteria.
+
+For each undecided dimension, return 'undecided' for level or seniority, or no roles
+for role. Do not guess.
 
 Web search is available, up to {WEB_SEARCH_MAX_USES} searches: facts found through web
 research count as evidence. Use it to check facts about the office or its
@@ -69,11 +71,15 @@ that states it verbatim. Do not present inferences as facts.
 REVIEWER_PROMPT = f"""An annotator classified a position label by government level, role
 and seniority, using the codebook below. Re-check the annotation against the label.
 
+Assume all enterprises encountered in our datasets meet the SOE criteria.
+
 Veto — escalating the label to a human — only if the annotation itself is unsafe: it
 contradicts a codebook rule, it ignores information in the label or its context, or it
 assigns a value that the evidence does not support where the codebook requires
 'undecided'. A misstated detail in the reasoning is not a reason to veto if the
 annotation still holds: note it in your reasoning and approve.
+
+Seniority is often guesswork, so only veto if the evidence contradicts the annotation.
 
 The annotator could search the web; you cannot. You may use the evidence in
 key_evidence, including web facts with a source URL and a verbatim quote. A dataset

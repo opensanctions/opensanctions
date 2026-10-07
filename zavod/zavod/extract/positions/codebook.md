@@ -51,9 +51,10 @@ Diplomatic, party, and religious roles do not require a level in this methodolog
 Leave level unassigned when no government level applies.
 Use undecided when a government level applies but the evidence does not identify it.
 
-## Role describes the office's work
+## Role describes the office's work or organization
 
-Assign the most specific supported role. Seniority does not determine role.
+For SOE positions, use `gov.soe`. Otherwise, assign the most specific supported role.
+Seniority does not determine role.
 
 - `gov.head`: National head of state or government.
   Examples: president of a country, prime minister, monarch.
@@ -69,9 +70,10 @@ Assign the most specific supported role. Seniority does not determine role.
   Examples: general, admiral, intelligence agency head.
 - `gov.financial`: Central banking, financial regulation, or financial governance of an IGO.
   Examples: central bank governor, financial regulator board member, IMF Executive Board member.
-- `gov.soe`: Governance or management of a publicly controlled entity that offers goods or services on a market.
-  Examples: enterprise board member, chief executive, corporate manager.
-  See the SOE definition below.
+- `gov.soe`: All positions in an enterprise that provides goods or services under direct or indirect public control.
+  National, regional, and local authorities can control an enterprise through ownership, voting rights, board appointment rights, or governing rules.
+  A public minority holding, public funding, or regulation alone does not establish control.
+  Level can be hard to establish for `gov.soe`; leave it `undecided` when the evidence does not identify it.
 - `role.diplo`: Diplomatic representation.
   Examples: ambassador, high commissioner, permanent representative, diplomatic attaché.
 - `pol.party`: An office within a political party.
@@ -91,7 +93,7 @@ Apply these boundaries:
   Separate legal status, public funding, or an agency title alone does not establish `gov.soe`.
 - IGO board membership does not imply `gov.soe`.
   Use the role supported by the organization's work and the office's duties.
-- Classify support staff by their own duties. Employment in a parliament or
+- Outside SOEs, classify support staff by their own duties. Employment in a parliament or
   court does not by itself imply `gov.legislative` or `gov.judicial`.
 - A finance minister uses `gov.executive`. A finance department in an enterprise
   does not imply central banking or financial regulation.
@@ -181,7 +183,7 @@ It does not exclude a documented rank.
   - a) `leadership`: enterprise chief executive, board chair.
   - b) `senior`: governing board member, senior executive with enterprise-wide responsibility.
   - c) `middle`: division director, operational manager.
-  - d) `junior`: junior manager with limited authority.
+  - d) `junior`: staff with limited authority or supporting duties.
 - `role.diplo`:
   - a) `leadership`: ambassador, high commissioner, permanent representative.
   - b) `senior`: deputy head of mission.
@@ -242,47 +244,3 @@ Paragraph 38 leaves the precise PEP threshold to context.
 Paragraph 40 explicitly includes deputy ministers among possible PEP positions.
 The bands in this codebook describe rank within a level/role combination.
 They do not reproduce FATF's PEP threshold. A `middle` classification does not determine PEP status.
-
-## SOE definition
-
-A state-owned enterprise (SOE) offers goods or services on a market and is subject to public dominant influence.
-Establish both requirements before assigning `gov.soe`:
-
-- **Economic activity:** The entity offers goods or services on a market.
-  Legal form, funding method, and a profit objective do not determine whether its activity is economic.
-  Public powers alone do not establish economic activity.
-  Source: [Commission Notice 2016/C 262/01, paragraphs 7–12 and 17–18](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52016XC0719(05)).
-- **Public control:** Public authorities exercise dominant influence directly or indirectly through ownership, financial participation, or governing rules.
-  National, regional, and local authorities all qualify.
-  Source: [Directive 2006/111/EC, Article 2(a)–(b)](https://eur-lex.europa.eu/eli/dir/2006/111/oj/eng).
-
-Public dominant influence is presumed when the authorities directly or indirectly have any of these rights:
-
-- A majority of the enterprise's subscribed capital.
-- Control of the majority of votes attached to its shares.
-- The right to appoint more than half the members of an administrative, management, or supervisory body.
-
-These presumptions do not exclude other documented dominant influence.
-Source: [Directive 2006/111/EC, Article 2(b)](https://eur-lex.europa.eu/eli/dir/2006/111/oj/eng).
-
-Apply these boundaries:
-
-- A public minority holding alone does not establish control.
-- Public funding or regulation alone does not establish control.
-- Municipal and regional enterprises can use `gov.soe`.
-  Assign their government level separately.
-- For entities with mixed economic and public-authority activities, establish which activity the office governs.
-- Record the evidence for economic activity, public control, and the office's duties.
-  Leave the enterprise boundary undecided when the evidence cannot establish it.
-
-Examples:
-
-- A municipal water enterprise selling services under municipal control qualifies for `gov.soe`.
-- A ministry's licensing agency uses `gov.admin` when it only exercises public powers.
-
-### Enterprise classification and EU PEP scope
-
-The EU AML Regulation generally applies from 10 July 2027.
-It limits regional and local enterprise coverage to medium or large enterprises or groups.
-Those size limits govern its PEP scope. They do not define the role in this codebook.
-Sources: [Regulation (EU) 2024/1624, Articles 2(1)(34)(a)(vii) and 90](https://eur-lex.europa.eu/eli/reg/2024/1624/oj/eng).
