@@ -1,6 +1,12 @@
+import json
+
+import pytest
+
 from zavod.extract.names.clean import (
     LangText,
     Names,
+    SINGLE_ENTITY_PROGRAM_PATH,
+    load_single_entity_program,
     load_single_entity_prompt,
 )
 
@@ -92,3 +98,66 @@ def test_load_single_entity_prompt():
     prompt = load_single_entity_prompt()
     assert isinstance(prompt, str)
     assert len(prompt.strip()) > 0
+
+
+def test_load_single_entity_program_contract():
+    # The artifact declares the model the prompt was tuned for and the fields
+    # it expects; production reads both instead of keeping its own constants.
+    program = load_single_entity_program()
+    assert program.model == "gpt-5.4"
+    assert sorted(program.input_fields) == ["entity_schema", "strings"]
+    assert sorted(program.output_fields) == [
+        "alias",
+        "name",
+        "previousName",
+        "weakAlias",
+    ]
+
+
+def write_program(tmp_path, **overrides):
+    artifact = json.loads(SINGLE_ENTITY_PROGRAM_PATH.read_text())
+    artifact.update(overrides)
+    path = tmp_path / "program.json"
+    path.write_text(json.dumps(artifact))
+    return path
+
+
+def test_rejects_drifted_output_fields(tmp_path, monkeypatch):
+    # If the tuning tooling ships a prompt working with different fields than
+    # this module expects, loading must fail loudly rather than mismapping.
+    path = write_program(tmp_path, output_fields=["name", "alias"])
+    monkeypatch.setattr("zavod.extract.names.clean.SINGLE_ENTITY_PROGRAM_PATH", path)
+    load_single_entity_program.cache_clear()
+    try:
+        with pytest.raises(ValueError, match="output fields"):
+            load_single_entity_program()
+    finally:
+        load_single_entity_program.cache_clear()
+
+
+def test_rejects_drifted_input_fields(tmp_path, monkeypatch):
+    path = write_program(tmp_path, input_fields=["entity_schema", "names"])
+    monkeypatch.setattr("zavod.extract.names.clean.SINGLE_ENTITY_PROGRAM_PATH", path)
+    load_single_entity_program.cache_clear()
+    try:
+        with pytest.raises(ValueError, match="input fields"):
+            load_single_entity_program()
+    finally:
+        load_single_entity_program.cache_clear()
+
+
+def test_rejects_artifact_without_contract(tmp_path, monkeypatch):
+    # Artifacts written before the contract keys existed must not load: there
+    # would be no model version or field declaration to validate against.
+    artifact = json.loads(SINGLE_ENTITY_PROGRAM_PATH.read_text())
+    for key in ("model", "input_fields", "output_fields"):
+        del artifact[key]
+    path = tmp_path / "program.json"
+    path.write_text(json.dumps(artifact))
+    monkeypatch.setattr("zavod.extract.names.clean.SINGLE_ENTITY_PROGRAM_PATH", path)
+    load_single_entity_program.cache_clear()
+    try:
+        with pytest.raises(ValueError):
+            load_single_entity_program()
+    finally:
+        load_single_entity_program.cache_clear()

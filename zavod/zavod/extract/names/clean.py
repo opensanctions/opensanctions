@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
 
-LLM_MODEL_VERSION = "gpt-5.4"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "single_entity_program.json"
 # Properties that shouldn't be shown to the reviewer if they are empty,
 # so that they aren't tempted into populating them unless they had a value in the
@@ -206,11 +205,28 @@ class SourceNames(BaseModel):
     original: Names
 
 
+class SingleEntityInput(BaseModel):
+    """The flattened input sent to the single-entity prompt as JSON."""
+
+    entity_schema: str
+    strings: list[str]
+
+
 class DSPySignature(BaseModel):
     instructions: str
 
 
 class PredictProgramData(BaseModel):
+    """The name cleaning program artifact written by ``contrib/tune``.
+
+    Besides the serialised DSPy program (of which only the prompt instructions
+    are used here), the artifact carries a plain contract: which model the
+    prompt was tuned for, and which input and output fields it expects.
+    """
+
+    model: str
+    input_fields: list[str]
+    output_fields: list[str]
     signature: DSPySignature
 
 
@@ -232,16 +248,46 @@ def is_empty_string(text: str | LangText | None) -> bool:
 
 
 @cache
-def load_single_entity_prompt() -> str:
+def load_single_entity_program() -> PredictProgramData:
+    """Load the tuned program artifact, validating its field contract.
+
+    The expected fields are derived from the models in this module: the
+    prompt takes ``SingleEntityInput`` and produces every ``SimpleNames``
+    field except ``abbreviation``, which is analyst-only and never
+    requested from the LLM.
+    """
     with open(SINGLE_ENTITY_PROGRAM_PATH) as program_file:
         program = PredictProgramData.model_validate_json(program_file.read())
-        prompt = program.signature.instructions
-    return prompt
+    expected_input = list(SingleEntityInput.model_fields)
+    expected_output = [
+        field for field in SimpleNames.model_fields if field != "abbreviation"
+    ]
+    if sorted(program.input_fields) != sorted(expected_input):
+        raise ValueError(
+            f"Program artifact {SINGLE_ENTITY_PROGRAM_PATH} declares input "
+            f"fields {program.input_fields}, expected {expected_input}. "
+            "Regenerate the artifact with contrib/tune "
+            "(see zavod/docs/extract/names.md)."
+        )
+    if sorted(program.output_fields) != sorted(expected_output):
+        raise ValueError(
+            f"Program artifact {SINGLE_ENTITY_PROGRAM_PATH} declares output "
+            f"fields {program.output_fields}, expected {expected_output}. "
+            "Regenerate the artifact with contrib/tune "
+            "(see zavod/docs/extract/names.md)."
+        )
+    return program
+
+
+def load_single_entity_prompt() -> str:
+    """Load the prompt instructions from the tuned program artifact."""
+    return load_single_entity_program().signature.instructions
 
 
 def clean_names(context: Context, raw_names: SourceNames) -> SimpleNames:
     """Use an LLM to clean and categorise names."""
-    prompt = load_single_entity_prompt()
+    program = load_single_entity_program()
+    prompt = program.signature.instructions
 
     strings: list[str] = []
     for _prop, names in raw_names.original.as_langtexts():
@@ -249,19 +295,22 @@ def clean_names(context: Context, raw_names: SourceNames) -> SimpleNames:
             if name.text not in strings:
                 strings.append(name.text)
 
-    input_data = {"entity_schema": raw_names.entity_schema, "strings": strings}
-    input_string = "The entity schema and name strings as JSON:\n\n"
+    input_data = SingleEntityInput(
+        entity_schema=raw_names.entity_schema, strings=strings
+    )
+    # The prompt instructions frame the JSON input; only the serialized
+    # input is sent alongside them.
     # ensure_ascii=False so that non-ASCII like Алтайкапиталбанк
     # doesn't get escaped like \u0410\u043b\u0442\u0430\u0439\u043a\u0430\u...
     # which then results in a name in the response like \x041\x041\x041 \x041\x041 \x041
     # probably because gpt4o isn't trained on escape sequences, and we only
     # need it to be JSON-ish embedded in the input string to give it some structure.
-    input_string += json.dumps(input_data, indent=2, ensure_ascii=False)
+    input_string = json.dumps(input_data.model_dump(), indent=2, ensure_ascii=False)
 
     return run_typed_text_prompt(
         context=context,
         prompt=prompt,
         string=input_string,
         response_type=SimpleNames,
-        model=LLM_MODEL_VERSION,
+        model=program.model,
     )

@@ -5,7 +5,9 @@ import yaml
 
 import dspy  # type: ignore
 
-FIELDS = ["name", "alias", "weakAlias", "previousName"]
+from clean import CleanNamesSignature
+
+FIELDS = list(CleanNamesSignature.output_fields)
 EXAMPLES_PATH = Path(__file__).parent / "single_entity_examples.yml"
 
 

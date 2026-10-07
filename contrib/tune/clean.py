@@ -1,9 +1,24 @@
 from functools import cache
-
-from zavod.extract.names.clean import LLM_MODEL_VERSION, SINGLE_ENTITY_PROGRAM_PATH
-from zavod.settings import OPENAI_API_KEY
+import json
+import os
+from pathlib import Path
+from typing import Any
 
 import dspy  # type: ignore
+
+# The model the prompt is tuned and deployed with. This is the only place it
+# is chosen: it is written into the program artifact on save, and zavod reads
+# it back from there in production.
+MODEL = "gpt-5.4"
+
+# The program artifact is the deliverable of this tooling and the only file
+# shared with zavod, which loads and validates it on start-up.
+PROGRAM_PATH = (
+    Path(__file__)
+    .resolve()
+    .parents[2]
+    .joinpath("zavod", "zavod", "extract", "names", "single_entity_program.json")
+)
 
 
 class CleanNamesSignature(dspy.Signature):  # type: ignore
@@ -32,18 +47,78 @@ class CleanNamesSignature(dspy.Signature):  # type: ignore
     )
 
 
+class ProductionFormatAdapter(dspy.JSONAdapter):  # type: ignore
+    """Run LM calls with exactly the wire format production uses.
+
+    Production (``zavod.extract.llm.run_typed_text_prompt``) sends one user
+    message with the prompt instructions and the input JSON as two text
+    parts, and constrains the response with a JSON schema. This adapter
+    formats calls the same way, so GEPA optimises the prompt and ``compare``
+    evaluates it under deployment conditions rather than inside dspy's
+    default chat scaffolding, which production never sends. The
+    JSON-schema-constrained output is inherited from JSONAdapter, which
+    requests an OpenAI-style ``response_format``.
+
+    The framing of the JSON input is part of the tuned instructions in the
+    program artifact, so both sides agree on it by construction; keep the
+    JSON serialization in sync with
+    ``zavod.extract.names.clean.clean_names``.
+
+    Few-shot demos have no production equivalent, so their presence is an
+    error rather than a silent divergence.
+    """
+
+    def format(
+        self, signature: Any, demos: list[Any], inputs: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        assert not demos, "demos cannot be rendered in the production format"
+        input_string = json.dumps(
+            {
+                "entity_schema": inputs["entity_schema"],
+                "strings": inputs["strings"],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+        return [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": signature.instructions},
+                    {"type": "text", "text": input_string},
+                ],
+            }
+        ]
+
+
+def get_openai_api_key() -> str:
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if api_key is None:
+        raise RuntimeError("Set $OPENAI_API_KEY to run the tuning tools.")
+    return api_key
+
+
 @cache
 def init_module() -> dspy.Predict:
     """Initialise a bare DSPy module for name splitting."""
-    lm = dspy.LM(f"openai/{LLM_MODEL_VERSION}", api_key=OPENAI_API_KEY)
+    lm = dspy.LM(f"openai/{MODEL}", api_key=get_openai_api_key())
     dspy.configure(lm=lm)
-    dspy.configure_cache(enable_disk_cache=False, enable_memory_cache=True)
+    dspy.configure(adapter=ProductionFormatAdapter())
+    # Cache LM responses on disk so repeated compare runs don't re-bill.
+    # Cache keys include the prompt, so optimisation is unaffected.
+    dspy.configure_cache(enable_disk_cache=True, enable_memory_cache=True)
     return dspy.Predict(CleanNamesSignature)
 
 
 @cache
 def load_optimised_module() -> dspy.Predict:
     """Load the optimised name splitting DSPy module."""
+    program_data = json.loads(PROGRAM_PATH.read_text())
+    artifact_model = program_data.get("model")
+    assert artifact_model == MODEL, (
+        f"Program artifact {PROGRAM_PATH} was tuned for {artifact_model!r}, "
+        f"but this tooling runs {MODEL!r}."
+    )
     module = init_module()
-    module.load(SINGLE_ENTITY_PROGRAM_PATH)
+    module.load(PROGRAM_PATH)
     return module

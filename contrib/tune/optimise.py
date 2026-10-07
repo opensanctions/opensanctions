@@ -1,10 +1,15 @@
+import json
 from pathlib import Path
 from typing import Any
 
 from normality import slugify
-from clean import init_module
+from clean import (
+    MODEL,
+    CleanNamesSignature,
+    get_openai_api_key,
+    init_module,
+)
 from example_data import FIELDS, load_data
-from zavod.settings import OPENAI_API_KEY
 
 import dspy  # type: ignore
 
@@ -71,7 +76,10 @@ def optimise_single_entity(
         track_stats=False,
         use_merge=False,
         reflection_lm=dspy.LM(
-            model="gpt-5", temperature=1.0, max_tokens=32000, api_key=OPENAI_API_KEY
+            model="gpt-5",
+            temperature=1.0,
+            max_tokens=32000,
+            api_key=get_openai_api_key(),
         ),
         seed=0,
     )
@@ -80,6 +88,17 @@ def optimise_single_entity(
     )
 
     optimized_program.save(program_path, save_program=False)
+
+    # Write the contract that zavod validates on load: which model this
+    # prompt is tuned for, and the fields it takes and produces.
+    program_data = json.loads(program_path.read_text())
+    program_data["model"] = MODEL
+    program_data["input_fields"] = list(CleanNamesSignature.input_fields)
+    program_data["output_fields"] = list(CleanNamesSignature.output_fields)
+    program_path.write_text(
+        json.dumps(program_data, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
 
     for predictor in optimized_program.predictors():
         print("Predictor:", predictor)

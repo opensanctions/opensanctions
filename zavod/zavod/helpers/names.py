@@ -16,11 +16,11 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.names import CleaningSpec, NamesSpec
 from zavod.extract.names.clean import (
-    LLM_MODEL_VERSION,
     LangNames,
     SourceNames,
     Names,
     LangText,
+    load_single_entity_program,
 )
 
 # alias clean_names so that it could be imported from here
@@ -602,7 +602,7 @@ def _review_names(
             origin = "analyst"
         else:
             suggested = clean_names(context, source_names)
-            origin = LLM_MODEL_VERSION
+            origin = load_single_entity_program().model
     else:
         origin = "analyst"
 
