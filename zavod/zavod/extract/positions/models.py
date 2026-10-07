@@ -6,6 +6,7 @@ from uuid import UUID, uuid5
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 DATA_DIR = Path(__file__).parent / "data"
+DATASETS_DIR = Path(__file__).parent / "datasets"
 ITEM_NAMESPACE = UUID("2f4f5a8e-1c1e-4a5e-9a52-8c9f2b6d7e10")
 
 Level = Literal["gov.national", "gov.state", "gov.muni", "gov.igo", "none", "undecided"]
@@ -42,6 +43,14 @@ class Item(BaseModel):
     @property
     def id(self) -> UUID:
         return uuid5(ITEM_NAMESPACE, self.model_dump_json())
+
+
+class DatasetConfig(BaseModel):
+    """Annotation settings for one dataset, stored in DATASETS_DIR as <name>.yml."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    prompt_addendum: str | None = None
 
 
 class Annotation(BaseModel):
