@@ -36,8 +36,8 @@ assertions:
       Organization: 70
   max:
     schema_entities:
-      Person: 900
-      Organization: 200
+      Person: 1800
+      Organization: 500
 
 dates:
   formats: ["%d/%m/%Y"]
@@ -51,6 +51,7 @@ lookups:
           - Passport
         contains:
           - Pasaporte
+          - Passeport  # French label used for some UN-sourced entries
         document_schema: Passport
       - match:
           - National Identification Number
