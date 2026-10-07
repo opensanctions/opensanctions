@@ -2,13 +2,12 @@ from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Literal, Self
-from uuid import UUID, uuid5
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 DATA_DIR = Path(__file__).parent / "data"
 DATASETS_DIR = Path(__file__).parent / "datasets"
-ITEM_NAMESPACE = UUID("2f4f5a8e-1c1e-4a5e-9a52-8c9f2b6d7e10")
 
 Level = Literal["gov.national", "gov.state", "gov.muni", "gov.igo", "none", "undecided"]
 Role = Literal[
@@ -36,14 +35,12 @@ class Item(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
+    # The id of the row in the position table.
+    id: int
     caption: str
     countries: tuple[str, ...]
     subnational_areas: tuple[str, ...]
     dataset: str
-
-    @property
-    def id(self) -> UUID:
-        return uuid5(ITEM_NAMESPACE, self.model_dump_json())
 
 
 class DatasetConfig(BaseModel):
@@ -141,9 +138,12 @@ class VetoResponse(BaseModel):
 
 
 class AnnotationRecord(BaseModel):
-    id: UUID
     item: Item
     annotations: list[AnyAnnotation] = []
+
+    @property
+    def id(self) -> int:
+        return self.item.id
 
     @model_validator(mode="after")
     def check_annotations(self) -> Self:

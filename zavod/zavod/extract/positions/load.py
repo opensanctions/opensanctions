@@ -9,6 +9,7 @@ from sqlalchemy import (
     JSON,
     Column,
     DateTime,
+    Integer,
     MetaData,
     Table,
     Unicode,
@@ -24,6 +25,7 @@ console = Console()
 position_table = Table(
     "position",
     MetaData(),
+    Column("id", Integer),
     Column("caption", Unicode),
     Column("countries", JSON),
     Column("subnational_areas", JSON),
@@ -83,18 +85,23 @@ def main(sample: int, seed: int, since: datetime) -> None:
     """Load all non-Wikidata position items into data/all.jsonl and sample data/test.jsonl."""
     table = position_table
     query = select(
-        table.c.caption, table.c.countries, table.c.subnational_areas, table.c.dataset
+        table.c.id,
+        table.c.caption,
+        table.c.countries,
+        table.c.subnational_areas,
+        table.c.dataset,
     ).where(
         table.c.deleted_at.is_(None),
         table.c.created_at > since,
         ~table.c.dataset.like("wd\\_%", escape="\\"),
     )
-    items: set[Item] = set()
+    items: list[Item] = []
     engine = create_engine(get_database_uri())
     with console.status("Reading positions"), engine.connect() as conn:
         for row in conn.execute(query):
-            items.add(
+            items.append(
                 Item(
+                    id=row.id,
                     caption=row.caption,
                     countries=tuple(sorted(row.countries)),
                     subnational_areas=tuple(sorted(row.subnational_areas or [])),
