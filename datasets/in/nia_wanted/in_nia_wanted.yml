@@ -4,7 +4,7 @@ entry_point: crawler.py
 prefix: in-nia
 coverage:
   frequency: daily
-  start: "2026-10-05"
+  start: "2026-10-07"
 load_statements: true
 summary: >-
   Fugitives sought by India's federal counter-terrorism agency in its criminal cases
