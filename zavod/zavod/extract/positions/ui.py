@@ -65,6 +65,10 @@ def render_record(record: AnnotationRecord) -> Group:
                 Group(
                     format_annotation(record.primary.annotation),
                     "",
+                    Text("Key evidence", style="bold"),
+                    Text(record.primary.key_evidence),
+                    "",
+                    Text("Reasoning", style="bold"),
                     Text(record.primary.reasoning),
                 ),
                 title=f"Annotation — {record.primary_model}",

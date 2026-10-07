@@ -32,10 +32,6 @@ PRIMARY_MODEL = "anthropic:claude-opus-5-5"
 REVIEW_MODEL = "openai:gpt-6.1-sol"
 CODEBOOK = (Path(__file__).parent / "codebook.md").read_text()
 WEB_SEARCH_MAX_USES = 5
-WEB_SEARCH_NOTE = f"""Web search is available, up to {WEB_SEARCH_MAX_USES} searches: facts found
-through web research count as evidence. Use it to check facts about the office or
-its organization, for example whether a body is public or which government level
-it belongs to."""
 
 ANNOTATOR_PROMPT = f"""Classify the position label below by government level, role and
 seniority, following the codebook. The dataset name, countries and subnational areas
@@ -44,7 +40,14 @@ describe where the label was published. Use them as context for the title.
 Where the codebook says a dimension is undecided, answer 'undecided' for level or
 seniority, and give no roles. Do not guess.
 
-{WEB_SEARCH_NOTE}
+Web search is available, up to {WEB_SEARCH_MAX_USES} searches: facts found through web
+research count as evidence. Use it to check facts about the office or its
+organization, for example whether a body is public or which government level it
+belongs to.
+
+In key_evidence, cite only facts stated in the label and its context, or found
+through web research. For each web fact, give the source URL and quote the passage
+that states it verbatim. Do not present inferences as facts.
 
 <codebook>
 {CODEBOOK}
@@ -58,10 +61,10 @@ Veto — escalating the label to a human — only if the annotation itself is un
 contradicts a codebook rule, it ignores information in the label or its context, or it
 assigns a value that the evidence does not support where the codebook requires
 'undecided'. A misstated detail in the reasoning is not a reason to veto if the
-annotation still holds: note it in your reasoning and approve. Verify web facts
-that the annotator cites before you rely on them.
+annotation still holds: note it in your reasoning and approve.
 
-{WEB_SEARCH_NOTE}
+The annotator could search the web; you cannot. You may use the evidence in
+key_evidence, including web facts with a source URL and a verbatim quote.
 
 <codebook>
 {CODEBOOK}
@@ -145,12 +148,8 @@ async def run_models(
         REVIEW_MODEL,
         instructions=REVIEWER_PROMPT,
         output_type=NativeOutput(VetoResponse),
-        capabilities=[NativeTool(WebSearchTool())],
         model_settings=OpenAIResponsesModelSettings(
-            thinking="medium",
-            openai_prompt_cache_key="positions-review",
-            # pydantic-ai sends max_uses only to Anthropic; max_tool_calls caps OpenAI searches.
-            extra_body={"max_tool_calls": WEB_SEARCH_MAX_USES},
+            thinking="medium", openai_prompt_cache_key="positions-review"
         ),
     )
     responses.setdefault(PRIMARY_MODEL, [])
