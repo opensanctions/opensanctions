@@ -233,6 +233,8 @@ lookups:
         value: SD
       - match: TX
         value: TX
+      - match: VA
+        value: VA
       - match: WA
         value: WA
       - match: WV
