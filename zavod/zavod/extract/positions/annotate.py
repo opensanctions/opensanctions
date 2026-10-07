@@ -147,10 +147,10 @@ def load_datasets(items: list[Item]) -> dict[str, DatasetContext]:
 
 def load_records(items: list[Item], output: Path) -> list[AnnotationRecord]:
     """Resume from the output file, provided it covers exactly the input items."""
-    if len(set(items)) != len(items):
-        raise click.ClickException("The input file contains duplicate items.")
+    if len({item.id for item in items}) != len(items):
+        raise click.ClickException("The input file contains duplicate item IDs.")
     if not output.exists():
-        return [AnnotationRecord(id=item.id, item=item) for item in items]
+        return [AnnotationRecord(item=item) for item in items]
     with output.open() as fh:
         records = [
             AnnotationRecord.model_validate_json(line) for line in fh if line.strip()
@@ -160,9 +160,6 @@ def load_records(items: list[Item], output: Path) -> list[AnnotationRecord]:
             f"{output} holds a different set of items than the input. "
             "Use another --output, or delete the file to start again."
         )
-    for record in records:
-        if record.id != record.item.id:
-            raise click.ClickException(f"Record {record.id} does not match its item.")
     return records
 
 
