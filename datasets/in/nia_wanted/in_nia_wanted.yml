@@ -14,7 +14,7 @@ description: |
   list covers absconders at every stage of the warrant process: those declared
   proclaimed offenders by a court, those subject to a proclamation to appear, and
   those wanted under an arrest warrant alone. The dataset lists names, aliases,
-  case numbers, and addresses in some cases.
+  case numbers, and, in some cases, addresses.
 tags:
   - list.wanted
 url: https://www.nia.gov.in/most-wanted-photos

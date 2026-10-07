@@ -26,7 +26,6 @@ def crawl_person(context: Context, card: Element, page_url: str) -> None:
         alias = ACCUSED_NO.sub("", alias)
         # Treat single-word aliases as weak.
         person.add("alias" if " " in alias else "weakAlias", alias)
-    print(person.get("alias"))
     h.copy_address(person, h.make_address(context, full=row.pop("Address")))
     person.add("topics", "wanted")
     status = row.pop("Accused Status")
@@ -38,7 +37,9 @@ def crawl_person(context: Context, card: Element, page_url: str) -> None:
         )
 
     # One link per case the person is wanted in.
-    for link in h.xpath_elements(card, ".//a[starts-with(@href, '/rc-')]"):
+    for link in h.xpath_elements(
+        card, ".//div[div[normalize-space()='Wanted in :']]//a[@href!='']"
+    ):
         person.add("sourceUrl", urljoin(page_url, link.get("href")))
         person.add("notes", h.element_text(link))
     context.emit(person)
@@ -50,10 +51,12 @@ def crawl_person(context: Context, card: Element, page_url: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    page_url: str | None = context.data_url
-    while page_url is not None:
-        doc = context.fetch_html(page_url, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    # The pager's "last page" link, e.g. "?page=24".
+    last_page = h.xpath_string(doc, "//a[@title='Go to last page']/@href")
+    for page in range(int(last_page.removeprefix("?page=")) + 1):
+        page_url = urljoin(context.data_url, f"?page={page}")
+        if page > 0:
+            doc = context.fetch_html(page_url, cache_days=1)
         for card in h.xpath_elements(doc, "//div[@class='wanted-modal-card']"):
             crawl_person(context, card, page_url)
-        next_links = h.xpath_strings(doc, "//a[@rel='next']/@href")
-        page_url = urljoin(page_url, next_links[0]) if next_links else None
