@@ -264,7 +264,8 @@ def crawl(context: Context) -> None:
         )
 
         if not name:
-            return
+            context.log.warning("No name for entity", entity_id=entity.id)
+            continue
 
         h.apply_reviewed_name_string(context, entity, string=name, lang="eng")
         entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
