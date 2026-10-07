@@ -16,6 +16,7 @@ from pydantic_ai.usage import RequestUsage
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
+from zavod.meta import Dataset, load_directory_catalog
 
 from models import (
     DATA_DIR,
@@ -34,7 +35,7 @@ CODEBOOK = (Path(__file__).parent / "codebook.md").read_text()
 WEB_SEARCH_MAX_USES = 5
 
 ANNOTATOR_PROMPT = f"""Classify the position label below by government level, role and
-seniority, following the codebook. The dataset name, countries and subnational areas
+seniority, following the codebook. The dataset, countries and subnational areas
 describe where the label was published. Use them as context for the title.
 
 Where the codebook says a dimension is undecided, answer 'undecided' for level or
@@ -72,15 +73,25 @@ key_evidence, including web facts with a source URL and a verbatim quote.
 """
 
 
-def render_item(item: Item) -> str:
+def render_item(item: Item, dataset: Dataset) -> str:
     return (
         "<position>\n"
         f"Title: {item.caption}\n"
         f"Countries: {', '.join(item.countries) or '-'}\n"
         f"Subnational areas: {'; '.join(item.subnational_areas) or '-'}\n"
-        f"Dataset: {item.dataset}\n"
-        "</position>"
+        "</position>\n\n"
+        "<dataset>\n"
+        f"Name: {dataset.name}\n"
+        f"Title: {dataset.model.title}\n"
+        f"Summary: {(dataset.model.summary or '-').strip()}\n"
+        f"Description:\n{(dataset.model.description or '-').strip()}\n"
+        "</dataset>"
     )
+
+
+def load_datasets(items: list[Item]) -> dict[str, Dataset]:
+    catalog = load_directory_catalog()
+    return {name: catalog.require(name) for name in sorted({i.dataset for i in items})}
 
 
 def load_records(items: list[Item], output: Path) -> list[AnnotationRecord]:
@@ -127,6 +138,7 @@ def model_responses(result: AgentRunResult[Any]) -> list[ModelResponse]:
 
 async def run_models(
     records: list[AnnotationRecord],
+    datasets: dict[str, Dataset],
     saver: Saver,
     concurrency: int,
     responses: dict[str, list[ModelResponse]],
@@ -161,9 +173,10 @@ async def run_models(
 
         async def process(record: AnnotationRecord) -> None:
             async with semaphore:
+                rendered = render_item(record.item, datasets[record.item.dataset])
                 try:
                     if record.primary is None:
-                        primary_result = await annotator.run(render_item(record.item))
+                        primary_result = await annotator.run(rendered)
                         responses[PRIMARY_MODEL].extend(model_responses(primary_result))
                         record.primary = primary_result.output
                         record.primary_model = PRIMARY_MODEL
@@ -171,7 +184,7 @@ async def run_models(
                     if record.review is None:
                         assert record.primary is not None
                         message = (
-                            f"{render_item(record.item)}\n\n<annotation>\n"
+                            f"{rendered}\n\n<annotation>\n"
                             f"{record.primary.model_dump_json(indent=2)}\n</annotation>"
                         )
                         review_result = await reviewer.run(message)
@@ -283,10 +296,11 @@ def run(
         else DATA_DIR / f"{input_path.stem}.annotated.jsonl"
     )
     records = load_records(read_items(input_path), output_path)
+    datasets = load_datasets([record.item for record in records])
     saver = Saver(output_path, records)
     responses: dict[str, list[ModelResponse]] = {}
     try:
-        asyncio.run(run_models(records, saver, concurrency, responses))
+        asyncio.run(run_models(records, datasets, saver, concurrency, responses))
         saver.save(force=True)
         if not no_human:
             review_by_human(records, saver)

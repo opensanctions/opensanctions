@@ -12,7 +12,11 @@ dependencies = [
     "rich",
     "sqlalchemy",
     "textual",
+    "zavod",
 ]
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+zavod = { path = "../../..", editable = true }
