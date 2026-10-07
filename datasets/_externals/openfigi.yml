@@ -73,4 +73,6 @@ assertions:
       Security: 155000
   max:
     schema_entities:
-      Security: 240000
+      # The enricher re-queries OpenFIGI as its 120-day cache expires, so batches of
+      # newly issued DE/CH warrants on sanctioned underlyings arrive in large steps.
+      Security: 500000
