@@ -75,13 +75,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      # The State Department relabelled this list from ISN (Bureau of International
-      # Security and Nonproliferation) to ACN (Bureau of Arms Control and
-      # Nonproliferation) in the CSL feed on 2026-10-06. Both labels point at the
-      # same source_list_url, so they map to the same program.
-      - match:
-          - Nonproliferation Sanctions (ISN) - State Department
-          - Nonproliferation Sanctions (ACN) - State Department
+      - match: Nonproliferation Sanctions (ACN) - State Department
         value: US-DOS-ISN
         topic: sanction
       - match: ITAR Debarred (DTC) - State Department
