@@ -59,19 +59,23 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", sanction_type)
 
-    if sanction_end_date and sanction_end_date not in [
-        "Indefinite",
-        "Federal Authority",
-        "On Payment Plan",
-    ]:
-        if sanction_end_date == "2 Years":
+    if sanction_end_date is not None:
+        # The source is inconsistent about the capitalisation of the non-date
+        # placeholders it uses in this column (e.g. "2 Years" and "2 years").
+        end_date_label = sanction_end_date.lower()
+        if end_date_label == "2 years":
             # TODO(Leon Handreke): Maybe use date.replace(year=start_date.year + 2)
             # to more accurately represent the semantics intended by the publisher?
             sanction_end_datetime = datetime.strptime(
                 sanction_start_date, "%Y-%m-%d"
             ) + timedelta(days=2 * YEAR_DAYS)
-            sanction_end_date = sanction_end_datetime.date().isoformat()
-        h.apply_date(sanction, "endDate", sanction_end_date)
+            h.apply_date(sanction, "endDate", sanction_end_datetime.date().isoformat())
+        elif end_date_label not in {
+            "indefinite",
+            "federal authority",
+            "on payment plan",
+        }:
+            h.apply_date(sanction, "endDate", sanction_end_date)
 
     is_debarred = h.is_active(sanction)
     if is_debarred:
