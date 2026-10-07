@@ -14,8 +14,7 @@ and tenure dates require separate decisions.
   equivalent instances. A shared word does not establish an equivalent role.
 - Distinguish public bodies, state enterprises, intergovernmental organizations,
   political parties, and religious leadership from private organizations.
-- A confirmed private or unrelated role is **out of scope**. An unclear role is
-  **undecided**. Neither outcome is a seniority band.
+- An unclear role is **undecided**. Undecided is not a seniority band.
 - Resolve each dimension separately. If evidence is missing or contradictory,
   leave that dimension undecided and record the missing evidence.
 - Ignore `former`, `acting`, and `interim` when assigning these attributes.

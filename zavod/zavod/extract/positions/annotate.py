@@ -1,9 +1,12 @@
 import asyncio
+import hashlib
 import time
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import click
 import yaml  # type: ignore[import-untyped]
@@ -27,6 +30,8 @@ from models import (
     AnnotatorResponse,
     DatasetConfig,
     Item,
+    PrimaryAnnotation,
+    Review,
     VetoResponse,
     read_items,
     write_jsonl,
@@ -172,6 +177,23 @@ class Saver:
             self.last_save = time.monotonic()
 
 
+def context_hash(rendered: str) -> str:
+    return hashlib.sha256(rendered.encode()).hexdigest()
+
+
+def current_primary(
+    record: AnnotationRecord, rendered: str
+) -> PrimaryAnnotation | None:
+    """The latest primary annotation, if it comes from the configured model and
+    saw the item in its current context."""
+    primary = record.latest_primary()
+    if primary is None:
+        return None
+    if primary.model != PRIMARY_MODEL or primary.context_hash != context_hash(rendered):
+        return None
+    return primary
+
+
 def model_responses(result: AgentRunResult[Any]) -> list[ModelResponse]:
     return [m for m in result.all_messages() if isinstance(m, ModelResponse)]
 
@@ -183,7 +205,13 @@ async def run_models(
     concurrency: int,
     responses: dict[str, list[ModelResponse]],
 ) -> None:
-    pending = [r for r in records if r.primary is None or r.review is None]
+    rendered = {r.id: render_item(r.item, datasets[r.item.dataset]) for r in records}
+    pending = [
+        r
+        for r in records
+        if (primary := current_primary(r, rendered[r.id])) is None
+        or primary.review is None
+    ]
     if not pending:
         return
     # The instructions are identical for every item, so they form the cached prefix.
@@ -213,26 +241,45 @@ async def run_models(
 
         async def process(record: AnnotationRecord) -> None:
             async with semaphore:
-                rendered = render_item(record.item, datasets[record.item.dataset])
+                message = rendered[record.id]
                 try:
-                    if record.primary is None:
-                        primary_result = await annotator.run(rendered)
+                    primary = current_primary(record, message)
+                    if primary is None:
+                        primary_result = await annotator.run(message)
                         responses[PRIMARY_MODEL].extend(model_responses(primary_result))
-                        record.primary = primary_result.output
-                        record.primary_model = PRIMARY_MODEL
-                        saver.save()
-                    if record.review is None:
-                        assert record.primary is not None
-                        message = (
-                            f"{rendered}\n\n<annotation>\n"
-                            f"{record.primary.model_dump_json(indent=2)}\n</annotation>"
+                        output = primary_result.output
+                        primary = PrimaryAnnotation(
+                            **output.annotation.model_dump(),
+                            id=uuid4(),
+                            created_at=datetime.now(UTC),
+                            model=PRIMARY_MODEL,
+                            context_hash=context_hash(message),
+                            key_evidence=output.key_evidence,
+                            reasoning=output.reasoning,
                         )
-                        review_result = await reviewer.run(message)
+                        record.annotations.append(primary)
+                        saver.save()
+                    if primary.review is None:
+                        annotation = primary.model_dump_json(
+                            include={
+                                "key_evidence",
+                                "reasoning",
+                                "level",
+                                "roles",
+                                "seniority",
+                            },
+                            indent=2,
+                        )
+                        review_result = await reviewer.run(
+                            f"{message}\n\n<annotation>\n{annotation}\n</annotation>"
+                        )
                         responses[REVIEW_MODEL].extend(model_responses(review_result))
-                        record.review = review_result.output
-                        record.review_model = REVIEW_MODEL
-                        if not record.review.veto:
-                            record.annotation = record.primary.annotation
+                        primary.review = Review(
+                            created_at=datetime.now(UTC),
+                            model=REVIEW_MODEL,
+                            reasoning=review_result.output.reasoning,
+                            veto=review_result.output.veto,
+                        )
                         saver.save()
                 # A failed item stays pending for the next run; it must not stop the batch.
                 except Exception as exc:
@@ -292,17 +339,15 @@ def print_usage(console: Console, responses: dict[str, list[ModelResponse]]) -> 
 
 
 def print_summary(console: Console, records: list[AnnotationRecord]) -> None:
-    incomplete = sum(1 for r in records if r.review is None)
-    approved = sum(1 for r in records if r.review is not None and not r.review.veto)
-    vetoed = [r for r in records if r.review is not None and r.review.veto]
-    resolved = sum(1 for r in vetoed if r.human is not None)
+    states = [record_state(r) for r in records]
     table = Table(title="Annotation status")
     table.add_column("State")
     table.add_column("Items", justify="right")
-    table.add_row("Approved by reviewer", str(approved))
-    table.add_row("Vetoed, resolved by human", str(resolved))
-    table.add_row("Vetoed, pending human", str(len(vetoed) - resolved))
-    table.add_row("LLM calls incomplete", str(incomplete))
+    table.add_row("Golden", str(states.count("golden")))
+    table.add_row("Approved by reviewer", str(states.count("approved")))
+    table.add_row("Vetoed, resolved by human", str(states.count("human")))
+    table.add_row("Vetoed, pending human", str(states.count("vetoed")))
+    table.add_row("LLM calls incomplete", str(states.count("pending")))
     table.add_row("Total", str(len(records)), style="bold")
     console.print(table)
 
