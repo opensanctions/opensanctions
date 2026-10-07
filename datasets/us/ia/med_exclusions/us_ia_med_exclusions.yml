@@ -55,7 +55,13 @@ lookups:
       - match: "171092119"
         prop: idNumber
   type.date:
+    lowercase: true
     options:
+      - match:
+          - indefinite
+          - federal authority
+          - on payment plan
+        value: null
       - match: 104/2024
         value: 2024-10-04
       - match: 10/252024
