@@ -33,7 +33,7 @@ jobs:
           # zavod's pyicu and plyvel dependencies build from source.
           sudo apt-get install -y -qq libicu-dev libleveldb-dev
       - name: Set up uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           enable-cache: true
           cache-dependency-glob: contrib/tune/uv.lock
