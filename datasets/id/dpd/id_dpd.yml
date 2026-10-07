@@ -4,7 +4,7 @@ prefix: id-dpd
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-07-23
+  start: 2026-10-02
 load_statements: true
 ci_test: false  # The API is only reachable through Zyte
 summary: >-
@@ -166,6 +166,7 @@ names:
     - ", CM.NNLP."
     - ", CWC."
     - ", SM.Th."
+    - ", S.Tr.Bns."  # Sarjana Terapan Bisnis
     - ", Sp.N."    # medical specialist (neurology)
     - ", Sp.OG"    # medical specialist (obstetrics/gynaecology)
     - ", Teol."
@@ -183,27 +184,23 @@ lookups:
       # .NET's DateTime.MinValue: the API's sentinel for an unset date, not a real one.
       - match: "0001-01-01T00:00:00Z"
         value: null
+      # A record-import timestamp stood in for unknown birth dates (all 2004-2009
+      # members, none with a birth place).
+      - match: "2000-07-01T08:38:52.002+00:00"
+        value: null
   type.gender:
     options:
       - match: 0
         value: male
       - match: 1
         value: female
-  type.email:
+  # The mandate's memberStatus code. Only a member who left needs the crawler to act.
+  member_status:
     options:
-      - match:
-          - "--"
-          - "-"
-          - "."
-          - dpd.go.id
-          - "@dpd.go.id"
-        value: null
-      - match: marthin.billa@dpd.go.id;
-        value: marthin.billa@dpd.go.id
-      - match: abdul.rachman@dpd.go.id;
-        value: abdul.rachman@dpd.go.id
-      - match: siti aseanti@dpd.go.id
-        value: siti.aseanti@dpd.go.id
+      - match: 0
+        value: serving
+      - match: 1
+        value: ended
 
 assertions:
   min:

@@ -5,7 +5,6 @@ from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.review import assert_all_accepted
 from zavod.util import Element
 
 NAME_SPLITS = [
@@ -72,7 +71,10 @@ def crawl(context: Context) -> None:
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//record"):
         parse_entry(context, node)
-    assert_all_accepted(context, raise_on_unaccepted=False)
+    # Unaccepted reviews are not checked while the review mechanics for this
+    # dataset are still being worked out:
+    # https://github.com/opensanctions/opensanctions/issues/5825
+    # assert_all_accepted(context, raise_on_unaccepted=False)
 
 
 def parse_entry(context: Context, node: Element) -> None:

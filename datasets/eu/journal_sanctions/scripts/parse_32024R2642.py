@@ -43,7 +43,7 @@ import re
 from pathlib import Path
 
 import click
-from common import (
+from .common import (
     LABELLED_RE,
     SKIP_P_CLASSES,
     ParseError,
@@ -173,6 +173,10 @@ INFO_LABELS = {
     "OGRN": "ogrnCode",
     "KPP": "kppCode",
     "Website": "website",
+    # Social-media profiles are printed as full URLs; the dataset's other
+    # parsers carry them on `website` too.
+    "X account": "website",
+    "Instagram account": "website",
     "Phone number": "phone",
 }
 # Columns whose labelled value legitimately continues onto bare follow-on

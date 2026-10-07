@@ -1,0 +1,99 @@
+title: Zimbabwe Members of Parliament
+entry_point: crawler.py
+prefix: zw-parl
+coverage:
+  frequency: monthly
+  start: 2026-09-30
+load_statements: true
+ci_test: false  # fetched via the Zyte API (the portal is behind a Cloudflare JS challenge)
+summary: >-
+  Current and historical members of the National Assembly and Senate of Zimbabwe
+description: |
+  Current and historical members of the Parliament of Zimbabwe, the country's
+  bicameral national legislature. The National Assembly has 280 members: 210 elected
+  in single-member constituencies and 70 elected by proportional representation
+  under the women's quota (60 seats) and the youth quota (10 seats). The Senate has
+  80 members: 60 elected by proportional representation from the provinces, 18
+  traditional chiefs and two representatives of persons with disabilities. Both
+  houses sit for a five-year term and hold the country's legislative power,
+  including passing laws and approving the budget.
+# Maintainer notes:
+# - "Archived" sitting members include both members who left (the 2023 CCC recalls)
+#   and members still in office, so they're emitted with an unknown status.
+# - The portal keeps one record per member, reused for each of the 7th-9th Parliaments
+#   they sat in, with a single house and party: the latest ones. A member who moved
+#   between chambers is listed under their latest chamber for every term.
+url: https://e-portal.parlzim.gov.zw/parliamentarians
+tags:
+  - list.pep
+publisher:
+  name: Parliament of Zimbabwe
+  description: |
+    The Parliament of Zimbabwe consists of the National Assembly and the Senate.
+    It publishes a directory of current and former members on its e-portal.
+  country: zw
+  url: https://www.parlzim.gov.zw/
+  official: true
+data:
+  url: https://e-portal.parlzim.gov.zw/api
+  format: JSON
+  lang: eng
+dates:
+  formats: ["%Y-%m-%dT%H:%M:%S.%fZ"]
+assertions:
+  min:
+    schema_entities:
+      Person: 1050
+      Position: 2
+    entities_with_prop:
+      Occupancy:
+        holder: 1200
+    country_entities:
+      zw: 1050
+    property_fill_rate:
+      Person:
+        political: 0.9  # 95%
+        birthDate: 0.15  # 19%: mostly missing for older parliaments
+  max:
+    # Room for one more Parliament's intake (~250 new people, 360 occupancies).
+    schema_entities:
+      Person: 1600
+      Position: 2
+    entities_with_prop:
+      Occupancy:
+        holder: 1900
+
+lookups:
+  # Plain honorifics in the title field carry nothing; meaningful titles (Dr, Prof,
+  # Advocate, ranks, "Chief ...") pass through unmatched.
+  title:
+    options:
+      - match:
+          - Mr
+          - Mr.
+          - MR
+          - Ms
+          - Ms.
+          - Mrs
+          - Miss
+          - Hon
+          - HON.
+          - Honorable
+          - MP
+          - Cde
+          - CDE
+        value: null
+  type.gender:
+    options:
+      - match: "Male: Male"
+        value: male
+      - match: "Male: Female"
+        value: null
+  type.name:
+    options:
+      - match:
+          - "N/A"
+          - "Brig- Gen.RTD"
+        value: null
+      - match: "Jay Jay|"
+        value: Jay Jay

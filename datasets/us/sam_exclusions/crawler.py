@@ -19,6 +19,7 @@ from collections.abc import Generator
 from zipfile import ZipFile
 from urllib.parse import urljoin
 from rigour.mime.types import ZIP
+from rigour.text import is_nullword
 
 from zavod import Context
 from zavod import helpers as h
@@ -37,7 +38,11 @@ def clean_address_part(part: Any) -> str | None:
     if part is None:
         return None
     cleaned: str = str(part).strip()
-    if len(cleaned) == 0 or cleaned == "-" or cleaned == "XX":
+    if (
+        len(cleaned) == 0
+        or cleaned in ("-", "XX")
+        or is_nullword(cleaned, normalize=True)
+    ):
         return None
     return cleaned
 
@@ -259,7 +264,8 @@ def crawl(context: Context) -> None:
         )
 
         if not name:
-            return
+            context.log.warning("No name for entity", entity_id=entity.id)
+            continue
 
         h.apply_reviewed_name_string(context, entity, string=name, lang="eng")
         entity.add("firstName", row.pop("First"), quiet=True, lang="eng")

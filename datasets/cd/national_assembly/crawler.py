@@ -4,6 +4,8 @@ from html import unescape
 from typing import Any
 from urllib.parse import urljoin
 
+from followthemoney.util import join_text
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -16,14 +18,6 @@ from zavod.stateful.positions import (
 PER_PAGE = 100
 # A legislature is named for the years it runs, e.g. "2024 - 2028".
 REGEX_TERM = re.compile(r"(\d{4})\s*-\s*(\d{4})")
-# The taxonomy says whether a mandate runs or has ended, never when.
-MANDATE_STATUSES = {
-    "En cours": OccupancyStatus.CURRENT,
-    "Terminé": OccupancyStatus.ENDED,
-    # A suspended deputy keeps the seat without exercising it; their substitute sits
-    # in their place. Neither current nor ended, and the source never dates it.
-    "Suspendu": OccupancyStatus.UNKNOWN,
-}
 IGNORE = [
     # Read from `_embedded`, where these carry term names rather than ids.
     "legislature",
@@ -56,31 +50,54 @@ IGNORE = [
 
 def crawl_member(
     context: Context,
-    record: dict[str, Any],
-    period_start: str,
-    period_end: str,
     position: Entity,
     categorisation: PositionCategorisation,
+    term_name: str,
+    period_start: str | None,
+    period_end: str | None,
+    record: dict[str, Any],
 ) -> None:
     # Term names per taxonomy, e.g. {"provinces": ["Ituri"]}.
     taxonomies: dict[str, list[str]] = defaultdict(list)
-    for terms in record["_embedded"]["wp:term"]:
+    for terms in record.get("_embedded", {}).get("wp:term", []):
         for term in terms:
             taxonomies[term["taxonomy"]].append(unescape(term["name"]).strip())
 
-    mandate = taxonomies["mandats"][0] if taxonomies["mandats"] else ""
-    if len(mandate) > 0 and mandate not in MANDATE_STATUSES:
-        context.log.warning("Unknown mandate status", mandate=mandate)
-
     person = context.make("Person")
-    person.id = context.make_slug("depute", str(record.pop("id")))
+    person.id = context.make_slug(record.pop("id"))
     person.add("name", unescape(record.pop("title")["rendered"]).strip())
-    # Deputies must be Congolese nationals (Constitution Art. 102(1): "être Congolais").
-    # https://www.constituteproject.org/constitution/Democratic_Republic_of_the_Congo_2011
     person.add("citizenship", "cd")
-    person.add("sourceUrl", record.pop("link"))
-    context.audit_data(record, ignore=IGNORE)
+    profile_url = record.pop("link")
+    person.add("sourceUrl", profile_url)
 
+    profile = context.fetch_html(profile_url, cache_days=7)
+    # "Informations personnelles" and the mandate notes, as "Label : value" items.
+    for item in h.xpath_elements(
+        profile, '//span[@class="elementor-icon-list-text"][contains(., " : ")]'
+    ):
+        label, _, value = h.element_text(item).partition(" : ")
+        field = context.lookup_value("details", label, warn_unmatched=True)
+        if field == "birth_place":
+            person.add("birthPlace", value)
+        elif field == "birth_date":
+            h.apply_date(person, "birthDate", value)
+    # The party and group widgets hold a linked heading, or "N/A"; selecting the
+    # widget itself fails loudly if the page template changes.
+    party_widget = h.xpath_element(profile, '//div[@data-id="0459684"]')
+    person.add("political", h.xpath_strings(party_widget, ".//h2//text()"))
+    group_widget = h.xpath_element(profile, '//div[@data-id="976268c"]')
+    political_groups = h.xpath_strings(group_widget, ".//h2//text()")
+
+    # The term's dates go only on records the source tags with that term.
+    if term_name not in taxonomies["legislature"]:
+        period_start = period_end = None
+    # Only ended and suspended mandates override the status; make_occupancy decides the rest.
+    mandates = taxonomies["mandats"]
+    mandate = (
+        context.lookup_value("mandate", mandates[0], warn_unmatched=True)
+        if mandates
+        else None
+    )
     occupancy = h.make_occupancy(
         context,
         person,
@@ -88,15 +105,19 @@ def crawl_member(
         categorisation=categorisation,
         period_start=period_start,
         period_end=period_end,
-        no_end_implies_current=False,
-        status=MANDATE_STATUSES.get(mandate),
+        status=OccupancyStatus(mandate) if mandate is not None else None,
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", taxonomies["circonscriptions"])
-    occupancy.add("constituency", taxonomies["provinces"])
+    occupancy.add(
+        "constituency",
+        join_text(*taxonomies["circonscriptions"], *taxonomies["provinces"], sep=", "),
+    )
+    occupancy.add("politicalGroup", political_groups)
     context.emit(occupancy)
     context.emit(person)
+
+    context.audit_data(record, ignore=IGNORE)
 
 
 def crawl(context: Context) -> None:
@@ -113,36 +134,34 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # Members are published against the sitting legislature only, which the taxonomy
-    # hands over as the newest term by name. Undated records carry no legislature.
+    # Members are published against the sitting legislature, which the taxonomy hands
+    # over as the newest term by name. A few sitting deputies were never tagged with it.
     terms = context.fetch_json(
         urljoin(context.data_url, "legislature"),
         params={"per_page": "1", "orderby": "name", "order": "desc"},
         cache_days=1,
     )
-    latest_term = REGEX_TERM.fullmatch(terms[0]["name"].strip())
-    assert latest_term is not None, terms[0]["name"]
-    period_start, period_end = latest_term.group(1), latest_term.group(2)
+    term_name = unescape(terms[0]["name"]).strip()
+    term = REGEX_TERM.fullmatch(term_name)
+    assert term is not None, term_name
+    period_start, period_end = term.groups()
 
-    records = 0
-    while True:
-        # `offset`, not `page`: the API 400s past the last page, which an exact multiple
-        # of PER_PAGE would hit. Uncached, because a paginated listing shifts.
+    # `offset`, not `page`: the API 400s past the last page. Uncached, because a
+    # paginated listing shifts. The chamber seats 500, so 5000 bounds the loop.
+    for offset in range(0, 5000, PER_PAGE):
         data = context.fetch_json(
             context.data_url,
-            params={
-                "per_page": str(PER_PAGE),
-                "_embed": "1",
-                "legislature": str(terms[0]["id"]),
-                "offset": str(records),
-            },
+            params={"per_page": PER_PAGE, "_embed": 1, "offset": offset},
         )
         for record in data:
             crawl_member(
-                context, record, period_start, period_end, position, categorisation
+                context,
+                position,
+                categorisation,
+                term_name,
+                period_start,
+                period_end,
+                record,
             )
-        records += len(data)
-        # The chamber seats 500; ten times that means `offset` stopped paging.
-        assert records < 5000, records
         if len(data) < PER_PAGE:
             break

@@ -75,7 +75,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: Nonproliferation Sanctions (ISN) - State Department
+      - match: Nonproliferation Sanctions (ACN) - State Department
         value: US-DOS-ISN
         topic: sanction
       - match: ITAR Debarred (DTC) - State Department

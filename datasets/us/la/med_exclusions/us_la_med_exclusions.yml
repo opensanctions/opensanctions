@@ -22,8 +22,7 @@ description: |
 
   Entities on this list due to the OIG LEIE are not re-listed in this dataset.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Louisiana Department of Health
   description: |

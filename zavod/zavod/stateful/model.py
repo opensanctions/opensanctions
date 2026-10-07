@@ -30,6 +30,8 @@ position_table = Table(
     Column("topics", JSON, nullable=False),
     Column("dataset", Unicode(VALUE_LEN), nullable=False),
     Column("created_at", DateTime, nullable=False),
+    # The last crawler run that categorised the position.
+    Column("last_seen", DateTime, nullable=True),
     # Should not be null when edited by a user, only for instances created by a crawler.
     Column("modified_at", DateTime, nullable=True),
     Column("modified_by", Unicode(KEY_LEN), nullable=True),

@@ -26,8 +26,7 @@ description: |
   > do not employ or contract with any individual or entity that has been excluded
   > or debarred.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: TennCare Office of Program Integrity
   description: >

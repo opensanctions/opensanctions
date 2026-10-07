@@ -5,7 +5,7 @@ description = "DSPy prompt optimisation and evaluation for zavod name cleaning."
 requires-python = ">= 3.12"
 dependencies = [
     "dspy == 3.4.0",
-    "litellm >= 1.64.0, <= 1.102.1", # required by dspy, pinned following litellm compromise
+    "litellm >= 1.64.0, <= 1.103.0", # required by dspy, pinned following litellm compromise
     "zavod",
 ]
 

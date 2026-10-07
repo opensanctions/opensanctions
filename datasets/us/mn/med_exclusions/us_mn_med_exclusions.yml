@@ -17,8 +17,7 @@ description: |
   > deny claims for services or items rendered, ordered, referred or
   > prescribed by excluded providers.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Minnesota Health Care Programs
   description: >

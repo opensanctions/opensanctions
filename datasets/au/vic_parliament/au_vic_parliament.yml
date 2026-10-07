@@ -29,8 +29,6 @@ data:
   lang: eng
 tags:
   - list.pep
-  - gov.legislative
-  - gov.state
 
 assertions:
   min:

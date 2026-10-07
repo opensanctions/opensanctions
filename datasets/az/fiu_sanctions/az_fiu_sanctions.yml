@@ -31,7 +31,6 @@ data:
   lang: aze
 tags:
   - list.sanction.counter
-  - target.az
 
 assertions:
   min:

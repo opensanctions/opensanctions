@@ -14,8 +14,7 @@ description: |
   > suspensions or exclusions effective on or after March 23, 2010. They are listed according to
   > the provider type at the time of such action.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: MassHealth
   description:

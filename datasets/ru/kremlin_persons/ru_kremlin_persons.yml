@@ -32,8 +32,6 @@ data:
   url: http://en.kremlin.ru/catalog/persons
   format: HTML
   lang: eng
-tags:
-  - target.ru
 
 assertions:
   min:

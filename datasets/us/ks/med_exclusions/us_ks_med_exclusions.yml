@@ -12,8 +12,7 @@ description: |
   whose Medicaid provider agreement has been terminated. Providers listed are not allowed to receive
   reimbursement for Medicaid services in any capacity.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Kansas Department of Health and Environment
   description:

@@ -1,286 +1,315 @@
-import re
-from datetime import datetime
-from itertools import zip_longest
-from pathlib import Path
 from typing import Any
-from collections.abc import Iterator
 
-from normality import slugify, squash_spaces, stringify
-from openpyxl import load_workbook
-from rigour.mime.types import XLSX
+import orjson
+from lxml import html
+from lxml.etree import _Element as Element
+from rigour.mime.types import JSON
+from zavod.entity import Entity
+from zavod.shed.il_mod import (
+    SPLITS,
+    Item,
+    apply_aliases,
+    apply_date,
+    apply_operative_details,
+    apply_partial_date,
+    drop_fallbacks,
+    fetch_variants,
+    pop_blocks,
+    source_url,
+)
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.entity import Entity
-
-ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
-PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
-NA_VALUE = re.compile(r"^=?[\"\-\/]+$")
-END_TAG = re.compile(r"בוטל ביום", re.U)
-SPLITS = [";", "Id Number", "a) ", "b) ", "c) ", " :", "\n", "• "]
-DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
-NON_ADDRESS_PATTERN = re.compile(
-    r"^(?:Branches:|Address\s*\d+:)\s*", re.IGNORECASE | re.MULTILINE
-)
 
 
-def clean_address(raw_value: str | None) -> list[str]:
-    """Clean and split address field into components."""
-    if not raw_value:
-        return []
-    # Remove unwanted patterns
-    cleaned = raw_value.replace('="---"', "").replace("• ", "").replace("- ", "")
-    cleaned = NON_ADDRESS_PATTERN.sub("", cleaned)
-    # Split and filter empty lines
-    components = [s.strip() for s in cleaned.split("\n") if s.strip()]
-    return components
+def fetch_designated(context: Context, content_type: str) -> list[list[Item]]:
+    """Fetch designated items, each as a list of its [en, he, ar] culture variants."""
+    designated: list[list[Item]] = []
+    for item_id, variants in fetch_variants(context, content_type).items():
+        # isDesignated separates designation records, active or cancelled, from
+        # entities which are only named in seizure orders. It doesn't change when a
+        # designation is cancelled; that's given by status and cancellationDate.
+        flag = variants[0]["properties"]["isDesignated"]
+        if flag is False:
+            continue
+        if flag is not True:
+            context.log.warning("Unexpected designation flag", id=item_id, flag=flag)
+            continue
+        designated.append(variants)
+    path = context.get_resource_path(f"{content_type}.json")
+    path.write_bytes(orjson.dumps(designated))
+    context.export_resource(
+        path, JSON, title=f"{context.SOURCE_TITLE} ({content_type})"
+    )
+    return designated
 
 
-def apply_addresses(
+def html_fragment(value: str) -> Element:
+    fragment: Element = html.fragment_fromstring(value, create_parent="div")
+    return fragment
+
+
+def html_text(value: str) -> str:
+    return h.element_text(html_fragment(value), squash=False).strip()
+
+
+def parse_comments(value: str | None) -> tuple[dict[str, list[str]], list[str]]:
+    """Split comments into labelled values ("<strong>Label:</strong> value") and notes."""
+    comments: dict[str, list[str]] = {}
+    notes: list[str] = []
+    if value is None:
+        return comments, notes
+    root = html_fragment(value)
+    paragraphs = h.xpath_elements(root, "./p")
+    if len(paragraphs) == 0:
+        notes.append(h.element_text(root))
+    for para in paragraphs:
+        labels = h.xpath_elements(para, "./strong")
+        text = h.element_text(para)
+        if len(labels) == 0 or not text.startswith(h.element_text(labels[0])):
+            notes.append(text)
+            continue
+        label = h.element_text(labels[0])
+        key = label.rstrip(":").strip()
+        comments.setdefault(key, []).append(text[len(label) :].strip())
+    return comments, notes
+
+
+def apply_designation(
     context: Context,
-    entity: Entity,
-    streets: list[str],
-    cities: list[str],
+    sanction: Entity,
+    props: dict[str, Any],
+    comments: dict[str, list[str]],
 ) -> None:
-    """Create and apply address(es) from parallel street/city lists.
+    apply_date(sanction, "startDate", props.pop("temporaryDesignationDate"))
+    apply_date(sanction, "startDate", props.pop("permanentDesignationDate"))
+    apply_date(sanction, "endDate", props.pop("cancellationDate"))
+    for value in comments.pop("West Bank designation date", []):
+        h.apply_date(sanction, "startDate", value)
+    for key in ("Designation date", "Cancellation date"):
+        for comment in comments.pop(key, []):
+            if "9/9/9999 is a placeholder" not in comment:
+                context.log.warning("Unexpected date comment", key=key, comment=comment)
+    # Cancelled without a date given: "הכרזה בוטלה" (designation cancelled)
+    for comment in comments.pop("Cancellation", []):
+        if comment != "הכרזה בוטלה":
+            context.log.warning("Unexpected cancellation comment", comment=comment)
+    sanction.add("authority", props.pop("localDesignator"))
+    sanction.add("recordId", props.pop("foreignDesignationReferenceNumber"))
 
-    Pairs street and city components by index position rather than creating a Cartesian
-    product. For example, given:
-        streets = ["Ferdowsi Avenue", "43 Avenue Montaigne"]
-        cities = ["Tehran", "Paris"]
 
-    This creates two addresses:
-        - Ferdowsi Avenue, Tehran (index 0)
-        - 43 Avenue Montaigne, Paris (index 1)
-    """
-    if not streets and not cities:
+def apply_address(context: Context, entity: Entity, block: dict[str, Any]) -> None:
+    country = block.pop("country")
+    if country == "Unknown":
+        country = None
+    notes = block.pop("notes")
+    if notes is not None:
+        # Only used to give the country when it's not set, e.g. "Gaza Strip"
+        if country is not None:
+            context.log.warning("Address note with country", notes=notes, block=block)
+        country = html_text(notes)
+    address = h.make_address(
+        context,
+        street=block.pop("street"),
+        city=block.pop("city"),
+        postal_code=block.pop("postalCode"),
+        country=country,
+    )
+    h.apply_address(context, entity, address)
+    entity.add("country", country)
+    context.audit_data(block)
+
+
+def apply_status_topic(context: Context, entity: Entity, status: str | None) -> None:
+    """Apply the topic if the designation is active"""
+    if status == "Active":
+        entity.add("topics", "crime.terror")
+    elif status != "Cancelled":
+        context.log.warning("Unexpected status", entity_id=entity.id, status=status)
+
+
+def emit_key_operatives(context: Context, entity: Entity, operatives: str) -> None:
+    res = context.lookup("key_operatives", operatives)
+    if res is None:
+        context.log.warning("Unhandled key_operatives", value=operatives)
         return
-    # Pair up components at the same index, using None for missing values
-    for street, city in zip_longest(streets, cities):
-        address = h.make_address(context, street=street, city=city)
-        h.apply_address(context, entity, address)
+    for item in res.operatives:
+        item = dict(item)
+        operative = context.make(item.pop("schema", "LegalEntity"))
+        operative.id = context.make_id(
+            entity.id, item["name"], item.get("country", None)
+        )
+        for key, value in item.items():
+            operative.add(key, value)
+        rel = context.make("UnknownLink")
+        rel.id = context.make_id(entity.id, operative.id)
+        rel.add("subject", entity.id)
+        rel.add("object", operative.id)
+        rel.add("role", "Key operative")
+        context.emit(operative)
+        context.emit(rel)
 
 
-def parse_interval(sanction: Entity, date: str | None) -> None:
-    if date is None:
+def crawl_organization(
+    context: Context,
+    variants: list[Item],
+    org_ids: dict[str, tuple[str, str]],
+    links: list[tuple[str, str]],
+) -> None:
+    item = variants[0]
+    name_en, name_he, name_ar = drop_fallbacks(variants, "organizationName")
+    entity = context.make("Organization")
+    entity.id = context.make_id(name_en, name_he)
+    if entity.id is None:
+        context.log.warning("Organization without name", id=item["id"])
         return
-    date = date.strip()
-    if "בוטל ביום" in date:
-        date, _ = date.rsplit(" ", 1)
-        h.apply_date(sanction, "endDate", _)
-    else:
-        for part in h.multi_split(date, DATE_SPLITS):
-            h.apply_date(sanction, "startDate", part)
+    props = dict(item["properties"])
+    props.pop("organizationName")
+    number = props.pop("designationNumber")
+    org_ids[item["id"]] = (entity.id, number)
+    for linked in props.pop("linkedOrganizations") or []:
+        links.append((item["id"], linked["id"]))
+
+    entity.add("name", name_en, lang="eng")
+    entity.add("name", name_he, lang="heb")
+    entity.add("alias", h.multi_split(name_ar, SPLITS), lang="ara")
+    apply_aliases(entity, variants, "alternativeNames")
+    props.pop("alternativeNames")
+    entity.add("sourceUrl", source_url(item))
+
+    comments, notes = parse_comments(props.pop("comments"))
+    entity.add("legalForm", props.pop("corporationType"))
+    entity.add("registrationNumber", props.pop("corporationID"))
+    entity.add("jurisdiction", props.pop("formationLocation"))
+    apply_partial_date(
+        context,
+        entity,
+        "incorporationDate",
+        [props.pop("corporationDate")],
+        comments.pop("Date of incorporation", None),
+    )
+    entity.add("phone", props.pop("phoneNumbers"))
+    entity.add("email", props.pop("emailAddresses"))
+    entity.add("website", props.pop("websites"))
+    for block in pop_blocks(props, "addresses", "addressBlock"):
+        apply_address(context, entity, block)
+
+    sanction = h.make_sanction(context, entity)
+    sanction.add("recordId", number)
+    sanction.add("program", comments.pop("Designation type", None))
+    sanction.add("program", props.pop("foreignDesignator"))
+    sanction.add("sourceUrl", source_url(item))
+    for block in pop_blocks(props, "justifications", "justificationBlock"):
+        sanction.add("reason", html_text(block.pop("justification")))
+        context.audit_data(block)
+    for block in pop_blocks(props, "lastPublicationDetails", "regulationFileBlock"):
+        sanction.add("publisher", block.pop("regulationFileName"))
+        context.audit_data(block)
+    apply_designation(context, sanction, props, comments)
+
+    for operatives in comments.pop("Key operatives", []):
+        emit_key_operatives(context, entity, operatives)
+
+    apply_status_topic(context, entity, props.pop("status"))
+    context.emit(entity)
+    context.emit(sanction)
+    context.audit_data(comments)
+    context.audit_data(
+        props,
+        ignore=[
+            "isDesignated",
+            "foreignDesignationDate",
+            "notes",
+        ],
+    )
 
 
-def clean_numbered_name(raw_name: str) -> str:
-    """
-    Remove leading numeric prefixes like '1: ', '2: ', etc. from a name string.
-    Example: '1: IBRAHIM 2: ALI 3: ABU BAKR' -> 'IBRAHIM ALI ABU BAKR'
-    """
-    cleaned = re.sub(r"\b\d+\s*:\s*", "", raw_name)
-    cleaned = squash_spaces(cleaned)
-    return cleaned
+def crawl_operative(
+    context: Context,
+    variants: list[Item],
+    person_ids: dict[str, str],
+    links: list[tuple[str, str]],
+) -> None:
+    item = variants[0]
+    name_en, name_he, name_ar = drop_fallbacks(variants, "fullName")
+    entity = context.make("Person")
+    entity.id = context.make_id(name_en, name_he, name_ar)
+    if entity.id is None:
+        context.log.warning("Operative without name", id=item["id"])
+        return
+    person_ids[item["id"]] = entity.id
+    props = dict(item["properties"])
+    props.pop("fullName")
+    for linked in props.pop("relatedOrganizations") or []:
+        links.append((item["id"], linked["id"]))
+
+    entity.add("name", name_en, lang="eng")
+    entity.add("name", name_he, lang="heb")
+    entity.add("name", name_ar, lang="ara")
+    apply_aliases(entity, variants, "additionalNames")
+    props.pop("additionalNames")
+    entity.add("sourceUrl", source_url(item))
+
+    comments, notes = parse_comments(props.pop("comments"))
+    entity.add("notes", notes)
+    entity.add("notes", comments.pop("Additional information", None))
+    apply_operative_details(context, entity, props, comments.pop("Date of birth", None))
+
+    sanction = h.make_sanction(context, entity)
+    for block in pop_blocks(props, "justifications", "justificationBlock"):
+        sanction.add("program", html_text(block.pop("justification")))
+        context.audit_data(block)
+    sanction.add("program", props.pop("foreignDesignator"))
+    sanction.add("sourceUrl", source_url(item))
+    apply_designation(context, sanction, props, comments)
+
+    apply_status_topic(context, entity, props.pop("status"))
+    context.emit(entity)
+    context.emit(sanction)
+    context.audit_data(comments)
+    context.audit_data(props, ignore=["isDesignated", "foreignDesignationDate"])
 
 
-def lang_pick(record: dict[str, str], field: str) -> str | None:
-    hebrew = record.pop(f"{field}_hebrew", None)
-    english = record.pop(f"{field}_english", None)
-    if english is not None:
-        return english
-    return hebrew
-
-
-def header_names(cells: list[Any]) -> list[str]:
-    headers = []
-    for idx, cell in enumerate(cells):
-        if cell is None:
-            cell = f"column_{idx}"
-        cell = cell.replace("(DD/MM/YYYY)", "")
-        headers.append(slugify(cell, "_") or "")
-    return headers
-
-
-def excel_records(context: Context, path: str | Path) -> Iterator[dict[str, str]]:
-    wb = load_workbook(filename=path, read_only=True)
-    for sheet in wb.worksheets:
-        headers = None
-        for idx, row in enumerate(sheet.rows):
-            cells = [c.value for c in row]
-            if headers is not None:
-                record = {}
-                for header, value in zip(headers, cells):
-                    if isinstance(value, datetime):
-                        value = value.date()
-                    value = stringify(value)
-                    if value is not None and NA_VALUE.match(value) is None:
-                        record[header] = value
-                yield record
-
-            if idx == 1:
-                headers = header_names(cells)
+def emit_links(
+    context: Context,
+    org_ids: dict[str, tuple[str, str]],
+    person_ids: dict[str, str],
+    links: list[tuple[str, str]],
+) -> None:
+    seen: set[tuple[str, str]] = set()
+    for source_id, linked_id in links:
+        linked = org_ids.get(linked_id)
+        if linked is None:
+            context.log.warning("Linked ID not found", linked_id=linked_id)
+            continue
+        linked_entity_id, linked_number = linked
+        source = org_ids.get(source_id)
+        if source is not None:
+            source_entity_id, source_number = source
+            # Keep the subject/object order of the old spreadsheet-based crawler,
+            # which ordered by (string) designation number, so link IDs stay stable.
+            if max(source_number, linked_number) == source_number:
+                subject_id, object_id = source_entity_id, linked_entity_id
+            else:
+                subject_id, object_id = linked_entity_id, source_entity_id
+        else:
+            subject_id, object_id = person_ids[source_id], linked_entity_id
+        if subject_id == object_id or (subject_id, object_id) in seen:
+            continue
+        seen.add((subject_id, object_id))
+        link = context.make("UnknownLink")
+        link.id = context.make_id(subject_id, object_id)
+        link.add("subject", subject_id)
+        link.add("object", object_id)
+        context.emit(link)
 
 
 def crawl(context: Context) -> None:
-    crawl_organizations(context)
-    crawl_individuals(context)
-
-
-def crawl_individuals(context: Context) -> None:
-    path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    for record in excel_records(context, path):
-        seq_id = record.pop("internal_seq_id", None)
-        if seq_id in [None, '="-"']:
-            continue
-        name_en = record.pop("name_of_individual_english", None)
-        if name_en and "1: " in name_en:
-            name_en = clean_numbered_name(name_en)
-        name_he = record.pop("name_of_individual_hebrew", None)
-        name_ar = record.pop("name_of_individual_arabic", None)
-        entity = context.make("Person")
-        entity.id = context.make_id(name_en, name_he, name_ar)
-        if entity.id is None:
-            continue
-        entity.add("name", name_en, lang="eng")
-        entity.add("name", name_he, lang="heb")
-        entity.add("name", name_ar, lang="ara")
-        entity.add("topics", "crime.terror")
-        for part in h.multi_split(record.pop("d_o_b", None), DATE_SPLITS):
-            h.apply_date(entity, "birthDate", part)
-        entity.add("nationality", record.pop("nationality_residency", None))
-        id_number = record.pop("individual_id", "")
-        id_number = id_number.replace(":\n", ": ")
-        entity.add("idNumber", h.multi_split(id_number, SPLITS))
-
-        sanction = h.make_sanction(context, entity)
-        sanction.add("recordId", seq_id)
-        sanction.add("recordId", record.pop("foreign_designation_id", None))
-        sanction.add("program", record.pop("designation", None))
-        sanction.add("program", record.pop("foreign_designation", None))
-        sanction.add("authority", lang_pick(record, "designated_by"))
-        entity.add("notes", record.pop("additional_information", None))
-
-        lang_pick(record, "designated_by_abroad")
-        record.pop("date_of_foreign_designation_date", None)
-
-        for field in ("date_of_designation_in_israel",):
-            parse_interval(sanction, record.pop(field, None))
-
-        context.emit(entity)
-        context.emit(sanction)
-        context.audit_data(
-            record,
-            ignore=["header"],  # Seems to always be empty, not sure what this is
-        )
-
-
-def crawl_organizations(context: Context) -> None:
-    path = context.fetch_resource("organizations.xlsx", ORG_URL)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    seq_ids = {}
+    org_ids: dict[str, tuple[str, str]] = {}
+    person_ids: dict[str, str] = {}
     links: list[tuple[str, str]] = []
-    for record in excel_records(context, path):
-        seq_id = record.pop("internal_seq_id", None)
-        name_en = record.pop("organization_name_english", None)
-        name_he = record.pop("organization_name_hebrew", None)
-        name_en = name_en.replace('="---"', "") if name_en else None
-        name_he = name_he.replace('="---"', "") if name_he else None
-        entity = context.make("Organization")
-        entity.id = context.make_id(name_en, name_he)
-        if entity.id is None:
-            continue
-        if seq_id is not None:
-            seq_ids[seq_id] = entity.id
-        entity.add("name", name_en, lang="eng")
-        entity.add("name", name_he, lang="heb")
-        entity.add("topics", "crime.terror")
-        entity.add("notes", h.clean_note(lang_pick(record, "comments")))
-        entity.add("notes", h.clean_note(record.pop("column_42", None)))
-        entity.add("notes", h.clean_note(record.pop("column_39", None)))
-        entity.add("email", record.pop("email", None))
-        entity.add("country", record.pop("country_hebrew", None), lang="heb")
-        entity.add("country", record.pop("country_english", None), lang="eng")
-        entity.add("registrationNumber", record.pop("corporation_id", None))
-        entity.add("legalForm", lang_pick(record, "corporation_type"))
-        entity.add("jurisdiction", lang_pick(record, "location_of_formation"))
-        for part in h.multi_split(record.pop("date_of_corporation", None), DATE_SPLITS):
-            h.apply_date(entity, "incorporationDate", part)
-        for field in list(record.keys()):
-            if field.startswith("organization_name_"):
-                entity.add("alias", h.multi_split(record.pop(field, None), SPLITS))
-            if field.startswith("telephone"):
-                entity.add("phone", record.pop(field, None))
-            if field.startswith("website"):
-                entity.add("website", record.pop(field, None))
-
-        entity.add("phone", record.pop("column_67", None))
-        entity.add("phone", record.pop("column_70", None))
-        entity.add("website", record.pop("column_73", None))
-
-        sanction = h.make_sanction(context, entity)
-        sanction.add("recordId", seq_id)
-        sanction.add("recordId", record.pop("seq_num_in_other_countries", None))
-        sanction.add("program", record.pop("designation_type", None))
-        sanction.add("reason", lang_pick(record, "designation_justification"))
-        sanction.add("authority", lang_pick(record, "designated_by"))
-        sanction.add("publisher", record.pop("public_records_references", None))
-
-        lang_pick(record, "designated_by_abroad")
-        record.pop("date_designated_in_other_countries", None)
-
-        linked = record.pop("linked_to_internal_seq_id", "")
-        for link in linked.split(";"):
-            if seq_id is not None:
-                links.append((max(link, seq_id), min(link, seq_id)))
-
-        street_raw = lang_pick(record, "street")
-        city_raw = lang_pick(record, "city_village")
-
-        streets = clean_address(street_raw)
-        cities = clean_address(city_raw)
-
-        apply_addresses(context, entity, streets, cities)
-
-        for field in (
-            "date_of_temporary_designation",
-            "date_of_permenant_designation",
-            "date_designation_in_west_bank",
-        ):
-            parse_interval(sanction, record.pop(field, None))
-
-        operatives = record.pop("key_operatives", None)
-        if operatives:
-            res = context.lookup("key_operatives", operatives)
-            if res:
-                for item in res.operatives:
-                    operative = context.make(item.pop("schema", "LegalEntity"))
-                    operative.id = context.make_id(
-                        entity.id, item["name"], item.get("country", None)
-                    )
-                    for key, value in item.items():
-                        operative.add(key, value)
-                    rel = context.make("UnknownLink")
-                    rel.id = context.make_id(entity.id, operative.id)
-                    rel.add("subject", entity.id)
-                    rel.add("object", operative.id)
-                    rel.add("role", "Key operative")
-                    context.emit(operative)
-                    context.emit(rel)
-            else:
-                context.log.warning("Unhandled key_operatives", value=operatives)
-
-        context.emit(entity)
-        context.emit(sanction)
-        context.audit_data(record)
-
-    for subject, object in links:
-        subject_id = seq_ids.get(subject)
-        object_id = seq_ids.get(object)
-        if subject_id is None or object_id is None:
-            continue
-        linked_entity = context.make("UnknownLink")
-        linked_entity.id = context.make_id(subject_id, object_id)
-        linked_entity.add("subject", subject_id)
-        linked_entity.add("object", object_id)
-        context.emit(linked_entity)
+    for variants in fetch_designated(context, "organization"):
+        crawl_organization(context, variants, org_ids, links)
+    for variants in fetch_designated(context, "operative"):
+        crawl_operative(context, variants, person_ids, links)
+    emit_links(context, org_ids, person_ids, links)
