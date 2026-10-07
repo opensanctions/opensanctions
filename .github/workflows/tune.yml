@@ -1,0 +1,43 @@
+name: tune
+
+on:
+  workflow_dispatch: {}
+  push:
+    # Avoid duplicate push and pull_request runs on PR branches.
+    branches: [main]
+    paths:
+      - "contrib/tune/**"
+      - ".github/workflows/tune.yml"
+  pull_request:
+    paths:
+      - "contrib/tune/**"
+      - ".github/workflows/tune.yml"
+  schedule:
+    # tune depends on zavod but isn't run on zavod changes; catch breakage weekly.
+    - cron: "0 3 * * 1"
+
+permissions: {} # Default to no permissions. Enable as needed for specific jobs.
+
+jobs:
+  test:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install system dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          # zavod's pyicu and plyvel dependencies build from source.
+          sudo apt-get install -y -qq libicu-dev libleveldb-dev
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: contrib/tune/uv.lock
+      - name: Run tune tests
+        working-directory: contrib/tune
+        run: |
+          uv run --locked pytest

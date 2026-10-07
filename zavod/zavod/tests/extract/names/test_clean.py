@@ -1,4 +1,8 @@
-from zavod.extract.names.clean import LangText, Names
+from zavod.extract.names.clean import (
+    LangText,
+    Names,
+    load_single_entity_prompt,
+)
 
 
 def test_lang_text_equality():
@@ -80,3 +84,11 @@ def test_names_tolerates_unknown_keys_on_validation():
     # A stored-review-shaped dump round-trips.
     names = Names(name=["John Doe"], alias="Johnny")
     assert Names.model_validate(names.model_dump()) == names
+
+
+def test_load_single_entity_prompt():
+    # The optimised program JSON must ship with the package: production name
+    # cleaning reads its prompt from there without importing dspy.
+    prompt = load_single_entity_prompt()
+    assert isinstance(prompt, str)
+    assert len(prompt.strip()) > 0

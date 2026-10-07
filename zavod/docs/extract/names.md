@@ -330,11 +330,13 @@ LLMs can do a lot of the categorisation and cleaning for us. We pair this with [
 
     This is not part of normal crawler development. This is carried out by the platform team from time to time as necessary improvements are identified.
 
-We use [DSPy](https://dspy.ai/) to write, optimise, and evaluate the prompt. The process is
+We use [DSPy](https://dspy.ai/) to write, optimise, and evaluate the prompt. The tooling lives in `contrib/tune/` in the opensanctions repository, in its own uv environment, so that dspy and its dependencies don't constrain zavod's own dependency resolution. See the [`contrib/tune` README](https://github.com/opensanctions/opensanctions/blob/main/contrib/tune/README.md) for setup (including extra steps on a Mac) and the full commands.
 
-1. Ensure we have good example data in `zavod/extract/names/dspy/single_entity_examples.yml`
-2. Run `zavod-tune optimise` to find the ideal prompt for the data
-3. Run `zavod-tune compare`
+The process is
+
+1. Ensure we have good example data in `contrib/tune/single_entity_examples.yml`
+2. Run `tune.py optimise` to find the ideal prompt for the data
+3. Run `tune.py compare`
     - This shows us how well the prompt works on the validation set
     - It also shows us how well it works directly, compared with via the DSPy client.
 
@@ -343,15 +345,9 @@ We use the prompt directly, rather than via DSPy, to avoid introducing DSPy as a
 
 ### Optimising the prompt
 
-The [GEPA optimiser in DSPy](https://dspy.ai/tutorials/gepa_facilitysupportanalyzer/) is used to develop an optimal prompt based on the example data and our feedback function `zavod.extract.names.dspy.optimise.metric_with_feedback`
+The [GEPA optimiser in DSPy](https://dspy.ai/tutorials/gepa_facilitysupportanalyzer/) is used to develop an optimal prompt based on the example data and our feedback function `contrib/tune/optimise.py` `metric_with_feedback`
 
-Run it using
-
-```
-zavod-tune optimise
-```
-
-add `--level light` to use a subset of the data to experiment a bit more cheaply and quickly.
+Run it using `tune.py optimise`. Add `--level light` to use a subset of the data to experiment a bit more cheaply and quickly.
 
 Be careful not to try to make the feedback function too fancy.
 
@@ -368,18 +364,14 @@ Examples take the form
   alias: [Nathan Man Man]
 ```
 
-String represents the input string. The fields to extract are defined in `zavod.extract.names.dspy.clean.CleanNamesSignature`
+String represents the input string. The fields to extract are defined in `contrib/tune/clean.py` `CleanNamesSignature`
 
-The "optimised program" in DSPy speak is saved to `zavod/extract/names/dspy/single_entity_program.json`. This contains the prompt and some metadata.
+The "optimised program" in DSPy speak is saved to `zavod/extract/names/single_entity_program.json`. This contains the prompt and some metadata.
 
 
 #### Evaluate the prompt
 
-Evaluate the optimised prompt by running
-
-```
-zavod-tune compare validation_results.json
-```
+Evaluate the optimised prompt using `tune.py compare <output path>`, e.g. `tune.py compare validation_results.json`.
 
 Some progress information and overall statistics are printed, and details for each example are output to the provided JSON path.
 

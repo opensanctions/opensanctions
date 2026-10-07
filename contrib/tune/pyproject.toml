@@ -1,0 +1,16 @@
+[project]
+name = "tune"
+version = "0.1.0"
+description = "DSPy prompt optimisation and evaluation for zavod name cleaning."
+requires-python = ">= 3.12"
+dependencies = [
+    "dspy == 3.4.0",
+    "litellm >= 1.64.0, <= 1.103.0", # required by dspy, pinned following litellm compromise
+    "zavod",
+]
+
+[tool.uv.sources]
+zavod = { path = "../../zavod", editable = true }
+
+[dependency-groups]
+dev = ["pytest"]
