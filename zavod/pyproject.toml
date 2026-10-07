@@ -20,7 +20,7 @@ requires-python = ">= 3.12"
 dependencies = [
     "alembic == 1.20.0",
     "followthemoney == 4.11.0",
-    "nomenklatura == 4.17.0",
+    "nomenklatura == 4.17.1",
     "plyvel == 1.5.1", # Also update macOS install docs
     "rigour == 2.5.0",
     "datapatch >= 1.2.4, < 1.3",
