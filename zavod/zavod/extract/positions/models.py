@@ -78,8 +78,15 @@ class Annotation(BaseModel):
 
 
 class AnnotatorResponse(BaseModel):
+    key_evidence: str = Field(
+        description=(
+            "Facts stated in the label and its context, or found through web "
+            "research. For each web fact, give the source URL and quote the "
+            "passage that states it verbatim. No inferences."
+        )
+    )
     reasoning: str = Field(
-        description="The evidence from the label and the codebook rules that apply."
+        description="How the codebook rules apply to the key evidence."
     )
     annotation: Annotation
 
