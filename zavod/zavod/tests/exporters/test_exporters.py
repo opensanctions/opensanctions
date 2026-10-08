@@ -60,7 +60,7 @@ def emit_entity(
 
 
 def export(dataset: Dataset) -> None:
-    view = get_test_view(dataset, clear=True)
+    view = get_test_view(dataset)
     export_dataset(dataset, settings.RUN_VERSION, view)
 
 

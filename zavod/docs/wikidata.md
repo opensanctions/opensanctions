@@ -16,7 +16,7 @@ Run the command against one or more dataset paths:
 
 ```bash
 zavod wikidata-reconcile \
-  --rebuild-store \
+  --refresh \
   datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml
 ```
 
@@ -31,7 +31,7 @@ On exit, the commands are written to a single `.qs` batch that you upload in the
 
 ### Options
 
-- `-r/--rebuild-store` — re-sync the entity store before reconciling.
+- `-r/--refresh` — pin the latest dataset versions instead of reusing the ones from the previous run.
 - `--aliases/--no-aliases` — include alternate names as search aliases. On by default.
 - `-a/--algorithm` — scoring algorithm used to rank candidates. Defaults to the ER matcher.
 - `-o/--output` — path for the QuickStatements output file.

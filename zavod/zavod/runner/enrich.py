@@ -52,11 +52,10 @@ def save_match(
 def enrich(context: Context) -> None:
     scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     context.log.info(f"Enriching {scope.name} ({[d.name for d in scope.datasets]})")
-    store = get_store(Manifest.get_transient(scope), context.resolver)
     # Commit the resolver's load-time read so no transaction is held open across
-    # the (potentially long) store sync below; the resolver is in-memory after.
+    # the (potentially long) store build below; the resolver is in-memory after.
     context.flush()
-    store.sync()
+    store = get_store(Manifest.get_transient(scope), context.resolver)
     view = store.view(scope, external=True)
     enricher = make_enricher(
         context.dataset,

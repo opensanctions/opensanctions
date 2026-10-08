@@ -47,15 +47,12 @@ def get_test_view(
     dataset: Dataset,
     linker: Linker[Entity] | None = None,
     version: Version | None = None,
-    clear: bool = False,
 ) -> View:
     """A synced store view over the run pinned by the dataset's manifest."""
     if linker is None:
         linker = get_dataset_linker(dataset)
     manifest = get_manifest(dataset, version)
-    store = get_store(manifest, linker)
-    store.sync(clear=clear)
-    return store.view(dataset)
+    return get_store(manifest, linker).view(dataset)
 
 
 def run_dataset(
