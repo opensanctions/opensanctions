@@ -20,31 +20,17 @@ docker compose run --rm app zavod --help
 
 ## Dependencies on macOS
 
-[pyICU](https://pypi.org/project/pyicu/) and [plyvel](https://github.com/wbolster/plyvel) have no pre-built wheels for macOS arm64 and must be compiled from source. They also have conflicting build requirements, so installation requires two passes.
-
-First, install the native libraries:
+[pyICU](https://pypi.org/project/pyicu/) has no pre-built wheels for macOS arm64 and must be compiled from source against the system ICU library:
 
 ```sh
-brew install icu4c leveldb
+brew install icu4c
 ```
 
 Then, from the `zavod/` directory:
 
 ```sh
-# Step 1: build pyicu against the system icu4c, and plyvel against leveldb
 PATH="$(brew --prefix icu4c)/bin:$PATH" \
-CPPFLAGS="-I$(brew --prefix leveldb)/include" \
-LDFLAGS="-L$(brew --prefix leveldb)/lib" \
-uv sync --no-binary-package pyicu --no-binary-package plyvel --extra dev --extra docs
-
-# Step 2: rebuild plyvel with -fno-rtti to match homebrew's leveldb
-# (leveldb disables RTTI in its own build, so the plyvel wheel references symbols
-# that don't exist at runtime — building from source with matching flags fixes this)
-# pyicu doesn't wan to be built with this option, so a second step is required.
-CXXFLAGS="-fno-rtti" \
-CPPFLAGS="-I$(brew --prefix leveldb)/include" \
-LDFLAGS="-L$(brew --prefix leveldb)/lib" \
-uv pip --no-cache install --no-binary plyvel --reinstall plyvel==1.5.1 # Use the current version in pyproject.toml
+uv sync --no-binary-package pyicu --extra dev --extra docs
 ```
 
 ## Python virtual environment
