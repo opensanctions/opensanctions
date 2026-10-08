@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2025-01-03
 load_statements: true
+ci_test: false # slow - detail fetch per person for > 1000 people
 summary: >
   List of public officials in Slovakia, including their names, positions,
   and other relevant information.
