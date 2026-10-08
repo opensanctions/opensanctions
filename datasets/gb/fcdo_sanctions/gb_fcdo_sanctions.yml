@@ -280,6 +280,10 @@ lookups:
           - Savingpunjab@gmail.com
       - match: administrator@nitc.co.ir,
         value: administrator@nitc.co.ir
+      - match: "Zakaz@complexpost.ru    Info@complexpost.ru"
+        values:
+          - Zakaz@complexpost.ru
+          - Info@complexpost.ru
   type.date:
     options:
       - match:
@@ -338,6 +342,12 @@ lookups:
         values:
           - rybar.ru
           - restmedia.io
+      # Transliterated .рф domains; the original Cyrillic spelling isn't given.
+      - match:
+          - "http:// bankstolichnykredit.rf"
+        value: "http://bankstolichnykredit.rf"
+      - match: "http:// kbstolichnycredit.rf"
+        value: "http://kbstolichnycredit.rf"
       - match: "byex.com and 100ex.com"
         values:
           - byex.com
@@ -1812,6 +1822,66 @@ lookups:
       - match: "OKVED 64.19"
         props:
           okvedCode: "64.19"
+      - match: " OGRN: 1047796617494 "
+        props:
+          ogrnCode: "1047796617494"
+      - match: "91321002785991747X "
+        props:
+          uscCode: "91321002785991747X"
+      - match: "Canada Revenue Agency Business Number - 717578603British Columbia Registration Number - BC1368872"
+        props:
+          taxNumber: "717578603"
+          registrationNumber: "BC1368872"
+      - match: "INN - 7714138543 "
+        props:
+          innCode: "7714138543"
+      - match: "INN - 9718020063 "
+        props:
+          innCode: "9718020063"
+      - match: "INN: 3662186169 OGRN: 1133668008781 "
+        props:
+          innCode: "3662186169"
+          ogrnCode: "1133668008781"
+      - match: "INN: 5445029973OGRN: 1195476061054"
+        props:
+          innCode: "5445029973"
+          ogrnCode: "1195476061054"
+      - match: "INN: 7713499160 OGRN: 1237700347532 "
+        props:
+          innCode: "7713499160"
+          ogrnCode: "1237700347532"
+      - match: "Kyrgyzstan INN - 02504202510144"
+        props:
+          taxNumber: "02504202510144" # remapping to taxNumber because of validation failure
+      - match: "MERSIS number: 0734244003000001"
+        props:
+          registrationNumber: "0734244003000001"
+      - match: "OGRN 1247700658149TIN 9703192415"
+        props:
+          ogrnCode: "1247700658149"
+          taxNumber: "9703192415"
+      - match: "Registration number: 226197-3301-ЗАОTax number: 01701202410289"
+        props:
+          registrationNumber: "226197-3301-ЗАО"
+          taxNumber: "01701202410289"
+      - match: "Registration number: 227048-3301-ОООTax number: 00702202410327"
+        props:
+          registrationNumber: "227048-3301-ООО"
+          taxNumber: "00702202410327"
+      - match: "Russia INN - 7718103767Russia OGRN - 1027739199927Registration number - 2853"
+        props:
+          innCode: "7718103767"
+          ogrnCode: "1027739199927"
+          registrationNumber: "2853"
+      - match: "Thai business registry no: 0195564000161"
+        props:
+          registrationNumber: "0195564000161"
+      - match: "USCC: 91320509799079580H "
+        props:
+          uscCode: "91320509799079580H"
+      - match: "USCC: 91370112MA3RNKQ371"
+        props:
+          uscCode: "91370112MA3RNKQ371"
   companies:
     normalize: true
     options:
@@ -2493,6 +2563,8 @@ lookups:
           - PJSC GAZPROM
           - Sharaf Shipping Agency LLC
           - Tudor Maritime Ltd
+          - Valkur LLC
+          - Kyrgyz Ministry of Finance
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
