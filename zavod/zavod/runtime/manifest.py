@@ -1,5 +1,4 @@
 import json
-import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
@@ -26,12 +25,6 @@ class Manifest:
     scope: Dataset
     version: Version
     datasets: dict[str, Version]
-
-    def digest(self) -> str:
-        """A stable identifier for the pinned dataset versions."""
-        data = {name: version.id for name, version in sorted(self.datasets.items())}
-        text = json.dumps(data, sort_keys=True)
-        return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     def to_json(self) -> str:
         datasets = sorted(self.datasets.items())

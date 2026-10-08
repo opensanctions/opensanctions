@@ -211,7 +211,7 @@ def test_xref_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
         assert list(resolver.get_candidates()) == []
         assert list(resolver.get_judgements()) == []
 
-    result = runner.invoke(cli, ["xref", "--rebuild-store", "testdataset1"], env=env)
+    result = runner.invoke(cli, ["xref", "--refresh", "testdataset1"], env=env)
     assert result.exit_code == 0, result.output
 
     with make_session() as session:

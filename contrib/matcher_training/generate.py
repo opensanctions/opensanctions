@@ -232,7 +232,6 @@ def generate(scope: str, outdir: Path) -> dict[str, Any]:
     dataset = get_multi_dataset(get_catalog(), [d.name for d in datasets])
 
     store = get_store(Manifest.get_transient(dataset), Linker({}))
-    store.sync()
     view = store.view(dataset, external=True)
 
     with make_session() as session:

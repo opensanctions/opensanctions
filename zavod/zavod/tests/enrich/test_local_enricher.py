@@ -1,4 +1,3 @@
-import shutil
 from copy import deepcopy
 
 import pytest
@@ -10,7 +9,7 @@ from structlog.testing import capture_logs
 
 from zavod import settings
 from zavod.entity import Entity
-from zavod.archive import clear_data_path, dataset_state_path
+from zavod.archive import clear_data_path
 from zavod.context import Context
 from nomenklatura.db import make_session
 from zavod.crawl import crawl_dataset
@@ -84,7 +83,6 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
         resolver = get_resolver(session)
         resolver.load_into_memory()
         store = get_store(get_manifest(enricher_ds), resolver)
-        store.sync(clear=True)
         internals = list(store.view(enricher_ds, external=False).entities())
         assert len(internals) == 0, internals
         externals = list(store.view(enricher_ds, external=True).entities())
@@ -102,7 +100,6 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
         resolver = get_resolver(session)
         resolver.load_into_memory()
         store = get_store(get_manifest(enricher_ds), resolver)
-        store.sync(clear=True)
         internals = list(store.view(enricher_ds, external=False).entities())
         assert len(internals) == 3, internals
         externals = list(store.view(enricher_ds, external=True).entities())
@@ -111,11 +108,11 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
                 assert not statement.external, statement
 
         view = store.view(enricher_ds)
-        match = view.get_entity(canon_id)
+        match = view.get_entity(canon_id.id)
         "Umbrella Corp." in match.get("name")
         "Umbrella Corporation" not in match.get("name")
         assert match.schema.name == "Company"
-        _, ownership = list(view.get_inverted(canon_id))[0]
+        _, ownership = list(view.get_inverted(canon_id.id))[0]
         owner = view.get_entity(ownership.get("owner")[0])
         assert owner.id == "osv-oswell-spencer"
         store.close()
@@ -288,12 +285,11 @@ def test_topic_gated_prunes_unpublishable_references(
         resolver = get_resolver(session)
         resolver.load_into_memory()
         store = get_store(get_manifest(enricher_ds), resolver)
-        store.sync(clear=True)
         view_internal = store.view(enricher_ds, external=False)
         view_all = store.view(enricher_ds, external=True)
 
         # The matched security is published, without the dangling issuer ref.
-        security = view_internal.get_entity(canon_id)
+        security = view_internal.get_entity(canon_id.id)
         assert security is not None
         assert security.get("issuer") == [], security.get("issuer")
 
@@ -303,7 +299,7 @@ def test_topic_gated_prunes_unpublishable_references(
 
         # The pruned reference is kept in an external stub so the graph
         # analyzer can still discover the relationship and tag the issuer.
-        security_all = view_all.get_entity(canon_id)
+        security_all = view_all.get_entity(canon_id.id)
         assert security_all is not None
         assert "osv-lei-a" in security_all.get("issuer")
         store.close()
@@ -335,7 +331,6 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
         resolver = get_resolver(session)
         resolver.load_into_memory()
         store = get_store(get_manifest(enricher_ds), resolver)
-        store.sync(clear=True)
         view_internal = store.view(enricher_ds, external=False)
         view_all = store.view(enricher_ds, external=True)
 
@@ -351,7 +346,7 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
         assert view_internal.get_entity("osv-oswell-spencer") is None, ""
 
         # Ownership edge: oswell-spencer endpoint has no topic → external.
-        inverted = list(view_all.get_inverted(canon_id))
+        inverted = list(view_all.get_inverted(canon_id.id))
         ownership_entities = [e for _, e in inverted if e.schema.edge]
         assert len(ownership_entities) == 1, ownership_entities
         ownership_id = ownership_entities[0].id
@@ -376,10 +371,6 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     finish_statements(subject_ctx)
     subject_ctx.close()
 
-    shutil.rmtree(
-        dataset_state_path(testdataset_enrich_subject.name) / "store",
-        ignore_errors=True,
-    )
     clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds, settings.RUN_VERSION)
 
@@ -387,7 +378,6 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
         resolver = get_resolver(session)
         resolver.load_into_memory()
         store = get_store(get_manifest(enricher_ds), resolver)
-        store.sync(clear=True)
         view_internal = store.view(enricher_ds, external=False)
         view_all = store.view(enricher_ds, external=True)
 
@@ -396,11 +386,11 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
         # umbrella-corp, oswell-spencer, ownership edge
         assert len(internals) == 3, internals
 
-        assert view_internal.get_entity(canon_id) is not None
+        assert view_internal.get_entity(canon_id.id) is not None
         # oswell-spencer now has a risk topic in the subject store → must be internal
         assert view_internal.get_entity("osv-oswell-spencer") is not None
 
-        inverted = list(view_all.get_inverted(canon_id))
+        inverted = list(view_all.get_inverted(canon_id.id))
         ownership_entities = [e for _, e in inverted if e.schema.edge]
         assert len(ownership_entities) == 1, ownership_entities
         ownership_id = ownership_entities[0].id

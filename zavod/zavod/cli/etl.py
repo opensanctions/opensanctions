@@ -44,12 +44,10 @@ def crawl(
 @cli.command("export", help="Export and validate data from a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option("-v", "--version", default=None)
-@click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
 @click.option("--validate/--no-validate", is_flag=True, default=True)
 def export(
     dataset_path: Path,
     version: str | None = None,
-    rebuild_store: bool = True,
     validate: bool = True,
 ) -> None:
     dataset = _load_dataset(dataset_path)
@@ -89,16 +87,16 @@ def export(
                 version=run_version.id,
             )
             sys.exit(1)
-    store = get_store(manifest, linker)
     try:
-        store.sync(clear=rebuild_store)
-        view = store.view(dataset, external=False)
-        export_dataset(dataset, run_version, view, validate=validate)
+        store = get_store(manifest, linker)
+        try:
+            view = store.view(dataset, external=False)
+            export_dataset(dataset, run_version, view, validate=validate)
+        finally:
+            store.close()
     except Exception:
         log.exception(f"Failed to export: {dataset_path}")
         sys.exit(1)
-    finally:
-        store.close()
 
 
 @cli.command("publish", help="Publish data from a specific dataset")
@@ -147,16 +145,17 @@ def run(
         manifest = Manifest.create(dataset, run_version)
 
     linker = get_dataset_linker(dataset)
-    store = get_store(manifest, linker)
     # Export and validation
     try:
-        store.sync(clear=True)
-        view = store.view(dataset, external=False)
-        export_dataset(dataset, run_version, view)
+        store = get_store(manifest, linker)
+        try:
+            view = store.view(dataset, external=False)
+            export_dataset(dataset, run_version, view)
+        finally:
+            store.close()
     except Exception:
         log.exception(f"Failed to export: {dataset_path}")
         archive_failure(dataset, run_version)
-        store.close()
         sys.exit(1)
 
     # Publish
