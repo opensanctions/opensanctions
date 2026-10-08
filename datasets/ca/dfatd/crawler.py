@@ -5,6 +5,7 @@ from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.util import Element
 
 NAME_SPLITS = [
@@ -63,6 +64,22 @@ def parse_imo_number(context: Context, value: str | None) -> str | None:
     if res is None:
         return None
     return res.value
+
+
+def apply_bilingual(context: Context, entity: Entity, prop: str, value: str) -> None:
+    # Most values hold the English and the French text in one field, split by
+    # "|", e.g. "Oil Tanker | Pétrolier" or "Major General | major-général".
+    # Some values hold only one text, e.g. "Brigadier" or "Dr.".
+    parts = value.split("|")
+    if len(parts) == 1:
+        entity.add(prop, squash_spaces(value))
+    elif len(parts) == 2:
+        english, french = parts
+        entity.add(prop, squash_spaces(english), lang="eng", original_value=value)
+        entity.add(prop, squash_spaces(french), lang="fra", original_value=value)
+    else:
+        context.log.warning("Unexpected bilingual value format", prop=prop, value=value)
+        entity.add(prop, value)
 
 
 def crawl(context: Context) -> None:
@@ -124,7 +141,8 @@ def parse_entry(context: Context, node: Element) -> None:
             entity.add("name", vessel_name)
             original.add("name", vessel_name)
             suggested.add("name", vessel_name)
-        entity.add("type", title)
+        if title is not None:
+            apply_bilingual(context, entity, "type", title)
         h.apply_date(entity, "buildDate", dob, original_value=dob_original)
     elif given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
@@ -139,7 +157,8 @@ def parse_entry(context: Context, node: Element) -> None:
             # birth date can be another 15 years back.
             two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE - 15,
         )
-        entity.add("title", title)
+        if title is not None:
+            apply_bilingual(context, entity, "title", title)
     elif entity_name is not None:
         original.add("name", entity_name)
         for name in split_name(entity_name):
