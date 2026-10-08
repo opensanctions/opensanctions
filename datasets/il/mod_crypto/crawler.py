@@ -1,7 +1,4 @@
-import csv  # TODO: Remove after the rekey run (see rekey_wallet)
 import re
-import unicodedata  # TODO: Remove after the rekey run (see rekey_wallet)
-from pathlib import Path  # TODO: Remove after the rekey run (see rekey_wallet)
 from typing import Any
 
 from zavod.entity import Entity
@@ -113,8 +110,6 @@ def crawl_wallet(
     order: Item,
     operatives: dict[str, list[Item]],
     orgs: dict[str, list[Item]],
-    # TODO: Remove after the rekey run (see rekey_wallet)
-    old_wallet_ids: dict[str, set[str]],
 ) -> None:
     """Emit the wallets of a wallet item, with their holders and a sanction for
     the order."""
@@ -141,8 +136,6 @@ def crawl_wallet(
         wallet = context.make("CryptoWallet")
         wallet.id = context.make_id(address)
         assert wallet.id is not None
-        # TODO: Remove after the rekey run (see rekey_wallet)
-        rekey_wallet(context, old_wallet_ids, address, wallet.id)
         apply_address(context, wallet, address, coin)
         wallet.add("holder", wallet_holders)
         wallet.add("sourceUrl", source_url(wallet_item))
@@ -168,8 +161,6 @@ def crawl_order(
     wallets: dict[str, Item],
     operatives: dict[str, list[Item]],
     orgs: dict[str, list[Item]],
-    # TODO: Remove after the rekey run (see rekey_wallet)
-    old_wallet_ids: dict[str, set[str]],
 ) -> None:
     """Emit the wallets seized by an Administrative Seizure Order (ASO) or
     Forfeiture Order (FO)."""
@@ -189,7 +180,6 @@ def crawl_order(
                 order,
                 operatives,
                 orgs,
-                old_wallet_ids,
             )
     context.audit_data(
         order_props,
@@ -211,125 +201,6 @@ def crawl(context: Context) -> None:
     wallets = fetch_content(context, "cryptocurrencyWallet", "en")
     operatives = fetch_variants(context, "operative")
     orgs = fetch_variants(context, "organization")
-    # TODO: Remove after the rekey run (see rekey_wallet)
-    old_wallet_ids = load_old_wallet_ids(context, wallets)
 
     for order in orders.values():
-        crawl_order(context, order, wallets, operatives, orgs, old_wallet_ids)
-
-
-# TODO: Remove everything below, seizures.csv, and the code marked with TODOs above
-# once this has run in production.
-# Before switching to the API, the crawler read seizures.csv, maintained by hand
-# from the old NBCTF site. Its values were obfuscated with homoglyphs and invisible
-# characters, so some of the wallet IDs made from them differ from the IDs made from
-# the API. Map the old IDs to the new ones by joining on the wallet address.
-#
-# Holders aren't rekeyed: for some wallets the API gives a different holder than
-# seizures.csv did, and rekeying those would merge different people.
-SEIZURES_CSV = Path(__file__).parent / "seizures.csv"
-HOMOGLYPHS = {
-    "ᴄ": "c",
-    "ᴑ": "o",
-    "ᴠ": "v",
-    "ᴡ": "w",
-    "ᴢ": "z",
-    "Α": "A",
-    "Β": "B",
-    "Ε": "E",
-    "Ζ": "Z",
-    "Η": "H",
-    "ϳ": "j",
-    "Κ": "K",
-    "Μ": "M",
-    "Ν": "N",
-    "ο": "o",
-    "Ρ": "P",
-    "Ϲ": "C",
-    "Τ": "T",
-    "Υ": "Y",
-    "Χ": "X",
-    "а": "a",
-    "А": "A",
-    "В": "B",
-    "ԁ": "d",
-    "е": "e",
-    "Е": "E",
-    "ѕ": "s",
-    "Ѕ": "S",
-    "ј": "j",
-    "Ј": "J",
-    "ԛ": "q",
-    "М": "M",
-    "Н": "H",
-    "о": "o",
-    "р": "p",
-    "Р": "P",
-    "с": "c",
-    "С": "C",
-    "Ԍ": "G",
-    "Т": "T",
-    "Ү": "Y",
-    "х": "x",
-    "Х": "X",
-    "ԝ": "w",
-    "Ԝ": "W",
-    "հ": "h",
-    "ո": "n",
-    "ս": "u",
-    "Ս": "U",
-    "օ": "o",
-}
-
-
-def normalize_address(addr: str) -> str:
-    return "".join(HOMOGLYPHS.get(c) or c for c in addr)
-
-
-def join_key(value: str) -> str:
-    """Strip invisible characters and homoglyphs, and the trailing asterisks the
-    spreadsheet put on some addresses."""
-    visible = "".join(c for c in value if unicodedata.category(c) != "Cf")
-    return normalize_address(visible).rstrip("*").strip()
-
-
-def load_old_wallet_ids(
-    context: Context, wallets: dict[str, Item]
-) -> dict[str, set[str]]:
-    """Map the join keys of the wallet addresses in seizures.csv to the wallet IDs
-    the old crawler made from them."""
-    api_keys = {
-        join_key(address)
-        for item in wallets.values()
-        for address in h.multi_split(item["properties"]["walletAddress"], [", "])
-    }
-    by_address: dict[str, set[str]] = {}
-    by_phone: dict[str, set[str]] = {}
-    with open(SEIZURES_CSV) as fh:
-        for row in csv.DictReader(fh):
-            # As the old crawler read the row
-            row = {k: v.replace("\u200b", "") for k, v in row.items()}
-            identifier = row["wallet_address"] or row["account_id"]
-            if identifier == "":
-                continue
-            old_id = context.make_id(normalize_address(identifier))
-            assert old_id is not None
-            by_address.setdefault(join_key(identifier), set()).add(old_id)
-            # Only rows whose own address isn't a wallet in the API: some people's
-            # account and phone number are both given as wallets.
-            if row["phone"] != "" and join_key(identifier) not in api_keys:
-                by_phone.setdefault(join_key(row["phone"]), set()).add(old_id)
-    # Some Binance account numbers in the API are in the phone column of
-    # seizures.csv, which has other numbers as the account. Only use a phone
-    # number if it's on a single account.
-    for phone, old_ids in by_phone.items():
-        if len(old_ids) == 1 and phone not in by_address:
-            by_address[phone] = old_ids
-    return by_address
-
-
-def rekey_wallet(
-    context: Context, old_wallet_ids: dict[str, set[str]], address: str, new_id: str
-) -> None:
-    for old_id in old_wallet_ids.get(join_key(address), set()):
-        context.rekey(old_id, new_id)
+        crawl_order(context, order, wallets, operatives, orgs)
