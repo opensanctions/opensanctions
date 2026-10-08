@@ -396,6 +396,12 @@ lookups:
         values:
           - France
           - Tunisia
+      - match:
+          - コンゴ民主共和国； ルワンダ
+          - Democratic Republic of the Congo; Rwanda
+        values:
+          - Democratic Republic of the Congo
+          - Rwanda
   type.date:
     options:
       - match:
@@ -572,6 +578,10 @@ lookups:
         values:
           - "2000-02-20"
           - "2000-02-29"
+      - match: 1959年から1965年の間
+        values:
+          - 1959
+          - 1965
       - match: 1984年から1986年までの間
         values:
           - 1984
@@ -1007,6 +1017,11 @@ lookups:
           - "03111298"
           - "003111298"
           - "0216155930"
+      # DRC passport OP0204168 (expired 2022-07-05); DRC passport OB0072391
+      - match: コンゴ民主共和国旅券OP0204168（2022年7月5日失効）； コンゴ民主共和国旅券OB0072391（2014年12月28日失効）
+        values:
+          - OP0204168
+          - OB0072391
   type.name:
     lowercase: true
     normalize: true

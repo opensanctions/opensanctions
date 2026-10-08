@@ -15,9 +15,9 @@ import yaml
 from click.testing import CliRunner, Result
 from dspy import Prediction
 
+from clean import load_optimised_module
+from tune import cli
 from zavod.extract.names.clean import SimpleNames
-from zavod.extract.names.dspy.clean import load_optimised_module
-from zavod.tune import cli
 
 example = {
     "entity_schema": "Person",
@@ -40,7 +40,7 @@ def assert_exit_status_zero(result: Result) -> None:
         )
 
 
-@patch("zavod.extract.names.dspy.optimise.dspy.GEPA")
+@patch("optimise.dspy.GEPA")
 def test_optimise(mock_gepa: MagicMock) -> None:
     """Very rough integration test of the optimise command."""
 
@@ -75,7 +75,7 @@ def test_optimise(mock_gepa: MagicMock) -> None:
         assert "instructions" in program_data
 
 
-@patch("zavod.extract.names.dspy.compare.load_optimised_module")
+@patch("compare.load_optimised_module")
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
 def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
     # Mock DSPy module prediction

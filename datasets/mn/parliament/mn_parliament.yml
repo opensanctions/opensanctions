@@ -18,7 +18,7 @@ description: |
   This dataset records each sitting member with their name and the parliamentary
   party they represent.
 
-url: https://www.parliament.mn/cv/
+url: https://parliament.mn/members
 publisher:
   name: "State Great Khural of Mongolia"
   acronym: UIH
@@ -29,8 +29,8 @@ publisher:
   country: mn
   official: true
 data:
-  url: https://www.parliament.mn/cv/
-  format: HTML
+  url: https://parliament.mn/api/parliament_members_list/
+  format: JSON
   lang: mon
 tags:
   - list.pep

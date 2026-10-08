@@ -25,6 +25,9 @@ data:
   url: https://api.ransomwhe.re/export
   format: JSON
 
+tags:
+  - sector.crypto
+
 assertions:
   min:
     schema_entities:

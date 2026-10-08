@@ -37,6 +37,8 @@ publisher:
 data:
   url: https://api.data.fca.org.uk/fca_data_firds_files
   format: JSON
+tags:
+  - sector.securities
 
 inputs:
   - ann_graph_topics

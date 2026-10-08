@@ -6,9 +6,9 @@ from followthemoney import Model
 from zavod import settings
 from zavod.context import Context
 from zavod.extract.names.clean import Names, SourceNames, clean_names
-from zavod.extract.names.dspy.clean import load_optimised_module
-from zavod.extract.names.dspy.example_data import FIELDS, load_data
-from zavod.extract.names.dspy.optimise import (
+from clean import load_optimised_module
+from example_data import FIELDS, load_data
+from optimise import (
     metric_with_feedback,
     metric_with_feedback_dict,
 )
