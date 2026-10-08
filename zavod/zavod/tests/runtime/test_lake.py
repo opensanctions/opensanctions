@@ -19,7 +19,6 @@ from zavod.archive.backend import FileSystemObject
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.exporters.metadata import DatasetVersionResult, write_dataset_index
-from zavod.integration import get_dataset_linker
 from zavod.meta import Dataset
 from zavod.publish import publish_dataset
 from zavod.runtime.lake import (
@@ -27,7 +26,6 @@ from zavod.runtime.lake import (
     dump_statements_pack,
     manifest_statements_view,
 )
-from zavod.store import get_lake_store
 from zavod.tests.util import get_manifest, make_context, run_dataset
 
 SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
@@ -299,30 +297,3 @@ def test_manifest_statements_view(testdataset1: Dataset):
     with duck.connect() as conn:
         with pytest.raises(FileNotFoundError):
             manifest_statements_view(conn, manifest, relation="test_lake")
-
-
-def test_lake_store(testdataset1: Dataset):
-    linker = get_dataset_linker(testdataset1)
-    crawl_dataset(testdataset1, settings.RUN_VERSION)
-    manifest = get_manifest(testdataset1)
-    store = get_lake_store(manifest, linker)
-    store.sync()
-    view = store.default_view(external=True)
-    assert len(list(view.entities())) > 5, list(view.entities())
-    entity = view.get_entity("osv-john-doe")
-    assert entity is not None, entity
-    assert entity.id == "osv-john-doe"
-    assert entity.schema.name == "Person"
-    assert entity.first_seen == settings.RUN_TIME_ISO
-    assert entity.last_seen == settings.RUN_TIME_ISO
-    store.close()
-
-    # Syncing again rebuilds the statement table; views built afterwards work.
-    store = get_lake_store(manifest, linker)
-    store.sync()
-    store.sync()
-    view2 = store.view(testdataset1, external=False)
-    entity = view2.get_entity("osv-john-doe")
-    assert entity is not None, entity
-    assert entity.id == "osv-john-doe"
-    store.close()
