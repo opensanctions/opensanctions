@@ -38,9 +38,8 @@ Assign one level when the evidence establishes a governing jurisdiction.
   Examples: UN leadership, European Parliament, IMF governance.
 
 Use the institution's authority to establish level. Office location,
-constituency, and geographic words alone do not establish level.
-A national MP retains `gov.national` when the title names a local constituency.
-A regional office of a national ministry also retains `gov.national`.
+constituency, and geographic words can establish level, but there are exceptions:
+A national MP retains `gov.national` when the title names a local constituency, a regional office of a national ministry also retains `gov.national`.
 
 For an enterprise, use the level of the government that controls it.
 For another public body, use the government level to which it is accountable.
