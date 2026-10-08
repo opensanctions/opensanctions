@@ -85,6 +85,21 @@ def parse_company_names(context: Context, value: str | None) -> list[str]:
     return result.values
 
 
+def warn_on_separator(
+    context: Context, entity: Entity, prop: str, separator: str
+) -> None:
+    # Multi-value fields that occur too rarely to split in code get a datapatch
+    # in the type lookups instead. The check runs on the patched values.
+    for value in entity.get(prop):
+        if re.search(separator, value):
+            context.log.warning(
+                "Value contains a separator, add a datapatch",
+                entity_id=entity.id,
+                prop=prop,
+                value=value,
+            )
+
+
 def entity_type(type: str) -> str:
     match type.lower():
         case "individual":
@@ -151,7 +166,7 @@ def xml_make_person(
             entity.add("nationality", nationality.text)
         # Add positions
         for position in individual.iterfind(".//Positions//Position"):
-            entity.add("position", position.text)
+            entity.add("position", h.multi_split(position.text, ["|", "; and ", "; "]))
 
 
 def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) -> None:
@@ -298,7 +313,7 @@ def crawl_xml(context: Context) -> None:
                 h.apply_date(sanction, "startDate", date.text)
             # Add the source of the sanction
             for authority in designation.iterfind(".//DesignationSource"):
-                sanction.add("authority", authority.text)
+                sanction.add("authority", h.multi_split(authority.text, ["|"]))
             for scope in designation.iterfind(".//SanctionsImposed"):
                 if scope.text is not None:
                     sanction.add("provisions", scope.text.split("|"))
@@ -320,8 +335,11 @@ def csv_make_legal_entity(
     entity.add("phone", row.pop("Phone number"))
     entity.add("email", h.multi_split(row.pop("Email address"), [", ", "; "]))
     entity.add("website", row.pop("Website"))
-    # Mix of legal forms and sectors
+    warn_on_separator(context, entity, "website", r"[|;,\s]")
+    # Mix of legal forms and sectors. Only "|" separates values: "/" and ","
+    # also join the parts of one value, e.g. "Import/Export".
     entity.add("summary", row.pop("Type of entity"))
+    warn_on_separator(context, entity, "summary", r"\|")
 
     reg_number = row.pop("Business registration number (s)")
     if reg_number:
@@ -383,7 +401,7 @@ def csv_make_person(context: Context, row: dict[str, str], entity: Entity) -> No
     entity.add("birthPlace", row.pop("Country of birth"))
     entity.add("idNumber", row.pop("National Identifier number"))
     entity.add("nationality", row.pop("Nationality(/ies)"))
-    entity.add("position", row.pop("Position"))
+    entity.add("position", h.multi_split(row.pop("Position"), ["|", "; and ", "; "]))
 
     passport_no = row.pop("Passport number")
     passport = context.make("Passport")
@@ -546,7 +564,9 @@ def crawl_csv(context: Context) -> None:
             sanction.add("authorityId", unique_id)
             sanction.add("authorityId", row.pop("OFSI Group ID"))
             sanction.add("unscId", row.pop("UN Reference Number"))
-            sanction.set("authority", row.pop("Designation source"))
+            sanction.set(
+                "authority", h.multi_split(row.pop("Designation source"), ["|"])
+            )
             sanction.add("reason", html.unescape(row.pop("UK Statement of Reasons")))
             h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
             h.apply_date(sanction, "startDate", row.pop("Date Designated"))

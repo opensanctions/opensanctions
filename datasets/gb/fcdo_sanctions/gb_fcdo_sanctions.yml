@@ -306,6 +306,12 @@ lookups:
         value: "11365-8486"
       - match: Kampong Speu 5301
         value: "5301"
+  type.text:
+    options:
+      - match: "State Owned Enterprise - was a subsidiary of a Russian State-owned airline|Airline code QD"
+        values:
+          - State Owned Enterprise - was a subsidiary of a Russian State-owned airline
+          - Airline code QD
   type.url:
     options:
       - match: "Unknown"
@@ -336,6 +342,32 @@ lookups:
         values:
           - byex.com
           - 100ex.com
+      - match: "http://www.rshb.ru/en/; https://www.rshb.ru/"
+        values:
+          - http://www.rshb.ru/en/
+          - https://www.rshb.ru/
+      - match: "https://savingpunjab.org/ and https://www.instagram.com/lohadesigns/"
+        values:
+          - https://savingpunjab.org/
+          - https://www.instagram.com/lohadesigns/
+      - match: "http://www.soliton.ufab.ru/   soliton.com.ru"
+        values:
+          - http://www.soliton.ufab.ru/
+          - soliton.com.ru
+      - match: "https://glava-Inr.su/content/konstituciya|https://glava.lnr.info"
+        values:
+          - https://glava-Inr.su/content/konstituciya
+          - https://glava.lnr.info
+      - match: "https://novorussia.su/official|https://novopressa.ru/|https://novorussia-tv.ru/|https://novorussia.today/|http://novorossiia.ru/|https://www.novorosinform.org./"
+        values:
+          - https://novorussia.su/official
+          - https://novopressa.ru/
+          - https://novorussia-tv.ru/
+          - https://novorussia.today/
+          - http://novorossiia.ru/
+          - https://www.novorosinform.org./
+      - match: "http://www.defanews.ir/sug/%D8%B3%D8%A7%D8%B2%D9%85%D8%A7%D9%86 %D8%B5%D9%86%D8%A7%DB%8C%D8%B9 %D9%87%D9%88%D8%A7%D9%81%D8%B6%D8%A7"
+        value: "http://www.defanews.ir/sug/%D8%B3%D8%A7%D8%B2%D9%85%D8%A7%D9%86%20%D8%B5%D9%86%D8%A7%DB%8C%D8%B9%20%D9%87%D9%88%D8%A7%D9%81%D8%B6%D8%A7"
       - match: "www.farhang gostar.net/gtb"
         value: www.farhang-gostar.net/gtb
       - match: "www.sbu canada.org"
