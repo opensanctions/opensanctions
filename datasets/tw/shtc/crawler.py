@@ -178,7 +178,7 @@ def crawl(context: Context) -> None:
     urls = h.xpath_strings(doc, url_xpath)
     assert len(urls) == 1, 'Expected exactly one document called "SHTC Entity List"'
     links_pdf = fetch_pdf(context, "shtc_links.pdf", urls[0])
-    if not h.assert_file_hash(links_pdf, LINKS_PDF_HASH):
+    if not h.assert_file_hash(links_pdf, "d046359c5be70faccb040a94035bba54faff6e80"):
         context.log.warning(
             "SHTC Entity List document changed: check whether the CSV download link "
             "it contains still matches data.url in tw_shtc.yml, update the URL if it "
