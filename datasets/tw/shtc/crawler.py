@@ -1,6 +1,5 @@
 import csv
 import re
-import time
 from pathlib import Path
 
 import datapatch
@@ -44,11 +43,9 @@ ADDRESS_SPLITS = [
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
 # 2025-03-04	SHTC Entity List
 LINKS_PDF_HASH = "d046359c5be70faccb040a94035bba54faff6e80"
-PDF_FETCH_ATTEMPTS = 3
-PDF_RETRY_SLEEP = 5.0
 
 
-def fetch_pdf(context: Context, name: str, url: str) -> Path | None:
+def fetch_pdf(context: Context, name: str, url: str) -> Path:
     """Download a PDF document into the dataset data folder.
 
     A response is only accepted when it looks like a complete PDF, i.e. it starts
@@ -64,26 +61,25 @@ def fetch_pdf(context: Context, name: str, url: str) -> Path | None:
         url: The URL to download the document from.
 
     Returns:
-        The path the document was written to, or None if no attempt returned a
-        complete PDF.
+        The path the document was written to.
+
+    Raises:
+        RuntimeError: The response was not a complete PDF. The run is expected to
+            be retried rather than reporting a bogus source change.
     """
-    for attempt in range(PDF_FETCH_ATTEMPTS):
-        if attempt > 0:
-            time.sleep(PDF_RETRY_SLEEP)
-        res = context.http.get(url)
-        res.raise_for_status()
-        body = res.content
-        if body.startswith(b"%PDF-") and body.rstrip().endswith(b"%%EOF"):
-            path = context.get_resource_path(name)
-            path.write_bytes(body)
-            return path
-        context.log.info(
-            "Response is not a complete PDF, retrying.",
-            url=url,
-            length=len(body),
-            content_type=res.headers.get("Content-Type"),
+    res = context.http.get(url)
+    res.raise_for_status()
+    body = res.content
+    if not body.startswith(b"%PDF-") or not body.rstrip().endswith(b"%%EOF"):
+        raise RuntimeError(
+            f"Response for {url} is not a complete PDF "
+            f"(length {len(body)}, content type {res.headers.get('Content-Type')}). "
+            "The server serves its error page or an empty body under HTTP 200 when "
+            "under load, so retry the run."
         )
-    return None
+    path = context.get_resource_path(name)
+    path.write_bytes(body)
+    return path
 
 
 def apply_details_override(
@@ -182,13 +178,7 @@ def crawl(context: Context) -> None:
     urls = h.xpath_strings(doc, url_xpath)
     assert len(urls) == 1, 'Expected exactly one document called "SHTC Entity List"'
     links_pdf = fetch_pdf(context, "shtc_links.pdf", urls[0])
-    if links_pdf is None:
-        context.log.warning(
-            "Could not download the SHTC Entity List document. "
-            "Skipping its change detection for this run.",
-            url=urls[0],
-        )
-    elif not h.assert_file_hash(links_pdf, LINKS_PDF_HASH):
+    if not h.assert_file_hash(links_pdf, LINKS_PDF_HASH):
         context.log.warning(
             "SHTC Entity List document changed: check whether the CSV download link "
             "it contains still matches data.url in tw_shtc.yml, update the URL if it "
