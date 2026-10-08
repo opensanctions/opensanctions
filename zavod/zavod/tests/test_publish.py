@@ -243,7 +243,6 @@ def test_empty_crawl_does_not_resurrect_archived_statements(testdataset1: Datase
     assert len(list(manifest.statements())) == 0
 
     store = get_store(manifest, linker)
-    store.sync(clear=True)
     view = store.view(testdataset1, external=False)
     assert len(list(view.entities())) == 0
     store.close()

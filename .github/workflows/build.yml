@@ -85,8 +85,8 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # Python 3.13 requires building pyicu and plyvel from source.
-          sudo apt-get install -y -qq libicu-dev libleveldb-dev poppler-utils
+          # Python 3.13 requires building pyicu from source.
+          sudo apt-get install -y -qq libicu-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
@@ -163,8 +163,8 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # Python 3.13 requires building pyicu and plyvel from source.
-          sudo apt-get install -y -qq libicu-dev libleveldb-dev poppler-utils
+          # Python 3.13 requires building pyicu from source.
+          sudo apt-get install -y -qq libicu-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
@@ -223,7 +223,7 @@ jobs:
           for dataset in $datasets
           do
               echo Exporting $dataset
-              zavod export --rebuild-store $dataset
+              zavod export $dataset
           done
 
   docker:

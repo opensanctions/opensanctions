@@ -65,7 +65,6 @@ class LocalEnricher(BaseEnricher[Dataset]):
         self.target_store = get_store(
             Manifest.get_transient(target_dataset), target_linker
         )
-        self.target_store.sync()
         self.target_view = self.target_store.view(target_dataset)
         index_path = dataset_state_path(target_dataset.name) / "enrich-index"
         self._index = Index(
@@ -223,12 +222,11 @@ def enrich(context: Context) -> None:
             "disconnected supporting entities."
         )
 
-    subject_store = get_store(Manifest.get_transient(scope), context.resolver)
     # Commit the resolver's load-time read (and the cache-table DDL) so no
-    # transaction is held open across the store sync and index build below; the
+    # transaction is held open across the store build and index build below; the
     # resolver is in-memory after the load.
     context.flush()
-    subject_store.sync()
+    subject_store = get_store(Manifest.get_transient(scope), context.resolver)
     # When topic-gated, read the subject store including external statements so
     # the analyzer's topic patches on ingested-but-untagged neighbours are
     # visible.

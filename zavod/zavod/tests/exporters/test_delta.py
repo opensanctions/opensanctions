@@ -6,13 +6,14 @@ from typing import Any
 from followthemoney.dataset import Version
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
+from nomenklatura.store.memory import MemoryStore
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE, dataset_artifact_path
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
 from zavod.meta import Dataset
 from zavod.publish import publish_dataset
 from zavod.runtime.manifest import Manifest
-from zavod.store import get_store
+from zavod.store import View
 
 ENTITY_A = {"id": "EA", "schema": "Person", "properties": {"name": ["Alice"]}}
 ENTITY_B = {"id": "EB", "schema": "Person", "properties": {"name": ["Bob"]}}
@@ -56,19 +57,20 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     def artifact(version: Version, name: str) -> Path:
         return dataset_artifact_path(testdataset1.name, version, name)
 
+    def view(*entities: dict[str, Any]) -> View:
+        store: MemoryStore[Dataset, Entity] = MemoryStore(testdataset1, resolver)
+        store.entity_class = Entity
+        writer = store.writer()
+        for data in entities:
+            writer.add_entity(e(data))
+        writer.flush()
+        return store.view(testdataset1)
+
     version = Version.new("aaa")
-    manifest = Manifest.create(testdataset1, version)
-    store = get_store(manifest, resolver)
-    store.clear()
-    writer = store.writer()
-    writer.add_entity(e(ENTITY_B))
-    writer.add_entity(e(ENTITY_C))
-    writer.add_entity(e(ENTITY_CX))
-    writer.add_entity(e(ENTITY_D))
-    writer.flush()
-    view = store.view(testdataset1)
-    assert len(list(view.entities())) == 4
-    export_dataset(testdataset1, version, view)
+    Manifest.create(testdataset1, version)
+    view1 = view(ENTITY_B, ENTITY_C, ENTITY_CX, ENTITY_D)
+    assert len(list(view1.entities())) == 4
+    export_dataset(testdataset1, version, view1)
 
     assert artifact(version, DELTA_EXPORT_FILE).exists()
     with open(artifact(version, DELTA_EXPORT_FILE)) as fh:
@@ -86,17 +88,9 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
 
     version2 = Version.new("bbb")
     Manifest.create(testdataset1, version2)
-    store.clear()
-    writer = store.writer()
-    writer.add_entity(e(ENTITY_A))
-    writer.add_entity(e(ENTITY_B))
     changed = deepcopy(ENTITY_C)
     changed["properties"] = {"name": ["Charlie"]}
-    writer.add_entity(e(changed))
-    writer.add_entity(e(ENTITY_CX))
-    writer.flush()
-
-    export_dataset(testdataset1, version2, view)
+    export_dataset(testdataset1, version2, view(ENTITY_A, ENTITY_B, changed, ENTITY_CX))
     assert artifact(version2, DELTA_EXPORT_FILE).exists()
     with open(artifact(version2, DELTA_EXPORT_FILE)) as fh:
         objects = [json.loads(line) for line in fh.readlines()]
@@ -118,18 +112,7 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     version3 = Version.new("ccc")
     Manifest.create(testdataset1, version3)
     canon_id = resolver.decide("EC", "ECX", Judgement.POSITIVE)
-    store.clear()
-    writer = store.writer()
-    writer.add_entity(e(ENTITY_A))
-    writer.add_entity(e(ENTITY_B))
-    changed = deepcopy(ENTITY_C)
-    changed["properties"] = {"name": ["Charlie"]}
-    writer.add_entity(e(changed))
-    writer.add_entity(e(ENTITY_CX))
-    writer.flush()
-    view = store.view(testdataset1)
-
-    export_dataset(testdataset1, version3, view)
+    export_dataset(testdataset1, version3, view(ENTITY_A, ENTITY_B, changed, ENTITY_CX))
     assert artifact(version3, DELTA_EXPORT_FILE).exists()
     with open(artifact(version3, DELTA_EXPORT_FILE)) as fh:
         objects = [json.loads(line) for line in fh.readlines()]

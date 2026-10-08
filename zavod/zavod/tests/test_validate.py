@@ -36,7 +36,7 @@ def run_validator(clazz: type[BaseValidator], dataset: Dataset):
     if not pack_path.is_file():
         finish_statements(context)
     # Pass clear so that if the test emits statements and re-validates, we pick that up.
-    view = get_test_view(dataset, clear=True)
+    view = get_test_view(dataset)
 
     stats = Statistics()
     with capture_logs() as cap_logs:
