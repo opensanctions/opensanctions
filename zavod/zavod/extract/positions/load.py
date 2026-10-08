@@ -31,6 +31,7 @@ position_table = Table(
     Column("subnational_areas", JSON),
     Column("dataset", Unicode),
     Column("created_at", DateTime),
+    Column("last_seen", DateTime),
     Column("deleted_at", DateTime),
 )
 
@@ -82,7 +83,7 @@ def sample_across_datasets(
     help="Only load positions first seen after this date.",
 )
 def main(sample: int, seed: int, since: datetime) -> None:
-    """Load all non-Wikidata position items into data/all.jsonl and sample data/test.jsonl."""
+    """Load all non-Wikidata position items with a last_seen date into data/all.jsonl and sample data/test.jsonl."""
     table = position_table
     query = select(
         table.c.id,
@@ -93,6 +94,7 @@ def main(sample: int, seed: int, since: datetime) -> None:
     ).where(
         table.c.deleted_at.is_(None),
         table.c.created_at > since,
+        table.c.last_seen.is_not(None),
         ~table.c.dataset.like("wd\\_%", escape="\\"),
     )
     items: list[Item] = []
