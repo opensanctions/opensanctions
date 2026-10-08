@@ -70,6 +70,11 @@ class Annotation(BaseModel):
         )
     )
 
+    def is_undecided(self) -> bool:
+        return (
+            self.level == "undecided" or not self.roles or self.seniority == "undecided"
+        )
+
     def labels(self) -> "Annotation":
         return Annotation(
             level=self.level, roles=list(self.roles), seniority=self.seniority
@@ -103,7 +108,7 @@ class PrimaryAnnotation(Annotation):
 
 
 class HumanAnnotation(Annotation):
-    """A human decision on a vetoed primary annotation."""
+    """A human decision on a primary annotation."""
 
     type: Literal["human"] = "human"
     created_at: datetime

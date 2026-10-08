@@ -36,7 +36,7 @@ from models import (
     read_items,
     write_jsonl,
 )
-from ui import STATE_STYLES, ListApp, ReviewApp, record_state
+from ui import STATE_STYLES, ListApp, record_state
 
 PRIMARY_MODEL = "anthropic:claude-opus-5-5"
 REVIEW_MODEL = "openai:gpt-6.1-sol"
@@ -297,12 +297,6 @@ async def run_models(
         await asyncio.gather(*(process(record) for record in pending[1:]))
 
 
-def review_by_human(records: list[AnnotationRecord], saver: Saver) -> None:
-    queue = [r for r in records if record_state(r) == "vetoed"]
-    if queue:
-        ReviewApp(queue, lambda: saver.save(force=True)).run()
-
-
 def print_usage(console: Console, responses: dict[str, list[ModelResponse]]) -> None:
     table = Table(title="Token usage this run")
     for column in (
@@ -348,8 +342,9 @@ def print_summary(console: Console, records: list[AnnotationRecord]) -> None:
     table.add_column("Items", justify="right")
     table.add_row("Golden", str(states.count("golden")))
     table.add_row("Approved by reviewer", str(states.count("approved")))
-    table.add_row("Vetoed, resolved by human", str(states.count("human")))
+    table.add_row("Decided by human", str(states.count("human")))
     table.add_row("Vetoed, pending human", str(states.count("vetoed")))
+    table.add_row("Undecided, pending human", str(states.count("undecided")))
     table.add_row("LLM calls incomplete", str(states.count("pending")))
     table.add_row("Total", str(len(records)), style="bold")
     console.print(table)
@@ -373,7 +368,7 @@ def cli() -> None:
     "--concurrency", default=8, show_default=True, help="Parallel LLM requests."
 )
 @click.option("--no-human", is_flag=True, help="Run the LLM phase only.")
-def run(
+def annotate(
     input_path: Path, output: Path | None, concurrency: int, no_human: bool
 ) -> None:
     """Annotate the items in INPUT_PATH with an LLM, an LLM vetoer and a human."""
@@ -391,7 +386,7 @@ def run(
         asyncio.run(run_models(records, datasets, saver, concurrency, responses))
         saver.save(force=True)
         if not no_human:
-            review_by_human(records, saver)
+            ListApp(records, lambda: saver.save(force=True)).run()
     except (KeyboardInterrupt, EOFError):
         console.print("\n[yellow]Interrupted.[/yellow]")
     finally:
@@ -420,16 +415,18 @@ def run(
     help="Only show records in this state.",
 )
 def list_records(annotated_path: Path, state: str | None) -> None:
-    """Browse the records in an annotated file."""
+    """Browse and decide the records in an annotated file."""
     with annotated_path.open() as fh:
         records = [
             AnnotationRecord.model_validate_json(line) for line in fh if line.strip()
         ]
+    shown = records
     if state is not None:
-        records = [r for r in records if record_state(r) == state]
-    if not records:
+        shown = [r for r in records if record_state(r) == state]
+    if not shown:
         raise click.ClickException("No records to show.")
-    ListApp(records).run()
+    # Save all records, including the ones the state filter hides.
+    ListApp(shown, lambda: write_jsonl(annotated_path, records)).run()
 
 
 if __name__ == "__main__":
