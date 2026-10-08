@@ -41,8 +41,6 @@ ADDRESS_SPLITS = [
     ";",
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
-# 2025-03-04	SHTC Entity List
-LINKS_PDF_HASH = "d046359c5be70faccb040a94035bba54faff6e80"
 
 
 def fetch_pdf(context: Context, name: str, url: str) -> Path:
