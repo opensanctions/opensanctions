@@ -9,15 +9,13 @@ from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.screen import ModalScreen, Screen
+from textual.screen import Screen
 from textual.widgets import (
     Button,
     DataTable,
     Footer,
     Header,
     Label,
-    RadioButton,
-    RadioSet,
     SelectionList,
     Static,
 )
@@ -30,13 +28,23 @@ from models import (
     AnnotationRecord,
     GoldenAnnotation,
     HumanAnnotation,
+    Level,
     PrimaryAnnotation,
+    Seniority,
+)
+
+TAGGER_LEVELS: tuple[Level, ...] = tuple(
+    level for level in LEVELS if level not in ("none", "undecided")
+)
+TAGGER_SENIORITIES: tuple[Seniority, ...] = tuple(
+    seniority for seniority in SENIORITIES if seniority != "undecided"
 )
 
 STATE_STYLES = {
     "pending": "dim",
     "approved": "green",
     "vetoed": "red",
+    "undecided": "magenta",
     "human": "blue",
     "golden": "yellow",
 }
@@ -48,11 +56,17 @@ def record_state(record: AnnotationRecord) -> str:
     primary = record.latest_primary()
     if primary is None or primary.review is None:
         return "pending"
-    if not primary.review.veto:
-        return "approved"
-    if record.human_on(primary) is None:
+    if record.human_on(primary) is not None:
+        return "human"
+    if primary.review.veto:
         return "vetoed"
-    return "human"
+    if primary.is_undecided():
+        return "undecided"
+    return "approved"
+
+
+def needs_human(record: AnnotationRecord) -> bool:
+    return record_state(record) in ("vetoed", "undecided")
 
 
 def format_annotation(annotation: Annotation) -> Table:
@@ -125,218 +139,220 @@ def annotation_panels(
     return panels
 
 
-class EditScreen(ModalScreen[Annotation | None]):
-    BINDINGS = [
-        Binding("ctrl+s", "save", "Save"),
-        Binding("escape", "cancel", "Cancel"),
-    ]
+class SingleSelectionList[T: str](SelectionList[T]):
+    """A selection list that holds at most one selected value."""
+
+    def __init__(self, values: tuple[T, ...], id: str) -> None:
+        super().__init__(*((value, value) for value in values), id=id)
+        self.values = values
+
+    def on_selection_list_selection_toggled(
+        self, event: SelectionList.SelectionToggled[T]
+    ) -> None:
+        value = event.selection.value
+        if value in self.selected:
+            for other in self.selected:
+                if other != value:
+                    self.deselect(other)
+
+    def load(self, value: T) -> None:
+        self.deselect_all()
+        if value in self.values:
+            self.select(value)
+
+    def value(self) -> T | None:
+        return self.selected[0] if self.selected else None
+
+
+class Tagger(Horizontal):
+    """One column per dimension, holding the human decision on a record.
+
+    A dimension without a selection is saved as 'undecided'."""
+
     DEFAULT_CSS = """
-    EditScreen { align: center middle; }
-    #dialog {
-        width: 90%; height: auto; max-height: 95%;
-        border: thick $accent; background: $surface; padding: 1 2;
-    }
-    #labels { height: auto; margin-top: 1; }
-    #labels > Vertical { width: 1fr; height: auto; padding-right: 1; }
-    #labels Label { text-style: bold; }
-    #roles { height: auto; }
-    #buttons { height: auto; margin-top: 1; align-horizontal: right; }
-    #buttons Button { margin-left: 1; }
+    Tagger { height: auto; border-top: solid $accent; }
+    Tagger > Vertical { width: 1fr; height: auto; padding-right: 1; }
+    Tagger Label { text-style: bold; }
+    Tagger SelectionList { height: auto; max-height: 13; }
+    Tagger #actions { width: auto; padding-right: 0; }
     """
 
-    def __init__(self, current: Annotation) -> None:
-        super().__init__()
-        self.current = current
-
     def compose(self) -> ComposeResult:
-        current = self.current
-        with Vertical(id="dialog"):
-            with Horizontal(id="labels"):
-                with Vertical():
-                    yield Label("Level")
-                    with RadioSet(id="level"):
-                        for level in LEVELS:
-                            yield RadioButton(level, value=level == current.level)
-                with Vertical():
-                    yield Label("Roles")
-                    yield SelectionList[str](
-                        *((role, role, role in current.roles) for role in ROLES),
-                        id="roles",
-                    )
-                with Vertical():
-                    yield Label("Seniority")
-                    with RadioSet(id="seniority"):
-                        for seniority in SENIORITIES:
-                            yield RadioButton(
-                                seniority, value=seniority == current.seniority
-                            )
-            with Horizontal(id="buttons"):
-                yield Button("Save (ctrl+s)", variant="primary", id="save")
-                yield Button("Cancel (esc)", id="cancel")
+        with Vertical():
+            yield Label("Level")
+            yield SingleSelectionList(TAGGER_LEVELS, id="level")
+        with Vertical():
+            yield Label("Roles")
+            yield SelectionList[str](*((role, role) for role in ROLES), id="roles")
+        with Vertical():
+            yield Label("Seniority")
+            yield SingleSelectionList(TAGGER_SENIORITIES, id="seniority")
+        with Vertical(id="actions"):
+            yield Button("Save (ctrl+s)", variant="primary", id="save")
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "save":
-            self.action_save()
-        else:
-            self.action_cancel()
-
-    def action_cancel(self) -> None:
-        self.dismiss(None)
-
-    def action_save(self) -> None:
-        level_index = self.query_one("#level", RadioSet).pressed_index
-        seniority_index = self.query_one("#seniority", RadioSet).pressed_index
-        if level_index < 0 or seniority_index < 0:
-            self.notify("Select a level and a seniority.", severity="error")
+    def load(self, annotation: Annotation | None) -> None:
+        self.disabled = annotation is None
+        if annotation is None:
             return
+        self.level_list.load(annotation.level)
+        self.seniority_list.load(annotation.seniority)
+        roles = self.query_one("#roles", SelectionList)
+        roles.deselect_all()
+        for role in annotation.roles:
+            roles.select(role)
+
+    @property
+    def level_list(self) -> SingleSelectionList[Level]:
+        return self.query_one("#level", SingleSelectionList)
+
+    @property
+    def seniority_list(self) -> SingleSelectionList[Seniority]:
+        return self.query_one("#seniority", SingleSelectionList)
+
+    def read(self) -> Annotation:
         selected = self.query_one("#roles", SelectionList).selected
-        self.dismiss(
-            Annotation(
-                level=LEVELS[level_index],
-                roles=[role for role in ROLES if role in selected],
-                seniority=SENIORITIES[seniority_index],
-            )
+        return Annotation(
+            level=self.level_list.value() or "undecided",
+            roles=[role for role in ROLES if role in selected],
+            seniority=self.seniority_list.value() or "undecided",
         )
-
-
-class ReviewScreen(Screen[None]):
-    BINDINGS = [
-        Binding("1", "accept", "Accept annotation"),
-        Binding("2", "edit", "Edit"),
-        Binding("k", "skip", "Skip"),
-        Binding("q", "app.quit", "Quit"),
-    ]
-
-    def __init__(
-        self, queue: list[AnnotationRecord], on_change: Callable[[], None]
-    ) -> None:
-        super().__init__()
-        self.queue = queue
-        self.on_change = on_change
-        self.position = 0
-
-    def compose(self) -> ComposeResult:
-        yield Header()
-        with VerticalScroll():
-            yield Static(id="record")
-        yield Footer()
-
-    def on_mount(self) -> None:
-        self.show_current()
-
-    @property
-    def record(self) -> AnnotationRecord:
-        return self.queue[self.position]
-
-    def show_current(self) -> None:
-        if self.position >= len(self.queue):
-            self.app.exit()
-            return
-        self.sub_title = f"Vetoed {self.position + 1}/{len(self.queue)}"
-        self.query_one("#record", Static).update(render_record(self.record))
-
-    @property
-    def primary(self) -> PrimaryAnnotation:
-        primary = self.record.latest_primary()
-        assert primary is not None
-        return primary
-
-    def decide(self, annotation: Annotation) -> None:
-        self.record.annotations.append(
-            HumanAnnotation(
-                **annotation.model_dump(),
-                created_at=datetime.now(UTC),
-                author=getpass.getuser(),
-                target=self.primary.id,
-            )
-        )
-        self.on_change()
-        self.position += 1
-        self.show_current()
-
-    def action_accept(self) -> None:
-        self.decide(self.primary.labels())
-
-    def action_edit(self) -> None:
-        self.app.push_screen(EditScreen(self.primary.labels()), self.on_edited)
-
-    def on_edited(self, annotation: Annotation | None) -> None:
-        if annotation is not None:
-            self.decide(annotation)
-
-    def action_skip(self) -> None:
-        self.position += 1
-        self.show_current()
 
 
 class ListScreen(Screen[None]):
-    BINDINGS = [Binding("q", "app.quit", "Quit")]
+    BINDINGS = [
+        Binding("n", "next", "Next for human"),
+        Binding("p", "previous", "Previous for human"),
+        Binding("ctrl+s", "save", "Save"),
+        Binding("q", "app.quit", "Quit"),
+    ]
     DEFAULT_CSS = """
     #records { height: 1fr; }
     #detail { height: 1fr; border-top: solid $accent; }
     """
 
-    def __init__(self, records: list[AnnotationRecord]) -> None:
+    def __init__(
+        self, records: list[AnnotationRecord], on_change: Callable[[], None]
+    ) -> None:
         super().__init__()
         self.records = records
+        self.on_change = on_change
 
     def compose(self) -> ComposeResult:
         yield Header()
         yield DataTable(id="records", cursor_type="row", zebra_stripes=True)
         with VerticalScroll(id="detail"):
             yield Static(id="record")
+        yield Tagger()
         yield Footer()
 
     def on_mount(self) -> None:
-        self.sub_title = f"{len(self.records)} records"
         table = self.query_one("#records", DataTable)
-        table.add_columns(
-            "#", "Title", "Dataset", "State", "Level", "Roles", "Seniority"
-        )
-        for index, record in enumerate(self.records, 1):
-            state = record_state(record)
-            annotation = record.final_annotation() or record.latest_primary()
-            if annotation is None:
-                labels = ["", "", ""]
-            else:
-                labels = [
-                    str(annotation.level),
-                    ", ".join(annotation.roles),
-                    str(annotation.seniority),
-                ]
+        table.add_column("#")
+        table.add_column("Title")
+        table.add_column("Dataset")
+        for key in ("State", "Level", "Roles", "Seniority"):
+            table.add_column(key, key=key)
+        for index, record in enumerate(self.records):
             table.add_row(
-                str(index),
+                str(index + 1),
                 record.item.caption[:80],
                 record.item.dataset,
-                Text(state, style=STATE_STYLES[state]),
-                *labels,
+                *self.status_cells(record),
+                key=str(index),
             )
+        self.update_subtitle()
+        table.focus()
+        if self.records and not needs_human(self.records[0]):
+            self.action_next()
+
+    @staticmethod
+    def status_cells(record: AnnotationRecord) -> list[Text | str]:
+        state = record_state(record)
+        annotation = record.final_annotation() or record.latest_primary()
+        if annotation is None:
+            labels = ["", "", ""]
+        else:
+            labels = [
+                str(annotation.level),
+                ", ".join(annotation.roles),
+                str(annotation.seniority),
+            ]
+        return [Text(state, style=STATE_STYLES[state]), *labels]
+
+    def update_subtitle(self) -> None:
+        open_count = sum(1 for r in self.records if needs_human(r))
+        self.sub_title = f"{len(self.records)} records, {open_count} for human"
+
+    @property
+    def record(self) -> AnnotationRecord:
+        return self.records[self.query_one("#records", DataTable).cursor_row]
 
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         record = self.records[event.cursor_row]
         self.query_one("#record", Static).update(render_record(record))
+        primary = record.latest_primary()
+        human = None if primary is None else record.human_on(primary)
+        self.query_one(Tagger).load(human if human is not None else primary)
 
+    def move_to_human(self, step: int) -> None:
+        table = self.query_one("#records", DataTable)
+        count = len(self.records)
+        for offset in range(1, count + 1):
+            index = (table.cursor_row + step * offset) % count
+            if needs_human(self.records[index]):
+                table.move_cursor(row=index)
+                return
+        self.notify("No records left for a human.")
 
-class ReviewApp(App[None]):
-    TITLE = "Review vetoed annotations"
+    def action_next(self) -> None:
+        self.move_to_human(1)
 
-    def __init__(
-        self, queue: list[AnnotationRecord], on_change: Callable[[], None]
-    ) -> None:
-        super().__init__()
-        self.queue = queue
-        self.on_change = on_change
+    def action_previous(self) -> None:
+        self.move_to_human(-1)
 
-    def on_mount(self) -> None:
-        self.push_screen(ReviewScreen(self.queue, self.on_change))
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            self.action_save()
+
+    def action_save(self) -> None:
+        tagger = self.query_one(Tagger)
+        if tagger.disabled:
+            return
+        record = self.record
+        primary = record.latest_primary()
+        assert primary is not None
+        previous = record.human_on(primary)
+        if previous is not None:
+            record.annotations.remove(previous)
+        record.annotations.append(
+            HumanAnnotation(
+                **tagger.read().model_dump(),
+                created_at=datetime.now(UTC),
+                author=getpass.getuser(),
+                target=primary.id,
+            )
+        )
+        self.on_change()
+        table = self.query_one("#records", DataTable)
+        row_key = str(table.cursor_row)
+        for key, value in zip(
+            ("State", "Level", "Roles", "Seniority"), self.status_cells(record)
+        ):
+            table.update_cell(row_key, key, value)
+        self.query_one("#record", Static).update(render_record(record))
+        self.update_subtitle()
+        self.notify("Saved.")
 
 
 class ListApp(App[None]):
     TITLE = "Annotated positions"
 
-    def __init__(self, records: list[AnnotationRecord]) -> None:
+    def __init__(
+        self, records: list[AnnotationRecord], on_change: Callable[[], None]
+    ) -> None:
         super().__init__()
         self.records = records
+        self.on_change = on_change
 
     def on_mount(self) -> None:
-        self.push_screen(ListScreen(self.records))
+        self.push_screen(ListScreen(self.records, self.on_change))
