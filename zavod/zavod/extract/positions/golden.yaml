@@ -138,3 +138,98 @@
       type: golden
       note: The Swedish state owns AB Göta kanalbolag. The enterprise chief executive
         is the codebook's gov.soe leadership anchor.
+- item:
+    id: 1224823
+    caption: OFFICE MANAGER, DEPARTMENT OF AGRICULTURE
+    countries:
+      - us
+    subnational_areas:
+      - Washington, DC
+    dataset: us_plum_book
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.admin
+      seniority: junior
+      type: golden
+      note: An office manager in a federal department does administrative support
+        work with limited authority. This matches the junior administrative officer
+        anchor.
+# The caretaker status is temporary, but it does not change the seniority.
+- item:
+    id: 1221669
+    caption: Caretaker Minister of Economy
+    countries:
+      - xk
+    subnational_areas: []
+    dataset: us_cia_world_leaders
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.executive
+      seniority: senior
+      type: golden
+      note: A national cabinet minister is the codebook's gov.executive senior anchor.
+        The codebook ignores temporary status modifiers such as caretaker.
+- item:
+    id: 1213079
+    caption: Minister of Transport
+    countries:
+      - bs
+    subnational_areas: []
+    dataset: us_cia_world_leaders
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.executive
+      seniority: senior
+      type: golden
+      note: A national cabinet minister is the codebook's gov.executive senior anchor.
+- item:
+    id: 1210665
+    caption: CHIEF, U.S. BORDER PATROL, DEPARTMENT OF HOMELAND SECURITY
+    countries:
+      - us
+    subnational_areas:
+      - Washington, DC
+    dataset: us_plum_book
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.security
+      seniority: senior
+      type: golden
+      note: The chief directs a federal border law-enforcement force. The force is
+        a component of CBP within DHS, not the whole national security authority,
+        so the office is below the leadership anchors.
+- item:
+    id: 1217826
+    caption: Director, KOMUNALAC limited liability company for communal activities,
+      Korenica (Municipality of Plitvička Jezera)
+    countries:
+      - hr
+    subnational_areas: []
+    dataset: hr_public_officials
+  annotations:
+    - level: gov.muni
+      roles:
+        - gov.soe
+      seniority: leadership
+      type: golden
+      note: The municipality controls the communal services company. The director
+        is the enterprise chief executive, which is the gov.soe leadership anchor.
+- item:
+    id: 1224820
+    caption: Member of the Municipal Council of Wieselburg
+    countries:
+      - at
+    subnational_areas: []
+    dataset: at_meine_abgeordneten
+  annotations:
+    - level: gov.muni
+      roles:
+        - gov.legislative
+      seniority: senior
+      type: golden
+      note: A member of a municipal council is the codebook's gov.legislative senior
+        anchor at the municipal level.
