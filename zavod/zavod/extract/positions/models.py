@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Annotated, Literal, Self
 from uuid import UUID
 
+import yaml  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -215,4 +216,41 @@ def write_jsonl(path: Path, models: Sequence[BaseModel]) -> None:
     with tmp_path.open("w") as fh:
         for model in models:
             fh.write(model.model_dump_json() + "\n")
+    tmp_path.replace(path)
+
+
+def is_yaml(path: Path) -> bool:
+    return path.suffix in (".yaml", ".yml")
+
+
+def read_records(path: Path) -> list[AnnotationRecord]:
+    """Read records from a YAML list or from JSON lines."""
+    with path.open() as fh:
+        if is_yaml(path):
+            return [AnnotationRecord.model_validate(r) for r in yaml.safe_load(fh)]
+        return [
+            AnnotationRecord.model_validate_json(line) for line in fh if line.strip()
+        ]
+
+
+class IndentedDumper(yaml.SafeDumper):  # type: ignore[misc]
+    """Indent lists inside mappings, as the repository's yamllint config requires."""
+
+    def increase_indent(self, flow: bool = False, indentless: bool = False) -> None:
+        super().increase_indent(flow, False)
+
+
+def write_records(path: Path, records: Sequence[AnnotationRecord]) -> None:
+    if not is_yaml(path):
+        write_jsonl(path, records)
+        return
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    with tmp_path.open("w") as fh:
+        yaml.dump(
+            [record.model_dump(mode="json") for record in records],
+            fh,
+            Dumper=IndentedDumper,
+            sort_keys=False,
+            allow_unicode=True,
+        )
     tmp_path.replace(path)
