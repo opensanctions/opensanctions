@@ -69,6 +69,18 @@ def needs_human(record: AnnotationRecord) -> bool:
     return record_state(record) in ("vetoed", "undecided")
 
 
+def editable_annotation(record: AnnotationRecord) -> Annotation | None:
+    """The annotation that the tagger shows and a save replaces."""
+    golden = record.golden()
+    if golden is not None:
+        return golden
+    primary = record.latest_primary()
+    if primary is None:
+        return None
+    human = record.human_on(primary)
+    return human if human is not None else primary
+
+
 def format_annotation(annotation: Annotation) -> Table:
     table = Table.grid(padding=(0, 2))
     table.add_row("Level", str(annotation.level))
@@ -290,9 +302,7 @@ class ListScreen(Screen[None]):
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         record = self.records[event.cursor_row]
         self.query_one("#record", Static).update(render_record(record))
-        primary = record.latest_primary()
-        human = None if primary is None else record.human_on(primary)
-        self.query_one(Tagger).load(human if human is not None else primary)
+        self.query_one(Tagger).load(editable_annotation(record))
 
     def move_to_human(self, step: int) -> None:
         table = self.query_one("#records", DataTable)
@@ -319,19 +329,27 @@ class ListScreen(Screen[None]):
         if tagger.disabled:
             return
         record = self.record
-        primary = record.latest_primary()
-        assert primary is not None
-        previous = record.human_on(primary)
-        if previous is not None:
-            record.annotations.remove(previous)
-        record.annotations.append(
-            HumanAnnotation(
-                **tagger.read().model_dump(),
-                created_at=datetime.now(UTC),
-                author=getpass.getuser(),
-                target=primary.id,
+        golden = record.golden()
+        if golden is not None:
+            # A golden record is a reference: edits replace it rather than layer on it.
+            index = record.annotations.index(golden)
+            record.annotations[index] = GoldenAnnotation(
+                **tagger.read().model_dump(), note=golden.note
             )
-        )
+        else:
+            primary = record.latest_primary()
+            assert primary is not None
+            previous = record.human_on(primary)
+            if previous is not None:
+                record.annotations.remove(previous)
+            record.annotations.append(
+                HumanAnnotation(
+                    **tagger.read().model_dump(),
+                    created_at=datetime.now(UTC),
+                    author=getpass.getuser(),
+                    target=primary.id,
+                )
+            )
         self.on_change()
         table = self.query_one("#records", DataTable)
         row_key = str(table.cursor_row)

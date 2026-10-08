@@ -34,7 +34,8 @@ from models import (
     Review,
     VetoResponse,
     read_items,
-    write_jsonl,
+    read_records,
+    write_records,
 )
 from ui import STATE_STYLES, ListApp, record_state
 
@@ -151,10 +152,7 @@ def load_records(items: list[Item], output: Path) -> list[AnnotationRecord]:
         raise click.ClickException("The input file contains duplicate item IDs.")
     if not output.exists():
         return [AnnotationRecord(item=item) for item in items]
-    with output.open() as fh:
-        records = [
-            AnnotationRecord.model_validate_json(line) for line in fh if line.strip()
-        ]
+    records = read_records(output)
     if {record.item for record in records} != set(items) or len(records) != len(items):
         raise click.ClickException(
             f"{output} holds a different set of items than the input. "
@@ -176,7 +174,7 @@ class Saver:
 
     def save(self, force: bool = False) -> None:
         if force or time.monotonic() - self.last_save >= self.interval:
-            write_jsonl(self.path, self.records)
+            write_records(self.path, self.records)
             self.last_save = time.monotonic()
 
 
@@ -415,18 +413,15 @@ def annotate(
     help="Only show records in this state.",
 )
 def list_records(annotated_path: Path, state: str | None) -> None:
-    """Browse and decide the records in an annotated file."""
-    with annotated_path.open() as fh:
-        records = [
-            AnnotationRecord.model_validate_json(line) for line in fh if line.strip()
-        ]
+    """Browse and decide the records in an annotated JSONL or YAML file."""
+    records = read_records(annotated_path)
     shown = records
     if state is not None:
         shown = [r for r in records if record_state(r) == state]
     if not shown:
         raise click.ClickException("No records to show.")
     # Save all records, including the ones the state filter hides.
-    ListApp(shown, lambda: write_jsonl(annotated_path, records)).run()
+    ListApp(shown, lambda: write_records(annotated_path, records)).run()
 
 
 if __name__ == "__main__":

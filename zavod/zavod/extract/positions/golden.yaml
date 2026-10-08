@@ -1,0 +1,140 @@
+- item:
+    id: 1223869
+    caption: Vice Mayor of Lustenau
+    countries:
+      - at
+    subnational_areas: []
+    dataset: at_meine_abgeordneten
+  annotations:
+    - level: gov.muni
+      roles:
+        - gov.executive
+      seniority: middle
+      type: golden
+      note: 'Deputy mayor of a municipality: the codebook anchors a deputy mayor with
+        a subordinate executive remit at middle, below the mayor at leadership.'
+- item:
+    id: 1221785
+    caption: Prime Minister
+    countries:
+      - hu
+    subnational_areas: []
+    dataset: hu_national_assembly
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.head
+      seniority: leadership
+      type: golden
+      note: 'National head of government: the codebook names the prime minister as
+        a gov.head anchor, which always has leadership seniority.'
+- item:
+    id: 1221875
+    caption: Mayor of Moutiers-En-Beauce
+    countries:
+      - fr
+    subnational_areas:
+      - Moutiers-En-Beauce, Eure-Et-Loir
+    dataset: fr_maires
+  annotations:
+    - level: gov.muni
+      roles:
+        - gov.executive
+      seniority: leadership
+      type: golden
+      note: 'Municipal mayor: the codebook names the municipal mayor as the gov.executive
+        leadership anchor.'
+# Greenland has its own country code, but its government is not national.
+# This makes the level of Greenlandic bodies tricky.
+- item:
+    id: 1213114
+    caption: Air Greenland A/S, Chief Commercial Officer
+    countries:
+      - gl
+    subnational_areas: []
+    dataset: dk_pep
+  annotations:
+    - level: gov.state
+      roles:
+        - gov.soe
+      seniority: senior
+      type: golden
+      note: The Greenlandic Self-Government controls Air Greenland and sits below
+        the Danish national government. A chief commercial officer is a senior executive
+        with enterprise-wide responsibility.
+- item:
+    id: 1213235
+    caption: Justice of the Supreme Court of Kenya
+    countries:
+      - ke
+    subnational_areas: []
+    dataset: ke_judiciary
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.judicial
+      seniority: senior
+      type: golden
+      note: A supreme court justice is the codebook's gov.judicial senior anchor.
+        The Chief Justice leads the judiciary.
+# The title says minister, but the office is a mid-level job in the ministry.
+- item:
+    id: 1220225
+    caption: Minister for Housing and Planning
+    countries:
+      - gb
+    subnational_areas: []
+    dataset: us_cia_world_leaders
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.executive
+      seniority: middle
+      type: golden
+      note: The UK Minister for Housing and Planning is a Minister of State, below
+        the Secretary of State who heads the ministry. This matches the deputy minister
+        anchor.
+- item:
+    id: 1218513
+    caption: Interior Minister of the Russian Federation
+    countries:
+      - ru
+    subnational_areas: []
+    dataset: ru_kremlin_persons
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.executive
+      seniority: senior
+      type: golden
+      note: A national cabinet minister is the codebook's gov.executive senior anchor.
+- item:
+    id: 1220830
+    caption: Member of the Parliament of Sri Lanka
+    countries:
+      - lk
+    subnational_areas: []
+    dataset: lk_parliament
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.legislative
+      seniority: senior
+      type: golden
+      note: A member of a national parliament is the codebook's gov.legislative senior
+        anchor.
+- item:
+    id: 1224056
+    caption: CEO, AB Göta kanalbolag
+    countries:
+      - se
+    subnational_areas: []
+    dataset: se_soe
+  annotations:
+    - level: gov.national
+      roles:
+        - gov.soe
+      seniority: leadership
+      type: golden
+      note: The Swedish state owns AB Göta kanalbolag. The enterprise chief executive
+        is the codebook's gov.soe leadership anchor.
