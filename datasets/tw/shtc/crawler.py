@@ -1,5 +1,7 @@
 import csv
 import re
+import time
+from pathlib import Path
 
 import datapatch
 from rigour.mime.types import CSV
@@ -40,6 +42,48 @@ ADDRESS_SPLITS = [
     ";",
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
+# 2025-03-04	SHTC Entity List
+LINKS_PDF_HASH = "d046359c5be70faccb040a94035bba54faff6e80"
+PDF_FETCH_ATTEMPTS = 3
+PDF_RETRY_SLEEP = 5.0
+
+
+def fetch_pdf(context: Context, name: str, url: str) -> Path | None:
+    """Download a PDF document into the dataset data folder.
+
+    A response is only accepted when it looks like a complete PDF, i.e. it starts
+    with the PDF magic bytes and ends with the end-of-file marker. Under load,
+    trade.gov.tw answers document URLs with HTTP 200 and either an empty body or
+    its HTML error page (title 錯誤頁面) instead of the document. Each such error
+    page embeds a fresh ASP.NET view state, so hashing it yields a different
+    value every time and looks like a source revision.
+
+    Args:
+        context: The crawler context.
+        name: File name to store the document under in the data folder.
+        url: The URL to download the document from.
+
+    Returns:
+        The path the document was written to, or None if no attempt returned a
+        complete PDF.
+    """
+    for attempt in range(PDF_FETCH_ATTEMPTS):
+        if attempt > 0:
+            time.sleep(PDF_RETRY_SLEEP)
+        res = context.http.get(url)
+        res.raise_for_status()
+        body = res.content
+        if body.startswith(b"%PDF-") and body.rstrip().endswith(b"%%EOF"):
+            path = context.get_resource_path(name)
+            path.write_bytes(body)
+            return path
+        context.log.info(
+            "Response is not a complete PDF, retrying.",
+            url=url,
+            length=len(body),
+            content_type=res.headers.get("Content-Type"),
+        )
+    return None
 
 
 def apply_details_override(
@@ -124,7 +168,8 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     # On the dataset page is a link to a PDF file that contains a link to the CSV file.
-    # Assert on the URL of the PDF file in the hope that it changes when the list is updated.
+    # Assert on the content of the PDF file in the hope that it changes when the list is
+    # updated.
     url_xpath = ".//a[@title='SHTC Entity List']/@href"
     source_url = context.dataset.model.url
     assert source_url is not None, "Dataset model URL is not set"
@@ -136,8 +181,20 @@ def crawl(context: Context) -> None:
     )
     urls = h.xpath_strings(doc, url_xpath)
     assert len(urls) == 1, 'Expected exactly one document called "SHTC Entity List"'
-    # 2025-03-04	SHTC Entity List
-    h.assert_url_hash(context, urls[0], "d046359c5be70faccb040a94035bba54faff6e80")
+    links_pdf = fetch_pdf(context, "shtc_links.pdf", urls[0])
+    if links_pdf is None:
+        context.log.warning(
+            "Could not download the SHTC Entity List document. "
+            "Skipping its change detection for this run.",
+            url=urls[0],
+        )
+    elif not h.assert_file_hash(links_pdf, LINKS_PDF_HASH):
+        context.log.warning(
+            "SHTC Entity List document changed: check whether the CSV download link "
+            "it contains still matches data.url in tw_shtc.yml, update the URL if it "
+            "doesn't, then accept the new hash.",
+            url=urls[0],
+        )
 
     # Crawl the CSV file
     path = context.fetch_resource("shtc_list.csv", context.data_url)
