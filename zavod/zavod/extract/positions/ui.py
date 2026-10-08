@@ -261,6 +261,7 @@ class ListScreen(Screen[None]):
         table = self.query_one("#records", DataTable)
         table.add_column("#")
         table.add_column("Title")
+        table.add_column("Location")
         table.add_column("Dataset")
         for key in ("State", "Level", "Roles", "Seniority"):
             table.add_column(key, key=key)
@@ -268,6 +269,7 @@ class ListScreen(Screen[None]):
             table.add_row(
                 str(index + 1),
                 record.item.caption[:80],
+                ", ".join(record.item.countries + record.item.subnational_areas),
                 record.item.dataset,
                 *self.status_cells(record),
                 key=str(index),
