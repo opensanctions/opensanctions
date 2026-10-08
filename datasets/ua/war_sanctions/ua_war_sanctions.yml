@@ -244,6 +244,10 @@ lookups:
         values:
           - "Angola"
           - "Portugal"
+      - match: "Cyprus, Moldova"
+        values:
+          - "Cyprus"
+          - "Moldova"
       - match: "Armenia, russian federation"
         values:
           - "Armenia"

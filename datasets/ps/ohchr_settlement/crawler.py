@@ -62,7 +62,7 @@ def crawl_row(
 
 
 def crawl(context: Context) -> None:
-    content_xpath = "//div[contains(@class, 'ohchr-layout__container')]"
+    content_xpath = "//div[contains(@class, 'ohchr-layout__column--two')]"
     doc = zyte_api.fetch_html(
         context,
         context.data_url,
@@ -71,10 +71,12 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
     content = h.xpath_elements(doc, content_xpath, expect_exactly=1)[0]
-    # The hash covers the list of reports and both tables. Before you accept a
-    # new hash, review the tables and the count in the dataset assertions.
+    # The hash covers the main column with the list of reports and both tables,
+    # but not the side navigation, which changes with unrelated site updates.
+    # Before you accept a new hash, review the tables and the count in the
+    # dataset assertions.
     h.assert_dom_hash(
-        content, "4a6e0e7baff37cba3362997e9a2f889f80a307dc", text_only=True
+        content, "3c606cdaa3d91606b6dc2c98b7bd675acffadaed", text_only=True
     )
 
     # List B holds enterprises that are no longer involved in listed

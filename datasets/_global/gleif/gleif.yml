@@ -36,6 +36,9 @@ publisher:
   url: https://www.gleif.org/en/about/this-is-gleif
   official: true
 
+tags:
+  - sector.securities
+
 assertions:
   min:
     schema_entities:

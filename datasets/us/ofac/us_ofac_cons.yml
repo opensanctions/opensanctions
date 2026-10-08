@@ -42,6 +42,7 @@ tags:
   - issuer.west
   - sector.maritime
   - sector.energy
+  - sector.securities
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/cons_advanced.xml
