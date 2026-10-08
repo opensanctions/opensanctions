@@ -80,6 +80,8 @@ assigns a value that the evidence does not support where the codebook requires
 'undecided'. A misstated detail in the reasoning is not a reason to veto if the
 annotation still holds: note it in your reasoning and approve.
 
+Explain only the classifications you veto; do not restate supported classifications.
+
 Seniority is often guesswork, so only veto if the evidence contradicts the annotation.
 
 The annotator could search the web; you cannot. You may use the evidence in
