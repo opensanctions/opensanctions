@@ -27,6 +27,9 @@ data:
   format: ZIP
   lang: eng
 
+tags:
+  - sector.academic
+
 assertions:
   min:
     schema_entities:
