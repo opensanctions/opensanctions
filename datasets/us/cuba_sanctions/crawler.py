@@ -124,6 +124,7 @@ def crawl_accommodations(context: Context) -> None:
         sanction = h.make_sanction(
             context, proxy, key=PAL_PROGRAM, program_key=PAL_PROGRAM
         )
+        # Emit after make_sanction, which adds programId to the target entity.
         context.emit(proxy)
         context.emit(sanction)
         context.audit_data(row, ignore=["City"])
