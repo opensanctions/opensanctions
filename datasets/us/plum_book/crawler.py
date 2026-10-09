@@ -50,12 +50,13 @@ def crawl(context: Context) -> None:
             )
             person.add("position", position_name)  # for dedupe
 
-            position = h.make_position(
-                context,
-                name=position_name,
-                subnational_area=location,
-                country="us",
-            )
+            # The duty location is the office of the position, not a jurisdiction
+            # it is limited to, so it goes into the address. It stays in the ID:
+            # titles often name the place already, but some (e.g. regional
+            # directors) repeat unchanged across locations.
+            position = h.make_position(context, name=position_name, country="us")
+            position.id = context.make_id(position_name, "us", location)
+            position.add("address", location)
 
             categorisation = categorise(context, position, default_is_pep=True)
             if not categorisation.is_pep:
