@@ -22,4 +22,4 @@ For datasets covering multiple programs, pass the source's own program identifie
 
 Use [`h.make_risk`][zavod.helpers.make_risk] when the source names an entity without designating it: an advisory register, a watchlist of persons of interest, or a report to a legislature. It builds a [`Risk`](https://opensanctions.org/reference/#schema.Risk), flagging heightened exposure or scrutiny rather than a legally binding restriction.
 
-`h.make_risk` takes the same arguments as [`h.make_sanction`][zavod.helpers.make_sanction] and fills the same properties from the dataset metadata and the resolved program key. Both helpers also add `programId` to the listed entity.
+`h.make_risk` takes the same arguments as [`h.make_sanction`][zavod.helpers.make_sanction] and fills the same properties from the dataset metadata and the resolved program key. Both helpers also add `programId` to the listed entity, so emit the entity after calling them (see [patterns](best_practices/patterns.md#emit-an-entity-after-everything-that-writes-to-it)).
