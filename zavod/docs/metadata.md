@@ -110,7 +110,7 @@ A dataset usually carries tags from several of these dimensions.
 
 Tags match by exact string, not by prefix: `list.pep.bulk` does not match `list.pep`. A sub-tag is usually applied alongside its base tag: `list.pep.bulk` marks PEP datasets, also tagged `list.pep`, that are left out of broad PEP cross-referencing, such as declaration registries and sub-national officeholder lists. Some sub-tags are applied without their base tag to keep a dataset out of the broader scope: `list.sanction.counter` is not tagged `list.sanction`.
 
-**Note:** a `target.*` tag must not be the publisher's own country or jurisdiction.
+**Note:** a `target.*` tag must not be the publisher's own country or jurisdiction. A domestic list is already identified by its publisher's country, and where one applies, its `juris.*` tag.
 
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
 
