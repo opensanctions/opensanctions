@@ -342,8 +342,6 @@ def crawl_xml(context: Context) -> None:
             # Add reason as a note
             for info in designation.iterfind(".//OtherInformation"):
                 entity.add("notes", info.text)
-                # Wallets are only parsed here: the CSV strips the line breaks
-                # between addresses, gluing them into one unmatchable string.
                 crawl_wallets(context, entity, info.text)
             for info in designation.iterfind(".//UKStatementofReasons"):
                 sanction.add("reason", html.unescape(info.text) if info.text else None)
@@ -596,7 +594,11 @@ def crawl_csv(context: Context) -> None:
             h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
             h.apply_date(sanction, "startDate", row.pop("Date Designated"))
 
-            entity.add("notes", row.pop("Other Information"))
+            other_information = row.pop("Other Information")
+            entity.add("notes", other_information)
+            # The CSV strips the line breaks between addresses, gluing some into
+            # one unmatchable string; the XML pass picks those up.
+            crawl_wallets(context, entity, other_information)
             entity.add("topics", "sanction")
 
             sanctions_imposed = row.pop("Sanctions Imposed")
