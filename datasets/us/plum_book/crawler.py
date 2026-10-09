@@ -6,6 +6,7 @@ from zavod.stateful.positions import categorise
 
 IGNORE = [
     "Organization",
+    "Position Placement",
     "Position Status",
     "Pay Plan",
     "Level, Grade, or Pay",

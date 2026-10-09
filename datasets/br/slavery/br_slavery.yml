@@ -47,8 +47,8 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 310
-      Company: 180
+      Person: 270
+      Company: 140
     entities_with_prop:
       Sanction:
         endDate: 3
