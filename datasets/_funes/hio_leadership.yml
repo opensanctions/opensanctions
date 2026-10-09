@@ -9,6 +9,7 @@ config:
       governing board, council, or court, or an equivalent function; not advisory committee members or
       staff.
     subject_label: Organization
+    revisit_interval_days: 30
     subjects:
       - name: African Development Bank
         urls:

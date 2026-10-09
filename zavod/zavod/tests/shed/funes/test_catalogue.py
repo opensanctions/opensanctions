@@ -17,6 +17,7 @@ def definition(**overrides: Any) -> DatasetDefinition:
         "name": "test_dataset",
         "people_sought": "board members",
         "subject_label": "Organization",
+        "revisit_interval_days": 30,
         "subjects": [
             {
                 "name": "Bank A",
