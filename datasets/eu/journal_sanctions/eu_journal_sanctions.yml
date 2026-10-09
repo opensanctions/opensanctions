@@ -159,7 +159,7 @@ config:
     32013R0401: 02013R0401-20260429
     32014R0208: 02014R0208-20260303
     32014R0224: 02014R0224-20250326
-    32014R0269: 02014R0269-20260807
+    32014R0269: 02014R0269-20260928
     32014R0747: 02014R0747-20260622
     32014R0833: 02014R0833-20260724
     32014R1352: 02014R1352-20240913
@@ -218,15 +218,17 @@ config:
   consolidated_amendments:
     32026R1720: 02020R1998-20260730
     32026R1817: 02006R0765-20260724
-    32026R1843: 02014R0269-20260807
+    32026R1843: 02014R0269-20260928
     32026R1846: 02006R0765-20260724
     32026R1848: 02014R0833-20260724
     32026R1883: 02012R0267-20260801
     32026R1895: 02020R1998-20260730
-    32026R1940: 02014R0269-20260807
+    32026R1940: 02014R0269-20260928
     32026R1960: 02002R0881-20260828
     32026R1965: 02002R0881-20260828
+    32026R2160: 02014R0269-20260928
     32026R2165: 02024R2642-20260924
+    32026R2184: 02014R0269-20260928
     32026R2193: 02024R1485-20260928
 
   # ## Warning "Amending act has no reviewed transcription"
@@ -2022,8 +2024,12 @@ lookups:
           - "aleksandr.babuchin@domrf.ru"
           - "isb@domrf.ru"
       # Council Implementing Regulation (EU) 2026/2184 prints Aleksandr
-      # Mikhailovich KALYAGIN's two addresses separated by a space.
-      - match: "am.kalyagin@mon.zo.gov.ru kalyaginam_mgudt@bk.ru"
+      # Mikhailovich KALYAGIN's two addresses separated by a space; the
+      # consolidation that absorbed it (02014R0269-20260928) runs them
+      # together with no separator at all.
+      - match:
+          - "am.kalyagin@mon.zo.gov.ru kalyaginam_mgudt@bk.ru"
+          - "am.kalyagin@mon.zo.gov.rukalyaginam_mgudt@bk.ru"
         values:
           - "am.kalyagin@mon.zo.gov.ru"
           - "kalyaginam_mgudt@bk.ru"
