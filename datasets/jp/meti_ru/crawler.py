@@ -156,13 +156,14 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
         entity.add("address", a)
 
     entity.add("sourceUrl", row.pop("source_url"))
-    entity.add("topics", "export.control")
-    entity.add("topics", "sanction")
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity, end_date=row.pop("removal_date"))
     sanction.add("program", row.pop("program"))
     h.apply_date(sanction, "listingDate", row.pop("designated_date"))
     h.apply_date(sanction, "modifiedAt", row.pop("last_updated"))
+    if h.is_active(sanction):
+        entity.add("topics", "export.control")
+        entity.add("topics", "sanction")
 
     context.emit(entity)
     context.emit(sanction)

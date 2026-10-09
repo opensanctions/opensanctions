@@ -25,10 +25,13 @@
 #    - designated_date: the PDF's 指定日; last_updated: its 最終更新日.
 #    - source_url: the current PDF URL.
 #    - auto-translated: leave empty, the crawler ignores it.
+#    - removal_date: leave empty.
 #    Leave existing rows' last_updated and source_url unchanged, even when
 #    the PDF was renamed: they record the version the row was taken from.
-# 4. If an entry was edited, update its row. If an entry was removed, stop
-#    and ask a maintainer: the CSV has no column to record a delisting yet.
+# 4. If an entry was edited, update its row. If an entry was removed, set
+#    its row's removal_date to the 最終更新日 of the first PDF version
+#    without it, in the same format as the other dates. Never delete the
+#    row: it records which version designated the entity and when.
 # 5. Page text changes that don't touch the designation lists (export
 #    control wording, contact details, dates) need no CSV change; describe
 #    them in the PR.
