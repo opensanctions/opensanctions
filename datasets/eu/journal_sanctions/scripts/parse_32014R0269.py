@@ -438,6 +438,11 @@ COLONLESS_PREFIXES = (
 )
 # Colon-less document-attribute lines, dropped like their labelled kin.
 COLONLESS_DROPS = ("Issued by ",)
+# A label printed inside another label's value, as (outer, inner). The inner
+# label names the more specific identifier and governs the column; it is
+# never part of the value. Entries 997–999, 1001 and 1002 of M125 print
+# "Registration number: BIN/OGRN: …".
+NESTED_LABELS = frozenset({("Registration number", "BIN/OGRN")})
 # Columns whose labelled value legitimately continues onto bare follow-on
 # lines in this document (roles spanning paragraphs, address lists, notes
 # prose, an entity-form qualifier). Bare lines after any other label are
@@ -853,6 +858,11 @@ def parse_info(
             seen.add(label)
             column = INFO_LABELS[label]
             value = labelled.group(2)
+            nested = LABELLED_RE.match(value)
+            nested_label = nested.group(1).strip() if nested is not None else None
+            if nested is not None and (label, nested_label) in NESTED_LABELS:
+                column = INFO_LABELS[nested.group(1).strip()]
+                value = nested.group(2)
             if value != "":
                 row.add(column, split_values(value))
             block, dropped, seen_label = column, False, True
