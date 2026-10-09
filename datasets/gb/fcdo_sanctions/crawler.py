@@ -10,6 +10,7 @@ from zavod import helpers as h
 
 
 EMAIL_SPLIT = re.compile(r"[; ]")
+CRYPTO_MENTION = re.compile(r"crypto|digital (currency )?address", re.IGNORECASE)
 PATTERNS = [
     (r"^INN:?\s*(\d{10}|\d{12})\s*$", "innCode"),
     (r"^OGRN:?\s*(\d{13}|\d{15})\s*$", "ogrnCode"),
@@ -201,6 +202,27 @@ def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) 
             entity.add("flag", flag.text)
 
 
+def crawl_wallets(context: Context, entity: Entity, text: str | None) -> None:
+    """Emit the crypto wallets listed in the free-text Other Information field."""
+    if text is None:
+        return
+    cryptos = h.extract_cryptos(text)
+    if not cryptos and CRYPTO_MENTION.search(text):
+        context.log.warning(
+            "Crypto mentioned but no wallet address extracted",
+            entity_id=entity.id,
+            text=text,
+        )
+    for address, currency in cryptos.items():
+        wallet = context.make("CryptoWallet")
+        wallet.id = context.make_id(address)
+        wallet.add("publicKey", address)
+        wallet.add("currency", currency)
+        wallet.add("holder", entity.id)
+        wallet.add("topics", "sanction")
+        context.emit(wallet)
+
+
 def crawl_xml(context: Context) -> None:
     # Get the XML file
     url = get_xml_link(context)
@@ -320,6 +342,9 @@ def crawl_xml(context: Context) -> None:
             # Add reason as a note
             for info in designation.iterfind(".//OtherInformation"):
                 entity.add("notes", info.text)
+                # Wallets are only parsed here: the CSV strips the line breaks
+                # between addresses, gluing them into one unmatchable string.
+                crawl_wallets(context, entity, info.text)
             for info in designation.iterfind(".//UKStatementofReasons"):
                 sanction.add("reason", html.unescape(info.text) if info.text else None)
             entity.add("topics", "sanction")
