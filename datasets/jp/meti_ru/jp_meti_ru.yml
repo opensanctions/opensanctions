@@ -1,3 +1,47 @@
+# Handling "METI page content has changed" and "Designation list PDF has
+# changed" warnings, and "Unknown list PDF" crashes:
+#
+# 1. Run the crawler locally (it needs a Zyte API key; the site is fetched
+#    with a Japanese geolocation). It rewrites page_content.txt and one
+#    <pdf name>.txt per list PDF next to the crawler, so `git diff` shows
+#    what changed. The three lists map to target_country values: Russia
+#    (list_russia_tokutei), Belarus (list_belarus_tokutei) and Third
+#    countries (list_daisangoku_tokutei).
+# 2. "Unknown list PDF <name>" means METI renamed a list PDF (they add or
+#    drop a date prefix such as 250912_). Replace the old key in
+#    EXPECTED_HASHES in crawler.py with the new name, `git mv` the old .txt
+#    to <new name>.txt and re-run, so the diff is against the reviewed text.
+#    If the page links a fourth list, propose the addition consistent with
+#    these update rules.
+# 3. For each newly listed entity, append one sanctions.csv row, copying
+#    the shape of the most recent rows from the same list. Take the values
+#    verbatim from the PDF, keeping its line breaks:
+#    - target_country and program as on the list's existing rows.
+#    - name_raw: the numbered Japanese name line(s), e.g. "57 ソリド・...".
+#    - name_jpn_cleaned: the Japanese name without the number;
+#      aliases_jpn_cleaned: the Japanese 別称 aliases, separated by "; ".
+#    - name_en: the English name with any a.k.a. aliases as printed.
+#    - address: including the leading 所在地：.
+#    - designated_date: the PDF's 指定日; last_updated: its 最終更新日.
+#    - source_url: the current PDF URL.
+#    - auto-translated: leave empty, the crawler ignores it.
+#    Leave existing rows' last_updated and source_url unchanged, even when
+#    the PDF was renamed: they record the version the row was taken from.
+# 4. If an entry was edited, update its row. If an entry was removed, stop
+#    and ask a maintainer: the CSV has no column to record a delisting yet.
+# 5. Page text changes that don't touch the designation lists (export
+#    control wording, contact details, dates) need no CSV change; describe
+#    them in the PR.
+# 6. Update the expected hashes in crawler.py if and only if the changes in
+#    the affected file have been completely dealt with.
+#    Use the DOM hash from the "DOM
+#    hash changed" warning's actual value, and EXPECTED_HASHES from the
+#    "File hash changed" warnings. Commit them together with the CSV and the
+#    regenerated .txt files. This mutes the warnings.
+# 7. Re-run the crawler: it should finish without warnings, with the
+#    LegalEntity count up by the number of added rows. Raise the assertion
+#    bounds above if they no longer fit.
+
 title: Japan METI Russian List
 entry_point: crawler.py
 prefix: jp-meti-ru
@@ -10,13 +54,13 @@ deploy:
 load_statements: true
 ci_test: false # no CI for Zyte
 summary: >-
-  Export and service restrictions to Russia, Belarus, and designated third-country entities 
+  Export and service restrictions to Russia, Belarus, and designated third-country entities
   under Japan's Foreign Exchange and Foreign Trade Law.
 description: |
-  Japan's Ministry of Economy, Trade, and Industry (METI) requires approval for certain 
-  exports and services to Russia, Belarus, and specified regions under the Foreign 
-  Exchange and Foreign Trade Law, with approvals generally denied except in limited cases. 
-  Restrictions apply to specific goods and technologies, as well as transactions involving 
+  Japan's Ministry of Economy, Trade, and Industry (METI) requires approval for certain
+  exports and services to Russia, Belarus, and specified regions under the Foreign
+  Exchange and Foreign Trade Law, with approvals generally denied except in limited cases.
+  Restrictions apply to specific goods and technologies, as well as transactions involving
   designated entities.
 publisher:
   name: "Ministry of Economy, Trade and Industry"
@@ -36,7 +80,7 @@ tags:
   - issuer.west
 url: https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSk-oy6G0e2huA2kjskWcDhgcrEKj6ePUISsqnCEfOFptVbZO2XN12V5up3FQhH7oqWwtryTTRMTnyG/pub?output=csv
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/jp/meti_ru/sanctions.csv
   format: CSV
 dates:
   formats: ["%Y年%m月%d日", "%Y 年%m 月%d 日"]

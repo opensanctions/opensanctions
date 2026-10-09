@@ -1,5 +1,6 @@
 import csv
 import re
+import shutil
 from pathlib import Path
 from urllib.parse import urlparse
 from typing import Any
@@ -193,7 +194,11 @@ def save_versioned_data(
         _, _, _, pdf_path = zyte_api.fetch_resource(
             context, pdf_name, pdf_url, expected_media_type=PDF, geolocation="jp"
         )
-        h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name) or "")
+        if not h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name) or ""):
+            context.log.warning(
+                "Designation list PDF has changed: see the runbook in jp_meti_ru.yml",
+                url=pdf_url,
+            )
 
         # Save the text of the PDFs linked to from the page for easy diffing.
         # Commit changes once they're handled.
@@ -202,7 +207,9 @@ def save_versioned_data(
             for page in pdf.pages:
                 pdf_text += page.extract_text()
         # Only write to predefined safe paths
-        assert pdf_name in EXPECTED_HASHES, pdf_name
+        assert pdf_name in EXPECTED_HASHES, (
+            f"Unknown list PDF {pdf_name}: see the runbook in jp_meti_ru.yml"
+        )
         txt_name = f"{pdf_name}.txt"
         pdf_text_path = LOCAL_PATH / txt_name
         with open(pdf_text_path, "w") as fh:
@@ -221,7 +228,10 @@ def crawl(context: Context) -> None:
     )
     content_div = h.xpath_element(doc, divs_xpath)
     # Check hash of the content part of the page
-    h.assert_dom_hash(content_div, "db271c508f831b212fe8fdf1fae2dc271d0810bc")
+    if not h.assert_dom_hash(content_div, "db271c508f831b212fe8fdf1fae2dc271d0810bc"):
+        context.log.warning(
+            "METI page content has changed: see the runbook in jp_meti_ru.yml"
+        )
     pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
 
@@ -229,9 +239,10 @@ def crawl(context: Context) -> None:
     # page to diff easily when there are changes. Commit changes once they're handled.
     save_versioned_data(context, content_div, pdf_urls)
 
-    # Crawling the google sheet
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path) as fh:
+    source_file = LOCAL_PATH / "sanctions.csv"
+    resource_path = context.get_resource_path("source.csv")
+    shutil.copy(source_file, resource_path)
+    context.export_resource(resource_path, CSV, title=context.SOURCE_TITLE)
+    with open(source_file, encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

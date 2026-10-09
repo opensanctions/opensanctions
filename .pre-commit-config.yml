@@ -4,7 +4,8 @@ repos:
     hooks:
       - id: check-yaml
       - id: trailing-whitespace
-        exclude: '\.html?$'
+        # Curated dataset CSVs hold the source's text verbatim, whitespace included.
+        exclude: '\.html?$|^datasets/.*\.csv$'
       - id: check-merge-conflict
   - repo: local
     hooks:
