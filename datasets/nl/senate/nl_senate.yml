@@ -464,3 +464,73 @@ lookups:
           - name: "Joris Steenkamp"
             start_date: "2026-05-19"
             party: "CDA"
+      - match: 'Ferd Crone (1954) is vanaf 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Ferd Crone"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
+      - match: 'Mary Fiers (1968) is sinds 3 april 2018 lid van de Eerste Kamer'
+        details:
+          - name: "Mary Fiers"
+            start_date: "2018-04-03"
+            party: "Progressief Nederland"
+      - match: 'Roel van Gurp (1956) is vanaf 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Roel van Gurp"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
+      - match: 'Hetty Janssen-van Helvoort (1954) is sinds 13 juni 2023 lid van de Eerste Kamer'
+        details:
+          - name: "Hetty Janssen-van Helvoort"
+            start_date: "2023-06-13"
+            party: "Progressief Nederland"
+      - match: 'Farah Karimi (1960) is vanaf 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Farah Karimi"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
+      - match: 'Saskia Kluit (1973) is sinds 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Saskia Kluit"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
+      - match: 'Randy Martens (1987) is sinds 13 juni 2023 lid van de Eerste Kamer'
+        details:
+          - name: "Randy Martens"
+            start_date: "2023-06-13"
+            party: "Progressief Nederland"
+      - match: 'Artie Ramsodit (1975) is vanaf 13 juni 2023 lid van de Eerste Kamer'
+        details:
+          - name: "Artie Ramsodit"
+            start_date: "2023-06-13"
+            party: "Progressief Nederland"
+      - match: 'Jeroen Recourt (1970) is vanaf 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Jeroen Recourt"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
+      - match: 'Daan Roovers (1970) is vanaf 13 juni 2023 lid van de Eerste Kamer'
+        details:
+          - name: "Daan Roovers"
+            start_date: "2023-06-13"
+            party: "Progressief Nederland"
+      - match: 'Paul Rosenmöller (1956) is sinds 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Paul Rosenmöller"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
+      - match: 'Noortje Thijssen (1983) is vanaf 13 juni 2023 lid van de Eerste Kamer'
+        details:
+          - name: "Noortje Thijssen"
+            start_date: "2023-06-13"
+            party: "Progressief Nederland"
+      - match: 'Gala Veldhoen (1971) is sinds 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Gala Veldhoen"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
+      - match: 'Mei Li Vos (1970) is sinds 11 juni 2019 lid van de Eerste Kamer'
+        details:
+          - name: "Mei Li Vos"
+            start_date: "2019-06-11"
+            party: "Progressief Nederland"
