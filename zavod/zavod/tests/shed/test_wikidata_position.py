@@ -71,7 +71,7 @@ def interpol_sg_item(client: StubClient) -> Item:
     )
 
 
-def test_igo_position_enrolls_for_review(testdataset1: Dataset):
+def test_igo_position_enrolls_for_review(testdataset1: Dataset, zavod_db):
     context = make_context(testdataset1)
     categorise.cache_clear()
     client = StubClient()
@@ -90,7 +90,7 @@ def test_igo_position_enrolls_for_review(testdataset1: Dataset):
     context.close()
 
 
-def test_igo_position_accepted_after_review(testdataset1: Dataset):
+def test_igo_position_accepted_after_review(testdataset1: Dataset, zavod_db):
     context = make_context(testdataset1)
     categorise.cache_clear()
     client = StubClient()
@@ -113,7 +113,7 @@ def test_igo_position_accepted_after_review(testdataset1: Dataset):
     context.close()
 
 
-def test_db_is_pep_rescues_countryless_position(testdataset1: Dataset):
+def test_db_is_pep_rescues_countryless_position(testdataset1: Dataset, zavod_db):
     """A reviewed is_pep=True row bypasses the country gate even without a
     registry hit — the manual rescue channel."""
     context = make_context(testdataset1)
@@ -149,7 +149,7 @@ def test_db_is_pep_rescues_countryless_position(testdataset1: Dataset):
     context.close()
 
 
-def test_historical_claim_does_not_kill_position(testdataset1: Dataset):
+def test_historical_claim_does_not_kill_position(testdataset1: Dataset, zavod_db):
     """A stale jurisdiction next to a current one contributes nothing —
     it must not drop the whole position."""
     context = make_context(testdataset1)
