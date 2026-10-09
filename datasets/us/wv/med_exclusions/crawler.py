@@ -1,15 +1,23 @@
-from zavod import Context, helpers as h
+from normality import collapse_spaces, slugify
+import pdfplumber
 from rigour.mime.types import PDF
 
+from zavod import Context
+from zavod import helpers as h
 
-prompt = """
- Extract structured data from the following page of a PDF document. Return
-  a JSON list (`providers`) in which each object represents an medical provider.
-  Each object should have the following fields: `last_name`, `first_name`,
-  `npi`, `address_1`, `address_2`, `city`, `state`, `zip`, `action_date`,
-  `excluded_terminated`, `reason`.
-  Return an empty string for unset fields.
-"""
+HEADERS = [
+    "last_name",
+    "first_name",
+    "npi",
+    "address_1",
+    "address_2",
+    "city",
+    "state",
+    "zip",
+    "action_date",
+    "excluded_terminated",
+    "reason_for_exclusion_termination",
+]
 
 
 def flat(multiline: str | None) -> str:
@@ -84,11 +92,21 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    for item in h.parse_pdf_table(
-        context,
-        path,
-        # The header row is repeated as the first row of the table on every page.
-        headers_per_page=True,
-        page_settings=lambda page: (page, {"text_x_tolerance": 1}),
-    ):
-        crawl_item(item, context)
+    with pdfplumber.open(path) as pdf:
+        for page in pdf.pages:
+            # The header row is repeated on every page, but a record spilling
+            # over from the previous page can appear above the header row.
+            # So let's assert that there's a header row somewhere on every page
+            # and that it's ordered as expected for safety, but skip it when we see it.
+            seen_header = False
+            rows = page.extract_table({"text_x_tolerance": 1})
+            assert rows is not None, page.page_number
+            for row in rows:
+                if row[0] == "Last Name":
+                    slugified = [slugify(collapse_spaces(c), "_") for c in row if c]
+                    assert slugified == HEADERS, slugified
+                    seen_header = True
+                    continue
+                assert len(row) == len(HEADERS), row
+                crawl_item(dict(zip(HEADERS, row)), context)
+            assert seen_header, page.page_number
