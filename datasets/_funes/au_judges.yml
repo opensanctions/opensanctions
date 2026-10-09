@@ -6,6 +6,7 @@ config:
   funes:
     people_sought: Judges, justices, magistrates, and other judicial officers of the court.
     subject_label: Court
+    revisit_interval_days: 30
     subjects:
       - name: High Court of Australia
         urls:

@@ -18,6 +18,7 @@ def brief(**overrides: Any) -> dict[str, Any]:
     data: dict[str, Any] = {
         "people_sought": "board members",
         "subject_label": "Organization",
+        "revisit_interval_days": 30,
         "subjects": [{"name": "Bank", "urls": ["https://bank.example/board"]}],
     }
     data.update(overrides)
@@ -46,8 +47,24 @@ def test_valid_brief() -> None:
     assert definition.name == "test_funes"
     assert definition.people_sought == "board members"
     assert definition.subject_label == "Organization"
+    assert definition.revisit_interval_days == 30
     assert definition.subjects[0].name == "Bank"
     assert definition.subjects[0].urls == ["https://bank.example/board"]
+
+
+def test_revisit_interval_validated() -> None:
+    for days in (0, -30):
+        with pytest.raises(ValidationError):
+            dataset_definition(
+                make_dataset({"funes": brief(revisit_interval_days=days)})
+            )
+
+
+def test_missing_revisit_interval_rejected() -> None:
+    data = brief()
+    del data["revisit_interval_days"]
+    with pytest.raises(ValidationError):
+        dataset_definition(make_dataset({"funes": data}))
 
 
 def test_noncanonical_urls_rejected() -> None:

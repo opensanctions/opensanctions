@@ -2,8 +2,9 @@
 
 A funes dataset is a zavod dataset whose ``config`` block carries a
 ``funes`` mapping: the inspection brief (``people_sought``,
-``subject_label``) and the ``subjects`` with their known seed URLs.
-``dataset_definition`` validates that mapping into a
+``subject_label``), the ``revisit_interval_days`` a hit must age before
+its candidate is due again, and the ``subjects`` with their known seed
+URLs. ``dataset_definition`` validates that mapping into a
 ``DatasetDefinition``, the input of the catalogue sync
 (``zavod.shed.funes.catalogue``).
 """
@@ -41,6 +42,10 @@ class DatasetDefinition(BaseModel):
     subject_label: str
     """Names the subject's role in the inspection brief (e.g. Organization,
     Court, Sending country)."""
+    revisit_interval_days: int = Field(gt=0)
+    """How many days a hit attempt must age before its candidate is due
+    for a new run."""
+
     subjects: list[SubjectDefinition] = Field(min_length=1)
     """Non-empty: candidates are URLs of subjects, and the pipeline
     discovers URLs, never subjects."""
