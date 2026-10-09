@@ -38,7 +38,9 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity.add("npiCode", npi)
     entity.add("npiCode", row.pop("affiliated_npi"))
     entity.add("country", "us")
-    entity.add("sector", row.pop("specialty"))
+    sector = row.pop("specialty")
+    if sector != "N/A":
+        entity.add("sector", sector)
 
     if license_number is not None and license_number != "N/A":
         entity.add(
@@ -57,18 +59,21 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     sanction.add("reason", row.pop("authority"))
     sanction.add("description", sanction_type)
 
-    if sanction_end_date and sanction_end_date not in [
-        "Indefinite",
-        "Federal Authority",
-        "On Payment Plan",
-    ]:
-        if sanction_end_date == "2 Years":
-            # TODO(Leon Handreke): Maybe use date.replace(year=start_date.year + 2)
-            # to more accurately represent the semantics intended by the publisher?
-            sanction_end_datetime = datetime.strptime(
-                sanction_start_date, "%Y-%m-%d"
-            ) + timedelta(days=2 * YEAR_DAYS)
-            sanction_end_date = sanction_end_datetime.date().isoformat()
+    end_date_norm = (sanction_end_date or "").strip().lower()
+    if end_date_norm == "2 years":
+        sanction.add("duration", sanction_end_date)
+        # TODO(Leon Handreke): Maybe use date.replace(year=start_date.year + 2)
+        # to more accurately represent the semantics intended by the publisher?
+        sanction_end_datetime = datetime.strptime(
+            sanction_start_date, "%Y-%m-%d"
+        ) + timedelta(days=2 * YEAR_DAYS)
+        h.apply_date(
+            sanction,
+            "endDate",
+            sanction_end_datetime,
+            original_value=sanction_end_date,
+        )
+    else:
         h.apply_date(sanction, "endDate", sanction_end_date)
 
     is_debarred = h.is_active(sanction)

@@ -44,6 +44,7 @@ const expectedPositionColumns = new Set<string>([
   'topics',
   'dataset',
   'created_at',
+  'last_seen',
   'modified_at',
   'modified_by',
   'deleted_at',
@@ -88,6 +89,7 @@ export interface PositionTable {
   topics: JSONColumnType<string[], string[], string[]>
   dataset: string
   created_at: Date
+  last_seen: Date | null
   modified_at: Date | null
   modified_by: string | null
   deleted_at: Date | null

@@ -71,6 +71,9 @@ data:
   lang: eng
 ci_test: false  # No zyte key in CI
 
+tags:
+  - sector.defense
+
 assertions:
   min:
     schema_entities:

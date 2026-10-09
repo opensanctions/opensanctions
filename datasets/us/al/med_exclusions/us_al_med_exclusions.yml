@@ -32,8 +32,7 @@ description: |
   > any potential employees or contractors have not been excluded from participating
   > in the Medicaid program.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Alabama Medicaid
   description: |

@@ -32,6 +32,7 @@ data:
 tags:
   - list.sanction
   - target.ru
+  - sector.academic
 
 dates:
   formats: ["%d.%m.%Y"]

@@ -52,7 +52,9 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
             entity.add("idNumber", ln)
 
     entity.add("topics", "debarment")
-    entity.add("sector", row.pop("provider_type"))
+    sector = row.pop("provider_type")
+    if sector != "N/A":
+        entity.add("sector", sector)
 
     sanction = h.make_sanction(context, entity)
     termination_date = row.pop("exclusion_date")

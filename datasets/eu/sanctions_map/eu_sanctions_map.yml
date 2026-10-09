@@ -55,7 +55,6 @@ data:
   format: JSON
 tags:
   - list.sanction
-  - list.sanction.eu
   - issuer.west
   - sector.maritime
 dates:

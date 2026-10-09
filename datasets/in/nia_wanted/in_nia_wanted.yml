@@ -1,0 +1,70 @@
+# Paginated Drupal view; person details sit in modals with no stable person ID.
+title: India NIA Most Wanted
+entry_point: crawler.py
+prefix: in-nia
+coverage:
+  frequency: daily
+  start: "2026-10-08"
+load_statements: true
+summary: >-
+  Fugitives sought by India's federal counter-terrorism agency in its criminal cases
+description: |
+  People sought by the National Investigation Agency, India's federal agency for
+  terrorism and other offences against national security, in its own cases. The
+  list covers absconders at every stage of the warrant process: those declared
+  proclaimed offenders by a court, those subject to a proclamation to appear, and
+  those wanted under an arrest warrant alone. The dataset lists names, aliases,
+  case numbers, and, in some cases, addresses.
+tags:
+  - list.wanted
+url: https://www.nia.gov.in/most-wanted-photos
+publisher:
+  name: National Investigation Agency
+  acronym: NIA
+  description: >
+    The National Investigation Agency is India's central counter-terrorism law
+    enforcement agency, established under the National Investigation Agency Act
+    of 2008 after the Mumbai attacks. It investigates and prosecutes offences
+    affecting the sovereignty, security and integrity of India, under the
+    supervision of the Ministry of Home Affairs.
+  url: https://www.nia.gov.in/
+  country: in
+  official: true
+data:
+  url: https://www.nia.gov.in/most-wanted-photos
+  format: HTML
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 420
+  max:
+    schema_entities:
+      Person: 1000
+
+lookups:
+  # "Accused Status", normalised; a misplaced age is dropped.
+  accused_status:
+    options:
+      - match: Wanted Accused
+        value: Wanted
+      - match:
+          - Absconding
+          - Jumped on bail and presently absconder
+        value: Absconding
+      - match:
+          - Surrendered
+          - Surrendered before DGP, Telangana
+        value: Surrendered
+      - match: age-28 years
+        value: null
+  type.name:
+    options:
+      # "S/o": son of, so the father's name listed among the aliases.
+      - match: S/o Narendar Singh
+        value: Narendar Singh
+        prop: fatherName
+      - match: s/o Farooque Tanki
+        value: Farooque Tanki
+        prop: fatherName

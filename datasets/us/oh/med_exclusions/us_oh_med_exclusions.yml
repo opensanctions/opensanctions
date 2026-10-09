@@ -20,8 +20,7 @@ description: |
    > form of salary, shared fees, contracts, kickbacks, or rebates from or through any
    > participating provider or risk contractor.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Ohio Department of Medicaid
   description: |

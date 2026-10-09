@@ -130,6 +130,8 @@ INFO_LABELS = {
     "Date of birth": "birthDate",
     "Possible DOB": "birthDate",
     "POB": "birthPlace",
+    # Entry 2111, added by M125, prints the dotted form alongside "D.O.B".
+    "P.O.B": "birthPlace",
     "Place of birth": "birthPlace",
     # person basics
     "Gender": "gender",
@@ -163,6 +165,8 @@ INFO_LABELS = {
     "Identity document number": "idNumber",
     "Passport or ID number": "idNumber",
     "Passport/ID numbers": "idNumber",
+    # Russian personal insurance account number, printed for entry 2113 (M125).
+    "SNILS": "idNumber",
     "Entity-based ID": "idNumber",
     "Unique Entity Identifier (SAM)": "idNumber",
     # tax identifiers (INN-explicit forms → innCode)
@@ -217,6 +221,10 @@ INFO_LABELS = {
     "Registration number (OGRN)": "ogrnCode",
     "ОГРН/main state registration number": "ogrnCode",
     "Main state registration number": "ogrnCode",
+    # The sole-trader register's number (15 digits), printed for the natural
+    # person of entry 2116 (M125); it is an OGRN of the individual-entrepreneur
+    # series, which is what `ogrnCode` holds.
+    "OGRNIP": "ogrnCode",
     "OKPO": "okpoCode",
     "— OKPO": "okpoCode",
     # registration numbers

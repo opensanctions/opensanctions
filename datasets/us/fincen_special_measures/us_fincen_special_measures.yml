@@ -154,3 +154,6 @@ config:
       # Procedural withdrawals of the Nauru and Liberty Reserve findings.
       - https://www.fincen.gov/system/files/shared/Section311_WithdrawalNauru.pdf
       - https://www.fincen.gov/system/files/shared/Withdrawal_LR.pdf
+      # Withdrawal of the CVC Mixing finding and 2023 NPRM; recaps the proposed
+      # rule and names no mixers or other entities.
+      - https://www.federalregister.gov/documents/2026/10/06/2026-20429/proposal-of-special-measure-regarding-convertible-virtual-currency-mixing-as-a-class-of-transactions

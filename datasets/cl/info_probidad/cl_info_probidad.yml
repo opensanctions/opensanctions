@@ -146,6 +146,7 @@ lookups:
           - "ABOGADA"
           - "ABOGADO ASISTENTE DE FISCAL"
           - "ABOGADO CONSEJERO"
+          - "ABOGADO CONTRACT MANAGER"
           - "ABOGADO INTEGRANTE"
           - "ABOGADO SECRETARIO DE COMISIONES"
           - "ABOGADO SECRETARIO DE COMISIONES (S)"  # (S) = subrogante (acting)
@@ -230,6 +231,7 @@ lookups:
           - "ENCARGADA UNIDAD DE ADQUISICIONES"
           - "ENCARGADO DE ADQUISICIONES"
           - "ENCARGADO DE INFRAESTRUCTURA"
+          - "ENCARGADO DE PERSONAL"
           - "ENCARGADO DE PLANIFICACION"
           - "ENCARGADO DE UNIDAD"
           - "ENCARGADO DEPARTAMENTO DE EJECUCION"
@@ -327,6 +329,9 @@ lookups:
           - "OTROS PROFESIONALES"
           - "OTROS"
           - "PANELISTA"
+          # Law N° 20.880 obliges officials who take part in public procurement
+          # to declare; this label records that basis rather than a post.
+          - "PARTICIPANTE COMPRAS PÚBLICAS"
           - "PERIODISTA COMUNICACIONES"
           - "PERIODISTA"
           - "PRESIDENTE DEL CONSEJO"
@@ -358,6 +363,7 @@ lookups:
           - "PROFESIONAL PDTI"
           - "PROFESIONAL UNIVERSITARIO"
           - "PROFESIONAL"
+          - "PROFESIONALES"
           - "PROFESOR "
           - "PROFESOR ASOCIADO"
           - "PROFESOR EDUCACIÓN BÁSICA "

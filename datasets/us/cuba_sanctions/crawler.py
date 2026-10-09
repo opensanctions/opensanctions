@@ -121,10 +121,11 @@ def crawl_accommodations(context: Context) -> None:
         proxy.add("address", row.pop("Address"))
         proxy.add("sourceUrl", row.pop("SourceURL"))
         proxy.add("topics", "sanction")
-        context.emit(proxy)
         sanction = h.make_sanction(
             context, proxy, key=PAL_PROGRAM, program_key=PAL_PROGRAM
         )
+        # Emit after make_sanction, which adds programId to the target entity.
+        context.emit(proxy)
         context.emit(sanction)
         context.audit_data(row, ignore=["City"])
 
