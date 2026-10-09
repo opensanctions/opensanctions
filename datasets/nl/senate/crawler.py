@@ -44,17 +44,19 @@ def get_name_date_party(
     context: Context, doc: _Element
 ) -> tuple[str | None, str | None, str | None]:
     wrapper = doc.find(".//div[@id='main_content_wrapper']")
-    # Get first sentence of first paragraph
+    # Get first two sentences of first paragraph. Some profiles only name
+    # the party in the second sentence.
     description = h.element_text(wrapper)
-    first_sentence = description.split("\n", 1)[0].split(".", 1)[0].strip()
+    sentences = description.split("\n", 1)[0].split(".")
+    lookup_text = ". ".join(s.strip() for s in sentences[:2] if s.strip())
     # Lookup name, start date, and party
-    details_res = context.lookup("name_date_party", first_sentence)
+    details_res = context.lookup("name_date_party", lookup_text)
     if details_res and details_res.details:
         details = details_res.details[0]
         return details.get("name"), details.get("start_date"), details.get("party")
     context.log.warning(
         "Could not extract name and start date from details",
-        details=first_sentence,
+        details=lookup_text,
     )
     return None, None, None
 
