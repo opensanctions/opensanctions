@@ -91,3 +91,7 @@ apicache-py3
 # Emacs
 *~
 task-prompts/
+
+# Lockfiles of standalone uv projects
+contrib/load_tables/uv.lock
+zavod/zavod/extract/positions/uv.lock
