@@ -5,9 +5,7 @@ from urllib.parse import urlencode
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.extract import zyte_api
 from zavod.util import Element
-
 
 SUBTITLE_PATTERN = re.compile(
     r"""
@@ -98,13 +96,7 @@ def fetch_listing(context: Context, start: date, end: date, page: int) -> Elemen
         "date_to": end.isoformat(),
     }
     url = f"{LISTING_URL}page/{page}/"
-    return zyte_api.fetch_html(
-        context,
-        f"{url}?{urlencode(params)}",
-        unblock_validator=".//*[@id='content-library']",
-        html_source="httpResponseBody",
-        absolute_links=True,
-    )
+    return context.fetch_html(f"{url}?{urlencode(params)}", absolute_links=True)
 
 
 def get_cards(doc: Element) -> list[Element]:
