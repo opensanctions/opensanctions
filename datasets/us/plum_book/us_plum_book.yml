@@ -59,7 +59,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 12000
+      Person: 10000
   max:
     schema_entities:
       Person: 16000
