@@ -141,8 +141,9 @@ candidate_table = Table(
 attempt_table = Table(
     "funes_attempt",
     funes_meta,
-    # The id is caller-allocated: it doubles as the model run id and the
-    # repair-routing id.
+    # The id is caller-allocated: minted at run start, it identifies the
+    # run — as the model run id, transcript basename, and repair-routing
+    # id — long before this terminal row exists.
     Column("id", Uuid, primary_key=True),
     Column(
         "candidate_id",
