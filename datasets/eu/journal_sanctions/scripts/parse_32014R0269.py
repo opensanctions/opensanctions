@@ -305,8 +305,6 @@ INFO_LABELS = {
     "Location": "address",
     "Location of activities": "address",
     "Suspected location": "address",
-    "Principal place of business": "address",
-    "Principal places of business": "address",
     # contact
     "Telephone": "phone",
     "Telephone.": "phone",
@@ -412,6 +410,7 @@ LONG_LABELS = {
 COLONLESS_PREFIXES = (
     ("Tax ID No. ", "taxNumber"),
     ("Tax Identification Number ", "taxNumber"),
+    ("Tax identification Number ", "taxNumber"),
     ("Tax ID (INN no.) ", "innCode"),
     ("TIN/INN ", "innCode"),
     ("POB ", "birthPlace"),
@@ -647,6 +646,88 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
         "str. Butlerova, 13, letter A, room. 20Н, 195256, St. Petersburg, Russian Federation",
         "str. Fadeeva, 7 building 1, office 2, 125047, Moscow, Russian Federation",
         "str. M. Gorky 6, 300002, city of Tula, Tula region, Russian Federation",
+    }
+)
+
+# Country-only business places are country associations, not street addresses.
+# The remaining printed values stay in address pending individual review.
+BUSINESS_LABELS = frozenset(
+    {"Principal place of business", "Principal places of business"}
+)
+BUSINESS_TERRITORIES = REGISTRATION_TERRITORIES | {
+    "Czech Republic",
+    "Iran",
+    "Liberia",
+    "Republic of Azerbaijan",
+}
+BUSINESS_REVIEWED_VALUES = frozenset(
+    {
+        "13 km of Shahid Babaei Highway, after Imam Hossein University, next to Telo Road, Tehran, Iran",
+        "Abu Dhabi, United Arab Emirates",
+        "Arsenyev, Russian Federation",
+        "Belarus",
+        "Crimea",
+        "Crimea, Ukraine",
+        "Czech Republic",
+        "Democratic People’s Republic of Korea",
+        "Henan Province, People’s Republic of China",
+        "Hong Kong",
+        "Hong Kong Special Administrative Region of the People’s Republic of China",
+        "India",
+        "Iran",
+        "Israel",
+        "Kaspiysk, Republic of Dagestan, Russian Federation",
+        "Kazakhstan",
+        "Khimki, Russian Federation",
+        "Krasnodar region, Krasnodar, Russian Federation",
+        "Kuibyshev, Russian Federation",
+        "Kumertau, Russian Federation",
+        "Kyrgyzstan",
+        "Liberia",
+        "Moscow",
+        "Moscow, Russia",
+        "Moscow, Russian Federation",
+        "Nakhodka, Russian Federation",
+        "Non-government controlled areas of Ukraine, namely the oblasts of Donetsk and Luhansk (the so-called “Donetsk People’s Republic” and “Luhansk People’s Republic”), Kherson and Zaporizhzhia",
+        "Oman",
+        "People’s Republic of China",
+        "People’s Republic of China/Hong Kong",
+        "People’s Republic of China; Russian Federation",
+        "Perm, Russian Federation",
+        "Petrovsk, Russian Federation",
+        "Republic of Azerbaijan",
+        "Republic of Belarus",
+        "Russia",
+        "Russia, Georgia, Ukraine",
+        "Russia, Moscow",
+        "Russia, Ukraine",
+        "Russian Federatio",
+        "Russian Federation",
+        "Russian Federation Associated entities:",
+        "Russian Federation and Crimea",
+        "Russian Federation, Krasnodar",
+        "Russian Federation, Mytishchi",
+        "Russian Federation, Netherlands",
+        "Russian Federation, Nizhny Novgorod region, Nizhny Novgorod",
+        "Russian Federation, Saratov",
+        "Russian Federation, Tarusa",
+        "Russian Federation, Temporarily occupied territory of Ukraine (Simferopol)",
+        "Russian Federation, Tula",
+        "Russian Federation, Yekaterinburg",
+        "Russian Federation; Belize",
+        "Russian-occupied regions of Zaporizhzhia and Kherson",
+        "Russia’s occupied part of the Donbass region",
+        "Singapore",
+        "St Petersburg, Russian Federation",
+        "Tula, Russian Federation",
+        "Türkiye",
+        "Ukraine",
+        "Ukraine, Russian Federation",
+        "United Arab Emirates",
+        "United Arab Emirates, Russian Federation, European Union",
+        "Volgograd, Russian Federation",
+        "so-called ‘Donetsk People’s Republic’",
+        "so-called ‘Luhansk People’s Republic’",
     }
 )
 
@@ -1014,6 +1095,20 @@ def add_registration(ctx: str, row: Row, value: str) -> str:
     return "address"
 
 
+def add_business_place(ctx: str, row: Row, value: str) -> str:
+    """Place a reviewed business location in its source-supported property."""
+    if value not in BUSINESS_REVIEWED_VALUES:
+        raise ParseError(
+            f"{ctx}: unreviewed principal place of business {value[:70]!r}"
+        )
+    places = split_values(value)
+    if all(place in BUSINESS_TERRITORIES for place in places):
+        row.add("country", places)
+        return "country"
+    row.add("address", places)
+    return "address"
+
+
 def parse_info(
     ctx: str, part: str, record_id: str, td: Element, row: Row
 ) -> tuple[set[str], bool]:
@@ -1032,6 +1127,15 @@ def parse_info(
             for column, value in overrides[line]:
                 row.add(column, [value])
             block, dropped, opened_empty, wrapped = None, False, False, None
+            continue
+        if (
+            part,
+            record_id,
+            line,
+        ) == ("ENTITIES", "541", "Known Garantex blockchain wallet addresses:"):
+            # This unsupported wallet heading exceeds LABELLED_RE's label cap.
+            block, dropped, seen_label = None, True, True
+            opened_empty, wrapped = False, None
             continue
         if PAREN_LINE_RE.match(line) and block in {"address", "jurisdiction"}:
             # A parenthesized address detail continues the address block.
@@ -1083,6 +1187,12 @@ def parse_info(
             value = labelled.group(2)
             block = add_registration(ctx, row, value) if value else "registration"
             dropped, seen_label, opened_empty, wrapped = False, True, not value, None
+            continue
+        if label in BUSINESS_LABELS:
+            assert labelled is not None
+            seen.add(label)
+            block = add_business_place(ctx, row, labelled.group(2))
+            dropped, seen_label, opened_empty, wrapped = False, True, False, None
             continue
         if label is not None and label in INFO_LABELS:
             assert labelled is not None
