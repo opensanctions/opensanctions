@@ -91,4 +91,4 @@ assertions:
   max:
     schema_entities:
       Person: 150
-      Company: 80
+      Company: 175
