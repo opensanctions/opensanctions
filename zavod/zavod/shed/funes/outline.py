@@ -1,0 +1,229 @@
+"""Build compact, model-facing outlines from rendered HTML.
+
+The output preserves DOM order while removing empty elements and collapsing
+single-child wrappers. Links and images retain resolved resource URLs with
+fragments stripped, and images may include paths to bodies stored in the
+snapshot's HAR. The body element is transparent: its text runs and children
+render at the top level.
+
+Example::
+
+    - main:
+      - h1 "Title"
+      - a "Details" [href=https://example.com/details]
+"""
+
+import json
+from collections.abc import Iterator
+from typing import Any
+from urllib.parse import quote, urldefrag, urljoin
+
+import lxml.html
+
+from zavod.util import Element
+
+# Elements whose content never reaches the rendered page.
+SKIP_TAGS = frozenset({"head", "script", "style", "noscript", "template"})
+
+
+def _require_http_base(url: str) -> None:
+    if not url.startswith(("http://", "https://")):
+        raise ValueError(f"outline base URL must be absolute http(s), got {url!r}")
+
+
+def build_outline(
+    url: str, html: str, http_archive: dict[str, Any] | None = None
+) -> str:
+    """Render *html*, captured from *url*, as a compact model-facing outline.
+
+    *url* is the page's final URL: the base for resolving ``src``/``href``
+    and the exact key matched against HAR request URLs. *http_archive* is the
+    snapshot's resolved HAR manifest, or ``None`` when the capture has none.
+    An empty or whitespace-only *html* outlines to ``""``: a blank render is
+    a capture the model gets to judge broken, not a parse error.
+    """
+    _require_http_base(url)
+    if not html.strip():
+        return ""
+    document = lxml.html.document_fromstring(html)
+    bodies = _har_bodies(http_archive)
+    body = document.find("body")
+    # Head-only documents parse without a body element; the document root
+    # is then the closest thing to a body the capture has.
+    root = body if body is not None else document
+    return "\n".join(_element_lines(root, url, bodies))
+
+
+def _element_lines(elem: Element, url: str, bodies: dict[str, str]) -> list[str]:
+    """The element's outline lines at its own indentation, or an empty
+    list when nothing of it is retained."""
+    # Comments and other non-element nodes carry a non-string tag.
+    if not isinstance(elem.tag, str) or elem.tag in SKIP_TAGS:
+        return []
+    # The body is transparent rather than rendered like an element.
+    if elem.tag == "body":
+        return _transparent_lines(elem, url, bodies)
+
+    chunks = _chunks(elem, url, bodies)
+    attrs = _kept_attrs(elem, url, bodies)
+    # A single leading text run becomes the element's label; interleaved
+    # runs stay in place as children so document order is preserved.
+    label: str | None = None
+    if (
+        chunks
+        and isinstance(chunks[0], str)
+        and all(not isinstance(chunk, str) for chunk in chunks[1:])
+    ):
+        label = chunks[0]
+        chunks = chunks[1:]
+    # Every <img> is retained; anything else must carry some content.
+    if elem.tag != "img" and label is None and not attrs and not chunks:
+        return []
+    # A wrapper adding nothing of its own folds into its single child, so
+    # container chains collapse bottom-up into the element that matters.
+    if label is None and not attrs and len(chunks) == 1 and isinstance(chunks[0], list):
+        return chunks[0]
+    key = elem.tag if label is None else f"{elem.tag} {_quote(label)}"
+    key += "".join(f" [{name}={value}]" for name, value in attrs)
+    if not chunks:
+        return [f"- {key}"]
+    children: list[str] = []
+    for chunk in chunks:
+        if isinstance(chunk, str):
+            children.append(f"- text: {_quote(chunk)}")
+        else:
+            children.extend(chunk)
+    return [f"- {key}:"] + [f"  {line}" for line in children]
+
+
+def _transparent_lines(elem: Element, url: str, bodies: dict[str, str]) -> list[str]:
+    """The element's content at the top level: text runs as ``- text:``
+    lines, retained children as their own lines."""
+    lines: list[str] = []
+    for chunk in _chunks(elem, url, bodies):
+        if isinstance(chunk, str):
+            lines.append(f"- text: {_quote(chunk)}")
+        else:
+            lines.extend(chunk)
+    return lines
+
+
+def _chunks(elem: Element, url: str, bodies: dict[str, str]) -> list[str | list[str]]:
+    """The element's content in document order: a text run as ``str``, a
+    retained child element as its rendered lines."""
+    chunks: list[str | list[str]] = []
+    if elem.text is not None and (text := _normalize(elem.text)):
+        chunks.append(text)
+    for child in elem:
+        if lines := _element_lines(child, url, bodies):
+            chunks.append(lines)
+        # A dropped element's trailing text survives it as a text run.
+        if child.tail is not None and (tail := _normalize(child.tail)):
+            chunks.append(tail)
+    return _merge_adjacent_text(chunks)
+
+
+def _kept_attrs(
+    elem: Element, url: str, bodies: dict[str, str]
+) -> list[tuple[str, str]]:
+    """The attributes worth showing: fragment-free link targets and sources."""
+    attrs: list[tuple[str, str]] = []
+    if elem.tag == "a":
+        href = elem.get("href")
+        if href is not None:
+            target, _fragment = urldefrag(urljoin(url, href))
+            attrs.append(("href", target))
+    elif elem.tag == "img":
+        src = elem.get("src")
+        if src is not None:
+            target, _fragment = urldefrag(urljoin(url, src))
+            resolved = quote(target, safe="/:?#[]@!$&'()*+,;=%")
+            attrs.append(("src", resolved))
+            if resolved in bodies:
+                attrs.append(("body", bodies[resolved]))
+        alt = elem.get("alt")
+        if alt is not None:
+            attrs.append(("alt", alt))
+    return attrs
+
+
+def har_resource_media_types(http_archive: dict[str, Any] | None) -> dict[str, str]:
+    """Map each stored body path to its normalized response media type.
+
+    Media types are lowercased and stripped of parameters and whitespace.
+    Bodies whose response carried no usable media type are omitted rather
+    than guessed at: third-party beacons routinely respond without a
+    Content-Type, which Chromium records as a missing or ``x-unknown``
+    mimeType. A structurally malformed mimeType still raises: that would
+    be a producer bug, not an untyped response.
+    """
+    media: dict[str, str] = {}
+    for url, file, content in _stored_bodies(http_archive):
+        media_type = _normalized_media_type(content.get("mimeType"), url)
+        if media_type is not None:
+            media[file] = media_type
+    return media
+
+
+def _stored_bodies(
+    http_archive: dict[str, Any] | None,
+) -> Iterator[tuple[str, str, dict[str, Any]]]:
+    """Yield ``(url, file, content)`` for every HAR entry with a stored body."""
+    if http_archive is None:
+        return
+    for entry in http_archive["log"]["entries"]:
+        content = entry["response"]["content"]
+        file = content.get("_file")
+        if file:
+            yield entry["request"]["url"], file, content
+
+
+def _normalized_media_type(mime_type: str | None, url: str) -> str | None:
+    """Normalize a media type; ``None`` when the response type is unknown.
+
+    Missing, blank, and ``x-unknown`` mime types mean Chromium saw no
+    Content-Type on the response. Anything else that does not parse as
+    ``type/subtype`` raises.
+    """
+    if mime_type is None or mime_type.strip().lower() in ("", "x-unknown"):
+        return None
+    media_type = mime_type.split(";", 1)[0].strip().lower()
+    parts = media_type.split("/")
+    if len(parts) != 2 or not all(part.split() == [part] for part in parts):
+        raise ValueError(
+            f"stored body for {url!r} has malformed mimeType {mime_type!r}"
+        )
+    return media_type
+
+
+def _har_bodies(http_archive: dict[str, Any] | None) -> dict[str, str]:
+    """Map HAR request URLs to their stored body paths (``content._file``).
+
+    The latest entry with a stored body wins; bodyless entries never shadow
+    an earlier body for the same URL.
+    """
+    bodies: dict[str, str] = {}
+    for url, file, _content in _stored_bodies(http_archive):
+        bodies[url] = file
+    return bodies
+
+
+def _merge_adjacent_text(chunks: list[str | list[str]]) -> list[str | list[str]]:
+    """Join neighbouring text runs dropped-element gaps leave behind."""
+    merged: list[str | list[str]] = []
+    for chunk in chunks:
+        if isinstance(chunk, str) and merged and isinstance(merged[-1], str):
+            merged[-1] = f"{merged[-1]} {chunk}"
+        else:
+            merged.append(chunk)
+    return merged
+
+
+def _normalize(text: str) -> str:
+    """Collapse all whitespace runs to single spaces and strip the ends."""
+    return " ".join(text.split())
+
+
+def _quote(text: str) -> str:
+    """Quote a text value as a JSON string, keeping non-ASCII readable."""
+    return json.dumps(text, ensure_ascii=False)
