@@ -34,9 +34,7 @@ First run the crawler with `--keep-data` to reuse cached source data:
 $ zavod crawl --keep-data ...
 ```
 
-Then run the exporter. It rebuilds the intermediate store by default, so the
-latest statements are included in the output (pass `--keep-store` to skip the
-rebuild):
+Then run the exporter, which reads the statements of the latest local crawl:
 
 ```bash
 $ zavod export ...

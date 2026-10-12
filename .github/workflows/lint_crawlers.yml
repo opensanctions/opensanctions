@@ -53,8 +53,8 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # Python 3.13 requires building pyicu and plyvel from source.
-          sudo apt-get install -y -qq libicu-dev libleveldb-dev
+          # Python 3.13 requires building pyicu from source.
+          sudo apt-get install -y -qq libicu-dev
       - uses: actions/setup-python@v7
         if: ${{ steps.changed.outputs.files == 'true' }}
         with:

@@ -104,7 +104,7 @@ jobs:
           python-version: "3.12"
           cache: "pip"
           # Key the pip download/build cache to zavod's dependency spec so the
-          # compiled wheels (lxml, icu, leveldb, pydantic) are reused across runs
+          # compiled wheels (lxml, icu, pydantic) are reused across runs
           # instead of rebuilt every time.
           cache-dependency-path: zavod/pyproject.toml
 

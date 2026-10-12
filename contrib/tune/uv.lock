@@ -2348,15 +2348,6 @@ wheels = [
 ]
 
 [[package]]
-name = "plyvel"
-version = "1.5.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4b/b0/23f0cc21c943355fc5d49f1933e97812269d7a865daef5b9758b62902d46/plyvel-1.5.1.tar.gz", hash = "sha256:3caf6009e4fc24fbf8712d3f5ef3da7e56495c26a488df2161218fc34e46019c", size = 200128, upload-time = "2024-01-15T17:33:55.681Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/c2/0928017d85aa76dadb5afe4092eedd37ae68ec5b9cfbe7993e520d705a98/plyvel-1.5.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8b26b09d6ae9c679c877153aa4bd7f763e5e983a61b7c0c955653e7a494b6126", size = 937804, upload-time = "2024-01-15T17:33:48.09Z" },
-]
-
-[[package]]
 name = "prefixdate"
 version = "0.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3759,7 +3750,6 @@ dependencies = [
     { name = "openpyxl" },
     { name = "orjson" },
     { name = "pdfplumber" },
-    { name = "plyvel" },
     { name = "prefixdate" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pyicu" },
@@ -3803,7 +3793,6 @@ requires-dist = [
     { name = "orjson", specifier = "==3.12.0" },
     { name = "pdfplumber", specifier = "==0.11.10" },
     { name = "pillow", marker = "extra == 'docs'" },
-    { name = "plyvel", specifier = "==1.5.1" },
     { name = "prefixdate", specifier = "==0.6.1" },
     { name = "prek", marker = "extra == 'dev'" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.0,<4.0" },

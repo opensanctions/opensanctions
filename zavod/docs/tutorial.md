@@ -90,11 +90,6 @@ Don't worry about the backfill bucket warning - that is not needed when developi
 
 The `Runner failed: Could not load entry point: crawler` error indicates that it looked for our crawler and couldn't find it. Adding the crawler script is the next step.
 
-!!! info "Dry run mode"
-    You can switch zavod to dry run during crawler development by adding the `-d` (or `--dry-run`) flag on the command line. A dry run will not store any of the emitted data, and disable the generation of correct timestamps, which is slow.
-
-    `zavod crawl -d datasets/eu/fsf/eu_fsf_demo.yml`
-
 ## Developing a crawler script
 
 In order to actually feed data into the data source, we need to write a crawler script. The script location is specified in the YAML metadata file as ``entry_point:``. This also means you could reference the same script for multiple data sources, for example in a scenario where two data sources use the API, except with some varied parameters.

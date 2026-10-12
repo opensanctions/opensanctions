@@ -8,7 +8,7 @@ RUN apt-get -qq -y update \
     && apt-get -qq -y install --no-install-recommends \
     apt-transport-https ca-certificates build-essential gnupg \
     tzdata curl python3-pip python3-dev python3-venv \
-    libicu-dev pkg-config libxml2-dev libxslt1-dev libleveldb-dev libleveldb1d \
+    libicu-dev pkg-config libxml2-dev libxslt1-dev \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -35,7 +35,7 @@ RUN apt-get -qq -y update \
     && apt-get -qq -y install --no-install-recommends \
     locales apt-transport-https ca-certificates gnupg \
     tzdata curl git python3-pip python3-venv poppler-utils poppler-data \
-    libicu78 libleveldb1d postgresql-client \
+    libicu78 postgresql-client \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -60,5 +60,9 @@ RUN pip install --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 
 USER app
+
+# Preinstall the duckdb extension for https:// reads (zavod.runtime.lake), so
+# containers don't autoinstall it from the network on first use.
+RUN python3 -c "import duckdb; duckdb.install_extension('httpfs')"
 
 CMD ["zavod"]
