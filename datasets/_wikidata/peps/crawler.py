@@ -1,8 +1,9 @@
+import time
 from collections.abc import Generator
 from datetime import datetime
 from functools import lru_cache
 
-from nomenklatura.wikidata import WikidataClient
+from nomenklatura.wikidata import SparqlResponse, WikidataClient
 from requests.exceptions import RequestException
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories
@@ -31,6 +32,12 @@ ABOLISHED_CLAUSE = """
     OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
 """
 POSITION_CACHE_SIZE = 250_000
+# Discovery queries for the largest territories run for tens of seconds against
+# the query service's own 60s execution budget, and how close they come to it is
+# decided by the service's load, not by the shape of the query. Give each query
+# a few attempts, spaced far enough apart to let a load spike pass.
+QUERY_ATTEMPTS = 3
+QUERY_RETRY_SLEEP = 20
 
 
 def all_territories() -> Generator[Territory, None, None]:
@@ -45,9 +52,65 @@ def all_territories() -> Generator[Territory, None, None]:
         yield territory
 
 
-def collect_positions(context: Context, client: WikidataClient, query: str) -> set[str]:
+def run_query(
+    context: Context, client: WikidataClient, query: str, label: str
+) -> SparqlResponse | None:
+    """Run one discovery query, retrying the responses the query service fails
+    to finish writing.
+
+    When a query runs over the service's execution budget after the response
+    body has started streaming, the service abandons the body having already
+    sent `200 OK`. The session's own retries only cover error status codes, so
+    they never see it; the client logs the JSON decode error, returns an empty
+    `SparqlResponse` and the constructor of that raises `KeyError: 'head'`.
+    Nothing about the query caused it — the same query completes on another
+    attempt — and the client drops its cached copy of a response it could not
+    parse, so retrying here puts the query back on the wire.
+
+    Returns None once a query is given up on. Discovery is additive and the
+    positions already categorised as PEP are seeded from the review database,
+    so a query lost this way can delay new positions but never drop known ones.
+    """
+    for attempt in range(1, QUERY_ATTEMPTS + 1):
+        try:
+            return client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
+        except KeyError as exc:
+            if attempt == QUERY_ATTEMPTS:
+                context.log.warning(
+                    "Position discovery query failed",
+                    query=label,
+                    attempts=attempt,
+                    error=repr(exc),
+                )
+                return None
+            context.log.info(
+                "Retrying position discovery query",
+                query=label,
+                attempt=attempt,
+                error=repr(exc),
+            )
+            time.sleep(QUERY_RETRY_SLEEP)
+        except RequestException as exc:
+            # By the time this surfaces the session has already spent its own
+            # retries and backoff on the request, so waiting here again only
+            # drags out a sweep that is going nowhere. Drop the one query.
+            context.log.warning(
+                "Position discovery query failed",
+                query=label,
+                attempts=attempt,
+                error=repr(exc),
+            )
+            return None
+    return None
+
+
+def collect_positions(
+    context: Context, client: WikidataClient, query: str, label: str
+) -> set[str]:
     positions: set[str] = set()
-    response = client.query(query, cache_days=WIKIDATA_QUERY_CACHE)
+    response = run_query(context, client, query, label)
+    if response is None:
+        return positions
     for bind in response.results:
         position_qid = bind.plain("position")
         if position_qid is None or not is_qid(position_qid):
@@ -74,7 +137,8 @@ def query_usage_positions(
     One query per QID: batching them into a single `VALUES` block makes the
     query planner give up on large territories — the six QIDs of `gb` together
     exceed the query service's own execution limit, while each on its own is
-    comfortably inside it."""
+    comfortably inside it. Each query also fails on its own, so one of a
+    territory's QIDs timing out does not cost us the others."""
     positions: set[str] = set()
     for qid in sorted(territory.qids):
         query = f"""
@@ -85,7 +149,8 @@ def query_usage_positions(
             {ABOLISHED_CLAUSE}
         }}
         """
-        positions.update(collect_positions(context, client, query))
+        label = f"usage positions of {territory.name} [{qid}]"
+        positions.update(collect_positions(context, client, query, label))
     return positions
 
 
@@ -104,7 +169,8 @@ def query_occupation_positions(
         {ABOLISHED_CLAUSE}
     }}
     """
-    return collect_positions(context, client, query)
+    label = f"occupation positions of {territory.name} [{territory.qid}]"
+    return collect_positions(context, client, query, label)
 
 
 def query_igo_positions(context: Context, client: WikidataClient) -> set[str]:
@@ -121,7 +187,7 @@ def query_igo_positions(context: Context, client: WikidataClient) -> set[str]:
         {ABOLISHED_CLAUSE}
     }}
     """
-    return collect_positions(context, client, query)
+    return collect_positions(context, client, query, "international-body positions")
 
 
 def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
@@ -156,11 +222,13 @@ def discover_candidates(context: Context, client: WikidataClient) -> set[str]:
                     query_occupation_positions(context, client, territory)
                 )
         except Exception as exc:  # noqa: BLE001
+            # Query-level trouble is handled in `run_query`; this is the net for
+            # anything else, and it still costs the territory its other queries.
             context.log.warning(
-                "Position discovery query failed",
+                "Territory position discovery failed",
                 territory=territory.qid,
                 name=territory.name,
-                error=str(exc),
+                error=repr(exc),
             )
         context.flush()
     candidates.difference_update(blocked)
