@@ -173,6 +173,7 @@ INFO_LABELS = {
     "INN": "innCode",
     "INN/TIN": "innCode",
     "Tax ID (INN no.)": "innCode",
+    "Tax Identification Number (INN)": "innCode",
     "Tax Identification Number (ИНН)": "innCode",
     "Taxpayer Identification number (INN)": "innCode",
     "Russian taxpayer number (INN)": "innCode",
@@ -304,9 +305,6 @@ INFO_LABELS = {
     "Location": "address",
     "Location of activities": "address",
     "Suspected location": "address",
-    "Place of registration": "address",
-    "Place of Registration": "address",
-    "Place of registation": "address",
     "Principal place of business": "address",
     "Principal places of business": "address",
     # contact
@@ -432,10 +430,226 @@ COLONLESS_PREFIXES = (
     ("Registration number ", "registrationNumber"),
     ("Tel. ", "phone"),
     ("Address ", "address"),
-    ("Place of Registration ", "address"),
     ("Founded in ", "incorporationDate"),
     ("Founded on ", "incorporationDate"),
 )
+# Registration labels in the pinned consolidation include countries, localities,
+# full addresses, and one historical statement. Review any new printed value
+# before deciding whether it belongs in jurisdiction or address.
+REGISTRATION_LABELS = frozenset(
+    {"Place of registration", "Place of Registration", "Place of registation"}
+)
+REGISTRATION_TERRITORIES = frozenset(
+    {
+        "Azerbaijan",
+        "Belarus",
+        "Belize",
+        "Crimea",
+        "DPRK",
+        "Democratic People’s Republic of Korea",
+        "Georgia",
+        "Hong Kong",
+        "India",
+        "Israel",
+        "Kazakhstan",
+        "Kyrgyzstan",
+        "Netherlands Antilles",
+        "Oman",
+        "People’s Republic of China",
+        "Republic of Belarus",
+        "Republic of Mauritius",
+        "Russia",
+        "Russian Federation",
+        "Singapore",
+        "Türkiye",
+        "Ukraine",
+        "United Arab Emirates",
+        "United Kingdom",
+        "United States of America",
+        "Vietnam",
+    }
+)
+REGISTRATION_REVIEWED_VALUES = frozenset(
+    {
+        "01, Yuzhny mkr, Iskitim, Novosibirsk region, 633208, Russian Federation",
+        "03-32, Nordic European Centre 3, International Business Park Singapore, Republic of Singapore, 609927",
+        "107078, Moscow, Masha Poryvaeva str., 34, Russian Federation",
+        "107140, Moscow, Moskovsko-Kazansky Lane, 11-15, floor/room 1/7",
+        "12 26-y Piket, Aldan, Aldanskiy Ulus, Republic of Sakha (Yakutia), 678900 (Russia)",
+        "127254, Moscow, Ogorodny Prospekt, Building 5, Structure 4, Floor 3, Room 305",
+        "127287, st. Khutorskaya 2nd, 38A, Moscow, Russian Federation",
+        "129164, Moscow, Prospekt Mira, 126",
+        "19 Vavilova St., 117997 Moscow, Russian Federation",
+        "222511, Republic of Belarus, Minsk Region, Borisov District, Borisov, Gagarin St., 54",
+        "27 Kalanchevskaya str. Moscow, 107078, Russian Federation",
+        "300002, Russian Federation, Tula, Mosina str., 2",
+        "412310, Saratov Region, Balashov, Ul. Titova, D.40",
+        "423580, Nizhnekamsk, industrial zone, Republic of Tatarstan, Russia",
+        "428903, Russian Federation, Chuvash Republic, Cheboksary, pr. I.Yakovleva, 4",
+        "630004, Ulitsa Lenina d. 52, Novosibirsk, Russian Federation",
+        "634041, Russian Federation, Tomsk region, Tomsk, Kirov avenue, Building 51D",
+        "672530, Transbaikal territory, Chita district, 1 Atamanovskoye, Atamanovka, ul. Zavodskaya, d.1",
+        "676811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka, Russian Federation",
+        "Abu Dhabi, United Arab Emirates",
+        "Alabuga, Russian Federation",
+        "Azerbaijan",
+        "Belarus",
+        "Bishkek, Kyrgyzstan",
+        "Bolshaya Polyanka str., 50/1 STR.1, 119180, Moscow, Russian Federation",
+        "Brodnikov pereulok 7, Moscow, Russian Federation",
+        "Bryansk region, Bryansk, Russian Federation",
+        "Central Federal District of the Russian Federation",
+        "Chelyabinsk Oblast, Russian Federation",
+        "Crimea",
+        "Crimea, Ukraine",
+        "DPRK",
+        "Degtyarnyy Pereulok, 11a, Saint Petersburg, 191144, Russian Federation",
+        "Democratic People’s Republic of Korea",
+        "Donetsk, Ukraine",
+        "Dubai, United Arab Emirates",
+        "Dubai, United Arab Emirates (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubai, PO Box 507065, United Arab Emirates)",
+        "Ekatrinburg, Russian Federation",
+        "Firstly Ukraine then, after the illegal annexation of Crimea, Russian Federation",
+        "Georgia",
+        "Hong Kong",
+        "Hong Kong, People’s Republic of China",
+        "India",
+        "Isfahan, Iran",
+        "Israel",
+        "Izhevsk, Russian Federation",
+        "Kaspiysk, Republic of Dagestan, Russian Federation",
+        "Kazakhstan",
+        "Kirov, Russian Federation",
+        "Komsomolsky Pr. 22, Donetsk city, Donetsk District, so-called “Donetsk People’s Republic”",
+        "Kuibyshev, Novosibirsk region, Russian Federation",
+        "Kumertau, Russian Federation",
+        "Kyrgyzstan",
+        "Leningradskaya street, building 41, Hurzuf, Yalta, Crimea, Ukraine",
+        "Magadan, Russia",
+        "Minsk, Belarus",
+        "Minsk, Republic of Belarus",
+        "Moscow",
+        "Moscow, Russia",
+        "Moscow, Russian Federation",
+        "Moscow, Russian Federation (107450, Moscow, Myasnitskaya st., 39/1)",
+        "Moscow, Russian Federation (117525, Moscow, st. Dnepropetrovskaya, D. 3, K. 5)",
+        "Moscow, Russian Federation (125080, Moscow, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B",
+        "Moscow, Russian Federation (125373, Moscow, Pokhodniy Proezd, Domovladenie 3, str. 2)",
+        "Murmansk, Russian Federation (Murmansk region, city of Murmansk, ter. Murmansk-17, 1)",
+        "Nakhodka, Russian Federation",
+        "Netherlands Antilles; Belize; United States of America",
+        "Nizhniy Novgorod, Russian Federation",
+        "Nizhny Novgorod region, Russian Federation",
+        "Nizhny Novgorod, Russia",
+        "Office B-405, B Wing, Mahavir Icon, Plot 89/90, Sector 15, CBD Belapur, Navi Mumbai, Maharashtra, India, 400614",
+        "Oman",
+        "Omsk, Russian Federation",
+        "Pedestrian passage, home ownership 3. building 2, Moscow 125373, Russian Federation",
+        "People’s Republic of China",
+        "Perm, Perm region, Russian Federation",
+        "Perm, Russian Federation",
+        "Perova Polya proezd 9, building 1, Moscow, Russian Federation",
+        "Petrovsk, Russian Federation",
+        "Plast, Russia",
+        "Pokhodnyy Proyezd 3-2, 125373, Moscow, Russian Federation",
+        "Prague, Czech Republic",
+        "Professora Popova st., 38, Saint Petersburg 197376, Russia",
+        "Republic of Belarus",
+        "Republic of Mauritius",
+        "Reutov, Russian Federation",
+        "Room 2-502, Building 140, 130, Minjiang Lu, Shinan Qu, Qingdao, Shandong, People’s Republic of China",
+        "Rostov, Moscow, Russian Federation",
+        "Russia",
+        "Russian Federation",
+        "Russian Federation (105094, Moscow, ul. Golianovskaia, 7A str. 1)",
+        "Russian Federation (105275, Moscow, sh. Entuziastov, 29)",
+        "Russian Federation (105318, Moscow, ul. Ibragimova, 31)",
+        "Russian Federation (107023, Moscow, ul. Elektrozavodskaia, 24 str. 1.)",
+        "Russian Federation (107241, Moscow, sh. Shchelkovskoe, 23A, pomeshch. V kom. 33.)",
+        "Russian Federation (115068, Moscow, Velozavodskaya st., 5)",
+        "Russian Federation (119121, Moscow, per. Truzhenikov 1-i, 16 str.17)",
+        "Russian Federation (125183, Moscow, Bolshaya Akademicheskaya st., 73 k. 3, premises. 5n.)",
+        "Russian Federation (141983, Moscow region, Dubna, Zhukovsky Str. 2, building 1)",
+        "Russian Federation (183032, Murmansk Oblast, Murmansk, Zavodskaya Ulitsa, dom 7)",
+        "Russian Federation (193091, Saint Petersburg, nab. Oktiabrskaia, 6,litera v, pomeshch. 8-n)",
+        "Russian Federation (194021, Saint Petersburg, ul. Karbysheva, 15)",
+        "Russian Federation (197022, Saint Petersburg, ul. Akademika Pavlova, 14)",
+        "Russian Federation (197046, Saint Petersburg, ul. Malaia Posadskaia, 30)",
+        "Russian Federation (197110, Saint Petersburg, ul. Pionerskaia, 44)",
+        "Russian Federation (248600, Kaluga, Voskresenskiy per, 28)",
+        "Russian Federation (305502, Kursk region, pos. Marshal Zhukov, military unit 32406)",
+        "Russian Federation (416506, Astrakhan Region, Akhtubinsky District, Akhtubinsk, st. Sukhoi P.O., Building 12a)",
+        "Russian Federation (425350, Republic of Mari El, city of Kozmodemyansk, str. Gagarina, 10)",
+        "Russian Federation (450022, Republic of Bashkortostan, Ufa city, Mendeleev Street, 134)",
+        "Russian Federation (606002, Nizhny Novgorod region, Dzerzhinsk city, Sverdlov avenue, 4)",
+        "Russian Federation (606083, Nizhny Novgorod region, Volodarsky district, Mulino)",
+        "Russian Federation (Krasnoyarsk kr., Zheleznogorsk, st. Lenina, d. ZD. 52)",
+        "Russian Federation (Rostov region, Rostov-on-Don, st. Krasnoarmeiskaya, 9)",
+        "Russian Federation 125284, Moscow, Leningradskiy Prospekt, d. 31a, str. 1",
+        "Russian Federation, 105082, Moscow, Rubtsovskaya nab., 3 p. 1",
+        "Russian Federation, 105120, Moscow, Syromyatnichesky pr-d, 6 k.1",
+        "Russian Federation, 119019, Moscow, Vozdvizhenka Str. 18/9",
+        "Russian Federation, 123298, Moscow, ulitsa Narodnogo Opolcheniya, d. 40, k. 2",
+        "Russian Federation, 129226, Moscow, Mira Avenue, 125",
+        "Russian Federation, 191014, St. Petersburg, Paradnaya st., 8",
+        "Russian Federation, 393192, Tambov region, Kotovsk, Truda Ave., 23",
+        "Russian Federation, 420032, Republic of Tatarstan, city of Kazan, Pervogo Maya Street, 14",
+        "Russian Federation, 420036, Republic of Tatarstan, Kazan, Dementyeva st., 1",
+        "Russian Federation, 424003, Republic of Mari El, Yoshkar-Ola, st. Suvorova, 15",
+        "Russian Federation, 432030, Ulyanovsk region, Ulyanovsk city, Narimanov Ave., 75",
+        "Russian Federation, 602205, Vladimir region, Murom, 30 Let Pobedy St., 1a.",
+        "Russian Federation, 620024, Ekaterinburg, ulitsa Simkaya, d. 2",
+        "Russian Federation, 620091, Sverdlovsk region, Yekaterinburg, Kosmonavtov Ave., building 18",
+        "Russian Federation, 624981, Sverdlovsk region, Serov city, Aglomeratchikov str. 10",
+        "Russian Federation, Krasnodar region, Krasnodar, st. Them. Fadeeva (Pashkovsky Residential Massif) Ter, 429/1 POD A, office 17",
+        "Russian Federation, Moscow",
+        "Russian Federation, Nizhny Novgorod region, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96",
+        "Russian Federation, Omsk region, Omsk, Karl Marx Avenue, 41",
+        "Russian Federation, St. Petersburg",
+        "Russian Federation, Sverdlovsk region, Yekaterinburg",
+        "Russian Federation, Tula region, Tula",
+        "Russian Federation, Vologda Oblast",
+        "Russian Federation; Belize",
+        "Russia’s occupied part of the Donbass region",
+        "Ryazan, Russian Federation",
+        "Saint Petersburg, Russian Federation",
+        "Samara, Russian Federation",
+        "Sarapul, Russian Federation",
+        "Sevastopol, Crimea",
+        "Sharjah, United Arab Emirates",
+        "Singapore",
+        "St Petersburg and Moscow, Russian Federation",
+        "St Petersburg, Russian Federation",
+        "St. Petersburg",
+        "St. Petersburg, Russian Federation",
+        "St. Petersburg, Russian Federation (PO Box 128, Saint Petersburg 197022)",
+        "Tatarstan Republic, Russian Federation",
+        "Tehran, Iran",
+        "Trekhprudny 5, Moscow, Russian Federation",
+        "Tula, Russia",
+        "Tula, Russian Federation",
+        "Türkiye",
+        "Ukraine",
+        "Ukraine (283001, Donetsk, Komsomolsky prospect, 6a)",
+        "Ukraine (283048, Donetsk, st. Shchorsa, 60)",
+        "United Arab Emirates",
+        "United Kingdom",
+        "United States of America",
+        "Vietnam",
+        "Vladivostok, Russian Federation",
+        "Volgograd region, Volgograd, Russian Federation",
+        "Votkinsk, Republic of Udmurt, Russia",
+        "Wanchai, Hong Kong",
+        "Xinxiang, Henan Province, China",
+        "Yangzhou, People’s Republic of China",
+        "Yekaterinburg, Russian Federation",
+        "Zelenodolsk, Republic of Tatarstan, Russian Federation (422540, Republic of Tatarstan, r-n Zelenodolskii, Zelenodolsk, ul. Lenina, 41A)",
+        "str. Butlerova, 13, letter A, room. 20Н, 195256, St. Petersburg, Russian Federation",
+        "str. Fadeeva, 7 building 1, office 2, 125047, Moscow, Russian Federation",
+        "str. M. Gorky 6, 300002, city of Tula, Tula region, Russian Federation",
+    }
+)
+
 # Colon-less document-attribute lines, dropped like their labelled kin.
 COLONLESS_DROPS = ("Issued by ",)
 # Columns whose labelled value legitimately continues onto bare follow-on
@@ -787,6 +1001,19 @@ def classify_bare(line: str) -> tuple[str, str] | None:
     return None
 
 
+def add_registration(ctx: str, row: Row, value: str) -> str:
+    """Place a reviewed registration value in its source-supported property."""
+    if value not in REGISTRATION_REVIEWED_VALUES:
+        raise ParseError(f"{ctx}: unreviewed place of registration {value[:70]!r}")
+    territories = split_values(value)
+    if all(territory in REGISTRATION_TERRITORIES for territory in territories):
+        row.add("jurisdiction", territories)
+        return "jurisdiction"
+    # Semicolons can be components of one street address (entry 241).
+    row.add("address", [value])
+    return "address"
+
+
 def parse_info(
     ctx: str, part: str, record_id: str, td: Element, row: Row
 ) -> tuple[set[str], bool]:
@@ -806,7 +1033,7 @@ def parse_info(
                 row.add(column, [value])
             block, dropped, opened_empty, wrapped = None, False, False, None
             continue
-        if PAREN_LINE_RE.match(line) and block == "address":
+        if PAREN_LINE_RE.match(line) and block in {"address", "jurisdiction"}:
             # A parenthesized address detail continues the address block.
             row.add("address", [line])
             continue
@@ -814,6 +1041,8 @@ def parse_info(
         label = labelled.group(1).strip() if labelled is not None else None
         if label in ("https", "http"):
             label, labelled = None, None
+        if block == "registration" and opened_empty and labelled is not None:
+            raise ParseError(f"{ctx}: empty place of registration")
         if label in DROP_LABELS:
             block, dropped, seen_label = None, True, True
             opened_empty, wrapped = False, None
@@ -848,6 +1077,13 @@ def parse_info(
             else:
                 row.add("notes", [value])
             continue
+        if label in REGISTRATION_LABELS:
+            assert labelled is not None
+            seen.add(label)
+            value = labelled.group(2)
+            block = add_registration(ctx, row, value) if value else "registration"
+            dropped, seen_label, opened_empty, wrapped = False, True, not value, None
+            continue
         if label is not None and label in INFO_LABELS:
             assert labelled is not None
             seen.add(label)
@@ -861,6 +1097,15 @@ def parse_info(
             # line (both 2020R1998 precedents).
             opened_empty = value == "" or value.endswith(";")
             wrapped = column if value.endswith(",") else None
+            continue
+        if block == "registration" and opened_empty:
+            block = add_registration(ctx, row, line)
+            opened_empty = False
+            continue
+        if line.startswith("Place of Registration "):
+            seen.add("Place of Registration")
+            block = add_registration(ctx, row, line[len("Place of Registration ") :])
+            dropped, seen_label, opened_empty, wrapped = False, True, False, None
             continue
         aka = AKA_RE.match(line)
         if aka is not None:
