@@ -26,7 +26,6 @@ def definition(**overrides: Any) -> DatasetDefinition:
         "name": "testdataset1",
         "people_sought": "board members",
         "subject_label": "Organization",
-        "revisit_interval_days": 30,
         "subjects": [
             {
                 "name": "Bank A",
@@ -81,7 +80,7 @@ def make_attempt(
 def test_unattempted_candidates_due(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(context, definition())
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://a.example/board",
         "https://b.example/board",
@@ -99,7 +98,7 @@ def test_recent_hit_blocks(testdataset1: Dataset, funes_db) -> None:
         outcome=InspectionOutcome.HIT,
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -116,7 +115,7 @@ def test_aged_hit_due_again(testdataset1: Dataset, funes_db) -> None:
         outcome=InspectionOutcome.HIT,
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://a.example/board",
         "https://b.example/board",
@@ -135,7 +134,7 @@ def test_miss_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> None:
         reason="nothing satisfies the brief",
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -151,7 +150,7 @@ def test_broken_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> Non
         status=SnapshotStatus.BROKEN,
         reason="rejected by deterministic checks",
     )
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -177,7 +176,7 @@ def test_latest_attempt_decides(testdataset1: Dataset, funes_db) -> None:
         reason="nothing satisfies the brief anymore",
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -207,7 +206,7 @@ def test_created_at_tie_broken_by_greater_id(testdataset1: Dataset, funes_db) ->
         reason="nothing satisfies the brief",
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -221,7 +220,7 @@ def test_scoped_to_context_dataset(testdataset1: Dataset, funes_db) -> None:
         subjects=[{"name": "Bank C", "urls": ["https://c.example/board"]}],
     )
     sync_catalogue(context, other)
-    assert [url for _, url in select_due_candidates(context, 30)] == [
+    assert [url for _, url in select_due_candidates(context)] == [
         "https://a.example/about",
         "https://a.example/board",
         "https://b.example/board",
