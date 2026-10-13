@@ -31,6 +31,15 @@ ABOLISHED_CLAUSE = """
 """
 POSITION_CACHE_SIZE = 250_000
 
+# The query service intermittently abandons a response mid-stream after it has
+# already sent `200 OK`, leaving a body that doesn't parse. The client retries
+# those, but across the tens of thousands of holder queries a crawl runs, some
+# position eventually exhausts its retries. Discovery already warns and carries
+# on when that happens; the holder phase does the same, up to this many
+# positions. Beyond it the query service is degraded rather than flaky, and the
+# run should fail loudly instead of publishing a gutted dataset.
+MAX_HOLDER_QUERY_FAILURES = 50
+
 
 def all_territories() -> Generator[Territory, None, None]:
     """Territories to sweep for positions: countries, but also subnational
@@ -250,6 +259,7 @@ def crawl(context: Context) -> None:
     # positions; only QID-keyed bookkeeping is retained across the run.
     done_persons: set[str] = set()
     has_holders: set[str] = set()
+    holder_failures = 0
     for idx, position_qid in enumerate(sorted(accepted)):
         position_item = client.fetch_item(position_qid)
         if position_item is None:
@@ -258,7 +268,20 @@ def crawl(context: Context) -> None:
         if position is None:
             continue
         context.log.info(f"Position [{position.id}]: {position.caption}")
-        holders = position_holders(client, position_item)
+        try:
+            holders = position_holders(client, position_item)
+        except Exception as exc:  # noqa: BLE001
+            holder_failures += 1
+            context.log.warning(
+                "Position holder query failed",
+                position=position_qid,
+                name=position.caption,
+                failures=holder_failures,
+                error=str(exc),
+            )
+            if holder_failures > MAX_HOLDER_QUERY_FAILURES:
+                raise
+            continue
         for person_qid, modified_at in holders.items():
             if person_qid in done_persons:
                 continue
