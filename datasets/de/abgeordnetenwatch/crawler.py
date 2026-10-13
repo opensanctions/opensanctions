@@ -127,7 +127,7 @@ def crawl(context: Context) -> None:
     # Fetch the source data URL specified in the metadata to a local path:
     total_mandates = None
     range_start = 0
-    page_size = 100
+    page_size = 100  # consider updating flush rate when changing this
 
     while total_mandates is None or range_start < total_mandates:
         context.log.info(f"Get {page_size} mandates from {range_start}")
@@ -140,3 +140,4 @@ def crawl(context: Context) -> None:
         for mandate in api_response.get("data"):
             crawl_mandate(context, mandate)
         range_start += page_size
+        context.flush()
