@@ -10,6 +10,7 @@ from zavod import helpers as h
 
 
 EMAIL_SPLIT = re.compile(r"[; ]")
+CRYPTO_MENTION = re.compile(r"crypto|digital (currency )?address", re.IGNORECASE)
 PATTERNS = [
     (r"^INN:?\s*(\d{10}|\d{12})\s*$", "innCode"),
     (r"^OGRN:?\s*(\d{13}|\d{15})\s*$", "ogrnCode"),
@@ -201,6 +202,27 @@ def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) 
             entity.add("flag", flag.text)
 
 
+def crawl_wallets(context: Context, entity: Entity, text: str | None) -> None:
+    """Emit the crypto wallets listed in the free-text Other Information field."""
+    if text is None:
+        return
+    cryptos = h.extract_cryptos(text)
+    if not cryptos and CRYPTO_MENTION.search(text):
+        context.log.warning(
+            "Crypto mentioned but no wallet address extracted",
+            entity_id=entity.id,
+            text=text,
+        )
+    for address, currency in cryptos.items():
+        wallet = context.make("CryptoWallet")
+        wallet.id = context.make_id(address)
+        wallet.add("publicKey", address)
+        wallet.add("currency", currency)
+        wallet.add("holder", entity.id)
+        wallet.add("topics", "sanction")
+        context.emit(wallet)
+
+
 def crawl_xml(context: Context) -> None:
     # Get the XML file
     url = get_xml_link(context)
@@ -320,6 +342,7 @@ def crawl_xml(context: Context) -> None:
             # Add reason as a note
             for info in designation.iterfind(".//OtherInformation"):
                 entity.add("notes", info.text)
+                crawl_wallets(context, entity, info.text)
             for info in designation.iterfind(".//UKStatementofReasons"):
                 sanction.add("reason", html.unescape(info.text) if info.text else None)
             entity.add("topics", "sanction")
@@ -571,7 +594,11 @@ def crawl_csv(context: Context) -> None:
             h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
             h.apply_date(sanction, "startDate", row.pop("Date Designated"))
 
-            entity.add("notes", row.pop("Other Information"))
+            other_information = row.pop("Other Information")
+            entity.add("notes", other_information)
+            # The CSV strips the line breaks between addresses, gluing some into
+            # one unmatchable string; the XML pass picks those up.
+            crawl_wallets(context, entity, other_information)
             entity.add("topics", "sanction")
 
             sanctions_imposed = row.pop("Sanctions Imposed")
