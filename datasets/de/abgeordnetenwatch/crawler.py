@@ -7,12 +7,16 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 
+CACHE_MEDIUM = 7
+CACHE_LONG = 30
+
+
 def make_position(
     context: Context, parliamentary_period: dict[str, Any]
 ) -> Entity | None:
     parliament_detail = context.fetch_json(
         parliamentary_period["parliament"]["api_url"],
-        cache_days=7,
+        cache_days=CACHE_LONG,
     ).pop("data")
     parliament_label = parliamentary_period["parliament"]["label"]
     parliament_label_long = parliament_detail["label_external_long"]
@@ -34,14 +38,18 @@ def make_position(
 def crawl_mandate(context: Context, mandate: dict[str, Any]) -> None:
     politician = mandate.pop("politician")
     period = mandate.pop("parliament_period")
-    period_detail = context.fetch_json(period["api_url"], cache_days=7).pop("data")
+    period_detail = context.fetch_json(period["api_url"], cache_days=CACHE_MEDIUM).pop(
+        "data"
+    )
     position = make_position(context, period_detail)
     if not position:
         return
 
     politician_url = politician.pop("api_url")
     context.log.info(f"Getting politician {politician_url}")
-    politician_detail = context.fetch_json(politician_url, cache_days=7).pop("data")
+    politician_detail = context.fetch_json(politician_url, cache_days=CACHE_LONG).pop(
+        "data"
+    )
 
     # Person
     person = context.make("Person")
