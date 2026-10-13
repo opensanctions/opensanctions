@@ -87,7 +87,7 @@ assertions:
   min:
     schema_entities:
       Person: 47
-      Company: 15
+      Company: 40
   max:
     schema_entities:
       Person: 150
