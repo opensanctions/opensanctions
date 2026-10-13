@@ -6955,6 +6955,39 @@ lookups:
         props:
           legalForm: Centre de jeunesse
           jurisdiction: kp
+      - match: "1187746590283: BIN/OGRN"
+        props:
+          ogrnCode: "1187746590283"
+      - match: "Numéro BIN/OGRN: 1237700389893"
+        props:
+          ogrnCode: "1237700389893"
+      - match: "Anna Nikolaevna Akinshina (Anna Nikolaïevna Akinshina): Personne associée"
+        associates:
+          - Anna Nikolaevna Akinshina
+          - Anna Nikolaïevna Akinshina
+      - match: "Lieu d’enregistrement: Fédération de Russie - Personne associée: Vladimir Aleksandrovich Sokolov (Vladimir Aleksandrovitch Sokolov) -Entité associée: LLC PCC “Black Horse”"
+        props:
+          jurisdiction: ru
+        associates:
+          - Vladimir Aleksandrovich Sokolov
+          - Vladimir Aleksandrovitch Sokolov
+          - LLC PCC “Black Horse”
+      - match: "Lieu d’enregistrement: Fédération de Russie - Personne associée: Vladimir Aleksandrovich Sokolov (Vladimir Aleksandrovitch Sokolov) - Entité associée: LLC “Golden Autumn” Agroholding"
+        props:
+          jurisdiction: ru
+        associates:
+          - Vladimir Aleksandrovich Sokolov
+          - Vladimir Aleksandrovitch Sokolov
+          - LLC “Golden Autumn” Agroholding
+      - match: "6029462: OMI"
+        props:
+          imoNumber: "6029462"
+      # The vessel is not listed in its own right, and associates are emitted as
+      # LegalEntity, which a vessel is not, so it is kept as a note.
+      - match: "PAEK YANG SAN 1 (OMI: 9129653): Entité associée (navire)"
+        vessels:
+          - imoNumber: "9129653"
+            name: "PAEK YANG SAN 1"
   # =====================================
   #
   #  ADDRESSES
