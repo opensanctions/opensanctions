@@ -120,9 +120,7 @@ def crawl_person(context: Context, url: str) -> tuple[Entity, str | None, str | 
     person.add("citizenship", "lb")
     religion = field(doc, "spanMazhab")
     if religion is not None:
-        person.add(
-            "religion", context.lookup_value("religion", religion, warn_unmatched=True)
-        )
+        person.add("religion", religion, lang="ara")
 
     # The source publishes these four labels with no value for every member on
     # record. audit_data warns if that ever changes, since the party and the
@@ -140,7 +138,7 @@ def crawl_person(context: Context, url: str) -> tuple[Entity, str | None, str | 
     start_date = entity_data.start_date if entity_data is not None else None
     return (
         person,
-        context.lookup_value("constituency", constituency, warn_unmatched=True),
+        constituency,
         start_date,
     )
 
@@ -185,6 +183,16 @@ def crawl_term(
         if officer_post is not None:
             posts.append(officer_post)
 
+        # a start date is somtimes provided in the name string; in these cases
+        # we check to see if it is more recent than the period start date and if
+        # so use it as the election_date
+        if start_date is None:
+            edate = election_date
+        elif start_date > election_date:
+            edate = start_date
+        else:
+            edate = election_date
+
         for position, categorisation in posts:
             occupancy = h.make_occupancy(
                 context,
@@ -192,8 +200,7 @@ def crawl_term(
                 position,
                 period_start=election_date,
                 period_end=period_end,
-                start_date=start_date,
-                election_date=election_date,
+                election_date=edate,
                 categorisation=categorisation,
             )
             if occupancy is None:
