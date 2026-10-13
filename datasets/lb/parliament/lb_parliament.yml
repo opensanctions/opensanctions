@@ -35,12 +35,12 @@ publisher:
   country: lb
   official: true
 data:
-  url: https://www.lp.gov.lb/ViewHouses.aspx
+  url: https://www.lp.gov.lb/ViewHouses
   format: HTML
   lang: ara
 
 dates:
-  formats: ["%d %m %Y"]
+  formats: ["%d %m %Y", "%d/%m/%Y"]
   # Levantine Arabic month names, as used for both election and birth dates.
   months:
     "01": كانون الثاني
@@ -101,6 +101,13 @@ lookups:
         value: South Lebanon
       - match: البقاع
         value: Beqaa
+      - match: null
+        value: null
+
+names:
+  schema_rules:
+    Person:
+      reject_chars: "()"
 
 assertions:
   min:

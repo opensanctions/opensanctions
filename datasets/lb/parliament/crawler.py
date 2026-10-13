@@ -1,9 +1,17 @@
 import re
 
+from pydantic import BaseModel
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
+from zavod.extract.llm import run_typed_text_prompt, DEFAULT_MODEL
+from zavod.stateful.review import (
+    TextSourceValue,
+    review_extraction,
+    assert_all_accepted,
+)
+
 
 # A position this chamber confers, paired with its categorisation.
 Post = tuple[Entity, PositionCategorisation]
@@ -12,6 +20,29 @@ Post = tuple[Entity, PositionCategorisation]
 # "الأحد 15 أيار 2022"; only the trailing day, month and year are the date.
 ELECTION_DATE = re.compile(r"\d{1,2} \S+(?: \S+)? \d{4}$")
 MEMBER_ID = re.compile(r"MemberDetails\.aspx\?Id=(\d+)$")
+
+CRAWLER_VERSION = 1
+
+
+class EntityModel(BaseModel):
+    name: str
+    alias: str | None
+    start_date: str | None
+    death_date: str | None
+
+
+prompt = """
+Extract the name and from the parenthetical text the alias, death date,
+and occupancy start date if they exist. Death date might be indicated if
+died, assassinated, or martyred is in the parenthetical text. If there is
+no date in the parenthesis, then the parenthetical text is an alias.
+
+Examples of the raw name are:
+الياس جوزف سكاف (توفي في 10/10/2015)   -> {"name": "الياس جوزف سكاف", "alias": None, "start_date": None, death_date: "10/10/2015"}
+أنطوان غانم (استشهد في 19/9/2007)   -> {"name": "أنطوان غانم", "alias": None, "start_date": None, death_date: "19/9/2007"}
+صولانج الجميل (صولانج لويس توتونجي)  -> {"name": "صولانج الجميل", "alias": "صولانج لويس توتونجي", "start_date": None, death_date: None}
+كاظم صالح الخير(انتخب في 13 حزيران2010) -> {"name": "كاظم صالح الخير", "alias": None, "start_date": "13/6/2010", death_date: None}
+"""
 
 
 def field(doc: Element, element_id: str) -> str | None:
@@ -40,7 +71,7 @@ def make_post(context: Context, name: str, wikidata_id: str) -> Post | None:
     return position, categorisation
 
 
-def crawl_person(context: Context, url: str) -> tuple[Entity, str | None]:
+def crawl_person(context: Context, url: str) -> tuple[Entity, str | None, str | None]:
     """Build a member's Person entity from their detail page, the only place the
     biographical fields appear, and return their constituency alongside it."""
     doc = context.fetch_html(url, cache_days=7)
@@ -51,8 +82,38 @@ def crawl_person(context: Context, url: str) -> tuple[Entity, str | None]:
 
     person = context.make("Person")
     person.id = context.make_slug(member_id.group(1))
-    person.add("name", name, lang="ara")
     h.apply_date(person, "birthDate", field(doc, "spanDOB"))
+
+    entity_data = None
+    if h.is_name_irregular(person, name):
+        source_value = TextSourceValue(
+            key_parts=name, label="Raw name string with parenthetical", text=name
+        )
+        prompt_result = run_typed_text_prompt(
+            context, prompt, source_value.value_string, response_type=EntityModel
+        )
+        review = review_extraction(
+            context,
+            crawler_version=CRAWLER_VERSION,
+            source_value=source_value,
+            original_extraction=prompt_result,
+            origin=DEFAULT_MODEL,
+        )
+        entity_data = review.extracted_data
+    else:
+        person.add("name", name, lang="ara")
+
+    if entity_data is not None:
+        if entity_data.name is not None:
+            h.apply_name(
+                entity=person,
+                full=entity_data.name,
+                lang="ara",
+            )
+        if entity_data.alias is not None:
+            person.add("alias", entity_data.alias, lang="ara")
+        h.apply_date(person, "deathDate", entity_data.death_date)
+
     # Deputies must be Lebanese citizens: Parliamentary Election Law No. 44 of
     # 17 June 2017, Art. 7. https://aceproject.org/ero-en/regions/mideast/LB/
     # lebanon-law-no.44-parliamentary-elections-2017
@@ -72,10 +133,16 @@ def crawl_person(context: Context, url: str) -> tuple[Entity, str | None]:
             "district": field(doc, "spanCaza"),
             "municipality": field(doc, "spanManu"),
             "bloc": field(doc, "spanBlock"),
+            # "biography": field(doc, "pMember") # skip bio
         }
     )
     constituency = field(doc, "spanMohafaza")
-    return person, context.lookup_value("constituency", constituency)
+    start_date = entity_data.start_date if entity_data is not None else None
+    return (
+        person,
+        context.lookup_value("constituency", constituency, warn_unmatched=True),
+        start_date,
+    )
 
 
 def crawl_term(
@@ -112,7 +179,7 @@ def crawl_term(
             officers[name] = post
 
     for name, member_url in members.items():
-        person, constituency = crawl_person(context, member_url)
+        person, constituency, start_date = crawl_person(context, member_url)
         posts = [member_post]
         officer_post = officers.get(name)
         if officer_post is not None:
@@ -125,6 +192,7 @@ def crawl_term(
                 position,
                 period_start=election_date,
                 period_end=period_end,
+                start_date=start_date,
                 election_date=election_date,
                 categorisation=categorisation,
             )
@@ -177,3 +245,5 @@ def crawl(context: Context) -> None:
             speaker_post,
             deputy_post,
         )
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
