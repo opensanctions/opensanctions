@@ -32,14 +32,27 @@ publisher:
   official: true
 
 data:
-  # POST endpoint backing the official member directory. Authenticated with a
-  # static public key baked into the website's frontend bundle (see crawler.py).
-  url: https://api.congress.gov.ph/hrep/api-v1/house-members/current
-  format: JSON
+  url: https://www.congress.gov.ph/house-members/
+  format: HTML
   lang: eng
 
 tags:
   - list.pep
+
+names:
+  # Degrees appended after the name, e.g. "Agyao, Caroline B., M.D."
+  suffixes_strip:
+    - ", M.D."
+    - ", MD."
+    - ", MD"
+    - ", RN"
+    - ", DPA"
+    - ", FPSO-HNS"
+  schema_rules:
+    Person:
+      # Names are inverted ("Last, Given") and carry quoted nicknames, so all of
+      # them need review.
+      reject_chars: '"'
 
 assertions:
   min:

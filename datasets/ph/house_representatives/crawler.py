@@ -1,116 +1,79 @@
-import json
-from typing import Any
+import re
+
+from lxml.html import HtmlElement
+from zavod.entity import Entity
+from zavod.extract import zyte_api
+from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
 
-# Static API key hardcoded in the congress.gov.ph frontend bundle (the Axios client
-# factory in _next/static/chunks/app/house-members/page-*.js sends it as the
-# x-hrep-website-backend header). It ships to every site visitor, so it is not a
-# secret. A 401 "Invalid authorization" response means the site rotated the key and
-# this constant needs to be updated from the live bundle.
-WEBSITE_BACKEND_TOKEN = "cc8bd00d-9b88-4fee-aafe-311c574fcdc1"
-TOPICS = ["gov.legislative", "gov.national"]
+CONGRESS_RE = re.compile(r"\b(\d+)(st|nd|rd|th) Congress\b")
+LEGISLATOR_ID_RE = re.compile(r"^[A-Z0-9]+$")
+# data-status on each card. The page's member count badge only includes "1", and
+# the others carry labels such as "Resigned" on their detail pages.
+STATUS_SEATED = "1"
+STATUS_UNSEATED = {"3", "4", "5"}
 
 
-def district_constituency(memberships: dict[str, Any]) -> str | None:
-    """Build a human-readable legislative district from a membership record.
-
-    District seats carry the ordinal district (`dist_desc`, e.g. "6th District"
-    or "Lone District") and the province or city it belongs to (`dist_name`),
-    combined as e.g. "6th District, City of Manila". Returns None if neither is
-    present. The top-level `district` field is only an internal numeric id."""
-    parts = [memberships.get("dist_desc"), memberships.get("dist_name")]
-    labels = [p for p in parts if p]
-    if not labels:
-        return None
-    return ", ".join(labels)
-
-
-def fetch_page(context: Context, page: int) -> dict[str, Any]:
-    # The "current" endpoint always returns the currently-seated Congress and ignores
-    # the `congress` parameter, so we don't pin a term — the dataset follows whichever
-    # Congress is in session. crawl() derives and logs which one that is.
-    body = {
-        "page": page,
-        "limit": 100,
-        "filter": "",
-        "type": "all",
-    }
-    # No caching: the API replies HTTP 200 with the real status in the body, and the
-    # cache key (request_hash) does not include headers — so a cached auth failure
-    # could not be invalidated by fixing the token. The roster is only a few pages.
-    response = context.fetch_json(
-        context.data_url,
-        method="POST",
-        data=json.dumps(body),
-        headers={
-            "Content-Type": "application/json",
-            "x-hrep-website-backend": WEBSITE_BACKEND_TOKEN,
-        },
-    )
-    status = response.get("status")
-    if status == 401:
-        raise RuntimeError(
-            "API rejected the authorization token (HTTP body status 401: {!r}). The "
-            "site likely rotated x-hrep-website-backend; refresh WEBSITE_BACKEND_TOKEN "
-            "from the current value in the congress.gov.ph house-members JS bundle.".format(
-                response.get("message")
-            )
-        )
-    if status != 200 or not response.get("success") or "data" not in response:
-        raise RuntimeError(f"Unexpected API response: {response!r}")
-    data: dict[str, Any] = response["data"]
-    return data
-
-
-def crawl_member(
+def crawl_card(
     context: Context,
-    row: dict[str, Any],
+    card: HtmlElement,
     position: Entity,
     categorisation: PositionCategorisation,
-    congresses: set[str],
 ) -> None:
-    author_id = row.pop("author_id")
-    member_type = row.pop("member_type")
-    memberships = row.pop("memberships") or {}
-
-    if author_id == "000000":
-        # Party-list seat without a named representative yet; nothing to emit until
-        # the organisation's nominee is seated.
-        context.log.info("Skipping unseated party-list slot", name=row.get("fullname"))
+    name = h.element_text(
+        h.xpath_element(card, ".//h6[contains(@class, 'hm-fullname')]")
+    )
+    status = card.get("data-status")
+    if status in STATUS_UNSEATED:
+        context.log.info("Skipping member no longer seated", name=name, status=status)
         return
+    assert status == STATUS_SEATED, f"Unknown member status {status!r} for {name!r}"
 
-    congress_desc = memberships.get("congress_desc")
-    if not congress_desc:
-        raise RuntimeError(f"Member {author_id} has no Congress label: {memberships!r}")
-    congresses.add(congress_desc)
+    # Member codes are permanent legislator IDs: the letter marks the Congress in
+    # which they were first seated (e.g. L001 for the 20th), carried across terms.
+    url = h.xpath_string(card, ".//a[h6[contains(@class, 'hm-fullname')]]/@href")
+    code = url.rstrip("/").rsplit("/view/", 1)[-1]
+    if not LEGISLATOR_ID_RE.match(code):
+        raise ValueError(f"Unexpected profile URL for {name!r}: {url!r}")
+
+    # e.g. ["District Representative", "Kalinga, Lone District"] or
+    # ["Party-list Representative", "4Ps"]
+    seat_texts = h.xpath_strings(
+        card, ".//small[contains(@class, 'text-muted')]//text()"
+    )
+    seat = [t.strip() for t in seat_texts if t.strip()]
+    assert len(seat) == 2, f"Unexpected seat description for {name!r}: {seat!r}"
+    member_type, seat_name = seat
 
     person = context.make("Person")
-    person.id = context.make_slug(str(row.pop("id")))
-    h.apply_name(
+    person.id = context.make_slug(code)
+    # Names are inverted with nicknames and degrees, e.g. "Agyao, Caroline B., M.D."
+    # or "Dy, Faustino "Bojie" III G.". The degrees are a fixed set stripped via the
+    # metadata; nickname categorisation goes through name review.
+    h.apply_reviewed_name_string(
+        context,
         person,
-        first_name=row.pop("first_name"),
-        middle_name=row.pop("middle_name"),
-        last_name=row.pop("last_name"),
-        suffix=row.pop("suffix"),
+        string=h.strip_name_titles(context, name),
+        llm_cleaning=True,
         lang="eng",
     )
+    person.add("sourceUrl", url)
 
     constituency: str | None = None
-    if member_type == "Party List Representative":
+    if member_type == "Party-list Representative":
         # Party-list reps represent a national/sectoral organisation rather than a
         # territorial district; that organisation is their political vehicle.
-        person.add("political", memberships.get("party_list_name"), lang="eng")
-        person.add("political", memberships.get("party_list_desc"), lang="eng")
+        person.add("political", seat_name, lang="eng")
     elif member_type == "District Representative":
-        # District reps represent a single legislative district, recorded on the
-        # occupancy as the constituency (e.g. "6th District, City of Manila").
-        constituency = district_constituency(memberships)
-
-    person.add("political", row.pop("party_affilation_desc"), lang="eng")
+        area, _, district = seat_name.rpartition(", ")
+        if not area or not district.endswith("District"):
+            raise ValueError(f"Unexpected district for {name!r}: {seat_name!r}")
+        constituency = f"{district}, {area}"
+    else:
+        raise ValueError(f"Unknown member type for {name!r}: {member_type!r}")
 
     # Membership of the House requires natural-born Philippine citizenship for both
     # district and party-list representatives: 1987 Constitution, Article VI, Section 6.
@@ -132,7 +95,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Representatives of the Philippines",
         country="ph",
-        topics=TOPICS,
+        topics=["gov.legislative", "gov.national"],
         wikidata_id="Q18002923",
         lang="eng",
     )
@@ -141,15 +104,16 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    congresses: set[str] = set()
-    page = 0
-    while True:
-        data = fetch_page(context, page)
-        rows = data["rows"]
-        if not rows:
-            break
-        for row in rows:
-            crawl_member(context, row, position, categorisation, congresses)
-        if page + 1 >= data["pageCount"]:
-            break
-        page += 1
+    cards_xpath = "//div[@id='galleryCards']//div[contains(@class, 'member-card')]"
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        cards_xpath,
+        geolocation="PH",
+        absolute_links=True,
+    )
+
+    for card in h.xpath_elements(doc, cards_xpath):
+        crawl_card(context, card, position, categorisation)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
