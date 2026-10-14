@@ -117,6 +117,7 @@ lookups:
           - "reg:cn_tr_hk"
           - "reg:number_nin"
           - "reg:oae_crn"
+          - "reg:gb_crn"  # UK Companies House company registration number
           - "reg:lu"
           - "reg:reg_edi"
           - "reg:reg_legal_cn"

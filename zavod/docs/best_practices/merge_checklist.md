@@ -23,3 +23,4 @@ Some things that are easy to forget but critical for new crawlers. Scope and per
     - all IDs are created via `Context.make_slug` or `Context.make_id` (it enforces validity) and follow the [entity ID guide](entity_id.md)
       - QIDs validated by is_qid are an exception
     - all Persons have a `name` property. Add first and last name via `helpers.apply_name`.
+    - each entity is emitted after the last helper that writes to it, such as `h.make_sanction` (see [patterns](patterns.md#emit-an-entity-after-everything-that-writes-to-it))

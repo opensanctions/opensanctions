@@ -263,6 +263,10 @@ config:
     # snapshot 02001R2580-20260227 in data/consolidated/32001R2580.csv.
     - 32026R1878
     - 32026R1891
+    # Article 1 deletes Article 22a of Regulation (EU) 2016/44, dropping the
+    # references to EUNAVFOR MED IRINI after the UNSCR 2292 (2016) high-seas
+    # inspection authorisation lapsed on 25.5.2026. The act has no annex.
+    - 32026R2259
 
 assertions:
   min:

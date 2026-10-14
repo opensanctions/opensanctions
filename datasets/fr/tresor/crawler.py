@@ -152,6 +152,20 @@ def apply_identification_lookup(
                 wallet.add("publicKey", publicKey)
                 wallet.add("holder", entity.id)
                 context.emit(wallet)
+    if result.vessels:
+        for vessel_data in result.vessels:
+            imo_number = vessel_data.get("imoNumber", None)
+            name = vessel_data.get("name")
+            vessel = context.make("Vessel")
+            vessel.id = context.make_slug("vessel", imo_number, name)
+            vessel.add("imoNumber", imo_number)
+            vessel.add("name", name)
+            vessel_rel = context.make("UnknownLink")
+            vessel_rel.id = context.make_id(entity.id, vessel.id)
+            vessel_rel.add("subject", entity)
+            vessel_rel.add("object", vessel)
+            context.emit(vessel_rel)
+            context.emit(vessel)
 
     return True
 

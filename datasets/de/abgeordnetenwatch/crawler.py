@@ -6,13 +6,16 @@ from zavod.stateful.positions import categorise
 from zavod import Context, Entity
 from zavod import helpers as h
 
+CACHE_MEDIUM = 7
+CACHE_LONG = 30
+
 
 def make_position(
     context: Context, parliamentary_period: dict[str, Any]
 ) -> Entity | None:
     parliament_detail = context.fetch_json(
         parliamentary_period["parliament"]["api_url"],
-        cache_days=1,
+        cache_days=CACHE_LONG,
     ).pop("data")
     parliament_label = parliamentary_period["parliament"]["label"]
     parliament_label_long = parliament_detail["label_external_long"]
@@ -34,14 +37,20 @@ def make_position(
 def crawl_mandate(context: Context, mandate: dict[str, Any]) -> None:
     politician = mandate.pop("politician")
     period = mandate.pop("parliament_period")
-    period_detail = context.fetch_json(period["api_url"], cache_days=1).pop("data")
+    period_detail = context.fetch_json(
+        period["api_url"],
+        cache_days=CACHE_MEDIUM,
+    ).pop("data")
     position = make_position(context, period_detail)
     if not position:
         return
 
     politician_url = politician.pop("api_url")
     context.log.info(f"Getting politician {politician_url}")
-    politician_detail = context.fetch_json(politician_url, cache_days=1).pop("data")
+    politician_detail = context.fetch_json(
+        politician_url,
+        cache_days=CACHE_LONG,
+    ).pop("data")
 
     # Person
     person = context.make("Person")
@@ -127,7 +136,7 @@ def crawl(context: Context) -> None:
     # Fetch the source data URL specified in the metadata to a local path:
     total_mandates = None
     range_start = 0
-    page_size = 100
+    page_size = 100  # consider updating flush rate when changing this
 
     while total_mandates is None or range_start < total_mandates:
         context.log.info(f"Get {page_size} mandates from {range_start}")
@@ -140,3 +149,4 @@ def crawl(context: Context) -> None:
         for mandate in api_response.get("data"):
             crawl_mandate(context, mandate)
         range_start += page_size
+        context.flush()

@@ -42,6 +42,23 @@ for name in h.multi_split(names, SPLITS):
     entity.add(name)
   ```
 
+### Emit an entity after everything that writes to it
+
+`context.emit()` writes out the entity's statements as they are at that moment. Values added afterwards are silently lost unless the entity is emitted again. Some helpers write to the entity you pass in, not only to the one they return:
+
+- [`h.make_sanction`][zavod.helpers.make_sanction] and [`h.make_risk`][zavod.helpers.make_risk] add `programId` when a program key resolves
+- [`h.make_occupancy`][zavod.helpers.make_occupancy] adds the `role.pep` topic to the person
+- [`h.make_identification`][zavod.helpers.make_identification] adds `passportNumber` or `idNumber`
+- the `h.apply_*` helpers for names, dates, addresses and numbers
+
+Call them first and emit the entity last:
+
+```python
+sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
+context.emit(entity)
+context.emit(sanction)
+```
+
 ## Code structuring nitpicks
 
 - `Ruff` can help with sorting imports in ascending order, ensuring consistency across your codebase. The convention is to group standard library imports first, followed by third-party imports, and then project-specific imports.
