@@ -12,9 +12,18 @@ from zavod.util import LangText
 
 # The local sanctions list is served by the platform's JSON API. Its paginated
 # ordering is unstable — successive pages overlap and drop records — so we fetch
-# the whole list in a single request with a page size well above the row count
-# and assert it wasn't truncated.
-PAGE_SIZE = 100_000
+# the whole list in a single request per sort order.
+#
+# !!! HACK !!!
+# The API currently returns HTTP 500 for any request reaching past roughly the
+# 5040th row (reported upstream), so we fetch the first PAGE_SIZE rows sorted by
+# date ascending and descending, and take the union. That covers the list as
+# long as it holds at most 2 * PAGE_SIZE rows.
+# Smaller pages doesn't resolve it.
+# TODO: We've informed them of this bug in their API and haven't heard back.
+# There's a new record so let's hack it for now but revert to a single forward
+# crawl once they've fixed it.
+PAGE_SIZE = 5_000
 
 # Nicknames are appended to the primary name, either introduced by a
 # "nicknamed" marker or wrapped in parentheses/quotes. Splitting on these
@@ -105,17 +114,37 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource(
-        "source.json", f"{context.data_url}?pageSize={PAGE_SIZE}"
-    )
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path) as fh:
-        payload = json.load(fh)
-    data = payload["data"]
-    items = data["data"]
-    # The single request must cover the whole list; a second page would mean the
-    # list outgrew PAGE_SIZE and we'd hit the unstable pagination.
-    assert data["pageCount"] == 1, data["pageCount"]
-    assert len(items) == data["rowCount"], (len(items), data["rowCount"])
-    for item in items:
+    items: dict[str, dict[str, Any]] = {}
+    row_counts: set[int] = set()
+    for order in ("asc", "desc"):
+        is_asc = "true" if order == "asc" else "false"
+        path = context.fetch_resource(
+            f"source_{order}.json",
+            f"{context.data_url}?pageSize={PAGE_SIZE}&SortByDate=true&IsAsc={is_asc}",
+        )
+        context.export_resource(path, JSON, title=f"{context.SOURCE_TITLE} ({order})")
+        with open(path) as fh:
+            data = json.load(fh)["data"]
+        row_counts.add(data["rowCount"])
+        for item in data["data"]:
+            items[item["id"]] = item
+
+    assert len(row_counts) == 1, row_counts
+    row_count = row_counts.pop()
+
+    # !!! HACK see note at PAGE_SIZE
+    if row_count > 2 * PAGE_SIZE:
+        context.log.warning(
+            "List outgrew what the ascending/descending union can cover",
+            row_count=row_count,
+            max_rows=2 * PAGE_SIZE,
+        )
+    # !!! HACK see note at PAGE_SIZE
+    if len(items) != row_count:
+        context.log.warning(
+            "Union of sort orders doesn't cover the whole list",
+            fetched=len(items),
+            row_count=row_count,
+        )
+    for item in items.values():
         crawl_item(context, item)
