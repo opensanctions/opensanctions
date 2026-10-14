@@ -6988,6 +6988,48 @@ lookups:
         vessels:
           - imoNumber: "9129653"
             name: "PAEK YANG SAN 1"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 16.7.2004 - Numéro d'enregistrement (OGRN): 1041621021749 - Numéro d'identification fiscale (INN): 1655064494: Numéro d'enregistrement (OGRN): 1041621021749"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2004-07-16
+          ogrnCode: "1041621021749"
+          innCode: "1655064494"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.12.2006 - Numéro d'enregistrement (OGRN): 1063326006150 - Numéro d'identification fiscale (INN): 3306010869: Numéro d'enregistrement (OGRN): 1063326006150"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2006-12-13
+          ogrnCode: "1063326006150"
+          innCode: "3306010869"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.7.2011 - Numéro d'enregistrement (OGRN): 1111690048414 - Numéro d'identification fiscale (INN): 1657107827: Numéro d'enregistrement (OGRN): 1111690048414"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2011-07-13
+          ogrnCode: "1111690048414"
+          innCode: "1657107827"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 19.6.2017 - Numéro d'enregistrement (OGRN): 1171832014970 - Numéro d'identification fiscale (INN): 1840072002: Numéro d'enregistrement (OGRN): 1171832014970"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2017-06-19
+          ogrnCode: "1171832014970"
+          innCode: "1840072002"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 21.10.2002 - Numéro d'enregistrement (OGRN): 1022601945750 - Numéro d'identification fiscale (INN): 2636032690: Numéro d'enregistrement (OGRN): 1022601945750"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2002-10-21
+          ogrnCode: "1022601945750"
+          innCode: "2636032690"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 25.8.2011 - Numéro d'enregistrement (OGRN): 1111327001862 - Numéro d'identification fiscale (INN): 1327014116: Numéro d'enregistrement (OGRN): 1111327001862"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2011-08-25
+          ogrnCode: "1111327001862"
+          innCode: "1327014116"
   # =====================================
   #
   #  ADDRESSES

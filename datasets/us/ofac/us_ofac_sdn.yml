@@ -375,6 +375,8 @@ lookups:
           - C.I.N.
           - Registration Certificate Number (Dubai)
           - Entity Code
+          - Codigo Alfanumerico Armonizado del Transportista (CAAT)
+          - Standard Carrier Alpha Code (SCAC)
         prop: registrationNumber
       - match:
           - Russian State Individual Business Registration Number Pattern (OGRNIP)

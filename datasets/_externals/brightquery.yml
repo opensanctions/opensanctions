@@ -118,3 +118,5 @@ lookups:
           - "MD"
           - "NA"
         value: null
+      - match: USA
+        prop: country
