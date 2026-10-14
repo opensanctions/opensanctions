@@ -50,8 +50,17 @@ names:
     - ", FPSO-HNS"
   schema_rules:
     Person:
-      # Names are inverted ("Last, Given") and carry quoted nicknames, so all of
-      # them need review.
+      # Nicknames are nested in quotes.
+      # Batas Pambansa Blg. 697 explicitly recognizes nicknames and terms of
+      # affection in determining whether votes are valid.
+      #
+      # Acop, Philip Conrad "Dok Bong" M. probably wants to be
+      # name: "Acop, Philip Conrad M."
+      # weakAlias: "Dok Bong"
+      #
+      # Adiong, Ziaur-Rahman "Zia" Alonto probably wants to be
+      # name: "Adiong, Ziaur-Rahman Alonto"
+      # alias: "Zia Adiong"
       reject_chars: '"'
 
 assertions:
