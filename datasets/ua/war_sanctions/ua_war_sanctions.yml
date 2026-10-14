@@ -220,6 +220,8 @@ lookups:
           - 10.01.yyyy
           - 0196-11-29
         value: null
+      - match: "08.08 1959"
+        value: 1959-08-08
   type.country:
     options:
       - match:
