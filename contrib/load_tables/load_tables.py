@@ -73,6 +73,41 @@ def reflect(engine: Engine, name: str) -> Table:
     return Table(name, MetaData(), autoload_with=engine)
 
 
+def check_gcloud_auth() -> None:
+    """Fail early, with instructions, if the gcloud session has expired.
+
+    Google Cloud session control makes gcloud reauthenticate periodically.
+    Interactively, gcloud then prompts for a password; with stdin closed it
+    fails instead, which lets us spot the expiry before prompting for anything.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "gcloud",
+                "auth",
+                "print-access-token",
+                f"--impersonate-service-account={IMPERSONATE}",
+            ],
+            check=False,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        raise click.ClickException(
+            "gcloud is not installed: https://cloud.google.com/sdk/docs/install"
+        )
+    if result.returncode == 0:
+        return
+    if "reauth" in result.stderr.lower():
+        raise click.ClickException(
+            "Your gcloud session has expired. Run `gcloud auth login`, then try again."
+        )
+    raise click.ClickException(
+        f"Could not authenticate as {IMPERSONATE}:\n{result.stderr.strip()}"
+    )
+
+
 def fetch(source: str) -> Path:
     if not source.startswith("gs://"):
         path = Path(source)
@@ -179,6 +214,8 @@ def count_rows(engine: Engine, name: str) -> int:
 def load(sources: dict[str, str], yes: bool) -> None:
     engine = get_engine()
     tables = {name: reflect(engine, name) for name in sources}
+    if any(source.startswith("gs://") for source in sources.values()):
+        check_gcloud_auth()
     click.echo(
         "About to replace the contents of these tables in "
         f"{engine.url.render_as_string(hide_password=True)}:"
