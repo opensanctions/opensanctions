@@ -72,7 +72,6 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity.add("country", "ph")
     entity.add("sourceUrl", row.pop("source_url"))
     entity.add("sourceUrl", row.pop("main_source_url"))
-    context.emit(entity)
 
     sanction = h.make_sanction(
         context,
@@ -81,6 +80,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         program_key=h.lookup_sanction_program_key(context, program),
     )
     sanction.add("program", resolution_no)
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row)

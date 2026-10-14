@@ -37,8 +37,7 @@ description: |
   >   categories of service. The exclusion remains in effect until the individual is removed
   >   from this list.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Alaska Department of Health
   description: |

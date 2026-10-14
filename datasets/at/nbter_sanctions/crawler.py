@@ -61,7 +61,7 @@ def crawl(context: Context) -> None:
     url = context.dataset.model.url
     assert url is not None
     doc = context.fetch_html(url, cache_days=1, absolute_links=True)
-    urls = h.xpath_strings(doc, ".//a[contains(text(), 'Kundmachung DL')]/@href")
+    urls = h.xpath_strings(doc, ".//a[contains(., 'Kundmachung DL')]/@href")
     assert len(urls) == 2, "Expected exactly 2 links in the document"
     h.assert_url_hash(context, urls[0], "789ade7d1cbb8e3e710b75dd8e9376a45f08a4f3")
     # Kundmachung DL 2/2002 der OeNB – September 2002 (PDF, 35,9 KB)

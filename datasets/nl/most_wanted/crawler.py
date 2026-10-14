@@ -99,7 +99,7 @@ def crawl_person(context: Context, source_url: str) -> None:
 
 def crawl(context: Context) -> None:
     for next_page in count(1):
-        detail_url_xpath = "//a[@data-testid='wantedmissing-link']/@href"
+        detail_url_xpath = "//li[@data-testid='wantedmissing-link']//a/@href"
         url = f"{context.data_url}?page={next_page}"
         doc = fetch_html(context, url, detail_url_xpath, absolute_links=True)
         detail_urls = h.xpath_strings(doc, detail_url_xpath)

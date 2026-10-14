@@ -80,11 +80,12 @@ text. `split_multi` decodes a contract cell. Do not merge them.
 ## Mechanics
 
 - Run from the dataset directory:
-  `python scripts/parse_<celex>.py <consolidated-celex>` — the consolidated
+  `python -m scripts.parse_<celex> <consolidated-celex>` — the consolidated
   version must match the `config.consolidation` pin in the dataset YAML and
   the Makefile, updated in the same commit as the CSV.
 - `out/` caches fetched source expressions and is gitignored; `--source`
   parses exact local bytes instead.
-- No `__init__.py` in this directory; scripts import `common` as a sibling
-  module.
-- After parsing, validate: `python scripts/validate.py` (or `make all`).
+- No `__init__.py` in this directory. Scripts import `common` relatively
+  (`from .common import ...`), so run them as modules with `python -m`, not
+  as files.
+- After parsing, validate: `python -m scripts.validate` (or `make all`).

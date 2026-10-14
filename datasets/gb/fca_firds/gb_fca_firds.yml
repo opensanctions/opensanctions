@@ -37,6 +37,8 @@ url: https://data.fca.org.uk/#/download
 data:
   url: https://api.data.fca.org.uk/fca_data_firds_files
   format: JSON
+tags:
+  - sector.securities
 
 lookups:
   type.name:

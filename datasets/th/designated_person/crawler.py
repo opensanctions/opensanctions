@@ -71,8 +71,6 @@ def crawl_item(url: str, context: Context) -> None:
         ),
     )
 
-    context.emit(entity)
-
     passport_numbers = info_dict.pop("Passport Number", None) or ""
     if passport_numbers:
         for passport_number in h.multi_split(passport_numbers, PASSPORT_SPLITS):
@@ -86,6 +84,8 @@ def crawl_item(url: str, context: Context) -> None:
             )
             if passport is not None:
                 context.emit(passport)
+
+    context.emit(entity)
 
     context.audit_data(info_dict, ignore=["Status"])
 

@@ -91,6 +91,8 @@ lookups:
         values: [KZ, DE]
       - match: KAZACHSTAN UKRAINA
         values: [KZ, UA]
+      - match: KUBA HISZPANIA
+        values: [CU, ES]
       - match: LITWA MOŁDAWIA
         values: [LT, MD]
       - match: MOŁDAWIA RUMUNIA

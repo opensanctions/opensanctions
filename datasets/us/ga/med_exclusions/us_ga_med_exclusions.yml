@@ -13,8 +13,7 @@ description: |
   > entities are not permitted to receive reimbursement for providing Medicare and Medicaid services in all categories
   > of service and in any capacity, including managed care.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Georgia Department of Community Health
   description: |

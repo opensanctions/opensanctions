@@ -15,6 +15,7 @@ This module is shared between two MoU crawlers:
 
 import re
 from lxml import html
+from rigour.text import is_nullword
 from urllib3 import Retry
 
 from zavod import Context, helpers as h
@@ -58,7 +59,9 @@ def crawl_vessel_row(
     vessel.add("name", ship_name)
     vessel.add("imoNumber", imo)
     vessel.add("type", str_row.pop("type"))
-    vessel.add("callSign", str_row.pop("callsign"))
+    call_sign = str_row.pop("callsign")
+    if call_sign is not None and not is_nullword(call_sign, normalize=True):
+        vessel.add("callSign", call_sign)
     vessel.add("mmsi", str_row.pop("mmsi"))
     vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
     vessel.add("deadweightTonnage", str_row.pop("deadweight"))

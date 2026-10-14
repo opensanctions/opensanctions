@@ -49,7 +49,7 @@ import re
 from pathlib import Path
 
 import click
-from common import (
+from .common import (
     ParseError,
     Row,
     annex_blocks,

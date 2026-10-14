@@ -24,6 +24,7 @@ description: |
   issuers, and includes information such as the instrument's name, ISIN, and LEI.
 tags:
   - sector.financial
+  - sector.securities
 url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_firds_files
 publisher:
   name: European Securities and Markets Authority

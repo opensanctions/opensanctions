@@ -18,6 +18,12 @@ migrations in `zavod/alembic/` create or change these tables. Production runs
 from repository checkouts, so the migrations live in the repository rather
 than the installed package.
 
+Running jobs affected by a migration will crash, restart, pull the new image, and block until the migration is complete.
+It's impractical to wait until all jobs finish - they start throughout the day and some run frequently.
+
+We don't need to go to extreme lengths to make migrations backward compatible.
+
+
 ## Using Alembic
 
 From the `zavod/` directory:
@@ -27,7 +33,8 @@ From the `zavod/` directory:
 alembic upgrade head
 ```
 
-The connection URL is taken from `ZAVOD_DATABASE_URI`, falling back to `OPENSANCTIONS_DATABASE_URI`.
+Migrations connect to the same database as zavod. For Postgres, extend statement
+timeout by setting `NOMENKLATURA_DB_STMT_TIMEOUT` (`0` to disable it).
 
 ## Changing the schema
 

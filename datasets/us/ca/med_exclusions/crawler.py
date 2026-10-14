@@ -50,7 +50,9 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
     entity.add("country", "us")
     entity.add("topics", "debarment")
-    entity.add("sector", h.multi_split(row.pop("provider_type"), [";"]))
+    for sector in h.multi_split(row.pop("provider_type"), [";"]):
+        if sector != "N/A":
+            entity.add("sector", sector)
     entity.add("address", h.multi_split(addresses, [", &", ";"]))
     entity.add(
         "registrationNumber", h.multi_split(row.pop("license_number"), [",", ";"])

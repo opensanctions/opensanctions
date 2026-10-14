@@ -25,7 +25,6 @@ publisher:
   official: true
 tags:
   - list.sanction
-  - juris.jo
 
 data:
   url: https://sanctions.amlu.gov.jo/EN/List/National1_List

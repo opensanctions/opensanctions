@@ -17,8 +17,7 @@ description: |
   > license status through the
   > [Maryland State Board](https://health.maryland.gov/Pages/boards.ASPX).
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Maryland Department of Health
   description: >

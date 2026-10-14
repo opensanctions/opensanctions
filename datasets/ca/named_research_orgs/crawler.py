@@ -68,9 +68,8 @@ def emit_nro(context: Context, nro: dict[str, Any]) -> None:
     for alias in nro.get("weak_aliases", []):
         entity.add("weakAlias", alias)
 
-    context.emit(entity)
-
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
+    context.emit(entity)
     context.emit(sanction)
 
 

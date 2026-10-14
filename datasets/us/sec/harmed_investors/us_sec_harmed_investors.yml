@@ -1175,3 +1175,11 @@ lookups:
         names:
           - Platinum Wealth Partners Inc.
           - David L. Potter
+      # SEC v. Anthony Caine, et al., Civil Action No. 1:21-cv-02859 (N.D. Ill.)
+      # names four defendants; the two "Ltd." suffixes carry their own commas.
+      - match: Anthony Caine, Anish Parvataneni, LJM Funds Management, Ltd., and LJM Partners, Ltd.
+        names:
+          - Anthony Caine
+          - Anish Parvataneni
+          - LJM Funds Management Ltd.
+          - LJM Partners Ltd.

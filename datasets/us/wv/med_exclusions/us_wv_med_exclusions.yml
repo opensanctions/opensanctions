@@ -12,8 +12,7 @@ description: |
   who have been terminated or excluded from the state Medicaid program. Providers listed
   are not allowed to receive reimbursement for Medicaid services in any capacity.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Medicaid Management Information System
   description: |

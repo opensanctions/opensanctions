@@ -183,7 +183,8 @@ Do not recast such targets as `LegalEntity` or `Organization`.
 Every file must pass the validator before it is checked in:
 
 ```
-python datasets/eu/journal_sanctions/scripts/validate.py [CSV ...]
+cd datasets/eu/journal_sanctions
+python -m scripts.validate [CSV ...]
 ```
 
 With no arguments it validates every CSV under `amendments/` and `consolidated/`.
@@ -197,7 +198,8 @@ A transcribed amendment file's header can be brought to the exact column set and
 order above with:
 
 ```
-python datasets/eu/journal_sanctions/scripts/format.py [CSV ...]
+cd datasets/eu/journal_sanctions
+python -m scripts.format [CSV ...]
 ```
 
 It rewrites the given files in place, defaulting to every CSV under

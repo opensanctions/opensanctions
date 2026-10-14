@@ -9,23 +9,26 @@ summary: >-
   Companies excluded from investment by Norway's Government Pension Fund Global, or listed for observation.
 description: |
   This dataset lists companies which are excluded from investment by Norway's
-  Government Pension Fund Global, or placed under observation. Decisions are guided by a set of
-  guidelines from Norway's Ministry of Finance, with final decisions made by
-  Norges Bank's Executive Board.
+  Government Pension Fund Global, or placed under observation. Until November 2025,
+  Norges Bank's Executive Board made these decisions under guidelines from Norway's
+  Ministry of Finance, for an unacceptable risk that the company contributes to or
+  is responsible for:
 
-  From their [Ethical Exclusions](https://www.nbim.no/en/responsible-investment/ethical-exclusions/) page:
+  - production of coal or coal-based energy
+  - production of tobacco, cannabis, nuclear weapons or cluster munitions
+  - serious or systematic human rights violations
+  - serious violations of individuals' rights in situations of war or conflict
+  - sales of weapons to states in armed conflict that use them in breach of the
+    international rules on the conduct of hostilities
+  - sales of weapons or military materiel to states subject to investment
+    restrictions on government bonds
+  - severe environmental damage
+  - unacceptable greenhouse gas emissions
+  - gross corruption or other serious financial crime
+  - other particularly serious violations of fundamental ethical norms
 
-  > Companies may be excluded or placed under observation if there is an unacceptable
-  > risk that the company contributes to or is responsible for:
-  >
-  > - serious or systematic human rights violations
-  > - serious violations of individual's rights in situations of war or conflict
-  > - the sale of weapons to states engaged in armed conflict that use the weapons in ways that constitute serious and systematic violations of the international rules on the conduct of hostilities
-  > - the sale of weapons or military materiel to states that are subject to investment restrictions on government bonds
-  > - severe environmental damage
-  > - acts or omissions that on an aggregate company level lead to unacceptable greenhouse gas emissions
-  > - gross corruption or other serious financial crime
-  > - other particularly serious violations of fundamental ethical norms
+  Under temporary guidelines pending a new ethical framework, Norges Bank makes no
+  new exclusion or observation decisions, but may revoke existing ones.
 url: https://www.nbim.no/en/responsible-investment/exclusion-of-companies/
 publisher:
   name: Norges Bank Investment Management
@@ -44,6 +47,9 @@ data:
   format: HTML
 dates:
   formats: ["%d.%m.%Y"]
+
+tags:
+  - sector.energy
 
 assertions:
   min:

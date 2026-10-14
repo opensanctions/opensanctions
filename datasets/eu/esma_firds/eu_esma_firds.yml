@@ -36,6 +36,8 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
+tags:
+  - sector.securities
 
 assertions:
   min:

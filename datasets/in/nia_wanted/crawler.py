@@ -1,0 +1,62 @@
+import re
+from urllib.parse import urljoin
+
+from lxml.etree import _Element as Element
+
+from zavod import Context
+from zavod import helpers as h
+
+# Trailing accused number: "Masud K A (A-5)", "Niu Niu WA-1".
+ACCUSED_NO = re.compile(r"[\s,]*\(?\bW?A-\d+\)?\.?$")
+
+
+def crawl_person(context: Context, card: Element, page_url: str) -> None:
+    row: dict[str, str] = {}
+    for field in h.xpath_elements(card, ".//div[@class='modal-detail-sec']/div"):
+        label = h.element_text(h.xpath_element(field, "./div[contains(@class, 'lab')]"))
+        value = h.xpath_element(field, "./div[contains(@class, 'val')]")
+        row[label.rstrip(" :")] = h.element_text(value)
+
+    name = row.pop("Name")
+    aliases = row.pop("Aliases")
+    person = context.make("Person")
+    person.id = context.make_id(name, aliases, row.pop("Wanted in"))
+    person.add("name", ACCUSED_NO.sub("", name))
+    for alias in h.multi_split(aliases, "@"):
+        alias = ACCUSED_NO.sub("", alias)
+        # Treat single-word aliases as weak.
+        person.add("alias" if " " in alias else "weakAlias", alias)
+    h.copy_address(person, h.make_address(context, full=row.pop("Address")))
+    person.add("topics", "wanted")
+    status = row.pop("Accused Status")
+    if status != "":
+        person.add(
+            "status",
+            context.lookup_value("accused_status", status, warn_unmatched=True),
+            original_value=status,
+        )
+
+    # One link per case the person is wanted in.
+    for link in h.xpath_elements(
+        card, ".//div[div[normalize-space()='Wanted in :']]//a[@href!='']"
+    ):
+        person.add("sourceUrl", urljoin(page_url, link.get("href")))
+        person.add("notes", h.element_text(link))
+    context.emit(person)
+    context.audit_data(
+        row,
+        # Undated approximate ages ("31 years"): no birth date derivable.
+        ignore=["Age/DOB (Approx)"],
+    )
+
+
+def crawl(context: Context) -> None:
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    # The pager's "last page" link, e.g. "?page=24".
+    last_page = h.xpath_string(doc, "//a[@title='Go to last page']/@href")
+    for page in range(int(last_page.removeprefix("?page=")) + 1):
+        page_url = urljoin(context.data_url, f"?page={page}")
+        if page > 0:
+            doc = context.fetch_html(page_url, cache_days=1)
+        for card in h.xpath_elements(doc, "//div[@class='wanted-modal-card']"):
+            crawl_person(context, card, page_url)

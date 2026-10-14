@@ -284,6 +284,11 @@ lookups:
         values:
           - 高木啓
           - 髙木啓
+      # Shin'ya Fujiki (Q27150379): the two spellings differ only in 眞 / 真 (itaiji variant)
+      - match: "藤木眞也<br>藤木真也"
+        values:
+          - 藤木眞也
+          - 藤木真也
   type.date:
     options:
       - match:

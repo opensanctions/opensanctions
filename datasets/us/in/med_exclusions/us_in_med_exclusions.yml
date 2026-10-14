@@ -42,8 +42,7 @@ description: |
   > that can be used to identify the individuals and business entities that are
   > currently enrolled with Indiana Medicaid.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Indiana Family and Social Services Administration
   acronym: FSSA

@@ -1,241 +1,206 @@
-import csv
-import shutil
-from pathlib import Path
-from typing import cast
-from lxml.html import HtmlElement
+import re
+from typing import Any
 
-from normality import squash_spaces
-from rigour.mime.types import CSV
-from rigour.text.scripts import is_latin
-from zavod.extract.zyte_api import fetch_html
+from zavod.entity import Entity
+from zavod.shed.il_mod import (
+    Item,
+    apply_date,
+    apply_operative_details,
+    drop_fallbacks,
+    fetch_content,
+    fetch_variants,
+    is_placeholder,
+    source_url,
+)
 
 from zavod import Context
 from zavod import helpers as h
 
-HOMOGLYPHS = {
-    "ᴄ": "c",
-    "ᴑ": "o",
-    "ᴠ": "v",
-    "ᴡ": "w",
-    "ᴢ": "z",
-    "Α": "A",
-    "Β": "B",
-    "Ε": "E",
-    "Ζ": "Z",
-    "Η": "H",
-    "ϳ": "j",
-    "Κ": "K",
-    "Μ": "M",
-    "Ν": "N",
-    "ο": "o",
-    "Ρ": "P",
-    "Ϲ": "C",
-    "Τ": "T",
-    "Υ": "Y",
-    "Χ": "X",
-    "а": "a",
-    "А": "A",
-    "В": "B",
-    "ԁ": "d",
-    "е": "e",
-    "Е": "E",
-    "ѕ": "s",
-    "Ѕ": "S",
-    "ј": "j",
-    "Ј": "J",
-    "ԛ": "q",
-    "М": "M",
-    "Н": "H",
-    "о": "o",
-    "р": "p",
-    "Р": "P",
-    "с": "c",
-    "С": "C",
-    "Ԍ": "G",
-    "Т": "T",
-    "Ү": "Y",
-    "х": "x",
-    "Х": "X",
-    "ԝ": "w",
-    "Ԝ": "W",
-    "հ": "h",
-    "ո": "n",
-    "ս": "u",
-    "Ս": "U",
-    "օ": "o",
-}
-
-ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
-LOCAL_PATH = Path(__file__).parent
-SOURCE_FILE = "seizures.csv"
+# The holders of a wallet or account, as given on wallets
+WALLET_HOLDER_PROPS = [
+    "designatedOperatives",
+    "nonDesignatedOperatives",
+    "designatedOrganizations",
+    "nonDesignatedOrganizations",
+]
+CURRENCY_CODE = re.compile(r"^[A-Z]{2,5}$")
 
 
-def remove_zero_width_space(row: dict[str, str]) -> dict[str, str]:
-    return {
-        k: (v.replace("\u200b", "") if isinstance(v, str) else v)
-        for k, v in row.items()
-    }
+def operative_key(props: dict[str, Any], name: str | None) -> str | None:
+    """The value the holder's ID is made from: an ID document number, a passport
+    number or the name, in that order, as the crawler did before switching to the
+    API."""
+    for block in props["identificationDocuments"] or []:
+        number = block["properties"]["identificationNumber"]
+        if not is_placeholder(number):
+            return str(number)
+    for block in props["passportDetails"] or []:
+        number = block["properties"]["passportNumber"]
+        if not is_placeholder(number):
+            return str(number)
+    return name
 
 
-def normalize_address(addr: str) -> str:
-    return "".join(HOMOGLYPHS.get(c) or c for c in addr)
+def make_operative(context: Context, variants: list[Item]) -> Entity | None:
+    """Make the holder Person, or None for a placeholder such as "אנונימי"
+    (anonymous), given for wallets whose holder isn't known."""
+    item = variants[0]
+    names = drop_fallbacks(variants, "fullName")
+    # e.g. "Unknown_Name_User" for holders identified only by an ID number
+    name_en, name_he, name_ar = [None if is_placeholder(n) else n for n in names]
+    props = dict(item["properties"])
+    entity = context.make("Person")
+    # Using name remaining after removing to avoid unintentional merges.
+    entity.id = context.make_id(operative_key(props, name_en or name_he or name_ar))
+    if entity.id is None:
+        return None
+    props.pop("fullName")
+    entity.add("name", name_en, lang="eng")
+    entity.add("name", name_he, lang="heb")
+    entity.add("name", name_ar, lang="ara")
+    entity.add("sourceUrl", source_url(item))
+    apply_operative_details(context, entity, props, None)
+    context.audit_data(
+        props,
+        ignore=[
+            "isDesignated",
+            # Set on holders who aren't designated, with no explanation
+            "temporaryDesignationDate",
+        ],
+    )
+    return entity
 
 
-def write_csv_for_manual_diff(table: HtmlElement, path: Path) -> None:
-    with open(path, "w") as f:
-        writer = csv.writer(f)
-        for row in table.findall(".//tr"):
-            cells = [
-                squash_spaces(cast(HtmlElement, c).text_content())
-                for c in h.xpath_elements(row, ".//*[self::td or self::th]")
-            ]
-            writer.writerow(cells)
+def make_organization(context: Context, variants: list[Item]) -> Entity:
+    item = variants[0]
+    name_en, name_he, name_ar = drop_fallbacks(variants, "organizationName")
+    props = dict(item["properties"])
+    props.pop("organizationName")
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(name_en, name_he)
+    if entity.id is None:
+        raise ValueError(f"Holder without name: {item['id']}")
+    entity.add("name", name_en, lang="eng")
+    entity.add("name", name_he, lang="heb")
+    entity.add("name", name_ar, lang="ara")
+    entity.add("sourceUrl", source_url(item))
+    context.audit_data(props, ignore=["isDesignated"])
+    return entity
 
 
-def crawl_csv_row(context: Context, row: dict[str, str]) -> None:
-    person = None
-    entity = None
-    country = None
-    wallets = []
+def apply_address(context: Context, wallet: Entity, address: str, coin: str) -> None:
+    res = context.lookup("coin_type", coin)
+    if res is not None:
+        wallet.add("managingExchange", res.exchange)
+    elif CURRENCY_CODE.match(coin) is None:
+        context.log.warning("Unknown coin type", coin=coin, address=address)
+    # Exchange account numbers are given where a wallet address would be, and
+    # not always with the exchange as the coin type. The coin type of such an
+    # account isn't the currency of the account, so is only used for addresses.
+    if (res is not None and res.account) or address.isdigit():
+        wallet.add("accountId", address)
+        return
+    wallet.add("publicKey", address)
+    wallet.add("currency", res.currency if res is not None else coin)
 
-    # --- Person ---
-    schema = row.pop("schema")
-    name = row.pop("name", None)
-    if schema == "Person" and (row.get("id_no") or row.get("passport_no") or name):
-        person = context.make("Person")
-        person.id = context.make_id(row.get("id_no") or row.get("passport_no") or name)
-        h.apply_name(person, full=name, lang="eng")
-        h.apply_date(
-            person,
-            "birthDate",
-            squash_spaces(row.pop("dob")),
-            two_digit_year_base=h.TWO_DIGIT_BIRTH_YEAR_BASE,
-        )
-        person.add("email", row.pop("email").split(";"))
-        person.add("phone", row.pop("phone"))
-        for alias in row.pop("alias").split(";"):
-            h.apply_name(person, full=alias, alias=True)
-        # Process identification documents (e.g., national ID, residency)
-        for id_key, country_key in ID_FIELDS:
-            id_number = row.pop(id_key)
-            country = row.pop(country_key)
-            if id_number:
-                identification = h.make_identification(
-                    context,
-                    person,
-                    id_number,
-                    passport=False,
-                    country=country,
-                )
-                # Emit an Identification entity if country is present
-                if identification and country:
-                    context.emit(identification)
-        # Process passport
-        if passport_number := row.pop("passport_no"):
-            passport = h.make_identification(
-                context,
-                person,
-                passport_number,
-                passport=True,
-                country=row.pop("passport_country"),
-            )
-            # Emit a Passport entity if country is present
-            if passport and country:
-                context.emit(passport)
 
-        context.emit(person)
+def crawl_wallet(
+    context: Context,
+    wallet_item: Item,
+    order: Item,
+    operatives: dict[str, list[Item]],
+    orgs: dict[str, list[Item]],
+) -> None:
+    """Emit the wallets of a wallet item, with their holders and a sanction for
+    the order."""
+    wallet_props = dict(wallet_item["properties"])
+    if wallet_props.pop("assetType") != "Crypto Wallet":
+        raise ValueError(f"Unexpected asset type: {wallet_item}")
+    wallet_holders: list[Entity] = []
+    for holder_prop in WALLET_HOLDER_PROPS:
+        for holder_ref in wallet_props.pop(holder_prop) or []:
+            holder_id = holder_ref["id"]
+            if holder_id in operatives:
+                holder = make_operative(context, operatives[holder_id])
+            else:
+                holder = make_organization(context, orgs[holder_id])
+            if holder is None:
+                continue
+            context.emit(holder)
+            wallet_holders.append(holder)
 
-    # --- Legal Entity ---
-    if schema == "LegalEntity":
-        entity = context.make("LegalEntity")
-        entity.id = context.make_id(name)
-        h.apply_name(entity, full=name, lang="eng")
-        h.apply_name(entity, full=row.pop("alias"), alias=True)
-        context.emit(entity)
-
-    # --- Wallets --- are always created if wallet data is present
-    # account_id = row.pop("account/wallet_id")
-    wallet_address = row.pop("wallet_address")
-    account_id = row.pop("account_id")
-    # Use wallet_id if present, otherwise fall back to account_id
-    # These are mutually exclusive in source data - we get either:
-    # - wallet_address: On-chain address tied to a specific blockchain
-    # - account_id: Platform account number tied to an exchange (e.g., Binance)
-    identifier = wallet_address or account_id
-    if identifier:
-        identifier = normalize_address(identifier)
-        if not is_latin(identifier):
-            context.log.warning(f"Non-latin identifier: {identifier}")
+    order_props = order["properties"]
+    coin = wallet_props.pop("coinType")
+    # A single item can give an Ethereum and a TRON address, comma-separated
+    for address in h.multi_split(wallet_props.pop("walletAddress"), [", "]):
         wallet = context.make("CryptoWallet")
-        wallet.id = context.make_id(identifier)
-        wallet.set("publicKey", wallet_address)
-        wallet.set("accountId", account_id)
-        wallet.set("managingExchange", row.pop("platform"))
-        wallet.set("currency", row.pop("currency"))
-        wallet.set("holder", person or entity)
-        wallets.append(wallet)
+        wallet.id = context.make_id(address)
+        assert wallet.id is not None
+        apply_address(context, wallet, address, coin)
+        wallet.add("holder", wallet_holders)
+        wallet.add("sourceUrl", source_url(wallet_item))
 
-    # --- Sanction & Linking ---
-    aso_id = row.pop("order_id")
-    for wallet in wallets:
-        sanction = h.make_sanction(context, wallet, key=aso_id)
-        sanction.set("authorityId", aso_id)
-        # Manually extracted from each order (pdf), it's the date it was issued
-        h.apply_date(sanction, "startDate", row.pop("start_date"))
-        # "Last Updated" column in the table of releases
-        h.apply_date(sanction, "modifiedAt", row.pop("last_updated"))
-        # "Validity of Issue" column in the table of releases
-        h.apply_date(sanction, "endDate", row.pop("end_date"))
+        sanction = h.make_sanction(
+            context, wallet, key=order["properties"]["orderNumber"]
+        )
+        sanction.add("authorityId", order["name"])
+        sanction.add("provisions", order_props["orderType"])
+        apply_date(sanction, "startDate", order_props["orderDate"])
+        apply_date(sanction, "endDate", order_props["validityDate"])
+        sanction.add("sourceUrl", source_url(order))
         if h.is_active(sanction):
             wallet.add("topics", "crime.terror")
-        # "File Type" column in the table of releases
-        # e.g., "​Seizure order (ASO 16/25) of the Minister of Defense"
-        sanction.add("sourceUrl", row.pop("order_url"))
-        # Links from the "Validity of Issue" column in the table of releases
-        # e.g., "​Forfeiture Order (FO​ 18/24)"
-        sanction.add("sourceUrl", row.pop("forfeiture_order_url"))
-        # Links from the "File Type" column in the table of releases
-        # e.g., "Annex of the Seizure Order (ASO - 56/23) - Wallet Details"
-        sanction.add("sourceUrl", row.pop("annex_url"))
-        context.emit(wallet)
         context.emit(sanction)
+        context.emit(wallet)
+    context.audit_data(wallet_props)
 
-    context.audit_data(row)
+
+def crawl_order(
+    context: Context,
+    order: Item,
+    wallets: dict[str, Item],
+    operatives: dict[str, list[Item]],
+    orgs: dict[str, list[Item]],
+) -> None:
+    """Emit the wallets seized by an Administrative Seizure Order (ASO) or
+    Forfeiture Order (FO)."""
+    order_props = dict(order["properties"])
+    hidden = order_props.pop("isHidden")
+    if hidden is True:
+        context.log.warning("Skipping hidden order", order=order["name"])
+        return
+    if hidden is not False:
+        raise ValueError(f"Unexpected isHidden: {hidden!r} ({order['name']})")
+    # Assets also include other property, given as generalAsset items
+    for asset in order_props.pop("assets") or []:
+        if asset["id"] in wallets:
+            crawl_wallet(
+                context,
+                wallets[asset["id"]],
+                order,
+                operatives,
+                orgs,
+            )
+    context.audit_data(
+        order_props,
+        ignore=[
+            # Used in crawl_wallet
+            "orderType",
+            "orderNumber",
+            "orderDate",
+            "validityDate",
+            # Also given on the wallets, but the order lists holders of all
+            # seized assets
+            *WALLET_HOLDER_PROPS,
+        ],
+    )
 
 
 def crawl(context: Context) -> None:
-    # Get a warning when a notice has been issued
-    content_xpath = ".//main"
-    assert context.dataset.url
-    doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
-    container = h.xpath_element(doc, content_xpath)
-    # Write a CSV snapshot to check the diff manually (git diff).
-    # Review for any new releases or persons/wallets added.
-    # The key things to check are
-    # - the table of releases - are there any new ones?
-    # - The table of persons/wallets - does it look like anything's been added there?
-    # If updated, reflect changes in seizures.csv and commit it with the new CSV:
-    # git add -f datasets/il/mod_crypto/seizures.csv
-    # git add -f datasets/il/mod_crypto/releases.csv
-    # git add -f datasets/il/mod_crypto/wallets.csv
-    tables = h.xpath_elements(
-        container, '//table[@class="ms-rteTable-4"]', expect_exactly=2
-    )
-    write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
-    write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
-    h.assert_dom_hash(container, "009da07ce2c833cbed4837620cce8a17e4c6b0c6")
+    orders = fetch_content(context, "seizureAndForfeitureOrder", "en")
+    wallets = fetch_content(context, "cryptocurrencyWallet", "en")
+    operatives = fetch_variants(context, "operative")
+    orgs = fetch_variants(context, "organization")
 
-    # At the time of writing, the table on the web page is missing some public keys,
-    # so we maintain the data by hand in seizures.csv next to this crawler (see
-    # maintenance.md).
-    # The file is read from the checkout rather than fetched from data_url, so that
-    # a pull request is crawled with its own edit instead of the copy on main.
-    src = LOCAL_PATH / SOURCE_FILE
-    resource_path = context.get_resource_path("source.csv")
-    shutil.copy(src, resource_path)
-    context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
-    with open(src) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            row = remove_zero_width_space(row)
-            crawl_csv_row(context, row)
+    for order in orders.values():
+        crawl_order(context, order, wallets, operatives, orgs)

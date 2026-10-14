@@ -34,7 +34,7 @@ import json
 from pathlib import Path
 
 import click
-from common import (
+from .common import (
     SKIP_P_CLASSES,
     ParseError,
     Row,

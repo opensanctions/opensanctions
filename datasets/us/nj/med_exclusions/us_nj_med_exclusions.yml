@@ -23,8 +23,7 @@ description: |
   [Medical Debarment Search](https://www.nj.gov/treasury/revenue/debarment/debarsearch-medical.shtml)
   tool at the New Jersey Treasury.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: New Jersey Office of the State Comptroller
   description: >

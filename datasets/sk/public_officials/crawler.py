@@ -8,6 +8,9 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 from zavod import Context
 from zavod import helpers as h
 
+FALLBACK_OFFICIAL_PART = "verejný funkcionár"
+FALLBACK_OFFICIAL_PREFIX = "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon ("
+
 
 def parse_details(context: Context, link_el: Element) -> None:
     href = link_el.get("href")
@@ -75,16 +78,10 @@ def crawl_person(
     person.add("topics", "role.pep")
     person.add("sourceUrl", href)
     for pos in position_slk:
-        if "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)" in pos:
-            cleaned_pos = context.lookup_value("position", pos)
-            if cleaned_pos is None:
-                context.log.warning(
-                    "No lookup found for non-standard position title {pos!r}, skipping",
-                    pos=pos,
-                )
-                continue
-            pos = cleaned_pos
-
+        if pos.startswith(FALLBACK_OFFICIAL_PREFIX):
+            pos = pos.replace(FALLBACK_OFFICIAL_PREFIX, "").rstrip(")")
+        if FALLBACK_OFFICIAL_PART.casefold() in pos.casefold():
+            context.log.warning("probable noise in position title", pos=pos)
         position = h.make_position(
             context,
             pos,

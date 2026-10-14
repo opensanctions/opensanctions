@@ -35,7 +35,6 @@ publisher:
   official: true
 tags:
   - list.sanction
-  - list.sanction.eu
   - issuer.west
   - sector.maritime
 url: https://eur-lex.europa.eu/
@@ -120,7 +119,12 @@ config:
   #     python -m zavod.shed.ojeu.cellar <CELEX> --body-only --output act.html
   #
   # This dataset has ci_test: false. Do not crawl. Verify a change with
-  # `python scripts/validate.py` and `contrib/lint_dataset.sh <dataset>.yml`.
+  # `python -m scripts.validate` and `contrib/lint_dataset.sh`. Run the lint
+  # script from the repository root. Give it the path from the root of the
+  # dataset YAML and of each file in scripts/ that you changed:
+  #
+  #     contrib/lint_dataset.sh datasets/eu/journal_sanctions/eu_journal_sanctions.yml \
+  #       datasets/eu/journal_sanctions/scripts/<changed>.py
   #
   # The procedure for each warning is above the key that the procedure
   # changes. A comment block here holds a maximum of 32 lines: the YAML
@@ -136,7 +140,7 @@ config:
   #   or CELLAR withdrew the version. Correct the pin.
   consolidation:
     32001R2580: 02001R2580-20260227
-    32002R0881: 02002R0881-20260828
+    32002R0881: 02002R0881-20260922
     32003R1210: 02003R1210-20251224
     32004R0314: 02004R0314-20260219
     32005R1183: 02005R1183-20251210
@@ -155,7 +159,7 @@ config:
     32013R0401: 02013R0401-20260429
     32014R0208: 02014R0208-20260303
     32014R0224: 02014R0224-20250326
-    32014R0269: 02014R0269-20260807
+    32014R0269: 02014R0269-20260928
     32014R0747: 02014R0747-20260622
     32014R0833: 02014R0833-20260724
     32014R1352: 02014R1352-20240913
@@ -178,8 +182,8 @@ config:
     32023R2406: 02023R2406-20240913
     32024R0287: 02024R0287-20260113
     32024R0386: 02024R0386-20260528
-    32024R1485: 02024R1485-20260713
-    32024R2642: 02024R2642-20260713
+    32024R1485: 02024R1485-20260928
+    32024R2642: 02024R2642-20260924
 
   # ## Warning "Newer consolidated version published"
   #
@@ -187,7 +191,7 @@ config:
   # pin in `consolidation`. The snapshot in data/consolidated/ is stale.
   #
   # 1. Open the `url` in the warning. Read the change.
-  # 2. Run `python scripts/parse_<framework>.py <latest>` from this directory.
+  # 2. Run `python -m scripts.parse_<framework> <latest>` from this directory.
   #    The parser stops with an error when the document has a structure that
   #    the parser does not know. Change that one parser, and teach it only the
   #    structure that the document shows. Do not add a general fallback.
@@ -201,7 +205,7 @@ config:
   #    rows with the new snapshot. If the snapshot has the designations, add
   #    the amendment below with the new version. If the snapshot does not have
   #    them, do not change the entry. Do not delete the amendment file.
-  # 6. Run `python scripts/validate.py`. Put all of these changes in one
+  # 6. Run `python -m scripts.validate`. Put all of these changes in one
   #    commit.
   #
   # There is deliberately no mute list for this warning: a stale pin means the
@@ -214,14 +218,19 @@ config:
   consolidated_amendments:
     32026R1720: 02020R1998-20260730
     32026R1817: 02006R0765-20260724
-    32026R1843: 02014R0269-20260807
+    32026R1843: 02014R0269-20260928
     32026R1846: 02006R0765-20260724
     32026R1848: 02014R0833-20260724
     32026R1883: 02012R0267-20260801
     32026R1895: 02020R1998-20260730
-    32026R1940: 02014R0269-20260807
-    32026R1960: 02002R0881-20260828
-    32026R1965: 02002R0881-20260828
+    32026R1940: 02014R0269-20260928
+    32026R1960: 02002R0881-20260922
+    32026R1965: 02002R0881-20260922
+    32026R2143: 02002R0881-20260922
+    32026R2160: 02014R0269-20260928
+    32026R2165: 02024R2642-20260924
+    32026R2184: 02014R0269-20260928
+    32026R2193: 02024R1485-20260928
 
   # ## Warning "Amending act has no reviewed transcription"
   #
@@ -238,8 +247,8 @@ config:
   # 5. Write all designations of the act to data/amendments/<CELEX>.csv. One
   #    file holds the complete act. A part of the act is not sufficient.
   #    data/FORMAT.md gives the columns, the fidelity rules and the row rules.
-  # 6. Run `python scripts/format.py data/amendments/<CELEX>.csv`, then
-  #    `python scripts/validate.py`.
+  # 6. Run `python -m scripts.format data/amendments/<CELEX>.csv`, then
+  #    `python -m scripts.validate`.
   # 7. In the PR, name each annex you transcribed and the number of rows it
   #    gave. Name each annex that has no designated party.
   #
@@ -255,6 +264,10 @@ config:
     # snapshot 02001R2580-20260227 in data/consolidated/32001R2580.csv.
     - 32026R1878
     - 32026R1891
+    # Article 1 deletes Article 22a of Regulation (EU) 2016/44, dropping the
+    # references to EUNAVFOR MED IRINI after the UNSCR 2292 (2016) high-seas
+    # inspection authorisation lapsed on 25.5.2026. The act has no annex.
+    - 32026R2259
 
 assertions:
   min:
@@ -2016,8 +2029,12 @@ lookups:
           - "aleksandr.babuchin@domrf.ru"
           - "isb@domrf.ru"
       # Council Implementing Regulation (EU) 2026/2184 prints Aleksandr
-      # Mikhailovich KALYAGIN's two addresses separated by a space.
-      - match: "am.kalyagin@mon.zo.gov.ru kalyaginam_mgudt@bk.ru"
+      # Mikhailovich KALYAGIN's two addresses separated by a space; the
+      # consolidation that absorbed it (02014R0269-20260928) runs them
+      # together with no separator at all.
+      - match:
+          - "am.kalyagin@mon.zo.gov.ru kalyaginam_mgudt@bk.ru"
+          - "am.kalyagin@mon.zo.gov.rukalyaginam_mgudt@bk.ru"
         values:
           - "am.kalyagin@mon.zo.gov.ru"
           - "kalyaginam_mgudt@bk.ru"

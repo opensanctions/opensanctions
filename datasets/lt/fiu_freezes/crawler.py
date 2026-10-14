@@ -56,11 +56,11 @@ def crawl_page(
         company.add("topics", "sanction")
         for prop, value in cleaning_props.items():
             company.add(prop, value)
-        context.emit(company)
 
         sanction = h.make_sanction(context, company, program_key=program_key)
         sanction.add("provisions", measures)
         sanction.add("program", legal_grounds)
+        context.emit(company)
         context.emit(sanction)
 
         for related in related_entities:

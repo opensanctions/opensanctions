@@ -2,7 +2,7 @@
 るために講ずる輸出等に係る禁止措置の対象となるロシア連邦及びベラルー
 シ共和国以外の国の団体を指定する件（令和五年外務省告示第四百四十七号）
 指定日：2023年12月15日
-最終更新日：2025年9月12日
+最終更新日：2026年10月2日
 1 有限会社タコ
 Tako LLC, a.k.a. the following one alias:
 -Taco LLC.
@@ -514,3 +514,20 @@ Antalya, Turkey
 Laserchips FZCO
 所在地：Dubai Silicon Oasis, DSO-IFZA-21645, IFZA Properties, Dubai,
 United Arab Emirates
+57 ソリド・タリム・イノヴァション株式会社
+Solid Tarim Inovasyon Anonim Sirketi
+所在地：Turktas D:1, No: 31 Cikcilli Mahallesi, 106 Sokak, Alanya,
+Antalya 07400, Turkey
+58 アメジノFZE
+Amegino FZE
+別称：アメギノ FZE
+所在地：T1-9F-6D, RAKEZ Amenity Center, Al Hamra Industrial Zone-
+FZ, Ras Al Khaimah, United Arab Emirates
+59 オート・パーツ・イースト FZCO
+Auto Parts East FZCO
+所在地：Jebel Ali (JAFZA) RA08 YB-05/ YB-06/ YB-07, Dubai 17370,
+United Arab Emirates
+60 モト・エクスポート DWC有限会社
+MOTO Export DWC LLC
+所在地：Office No: DLC-FC-O6, Building No: DLC-FC-4, Warehouse No:
+DLC-FC-W06, Logistics District, Dubai 390667, United Arab Emirates

@@ -39,8 +39,6 @@ dates:
 
 tags:
   - list.terror
-  - target.global
-  - issuer.au
 
 assertions:
   min:

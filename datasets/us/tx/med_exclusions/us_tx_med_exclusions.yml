@@ -17,8 +17,7 @@ description: |
     U.S. Health & Human Services OIG (Medicare) exclusion actions, and "Permissive" exclusions as allowed by various
     legal authorities.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: The Texas Health & Human Services Commissions (Commission) Office of Inspector General (OIG)
   description: >

@@ -31,7 +31,6 @@ data:
   lang: eng
 tags:
   - list.sanction
-  - issuer.africa
 names:
   suggest_weak_alias_person_single_token: true
 

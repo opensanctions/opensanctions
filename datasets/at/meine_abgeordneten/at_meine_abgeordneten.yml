@@ -81,6 +81,8 @@ lookups:
         value: heike.grebien@parlament.gv.at
       - match: amelie.muthsam@spoe.at,
         value: amelie.muthsam@spoe.at
+      - match: katja.seitner@noeaab.at,
+        value: katja.seitner@noeaab.at
   type.date:
     options:
       - match: "3023-03-23"

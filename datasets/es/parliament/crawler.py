@@ -69,7 +69,7 @@ def emit_pep_entities(
 
 def get_birth_date_and_place(
     context: Context, profile_url: str
-) -> tuple[str, str | None]:
+) -> tuple[str | None, str | None]:
     """Get the birth date and place from the profile URL.
 
     Format looks like one of the following:
@@ -85,14 +85,12 @@ def get_birth_date_and_place(
         h.xpath_elements(doc, born_xpath, expect_exactly=1)[0].getnext()
     )
     parts = born.split(" in ")
-    birth_date = parts[0].replace("Born on", "").strip()
+    birth_date = parts[0].replace("Born on", "").strip() or None
     birth_place = parts[1].strip() if len(parts) > 1 else None
     return birth_date, birth_place
 
 
-def crawl_deputy(
-    context: Context, item: dict[str, str], current_leg_roman: str
-) -> bool:
+def crawl_deputy(context: Context, item: dict[str, str], leg_roman: str) -> bool:
     id = item.pop("parliament_member_id")
     query = {
         "p_p_id": "diputadomodule",
@@ -101,7 +99,7 @@ def crawl_deputy(
         "p_p_mode": "view",
         "_diputadomodule_mostrarFicha": "true",
         "codParlamentario": id,
-        "idLegislatura": current_leg_roman,
+        "idLegislatura": leg_roman,
     }
     profile_url = f"{DEPUTIES_URL}?{urlencode(query)}"
 
@@ -110,6 +108,7 @@ def crawl_deputy(
 
     person = context.make("Person")
     person.id = context.make_id(id, name, party)
+
     h.apply_name(
         person,
         full=name,
@@ -118,23 +117,22 @@ def crawl_deputy(
     )
     birth_date, birth_place = get_birth_date_and_place(context, profile_url)
     h.apply_date(person, "birthDate", birth_date)
+
     # citizenship required: https://www.boe.es/buscar/act.php?id=BOE-A-1985-11672
     person.add("citizenship", "es")
     person.add("birthPlace", birth_place)
     person.add("political", party)
     person.add("gender", item.pop("gender"))
-    parliamentarian_group = item.pop("parliamentary_group")
-    constituency = item.pop("constituency_name")
     person.add("sourceUrl", profile_url)
     emitted = emit_pep_entities(
         context,
         person=person,
         position_name="Member of the Congress of Deputies of Spain",
         lang="eng",
-        start_date=item.pop("start_date"),
-        end_date=item.pop("end_date", None),
-        constituency=constituency,
-        political_group=parliamentarian_group,
+        start_date=item.pop("start_date") or None,
+        end_date=item.pop("end_date") or None,
+        constituency=item.pop("constituency_name"),
+        political_group=item.pop("parliamentary_group"),
         is_pep=True,
         wikidata_id="Q18171345",
     )
@@ -148,6 +146,7 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     senator_id = query_params["id1"][0]
     legis = query_params["legis"][0]
     xml_url = f"https://www.senado.es/web/ficopendataservlet?tipoFich=1&cod={senator_id}&legis={legis}"
+
     _, _, _, path = zyte_api.fetch_resource(
         context, filename=f"source_{senator_id}.xml", url=xml_url
     )
@@ -233,11 +232,18 @@ def crawl(context: Context) -> None:
     )[0]
     current_leg_decimal = h.xpath_string(current_leg_option, "@value")
     current_leg_roman = h.element_text(current_leg_option).split(" ")[0].strip()
+
     form_data = {
         "_diputadomodule_idLegislatura": current_leg_decimal,
         "_diputadomodule_genero": "0",
         "_diputadomodule_grupo": "all",
-        "_diputadomodule_tipo": "0",
+        # tipo 0 = current members
+        # tipo 1 = former members
+        # tipo 2 = all members
+        # We want all, even when we select current, because in between terms,
+        # transient members are former and permanent members are current in
+        # the "current" (but just-ended) term.
+        "_diputadomodule_tipo": "2",
         "_diputadomodule_formacion": "all",
         "_diputadomodule_filtroProvincias": "[]",
     }
@@ -272,6 +278,7 @@ def crawl(context: Context) -> None:
             # div of the main list, which may be empty for some letters
             unblock_validator="//div[@class='caja12']",
             absolute_links=True,
+            cache_days=1,
         )
         for senator_href in h.xpath_strings(
             letter_doc, ".//ul[@class='lista-alterna']//@href"

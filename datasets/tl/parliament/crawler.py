@@ -30,6 +30,11 @@ def parse_details(profile_doc: Element, context: Context) -> dict[str, str]:
             )
             value = h.element_text(next_paragraphs[0]) if next_paragraphs else ""
         details[field] = value
+    # A few profiles combine the two, e.g. "Bihala, 15-11-1969".
+    if "birth_place_date" in details:
+        place, _, birth_date = details.pop("birth_place_date").rpartition(",")
+        details.setdefault("birth_place", place.strip())
+        details.setdefault("birth_date", birth_date.strip())
     return details
 
 
@@ -43,8 +48,11 @@ def crawl_member(
     profile_url = h.xpath_string(member_link, "./@href")
     raw_name = h.element_text(member_link)
 
+    profile_id = profile_url.removeprefix(PROFILE_URL)
+    assert profile_id.isdigit(), profile_url
+
     person = context.make("Person")
-    person.id = context.make_slug(raw_name)
+    person.id = context.make_slug(profile_id)
     person.add("name", NICKNAME_RE.sub("", raw_name), lang="por")
     person.add("alias", NICKNAME_RE.findall(raw_name))
     person.add("political", party)
@@ -57,17 +65,16 @@ def crawl_member(
     details = parse_details(profile_doc, context)
     h.apply_date(person, "birthDate", details.get("birth_date"))
     person.add("birthPlace", details.get("birth_place"))
-    person.add("address", details.get("municipality"))
 
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        start_date=details.get("start_date"),
         categorisation=categorisation,
     )
     if occupancy is None:
         return
+
     context.emit(occupancy)
     context.emit(person)
 

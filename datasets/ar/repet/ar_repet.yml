@@ -32,12 +32,12 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 400
-      Organization: 70
+      Person: 800
+      Organization: 220
   max:
     schema_entities:
-      Person: 900
-      Organization: 200
+      Person: 1100
+      Organization: 320
 
 dates:
   formats: ["%d/%m/%Y"]
@@ -51,6 +51,7 @@ lookups:
           - Passport
         contains:
           - Pasaporte
+          - Passeport
         document_schema: Passport
       - match:
           - National Identification Number

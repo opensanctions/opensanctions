@@ -306,3 +306,20 @@ def test_categorise_updates_changed_metadata(testdataset1: Dataset):
     assert row.subnational_areas == ["Texas"]
 
     context.close()
+
+
+def test_categorise_sets_last_seen(testdataset1: Dataset):
+    context = make_context(testdataset1)
+    position = make_position(context, "Minister of Health", country="us")
+    categorise(context, position, default_is_pep=None)
+    [row] = context.db.execute(position_table.select()).fetchall()
+    assert row.last_seen == settings.RUN_TIME
+
+    stale = datetime(2020, 1, 1)
+    context.db.execute(position_table.update().values(last_seen=stale))
+    categorise.cache_clear()
+    categorise(context, position, default_is_pep=None)
+    [row] = context.db.execute(position_table.select()).fetchall()
+    assert row.last_seen == settings.RUN_TIME
+
+    context.close()

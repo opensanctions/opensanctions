@@ -16,8 +16,7 @@ description: |
   > terminate a provider for a variety of reasons including, but not limited to, lack of licensure, quality of care
   > concerns, and lack of disclosure of certain information or persons.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Arizona Health Care Cost Containment System
   description: |

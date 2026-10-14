@@ -33,6 +33,9 @@ publisher:
   country: zz
 url: "https://ror.org/registry/"
 
+tags:
+  - sector.academic
+
 inputs:
   - ann_graph_topics
   - c4ads_xinjiang

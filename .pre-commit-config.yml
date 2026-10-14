@@ -52,16 +52,6 @@ repos:
         # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
         language: system
         files: "datasets/"
-        exclude: |
-          (?x)^(
-          datasets/eu/journal_sanctions|
-          datasets/gb/coh|
-          datasets/ky/judicial|
-          datasets/lt/pep_declarations|
-          datasets/ng/join_dots|
-          datasets/us/bis_denied|
-          datasets/za/wanted
-          )
         args: ['--strict', '--explicit-package-bases']
   - repo: local
     hooks:

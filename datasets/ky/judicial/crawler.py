@@ -62,6 +62,7 @@ def crawl_page(context: Context, person_url: str) -> None:
         # Section 6.2
         person_proxy.add("country", "ky")
 
+        assert position is not None, name
         position_entity = h.make_position(
             context,
             name=position,

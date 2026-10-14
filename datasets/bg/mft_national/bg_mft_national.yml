@@ -65,7 +65,6 @@ dates:
   formats: ["%d.%m.%Y"]
 tags:
   - list.sanction
-  - juris.bg
 
 assertions:
   min:

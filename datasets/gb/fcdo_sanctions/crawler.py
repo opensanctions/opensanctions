@@ -10,6 +10,7 @@ from zavod import helpers as h
 
 
 EMAIL_SPLIT = re.compile(r"[; ]")
+CRYPTO_MENTION = re.compile(r"crypto|digital (currency )?address", re.IGNORECASE)
 PATTERNS = [
     (r"^INN:?\s*(\d{10}|\d{12})\s*$", "innCode"),
     (r"^OGRN:?\s*(\d{13}|\d{15})\s*$", "ogrnCode"),
@@ -85,6 +86,21 @@ def parse_company_names(context: Context, value: str | None) -> list[str]:
     return result.values
 
 
+def warn_on_separator(
+    context: Context, entity: Entity, prop: str, separator: str
+) -> None:
+    # Multi-value fields that occur too rarely to split in code get a datapatch
+    # in the type lookups instead. The check runs on the patched values.
+    for value in entity.get(prop):
+        if re.search(separator, value):
+            context.log.warning(
+                "Value contains a separator, add a datapatch",
+                entity_id=entity.id,
+                prop=prop,
+                value=value,
+            )
+
+
 def entity_type(type: str) -> str:
     match type.lower():
         case "individual":
@@ -151,7 +167,7 @@ def xml_make_person(
             entity.add("nationality", nationality.text)
         # Add positions
         for position in individual.iterfind(".//Positions//Position"):
-            entity.add("position", position.text)
+            entity.add("position", h.multi_split(position.text, ["|", "; and ", "; "]))
 
 
 def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) -> None:
@@ -184,6 +200,27 @@ def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) 
             ".//CurrentBelievedFlagOfShips//CurrentBelievedFlagOfShip"
         ):
             entity.add("flag", flag.text)
+
+
+def crawl_wallets(context: Context, entity: Entity, text: str | None) -> None:
+    """Emit the crypto wallets listed in the free-text Other Information field."""
+    if text is None:
+        return
+    cryptos = h.extract_cryptos(text)
+    if not cryptos and CRYPTO_MENTION.search(text):
+        context.log.warning(
+            "Crypto mentioned but no wallet address extracted",
+            entity_id=entity.id,
+            text=text,
+        )
+    for address, currency in cryptos.items():
+        wallet = context.make("CryptoWallet")
+        wallet.id = context.make_id(address)
+        wallet.add("publicKey", address)
+        wallet.add("currency", currency)
+        wallet.add("holder", entity.id)
+        wallet.add("topics", "sanction")
+        context.emit(wallet)
 
 
 def crawl_xml(context: Context) -> None:
@@ -298,13 +335,14 @@ def crawl_xml(context: Context) -> None:
                 h.apply_date(sanction, "startDate", date.text)
             # Add the source of the sanction
             for authority in designation.iterfind(".//DesignationSource"):
-                sanction.add("authority", authority.text)
+                sanction.add("authority", h.multi_split(authority.text, ["|"]))
             for scope in designation.iterfind(".//SanctionsImposed"):
                 if scope.text is not None:
                     sanction.add("provisions", scope.text.split("|"))
             # Add reason as a note
             for info in designation.iterfind(".//OtherInformation"):
                 entity.add("notes", info.text)
+                crawl_wallets(context, entity, info.text)
             for info in designation.iterfind(".//UKStatementofReasons"):
                 sanction.add("reason", html.unescape(info.text) if info.text else None)
             entity.add("topics", "sanction")
@@ -320,8 +358,11 @@ def csv_make_legal_entity(
     entity.add("phone", row.pop("Phone number"))
     entity.add("email", h.multi_split(row.pop("Email address"), [", ", "; "]))
     entity.add("website", row.pop("Website"))
-    # Mix of legal forms and sectors
+    warn_on_separator(context, entity, "website", r"[|;,\s]")
+    # Mix of legal forms and sectors. Only "|" separates values: "/" and ","
+    # also join the parts of one value, e.g. "Import/Export".
     entity.add("summary", row.pop("Type of entity"))
+    warn_on_separator(context, entity, "summary", r"\|")
 
     reg_number = row.pop("Business registration number (s)")
     if reg_number:
@@ -383,7 +424,7 @@ def csv_make_person(context: Context, row: dict[str, str], entity: Entity) -> No
     entity.add("birthPlace", row.pop("Country of birth"))
     entity.add("idNumber", row.pop("National Identifier number"))
     entity.add("nationality", row.pop("Nationality(/ies)"))
-    entity.add("position", row.pop("Position"))
+    entity.add("position", h.multi_split(row.pop("Position"), ["|", "; and ", "; "]))
 
     passport_no = row.pop("Passport number")
     passport = context.make("Passport")
@@ -546,12 +587,18 @@ def crawl_csv(context: Context) -> None:
             sanction.add("authorityId", unique_id)
             sanction.add("authorityId", row.pop("OFSI Group ID"))
             sanction.add("unscId", row.pop("UN Reference Number"))
-            sanction.set("authority", row.pop("Designation source"))
+            sanction.set(
+                "authority", h.multi_split(row.pop("Designation source"), ["|"])
+            )
             sanction.add("reason", html.unescape(row.pop("UK Statement of Reasons")))
             h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
             h.apply_date(sanction, "startDate", row.pop("Date Designated"))
 
-            entity.add("notes", row.pop("Other Information"))
+            other_information = row.pop("Other Information")
+            entity.add("notes", other_information)
+            # The CSV strips the line breaks between addresses, gluing some into
+            # one unmatchable string; the XML pass picks those up.
+            crawl_wallets(context, entity, other_information)
             entity.add("topics", "sanction")
 
             sanctions_imposed = row.pop("Sanctions Imposed")

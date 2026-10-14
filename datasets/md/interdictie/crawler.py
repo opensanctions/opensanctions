@@ -5,6 +5,7 @@ from rigour.mime.types import HTML
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract import zyte_api
 
 REGEX_DELAY = re.compile(r".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
 # e.g. 6/23 from "6/23 din 02.05.2023"
@@ -38,7 +39,10 @@ ROLES = {
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.html", context.data_url)
+    # The source blocks IP addresses outside Moldova.
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.html", context.data_url, HTML, geolocation="MD"
+    )
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path) as fh:
         doc = html.parse(fh)

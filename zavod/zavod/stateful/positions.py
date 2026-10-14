@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from functools import lru_cache
 from collections.abc import Iterator
+from typing import Any
 
 from rigour.dates import ended_before, starts_after
 from rigour.ids.wikidata import is_qid
@@ -64,12 +65,12 @@ def categorise(
     stmt = stmt.filter(position_table.c.entity_id == position.id)
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
     for row in context.db.execute(stmt).fetchall():
+        updates: dict[str, Any] = {"last_seen": settings.RUN_TIME}
         if (
             row.caption != position.caption
             or sorted(row.countries) != countries
             or sorted(row.subnational_areas or []) != subnational_areas
         ):
-            # If the caption or countries have changed, we need to update the row.
             context.log.info(
                 "Updating position metadata",
                 entity_id=position.id,
@@ -77,16 +78,13 @@ def categorise(
                 countries=countries,
                 subnational_areas=subnational_areas,
             )
-            ustmt = position_table.update()
-            ustmt = ustmt.where(position_table.c.id == row.id)
-            updates = {
-                "caption": position.caption,
-                "countries": countries,
-                "subnational_areas": subnational_areas,
-                # "modified_at": settings.RUN_TIME,
-            }
-            ustmt = ustmt.values(updates)
-            context.db.execute(ustmt)
+            updates["caption"] = position.caption
+            updates["countries"] = countries
+            updates["subnational_areas"] = subnational_areas
+        ustmt = position_table.update()
+        ustmt = ustmt.where(position_table.c.id == row.id)
+        ustmt = ustmt.values(updates)
+        context.db.execute(ustmt)
         return PositionCategorisation(
             topics=row.topics,
             is_pep=row.is_pep,
@@ -100,6 +98,7 @@ def categorise(
         "topics": position.get("topics"),
         "dataset": position.dataset.name,
         "created_at": settings.RUN_TIME,
+        "last_seen": settings.RUN_TIME,
         "is_pep": default_is_pep,
     }
     istmt = position_table.insert()

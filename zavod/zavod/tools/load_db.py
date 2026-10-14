@@ -29,11 +29,9 @@ def load_dataset_to_db(
     """
     engine = get_engine()
     # Not Alembic-managed, so no migration creates it. checkfirst skips an
-    # existing table entirely, which is why indexes added since it was first
-    # created only apply via the loop below.
+    # existing table entirely.
     statement_table.create(bind=engine, checkfirst=True)
-    for index in statement_table.indexes:
-        index.create(bind=engine, checkfirst=True)
+
     for dataset_name in manifest.datasets.keys():
         # Duplicate statement IDs are left to the upsert in insert_statements,
         # which keeps the first row of a conflict just like an in-process

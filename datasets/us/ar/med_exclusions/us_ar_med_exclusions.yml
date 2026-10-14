@@ -26,8 +26,7 @@ description: |
   > Medicaid for services rendered by excluded individuals and are subject to audits and recoupment
   > of any Medicaid funds paid for services.
 tags:
-  - sector.medical
-  - sector.usmed.debarment
+  - sector.health
 publisher:
   name: Arkansas Department of Human Services
   description: |

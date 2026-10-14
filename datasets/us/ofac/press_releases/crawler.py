@@ -161,7 +161,8 @@ def crawl_press_release(context: Context, url: str) -> None:
     article_content = article.findall(".//article[@class='entity--type-node']")
     for img in article.findall(".//img"):
         # Images pasted from Office carry a megabytes-long base64 copy of the graphic here.
-        img.attrib.pop("o:gfxdata", None)
+        # lxml-stubs omit the pop(key, default) overload that accepts None
+        img.attrib.pop("o:gfxdata", None)  # type: ignore[call-overload]
         img_src = img.get("src")
         if img_src is None or img_src.startswith("data:image"):
             img_parent = img.getparent()

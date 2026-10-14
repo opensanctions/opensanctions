@@ -1,5 +1,5 @@
 import openpyxl
-from typing import Any, cast
+from typing import cast
 from normality import squash_spaces, slugify
 from rigour.mime.types import XLSX
 import re
@@ -21,8 +21,8 @@ def clean_position(
     context: Context,
     *,
     position_name: str | None,
-    district: str,
-    person_name: str,
+    district: str | None,
+    person_name: str | None,
 ) -> str | None:
     """Normalise a raw position string, or returns None if the position name is invalid.
 
@@ -101,7 +101,7 @@ def parse_position_dates(string: str | None) -> tuple[str | None, str | None]:
 
 
 def crawl_pep(
-    context: Context, row: dict[str | None, Any]
+    context: Context, row: dict[str, str | None]
 ) -> tuple[str | None, str | None]:
     """Returns (person name, entity ID), or (None, None) if the PEP was not emitted."""
     name = row.pop("name")
@@ -155,7 +155,7 @@ def crawl_pep(
 
 
 def crawl_relative(
-    context: Context, row: dict[str | None, Any], pep_ids: dict[str, str]
+    context: Context, row: dict[str, str | None], pep_ids: dict[str, str]
 ) -> None:
     name = row.pop("name")
     pep_name = row.pop("pep_name")

@@ -8,33 +8,62 @@ from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# Albanian biography labels in the collapsed ".bio-hidden" block, mapped to the
-# FollowTheMoney property they populate. Labels not listed here are passed to
+# Biography labels in the collapsed ".bio-hidden" block, mapped to the FollowTheMoney
+# property they populate. Most profiles use Albanian labels, but some carry an English
+# bio with varying wording on the Albanian page itself. This is source content: neither
+# Zyte geolocation nor Accept-Language changes it. Labels not listed here are passed to
 # audit_data() so a new or renamed field fails loudly.
 # Date of birth is handled separately (apply_date + backslash normalisation).
-DOB_LABEL = "Datëlindja"
+DOB_LABELS = ["Datëlindja", "Date of birth"]
 BIO_PROPS = {
     "Gjinia": "gender",
+    "Pol": "gender",  # Serbian label, seen with an Albanian value
+    "Gender": "gender",
     "Përkatësia etnike": "ethnicity",
     "Etnia": "ethnicity",
+    "Etniat": "ethnicity",
+    "Ethnicity": "ethnicity",
     "Vendlindja": "birthPlace",
+    "Place of birth": "birthPlace",
     "Arsimimi": "education",
+    "Education": "education",
 }
-# "Partia" (party) also appears in the bio block, but we take it from the structural
-# PARTIA row in ".bio", which is present even when the collapsed bio is empty.
+# The party also appears in the bio block, but we take it from the structural party
+# row in ".bio", which is present even when the collapsed bio is empty.
 # Bio labels we deliberately drop: no suitable FTM property / not useful for matching.
 BIO_IGNORE = [
-    "Partia",  # party — taken from the structural PARTIA row instead
-    "Statusi civil",  # marital status
-    "Gjuhë tjetër përveç amtares",  # other languages spoken
-    "Gjuhë tjetër përveç amtare",  # idem; one profile drops the trailing "s"
-    "Aktivitete dhe funksione paraprake apo të tanishme",  # prior/current occupations
-    "Funksione paraprake apo të tanishme",  # idem; without the "Aktivitete dhe" prefix
+    # party — taken from the structural party row instead
+    "Partia",
+    "Party",
+    "Political party",
+    # marital status
+    "Statusi civil",
+    "Civil status",
+    "Marital status",
+    # other languages spoken
+    "Gjuhë tjetër përveç amtares",
+    "Gjuhë tjetër përveç amtare",  # one profile drops the trailing "s"
+    "Non-native languages",
+    "Other language(s) besides the mother tongue",
+    "Languages other than the mother tongue",
+    # prior/current occupations
+    "Aktivitete dhe funksione paraprake apo të tanishme",
+    "Funksione paraprake apo të tanishme",
+    "Previous or current functions",
+    "Previous or current activities",
+    "Previous or Current Positions",
+    "Current or Previous Positions",
 ]
+
+# Labels of the structural rows next to the deputy's name in ".bio". The site has
+# labelled the party row both "PARTIA" (party) and "SUBJEKTI" (electoral subject).
+PARTY_LABELS = {"SUBJEKTI", "PARTIA"}
+GROUP_LABEL = "GRUPI PARLAMENTAR"
+COMMITTEES_LABEL = "KOMISIONET"
 
 # All labels we recognise, longest first so prefix matching is unambiguous. Used to
 # recover rows where the source dropped the ":" separator (e.g. "Gjinia Mashkull").
-KNOWN_BIO_LABELS = sorted({DOB_LABEL, *BIO_PROPS, *BIO_IGNORE}, key=len, reverse=True)
+KNOWN_BIO_LABELS = sorted({*DOB_LABELS, *BIO_PROPS, *BIO_IGNORE}, key=len, reverse=True)
 
 
 def recover_unlabelled(text: str) -> tuple[str | None, str]:
@@ -116,16 +145,26 @@ def crawl_member(
         value = (label.tail or "").strip()
         if value == "":
             continue
-        if label_text == "PARTIA":
+        if label_text in PARTY_LABELS:
             person.add("political", value)
-        elif label_text == "GRUPI PARLAMENTAR":
+        elif label_text == GROUP_LABEL:
             group = value
+        elif label_text != COMMITTEES_LABEL:
+            # A renamed label would otherwise drop its value without notice.
+            context.log.warning(
+                "Unknown structural row label", label=label_text, value=value, url=url
+            )
+    # Every deputy is elected on a party or list, so a missing party points to a
+    # changed row label rather than an independent deputy.
+    if not person.has("political"):
+        context.log.warning("Deputy without party", url=url)
 
     bio = parse_bio(context, doc)
     # Dates use "/", "\" (e.g. 29\03\1970) or "." (e.g. 16.12.1985) as the separator;
     # normalise all to "/" to match the dataset's %d/%m/%Y format.
-    dob = bio.pop(DOB_LABEL, "").replace("\\", "/").replace(".", "/")
-    h.apply_date(person, "birthDate", dob)
+    for dob_label in DOB_LABELS:
+        dob = bio.pop(dob_label, "").replace("\\", "/").replace(".", "/")
+        h.apply_date(person, "birthDate", dob)
     for bio_label, prop in BIO_PROPS.items():
         person.add(prop, bio.pop(bio_label, ""))
     context.audit_data(bio, ignore=BIO_IGNORE)
