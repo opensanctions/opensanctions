@@ -45,6 +45,7 @@ dependencies = [
     "structlog",
     "xlrd == 2.0.2",
     "cryptography",
+    "opensanctions-pravda==0.6.0",
     "duckdb == 1.5.6",
 ]
 
