@@ -1,7 +1,7 @@
 """pravda snapshot table
 
-Revision ID: e0dbc0b5c6a6
-Revises: a3c9d2e7b410
+Revision ID: 0003
+Revises: 0002
 Create Date: 2026-10-02 12:00:00.000000
 
 """
@@ -14,8 +14,8 @@ from sqlalchemy.dialects import postgresql
 
 
 # revision identifiers, used by Alembic.
-revision: str = "e0dbc0b5c6a6"
-down_revision: str | Sequence[str] | None = "a3c9d2e7b410"
+revision: str = "0003"
+down_revision: str | Sequence[str] | None = "0002"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

@@ -1,11 +1,15 @@
 """Online-only Alembic environment for the zavod migrations."""
 
+from collections.abc import Iterable
 from logging.config import fileConfig
 
 from alembic import context
+from alembic.migration import MigrationContext
+from alembic.operations.ops import MigrationScript
 from alembic.runtime.environment import NameFilterParentNames, NameFilterType
+from alembic.script import ScriptDirectory
 from nomenklatura.db import get_engine
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 from sqlalchemy.engine import Connection
 
 from zavod import settings
@@ -51,12 +55,50 @@ def include_zavod_name(
 MIGRATION_LOCK_KEY = 0x7A61766F64  # "zavod"
 
 
+def number_revision(
+    context: MigrationContext,
+    revision: str | Iterable[str | None] | Iterable[str],
+    directives: list[MigrationScript],
+) -> None:
+    """Give new revisions the next number in the sequence, e.g. ``0005``."""
+    if getattr(config.cmd_opts, "rev_id", None) is not None:
+        raise ValueError("--rev-id is not supported: env.py numbers revisions.")
+    script = ScriptDirectory.from_config(config)
+    last = max((int(rev.revision) for rev in script.walk_revisions()), default=0)
+    for directive in directives:
+        directive.rev_id = f"{last + 1:04d}"
+
+
+# Revisions were renamed from Alembic's random hex IDs to a numbered sequence.
+# Databases stamped with an old ID are moved to the new one before migrating.
+# This can go once every database has been upgraded past the rename.
+LEGACY_REVISIONS = {
+    "f6e4a1f539b1": "0001",
+    "a3c9d2e7b410": "0002",
+    "e0dbc0b5c6a6": "0003",
+    "664de5de0bc5": "0004",
+}
+
+
+def rename_legacy_revisions(connection: Connection) -> None:
+    if not inspect(connection).has_table("alembic_version"):
+        return
+    for old, new in LEGACY_REVISIONS.items():
+        connection.execute(
+            text(
+                "UPDATE alembic_version SET version_num = :new WHERE version_num = :old"
+            ),
+            {"old": old, "new": new},
+        )
+
+
 def run_migrations(connection: Connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
         include_name=include_zavod_name,
         compare_type=True,
+        process_revision_directives=number_revision,
     )
     with context.begin_transaction():
         # Held until the transaction ends. A run that waited for it then reads
@@ -67,6 +109,7 @@ def run_migrations(connection: Connection) -> None:
                 text("SELECT pg_advisory_xact_lock(:key)"),
                 {"key": MIGRATION_LOCK_KEY},
             )
+        rename_legacy_revisions(connection)
         context.run_migrations()
 
 

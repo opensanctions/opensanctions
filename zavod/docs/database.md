@@ -45,4 +45,9 @@ timeout by setting `NOMENKLATURA_DB_STMT_TIMEOUT` (`0` to disable it).
    alembic revision --autogenerate -m "add column"
    ```
 
+   Revisions are numbered in sequence (`0001`, `0002`, ...); `env.py` assigns
+   the next number and rejects `--rev-id`. If two branches both add the
+   same number, renumber the later one and point its `down_revision` at the
+   other.
+
 3. Apply it with `alembic upgrade head`.

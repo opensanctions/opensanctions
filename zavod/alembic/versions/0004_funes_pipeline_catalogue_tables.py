@@ -1,7 +1,7 @@
 """funes pipeline catalogue tables
 
-Revision ID: 664de5de0bc5
-Revises: e0dbc0b5c6a6
+Revision ID: 0004
+Revises: 0003
 Create Date: 2026-10-02 12:30:00.000000
 
 """
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "664de5de0bc5"
-down_revision: str | Sequence[str] | None = "e0dbc0b5c6a6"
+revision: str = "0004"
+down_revision: str | Sequence[str] | None = "0003"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

@@ -1,7 +1,7 @@
 """add position.last_seen
 
-Revision ID: a3c9d2e7b410
-Revises: f6e4a1f539b1
+Revision ID: 0002
+Revises: 0001
 Create Date: 2026-10-05 12:00:00.000000
 
 """
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "a3c9d2e7b410"
-down_revision: str | Sequence[str] | None = "f6e4a1f539b1"
+revision: str = "0002"
+down_revision: str | Sequence[str] | None = "0001"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
