@@ -5,7 +5,7 @@ entry_point: crawler.py
 ci_test: false
 coverage:
   frequency: monthly
-  start: 2026-10-01
+  start: 2026-10-15
 load_statements: true
 summary: >-
   Unicameral legislature, Majlis an-Nuwwab, of Lebanon
