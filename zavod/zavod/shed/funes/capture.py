@@ -6,7 +6,6 @@ from pravda import Snapshot
 
 
 def first_error_line(error: str | None) -> str | None:
-    """Return the first non-empty line of a capture error, or None."""
     if error is None:
         return None
     return next(

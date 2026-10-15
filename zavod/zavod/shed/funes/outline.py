@@ -55,8 +55,7 @@ def build_outline(
 
 
 def _element_lines(elem: Element, url: str, bodies: dict[str, str]) -> list[str]:
-    """The element's outline lines at its own indentation, or an empty
-    list when nothing of it is retained."""
+    """An empty return means nothing of the element is retained."""
     # Comments and other non-element nodes carry a non-string tag.
     if not isinstance(elem.tag, str) or elem.tag in SKIP_TAGS:
         return []
@@ -97,8 +96,6 @@ def _element_lines(elem: Element, url: str, bodies: dict[str, str]) -> list[str]
 
 
 def _transparent_lines(elem: Element, url: str, bodies: dict[str, str]) -> list[str]:
-    """The element's content at the top level: text runs as ``- text:``
-    lines, retained children as their own lines."""
     lines: list[str] = []
     for chunk in _chunks(elem, url, bodies):
         if isinstance(chunk, str):
@@ -126,7 +123,6 @@ def _chunks(elem: Element, url: str, bodies: dict[str, str]) -> list[str | list[
 def _kept_attrs(
     elem: Element, url: str, bodies: dict[str, str]
 ) -> list[tuple[str, str]]:
-    """The attributes worth showing: fragment-free link targets and sources."""
     attrs: list[tuple[str, str]] = []
     if elem.tag == "a":
         href = elem.get("href")
@@ -168,7 +164,6 @@ def har_resource_media_types(http_archive: dict[str, Any] | None) -> dict[str, s
 def _stored_bodies(
     http_archive: dict[str, Any] | None,
 ) -> Iterator[tuple[str, str, dict[str, Any]]]:
-    """Yield ``(url, file, content)`` for every HAR entry with a stored body."""
     if http_archive is None:
         return
     for entry in http_archive["log"]["entries"]:
@@ -197,11 +192,8 @@ def _normalized_media_type(mime_type: str | None, url: str) -> str | None:
 
 
 def _har_bodies(http_archive: dict[str, Any] | None) -> dict[str, str]:
-    """Map HAR request URLs to their stored body paths (``content._file``).
-
-    The latest entry with a stored body wins; bodyless entries never shadow
-    an earlier body for the same URL.
-    """
+    """The latest entry with a stored body wins; bodyless entries never
+    shadow an earlier body for the same URL."""
     bodies: dict[str, str] = {}
     for url, file, _content in _stored_bodies(http_archive):
         bodies[url] = file
@@ -220,7 +212,6 @@ def _merge_adjacent_text(chunks: list[str | list[str]]) -> list[str | list[str]]
 
 
 def _normalize(text: str) -> str:
-    """Collapse all whitespace runs to single spaces and strip the ends."""
     return " ".join(text.split())
 
 

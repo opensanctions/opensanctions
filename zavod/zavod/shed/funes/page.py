@@ -52,10 +52,8 @@ def build_prompt(metadata: PageMetadata, outline: str) -> str:
 
 
 def _meta_content(document: Element, xpath: str) -> str | None:
-    """The content of the first matching meta element, or None when none
-    matches. A matching element without a content attribute counts as
-    present with empty content: like funes, it wins over the Open Graph
-    fallback."""
+    """A matching element without a content attribute counts as present
+    with empty content: like funes, it wins over the Open Graph fallback."""
     elements = h.xpath_elements(document, xpath)
     if not elements:
         return None
