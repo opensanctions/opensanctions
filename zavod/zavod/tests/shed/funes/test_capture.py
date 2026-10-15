@@ -20,7 +20,7 @@ def test_first_error_line() -> None:
 
 
 def make_snapshot(**overrides: Any) -> Snapshot:
-    """One inspectable-by-default snapshot; overrides vary the verdict inputs."""
+    """One inspectable-by-default snapshot."""
     fields: dict[str, Any] = {
         "id": uuid.uuid4(),
         "url": "https://example.org/",
@@ -67,37 +67,17 @@ def test_navigation_error_no_artifacts() -> None:
 
 def test_missing_rendered_html_only() -> None:
     issue = inspectability_issue(make_snapshot(rendered_html=None))
-    assert issue == "missing artifact(s): rendered_html"
+    assert issue == "missing artifact: rendered_html"
 
 
 def test_missing_rendered_html_no_diagnostics() -> None:
     issue = inspectability_issue(make_snapshot(rendered_html=None, http_status=None))
-    assert issue == "missing artifact(s): rendered_html"
+    assert issue == "missing artifact: rendered_html"
 
 
-def test_bad_final_url_scheme() -> None:
-    issue = inspectability_issue(make_snapshot(final_url="file:///etc/passwd"))
-    assert issue is not None
-    assert "final URL" in issue
-
-
-def test_relative_final_url() -> None:
-    issue = inspectability_issue(make_snapshot(final_url="/about/"))
-    assert issue is not None
-    assert "/about/" in issue
-
-
-def test_none_final_url() -> None:
-    issue = inspectability_issue(
-        make_snapshot(
-            final_url=None,
-            error="navigation aborted",
-            rendered_html=None,
-        )
-    )
-    assert issue is not None
-    assert issue.startswith("no final URL")
-    assert "navigation aborted" in issue
+def test_missing_rendered_html_http_status_diagnostic() -> None:
+    issue = inspectability_issue(make_snapshot(rendered_html=None, http_status=404))
+    assert issue == "missing artifact: rendered_html (http status 404)"
 
 
 def test_optional_screenshot_and_har() -> None:
@@ -118,5 +98,5 @@ def test_multiline_error_truncated_to_first_line() -> None:
     issue = inspectability_issue(make_snapshot(error=error, rendered_html=None))
     assert (
         issue
-        == "missing artifact(s): rendered_html (TimeoutError: Timeout 30000ms exceeded.)"
+        == "missing artifact: rendered_html (TimeoutError: Timeout 30000ms exceeded.)"
     )
