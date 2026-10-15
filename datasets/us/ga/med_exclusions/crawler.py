@@ -42,6 +42,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
     business_name = row.pop("business_name")
     npi = row.pop("npi")
+    dob = row.pop("dob")
 
     if not first_name and not last_name and not business_name:
         return
@@ -52,6 +53,13 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity = context.make("Company")
         entity.id = context.make_id(business_name, npi)
         entity.add("name", business_name)
+        if dob is not None:
+            # A date of birth on a row without a person name is unexplained: the
+            # entity can't be a Company and a natural person at the same time.
+            context.log.warning(
+                "Date of birth on a row with only a business name",
+                business_name=business_name,
+            )
     # Person name (with optional business name as d.b.a. alias)
     else:
         entity = context.make("Person")
@@ -63,6 +71,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
             entity.add("alias", business_name)
         entity.add("firstName", first_names)
         entity.add("alias", aliases)
+        h.apply_date(entity, "birthDate", dob)
     entity.add("npiCode", npi)
     entity.add("topics", "debarment")
     entity.add("country", "us")
