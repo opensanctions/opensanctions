@@ -7030,6 +7030,231 @@ lookups:
           incorporationDate: 2011-08-25
           ogrnCode: "1111327001862"
           innCode: "1327014116"
+      - match: "Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 3.2.2003 - Numéro d'enregistrement (OGRN): 1035007552150 - Numéro d'identification fiscale (INN): 5023002050: Numéro d'enregistrement (OGRN): 1035007552150"
+        props:
+          jurisdiction: ru
+          legalForm: entreprise fédérale d'État
+          incorporationDate: 2003-02-03
+          ogrnCode: "1035007552150"
+          innCode: "5023002050"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 10.9.2013 - Numéro d'enregistrement (OGRN): 1135040005594 - Numéro d'identification fiscale (INN): 5040125679: Numéro d'enregistrement (OGRN): 1135040005594"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2013-09-10
+          ogrnCode: "1135040005594"
+          innCode: "5040125679"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 11.10.2002 - Numéro d'enregistrement (OGRN): 1023700540786 - Numéro d'identification fiscale (INN): 3728026176: Numéro d'enregistrement (OGRN): 1023700540786"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-10-11
+          ogrnCode: "1023700540786"
+          innCode: "3728026176"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.10.2003: Numéro d'enregistrement (OGRN): 1036150011534"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-10-13
+          ogrnCode: "1036150011534"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.4.2004 - Numéro d'enregistrement (OGRN): 1045007101105 - Numéro d'identification fiscale (INN): 5035025460: Numéro d'enregistrement (OGRN): 1045007101105"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2004-04-13
+          ogrnCode: "1045007101105"
+          innCode: "5035025460"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 15.4.2009 - Numéro d'enregistrement (OGRN): 1093668014550 - Numéro d'identification fiscale (INN): 3661046916: Numéro d'enregistrement (OGRN): 1093668014550"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2009-04-15
+          ogrnCode: "1093668014550"
+          innCode: "3661046916"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 16.7.2002: Numéro d'enregistrement (OGRN): 1026104023285"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-07-16
+          ogrnCode: "1026104023285"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 17.6.2003 - Numéro d'enregistrement (OGRN): 1034004407942 - Numéro d'identification fiscale (INN): 4027060290: Numéro d'enregistrement (OGRN): 1034004407942"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-06-17
+          ogrnCode: "1034004407942"
+          innCode: "4027060290"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 18.11.2011 - Numéro d'enregistrement (OGRN): 1114725001995 - Numéro d'identification fiscale (INN): 4725481228: Numéro d'enregistrement (OGRN): 1114725001995"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2011-11-18
+          ogrnCode: "1114725001995"
+          innCode: "4725481228"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 19.12.2002: Numéro d'enregistrement (OGRN): 1026801064025"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-12-19
+          ogrnCode: "1026801064025"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 20.2.2009: Numéro d'enregistrement (OGRN): 1095543004985"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2009-02-20
+          ogrnCode: "1095543004985"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 21.1.2003 - Numéro d'enregistrement (OGRN): 1033302400230 - Numéro d'identification fiscale (INN): 3307000983: Numéro d'enregistrement (OGRN): 1033302400230"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-01-21
+          ogrnCode: "1033302400230"
+          innCode: "3307000983"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 23.12.2011: Numéro d'enregistrement (OGRN): 1115476164616"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2011-12-23
+          ogrnCode: "1115476164616"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 24.8.2002 - Numéro d'enregistrement (OGRN): 1021500669079 - Numéro d'identification fiscale (INN): 1503013086: Numéro d'enregistrement (OGRN): 1021500669079"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-08-24
+          ogrnCode: "1021500669079"
+          innCode: "1503013086"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 27.10.2010 - Numéro d'enregistrement (OGRN): 1105031004077 - Numéro d'identification fiscale (INN): 5031093484: Numéro d'enregistrement (OGRN): 1105031004077"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2010-10-27
+          ogrnCode: "1105031004077"
+          innCode: "5031093484"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 28.12.2011 - Numéro d'enregistrement (OGRN): 1113668056391 - Numéro d'identification fiscale (INN): 3662171927: Numéro d'enregistrement (OGRN): 1113668056391"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2011-12-28
+          ogrnCode: "1113668056391"
+          innCode: "3662171927"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 30.4.2009: Numéro d'enregistrement (OGRN): 1096646000296"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2009-04-30
+          ogrnCode: "1096646000296"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 4.12.2002 - Numéro d'enregistrement (OGRN): 1023303153752 - Numéro d'identification fiscale (INN): 3311001852: Numéro d'enregistrement (OGRN): 1023303153752"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-12-04
+          ogrnCode: "1023303153752"
+          innCode: "3311001852"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 5.11.2002: Numéro d'enregistrement (OGRN): 1026604954023"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-11-05
+          ogrnCode: "1026604954023"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 7.10.2002: Numéro d'enregistrement (OGRN): 1025801070349"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-10-07
+          ogrnCode: "1025801070349"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 11.4.2005: Numéro d'enregistrement (OGRN): 1057100795542"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2005-04-11
+          ogrnCode: "1057100795542"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.12.2016: Numéro d'enregistrement (OGRN): 1167154082237"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2016-12-13
+          ogrnCode: "1167154082237"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 14.10.2021 - Numéro d'enregistrement (OGRN): 1213700013383 - Numéro d'identification fiscale (INN): 3703025170: Numéro d'enregistrement (OGRN): 1213700013383"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2021-10-14
+          ogrnCode: "1213700013383"
+          innCode: "3703025170"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 16.10.2012 - Numéro d'enregistrement (OGRN): 1123703001510 - Numéro d'identification fiscale (INN): 3703046580: Numéro d'enregistrement (OGRN): 1123703001510"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2012-10-16
+          ogrnCode: "1123703001510"
+          innCode: "3703046580"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 17.7.2014: Numéro d'enregistrement (OGRN): 1146678009147"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2014-07-17
+          ogrnCode: "1146678009147"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 17.8.2015: Numéro d'enregistrement (OGRN): 1155749007798"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2015-08-17
+          ogrnCode: "1155749007798"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 2.11.2016: Numéro d'enregistrement (OGRN): 1167154078849"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2016-11-02
+          ogrnCode: "1167154078849"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 2.12.2002: Numéro d'enregistrement (OGRN): 1025700830627"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2002-12-02
+          ogrnCode: "1025700830627"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 20.4.2021 - Numéro d'enregistrement (OGRN): 1215000040826 - Numéro d'identification fiscale (INN): 5042156231: Numéro d'enregistrement (OGRN): 1215000040826"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2021-04-20
+          ogrnCode: "1215000040826"
+          innCode: "5042156231"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 24.8.2016: Numéro d'enregistrement (OGRN): 1166196093986"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2016-08-24
+          ogrnCode: "1166196093986"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 26.5.2014: Numéro d'enregistrement (OGRN): 1145958026741"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2014-05-26
+          ogrnCode: "1145958026741"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 27.2.2017: Numéro d'enregistrement (OGRN): 1175275014683"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2017-02-27
+          ogrnCode: "1175275014683"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 3.3.2005: Numéro d'enregistrement (OGRN): 1055214503398"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2005-03-03
+          ogrnCode: "1055214503398"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 8.8.2018: Numéro d'enregistrement (OGRN): 1185958026363"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2018-08-08
+          ogrnCode: "1185958026363"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 9.1.2018: Numéro d'enregistrement (OGRN): 1186658000264"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2018-01-09
+          ogrnCode: "1186658000264"
   # =====================================
   #
   #  ADDRESSES
