@@ -1744,6 +1744,11 @@ lookups:
       # release resolves the slash form on its own.
       - match: Myanmar/Burma
         value: mm
+      # Regulation (EU) 2026/2333 prints the singular form as DIS Logistics
+      # DMCC's principal place of business; the same entry's place of
+      # registration is printed in the plural.
+      - match: "united arab emirate"
+        value: "ae"
       - match:
           - "afghan. afghan passport number oa462456 (issued under the name abdul haq) issued on 31.1.2012 (11-11-1390)"
           - "saudi citizenship withdrawn, afghan nationality given by the taliban regime"
