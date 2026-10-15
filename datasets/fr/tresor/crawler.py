@@ -50,6 +50,7 @@ TEXT_KEYS = {
     "INN:": "innCode",
     # "INN": "innCode",  <-- we can't currently add this
     "Numéro d'identification fiscale (OGRN)": "ogrnCode",
+    "Numéro d'enregistrement (OGRN)": "ogrnCode",
     "OGRN:": "ogrnCode",
     "KPP": "kppCode",
     "OKPO": "okpoCode",
