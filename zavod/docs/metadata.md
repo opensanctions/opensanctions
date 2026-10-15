@@ -95,16 +95,22 @@ Comments record known facts — observed failures, documented source behaviour, 
 
 ### Tags
 
-`tags` are a controlled vocabulary used to categorize datasets by shared attributes such as legal basis, list type, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
+`tags` are a controlled vocabulary used to categorize datasets by shared attributes such as list type, issuer, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
 
-Currently, tags cover the following dimensions:
-- list type (e.g. `list.sanction`, `list.pep`);
-- issuer and jurisdiction (e.g. `issuer.west`, `juris.eu`);
-- target countries (e.g. `target.ru`, `target.us`)
-- sectors (e.g. `sector.financial`, `sector.maritime`)
-- risk themes (e.g. `risk.klepto`).
+Each tag begins with a prefix naming the dimension it describes:
 
-Tag matching is by exact string, not by prefix: a dataset tagged only `list.pep.bulk` does not match `list.pep`. Sub-tags qualify a base tag and should be applied alongside it — `list.pep.bulk` marks PEP datasets (also tagged `list.pep`) that are excluded from broad PEP cross-referencing, such as declaration registries and sub-national officeholder lists.
+- `list.*` - the type of list (e.g. `list.sanction`, `list.pep`, `list.debarment`, `list.export`).
+- `sector.*` - the industry the dataset covers (e.g. `sector.financial`, `sector.maritime`, `sector.health`).
+- `issuer.*` - who publishes it, or which coalition the publisher is aligned with (e.g. `issuer.west`).
+- `juris.*` - the legal regime it is issued under (e.g. `juris.eu`, `juris.us`).
+- `target.*` - the countries it is aimed at (e.g. `target.ru`, `target.kp`).
+- `risk.*` - the risk theme its subjects are associated with (e.g. `risk.klepto`, `risk.slavery`).
+
+A dataset usually carries tags from several of these dimensions.
+
+Tags match by exact string, not by prefix: `list.pep.bulk` does not match `list.pep`. A sub-tag is usually applied alongside its base tag: `list.pep.bulk` marks PEP datasets, also tagged `list.pep`, that are left out of broad PEP cross-referencing, such as declaration registries and sub-national officeholder lists. Some sub-tags are applied without their base tag to keep a dataset out of the broader scope: `list.sanction.counter` is not tagged `list.sanction`.
+
+**Note:** a `target.*` tag must not be the publisher's own country or jurisdiction. A domestic list is already identified by its publisher's country, and where one applies, its `juris.*` tag.
 
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
 
