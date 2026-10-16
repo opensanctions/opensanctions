@@ -85,8 +85,8 @@ def crawl(context: Context) -> None:
     for table in tables:
         # The source mislabels some data rows as <th>; treat every row after the
         # first as data regardless of cell tag.
-        for row in h.xpath_elements(table, ".//tr")[1:]:
-            for cell in row.findall("./th"):
+        for element in h.xpath_elements(table, ".//tr")[1:]:
+            for cell in element.findall("./th"):
                 cell.tag = "td"
         for row in h.parse_html_table(table):
             str_row = h.cells_to_str(row)
