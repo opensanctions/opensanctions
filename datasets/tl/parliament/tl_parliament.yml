@@ -87,19 +87,24 @@ lookups:
           - Habilitação Literária
           - Habilitações Literárias
           - Habilitações Académicas
+          - 'Habilitações académicas: Licenciatura'
           - Estudo e Grau de Escolaridade
           - Comissão a que pertence do Parlamento Nacional
           - Comissões a que pertence do Parlamento Nacional
           - Comissões a que pertence, ou pertenceu, no Parlamento Nacional
           - Cargos que desempenha e outros que já exerceu
+          - "Cargo's que desempenha e outros que já exerceu:"
           - Funções Políticas ou Sociais
           - Obras Publicada
           - Obras Publicadas
           - Condecoração
           - Condecorações
+          - 'Condecoração: 12 de Novembro, Lorico As wain'
           - Missões Oficiais
           - Seminários, Conferencias e Congressos
           - Outras Informações Relevantes
+          # A bare ":" label normalizes to nothing, so it only matches null.
+          - null
         value: null
   # Party modal headings on /bancadas; an unmatched one is a new party group.
   party:
