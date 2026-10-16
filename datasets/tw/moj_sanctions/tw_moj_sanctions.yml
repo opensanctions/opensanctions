@@ -5,7 +5,6 @@ coverage:
   frequency: daily
   start: 2026-08-14
 load_statements: true
-ci_test: false  # llm for pdf parsing
 
 summary: >-
   Individuals and companies sanctioned under Article 4(1) of Taiwan's CFT Act
@@ -25,25 +24,36 @@ publisher:
   country: tw
   official: true
 data:
-  url: https://www.mjib.gov.tw/EditPage/?PageID=2f940503-6044-4a8f-baeb-3499ade2dd57
-  format: HTML
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/tw/moj_sanctions/moj_sanctions.csv
+  format: CSV
   lang: zho
+dates:
+  formats: ["%Y-%m-%d"]
 
 tags:
   - list.sanction
 
+config:
+  # moj_sanctions.csv holds the records from the MOJ announcement PDFs
+  # (scanned, in Chinese). The rows are drafted by LLM extraction of the scans,
+  # then checked against them. To resolve an "Unreviewed MOJ announcement PDF"
+  # warning:
+  #
+  # 1. Extract the new PDF into CSV rows: a designation (CFT Act Art. 4(1))
+  #    adds rows, and a delisting (Art. 4(3)) fills the Delisting columns of
+  #    the existing row instead of deleting it. Dates are in ROC years (+1911).
+  # 2. Check the draft against the scan. A record can continue across a page
+  #    break, and LLM extraction has attached such fields to the next record.
+  #    Copy ruling numbers exactly: their digits are the entity IDs.
+  # 3. New relationship wording needs a relationship.type lookup option.
+  # 4. A PDF with no records goes in no_data_urls, with a comment saying what
+  #    it contains.
+  #
+  # A revised PDF appears under a new filename, so the old url triggers "no
+  # longer listed". Re-check the rows that cite it and point them at the new url.
+  no_data_urls: []
+
 lookups:
-  type.country:
-    options:
-      - match:
-          - British Virgin Islands
-          - 英屬維京群島
-        value: vg
-      - match:
-          - Marshall Islands
-          - 馬紹爾群島
-          - 馬紹爾群島共和國
-        value: mh
   relationship.type:
     required: true
     options:
