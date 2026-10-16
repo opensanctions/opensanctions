@@ -83,6 +83,11 @@ def crawl(context: Context) -> None:
     assert len(tables) == 4, f"Expected 4 tables, found {len(tables)}"
 
     for table in tables:
-        for row in h.parse_html_table(table, header_tag="td"):
+        # The source mislabels some data rows as <th>; treat every row after the
+        # first as data regardless of cell tag.
+        for element in h.xpath_elements(table, ".//tr")[1:]:
+            for cell in element.findall("./th"):
+                cell.tag = "td"
+        for row in h.parse_html_table(table):
             str_row = h.cells_to_str(row)
             crawl_row(context, str_row)

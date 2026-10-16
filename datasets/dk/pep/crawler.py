@@ -182,6 +182,12 @@ def crawl(context: Context) -> None:
         for row in h.parse_xlsx_sheet(
             context, wb[old_sheet], header_lookup=context.get_lookup("columns")
         ):
+            # the current sheet removed the last_name header and left blank
+            # which conflicts with the new sheet header lookups. since the old
+            # sheet doesn't use category, we can rename it, which shouldn't cause
+            # a an issue if the source suddenly adds the header last_name back
+            if "last_name" not in row.keys():
+                row["last_name"] = row.pop("category")
             crawl_old_pep_item(
                 context, country=resource.country, lang=resource.lang, row=row
             )
