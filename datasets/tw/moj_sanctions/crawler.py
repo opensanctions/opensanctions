@@ -10,6 +10,11 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 RULING_NUMBER = re.compile(r"^法裁第(\d+)號$")
+# Reviewed announcement PDFs (percent-decoded url: sha1), see the runbook in the yml.
+PDF_HASHES = {
+    "https://www.mjib.gov.tw/userfiles/files/35-洗錢防制處/files/20180112-10704500600(1070424).pdf": "ae4113ac9c86f940949b078a6baedd9cf637b9f2",
+    "https://www.mjib.gov.tw/userfiles/files/35-洗錢防制處/files/20191125-10804538000(1).pdf": "5725029e2ad409f89fe4629c9d955e43fb6e85ce",
+}
 
 
 def ruling_id(context: Context, ruling_number: str) -> str:
@@ -93,14 +98,15 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     context.audit_data(row)
 
 
-def check_announcements(context: Context, reviewed_urls: set[str]) -> None:
-    """Warn about announcement PDFs on the MJIB page not yet reflected in the CSV.
+def check_announcements(context: Context, cited_urls: set[str]) -> None:
+    """Warn about announcement PDFs on the MJIB page that haven't been reviewed.
 
     The announcements are scanned PDFs, so their records are kept in
-    moj_sanctions.csv. A PDF counts as reviewed when a CSV row cites it, or when
-    it is listed under `no_data_urls` in the dataset config (see the runbook
-    comment in the yml).
+    moj_sanctions.csv. A PDF counts as reviewed when its url and sha1 are listed
+    in PDF_HASHES (see the runbook comment in the yml). The hash catches a PDF
+    replaced under the same url.
     """
+    assert cited_urls <= PDF_HASHES.keys(), cited_urls - PDF_HASHES.keys()
     assert context.dataset.url is not None
     doc = context.fetch_html(context.dataset.url, cache_days=1, absolute_links=True)
     links = h.xpath_elements(
@@ -109,20 +115,18 @@ def check_announcements(context: Context, reviewed_urls: set[str]) -> None:
         "/following-sibling::ul[1]/li/a",
     )
     assert len(links) > 0, "No Article 4 announcement links"
-    reviewed_urls |= set(context.dataset.config.get("no_data_urls", []))
     listed_urls: set[str] = set()
     for link in links:
         href = link.get("href")
         assert href is not None, h.element_text(link)
         url = unquote(href)
         listed_urls.add(url)
-        if url not in reviewed_urls:
-            context.log.warning(
-                "Unreviewed MOJ announcement PDF",
-                url=url,
-                label=h.element_text(link),
-            )
-    for url in reviewed_urls - listed_urls:
+        expected_hash = PDF_HASHES.get(url)
+        assert expected_hash is not None, (
+            f"Unreviewed MOJ announcement PDF listed: {url}"
+        )
+        h.assert_url_hash(context, href, expected_hash)
+    for url in PDF_HASHES.keys() - listed_urls:
         context.log.warning("Reviewed MOJ announcement PDF no longer listed", url=url)
 
 
@@ -132,12 +136,12 @@ def crawl(context: Context) -> None:
     shutil.copy(source_file, resource_path)
     context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
 
-    reviewed_urls: set[str] = set()
+    cited_urls: set[str] = set()
     with open(source_file, encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
-            reviewed_urls.add(row["Listing URL"])
+            cited_urls.add(row["Listing URL"])
             if row["Delisting URL"] != "":
-                reviewed_urls.add(row["Delisting URL"])
+                cited_urls.add(row["Delisting URL"])
             crawl_row(context, row)
 
-    check_announcements(context, reviewed_urls)
+    check_announcements(context, cited_urls)

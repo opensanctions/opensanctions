@@ -33,25 +33,26 @@ dates:
 tags:
   - list.sanction
 
-config:
-  # moj_sanctions.csv holds the records from the MOJ announcement PDFs
-  # (scanned, in Chinese). The rows are drafted by LLM extraction of the scans,
-  # then checked against them. To resolve an "Unreviewed MOJ announcement PDF"
-  # warning:
-  #
-  # 1. Extract the new PDF into CSV rows: a designation (CFT Act Art. 4(1))
-  #    adds rows, and a delisting (Art. 4(3)) fills the Delisting columns of
-  #    the existing row instead of deleting it. Dates are in ROC years (+1911).
-  # 2. Check the draft against the scan. A record can continue across a page
-  #    break, and LLM extraction has attached such fields to the next record.
-  #    Copy ruling numbers exactly: their digits are the entity IDs.
-  # 3. New relationship wording needs a relationship.type lookup option.
-  # 4. A PDF with no records goes in no_data_urls, with a comment saying what
-  #    it contains.
-  #
-  # A revised PDF appears under a new filename, so the old url triggers "no
-  # longer listed". Re-check the rows that cite it and point them at the new url.
-  no_data_urls: []
+# moj_sanctions.csv holds the records from the MOJ announcement PDFs
+# (scanned, in Chinese). The rows are drafted by LLM extraction of the scans,
+# then checked against them. To resolve an "Unreviewed MOJ announcement PDF"
+# warning:
+#
+# 1. Extract the new PDF into CSV rows: a designation (CFT Act Art. 4(1))
+#    adds rows, and a delisting (Art. 4(3)) fills the Delisting columns of
+#    the existing row instead of deleting it. Dates are in ROC years (+1911).
+# 2. Check the draft against the scan. A record can continue across a page
+#    break, and LLM extraction has attached such fields to the next record.
+#    Copy ruling numbers exactly: their digits are the entity IDs.
+# 3. New relationship wording needs a relationship.type lookup option.
+# 4. Add the PDF url (percent-decoded) and its sha1 (`shasum file.pdf`) to
+#    PDF_HASHES in crawler.py. For a PDF with no records, add a comment
+#    saying what it contains.
+#
+# A "URL hash changed" warning means a PDF was replaced under the same url:
+# re-check the rows that cite it, then update its hash. A revised PDF under a
+# new filename instead triggers "no longer listed" for the old url: re-check
+# the rows that cite it, point them at the new url, and replace its entry.
 
 lookups:
   relationship.type:
