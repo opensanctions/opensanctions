@@ -1,4 +1,3 @@
-from datetime import date
 from itertools import count
 
 from zavod import Context, Entity
@@ -42,19 +41,18 @@ def crawl_member(
     person.add("education", field_values(doc, "field-educational-qualification"))
     person.add("education", field_values(doc, "field-educational-awards"))
     person.add("education", field_values(doc, "field-professional-training"))
-    date_span = (
-        'span[contains(concat(" ", normalize-space(@class), " "), " date-display-single ")]'
-    )
+    date_span = 'span[contains(concat(" ", normalize-space(@class), " "), " date-display-single ")]'
     born = h.xpath_strings(doc, f"{FIELD.format('field-date')}/{date_span}/@content")
     h.apply_dates(person, "birthDate", [d[:10] for d in born])
 
     occupancy = h.make_occupancy(
         context,
         person,
-        position,        
+        position,
         categorisation=categorisation,
     )
-
+    if occupancy is None:
+        return
     context.emit(occupancy)
     context.emit(person)
 
