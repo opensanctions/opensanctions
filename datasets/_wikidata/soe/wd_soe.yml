@@ -59,6 +59,12 @@ http:
     - POST
   timeout: 90
 
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+      Position: 380
+
 config:
   # Seat statements on the enterprise, matched in order: a row with a
   # `qualifier` matches claims carrying that P2868 (subject has role) value; a
