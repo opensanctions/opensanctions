@@ -7,13 +7,14 @@ from typing import Any
 from nomenklatura.wikidata import Claim, Item, WikidataClient
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.ids.wikidata import is_qid
-from rigour.territories import get_territory, get_territory_by_qid
+from rigour.territories import get_territory_by_qid
 from rigour.territories.territory import Territory
 from rigour.time import iso_datetime
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.country import (
     abolished_clause,
     is_abolished,
+    is_historical_country,
     item_countries,
 )
 from zavod.shed.wikidata.human import fetch_human
@@ -88,15 +89,16 @@ def match_role(roles: list[Role], claim: Claim) -> Role | None:
     return None
 
 
-def state_territory(qid: str | None) -> Territory | None:
-    """The territory a QID names, if it is a current one that maps onto an FtM
-    country code."""
+def state_territory(client: WikidataClient, qid: str | None) -> Territory | None:
+    """The territory a QID names, if it maps onto an FtM country code and is
+    not a historical polity: rigour maps predecessor states (the Russian
+    Empire, Nazi Germany) to the modern territory."""
     if qid is None:
         return None
     territory = get_territory_by_qid(qid)
-    if territory is None or territory.is_historical:
+    if territory is None or territory.ftm_country is None:
         return None
-    if territory.ftm_country is None:
+    if is_historical_country(client, qid):
         return None
     return territory
 
@@ -204,7 +206,7 @@ def discover(
             countries[link].add(country)
 
     def link_territories(link: str) -> list[Territory]:
-        territory = state_territory(link)
+        territory = state_territory(client, link)
         if territory is not None:
             return [territory]
         if link not in government:
@@ -212,7 +214,7 @@ def discover(
         # A body with a jurisdiction belongs to it alone: an agency of a city
         # stays out even though its country is known.
         places = jurisdictions.get(link) or countries.get(link, set())
-        found = (state_territory(place) for place in sorted(places))
+        found = (state_territory(client, place) for place in sorted(places))
         return [t for t in found if t is not None]
 
     lane_b = 0
@@ -230,7 +232,7 @@ def discover(
         lane_b += 1
         if intl_link:
             via_intl_org += 1
-        elif all(state_territory(link) is None for link in enterprise_links):
+        elif all(state_territory(client, link) is None for link in enterprise_links):
             via_government += 1
         get_enterprise(enterprises, qid, binds[qid]).owners = owners
     context.log.info(
@@ -256,19 +258,11 @@ def discover(
 
 
 def enterprise_countries(client: WikidataClient, enterprise: Enterprise) -> set[str]:
-    """The enterprise's own current country, else its linked territories'."""
-    countries: set[str] = set()
-    for text in item_countries(client, enterprise.qid):
-        territory = get_territory(text.text) if text.text is not None else None
-        if territory is None or territory.is_historical:
-            continue
-        if territory.ftm_country is not None:
-            countries.add(territory.ftm_country)
+    """The enterprise's own country, else its linked territories'."""
+    countries = {c.text for c in item_countries(client, enterprise.qid)}
     if len(countries) == 0:
-        for owner in enterprise.owners:
-            if owner.ftm_country is not None:
-                countries.add(owner.ftm_country)
-    return countries
+        countries = {t.ftm_country for t in enterprise.owners}
+    return {c for c in countries if c is not None}
 
 
 def make_seat_position(
