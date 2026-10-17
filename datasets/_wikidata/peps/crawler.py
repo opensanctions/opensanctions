@@ -8,10 +8,13 @@ from rigour.territories import get_territories
 from rigour.territories.territory import Territory
 from zavod.entity import Entity
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
+from zavod.shed.wikidata.country import (
+    POSITION_ABOLISHED_CUTOFF,
+    current_territory_qids,
+)
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.igo import INTL_ORGS
 from zavod.shed.wikidata.position import (
-    POSITION_ABOLISHED_CUTOFF,
     position_holders,
     wikidata_occupancy,
     wikidata_position,
@@ -59,6 +62,17 @@ def collect_positions(context: Context, client: WikidataClient, query: str) -> s
     return positions
 
 
+def collect_qid_positions(
+    context: Context, client: WikidataClient, qid: str, query: str
+) -> set[str]:
+    """Collect one QID's positions, logging a failed query instead of raising."""
+    try:
+        return collect_positions(context, client, query)
+    except Exception as exc:  # noqa: BLE001
+        context.log.warning("Position discovery query failed", qid=qid, error=str(exc))
+        return set()
+
+
 def query_usage_positions(
     context: Context, client: WikidataClient, territory: Territory
 ) -> set[str]:
@@ -66,16 +80,14 @@ def query_usage_positions(
     or country (P17): they either have a human holder (P39 inverse) or name an
     officeholder themselves (P1308).
 
-    All the territory's QIDs are swept, not just the primary one: aliases cover
-    entities like the Russia/Belarus Union State (an alias of `ru`), whose organ
-    positions would otherwise be invisible to jurisdiction-based discovery.
+    Alternate QIDs count too, e.g. the Russia/Belarus Union State under `ru`.
 
     One query per QID: batching them into a single `VALUES` block makes the
     query planner give up on large territories — the six QIDs of `gb` together
     exceed the query service's own execution limit, while each on its own is
     comfortably inside it."""
     positions: set[str] = set()
-    for qid in sorted(territory.qids):
+    for qid in current_territory_qids(client, territory):
         query = f"""
         SELECT DISTINCT ?position ?abolished WHERE {{
             ?position wdt:P1001|wdt:P17 wd:{qid} .
@@ -84,7 +96,7 @@ def query_usage_positions(
             {ABOLISHED_CLAUSE}
         }}
         """
-        positions.update(collect_positions(context, client, query))
+        positions.update(collect_qid_positions(context, client, qid, query))
     return positions
 
 
@@ -93,17 +105,21 @@ def query_occupation_positions(
 ) -> set[str]:
     """Positions held by politicians, diplomats and judges who are citizens of
     the country. This catches positions with no country/jurisdiction statement
-    of their own, including diplomatic postings and foreign or IGO offices."""
-    query = f"""
-    SELECT DISTINCT ?position ?abolished WHERE {{
-        ?holder wdt:P39 ?position .
-        ?holder wdt:P27 wd:{territory.qid} .
-        ?holder wdt:P106 ?occupation .
-        VALUES ?occupation {{ wd:Q82955 wd:Q193391 wd:Q16533 }}
-        {ABOLISHED_CLAUSE}
-    }}
-    """
-    return collect_positions(context, client, query)
+    of their own, including diplomatic postings and foreign or IGO offices.
+    Alternate QIDs count too, e.g. citizenship recorded as Netherlands Q55."""
+    positions: set[str] = set()
+    for qid in current_territory_qids(client, territory):
+        query = f"""
+        SELECT DISTINCT ?position ?abolished WHERE {{
+            ?holder wdt:P39 ?position .
+            ?holder wdt:P27 wd:{qid} .
+            ?holder wdt:P106 ?occupation .
+            VALUES ?occupation {{ wd:Q82955 wd:Q193391 wd:Q16533 }}
+            {ABOLISHED_CLAUSE}
+        }}
+        """
+        positions.update(collect_qid_positions(context, client, qid, query))
+    return positions
 
 
 def query_igo_positions(context: Context, client: WikidataClient) -> set[str]:
