@@ -863,6 +863,11 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
             ("passportNumber", "7304202860"),
         ),
     },
+    # The nationality label is printed with neither colon nor value
+    # (misprint); a value is never invented, so the label is dropped.
+    ("PERSONS", "2172"): {
+        "Nationality": (),
+    },
     # The birth place printed on a bare line without its label.
     ("PERSONS", "1766"): {
         "Novomoskovsk, Tula Oblast, USSR (now Russian Federation)": (
