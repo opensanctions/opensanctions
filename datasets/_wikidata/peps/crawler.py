@@ -93,17 +93,24 @@ def query_occupation_positions(
 ) -> set[str]:
     """Positions held by politicians, diplomats and judges who are citizens of
     the country. This catches positions with no country/jurisdiction statement
-    of their own, including diplomatic postings and foreign or IGO offices."""
-    query = f"""
-    SELECT DISTINCT ?position ?abolished WHERE {{
-        ?holder wdt:P39 ?position .
-        ?holder wdt:P27 wd:{territory.qid} .
-        ?holder wdt:P106 ?occupation .
-        VALUES ?occupation {{ wd:Q82955 wd:Q193391 wd:Q16533 }}
-        {ABOLISHED_CLAUSE}
-    }}
-    """
-    return collect_positions(context, client, query)
+    of their own, including diplomatic postings and foreign or IGO offices.
+
+    Citizenship is sometimes recorded against one of the territory's alternate
+    QIDs (e.g. Netherlands Q55 rather than Kingdom of the Netherlands Q29999),
+    so each QID is queried separately, as in `query_usage_positions`."""
+    positions: set[str] = set()
+    for qid in sorted(territory.qids):
+        query = f"""
+        SELECT DISTINCT ?position ?abolished WHERE {{
+            ?holder wdt:P39 ?position .
+            ?holder wdt:P27 wd:{qid} .
+            ?holder wdt:P106 ?occupation .
+            VALUES ?occupation {{ wd:Q82955 wd:Q193391 wd:Q16533 }}
+            {ABOLISHED_CLAUSE}
+        }}
+        """
+        positions.update(collect_positions(context, client, query))
+    return positions
 
 
 def query_igo_positions(context: Context, client: WikidataClient) -> set[str]:
