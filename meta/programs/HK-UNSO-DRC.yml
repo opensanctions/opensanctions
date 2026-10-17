@@ -1,0 +1,22 @@
+title: Hong Kong implementation of UN sanctions concerning Democratic Republic of the Congo
+key: HK-UNSO-DRC
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+summary: >
+  Hong Kong's implementation of the UN Security Council sanctions concerning the
+  Democratic Republic of the Congo under the United Nations Sanctions Ordinance.
+  It targets leaders of armed groups, those recruiting or using children in
+  armed conflict, and those financing armed groups through the illicit trade in
+  natural resources in the Democratic Republic of the Congo, as designated by
+  the Security Council committee established under resolution 1533. Designated
+  persons and entities are subject to an asset freeze, and designated
+  individuals are barred from entering or transiting Hong Kong.
+issuer: hk_cedb
+dataset: hk_cedb_sanctions
+aliases:
+  - United Nations Sanctions (Democratic Republic of the Congo) Regulation 2019 (Cap. 537CJ)
+  - Resolution 1533
+target_territories:
+  - cd
+measures:
+  - Asset freeze
+  - Travel ban

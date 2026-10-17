@@ -1,0 +1,76 @@
+title: Hong Kong Targeted Financial Sanctions (Cap. 537)
+entry_point: crawler.py
+prefix: hk-cedb
+coverage:
+  frequency: daily
+  start: 2026-09-28
+load_statements: true
+summary: >-
+  Persons and entities subject to targeted financial sanctions under Hong
+  Kong's regulations implementing UN Security Council sanctions
+description: |
+  Hong Kong has no autonomous sanctions regime. It gives effect to UN Security
+  Council sanctions through regulations made under the United Nations
+  Sanctions Ordinance (Cap. 537), one regulation per UN regime. The Commerce
+  and Economic Development Bureau publishes the persons and entities subject
+  to targeted financial sanctions under those regulations as one XML file per
+  regime, covering Afghanistan, the Central African Republic, the Democratic
+  Republic of the Congo, North Korea, Haiti, ISIL (Da'esh) and Al-Qaida,
+  Libya, Somalia, South Sudan, Sudan and Yemen. Banks and other institutions
+  supervised by the Hong Kong Monetary Authority screen against these lists.
+
+  Each file is a snapshot of the corresponding part of the [UN Security
+  Council consolidated list](/datasets/un_sc_sanctions/), in the UN's own
+  format. The snapshots are refreshed irregularly and can lag the UN list by
+  months or years, so recent UN designations may be missing. The Libya file only
+  covers asset-freeze listings and omits people and entities designated
+  under the travel ban alone. No files are published for the Iran, Iraq or
+  Guinea-Bissau regimes.
+
+  Contains data from DATA.GOV.HK, provided by the Commerce and Economic
+  Development Bureau of the Government of the Hong Kong Special
+  Administrative Region.
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+publisher:
+  name: Commerce and Economic Development Bureau
+  acronym: CEDB
+  description: |
+    The Commerce and Economic Development Bureau is the policy bureau of the
+    Hong Kong government responsible for commerce, trade and industry. It
+    administers the implementation of UN Security Council sanctions in Hong
+    Kong under the United Nations Sanctions Ordinance.
+  url: https://www.cedb.gov.hk/en/
+  country: hk
+  official: true
+data:
+  url: https://data.gov.hk/en-data/dataset/hk-cedb-cedb_hq-tfslists
+  format: XML
+  lang: eng
+tags:
+  - list.sanction
+
+config:
+  # The XML files (without .xml) the dataset page is expected to list, one per
+  # regime. The crawler warns when the page lists a different set.
+  expected_files:
+    - afghanistan
+    - central_african_republic
+    - dprk
+    - drcongo
+    - haiti
+    - isil_and_al_qaida
+    - libya
+    - somalia
+    - south_sudan
+    - sudan
+    - yemen
+
+assertions:
+  min:
+    schema_entities:
+      Person: 500
+      LegalEntity: 150
+  max:
+    schema_entities:
+      Person: 1200
+      LegalEntity: 400

@@ -1,0 +1,22 @@
+title: Hong Kong implementation of UN sanctions concerning Libya
+key: HK-UNSO-LIBYA
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+summary: >
+  Hong Kong's implementation of the UN Security Council sanctions concerning
+  Libya under the United Nations Sanctions Ordinance. It targets individuals and
+  entities involved in serious human rights abuses, in threats to the peace,
+  stability or security of Libya, or in the illicit export of petroleum from
+  Libya, as designated by the Security Council committee established under
+  resolution 1970. Designated persons and entities are subject to an asset
+  freeze, and designated individuals are barred from entering or transiting Hong
+  Kong.
+issuer: hk_cedb
+dataset: hk_cedb_sanctions
+aliases:
+  - United Nations Sanctions (Libya) Regulation 2019 (Cap. 537CF)
+  - Resolution 1970
+target_territories:
+  - ly
+measures:
+  - Asset freeze
+  - Travel ban

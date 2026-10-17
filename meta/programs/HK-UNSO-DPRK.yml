@@ -1,0 +1,22 @@
+title: "Hong Kong implementation of UN sanctions concerning Democratic People's Republic of Korea"
+key: HK-UNSO-DPRK
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+summary: >
+  Hong Kong's implementation of the UN Security Council sanctions concerning the
+  Democratic People's Republic of Korea under the United Nations Sanctions
+  Ordinance. It targets individuals and entities involved in the nuclear,
+  ballistic missile and other weapons of mass destruction programmes of North
+  Korea, as designated by the Security Council committee established under
+  resolution 1718. Designated persons and entities are subject to an asset
+  freeze, and designated individuals are barred from entering or transiting Hong
+  Kong.
+issuer: hk_cedb
+dataset: hk_cedb_sanctions
+aliases:
+  - "United Nations Sanctions (Democratic People's Republic of Korea) Regulation (Cap. 537AE)"
+  - Resolution 1718
+target_territories:
+  - kp
+measures:
+  - Asset freeze
+  - Travel ban

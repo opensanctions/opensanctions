@@ -1,0 +1,21 @@
+title: Hong Kong implementation of UN sanctions concerning Central African Republic
+key: HK-UNSO-CAR
+url: https://www.cedb.gov.hk/en/policies/united-nations-security-council-sanctions.html
+summary: >
+  Hong Kong's implementation of the UN Security Council sanctions concerning the
+  Central African Republic under the United Nations Sanctions Ordinance. It
+  targets individuals and entities engaging in or supporting acts that undermine
+  the peace, stability or security of the Central African Republic, as
+  designated by the Security Council committee established under resolution
+  2127. Designated persons and entities are subject to an asset freeze, and
+  designated individuals are barred from entering or transiting Hong Kong.
+issuer: hk_cedb
+dataset: hk_cedb_sanctions
+aliases:
+  - United Nations Sanctions (Central African Republic) Regulation 2020 (Cap. 537CM)
+  - Resolution 2127
+target_territories:
+  - cf
+measures:
+  - Asset freeze
+  - Travel ban
