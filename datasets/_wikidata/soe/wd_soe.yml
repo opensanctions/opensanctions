@@ -1,0 +1,148 @@
+# Seats are statements on the enterprise item (P169 CEO, P488 chair, ...) rather
+# than P39 claims on the person, so this crawler discovers enterprises first and
+# reads their seats, instead of discovering positions like wd_peps does.
+#
+# Enterprises are found in three lanes, unioned:
+#  A. P31/P1454 is one of `soe_types` (exact match, no subclass walk)
+#  B. P127 owned by a territory QID known to rigour
+#  C. P127/P749 owned by or subsidiary of an enterprise from A or B (one hop)
+# Every lane requires at least one seat statement. Enterprises from lane A, and
+# their subsidiaries, yield `gov.soe` positions; all others `gov.admin`.
+title: Wikidata State-Owned Enterprise Leadership
+entry_point: crawler.py
+prefix: wd
+coverage:
+  frequency: weekly
+  start: 2026-10-17
+deploy:
+  memory: "2000Mi"
+  memory_limit: "4000Mi"
+  schedule: "0 6 * * 1"
+  premium: true
+load_statements: true
+ci_test: false
+exports:
+  - entities.ftm.json
+  - statistics.json
+summary: >
+  Executives and board members of state-owned enterprises and institutions, from Wikidata.
+description: |
+  This dataset includes the executives, directors and members of the supervisory
+  and management boards of state-owned enterprises and state institutions, as
+  recorded on Wikidata.
+
+  Enterprises are included if Wikidata describes them as state-owned (by type or
+  legal form), if they are owned directly by a country or one of its subdivisions,
+  or if they are a direct subsidiary of such an enterprise. People are included
+  for the seats recorded on the enterprise's Wikidata item, such as its chief
+  executive, its chair, or the members of its boards.
+publisher:
+  name: Wikidata
+  description: |
+    Wikidata is a free and open knowledge base that can be read and edited by both humans
+    and machines. It acts as central storage for the structured data of its Wikimedia
+    sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
+  url: https://www.wikidata.org
+  official: false
+  country: zz
+tags:
+  - list.pep
+url: https://www.wikidata.org/wiki/Q270791
+data:
+  url: https://query.wikidata.org/
+  format: JSON
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_methods:
+    - GET
+    - POST
+  timeout: 90
+
+config:
+  # Seat statements on the enterprise, matched in order: a row with a
+  # `qualifier` matches claims carrying that P2868 (subject has role) value; a
+  # row without one matches only claims that have no P2868 at all. Claims that
+  # match no row are skipped.
+  roles:
+    - key: ceo
+      property: P169
+      label: Chief Executive
+    - key: director
+      property: P1037
+      label: Director
+    - key: supervisory-chair
+      property: P488
+      qualifier: Q15818143
+      label: Chair of the Supervisory Board
+    - key: chair
+      property: P488
+      label: Chair of the Board
+    - key: supervisory-deputy-chair
+      property: P5052
+      qualifier: Q1127270
+      label: Deputy Chair of the Supervisory Board
+    - key: supervisory-member
+      property: P5052
+      label: Member of the Supervisory Board
+    - key: deputy-chair
+      property: P3320
+      qualifier: Q1127270
+      label: Deputy Chair of the Board
+    - key: executive-member
+      property: P3320
+      qualifier: Q2824523
+      label: Member of the Executive Board
+    - key: managing-director
+      property: P3320
+      qualifier: Q19940089
+      label: Managing Director
+    - key: board-member
+      property: P3320
+      label: Member of the Board
+  # Lane A: instance-of (P31) or legal-form (P1454) values that mark an item
+  # as a state-owned enterprise. Grows by measurement. Municipal forms
+  # (Q1780371, Q2326317, Q6428421, Q111302220, Q15750017) and historical ones
+  # (Q2531989, Q12041652, Q835400, Q17991257, Q4380220) are deliberately absent.
+  soe_types:
+    Q270791: state-owned enterprise
+    Q137925492: state owned enterprise of Indonesia
+    Q124343324: Chinese state-owned enterprise
+    Q6566978: central state-owned enterprise
+    Q19852185: Chinese wholly state-owned enterprise
+    Q4481739: state-owned enterprise of Russia
+    Q113258062: state-owned enterprise of Belarus
+    Q12573690: state-owned enterprise in Kazakhstan
+    Q121742110: Moroccan state-owned enterprise
+    Q10876322: State-owned enterprise of Taiwan
+    Q130420294: state-owned enterprise of New Zealand
+    Q111179627: Malaysian state-owned enterprise
+    Q5589413: government-owned and controlled corporation
+    Q48851989: state-owned enterprise of the United States
+    Q117406600: Belgian state-owned company
+    Q48814874: state-owned enterprise of South Africa
+    Q48815411: state-owned enterprise of Australia
+    Q48815413: state-owned enterprise of the United Kingdom
+    Q5189488: Crown corporation
+    Q91418466: Perusahaan Perseroan
+    Q19730819: Perusahaan Umum
+    Q1389604: unitary enterprise
+    Q108098624: republican unitary enterprise
+    Q3591583: établissement public à caractère industriel et commercial
+    Q5834296: EPE
+    Q133699310: State Commercial Company
+    Q16917889: státní podnik
+    Q111144333: štátny podnik
+    Q4571771: statsforetak
+    Q19391573: annet foretak ifølge særskilt lov
+    Q19390308: fully government-owned limited company in Norway
+    Q96602818: forvaltningsbedrift
+    Q11900271: unincorporated state enterprise
+    Q137784709: state media company
+    Q6972269: national development bank
+    Q2324835: national railway
+    Q2324813: state bank
+    Q5691177: health trust
+    Q16968466: regional health authority
+    Q87648631: Azienda Socio Sanitaria Territoriale
+    Q124748578: Unidade Local de Saúde

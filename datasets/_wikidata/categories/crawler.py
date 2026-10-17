@@ -10,7 +10,7 @@ from nomenklatura.wikidata import Claim, Item
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.time import iso_datetime
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
-from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.human import fetch_human
 from zavod.shed.wikidata.position import (
     wikidata_occupancy,
     wikidata_position,
@@ -140,15 +140,12 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
 
 def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Entity | None:
     modified_at = state.person_modified_at.get(qid)
-    item = state.client.fetch_item(qid, modified_at=modified_at)
-    if item is None:
+    fetched = fetch_human(
+        state.context, state.client, qid, modified_at=modified_at, strict=True
+    )
+    if fetched is None:
         return None
-    if item.id != qid:
-        state.context.resolver.rename_node(qid, item.id)
-        state.context.flush()
-    entity = wikidata_basic_human(state.context, state.client, item, strict=True)
-    if entity is None:
-        return None
+    item, entity = fetched
 
     if recurse:
         for claim in item.claims:
