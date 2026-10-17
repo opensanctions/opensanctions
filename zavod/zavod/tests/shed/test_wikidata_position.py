@@ -1,11 +1,18 @@
 from typing import Any, cast
 
-from nomenklatura.wikidata import Item, WikidataClient
+from rigour.territories import get_territory
+
+from nomenklatura.wikidata import Claim, Item, WikidataClient
 from nomenklatura.wikidata.lang import LangText
 
 from zavod import settings
 from zavod.tests.util import make_context
 from zavod.meta import Dataset
+from zavod.shed.wikidata.country import (
+    current_territory_qids,
+    is_historical_country,
+    item_countries,
+)
 from zavod.shed.wikidata.position import wikidata_position, wikidata_occupancy
 from zavod.stateful.model import position_table
 from zavod.stateful.positions import categorise
@@ -228,3 +235,82 @@ def test_igo_occupancy_infers_no_person_country(testdataset1: Dataset):
     assert occupancy is not None
     assert person.get("country") == ["de"]
     context.close()
+
+
+def polity_item(
+    client: StubClient, qid: str, type_qid: str, dissolved: str | None = None
+) -> Item:
+    item = make_item(client, qid, qid, [{"prop": "P31", "qid": type_qid}])
+    if dissolved is not None:
+        snak = {
+            "snaktype": "value",
+            "property": "P576",
+            "datatype": "time",
+            "datavalue": {
+                "type": "time",
+                "value": {
+                    "time": f"+{dissolved}T00:00:00Z",
+                    "precision": 11,
+                    "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
+                },
+            },
+        }
+        data = {"id": f"{qid}$end", "rank": "normal", "mainsnak": snak}
+        item.claims.append(Claim(cast(WikidataClient, client), data, "P576"))
+    return item
+
+
+def stub_with(items: list[Item]) -> WikidataClient:
+    client = StubClient()
+    by_qid = {item.id: item for item in items}
+    client.fetch_item = lambda qid, modified_at=None: by_qid.get(qid)  # type: ignore[method-assign]
+    return cast(WikidataClient, client)
+
+
+def test_is_historical_country() -> None:
+    stub = StubClient()
+    client = stub_with(
+        [
+            polity_item(stub, "Q7318", "Q3024240", "1945-05-23"),
+            polity_item(stub, "Q131404661", "Q3024240", "2024-12-08"),
+            polity_item(stub, "Q13474305", "Q3024240"),
+            polity_item(stub, "Q55", "Q6256"),
+        ]
+    )
+    # rigour's verdict on a historical territory needs no fetch:
+    assert is_historical_country(client, "Q15180")
+    # Alternates of current territories are judged by their own types and end:
+    assert is_historical_country(client, "Q7318")
+    assert not is_historical_country(client, "Q55")
+    # Polities that ended after the cutoff, or without a known end, stay current:
+    assert not is_historical_country(client, "Q131404661")
+    assert not is_historical_country(client, "Q13474305")
+    assert not is_historical_country(client, "Q183")
+
+
+def test_item_countries_skips_historical_polities() -> None:
+    stub = StubClient()
+    position = make_item(
+        stub, "Q1", "Reich Minister", [{"prop": "P17", "qid": "Q7318"}]
+    )
+    client = stub_with([polity_item(stub, "Q7318", "Q3024240", "1945-05-23"), position])
+    assert item_countries(client, "Q1") == set()
+    # Direct lookups still map the predecessor state to its current territory:
+    assert [c.text for c in item_countries(client, "Q7318")] == ["de"]
+
+
+def test_current_territory_qids() -> None:
+    stub = StubClient()
+    client = stub_with(
+        [
+            polity_item(stub, "Q7318", "Q3024240", "1945-05-23"),
+            polity_item(stub, "Q43287", "Q3024240", "1918-11-09"),
+            polity_item(stub, "Q713750", "Q3024240", "1990-10-03"),
+            polity_item(stub, "Q159631", "Q3024240", "1918-11-30"),
+            polity_item(stub, "Q55", "Q6256"),
+            polity_item(stub, "Q131404661", "Q3024240", "2024-12-08"),
+        ]
+    )
+    assert current_territory_qids(client, get_territory("de")) == ["Q183"]
+    assert "Q55" in current_territory_qids(client, get_territory("nl"))
+    assert "Q131404661" in current_territory_qids(client, get_territory("sy"))

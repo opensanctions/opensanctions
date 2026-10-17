@@ -8,10 +8,13 @@ from rigour.territories import get_territories
 from rigour.territories.territory import Territory
 from zavod.entity import Entity
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
+from zavod.shed.wikidata.country import (
+    POSITION_ABOLISHED_CUTOFF,
+    current_territory_qids,
+)
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.igo import INTL_ORGS
 from zavod.shed.wikidata.position import (
-    POSITION_ABOLISHED_CUTOFF,
     position_holders,
     wikidata_occupancy,
     wikidata_position,
@@ -66,16 +69,16 @@ def query_usage_positions(
     or country (P17): they either have a human holder (P39 inverse) or name an
     officeholder themselves (P1308).
 
-    All the territory's QIDs are swept, not just the primary one: aliases cover
-    entities like the Russia/Belarus Union State (an alias of `ru`), whose organ
-    positions would otherwise be invisible to jurisdiction-based discovery.
+    All the territory's current QIDs are swept, not just the primary one: aliases
+    cover entities like the Russia/Belarus Union State (an alias of `ru`), whose
+    organ positions would otherwise be invisible to jurisdiction-based discovery.
 
     One query per QID: batching them into a single `VALUES` block makes the
     query planner give up on large territories — the six QIDs of `gb` together
     exceed the query service's own execution limit, while each on its own is
     comfortably inside it."""
     positions: set[str] = set()
-    for qid in sorted(territory.qids):
+    for qid in current_territory_qids(client, territory):
         query = f"""
         SELECT DISTINCT ?position ?abolished WHERE {{
             ?position wdt:P1001|wdt:P17 wd:{qid} .
@@ -95,11 +98,11 @@ def query_occupation_positions(
     the country. This catches positions with no country/jurisdiction statement
     of their own, including diplomatic postings and foreign or IGO offices.
 
-    Citizenship is sometimes recorded against one of the territory's alternate
-    QIDs (e.g. Netherlands Q55 rather than Kingdom of the Netherlands Q29999),
-    so each QID is queried separately, as in `query_usage_positions`."""
+    Citizenship is sometimes recorded against an alternate QID (e.g. Netherlands
+    Q55 rather than Kingdom of the Netherlands Q29999), so each current QID is
+    queried separately, as in `query_usage_positions`."""
     positions: set[str] = set()
-    for qid in sorted(territory.qids):
+    for qid in current_territory_qids(client, territory):
         query = f"""
         SELECT DISTINCT ?position ?abolished WHERE {{
             ?holder wdt:P39 ?position .
