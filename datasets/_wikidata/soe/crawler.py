@@ -23,7 +23,6 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 ROLE_QUALIFIER = "P2868"
-SUBSIDIARY_CHUNK = 100
 
 
 @dataclass(frozen=True)
@@ -43,7 +42,6 @@ class Enterprise:
     modified_at: datetime | None = None
     marked: bool = False
     owners: list[Territory] = field(default_factory=list)
-    parents: set[str] = field(default_factory=set)
 
 
 def load_roles(context: Context) -> list[Role]:
@@ -132,36 +130,37 @@ def discover(
     context: Context,
     client: WikidataClient,
     roles: list[Role],
-    soe_types: set[str],
 ) -> dict[str, Enterprise]:
     seat_path = "|".join(sorted({f"wdt:{r.property}" for r in roles}))
     seat_filter = f"FILTER EXISTS {{ ?enterprise {seat_path} ?seat . }}"
     abolished = abolished_clause("enterprise")
     enterprises: dict[str, Enterprise] = {}
 
-    # Lane A: listed type or legal form, one query per type.
-    for type_qid in sorted(soe_types):
-        query = f"""
-        SELECT DISTINCT ?enterprise ?modified ?abolished WHERE {{
-            ?enterprise wdt:P31|wdt:P1454 wd:{type_qid} .
-            {seat_filter}
-            ?enterprise schema:dateModified ?modified .
-            {abolished}
-        }}
-        """
-        for qid, bind in query_enterprises(context, client, query):
-            get_enterprise(enterprises, qid, bind).marked = True
+    # Lane A: typed (or legally formed) as a state-owned enterprise, anywhere
+    # in the class tree. The tree's historical and municipal forms are dropped
+    # by `excluded_types` when seats are read.
+    query = f"""
+    SELECT DISTINCT ?enterprise ?modified ?abolished WHERE {{
+        ?enterprise (wdt:P31|wdt:P1454)/wdt:P279* wd:Q270791 .
+        {seat_filter}
+        ?enterprise schema:dateModified ?modified .
+        {abolished}
+    }}
+    """
+    for qid, bind in query_enterprises(context, client, query):
+        get_enterprise(enterprises, qid, bind).marked = True
     lane_a = len(enterprises)
-    context.log.info("Lane A: listed types", enterprises=lane_a)
+    context.log.info("Lane A: state-owned enterprise types", enterprises=lane_a)
 
-    # Lane B: owned directly by a territory, one query per territory QID.
+    # Lane B: owned by, or subordinate to, a territory directly; one query per
+    # territory QID.
     lane_b: set[str] = set()
     for territory in all_territories():
         for territory_qid in sorted(territory.qids):
             query = f"""
             SELECT DISTINCT ?enterprise ?modified ?abolished WHERE {{
-                ?enterprise p:P127 ?owner .
-                ?owner ps:P127 wd:{territory_qid} .
+                ?enterprise p:P127|p:P749 ?owner .
+                ?owner ps:P127|ps:P749 wd:{territory_qid} .
                 FILTER NOT EXISTS {{ ?owner wikibase:rank wikibase:DeprecatedRank }}
                 {seat_filter}
                 ?enterprise schema:dateModified ?modified .
@@ -183,64 +182,20 @@ def discover(
                 )
         context.flush()
     context.log.info(
-        "Lane B: owned by a territory",
+        "Lane B: linked to a territory",
         enterprises=len(lane_b),
         new=len(enterprises) - lane_a,
     )
 
-    # Lane C: one hop of subsidiaries below lanes A and B.
-    parents = sorted(enterprises)
-    before_c = len(enterprises)
-    lane_c: set[str] = set()
-    for idx in range(0, len(parents), SUBSIDIARY_CHUNK):
-        chunk = parents[idx : idx + SUBSIDIARY_CHUNK]
-        values = " ".join(f"wd:{qid}" for qid in chunk)
-        query = f"""
-        SELECT DISTINCT ?enterprise ?parent ?modified ?abolished WHERE {{
-            VALUES ?parent {{ {values} }}
-            ?enterprise wdt:P127|wdt:P749 ?parent .
-            {seat_filter}
-            ?enterprise schema:dateModified ?modified .
-            {abolished}
-        }}
-        """
-        for qid, bind in query_enterprises(context, client, query):
-            parent = bind.plain("parent")
-            if parent is None or parent == qid:
-                continue
-            get_enterprise(enterprises, qid, bind).parents.add(parent)
-            lane_c.add(qid)
-    context.log.info(
-        "Lane C: subsidiaries",
-        enterprises=len(lane_c),
-        new=len(enterprises) - before_c,
-    )
     return enterprises
 
 
-def enterprise_countries(
-    client: WikidataClient,
-    enterprises: dict[str, Enterprise],
-    enterprise: Enterprise,
-) -> set[str]:
-    """The enterprise's own country, else its owning territories', else its
-    parents'."""
+def enterprise_countries(client: WikidataClient, enterprise: Enterprise) -> set[str]:
+    """The enterprise's own country, else its linked territories'."""
     countries = {c.text for c in item_countries(client, enterprise.qid)}
     if len(countries) == 0:
         countries = {t.ftm_country for t in enterprise.owners}
-    if len(countries) == 0:
-        for parent in enterprise.parents:
-            countries.update(c.text for c in item_countries(client, parent))
     return {c for c in countries if c is not None}
-
-
-def is_marked(enterprises: dict[str, Enterprise], enterprise: Enterprise) -> bool:
-    if enterprise.marked:
-        return True
-    for parent in enterprise.parents:
-        if enterprises[parent].marked:
-            return True
-    return False
 
 
 def make_seat_position(
@@ -299,11 +254,11 @@ def read_seats(
         label = clean_wikidata_name(item.label.text)
         if label is None:
             continue
-        countries = enterprise_countries(client, enterprises, enterprise)
+        countries = enterprise_countries(client, enterprise)
         if len(countries) == 0:
             context.log.info("Enterprise has no country", qid=item.id, label=label)
             continue
-        topics = ["gov.soe" if is_marked(enterprises, enterprise) else "gov.admin"]
+        topics = ["gov.soe" if enterprise.marked else "gov.admin"]
         subnational = [t.name for t in enterprise.owners if not t.is_country]
         if len(subnational) > 0:
             topics.append("gov.state")
@@ -333,10 +288,9 @@ def read_seats(
 def crawl(context: Context) -> None:
     client = create_wikidata_client(context)
     roles = load_roles(context)
-    soe_types = load_types(context, "soe_types")
     excluded_types = load_types(context, "excluded_types")
 
-    enterprises = discover(context, client, roles, soe_types)
+    enterprises = discover(context, client, roles)
     context.log.info(f"Discovered {len(enterprises)} enterprises")
     seats = read_seats(context, client, roles, excluded_types, enterprises)
 
