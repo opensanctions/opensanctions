@@ -2,16 +2,19 @@
 # than P39 claims on the person, so this crawler discovers enterprises first and
 # reads their seats, instead of discovering positions like wd_peps does.
 #
-# Enterprises are found in two lanes, unioned:
+# Bodies are found in three lanes, unioned:
 #  A. P31/P1454 in the state-owned enterprise (Q270791) class tree: the marker
 #     an enterprise carries once its state control is established
 #  B. P127 owned by, or P749 subordinate to, a state actor: a territory QID
 #     known to rigour, or a government body (`government_types`, direct P31)
-#     whose P1001 jurisdiction, else P17 country, is one
-# Both lanes require at least one seat statement. Control is not inferred from
+#     whose P1001 jurisdiction, else P17 country, is one, or a body in the
+#     international organisation registry (INTL_ORGS)
+#  C. the registry's international bodies themselves
+# Lanes A and B require at least one seat statement. Control is not inferred from
 # ownership chains or shares: subsidiaries are found once they carry the
 # marker themselves. Lane A yields `gov.soe` positions; bodies found only by
-# lane B are institutions and yield `gov.admin`.
+# lane B are institutions and yield `gov.admin`; registry bodies, and bodies
+# whose P749 parent is one, take the registry's country and topics.
 title: Wikidata State-Owned Enterprise Leadership
 entry_point: crawler.py
 prefix: wd

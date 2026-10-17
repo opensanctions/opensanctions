@@ -241,6 +241,17 @@ def discover(
         new=len(enterprises) - lane_a,
     )
 
+    # Lane C: the registered international bodies themselves, whose leaders
+    # often have no position item of their own.
+    before_c = len(enterprises)
+    for qid in sorted(INTL_ORGS):
+        if qid not in enterprises:
+            enterprises[qid] = Enterprise(qid=qid)
+    context.log.info(
+        "Lane C: international bodies",
+        enterprises=len(INTL_ORGS),
+        new=len(enterprises) - before_c,
+    )
     return enterprises
 
 
