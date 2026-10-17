@@ -90,7 +90,7 @@ config:
       label: Chair of the Supervisory Board
     - key: chair
       property: P488
-      label: Chair of the Board
+      label: Chairperson
     - key: supervisory-deputy-chair
       property: P5052
       qualifier: Q1127270
