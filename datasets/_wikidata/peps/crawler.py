@@ -62,6 +62,18 @@ def collect_positions(context: Context, client: WikidataClient, query: str) -> s
     return positions
 
 
+def collect_qid_positions(
+    context: Context, client: WikidataClient, qid: str, query: str
+) -> set[str]:
+    """Run one QID's discovery query, logging a failure instead of raising so
+    that the territory's other QIDs still contribute their positions."""
+    try:
+        return collect_positions(context, client, query)
+    except Exception as exc:  # noqa: BLE001
+        context.log.warning("Position discovery query failed", qid=qid, error=str(exc))
+        return set()
+
+
 def query_usage_positions(
     context: Context, client: WikidataClient, territory: Territory
 ) -> set[str]:
@@ -87,7 +99,7 @@ def query_usage_positions(
             {ABOLISHED_CLAUSE}
         }}
         """
-        positions.update(collect_positions(context, client, query))
+        positions.update(collect_qid_positions(context, client, qid, query))
     return positions
 
 
@@ -112,7 +124,7 @@ def query_occupation_positions(
             {ABOLISHED_CLAUSE}
         }}
         """
-        positions.update(collect_positions(context, client, query))
+        positions.update(collect_qid_positions(context, client, qid, query))
     return positions
 
 
