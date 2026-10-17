@@ -3,9 +3,7 @@ from nomenklatura.wikidata import WikidataClient, LangText
 from rigour.territories import get_territory_by_qid
 from rigour.territories.territory import Territory
 
-# Positions dissolved before this date never confer PEP status; the cutoff
-# marks the internationally recognized end of history. Positions abolished
-# *after* it still matter — living former holders remain PEPs.
+# Positions and polities that ended before this date confer no PEP status.
 POSITION_ABOLISHED_CUTOFF = "1990-12-26"
 
 # Places we refuse to derive a country from, because their P17 claims name every
@@ -27,15 +25,10 @@ SKIP_PLACES: set[str] = {
 
 @lru_cache(maxsize=5000)
 def is_historical_country(client: WikidataClient, qid: str) -> bool:
-    """Check whether a QID names a polity that ended before the PEP cutoff, so that
-    claims pointing at it can be ignored when deriving countries.
+    """Check whether a QID names a polity that ended before the PEP cutoff.
 
-    A wrong "historical" verdict drops countries, positions and living PEPs, while
-    a wrong "current" one only lets extra candidates through to later checks. So
-    beyond rigour's own verdict, a polity only counts as historical if Wikidata
-    types it as such *and* dates its end before `POSITION_ABOLISHED_CUTOFF`.
-    This also covers rigour's alternate QIDs, which include predecessor states
-    (the German Reich under `de`) mapped to a current territory."""
+    rigour's flag is sufficient. Otherwise both a historical Wikidata type and an
+    end date before the cutoff are required: a false positive drops living PEPs."""
     territory = get_territory_by_qid(qid)
     if territory is not None and territory.is_historical:
         return True
@@ -46,7 +39,7 @@ def is_historical_country(client: WikidataClient, qid: str) -> bool:
     if "Q839954" in types:  # archeological site
         return True
     if "Q3024240" not in types and "Q19953632" not in types:
-        # neither historical country nor former administrative territorial entity
+        # historical country, former administrative territorial entity
         return False
     end_dates: list[str] = []
     for claim in item.claims:
@@ -57,8 +50,7 @@ def is_historical_country(client: WikidataClient, qid: str) -> bool:
 
 
 def current_territory_qids(client: WikidataClient, territory: Territory) -> list[str]:
-    """List the QIDs to sweep when querying Wikidata for a territory: its primary
-    QID and those alternates that don't name a historical polity."""
+    """List a territory's QIDs to query Wikidata with, minus historical polities."""
     return [q for q in sorted(territory.qids) if not is_historical_country(client, q)]
 
 

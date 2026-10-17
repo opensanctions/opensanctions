@@ -65,8 +65,7 @@ def collect_positions(context: Context, client: WikidataClient, query: str) -> s
 def collect_qid_positions(
     context: Context, client: WikidataClient, qid: str, query: str
 ) -> set[str]:
-    """Run one QID's discovery query, logging a failure instead of raising so
-    that the territory's other QIDs still contribute their positions."""
+    """Collect one QID's positions, logging a failed query instead of raising."""
     try:
         return collect_positions(context, client, query)
     except Exception as exc:  # noqa: BLE001
@@ -81,9 +80,7 @@ def query_usage_positions(
     or country (P17): they either have a human holder (P39 inverse) or name an
     officeholder themselves (P1308).
 
-    All the territory's current QIDs are swept, not just the primary one: aliases
-    cover entities like the Russia/Belarus Union State (an alias of `ru`), whose
-    organ positions would otherwise be invisible to jurisdiction-based discovery.
+    Alternate QIDs count too, e.g. the Russia/Belarus Union State under `ru`.
 
     One query per QID: batching them into a single `VALUES` block makes the
     query planner give up on large territories — the six QIDs of `gb` together
@@ -109,10 +106,7 @@ def query_occupation_positions(
     """Positions held by politicians, diplomats and judges who are citizens of
     the country. This catches positions with no country/jurisdiction statement
     of their own, including diplomatic postings and foreign or IGO offices.
-
-    Citizenship is sometimes recorded against an alternate QID (e.g. Netherlands
-    Q55 rather than Kingdom of the Netherlands Q29999), so each current QID is
-    queried separately, as in `query_usage_positions`."""
+    Alternate QIDs count too, e.g. citizenship recorded as Netherlands Q55."""
     positions: set[str] = set()
     for qid in current_territory_qids(client, territory):
         query = f"""

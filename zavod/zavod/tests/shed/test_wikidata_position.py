@@ -277,12 +277,12 @@ def test_is_historical_country() -> None:
             polity_item(stub, "Q55", "Q6256"),
         ]
     )
-    # rigour's verdict on a historical territory needs no fetch:
+    # rigour's flag alone:
     assert is_historical_country(client, "Q15180")
-    # Alternates of current territories are judged by their own types and end:
+    # Wikidata type and end date:
     assert is_historical_country(client, "Q7318")
     assert not is_historical_country(client, "Q55")
-    # Polities that ended after the cutoff, or without a known end, stay current:
+    # Ended after the cutoff, or undated:
     assert not is_historical_country(client, "Q131404661")
     assert not is_historical_country(client, "Q13474305")
     assert not is_historical_country(client, "Q183")
@@ -295,7 +295,7 @@ def test_item_countries_skips_historical_polities() -> None:
     )
     client = stub_with([polity_item(stub, "Q7318", "Q3024240", "1945-05-23"), position])
     assert item_countries(client, "Q1") == set()
-    # Direct lookups still map the predecessor state to its current territory:
+    # Direct lookups map to the current territory:
     assert [c.text for c in item_countries(client, "Q7318")] == ["de"]
 
 
