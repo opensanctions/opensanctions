@@ -65,11 +65,11 @@ def load_roles(context: Context) -> list[Role]:
     return roles
 
 
-def load_soe_types(context: Context) -> set[str]:
-    types: dict[str, str] = context.dataset.config["soe_types"]
+def load_types(context: Context, key: str) -> set[str]:
+    types: dict[str, str] = context.dataset.config[key]
     for qid in types:
         if not is_qid(qid):
-            raise ValueError(f"Invalid QID in soe_types: {qid!r}")
+            raise ValueError(f"Invalid QID in {key}: {qid!r}")
     return set(types)
 
 
@@ -275,10 +275,12 @@ def read_seats(
     context: Context,
     client: WikidataClient,
     roles: list[Role],
+    excluded_types: set[str],
     enterprises: dict[str, Enterprise],
 ) -> Seats:
     seats: Seats = {}
     seat_count = 0
+    excluded = 0
     done: set[str] = set()
     for idx, enterprise in enumerate(sorted(enterprises.values(), key=lambda e: e.qid)):
         if idx > 0 and idx % 500 == 0:
@@ -288,6 +290,9 @@ def read_seats(
         if item is None or item.id in done:
             continue
         done.add(item.id)
+        if not item.types.isdisjoint(excluded_types):
+            excluded += 1
+            continue
         if item.label is None or item.label.text is None:
             context.log.info("Enterprise has no label", qid=item.id)
             continue
@@ -319,18 +324,21 @@ def read_seats(
                 continue
             seats.setdefault(claim.qid, []).append((position, claim))
             seat_count += 1
-    context.log.info("Read seats", seats=seat_count, persons=len(seats))
+    context.log.info(
+        "Read seats", seats=seat_count, persons=len(seats), excluded=excluded
+    )
     return seats
 
 
 def crawl(context: Context) -> None:
     client = create_wikidata_client(context)
     roles = load_roles(context)
-    soe_types = load_soe_types(context)
+    soe_types = load_types(context, "soe_types")
+    excluded_types = load_types(context, "excluded_types")
 
     enterprises = discover(context, client, roles, soe_types)
     context.log.info(f"Discovered {len(enterprises)} enterprises")
-    seats = read_seats(context, client, roles, enterprises)
+    seats = read_seats(context, client, roles, excluded_types, enterprises)
 
     emitted_positions: set[str] = set()
     persons = 0
