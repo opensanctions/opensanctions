@@ -297,13 +297,10 @@ def make_seat_position(
     return position
 
 
-def item_intl_org(item: Item) -> IntlOrg | None:
-    """The registered international body an item is, or is part of through a
-    P749 parent organization link. An international body that owns a stake
-    (P127) is an investor, not a parent."""
-    intl_org = INTL_ORGS.get(item.id)
-    if intl_org is not None:
-        return intl_org
+def parent_intl_org(item: Item) -> IntlOrg | None:
+    """The registered international body an item is part of through a P749
+    parent organization link. An international body that owns a stake (P127)
+    is an investor, not a parent."""
     for claim in item.claims:
         if claim.property == "P749" and claim.qid is not None:
             intl_org = INTL_ORGS.get(claim.qid)
@@ -343,7 +340,8 @@ def read_seats(
         label = clean_wikidata_name(item.label.text)
         if label is None:
             continue
-        intl_org = item_intl_org(item)
+        registered = INTL_ORGS.get(item.id)
+        intl_org = registered or parent_intl_org(item)
         if intl_org is None and not enterprise.marked and len(enterprise.owners) == 0:
             # Found only through an international body's stake in it:
             # an investment, not part of the body.
@@ -351,12 +349,13 @@ def read_seats(
         default_is_pep: bool | None = True
         if intl_org is not None:
             # International bodies carry the registry's pseudo-country and
-            # topics; those outside `gov.igo` go to review undecided, as their
-            # positions do in wd_peps.
+            # topics. The registry vouches only for its own bodies' seats:
+            # those of bodies merely part of one, and of bodies outside
+            # `gov.igo`, go to review undecided, as in wd_peps.
             countries = {intl_org.country}
             topics = sorted(intl_org.topics)
             subnational: list[str] = []
-            if "gov.igo" not in intl_org.topics:
+            if registered is None or "gov.igo" not in intl_org.topics:
                 default_is_pep = None
         else:
             countries = enterprise_countries(client, enterprise)
