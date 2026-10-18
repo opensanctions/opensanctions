@@ -916,6 +916,20 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
     ("ENTITIES", "40"): {
         "In process of liquidation": (("notes", "In process of liquidation"),),
     },
+    # The printed semicolon is inside one Russian address ("premises V; room
+    # 1-9"), not the list separator the label rule reads it as.
+    ("ENTITIES", "1207"): {
+        (
+            "Address: 124460, city Moskva, city Zelenograd, prospekt "
+            "Panfilovskiy, bld. 4, str. 1, premises V; room 1-9"
+        ): (
+            (
+                "address",
+                "124460, city Moskva, city Zelenograd, prospekt Panfilovskiy, "
+                "bld. 4, str. 1, premises V; room 1-9",
+            ),
+        ),
+    },
 }
 # Entries whose date cell prints a stray trailing period or semicolon (list
 # punctuation, not date wording), or nothing at all.
