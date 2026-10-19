@@ -210,76 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Date d'enregistrement: 24.3.1993, 31.12.2002"
-        props:
-          incorporationDate: [1993-03-24, 2002-12-31]
-      - match: "Date d'enregistrement: 1937: 4032815"
-        props:
-          incorporationDate: 1937
-      - match: "Numéro d'enregistrement de l'entreprise: 74520161"
-        props:
-          registrationNumber: 74520161
-      - match: "Numéro d'enregistrement: 9705215107/770501001"
-        props:
-          registrationNumber:
-            - "9705215107"
-            - "770501001"
-      - match: "Type d'entité: entreprise de médias"
-        # That's not a legal form
-      - match: "Numéro d'enregistrement: 423277-5"
-        props:
-          registrationNumber: 423277-5
-      - match: "Personnes associées: Alexey Alekseevich Shashkov"
-        associates:
-          - Alexey Alekseevich Shashkov
-      - match: "Date d'enregistrement: 20.1.2022 6"
-        props:
-          incorporationDate: 2022-01-20
-      - match: "Fondateur: Hüseyin Dogru"
-        associates:
-          - Hüseyin Dogru
-      - match: "Lieu d'enregistrement: Lattaquié, Syrie"
-        props:
-          jurisdiction: sy
-          address: "Lattaquié, Syrie"
-      - match:
-          - "Lieu d'enregistrement: Damas, Syrie"
-          - "Principal établissement: Damas, Syrie"
-        props:
-          jurisdiction: sy
-          address: "Damas, Syrie"
-      - match: "Principal établissement: Damas-Campagne, Syrie"
-        props:
-          jurisdiction: sy
-          address: "Damas-Campagne, Syrie"
-      - match: "Lieu d'enregistrement: Damas-Campagne"
-        props:
-          jurisdiction: sy
-          address: "Damas-Campagne"
-      - match: "Lieu d'enregistrement: Ul. Dinamovskaya D.1a, Bureau 409, Moscou, RUS, 109044"
-        props:
-          jurisdiction: ru
-          address: "Ul. Dinamovskaya D.1a, Bureau 409, Moscou, RUS, 109044"
-      - match: "Lieu d'enregistrement: 295000, République de Crimée, Simferopol, Oktyabirskaya Street, 3, Office 408"
-        props:
-          jurisdiction: ua-cri
-          address: "295000, République de Crimée, Simferopol, Oktyabirskaya Street, 3, Office 408"
-      - match: "Lieu d'enregistrement: 13, Korolyov street, Moscou, Russie"
-        props:
-          jurisdiction: ru
-          address: "13, Korolyov street, Moscou, Russie"
-      - match: "Principal établissement: territoire du régime syrien en Syrie"
-        props:
-          jurisdiction: sy
-      - match: "Sous le numéro: 394678"
-        props:
-          registrationNumber: 394678
-      - match: "Date de création: 29.6. 2015"
-        props:
-          incorporationDate: 2015-06-29
-      - match: "Date de création: 23.3.2021"
-        props:
-          incorporationDate: 2021-03-23
       - match: "ОГРН: 1027739456084"
         props:
           ogrnCode: 1027739456084
@@ -7039,6 +6969,56 @@ lookups:
           legalForm: "prison"
           jurisdiction: "ir"
           address: "Shiraz, province de Fars, Iran"
+      - match: "Date de création: 23.3.2021"
+        props:
+          incorporationDate: "2021-03-23"
+      - match: "Lieu d'enregistrement: Ul. Dinamovskaya D.1a, Bureau 409, Moscou, RUS, 109044 - Date d'enregistrement: 17.12.2002"
+        props:
+          jurisdiction: "ru"
+          address: "Ul. Dinamovskaya D.1a, Bureau 409, Moscou, RUS, 109044"
+          incorporationDate: "2002-12-17"
+      - match: "Lieu d’enregistrement: Lattaquié, Syrie - Date d’enregistrement: 2017"
+        props:
+          jurisdiction: "sy"
+          address: "Lattaquié, Syrie"
+          incorporationDate: "2017"
+      - match: "Lieu d’enregistrement: Damas, Syrie - Principal établissement: territoire du régime syrien en Syrie"
+        props:
+          jurisdiction: "sy"
+          address: "Damas, Syrie"
+      - match: "Lieu d'enregistrement: Damas, Syrie - Principal établissement: Syrie"
+        props:
+          jurisdiction: "sy"
+          address: "Damas, Syrie"
+      - match: "Type d'entité: entreprise de médias"
+      - match: "Fondateur: Hüseyin Dogru"
+        associates:
+          - Hüseyin Dogru
+      - match: "Sous le numéro: 394678"
+        props:
+          registrationNumber: "394678"
+      - match: "Lieu d'enregistrement: Damas, Syrie - Principal établissement: Damas, Syrie"
+        props:
+          jurisdiction: "sy"
+          address: "Damas, Syrie"
+      - match: "Lieu d’enregistrement: 295000, République de Crimée, Simferopol, Oktyabirskaya Street, 3, Office 408 - Date d’enregistrement: 2019"
+        props:
+          jurisdiction: "ua-cri"
+          address: "295000, République de Crimée, Simferopol, Oktyabirskaya Street, 3, Office 408"
+          incorporationDate: "2019"
+      - match: "Date de création: 29.6. 2015"
+        props:
+          incorporationDate: "2015-06-29"
+      - match: "Lieu d’enregistrement: 13, Korolyov street, Moscou, Russie - Date d’enregistrement: 30.11.2001"
+        props:
+          jurisdiction: "ru"
+          address: "13, Korolyov street, Moscou, Russie"
+          incorporationDate: "2001-11-30"
+      - match: "Numéro d'enregistrement: 9705215107/770501001"
+        props:
+          registrationNumber:
+            - "9705215107"
+            - "770501001"
   # =====================================
   #
   #  ADDRESSES
