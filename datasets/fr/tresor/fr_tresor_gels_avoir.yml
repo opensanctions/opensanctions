@@ -210,80 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Filiale: FSPC JSC NPO Mars"
-        associates:
-          - FSPC JSC NPO Mars
-      - match: "Filiale: Société par actions NPF Meridian"
-        associates:
-          - Société par actions NPF Meridian
-      - match: "Filiale: AO Typhoon"
-        associates:
-          - AO Typhoon
-      - match: "Société mère: Rostec"
-        associates:
-          - Rostec
-      - match: "Principaux établissements: Émirats arabes unis, Fédération de Russie, Union européenne"
-        props:
-          jurisdiction:
-            - ae
-            - ru
-            - eu
-      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B"
-        props:
-          jurisdiction: ru
-          address: "Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B"
-      - match: "Lieu des activités: Ukraine, Fédération de Russie"
-        props:
-          jurisdiction:
-            - ua
-            - ru
-      - match: "Principal établissement: Kaspiysk, République du Daghestan, Fédération de Russie"
-        props:
-          jurisdiction: ru
-      - match: "Principal établissement: Petrovsk, Fédération de Russie"
-        props:
-          jurisdiction: ru
-      - match: "Principal établissement: Fédération de Russie, Pays-Bas"
-        props:
-          jurisdiction:
-            - ru
-            - nl
-      - match: "Lieu d'enregistrement: Russie"
-        props:
-          jurisdiction: ru
-      - match: "Type d'entité: Joint Stock Company (société par actions)"
-        props:
-          legalForm: "Joint Stock Company (société par actions)"
-      - match: "Type d'entité: société à responsabilité limitée (SARL) (LLC)"
-        props:
-          legalForm: société à responsabilité limitée (SARL) (LLC)
-      - match: "Principal établissement: Arsenyev, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Arsenyev, Fédération de Russie"
-      - match: "Lieu d'enregistrement: Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis)"
-        props:
-          jurisdiction: ae
-          address: "Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis)"
-      - match: "Lieu d'enregistrement: Fédération de Russie (606083, région de Nijni Novgorod, district de Volodarsky, Mulino)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (606083, région de Nijni Novgorod, district de Volodarsky, Mulino)"
-      - match: "OKATO  - Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij: 61401375"
-        note: true
-        props:
-          address: "Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij"
-      - match: "OKFS  - Propriété des sociétés d'État: 61"
-        note: true
-        props:
-          legalForm: Propriété des sociétés d'État
-      - match: "OKOGU - “Technologies russes”, société d'État chargée de promouvoir le développement, la production et l'exportation de produits de haute technologie: 4100304"
-        note: true
-        props:
-          legalForm: société d'État
-      - match: "OKOPF - Sociétés par actions ouvertes OKTMO: 61701000001: 12247"
-        note: true
-        props: []
       - match: "Lieu d'enregistrement: Minsk, Biélorussie"
         props:
           jurisdiction: by
@@ -6985,6 +6911,104 @@ lookups:
       - match: "Filiale: Société par actions Morinsis-Agat-KIP"
         associates:
           - Société par actions Morinsis-Agat-KIP
+      - match: "Lieu d’enregistrement: Russie"
+        props:
+          jurisdiction: "ru"
+      - match: "Lieu d'enregistrement: Fédération de Russie (606083, région de Nijni Novgorod, district de Volodarsky, Mulino) - Date d'enregistrement: 14.12.2009 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (606083, région de Nijni Novgorod, district de Volodarsky, Mulino)"
+          incorporationDate: "2009-12-14"
+      - match: "Lieu d'enregistrement: Russie"
+        props:
+          jurisdiction: "ru"
+      - match: "Principal établissement: Petrovsk, Fédération de Russie"
+      - match: "Type d'entité: Joint Stock Company (société par actions)"
+        props:
+          legalForm: "Joint Stock Company (société par actions)"
+      - match: "Type d’entité: Joint Stock Company (société par actions)"
+        props:
+          legalForm: "Joint Stock Company (société par actions)"
+      - match: "OKFS  - Propriété des sociétés d’État: 61"
+        props:
+          legalForm: "Propriété des sociétés d'État"
+          notes: "OKFS  - Propriété des sociétés d'État: 61"
+      - match: "OKOGU - “Technologies russes”, société d’État chargée de promouvoir le développement, la production et l’exportation de produits de haute technologie: 4100304"
+        props:
+          notes: "OKOGU - “Technologies russes”, société d'État chargée de promouvoir le développement, la production et l'exportation de produits de haute technologie: 4100304"
+      - match: "OKOPF - Sociétés par actions ouvertes OKTMO: 61701000001: 12247"
+        props:
+          notes: "OKOPF - Sociétés par actions ouvertes OKTMO: 61701000001: 12247"
+      - match: "OKATO  - Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij: 61401375"
+        props:
+          notes: "OKATO  - Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij: 61401375"
+          address: "Ryazanskaya area, citya oblastnogo znacheniya Ryazanskoj area, Ryazan, Oktyabrskij"
+      - match: "Lieu d'enregistrement: Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis). Date d'enregistrement: 2.8.2012. Numéro d'identification fiscale: 1244. Principaux établissements: Émirats arabes unis, Fédération de Russie, Union européenne. Entités associées: PAO Sovcomflot (société mère). Numéro d'enregistrement: 11440513. Numéro OMI: 5897756"
+        associates:
+          - PAO Sovcomflot (société mère)
+        props:
+          jurisdiction:
+            - "ru"
+            - "ae"
+            - "eu"
+          address: "Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis)"
+          incorporationDate: "2012-08-02"
+          taxNumber: "1244"
+          registrationNumber: "11440513"
+          imoNumber: "IMO5897756"
+      - match: "Date d’enregistrement: 14.11.2002 - Principal établissement: Arsenyev, Fédération de Russie"
+        props:
+          incorporationDate: "2002-11-14"
+          jurisdiction: "ru"
+          address: "Arsenyev, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Russie"
+        props:
+          jurisdiction: "ru"
+      - match: "Type d’entité: société à responsabilité limitée (SARL) (LLC) - Lieu d’enregistrement: Russie - Date d’enregistrement: 24.12.2010"
+        props:
+          legalForm: "société à responsabilité limitée (SARL) (LLC)"
+          jurisdiction: "ru"
+          incorporationDate: "2010-12-24"
+      - match: "Lieu d’enregistrement: Russie"
+        props:
+          jurisdiction: "ru"
+      - match: "Filiale: FSPC JSC NPO Mars"
+        associates:
+          - FSPC JSC NPO Mars
+      - match: "Filiale: Société par actions NPF Meridian"
+        associates:
+          - Société par actions NPF Meridian
+      - match: "Filiale: AO Typhoon"
+        associates:
+          - AO Typhoon
+      - match: "Principal établissement: Kaspiysk, République du Daghestan, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Russie"
+        props:
+          jurisdiction: "ru"
+      - match: "Société mère: Rostec"
+        associates:
+          - Rostec
+      - match: "Lieu des activités: Ukraine, Fédération de Russie - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction:
+            - "ua"
+            - "ru"
+      - match: "Type d’entité: Joint Stock Company (société par actions)"
+        props:
+          legalForm: "Joint Stock Company (société par actions)"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B - Date d'enregistrement: 22.8.2014 - Principal établissement: Fédération de Russie, Pays-Bas"
+        props:
+          jurisdiction:
+            - "ru"
+            - "nl"
+          address: "Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5, pom VI, kom 30B"
+          incorporationDate: "2014-08-22"
+      - match: "Type d’entité: Joint Stock Company (société par actions)"
+        props:
+          legalForm: "Joint Stock Company (société par actions)"
+      - match: "Lieu d'enregistrement: Russie"
+        props:
+          jurisdiction: "ru"
   # =====================================
   #
   #  ADDRESSES
