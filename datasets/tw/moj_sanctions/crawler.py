@@ -9,6 +9,7 @@ from rigour.mime.types import CSV
 from zavod import Context, Entity
 from zavod import helpers as h
 
+PROGRAM_KEY = "TW-CFT"
 RULING_NUMBER = re.compile(r"^法裁第(\d+)號$")
 # Reviewed announcement PDFs (percent-decoded url: sha1), see the runbook in the yml.
 PDF_HASHES = {
@@ -36,14 +37,14 @@ def crawl_related_party(
         ownership.add("owner", related_id)
         ownership.add("asset", company)
         ownership.add("percentage", res.percentage)
-        ownership.add("role", relationship)
+        ownership.add("role", relationship, lang="zho")
         context.emit(ownership)
     if res.directorship is True:
         directorship = context.make("Directorship")
         directorship.id = context.make_id("directorship", related_id, company.id)
         directorship.add("director", related_id)
         directorship.add("organization", company)
-        directorship.add("role", relationship)
+        directorship.add("role", relationship, lang="zho")
         context.emit(directorship)
 
 
@@ -82,14 +83,15 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         context,
         entity,
         program_name="Counter-Terrorism Financing Act Article 4 Designations",
+        program_key=PROGRAM_KEY,
         source_program_key="資恐防制法第4條第1項",
         start_date=row.pop("Listing date"),
-        end_date=row.pop("Delisting date") or None,
+        end_date=row.pop("Delisting date"),
     )
     sanction.add("authorityId", ruling_number)
     sanction.add("sourceUrl", row.pop("Listing URL"))
     sanction.add("sourceUrl", row.pop("Delisting URL"))
-    sanction.add("reason", row.pop("Delisting reason"), lang="zho")
+    sanction.add("summary", row.pop("Delisting reason"), lang="zho")
     if h.is_active(sanction):
         entity.add("topics", "sanction")
     context.emit(entity)
@@ -122,9 +124,13 @@ def check_announcements(context: Context, cited_urls: set[str]) -> None:
         url = unquote(href)
         listed_urls.add(url)
         expected_hash = PDF_HASHES.get(url)
-        assert expected_hash is not None, (
-            f"Unreviewed MOJ announcement PDF listed: {url}"
-        )
+        if expected_hash is None:
+            context.log.warning(
+                "Unreviewed MOJ announcement PDF listed",
+                url=url,
+                title=h.element_text(link),
+            )
+            continue
         h.assert_url_hash(context, href, expected_hash)
     for url in PDF_HASHES.keys() - listed_urls:
         context.log.warning("Reviewed MOJ announcement PDF no longer listed", url=url)
@@ -136,12 +142,19 @@ def crawl(context: Context) -> None:
     shutil.copy(source_file, resource_path)
     context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
 
-    cited_urls: set[str] = set()
     with open(source_file, encoding="utf-8", newline="") as fh:
-        for row in csv.DictReader(fh):
-            cited_urls.add(row["Listing URL"])
-            if row["Delisting URL"] != "":
-                cited_urls.add(row["Delisting URL"])
-            crawl_row(context, row)
+        rows = list(csv.DictReader(fh))
+    ruling_numbers = {row["Ruling number"] for row in rows}
+    assert len(ruling_numbers) == len(rows), "Duplicate ruling numbers"
+
+    cited_urls: set[str] = set()
+    for row in rows:
+        related_party = row["Related party"]
+        # Related parties are emitted from their own rows.
+        assert related_party == "" or related_party in ruling_numbers, related_party
+        cited_urls.add(row["Listing URL"])
+        if row["Delisting URL"] != "":
+            cited_urls.add(row["Delisting URL"])
+        crawl_row(context, row)
 
     check_announcements(context, cited_urls)

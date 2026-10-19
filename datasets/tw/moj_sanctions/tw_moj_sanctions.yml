@@ -2,7 +2,7 @@ title: Taiwan MOJ Counter-Terrorism Financing Act Sanctions
 prefix: tw-moj
 entry_point: crawler.py
 coverage:
-  frequency: daily
+  frequency: monthly
   start: 2026-08-14
 load_statements: true
 
@@ -11,7 +11,7 @@ summary: >-
 description: |
   Individuals and companies designated as sanctioned by Taiwan's Ministry of
   Justice under Article 4, Paragraph 1 of the Counter-Terrorism
-  Financing Act (資恐防制法).
+  Financing Act.
 url: https://www.mjib.gov.tw/EditPage/?PageID=2f940503-6044-4a8f-baeb-3499ade2dd57
 publisher:
   name: 法務部
@@ -44,7 +44,9 @@ tags:
 # 2. Check the draft against the scan. A record can continue across a page
 #    break, and LLM extraction has attached such fields to the next record.
 #    Copy ruling numbers exactly: their digits are the entity IDs.
-# 3. New relationship wording needs a relationship.type lookup option.
+# 3. Set Related party to the related party's ruling number. That party
+#    needs its own row, which the crawler checks. Copy the relationship text
+#    verbatim; new wording needs a relationship.type lookup option.
 # 4. Add the PDF url (percent-decoded) and its sha1 (`shasum file.pdf`) to
 #    PDF_HASHES in crawler.py. For a PDF with no records, add a comment
 #    saying what it contains.
@@ -58,9 +60,10 @@ lookups:
   relationship.type:
     required: true
     options:
-      - match: 負責人及唯一股東
+      - regex: ^負責人及唯一股東為.+$
         ownership: true
         directorship: true
+        percentage: "100"
       - regex: ^由.+百分之百持股$
         ownership: true
         percentage: "100"
