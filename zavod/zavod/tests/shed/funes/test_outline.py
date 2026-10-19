@@ -291,7 +291,6 @@ def test_media_types_multiple_resources() -> None:
 
 @pytest.mark.parametrize("mime_type", [None, "", "  ", "x-unknown", "  X-UNKNOWN  "])
 def test_media_types_untyped_bodies_omitted(mime_type: str | None) -> None:
-    """Responses Chromium saw no Content-Type for are left out, not guessed."""
     har = {
         "log": {"entries": [har_entry("https://example.org/a", "storage/a", mime_type)]}
     }
@@ -323,9 +322,10 @@ def test_media_types_untyped_beacon_among_typed_bodies() -> None:
         "image/ png",
     ],
 )
-def test_media_types_malformed_mime_fails_loud(mime_type: str) -> None:
+def test_media_types_malformed_mime_passes_through(mime_type: str) -> None:
+    """A garbage Content-Type is untrusted origin data, not a producer bug."""
     har = {
         "log": {"entries": [har_entry("https://example.org/a", "storage/a", mime_type)]}
     }
-    with pytest.raises(ValueError, match="malformed mimeType"):
-        har_resource_media_types(har)
+    expected = mime_type.partition(";")[0].strip().lower()
+    assert har_resource_media_types(har) == {"storage/a": expected}
