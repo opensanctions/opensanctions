@@ -31,6 +31,28 @@ http:
 tags:
   - list.sanction
 
+names:
+  schema_rules:
+    # Rigour's split phrases cover none of the markers this source uses: "@"
+    # between a person's aliases, " or " and "/" between alternative names, and
+    # trailing phrases such as ", all its formations and front organizations",
+    # "namely:" or "and its armed wing". Organisation titles also carry
+    # acronyms in parentheses, and many titles end in a full stop.
+    Person:
+      reject_chars: "@.”"
+    LegalEntity:
+      reject_chars: "@().,:"
+      reject_strings:
+        - " or "
+        - " and its "
+        - " all its "
+        - "namely"
+        - "faction"
+        - "led by"
+  suggest_weak_alias_person_single_token: true
+  suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
+
 assertions:
   min:
     schema_entities:

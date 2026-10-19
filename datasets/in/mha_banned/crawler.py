@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 from zavod import Context
 from zavod.entity import Entity
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 from zavod.util import Element
 from zavod.extract.zyte_api import fetch_html, fetch_resource
 
@@ -41,6 +42,7 @@ def crawl_entity(
     *,
     schema: str,
     names_string: str,
+    original_string: str,
     program: str,
     authority_id: str | None,
     source_url: str,
@@ -66,6 +68,18 @@ def crawl_entity(
     entity.add("abbreviation", abbreviations)
     entity.add("abbreviation", name_abbreviations)
 
+    suggested = h.Names(name=name, alias=aliases)
+    for abbreviation in abbreviations + name_abbreviations:
+        suggested.add("abbreviation", abbreviation)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=h.Names(name=original_string),
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
+
     entity.add("sourceUrl", source_url)
     entity.add("sourceUrl", detail_url)
     entity.add("topics", "sanction")
@@ -90,6 +104,7 @@ def crawl_common(
     context: Context,
     schema: str,
     names: str,
+    source_string: str,
     program: str,
     authority_id: str | None,
     source_url: str,
@@ -103,6 +118,7 @@ def crawl_common(
                 context,
                 schema=schema,
                 names_string=names,
+                original_string=source_string,
                 program=program,
                 authority_id=authority_id,
                 source_url=source_url,
@@ -110,11 +126,17 @@ def crawl_common(
                 abbreviations=[],
             )
         else:
+            # A row split into several entities gives each entity its own review
+            # original, so that their review keys don't collide.
+            is_multi = len(res.entities) > 1 or any(
+                group.get("related_name") for group in res.entities
+            )
             for group in res.entities:
                 entity = crawl_entity(
                     context,
                     schema=schema,
                     names_string=group["main_name"],
+                    original_string=group["main_name"] if is_multi else source_string,
                     program=program,
                     authority_id=authority_id,
                     source_url=source_url,
@@ -126,6 +148,7 @@ def crawl_common(
                         context,
                         schema=schema,
                         names_string=group["related_name"],
+                        original_string=group["related_name"],
                         program=program,
                         authority_id=authority_id,
                         source_url=source_url,
@@ -144,6 +167,7 @@ def crawl_common(
             context,
             schema=schema,
             names_string=names,
+            original_string=source_string,
             program=program,
             authority_id=authority_id,
             source_url=source_url,
@@ -183,7 +207,9 @@ def crawl_associations(context: Context, url: str, program: str) -> None:
     if len(records) == 0:
         context.log.error("No unlawful associations found", url=url)
     for names, detail_url in records:
-        crawl_common(context, "Organization", names, program, None, url, detail_url)
+        crawl_common(
+            context, "Organization", names, names, program, None, url, detail_url
+        )
 
 
 def crawl_organisations(context: Context, url: str, program: str) -> None:
@@ -201,6 +227,7 @@ def crawl_organisations(context: Context, url: str, program: str) -> None:
             context,
             "Organization",
             names,
+            names,
             program,
             authority_id.rstrip("."),
             url,
@@ -212,9 +239,9 @@ def crawl_individuals(context: Context, url: str, program: str) -> None:
     records = collect_records(context, url)
     if len(records) == 0:
         context.log.error("No individuals found", url=url)
-    for names, detail_url in records:
-        names = names.strip().rstrip(".")
-        crawl_common(context, "Person", names, program, None, url, detail_url)
+    for title, detail_url in records:
+        names = title.strip().rstrip(".")
+        crawl_common(context, "Person", names, title, program, None, url, detail_url)
 
 
 def get_link_by_label(doc: Element, label: str) -> str:
@@ -252,3 +279,5 @@ def crawl(context: Context) -> None:
 
     url = get_link_by_label(doc, INDIVIDUALS_LABEL)
     crawl_individuals(context, url, INDIVIDUALS_LABEL)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
