@@ -200,13 +200,6 @@ lookups:
         prop: reason
       - match: "Date de désignation par les Nations unies: 28 avril 2026."
         prop: description
-  # Matched against one segment of a split identification field.
-  # DEPRECATED: this lookup was for human maintainers only. Do not add options
-  # here, use identification_full below.
-  identification_segment:
-    lowercase: true
-    normalize: true
-    options:
   ####################################################################################################
   ####################################################################################################
   #
@@ -1767,11 +1760,6 @@ lookups:
           jurisdiction:
             - ua
             - ru
-      - match: "Principal établissement: Fédération de Russie: Lieu des activités: Ukraine, Fédération de Russie"
-        props:
-          jurisdiction:
-            - ua
-            - ru
       - match: "Lieu d'enregistrement: Iran: Numéro d'enregistrement: 10320661315 ou 414950 ou 47779."
         props:
           jurisdiction: ir
@@ -1795,11 +1783,6 @@ lookups:
           address: "Saint-Pétersbourg, Fédération de Russie"
           incorporationDate: 2015-01-15
           registrationNumber: 1154712000024
-      - match: "Principal établissement: Fédération de Russie: Lieu des activités: Ukraine, Fédération de Russie"
-        props:
-          jurisdiction:
-            - ua
-            - ru
       - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 31.5.1994: Type d'entité: société à responsabilité limitée"
         props:
           jurisdiction: ru
@@ -1818,16 +1801,6 @@ lookups:
           jurisdiction: ru
           address: "Moscou, Fédération de Russie"
           legalForm: organisation non gouvernementale
-      - match: "Lieu d’enregistrement: Alabuga, Fédération de Russie - Principal établissement: Fédération de Russie: Type d’entité: société à responsabilité limitée"
-        props:
-          jurisdiction: ru
-          address: "Alabuga, Fédération de Russie"
-          legalForm: société à responsabilité limitée
-      - match: "Principal établissement: Fédération de Russie: Lieu des activités: Ukraine, Fédération de Russie"
-        props:
-          jurisdiction:
-            - ua
-            - ru
       - match: "Type d’entité: société à responsabilité limitée; fournisseur de composants aéronautiques"
         props:
           legalForm: société à responsabilité limitée
@@ -1988,11 +1961,6 @@ lookups:
           jurisdiction: ru
           address: "Fédération de Russie, 624981, Sverdlovsk region, Serov city, Aglomeratchikov str. 10"
           incorporationDate: 2011-12-23
-      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Petrovsk, Fédération de Russie - Date d’enregistrement: 21.1.2014: /"
-        props:
-          legalForm: société par actions
-          jurisdiction: ru
-          incorporationDate: 2014-01-21
       - match: "Type d’entité: organisation non gouvernementale"
         props:
           legalForm: organisation non gouvernementale
@@ -2049,11 +2017,6 @@ lookups:
         props:
           jurisdiction: ru
           address: "Moscou, Fédération de Russie"
-      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Petrovsk, Fédération de Russie - Date d’enregistrement: 21.1.2014: /"
-        props:
-          legalForm: société par actions
-          jurisdiction: ru
-          incorporationDate: 2014-01-21
       - match: "Type d’entité: société par actions - Date d’enregistrement: 7.5.2008: Numéro d’enregistrement: 1085261002628"
         props:
           legalForm: société par actions
@@ -2067,22 +2030,6 @@ lookups:
             - Gaza Strip
             - West Bank
             - Lebanon
-      - match: "Type d’entité: entreprise publique fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 30.3.1992: /"
-        props:
-          legalForm: entreprise publique fédérale
-          jurisdiction: ru
-          incorporationDate: 1992-03-30
-      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie, 191014, Saint-Pétersbourg, Paradnaya st., 8 - Date d’enregistrement: 16.8.2010: /"
-        props:
-          legalForm: société par actions
-          jurisdiction: ru
-          address: "Fédération de Russie, 191014, Saint-Pétersbourg, Paradnaya st., 8"
-          incorporationDate: 2010-08-16
-      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 13.3.2009: /"
-        props:
-          legalForm: société par actions
-          jurisdiction: ru
-          incorporationDate: 2009-03-13
       - match: "Directeur général: Victor Victorovich Branchugov"
         associates:
           - Victor Victorovich Branchugov
@@ -2339,9 +2286,6 @@ lookups:
           jurisdiction: ru
           legalForm: société par actions
           incorporationDate: 2014-03-26
-      - match: "Type d'entité: société par action"
-        props:
-          legalForm: société par action
       - match: "Type d'entité: Compagnie aérienne / Société par actions ouverte - Lieu d'enregistrement: Iekaterinbourg, Fédération de Russie - Date d'enregistrement: 28.12.1993 - Principal établissement: Fédération de Russie: /"
         props:
           jurisdiction: ru
@@ -2637,10 +2581,6 @@ lookups:
       - match: "Numéro d’enregistrement: 1037739692385"
         props:
           registrationNumber: 1037739692385
-      - match: "Type d'entité: société par actions - Principal établissement: Russie: /"
-        props:
-          jurisdiction: ru
-          legalForm: société par actions
       - match: "OGRN: 1027746003438"
         props:
           ogrnCode: 1027746003438
@@ -3173,9 +3113,6 @@ lookups:
       - match: "49681112 - OKPO"
         props:
           okpoCode: 49681112
-      - match: "6671172432 - Numéro d'identification fiscale"
-        props:
-          taxNumber: 6671172432
       - match: "6671172432 - Numéro d'identification fiscale"
         props:
           taxNumber: 6671172432
@@ -5633,9 +5570,6 @@ lookups:
           legalForm: "société à responsabilité limitée"
           jurisdiction: "ru"
           incorporationDate: "2009-09-30"
-      - match: "Lieu d’enregistrement: République populaire de Chine"
-        props:
-          jurisdiction: "cn"
       - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 7.12.2005 - Principal établissement: Fédération de Russie"
         props:
           legalForm: "société à responsabilité limitée"
@@ -5657,9 +5591,6 @@ lookups:
           legalForm: "société par actions non publique"
           jurisdiction: "ru"
           incorporationDate: "2021-07-09"
-      - match: "Lieu d’enregistrement: République populaire de Chine"
-        props:
-          jurisdiction: "cn"
       - match: "Type d’entité: société par actions ouverte"
         props:
           legalForm: "Société par actions ouverte"
@@ -5712,10 +5643,6 @@ lookups:
         props:
           legalForm: "société à responsabilité limitée"
           jurisdiction: "ru"
-      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          legalForm: "société à responsabilité limitée"
-          jurisdiction: "ae"
       - match: "Principal établissement: Crimée, Ukraine"
       - match: "Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie"
         props:
@@ -5737,9 +5664,6 @@ lookups:
         props:
           legalForm: "société à responsabilité limitée"
           incorporationDate: "2010-03-25"
-      - match: "Type d’entité: société par actions ouverte"
-        props:
-          legalForm: "Société par actions ouverte"
       - match: "Type d'entité: société à responsabilité limitée - Date d'enregistrement: 24.3.2008 - Principal établissement: Fédération de Russie"
         props:
           legalForm: "société à responsabilité limitée"
@@ -5758,13 +5682,6 @@ lookups:
           jurisdiction: "sy"
           address: "Damas, Syrie"
           incorporationDate: "2017-10-18"
-      - match: "Type d’entité: société par actions ouverte"
-        props:
-          legalForm: "Société par actions ouverte"
-      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          legalForm: "société à responsabilité limitée"
-          jurisdiction: "ae"
       - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis - Date d’enregistrement: 22.7.2020 - Principal établissement: Émirats arabes unis"
         props:
           legalForm: "société à responsabilité limitée"
@@ -5783,10 +5700,6 @@ lookups:
           legalForm: "société à responsabilité limitée"
           jurisdiction: "ru"
           address: "Mourmansk"
-      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          legalForm: "société à responsabilité limitée"
-          jurisdiction: "ae"
       - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis - Date d’enregistrement: 2011"
         props:
           legalForm: "société à responsabilité limitée"
@@ -5797,17 +5710,10 @@ lookups:
           legalForm: "société à responsabilité limitée"
           incorporationDate: "2013-09-17"
           jurisdiction: "ru"
-      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          legalForm: "société à responsabilité limitée"
-          jurisdiction: "ae"
       - match: "Type d’entité: société par actions  - Principal établissement: Fédération de Russie"
         props:
           legalForm: "société par actions"
           jurisdiction: "ru"
-      - match: "Type d’entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d’entité: société publique par actions"
         props:
           legalForm: "société publique par actions"
@@ -5816,12 +5722,6 @@ lookups:
           legalForm: "société par actions"
           incorporationDate: "2002-08-12"
       - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d’entité: société publique par actions"
         props:
           legalForm: "société publique par actions"
       - match: "Type d'entité: société par actions  - Date d'enregistrement: 10.9.2002 - Principal établissement: Fédération de Russie"
@@ -5836,9 +5736,6 @@ lookups:
         props:
           legalForm: "société par actions"
           incorporationDate: "2002-08-21"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d’entité: société par actions - Date d’enregistrement: 16.10.2002: Numéro d’enregistrement: 1023302153456"
         props:
           legalForm: "société par actions"
@@ -5860,18 +5757,12 @@ lookups:
         props:
           legalForm: "société par actions"
           incorporationDate: "2002-11-29"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: société par actions - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d'enregistrement: 18.5.2006 - Principal établissement: Fédération de Russie"
         props:
           legalForm: "société par actions"
           jurisdiction: "ru"
           address: "Saint-Pétersbourg, Fédération de Russie"
           incorporationDate: "2006-05-18"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: société anonyme - Date d'enregistrement: 1994"
         props:
           legalForm: "société anonyme"
@@ -5879,9 +5770,6 @@ lookups:
       - match: "Type d’entité: organisation à but non lucratif"
         props:
           legalForm: "organisation à but non lucratif"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Lieu d’enregistrement: Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1 - Type d’entité: société par actions - Date d’enregistrement: 20.12.2002 - Principal établissement: Fédération de Russie"
         props:
           jurisdiction: "ru"
@@ -5891,9 +5779,6 @@ lookups:
       - match: "Type d'entité: Entreprise unitaire d'État"
         props:
           legalForm: "entreprise unitaire d'État"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: société par actions  - Date d'enregistrement: 5.5.2003 - Principal établissement: Fédération de Russie"
         props:
           legalForm: "société par actions"
@@ -5919,12 +5804,6 @@ lookups:
           registrationNumber: "1117154036911"
           taxNumber: "7105514574"
           kppCode: "710501001"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: Société de zone franche"
         props:
           legalForm: "société de zone franche"
@@ -5933,12 +5812,6 @@ lookups:
           legalForm: "société par actions"
           incorporationDate: "2002-08-20"
           registrationNumber: "1027739090708"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d’entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: entreprise unitaire d'État - Date d'enregistrement: 15.5.2022 - Date de constitution: 15.5.2022"
         props:
           legalForm: "entreprise unitaire d'État"
@@ -5954,36 +5827,12 @@ lookups:
           incorporationDate: "2011-09-26"
           jurisdiction: "ru"
           address: "région de Nijni Novgorod, Fédération de Russie"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: Entreprise unitaire d'État"
-        props:
-          legalForm: "entreprise unitaire d'État"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: société par actions - Date d'enregistrement: 15.12.2002: Numéro d'enregistrement: 1025001202544"
         props:
           legalForm: "société par actions"
           incorporationDate: "2002-12-15"
           registrationNumber: "1025001202544"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: Société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: Société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: société publique par actions"
         props:
           legalForm: "société publique par actions"
       - match: "Type d’entité: société publique par actions - Lieu d’enregistrement: Téhéran, Iran - Principal établissement: Téhéran, Iran"
@@ -6004,12 +5853,6 @@ lookups:
           legalForm: "société par actions"
           incorporationDate: "2002-11-06"
           jurisdiction: "ru"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Lieu d'enregistrement: Fédération de Russie, 432030, région d’Ulyanovsk, ville d’Ulyanovsk, Narimanov Ave., 75 - Type d'entité: société par actions - Date d'enregistrement: 26.6.2008 - Numéro d’enregistrement: 1087325005756 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7325081527"
         props:
           jurisdiction: "ru"
@@ -6027,9 +5870,6 @@ lookups:
             - "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
             - "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
           legalForm: "société par actions"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d’entité: société par actions - Date d’enregistrement: 18.10.2002: Numéro d’enregistrement: 1027731005323"
         props:
           legalForm: "société par actions"
@@ -6049,9 +5889,6 @@ lookups:
           incorporationDate: "1992-11-25"
           kppCode: "710601001"
           registrationNumber: "1027100507114"
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: "société publique par actions"
       - match: "Type d'entité: Société anonyme"
         props:
           legalForm: "société anonyme"
@@ -6111,10 +5948,6 @@ lookups:
         props:
           legalForm: "entreprise d'État"
           jurisdiction: "mm"
-      - match: "Type d’entité: entreprise d’État;  Lieu d’enregistrement: Myanmar/Birmanie"
-        props:
-          legalForm: "entreprise d'État"
-          jurisdiction: "mm"
       - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l’État"
         props:
           legalForm: "Centre de formation militaro-patriotique pour mineurs lié à l'État"
@@ -6134,9 +5967,6 @@ lookups:
       - match: "Type d'entité: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
         props:
           legalForm: "Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
-      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l’État"
-        props:
-          legalForm: "Centre de formation militaro-patriotique pour mineurs lié à l'État"
       - match: "Lieu d’enregistrement: Fédération de Russie, Saint-Pétersbourg"
         props:
           jurisdiction: "ru"
@@ -6167,9 +5997,6 @@ lookups:
           jurisdiction: "ru"
           address: "Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
           incorporationDate: "2009-02-26"
-      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l’État"
-        props:
-          legalForm: "Centre de formation militaro-patriotique pour mineurs lié à l'État"
       - match: "Lieu d’enregistrement: Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1) - Date d’enregistrement: 26.2.2004 - Principal établissement: Fédération de Russie"
         props:
           jurisdiction: "ru"
@@ -6290,17 +6117,11 @@ lookups:
           incorporationDate: "2002-11-14"
           jurisdiction: "ru"
           address: "Arsenyev, Fédération de Russie"
-      - match: "Lieu d'enregistrement: Russie"
-        props:
-          jurisdiction: "ru"
       - match: "Type d’entité: société à responsabilité limitée (SARL) (LLC) - Lieu d’enregistrement: Russie - Date d’enregistrement: 24.12.2010"
         props:
           legalForm: "société à responsabilité limitée (SARL) (LLC)"
           jurisdiction: "ru"
           incorporationDate: "2010-12-24"
-      - match: "Lieu d’enregistrement: Russie"
-        props:
-          jurisdiction: "ru"
       - match: "Filiale: FSPC JSC NPO Mars"
         associates:
           - FSPC JSC NPO Mars
@@ -6311,9 +6132,6 @@ lookups:
         associates:
           - AO Typhoon
       - match: "Principal établissement: Kaspiysk, République du Daghestan, Fédération de Russie"
-      - match: "Lieu d'enregistrement: Russie"
-        props:
-          jurisdiction: "ru"
       - match: "Société mère: Rostec"
         associates:
           - Rostec
@@ -6322,9 +6140,6 @@ lookups:
           jurisdiction:
             - "ua"
             - "ru"
-      - match: "Type d’entité: Joint Stock Company (société par actions)"
-        props:
-          legalForm: "Joint Stock Company (société par actions)"
       - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B - Date d'enregistrement: 22.8.2014 - Principal établissement: Fédération de Russie, Pays-Bas"
         props:
           jurisdiction:
@@ -6332,12 +6147,6 @@ lookups:
             - "nl"
           address: "Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5, pom VI, kom 30B"
           incorporationDate: "2014-08-22"
-      - match: "Type d’entité: Joint Stock Company (société par actions)"
-        props:
-          legalForm: "Joint Stock Company (société par actions)"
-      - match: "Lieu d'enregistrement: Russie"
-        props:
-          jurisdiction: "ru"
       - match: "Lieu d'enregistrement: Biélorussie"
         props:
           jurisdiction: "by"
@@ -6393,12 +6202,6 @@ lookups:
             - "http://isoon.net/"
             - "http://i-soon.com.cn/"
             - "http://isoon.win/"
-      - match: "Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          jurisdiction: "ae"
-      - match: "Lieu d'enregistrement: Dubaï, Émirats arabes unis"
-        props:
-          jurisdiction: "ae"
       - match: "Lieu d’enregistrement: Minsk, Biélorussie  - Date d’enregistrement: 1.8.2013"
         props:
           jurisdiction: "by"
@@ -6407,25 +6210,10 @@ lookups:
       - match: "Lieu d'enregistrement: Émirats arabes unis"
         props:
           jurisdiction: "ae"
-      - match: "Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          jurisdiction: "ae"
-      - match: "Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          jurisdiction: "ae"
       - match: "Lieu d’enregistrement: Biélorussie"
         props:
           jurisdiction: "by"
       - match: "Lieu d'enregistrement:: Émirats arabes unis"
-        props:
-          jurisdiction: "ae"
-      - match: "Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          jurisdiction: "ae"
-      - match: "Lieu d’enregistrement: Émirats arabes unis"
-        props:
-          jurisdiction: "ae"
-      - match: "Lieu d’enregistrement: Dubaï, Émirats arabes unis"
         props:
           jurisdiction: "ae"
       - match: "Date d’enregistrement: 1.9.1999  - Lieu d’enregistrement: Biélorussie"
@@ -6443,11 +6231,6 @@ lookups:
           - Trading House KAMA
           - Management Company Tatneft-Neftekhim
           - Nizhnekamsk All-Steel Tyre Plant
-      - match: "Type d’entité: prison - Lieu d’enregistrement: Shiraz, province de Fars, Iran"
-        props:
-          legalForm: "prison"
-          jurisdiction: "ir"
-          address: "Shiraz, province de Fars, Iran"
       - match: "Date de création: 23.3.2021"
         props:
           incorporationDate: "2021-03-23"
@@ -6721,7 +6504,6 @@ lookups:
         props:
           address: "Province de Téhéran (Iran)"
           jurisdiction: "ir"
-      - match: "Etablissement principal: Fédération de Russie"
       - match: "Code du motif d’enregistrement: 770101001"
         schema: Company
         props:
@@ -6730,7 +6512,6 @@ lookups:
         schema: Company
         props:
           kppCode: "450101001"
-      - match: "Etablissement principal: Fédération de Russie"
       - match: "Code du motif d’enregistrement: 504201001"
         schema: Company
         props:
@@ -6847,9 +6628,6 @@ lookups:
           country:
             - "ru"
             - "bz"
-      - match: "Type d’entité: établissement de zone franche"
-        props:
-          legalForm: "établissement de zone franche"
       - match: "Numéro d’enregistrement: 004181508-0405"
         props:
           registrationNumber: "004181508-0405"
@@ -6937,6 +6715,4823 @@ lookups:
           legalForm: "société à responsabilité limitée"
           incorporationDate: "2024"
           jurisdiction: "in"
+      - match: "Numéro d’enregistrement: 1023202741781"
+        props:
+          registrationNumber: "1023202741781"
+      - match: "Date d'enregistrement: 22.10.2014 - Principal établissement: Fédération de Russie"
+        props:
+          incorporationDate: "2014-10-22"
+          jurisdiction: "ru"
+      - match: "Numéro d'enregistrement: 1145012005335"
+        props:
+          registrationNumber: "1145012005335"
+      - match: "Numéro d'identification fiscale: 5012086643"
+        props:
+          taxNumber: "5012086643"
+      - match: "OKPO: 34893133"
+        props:
+          okpoCode: "34893133"
+      - match: "Date d’enregistrement: 24.11.2023"
+        props:
+          incorporationDate: "2023-11-24"
+      - match: "OGRN: 1237800134879"
+        props:
+          ogrnCode: "1237800134879"
+      - match: "INN: 7804705606"
+        props:
+          innCode: "7804705606"
+      - match: "Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+      - match: "OGRN: 1027739430465"
+        props:
+          ogrnCode: "1027739430465"
+      - match: "INN: 7713279799"
+        props:
+          innCode: "7713279799"
+      - match: "Date d’enregistrement: 15.8.2011"
+        props:
+          incorporationDate: "2011-08-15"
+      - match: "Numéro d’enregistrement: 1020502527066"
+        props:
+          registrationNumber: "1020502527066"
+      - match: "Numéro d’identification fiscale: 5261077695"
+        props:
+          taxNumber: "5261077695"
+      - match: "Numéro d’identification fiscale: 7737019461"
+        props:
+          taxNumber: "7737019461"
+      - match: "KPP: 771701001"
+        schema: Company
+        props:
+          kppCode: "771701001"
+      - match: "Date d'enregistrement:: 16.9.2002"
+        props:
+          incorporationDate: "2002-09-16"
+      - match: "Numéro d'enregistrement (OGRN):: 1025202607473"
+        props:
+          ogrnCode: "1025202607473"
+      - match: "Numéro d'identification fiscale (INN):: 5258000011"
+        props:
+          innCode: "5258000011"
+      - match: "Date d'enregistrement: 29.5.2017"
+        props:
+          incorporationDate: "2017-05-29"
+      - match: "Numéro d'enregistrement (OGRN): 1177746528057"
+        props:
+          ogrnCode: "1177746528057"
+      - match: "Numéro d'identification fiscale (INN): 9718066910"
+        props:
+          innCode: "9718066910"
+      - match: "OMI: 5793484"
+        props:
+          imoNumber: "IMO5793484"
+      - match: "Numéro d'enregistrement:: 1209100012648"
+        props:
+          registrationNumber: "1209100012648"
+      - match: "OGRN: 1217700257170"
+        props:
+          ogrnCode: "1217700257170"
+      - match: "INN: 9704068763"
+        props:
+          innCode: "9704068763"
+      - match: "Date d’enregistrement: 1.6.2021"
+        props:
+          incorporationDate: "2021-06-01"
+      - match: "Date d'enregistrement:: 23.1.2012"
+        props:
+          incorporationDate: "2012-01-23"
+      - match: "Numéro d'enregistrement (OGRN):: 1127329000149"
+        props:
+          ogrnCode: "1127329000149"
+      - match: "Numéro d'identification fiscale (INN):: 7329006087"
+        props:
+          innCode: "7329006087"
+      - match: "Date d'enregistrement:: 16.12.2002"
+        props:
+          incorporationDate: "2002-12-16"
+      - match: "Numéro d'enregistrement (OGRN): 1025203743476"
+        props:
+          ogrnCode: "1025203743476"
+      - match: "Numéro d'identification fiscale (INN):: 5250010473"
+        props:
+          innCode: "5250010473"
+      - match: "Date d’enregistrement: 17.5.2024"
+        props:
+          incorporationDate: "2024-05-17"
+      - match: "Numéro d’enregistrement: 1245000058489"
+        props:
+          registrationNumber: "1245000058489"
+      - match: "Numéro d’identification fiscale: 5032379630"
+        props:
+          taxNumber: "5032379630"
+      - match: "KPP: 503201001"
+        schema: Company
+        props:
+          kppCode: "503201001"
+      - match: "OGRN: 1076382006282"
+        props:
+          ogrnCode: "1076382006282"
+      - match: "INN: 6382053330"
+        props:
+          innCode: "6382053330"
+      - match: "Date d’enregistrement: 9.10.2012"
+        props:
+          incorporationDate: "2012-10-09"
+      - match: "OGRN: 1126733000063"
+        props:
+          ogrnCode: "1126733000063"
+      - match: "KPP: 673201001"
+        schema: Company
+        props:
+          kppCode: "673201001"
+      - match: "INN: 6732050064"
+        props:
+          innCode: "6732050064"
+      - match: "Principal établissement: Russie"
+      - match: "Date d'enregistrement: 18.2.2013"
+        props:
+          incorporationDate: "2013-02-18"
+      - match: "Numéro d'enregistrement (OGRN): 1137746135152"
+        props:
+          ogrnCode: "1137746135152"
+      - match: "Numéro d'identification fiscale (INN): 7743879296"
+        props:
+          innCode: "7743879296"
+      - match: "Date d'enregistrement:: 28.10.2002"
+        props:
+          incorporationDate: "2002-10-28"
+      - match: "Numéro d'enregistrement (OGRN):: 1027601066569"
+        props:
+          ogrnCode: "1027601066569"
+      - match: "Numéro d'identification fiscale (INN):: 7609000881"
+        props:
+          innCode: "7609000881"
+      - match: "Numéro d'identification fiscale: 2128001516"
+        props:
+          taxNumber: "2128001516"
+      - match: "Date d'enregistrement: 26.3.1991"
+        props:
+          incorporationDate: "1991-03-26"
+      - match: "Numéro d'enregistrement: 100534485"
+        props:
+          registrationNumber: "100534485"
+      - match: "Date d'enregistrement: 1.12.2014"
+        props:
+          incorporationDate: "2014-12-01"
+      - match: "Principal établissement: Ukraine"
+      - match: "Numéro d'identification fiscale (INN): 9110005664"
+        props:
+          innCode: "9110005664"
+      - match: "KPP: 911001001"
+        schema: Company
+        props:
+          kppCode: "911001001"
+      - match: "Numéro d'identification fiscale: 7303026762"
+        props:
+          taxNumber: "7303026762"
+      - match: "Numéro d’enregistrement: 1027301482603"
+        props:
+          registrationNumber: "1027301482603"
+      - match: "Numéro d'enregistrement: 1071650002874"
+        props:
+          registrationNumber: "1071650002874"
+      - match: "KPP: 165001001"
+        schema: Company
+        props:
+          kppCode: "165001001"
+      - match: "Date d’enregistrement: 2002"
+        props:
+          incorporationDate: "2002"
+      - match: "Numéro d'enregistrement: 6608008004"
+        props:
+          registrationNumber: "6608008004"
+      - match: "Numéro d'enregistrement: 667101001"
+        props:
+          registrationNumber: "667101001"
+      - match: "Numéro d’enregistrement: 1085259003664"
+        props:
+          registrationNumber: "1085259003664"
+      - match: "Numéro d’identification fiscale: 5259075468"
+        props:
+          taxNumber: "5259075468"
+      - match: "numéro d'identification fiscale: 3666162144"
+        props:
+          taxNumber: "3666162144"
+      - match: "Numéro d’enregistrement: 1021401062187"
+        props:
+          registrationNumber: "1021401062187"
+      - match: "Numéro d’identification fiscale: 1435032049"
+        props:
+          taxNumber: "1435032049"
+      - match: "KPP: 141001001"
+        schema: Company
+        props:
+          kppCode: "141001001"
+      - match: "KPP: 504501001"
+        props:
+          kppCode: "504501001"
+      - match: "Numéro d'enregistrement: 1026303118126"
+        props:
+          registrationNumber: "1026303118126"
+      - match: "Numéro d'identification fiscale: 6330000553"
+        props:
+          taxNumber: "6330000553"
+      - match: "Numéro d'enregistrement: 1117847157086"
+        props:
+          registrationNumber: "1117847157086"
+      - match: "Numéro d'identification fiscale: 7841443821"
+        props:
+          taxNumber: "7841443821"
+      - match: "Numéro d'identification fiscale: 7601001107"
+        props:
+          taxNumber: "7601001107"
+      - match: "Date d’enregistrement: 3.6.1994"
+        props:
+          incorporationDate: "1994-06-03"
+      - match: "Numéro d’enregistrement: 1027700206511"
+        props:
+          registrationNumber: "1027700206511"
+      - match: "Numéro d’identification fiscale: 7717022177"
+        props:
+          taxNumber: "7717022177"
+      - match: "OMI: 5901309"
+        props:
+          imoNumber: "IMO5901309"
+      - match: "Date d'enregistrement: 4.7.2012"
+        props:
+          incorporationDate: "2012-07-04"
+      - match: "Numéro d'enregistrement: 1127746516809"
+        props:
+          registrationNumber: "1127746516809"
+      - match: "Numéro d'identification fiscale: 7726700284"
+        props:
+          taxNumber: "7726700284"
+      - match: "KPP: 772601001"
+        schema: Company
+        props:
+          kppCode: "772601001"
+      - match: "Numéro d'enregistrement: 1037804006998"
+        props:
+          registrationNumber: "1037804006998"
+      - match: "KPP: 7802072267"
+        schema: Company
+        props:
+          kppCode: "7802072267"
+      - match: "Date d'enregistrement: 10.11.2002"
+        props:
+          incorporationDate: "2002-11-10"
+      - match: "Numéro d'enregistrement (OGRN):: 1027810255505"
+        props:
+          ogrnCode: "1027810255505"
+      - match: "Numéro d'identification fiscale (INN):: 7809014190"
+        props:
+          innCode: "7809014190"
+      - match: "OMI: 0082952"
+        props:
+          imoNumber: "IMO0082952"
+      - match: "Principal établissement: Hong Kong"
+        props:
+          jurisdiction: "hk"
+      - match: "numéro d'identification fiscale: 9718077239"
+        props:
+          taxNumber: "9718077239"
+      - match: "Numéro d'enregistrement: 5167746333057"
+        props:
+          registrationNumber: "5167746333057"
+      - match: "INN: 7726391413"
+        props:
+          innCode: "7726391413"
+      - match: "KPP: 772401001"
+        schema: Company
+        props:
+          kppCode: "772401001"
+      - match: "Date d'enregistrement: 17.10.1994"
+        props:
+          incorporationDate: "1994-10-17"
+      - match: "Numéro d'enregistrement: 512036625"
+        props:
+          registrationNumber: "512036625"
+      - match: "Principal établissement: Israël"
+      - match: "Numéro d’enregistrement: 549300V3GQ2MCTQAIV68"
+        props:
+          registrationNumber: "549300V3GQ2MCTQAIV68"
+      - match: "KPP: 026801001: Numéro d'identification fiscale: 0268005588"
+        schema: Company
+        props:
+          kppCode: "026801001"
+          taxNumber: "0268005588"
+      - match: "Numéro d'enregistrement: 1112204004769"
+        props:
+          registrationNumber: "1112204004769"
+      - match: "Numéro d'identification fiscale: 2204056679"
+        props:
+          taxNumber: "2204056679"
+      - match: "KPP: 220401001"
+        schema: Company
+        props:
+          kppCode: "220401001"
+      - match: "OGRN: 1021400967092"
+        props:
+          ogrnCode: "1021400967092"
+      - match: "NIF: 1433000147"
+        props:
+          taxNumber: "1433000147"
+      - match: "Numéro d'identification fiscale (INN): 6150093171"
+        props:
+          innCode: "6150093171"
+      - match: "Date d’enregistrement: 9.1.2019"
+        props:
+          incorporationDate: "2019-01-09"
+      - match: "Numéro d’enregistrement: 10977"
+        props:
+          registrationNumber: "10977"
+      - match: "Numéro d’identification: 14008069775"
+        props:
+          registrationNumber: "14008069775"
+      - match: "Date d'enregistrement:: 5.12.2003"
+        props:
+          incorporationDate: "2003-12-05"
+      - match: "Numéro d'enregistrement (OGRN):: 1033231005884"
+        props:
+          ogrnCode: "1033231005884"
+      - match: "Numéro d'identification fiscale (INN):: 3254000296"
+        props:
+          innCode: "3254000296"
+      - match: "Numéro d'enregistrement: 1026300894179"
+        props:
+          registrationNumber: "1026300894179"
+      - match: "Numéro d'identification fiscale: 6314006396"
+        props:
+          taxNumber: "6314006396"
+      - match: "Numéro d'enregistrement: 691827047"
+        props:
+          registrationNumber: "691827047"
+      - match: "Numéro d'identification fiscale: 4026006420"
+        props:
+          taxNumber: "4026006420"
+      - match: "KPP: 402801001"
+        schema: Company
+        props:
+          kppCode: "402801001"
+      - match: "Date d'enregistrement: 19.5.1995"
+        props:
+          incorporationDate: "1995-05-19"
+      - match: "Numéro d’enregistrement: 1026601371796"
+        props:
+          registrationNumber: "1026601371796"
+      - match: "Numéro d'identification fiscale: 7702059030"
+        props:
+          taxNumber: "7702059030"
+      - match: "Numéro d'enregistrement: 1027739059820"
+        props:
+          registrationNumber: "1027739059820"
+      - match: "Date d'enregistrement: 10.1.2006"
+        props:
+          incorporationDate: "2006-01-10"
+      - match: "Numéro d'enregistrement (OGRN): 1067746015985"
+        props:
+          ogrnCode: "1067746015985"
+      - match: "Numéro d'identification fiscale (INN): 7722566398"
+        props:
+          innCode: "7722566398"
+      - match: "KPP: 910201001: Numéro d'identification fiscale: 7702527584"
+        schema: Company
+        props:
+          kppCode: "910201001"
+          taxNumber: "7702527584"
+      - match: "Numéro d'identification fiscale: 8602016394"
+        props:
+          taxNumber: "8602016394"
+      - match: "numéro d’identification fiscale: 7717727466"
+        props:
+          taxNumber: "7717727466"
+      - match: "Numéro d'identification fiscale (INN): 5503211857"
+        props:
+          innCode: "5503211857"
+      - match: "Date d’enregistrement: 1993"
+        props:
+          incorporationDate: "1993"
+      - match: "Numéro d'enregistrement: 1027810239555"
+        props:
+          registrationNumber: "1027810239555"
+      - match: "Numéro d’identification fiscale: 7809015518"
+        props:
+          taxNumber: "7809015518"
+      - match: "OGRN: 1027739820921"
+        props:
+          ogrnCode: "1027739820921"
+      - match: "NIF: 7736035485"
+        props:
+          taxNumber: "7736035485"
+      - match: "Numéro d'identification fiscale (INN): 5236006605"
+        props:
+          innCode: "5236006605"
+      - match: "Date d'enregistrement: 24.12.1992"
+        props:
+          incorporationDate: "1992-12-24"
+      - match: "Numéro d'identification fiscale:: 7709129705"
+        props:
+          taxNumber: "7709129705"
+      - match: "KPP: 770901001"
+        schema: Company
+        props:
+          kppCode: "770901001"
+      - match: "OGRN: 1232500014405"
+        props:
+          ogrnCode: "1232500014405"
+      - match: "INN: 2540277272"
+        props:
+          innCode: "2540277272"
+      - match: "Date d'enregistrement: 2007"
+        props:
+          incorporationDate: "2007"
+      - match: "Date d'enregistrement: 2008"
+        props:
+          incorporationDate: "2008"
+      - match: "Numéro d'enregistrement: J294640109"
+        props:
+          registrationNumber: "J294640109"
+      - match: "Numéro d’enregistrement: 1086623004380"
+        props:
+          registrationNumber: "1086623004380"
+      - match: "Numéro d’identification fiscale: 6623049453"
+        props:
+          taxNumber: "6623049453"
+      - match: "Numéro d'enregistrement: 4120000000005031026"
+        props:
+          registrationNumber: "4120000000005031026"
+      - match: "Date d'enregistrement: 28.12.1983 - Siège principal d'exploitation: République populaire de Chine"
+        props:
+          incorporationDate: "1983-12-28"
+          jurisdiction: "cn"
+      - match: "Numéro d'enregistrement: 1177847247490"
+        props:
+          registrationNumber: "1177847247490"
+      - match: "Date d'enregistrement: 19.7.2017"
+        props:
+          incorporationDate: "2017-07-19"
+      - match: "Numéro d'identification fiscale: 7813283781"
+        props:
+          taxNumber: "7813283781"
+      - match: "Date d’enregistrement: 25.2.1992"
+        props:
+          incorporationDate: "1992-02-25"
+      - match: "Numéro d’enregistrement: 100133538"
+        props:
+          registrationNumber: "100133538"
+      - match: "Date d’enregistrement: 31.5.1994"
+        props:
+          incorporationDate: "1994-05-31"
+      - match: "Numéro d’enregistrement: 1026605624451"
+        props:
+          registrationNumber: "1026605624451"
+      - match: "Numéro d’identification fiscale: 6663003800"
+        props:
+          taxNumber: "6663003800"
+      - match: "Numéro d'enregistrement: 1031632202227"
+        props:
+          registrationNumber: "1031632202227"
+      - match: "Date d’enregistrement: 6.6.2003"
+        props:
+          incorporationDate: "2003-06-06"
+      - match: "Numéro d’identification fiscale: 1661009974"
+        props:
+          taxNumber: "1661009974"
+      - match: "Numéro d'enregistrement national principal: 1022601979894"
+        props:
+          registrationNumber: "1022601979894"
+      - match: "Numéro d'identification fiscale: 2636008464"
+        props:
+          taxNumber: "2636008464"
+      - match: "Date d'enregistrement: 7.7.2000"
+        props:
+          incorporationDate: "2000-07-07"
+      - match: "Numéro d'identification fiscale (INN): 2355004390"
+        props:
+          innCode: "2355004390"
+      - match: "KPP: 236501001"
+        schema: Company
+        props:
+          kppCode: "236501001"
+      - match: "Date d'enregistrement: 27.7.1994"
+        props:
+          incorporationDate: "1994-07-27"
+      - match: "Numéro d'identification fiscale: 4214005204"
+        props:
+          taxNumber: "4214005204"
+      - match: "KPP: 744801001"
+        schema: Company
+        props:
+          kppCode: "744801001"
+      - match: "OGRN: 1217700292072"
+        props:
+          ogrnCode: "1217700292072"
+      - match: "INN: 7727467841"
+        props:
+          innCode: "7727467841"
+      - match: "OGRN: 1027739460737"
+        props:
+          ogrnCode: "1027739460737"
+      - match: "INN: 7730060164"
+        props:
+          innCode: "7730060164"
+      - match: "Date d’enregistrement: 14.3.2022"
+        props:
+          incorporationDate: "2022-03-14"
+      - match: "Numéro d’enregistrement: 2200911.01"
+        props:
+          registrationNumber: "2200911.01"
+      - match: "Principal lieu d’activité: Émirats arabes unis"
+        props:
+          country: "ae"
+      - match: "OGRN: 1137847410403"
+        props:
+          ogrnCode: "1137847410403"
+      - match: "INN: 7811563590"
+        props:
+          innCode: "7811563590"
+      - match: "Numéro d'identification fiscale: 5259008768"
+        props:
+          taxNumber: "5259008768"
+      - match: "Numéro d'enregistrement: 1145259004296"
+        props:
+          registrationNumber: "1145259004296"
+      - match: "Numéro d’identification fiscale: 7725347482"
+        props:
+          taxNumber: "7725347482"
+      - match: "Date d'enregistrement: 24.6.1992"
+        props:
+          incorporationDate: "1992-06-24"
+      - match: "Numéro d'identification fiscale: 7705260427"
+        props:
+          taxNumber: "7705260427"
+      - match: "KPP: 770501001"
+        schema: Company
+        props:
+          kppCode: "770501001"
+      - match: "Date d’enregistrement: 1.11.2013"
+        props:
+          incorporationDate: "2013-11-01"
+      - match: "Numéro d’enregistrement: 5137746019989"
+        props:
+          registrationNumber: "5137746019989"
+      - match: "Numéro d’identification fiscale: 7736666723"
+        props:
+          taxNumber: "7736666723"
+      - match: "Date d’enregistrement: 16.9.2020"
+        props:
+          incorporationDate: "2020-09-16"
+      - match: "Numéro d’enregistrement: 1207700340759"
+        props:
+          registrationNumber: "1207700340759"
+      - match: "INN: 7708387990"
+        props:
+          innCode: "7708387990"
+      - match: "KPP: 770401001"
+        schema: Company
+        props:
+          kppCode: "770401001"
+      - match: "Numéro d’enregistrement: 1057746595367"
+        props:
+          registrationNumber: "1057746595367"
+      - match: "Numéro d’identification fiscale: 7704552473"
+        props:
+          taxNumber: "7704552473"
+      - match: "Numéro d'enregistrement: 1247700638570"
+        props:
+          registrationNumber: "1247700638570"
+      - match: "Numéro d'enregistrement: 700016217"
+        props:
+          registrationNumber: "700016217"
+      - match: "Date d'enregistrement: 10.1.1994"
+        props:
+          incorporationDate: "1994-01-10"
+      - match: "Numéro d’enregistrement: 5003095828"
+        props:
+          registrationNumber: "5003095828"
+      - match: "Numéro d’enregistrement: 753601001"
+        props:
+          registrationNumber: "753601001"
+      - match: "Date d’enregistrement: 16.8.2011"
+        props:
+          incorporationDate: "2011-08-16"
+      - match: "Date d'enregistrement: 15.3.2004"
+        props:
+          incorporationDate: "2004-03-15"
+      - match: "Numéro d'enregistrement national principal:  1047796161830"
+        props:
+          registrationNumber: "1047796161830"
+      - match: "Numéro d'identification fiscale: 7709534220"
+        props:
+          taxNumber: "7709534220"
+      - match: "Numéro d'enregistrement: 1037719005873"
+        props:
+          registrationNumber: "1037719005873"
+      - match: "Numéro d’identification fiscale: 7719265496"
+        props:
+          taxNumber: "7719265496"
+      - match: "Numéro d'enregistrement: 9103003070"
+        props:
+          registrationNumber: "9103003070"
+      - match: "Numéro d'enregistrement: 1025203720189"
+        props:
+          registrationNumber: "1025203720189"
+      - match: "Numéro d'identification fiscale: 5262008630"
+        props:
+          taxNumber: "5262008630"
+      - match: "Date d’enregistrement: 23.12.2008"
+        props:
+          incorporationDate: "2008-12-23"
+      - match: "Numéro d’enregistrement: 1082468060553"
+        props:
+          registrationNumber: "1082468060553"
+      - match: "Numéro d’identification fiscale: 2462206345"
+        props:
+          taxNumber: "2462206345"
+      - match: "Numéro d'identification fiscale: 3017041900"
+        props:
+          taxNumber: "3017041900"
+      - match: "Numéro d’enregistrement: 1067761638240"
+        props:
+          registrationNumber: "1067761638240"
+      - match: "OMI : 5145892"
+        props:
+          imoNumber: "IMO5145892"
+      - match: "OGRN: 1137847014337"
+        props:
+          ogrnCode: "1137847014337"
+      - match: "Numéro d'identification fiscale: 3900000111"
+        props:
+          taxNumber: "3900000111"
+      - match: "Numéro d'enregistrement national: 1023901861213"
+        props:
+          registrationNumber: "1023901861213"
+      - match: "Numéro d'enregistrement: 1026701461160"
+        props:
+          registrationNumber: "1026701461160"
+      - match: "Numéro d'identification fiscale: 6730046954"
+        props:
+          taxNumber: "6730046954"
+      - match: "KPP: 672901001"
+        schema: Company
+        props:
+          kppCode: "672901001"
+      - match: "Date d'enregistrement: 10.11.2005"
+        props:
+          incorporationDate: "2005-11-10"
+      - match: "Numéro d'enregistrement (OGRN): 1057749020350"
+        props:
+          ogrnCode: "1057749020350"
+      - match: "Numéro d'identification fiscale (INN): 7729536152"
+        props:
+          innCode: "7729536152"
+      - match: "Date d’enregistrement: 13.12.2024"
+        props:
+          incorporationDate: "2024-12-13"
+      - match: "Numéro d’identification fiscale: 01312202410095"
+        props:
+          taxNumber: "01312202410095"
+      - match: "numéro d'enregistrement: 10540976"
+        props:
+          registrationNumber: "10540976"
+      - match: "Date d'enregistrement: 3.10.1990"
+        props:
+          incorporationDate: "1990-10-03"
+      - match: "Numéro d'identification fiscale: 7831000027"
+        props:
+          taxNumber: "7831000027"
+      - match: "KPP: 780601001"
+        schema: Company
+        props:
+          kppCode: "780601001"
+      - match: "Date d’enregistrement: 28.11.2002"
+        props:
+          incorporationDate: "2002-11-28"
+      - match: "Numéro d’enregistrement: 1023402461752"
+        props:
+          registrationNumber: "1023402461752"
+      - match: "Numéro d’identification fiscale: 3441023695"
+        props:
+          taxNumber: "3441023695"
+      - match: "Numéro d’identification fiscale: 5257183517"
+        props:
+          taxNumber: "5257183517"
+      - match: "Numéro d’enregistrement: 1027739386135"
+        props:
+          registrationNumber: "1027739386135"
+      - match: "Numéro d’identification fiscale: 5008006211"
+        props:
+          taxNumber: "5008006211"
+      - match: "KPP: 772701001"
+        schema: Company
+        props:
+          kppCode: "772701001"
+      - match: "Numéro d'identification fiscale: 7804552300"
+        props:
+          taxNumber: "7804552300"
+      - match: "KPP: 780401001"
+        schema: Company
+        props:
+          kppCode: "780401001"
+      - match: "Numéro d'enregistrement: 1057709110436"
+        props:
+          registrationNumber: "1057709110436"
+      - match: "Numéro d'enregistrement national: 1027739167246"
+        props:
+          registrationNumber: "1027739167246"
+      - match: "Numéro d'identification fiscale: 7701045732"
+        props:
+          taxNumber: "7701045732"
+      - match: "Numéro d’identification fiscale: 302358106"
+        props:
+          taxNumber: "302358106"
+      - match: "Numéro d’enregistrement: 10101373495"
+        props:
+          registrationNumber: "10101373495"
+      - match: "OMI: 1991146"
+        props:
+          imoNumber: "IMO1991146"
+      - match: "Numéro d’identification fiscale: 7804040302"
+        props:
+          taxNumber: "7804040302"
+      - match: "OMI: 5183861"
+        props:
+          imoNumber: "IMO5183861"
+      - match: "Numéro d'identification fiscale: 3666127502"
+        props:
+          taxNumber: "3666127502"
+      - match: "Numéro d'enregistrement national: 1053600445337"
+        props:
+          registrationNumber: "1053600445337"
+      - match: "Date d'enregistrement: 2.12.1994"
+        props:
+          incorporationDate: "1994-12-02"
+      - match: "Numéro d'identification fiscale: 2225031594"
+        props:
+          taxNumber: "2225031594"
+      - match: "KPP: 540501001"
+        schema: Company
+        props:
+          kppCode: "540501001"
+      - match: "INN: 6154557850"
+        props:
+          innCode: "6154557850"
+      - match: "KPP: 615401001"
+        schema: Company
+        props:
+          kppCode: "615401001"
+      - match: "Code de crédit social unifié: 91110105MACQWR1U2C"
+        props:
+          uscCode: "91110105MACQWR1U2C"
+      - match: "Numéro d’enregistrement: 5107746017033"
+        props:
+          registrationNumber: "5107746017033"
+      - match: "Numéro d’identification fiscale: 7715842760"
+        props:
+          taxNumber: "7715842760"
+      - match: "KPP: 771501001"
+        schema: Company
+        props:
+          kppCode: "771501001"
+      - match: "Date d'enregistrement: 23.5.1994"
+        props:
+          incorporationDate: "1994-05-23"
+      - match: "Numéro d'identification fiscale: 6453033870"
+        props:
+          taxNumber: "6453033870"
+      - match: "KPP: 645401001"
+        schema: Company
+        props:
+          kppCode: "645401001"
+      - match: "Numéro d’enregistrement: 1127325003706"
+        props:
+          registrationNumber: "1127325003706"
+      - match: "Numéro d’identification fiscale: 7325113708"
+        props:
+          taxNumber: "7325113708"
+      - match: "Date d'enregistrement: 20.6.1997"
+        props:
+          incorporationDate: "1997-06-20"
+      - match: "Numéro d'enregistrement: 1023404362662"
+        props:
+          registrationNumber: "1023404362662"
+      - match: "Numéro d'identification fiscale: 3448017919"
+        props:
+          taxNumber: "3448017919"
+      - match: "Numéro d'enregistrement: 1027739806940"
+        props:
+          registrationNumber: "1027739806940"
+      - match: "INN: 1655500084"
+        props:
+          innCode: "1655500084"
+      - match: "KPP: 165501001"
+        schema: Company
+        props:
+          kppCode: "165501001"
+      - match: "Date d'enregistrement: 25.9.1990"
+        props:
+          incorporationDate: "1990-09-25"
+      - match: "Numéro d'enregistrement: 1022101130314"
+        props:
+          registrationNumber: "1022101130314"
+      - match: "Numéro d'identification fiscale: 2128006240"
+        props:
+          taxNumber: "2128006240"
+      - match: "OGRN: 1207700135972"
+        props:
+          ogrnCode: "1207700135972"
+      - match: "INN: 9706005582"
+        props:
+          innCode: "9706005582"
+      - match: "Numéro d'enregistrement: 1227700284470"
+        props:
+          registrationNumber: "1227700284470"
+      - match: "Numéro d'identification fiscale: 7707017509"
+        props:
+          taxNumber: "7707017509"
+      - match: "Numéro d'identification fiscale: 8605003932"
+        props:
+          taxNumber: "8605003932"
+      - match: "Numéro d'enregistrement: 1085024625510"
+        props:
+          registrationNumber: "1085024625510"
+      - match: "Numéro d'identification fiscale: 5024101198"
+        props:
+          taxNumber: "5024101198"
+      - match: "Code de crédit social unifié: 91532526670858444Q"
+        props:
+          uscCode: "91532526670858444Q"
+      - match: "Numéro d'identification fiscale: 7708397772"
+        props:
+          taxNumber: "7708397772"
+      - match: "Date d’enregistrement: 1975: Numéro d’enregistrement: IR40014G"
+        props:
+          incorporationDate: "1975"
+          registrationNumber: "IR40014G"
+      - match: "Numéro d’enregistrement: 0137837"
+        props:
+          registrationNumber: "0137837"
+      - match: "Numéro d’enregistrement: 1086673012920"
+        props:
+          registrationNumber: "1086673012920"
+      - match: "Numéro d’identification fiscale: 6673189640"
+        props:
+          taxNumber: "6673189640"
+      - match: "Numéro d'identification fiscale: 7718927027"
+        props:
+          taxNumber: "7718927027"
+      - match: "Numéro d'identification fiscale:  5508000955"
+        props:
+          taxNumber: "5508000955"
+      - match: "Numéro d’enregistrement: 1025500970516"
+        props:
+          registrationNumber: "1025500970516"
+      - match: "OGRN: 1087746736296"
+        props:
+          ogrnCode: "1087746736296"
+      - match: "INN: 7705846236"
+        props:
+          innCode: "7705846236"
+      - match: "Date d'enregistrement: 9.6.1994"
+        props:
+          incorporationDate: "1994-06-09"
+      - match: "Numéro d'identification fiscale: 7702021163"
+        props:
+          taxNumber: "7702021163"
+      - match: "Numéro d'enregistrement: 1054246003305"
+        props:
+          registrationNumber: "1054246003305"
+      - match: "Numéro d'identification fiscale: 4246004891"
+        props:
+          taxNumber: "4246004891"
+      - match: "Numéro d'identification fiscale: 6229031754"
+        props:
+          taxNumber: "6229031754"
+      - match: "Numéro d’enregistrement: 1026201082060"
+        props:
+          registrationNumber: "1026201082060"
+      - match: "Numéro d’enregistrement: 1037700091736"
+        props:
+          registrationNumber: "1037700091736"
+      - match: "INN: 7720090314"
+        props:
+          innCode: "7720090314"
+      - match: "KPP: 772001001"
+        schema: Company
+        props:
+          kppCode: "772001001"
+      - match: "Date d'enregistrement: 21.9.1993"
+        props:
+          incorporationDate: "1993-09-21"
+      - match: "Numéro d'identification fiscale: 6320007246"
+        props:
+          taxNumber: "6320007246"
+      - match: "KPP: 632401001"
+        schema: Company
+        props:
+          kppCode: "632401001"
+      - match: "Code de crédit social unifié:: 91211000701696207Q"
+        props:
+          uscCode: "91211000701696207Q"
+      - match: "Numéro d'enregistrement: 1165022050808"
+        props:
+          registrationNumber: "1165022050808"
+      - match: "Numéro d'identification fiscale: 5022050639"
+        props:
+          taxNumber: "5022050639"
+      - match: "KPP: 502201001"
+        schema: Company
+        props:
+          kppCode: "502201001"
+      - match: "Numéro d’enregistrement: 1175658025179"
+        props:
+          registrationNumber: "1175658025179"
+      - match: "Numéro d’identification fiscale: 5603045794"
+        props:
+          taxNumber: "5603045794"
+      - match: "Date d'enregistrement: 2.10.2002"
+        props:
+          incorporationDate: "2002-10-02"
+      - match: "Numéro d'identification fiscale: 7750056688"
+        props:
+          taxNumber: "7750056688"
+      - match: "KPP: 772501001"
+        schema: Company
+        props:
+          kppCode: "772501001"
+      - match: "OGRN: 1146444000010"
+        props:
+          ogrnCode: "1146444000010"
+      - match: "Numéro d'identification fiscale: 6444009038"
+        props:
+          taxNumber: "6444009038"
+      - match: "KPP: 770701001"
+        schema: Company
+        props:
+          kppCode: "770701001"
+      - match: "Numéro d'enregistrement: 1020300887793"
+        props:
+          registrationNumber: "1020300887793"
+      - match: "Numéro d’identification fiscale: 0323018510"
+        props:
+          taxNumber: "0323018510"
+      - match: "Numéro fiscal: 7703602065"
+        props:
+          taxNumber: "7703602065"
+      - match: "Numéro d’enregistrement national: 1067746915191"
+        props:
+          registrationNumber: "1067746915191"
+      - match: "Date d'enregistrement: 28.1.1993"
+        props:
+          incorporationDate: "1993-01-28"
+      - match: "Numéro d'identification fiscale: 0274062111"
+        props:
+          taxNumber: "0274062111"
+      - match: "Date d'enregistrement: 23.6.1992"
+        props:
+          incorporationDate: "1992-06-23"
+      - match: "Numéro d'identification fiscale: 2204000595"
+        props:
+          taxNumber: "2204000595"
+      - match: "KPP: 440101001"
+        schema: Company
+        props:
+          kppCode: "440101001"
+      - match: "Numéro d'identification fiscale: 9204010042"
+        props:
+          taxNumber: "9204010042"
+      - match: "Numéro d'enregistrement: 1149204019843"
+        props:
+          registrationNumber: "1149204019843"
+      - match: "Numéro d'enregistrement: 1026103161930"
+        props:
+          registrationNumber: "1026103161930"
+      - match: "INN: 6163013800"
+        props:
+          innCode: "6163013800"
+      - match: "KPP: 616301001"
+        schema: Company
+        props:
+          kppCode: "616301001"
+      - match: "Numéro fiscal: 5243001767"
+        props:
+          taxNumber: "5243001767"
+      - match: "Numéro d'enregistrement national: 1025201335730"
+        props:
+          registrationNumber: "1025201335730"
+      - match: "Date d'enregistrement: 21.7.2003"
+        props:
+          incorporationDate: "2003-07-21"
+      - match: "Numéro d'enregistrement (OGRN): 1037730020844"
+        props:
+          ogrnCode: "1037730020844"
+      - match: "Numéro d'identification fiscale (INN): 7730170167"
+        props:
+          innCode: "7730170167"
+      - match: "Numéro d'identification fiscale (INN): 5810000294"
+        props:
+          innCode: "5810000294"
+      - match: "Date d'enregistrement: 17.5.2013"
+        props:
+          incorporationDate: "2013-05-17"
+      - match: "Numéro d'enregistrement (OGRN): 1137847194187"
+        props:
+          ogrnCode: "1137847194187"
+      - match: "Numéro d'identification fiscale (INN): 7816562511"
+        props:
+          innCode: "7816562511"
+      - match: "Numéro d'identification fiscale: 2464036561"
+        props:
+          taxNumber: "2464036561"
+      - match: "Numéro d’identification fiscale (INN): 7718001540"
+        props:
+          innCode: "7718001540"
+      - match: "KPP: 771801001"
+        schema: Company
+        props:
+          kppCode: "771801001"
+      - match: "Numéro d’identification fiscale (INN): 9703074147"
+        props:
+          innCode: "9703074147"
+      - match: "Date d'enregistrement: 10.10.2002"
+        props:
+          incorporationDate: "2002-10-10"
+      - match: "Numéro d'enregistrement (OGRN): 1027100685160"
+        props:
+          ogrnCode: "1027100685160"
+      - match: "Numéro d'identification fiscale (INN): 7105018262"
+        props:
+          innCode: "7105018262"
+      - match: "Numéro d'identification fiscale: 6506000327"
+        props:
+          taxNumber: "6506000327"
+      - match: "KPP: 770301001"
+        schema: Company
+        props:
+          kppCode: "770301001"
+      - match: "OMI: 5700831"
+        props:
+          imoNumber: "IMO5700831"
+      - match: "KPP: 590401001"
+        schema: Company
+        props:
+          kppCode: "590401001"
+      - match: "Date d’enregistrement: 13.11.2002"
+        props:
+          incorporationDate: "2002-11-13"
+      - match: "OGRN: 1026401988249"
+        props:
+          ogrnCode: "1026401988249"
+      - match: "INN: 6449013609"
+        props:
+          innCode: "6449013609"
+      - match: "Numéro fiscal: 7705843041"
+        props:
+          taxNumber: "7705843041"
+      - match: "Numéro d’enregistrement national: 1087746656711"
+        props:
+          registrationNumber: "1087746656711"
+      - match: "Numéro d’identification fiscale (INN): 6123023471"
+        props:
+          innCode: "6123023471"
+      - match: "KPP: 612301001"
+        schema: Company
+        props:
+          kppCode: "612301001"
+      - match: "Numéro d’identification fiscale: 1646043699"
+        props:
+          taxNumber: "1646043699"
+      - match: "Numéro d'identification fiscale: 7725611507"
+        props:
+          taxNumber: "7725611507"
+      - match: "Numéro d'enregistrement: 100386629"
+        props:
+          registrationNumber: "100386629"
+      - match: "Principal établissement: Biélorussie"
+      - match: "Date d’enregistrement: 3.5.2024"
+        props:
+          incorporationDate: "2024-05-03"
+      - match: "Numéro d’enregistrement: 1247700354175"
+        props:
+          registrationNumber: "1247700354175"
+      - match: "Numéro d’identification fiscale: 9704241986"
+        props:
+          taxNumber: "9704241986"
+      - match: "INN: 1653003834"
+        props:
+          innCode: "1653003834"
+      - match: "Date d’enregistrement: 4.4.2008"
+        props:
+          incorporationDate: "2008-04-04"
+      - match: "Numéro d’enregistrement: 1083254005141"
+        props:
+          registrationNumber: "1083254005141"
+      - match: "Numéro d’identification fiscale: 3255502838"
+        props:
+          taxNumber: "3255502838"
+      - match: "INN: 2127305550"
+        props:
+          innCode: "2127305550"
+      - match: "KPP: 213001001"
+        schema: Company
+        props:
+          kppCode: "213001001"
+      - match: "Numéro d'identification fiscale: 7842335610"
+        props:
+          taxNumber: "7842335610"
+      - match: "Numéro d'enregistrement: 5067847016782"
+        props:
+          registrationNumber: "5067847016782"
+      - match: "Code de crédit social unifié: 914201000668186736"
+        props:
+          uscCode: "914201000668186736"
+      - match: "Numéro d'identification fiscale: 7805019624"
+        props:
+          taxNumber: "7805019624"
+      - match: "KPP: 780501001"
+        schema: Company
+        props:
+          kppCode: "780501001"
+      - match: "Numéro d'identification fiscale (INN): 5753021859"
+        props:
+          innCode: "5753021859"
+      - match: "Numéro d'identification fiscale: 7725038124"
+        props:
+          taxNumber: "7725038124"
+      - match: "Numéro d'identification fiscale (INN): 9102006047"
+        props:
+          innCode: "9102006047"
+      - match: "Numéro d’identification fiscale (INN): 9107036165"
+        props:
+          innCode: "9107036165"
+      - match: "KPP: 910701001"
+        schema: Company
+        props:
+          kppCode: "910701001"
+      - match: "Numéro d'enregistrement: 1037000170690"
+        props:
+          registrationNumber: "1037000170690"
+      - match: "Numéro d'identification fiscale: 7017084932"
+        props:
+          taxNumber: "7017084932"
+      - match: "KPP: 701701001"
+        schema: Company
+        props:
+          kppCode: "701701001"
+      - match: "Numéro d'identification fiscale: 9703137862"
+        props:
+          taxNumber: "9703137862"
+      - match: "Numéro d'enregistrement: 1237700185645"
+        props:
+          registrationNumber: "1237700185645"
+      - match: "INN: 6154048300"
+        props:
+          innCode: "6154048300"
+      - match: "Numéro d’enregistrement: 191295361"
+        props:
+          registrationNumber: "191295361"
+      - match: "Date d'enregistrement: 16.10.1990"
+        props:
+          incorporationDate: "1990-10-16"
+      - match: "Numéro d'identification fiscale: 7453002182"
+        props:
+          taxNumber: "7453002182"
+      - match: "KPP: 745301001"
+        schema: Company
+        props:
+          kppCode: "745301001"
+      - match: "INN: 2301054275"
+        props:
+          innCode: "2301054275"
+      - match: "KPP: 230101001"
+        schema: Company
+        props:
+          kppCode: "230101001"
+      - match: "OGRN: 1247700699949"
+        props:
+          ogrnCode: "1247700699949"
+      - match: "INN: 7743459220"
+        props:
+          innCode: "7743459220"
+      - match: "Numéro d'enregistrement: 1429927"
+        props:
+          registrationNumber: "1429927"
+      - match: "Date d'enregistrement: 8.6.2020"
+        props:
+          incorporationDate: "2020-06-08"
+      - match: "Numéro d'enregistrement national principal:  11203400006072"
+        props:
+          registrationNumber: "11203400006072"
+      - match: "Numéro d'identification fiscale: 3459080648"
+        props:
+          taxNumber: "3459080648"
+      - match: "Date d’enregistrement: 8.6.2007"
+        props:
+          incorporationDate: "2007-06-08"
+      - match: "NIF: 9701326060"
+        props:
+          taxNumber: "9701326060"
+      - match: "OKPO: 58393990"
+        props:
+          okpoCode: "58393990"
+      - match: "OGRN: 1267700083529"
+        props:
+          ogrnCode: "1267700083529"
+      - match: "KPP: 770101001"
+        schema: Company
+        props:
+          kppCode: "770101001"
+      - match: "Date d'enregistrement: 5.7.2018"
+        props:
+          incorporationDate: "2018-07-05"
+      - match: "Numéro d'enregistrement: 1189112030931"
+        props:
+          registrationNumber: "1189112030931"
+      - match: "Date d'enregistrement: 22.4.1993"
+        props:
+          incorporationDate: "1993-04-22"
+      - match: "Numéro d'identification fiscale: 7703023696"
+        props:
+          taxNumber: "7703023696"
+      - match: "KPP: 772901001"
+        schema: Company
+        props:
+          kppCode: "772901001"
+      - match: "Numéro d'identification fiscale: 7718011918"
+        props:
+          taxNumber: "7718011918"
+      - match: "Date d'enregistrement: 25.9.1991"
+        props:
+          incorporationDate: "1991-09-25"
+      - match: "Date d'enregistrement: 6.5.2009"
+        props:
+          incorporationDate: "2009-05-06"
+      - match: "Numéro d'enregistrement: 1097847131678"
+        props:
+          registrationNumber: "1097847131678"
+      - match: "Numéro d'identification fiscale: 7819310752"
+        props:
+          taxNumber: "7819310752"
+      - match: "KPP: 781901001"
+        schema: Company
+        props:
+          kppCode: "781901001"
+      - match: "Numéro d'enregistrement: 600136102"
+        props:
+          registrationNumber: "600136102"
+      - match: "Date d'enregistrement: 2.8.1993"
+        props:
+          incorporationDate: "1993-08-02"
+      - match: "Numéro d'identification fiscale: 6612010782"
+        props:
+          taxNumber: "6612010782"
+      - match: "KPP: 661201001"
+        schema: Company
+        props:
+          kppCode: "661201001"
+      - match: "NIF: 9909652962"
+        props:
+          taxNumber: "9909652962"
+      - match: "KPP: 770287001"
+        schema: Company
+        props:
+          kppCode: "770287001"
+      - match: "Numéro d'enregistrement: IR30813GN"
+        props:
+          registrationNumber: "IR30813GN"
+      - match: "Numéro d'identification fiscale: 0106000547"
+        props:
+          taxNumber: "0106000547"
+      - match: "KPP: 230801001"
+        schema: Company
+        props:
+          kppCode: "230801001"
+      - match: "Date d'enregistrement: 7.6.2019"
+        props:
+          incorporationDate: "2019-06-07"
+      - match: "Numéro d'enregistrement (OGRN): 1197746369710"
+        props:
+          ogrnCode: "1197746369710"
+      - match: "Numéro d'identification fiscale (INN): 7704493098"
+        props:
+          innCode: "7704493098"
+      - match: "Numéro d'identification fiscale (INN): 9731004688"
+        props:
+          innCode: "9731004688"
+      - match: "Numéro d'identification fiscale:: 0814118403"
+        props:
+          taxNumber: "0814118403"
+      - match: "Numéro d’enregistrement: 1028601792878"
+        props:
+          registrationNumber: "1028601792878"
+      - match: "Numéro d’enregistrement: 592000217"
+        props:
+          registrationNumber: "592000217"
+      - match: "Date d’enregistrement: 1.10.2020"
+        props:
+          incorporationDate: "2020-10-01"
+      - match: "Numéro d'enregistrement: 1127747292738"
+        props:
+          registrationNumber: "1127747292738"
+      - match: "Numéro d'identification fiscale: 7720770380"
+        props:
+          taxNumber: "7720770380"
+      - match: "Date d'enregistrement: 1.7.2009"
+        props:
+          incorporationDate: "2009-07-01"
+      - match: "OGRN: 1097746381820"
+        props:
+          ogrnCode: "1097746381820"
+      - match: "INN: 7713688946"
+        props:
+          innCode: "7713688946"
+      - match: "Date d'enregistrement:: 14.10.2002"
+        props:
+          incorporationDate: "2002-10-14"
+      - match: "Numéro d'enregistrement (OGRN): 1023601542458"
+        props:
+          ogrnCode: "1023601542458"
+      - match: "Numéro d'identification fiscale (INN): 3665030787"
+        props:
+          innCode: "3665030787"
+      - match: "Numéro d'identification fiscale (INN): 6013000866"
+        props:
+          innCode: "6013000866"
+      - match: "Numéro d'enregistrement (OGRN): 1026002142044"
+        props:
+          ogrnCode: "1026002142044"
+      - match: "Numéro fiscal: 6623029538"
+        props:
+          taxNumber: "6623029538"
+      - match: "Numéro d’enregistrement national: 1086623002190"
+        props:
+          registrationNumber: "1086623002190"
+      - match: "Date d'enregistrement: 26.1.2015"
+        props:
+          incorporationDate: "2015-01-26"
+      - match: "Numéro d’identification fiscale: 5027224977"
+        props:
+          taxNumber: "5027224977"
+      - match: "Numéro d'enregistrement: 1027739387411"
+        props:
+          registrationNumber: "1027739387411"
+      - match: "Numéro d'identification fiscale: 7702077840"
+        props:
+          taxNumber: "7702077840"
+      - match: "Date d'enregistrement: 16.2.2016"
+        props:
+          incorporationDate: "2016-02-16"
+      - match: "Numéro d'enregistrement: 1161690067021"
+        props:
+          registrationNumber: "1161690067021"
+      - match: "OMI : 5954061"
+        props:
+          imoNumber: "IMO5954061"
+      - match: "Date d'enregistrement: 28.9.2022"
+        props:
+          incorporationDate: "2022-09-28"
+      - match: "Numéro d'enregistrement: 1227100012369"
+        props:
+          registrationNumber: "1227100012369"
+      - match: "INN: 7100027464"
+        props:
+          innCode: "7100027464"
+      - match: "KPP: 710001001"
+        schema: Company
+        props:
+          kppCode: "710001001"
+      - match: "OGRN: 1027801543626"
+        props:
+          ogrnCode: "1027801543626"
+      - match: "INN: 7802064795"
+        props:
+          innCode: "7802064795"
+      - match: "Numéro d’enregistrement: IT03329300101"
+        props:
+          registrationNumber: "IT03329300101"
+      - match: "Date d’enregistrement: 12.3.1992"
+        props:
+          incorporationDate: "1992-03-12"
+      - match: "Date d'enregistrement: 17.12.2002"
+        props:
+          incorporationDate: "2002-12-17"
+      - match: "OGRN: 1020800767371"
+        props:
+          ogrnCode: "1020800767371"
+      - match: "OGRN: 1125263004162"
+        props:
+          ogrnCode: "1125263004162"
+      - match: "INN: 5263093100"
+        props:
+          innCode: "5263093100"
+      - match: "Numéro d’identification fiscale: 7743813961"
+        props:
+          taxNumber: "7743813961"
+      - match: "Numéro d’enregistrement national: 1117746260477"
+        props:
+          registrationNumber: "1117746260477"
+      - match: "Numéro d'enregistrement: 1021603617188"
+        props:
+          registrationNumber: "1021603617188"
+      - match: "Numéro d’identification fiscale: 1660004229"
+        props:
+          taxNumber: "1660004229"
+      - match: "Numéro d’enregistrement: 2340020470"
+        props:
+          registrationNumber: "2340020470"
+      - match: "Date d'enregistrement: 22.10.2002"
+        props:
+          incorporationDate: "2002-10-22"
+      - match: "Numéro d'enregistrement (OGRN):: 1025203027134"
+        props:
+          ogrnCode: "1025203027134"
+      - match: "Numéro d'identification fiscale (INN):: 5260100856"
+        props:
+          innCode: "5260100856"
+      - match: "Numéro d'enregistrement national: 1149102028602"
+        props:
+          registrationNumber: "1149102028602"
+      - match: "Numéro d'identification fiscale: 9111001119"
+        props:
+          taxNumber: "9111001119"
+      - match: "Date d'enregistrement: 28.3.1994"
+        props:
+          incorporationDate: "1994-03-28"
+      - match: "Numéro d'identification fiscale:: 7717002773"
+        props:
+          taxNumber: "7717002773"
+      - match: "KPP:: 770501001"
+        schema: Company
+        props:
+          kppCode: "770501001"
+      - match: "Numéro d'identification fiscale (INN): 7103049219"
+        props:
+          innCode: "7103049219"
+      - match: "Numéro d'enregistrement: 7707056547"
+        props:
+          registrationNumber: "7707056547"
+      - match: "Numéro d'enregistrement: 771901001"
+        props:
+          registrationNumber: "771901001"
+      - match: "Numéro d'identification de l'entreprise: U11100GJ1989PLC032116"
+        props:
+          registrationNumber: "U11100GJ1989PLC032116"
+      - match: "Numéro d'identification fiscale (INN): 5752072265"
+        props:
+          innCode: "5752072265"
+      - match: "Date d'enregistrement: 2.3.1995"
+        props:
+          incorporationDate: "1995-03-02"
+      - match: "Numéro d'enregistrement: 1027739249009"
+        props:
+          registrationNumber: "1027739249009"
+      - match: "Numéro d'identification fiscale: 7720015691"
+        props:
+          taxNumber: "7720015691"
+      - match: "Numéro d'identification fiscale: 8602190258"
+        props:
+          taxNumber: "8602190258"
+      - match: "KPP: 860201001"
+        schema: Company
+        props:
+          kppCode: "860201001"
+      - match: "Date d'enregistrement: 25.10.1990"
+        props:
+          incorporationDate: "1990-10-25"
+      - match: "Numéro d’enregistrement national: 1199112021140"
+        props:
+          registrationNumber: "1199112021140"
+      - match: "Numéro d'enregistrement: 193299162"
+        props:
+          registrationNumber: "193299162"
+      - match: "Numéro d'enregistrement: 1026801010994"
+        props:
+          registrationNumber: "1026801010994"
+      - match: "Numéro d'identification fiscale: 6825000757"
+        props:
+          taxNumber: "6825000757"
+      - match: "KPP: 682501001"
+        schema: Company
+        props:
+          kppCode: "682501001"
+      - match: "Numéro d’enregistrement: 5177746100032"
+        props:
+          registrationNumber: "5177746100032"
+      - match: "Principal établissement: Turquie"
+        props:
+          jurisdiction: "tr"
+      - match: "Date d'enregistrement: 23.10.1990"
+        props:
+          incorporationDate: "1990-10-23"
+      - match: "Numéro d'identification fiscale: 6316028910"
+        props:
+          taxNumber: "6316028910"
+      - match: "KPP: 631601001"
+        schema: Company
+        props:
+          kppCode: "631601001"
+      - match: "Numéro d'enregistrement: 1027700381290"
+        props:
+          registrationNumber: "1027700381290"
+      - match: "Date d'enregistrement: 16.10.2002"
+        props:
+          incorporationDate: "2002-10-16"
+      - match: "OGRN: 1024900957399"
+        props:
+          ogrnCode: "1024900957399"
+      - match: "INN: 4900000681"
+        props:
+          innCode: "4900000681"
+      - match: "Numéro d'enregistrement: 1193926007153"
+        props:
+          registrationNumber: "1193926007153"
+      - match: "Numéro d'identification fiscale: 2224009042"
+        props:
+          taxNumber: "2224009042"
+      - match: "KPP: 222101001"
+        schema: Company
+        props:
+          kppCode: "222101001"
+      - match: "Date d'enregistrement: 1967"
+        props:
+          incorporationDate: "1967"
+      - match: "Numéro d’enregistrement: 1027100507510"
+        props:
+          registrationNumber: "1027100507510"
+      - match: "Numéro d’identification fiscale: 7111003056"
+        props:
+          taxNumber: "7111003056"
+      - match: "KPP: 711101001"
+        schema: Company
+        props:
+          kppCode: "711101001"
+      - match: "Date d'enregistrement: 14.7.2011"
+        props:
+          incorporationDate: "2011-07-14"
+      - match: "Numéro d'enregistrement: 1114307000730"
+        props:
+          registrationNumber: "1114307000730"
+      - match: "Numéro d'identification fiscale: 4307014667"
+        props:
+          taxNumber: "4307014667"
+      - match: "OKPO: 67582075"
+        props:
+          okpoCode: "67582075"
+      - match: "Date d'enregistrement: 20.9.1989"
+        props:
+          incorporationDate: "1989-09-20"
+      - match: "Numéro d'identification fiscale: 5503067018"
+        props:
+          taxNumber: "5503067018"
+      - match: "OMI: 5103516"
+        props:
+          imoNumber: "IMO5103516"
+      - match: "Date d'enregistrement: 24.12.2021"
+        props:
+          incorporationDate: "2021-12-24"
+      - match: "Numéro d'enregistrement (OGRN): 1217800200750"
+        props:
+          ogrnCode: "1217800200750"
+      - match: "Numéro d'identification fiscale (INN): 7813659804"
+        props:
+          innCode: "7813659804"
+      - match: "Date d'enregistrement: 29.11.2022"
+        props:
+          incorporationDate: "2022-11-29"
+      - match: "Numéro d'enregistrement: 1229400032839"
+        props:
+          registrationNumber: "1229400032839"
+      - match: "Numéro d'identification fiscale: 9403009411"
+        props:
+          taxNumber: "9403009411"
+      - match: "Numéro d'identification fiscale: 7727298791"
+        props:
+          taxNumber: "7727298791"
+      - match: "Date d'enregistrement: 30.8.2016"
+        props:
+          incorporationDate: "2016-08-30"
+      - match: "Numéro d’enregistrement: 1056604520499"
+        props:
+          registrationNumber: "1056604520499"
+      - match: "Numéro d’identification fiscale: 6672197493"
+        props:
+          taxNumber: "6672197493"
+      - match: "KPP: 668501001"
+        schema: Company
+        props:
+          kppCode: "668501001"
+      - match: "Date d’enregistrement: 28.10.2005"
+        props:
+          incorporationDate: "2005-10-28"
+      - match: "Numéro d'immatriculation: 1022620011296"
+        props:
+          registrationNumber: "1022620011296"
+      - match: "Numéro d'enregistrement: 1025902394385"
+        props:
+          registrationNumber: "1025902394385"
+      - match: "Numéro d'identification fiscale: 5948017501"
+        props:
+          taxNumber: "5948017501"
+      - match: "KPP: 544601001: Numéro d’identification fiscale: 5446013327"
+        schema: Company
+        props:
+          kppCode: "544601001"
+          taxNumber: "5446013327"
+      - match: "Date d'enregistrement: 12.4.2012"
+        props:
+          incorporationDate: "2012-04-12"
+      - match: "Numéro d'enregistrement (OGRN): 1127847213361"
+        props:
+          ogrnCode: "1127847213361"
+      - match: "Numéro d'identification fiscale (INN): 7801572080"
+        props:
+          innCode: "7801572080"
+      - match: "Date d'enregistrement: 28.12.1992"
+        props:
+          incorporationDate: "1992-12-28"
+      - match: "Numéro d'identification fiscale:: 6163011391"
+        props:
+          taxNumber: "6163011391"
+      - match: "Numéro d'enregistrement: 1237800143569"
+        props:
+          registrationNumber: "1237800143569"
+      - match: "Numéro d'identification fiscale: 7805812079"
+        props:
+          taxNumber: "7805812079"
+      - match: "Date d'enregistrement:: 3.12.2002"
+        props:
+          incorporationDate: "2002-12-03"
+      - match: "Numéro d'enregistrement (OGRN): 1027700486582"
+        props:
+          ogrnCode: "1027700486582"
+      - match: "Numéro d'identification fiscale (INN): 7703203409"
+        props:
+          innCode: "7703203409"
+      - match: "Date d’enregistrement: 2011"
+        props:
+          incorporationDate: "2011"
+      - match: "Date d'enregistrement: 1.6.1989"
+        props:
+          incorporationDate: "1989-06-01"
+      - match: "Numéro d'identification fiscale: 5460000016"
+        props:
+          taxNumber: "5460000016"
+      - match: "KPP: 781401001"
+        schema: Company
+        props:
+          kppCode: "781401001"
+      - match: "Date d’enregistrement: 14.10.1993"
+        props:
+          incorporationDate: "1993-10-14"
+      - match: "Numéro d’enregistrement: 1027807560186"
+        props:
+          registrationNumber: "1027807560186"
+      - match: "Numéro d’identification fiscale: 7814027653"
+        props:
+          taxNumber: "7814027653"
+      - match: "Numéro d'identification fiscale: 7825507108"
+        props:
+          taxNumber: "7825507108"
+      - match: "Numéro d'enregistrement: 1037843100052"
+        props:
+          registrationNumber: "1037843100052"
+      - match: "Numéro d'identification fiscale: 7801016421"
+        props:
+          taxNumber: "7801016421"
+      - match: "Date d'enregistrement: 28.6.2019"
+        props:
+          incorporationDate: "2019-06-28"
+      - match: "Code de crédit social unifié:  91370681MA3Q3PFJ1R"
+        props:
+          uscCode: "91370681MA3Q3PFJ1R"
+      - match: "Numéro d’identification fiscale: 7723738378"
+        props:
+          taxNumber: "7723738378"
+      - match: "Numéro d'identification fiscale: 7722344853"
+        props:
+          taxNumber: "7722344853"
+      - match: "Numéro d'enregistrement: 1091644003725"
+        props:
+          registrationNumber: "1091644003725"
+      - match: "Numéro d'identification fiscale: 7840038027"
+        props:
+          taxNumber: "7840038027"
+      - match: "Numéro d'enregistrement: 1157847282603"
+        props:
+          registrationNumber: "1157847282603"
+      - match: "Numéro d’identification fiscale (INN): 7703465612"
+        props:
+          innCode: "7703465612"
+      - match: "Date d’enregistrement: 22.1.2003"
+        props:
+          incorporationDate: "2003-01-22"
+      - match: "Numéro d’enregistrement: 1032502119715"
+        props:
+          registrationNumber: "1032502119715"
+      - match: "INN: 2539025440"
+        props:
+          innCode: "2539025440"
+      - match: "Numéro d’enregistrement: 1027739609391"
+        props:
+          registrationNumber: "1027739609391"
+      - match: "Numéro d'enregistrement national: 1037828021660"
+        props:
+          registrationNumber: "1037828021660"
+      - match: "Numéro d'identification fiscale: 7826717210"
+        props:
+          taxNumber: "7826717210"
+      - match: "Date d’enregistrement: 26.11.2002"
+        props:
+          incorporationDate: "2002-11-26"
+      - match: "Numéro d’enregistrement: 1026303178428"
+        props:
+          registrationNumber: "1026303178428"
+      - match: "Numéro d’identification fiscale: 6335007320"
+        props:
+          taxNumber: "6335007320"
+      - match: "KPP: 633001001"
+        schema: Company
+        props:
+          kppCode: "633001001"
+      - match: "Numéro d'enregistrement: 1227800127840"
+        props:
+          registrationNumber: "1227800127840"
+      - match: "Numéro d'identification fiscale: 7840102191"
+        props:
+          taxNumber: "7840102191"
+      - match: "Date d’enregistrement: 10.2.1993"
+        props:
+          incorporationDate: "1993-02-10"
+      - match: "OGRN: 1021800993752"
+        props:
+          ogrnCode: "1021800993752"
+      - match: "INN: 1827003592"
+        props:
+          innCode: "1827003592"
+      - match: "KPP: 183801001"
+        schema: Company
+        props:
+          kppCode: "183801001"
+      - match: "Numéro d'enregistrement: 1149102099717"
+        props:
+          registrationNumber: "1149102099717"
+      - match: "Numéro d'inscription au registre du commerce: 69987857"
+        props:
+          registrationNumber: "69987857"
+      - match: "Numéro d'enregistrement de l'entreprise: 2756979"
+        props:
+          registrationNumber: "2756979"
+      - match: "Date d'enregistrement: 9.8.2002"
+        props:
+          incorporationDate: "2002-08-09"
+      - match: "Numéro d'enregistrement (OGRN): 1027739057356"
+        props:
+          ogrnCode: "1027739057356"
+      - match: "Numéro d'identification fiscale (INN): 7709093255"
+        props:
+          innCode: "7709093255"
+      - match: "Numéro d'enregistrement: 0102000578"
+        props:
+          registrationNumber: "0102000578"
+      - match: "Numéro d'enregistrement: 770701001"
+        props:
+          registrationNumber: "770701001"
+      - match: "Numéro d'enregistrement: 1067746341024"
+        props:
+          registrationNumber: "1067746341024"
+      - match: "Numéro d'identification fiscale: 7708591995"
+        props:
+          taxNumber: "7708591995"
+      - match: "KPP: 623001001"
+        schema: Company
+        props:
+          kppCode: "623001001"
+      - match: "OKPO: 07626955"
+        props:
+          okpoCode: "07626955"
+      - match: "OGRN: 1026201102850"
+        props:
+          ogrnCode: "1026201102850"
+      - match: "Date d’enregistrement: 8.2.2023"
+        props:
+          incorporationDate: "2023-02-08"
+      - match: "Numéro d’enregistrement: 1231800002609"
+        props:
+          registrationNumber: "1231800002609"
+      - match: "Numéro d’identification fiscale: 1841109463"
+        props:
+          taxNumber: "1841109463"
+      - match: "Date d’enregistrement: 10.12.2015"
+        props:
+          incorporationDate: "2015-12-10"
+      - match: "Numéro d’enregistrement: 1156313084950"
+        props:
+          registrationNumber: "1156313084950"
+      - match: "Numéro d’identification fiscale: 7842436263"
+        props:
+          taxNumber: "7842436263"
+      - match: "Numéro d’enregistrement: 1034700561895"
+        props:
+          registrationNumber: "1034700561895"
+      - match: "Numéro d’identification fiscale: 4703009607"
+        props:
+          taxNumber: "4703009607"
+      - match: "Numéro d'enregistrement: 1244"
+        props:
+          registrationNumber: "1244"
+      - match: "Date d’enregistrement: 9.5.2002"
+        props:
+          incorporationDate: "2002-05-09"
+      - match: "Numéro d’enregistrement: 1026303056823"
+        props:
+          registrationNumber: "1026303056823"
+      - match: "Numéro d’identification fiscale: 6325004584"
+        props:
+          taxNumber: "6325004584"
+      - match: "Numéro d'identification fiscale: 2348007263"
+        props:
+          taxNumber: "2348007263"
+      - match: "Date d'enregistrement: 22.4.1994"
+        props:
+          incorporationDate: "1994-04-22"
+      - match: "Date d’enregistrement: 25.8.2014"
+        props:
+          incorporationDate: "2014-08-25"
+      - match: "Numéro d’enregistrement: 1146196001621"
+        props:
+          registrationNumber: "1146196001621"
+      - match: "INN: 6168719068"
+        props:
+          innCode: "6168719068"
+      - match: "KPP: 610101001"
+        schema: Company
+        props:
+          kppCode: "610101001"
+      - match: "Numéro d'enregistrement: 77314802"
+        props:
+          registrationNumber: "77314802"
+      - match: "OMI: 0113880"
+        props:
+          imoNumber: "IMO0113880"
+      - match: "Numéro d'enregistrement: 192363182"
+        props:
+          registrationNumber: "192363182"
+      - match: "Numéro d’enregistrement:: 10590042155"
+        props:
+          registrationNumber: "10590042155"
+      - match: "OGRN: 1185275034218"
+        props:
+          ogrnCode: "1185275034218"
+      - match: "INN: 5250070144"
+        props:
+          innCode: "5250070144"
+      - match: "Numéro d'enregistrement: 1096453002690"
+        props:
+          registrationNumber: "1096453002690"
+      - match: "Numéro d'identification fiscale: 6453104288"
+        props:
+          taxNumber: "6453104288"
+      - match: "Numéro d'enregistrement: 1235300003685"
+        props:
+          registrationNumber: "1235300003685"
+      - match: "Numéro d'identification fiscale: 5300010714"
+        props:
+          taxNumber: "5300010714"
+      - match: "Date d’enregistrement: 19.9.2023"
+        props:
+          incorporationDate: "2023-09-19"
+      - match: "KPP: 530001001"
+        schema: Company
+        props:
+          kppCode: "530001001"
+      - match: "Numéro d'enregistrement: 1135050007400"
+        props:
+          registrationNumber: "1135050007400"
+      - match: "Numéro d'identification fiscale: 5050108496"
+        props:
+          taxNumber: "5050108496"
+      - match: "Date d’enregistrement: 31.12.2013"
+        props:
+          incorporationDate: "2013-12-31"
+      - match: "Numéro d'identification fiscale: 7524015624"
+        props:
+          taxNumber: "7524015624"
+      - match: "Numéro d'identification fiscale (INN): 9722047759"
+        props:
+          innCode: "9722047759"
+      - match: "KPP: 772201001"
+        schema: Company
+        props:
+          kppCode: "772201001"
+      - match: "Numéro d’enregistrement: 1022500510350"
+        props:
+          registrationNumber: "1022500510350"
+      - match: "numéro d’identification fiscale: 1648024290"
+        props:
+          taxNumber: "1648024290"
+      - match: "Numéro d'identification fiscale (INN): 6660000400"
+        props:
+          innCode: "6660000400"
+      - match: "Numéro d'enregistrement  : 1065471010340"
+        props:
+          registrationNumber: "1065471010340"
+      - match: "NIF: 5452112527"
+        props:
+          taxNumber: "5452112527"
+      - match: "Date d'enregistrement: 27.7.1992"
+        props:
+          incorporationDate: "1992-07-27"
+      - match: "Numéro d'identification fiscale: 5200000222"
+        props:
+          taxNumber: "5200000222"
+      - match: "KPP: 526001001"
+        schema: Company
+        props:
+          kppCode: "526001001"
+      - match: "Date d'enregistrement: 27.11.1995"
+        props:
+          incorporationDate: "1995-11-27"
+      - match: "KPP: 772001001: Numéro d’identification fiscale: 7723349886"
+        schema: Company
+        props:
+          kppCode: "772001001"
+          taxNumber: "7723349886"
+      - match: "Numéro d'enregistrement: 1227700776038"
+        props:
+          registrationNumber: "1227700776038"
+      - match: "Numéro d'identification fiscale: 9709087880"
+        props:
+          taxNumber: "9709087880"
+      - match: "Numéro d'identification fiscale: 4345047310"
+        props:
+          taxNumber: "4345047310"
+      - match: "Numéro d'enregistrement: 1024301320977"
+        props:
+          registrationNumber: "1024301320977"
+      - match: "Date d'enregistrement: 5.7.2013"
+        props:
+          incorporationDate: "2013-07-05"
+      - match: "Numéro d'enregistrement: 1137746585855"
+        props:
+          registrationNumber: "1137746585855"
+      - match: "Numéro d'identification fiscale: 7713772193"
+        props:
+          taxNumber: "7713772193"
+      - match: "OKPO: 68013089"
+        props:
+          okpoCode: "68013089"
+      - match: "Date d'enregistrement: 17.9.2004: Numéro d'identification fiscale: 2005504830"
+        props:
+          incorporationDate: "2004-09-17"
+          taxNumber: "2005504830"
+      - match: "KPP: 200501001"
+        schema: Company
+        props:
+          kppCode: "200501001"
+      - match: "Numéro d'enregistrement: 1027700067328"
+        props:
+          registrationNumber: "1027700067328"
+      - match: "Date d'enregistrement:: 6.8.2002"
+        props:
+          incorporationDate: "2002-08-06"
+      - match: "Numéro d'enregistrement (OGRN):: 1024001175956"
+        props:
+          ogrnCode: "1024001175956"
+      - match: "Numéro d'identification fiscale (INN):: 4026016595"
+        props:
+          innCode: "4026016595"
+      - match: "Date d'enregistrement: 24.11.2000"
+        props:
+          incorporationDate: "2000-11-24"
+      - match: "Numéro d'identification fiscale: 7744000126"
+        props:
+          taxNumber: "7744000126"
+      - match: "Numéro d'identification fiscale: 7702060116"
+        props:
+          taxNumber: "7702060116"
+      - match: "KPP: 784101001"
+        schema: Company
+        props:
+          kppCode: "784101001"
+      - match: "Date d'enregistrement: 19.12.2017"
+        props:
+          incorporationDate: "2017-12-19"
+      - match: "Numéro d'enregistrement (OGRN): 5177746345926"
+        props:
+          ogrnCode: "5177746345926"
+      - match: "Numéro d'identification fiscale (INN): 9723039817"
+        props:
+          innCode: "9723039817"
+      - match: "Numéro d’inscription au registre du commerce: 72465672"
+        props:
+          registrationNumber: "72465672"
+      - match: "Numéro d'enregistrement: 1179102021460"
+        props:
+          registrationNumber: "1179102021460"
+      - match: "INN: 7831000122"
+        props:
+          innCode: "7831000122"
+      - match: "OGRN: 1027800000084"
+        props:
+          ogrnCode: "1027800000084"
+      - match: "Date d’enregistrement: 2003"
+        props:
+          incorporationDate: "2003"
+      - match: "OMI : 5982254"
+        props:
+          imoNumber: "IMO5982254"
+      - match: "INN: 1402047184"
+        props:
+          innCode: "1402047184"
+      - match: "OGRN: 1071402000438"
+        props:
+          ogrnCode: "1071402000438"
+      - match: "No d’identification fiscale: 7710168360"
+        props:
+          taxNumber: "7710168360"
+      - match: "Date d'enregistrement: 2021"
+        props:
+          incorporationDate: "2021"
+      - match: "Date d’enregistrement: 9.6.2023"
+        props:
+          incorporationDate: "2023-06-09"
+      - match: "Numéro d’enregistrement: 1232700009398"
+        props:
+          registrationNumber: "1232700009398"
+      - match: "Numéro d’identification fiscale: 2700012608"
+        props:
+          taxNumber: "2700012608"
+      - match: "Date d'enregistrement:: 22.11.2012"
+        props:
+          incorporationDate: "2012-11-22"
+      - match: "Numéro d'enregistrement (OGRN):: 1120266001206"
+        props:
+          ogrnCode: "1120266001206"
+      - match: "Numéro d'identification fiscale (INN):: 0266036630"
+        props:
+          innCode: "0266036630"
+      - match: "Numéro d'enregistrement: 1025400510827"
+        props:
+          registrationNumber: "1025400510827"
+      - match: "Numéro d'identification fiscale: 5401199015"
+        props:
+          taxNumber: "5401199015"
+      - match: "KPP: 540101001"
+        schema: Company
+        props:
+          kppCode: "540101001"
+      - match: "Date d'enregistrement: 5.11.2001"
+        props:
+          incorporationDate: "2001-11-05"
+      - match: "Numéro d'identification fiscale: 7750004270"
+        props:
+          taxNumber: "7750004270"
+      - match: "Numéro d'identification fiscale: 7414006722"
+        props:
+          taxNumber: "7414006722"
+      - match: "KPP: 745601001"
+        schema: Company
+        props:
+          kppCode: "745601001"
+      - match: "Date d'enregistrement: 9.12.2016"
+        props:
+          incorporationDate: "2016-12-09"
+      - match: "Numéro d'enregistrement (OGRN): 5167746425512"
+        props:
+          ogrnCode: "5167746425512"
+      - match: "Numéro d'identification fiscale (INN): 7714963433"
+        props:
+          innCode: "7714963433"
+      - match: "KPP: 614701001"
+        schema: Company
+        props:
+          kppCode: "614701001"
+      - match: "Date d'enregistrement: 29.11.1993"
+        props:
+          incorporationDate: "1993-11-29"
+      - match: "Numéro d'identification fiscale: 1653001805"
+        props:
+          taxNumber: "1653001805"
+      - match: "KPP: 165601001"
+        schema: Company
+        props:
+          kppCode: "165601001"
+      - match: "OMI: 5658026"
+        props:
+          imoNumber: "IMO5658026"
+      - match: "Date de constitution : 4.7.2000"
+        props:
+          incorporationDate: "2000-07-04"
+      - match: "Numéro d’enregistrement: 71901140"
+        props:
+          registrationNumber: "71901140"
+      - match: "Numéro d'enregistrement:: BE0845873256"
+        props:
+          registrationNumber: "BE0845873256"
+      - match: "Numéro d'identification fiscale (INN): 5406695419"
+        props:
+          innCode: "5406695419"
+      - match: "Numéro d’identification fiscale: 7805711641"
+        props:
+          taxNumber: "7805711641"
+      - match: "OGRN: 1177847256608"
+        props:
+          ogrnCode: "1177847256608"
+      - match: "KPP: 780101001"
+        schema: Company
+        props:
+          kppCode: "780101001"
+      - match: "Numéro d'identification fiscale: 5612031491"
+        props:
+          taxNumber: "5612031491"
+      - match: "KPP: 561201001"
+        schema: Company
+        props:
+          kppCode: "561201001"
+      - match: "Numéro d’enregistrement: 1144703004380"
+        props:
+          registrationNumber: "1144703004380"
+      - match: "INN: 4703142849"
+        props:
+          innCode: "4703142849"
+      - match: "Numéro d'enregistrement: 1157746097629"
+        props:
+          registrationNumber: "1157746097629"
+      - match: "Numéro d'identification fiscale:  7735140825"
+        props:
+          taxNumber: "7735140825"
+      - match: "Numéro d'enregistrement: IR915378790"
+        props:
+          registrationNumber: "IR915378790"
+      - match: "Numéro d'enregistrement: 1057747296166"
+        props:
+          registrationNumber: "1057747296166"
+      - match: "Numéro d'identification fiscale: 7733546058"
+        props:
+          taxNumber: "7733546058"
+      - match: "OGRN: 1027739165640"
+        props:
+          ogrnCode: "1027739165640"
+      - match: "INN: 7704116332"
+        props:
+          innCode: "7704116332"
+      - match: "Date d'enregistrement:: 14.8.2002"
+        props:
+          incorporationDate: "2002-08-14"
+      - match: "Numéro d'enregistrement (OGRN):: 1026303117510"
+        props:
+          ogrnCode: "1026303117510"
+      - match: "Numéro d'identification fiscale (INN):: 6330000352"
+        props:
+          innCode: "6330000352"
+      - match: "Numéro d’inscription au registre du commerce: 94186"
+        props:
+          registrationNumber: "94186"
+      - match: "INN: 7104073574"
+        props:
+          innCode: "7104073574"
+      - match: "KPP: 710401001"
+        schema: Company
+        props:
+          kppCode: "710401001"
+      - match: "Numéro d'enregistrement : 1035001851125"
+        props:
+          registrationNumber: "1035001851125"
+      - match: "Numéro d’enregistrement: 1127017001605"
+        props:
+          registrationNumber: "1127017001605"
+      - match: "Numéro d’identification fiscale: 7017298902"
+        props:
+          taxNumber: "7017298902"
+      - match: "Numéro d'enregistrement: 1077847228447"
+        props:
+          registrationNumber: "1077847228447"
+      - match: "Numéro d'identification fiscale: 7813374541"
+        props:
+          taxNumber: "7813374541"
+      - match: "Numéro d’enregistrement: 791130105MA7C26X08R"
+        props:
+          registrationNumber: "791130105MA7C26X08R"
+      - match: "Numéro d’enregistrement: 1237700463032"
+        props:
+          registrationNumber: "1237700463032"
+      - match: "Numéro d’identification fiscale: 9723203841"
+        props:
+          taxNumber: "9723203841"
+      - match: "Date d’enregistrement: 10.12.2007"
+        props:
+          incorporationDate: "2007-12-10"
+      - match: "Numéro d’enregistrement: 311045"
+        props:
+          registrationNumber: "311045"
+      - match: "OGRN: 1027739772081"
+        props:
+          ogrnCode: "1027739772081"
+      - match: "INN: 7701156496"
+        props:
+          innCode: "7701156496"
+      - match: "INN: 7706228218"
+        props:
+          innCode: "7706228218"
+      - match: "Numéro d'identification fiscale: 7709315684"
+        props:
+          taxNumber: "7709315684"
+      - match: "KPP: 771001001"
+        schema: Company
+        props:
+          kppCode: "771001001"
+      - match: "Date d'enregistrement: 19.4.1994"
+        props:
+          incorporationDate: "1994-04-19"
+      - match: "NIF:  7805060220"
+        props:
+          taxNumber: "7805060220"
+      - match: "INN: 7805060220"
+        props:
+          innCode: "7805060220"
+      - match: "KPP: 390001001"
+        schema: Company
+        props:
+          kppCode: "390001001"
+      - match: "OGRN: 1253900004412"
+        props:
+          ogrnCode: "1253900004412"
+      - match: "OKPO: 87427827"
+        props:
+          okpoCode: "87427827"
+      - match: "Date d'enregistrement: 17.2.1993"
+        props:
+          incorporationDate: "1993-02-17"
+      - match: "Numéro d'enregistrement: 1027739081556"
+        props:
+          registrationNumber: "1027739081556"
+      - match: "Numéro d'identification fiscale: 7713070243"
+        props:
+          taxNumber: "7713070243"
+      - match: "KPP: 771301001"
+        schema: Company
+        props:
+          kppCode: "771301001"
+      - match: "Date d'enregistrement: 30.12.2024"
+        props:
+          incorporationDate: "2024-12-30"
+      - match: "Numéro d'enregistrement: DMCC201071"
+        props:
+          registrationNumber: "DMCC201071"
+      - match: "Date d’enregistrement: 1996"
+        props:
+          incorporationDate: "1996"
+      - match: "Code de crédit social unifié:  914107006149375190"
+        props:
+          uscCode: "914107006149375190"
+      - match: "Date d'enregistrement:: 3.11.2002"
+        props:
+          incorporationDate: "2002-11-03"
+      - match: "Numéro d'enregistrement (OGRN):: 1023000834350"
+        props:
+          ogrnCode: "1023000834350"
+      - match: "Numéro d'identification fiscale (INN):: 3016012085"
+        props:
+          innCode: "3016012085"
+      - match: "Date d’enregistrement: 2016"
+        props:
+          incorporationDate: "2016"
+      - match: "Date d’enregistrement: 28.8.2002"
+        props:
+          incorporationDate: "2002-08-28"
+      - match: "Numéro d’enregistrement: 1026200870321"
+        props:
+          registrationNumber: "1026200870321"
+      - match: "Numéro d'enregistrement: 300029332"
+        props:
+          registrationNumber: "300029332"
+      - match: "Date d'enregistrement: 1.11.2002"
+        props:
+          incorporationDate: "2002-11-01"
+      - match: "Numéro d'enregistrement: 1022302933630"
+        props:
+          registrationNumber: "1022302933630"
+      - match: "Date d'enregistrement: 12.11.1993  Numéro d'enregistrement: 1027700032161"
+        props:
+          incorporationDate: "1993-11-12"
+          registrationNumber: "1027700032161"
+      - match: "Numéro d'identification fiscale: 7713005406"
+        props:
+          taxNumber: "7713005406"
+      - match: "Date d'enregistrement:: 24.3.2009"
+        props:
+          incorporationDate: "2009-03-24"
+      - match: "Numéro d'enregistrement (OGRN):: 1097847083883"
+        props:
+          ogrnCode: "1097847083883"
+      - match: "Numéro d'identification fiscale (INN):: 7819310456"
+        props:
+          innCode: "7819310456"
+      - match: "Date d'enregistrement: 18.4.1994"
+        props:
+          incorporationDate: "1994-04-18"
+      - match: "Numéro d'identification fiscale: 7704001959"
+        props:
+          taxNumber: "7704001959"
+      - match: "OMI: 6132673"
+        props:
+          imoNumber: "IMO6132673"
+      - match: "Numéro d'enregistrement: 690611860"
+        props:
+          registrationNumber: "690611860"
+      - match: "Date d'enregistrement: 11.6.1996"
+        props:
+          incorporationDate: "1996-06-11"
+      - match: "Numéro d'enregistrement: 1037828008206"
+        props:
+          registrationNumber: "1037828008206"
+      - match: "Numéro d'identification fiscale (INN): 7813054936"
+        props:
+          innCode: "7813054936"
+      - match: "KPP: 781301001"
+        schema: Company
+        props:
+          kppCode: "781301001"
+      - match: "Date d'enregistrement: 30.7.2013"
+        props:
+          incorporationDate: "2013-07-30"
+      - match: "Numéro d'identification fiscale: 7835905228"
+        props:
+          taxNumber: "7835905228"
+      - match: "Date d’enregistrement: 25.7.2002"
+        props:
+          incorporationDate: "2002-07-25"
+      - match: "Numéro d’enregistrement: 1025005598155"
+        props:
+          registrationNumber: "1025005598155"
+      - match: "INN: 5043012881"
+        props:
+          innCode: "5043012881"
+      - match: "KPP: 504301001"
+        schema: Company
+        props:
+          kppCode: "504301001"
+      - match: "Numéro d'identification fiscale: 7704857789 - Date d'enregistrement: 2007: KPP: 770401001"
+        schema: Company
+        props:
+          taxNumber: "7704857789"
+          incorporationDate: "2007"
+          kppCode: "770401001"
+      - match: "Numéro d'identification fiscale (INN): 5245028524"
+        props:
+          innCode: "5245028524"
+      - match: "Date d’enregistrement: 4.10.2004"
+        props:
+          incorporationDate: "2004-10-04"
+      - match: "Numéro d’enregistrement: 231475"
+        props:
+          registrationNumber: "231475"
+      - match: "Numéro d'identification fiscale: 7710657509"
+        props:
+          taxNumber: "7710657509"
+      - match: "Numéro d'enregistrement: 1067761638240"
+        props:
+          registrationNumber: "1067761638240"
+      - match: "numéro d'identification fiscal: 7705713236"
+        props:
+          taxNumber: "7705713236"
+      - match: "Numéro fiscal: 1832090230"
+        props:
+          taxNumber: "1832090230"
+      - match: "Numéro d’enregistrement national: 1111832003018"
+        props:
+          registrationNumber: "1111832003018"
+      - match: "Numéro d'identification fiscale: 7831001013"
+        props:
+          taxNumber: "7831001013"
+      - match: "Date d’enregistrement: 16.7.1944"
+        props:
+          incorporationDate: "1944-07-16"
+      - match: "Numéro d'identification fiscale (INN): 6646015316"
+        props:
+          innCode: "6646015316"
+      - match: "Date d'enregistrement: 15.12.1999"
+        props:
+          incorporationDate: "1999-12-15"
+      - match: "Numéro d'enregistrement: 1027739019208"
+        props:
+          registrationNumber: "1027739019208"
+      - match: "Numéro d'identification fiscale: 7706092528"
+        props:
+          taxNumber: "7706092528"
+      - match: "Date d'enregistrement: 5.12.1990"
+        props:
+          incorporationDate: "1990-12-05"
+      - match: "Numéro d'identification fiscale: 3801002781"
+        props:
+          taxNumber: "3801002781"
+      - match: "OGRN: 1187746699800"
+        props:
+          ogrnCode: "1187746699800"
+      - match: "INN: 772471315256"
+        props:
+          innCode: "772471315256"
+      - match: "Date d'enregistrement: 15.8.2002"
+        props:
+          incorporationDate: "2002-08-15"
+      - match: "Numéro d'enregistrement (OGRN): 1027739072327"
+        props:
+          ogrnCode: "1027739072327"
+      - match: "Numéro d'identification fiscale (INN): 7703003336"
+        props:
+          innCode: "7703003336"
+      - match: "Date d'enregistrement: 29.11.1991"
+        props:
+          incorporationDate: "1991-11-29"
+      - match: "Numéro d'identification fiscale: 7733043350"
+        props:
+          taxNumber: "7733043350"
+      - match: "KPP: 773301001"
+        schema: Company
+        props:
+          kppCode: "773301001"
+      - match: "Numéro d’enregistrement: 100386629"
+        props:
+          registrationNumber: "100386629"
+      - match: "Numéro d'enregistrement: 1027739075891"
+        props:
+          registrationNumber: "1027739075891"
+      - match: "Numéro d'enregistrement: 1027804858146"
+        props:
+          registrationNumber: "1027804858146"
+      - match: "Numéro d'identification fiscale: 7810240719"
+        props:
+          taxNumber: "7810240719"
+      - match: "Numéro d'enregistrement: 101482057"
+        props:
+          registrationNumber: "101482057"
+      - match: "Date d'enregistrement: 25.9.2002"
+        props:
+          incorporationDate: "2002-09-25"
+      - match: "Numéro d'enregistrement (OGRN): 1027719007799"
+        props:
+          ogrnCode: "1027719007799"
+      - match: "Numéro d'identification fiscale (INN): 7719255970"
+        props:
+          innCode: "7719255970"
+      - match: "Date d’enregistrement: 15.10.2002"
+        props:
+          incorporationDate: "2002-10-15"
+      - match: "Numéro d’enregistrement: 1020202555240"
+        props:
+          registrationNumber: "1020202555240"
+      - match: "Numéro d’identification fiscale: 0274051582"
+        props:
+          taxNumber: "0274051582"
+      - match: "KPP: 027501001"
+        schema: Company
+        props:
+          kppCode: "027501001"
+      - match: "numéro d’identification fiscale: 9303014834"
+        props:
+          taxNumber: "9303014834"
+      - match: "Date d’enregistrement: 28.6.2002"
+        props:
+          incorporationDate: "2002-06-28"
+      - match: "OGRN: 1023302153115"
+        props:
+          ogrnCode: "1023302153115"
+      - match: "INN: 3307011706"
+        props:
+          innCode: "3307011706"
+      - match: "KPP: 333401001"
+        schema: Company
+        props:
+          kppCode: "333401001"
+      - match: "Date d’enregistrement: 6.12.1955"
+        props:
+          incorporationDate: "1955-12-06"
+      - match: "Numéro d’enregistrement: 436501"
+        props:
+          registrationNumber: "436501"
+      - match: "Date d'enregistrement: 9.10.2018"
+        props:
+          incorporationDate: "2018-10-09"
+      - match: "Numéro d'enregistrement: 1181832022250"
+        props:
+          registrationNumber: "1181832022250"
+      - match: "Numéro d'identification fiscale: 1840083283"
+        props:
+          taxNumber: "1840083283"
+      - match: "Numéro d'enregistrement: 1207700325590"
+        props:
+          registrationNumber: "1207700325590"
+      - match: "Date d'enregistrement: 1.6.1985"
+        props:
+          incorporationDate: "1985-06-01"
+      - match: "Numéro d’identification fiscale: 7811285656"
+        props:
+          taxNumber: "7811285656"
+      - match: "Numéro d’enregistrement: 1167847076825"
+        props:
+          registrationNumber: "1167847076825"
+      - match: "INN: 9104001076"
+        props:
+          innCode: "9104001076"
+      - match: "KPP: 910401001"
+        schema: Company
+        props:
+          kppCode: "910401001"
+      - match: "OMI: 5438351"
+        props:
+          imoNumber: "IMO5438351"
+      - match: "Numéro d’enregistrement: 316730"
+        props:
+          registrationNumber: "316730"
+      - match: "Numéro fiscal: 2373000582"
+        props:
+          taxNumber: "2373000582"
+      - match: "Numéro d’enregistrement national: 1112373000596"
+        props:
+          registrationNumber: "1112373000596"
+      - match: "Date d'enregistrement: 26.6.2009"
+        props:
+          incorporationDate: "2009-06-26"
+      - match: "Numéro d'enregistrement: 1094307000633"
+        props:
+          registrationNumber: "1094307000633"
+      - match: "Numéro d'identification fiscale: 4307012765"
+        props:
+          taxNumber: "4307012765"
+      - match: "Numéro d'enregistrement: 691598938"
+        props:
+          registrationNumber: "691598938"
+      - match: "Date d'enregistrement: 27.4.2012"
+        props:
+          incorporationDate: "2012-04-27"
+      - match: "Numéro d'enregistrement (OGRN): 1127746337751"
+        props:
+          ogrnCode: "1127746337751"
+      - match: "Numéro d'identification fiscale (INN): 7723835854"
+        props:
+          innCode: "7723835854"
+      - match: "Numéro d'enregistrement: 1027100507268"
+        props:
+          registrationNumber: "1027100507268"
+      - match: "Numéro d’identification fiscale: 7105008338"
+        props:
+          taxNumber: "7105008338"
+      - match: "KPP: 710501001"
+        schema: Company
+        props:
+          kppCode: "710501001"
+      - match: "Date d'enregistrement: 5.3.1994"
+        props:
+          incorporationDate: "1994-03-05"
+      - match: "Numéro d'identification fiscale: 7729003482"
+        props:
+          taxNumber: "7729003482"
+      - match: "Numéro d'identification fiscale (INN): 6623125506"
+        props:
+          innCode: "6623125506"
+      - match: "INN: 0541021512"
+        props:
+          innCode: "0541021512"
+      - match: "KPP: 052201001"
+        schema: Company
+        props:
+          kppCode: "052201001"
+      - match: "Date d’enregistrement: 1947 - Principal établissement: Russie"
+        props:
+          incorporationDate: "1947"
+          jurisdiction: "ru"
+      - match: "Code de crédit social unifié: 91370303MA3ERW0G0M"
+        props:
+          uscCode: "91370303MA3ERW0G0M"
+      - match: "Date d'enregistrement: 26.9.2002"
+        props:
+          incorporationDate: "2002-09-26"
+      - match: "Numéro d'enregistrement (OGRN): 1027739267126"
+        props:
+          ogrnCode: "1027739267126"
+      - match: "Numéro d'identification fiscale (INN): 7713122621"
+        props:
+          innCode: "7713122621"
+      - match: "Numéro d’enregistrement: 1127154040122"
+        props:
+          registrationNumber: "1127154040122"
+      - match: "Numéro d’identification fiscale: 7111504768"
+        props:
+          taxNumber: "7111504768"
+      - match: "Numéro d'identification fiscale: 7604203609"
+        props:
+          taxNumber: "7604203609"
+      - match: "Numéro d'enregistrement: 1217700121737"
+        props:
+          registrationNumber: "1217700121737"
+      - match: "Numéro d'enregistrement: 2508064833"
+        props:
+          registrationNumber: "2508064833"
+      - match: "Numéro d’enregistrement: 2833278"
+        props:
+          registrationNumber: "2833278"
+      - match: "Numéro d'identification fiscale: 7733744331"
+        props:
+          taxNumber: "7733744331"
+      - match: "OGRN: 1107746720322"
+        props:
+          ogrnCode: "1107746720322"
+      - match: "KPP: 504401001"
+        schema: Company
+        props:
+          kppCode: "504401001"
+      - match: "Date d’enregistrement: 2013"
+        props:
+          incorporationDate: "2013"
+      - match: "Numéro d'identification fiscale: 7809009923"
+        props:
+          taxNumber: "7809009923"
+      - match: "Numéro d'identification fiscale (INN): 6827005976"
+        props:
+          innCode: "6827005976"
+      - match: "Numéro d'enregistrement: 1149102030186"
+        props:
+          registrationNumber: "1149102030186"
+      - match: "Numéro d’enregistrement: 1207700279797"
+        props:
+          registrationNumber: "1207700279797"
+      - match: "Numéro d’identification fiscale: 7734436058"
+        props:
+          taxNumber: "7734436058"
+      - match: "KPP: 773101001"
+        schema: Company
+        props:
+          kppCode: "773101001"
+      - match: "Numéro d’enregistrement: 1035008852097"
+        props:
+          registrationNumber: "1035008852097"
+      - match: "Numéro d’identification fiscale: 5044000039"
+        props:
+          taxNumber: "5044000039"
+      - match: "Date d'enregistrement: 2014"
+        props:
+          incorporationDate: "2014"
+      - match: "Date d'enregistrement: 24.10.2002"
+        props:
+          incorporationDate: "2002-10-24"
+      - match: "Numéro d'enregistrement (OGRN): 1020300971855"
+        props:
+          ogrnCode: "1020300971855"
+      - match: "Numéro d'identification fiscale (INN): 0323097504"
+        props:
+          innCode: "0323097504"
+      - match: "Date d’enregistrement: 30.6.1997"
+        props:
+          incorporationDate: "1997-06-30"
+      - match: "Numéro d’enregistrement: 1025901216571"
+        props:
+          registrationNumber: "1025901216571"
+      - match: "Numéro d’identification fiscale: 5905099475"
+        props:
+          taxNumber: "5905099475"
+      - match: "Numéro d'enregistrement: 1217700605209"
+        props:
+          registrationNumber: "1217700605209"
+      - match: "Numéro d'identification fiscale: 771401001"
+        props:
+          taxNumber: "771401001"
+      - match: "KPP: 771401001"
+        schema: Company
+        props:
+          kppCode: "771401001"
+      - match: "Date d'enregistrement: 21.2.1994"
+        props:
+          incorporationDate: "1994-02-21"
+      - match: "Date d'enregistrement:: 28.6.2012"
+        props:
+          incorporationDate: "2012-06-28"
+      - match: "Numéro d'enregistrement (OGRN):: 1127449003110"
+        props:
+          ogrnCode: "1127449003110"
+      - match: "Numéro d'identification fiscale (INN):: 7449109207"
+        props:
+          innCode: "7449109207"
+      - match: "Date d'enregistrement: 29.8.2001"
+        props:
+          incorporationDate: "2001-08-29"
+      - match: "Numéro d'enregistrement: 1025002689205"
+        props:
+          registrationNumber: "1025002689205"
+      - match: "Numéro d'identification fiscale: 5021011845"
+        props:
+          taxNumber: "5021011845"
+      - match: "KPP: 507401001"
+        schema: Company
+        props:
+          kppCode: "507401001"
+      - match: "Numéro d'enregistrement : 7704095273"
+        props:
+          registrationNumber: "7704095273"
+      - match: "Numéro d’identification fiscale: 7724552070"
+        props:
+          taxNumber: "7724552070"
+      - match: "Numéro d'enregistrement:  60FC005874HRB10813"
+        props:
+          registrationNumber: "60FC005874HRB10813"
+      - match: "Date d’enregistrement: 3.3.2014"
+        props:
+          incorporationDate: "2014-03-03"
+      - match: "Numéro d’enregistrement: 450913"
+        props:
+          registrationNumber: "450913"
+      - match: "Date d'enregistrement: 27.9.2010"
+        props:
+          incorporationDate: "2010-09-27"
+      - match: "Numéro d’identification fiscale: 5248031980"
+        props:
+          taxNumber: "5248031980"
+      - match: "Numéro d’enregistrement: 1027739032969"
+        props:
+          registrationNumber: "1027739032969"
+      - match: "Numéro d’identification fiscale: 7718016666"
+        props:
+          taxNumber: "7718016666"
+      - match: "KPP 502701001"
+        schema: Company
+        props:
+          kppCode: "502701001"
+      - match: "Numéro d'identification fiscale (INN): 7128012066"
+        props:
+          innCode: "7128012066"
+      - match: "Date d’enregistrement: 1.1.2000"
+        props:
+          incorporationDate: "2000-01-01"
+      - match: "Principal lieu d’activité: République populaire de Chine"
+        props:
+          country: "cn"
+      - match: "Numéro d'identification fiscale (INN): 6678045419"
+        props:
+          innCode: "6678045419"
+      - match: "Date d'enregistrement: 2.11.2004"
+        props:
+          incorporationDate: "2004-11-02"
+      - match: "Numéro d'enregistrement (OGRN): 1047796835866"
+        props:
+          ogrnCode: "1047796835866"
+      - match: "Numéro d'identification fiscale (INN): 7735507784"
+        props:
+          innCode: "7735507784"
+      - match: "Numéro d'identification fiscale: 3900001002"
+        props:
+          taxNumber: "3900001002"
+      - match: "Date d'enregistrement: 27.6.1994"
+        props:
+          incorporationDate: "1994-06-27"
+      - match: "Numéro d’enregistrement: 5147746464256"
+        props:
+          registrationNumber: "5147746464256"
+      - match: "Numéro d’identification fiscale: 7706818288"
+        props:
+          taxNumber: "7706818288"
+      - match: "Numéro d'identification fiscale:: 2536020789"
+        props:
+          taxNumber: "2536020789"
+      - match: "KPP: 253601001"
+        schema: Company
+        props:
+          kppCode: "253601001"
+      - match: "Numéro d'enregistrement:  14005160213"
+        props:
+          registrationNumber: "14005160213"
+      - match: "OMI: 9036387"
+        props:
+          imoNumber: "IMO9036387"
+      - match: "Numéro d’identification fiscale: 7731644035"
+        props:
+          taxNumber: "7731644035"
+      - match: "Numéro d’enregistrement national: 1107746081717"
+        props:
+          registrationNumber: "1107746081717"
+      - match: "Date d'enregistrement: 17.12.2015"
+        props:
+          incorporationDate: "2015-12-17"
+      - match: "OGRN: 1152503000539"
+        props:
+          ogrnCode: "1152503000539"
+      - match: "Numéro d'identification fiscale: 2503032517"
+        props:
+          taxNumber: "2503032517"
+      - match: "Numéro d’identification fiscale: 6673092045"
+        props:
+          taxNumber: "6673092045"
+      - match: "Date d'enregistrement: 1.2.2023"
+        props:
+          incorporationDate: "2023-02-01"
+      - match: "Numéro d'enregistrement: 2239300329486"
+        props:
+          registrationNumber: "2239300329486"
+      - match: "Numéro d'identification fiscale: 9303011791"
+        props:
+          taxNumber: "9303011791"
+      - match: "Numéro d'identification fiscale: 7729652455"
+        props:
+          taxNumber: "7729652455"
+      - match: "Numéro d’enregistrement: 1107746225366"
+        props:
+          registrationNumber: "1107746225366"
+      - match: "Numéro d’enregistrement: 6229060995"
+        props:
+          registrationNumber: "6229060995"
+      - match: "Numéro d'enregistrement: 1026500526590"
+        props:
+          registrationNumber: "1026500526590"
+      - match: "Date d'enregistrement: 3.7.1998"
+        props:
+          incorporationDate: "1998-07-03"
+      - match: "Numéro d'identification fiscale: 6501096047"
+        props:
+          taxNumber: "6501096047"
+      - match: "Numéro d'identification fiscale: 1674003000"
+        props:
+          taxNumber: "1674003000"
+      - match: "Numéro fiscal: 4501008142"
+        props:
+          taxNumber: "4501008142"
+      - match: "Numéro d’enregistrement national: 1024500521682"
+        props:
+          registrationNumber: "1024500521682"
+      - match: "Date d'enregistrement: 9.3.2011"
+        props:
+          incorporationDate: "2011-03-09"
+      - match: "Numéro d'enregistrement (OGRN): 1117746169155"
+        props:
+          ogrnCode: "1117746169155"
+      - match: "Numéro d'identification fiscale (INN): 7731402290"
+        props:
+          innCode: "7731402290"
+      - match: "Numéro d’enregistrement: 1199112018973"
+        props:
+          registrationNumber: "1199112018973"
+      - match: "Date d'enregistrement: 19.11.2002"
+        props:
+          incorporationDate: "2002-11-19"
+      - match: "OGRN: 1023800732878"
+        props:
+          ogrnCode: "1023800732878"
+      - match: "INN: 3802008553"
+        props:
+          innCode: "3802008553"
+      - match: "OMI: 5147094"
+        props:
+          imoNumber: "IMO5147094"
+      - match: "Date d'enregistrement: 19.6.2007"
+        props:
+          incorporationDate: "2007-06-19"
+      - match: "OGRN: 1077424000686"
+        props:
+          ogrnCode: "1077424000686"
+      - match: "INN: 7424024375"
+        props:
+          innCode: "7424024375"
+      - match: "Numéro d'enregistrement: 5506202219"
+        props:
+          registrationNumber: "5506202219"
+      - match: "Numéro d’enregistrement: 1085543005976"
+        props:
+          registrationNumber: "1085543005976"
+      - match: "Date d'enregistrement: 16.12.2022"
+        props:
+          incorporationDate: "2022-12-16"
+      - match: "Numéro d'enregistrement: 1227700877711"
+        props:
+          registrationNumber: "1227700877711"
+      - match: "Numéro d'identification fiscale: 7716975280"
+        props:
+          taxNumber: "7716975280"
+      - match: "KPP: 771601001"
+        schema: Company
+        props:
+          kppCode: "771601001"
+      - match: "Numéro d’identification fiscale: 0541000777"
+        props:
+          taxNumber: "0541000777"
+      - match: "Numéro d’enregistrement: 1026303177119"
+        props:
+          registrationNumber: "1026303177119"
+      - match: "Numéro d’identification fiscale: 6335005315"
+        props:
+          taxNumber: "6335005315"
+      - match: "Numéro fiscal: 7704721192"
+        props:
+          taxNumber: "7704721192"
+      - match: "Numéro d’enregistrement national: 1097746068012"
+        props:
+          registrationNumber: "1097746068012"
+      - match: "Numéro d'identification fiscale: 7704223366"
+        props:
+          taxNumber: "7704223366"
+      - match: "KPP: 774301001"
+        schema: Company
+        props:
+          kppCode: "774301001"
+      - match: "Numéro d'enregistrement: 1027700198635"
+        props:
+          registrationNumber: "1027700198635"
+      - match: "Date d'enregistrement: 9.9.2002"
+        props:
+          incorporationDate: "2002-09-09"
+      - match: "Numéro d'identification fiscale: 7740000037"
+        props:
+          taxNumber: "7740000037"
+      - match: "Date d'enregistrement:: 15.2.2006"
+        props:
+          incorporationDate: "2006-02-15"
+      - match: "Numéro d'enregistrement (OGRN):: 1067149000489"
+        props:
+          ogrnCode: "1067149000489"
+      - match: "Numéro d'identification fiscale (INN):: 7114020500"
+        props:
+          innCode: "7114020500"
+      - match: "Numéro d'enregistrement: 1027739001993"
+        props:
+          registrationNumber: "1027739001993"
+      - match: "numéro d'identification fiscale: 4026005699"
+        props:
+          taxNumber: "4026005699"
+      - match: "Type d'entité: Coentreprise /  Date d'enregistrement: 24.3.2010: Numéro d'enregistrement: 191299395"
+        props:
+          legalForm: "Coentreprise"
+          incorporationDate: "2010-03-24"
+          registrationNumber: "191299395"
+      - match: "Numéro d’identification fiscale: 7728789425"
+        props:
+          taxNumber: "7728789425"
+      - match: "Numéro d'enregistrement: 1107746582052"
+        props:
+          registrationNumber: "1107746582052"
+      - match: "Numéro d'identification fiscale: 7735570680"
+        props:
+          taxNumber: "7735570680"
+      - match: "Numéro fiscal: 7710277994"
+        props:
+          taxNumber: "7710277994"
+      - match: "Numéro d'enregistrement national: 1027739000475"
+        props:
+          registrationNumber: "1027739000475"
+      - match: "Date d'enregistrement: 2.11.1990"
+        props:
+          incorporationDate: "1990-11-02"
+      - match: "Numéro d'identification fiscale:: 6608003052"
+        props:
+          taxNumber: "6608003052"
+      - match: "KPP: 667101001"
+        schema: Company
+        props:
+          kppCode: "667101001"
+      - match: "Numéro d'enregistrement: 1085250002111"
+        props:
+          registrationNumber: "1085250002111"
+      - match: "Numéro d'identification fiscale: 52500043567"
+        props:
+          taxNumber: "52500043567"
+      - match: "Date d'enregistrement: 9.6.2008"
+        props:
+          incorporationDate: "2008-06-09"
+      - match: "Date d'enregistrement: 29.12.1990"
+        props:
+          incorporationDate: "1990-12-29"
+      - match: "Numéro d'identification fiscale: 6450013459"
+        props:
+          taxNumber: "6450013459"
+      - match: "KPP: 645001001"
+        schema: Company
+        props:
+          kppCode: "645001001"
+      - match: "Numéro d'identification fiscale: 6663005798"
+        props:
+          taxNumber: "6663005798"
+      - match: "Date d’enregistrement: 2005"
+        props:
+          incorporationDate: "2005"
+      - match: "Numéro d'enregistrement: 193402282"
+        props:
+          registrationNumber: "193402282"
+      - match: "numéro d'identification fiscale: 7802463197"
+        props:
+          taxNumber: "7802463197"
+      - match: "Date d'enregistrement: 19.4.2004"
+        props:
+          incorporationDate: "2004-04-19"
+      - match: "Numéro d'enregistrement (OGRN): 1047000117988"
+        props:
+          ogrnCode: "1047000117988"
+      - match: "Numéro d'identification fiscale (INN): 7017092813"
+        props:
+          innCode: "7017092813"
+      - match: "Type d'entité: conglomérat"
+        props:
+          legalForm: "conglomérat"
+      - match: "OGRN: 1037700030477"
+        props:
+          ogrnCode: "1037700030477"
+      - match: "Numéro d'enregistrement: 110108010146888"
+        props:
+          registrationNumber: "110108010146888"
+      - match: "Date d'enregistrement: 18.6.1993"
+        props:
+          incorporationDate: "1993-06-18"
+      - match: "Numéro d'identification fiscale:: 6501021443"
+        props:
+          taxNumber: "6501021443"
+      - match: "KPP: 650101001"
+        schema: Company
+        props:
+          kppCode: "650101001"
+      - match: "Numéro d'identification fiscale (INN): 7825064262"
+        props:
+          innCode: "7825064262"
+      - match: "Numéro d’identification fiscale: 1646047020"
+        props:
+          taxNumber: "1646047020"
+      - match: "Date d’enregistrement: 10.11.2005"
+        props:
+          incorporationDate: "2005-11-10"
+      - match: "Numéro d’enregistrement: 1052740255358"
+        props:
+          registrationNumber: "1052740255358"
+      - match: "Numéro d’identification fiscale: 2703032881"
+        props:
+          taxNumber: "2703032881"
+      - match: "Numéro d'identification fiscale: 7325078348"
+        props:
+          taxNumber: "7325078348"
+      - match: "Numéro d’enregistrement: 1067746393417"
+        props:
+          registrationNumber: "1067746393417"
+      - match: "Numéro d'enregistrement: 1149102054221"
+        props:
+          registrationNumber: "1149102054221"
+      - match: "Numéro d'enregistrement: 1025203020193"
+        props:
+          registrationNumber: "1025203020193"
+      - match: "Numéro d'identification fiscale: 5260003387"
+        props:
+          taxNumber: "5260003387"
+      - match: "Date d’enregistrement: 3.4.2018"
+        props:
+          incorporationDate: "2018-04-03"
+      - match: "Numéro d'identification fiscale: 1435138944"
+        props:
+          taxNumber: "1435138944"
+      - match: "KPP: 143501001"
+        schema: Company
+        props:
+          kppCode: "143501001"
+      - match: "Numéro d’enregistrement: 1027714027395"
+        props:
+          registrationNumber: "1027714027395"
+      - match: "Numéro d’identification fiscale: 7714288059"
+        props:
+          taxNumber: "7714288059"
+      - match: "Numéro d'enregistrement: 101050240"
+        props:
+          registrationNumber: "101050240"
+      - match: "Date d'enregistrement: 30.4.2008"
+        props:
+          incorporationDate: "2008-04-30"
+      - match: "Numéro d'enregistrement national principal:  1087017011113"
+        props:
+          registrationNumber: "1087017011113"
+      - match: "Numéro d'identification fiscale: 7017211757"
+        props:
+          taxNumber: "7017211757"
+      - match: "Date d’enregistrement: 3.3.1992"
+        props:
+          incorporationDate: "1992-03-03"
+      - match: "Numéro d’enregistrement: 1025001628630"
+        props:
+          registrationNumber: "1025001628630"
+      - match: "INN: 5013013165"
+        props:
+          innCode: "5013013165"
+      - match: "KPP: 504001001"
+        schema: Company
+        props:
+          kppCode: "504001001"
+      - match: "Numéro d'enregistrement: 1127746315762"
+        props:
+          registrationNumber: "1127746315762"
+      - match: "Numéro d'identification fiscale: 7710911530"
+        props:
+          taxNumber: "7710911530"
+      - match: "Date d'enregistrement: 8.7.2002"
+        props:
+          incorporationDate: "2002-07-08"
+      - match: "Numéro d'identification fiscale: 190369982"
+        props:
+          taxNumber: "190369982"
+      - match: "Numéro d'enregistrement: 1037700128828"
+        props:
+          registrationNumber: "1037700128828"
+      - match: "Numéro d'identification fiscale: 7728032882"
+        props:
+          taxNumber: "7728032882"
+      - match: "Numéro personnel d’identification fiscale (INN): 6441013942"
+        props:
+          innCode: "6441013942"
+      - match: "Numéro personnel d’identification fiscale (INN): 644101001"
+        props:
+          registrationNumber: "644101001"
+      - match: "Numéro d'enregistrement: 1027804850369"
+        props:
+          registrationNumber: "1027804850369"
+      - match: "Numéro d'identification fiscale: 7810221748"
+        props:
+          taxNumber: "7810221748"
+      - match: "Date d'enregistrement: 1.1.1925"
+        props:
+          incorporationDate: "1925-01-01"
+      - match: "Numéro d'enregistrement: 1020202388359"
+        props:
+          registrationNumber: "1020202388359"
+      - match: "Numéro d'identification fiscale: 0273008320"
+        props:
+          taxNumber: "0273008320"
+      - match: "KPP: 027301001"
+        schema: Company
+        props:
+          kppCode: "027301001"
+      - match: "Date d'enregistrement: 3.3.1995"
+        props:
+          incorporationDate: "1995-03-03"
+      - match: "Numéro d'enregistrement: 1023301951045"
+        props:
+          registrationNumber: "1023301951045"
+      - match: "Numéro d'identification fiscale: 3305016642"
+        props:
+          taxNumber: "3305016642"
+      - match: "Date d’enregistrement: 27.9.2021"
+        props:
+          incorporationDate: "2021-09-27"
+      - match: "Numéro d’enregistrement: 1217700455213"
+        props:
+          registrationNumber: "1217700455213"
+      - match: "OGRN: 1027739646550"
+        props:
+          ogrnCode: "1027739646550"
+      - match: "Numéro d’identification fiscale: 7708192743"
+        props:
+          taxNumber: "7708192743"
+      - match: "Date d'enregistrement: 28.10.2014"
+        props:
+          incorporationDate: "2014-10-28"
+      - match: "Numéro d'enregistrement national principal:  5147746279621"
+        props:
+          registrationNumber: "5147746279621"
+      - match: "Numéro d'identification fiscale: 7722860417"
+        props:
+          taxNumber: "7722860417"
+      - match: "Numéro d'enregistrement : 1101841007938"
+        props:
+          registrationNumber: "1101841007938"
+      - match: "Numéro d’identification fiscale: 1841015504"
+        props:
+          taxNumber: "1841015504"
+      - match: "Numéro d'identification fiscale: 561700638113"
+        props:
+          taxNumber: "561700638113"
+      - match: "Numéro d’enregistrement: 1237300010430"
+        props:
+          registrationNumber: "1237300010430"
+      - match: "Numéro d’identification fiscale: 7300024069"
+        props:
+          taxNumber: "7300024069"
+      - match: "Numéro d'identification fiscale (INN): 6150039914"
+        props:
+          innCode: "6150039914"
+      - match: "Date d'enregistrement: 21.6.2018"
+        props:
+          incorporationDate: "2018-06-21"
+      - match: "Numéro d'identification fiscale: 7842155505"
+        props:
+          taxNumber: "7842155505"
+      - match: "Numéro fiscal: 7838395215"
+        props:
+          taxNumber: "7838395215"
+      - match: "Numéro d'identification fiscale (INN): 5911996547"
+        props:
+          innCode: "5911996547"
+      - match: "OGRN: 1027700041830"
+        props:
+          ogrnCode: "1027700041830"
+      - match: "INN: 7717043113"
+        props:
+          innCode: "7717043113"
+      - match: "Date d'enregistrement: 17.1.2022"
+        props:
+          incorporationDate: "2022-01-17"
+      - match: "Numéro d'enregistrement: 1222300001208"
+        props:
+          registrationNumber: "1222300001208"
+      - match: "Numéro d'identification fiscale: 2315223822"
+        props:
+          taxNumber: "2315223822"
+      - match: "Numéro d'identification fiscale: 5610032972"
+        props:
+          taxNumber: "5610032972"
+      - match: "KPP: 561001001"
+        schema: Company
+        props:
+          kppCode: "561001001"
+      - match: "OGRN: 1024900950480"
+        props:
+          ogrnCode: "1024900950480"
+      - match: "INN: 4905001978"
+        props:
+          innCode: "4905001978"
+      - match: "Date d'enregistrement:: 20.8.2002"
+        props:
+          incorporationDate: "2002-08-20"
+      - match: "Numéro d'enregistrement (OGRN):: 1026300840983"
+        props:
+          ogrnCode: "1026300840983"
+      - match: "Numéro d'identification fiscale (INN):: 6313034986"
+        props:
+          innCode: "6313034986"
+      - match: "Date d’enregistrement: 20.10.2014"
+        props:
+          incorporationDate: "2014-10-20"
+      - match: "Numéro d’enregistrement: 5147746249624"
+        props:
+          registrationNumber: "5147746249624"
+      - match: "Numéro d’identification fiscale: 7721849386"
+        props:
+          taxNumber: "7721849386"
+      - match: "Numéro d'enregistrement: 1077847626042"
+        props:
+          registrationNumber: "1077847626042"
+      - match: "Date d'enregistrement: 9.10.2007"
+        props:
+          incorporationDate: "2007-10-09"
+      - match: "Numéro d'identification fiscale: 7838392447"
+        props:
+          taxNumber: "7838392447"
+      - match: "Numéro d'identification fiscale: 7714041693"
+        props:
+          taxNumber: "7714041693"
+      - match: "Numéro d'enregistrement: 1027700341855"
+        props:
+          registrationNumber: "1027700341855"
+      - match: "Numéro d'identification fiscale (INN): 9102157783"
+        props:
+          innCode: "9102157783"
+      - match: "Numéro d'enregistrement: 1105249001120"
+        props:
+          registrationNumber: "1105249001120"
+      - match: "Numéro d'identification fiscale: 5214010100"
+        props:
+          taxNumber: "5214010100"
+      - match: "KPP: 521401001"
+        schema: Company
+        props:
+          kppCode: "521401001"
+      - match: "Numéro d'enregistrement: IR968053464"
+        props:
+          registrationNumber: "IR968053464"
+      - match: "Numéro d’enregistrement:: 498744"
+        props:
+          registrationNumber: "498744"
+      - match: "KPP 774301001"
+        schema: Company
+        props:
+          kppCode: "774301001"
+      - match: "Date d'enregistrement: 15.10.1990"
+        props:
+          incorporationDate: "1990-10-15"
+      - match: "Numéro d'identification fiscale:: 2332006024"
+        props:
+          taxNumber: "2332006024"
+      - match: "KPP: 616701001"
+        schema: Company
+        props:
+          kppCode: "616701001"
+      - match: "Date d'enregistrement: 10.12.2010"
+        props:
+          incorporationDate: "2010-12-10"
+      - match: "Numéro d'enregistrement: 1101831006144"
+        props:
+          registrationNumber: "1101831006144"
+      - match: "Numéro d'identification fiscale: 1831144571"
+        props:
+          taxNumber: "1831144571"
+      - match: "Numéro d'enregistrement: 1234000002521"
+        props:
+          registrationNumber: "1234000002521"
+      - match: "Numéro d'identification fiscale: 4000000400"
+        props:
+          taxNumber: "4000000400"
+      - match: "KPP: 400001001"
+        schema: Company
+        props:
+          kppCode: "400001001"
+      - match: "Date d'enregistrement: 29.11.2002"
+        props:
+          incorporationDate: "2002-11-29"
+      - match: "Numéro d'enregistrement (OGRN): 1027801567540"
+        props:
+          ogrnCode: "1027801567540"
+      - match: "Numéro d'identification fiscale (INN): 7802058706"
+        props:
+          innCode: "7802058706"
+      - match: "Numéro d'enregistrement: 1027739610018"
+        props:
+          registrationNumber: "1027739610018"
+      - match: "Numéro d'identification fiscale: 7729050901"
+        props:
+          taxNumber: "7729050901"
+      - match: "Date d'enregistrement: 28.1.2003"
+        props:
+          incorporationDate: "2003-01-28"
+      - match: "Numéro d'enregistrement: 1036302392356"
+        props:
+          registrationNumber: "1036302392356"
+      - match: "Numéro d'identification fiscale: 6367080065"
+        props:
+          taxNumber: "6367080065"
+      - match: "OKPO: 07506501"
+        props:
+          okpoCode: "07506501"
+      - match: "Date d'enregistrement: 25.11.1993"
+        props:
+          incorporationDate: "1993-11-25"
+      - match: "Numéro d'identification fiscale: 1650002455"
+        props:
+          taxNumber: "1650002455"
+      - match: "Date d'enregistrement: 11.5.1993"
+        props:
+          incorporationDate: "1993-05-11"
+      - match: "Numéro d'enregistrement: 1022401153532"
+        props:
+          registrationNumber: "1022401153532"
+      - match: "Numéro d'identification fiscale: 24430000518"
+        props:
+          taxNumber: "24430000518"
+      - match: "Numéro d’enregistrement: 99134"
+        props:
+          registrationNumber: "99134"
+      - match: "Numéro d’enregistrement: 100230519"
+        props:
+          registrationNumber: "100230519"
+      - match: "numéro d’identification fiscale: 9728042468"
+        props:
+          taxNumber: "9728042468"
+      - match: "Date d'enregistrement: 2.4.1992"
+        props:
+          incorporationDate: "1992-04-02"
+      - match: "Numéro d'identification fiscale: 1831002591"
+        props:
+          taxNumber: "1831002591"
+      - match: "KPP: 183101001"
+        schema: Company
+        props:
+          kppCode: "183101001"
+      - match: "Numéro d'enregistrement: 1217800006610"
+        props:
+          registrationNumber: "1217800006610"
+      - match: "Numéro d'identification fiscale: 7802888337"
+        props:
+          taxNumber: "7802888337"
+      - match: "Numéro d'enregistrement: 192695465"
+        props:
+          registrationNumber: "192695465"
+      - match: "Numéro d’identification fiscale: 2907592941"
+        props:
+          taxNumber: "2907592941"
+      - match: "Date d’enregistrement: 18.4.2002"
+        props:
+          incorporationDate: "2002-04-18"
+      - match: "Numéro d’enregistrement: 1021200757808"
+        props:
+          registrationNumber: "1021200757808"
+      - match: "Numéro d’identification fiscale: 1200001885"
+        props:
+          taxNumber: "1200001885"
+      - match: "Date d’enregistrement: 11.5.2016"
+        props:
+          incorporationDate: "2016-05-11"
+      - match: "Numéro d’enregistrement: 1167746458648"
+        props:
+          registrationNumber: "1167746458648"
+      - match: "Numéro d’identification fiscale: 9701039940"
+        props:
+          taxNumber: "9701039940"
+      - match: "Numéro d’enregistrement: 100104937"
+        props:
+          registrationNumber: "100104937"
+      - match: "Date d’enregistrement: 15.3.1992"
+        props:
+          incorporationDate: "1992-03-15"
+      - match: "Numéro fiscal: 5505204171"
+        props:
+          taxNumber: "5505204171"
+      - match: "Numéro d’enregistrement national: 1085543060734"
+        props:
+          registrationNumber: "1085543060734"
+      - match: "Numéro d’identification fiscale: 7720544208"
+        props:
+          taxNumber: "7720544208"
+      - match: "Date d'enregistrement: 2.9.2024"
+        props:
+          incorporationDate: "2024-09-02"
+      - match: "Numéro d'enregistrement: 1247700586891"
+        props:
+          registrationNumber: "1247700586891"
+      - match: "Numéro d’enregistrement: IRFEB57517"
+        props:
+          registrationNumber: "IRFEB57517"
+      - match: "Date d'enregistrement: 17.3.2006"
+        props:
+          incorporationDate: "2006-03-17"
+      - match: "Numéro d'enregistrement: 1068400002990"
+        props:
+          registrationNumber: "1068400002990"
+      - match: "Numéro d'identification fiscale: 7703389295"
+        props:
+          taxNumber: "7703389295"
+      - match: "Date d'enregistrement: 6.5.1994"
+        props:
+          incorporationDate: "1994-05-06"
+      - match: "Numéro d'enregistrement: 300228934"
+        props:
+          registrationNumber: "300228934"
+      - match: "Numéro d'identification fiscale: 7709138570"
+        props:
+          taxNumber: "7709138570"
+      - match: "KPP: 770601001"
+        schema: Company
+        props:
+          kppCode: "770601001"
+      - match: "Numéro d'identification fiscale: 5012039795"
+        props:
+          taxNumber: "5012039795"
+      - match: "Numéro d'enregistrement: 1075012001492"
+        props:
+          registrationNumber: "1075012001492"
+      - match: "Date d’enregistrement: 1.11.2018"
+        props:
+          incorporationDate: "2018-11-01"
+      - match: "Numéro d’enregistrement: 1186820009837"
+        props:
+          registrationNumber: "1186820009837"
+      - match: "Numéro d’identification fiscale: 6829145094"
+        props:
+          taxNumber: "6829145094"
+      - match: "numéro d’identification fiscale: 7813438763"
+        props:
+          taxNumber: "7813438763"
+      - match: "Numéro d’enregistrement: 1047422507736"
+        props:
+          registrationNumber: "1047422507736"
+      - match: "Numéro d’identification fiscale: 7449044990"
+        props:
+          taxNumber: "7449044990"
+      - match: "Date d'enregistrement: 26.1.2016"
+        props:
+          incorporationDate: "2016-01-26"
+      - match: "Numéro d'enregistrement (OGRN): 1167746089741"
+        props:
+          ogrnCode: "1167746089741"
+      - match: "Numéro d'identification fiscale (INN): 7728328640"
+        props:
+          innCode: "7728328640"
+      - match: "OGRN: 1222400000481"
+        props:
+          ogrnCode: "1222400000481"
+      - match: "INN: 2465344488"
+        props:
+          innCode: "2465344488"
+      - match: "Numéro d'identification fiscale: 6161021690"
+        props:
+          taxNumber: "6161021690"
+      - match: "KPP: 616101001"
+        schema: Company
+        props:
+          kppCode: "616101001"
+      - match: "Numéro d'enregistrement: 1026102899228"
+        props:
+          registrationNumber: "1026102899228"
+      - match: "OGRN: 1197746099517"
+        props:
+          ogrnCode: "1197746099517"
+      - match: "INN: 9721075295"
+        props:
+          innCode: "9721075295"
+      - match: "Date d'enregistrement: 27.4.2017"
+        props:
+          incorporationDate: "2017-04-27"
+      - match: "Numéro d'enregistrement: 192807396"
+        props:
+          registrationNumber: "192807396"
+      - match: "Date d'enregistrement:: 14.1.2004"
+        props:
+          incorporationDate: "2004-01-14"
+      - match: "Numéro d'enregistrement (OGRN):: 1041628200591"
+        props:
+          ogrnCode: "1041628200591"
+      - match: "Numéro d'identification fiscale (INN):: 1659041868"
+        props:
+          innCode: "1659041868"
+      - match: "Numéro d'identification fiscale: 8605016650"
+        props:
+          taxNumber: "8605016650"
+      - match: "Date d'enregistrement: 5.8.2010"
+        props:
+          incorporationDate: "2010-08-05"
+      - match: "Numéro d'enregistrement (OGRN): 1107746619683"
+        props:
+          ogrnCode: "1107746619683"
+      - match: "Numéro d'identification fiscale (INN): 7725700394"
+        props:
+          innCode: "7725700394"
+      - match: "Date d'enregistrement: 15.7.2002"
+        props:
+          incorporationDate: "2002-07-15"
+      - match: "Numéro d'enregistrement (OGRN): 1027801525608"
+        props:
+          ogrnCode: "1027801525608"
+      - match: "Numéro d'identification fiscale (INN): 7802030605"
+        props:
+          innCode: "7802030605"
+      - match: "Date d'enregistrement: 11.10.2002"
+        props:
+          incorporationDate: "2002-10-11"
+      - match: "Numéro d'enregistrement (OGRN): 1027801538610"
+        props:
+          ogrnCode: "1027801538610"
+      - match: "Numéro d'identification fiscale (INN): 7802053803"
+        props:
+          innCode: "7802053803"
+      - match: "Numéro d'identification fiscale: 0545001919"
+        props:
+          taxNumber: "0545001919"
+      - match: "Numéro d'enregistrement: 1147746324340"
+        props:
+          registrationNumber: "1147746324340"
+      - match: "Numéro d'identification fiscale: 7704859803"
+        props:
+          taxNumber: "7704859803"
+      - match: "OGRN: 1021301112667"
+        props:
+          ogrnCode: "1021301112667"
+      - match: "INN: 1325029808"
+        props:
+          innCode: "1325029808"
+      - match: "Numéro d'identification fiscale: 1026201077572"
+        props:
+          taxNumber: "1026201077572"
+      - match: "OGRN: 1157746895690"
+        props:
+          ogrnCode: "1157746895690"
+      - match: "OGRN: 1055238018098"
+        props:
+          ogrnCode: "1055238018098"
+      - match: "Numéro d'enregistrement: 1159102083238"
+        props:
+          registrationNumber: "1159102083238"
+      - match: "Numéro d'identification fiscale: 9104005842"
+        props:
+          taxNumber: "9104005842"
+      - match: "Date d'enregistrement: 29.12.2011"
+        props:
+          incorporationDate: "2011-12-29"
+      - match: "Numéro d'enregistrement: 1115258007688"
+        props:
+          registrationNumber: "1115258007688"
+      - match: "Numéro d'identification fiscale: 5258100129"
+        props:
+          taxNumber: "5258100129"
+      - match: "KPP: 525801001"
+        schema: Company
+        props:
+          kppCode: "525801001"
+      - match: "Numéro d'enregistrement: 1122130005502"
+        props:
+          registrationNumber: "1122130005502"
+      - match: "Numéro d'identification fiscale: 2130102938"
+        props:
+          taxNumber: "2130102938"
+      - match: "Numéro d'identification fiscale: 5405114781"
+        props:
+          taxNumber: "5405114781"
+      - match: "KPP: 540601001"
+        schema: Company
+        props:
+          kppCode: "540601001"
+      - match: "Numéro d'identification fiscale: 9110021761"
+        props:
+          taxNumber: "9110021761"
+      - match: "Numéro d'enregistrement: 1179102030326"
+        props:
+          registrationNumber: "1179102030326"
+      - match: "INN: 7703367439"
+        props:
+          innCode: "7703367439"
+      - match: "Numéro d'identification: 100085149"
+        props:
+          registrationNumber: "100085149"
+      - match: "OKPO: 37406850"
+        props:
+          okpoCode: "37406850"
+      - match: "Date d’enregistrement: 11.8.1993"
+        props:
+          incorporationDate: "1993-08-11"
+      - match: "Numéro d’enregistrement: 10238000520600"
+        props:
+          registrationNumber: "10238000520600"
+      - match: "Numéro d’identification fiscale: 3801009466"
+        props:
+          taxNumber: "3801009466"
+      - match: "Date d'enregistrement: 29.1.1993"
+        props:
+          incorporationDate: "1993-01-29"
+      - match: "Numéro d'identification fiscale: 770202045051"
+        props:
+          taxNumber: "770202045051"
+      - match: "Numéro d'identification fiscale: 6227001779"
+        props:
+          taxNumber: "6227001779"
+      - match: "KPP: 623401001"
+        schema: Company
+        props:
+          kppCode: "623401001"
+      - match: "Numéro d’identification fiscale (INN): 2539009984"
+        props:
+          innCode: "2539009984"
+      - match: "KPP: 253901001"
+        schema: Company
+        props:
+          kppCode: "253901001"
+      - match: "Numéro d'enregistrement: IRFEB54525"
+        props:
+          registrationNumber: "IRFEB54525"
+      - match: "Principal établissement: Singapour"
+      - match: "Numéro d'identification fiscale: 7707727918"
+        props:
+          taxNumber: "7707727918"
+      - match: "Numéro d'enregistrement: 1057748342629"
+        props:
+          registrationNumber: "1057748342629"
+      - match: "Numéro d'identification fiscale: 7722557040"
+        props:
+          taxNumber: "7722557040"
+      - match: "KPP: 744901001"
+        schema: Company
+        props:
+          kppCode: "744901001"
+      - match: "Numéro d’enregistrement: 12341"
+        props:
+          registrationNumber: "12341"
+      - match: "Numéro d’identification fiscale: 1831083343"
+        props:
+          taxNumber: "1831083343"
+      - match: "Numéro d'identification fiscale: 9111000450"
+        props:
+          taxNumber: "9111000450"
+      - match: "Numéro d'enregistrement national: 1149102012620"
+        props:
+          registrationNumber: "1149102012620"
+      - match: "Date d'enregistrement: 29.4.1994"
+        props:
+          incorporationDate: "1994-04-29"
+      - match: "Numéro d'identification fiscale: 3525023780"
+        props:
+          taxNumber: "3525023780"
+      - match: "KPP: 352501001"
+        schema: Company
+        props:
+          kppCode: "352501001"
+      - match: "Date d'enregistrement: 19.12.2011"
+        props:
+          incorporationDate: "2011-12-19"
+      - match: "Numéro d'enregistrement: 1115919002561"
+        props:
+          registrationNumber: "1115919002561"
+      - match: "Numéro d'identification fiscale: 5919015877"
+        props:
+          taxNumber: "5919015877"
+      - match: "KPP: 591901001"
+        schema: Company
+        props:
+          kppCode: "591901001"
+      - match: "OGRN: 1167746504771"
+        props:
+          ogrnCode: "1167746504771"
+      - match: "INN: 7719447520"
+        props:
+          innCode: "7719447520"
+      - match: "OGRN: 1021801502183"
+        props:
+          ogrnCode: "1021801502183"
+      - match: "INN: 1833013253"
+        props:
+          innCode: "1833013253"
+      - match: "Date d’enregistrement: 14.10.2011"
+        props:
+          incorporationDate: "2011-10-14"
+      - match: "Numéro d’enregistrement: 1112130013270"
+      - match: "Date d'enregistrement: 28.4.1994"
+        props:
+          incorporationDate: "1994-04-28"
+      - match: "Numéro d'identification fiscale: 7730059592"
+        props:
+          taxNumber: "7730059592"
+      - match: "Numéro d'identification fiscale: 1653011835"
+        props:
+          taxNumber: "1653011835"
+      - match: "Date d'enregistrement: 2.3.1989"
+        props:
+          incorporationDate: "1989-03-02"
+      - match: "Date d'enregistrement: 19.10.2015"
+        props:
+          incorporationDate: "2015-10-19"
+      - match: "Numéro d'enregistrement: 1152536009900"
+        props:
+          registrationNumber: "1152536009900"
+      - match: "Numéro d’identification fiscale: 5407223338"
+        props:
+          taxNumber: "5407223338"
+      - match: "Numéro d’enregistrement: 1155476047176"
+        props:
+          registrationNumber: "1155476047176"
+      - match: "Numéro d’identification fiscale: 9308013351"
+        props:
+          taxNumber: "9308013351"
+      - match: "Date d'enregistrement: 14.11.1990"
+        props:
+          incorporationDate: "1990-11-14"
+      - match: "Numéro d'identification fiscale: 2703006553"
+        props:
+          taxNumber: "2703006553"
+      - match: "KPP: 254301001"
+        schema: Company
+        props:
+          kppCode: "254301001"
+      - match: "Numéro d'enregistrement  : 2906"
+        props:
+          registrationNumber: "2906"
+      - match: "Numéro d’identification fiscale: 7802375335"
+        props:
+          taxNumber: "7802375335"
+      - match: "Numéro d’enregistrement national: 1069847546383"
+        props:
+          registrationNumber: "1069847546383"
+      - match: "N ° d'identification fiscale: 7802059185"
+        props:
+          taxNumber: "7802059185"
+      - match: "Numéro d'enregistrement: 100230590"
+        props:
+          registrationNumber: "100230590"
+      - match: "Numéro d’enregistrement: 1037739635890"
+        props:
+          registrationNumber: "1037739635890"
+      - match: "Numéro personnel d’identification fiscale (INN): 7704195013"
+        props:
+          innCode: "7704195013"
+      - match: "Date d'enregistrement: 28.6.2022"
+        props:
+          incorporationDate: "2022-06-28"
+      - match: "OGRN: 1227700378553"
+        props:
+          ogrnCode: "1227700378553"
+      - match: "Numéro d'identification fiscale: 9731094770"
+        props:
+          taxNumber: "9731094770"
+      - match: "Numéro fiscal: 5099000013"
+        props:
+          taxNumber: "5099000013"
+      - match: "Numéro d’enregistrement national: 1035003364021"
+        props:
+          registrationNumber: "1035003364021"
+      - match: "Numéro d’enregistrement: 1097746164119"
+        props:
+          registrationNumber: "1097746164119"
+      - match: "Date d’enregistrement: 26.12.1991"
+        props:
+          incorporationDate: "1991-12-26"
+      - match: "Numéro d’enregistrement: 400091131"
+        props:
+          registrationNumber: "400091131"
+      - match: "Date d’enregistrement: 2.12.1998"
+        props:
+          incorporationDate: "1998-12-02"
+      - match: "Numéro d'enregistrement: 1217800120724"
+        props:
+          registrationNumber: "1217800120724"
+      - match: "Numéro d'identification fiscale: 7811763398"
+        props:
+          taxNumber: "7811763398"
+      - match: "Numéro d'enregistrement national: 1077762942212"
+        props:
+          registrationNumber: "1077762942212"
+      - match: "Numéro d'identification fiscale: 7729588440"
+        props:
+          taxNumber: "7729588440"
+      - match: "INN: 9729299794"
+        props:
+          innCode: "9729299794"
+      - match: "Numéro d'identification fiscale (INN): 6152000817"
+        props:
+          innCode: "6152000817"
+      - match: "Numéro d'identification fiscale: 7707025725"
+        props:
+          taxNumber: "7707025725"
+      - match: "Date d'enregistrement: 23.6.1989"
+        props:
+          incorporationDate: "1989-06-23"
+      - match: "Numéro d'enregistrement: IR30177GN"
+        props:
+          registrationNumber: "IR30177GN"
+      - match: "Date d'enregistrement: 29.6.1993"
+        props:
+          incorporationDate: "1993-06-29"
+      - match: "Numéro d'identification fiscale: 7703115760"
+        props:
+          taxNumber: "7703115760"
+      - match: "Date d’enregistrement: 17.3.2022"
+        props:
+          incorporationDate: "2022-03-17"
+      - match: "Numéro d’enregistrement: 220340023728"
+        props:
+          registrationNumber: "220340023728"
+      - match: "Principal établissement: Kazakhstan"
+      - match: "Numéro d’enregistrement: 1217700326700"
+        props:
+          registrationNumber: "1217700326700"
+      - match: "Numéro d’identification fiscale: 9724053282"
+        props:
+          taxNumber: "9724053282"
+      - match: "Date d'enregistrement: 27.12.1990"
+        props:
+          incorporationDate: "1990-12-27"
+      - match: "Numéro d'identification fiscale: 3906098008"
+        props:
+          taxNumber: "3906098008"
+      - match: "KPP: 390601001"
+        schema: Company
+        props:
+          kppCode: "390601001"
+      - match: "Numéro d’enregistrement: 1116234013598"
+        props:
+          registrationNumber: "1116234013598"
+      - match: "Numéro d’identification fiscale: 6234098539"
+        props:
+          taxNumber: "6234098539"
+      - match: "Numéro d'identification fiscale: 3123004233"
+        props:
+          taxNumber: "3123004233"
+      - match: "KPP: 312301001"
+        schema: Company
+        props:
+          kppCode: "312301001"
+      - match: "Numéro d'enregistrement: 1026901811881"
+        props:
+          registrationNumber: "1026901811881"
+      - match: "Numéro d'identification fiscale: 6913005680"
+        props:
+          taxNumber: "6913005680"
+      - match: "KPP: 691301001"
+        schema: Company
+        props:
+          kppCode: "691301001"
+      - match: "Date d'enregistrement:: 2.3.2007"
+        props:
+          incorporationDate: "2007-03-02"
+      - match: "Numéro d'enregistrement (OGRN): 1075904003603"
+        props:
+          ogrnCode: "1075904003603"
+      - match: "Numéro d'identification fiscale (INN):: 5904159442"
+        props:
+          innCode: "5904159442"
+      - match: "Numéro d'enregistrement: 1082468060553"
+        props:
+          registrationNumber: "1082468060553"
+      - match: "Numéro d'identification fiscale: 2462206345"
+        props:
+          taxNumber: "2462206345"
+      - match: "KPP: 246201001"
+        schema: Company
+        props:
+          kppCode: "246201001"
+      - match: "Date d'enregistrement: 21.10.2002"
+        props:
+          incorporationDate: "2002-10-21"
+      - match: "Numéro d'enregistrement (OGRN): 1027739417551"
+        props:
+          ogrnCode: "1027739417551"
+      - match: "Numéro d'identification fiscale (INN): 7718098980"
+        props:
+          innCode: "7718098980"
+      - match: "Date d'enregistrement: 12.12.1990"
+        props:
+          incorporationDate: "1990-12-12"
+      - match: "Numéro d'identification fiscale: 4216004076"
+        props:
+          taxNumber: "4216004076"
+      - match: "KPP: 421701001"
+        schema: Company
+        props:
+          kppCode: "421701001"
+      - match: "Numéro d’identification fiscale: 1656025681"
+        props:
+          taxNumber: "1656025681"
+      - match: "Date d'enregistrement:: 7.10.2002"
+        props:
+          incorporationDate: "2002-10-07"
+      - match: "Numéro d'enregistrement (OGRN):: 1027739323831"
+        props:
+          ogrnCode: "1027739323831"
+      - match: "Numéro d'identification fiscale (INN):: 7713006449"
+        props:
+          innCode: "7713006449"
+      - match: "Numéro d'identification fiscale: 7701315700"
+        props:
+          taxNumber: "7701315700"
+      - match: "Numéro d'enregistrement: 1027701015352"
+        props:
+          registrationNumber: "1027701015352"
+      - match: "Numéro d’identification fiscale: 7811075899"
+        props:
+          taxNumber: "7811075899"
+      - match: "Date d'enregistrement: 18.9.2002"
+        props:
+          incorporationDate: "2002-09-18"
+      - match: "Numéro d'identification fiscale: 8602060555"
+        props:
+          taxNumber: "8602060555"
+      - match: "Numéro d'enregistrement: 1028600584540"
+        props:
+          registrationNumber: "1028600584540"
+      - match: "Date d’enregistrement: 28.4.2020"
+        props:
+          incorporationDate: "2020-04-28"
+      - match: "Numéro d’enregistrement: 1206100017331"
+        props:
+          registrationNumber: "1206100017331"
+      - match: "Numéro d’identification fiscale: 6168111569"
+        props:
+          taxNumber: "6168111569"
+      - match: "KPP: 616801001"
+        schema: Company
+        props:
+          kppCode: "616801001"
+      - match: "Date d’enregistrement: 16.11.2005"
+        props:
+          incorporationDate: "2005-11-16"
+      - match: "Numéro d’enregistrement: 1052313098683"
+        props:
+          registrationNumber: "1052313098683"
+      - match: "Numéro d’identification fiscale: 2365004375"
+        props:
+          taxNumber: "2365004375"
+      - match: "Numéro d'enregistrement: : 800002497"
+        props:
+          registrationNumber: "800002497"
+      - match: "Numéro d’enregistrement: 14748199"
+        props:
+          registrationNumber: "14748199"
+      - match: "Numéro d'enregistrement:: DMCC0117"
+        props:
+          registrationNumber: "DMCC0117"
+      - match: "Date d'enregistrement:: 8.9.2004"
+        props:
+          incorporationDate: "2004-09-08"
+      - match: "Numéro d'enregistrement: IR0000047040"
+        props:
+          registrationNumber: "IR0000047040"
+      - match: "KPP: 231201001: Numéro d’identification fiscale: 2312110549"
+        schema: Company
+        props:
+          kppCode: "231201001"
+          taxNumber: "2312110549"
+      - match: "Date d’enregistrement: 6.8.1994"
+        props:
+          incorporationDate: "1994-08-06"
+      - match: "Numéro d’enregistrement: 1022501797064"
+        props:
+          registrationNumber: "1022501797064"
+      - match: "Numéro d’identification fiscale: 2537009643"
+        props:
+          taxNumber: "2537009643"
+      - match: "Date d'enregistrement: 11.1.1996"
+        props:
+          incorporationDate: "1996-01-11"
+      - match: "Numéro d'enregistrement: 1021801503855"
+        props:
+          registrationNumber: "1021801503855"
+      - match: "Numéro d'identification fiscale: 1833015839"
+        props:
+          taxNumber: "1833015839"
+      - match: "Numéro fiscal: 7718852163"
+        props:
+          taxNumber: "7718852163"
+      - match: "Numéro d’enregistrement: 1117746521452"
+        props:
+          registrationNumber: "1117746521452"
+      - match: "Numéro d'enregistrement: 1214200013862"
+        props:
+          registrationNumber: "1214200013862"
+      - match: "Numéro d'identification fiscale: 4217203067"
+        props:
+          taxNumber: "4217203067"
+      - match: "Date d’enregistrement: 18.1.2011"
+        props:
+          incorporationDate: "2011-01-18"
+      - match: "Numéro d’identification fiscale: 7718833185"
+        props:
+          taxNumber: "7718833185"
+      - match: "Numéro d'enregistrement: 1121831007759"
+        props:
+          registrationNumber: "1121831007759"
+      - match: "Numéro d'identification fiscale: 1831156383"
+        props:
+          taxNumber: "1831156383"
+      - match: "Date d’enregistrement: 13.4.2007"
+        props:
+          incorporationDate: "2007-04-13"
+      - match: "Numéro d’enregistrement: 1074501002894"
+        props:
+          registrationNumber: "1074501002894"
+      - match: "Numéro d’identification fiscale: 4501129732"
+        props:
+          taxNumber: "4501129732"
+      - match: "Numéro d’enregistrement: 690653077"
+        props:
+          registrationNumber: "690653077"
+      - match: "Date d’enregistrement: 27.5.2009"
+        props:
+          incorporationDate: "2009-05-27"
+      - match: "Numéro d'enregistrement: 1084217001990"
+        props:
+          registrationNumber: "1084217001990"
+      - match: "Numéro d'identification fiscale: 4217102358"
+        props:
+          taxNumber: "4217102358"
+      - match: "Date d'enregistrement: 11.12.2012"
+        props:
+          incorporationDate: "2012-12-11"
+      - match: "Numéro d'enregistrement: 1127747236341"
+        props:
+          registrationNumber: "1127747236341"
+      - match: "Numéro d'identification fiscale: 7743873015"
+        props:
+          taxNumber: "7743873015"
+      - match: "Numéro d'enregistrement: 1116317006299"
+        props:
+          registrationNumber: "1116317006299"
+      - match: "KPP: 631701001"
+        schema: Company
+        props:
+          kppCode: "631701001"
+      - match: "Date d'enregistrement: 13.12.2024"
+        props:
+          incorporationDate: "2024-12-13"
+      - match: "OKPO: 33504589"
+        props:
+          okpoCode: "33504589"
+      - match: "Numéro d'identification fiscale: 01312202410041"
+        props:
+          taxNumber: "01312202410041"
+      - match: "Principal établissement: Kirghizstan"
+      - match: "Numéro d'enregistrement: 1097746629639"
+        props:
+          registrationNumber: "1097746629639"
+      - match: "Numéro personnel d’identification fiscale (INN): 7714676767"
+        props:
+          innCode: "7714676767"
+      - match: "Numéro d'identification fiscale (INN): 5007096798"
+        props:
+          innCode: "5007096798"
+      - match: "KPP: 500701001"
+        schema: Company
+        props:
+          kppCode: "500701001"
+      - match: "Principal établissement: Iran"
+        props:
+          jurisdiction: "ir"
+      - match: "Date d'enregistrement:: 9.9.2002"
+        props:
+          incorporationDate: "2002-09-09"
+      - match: "Numéro d'enregistrement (OGRN):: 1024500509659"
+        props:
+          ogrnCode: "1024500509659"
+      - match: "Numéro d'identification fiscale (INN):: 4501033519"
+        props:
+          innCode: "4501033519"
+      - match: "Date d'enregistrement: 17.12.2012"
+        props:
+          incorporationDate: "2012-12-17"
+      - match: "Numéro d'enregistrement (OGRN): 1127747258033"
+        props:
+          ogrnCode: "1127747258033"
+      - match: "Numéro d'identification fiscale (INN): 7701982654"
+        props:
+          innCode: "7701982654"
+      - match: "Date d'enregistrement: 3.10.2002"
+        props:
+          incorporationDate: "2002-10-03"
+      - match: "Numéro d'enregistrement: 1025300785234"
+        props:
+          registrationNumber: "1025300785234"
+      - match: "Numéro d'identification fiscale: 5321089063"
+        props:
+          taxNumber: "5321089063"
+      - match: "Numéro d'identification fiscale: 7704113772"
+        props:
+          taxNumber: "7704113772"
+      - match: "Date d'enregistrement: 27.5.1992"
+        props:
+          incorporationDate: "1992-05-27"
+      - match: "Numéro d'enregistrement: 1027807989879"
+        props:
+          registrationNumber: "1027807989879"
+      - match: "INN: 7816043890"
+        props:
+          innCode: "7816043890"
+      - match: "Numéro d'identification fiscale (INN): 7106065145"
+        props:
+          innCode: "7106065145"
+      - match: "Numéro d’enregistrement: GB04152338"
+        props:
+          registrationNumber: "GB04152338"
+      - match: "Numéro d’enregistrement: 100138662"
+        props:
+          registrationNumber: "100138662"
+      - match: "Numéro d'enregistrement: 1057746440212"
+        props:
+          registrationNumber: "1057746440212"
+      - match: "Numéro d'identification fiscale: 7715557441"
+        props:
+          taxNumber: "7715557441"
+      - match: "OGRN: 1131832006657"
+        props:
+          ogrnCode: "1131832006657"
+      - match: "INN: 1832114178"
+        props:
+          innCode: "1832114178"
+      - match: "Date d'enregistrement: 7.10.2002"
+        props:
+          incorporationDate: "2002-10-07"
+      - match: "INN: 7713226814"
+        props:
+          innCode: "7713226814"
+      - match: "Date d’enregistrement: 1994"
+        props:
+          incorporationDate: "1994"
+      - match: "Date d'enregistrement: 27.12.2024"
+        props:
+          incorporationDate: "2024-12-27"
+      - match: "Numéro d'identification fiscale: 02312202410120"
+        props:
+          taxNumber: "02312202410120"
+      - match: "Date d'enregistrement: 6.3.1990"
+        props:
+          incorporationDate: "1990-03-06"
+      - match: "Numéro d'identification fiscale: 4346013603"
+        props:
+          taxNumber: "4346013603"
+      - match: "KPP: 434501001"
+        schema: Company
+        props:
+          kppCode: "434501001"
+      - match: "Date d'enregistrement: 30.7.1999"
+        props:
+          incorporationDate: "1999-07-30"
+      - match: "Numéro d'enregistrement: 10277000032700"
+        props:
+          registrationNumber: "10277000032700"
+      - match: "Numéro d'identification fiscale: 7706196090"
+        props:
+          taxNumber: "7706196090"
+      - match: "OMI: 0025707"
+        props:
+          imoNumber: "IMO0025707"
+      - match: "Date d'enregistrement: 14.4.2023"
+        props:
+          incorporationDate: "2023-04-14"
+      - match: "Numéro d'enregistrement: 1234700008982"
+        props:
+          registrationNumber: "1234700008982"
+      - match: "INN: 4706059162"
+        props:
+          innCode: "4706059162"
+      - match: "KPP: 470601001"
+        schema: Company
+        props:
+          kppCode: "470601001"
+      - match: "Date d'enregistrement: 22.6.1995"
+        props:
+          incorporationDate: "1995-06-22"
+      - match: "Numéro d'identification fiscale:: 7729405872"
+        props:
+          taxNumber: "7729405872"
+      - match: "Date d'enregistrement: 30.7.1996"
+        props:
+          incorporationDate: "1996-07-30"
+      - match: "Numéro d'identification fiscale: 5260059340"
+        props:
+          taxNumber: "5260059340"
+      - match: "KPP: 631501001"
+        schema: Company
+        props:
+          kppCode: "631501001"
+      - match: "Numéro d'enregistrement: 1075032002682"
+        props:
+          registrationNumber: "1075032002682"
+      - match: "Numéro d'identification fiscale: 5032164385"
+        props:
+          taxNumber: "5032164385"
+      - match: "Numéro d'identification fiscale: 7817301375"
+        props:
+          taxNumber: "7817301375"
+      - match: "Date d'enregistrement: 7.12.2004"
+        props:
+          incorporationDate: "2004-12-07"
+      - match: "Date d'enregistrement: 11.4.2001"
+        props:
+          incorporationDate: "2001-04-11"
+      - match: "Numéro d'identification fiscale: 7750005612"
+        props:
+          taxNumber: "7750005612"
+      - match: "Numéro d’enregistrement: 469300"
+        props:
+          registrationNumber: "469300"
+      - match: "Numéro d’identification fiscale: 61415256212"
+        props:
+          taxNumber: "61415256212"
+      - match: "Numéro d’enregistrement: 1227700820313"
+        props:
+          registrationNumber: "1227700820313"
+      - match: "INN: 6123015216"
+        props:
+          innCode: "6123015216"
+      - match: "Numéro d'enregistrement: 100093400"
+        props:
+          registrationNumber: "100093400"
+      - match: "Numéro d'identification fiscale: 7743937237"
+        props:
+          taxNumber: "7743937237"
+      - match: "OGRN: 1107746923008"
+        props:
+          ogrnCode: "1107746923008"
+      - match: "INN: 7717686763"
+        props:
+          innCode: "7717686763"
+      - match: "Numéro d’enregistrement: 89584"
+        props:
+          registrationNumber: "89584"
+      - match: "Numéro d'identification fiscale: 3361229712"
+        props:
+          taxNumber: "3361229712"
+      - match: "OGRN: 1021607556772"
+        props:
+          ogrnCode: "1021607556772"
+      - match: "INN: 1652006060"
+        props:
+          innCode: "1652006060"
+      - match: "OMI: 0013015"
+        props:
+          imoNumber: "IMO0013015"
+      - match: "Principal établissement: Émirats arabes unis"
+        props:
+          jurisdiction: "ae"
+      - match: "Numéro d'enregistrement: 1237700920654"
+        props:
+          registrationNumber: "1237700920654"
+      - match: "Numéro fiscal: 1648013442"
+        props:
+          taxNumber: "1648013442"
+      - match: "Numéro d’enregistrement national: 1031644204514"
+        props:
+          registrationNumber: "1031644204514"
+      - match: "Numéro d'enregistrement: 1034316578680"
+        props:
+          registrationNumber: "1034316578680"
+      - match: "Numéro d'identification fiscale: 4345029946"
+        props:
+          taxNumber: "4345029946"
+      - match: "Numéro d'identification fiscale: 890507541060"
+        props:
+          taxNumber: "890507541060"
+      - match: "Numéro d’identification fiscale: 5260001206 ; KPP: 526201001"
+        schema: Company
+        props:
+          taxNumber: "5260001206"
+          kppCode: "526201001"
+      - match: "Date d’enregistrement: 24.2.2011"
+        props:
+          incorporationDate: "2011-02-24"
+      - match: "Numéro d’enregistrement: 1117746132811"
+        props:
+          registrationNumber: "1117746132811"
+      - match: "Numéro d’identification fiscale: 7717693545"
+        props:
+          taxNumber: "7717693545"
+      - match: "Numéro d'enregistrement: 1037700016991"
+        props:
+          registrationNumber: "1037700016991"
+      - match: "Numéro d'identification fiscale: 7728135260"
+        props:
+          taxNumber: "7728135260"
+      - match: "KPP: 772801001"
+        schema: Company
+        props:
+          kppCode: "772801001"
+      - match: "Numéro d'identification fiscale: 3025037914"
+        props:
+          taxNumber: "3025037914"
+      - match: "Numéro d'enregistrement: 1203000004151"
+        props:
+          registrationNumber: "1203000004151"
+      - match: "Numéro d’enregistrement: 190000087"
+        props:
+          registrationNumber: "190000087"
+      - match: "Numéro d'enregistrement: 1235000011058"
+        props:
+          registrationNumber: "1235000011058"
+      - match: "INN: 5005073080"
+        props:
+          innCode: "5005073080"
+      - match: "OKPO: 80688660"
+        props:
+          okpoCode: "80688660"
+      - match: "Numéro d'enregistrement: 1177847044066"
+        props:
+          registrationNumber: "1177847044066"
+      - match: "Numéro d’enregistrement: 1035802518531"
+        props:
+          registrationNumber: "1035802518531"
+      - match: "Numéro d’identification fiscale: 5835049453"
+        props:
+          taxNumber: "5835049453"
+      - match: "Numéro d'enregistrement : 1022601930537"
+        props:
+          registrationNumber: "1022601930537"
+      - match: "KPP: 263501001"
+        schema: Company
+        props:
+          kppCode: "263501001"
+      - match: "Numéro d'enregistrement: 1026301983113"
+        props:
+          registrationNumber: "1026301983113"
+      - match: "Numéro d'identification fiscale: 6320002223"
+        props:
+          taxNumber: "6320002223"
+      - match: "Date d’enregistrement: 5.4.2017"
+        props:
+          incorporationDate: "2017-04-05"
+      - match: "Numéro d’enregistrement: 1175029009363"
+        props:
+          registrationNumber: "1175029009363"
+      - match: "INN: 5047196566"
+        props:
+          innCode: "5047196566"
+      - match: "OKPO: 07522233"
+        props:
+          okpoCode: "07522233"
+      - match: "Numéro d'enregistrement de l'entreprise: 74520161"
+        props:
+          registrationNumber: "74520161"
+      - match: "Numéro de registre de commerce: 3199991"
+        props:
+          registrationNumber: "3199991"
+      - match: "OMI: 6378969"
+        props:
+          imoNumber: "IMO6378969"
+      - match: "Date d’enregistrement: 5.7.2013"
+        props:
+          incorporationDate: "2013-07-05"
+      - match: "Numéro d'identification fiscale: 0261013879"
+        props:
+          taxNumber: "0261013879"
+      - match: "Numéro d'enregistrement: 1229300115637"
+        props:
+          registrationNumber: "1229300115637"
+      - match: "Numéro d’enregistrement: 1025201335994"
+        props:
+          registrationNumber: "1025201335994"
+      - match: "Numéro d’identification fiscale: 5243001887"
+        props:
+          taxNumber: "5243001887"
+      - match: "Date d'enregistrement: 17.10.1990"
+        props:
+          incorporationDate: "1990-10-17"
+      - match: "Numéro d'identification fiscale: 7453001560"
+        props:
+          taxNumber: "7453001560"
+      - match: "Numéro d'enregistrement: 1237700271423"
+        props:
+          registrationNumber: "1237700271423"
+      - match: "Numéro d'identification fiscale: 9710112971"
+        props:
+          taxNumber: "9710112971"
+      - match: "KPP: 400701001"
+        schema: Company
+        props:
+          kppCode: "400701001"
+      - match: "Numéro d'enregistrement: 1096317003970"
+        props:
+          registrationNumber: "1096317003970"
+      - match: "Numéro d'identification fiscale: 6317079434"
+        props:
+          taxNumber: "6317079434"
+      - match: "Numéro d'enregistrement:: 1127746522188"
+        props:
+          registrationNumber: "1127746522188"
+      - match: "Numéro d'identification fiscale: 7702793240"
+        props:
+          taxNumber: "7702793240"
+      - match: "KPP: 770201001"
+        schema: Company
+        props:
+          kppCode: "770201001"
+      - match: "Date d’enregistrement: 5.7.2012"
+        props:
+          incorporationDate: "2012-07-05"
+      - match: "Numéro d'enregistrement: 1247700638514"
+        props:
+          registrationNumber: "1247700638514"
+      - match: "Numéro d’identification fiscale: 7731559044"
+        props:
+          taxNumber: "7731559044"
+      - match: "Numéro d’enregistrement national: 1077746003334"
+        props:
+          registrationNumber: "1077746003334"
+      - match: "Numéro d'enregistrement: 6027006032"
+        props:
+          registrationNumber: "6027006032"
+      - match: "Numéro d'enregistrement: 770301001"
+        props:
+          registrationNumber: "770301001"
+      - match: "Date d'enregistrement: 22.10.2007"
+        props:
+          incorporationDate: "2007-10-22"
+      - match: "Numéro d'enregistrement: 1077847645590"
+        props:
+          registrationNumber: "1077847645590"
+      - match: "Date d'enregistrement:: 24.3.2011"
+        props:
+          incorporationDate: "2011-03-24"
+      - match: "Numéro d'enregistrement (OGRN): 1117746223858"
+        props:
+          ogrnCode: "1117746223858"
+      - match: "Numéro d'identification fiscale (INN): 7728767728"
+        props:
+          innCode: "7728767728"
+      - match: "Numéro d’identification fiscale: 102275857"
+        props:
+          taxNumber: "102275857"
+      - match: "Numéro d'identification fiscale: 3444070534"
+        props:
+          taxNumber: "3444070534"
+      - match: "Numéro d'identification fiscale: 7744000912"
+        props:
+          taxNumber: "7744000912"
+      - match: "Date d’enregistrement: 21.2.1994"
+        props:
+          incorporationDate: "1994-02-21"
+      - match: "OGRN: 1027804853900"
+        props:
+          ogrnCode: "1027804853900"
+      - match: "INN: 7806016672"
+        props:
+          innCode: "7806016672"
+      - match: "KPP: 781001001"
+        schema: Company
+        props:
+          kppCode: "781001001"
+      - match: "Date d'enregistrement: 28.2.2011"
+        props:
+          incorporationDate: "2011-02-28"
+      - match: "Numéro d'enregistrement: 1117746143228"
+        props:
+          registrationNumber: "1117746143228"
+      - match: "Numéro d'identification fiscale: 7718837905"
+        props:
+          taxNumber: "7718837905"
+      - match: "Date d'enregistrement: 30.1.2002"
+        props:
+          incorporationDate: "2002-01-30"
+      - match: "numéro d'identification fiscale: 7744002363"
+        props:
+          taxNumber: "7744002363"
+      - match: "Numéro d’identification fiscale: 305134690"
+        props:
+          taxNumber: "305134690"
+      - match: "Établissement principal: République populaire de Chine"
+      - match: "Date d'enregistrement: 5.8.2005"
+        props:
+          incorporationDate: "2005-08-05"
+      - match: "Numéro d'enregistrement (OGRN): 1057747707962"
+        props:
+          ogrnCode: "1057747707962"
+      - match: "Numéro d'identification fiscale (INN): 7708569830"
+        props:
+          innCode: "7708569830"
+      - match: "Numéro d'enregistrement: 1044246000590"
+        props:
+          registrationNumber: "1044246000590"
+      - match: "Numéro d'identification fiscale: 4246003993"
+        props:
+          taxNumber: "4246003993"
+      - match: "Numéro d'enregistrement: 5219"
+        props:
+          registrationNumber: "5219"
+      - match: "Date d'enregistrement: 31.10.1990"
+        props:
+          incorporationDate: "1990-10-31"
+      - match: "Numéro d'identification fiscale: 3232005484"
+        props:
+          taxNumber: "3232005484"
+      - match: "Date d'enregistrement: 29.10.1993"
+        props:
+          incorporationDate: "1993-10-29"
+      - match: "Numéro d'identification fiscale:: 7831000965"
+        props:
+          taxNumber: "7831000965"
+      - match: "KPP: 784201001"
+        schema: Company
+        props:
+          kppCode: "784201001"
+      - match: "Date d'enregistrement: 26.11.1992"
+        props:
+          incorporationDate: "1992-11-26"
+      - match: "Numéro d'identification fiscale: 7703211482"
+        props:
+          taxNumber: "7703211482"
+      - match: "Date d'enregistrement: 25.7.2002"
+        props:
+          incorporationDate: "2002-07-25"
+      - match: "Numéro d'enregistrement: 1026401974972"
+        props:
+          registrationNumber: "1026401974972"
+      - match: "INN: 6449042991"
+        props:
+          innCode: "6449042991"
+      - match: "KPP: 644901001"
+        schema: Company
+        props:
+          kppCode: "644901001"
+      - match: "Numéro d’enregistrement: 193384228"
+        props:
+          registrationNumber: "193384228"
+      - match: "Date d’enregistrement: 12.1.1994"
+        props:
+          incorporationDate: "1994-01-12"
+      - match: "Numéro d’enregistrement: 1025001816993"
+        props:
+          registrationNumber: "1025001816993"
+      - match: "Numéro d’identification fiscale: 5017003810"
+        props:
+          taxNumber: "5017003810"
+      - match: "OGRN: 1026605240199"
+        props:
+          ogrnCode: "1026605240199"
+      - match: "Date d’enregistrement: 21.9.2023"
+        props:
+          incorporationDate: "2023-09-21"
+      - match: "Numéro d’enregistrement: 1236100025633"
+        props:
+          registrationNumber: "1236100025633"
+      - match: "Numéro d’identification fiscale: 6154165878"
+        props:
+          taxNumber: "6154165878"
+      - match: "Numéro d'identification fiscale (INN): 1402015986"
+        props:
+          innCode: "1402015986"
+      - match: "Date d’enregistrement: 18.3.1992"
+        props:
+          incorporationDate: "1992-03-18"
+      - match: "Date d'enregistrement:: 26.10.2007"
+        props:
+          incorporationDate: "2007-10-26"
+      - match: "Numéro d'enregistrement (OGRN):: 1077761778423"
+        props:
+          ogrnCode: "1077761778423"
+      - match: "Numéro d'identification fiscale (INN):: 7733627211"
+        props:
+          innCode: "7733627211"
+      - match: "Numéro d'enregistrement: 1235000022179"
+        props:
+          registrationNumber: "1235000022179"
+      - match: "Numéro d'identification fiscale: 5003155499"
+        props:
+          taxNumber: "5003155499"
+      - match: "INN: 2304044300"
+        props:
+          innCode: "2304044300"
+      - match: "KPP: 230401001"
+        schema: Company
+        props:
+          kppCode: "230401001"
+      - match: "Numéro d'enregistrement: 1237800084235"
+        props:
+          registrationNumber: "1237800084235"
+      - match: "Numéro d'identification fiscale: 7802942873"
+        props:
+          taxNumber: "7802942873"
+      - match: "KPP: 780201001"
+        schema: Company
+        props:
+          kppCode: "780201001"
+      - match: "Numéro d’enregistrement: C204177"
+        props:
+          registrationNumber: "C204177"
+      - match: "Date d’enregistrement: 21.12.2012"
+        props:
+          incorporationDate: "2012-12-21"
+      - match: "Numéro d’enregistrement: 1127799026596"
+        props:
+          registrationNumber: "1127799026596"
+      - match: "Numéro d’identification fiscale: 7710480347"
+        props:
+          taxNumber: "7710480347"
+      - match: "Numéro d'enregistrement: 1022500000786"
+        props:
+          registrationNumber: "1022500000786"
+      - match: "Date d'enregistrement: 20.11.1990"
+        props:
+          incorporationDate: "1990-11-20"
+      - match: "Numéro d’enregistrement: 1022500000786"
+      - match: "Numéro d’identification fiscale: 2540016961"
+        props:
+          taxNumber: "2540016961"
+      - match: "Date d'enregistrement: 23.4.1993"
+        props:
+          incorporationDate: "1993-04-23"
+      - match: "Numéro d'identification fiscale: 7714056040"
+        props:
+          taxNumber: "7714056040"
+      - match: "Numéro d’identification fiscale: 2540195189"
+        props:
+          taxNumber: "2540195189"
+      - match: "Numéro d’enregistrement: 1132540008732"
+        props:
+          registrationNumber: "1132540008732"
+      - match: "Numéro d'identification fiscale: 7106002836"
+        props:
+          taxNumber: "7106002836"
+      - match: "Date d'enregistrement: 14.7.1992"
+        props:
+          incorporationDate: "1992-07-14"
+      - match: "Numéro d'identification fiscale: 100128724"
+        props:
+          taxNumber: "100128724"
+      - match: "Numéro d'identification fiscale (INN): 5921035207"
+        props:
+          innCode: "5921035207"
+      - match: "OGRN: 1024800789408"
+        props:
+          ogrnCode: "1024800789408"
+      - match: "Numéro d'identification fiscale: 4821000142"
+        props:
+          taxNumber: "4821000142"
+      - match: "Numéro d'enregistrement: 1116680000470"
+        props:
+          registrationNumber: "1116680000470"
+      - match: "Numéro d'identification fiscale: 6680000479"
+        props:
+          taxNumber: "6680000479"
+      - match: "KPP: 668001001"
+        schema: Company
+        props:
+          kppCode: "668001001"
+      - match: "Numéro d'identification fiscale: 1102057865"
+        props:
+          taxNumber: "1102057865"
+      - match: "KPP: 110201001"
+        schema: Company
+        props:
+          kppCode: "110201001"
+      - match: "Date d’enregistrement: 28.8.2012"
+        props:
+          incorporationDate: "2012-08-28"
+      - match: "Numéro d’enregistrement: 1120268002249"
+        props:
+          registrationNumber: "1120268002249"
+      - match: "KPP: 026801001"
+        schema: Company
+        props:
+          kppCode: "026801001"
+      - match: "OGRN: 1065263037597"
+        props:
+          ogrnCode: "1065263037597"
+      - match: "INN: 5263056732"
+        props:
+          innCode: "5263056732"
+      - match: "Date d'enregistrement: 30.8.2023"
+        props:
+          incorporationDate: "2023-08-30"
+      - match: "Numéro d'enregistrement: 1237800098315"
+        props:
+          registrationNumber: "1237800098315"
+      - match: "Numéro d'identification fiscale: 7802943980"
+        props:
+          taxNumber: "7802943980"
+      - match: "Date d'enregistrement: 1992"
+        props:
+          incorporationDate: "1992"
+      - match: "OGRN: 1190280078812"
+        props:
+          ogrnCode: "1190280078812"
+      - match: "INN: 0274952499"
+        props:
+          innCode: "0274952499"
+      - match: "Numéro d’enregistrement: 1057748152439"
+        props:
+          registrationNumber: "1057748152439"
+      - match: "Date d’enregistrement: 20.11.2012"
+        props:
+          incorporationDate: "2012-11-20"
+      - match: "Numéro d’enregistrement: 1125042006462"
+        props:
+          registrationNumber: "1125042006462"
+      - match: "Numéro d’identification fiscale: 5042126251"
+        props:
+          taxNumber: "5042126251"
+      - match: "OGRN: 1037739350934"
+        props:
+          ogrnCode: "1037739350934"
+      - match: "INN: 7702330228"
+        props:
+          innCode: "7702330228"
+      - match: "NIF: 9709056472"
+        props:
+          taxNumber: "9709056472"
+      - match: "Numéro d'identification fiscale: 3444053335"
+        props:
+          taxNumber: "3444053335"
+      - match: "KPP: 344401001"
+        schema: Company
+        props:
+          kppCode: "344401001"
+      - match: "Date d'enregistrement: 27.11.2002"
+        props:
+          incorporationDate: "2002-11-27"
+      - match: "Numéro d'enregistrement (OGRN): 1025005330646"
+        props:
+          ogrnCode: "1025005330646"
+      - match: "Numéro d'identification fiscale (INN): 5042003203"
+        props:
+          innCode: "5042003203"
+      - match: "Numéro d’enregistrement: 1121841007958"
+        props:
+          registrationNumber: "1121841007958"
+      - match: "Numéro d’identification fiscale: 1841030037"
+        props:
+          taxNumber: "1841030037"
+      - match: "Numéro d’identification fiscale: 7726604816"
+        props:
+          taxNumber: "7726604816"
+      - match: "Numéro d'identification fiscale: 7750005820"
+        props:
+          taxNumber: "7750005820"
+      - match: "KPP: 910201001"
+        schema: Company
+        props:
+          kppCode: "910201001"
+      - match: "Date d'enregistrement: 13.9.1993"
+        props:
+          incorporationDate: "1993-09-13"
+      - match: "Numéro d'identification fiscale:: 7712002554"
+        props:
+          taxNumber: "7712002554"
+      - match: "KPP:: 773101001"
+        schema: Company
+        props:
+          kppCode: "773101001"
+      - match: "OGRN: 1229400000158"
+        props:
+          ogrnCode: "1229400000158"
+      - match: "INN: 9403000070"
+        props:
+          innCode: "9403000070"
+      - match: "Date d'enregistrement:: 17.8.2011"
+        props:
+          incorporationDate: "2011-08-17"
+      - match: "Numéro d'enregistrement (OGRN):: 1117610006480"
+        props:
+          ogrnCode: "1117610006480"
+      - match: "Numéro d'identification fiscale (INN):: 7610093062"
+        props:
+          innCode: "7610093062"
+      - match: "Numéro d'enregistrement: IR0015973950"
+        props:
+          registrationNumber: "IR0015973950"
+      - match: "Date d'enregistrement: 2009"
+        props:
+          incorporationDate: "2009"
+      - match: "Numéro d’identification fiscale: 7731529843"
+        props:
+          taxNumber: "7731529843"
+      - match: "numéro d'identification fiscale: 5010030050"
+        props:
+          taxNumber: "5010030050"
   # =====================================
   #
   #  ADDRESSES
