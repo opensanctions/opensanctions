@@ -21,16 +21,9 @@ RECORD_TITLE_XPATH = ".//div[@class='documentRecordTitle']"
 REGEX_ACRONYM_PARENS = re.compile(r"\s*\((?P<acronym>[A-Z][A-Za-z-]*[A-Z])\)")
 
 
-def add_names(context: Context, entity: Entity, names_string: str) -> None:
-    """Emit the crawler's own reading of a names string, and propose it for review."""
-    suggestion = context.lookup("names", names_string)
-    if suggestion is not None:
-        suggested = h.Names(
-            name=suggestion.name,
-            alias=suggestion.alias,
-            abbreviation=suggestion.abbreviation,
-        )
-    elif entity.schema.is_a("Person"):
+def apply_names(context: Context, entity: Entity, names_string: str) -> None:
+    """Apply the reviewed names, with a split of the source string as the suggestion."""
+    if entity.schema.is_a("Person"):
         names = h.multi_split(names_string.rstrip("."), "@")
         suggested = h.Names(name=names[0], alias=names[1:])
     else:
@@ -38,12 +31,8 @@ def add_names(context: Context, entity: Entity, names_string: str) -> None:
             name=REGEX_ACRONYM_PARENS.sub("", names_string).strip(),
             abbreviation=REGEX_ACRONYM_PARENS.findall(names_string),
         )
-
-    for prop, values in suggested.as_langtexts():
-        entity.add(prop, [value.text for value in values])
-
     is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(
+    h.apply_reviewed_names(
         context,
         entity,
         original=h.Names(name=names_string),
@@ -68,7 +57,7 @@ def crawl_entity(
     # is all that distinguishes them. The source adds and drops a trailing full
     # stop between list versions.
     entity.id = context.make_id(*id_parts, names_string.rstrip("."))
-    add_names(context, entity, names_string)
+    apply_names(context, entity, names_string)
     entity.add("sourceUrl", source_url)
     entity.add("sourceUrl", detail_url)
     entity.add("topics", "sanction")
