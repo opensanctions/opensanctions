@@ -15,12 +15,10 @@ ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITI
 ORGANISATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 RECORD_TITLE_XPATH = ".//div[@class='documentRecordTitle']"
-UNBLOCK_VALIDATOR = f"{RECORD_TITLE_XPATH}[contains(text(), '{ASSOCIATIONS_LABEL}')]"
 
 # Requiring a capital letter at both ends keeps out bracketed words such as
 # "(Khaplang)" or "(Maoist)", but admits mixed-case acronyms such as "(JeI)".
 REGEX_ACRONYM_PARENS = re.compile(r"\s*\((?P<acronym>[A-Z][A-Za-z-]*[A-Z])\)")
-REGEX_NUM_NAME = re.compile(r"(\d+)\.\s*")
 
 COMPLEX_TERMS = {
     "wing",
@@ -102,6 +100,7 @@ def crawl_entity(
 
 def crawl_common(
     context: Context,
+    *,
     schema: str,
     names: str,
     source_string: str,
@@ -208,7 +207,14 @@ def crawl_associations(context: Context, url: str, program: str) -> None:
         context.log.error("No unlawful associations found", url=url)
     for names, detail_url in records:
         crawl_common(
-            context, "Organization", names, names, program, None, url, detail_url
+            context,
+            schema="Organization",
+            names=names,
+            source_string=names,
+            program=program,
+            authority_id=None,
+            source_url=url,
+            detail_url=detail_url,
         )
 
 
@@ -225,13 +231,13 @@ def crawl_organisations(context: Context, url: str, program: str) -> None:
         names = squash_spaces(names)
         crawl_common(
             context,
-            "Organization",
-            names,
-            names,
-            program,
-            authority_id.rstrip("."),
-            url,
-            None,
+            schema="Organization",
+            names=names,
+            source_string=names,
+            program=program,
+            authority_id=authority_id.rstrip("."),
+            source_url=url,
+            detail_url=None,
         )
 
 
@@ -241,7 +247,16 @@ def crawl_individuals(context: Context, url: str, program: str) -> None:
         context.log.error("No individuals found", url=url)
     for title, detail_url in records:
         names = title.strip().rstrip(".")
-        crawl_common(context, "Person", names, title, program, None, url, detail_url)
+        crawl_common(
+            context,
+            schema="Person",
+            names=names,
+            source_string=title,
+            program=program,
+            authority_id=None,
+            source_url=url,
+            detail_url=detail_url,
+        )
 
 
 def get_link_by_label(doc: Element, label: str) -> str:
@@ -251,21 +266,12 @@ def get_link_by_label(doc: Element, label: str) -> str:
     return h.xpath_strings(row, ".//a/@href", expect_exactly=1)[0]
 
 
-def parse_names(field: str) -> list[str]:
-    names: list[str] = []
-    for value in field.split(";"):
-        value = value.strip()
-        if len(value):
-            names.append(value)
-    return names
-
-
 def crawl(context: Context) -> None:
     # the runner cannot resolve the site (NameResolutionError), fetch through Zyte
     doc = fetch_html(
         context,
         context.data_url,
-        UNBLOCK_VALIDATOR,
+        f"{RECORD_TITLE_XPATH}[contains(text(), '{ASSOCIATIONS_LABEL}')]",
         html_source="httpResponseBody",
         cache_days=1,
         absolute_links=True,
