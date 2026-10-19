@@ -23,12 +23,7 @@ def test_text_structure() -> None:
     assert build_outline(BASE, html).splitlines() == [
         '- h1 "Board of Directors"',
         '- p "Simple paragraph."',
-        "- p:",
-        '  - text: "Mixed"',
-        '  - b "bold"',
-        '  - text: "and"',
-        '  - i "italic"',
-        '  - text: "content."',
+        '- p "Mixed bold and italic content."',
     ]
 
 
@@ -220,8 +215,52 @@ def test_singular_wrappers_collapse() -> None:
         '- p "One"',
         '- div "Kept":',
         "  - img [src=https://example.org/b.png]",
-        "- a [href=https://example.org/x]:",
-        '  - span "Link text"',
+        '- a "Link text" [href=https://example.org/x]',
+    ]
+
+
+def test_typographic_wrappers_are_transparent() -> None:
+    """Inline typography flows into the parent: anchor text pairs with its
+    URL on one line, and prose reads as prose, not interleaved runs."""
+    html = """
+    <body>
+      <a href="/all"><span>Show All</span></a>
+      <a href="/bold"><b>Bold</b> label</a>
+      <a href="/em"><em>Emphasised</em></a>
+      <a href="#fn1"><sup>1</sup></a>
+      <a href="/chain"><span><font>Chained</font></span></a>
+      <p>Mixed <b>bold</b> and <abbr>etc.</abbr></p>
+      <div><span>Deep</span> <span>flow</span></div>
+    </body>
+    """
+    assert build_outline(BASE, html).splitlines() == [
+        '- a "Show All" [href=https://example.org/all]',
+        '- a "Bold label" [href=https://example.org/bold]',
+        '- a "Emphasised" [href=https://example.org/em]',
+        '- a "1" [href=https://example.org/about/]',
+        '- a "Chained" [href=https://example.org/chain]',
+        '- p "Mixed bold and etc."',
+        '- div "Deep flow"',
+    ]
+
+
+def test_text_typing_tags_and_blocks_stay() -> None:
+    """time and code type their text; block wrappers carry structure."""
+    html = """
+    <body>
+      <a href="/d"><time>2024-01-01</time></a>
+      <a href="/v"><code>PT-1234</code></a>
+      <li><div>3</div></li>
+      <td><span>1</span></td>
+    </body>
+    """
+    assert build_outline(BASE, html).splitlines() == [
+        "- a [href=https://example.org/d]:",
+        '  - time "2024-01-01"',
+        "- a [href=https://example.org/v]:",
+        '  - code "PT-1234"',
+        '- div "3"',
+        '- td "1"',
     ]
 
 
