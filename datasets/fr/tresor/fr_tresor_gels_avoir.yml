@@ -5669,6 +5669,64 @@ lookups:
           incorporationDate: 2011-08-25
           ogrnCode: "1111327001862"
           innCode: "1327014116"
+      - match: "0275074279: Numéro d'identification fiscale (INN)"
+        props:
+          innCode: "0275074279"
+      - match: "6672315362: Numéro d'identification fiscale (INN)"
+        props:
+          innCode: "6672315362"
+      - match: "7107109518: Numéro d'identification fiscale (INN)"
+        props:
+          innCode: "7107109518"
+      - match: "7734386801: Numéro d'identification fiscale (INN)"
+        props:
+          innCode: "7734386801"
+      - match: "1106672007738: Numéro d'enregistrement (OGRN)"
+        props:
+          ogrnCode: "1106672007738"
+      - match: "1110280035040: Numéro d'enregistrement (OGRN)"
+        props:
+          ogrnCode: "1110280035040"
+      - match: "1157154025412: Numéro d'enregistrement (OGRN)"
+        props:
+          ogrnCode: "1157154025412"
+      - match: "1167746624077: Numéro d'enregistrement (OGRN)"
+        props:
+          ogrnCode: "1167746624077"
+      - match: "12.11.2002: Date d'enregistrement"
+        props:
+          incorporationDate: 2002-11-12
+      - match: "15.7.2011: Date d'enregistrement"
+        props:
+          incorporationDate: 2011-07-15
+      - match: "25.9.2015: Date d'enregistrement"
+        props:
+          incorporationDate: 2015-09-25
+      - match: "26.5.2010: Date d'enregistrement"
+        props:
+          incorporationDate: 2010-05-26
+      - match: "4.7.2016: Date d'enregistrement"
+        props:
+          incorporationDate: 2016-07-04
+      - match: "Fédération de Russie: Lieu d'enregistrement"
+        props:
+          jurisdiction: ru
+      - match:
+          - "société par actions: Type d'entité"
+          - "type d'entités: société par actions"
+        props:
+          legalForm: société par actions
+      - match: "société à responsabilité limitée: Type d'entité"
+        props:
+          legalForm: société à responsabilité limitée
+      # W922012754 is a French associations register (RNA) number. The incorporation
+      # date is the creation date; the declaration date stays in the note.
+      - match: "Créée le 27 juillet 2018 et déclarée le 1er août 2018 à la préfecture des Hauts-de-Seine (92): W922012754"
+        note: true
+        props:
+          jurisdiction: fr
+          incorporationDate: 2018-07-27
+          registrationNumber: W922012754
   # =====================================
   #
   #  ADDRESSES
