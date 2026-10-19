@@ -1,4 +1,4 @@
-"""Tests for the vocabulary shared by the funes agents."""
+"""Tests for the brief and its rendering as agent instructions."""
 
 from zavod.shed.funes.agents import Brief, render_brief
 

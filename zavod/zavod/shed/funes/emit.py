@@ -1,9 +1,5 @@
 """Turn a funes extraction hit into FollowTheMoney entities.
 
-Funes stores no person or position tables: the entities emitted here are the
-only record of a hit, and the attempt row keeps the snapshot grounding. The
-``source_url`` is therefore the candidate URL, not a snapshot reference.
-
 Position names are copied verbatim from pages in unknown languages, so ``lang``
 is deliberately omitted: ``make_position`` falls back to the dataset language
 for labelling without pretending the source name is in it.
