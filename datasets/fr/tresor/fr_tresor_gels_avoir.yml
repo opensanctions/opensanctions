@@ -210,36 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Type d'entité: organisation à but non lucratif"
-        props:
-          legalForm: organisation à but non lucratif
-      - match: "Type d'entité: entreprise unitaire d'État"
-        props:
-          legalForm: entreprise unitaire d'État
-      - match: "Type d'entité: société par actions"
-        props:
-          legalForm: société par actions
-      - match: "Type d'entité: société par actions"
-        props:
-          legalForm: société par actions
-      - match: "Type d'entité: société publique par actions"
-        props:
-          legalForm: société publique par actions
-      - match: "Type d'entité: Banque commerciale anonyme"
-        props:
-          legalForm: Banque commerciale anonyme
-      - match: "Type d'entité: société d'État"
-        props:
-          legalForm: société d'État
-      - match: "Type d'entité: société anonyme"
-        props:
-          legalForm: société anonyme
-      - match: "Type d'entité: Société d'assurance par actions"
-        props:
-          legalForm: Société d'assurance par actions
-      - match: "Type d'entité: société de zone franche"
-        props:
-          legalForm: société de zone franche
       - match: "Type d'entité: société à responsabilité limitée (s.r.o.)"
         props:
           legalForm: société à responsabilité limitée (s.r.o.)
@@ -6745,6 +6715,260 @@ lookups:
         props:
           legalForm: "société à responsabilité limitée"
           jurisdiction: "ae"
+      - match: "Type d’entité: société par actions  - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+      - match: "Type d’entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d’entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 12.8.2002"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-08-12"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d’entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société par actions  - Date d'enregistrement: 10.9.2002 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-09-10"
+          jurisdiction: "ru"
+      - match: "Type d’entité: société anonyme"
+        props:
+          legalForm: "société anonyme"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 21.8.2002"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-08-21"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 16.10.2002: Numéro d’enregistrement: 1023302153456"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-10-16"
+          registrationNumber: "1023302153456"
+      - match: "Type d'entité: société de zone franche - Lieu d'enregistrement: Émirats arabes unis - Date d'enregistrement: 17.6.2022"
+        props:
+          legalForm: "société de zone franche"
+          jurisdiction: "ae"
+          incorporationDate: "2022-06-17"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Mourmansk - Date d'enregistrement: 2.11.2007: 1201000007889"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          address: "Mourmansk"
+          incorporationDate: "2007-11-02"
+          registrationNumber: "1201000007889"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 29.11.2002"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-11-29"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d'enregistrement: 18.5.2006 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          address: "Saint-Pétersbourg, Fédération de Russie"
+          incorporationDate: "2006-05-18"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société anonyme - Date d'enregistrement: 1994"
+        props:
+          legalForm: "société anonyme"
+          incorporationDate: "1994"
+      - match: "Type d’entité: organisation à but non lucratif"
+        props:
+          legalForm: "organisation à but non lucratif"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Lieu d’enregistrement: Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1 - Type d’entité: société par actions - Date d’enregistrement: 20.12.2002 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
+          legalForm: "société par actions"
+          incorporationDate: "2002-12-20"
+      - match: "Type d'entité: Entreprise unitaire d'État"
+        props:
+          legalForm: "entreprise unitaire d'État"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société par actions  - Date d'enregistrement: 5.5.2003 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2003-05-05"
+          jurisdiction: "ru"
+      - match: "Type d’entité: société publique par actions - Lieu d'enregistrement: Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, - Fédération de Russie - Date d'enregistrement: 17.10.1990"
+        props:
+          legalForm: "société publique par actions"
+          jurisdiction: "ru"
+          address: "Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, - Fédération de Russie"
+          incorporationDate: "1990-10-17"
+      - match: "Type d'entité: Société d'assurance par actions  - Date d'enregistrement: 11.2.1992"
+        props:
+          legalForm: "Société d'assurance par actions"
+          incorporationDate: "1992-02-11"
+      - match: "Type d’entité: société par actions. Lieu d’enregistrement: Fédération de Russie, région de Tula, Tula. Date d’enregistrement: 30.12.2011. Numéro d’enregistrement: 1117154036911. Numéro d’identification fiscale: 7105514574. KPP: 710501001"
+        schema: Company
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          address: "Fédération de Russie, région de Tula, Tula"
+          incorporationDate: "2011-12-30"
+          registrationNumber: "1117154036911"
+          taxNumber: "7105514574"
+          kppCode: "710501001"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: Société de zone franche"
+        props:
+          legalForm: "société de zone franche"
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 20.8.2002: Numéro d’enregistrement: 1027739090708"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-08-20"
+          registrationNumber: "1027739090708"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d’entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: entreprise unitaire d'État - Date d'enregistrement: 15.5.2022 - Date de constitution: 15.5.2022"
+        props:
+          legalForm: "entreprise unitaire d'État"
+          incorporationDate: "2022-05-15"
+      - match: "Type d'entité: société par actions  - Date d'enregistrement: 12.9.2002 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-09-12"
+          jurisdiction: "ru"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 26.9.2011 - Lieu d'enregistrement: région de Nijni Novgorod, Fédération de Russie - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2011-09-26"
+          jurisdiction: "ru"
+          address: "région de Nijni Novgorod, Fédération de Russie"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: Entreprise unitaire d'État"
+        props:
+          legalForm: "entreprise unitaire d'État"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 15.12.2002: Numéro d'enregistrement: 1025001202544"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-12-15"
+          registrationNumber: "1025001202544"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: Société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: Société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d’entité: société publique par actions - Lieu d’enregistrement: Téhéran, Iran - Principal établissement: Téhéran, Iran"
+        props:
+          legalForm: "société publique par actions"
+          jurisdiction: "ir"
+          address: "Téhéran, Iran"
+      - match: "Type d'entité: entreprise unitaire d'État - Date d'enregistrement: 16.2.2023"
+        props:
+          legalForm: "entreprise unitaire d'État"
+          incorporationDate: "2023-02-16"
+      - match: "Principal établissement: Fédération de Russie: Type d'entité: organisation à but non lucratif"
+        props:
+          jurisdiction: "ru"
+          legalForm: "organisation à but non lucratif"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 6.11.2002 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-11-06"
+          jurisdiction: "ru"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Lieu d'enregistrement: Fédération de Russie, 432030, région d’Ulyanovsk, ville d’Ulyanovsk, Narimanov Ave., 75 - Type d'entité: société par actions - Date d'enregistrement: 26.6.2008 - Numéro d’enregistrement: 1087325005756 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7325081527"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
+          legalForm: "société par actions"
+          incorporationDate: "2008-06-26"
+          registrationNumber: "1087325005756"
+          taxNumber: "7325081527"
+      - match: "Date d’enregistrement: 4.5.1993; Numéro d’enregistrement: 1025203018708; Principal établissement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod: Type d’entité: société par actions;  Lieu d’enregistrement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
+        props:
+          incorporationDate: "1993-05-04"
+          registrationNumber: "1025203018708"
+          jurisdiction: "ru"
+          address:
+            - "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
+            - "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
+          legalForm: "société par actions"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 18.10.2002: Numéro d’enregistrement: 1027731005323"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-10-18"
+          registrationNumber: "1027731005323"
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 29.10.2002: Numéro d’enregistrement: 1025201420012"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2002-10-29"
+          registrationNumber: "1025201420012"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2 - Date d'enregistrement: 25.11.1992 - Principal établissement: Fédération de Russie - KPP: 710601001: Numéro d'enregistrement: 1027100507114"
+        schema: Company
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          address: "300002, Fédération de Russie, Tula, Mosina str., 2"
+          incorporationDate: "1992-11-25"
+          kppCode: "710601001"
+          registrationNumber: "1027100507114"
+      - match: "Type d'entité: société publique par actions"
+        props:
+          legalForm: "société publique par actions"
+      - match: "Type d'entité: Société anonyme"
+        props:
+          legalForm: "société anonyme"
   # =====================================
   #
   #  ADDRESSES
