@@ -210,73 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Fondée le 27.6.1990"
-        props:
-          incorporationDate: 1990-06-27
-      - match: "Lieu d'enregistrement: Ukraine (283001, Donetsk, Komsomolsky prospect, 6a)"
-        props:
-          jurisdiction: ua
-          address: "Ukraine (283001, Donetsk, Komsomolsky prospect, 6a)"
-      - match: "Lieu d'enregistrement: région de Nijni Novgorod, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "région de Nijni Novgorod, Fédération de Russie"
-      - match: "Lieu d'enregistrement: Fédération de Russie (248600, Kalouga, Voskresenskiy per, 28)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (248600, Kalouga, Voskresenskiy per, 28)"
-      - match: "Lieu d'enregistrement: Fédération de Russie (194021, Saint-Pétersbourg, ul. Karbysheva, 15)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (194021, Saint-Pétersbourg, ul. Karbysheva, 15)"
-      - match: "Lieu d'enregistrement: Professora Popova St., 38, 197376 Saint-Pétersbourg, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Professora Popova St., 38, 197376 Saint-Pétersbourg, Fédération de Russie"
-      - match: "Lieu d'établissement: Kigali, Rwanda"
-        props:
-          jurisdiction: rw
-          address: "Kigali, Rwanda"
-      - match: "Lieu d'enregistrement: Fédération de Russie (105275, Moscou, sh. Entuziastov, 29)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (105275, Moscou, sh. Entuziastov, 29)"
-      - match: "Filiale: Société par actions AKIN"
-        associates:
-          - Société par actions AKIN
-      - match: "Filiale: Société par actions AKIN"
-        associates:
-          - Société par actions AKIN
-      - match: "Filiale: OJSC Zavod Elektropribor"
-        associates:
-          - OJSC Zavod Elektropribor
-      - match: "Filiale: Société par actions KB Amethyst"
-        associates:
-          - Société par actions KB Amethyst
-      - match: "Filiale: Société par actions Comet"
-        associates:
-          - Société par actions Comet
-      - match: "Filiale: Société par actions NPP Salyut"
-        associates:
-          - Société par actions NPP Salyut
-      - match: "Filiale: Société par actions PO Binom"
-        associates:
-          - Société par actions PO Binom
-      - match: "Filiale: Société par actions “Institut central de recherche Kurs”"
-        associates:
-          - Société par actions “Institut central de recherche Kurs”
-      - match: "Filiale: Société par actions Plant Topaz"
-        associates:
-          - Société par actions Plant Topaz
-      - match: "Filiale: Société par actions Izumrud"
-        associates:
-          - Société par actions Izumrud
-      - match: "Filiale: Société par actions KGFI"
-        associates:
-          - Société par actions KGFI
-      - match: "Filiale: Société par actions Morinsis-Agat-KIP"
-        associates:
-          - Société par actions Morinsis-Agat-KIP
       - match: "Filiale: FSPC JSC NPO Mars"
         associates:
           - FSPC JSC NPO Mars
@@ -6987,6 +6920,71 @@ lookups:
           jurisdiction: "ru"
           address: "Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1)"
           incorporationDate: "2004-02-26"
+      - match: "Fondée le 27.6.1990"
+        props:
+          incorporationDate: "1990-06-27"
+      - match: "Lieu d’enregistrement: Ukraine (283001, Donetsk, Komsomolsky prospect, 6a) - Date d’enregistrement: 4.9.2015 - Principal établissement: Ukraine"
+        props:
+          jurisdiction: "ua"
+          address: "Ukraine (283001, Donetsk, Komsomolsky prospect, 6a)"
+          incorporationDate: "2015-09-04"
+      - match: "Lieu d'enregistrement: Fédération de Russie (248600, Kalouga, Voskresenskiy per, 28) - Date d'enregistrement: 10.7.2002 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (248600, Kalouga, Voskresenskiy per, 28)"
+          incorporationDate: "2002-07-10"
+      - match: "Lieu d’enregistrement: Fédération de Russie (194021, Saint-Pétersbourg, ul. Karbysheva, 15) - Date d’enregistrement: 27.2.2009 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (194021, Saint-Pétersbourg, ul. Karbysheva, 15)"
+          incorporationDate: "2009-02-27"
+      - match: "Lieu d’enregistrement: Professora Popova St., 38, 197376 Saint-Pétersbourg, Fédération de Russie - Date d’enregistrement: 28.10.2002 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Professora Popova St., 38, 197376 Saint-Pétersbourg, Fédération de Russie"
+          incorporationDate: "2002-10-28"
+      - match: "Lieu d’établissement: Kigali, Rwanda"
+        props:
+          jurisdiction: "rw"
+          address: "Kigali, Rwanda"
+      - match: "Lieu d’enregistrement: Fédération de Russie (105275, Moscou, sh. Entuziastov, 29) - Date d’enregistrement: 6.2.2006 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (105275, Moscou, sh. Entuziastov, 29)"
+          incorporationDate: "2006-02-06"
+      - match: "Filiale: Société par actions AKIN"
+        associates:
+          - Société par actions AKIN
+      - match: "Filiale: OJSC Zavod Elektropribor"
+        associates:
+          - OJSC Zavod Elektropribor
+      - match: "Filiale: Société par actions KB Amethyst"
+        associates:
+          - Société par actions KB Amethyst
+      - match: "Filiale: Société par actions Comet"
+        associates:
+          - Société par actions Comet
+      - match: "Filiale: Société par actions NPP Salyut"
+        associates:
+          - Société par actions NPP Salyut
+      - match: "Filiale: Société par actions PO Binom"
+        associates:
+          - Société par actions PO Binom
+      - match: "Filiale: Société par actions “Institut central de recherche Kurs”"
+        associates:
+          - Société par actions “Institut central de recherche Kurs”
+      - match: "Filiale: Société par actions Plant Topaz"
+        associates:
+          - Société par actions Plant Topaz
+      - match: "Filiale: Société par actions Izumrud"
+        associates:
+          - Société par actions Izumrud
+      - match: "Filiale: Société par actions KGFI"
+        associates:
+          - Société par actions KGFI
+      - match: "Filiale: Société par actions Morinsis-Agat-KIP"
+        associates:
+          - Société par actions Morinsis-Agat-KIP
   # =====================================
   #
   #  ADDRESSES
