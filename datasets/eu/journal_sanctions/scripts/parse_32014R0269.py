@@ -386,6 +386,7 @@ DROP_LABELS = frozenset(
         "— FSFR",
         "— OKATO",
         "Known blockchain wallet addresses",
+        "Known Garantex blockchain wallet addresses",
         "ETH",
         "BTC",
         "BSC",
