@@ -210,81 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Lieu d'enregistrement: Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
-      - match: "Lieu d'enregistrement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
-      - match: "Principal établissement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
-      - match: "Lieu d'enregistrement: Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
-      - match: "Lieu d'enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2"
-        props:
-          jurisdiction: ru
-          address: "300002, Fédération de Russie, Tula, Mosina str., 2"
-      - match: "Type d'entité: société par actions: 5087746137023"
-        props:
-          legalForm: société par actions
-          registrationNumber: 5087746137023
-      - match: "Lieu d'enregistrement: Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
-      - match: "Lieu d'enregistrement: Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52)"
-      - match: "Lieu d'enregistrement: Fédération de Russie (115068, Moscou, Velozavodskaya st.,5)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (115068, Moscou, Velozavodskaya st.,5)"
-      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1)"
-        props:
-          jurisdiction: ru
-          address: "Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1)"
-      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5)"
-        props:
-          jurisdiction: ru
-          address: "Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5)"
-      - match: "Numéro d'enregistrement: 7701005930 ("
-        props:
-          innCode: 7701005930
-      - match: "KPP: 773501001: 1157746406971"
-        props:
-          kppCode: 773501001
-          registrationNumber: 1157746406971
-      - match: "Entités associées: PSB Bank"
-        associates:
-          - PSB Bank
-      - match: "Type de société: Société à responsabilité limitée"
-        props:
-          legalForm: Société à responsabilité limitée
-      - match: "Gang haïtien basé dans le quartier de Village-de-Dieu, à Port-au-Prince"
-        props:
-          jurisdiction: ht
-          address: "Village-de-Dieu, Port-au-Prince, Haïti"
-      - match: "Lieu d’enregistrement: Viêt Nam"
-        props:
-          jurisdiction: vn
-      - match: "déclarée le 6 avril 2010 à la préfecture de l'Isère (38): numéro W381009783"
-        props:
-          registrationNumber: W381009783
-          incorporationDate: 2010-04-06
-      - match: "Déclarée le 10 avril 2018 à la sous-préfecture du Raincy (93): W932007231"
-        props:
-          registrationNumber: W932007231
-          incorporationDate: 2018-04-10
-      - match: "Date d’enregistrement: juin 2011"
-        props:
-          incorporationDate: 2011-06
       - match: "Type d'entité: Entreprise privée"
         props:
           legalForm: Entreprise privée
@@ -6976,6 +6901,67 @@ lookups:
           jurisdiction: "ru"
           address: "Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
           incorporationDate: "2009-03-25"
+      - match: "Date d’enregistrement: juin 2011"
+        props:
+          incorporationDate: "2011-06"
+      - match: "Lieu d’enregistrement: Fédération de Russie, région d’Omsk, Omsk, Karl Marx Avenue, 41 - Date d’enregistrement: 24.7.2002 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
+          incorporationDate: "2002-07-24"
+      - match: "Lieu d'enregistrement: Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52) - Date d'enregistrement: 3.3.2008 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 2452034898 ; Numéro d’enregistrement: 1082452000290"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52)"
+          incorporationDate: "2008-03-03"
+          taxNumber: "2452034898"
+          registrationNumber: "1082452000290"
+      - match: "Type de société: Société à responsabilité limitée"
+        props:
+          legalForm: "Société à responsabilité limitée"
+      - match: "Lieu d'enregistrement: Fédération de Russie (115068, Moscou, Velozavodskaya st.,5) - Date d'enregistrement: 10.5.2012 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7723836671 ; Numéro d’enregistrement: 1127746365670"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (115068, Moscou, Velozavodskaya st.,5)"
+          incorporationDate: "2012-05-10"
+          taxNumber: "7723836671"
+          registrationNumber: "1127746365670"
+      - match: "déclarée le 6 avril 2010 à la préfecture de l'Isère (38): numéro W381009783"
+        props:
+          registrationNumber: "W381009783"
+          incorporationDate: "2010-04-06"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1) - Date d'enregistrement: 18.6.2004 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7708234633 ; Numéro d’enregistrement: 1047708022548"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1)"
+          incorporationDate: "2004-06-18"
+          taxNumber: "7708234633"
+          registrationNumber: "1047708022548"
+      - match: "Déclarée le 10 avril 2018 à la sous-préfecture du Raincy (93): W932007231"
+        props:
+          registrationNumber: "W932007231"
+          incorporationDate: "2018-04-10"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5) - Date d'enregistrement: 24.11.2005 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7726531639 ; Numéro d’enregistrement: 1057749205942"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5)"
+          incorporationDate: "2005-11-24"
+          taxNumber: "7726531639"
+          registrationNumber: "1057749205942"
+      - match: "Entités associées: PSB Bank"
+        associates:
+          - PSB Bank
+      - match: "Gang haïtien basé dans le quartier de Village-de-Dieu, à Port-au-Prince"
+        props:
+          jurisdiction: "ht"
+          address: "Village-de-Dieu, Port-au-Prince, Haïti"
+      - match: "Lieu d’enregistrement: Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
+      - match: "Lieu d’enregistrement: Viêt Nam"
+        props:
+          jurisdiction: "vn"
   # =====================================
   #
   #  ADDRESSES
