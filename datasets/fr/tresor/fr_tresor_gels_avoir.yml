@@ -210,37 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Type d'entité: société à responsabilité limitée (s.r.o.)"
-        props:
-          legalForm: société à responsabilité limitée (s.r.o.)
-      - match: "Type d'entité: agence fédérale"
-        props:
-          legalForm: agence fédérale
-      - match: "Type d'entité: entreprise publique de droit privé"
-        props:
-          legalForm: entreprise publique de droit privé
-      - match: "Type d'entité: société à responsabilité limitée (LLC)"
-        props:
-          legalForm: société à responsabilité limitée (LLC)
-      - match: "Type d'entité: société privée par actions"
-        props:
-          legalForm: société privée par actions
-      - match: "Type d'entité: société par actions fermée"
-        props:
-          legalForm: société par actions fermée
-      - match: "Type d'entité: Bloc politique"
-        props:
-          legalForm: Bloc politique
-      - match: "Type d'entité: Organisation autonome à but non lucratif"
-        props:
-          legalForm: Organisation autonome à but non lucratif
-      - match: "Numéro d'identification fiscale: 7816691806 - Numéro d'identification fiscale: 7816756010: 1197847052963"
-        props:
-          innCode: ["7816691806", "7816756010"]
-      - match: "Numéro d'enregistrement: 1092804000255: Numéro d'identification fiscale: 2811005250"
-        props:
-          registrationNumber: 1092804000255
-          innCode: 2811005250
       - match: "No d'identification fiscale: 5192110268 ("
         props:
           innCode: 5192110268
@@ -6969,6 +6938,55 @@ lookups:
       - match: "Type d'entité: Société anonyme"
         props:
           legalForm: "société anonyme"
+      - match: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie - Date d'enregistrement: 25.5.2009 - Numéro d’identification fiscale: 2811005250 - Principal établissement: Fédération de Russie - Numéro d'enregistrement: 1092804000255: Numéro d'identification fiscale: 2811005250"
+        props:
+          jurisdiction: "ru"
+          address: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
+          incorporationDate: "2009-05-25"
+          taxNumber: "2811005250"
+          registrationNumber: "1092804000255"
+          innCode: "2811005250"
+      - match: "Type d'entité: entreprise publique de droit privé"
+        props:
+          legalForm: "entreprise publique de droit privé"
+      - match: "Type d'entité: société par actions fermée"
+        props:
+          legalForm: "société par actions fermée"
+      - match: "Type d’entité: société à responsabilité limitée (LLC) - Lieu d’enregistrement: Damas, Syrie - Date d’enregistrement: 19.10.2017 - Principal établissement: Damas, Syrie"
+        props:
+          legalForm: "société à responsabilité limitée (LLC)"
+          jurisdiction: "sy"
+          address: "Damas, Syrie"
+          incorporationDate: "2017-10-19"
+      - match: "Type d’entité: société privée par actions"
+        props:
+          legalForm: "société privée par actions"
+      - match: "Type d’entité: société par actions fermée"
+        props:
+          legalForm: "société par actions fermée"
+      - match: "Type d’entité: entreprise publique de droit privé"
+        props:
+          legalForm: "entreprise publique de droit privé"
+      - match: "Type d’entité: Bloc politique"
+        props:
+          legalForm: "Bloc politique"
+      - match: "Type d'entité: société par actions fermée  / Lieu d'enregistrement: République de Biélorussie  / Date d'enregistrement: 17.5.2007  / Principal établissement: République de Biélorussie  / Entités associées: State Production Association “Belorusneft”; Open Joint Stock Company “Naftan”: Numéro d'enregistrement: 190832326"
+        props:
+          legalForm: "société par actions fermée"
+          jurisdiction: "by"
+          incorporationDate: "2007-05-17"
+          registrationNumber: "190832326"
+        associates:
+          - State Production Association Belorusneft
+          - Open Joint Stock Company Naftan
+      - match: "Type d'entité: Organisation autonome à but non lucratif"
+        props:
+          legalForm: "Organisation autonome à but non lucratif"
+      - match: "Type d'entité: société privée par actions - Lieu d'enregistrement: Bojnord — North Khorasan Province, Iran"
+        props:
+          legalForm: "société privée par actions"
+          jurisdiction: "ir"
+          address: "Bojnord — North Khorasan Province, Iran"
   # =====================================
   #
   #  ADDRESSES
