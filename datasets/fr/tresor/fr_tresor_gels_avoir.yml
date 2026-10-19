@@ -210,76 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Etablissement principal: Émirats arabes unis"
-        props:
-          jurisdiction: ae
-      - match: "Principal lieu établissement: Émirats arabes unis"
-        props:
-          jurisdiction: ae
-      - match: "Lieu d'enregistrement: Sharjah, Émirats arabes unis"
-        props:
-          jurisdiction: ae
-          address: "Sharjah, Émirats arabes unis"
-      - match: "Lieu d'enregistrement: Yangzhou, République populaire de Chine"
-        props:
-          jurisdiction: cn
-          address: "Yangzhou, République populaire de Chine"
-      - match: "Lieu d'enregistrement: Wanchai, Hong Kong"
-        props:
-          jurisdiction: hk
-          address: "Wanchai, Hong Kong"
-      - match: "Lieu d'enregistrement: Kazakhstan"
-        props:
-          jurisdiction: kz
-      - match: "Lieu d'enregistrement: Fédération de Russie; Belize"
-        props:
-          jurisdiction:
-            - ru
-            - bz
-      - match: "Lieu d'enregistrement: République de Biélorussie"
-        props:
-          jurisdiction: by
-      # Associated persons and entities
-      - match: "Personne associée: Li Xinyang"
-        associates:
-          - Li Xinyang
-      - match: "Personne associée: Anastasiya Aleksandrovna Tarshinova"
-        associates:
-          - Anastasiya Aleksandrovna Tarshinova
-      - match: "Entité associée: JSC IEMZ Kupol"
-        associates:
-          - JSC IEMZ Kupol
-      - match: "Entités associées: State Production Association “Belorusneft”; Open Joint Stock Company “Naftan”"
-        associates:
-          - State Production Association Belorusneft
-          - Open Joint Stock Company Naftan
-      # LEI codes
-      - match: "Identifiant d'entité juridique: 6556009FCJ7O8QPFTC19"
-        props:
-          leiCode: "6556009FCJ7O8QPFTC19"
-      - match: "LEI: 984500SAI1E9CB88DC54"
-        props:
-          leiCode: "984500SAI1E9CB88DC54"
-      # Other registration/identifier fields
-      - match: "Numéro chinois d'enregistrement de l'entreprise: 321000400012591"
-        props:
-          registrationNumber: "321000400012591"
-      - match: "Numéro d'entreprise belizien: 82305"
-        props:
-          registrationNumber: "82305"
-      - match: "Numéro russe d'identification fiscale: 0268061215"
-        props:
-          innCode: "0268061215"
-      - match: "TVA: 60001-1229370"
-        props:
-          vatCode: "60001-1229370"
-      # Legal forms not yet covered
-      - match: "Type d'entité: société par actions de type fermé"
-        props:
-          legalForm: société par actions de type fermé
-      - match: "Type d'entité: institution d'enseignement professionnel supérieur de l'État fédéral"
-        props:
-          legalForm: institution d'enseignement professionnel supérieur de l'État fédéral
       - match: "Type d'entité: institution relevant du budget de l'État fédéral"
         props:
           legalForm: institution relevant du budget de l'État fédéral
@@ -6967,6 +6897,64 @@ lookups:
         schema: Company
         props:
           kppCode: "504201001"
+      - match: "Lieu d’enregistrement: République de  Biélorussie"
+        props:
+          jurisdiction: "by"
+      - match: "Type d’entité: société par actions de type fermé"
+        props:
+          legalForm: "société par actions de type fermé"
+      - match: "Type d’entité: institution d’enseignement professionnel supérieur de l’État fédéral"
+        props:
+          legalForm: "institution d'enseignement professionnel supérieur de l'État fédéral"
+      - match: "Personne associée: Li Xinyang"
+        associates:
+          - Li Xinyang
+      - match: "Entité associée: JSC IEMZ Kupol"
+        associates:
+          - JSC IEMZ Kupol
+      - match: "Lieu d’enregistrement: Sharjah, Émirats arabes unis"
+        props:
+          jurisdiction: "ae"
+          address: "Sharjah, Émirats arabes unis"
+      - match: "LEI: 984500SAI1E9CB88DC54"
+        props:
+          leiCode: "984500SAI1E9CB88DC54"
+      - match: "Etablissement principal: Émirats arabes unis"
+      - match: "Lieu d’enregistrement: Yangzhou, République populaire de Chine"
+        props:
+          jurisdiction: "cn"
+          address: "Yangzhou, République populaire de Chine"
+      - match: "Identifiant d’entité juridique: 6556009FCJ7O8QPFTC19"
+        props:
+          leiCode: "6556009FCJ7O8QPFTC19"
+      - match: "Numéro chinois d’enregistrement de l’entreprise: 321000400012591"
+        props:
+          registrationNumber: "321000400012591"
+      - match: "Lieu d’enregistrement: Wanchai, Hong Kong"
+        props:
+          jurisdiction: "hk"
+          address: "Wanchai, Hong Kong"
+      - match: "Personne associée: Anastasiya Aleksandrovna Tarshinova"
+        associates:
+          - Anastasiya Aleksandrovna Tarshinova
+      - match: "Lieu d’enregistrement: Kazakhstan"
+        props:
+          jurisdiction: "kz"
+      - match: "TVA: 60001-1229370"
+        props:
+          vatCode: "60001-1229370"
+      - match: "Lieu d’enregistrement: Fédération de Russie; Belize"
+        props:
+          jurisdiction:
+            - "ru"
+            - "bz"
+      - match: "Numéro d’entreprise belizien: 82305"
+        props:
+          registrationNumber: "82305"
+      - match: "Principal lieu établissement: Émirats arabes unis"
+      - match: "Numéro russe d’identification fiscale: 0268061215"
+        props:
+          innCode: "0268061215"
   # =====================================
   #
   #  ADDRESSES
