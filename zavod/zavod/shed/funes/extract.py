@@ -14,7 +14,7 @@ from pydantic_ai import (
     RunContext,
 )
 
-from zavod.shed.funes.agents import Brief, NonBlank, StrictModel, render_brief
+from zavod.shed.funes.agents import Brief, StrictModel, render_brief
 
 # The media types pydantic-ai itself declares viewable, taken from
 # ImageMediaType instead of being restated here. Any other type fails the
@@ -203,7 +203,7 @@ Output: {"kind":"miss","reason":"The page is an account-required login wall."}
 # Structured-output schema for extraction. Nested: a Person holds many
 # Positions; person-level facts live on the person.
 class Position(StrictModel):
-    name: NonBlank = Field(
+    name: str = Field(
         description=(
             "Position title supported by source wording. Preserve it exactly, "
             "except for the permitted minimal conversion of an unambiguous "
@@ -252,7 +252,7 @@ class Position(StrictModel):
 
 
 class Person(StrictModel):
-    name: NonBlank = Field(
+    name: str = Field(
         description=(
             "Person's name exactly as written. Preserve displayed honorifics and "
             "do not expand initials."
@@ -301,7 +301,7 @@ class Miss(StrictModel):
     """
 
     kind: Literal["miss"] = "miss"
-    reason: NonBlank = Field(
+    reason: str = Field(
         description="What the captured page is and why it does not meet the brief."
     )
 
@@ -310,7 +310,7 @@ class BrokenSnapshot(StrictModel):
     """Nonterminal capture failure eligible for supported recapture."""
 
     kind: Literal["broken"] = "broken"
-    reason: NonBlank = Field(description="The observed condition blocking content.")
+    reason: str = Field(description="The observed condition blocking content.")
 
 
 PageResult = Annotated[Hit | Miss | BrokenSnapshot, Field(discriminator="kind")]
