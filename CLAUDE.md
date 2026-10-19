@@ -66,3 +66,4 @@ This section applies when you help a new external contributor.
 * All new crawlers should be written using typed Python. Suggest adding types to existing ones.
 * We use `lxml` for parsing HTML/XML, and `context.fetch_` functions the retrieve online data. Other libraries are listed in `zavod/pyproject.toml`. NEVER use beautifulsoup, or the Python stdlib xml modules.
 * For crawlers that traverse HTML using XPath expressions, use the sensibly-typed helpers in `zavod.helpers.html` (`h.xpath_element(s)`, `h.element_text`). Raw `.xpath()` returns `Any` and fails the `mypy --strict` check enforced on datasets by the `mypy-datasets` pre-commit hook — run `mypy --strict` on a new crawler before committing.
+* Prefix commit messages and GitHub issue titles with `[dataset_name]`, e.g. `[us_ms_med_exclusions] Source website down`.
