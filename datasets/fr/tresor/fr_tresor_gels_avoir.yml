@@ -3635,13 +3635,13 @@ lookups:
           swiftBic: REFAIRTH
       - match: "Autre dénomination: KEPCO"
         props:
-          alias: KEPCO
+          abbreviation: KEPCO
       - match: "Autre dénomination: Gacharsan Oil Gas Co"
         props:
           alias: Gacharsan Oil Gas Co
       - match: "Autre dénomination: AOGC"
         props:
-          alias: AOGC
+          abbreviation: AOGC
       - match: "Type d’entité: société par actions non publique - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 11.10.2002 - Numéro d’enregistrement: 1025001627859 - Principal établissement: Fédération de Russie - Autres informations: Numéro d’identification: 13185231 INN: 5013045054 KPP: 504001001 OGRN: 1025001627859"
         schema: Company
         props:
