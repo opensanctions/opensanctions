@@ -2,15 +2,25 @@
 
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
-from typing import Annotated, Literal
+from typing import Annotated, Literal, get_args
 
 from pydantic import Field
-from pydantic_ai import Agent, BinaryContent, ModelRetry, NativeOutput, RunContext
+from pydantic_ai import (
+    Agent,
+    BinaryContent,
+    ImageMediaType,
+    ModelRetry,
+    NativeOutput,
+    RunContext,
+)
 
 from zavod.shed.funes.agents import Brief, NonBlank, StrictModel, render_brief
 
-# The only media types the view_resource tool can return to the model.
-VIEWABLE_MEDIA_TYPES = frozenset({"image/jpeg", "image/png", "image/webp", "image/gif"})
+# The image types the framework itself declares viewable, derived so the set
+# cannot drift from pydantic-ai. Returning any other type would fail the whole
+# run: the OpenAI adapter cannot serialize some of them, and the provider
+# rejects the rest with a fatal request error rather than a retryable one.
+VIEWABLE_MEDIA_TYPES = frozenset(get_args(ImageMediaType))
 
 _EXTRACTION_INSTRUCTIONS = """\
 # Identity
