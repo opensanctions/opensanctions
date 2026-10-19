@@ -16,6 +16,7 @@ def test_build_prompt_contains_only_delimited_page_context() -> None:
     assert prompt.startswith("<page_snapshot>")
     assert "<objective>" not in prompt
     assert "<page_metadata>" in prompt
+    assert "Meta description" not in prompt
     assert "<page_outline>" in prompt
 
 
@@ -39,7 +40,7 @@ def test_build_prompt_marks_context_and_includes_error() -> None:
     assert "HTTP status: 503" in prompt
     assert "Capture error: navigation timeout" in prompt
     assert "Document title: T" in prompt
-    assert "Meta description: [not provided]" in prompt
+    assert "Meta description" not in prompt
     assert f"<page_outline>\n{outline}\n</page_outline>" in prompt
 
 
@@ -52,7 +53,8 @@ def test_build_prompt_omits_absent_optional_fields() -> None:
     )
     prompt = build_prompt(metadata, '- text: "empty"')
     assert "Capture error" not in prompt
-    assert "HTTP status: [not provided]" in prompt
+    assert "HTTP status" not in prompt
+    assert "<page_metadata>" not in prompt
     assert '<page_outline>\n- text: "empty"\n</page_outline>' in prompt
 
 
