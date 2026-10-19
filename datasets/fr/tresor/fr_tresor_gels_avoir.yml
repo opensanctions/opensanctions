@@ -3948,7 +3948,8 @@ lookups:
         props:
           idNumber: AEC221966655
       - match: "Principal lieu d'activité: RPDC, République populaire de Chine"
-        jurisdiction: cn
+        props:
+          country: cn
       - match: "INN (numéro d’identification fiscale russe): 3900015862"
         props:
           innCode: "3900015862"
