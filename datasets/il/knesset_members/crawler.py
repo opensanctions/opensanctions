@@ -27,9 +27,9 @@ def fetch_json_with_retry(context: Context, url: str, *, cache_days: int) -> Any
             )
         except Exception as err:
             context.log.warning("HTTP request error", url=url, err=str(err))
-            # retry.increment will throw if we exhaused our retries
-            retry = retry.increment()
-            continue
+            # increment() raises MaxRetryError once the retries are exhausted.
+            retry = retry.increment(url=url, error=err)
+            retry.sleep()
 
 
 def crawl_position(
