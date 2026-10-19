@@ -207,38 +207,6 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: "Lieu d'enregistrement: Fédération de Russie"
-        props:
-          jurisdiction: ru
-      - match: "Lieu d'enregistrement: Israël"
-        props:
-          jurisdiction: il
-      - match: "Lieu d'enregistrement: Sha'ar Binyamin"
-        props:
-          address: "Sha'ar Binyamin"
-      - match: "PO BOX 44439, Jérusalem, Israël, 9144302"
-        props:
-          address: "PO BOX 44439, Jérusalem, Israël, 9144302"
-          jurisdiction: il
-      - match: "Lieu d'enregistrement: Turquie"
-        props:
-          jurisdiction: tr
-      - match: "Lieu d'enregistrement: Hong Kong"
-        props:
-          jurisdiction: hk
-      - match: "Lieu d'enregistrement: Ukraine"
-        props:
-          jurisdiction: ua
-      - match: "Lieu d'enregistrement: Sébastopol, Crimée"
-        props:
-          address: "Sébastopol, Crimée"
-          jurisdiction: ua-cri
-      - match: "Lieu d'enregistrement: Fédération de Russie - Lieu d'enregistrement: Fédération de Russie"
-        props:
-          jurisdiction: ru
-      - match: "Lieu d'enregistrement: République populaire de Chine"
-        props:
-          jurisdiction: cn
       - match: "Principal établissement: Crimée, Ukraine"
         props:
           address: "Crimée, Ukraine"
@@ -6070,6 +6038,602 @@ lookups:
       - match: "Numéro OGRN: 1057748002850"
         props:
           ogrnCode: "1057748002850"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 22.10.2002 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2002-10-22"
+      - match: "Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 24.2.2016 - Numéro d’identification fiscale: 5029208152 - KPP: 770801001: Numéro d'enregistrement: 1165029051472"
+        schema: Company
+        props:
+          jurisdiction: "ru"
+          incorporationDate: "2016-02-24"
+          taxNumber: "5029208152"
+          kppCode: "770801001"
+          registrationNumber: "1165029051472"
+      - match: "Lieu d'enregistrement: Ukraine"
+        props:
+          jurisdiction: "ua"
+      - match: "Lieu d'enregistrement: Israël"
+        props:
+          jurisdiction: "il"
+      - match: "Type d'entité: société par actions ouverte - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 1.11.2011"
+        props:
+          legalForm: "Société par actions ouverte"
+          jurisdiction: "ru"
+          incorporationDate: "2011-11-01"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 24.8.2016: Numéro d'enregistrement (OGRN): 1166196093986"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2016-08-24"
+          ogrnCode: "1166196093986"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 4.9.2008 - Numéro d’enregistrement: 1083340004527 - Principal établissement: Fédération de Russie - Télécopieur: +7 (492) 243-25-36 - Numéro d’identification fiscale: 3329051460 - KPP: 332901001"
+        schema: Company
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2008-09-04"
+          registrationNumber: "1083340004527"
+          taxNumber: "3329051460"
+          kppCode: "332901001"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 20.2.2009: Numéro d'enregistrement (OGRN): 1095543004985"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2009-02-20"
+          ogrnCode: "1095543004985"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 3.3.2005: Numéro d'enregistrement (OGRN): 1055214503398"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2005-03-03"
+          ogrnCode: "1055214503398"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 27.1.2009 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2009-01-27"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 29.11.2017 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2017-11-29"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 26.12.2002"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-12-26"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 25.11.2008 -Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2008-11-25"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 4.6.2012"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2012-06-04"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: République populaire de Chine - Date d'enregistrement: 25.12.2007 - Siège principal d'exploitation: République populaire de Chine"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "cn"
+          incorporationDate: "2007-12-25"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie- Date d'enregistrement: 8.5.2003 - KPP: 401801001- Courriel: kbis111olga@mail.ru; cannon49@mail.ru"
+        schema: Company
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2003-05-08"
+          kppCode: "401801001"
+          email:
+            - "cannon49@mail.ru"
+            - "kbis111olga@mail.ru"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 7.12.2017"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2017-12-07"
+      - match: "Lieu d'enregistrement: Sébastopol, Crimée"
+        props:
+          address: "Sébastopol, Crimée"
+          jurisdiction: "ua-cri"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 7.10.2002: Numéro d'enregistrement (OGRN): 1025801070349"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-10-07"
+          ogrnCode: "1025801070349"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 9.4.2012 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2012-04-09"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.4.2015 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2015-04-28"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Lieu d'enregistrement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: République populaire de Chine - Date d'enregistrement: 28.4.2013"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "cn"
+          incorporationDate: "2013-04-28"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 2.12.2002: Numéro d'enregistrement (OGRN): 1025700830627"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2002-12-02"
+          ogrnCode: "1025700830627"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Ukraine - Date d’enregistrement: 16.3.2011 - Principal établissement: Ukraine"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ua"
+          incorporationDate: "2011-03-16"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 19.12.2003"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2003-12-19"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 21.3.2012- Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2012-03-21"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 19.9.2005 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2005-09-19"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 11.3.2026 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2026-03-11"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 1.11.2001, 20.9.2002 - Principal établissement: Fédération de Russie - Entités associées: JSC MPO-Gidropribor; JSC Tactical Missiles Corporation"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate:
+            - "2002-09-20"
+            - "2001-11-01"
+        associates:
+          - JSC MPO-Gidropribor
+          - JSC Tactical Missiles Corporation
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Turquie - Principal lieu d’activité: Turquie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "tr"
+          country: "tr"
+      - match: "Type d'entité: société par actions - Date d'enregistrement: 18.6.2009 - Lieu d'enregistrement: Fédération de Russie - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          incorporationDate: "2009-06-18"
+          jurisdiction: "ru"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.6.2009"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2009-06-05"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 2.11.2016: Numéro d'enregistrement (OGRN): 1167154078849"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2016-11-02"
+          ogrnCode: "1167154078849"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 1.7.2011 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2011-07-01"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 17.8.2015: Numéro d'enregistrement (OGRN): 1155749007798"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2015-08-17"
+          ogrnCode: "1155749007798"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.9.2016 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2016-09-13"
+      - match: "Lieu d'enregistrement:: République populaire de  Chine"
+        props:
+          jurisdiction: "cn"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 18.8.2015"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2015-08-18"
+      - match: "Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.9.2018 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          incorporationDate: "2018-09-28"
+      - match: "Lieu d'enregistrement: Turquie"
+        props:
+          jurisdiction: "tr"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Hong Kong"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "hk"
+      - match: "Type d’entité: société d’État - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 16.10.2002 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société d'État"
+          jurisdiction: "ru"
+          incorporationDate: "2002-10-16"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Hong Kong - Date d'enregistrement: 11.11.2024"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "hk"
+          incorporationDate: "2024-11-11"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 25.5.2020 - Principal établissement: Fédération de Russie - Personnes associées: Alexey Alekseevich Shashkov"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2020-05-25"
+        associates:
+          - Alexey Alekseevich Shashkov
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 5.11.2002: Numéro d'enregistrement (OGRN): 1026604954023"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-11-05"
+          ogrnCode: "1026604954023"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 24.3.1993 -Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "1993-03-24"
+      - match: "Type d’entité: société à responsabilité limitée  - Lieu d’enregistrement: Hong Kong"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "hk"
+      - match: "Lieu d’enregistrement: République populaire de Chine"
+        props:
+          jurisdiction: "cn"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 20.9.2002"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-09-20"
+      - match: "Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 1.7.2014 - Numéro d’enregistrement: 1146685026509 - Numéro d’identification fiscale: 6685066917 - Code du motif d’enregistrement: 668501001 - Principal lieu d’activité: Fédération de Russie: société par actions"
+        schema: Company
+        props:
+          jurisdiction: "ru"
+          incorporationDate: "2014-07-01"
+          registrationNumber: "1146685026509"
+          taxNumber: "6685066917"
+          kppCode: "668501001"
+          country: "ru"
+          legalForm: "société par actions"
+      - match: "Lieu d'enregistrement:: Hong Kong"
+        props:
+          jurisdiction: "hk"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 23.12.2011: Numéro d'enregistrement (OGRN): 1115476164616"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2011-12-23"
+          ogrnCode: "1115476164616"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.7.2017 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2017-07-28"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 11.12.2014"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2014-12-11"
+      - match: "Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 30.3.2007"
+        props:
+          jurisdiction: "ru"
+          incorporationDate: "2007-03-30"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 10.7.2023"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2023-07-10"
+      - match: "Lieu d'enregistrement: Fédération de Russie: Type d'entité: Joint Stock Company (société par actions)"
+        props:
+          jurisdiction: "ru"
+          legalForm: "Joint Stock Company (société par actions)"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 27.2.2017: Numéro d'enregistrement (OGRN): 1175275014683"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2017-02-27"
+          ogrnCode: "1175275014683"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 30.4.2009: Numéro d'enregistrement (OGRN): 1096646000296"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2009-04-30"
+          ogrnCode: "1096646000296"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie  - Date d'enregistrement: 15.7.2016"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2016-07-15"
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 7.9.2020 - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 9715389053 - KPP: 771501001"
+        schema: Company
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2020-09-07"
+          taxNumber: "9715389053"
+          kppCode: "771501001"
+      - match: "Lieu d’enregistrement: République populaire de  Chine"
+        props:
+          jurisdiction: "cn"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 3.2.2016 -Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2016-02-03"
+      - match: "Type d’entité: institution relevant du budget de l’État fédéral - Lieu d’enregistrement: Ukraine - Date d’enregistrement: 20.10.2014 - Principal établissement: Ukraine"
+        props:
+          legalForm: "institution relevant du budget de l'État fédéral"
+          jurisdiction: "ua"
+          incorporationDate: "2014-10-20"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 9.1.2018: Numéro d'enregistrement (OGRN): 1186658000264"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2018-01-09"
+          ogrnCode: "1186658000264"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: République populaire de Chine - Date d’enregistrement: 7.11.2007"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "cn"
+          incorporationDate: "2007-11-07"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 1.2.2011 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2011-02-01"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 19.12.2002: Numéro d'enregistrement (OGRN): 1026801064025"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-12-19"
+          ogrnCode: "1026801064025"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 30.12.1992"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "1992-12-30"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+      - match: "Lieu d’enregistrement: Sha’ar Binyamin"
+        props:
+          address: "Sha'ar Binyamin"
+      - match: "PO BOX 44439, Jérusalem, Israël, 9144302"
+        props:
+          address: "PO BOX 44439, Jérusalem, Israël, 9144302"
+          jurisdiction: "il"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.12.2016: Numéro d'enregistrement (OGRN): 1167154082237"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2016-12-13"
+          ogrnCode: "1167154082237"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 17.7.2014: Numéro d'enregistrement (OGRN): 1146678009147"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2014-07-17"
+          ogrnCode: "1146678009147"
+      - match: "Type d'entité: société publique par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 24.3.1993, 31.12.2002 -Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société publique par actions"
+          jurisdiction: "ru"
+          incorporationDate:
+            - "2002-12-31"
+            - "1993-03-24"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 6.12.2014 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2014-12-06"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 8.12.2002"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-12-08"
+      - match: "Lieu d'enregistrement: République populaire de Chine"
+        props:
+          jurisdiction: "cn"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 20.1.2022 6 Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2022-01-20"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 13.10.2003: Numéro d'enregistrement (OGRN): 1036150011534"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2003-10-13"
+          ogrnCode: "1036150011534"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 26.5.2014: Numéro d'enregistrement (OGRN): 1145958026741"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2014-05-26"
+          ogrnCode: "1145958026741"
+      - match: "Numéro d’enregistrement: 1257800032269 - Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 6.3.2019 - Date d’enregistrement: 7.4.2025 - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 7816691806 - Numéro d’identification fiscale: 7816756010: 1197847052963"
+        props:
+          registrationNumber: "1257800032269"
+          jurisdiction: "ru"
+          incorporationDate:
+            - "2019-03-06"
+            - "2025-04-07"
+          innCode:
+            - "7816691806"
+            - "7816756010"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 18.2.2010"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2010-02-18"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 27.2.2024 - Siège principal d'exploitation: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2024-02-27"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 12.9.2001 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2001-09-12"
+      - match: "Type d’entité: institution relevant du budget de l’État fédéral - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 14.2.1994 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "institution relevant du budget de l'État fédéral"
+          jurisdiction: "ru"
+          incorporationDate: "1994-02-14"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 23.9.2005"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2005-09-23"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: République populaire de Chine - Date d'enregistrement: 28.6.2017 - Principal établissement: République populaire de Chine; Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction:
+            - "cn"
+            - "ru"
+          incorporationDate: "2017-06-28"
+      - match: "Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 20.4.2020: Numéro d'enregistrement: 1205000035250"
+        props:
+          incorporationDate: "2020-04-20"
+          registrationNumber: "1205000035250"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 5.8.2021"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2021-08-05"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 16.7.2002: Numéro d'enregistrement (OGRN): 1026104023285"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-07-16"
+          ogrnCode: "1026104023285"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 20.12.2011"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2011-12-20"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 3.11.2005 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2005-11-03"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 16.10.2009 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2009-10-16"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 17.12.2009"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2009-12-17"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: République populaire de Chine - Date d'enregistrement: 21.12.2009"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "cn"
+          incorporationDate: "2009-12-21"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 3.7.2023 - Siège principal d'exploitation: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2023-07-03"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 11.4.2005: Numéro d'enregistrement (OGRN): 1057100795542"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2005-04-11"
+          ogrnCode: "1057100795542"
+      - match: "Type d’entité: société par actions fermée  - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 20.2.2007"
+        props:
+          legalForm: "société par actions fermée"
+          jurisdiction: "ru"
+          incorporationDate: "2007-02-20"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Turquie - Date d’enregistrement: 2020 - Principal établissement: Turquie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "tr"
+          incorporationDate: "2020"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 13.11.2006 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2006-11-13"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Turquie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "tr"
+      - match: "Type d'entité: société par actions non publique - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 25.10.2002 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions non publique"
+          jurisdiction: "ru"
+          incorporationDate: "2002-10-25"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.12.2003"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2003-12-05"
+      - match: "Type d'entité: société anonyme par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 21.9.1993"
+        props:
+          legalForm: "société anonyme par actions"
+          jurisdiction: "ru"
+          incorporationDate: "1993-09-21"
+      - match: "Date d'enregistrement: 19.10.2022 - Lieu d'enregistrement: Hong Kong"
+        props:
+          incorporationDate: "2022-10-19"
+          jurisdiction: "hk"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 30.9.2009 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2009-09-30"
+      - match: "Lieu d’enregistrement: République populaire de Chine"
+        props:
+          jurisdiction: "cn"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 7.12.2005 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2005-12-07"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 8.8.2018: Numéro d'enregistrement (OGRN): 1185958026363"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2018-08-08"
+          ogrnCode: "1185958026363"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.12.2012"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2012-12-17"
+      - match: "Type d'entité: société par actions non publique - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 9.7.2021 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions non publique"
+          jurisdiction: "ru"
+          incorporationDate: "2021-07-09"
+      - match: "Lieu d’enregistrement: République populaire de Chine"
+        props:
+          jurisdiction: "cn"
   # =====================================
   #
   #  ADDRESSES
