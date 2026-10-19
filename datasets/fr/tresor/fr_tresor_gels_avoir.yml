@@ -210,77 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "ОГРН: 1027739456084"
-        props:
-          ogrnCode: 1027739456084
-      - match:
-          - "Lieu d'enregistrement: Téhéran, Iran"
-          - "Principal établissement: Téhéran, Iran"
-        props:
-          jurisdiction: ir
-          address: "Téhéran, Iran"
-      - match: "Lieu d'enregistrement: Izmir, Turquie"
-        props:
-          jurisdiction: tr
-          address: "Izmir, Turquie"
-      - match: "Numéro de pièce nationale d'identité: 10103191030"
-        props:
-          idNumber: 10103191030
-      - match: "Lieu d'enregistrement: Bojnord — North Khorasan Province, Iran"
-        props:
-          jurisdiction: ir
-          address: "Bojnord — North Khorasan Province, Iran"
-      - match: "Numéro d'identification national: 14006189580"
-        props:
-          idNumber: 14006189580
-      - match: "NIF 1644024517"
-        props:
-          taxNumber: 1644024517
-      - match: "CEI 165101001"
-        props:
-          idNumber: 165101001
-      - match: "Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Saint-Pétersbourg, Fédération de Russie"
-      - match: "Entités associées: PAO Sovcomflot (société mère)"
-        associates:
-          - PAO Sovcomflot (société mère)
-      - match: "Lieu d'enregistrement: Fédération de Russie, région de Tula, Tula"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, région de Tula, Tula"
-      - match: "Type d'entité: société par actions cotée"
-        props:
-          legalForm: société par actions cotée
-      - match: "Lieu d'enregistrement: Tula, Russie"
-        props:
-          jurisdiction: ru
-          address: "Tula, Russie"
-      - match: "Principal établissement: Russie: Numéro d'enregistrement: 1027100592210"
-        props:
-          jurisdiction: ru
-          registrationNumber: 1027100592210
-      - match: "Lieu d'enregistrement: 428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4"
-        props:
-          jurisdiction: ru
-          address: "428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4"
-      - match: "Principal établissement: régions de Zaporijjia et de Kherson occupées par la Russie"
-        props:
-          jurisdiction: ru
-      - match: "Type d'entité: entreprise fédérale d'État"
-        props:
-          legalForm: entreprise fédérale d'État
-      - match: "Lieu d'enregistrement: Perm, région de Perm, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Perm, région de Perm, Fédération de Russie"
-      - match: "Numéro d'enregistrement: 11440513. Numéro"
-        props:
-          registrationNumber: 11440513
-      - match: "KPP: 770501001 Numéro"
-        props:
-          kppCode: 770501001
       - match: "KPP: 770501001 ; Numéro"
         props:
           kppCode: 770501001
@@ -7019,6 +6948,68 @@ lookups:
           registrationNumber:
             - "9705215107"
             - "770501001"
+      - match: "Lieu d’enregistrement: Téhéran, Iran - Date d’enregistrement: 1996  - Principal établissement: Iran"
+        props:
+          jurisdiction: "ir"
+          address: "Téhéran, Iran"
+          incorporationDate: "1996"
+      - match: "NIF 1644024517"
+        props:
+          taxNumber: "1644024517"
+      - match: "CEI 165101001"
+        props:
+          idNumber: "165101001"
+      - match: "Date d’enregistrement: 1995 - Principal établissement: Téhéran, Iran"
+        props:
+          incorporationDate: "1995"
+          jurisdiction: "ir"
+          address: "Téhéran, Iran"
+      - match: "Principal établissement: Téhéran, Iran"
+        props:
+          jurisdiction: "ir"
+          address: "Téhéran, Iran"
+      - match: "Lieu d’enregistrement: Izmir, Turquie - Date d’enregistrement: 30.12.1996"
+        props:
+          jurisdiction: "tr"
+          address: "Izmir, Turquie"
+          incorporationDate: "1996-12-30"
+      - match: "Lieu d’enregistrement: Téhéran, Iran - Principal établissement: Téhéran, Iran"
+        props:
+          jurisdiction: "ir"
+          address: "Téhéran, Iran"
+      - match: "Numéro de pièce nationale d’identité: 10103191030"
+        props:
+          idNumber: "10103191030"
+      - match: "Type d'entité: société par actions cotée. Date d'enregistrement: 16.8.2002.  Lieu d'enregistrement: Tula, Russie. Numéro d'enregistrement: 1027100592210. Numéro d’identification fiscale: 7104002862. Principal établissement: Russie: Numéro d'enregistrement: 1027100592210"
+        props:
+          legalForm: "société par actions cotée"
+          incorporationDate: "2002-08-16"
+          jurisdiction: "ru"
+          address: "Tula, Russie"
+          registrationNumber: "1027100592210"
+          taxNumber: "7104002862"
+      - match: "Type d'entité: société par actions cotée - Date d'enregistrement: 22.10.2002"
+        props:
+          legalForm: "société par actions cotée"
+          incorporationDate: "2002-10-22"
+      - match: "Numéro d’identification national: 14006189580"
+        props:
+          idNumber: "14006189580"
+      - match: "Lieu d'enregistrement: 428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4: Numéro d'enregistrement: 1112130013270"
+        props:
+          jurisdiction: "ru"
+          address: "428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4"
+          registrationNumber: "1112130013270"
+      - match: "ОГРН: 1027739456084"
+        props:
+          ogrnCode: "1027739456084"
+      - match: "Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d'enregistrement: 14.2.2011 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7804454896 ; Numéro d'enregistrement: 1117847048440"
+        props:
+          jurisdiction: "ru"
+          address: "Saint-Pétersbourg, Fédération de Russie"
+          incorporationDate: "2011-02-14"
+          taxNumber: "7804454896"
+          registrationNumber: "1117847048440"
   # =====================================
   #
   #  ADDRESSES
