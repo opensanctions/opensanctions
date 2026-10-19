@@ -210,77 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "No d'identification fiscale: 5192110268 ("
-        props:
-          innCode: 5192110268
-      - match: "Type d'entité: entreprise d'État"
-        props:
-          legalForm: entreprise d'État
-      - match: "Type d'entité: organisation non gouvernementale"
-        props:
-          legalForm: organisation non gouvernementale
-      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l'État"
-        props:
-          legalForm: Centre de formation militaro-patriotique pour mineurs lié à l'État
-      - match: "Type d'entité: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
-        props:
-          legalForm: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)
-      - match: "Type d'entité: Etablissement d'enseignement public relevant de l'État fédéral"
-        props:
-          legalForm: Etablissement d'enseignement public relevant de l'État fédéral
-      - match: "Type d'entité: Etablissement d'enseignement relevant du budget de l'État fédéral"
-        props:
-          legalForm: Etablissement d'enseignement relevant du budget de l'État fédéral
-      - match: "Lieu d'enregistrement: Myanmar/Birmanie"
-        props:
-          jurisdiction: mm
-      - match: "Lieu d'enregistrement: Yangon, Myanmar/Birmanie"
-        props:
-          jurisdiction: mm
-          address: "Yangon, Myanmar"
-      - match: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
-      - match: "Lieu d'enregistrement: Pékin, Chine"
-        props:
-          jurisdiction: cn
-          address: "Lieu d'enregistrement: Pékin, Chine"
-      - match: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
-        props:
-          jurisdiction: ru
-          address: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
-      - match: "Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg"
-        props:
-          jurisdiction: ru
-          address: "Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg"
-      - match: "Lieu d'enregistrement: Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1)"
-        props:
-          jurisdiction: ru
-          address: "Lieu d'enregistrement: Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1)"
-      - match: "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
-      - match: "Lieu d'enregistrement: Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1)"
-      - match: "Lieu d'enregistrement: Fédération de Russie (Moscou, Proezd-12 Maryina Roshcha, d. 9, str. 1)"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie (Moscou, Proezd-12 Maryina Roshcha, d. 9, str. 1)"
-      - match: "Principaux établissements: Ukraine, Fédération de Russie"
-        props:
-          address: "Ukraine, Fédération de Russie"
-      - match: "Lieu d'enregistrement: Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, - Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, - Fédération de Russie"
-      - match: "Lieu d'enregistrement: Zelenodolsk, République du Tatarstan, Fédération de Russie (422540, République du Tatarstan, r-n Zelenodolskii, Zelenodolsk, ul. Lenina, 41A)"
-        props:
-          jurisdiction: ru
-          address: "Zelenodolsk, République du Tatarstan, Fédération de Russie (422540, République du Tatarstan, r-n Zelenodolskii, Zelenodolsk, ul. Lenina, 41A)"
       - match: "Fondée le 27.6.1990"
         props:
           incorporationDate: 1990-06-27
@@ -6987,6 +6916,77 @@ lookups:
           legalForm: "société privée par actions"
           jurisdiction: "ir"
           address: "Bojnord — North Khorasan Province, Iran"
+      - match: "Type d'entité: Federal State Budgetary Educational Institution (établissement d’enseignement relevant du budget de l’État fédéral)"
+        props:
+          legalForm: "Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
+      - match: "Type d’entité: entreprise d’État;  Lieu d’enregistrement: Myanmar/Birmanie"
+        props:
+          legalForm: "entreprise d'État"
+          jurisdiction: "mm"
+      - match: "Type d’entité: entreprise d’État;  Lieu d’enregistrement: Myanmar/Birmanie"
+        props:
+          legalForm: "entreprise d'État"
+          jurisdiction: "mm"
+      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l’État"
+        props:
+          legalForm: "Centre de formation militaro-patriotique pour mineurs lié à l'État"
+      - match: "Lieu d’enregistrement: Fédération de Russie (Moscou, Proezd-12 Maryina Roshcha, d. 9, str. 1) - Date d’enregistrement: 21.6.2012 - Principaux établissements: Ukraine, Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address:
+            - "Fédération de Russie (Moscou, Proezd-12 Maryina Roshcha, d. 9, str. 1)"
+            - "Ukraine, Fédération de Russie"
+          incorporationDate: "2012-06-21"
+      - match: "Type d’entité: organisation non gouvernementale;  Lieu d’enregistrement: Yangon, Myanmar/Birmanie;  Date d’enregistrement: 1973"
+        props:
+          legalForm: "organisation non gouvernementale"
+          jurisdiction: "mm"
+          address: "Yangon, Myanmar"
+          incorporationDate: "1973"
+      - match: "Type d'entité: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
+        props:
+          legalForm: "Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
+      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l’État"
+        props:
+          legalForm: "Centre de formation militaro-patriotique pour mineurs lié à l'État"
+      - match: "Lieu d’enregistrement: Fédération de Russie, Saint-Pétersbourg"
+        props:
+          jurisdiction: "ru"
+          address: "Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg"
+      - match: "Lieu d’enregistrement: Zelenodolsk, République du Tatarstan, Fédération de Russie (422540, République du Tatarstan, r-n Zelenodolskii, Zelenodolsk, ul. Lenina, 41A)  - Date d’enregistrement: 27.5.2008 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Zelenodolsk, République du Tatarstan, Fédération de Russie (422540, République du Tatarstan, r-n Zelenodolskii, Zelenodolsk, ul. Lenina, 41A)"
+          incorporationDate: "2008-05-27"
+      - match: "Type d'entité: Etablissement d’enseignement public relevant de l’État fédéral"
+        props:
+          legalForm: "Etablissement d'enseignement public relevant de l'État fédéral"
+      - match: "Type d'entité: Etablissement d’enseignement relevant du budget de l’État fédéral"
+        props:
+          legalForm: "Etablissement d'enseignement relevant du budget de l'État fédéral"
+      - match: "Date d’enregistrement: 2.9.2010  /    Code de crédit social unifié: 91110108562135265P: Lieu d’enregistrement: Pékin, Chine"
+        props:
+          incorporationDate: "2010-09-02"
+          uscCode: "91110108562135265P"
+          jurisdiction: "cn"
+          address: "Lieu d'enregistrement: Pékin, Chine"
+      - match: "Lieu d’enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
+        props:
+          jurisdiction: "ru"
+          address: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
+      - match: "Lieu d’enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30) - Date d’enregistrement: 26.2.2009 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
+          incorporationDate: "2009-02-26"
+      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l’État"
+        props:
+          legalForm: "Centre de formation militaro-patriotique pour mineurs lié à l'État"
+      - match: "Lieu d’enregistrement: Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1) - Date d’enregistrement: 26.2.2004 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie (141983, région de Moscou, Dubna, Zhukovsky Str. 2, building 1)"
+          incorporationDate: "2004-02-26"
   # =====================================
   #
   #  ADDRESSES
