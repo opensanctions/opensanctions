@@ -3,46 +3,8 @@ from normality import squash_spaces
 from rigour.mime.types import XML
 from zavod.shed.un_sc import get_legal_entities, get_persons, load_un_sc
 
-from zavod import Context, Entity
+from zavod import Context
 from zavod import helpers as h
-
-
-COMMON_TAGS = {
-    "DATAID",
-    "VERSIONNUM",
-    "FIRST_NAME",
-    "UN_LIST_TYPE",
-    "REFERENCE_NUMBER",
-    "LISTED_ON",
-    "COMMENTS1",
-    "NAME_ORIGINAL_SCRIPT",
-    "LIST_TYPE",
-    "LAST_DAY_UPDATED",
-    "LAST_REVIEWED_ON",
-    "SORT_KEY",
-    "SORT_KEY_LAST_MOD",
-    "HAS_INTERPOL_LINK",
-    "INTERPOL_LINK",
-}
-INDIVIDUAL_TAGS = COMMON_TAGS | {
-    "SECOND_NAME",
-    "THIRD_NAME",
-    "FOURTH_NAME",
-    "GENDER",
-    "TITLE",
-    "DESIGNATION",
-    "NATIONALITY",
-    "INDIVIDUAL_ALIAS",
-    "INDIVIDUAL_ADDRESS",
-    "INDIVIDUAL_DATE_OF_BIRTH",
-    "INDIVIDUAL_PLACE_OF_BIRTH",
-    "INDIVIDUAL_DOCUMENT",
-    "DESIG",
-    "ADDRESS",
-    "GOODQUALITY",
-    "PASSPORT",
-}
-ENTITY_TAGS = COMMON_TAGS | {"ENTITY_ALIAS", "ENTITY_ADDRESS"}
 
 
 def text(node: Element, path: str) -> str | None:
@@ -56,7 +18,6 @@ def crawl_file(context: Context, name: str, url: str, title: str, prefix: str) -
     path = context.fetch_resource(f"{name}.xml", url)
     context.export_resource(path, XML, title=f"Source data - {title}")
     doc = context.parse_resource_xml(path)
-    # prefix = context.dataset.prefix
     assert prefix is not None, "Dataset prefix is required"
     for node, person in get_persons(context, prefix, doc):
         context.emit(person)
