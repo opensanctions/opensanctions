@@ -29,12 +29,15 @@ def test_text_structure() -> None:
 
 def test_images_kept_by_their_attributes() -> None:
     """Images survive via their src/alt attributes; an attr-less img is
-    dropped like any other content-free element."""
+    dropped like any other content-free element. A data: src can never
+    have a stored body, so its payload is dropped."""
     html = """
     <body>
       <a href="/people/jane"><img src="/img/jane.jpg" alt="Jane Doe"></a>
       <img src="https://cdn.example.org/logo.png" alt="">
       <img src="img/group.webp">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==" alt="Portrait">
+      <img src="data:image/gif;base64,R0lGODlhEAAQAAAA">
       <img alt="missing src">
       <img>
     </body>
@@ -44,6 +47,7 @@ def test_images_kept_by_their_attributes() -> None:
         "  - img [src=https://example.org/img/jane.jpg] [alt=Jane Doe]",
         "- img [src=https://cdn.example.org/logo.png] [alt=]",
         "- img [src=https://example.org/about/img/group.webp]",
+        "- img [alt=Portrait]",
         "- img [alt=missing src]",
     ]
 

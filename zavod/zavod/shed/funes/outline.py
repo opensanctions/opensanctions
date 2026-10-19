@@ -173,7 +173,9 @@ def _kept_attrs(
             attrs.append(("href", target))
     elif elem.tag == "img":
         src = elem.get("src")
-        if src is not None:
+        # A data: URI is never requested, so no stored body can ever
+        # exist for it.
+        if src is not None and not src.startswith("data:"):
             target, _fragment = urldefrag(urljoin(url, src))
             resolved = quote(target, safe="/:?#[]@!$&'()*+,;=%")
             attrs.append(("src", resolved))
