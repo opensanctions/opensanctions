@@ -1,7 +1,7 @@
 from typing import Literal
 
 from pydantic import BaseModel, Field
-from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
@@ -13,6 +13,8 @@ from zavod import helpers as h
 from zavod.util import Element
 
 Schema = Literal["Person", "Company", "LegalEntity"]
+
+LLM_MODEL = "gpt-6.1-sol"
 
 schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
@@ -95,13 +97,13 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         url=url,
     )
     prompt_result = run_typed_text_prompt(
-        context, PROMPT, source_value.value_string, Offenders
+        context, PROMPT, source_value.value_string, Offenders, model=LLM_MODEL
     )
     review = review_extraction(
         context,
         source_value=source_value,
         original_extraction=prompt_result,
-        origin=DEFAULT_MODEL,
+        origin=LLM_MODEL,
     )
 
     if not review.accepted:
