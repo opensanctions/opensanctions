@@ -1183,3 +1183,10 @@ lookups:
           - Anish Parvataneni
           - LJM Funds Management Ltd.
           - LJM Partners Ltd.
+      # SEC v. Crown Bridge Partners, LLC, et al., Civil Action No. 1:22-cv-06537
+      # (S.D.N.Y.) names the firm and its two managing members as defendants.
+      - match: Crown Bridge Partners LLC, Soheil Ahdoot, and Sepas Ahdoot
+        names:
+          - Crown Bridge Partners LLC
+          - Soheil Ahdoot
+          - Sepas Ahdoot
