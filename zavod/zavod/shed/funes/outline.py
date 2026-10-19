@@ -1,12 +1,16 @@
 """Build compact, model-facing outlines from rendered HTML.
 
 The output preserves DOM order while removing empty elements and collapsing
-single-child wrappers. Table cells (``td``, ``th``) keep their markers even
-when empty or wrapping a single element: the cell markers carry the column
-structure that pairs values across a row. Links and images retain resolved
-resource URLs with fragments stripped, and images may include paths to bodies
-stored in the snapshot's HAR. The body element is transparent: its text runs
-and children render at the top level.
+single-child wrappers. Inline typographic elements (``span``, ``b``, ``em``,
+…) are transparent like the body: the outline records no styling, so their
+text and children flow into the parent and prose reads as prose. Tags that
+type their text — ``time``, ``code`` — render as their own lines, as do block
+wrappers: structure survives. Table cells (``td``, ``th``) keep their markers
+even when empty or wrapping a single element: the cell markers carry the
+column structure that pairs values across a row. Links and images retain
+resolved resource URLs with fragments stripped, and images may include paths
+to bodies stored in the snapshot's HAR. The body element is transparent: its
+text runs and children render at the top level.
 
 Example::
 
@@ -29,6 +33,31 @@ SKIP_TAGS = frozenset({"head", "script", "style", "noscript", "template"})
 
 # Cell markers are the column structure that pairs values across a row.
 TABLE_CELL_TAGS = frozenset({"td", "th"})
+
+# Presentation-only: the outline records no styling, so these flow into the
+# parent. Text-typing tags (time, code) stay as their own lines.
+TYPOGRAPHIC_TAGS = frozenset(
+    {
+        "span",
+        "font",
+        "abbr",
+        "b",
+        "i",
+        "u",
+        "s",
+        "strike",
+        "big",
+        "small",
+        "tt",
+        "sup",
+        "sub",
+        "nobr",
+        "center",
+        "em",
+        "strong",
+        "mark",
+    }
+)
 
 
 def _require_http_base(url: str) -> None:
@@ -123,7 +152,9 @@ def _chunks(elem: Element, url: str, bodies: dict[str, str]) -> list[str | list[
     if elem.text is not None and (text := _normalize(elem.text)):
         chunks.append(text)
     for child in elem:
-        if lines := _element_lines(child, url, bodies):
+        if child.tag in TYPOGRAPHIC_TAGS:
+            chunks.extend(_chunks(child, url, bodies))
+        elif lines := _element_lines(child, url, bodies):
             chunks.append(lines)
         # A dropped element's trailing text survives it as a text run.
         if child.tail is not None and (tail := _normalize(child.tail)):
