@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 from lxml import etree
 from rigour.urls import build_url
+from urllib3 import Retry
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -34,13 +35,30 @@ def fetch_xml(context: Context, endpoint: str, params: dict[str, str] = {}) -> E
             "access_token": ACCESS_TOKEN,
         },
     )
-    _, _, _, text = zyte_api.fetch_text(
-        context,
-        url,
-        geolocation="HU",
-        cache_days=1,
-    )
-    return etree.fromstring(text.encode())
+    # Some requests through Zyte's Hungarian exit IPs get an HTML CAPTCHA page with
+    # status 200 instead of the XML. Repeating the same request returns the XML.
+    request = zyte_api.ZyteAPIRequest(url=url, geolocation="HU")
+    retry = Retry(total=3, backoff_factor=3)
+    while not retry.is_exhausted():
+        zyte_result = zyte_api.fetch(context, request, cache_days=1)
+        # fetch() leaves caching to the caller, so only XML responses are cached.
+        if zyte_result.from_cache or zyte_result.media_type == "application/xml":
+            if not zyte_result.from_cache:
+                context.cache.set(
+                    zyte_result.cache_fingerprint, zyte_result.response_text
+                )
+            return etree.fromstring(zyte_result.response_text.encode())
+        # The URL carries the token, so it stays out of the log and the exception.
+        context.log.info(
+            "Response is not XML, retrying",
+            endpoint=endpoint,
+            params=params,
+            media_type=zyte_result.media_type,
+        )
+        # increment() raises MaxRetryError once the retries are exhausted.
+        retry = retry.increment()
+        retry.sleep()
+    raise RuntimeError(f"No XML response from {endpoint} with {params}")
 
 
 def emit_occupancy(

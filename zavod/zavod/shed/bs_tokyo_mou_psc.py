@@ -173,8 +173,9 @@ def crawl_vessel_page(
                 err=str(err),
             )
             context.clear_url(getships_url, data=detail_data, method="POST")
-            # retry.increment will throw if we exhausted our retries
-            retry = retry.increment()
+            # increment() raises MaxRetryError once the retries are exhausted.
+            retry = retry.increment(url=getships_url, error=err)
+            retry.sleep()
 
     assert inspection_data["date"] is not None, "Inspection date is missing"
     vessel_id = crawl_vessel_row(context, ship_data, inspection_data["date"])

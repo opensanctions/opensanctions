@@ -163,3 +163,4 @@ config:
         in_force: true
         reviewed_versions:
           - "2026-01-05"
+          - "2026-10-16"
