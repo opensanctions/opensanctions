@@ -16,10 +16,11 @@ from pydantic_ai import (
 
 from zavod.shed.funes.agents import Brief, NonBlank, StrictModel, render_brief
 
-# The image types the framework itself declares viewable, derived so the set
-# cannot drift from pydantic-ai. Returning any other type would fail the whole
-# run: the OpenAI adapter cannot serialize some of them, and the provider
-# rejects the rest with a fatal request error rather than a retryable one.
+# The media types pydantic-ai itself declares viewable, taken from
+# ImageMediaType instead of being restated here. Any other type fails the
+# whole run: the OpenAI adapter cannot serialize some of them, and the
+# provider rejects the rest with a fatal request error rather than a
+# retryable one.
 VIEWABLE_MEDIA_TYPES = frozenset(get_args(ImageMediaType))
 
 _EXTRACTION_INSTRUCTIONS = """\
@@ -317,7 +318,7 @@ PageResult = Annotated[Hit | Miss | BrokenSnapshot, Field(discriminator="kind")]
 
 @dataclass(frozen=True)
 class ExtractionDependencies:
-    """Trusted brief and captured-resource access for one extraction run."""
+    """Brief and captured-resource access for one extraction run."""
 
     brief: Brief
     read_resource: Callable[[str], Awaitable[bytes]]
@@ -368,5 +369,5 @@ extraction_agent: Agent[ExtractionDependencies, PageResult] = Agent(
 
 @extraction_agent.instructions
 def _inspection_brief(ctx: RunContext[ExtractionDependencies]) -> str:
-    """Render the run's trusted selection brief as dynamic instructions."""
+    """Render the run's selection brief as dynamic instructions."""
     return render_brief(ctx.deps.brief)
