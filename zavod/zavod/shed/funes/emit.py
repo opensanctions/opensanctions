@@ -58,7 +58,7 @@ def emit_hit(context: Context, hit: Hit, *, source_url: str) -> None:
                 context,
                 person,
                 position,
-                no_end_implies_current=definition.no_end_implies_current,
+                no_end_implies_current=False,
                 start_date=position_data.start_date,
                 end_date=position_data.end_date,
                 categorisation=categorisation,

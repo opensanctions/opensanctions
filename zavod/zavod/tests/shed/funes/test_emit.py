@@ -18,14 +18,12 @@ from zavod.tests.util import get_test_view, make_context
 SOURCE_URL = "https://example.com/justices"
 
 
-def make_dataset(*, no_end_implies_current: bool | None = None) -> Dataset:
+def make_dataset() -> Dataset:
     funes: dict[str, Any] = {
         "people_sought": "judges",
         "subject_label": "Court",
         "subjects": [{"name": "Example Court", "urls": [SOURCE_URL]}],
     }
-    if no_end_implies_current is not None:
-        funes["no_end_implies_current"] = no_end_implies_current
     return Dataset(
         {
             "name": "test_funes",
@@ -140,19 +138,13 @@ def test_organization_absent(zavod_db: None) -> None:
     assert entities["Position"][0].get("organization") == []
 
 
-@pytest.mark.parametrize(
-    ("no_end_implies_current", "status"),
-    [(True, ["current"]), (False, [])],
-)
-def test_status_without_end_date(
-    zavod_db: None, no_end_implies_current: bool, status: list[str]
-) -> None:
-    dataset = make_dataset(no_end_implies_current=no_end_implies_current)
+def test_status_without_end_date_is_unknown(zavod_db: None) -> None:
+    dataset = make_dataset()
     context = emit(dataset, make_hit(start_date="2022-01-01"))
 
     occupancy = by_schema(read_entities(dataset, context))["Occupancy"][0]
     # make_occupancy leaves status unset for UNKNOWN.
-    assert occupancy.get("status") == status
+    assert occupancy.get("status") == []
 
 
 def test_recent_end_date_is_ended(zavod_db: None) -> None:

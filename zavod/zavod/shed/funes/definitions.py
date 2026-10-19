@@ -41,11 +41,6 @@ class DatasetDefinition(BaseModel):
     subject_label: str
     """Names the subject's role in the inspection brief (e.g. Organization,
     Court, Sending country)."""
-    no_end_implies_current: bool = False
-    """Whether an occupancy without an end date is ``current`` rather than
-    ``unknown``. Set ``True`` only when the source is actively maintained and
-    can be trusted to drop departed office-holders, such as a current justices
-    roster. Default ``False`` because scraped pages are static snapshots."""
 
     subjects: list[SubjectDefinition] = Field(min_length=1)
     """Non-empty: candidates are URLs of subjects, and the pipeline
