@@ -219,10 +219,9 @@ lookups:
   #
   ####################################################################################################
   ####################################################################################################
-  # Matched against the whole identification field, bypassing the segment splitter, so
-  # the mapping is self-contained and can't shift meaning when the splitter's key list
-  # grows. This is the place to fix an identification warning — the `full=` value
-  # logged with the warning is the string to match on.
+  # Matched against the whole identification field ("<Commentaire>: <Identification>",
+  # stripped of separators). This is the place to fix an identification warning — the
+  # `full=` value logged with the warning is the string to match on.
   #
   # Rules for adding options here:
   #
@@ -233,14 +232,12 @@ lookups:
   #   - A code whose scheme the source doesn't name is a registrationNumber, not a note.
   #   - Comment an option only where mapping it took a judgement that needed context
   #     beyond the field itself, such as a modelling choice or outside knowledge about
-  #     the entity. Do not comment on which parsing quirk sent the field here — that
-  #     the option exists says as much already.
+  #     the entity.
   identification_full:
     lowercase: true
     normalize: true
     options:
-      # IMO numbers given as "<number> - OMI" (number before the label), which the
-      # segment splitter can't reassemble.
+      # IMO numbers given as "<number> - OMI" (number before the label).
       - match: "5545171 - OMI"
         props:
           imoNumber: "5545171"
@@ -271,7 +268,6 @@ lookups:
       - match: "0032244 - OMI"
         props:
           imoNumber: "0032244"
-      # INN where the parenthesis tripped the segment splitter
       - match: "INN (numéro d’identification fiscale russe): 3900040153"
         props:
           innCode: "3900040153"
@@ -3482,8 +3478,6 @@ lookups:
         props:
           registrationNumber: IR0000054377
           incorporationDate: 1980-08-27
-        aliases:
-          - PEDEC
       - match: "4000000128233- Numéro d’enregistrement"
         props:
           registrationNumber: 4000000128233
@@ -3543,10 +3537,6 @@ lookups:
         props:
           registrationNumber: IR0052586388
           incorporationDate: 1998-12-02
-        aliases:
-          - Maroun Oil and Gas Operations
-          - Maround Oil and Gas Production Co.
-          - MOGPC
       - match: "Lieu d'enregistrement: Fédération de Russie, 620024, Ekaterinburg, ulitsa Simkaya, d. 2 - Type d'entité: société par actions - Date d'enregistrement: 18.5.2009 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1096674009332: Numéro d'identification fiscale: 6674331056"
         props:
           jurisdiction: ru
@@ -3948,7 +3938,6 @@ lookups:
           address: Iran
         associates:
           - Corps des gardiens de la révolution islamique (IRGC)
-      # False split: "OMI" key matches inside "économique"; handle the full field to avoid it
       - match: "Numéro de registre économique (CBLS): 11967354"
         props:
           registrationNumber: "11967354"
@@ -3960,7 +3949,6 @@ lookups:
           idNumber: AEC221966655
       - match: "Principal lieu d'activité: RPDC, République populaire de Chine"
         jurisdiction: cn
-      # INN/OGRN where the parenthetical description tripped the segment splitter
       - match: "INN (numéro d’identification fiscale russe): 3900015862"
         props:
           innCode: "3900015862"
@@ -3995,7 +3983,6 @@ lookups:
       - match: "TIN: 9714058267"
         props:
           innCode: "9714058267"
-      # "Autres" gets split off the front, breaking the associate segment.
       - match: "Autres entités associées: Media Land LLC"
         associates:
           - Media Land LLC

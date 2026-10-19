@@ -20,8 +20,6 @@ SCHEMATA = {
     "Navire": "Vessel",
 }
 
-SEPARATORS = "/:;-. "
-
 
 def apply_identification_lookup(
     context: Context, lookup: Lookup, entity: Entity, full: str
@@ -65,20 +63,6 @@ def apply_identification_lookup(
                 wallet.add("publicKey", publicKey)
                 wallet.add("holder", entity.id)
                 context.emit(wallet)
-    if result.vessels:
-        for vessel_data in result.vessels:
-            imo_number = vessel_data.get("imoNumber", None)
-            name = vessel_data.get("name")
-            vessel = context.make("Vessel")
-            vessel.id = context.make_slug("vessel", imo_number, name)
-            vessel.add("imoNumber", imo_number)
-            vessel.add("name", name)
-            vessel_rel = context.make("UnknownLink")
-            vessel_rel.id = context.make_id(entity.id, vessel.id)
-            vessel_rel.add("subject", entity)
-            vessel_rel.add("object", vessel)
-            context.emit(vessel_rel)
-            context.emit(vessel)
 
     return True
 
@@ -97,7 +81,7 @@ def parse_identification(
     """
     comment = value.pop("Commentaire")
     content = value.pop("Identification")
-    full = f"{comment}: {content}".strip(SEPARATORS)
+    full = f"{comment}: {content}".strip("/:;-. ")
 
     if not apply_identification_lookup(
         context, context.get_lookup("identification_full"), entity, full
@@ -174,7 +158,6 @@ def apply_prop(
 
 
 def crawl_entity(context: Context, data: dict[str, Any]) -> None:
-    # context.inspect(data)
     nature = data.pop("Nature")
     reg_id = data.pop("IdRegistre")
 
@@ -243,6 +226,3 @@ def crawl(context: Context) -> None:
     # date = publications.get("DatePublication")
     for detail in publications.get("PublicationDetail"):
         crawl_entity(context, detail)
-
-    # context.debug_lookups()
-    # print(context.get_lookup("identification").unmatched_yaml({"props": {}}))
