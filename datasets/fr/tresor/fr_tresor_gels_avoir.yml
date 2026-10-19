@@ -210,84 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "KPP: 770501001 ; Numéro"
-        props:
-          kppCode: 770501001
-      - match: "OMI: 0555567;  Télécopieur: +7 495 780 6003 ; Site internet: www.fesco.com/en: 1022502256127"
-        props:
-          website: www.fesco.com/en
-          imoNumber: "0555567"
-          phone: "+7 495 780 6003"
-      - match: "OMI: 5906931: 1117746641572"
-        props:
-          imoNumber: 5906931
-      - match: "KPP: 590801001 - Télécopieur: +7 (342) 255-77-43 - Site internet: www.bloki-perm.ru: 1025901604156"
-        schema: Company
-        props:
-          ogrnCode: 1025901604156
-          kppCode: 590801001
-      - match: "Principal établissement: Fédération de Russie - Télécopieur: +7 (492) 243-25-36"
-        props:
-          jurisdiction: ru
-      - match: "Lieu d'enregistrement: Caracas, Venezuela"
-        props:
-          jurisdiction: ve
-          address: "Caracas, Venezuela"
-      - match: "Type d'entité: société d'État chargée de la promotion du développement, de la production et de l'exportation de produits industriels de haute technologie “Rostec”"
-        props:
-          legalForm: société d'État
-          notes: société d'État chargée de la promotion du développement, de la production et de l'exportation de produits industriels de haute technologie “Rostec”
-      - match: "Numéro d'enregistrement: SRN: 1127746541427"
-        props:
-          registrationNumber: 1127746541427
-      - match: "KPP: 772601001 - Télécopieur: +7 (495) 311-01-91: 7726700943"
-        schema: Company
-        props:
-          kppCode: 772601001
-          innCode: 7726700943
-      - match: "Lieu d'enregistrement: Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
-      - match: "Lieu d'enregistrement: Iran"
-        props:
-          jurisdiction: ir
-      - match: "Lieu d'enregistrement: Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
-      - match: "Type d'entité: entreprise fédérale d'État"
-        props:
-          legalForm: entreprise fédérale d'État
-      - match: "Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Kuibyshev, région de Novosibirsk, Fédération de Russie"
-      - match: "Principal établissement: Kuibyshev, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Kuibyshev, Fédération de Russie"
-      - match: "KPP: 545201001 - Télécopieur: +7 (383) 622-12-08"
-        schema: Company
-        props:
-          kppCode: 545201001
-      - match: "Industrial Zone, Ahwaz, Khouzistan, Iran"
-        props:
-          jurisdiction: ir
-          address: "Industrial Zone, Ahwaz, Khouzistan, Iran"
-      - match: "Numéro d'enregistrement: IR30068GN / 10101920830"
-        props:
-          registrationNumber:
-            - IR30068GN
-            - 10101920830
-      - match: "Date d'enregistrement: 1999 (privatisée en 2009)"
-        props:
-          incorporationDate: 1999
-          notes: privatisée en 2009
-      - match: "Lieu d'enregistrement: Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
-        props:
-          jurisdiction: ru
-          address: "Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
       - match: "Lieu d'enregistrement: Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
         props:
           jurisdiction: ru
@@ -7010,6 +6932,50 @@ lookups:
           incorporationDate: "2011-02-14"
           taxNumber: "7804454896"
           registrationNumber: "1117847048440"
+      - match: "Lieu d'enregistrement: Caracas, Venezuela"
+        props:
+          jurisdiction: "ve"
+          address: "Caracas, Venezuela"
+      - match: "Lieu d’enregistrement: Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
+      - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 1960 - Numéro d'enregistrement: 4296905415 - SWIFT/BIC: BMJIIRT1"
+        props:
+          jurisdiction: "ir"
+          incorporationDate: "1960"
+          registrationNumber: "4296905415"
+          swiftBic: "BMJIIRT1"
+      - match: "Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d'enregistrement: 15.6.2006 - Numéro d’enregistrement: 1065471010340 - Principal établissement: Kuibyshev, Fédération de Russie - KPP: 545201001 - Télécopieur: +7 (383) 622-12-08"
+        schema: Company
+        props:
+          legalForm: "entreprise fédérale d'État"
+          jurisdiction: "ru"
+          address:
+            - "Kuibyshev, Fédération de Russie"
+            - "Kuibyshev, région de Novosibirsk, Fédération de Russie"
+          incorporationDate: "2006-06-15"
+          kppCode: "545201001"
+      - match: "Industrial Zone, Ahwaz, Khouzistan, Iran. Numéro d'enregistrement: IR915378759"
+        props:
+          jurisdiction: "ir"
+          address: "Industrial Zone, Ahwaz, Khouzistan, Iran"
+          registrationNumber: "IR915378759"
+      - match: "Type d'entité: entreprise fédérale d'Etat"
+        props:
+          legalForm: "entreprise fédérale d'État"
+      - match: "Numéro d'enregistrement: IR30068GN /  10101920830. Date d'enregistrement: 1999 (privatisée en 2009)"
+        props:
+          registrationNumber:
+            - "IR30068GN"
+            - "10101920830"
+          incorporationDate: "1999"
+          notes: "privatisée en 2009"
+      - match: "Lieu d’enregistrement: Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1 - Date d’enregistrement: 25.3.2009 - Principal établissement: Fédération de Russie"
+        props:
+          jurisdiction: "ru"
+          address: "Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
+          incorporationDate: "2009-03-25"
   # =====================================
   #
   #  ADDRESSES
