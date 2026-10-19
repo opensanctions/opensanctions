@@ -146,16 +146,12 @@ def _kept_attrs(
 def har_resource_media_types(http_archive: dict[str, Any] | None) -> dict[str, str]:
     """Map each stored body path to its normalized response media type.
 
-    Media types are lowercased and stripped of parameters and whitespace.
-    Bodies whose response carried no usable media type are omitted rather
-    than guessed at: third-party beacons routinely respond without a
-    Content-Type, which Chromium records as a missing or ``x-unknown``
-    mimeType. A structurally malformed mimeType still raises: that would
-    be a producer bug, not an untyped response.
+    Untyped bodies are omitted rather than guessed at: ad and telemetry
+    beacons routinely respond without a Content-Type.
     """
     media: dict[str, str] = {}
-    for url, file, content in _stored_bodies(http_archive):
-        media_type = _normalized_media_type(content.get("mimeType"), url)
+    for _url, file, content in _stored_bodies(http_archive):
+        media_type = _normalized_media_type(content.get("mimeType"))
         if media_type is not None:
             media[file] = media_type
     return media
@@ -173,22 +169,17 @@ def _stored_bodies(
             yield entry["request"]["url"], file, content
 
 
-def _normalized_media_type(mime_type: str | None, url: str) -> str | None:
-    """Normalize a media type; ``None`` when the response type is unknown.
+def _normalized_media_type(mime_type: str | None) -> str | None:
+    """Normalize a HAR mimeType; ``None`` when no usable type exists.
 
-    Missing, blank, and ``x-unknown`` mime types mean Chromium saw no
-    Content-Type on the response. Anything else that does not parse as
-    ``type/subtype`` raises.
+    A Playwright mimeType is the origin's Content-Type header verbatim,
+    with ``x-unknown`` its placeholder for a response that carried none;
+    anything can appear, so consumers judge what is usable.
     """
-    if mime_type is None or mime_type.strip().lower() in ("", "x-unknown"):
+    if mime_type is None:
         return None
-    media_type = mime_type.split(";", 1)[0].strip().lower()
-    parts = media_type.split("/")
-    if len(parts) != 2 or not all(part.split() == [part] for part in parts):
-        raise ValueError(
-            f"stored body for {url!r} has malformed mimeType {mime_type!r}"
-        )
-    return media_type
+    media_type = mime_type.partition(";")[0].strip().lower()
+    return None if media_type in ("", "x-unknown") else media_type
 
 
 def _har_bodies(http_archive: dict[str, Any] | None) -> dict[str, str]:
