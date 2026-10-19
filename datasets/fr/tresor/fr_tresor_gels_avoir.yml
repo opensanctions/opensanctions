@@ -210,71 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Type d'entité: Entreprise privée"
-        props:
-          legalForm: Entreprise privée
-      - match: "Numéro d'identification national: 10102884046"
-        props:
-          idNumber: 10102884046
-      - match: "Numéro d'entreprise: 247799"
-        props:
-          registrationNumber: 247799
-      - match: "Lieu d'enregistrement: Sure-Esrafil St, Téhéran, Iran"
-        props:
-          address: Sure-Esrafil St, Téhéran, Iran
-          jurisdiction: ir
-      - match: "Numéro d’identification national: 10101382714"
-        props:
-          idNumber: 10101382714
-      - match: "Numéro à la chambre de commerce: 131454"
-        props:
-          registrationNumber: 131454
-      - match: "Type d'entité: Société privée à responsabilité limitée"
-        props:
-          legalForm: Société privée à responsabilité limitée
-      - match: "Numéro d’identification national: 10103503385"
-        props:
-          idNumber: 10103503385
-      - match: "Numéro d'identification national: 10102527140"
-        props:
-          idNumber: 10102527140
-      - match: "Numéro d’identification national: 10320862133"
-        props:
-          idNumber: 10320862133
-      - match: "Lieu d’enregistrement: Fars, Iran"
-        props:
-          address: "Fars, Iran"
-          jurisdiction: ir
-      - match: "Lieu: Province de Téhéran (Iran)"
-        props:
-          address: "Province de Téhéran (Iran)"
-          jurisdiction: ir
-      # KPP codes (code du/de motif d'enregistrement)
-      - match: "Code motif d'enregistrement: 526101001"
-        props:
-          kppCode: "526101001"
-      - match: "Code motif d'enregistrement: 771701001"
-        props:
-          kppCode: "771701001"
-      - match: "Code motif d'enregistrement: 246201001"
-        props:
-          kppCode: "246201001"
-      - match: "Code du motif d'enregistrement: 057101001"
-        props:
-          kppCode: "057101001"
-      - match: "Code du motif d'enregistrement: 770101001"
-        props:
-          kppCode: "770101001"
-      - match: "Code du motif d'enregistrement: 450101001"
-        props:
-          kppCode: "450101001"
-      - match: "Code du motif d'enregistrement: 504201001"
-        props:
-          kppCode: "504201001"
-      # Registration locations using unaccented "Etablissement" (not matched by TEXT_KEYS)
-      - match: "Etablissement principal: Fédération de Russie"
-        props:
-          jurisdiction: ru
       - match: "Etablissement principal: Émirats arabes unis"
         props:
           jurisdiction: ae
@@ -6962,6 +6897,76 @@ lookups:
       - match: "Lieu d’enregistrement: Viêt Nam"
         props:
           jurisdiction: "vn"
+      - match: "Code motif d’enregistrement: 526101001"
+        schema: Company
+        props:
+          kppCode: "526101001"
+      - match: "Code motif d’enregistrement: 771701001"
+        schema: Company
+        props:
+          kppCode: "771701001"
+      - match: "Code motif d’enregistrement: 246201001"
+        schema: Company
+        props:
+          kppCode: "246201001"
+      - match: "Etablissement principal: Fédération de Russie"
+      - match: "Type d’entité: Entreprise privée"
+        props:
+          legalForm: "Entreprise privée"
+      - match: "Numéro d’identification national: 10102884046"
+        props:
+          idNumber: "10102884046"
+      - match: "Numéro d’entreprise: 247799"
+        props:
+          registrationNumber: "247799"
+      - match: "Lieu d’enregistrement: Sure-Esrafil St, Téhéran, Iran"
+        props:
+          address: "Sure-Esrafil St, Téhéran, Iran"
+          jurisdiction: "ir"
+      - match: "Numéro d’identification national: 10101382714"
+        props:
+          idNumber: "10101382714"
+      - match: "Numéro à la chambre de commerce: 131454"
+        props:
+          registrationNumber: "131454"
+      - match: "Type d’entité: Société privée à responsabilité limitée"
+        props:
+          legalForm: "Société privée à responsabilité limitée"
+      - match: "Numéro d’identification national: 10103503385"
+        props:
+          idNumber: "10103503385"
+      - match: "Numéro d’identification national: 10102527140"
+        props:
+          idNumber: "10102527140"
+      - match: "Numéro d’identification national: 10320862133"
+        props:
+          idNumber: "10320862133"
+      - match: "Lieu d’enregistrement: Fars, Iran"
+        props:
+          address: "Fars, Iran"
+          jurisdiction: "ir"
+      - match: "Code du motif d’enregistrement: 057101001"
+        schema: Company
+        props:
+          kppCode: "057101001"
+      - match: "Lieu: Province de Téhéran (Iran)"
+        props:
+          address: "Province de Téhéran (Iran)"
+          jurisdiction: "ir"
+      - match: "Etablissement principal: Fédération de Russie"
+      - match: "Code du motif d’enregistrement: 770101001"
+        schema: Company
+        props:
+          kppCode: "770101001"
+      - match: "Code du motif d’enregistrement: 450101001"
+        schema: Company
+        props:
+          kppCode: "450101001"
+      - match: "Etablissement principal: Fédération de Russie"
+      - match: "Code du motif d’enregistrement: 504201001"
+        schema: Company
+        props:
+          kppCode: "504201001"
   # =====================================
   #
   #  ADDRESSES
