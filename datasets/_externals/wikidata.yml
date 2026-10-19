@@ -289,6 +289,12 @@ lookups:
         values:
           - 藤木眞也
           - 藤木真也
+      # Mohamed Mounir (Q571707): the French label joins the Latin name and its
+      # Coptic-script rendering
+      - match: "Mohamed Mounir<br>ⲙⲟϩⲁⲙⲉⲇ ⲙⲟⲟⲩⲛⲓⲣ"
+        values:
+          - Mohamed Mounir
+          - ⲙⲟϩⲁⲙⲉⲇ ⲙⲟⲟⲩⲛⲓⲣ
   type.date:
     options:
       - match:
