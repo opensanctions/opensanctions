@@ -52,43 +52,22 @@ def text(node: Element, path: str) -> str | None:
     return squash_spaces(value) or None
 
 
-def audit_tags(context: Context, node: Element, known: set[str]) -> None:
-    unknown = {str(child.tag) for child in node} - known
-    if unknown:
-        context.log.warning(
-            "Unknown elements in record",
-            parent=node.tag,
-            tags=sorted(unknown),
-            ref=text(node, "./REFERENCE_NUMBER"),
-        )
-
-
-def parse_individual(context: Context, node: Element, person: Entity) -> None:
-    audit_tags(context, node, INDIVIDUAL_TAGS)
-    person.add("idNumber", text(node, "./REFERENCE_NUMBER"))
-    context.emit(person)
-
-
-def parse_entity(context: Context, node: Element, entity: Entity) -> None:
-    audit_tags(context, node, ENTITY_TAGS)
-    entity.add("idNumber", text(node, "./REFERENCE_NUMBER"))
-    context.emit(entity)
-
-
-def crawl_file(context: Context, name: str, url: str, title: str) -> None:
+def crawl_file(context: Context, name: str, url: str, title: str, prefix: str) -> None:
     path = context.fetch_resource(f"{name}.xml", url)
     context.export_resource(path, XML, title=f"Source data - {title}")
     doc = context.parse_resource_xml(path)
-    prefix = context.dataset.prefix
+    # prefix = context.dataset.prefix
     assert prefix is not None, "Dataset prefix is required"
     for node, person in get_persons(context, prefix, doc):
-        parse_individual(context, node, person)
+        context.emit(person)
     for node, entity in get_legal_entities(context, prefix, doc):
-        parse_entity(context, node, entity)
+        context.emit(entity)
 
 
 def crawl(context: Context) -> None:
-    _, un_doc = load_un_sc(context)
+    # using the UNSC's prefix like for TR and PL
+    un_meta, _ = load_un_sc(context)
+    prefix = un_meta.prefix
 
     # The dataset page lists one XML resource per regime, each linked twice
     # (details and download).
@@ -115,4 +94,4 @@ def crawl(context: Context) -> None:
 
     for name, url in sorted(files.items()):
         title = name.replace("_", " ").title()
-        crawl_file(context, name, url, title)
+        crawl_file(context, name, url, title, prefix)

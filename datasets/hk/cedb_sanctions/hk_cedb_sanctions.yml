@@ -9,15 +9,15 @@ summary: >-
   Persons and entities subject to targeted financial sanctions under Hong
   Kong's regulations implementing UN Security Council sanctions
 description: |
-  Hong Kong has no autonomous sanctions regime. It gives effect to UN Security
-  Council sanctions through regulations made under the United Nations
-  Sanctions Ordinance (Cap. 537), one regulation per UN regime. The Commerce
-  and Economic Development Bureau publishes the persons and entities subject
-  to targeted financial sanctions under those regulations as one XML file per
-  regime, covering Afghanistan, the Central African Republic, the Democratic
-  Republic of the Congo, North Korea, Haiti, ISIL (Da'esh) and Al-Qaida,
-  Libya, Somalia, South Sudan, Sudan and Yemen. Banks and other institutions
-  supervised by the Hong Kong Monetary Authority screen against these lists.
+  Hong Kong gives effect to UN Security Council sanctions through regulations
+  made under the United Nations Sanctions Ordinance (Cap. 537), one regulation 
+  per UN regime. The Commerce and Economic Development Bureau publishes the 
+  persons and entities subject to targeted financial sanctions under those
+  regulations as one XML file per regime, covering Afghanistan, the Central 
+  African Republic, the Democratic Republic of the Congo, North Korea, Haiti, 
+  ISIL (Da'esh) and Al-Qaida, Libya, Somalia, South Sudan, Sudan and Yemen. Banks 
+  and other institutions supervised by the Hong Kong Monetary Authority commonly
+  screen against these lists.
 
   Each file is a snapshot of the corresponding part of the [UN Security
   Council consolidated list](/datasets/un_sc_sanctions/), in the UN's own
