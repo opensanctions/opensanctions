@@ -207,9 +207,6 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: "Type d'entité: société à responsabilité limitée"
-        props:
-          legalForm: société à responsabilité limitée
   ####################################################################################################
   ####################################################################################################
   #
@@ -6932,6 +6929,14 @@ lookups:
       - match: "PPC: 504701001"
         props:
           registrationNumber: "504701001"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Seychelles"
+        props:
+          legalForm: "société à responsabilité limitée"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Inde - Date d’enregistrement: 2024 - Principal établissement: Inde"
+        props:
+          legalForm: "société à responsabilité limitée"
+          incorporationDate: "2024"
+          jurisdiction: "in"
   # =====================================
   #
   #  ADDRESSES
