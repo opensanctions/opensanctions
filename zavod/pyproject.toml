@@ -39,6 +39,7 @@ dependencies = [
     "psycopg[binary] >= 3.0, < 4.0",
     "pyicu == 2.16.2",
     "openai >= 1.33.0, < 4.0.0",
+    "pydantic-ai-slim[openai] >= 2.34, < 3",
     "requests[security]",
     "urllib3>=2.0",
     "sqlalchemy[mypy] >= 2.1.0",
