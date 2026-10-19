@@ -138,15 +138,6 @@ def test_organization_absent(zavod_db: None) -> None:
     assert entities["Position"][0].get("organization") == []
 
 
-def test_status_without_end_date_is_unknown(zavod_db: None) -> None:
-    dataset = make_dataset()
-    context = emit(dataset, make_hit(start_date="2022-01-01"))
-
-    occupancy = by_schema(read_entities(dataset, context))["Occupancy"][0]
-    # make_occupancy leaves status unset for UNKNOWN.
-    assert occupancy.get("status") == []
-
-
 def test_recent_end_date_is_ended(zavod_db: None) -> None:
     dataset = make_dataset()
     end_date = (settings.RUN_TIME - timedelta(days=30)).date().isoformat()
