@@ -1,18 +1,14 @@
 """Shared definitions for the funes LLM agents."""
 
 from dataclasses import dataclass
-from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, StringConstraints
+from pydantic import BaseModel, ConfigDict
 
 
 class StrictModel(BaseModel):
     """Base for agent output schemas."""
 
     model_config = ConfigDict(extra="forbid")
-
-
-NonBlank = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 @dataclass(frozen=True)

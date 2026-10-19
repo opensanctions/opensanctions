@@ -66,38 +66,11 @@ def test_hit_requires_at_least_one_person() -> None:
         Hit(persons=[])
     with pytest.raises(ValidationError):
         Hit()
-    with pytest.raises(ValidationError):
-        Person(name="   ", positions=[Position(name="Director")])
-    with pytest.raises(ValidationError):
-        Position(name="   ")
 
 
 def test_output_models_reject_unknown_fields() -> None:
     with pytest.raises(ValidationError):
         Miss(reason="no holders", unexpected=True)
-
-
-def test_miss_requires_nonblank_reason() -> None:
-    miss = Miss(reason="  No board members listed; page is a news article.  ")
-    assert miss.kind == "miss"
-    assert miss.reason == "No board members listed; page is a news article."
-    with pytest.raises(ValidationError):
-        Miss()
-    with pytest.raises(ValidationError):
-        Miss(reason="")
-    with pytest.raises(ValidationError):
-        Miss(reason="   ")
-
-
-def test_broken_snapshot_requires_nonblank_reason() -> None:
-    broken = BrokenSnapshot(reason="Cloudflare challenge")
-    assert broken.kind == "broken"
-    with pytest.raises(ValidationError):
-        BrokenSnapshot()
-    with pytest.raises(ValidationError):
-        BrokenSnapshot(reason="")
-    with pytest.raises(ValidationError):
-        BrokenSnapshot(reason="   ")
 
 
 def test_union_discriminates_on_kind() -> None:
@@ -112,12 +85,6 @@ def test_union_discriminates_on_kind() -> None:
     assert isinstance(
         result_adapter.validate_python({"kind": "broken", "reason": "bot challenge"}),
         BrokenSnapshot,
-    )
-    assert (
-        result_adapter.validate_python(
-            {"kind": "broken", "reason": " bot challenge "}
-        ).reason
-        == "bot challenge"
     )
     with pytest.raises(ValidationError):
         result_adapter.validate_python({"kind": "other"})
