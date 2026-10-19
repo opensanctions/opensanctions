@@ -24,31 +24,32 @@ def build_prompt(metadata: PageMetadata, outline: str) -> str:
     """Build one user message from the captured page snapshot.
 
     The prompt carries untrusted page content only; the trusted inspection
-    brief travels separately as run instructions.
+    brief travels separately as run instructions. Fields with no value are
+    omitted entirely: the absence of a line is the signal, so no placeholder
+    text is ever supplied.
     """
-    status = "[not provided]"
-    if metadata.http_status is not None:
-        status = str(metadata.http_status)
     diagnostics = [
         "Requested URL: " + metadata.requested_url,
         "Final URL: " + metadata.final_url,
-        f"HTTP status: {status}",
     ]
+    if metadata.http_status is not None:
+        diagnostics.append(f"HTTP status: {metadata.http_status}")
     if metadata.capture_error is not None:
         diagnostics.append(f"Capture error: {metadata.capture_error}")
-    source_metadata = [
-        f"Document title: {metadata.title or '[not provided]'}",
-        f"Meta description: {metadata.description or '[not provided]'}",
+    source_metadata = []
+    if metadata.title is not None:
+        source_metadata.append(f"Document title: {metadata.title}")
+    if metadata.description is not None:
+        source_metadata.append(f"Meta description: {metadata.description}")
+    sections = [
+        "<page_diagnostics>\n" + "\n".join(diagnostics) + "\n</page_diagnostics>",
     ]
-    return (
-        "<page_snapshot>\n"
-        "<page_diagnostics>\n" + "\n".join(diagnostics) + "\n</page_diagnostics>\n\n"
-        "<page_metadata>\n" + "\n".join(source_metadata) + "\n</page_metadata>\n\n"
-        "<page_outline>\n"
-        f"{outline}\n"
-        "</page_outline>\n"
-        "</page_snapshot>"
-    )
+    if source_metadata:
+        sections.append(
+            "<page_metadata>\n" + "\n".join(source_metadata) + "\n</page_metadata>"
+        )
+    sections.append(f"<page_outline>\n{outline}\n</page_outline>")
+    return "<page_snapshot>\n" + "\n\n".join(sections) + "\n</page_snapshot>"
 
 
 def _meta_content(document: Element, xpath: str) -> str | None:
