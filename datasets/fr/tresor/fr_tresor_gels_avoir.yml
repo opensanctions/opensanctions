@@ -207,40 +207,6 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      # Sometimes for "Numero OGRN" and "Numero OMI", a "Numero" is left over
-      - match:
-          - "Numero"
-          - "n°"
-          - "No"
-          - "numéro d'identification fiscale)"
-        value: null
-      # Sometimes leftover from "NIF/INN"
-      - match: "NIF"
-      - match: "Numéro d'enregistrement"
-      - match: "N° d'enregistrement: 1022101131580"
-        props:
-          registrationNumber: "1022101131580"
-      - match: "Code"
-      # Sometimes leftover from "BIN/OGRN"
-      - match: "BIN"
-      - match: "Principal établissement: Fédération de Russie, Tarusa"
-        props:
-          jurisdiction: ru
-      - match: "Principal établissement: Fédération de Russie - Télécopieur: +7 (499) 608-90-03"
-        props:
-          jurisdiction: ru
-          phone: "+7 (499) 608-90-03"
-      - match:
-          - "Principal établissement: Moscou, Fédération de Russie"
-          - "Lieu d'enregistrement: Moscou, Fédération de Russie"
-        props:
-          jurisdiction: ru
-          address: "Moscou, Fédération de Russie"
-      - match:
-          - "Lieu d'enregistrement: Moscou, Russie"
-        props:
-          jurisdiction: ru
-          address: "Moscou, Russie"
       - match: "Lieu d'enregistrement: Fédération de Russie"
         props:
           jurisdiction: ru
@@ -5727,6 +5693,383 @@ lookups:
           jurisdiction: fr
           incorporationDate: 2018-07-27
           registrationNumber: W922012754
+      - match: "Numéro OGRN: 1027700095477"
+        props:
+          ogrnCode: "1027700095477"
+      - match: "N° d'enregistrement: 1022101131580"
+        props:
+          registrationNumber: "1022101131580"
+      - match: "BIN/OGRN: 1149102101774"
+        props:
+          ogrnCode: "1149102101774"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 9.7.2002 - Principal établissement: Fédération de Russie - Numéro d'enregistrement: 1027724000094: Numéro d'identification fiscale: 7724244406"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2002-07-09"
+          registrationNumber: "1027724000094"
+          taxNumber: "7724244406"
+      - match: "Numéro d'enregistrement - Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Perm, région de Perm, Fédération de Russie - Date d'enregistrement: 5.6.1992 - Numéro d’identification fiscale: 5908006119 - KPP: 590801001 - Télécopieur: +7 (342) 255-77-43 - Site internet: www.bloki-perm.ru: 1025901604156"
+        schema: Company
+        props:
+          legalForm: "entreprise fédérale d'État"
+          jurisdiction: "ru"
+          address: "Perm, région de Perm, Fédération de Russie"
+          incorporationDate: "1992-06-05"
+          taxNumber: "5908006119"
+          ogrnCode: "1025901604156"
+          kppCode: "590801001"
+      - match: "Numéro OMI: 1618475"
+        props:
+          imoNumber: "IMO1618475"
+      - match: "Principal établissement: Moscou, Fédération de Russie: Type d'entité: société à responsabilité limitée"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          legalForm: "société à responsabilité limitée"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 16.2.2009: Numéro d'enregistrement: 1097746084908"
+        props:
+          incorporationDate: "2009-02-16"
+          registrationNumber: "1097746084908"
+      - match: "NIF - Type d’entité: société d’État chargée de la promotion du développement, de la production et de l’exportation de produits industriels de haute technologie “Rostec” - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 12.7.2012 - Numéro d’enregistrement: SRN: 1127746541427 - Principal établissement: Fédération de Russie - KPP: 772601001 - Télécopieur: +7 (495) 311-01-91: 7726700943"
+        schema: Company
+        props:
+          legalForm: "société d'État"
+          notes: "société d'État chargée de la promotion du développement, de la production et de l'exportation de produits industriels de haute technologie “Rostec”"
+          jurisdiction: "ru"
+          incorporationDate: "2012-07-12"
+          registrationNumber: "1127746541427"
+          kppCode: "772601001"
+          innCode: "7726700943"
+      - match: "BIN/OGRN: 1022304917095"
+        props:
+          ogrnCode: "1022304917095"
+      - match: "Numéro d'enregistrement ; Type d'entité: société à responsabilité limitée ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 30.4.2015 ; Numéro d'identification fiscale: 7710495287 ; KPP: 773501001: 1157746406971"
+        schema: Company
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          incorporationDate: "2015-04-30"
+          taxNumber: "7710495287"
+          kppCode: "773501001"
+          registrationNumber: "1157746406971"
+      - match: "Numéro OGRN: 1177746007900"
+        props:
+          ogrnCode: "1177746007900"
+      - match: "Numéro OMI: 1736649"
+        props:
+          imoNumber: "IMO1736649"
+      - match: "Lieu d'enregistrement: Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1). Date d'enregistrement: 6.12.2002. Principal établissement: Fédération de Russie: No d'identification fiscale: 5192110268 (numéro d'identification fiscale)"
+        props:
+          jurisdiction: "ru"
+          address: "Lieu d'enregistrement: Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1)"
+          incorporationDate: "2002-12-06"
+          innCode: "5192110268"
+      - match: "Numéro OMI: 1451236"
+        props:
+          imoNumber: "IMO1451236"
+      - match: "Numéro OMI: 0011359"
+        props:
+          imoNumber: "IMO0011359"
+      - match: "Numéro OGRN: 1185275047176"
+        props:
+          ogrnCode: "1185275047176"
+      - match: "Principal établissement: Moscou, Fédération de Russie"
+        props:
+          address: "Moscou, Fédération de Russie"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 18.5.2022"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2022-05-18"
+      - match: "Numéro OMI : 5676084"
+        props:
+          imoNumber: "IMO5676084"
+      - match: "Numéro OMI: 0024553"
+        props:
+          imoNumber: "IMO0024553"
+      - match: "Numéro OMI: 5905801"
+        props:
+          imoNumber: "IMO5905801"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 7.7.2010: Numéro d'enregistrement: 1107746540087 ; Numéro d’identification fiscale: 7723764018"
+        props:
+          incorporationDate: "2010-07-07"
+          registrationNumber: "1107746540087"
+          taxNumber: "7723764018"
+      - match: "Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 13.1.1994- Principal établissement: Fédération de Russie -Numéro d’enregistrement: 1027700073466: Numéro d’identification fiscale: 7735007358"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "1994-01-13"
+          registrationNumber: "1027700073466"
+          taxNumber: "7735007358"
+      - match: "Numéro OMI: 4255683"
+        props:
+          imoNumber: "IMO4255683"
+      - match: "Numéro OGRN: 1155027001690"
+        props:
+          ogrnCode: "1155027001690"
+      - match: "Numéro OMI: 1745868"
+        props:
+          imoNumber: "IMO1745868"
+      - match: "Numéro OMI: 0055652"
+        props:
+          imoNumber: "IMO0055652"
+      - match: "Numéro OMI: 6197187"
+        props:
+          imoNumber: "IMO6197187"
+      - match: "Numéro d'enregistrement ; Type d'entité: société publique par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 16.7.2002 ; Numéro d'identification fiscale: 2540047110 ; KPP: 770501001 ; Numéro OMI: 0555567;  Télécopieur: +7 495 780 6003 ; Site internet: www.fesco.com/en: 1022502256127"
+        schema: Company
+        props:
+          legalForm: "société publique par actions"
+          jurisdiction: "ru"
+          incorporationDate: "2002-07-16"
+          taxNumber: "2540047110"
+          kppCode: "770501001"
+          website: "http://www.fesco.com/en"
+          imoNumber: "IMO0555567"
+          phone: "+74957806003"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 30.3.2016 - Principal établissement: Fédération de Russie ; Numéro d’enregistrement: 1167746317210: Numéro d'identification fiscale: 9701036178"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2016-03-30"
+          registrationNumber: "1167746317210"
+          taxNumber: "9701036178"
+      - match: "Numéro OMI : 5787684"
+        props:
+          imoNumber: "IMO5787684"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 1.12.1993 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7735040690 ; Numéro d'enregistrement: 1027739083921"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "1993-12-01"
+          taxNumber: "7735040690"
+          registrationNumber: "1027739083921"
+      - match: "Numéro OMI :  5963351"
+        props:
+          imoNumber: "IMO5963351"
+      - match: "Numéro OMI: 6421505"
+        props:
+          imoNumber: "IMO6421505"
+      - match: "Numéro OGRN: 1097746741894"
+        props:
+          ogrnCode: "1097746741894"
+      - match: "Numéro OMI: 6477894"
+        props:
+          imoNumber: "IMO6477894"
+      - match: "NIF/INN: 6230005886"
+        props:
+          innCode: "6230005886"
+      - match: "Numéro OMI : 5987860"
+        props:
+          imoNumber: "IMO5987860"
+      - match: "Numéro OMI : 0555669 ; Type d'entité: société par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 1937: 4032815"
+        props:
+          imoNumber: "IMO0555669"
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          incorporationDate: "1937"
+      - match: "Numéro OMI: 1351347"
+        props:
+          imoNumber: "IMO1351347"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 7.11.2005 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7743575354 ; Numéro d’enregistrement: 1057748939577"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2005-11-07"
+          taxNumber: "7743575354"
+          registrationNumber: "1057748939577"
+      - match: "Numéro OMI : 5878561"
+        props:
+          imoNumber: "IMO5878561"
+      - match: "Numéro OMI: 0011791"
+        props:
+          imoNumber: "IMO0011791"
+      - match: "Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 27.7.1995 - Principal établissement: Fédération de Russie -Numéro d’enregistrement: 1027739250318: Numéro d'identification fiscale: 7702148410"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "1995-07-27"
+          registrationNumber: "1027739250318"
+          taxNumber: "7702148410"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 22.6.2005 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2005-06-22"
+      - match: "Numéro OMI: 0138716"
+        props:
+          imoNumber: "IMO0138716"
+      - match: "Type d'entité: agence fédérale - Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 30.3.2001 - Principal établissement: Russie"
+        props:
+          legalForm: "agence fédérale"
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2001-03-30"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 20.7.2010 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7716668049 ; Numéro d'enregistrement: 1107746574308"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2010-07-20"
+          taxNumber: "7716668049"
+          registrationNumber: "1107746574308"
+      - match: "Principal établissement: Moscou, Fédération de  Russie"
+        props:
+          address: "Moscou, Fédération de Russie"
+      - match: "Numéro OMI : 5988369"
+        props:
+          imoNumber: "IMO5988369"
+      - match: "Code SWIFT/BIC: JSNMRUMM"
+        props:
+          swiftBic: "JSNMRUMM"
+      - match: "Type d’entité: Banque commerciale anonyme - Lieu d'enregistrement: Moscou, Fédération de Russie"
+        props:
+          legalForm: "Banque commerciale anonyme"
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+      - match: "Numéro d'enregistrement - Type d'entité: société à responsabilité limitée -  Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 18.8.2011 - Principal établissement: Fédération de Russie - Télécopieur: +7 (499) 608-90-03 - Numéro d'identification fiscale: 7718857267 - KPP: 770501001 Numéro OMI: 5906931: 1117746641572"
+        schema: Company
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2011-08-18"
+          phone: "+74996089003"
+          taxNumber: "7718857267"
+          kppCode: "770501001"
+          imoNumber: "IMO5906931"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 3.8.2009 - Principal établissement: Fédération de Russie Numéro d’enregistrement: 1097746419979: Numéro d'identification fiscale: 7736605544"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2009-08-03"
+          registrationNumber: "1097746419979"
+          taxNumber: "7736605544"
+      - match: "Lieu d’enregistrement: Moscou, Russie    /   Date d’enregistrement: 21.11.2011: Numéro d’enregistrement: 1117799023330"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Russie"
+          incorporationDate: "2011-11-21"
+          registrationNumber: "1117799023330"
+      - match: "Numéro OMI: 6246853"
+        props:
+          imoNumber: "IMO6246853"
+      - match: "Principal établissement: Fédération de Russie, Tarusa"
+      - match: "Numéro OMI: 3025603"
+        props:
+          imoNumber: "IMO3025603"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 28.10.2015 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7706428753 ; Numéro d'enregistrement: 1157700017078"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2015-10-28"
+          taxNumber: "7706428753"
+          registrationNumber: "1157700017078"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 9.1.2016"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2016-01-09"
+      - match: "Numéro OMI: 6385581"
+        props:
+          imoNumber: "IMO6385581"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 24.2.2012 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7717719144 ; Numéro d'enregistrement: 1127746123966"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2012-02-24"
+          taxNumber: "7717719144"
+          registrationNumber: "1127746123966"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 21.3.1995 - Principal établissement: Fédération de Russie - Numéro d'enregistrement: 1027739185066: Numéro d'identification fiscale: 7710013769"
+        props:
+          jurisdiction: "ru"
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "1995-03-21"
+          registrationNumber: "1027739185066"
+          taxNumber: "7710013769"
+      - match: "Numéro OMI: 0019646"
+        props:
+          imoNumber: "IMO0019646"
+      - match: "Numéro OMI: 5402692"
+        props:
+          imoNumber: "IMO5402692"
+      - match: "Numéro OMI: 0052896"
+        props:
+          imoNumber: "IMO0052896"
+      - match: "Numéro OMI: 6266269"
+        props:
+          imoNumber: "IMO6266269"
+      - match: "Numéro OMI: 4105625"
+        props:
+          imoNumber: "IMO4105625"
+      - match: "Numéro OGRN: 1027806064571"
+        props:
+          ogrnCode: "1027806064571"
+      - match: "Numéro OMI: 5693799"
+        props:
+          imoNumber: "IMO5693799"
+      - match: "Numéro OGRN: 1117746019863"
+        props:
+          ogrnCode: "1117746019863"
+      - match: "Numéro OMI: 0110029"
+        props:
+          imoNumber: "IMO0110029"
+      - match: "BIN/OGRN: 1165007050064"
+        props:
+          ogrnCode: "1165007050064"
+      - match: "Numéro OMI: 0108990"
+        props:
+          imoNumber: "IMO0108990"
+      - match: "Numéro OMI: 6183435"
+        props:
+          imoNumber: "IMO6183435"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 27.12.2002: Numéro d'enregistrement: 7701005930 (numéro d'identification fiscale)"
+        props:
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: "2002-12-27"
+          innCode: "7701005930"
+      - match: "Numéro OMI: 5511841"
+        props:
+          imoNumber: "IMO5511841"
+      - match: "Numéro OMI : 5936312"
+        props:
+          imoNumber: "IMO5936312"
+      - match: "Numéro OMI: 4131096"
+        props:
+          imoNumber: "IMO4131096"
+      - match: "Numéro OGRN: 1023403432766"
+        props:
+          ogrnCode: "1023403432766"
+      - match: "Numéro OMI : 5985863"
+        props:
+          imoNumber: "IMO5985863"
+      - match: "n° OMI: 5342883"
+        props:
+          imoNumber: "IMO5342883"
+      - match: "No INN: 7707314029"
+        props:
+          innCode: "7707314029"
+      - match: "Numéro OMI: 6474841"
+        props:
+          imoNumber: "IMO6474841"
+      - match: "Numéro OGRN: 1081102000957"
+        props:
+          ogrnCode: "1081102000957"
+      - match: "Numéro OMI: 6198018"
+        props:
+          imoNumber: "IMO6198018"
+      - match: "Numéro d'enregistrement - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement:22.9.2008 - Principal établissement: Fédération de Russie - Type d’entité: société par actions: 5087746137023"
+        props:
+          jurisdiction: "ru"
+          incorporationDate: "2008-09-22"
+          legalForm: "société par actions"
+          registrationNumber: "5087746137023"
+      - match: "Numéro OGRN: 1057748002850"
+        props:
+          ogrnCode: "1057748002850"
   # =====================================
   #
   #  ADDRESSES
