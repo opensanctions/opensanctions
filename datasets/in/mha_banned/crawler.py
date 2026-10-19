@@ -20,19 +20,36 @@ RECORD_TITLE_XPATH = ".//div[@class='documentRecordTitle']"
 # "(Khaplang)" or "(Maoist)", but admits mixed-case acronyms such as "(JeI)".
 REGEX_ACRONYM_PARENS = re.compile(r"\s*\((?P<acronym>[A-Z][A-Za-z-]*[A-Z])\)")
 
-COMPLEX_TERMS = {
-    "wing",
-    "associate",
-    "affiliate",
-    "namely",
-    "factions",
-    "/",
-    "manifestation",
-    "formations",
-    "front organisations",
-    "security council",
-    " un ",
-}
+
+def add_names(context: Context, entity: Entity, names_string: str) -> None:
+    """Emit the crawler's own reading of a names string, and propose it for review."""
+    suggestion = context.lookup("names", names_string)
+    if suggestion is not None:
+        suggested = h.Names(
+            name=suggestion.name,
+            alias=suggestion.alias,
+            abbreviation=suggestion.abbreviation,
+        )
+    elif entity.schema.is_a("Person"):
+        names = h.multi_split(names_string.rstrip("."), "@")
+        suggested = h.Names(name=names[0], alias=names[1:])
+    else:
+        suggested = h.Names(
+            name=REGEX_ACRONYM_PARENS.sub("", names_string).strip(),
+            abbreviation=REGEX_ACRONYM_PARENS.findall(names_string),
+        )
+
+    for prop, values in suggested.as_langtexts():
+        entity.add(prop, [value.text for value in values])
+
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=h.Names(name=names_string),
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
 
 
 def crawl_entity(
@@ -40,44 +57,18 @@ def crawl_entity(
     *,
     schema: str,
     names_string: str,
-    original_string: str,
+    id_parts: tuple[str, ...],
     program: str,
     authority_id: str | None,
     source_url: str,
     detail_url: str | None,
-    abbreviations: list[str],
 ) -> Entity:
     entity = context.make(schema)
     # Include aliases in ID because there are different individuals whose alias
-    # is all that distinguishes them.
-    entity.id = context.make_id(names_string)
-
-    # Split a primary name from all names
-    names = h.multi_split(names_string, ";@")
-    name = names[0]
-    aliases = names[1:]
-
-    # Split out acronyms in parens from name
-    name_abbreviations = REGEX_ACRONYM_PARENS.findall(name)
-    name = REGEX_ACRONYM_PARENS.sub("", name).strip()
-    assert name
-    entity.add("name", name)
-    entity.add("alias", aliases)
-    entity.add("abbreviation", abbreviations)
-    entity.add("abbreviation", name_abbreviations)
-
-    suggested = h.Names(name=name, alias=aliases)
-    for abbreviation in abbreviations + name_abbreviations:
-        suggested.add("abbreviation", abbreviation)
-    is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(
-        context,
-        entity,
-        original=h.Names(name=original_string),
-        suggested=suggested,
-        is_irregular=is_irregular,
-    )
-
+    # is all that distinguishes them. The source adds and drops a trailing full
+    # stop between list versions.
+    entity.id = context.make_id(*id_parts, names_string.rstrip("."))
+    add_names(context, entity, names_string)
     entity.add("sourceUrl", source_url)
     entity.add("sourceUrl", detail_url)
     entity.add("topics", "sanction")
@@ -98,81 +89,50 @@ def crawl_entity(
     return entity
 
 
-def crawl_common(
+def crawl_row(
     context: Context,
     *,
     schema: str,
-    names: str,
-    source_string: str,
+    row: str,
     program: str,
     authority_id: str | None,
     source_url: str,
     detail_url: str | None,
 ) -> None:
-    if any(term in names.lower() for term in COMPLEX_TERMS):
-        res = context.lookup("names", names, warn_unmatched=True)
-        if res is None:
-            context.log.warn("Complex name needs cleaning", url=source_url, name=names)
-            crawl_entity(
-                context,
-                schema=schema,
-                names_string=names,
-                original_string=source_string,
-                program=program,
-                authority_id=authority_id,
-                source_url=source_url,
-                detail_url=detail_url,
-                abbreviations=[],
-            )
-        else:
-            # A row split into several entities gives each entity its own review
-            # original, so that their review keys don't collide.
-            is_multi = len(res.entities) > 1 or any(
-                group.get("related_name") for group in res.entities
-            )
-            for group in res.entities:
-                entity = crawl_entity(
-                    context,
-                    schema=schema,
-                    names_string=group["main_name"],
-                    original_string=group["main_name"] if is_multi else source_string,
-                    program=program,
-                    authority_id=authority_id,
-                    source_url=source_url,
-                    detail_url=detail_url,
-                    abbreviations=group.get("abbreviation", []),
-                )
-                if group.get("related_name", None):
-                    related = crawl_entity(
-                        context,
-                        schema=schema,
-                        names_string=group["related_name"],
-                        original_string=group["related_name"],
-                        program=program,
-                        authority_id=authority_id,
-                        source_url=source_url,
-                        detail_url=detail_url,
-                        abbreviations=group.get("related_abbreviation", []),
-                    )
+    """Emit the entities listed in one row, which usually lists a single entity."""
 
-                    rel = context.make("UnknownLink")
-                    rel.id = context.make_id(entity.id, related.id)
-                    rel.add("subject", entity.id)
-                    rel.add("object", related.id)
-                    rel.add("role", group["relationship"])
-                    context.emit(rel)
-    else:
-        crawl_entity(
+    def emit_listed(names_string: str, id_parts: tuple[str, ...] = ()) -> Entity:
+        return crawl_entity(
             context,
             schema=schema,
-            names_string=names,
-            original_string=source_string,
+            names_string=names_string,
+            id_parts=id_parts,
             program=program,
             authority_id=authority_id,
             source_url=source_url,
             detail_url=detail_url,
-            abbreviations=[],
         )
+
+    split = context.lookup("split_rows", row)
+    if split is None:
+        if any(marker in row.lower() for marker in ("namely", "factions", " wing")):
+            context.log.warning("Row may list several entities", row=row)
+        emit_listed(row)
+        return
+
+    for listed in split.entities:
+        entity = emit_listed(listed["raw_name"])
+        if "related" in listed:
+            assert entity.id is not None
+            # A wing's name is only unique next to its parent: PREPAK and KCP
+            # both have an armed wing called "Red Army".
+            related = emit_listed(listed["related"]["raw_name"], (entity.id,))
+            rel = context.make("UnknownLink")
+            rel.id = context.make_id(entity.id, related.id)
+            rel.add("subject", entity.id)
+            rel.add("object", related.id)
+            rel.add("role", listed["related"]["relationship"])
+            context.emit(rel)
 
 
 def collect_records(context: Context, url: str) -> list[tuple[str, str]]:
@@ -206,11 +166,10 @@ def crawl_associations(context: Context, url: str, program: str) -> None:
     if len(records) == 0:
         context.log.error("No unlawful associations found", url=url)
     for names, detail_url in records:
-        crawl_common(
+        crawl_row(
             context,
             schema="Organization",
-            names=names,
-            source_string=names,
+            row=names,
             program=program,
             authority_id=None,
             source_url=url,
@@ -228,12 +187,10 @@ def crawl_organisations(context: Context, url: str, program: str) -> None:
         names = row.pop("name_of_terrorist_organization")
         assert authority_id is not None and names is not None, row
         context.audit_data(row)
-        names = squash_spaces(names)
-        crawl_common(
+        crawl_row(
             context,
             schema="Organization",
-            names=names,
-            source_string=names,
+            row=squash_spaces(names),
             program=program,
             authority_id=authority_id.rstrip("."),
             source_url=url,
@@ -246,12 +203,10 @@ def crawl_individuals(context: Context, url: str, program: str) -> None:
     if len(records) == 0:
         context.log.error("No individuals found", url=url)
     for title, detail_url in records:
-        names = title.strip().rstrip(".")
-        crawl_common(
+        crawl_row(
             context,
             schema="Person",
-            names=names,
-            source_string=title,
+            row=title,
             program=program,
             authority_id=None,
             source_url=url,
