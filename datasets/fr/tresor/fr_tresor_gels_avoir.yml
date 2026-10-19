@@ -207,39 +207,9 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: "Principal établissement: Crimée, Ukraine"
-        props:
-          address: "Crimée, Ukraine"
-      - match: "Siège principal d'exploitation: République populaire de Chine"
-        props:
-          jurisdiction: cn
-      - match: "Lieu d'enregistrement: Prague"
-        props:
-          jurisdiction: cz
-          address: "Prague"
-      - match: "Principal établissement: République populaire de Chine; Fédération de Russie"
-        props:
-          jurisdiction:
-            - cn
-            - ru
-      - match: "Date d'enregistrement: 6.3.2019 - Date d'enregistrement: 7.4.2025"
-        props:
-          incorporationDate: ["2019-03-06", "2025-04-07"]
-      - match: "Type d'entité: entreprise contrôlée par l'État"
-        props:
-          legalForm: entreprise contrôlée par l'État
-      - match: "Type d'entité: société anonyme par actions"
-        props:
-          legalForm: société anonyme par actions
-      - match: "Type d'entité: Société par actions ouverte"
-        props:
-          legalForm: Société par actions ouverte
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Type d'entité: société par actions non publique"
-        props:
-          legalForm: société par actions non publique
       - match: "Type d'entité: organisation à but non lucratif"
         props:
           legalForm: organisation à but non lucratif
@@ -6634,6 +6604,147 @@ lookups:
       - match: "Lieu d’enregistrement: République populaire de Chine"
         props:
           jurisdiction: "cn"
+      - match: "Type d’entité: société par actions ouverte"
+        props:
+          legalForm: "Société par actions ouverte"
+      - match: "Type d'entité: entreprise contrôlée par l'État"
+        props:
+          legalForm: "entreprise contrôlée par l'État"
+      - match: "Type d'entité: société à responsabilité limitée. Lieu d'enregistrement: Crimée. Date d'enregistrement: 9.6.2022. Numéro d'enregistrement: 1229100007366. Principal établissement: régions de Zaporijjia et de Kherson occupées par la Russie. Numéro d'identification fiscale: 9102282270. KPP: 910201001"
+        schema: Company
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction:
+            - "ru"
+            - "ua-cri"
+          incorporationDate: "2022-06-09"
+          registrationNumber: "1229100007366"
+          taxNumber: "9102282270"
+          kppCode: "910201001"
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d'enregistrement: 25.4.2011"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          address: "Saint-Pétersbourg, Fédération de Russie"
+          incorporationDate: "2011-04-25"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Crimée, Ukraine - Date d’enregistrement: 15.6.2004 - Principal établissement: Crimée, Ukraine: Numéro d’enregistrement: 1047796423487"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ua-cri"
+          address: "Crimée, Ukraine"
+          incorporationDate: "2004-06-15"
+          registrationNumber: "1047796423487"
+      - match: "Type d'entité: Société par actions ouverte"
+        props:
+          legalForm: "Société par actions ouverte"
+      - match: "Type d'entité: société à responsabilité limitée  - Date d'enregistrement: 17.2.2005"
+        props:
+          legalForm: "société à responsabilité limitée"
+          incorporationDate: "2005-02-17"
+      - match: "Type d'entité: société par actions ouverte: Numéro d’enregistrement: 1027802490540"
+        props:
+          legalForm: "Société par actions ouverte"
+          registrationNumber: "1027802490540"
+      - match: "Type d'entité: société par actions non publique"
+        props:
+          legalForm: "société par actions non publique"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ae"
+      - match: "Type d’entité: société à responsabilité limitée  - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ae"
+      - match: "Principal établissement: Crimée, Ukraine"
+      - match: "Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+      - match: "Type d'entité: société à responsabilité limitée (s.r.o.) - Lieu d'enregistrement: Prague - Date d'enregistrement: 14.3.2023 - Principal établissement: République tchèque: CZ05185327"
+        props:
+          legalForm: "société à responsabilité limitée (s.r.o.)"
+          jurisdiction: "cz"
+          address: "Prague"
+          incorporationDate: "2023-03-14"
+          registrationNumber: "CZ05185327"
+      - match: "Type d'entité: société à responsabilité limitée - Date d'enregistrement: 25.12.2006 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          incorporationDate: "2006-12-25"
+          jurisdiction: "ru"
+      - match: "Type d'entité: société à responsabilité limitée - Date d'enregistrement: 25.3.2010"
+        props:
+          legalForm: "société à responsabilité limitée"
+          incorporationDate: "2010-03-25"
+      - match: "Type d’entité: société par actions ouverte"
+        props:
+          legalForm: "Société par actions ouverte"
+      - match: "Type d'entité: société à responsabilité limitée - Date d'enregistrement: 24.3.2008 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          incorporationDate: "2008-03-24"
+          jurisdiction: "ru"
+      - match: "Type d'entité: société par actions ouverte"
+        props:
+          legalForm: "Société par actions ouverte"
+      - match: "Type d'entité: société à responsabilité limitée - Date d'enregistrement: 19.6.2020"
+        props:
+          legalForm: "société à responsabilité limitée"
+          incorporationDate: "2020-06-19"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Damas, Syrie - Date d’enregistrement: 18.10.2017 - Principal établissement: Damas, Syrie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "sy"
+          address: "Damas, Syrie"
+          incorporationDate: "2017-10-18"
+      - match: "Type d’entité: société par actions ouverte"
+        props:
+          legalForm: "Société par actions ouverte"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ae"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis - Date d’enregistrement: 22.7.2020 - Principal établissement: Émirats arabes unis"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ae"
+          incorporationDate: "2020-07-22"
+      - match: "Type d'entité: société à responsabilité limitée  - Lieu d'enregistrement: Damas-Campagne  - Date d'enregistrement: 10.10.2018  - Principal établissement: Damas-Campagne, Syrie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "sy"
+          address:
+            - "Damas-Campagne"
+            - "Damas-Campagne, Syrie"
+          incorporationDate: "2018-10-10"
+      - match: "Type d'entité: société à responsabilité limitée: Lieu d'enregistrement: Mourmansk"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ru"
+          address: "Mourmansk"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ae"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis - Date d’enregistrement: 2011"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ae"
+          incorporationDate: "2011"
+      - match: "Type d'entité: société à responsabilité limitée  - Date d'enregistrement: 17.9.2013 - Principal établissement: Fédération de Russie"
+        props:
+          legalForm: "société à responsabilité limitée"
+          incorporationDate: "2013-09-17"
+          jurisdiction: "ru"
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Émirats arabes unis"
+        props:
+          legalForm: "société à responsabilité limitée"
+          jurisdiction: "ae"
   # =====================================
   #
   #  ADDRESSES
