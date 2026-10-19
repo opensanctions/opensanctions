@@ -52,9 +52,8 @@ dates:
       "%B %d, %Y",
       "%Y%m%d",
     ]
-  # Entries added by Ukraine itself (rather than mirrored from the UN list) carry
-  # Ukrainian month names, in both the nominative and the genitive form used in
-  # full dates.
+  # Some entries carry Ukrainian month names, in both the nominative and the
+  # genitive form used in full dates.
   months:
     January: [січень, січня]
     February: [лютий, лютого]
