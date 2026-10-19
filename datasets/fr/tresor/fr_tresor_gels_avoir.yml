@@ -201,7 +201,8 @@ lookups:
       - match: "Date de désignation par les Nations unies: 28 avril 2026."
         prop: description
   # Matched against one segment of a split identification field.
-  # If you are an agent: do not add options here, use identification_full below.
+  # DEPRECATED: this lookup was for human maintainers only. Do not add options
+  # here, use identification_full below.
   identification_segment:
     lowercase: true
     normalize: true
@@ -1267,12 +1268,11 @@ lookups:
   ####################################################################################################
   # Matched against the whole identification field, bypassing the segment splitter, so
   # the mapping is self-contained and can't shift meaning when the splitter's key list
-  # grows. This is the default place to fix an identification warning — the `full=` value
+  # grows. This is the place to fix an identification warning — the `full=` value
   # logged with the warning is the string to match on.
   #
   # Rules for adding options here:
   #
-  #   - If you are an agent: use this lookup, not identification_segment.
   #   - Only use a scheme-specific identifier property (innCode, ogrnCode, kppCode,
   #     imoNumber, ...) when the source names that scheme. Where the label is generic,
   #     "Numéro d'enregistrement" is a registrationNumber and "Numéro d'identification

@@ -26,6 +26,8 @@ SCHEMATA = {
 # Only word-character and dots
 IDENTIFIER_SINGLE_VALUE_REGEX = re.compile(r"^[\w\.]+$")
 SEPARATORS = "/:;-. "
+# DEPRECATED: the segment splitter keys were for human maintainers only. Fix
+# identification warnings with the `identification_full` lookup instead.
 # Order matters, earlier entries will be matched first
 # We don't match free-text fields (currently address) because they could swallow up extra data of unmapped keys.
 # For example, consider "Lieu d'enregistrement: Tehran, Iran - New Key: blabla", "New Key: blabla" would end up in the
@@ -91,6 +93,8 @@ def clean_key(key: str) -> str | None:
 
 
 def parse_split(full: str) -> list[str]:
+    """DEPRECATED: the segment splitter was for human maintainers only. Fix
+    identification warnings with the `identification_full` lookup instead."""
     full = full.replace("’", "'")
 
     # We try to find any of the keys in TEXT_KEYS and split on them. The basic idea is to not split on separators,
@@ -188,8 +192,8 @@ def parse_identification(
     """Parse the identification field and add the appropriate properties to the entity.
 
     The field is free text following a loose "<label>: <value>" convention, so the
-    segment splitting below is heuristic and regularly needs per-value overrides.
-    Warnings emitted here are fixed by adding an option to the `identification_full`
+    segment splitting below is heuristic. Any field the splitter can't fully parse
+    raises one warning, fixed by adding an option to the `identification_full`
     lookup, whose leading comment holds the rules for doing so.
     """
     comment = value.pop("Commentaire")
@@ -203,7 +207,10 @@ def parse_identification(
     ):
         return
 
+    # DEPRECATED: segment parsing was for human maintainers only. Fix
+    # identification warnings with the `identification_full` lookup instead.
     segments = parse_split(full)
+    parsed_all_segments = True
     for segment in segments:
         if apply_identification_lookup(
             context, context.get_lookup("identification_segment"), entity, segment
@@ -215,16 +222,8 @@ def parse_identification(
                 prop_value = segment[len(key) :].strip(SEPARATORS)
 
                 if not identifier_value_is_single_value(context, prop_value):
-                    # Likely multiple values, which we don't auto-parse. Fix with an
-                    # option under the `identification_full` lookup in
-                    # fr_tresor_gels_avoir.yml (read the comment above that lookup
-                    # first), or a type.country datapatch.
-                    context.log.warning(
-                        "Cannot reliably parse value.",
-                        value=prop_value,
-                        segment=segment,
-                        full=full,
-                    )
+                    # Likely multiple values, which we don't auto-parse.
+                    parsed_all_segments = False
                     break
 
                 if propname == "kppCode":
@@ -244,14 +243,12 @@ def parse_identification(
                 # We found what this key means, no need to try other keys.
                 break
         else:
-            # Fix with an option under the `identification_full` lookup in
-            # fr_tresor_gels_avoir.yml (read the comment above that lookup first), or,
-            # if you are a human, with a new TEXT_KEYS key.
-            context.log.warning(
-                f'Failed to parse identification segment: "{segment}"',
-                segment=segment,
-                full=full,
-            )
+            parsed_all_segments = False
+
+    if not parsed_all_segments:
+        # Fix with an option under the `identification_full` lookup in
+        # fr_tresor_gels_avoir.yml (read the comment above that lookup first).
+        context.log.warning("Cannot parse identification field.", full=full)
 
 
 def apply_prop(
