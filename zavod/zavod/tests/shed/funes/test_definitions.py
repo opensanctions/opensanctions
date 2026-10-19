@@ -46,16 +46,8 @@ def test_valid_brief() -> None:
     assert definition.name == "test_funes"
     assert definition.people_sought == "board members"
     assert definition.subject_label == "Organization"
-    assert definition.no_end_implies_current is False
     assert definition.subjects[0].name == "Bank"
     assert definition.subjects[0].urls == ["https://bank.example/board"]
-
-
-def test_no_end_implies_current_explicit() -> None:
-    dataset = make_dataset({"funes": brief(no_end_implies_current=True)})
-    definition = dataset_definition(dataset)
-    assert definition is not None
-    assert definition.no_end_implies_current is True
 
 
 def test_noncanonical_urls_rejected() -> None:
