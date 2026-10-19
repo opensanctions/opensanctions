@@ -1,10 +1,12 @@
 """Build compact, model-facing outlines from rendered HTML.
 
 The output preserves DOM order while removing empty elements and collapsing
-single-child wrappers. Links and images retain resolved resource URLs with
-fragments stripped, and images may include paths to bodies stored in the
-snapshot's HAR. The body element is transparent: its text runs and children
-render at the top level.
+single-child wrappers. Table cells (``td``, ``th``) keep their markers even
+when empty or wrapping a single element: the cell markers carry the column
+structure that pairs values across a row. Links and images retain resolved
+resource URLs with fragments stripped, and images may include paths to bodies
+stored in the snapshot's HAR. The body element is transparent: its text runs
+and children render at the top level.
 
 Example::
 
@@ -24,6 +26,9 @@ from zavod.util import Element
 
 # Elements whose content never reaches the rendered page.
 SKIP_TAGS = frozenset({"head", "script", "style", "noscript", "template"})
+
+# Cell markers are the column structure that pairs values across a row.
+TABLE_CELL_TAGS = frozenset({"td", "th"})
 
 
 def _require_http_base(url: str) -> None:
@@ -75,12 +80,18 @@ def _element_lines(elem: Element, url: str, bodies: dict[str, str]) -> list[str]
     ):
         label = chunks[0]
         chunks = chunks[1:]
-    # Every <img> is retained; anything else must carry some content.
-    if elem.tag != "img" and label is None and not attrs and not chunks:
+    is_cell = elem.tag in TABLE_CELL_TAGS
+    if not is_cell and label is None and not attrs and not chunks:
         return []
     # A wrapper adding nothing of its own folds into its single child, so
     # container chains collapse bottom-up into the element that matters.
-    if label is None and not attrs and len(chunks) == 1 and isinstance(chunks[0], list):
+    if (
+        not is_cell
+        and label is None
+        and not attrs
+        and len(chunks) == 1
+        and isinstance(chunks[0], list)
+    ):
         return chunks[0]
     key = elem.tag if label is None else f"{elem.tag} {_quote(label)}"
     key += "".join(f" [{name}={value}]" for name, value in attrs)

@@ -32,14 +32,16 @@ def test_text_structure() -> None:
     ]
 
 
-def test_linked_and_unlinked_images() -> None:
-    """Every img is retained, with src resolved against the page URL."""
+def test_images_kept_by_their_attributes() -> None:
+    """Images survive via their src/alt attributes; an attr-less img is
+    dropped like any other content-free element."""
     html = """
     <body>
       <a href="/people/jane"><img src="/img/jane.jpg" alt="Jane Doe"></a>
       <img src="https://cdn.example.org/logo.png" alt="">
       <img src="img/group.webp">
       <img alt="missing src">
+      <img>
     </body>
     """
     assert build_outline(BASE, html).splitlines() == [
@@ -220,6 +222,35 @@ def test_singular_wrappers_collapse() -> None:
         "  - img [src=https://example.org/b.png]",
         "- a [href=https://example.org/x]:",
         '  - span "Link text"',
+    ]
+
+
+def test_table_cells_keep_markers() -> None:
+    """Cells never fold into content or vanish when empty: markers are columns."""
+    html = """
+    <body>
+      <table>
+        <tr><th></th><th>Position</th><th>Officeholder</th></tr>
+        <tr><td>1</td><td>Director-General</td><td><a href="/people/varga">Dr. Linnea Varga</a></td></tr>
+        <tr><td>2</td><td>Ombudsman</td><td></td></tr>
+      </table>
+    </body>
+    """
+    assert build_outline(BASE, html).splitlines() == [
+        "- table:",
+        "  - tr:",
+        "    - th",
+        '    - th "Position"',
+        '    - th "Officeholder"',
+        "  - tr:",
+        '    - td "1"',
+        '    - td "Director-General"',
+        "    - td:",
+        '      - a "Dr. Linnea Varga" [href=https://example.org/people/varga]',
+        "  - tr:",
+        '    - td "2"',
+        '    - td "Ombudsman"',
+        "    - td",
     ]
 
 
