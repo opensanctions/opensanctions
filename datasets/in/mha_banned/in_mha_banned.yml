@@ -95,14 +95,15 @@ lookups:
           - raw_name: "Coordination Committee (CorCom)"
           - raw_name: "Alliance for Socialist Unity Kangleipak (ASUK)"
       # Faction names and the Sopori faction's other name from the linked
-      # notification S.O. 1415(E):
+      # notification S.O. 1415(E), with JKPL written out as the row and the
+      # notification define it:
       # https://www.mha.gov.in/files/documents/CTDecJKPL_19032024.pdf
       - match: "Four factions of Jammu and Kashmir Peoples League (JKPL), namely : JKPL (Mukhtar Ahmed Waza), JKPL (Bashir Ahmad Tota), JKPL (Ghulam Mohammad Khan @Sopori) and JKPL (Aziz Sheikh) led by Yaqoob Sheikh"
         entities:
-          - raw_name: "JKPL (Mukhtar Ahmed Waza)"
-          - raw_name: "JKPL (Bashir Ahmad Tota)"
-          - raw_name: "JKPL (Ghulam Mohammad Khan @Sopori) also known as Jammu and Kashmir Peoples Political League"
-          - raw_name: "JKPL (Aziz Sheikh)"
+          - raw_name: "Jammu and Kashmir Peoples League (Mukhtar Ahmed Waza)"
+          - raw_name: "Jammu and Kashmir Peoples League (Bashir Ahmad Tota)"
+          - raw_name: "Jammu and Kashmir Peoples League (Ghulam Mohammad Khan @Sopori) also known as Jammu and Kashmir Peoples Political League"
+          - raw_name: "Jammu and Kashmir Peoples League (Aziz Sheikh)"
       # First Schedule entry 38. The row has no linked notification, so the
       # split follows the row text.
       - match: "Islamic State/Islamic State of Iraq and Levant/Islamic State of Iraq and Syria/Daish/ Islamic State in Khorasan Province (ISKP) /ISIS Wilayat Khorasan/ Islamic State of Iraq and the Sham- Khorasan (ISISK) and all its manifestations"
