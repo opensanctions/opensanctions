@@ -210,87 +210,6 @@ lookups:
       - match: "Type d'entité: société à responsabilité limitée"
         props:
           legalForm: société à responsabilité limitée
-      - match: "Type d'entité: institution relevant du budget de l'État fédéral"
-        props:
-          legalForm: institution relevant du budget de l'État fédéral
-      - match: "Type d'entité: établissement de zone franche"
-        props:
-          legalForm: établissement de zone franche
-      # Registration numbers with non-standard formats
-      - match: "Numéro d'enregistrement: 311490-3301-ЗАО"
-        props:
-          registrationNumber: "311490-3301-ЗАО"
-      - match: "Numéro d'enregistrement: 004181508-0405"
-        props:
-          registrationNumber: "004181508-0405"
-      - match: "Numéro d'enregistrement: 73787237 (Hong Kong Business Registration Number); 3127263 (Hong Kong CR Number)"
-        props:
-          registrationNumber:
-            - "73787237"
-            - "3127263"
-      # Multiple incorporation dates
-      - match: "Date d'enregistrement: 1946; 15.10.2002"
-        props:
-          incorporationDate:
-            - "1946"
-            - "2002-10-15"
-      # Complex segments with mixed property types
-      - match: "Numéro d'identification fiscale: 6685066917 - Code du motif d'enregistrement: 668501001"
-        props:
-          taxNumber: "6685066917"
-          kppCode: "668501001"
-      - match: "Principal lieu d'activité: Fédération de Russie: société par actions"
-        props:
-          country: ru
-          legalForm: société par actions
-      - match: "Code de crédit social unifié chinois: 913210007908906337"
-        props:
-          uscCode: "913210007908906337"
-      - match: "Principal lieu d'activité: région administrative spéciale de Hong Kong de la République populaire de Chine"
-        props:
-          country: hk
-      - match: "Principal lieu d'activité: Fédération de Russie; Belize"
-        props:
-          country:
-            - ru
-            - bz
-      - match: "Type de navire: bateau-citerne, pétrolier"
-        props:
-          type:
-            - bateau-citerne
-            - pétrolier
-      # Multi-word legal forms that the single-value guard rejects
-      - match: "Type d'entité: entreprise unitaire publique fédérale"
-        props:
-          legalForm: entreprise unitaire publique fédérale
-      - match: "Type d'entité: institution autonome de l'État fédéral"
-        props:
-          legalForm: institution autonome de l'État fédéral
-      # Registration dates with multiple values / month names
-      - match: "Date d'enregistrement: 8.8.1934; 30.1.2003"
-        props:
-          incorporationDate:
-            - "1934-08-08"
-            - "2003-01-30"
-      - match: "Date d'enregistrement: Décembre 2022"
-        props:
-          incorporationDate: "2022-12"
-      # Principal établissement -> jurisdiction (country failed to clean due to spacing/accents)
-      - match: "Principal établissement: République de  Biélorussie"
-        props:
-          jurisdiction: by
-      - match: "Principal établissement: République d'Azerbaïdjan"
-        props:
-          jurisdiction: az
-      - match: "Principal établissement: Province du Henan,  République populaire de Chine"
-        props:
-          jurisdiction: cn
-          address: "Province du Henan, République populaire de Chine"
-      # Lieu d'enregistrement (place of registration)
-      - match: "Lieu d'enregistrement: Xinxiang, province du  Henan, Chine"
-        props:
-          jurisdiction: cn
-          address: "Xinxiang, province du Henan, Chine"
       - match: "Lieu d'enregistrement: Hong Kong, République  populaire de Chine"
         props:
           jurisdiction: hk
@@ -6955,6 +6874,72 @@ lookups:
       - match: "Numéro russe d’identification fiscale: 0268061215"
         props:
           innCode: "0268061215"
+      - match: "Principal établissement: République de  Biélorussie"
+      - match: "Numéro d’enregistrement: 311490-3301-ЗАО"
+        props:
+          registrationNumber: "311490-3301-ЗАО"
+      - match: "Date d’enregistrement: 1946; 15.10.2002"
+        props:
+          incorporationDate:
+            - "2002-10-15"
+            - "1946"
+      - match: "Type d’entité: entreprise unitaire publique fédérale"
+        props:
+          legalForm: "entreprise unitaire publique fédérale"
+      - match: "Date d’enregistrement: 8.8.1934; 30.1.2003"
+        props:
+          incorporationDate:
+            - "1934-08-08"
+            - "2003-01-30"
+      - match: "Type de navire: bateau-citerne, pétrolier"
+        props:
+          type:
+            - "bateau-citerne"
+            - "pétrolier"
+      - match: "Type d’entité: établissement de zone franche"
+        props:
+          legalForm: "établissement de zone franche"
+      - match: "Type d’entité: institution autonome de l’État fédéral"
+        props:
+          legalForm: "institution autonome de l'État fédéral"
+      - match: "Lieu d’enregistrement: Xinxiang, province du  Henan, Chine"
+        props:
+          jurisdiction: "cn"
+          address: "Xinxiang, province du Henan, Chine"
+      - match: "Principal établissement: Province du Henan,  République populaire de Chine"
+        props:
+          address: "Province du Henan, République populaire de Chine"
+      - match: "Code de crédit social unifié chinois: 913210007908906337"
+        props:
+          uscCode: "913210007908906337"
+      - match: "Numéro d’enregistrement: 73787237 (Hong Kong Business Registration Number); 3127263 (Hong Kong CR Number)"
+        props:
+          registrationNumber:
+            - "3127263"
+            - "73787237"
+      - match: "Principal lieu d’activité: région administrative spéciale de Hong Kong de la République populaire de Chine"
+        props:
+          country: "hk"
+      - match: "Date d’enregistrement: Décembre 2022"
+        props:
+          incorporationDate: "2022-12"
+      - match: "Principal lieu d’activité: Fédération de Russie; Belize"
+        props:
+          country:
+            - "ru"
+            - "bz"
+      - match: "Type d’entité: établissement de zone franche"
+        props:
+          legalForm: "établissement de zone franche"
+      - match: "Numéro d’enregistrement: 004181508-0405"
+        props:
+          registrationNumber: "004181508-0405"
+      - match: "Principal établissement: République d’Azerbaïdjan"
+        props:
+          jurisdiction: "az"
+      - match: "Type d’entité: institution relevant du budget de l’État fédéral"
+        props:
+          legalForm: "institution relevant du budget de l'État fédéral"
   # =====================================
   #
   #  ADDRESSES
