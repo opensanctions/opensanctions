@@ -1,11 +1,8 @@
 import json
-import re
 from typing import Any
 
 from banal import ensure_list
 from datapatch import Lookup
-from followthemoney.types import registry
-from normality import slugify
 from prefixdate import parse_parts
 from rigour.mime.types import JSON
 
@@ -23,101 +20,12 @@ SCHEMATA = {
     "Navire": "Vessel",
 }
 
-# Only word-character and dots
-IDENTIFIER_SINGLE_VALUE_REGEX = re.compile(r"^[\w\.]+$")
-SEPARATORS = "/:;-. "
-# DEPRECATED: the segment splitter keys were for human maintainers only. Fix
-# identification warnings with the `identification_full` lookup instead.
-# Order matters, earlier entries will be matched first
-# We don't match free-text fields (currently address) because they could swallow up extra data of unmapped keys.
-# For example, consider "Lieu d'enregistrement: Tehran, Iran - New Key: blabla", "New Key: blabla" would end up in the
-# address field.
-TEXT_KEYS = {
-    "Type d'entité": "legalForm",
-    "Date d'enregistrement": "incorporationDate",
-    "Date de constitution": "incorporationDate",
-    # address, which is a free text field we don't auto-parse because it's too easy for the value
-    # to silently include a key we don't know about yet.
-    "Lieu d'enregistrement": None,
-    "Principal établissement": "jurisdiction",
-    "Principaux établissements": "jurisdiction",
-    "Établissement principal": "jurisdiction",
-    "Siège principal d'exploitation": "jurisdiction",
-    "Numéro d'identification fiscale (INN)": "innCode",
-    "Numéro personnel d'identification fiscale (INN)": "innCode",
-    "INN (numéro d'identification fiscale)": "innCode",
-    "INN (NIF)": "innCode",
-    "Numéro d'identification fiscale russe": "innCode",
-    # Contains the : as the prefix because otherwise we also get a match for "Numéro d'identification fiscale (INN)"
-    "INN:": "innCode",
-    # "INN": "innCode",  <-- we can't currently add this
-    "Numéro d'identification fiscale (OGRN)": "ogrnCode",
-    "Numéro d'enregistrement (OGRN)": "ogrnCode",
-    "OGRN:": "ogrnCode",
-    "KPP": "kppCode",
-    "OKPO": "okpoCode",
-    "PSRN": "registrationNumber",
-    "SWIFT/BIC": "swiftBic",
-    "SWIFT": "swiftBic",
-    "PPC": None,
-    "Principal lieu d'activité": "country",
-    "Numéro d'enregistrement de l'entreprise": "registrationNumber",
-    "Numéro d'enregistrement national principal": "registrationNumber",
-    "Numéro d'enregistrement national": "registrationNumber",
-    "Numéro d'enregistrement": "registrationNumber",
-    "Numéro d’enregistrement": "registrationNumber",
-    "Numéro d'identification de l'entreprise": "registrationNumber",
-    "numéro d'identification:": "registrationNumber",
-    "Numéro d'immatriculation": "registrationNumber",
-    "Numéro d'inscription au registre du commerce": "registrationNumber",
-    "Numéro de registre de commerce": "registrationNumber",
-    "Numéros d'enregistrement": "registrationNumber",
-    "Code de crédit social unifié": "uscCode",
-    "Numéro d'identification fiscale": "taxNumber",
-    "Numéro d'identification fiscal": "taxNumber",
-    "N ° d'identification fiscale": "taxNumber",
-    "No d'identification fiscale": "taxNumber",
-    "Numéro d'identification fiscale (NIF)": "taxNumber",
-    "Numéro fiscal": "taxNumber",
-    "NIF:": "taxNumber",
-    "OMI": "imoNumber",
-    "Courriel": "email",
-    "Entités associées": None,
-    "Entité associée": None,
-    "Personnes associées": None,
-}
-
-
-def clean_key(key: str) -> str | None:
-    return slugify(key)
-
-
-def parse_split(full: str) -> list[str]:
-    """DEPRECATED: the segment splitter was for human maintainers only. Fix
-    identification warnings with the `identification_full` lookup instead."""
-    full = full.replace("’", "'")
-
-    # We try to find any of the keys in TEXT_KEYS and split on them. The basic idea is to not split on separators,
-    # but just find a key and keep reading until we see the next key.
-    # NOTE: ideally, we would never split within a previously matched key. For example, "Numero OGRN: 1234" will
-    # be split to ["Numero", "OGRN: 1234"], because the key "OGRN" is a suffix of "Numero OGRN". Doesn't happen
-    # that often, so we just solve it with a lookup instead of making the code here more complex.
-    # [0] is important so that if no key is found at the start of the string, it is still passed through
-    indices = [0] + sorted([full.lower().find(key.lower()) for key in TEXT_KEYS.keys()])
-    indices = [i for i in indices if i != -1]
-    segments = [full[i:j] for i, j in zip(indices, indices[1:] + [None])]
-
-    cleaned_segments = [s.strip(SEPARATORS) for s in segments]
-    cleaned_segments = [s for s in cleaned_segments if s != ""]
-
-    return cleaned_segments
-
 
 def apply_identification_lookup(
-    context: Context, lookup: Lookup, entity: Entity, segment: str
+    context: Context, lookup: Lookup, entity: Entity, full: str
 ) -> bool:
-    """Apply a lookup for an identification segment. Returns True if a match was found, else False."""
-    result = lookup.match(segment)
+    """Apply the lookup option matching an identification field. Returns True if a match was found, else False."""
+    result = lookup.match(full)
 
     if result is None:
         return False
@@ -125,15 +33,13 @@ def apply_identification_lookup(
     if result.schema is not None:
         entity.add_schema(result.schema)
     if result.note:
-        entity.add("notes", segment, lang="fra")
+        entity.add("notes", full, lang="fra")
     if result.props:
         for prop, value in result.props.items():
             if prop == "kppCode":
-                entity.add_cast(
-                    "Company", prop, value, lang="fra", original_value=segment
-                )
+                entity.add_cast("Company", prop, value, lang="fra", original_value=full)
             else:
-                entity.add(prop, value, lang="fra", original_value=segment)
+                entity.add(prop, value, lang="fra", original_value=full)
     if result.associates:
         for associate in result.associates:
             other = context.make("LegalEntity")
@@ -157,31 +63,8 @@ def apply_identification_lookup(
                 wallet.add("publicKey", publicKey)
                 wallet.add("holder", entity.id)
                 context.emit(wallet)
-    if result.vessels:
-        for vessel_data in result.vessels:
-            imo_number = vessel_data.get("imoNumber", None)
-            name = vessel_data.get("name")
-            vessel = context.make("Vessel")
-            vessel.id = context.make_slug("vessel", imo_number, name)
-            vessel.add("imoNumber", imo_number)
-            vessel.add("name", name)
-            vessel_rel = context.make("UnknownLink")
-            vessel_rel.id = context.make_id(entity.id, vessel.id)
-            vessel_rel.add("subject", entity)
-            vessel_rel.add("object", vessel)
-            context.emit(vessel_rel)
-            context.emit(vessel)
 
     return True
-
-
-def identifier_value_is_single_value(context: Context, value: str) -> bool:
-    if IDENTIFIER_SINGLE_VALUE_REGEX.match(value):
-        return True
-
-    country_override = context.lookup_value("type.country", value, value)
-    country_clean = registry.country.clean(country_override)
-    return country_clean is not None
 
 
 def parse_identification(
@@ -191,63 +74,18 @@ def parse_identification(
 ) -> None:
     """Parse the identification field and add the appropriate properties to the entity.
 
-    The field is free text following a loose "<label>: <value>" convention, so the
-    segment splitting below is heuristic. Any field the splitter can't fully parse
-    raises one warning, fixed by adding an option to the `identification_full`
-    lookup, whose leading comment holds the rules for doing so.
+    The field is free text following a loose "<label>: <value>" convention. Each
+    distinct field is mapped by an option in the `identification_full` lookup, whose
+    leading comment holds the rules for adding one. An unmatched field raises a
+    warning with the string to match on.
     """
     comment = value.pop("Commentaire")
     content = value.pop("Identification")
-    full = f"{comment}: {content}".strip(SEPARATORS)
+    full = f"{comment}: {content}".strip("/:;-. ")
 
-    # First, check if we have a lookup for the whole identification field,
-    # overriding the segment splitting logic
-    if apply_identification_lookup(
+    if not apply_identification_lookup(
         context, context.get_lookup("identification_full"), entity, full
     ):
-        return
-
-    # DEPRECATED: segment parsing was for human maintainers only. Fix
-    # identification warnings with the `identification_full` lookup instead.
-    segments = parse_split(full)
-    parsed_all_segments = True
-    for segment in segments:
-        if apply_identification_lookup(
-            context, context.get_lookup("identification_segment"), entity, segment
-        ):
-            continue
-
-        for key, propname in TEXT_KEYS.items():
-            if segment.lower().startswith(key.lower()) and propname is not None:
-                prop_value = segment[len(key) :].strip(SEPARATORS)
-
-                if not identifier_value_is_single_value(context, prop_value):
-                    # Likely multiple values, which we don't auto-parse.
-                    parsed_all_segments = False
-                    break
-
-                if propname == "kppCode":
-                    entity.add_cast(
-                        "Company",
-                        propname,
-                        prop_value,
-                        lang="fra",
-                        original_value=segment,
-                    )
-                elif propname == "incorporationDate":
-                    h.apply_date(entity, propname, prop_value)
-
-                else:
-                    entity.add(propname, prop_value, lang="fra", original_value=segment)
-
-                # We found what this key means, no need to try other keys.
-                break
-        else:
-            parsed_all_segments = False
-
-    if not parsed_all_segments:
-        # Fix with an option under the `identification_full` lookup in
-        # fr_tresor_gels_avoir.yml (read the comment above that lookup first).
         context.log.warning("Cannot parse identification field.", full=full)
 
 
@@ -320,7 +158,6 @@ def apply_prop(
 
 
 def crawl_entity(context: Context, data: dict[str, Any]) -> None:
-    # context.inspect(data)
     nature = data.pop("Nature")
     reg_id = data.pop("IdRegistre")
 
@@ -389,6 +226,3 @@ def crawl(context: Context) -> None:
     # date = publications.get("DatePublication")
     for detail in publications.get("PublicationDetail"):
         crawl_entity(context, detail)
-
-    # context.debug_lookups()
-    # print(context.get_lookup("identification").unmatched_yaml({"props": {}}))
