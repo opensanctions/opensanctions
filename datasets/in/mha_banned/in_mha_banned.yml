@@ -95,88 +95,18 @@ lookups:
           - raw_name: "Coordination Committee (CorCom)"
           - raw_name: "Alliance for Socialist Unity Kangleipak (ASUK)"
       # Faction names and the Sopori faction's other name from the linked
-      # notification S.O. 1415(E):
+      # notification S.O. 1415(E), with JKPL written out as the row and the
+      # notification define it:
       # https://www.mha.gov.in/files/documents/CTDecJKPL_19032024.pdf
       - match: "Four factions of Jammu and Kashmir Peoples League (JKPL), namely : JKPL (Mukhtar Ahmed Waza), JKPL (Bashir Ahmad Tota), JKPL (Ghulam Mohammad Khan @Sopori) and JKPL (Aziz Sheikh) led by Yaqoob Sheikh"
         entities:
-          - raw_name: "JKPL (Mukhtar Ahmed Waza)"
-          - raw_name: "JKPL (Bashir Ahmad Tota)"
-          - raw_name: "JKPL (Ghulam Mohammad Khan @Sopori) also known as Jammu and Kashmir Peoples Political League"
-          - raw_name: "JKPL (Aziz Sheikh)"
+          - raw_name: "Jammu and Kashmir Peoples League (Mukhtar Ahmed Waza)"
+          - raw_name: "Jammu and Kashmir Peoples League (Bashir Ahmad Tota)"
+          - raw_name: "Jammu and Kashmir Peoples League (Ghulam Mohammad Khan @Sopori) also known as Jammu and Kashmir Peoples Political League"
+          - raw_name: "Jammu and Kashmir Peoples League (Aziz Sheikh)"
       # First Schedule entry 38. The row has no linked notification, so the
       # split follows the row text.
       - match: "Islamic State/Islamic State of Iraq and Levant/Islamic State of Iraq and Syria/Daish/ Islamic State in Khorasan Province (ISKP) /ISIS Wilayat Khorasan/ Islamic State of Iraq and the Sham- Khorasan (ISISK) and all its manifestations"
         entities:
           - raw_name: "Islamic State/Islamic State of Iraq and Levant/Islamic State of Iraq and Syria/Daish"
           - raw_name: "Islamic State in Khorasan Province (ISKP) /ISIS Wilayat Khorasan/ Islamic State of Iraq and the Sham- Khorasan (ISISK)"
-  names:
-    options:
-      - match: "Popular Front of India (PFI) and its associates or affiliates or fronts"
-        name: Popular Front of India
-        abbreviation: [PFI]
-      - match: "Muslim League Jammu Kashmir (Masarat Alam faction) / MLJK-MA"
-        name: Muslim League Jammu Kashmir (Masarat Alam faction)
-        abbreviation: [MLJK-MA]
-      - match: "Lashkar-E-Taiba/Pasban-E-Ahle Hadis/ The Resistance Front and all its manifestations and front Organisations"
-        name: Lashkar-E-Taiba
-        alias: [Pasban-E-Ahle Hadis, The Resistance Front]
-      - match: "Jaish-E-Mohammed/Tahreik-E-Furquan/ People’s Anti-Fascist-Front (PAFF) and all its manifestations and front organisations"
-        name: Jaish-E-Mohammed
-        alias: [Tahreik-E-Furqan, People’s Anti-Fascist-Front]
-        abbreviation: [PAFF]
-      - match: "Harkat-ul-Mujahideen/Harkat-ul-Ansar/Harkat-ul-Jehad-E-Islami or Ansar-Ul-Ummah"
-        name: Harkat-ul-Mujahideen
-        alias: [Harkat-ul-Ansar, Harkat-ul-Jehad-E-Islami, Ansar UlUmmah]
-      - match: "Hizb-Ul-Mujahideen/Hizb-Ul-Mujahideen Pir Panjal Regiment"
-        name: Hizb-Ul-Mujahideen
-        alias: [Hizb-Ul-Mujahideen Pir Panjal Regiment]
-      - match: "Communist Party of India (Marxizt-Leninst) – Peoples War, all its formations and front Organizations"
-        name: Communist Party of India (Marxist-Leninist) - Peoples War
-      - match: "Maoist Communist Centre (MCC), all its formations and Front Organizations"
-        name: Maoist Communist Centre
-        abbreviation: [MCC]
-      - match: "Al-Qaida/ Al-Qaida in Indian Sub-continent (AQIS) and all its manifestations"
-        name: Al-Qaida in Indian Sub-Continent
-        abbreviation: [AQIS]
-      - match: "Communist Party of India (Maoist) all its formations and front organizations."
-        name: Communist Party of India (Maoist)
-      - match: "Indian Mujahideen, all its formations and front organizations"
-        name: Indian Mujahideen
-      - match: "Garo National Liberation Army (GNLA), all its formations and front organizations"
-        name: Garo National Liberation Army
-        abbreviation: [GNLA]
-      - match: "Kamatapur Liberation Organization, all its formations and front organizations"
-        name: Kamatapur Liberation Organization
-      - match: "National Socialist Council of Nagaland (Khaplang) (NSCN(K), all its formations and front organizations."
-        name: National Socialist Council of Nagaland (Khaplang)
-        abbreviation: [NSCN(K)]
-      - match: "The Khalistan Liberation Force and all its manifestations."
-        name: Khalistan Liberation Force
-      - match: "Tehreek-ul-Mujahideen (TuM) and all its manifestations"
-        name: Tehreek-ul-Mujahideen
-        abbreviation: [TuM]
-      - match: "Jamaat-ul-Mujahideen Bangladesh or Jamaat-ul Mujahideen India or Jamaat-ul- Mujahideen Hindustan and all its manifestations"
-        name: Jamaat-ul-Mujahideen Bangladesh
-        alias: [Jamaat-ul-Mujahideen India, Jamaat ulMujahideen Hindustan]
-      - match: "Jammu and Kashmir Ghaznavi Force (JKGF) and all its manifestations and front organisations"
-        name: Jammu and Kashmir Ghaznavi Force
-        abbreviation: [JKGF]
-      - match: "Khalistan Tiger Force (KTF) and all its manifestations and front organisations."
-        name: Khalistan Tiger Force
-        abbreviation: [KTF]
-      - match: "Hizb-Ut-Tahrir (HuT) and all its manifestations and front organisations."
-        name: Hizb-Ut-Tahrir
-        abbreviation: [HuT]
-      - match: "Islamic State/Islamic State of Iraq and Levant/Islamic State of Iraq and Syria/Daish"
-        name: Islamic State/Islamic State of Iraq and Levant
-        alias: [Islamic State of Iraq and Syria, Daish]
-      - match: "Islamic State in Khorasan Province (ISKP) /ISIS Wilayat Khorasan/ Islamic State of Iraq and the Sham- Khorasan (ISISK)"
-        name: Islamic State in Khorasan Province
-        alias: [ISIS Wilayat Khorasan, Islamic State of Iraq and the Sham-Khorasan]
-        abbreviation: [ISKP, ISISK]
-      - match: "Coordination Committee (CorCom)"
-        name: Coordination Committee
-        abbreviation: [CorCom]
-      - match: "JKPL (Ghulam Mohammad Khan @Sopori) also known as Jammu and Kashmir Peoples Political League"
-        name: JKPL (Ghulam Mohammad Khan @Sopori)
-        alias: [Jammu and Kashmir Peoples Political League]
