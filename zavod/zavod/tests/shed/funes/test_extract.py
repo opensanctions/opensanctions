@@ -4,11 +4,10 @@ import asyncio
 import json
 
 import pytest
-from pydantic import TypeAdapter, ValidationError
+from pydantic import ValidationError
 from pydantic_ai import Agent, BinaryContent
 from pydantic_ai.messages import (
     ModelResponse,
-    RetryPromptPart,
     TextPart,
     ToolCallPart,
     ToolReturnPart,
@@ -22,14 +21,11 @@ from zavod.shed.funes.extract import (
     ExtractionDependencies,
     Hit,
     Miss,
-    PageResult,
     Person,
     Position,
     extraction_agent,
     view_resource,
 )
-
-result_adapter = TypeAdapter(PageResult)
 
 _PERSON = {
     "name": "Amina Diallo",
@@ -59,9 +55,9 @@ def _native_text(member: str, payload: dict) -> str:
 
 
 def test_hit_requires_at_least_one_person() -> None:
-    assert (
-        Hit(persons=[{"name": "A", "positions": [{"name": "Director"}]}]).kind == "hit"
-    )
+    hit = Hit(persons=[{"name": "A", "positions": [{"name": "Director"}]}])
+    assert [p.name for p in hit.persons] == ["A"]
+    assert [pos.name for pos in hit.persons[0].positions] == ["Director"]
     with pytest.raises(ValidationError):
         Hit(persons=[])
     with pytest.raises(ValidationError):
@@ -71,33 +67,6 @@ def test_hit_requires_at_least_one_person() -> None:
 def test_output_models_reject_unknown_fields() -> None:
     with pytest.raises(ValidationError):
         Miss(reason="no holders", unexpected=True)
-
-
-def test_union_discriminates_on_kind() -> None:
-    hit_payload = {
-        "kind": "hit",
-        "persons": [{"name": "Amina Diallo", "positions": [{"name": "Director"}]}],
-    }
-    assert isinstance(result_adapter.validate_python(hit_payload), Hit)
-    assert isinstance(
-        result_adapter.validate_python({"kind": "miss", "reason": "no holders"}), Miss
-    )
-    assert isinstance(
-        result_adapter.validate_python({"kind": "broken", "reason": "bot challenge"}),
-        BrokenSnapshot,
-    )
-    with pytest.raises(ValidationError):
-        result_adapter.validate_python({"kind": "other"})
-    with pytest.raises(ValidationError):
-        result_adapter.validate_python({"kind": "hit"})
-
-
-def test_union_rejects_payload_missing_kind() -> None:
-    # Without kind, the discriminated union must fail loudly.
-    with pytest.raises(ValidationError):
-        result_adapter.validate_python({"reason": "404"})
-    with pytest.raises(ValidationError):
-        result_adapter.validate_python({"persons": []})
 
 
 # --- view_resource tool ---
@@ -169,10 +138,10 @@ def test_view_resource_returns_binary_content() -> None:
     assert content.media_type == "image/jpeg"
 
 
-def test_view_resource_retries_on_unknown_body_path() -> None:
+def test_view_resource_fails_on_unknown_body_path() -> None:
     def fn(messages, info):
         if not any(
-            isinstance(p, RetryPromptPart)
+            isinstance(p, ToolReturnPart) and p.outcome == "failed"
             for m in messages
             for p in getattr(m, "parts", [])
         ):
@@ -187,19 +156,19 @@ def test_view_resource_retries_on_unknown_body_path() -> None:
 
     deps = _deps({"bodies/a.jpg": "image/jpeg"})
     result = asyncio.run(_view_agent(fn).run("look", deps=deps))
-    retries = [
+    failures = [
         p
         for p in _tool_return_part(result)
-        if isinstance(p, RetryPromptPart) and p.tool_name == "view_resource"
+        if isinstance(p, ToolReturnPart) and p.outcome == "failed"
     ]
-    assert len(retries) == 1
-    assert "no captured resource" in retries[0].content
+    assert len(failures) == 1
+    assert "no captured resource" in failures[0].content
 
 
-def test_view_resource_retries_on_unsupported_media_type() -> None:
+def test_view_resource_fails_on_unsupported_media_type() -> None:
     def fn(messages, info):
         if not any(
-            isinstance(p, RetryPromptPart)
+            isinstance(p, ToolReturnPart) and p.outcome == "failed"
             for m in messages
             for p in getattr(m, "parts", [])
         ):
@@ -214,13 +183,13 @@ def test_view_resource_retries_on_unsupported_media_type() -> None:
 
     deps = _deps({"bodies/v.svg": "image/svg+xml"})
     result = asyncio.run(_view_agent(fn).run("look", deps=deps))
-    retries = [
+    failures = [
         p
         for p in _tool_return_part(result)
-        if isinstance(p, RetryPromptPart) and p.tool_name == "view_resource"
+        if isinstance(p, ToolReturnPart) and p.outcome == "failed"
     ]
-    assert len(retries) == 1
-    assert "image/svg+xml" in retries[0].content
+    assert len(failures) == 1
+    assert "image/svg+xml" in failures[0].content
 
 
 def test_view_resource_reads_through_dependencies() -> None:
@@ -272,7 +241,7 @@ def test_view_resource_reads_through_dependencies() -> None:
 def test_agent_function_model_returns_hit_with_nested_graph() -> None:
     def fn(messages, info):
         return ModelResponse(
-            parts=[TextPart(_native_text("Hit", {"kind": "hit", "persons": [_PERSON]}))]
+            parts=[TextPart(_native_text("Hit", {"persons": [_PERSON]}))]
         )
 
     with extraction_agent.override(model=FunctionModel(fn)):
@@ -294,10 +263,7 @@ def test_agent_function_model_returns_miss() -> None:
         return ModelResponse(
             parts=[
                 TextPart(
-                    _native_text(
-                        "Miss",
-                        {"kind": "miss", "reason": "No officeholders; news article."},
-                    )
+                    _native_text("Miss", {"reason": "No officeholders; news article."})
                 )
             ]
         )
@@ -314,10 +280,7 @@ def test_agent_function_model_returns_broken_snapshot() -> None:
         return ModelResponse(
             parts=[
                 TextPart(
-                    _native_text(
-                        "BrokenSnapshot",
-                        {"kind": "broken", "reason": "Cloudflare challenge"},
-                    )
+                    _native_text("BrokenSnapshot", {"reason": "Cloudflare challenge"})
                 )
             ]
         )
@@ -339,7 +302,7 @@ def test_agent_test_model_views_resource_and_produces_valid_result() -> None:
     test_model = TestModel(
         profile={"supports_json_schema_output": True},
         custom_output_text=_native_text(
-            "Miss", {"kind": "miss", "reason": "No officeholders on the page."}
+            "Miss", {"reason": "No officeholders on the page."}
         ),
     )
     with extraction_agent.override(model=test_model):
@@ -382,13 +345,7 @@ def test_extraction_agent_receives_the_brief_instructions() -> None:
     def extraction_fn(messages, info):
         seen["extraction"] = info.instructions
         return ModelResponse(
-            parts=[
-                TextPart(
-                    _native_text(
-                        "Miss", {"kind": "miss", "reason": "No board members here."}
-                    )
-                )
-            ]
+            parts=[TextPart(_native_text("Miss", {"reason": "No board members here."}))]
         )
 
     with extraction_agent.override(model=FunctionModel(extraction_fn)):

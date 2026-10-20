@@ -2,25 +2,24 @@
 
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
-from typing import Annotated, Literal, get_args
+from typing import get_args
 
 from pydantic import Field
 from pydantic_ai import (
     Agent,
     BinaryContent,
     ImageMediaType,
-    ModelRetry,
     NativeOutput,
     RunContext,
+    ToolFailed,
 )
 
 from zavod.shed.funes.agents import Brief, StrictModel, render_brief
 
 # The media types pydantic-ai itself declares viewable, taken from
-# ImageMediaType instead of being restated here. Any other type fails the
-# whole run: the OpenAI adapter cannot serialize some of them, and the
-# provider rejects the rest with a fatal request error rather than a
-# retryable one.
+# ImageMediaType instead of being restated here. Without this pre-check, any
+# other type reaches the provider, which rejects it with a fatal request
+# error rather than a retryable one.
 VIEWABLE_MEDIA_TYPES = frozenset(get_args(ImageMediaType))
 
 _EXTRACTION_INSTRUCTIONS = """\
@@ -42,22 +41,22 @@ page evidence; never populate them from the brief itself.
 Follow these steps in order:
 
 1. Classify the snapshot using the outcome policy below. If it is broken,
-   return kind="broken" and stop. If it establishes terminal unavailability,
-   return kind="miss" and stop.
+   return a broken result and stop. If it establishes terminal unavailability,
+   return a miss and stop.
 2. Read the entire usable source, including metadata and the full outline.
    Inspect captured images according to the image-resource policy below.
 3. Check the subject: unless the page concerns the subject named in the
-   brief, return kind="miss" naming the subject the page does concern.
+   brief, return a miss naming the subject the page does concern.
 4. Find every supported person-position relationship covered by the brief.
-5. Return kind="hit" with those relationships, or kind="miss" with a short
-   reason naming what the page contains and why it does not meet the brief.
+5. Return a hit with those relationships, or a miss with a short reason
+   naming what the page contains and why it does not meet the brief.
 6. Before returning a hit, verify that every person is named, every position
    is supported, all fields use source wording, and duplicates are merged.
 
 # Outcome policy
 
-Brokenness is about this immutable capture, not the brief. Return
-kind="broken" only when required public content was not captured and the
+Brokenness is about this immutable capture, not the brief. Return a broken
+result only when required public content was not captured and the
 supported repair workflow could plausibly reveal it by reloading, waiting,
 or clicking a non-credential interstitial. Name the observed blocker in the
 reason.
@@ -78,7 +77,7 @@ usable homepage, parked domain, unrelated portal, or not-found destination is a
 miss; an access blocker or transient error is broken; a credential or
 subscription wall is a miss; and meaningful relevant content remains usable.
 
-Return kind="miss" when the capture establishes that the source is unavailable
+Return a miss when the capture establishes that the source is unavailable
 to the repair workflow: a 404 or missing page, parked domain, account-required
 login wall, or subscription paywall. This is terminal for this inspection; it
 is not a claim that the URL can never change.
@@ -165,37 +164,37 @@ evidence.
 <example>
 Brief: People sought: board members. Organization: Example Foundation.
 Source: Title "Board of Directors — Example Foundation"; outline "Amina Diallo".
-Output: {"kind":"hit","persons":[{"name":"Amina Diallo","positions":[{"name":"Director","organization":"Example Foundation"}]}]}
+Output: {"result":{"kind":"Hit","data":{"persons":[{"name":"Amina Diallo","positions":[{"name":"Director","organization":"Example Foundation"}]}]}}}
 </example>
 
 <example>
 Brief: People sought: national legislators. Sending country: France.
 Source: "Honorary Life Members: Luis Ortega, Mina Park."
-Output: {"kind":"miss","reason":"The page lists honorary members, not national legislators."}
+Output: {"result":{"kind":"Miss","data":{"reason":"The page lists honorary members, not national legislators."}}}
 </example>
 
 <example>
 Brief: People sought: heads of international organizations. Organization: Green Climate Fund.
 Source: Title "Boardroom — Global Environment Facility"; outline "Chair: Carlos Mehta".
-Output: {"kind":"miss","reason":"The page lists the Global Environment Facility board, not the Green Climate Fund."}
+Output: {"result":{"kind":"Miss","data":{"reason":"The page lists the Global Environment Facility board, not the Green Climate Fund."}}}
 </example>
 
 <example>
 Brief: People sought: officeholders of the association. Organization: Harborlight Members' Club.
 Source: "The association was founded by Eleanor Vance."
-Output: {"kind":"miss","reason":"The page names a founder action but no officeholder or position."}
+Output: {"result":{"kind":"Miss","data":{"reason":"The page names a founder action but no officeholder or position."}}}
 </example>
 
 <example>
 Brief: People sought: board members of the association. Organization: Harborlight Members' Club.
 Source: "Accept the cookie policy and site terms to view this page."
-Output: {"kind":"broken","reason":"A click-through consent gate blocks the page content."}
+Output: {"result":{"kind":"BrokenSnapshot","data":{"reason":"A click-through consent gate blocks the page content."}}}
 </example>
 
 <example>
 Brief: People sought: board members of the association. Organization: Harborlight Members' Club.
 Source: "Sign in with an existing member account to continue."
-Output: {"kind":"miss","reason":"The page is an account-required login wall."}
+Output: {"result":{"kind":"Miss","data":{"reason":"The page is an account-required login wall."}}}
 </example>
 """
 
@@ -282,7 +281,6 @@ class Hit(StrictModel):
     """The snapshot satisfies the brief: at least one person-position
     relationship relevant to it."""
 
-    kind: Literal["hit"] = "hit"
     persons: list[Person] = Field(
         min_length=1,
         description=(
@@ -300,7 +298,6 @@ class Miss(StrictModel):
     account login, or subscription paywall.
     """
 
-    kind: Literal["miss"] = "miss"
     reason: str = Field(
         description="What the captured page is and why it does not meet the brief."
     )
@@ -309,11 +306,12 @@ class Miss(StrictModel):
 class BrokenSnapshot(StrictModel):
     """Nonterminal capture failure eligible for supported recapture."""
 
-    kind: Literal["broken"] = "broken"
     reason: str = Field(description="The observed condition blocking content.")
 
 
-PageResult = Annotated[Hit | Miss | BrokenSnapshot, Field(discriminator="kind")]
+# Which member a run selected. NativeOutput discriminates the members via its
+# own tagged envelope, so no pydantic discriminator is needed here.
+PageResult = Hit | Miss | BrokenSnapshot
 
 
 @dataclass(frozen=True)
@@ -333,18 +331,18 @@ async def view_resource(
     Use this when the image may contain evidence needed to evaluate the page or
     complete its in-scope person-position relationships. Pass the exact body
     path; this tool cannot fetch an arbitrary URL. It returns the captured image
-    for visual inspection and requests a retry for a missing or unsupported
-    resource.
+    for visual inspection and reports a failed result for a missing or
+    unsupported resource.
     """
     media_type = ctx.deps.resource_media_types.get(body_path)
     if media_type is None:
-        raise ModelRetry(
+        raise ToolFailed(
             f"no captured resource with body path {body_path!r}; only body "
             "paths of resources stored in the snapshot's HTTP archive can be "
             "viewed"
         )
     if media_type not in VIEWABLE_MEDIA_TYPES:
-        raise ModelRetry(
+        raise ToolFailed(
             f"resource {body_path!r} has media type {media_type!r}, which "
             "cannot be viewed; only " + ", ".join(sorted(VIEWABLE_MEDIA_TYPES))
         )
@@ -353,13 +351,16 @@ async def view_resource(
 
 
 # The one extraction agent for the whole application, reused across runs like
-# a FastAPI app. Every run supplies its model. Native structured output compiles
-# the result union to one provider-enforced, strict JSON schema; Pydantic still
-# performs final validation and retries constraints the provider cannot express.
+# a FastAPI app. Every run supplies its model. NativeOutput compiles the result
+# members into one provider-enforced, strict JSON schema: a tagged envelope
+# {"result": {"kind": ..., "data": ...}} whose kind names the result class.
+# Pydantic still validates the selected member and retries constraint failures
+# the provider cannot express.
 extraction_agent: Agent[ExtractionDependencies, PageResult] = Agent(
     name="extraction",
-    # NativeOutput flattens a union at runtime, but its hint only admits bare types.
-    output_type=NativeOutput(PageResult, name="page_result", strict=True),  # type: ignore[arg-type]
+    output_type=NativeOutput[PageResult](
+        [Hit, Miss, BrokenSnapshot], name="page_result", strict=True
+    ),
     instructions=_EXTRACTION_INSTRUCTIONS,
     model_settings={"thinking": "low"},
     deps_type=ExtractionDependencies,
