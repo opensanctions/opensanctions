@@ -49,16 +49,20 @@ http:
     # a search in OpenFIGI is a POST request
     - POST
 
+# The datasets that emit Security entities, listed explicitly: openfigi must
+# not read its own output (e.g. via the `securities` collection), or every
+# security it publishes keeps itself alive across runs. ann_graph_topics
+# supplies the `sanction.linked` topic that the `topics` filter gates on.
 inputs:
-  # if this ever emits adjacent entities:
-  # - ann_graph_topics
-  - sanctions
-  - securities
-  - ru_nsd_isin
+  - ann_graph_topics
   - eu_esma_saris
   - ext_eu_esma_firds
   - ext_gb_fca_firds
   - ext_gleif
+  - research
+  - ru_nsd_isin
+  - us_ofac_cons
+  - us_ofac_sdn
 
 config:
   type: nomenklatura.enrich.openfigi:OpenFIGIEnricher
@@ -66,12 +70,19 @@ config:
   api_key: ${OPENFIGI_API_KEY}
   schemata:
     - Security
+  topics:
+    - sanction
+    - sanction.linked
+    - sanction.control
+    - invest.ban
+    - export.control
+    - export.control.linked
   cache_days: 120
 
 assertions:
   min:
     schema_entities:
-      Security: 155000
+      Security: 100
   max:
     schema_entities:
-      Security: 240000
+      Security: 1000
