@@ -13,7 +13,10 @@ load_statements: true
 ci_test: false
 http:
   # The CELLAR consolidation query scans every consolidated CELEX to match each
-  # framework's version family, and takes ~2 minutes for the 45 frameworks.
+  # framework's version family, so the discovery checks cost minutes in total.
+  # The crawler asks for the consolidations of a few frameworks at a time
+  # (`CONSOLIDATION_BATCH`) to keep each request far below this budget; asking
+  # about all 45 at once measured 188s, which left too little margin.
   # `zavod --debug crawl` skips the CELLAR discovery checks, which is the fast
   # way to iterate on the reviewed CSVs.
   timeout: 300

@@ -16,6 +16,13 @@ DATA_DIR = Path(__file__).parent / "data"
 CSV_DATE_PROPS = frozenset({"birthDate", "incorporationDate"})
 # Multi-valued name columns, reviewed alongside the scalar `name` column.
 CSV_NAME_PROPS = ("alias", "weakAlias", "previousName")
+# CELLAR answers the consolidation query by scanning the CELEX of every
+# consolidated act once per framework asked about, so the request grows
+# superlinearly: all 45 frameworks at once took 188s against a 300s read
+# timeout, the same frameworks in fives took at most 103s each. Ask in small
+# batches so no single request sits near the timeout, and a slow answer costs
+# one batch rather than the whole check.
+CONSOLIDATION_BATCH = 5
 # A name whose bracketed tail may be an abbreviation: one group, closing the value.
 TRAILING_ABBREVIATION_RE = re.compile(r"^(?P<name>[^()]+?)\s*\((?P<abbr>[^()]+)\)$")
 # The scripts an abbreviation is recognised in. Cyrillic short forms are a
@@ -277,6 +284,35 @@ def check_new_amendments(context: Context) -> None:
         )
 
 
+def published_consolidations(
+    context: Context, frameworks: list[str]
+) -> dict[str, tuple[str, ...]]:
+    """List the consolidated versions CELLAR publishes for each framework act.
+
+    A framework the endpoint answered for is always in the result, with an
+    empty tuple when it has never been consolidated. A framework whose batch
+    the endpoint failed to answer is absent, so one slow response mutes the
+    check for that batch alone instead of for every framework.
+    """
+    client = cellar.CellarClient(context.http, context.cache)
+    published: dict[str, tuple[str, ...]] = {}
+    for offset in range(0, len(frameworks), CONSOLIDATION_BATCH):
+        batch = frameworks[offset : offset + CONSOLIDATION_BATCH]
+        try:
+            versions = client.query_consolidations(batch, cache_days=1)
+        except requests.RequestException as exc:
+            # Emission is already complete; a flaky endpoint must not fail the run.
+            context.log.warning(
+                "Could not list consolidated versions",
+                frameworks=batch,
+                error=str(exc),
+            )
+            continue
+        for framework in batch:
+            published[framework] = versions.get(framework, ())
+    return published
+
+
 def check_consolidation_pins(context: Context) -> None:
     """Warn when CELLAR has published a consolidation newer than our pin.
 
@@ -285,16 +321,15 @@ def check_consolidation_pins(context: Context) -> None:
     with the matching scripts/parse_*.py and bump the pin in the same commit.
     """
     pins = consolidation_pins(context)
-    client = cellar.CellarClient(context.http, context.cache)
-    try:
-        published = client.query_consolidations(sorted(pins), cache_days=1)
-    except requests.RequestException as exc:
-        # Emission is already complete; a flaky endpoint must not fail the run.
-        context.log.warning("Could not list consolidated versions", error=str(exc))
-        return
+    published = published_consolidations(context, sorted(pins))
     for framework, pin in sorted(pins.items()):
         versions = published.get(framework)
         if versions is None:
+            # The endpoint did not answer for this framework's batch, which is
+            # already warned about: say nothing more rather than claim CELLAR
+            # has no consolidation of it.
+            continue
+        if not versions:
             context.log.warning(
                 "CELLAR reports no consolidated version", framework=framework
             )
