@@ -10,11 +10,10 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.shed.funes.definitions import dataset_definition
 from zavod.shed.funes.extract import Hit
-from zavod.stateful.positions import categorise
 
 
 def emit_hit(context: Context, hit: Hit, *, source_url: str) -> None:
-    """Emit the person-position graph of a hit, gated on PEP exposure."""
+    """Emit the person-position graph of a hit."""
     definition = dataset_definition(context.dataset)
     if definition is None:
         raise ValueError(
@@ -46,10 +45,6 @@ def emit_hit(context: Context, hit: Hit, *, source_url: str) -> None:
                 organization=organization,
                 source_url=source_url,
             )
-            categorisation = categorise(context, position)
-            if not categorisation.is_pep:
-                continue
-
             occupancy = h.make_occupancy(
                 context,
                 person,
@@ -57,7 +52,6 @@ def emit_hit(context: Context, hit: Hit, *, source_url: str) -> None:
                 no_end_implies_current=False,
                 start_date=position_data.start_date,
                 end_date=position_data.end_date,
-                categorisation=categorisation,
             )
             if occupancy is not None:
                 context.emit(occupancy)
