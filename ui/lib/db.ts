@@ -347,28 +347,41 @@ export async function updateExtractionEntry({ dataset, key, accepted, extractedD
   });
 }
 
-export async function getNextUnacceptedEntryKey(dataset: string): Promise<string | null> {
-  // Subquery to get the latest version for the dataset
-  const latestVersionSubquery = (await getDb())
+/**
+ * Get the key of the next unaccepted entry after cursorKey, wrapping around at the end.
+ *
+ * Each reviewer walks the entries in their own fixed order, so that different
+ * reviewers are unlikely to work on the same entry at the same time, and a skipped
+ * entry only comes back after all other unaccepted entries have been visited.
+ */
+export async function getNextEntryKey(dataset: string, reviewer: string, cursorKey: string): Promise<string | null> {
+  const db = await getDb();
+  const latestVersionSubquery = db
     .selectFrom(REVIEW_TABLE_NAME)
-    .select((await getDb()).fn.max('last_seen_version').as('latest_version'))
+    .select(db.fn.max('last_seen_version').as('latest_version'))
     .where('dataset', '=', dataset)
     .where('deleted_at', 'is', null)
     .as('lv');
 
-  // Join review with the subquery on last_seen_version and filter for unaccepted
-  // Use random ordering to reduce likelihood of multiple reviewers working on the same item
-  const row = await (await getDb())
+  const reviewerOrdering = sql<string>`md5(${reviewer} || review.key)`;
+  const unacceptedQuery = db
     .selectFrom(REVIEW_TABLE_NAME)
     .innerJoin(latestVersionSubquery, 'review.last_seen_version', 'lv.latest_version')
     .select('review.key')
     .where('review.dataset', '=', dataset)
     .where('review.deleted_at', 'is', null)
     .where('review.accepted', '=', false)
-    .orderBy(sql`RANDOM()`)
-    .limit(1)
+    .orderBy(reviewerOrdering)
+    .limit(1);
+
+  const next = await unacceptedQuery
+    .where(sql<boolean>`${reviewerOrdering} > md5(${reviewer} || ${cursorKey})`)
     .executeTakeFirst();
-  return row?.key ?? null;
+  if (next !== undefined) {
+    return next.key;
+  }
+  const first = await unacceptedQuery.executeTakeFirst();
+  return first?.key ?? null;
 }
 
 export interface IPositionFilters {
