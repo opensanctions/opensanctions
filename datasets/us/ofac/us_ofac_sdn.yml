@@ -148,6 +148,8 @@ lookups:
           - DPRK4
           - DPRK-NKSPEA
         value: US-NK
+      - match: PAIPA
+        value: US-PAIPA
       - match:
           - RUSSIA-EO14024
           - PEESA-EO14039

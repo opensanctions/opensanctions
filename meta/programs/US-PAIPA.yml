@@ -1,0 +1,25 @@
+title: Protecting American Intellectual Property Act Sanctions
+key: US-PAIPA
+url: https://ofac.treasury.gov/recent-actions/20261019
+summary: >
+  Targets foreign persons that the President identifies as having knowingly
+  engaged in, benefitted from, or materially supported significant theft of
+  trade secrets of United States persons, under the Protecting American
+  Intellectual Property Act of 2022 (Public Law 117-336). Designated entities
+  face a menu of measures under Section 2 of the Act, such as the blocking of
+  their property, limits on loans from US financial institutions, bans on
+  foreign exchange and banking transactions, and a ban on US investment in
+  their equity or debt. Designated individuals face the blocking of their
+  property and a bar on entry into the United States.
+issuer: us_ofac
+dataset: us_ofac_cons
+aliases:
+  - PAIPA
+  - Protecting American Intellectual Property Act of 2022
+  - Public Law 117-336
+  - PL 117-336
+measures:
+  - Asset freeze
+  - Financial restrictions
+  - Investment ban
+  - Travel ban
