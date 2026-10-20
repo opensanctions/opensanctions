@@ -1,4 +1,10 @@
-"""Tests for emitting FollowTheMoney entities from funes extraction hits."""
+"""Tests for emitting FollowTheMoney entities from funes extraction hits.
+
+These pin the graph emit_hit builds and its conditionals: which entities
+exist, how they are linked, and when emission is suppressed. Property
+cleaning, date parsing, ID derivation, and occupancy status policy belong
+to zavod's helpers and their own tests.
+"""
 
 from typing import Any
 
@@ -87,36 +93,30 @@ def by_schema(entities: list[Entity]) -> dict[str, list[Entity]]:
 def test_emits_full_graph(zavod_db: None) -> None:
     dataset = make_dataset()
     context = emit(dataset, make_hit())
-    person_id = context.make_id("Alice Example", "1980-01-02")
-    organization_id = context.make_id("Example Court")
 
     entities = by_schema(read_entities(dataset, context))
     assert set(entities) == {"Person", "Position", "Organization", "Occupancy"}
 
     person = entities["Person"][0]
-    assert person.id == person_id
     assert person.get("name") == ["Alice Example"]
-    assert person.get("citizenship") == ["de"]
     assert person.get("birthDate") == ["1980-01-02"]
     assert person.get("notes") == ["A lawyer."]
+    assert person.get("citizenship") == ["de"]
 
     organization = entities["Organization"][0]
-    assert organization.id == organization_id
     assert organization.get("name") == ["Example Court"]
 
     position = entities["Position"][0]
     assert position.get("name") == ["Justice"]
     assert position.get("country") == ["de"]
     assert position.get("description") == ["Decides cases."]
-    assert position.get("organization") == [organization_id]
+    assert position.get("sourceUrl") == [SOURCE_URL]
+    assert position.get("organization") == [organization.id]
 
     occupancy = entities["Occupancy"][0]
-    assert occupancy.get("holder") == [person_id]
+    assert occupancy.get("holder") == [person.id]
     assert occupancy.get("post") == [position.id]
     assert occupancy.get("startDate") == ["2022-01-01"]
-    # emit passes no_end_implies_current=False, so an undated occupancy is
-    # unknown and carries no status.
-    assert occupancy.get("status") == []
 
 
 def test_organization_absent(zavod_db: None) -> None:
@@ -130,7 +130,8 @@ def test_organization_absent(zavod_db: None) -> None:
 
 def test_after_office_position_is_dropped(zavod_db: None) -> None:
     """A position whose occupancy is rejected drops the whole graph, not
-    just the occupancy."""
+    just the occupancy. The 1990 end date is beyond the after-office
+    threshold, so make_occupancy returns None."""
     dataset = make_dataset()
     context = emit(dataset, make_hit(start_date="1980-01-01", end_date="1990-01-01"))
 
