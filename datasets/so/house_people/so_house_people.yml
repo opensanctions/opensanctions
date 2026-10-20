@@ -1,0 +1,138 @@
+title: Somalia Members of the House of the People
+name: so_house_people
+prefix: so-hop
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-19
+load_statements: true
+summary: >-
+  Lower chamber of Somalia's bicameral Parliament, the House of the People (Golaha Shacabka)
+description: |
+  Current members of the House of the People (Golaha Shacabka), the lower chamber of
+  Somalia's bicameral Federal Parliament. Its seats are shared out between clans
+  under the 4.5 power-sharing formula and filled for four-year terms by electoral
+  colleges of delegates nominated in the federal member states. Together with the
+  Upper House its members hold the country's legislative power, including passing
+  laws, approving the budget and electing the President.
+
+  The parliament publishes only its sitting members, and gives no date on which any
+  of them entered office, so occupancies carry no dates and are recorded as current.
+url: https://parliament.gov.so/
+publisher:
+  name: Baarlamaanka Federaalka Soomaaliya
+  name_en: Federal Parliament of Somalia
+  description: >
+    The Federal Parliament of Somalia is the country's bicameral national legislature.
+    Its lower chamber, the House of the People, publishes the roster of its sitting
+    members.
+  url: https://parliament.gov.so/
+  country: so
+  official: true
+data:
+  url: https://parliament.gov.so/members/
+  format: JSON
+
+dates:
+  formats:
+    # "Saturday, December 15, 1973", and the handful typed without the comma.
+    - "%A, %B %d, %Y"
+    - "%A %B %d, %Y"
+
+names:
+  prefixes_strip:
+    - Hon.
+    - Xil.
+    - Dr.
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 220
+      Position: 1
+    country_entities:
+      so: 220
+  max:
+    schema_entities:
+      Person: 550
+      Position: 6
+
+lookups:
+  position:
+    normalize: true
+    options:
+      # The plain member seat. Most titles name a committee chairmanship or the
+      # Sergeant-at-Arms post held alongside it; those are internal offices of the
+      # chamber rather than positions in their own right, so they map to the seat.
+      - match:
+          - Xildhibaan Golaha Shacabka ee Baarlamaanka Federaalka Soomaaliya
+          - Current Member of the House of the People of the Federal Parliament of Somalia
+          - Xildhibaan Golaha Shacabka
+          - Member of Parliament
+          - Xildhibaan Golaha Shacabka ee Baarlamaanka Federaalka Soomaaliya, ahna Habdhowraha Golaha Shacabka
+          - Xildhibaan Golaha Shacabka ahna Guddoomiyaha Guddiga Miisaaniyadda, Maaliyadda, Qorsheynta & Iskaashiga Caalmiga iyo La-xisaabtanka Hay’adaha Dawladda
+          - Xildhibaan Golaha Shacabka ee Baarlamaanka Federaalka Soomaaliya Ahna GuddoomiyahaGuddiga Waddooyinka, Dekedaha, Garoomada, Tamarta Iyo Gadiidka
+          - Xildhibaan Golaha Shacabka ee Baarlamaanka Federaalka Soomaaliya ahna Guddoomiyaha Guddiga Xeer-Hoosaadka, Daryeelka, Anshaxa iyo Xasaanadda
+          - Xildhibaan Golaha Shacabka BJFS ahna Guddoomiyaha Guddiga Arrimaha Dibedda
+          - Xildhibaan Golaha Shacabka BJFS ahna Guddoomiyaha Guddiga Arrimaha Gudaha, Maamullada Gobollada iyo Amniga
+          - Xildhibaan Golaha Shacabka BJFS ahna Guddoomiyaha Guddiga Beeraha, Horumarinta Reer-miyiga, Xoolaha iyo Khayraadka Badda
+          - Xildhibaan Golaha Shacabka BJFS ahna Guddoomiyaha Guddiga Garsoorka, Awqaafta iyo Arrimaha Diinta
+          - Xildhibaan Golaha Shacabka BJFS ahna Guddoomiyaha Guddiga Hormarinta Adeega Bulshada
+          - Xildhibaan Golaha Shacabka BJFS ahna Guddoomiyaha Guddiga Xuquuqul Insaanka, Haweenka iyo Arrimaha Bani’aadanimada
+          - Xildhibaan Golaha Shacabka BJFS & ahna Guddoomiyaha Guddiga Dhaqaalaha, Ganacsiga, Warshadaha iyo Maalgashiga
+          - Xildhibaan Golaha Shacabka BJFS, ahna Guddoomiyaha Guddiga Kheyraadka Dabiicigaa Iyo Bii’ada
+          - Xildhibaan Golaha Shacabka BJFS, ahna Guddoomiyaha Guddiga La Socodka Dib-u-eegista iyo Dhaqangelinta Dastuuurka.
+          - Xildhibaan Golaha Shacabka BJFS, ahna Guddoomiyaha Guddiga Warfaafinta, Wacyigelinta, Dhaqanka, Boostadda iyo Isgaarsiinta
+          - Xildhibaan Golaha Shacabka BJFS, ahna Guddoomiyaha Guddiga Xaqiiqa Raadinta, Dib-u-Heshiisiinta, iyo Hanti isucelinta
+        value: Member of the House of the People of Somalia
+      - match: Speaker of the House of the People
+        values:
+          - Speaker of the House of the People of Somalia
+          - Member of the House of the People of Somalia
+      - match:
+          - Guddoomiyye ku -xigeenka 1aad ee Golaha Shacabka Baarlamaanka Federaalka Soomaalia
+          - Guddoomiyye ku -xigeenka 2aad ee Golaha Shacabka Baarlamaanka Federaalka Soomaalia
+        values:
+          - Deputy Speaker of the House of the People of Somalia
+          - Member of the House of the People of Somalia
+      - match: Vacant Position - this seat is vacant
+        value: null
+
+  constituency:
+    normalize: true
+    options:
+      # The federal member states, plus the Banaadir region and the northern
+      # regions (Somaliland), which return members but are not member states.
+      - match: Puntland
+        value: Puntland
+      - match: Jubbaland
+        value: Jubaland
+      - match: Galmudug
+        value: Galmudug
+      - match: Hirshabelle
+        value: Hirshabelle
+      - match: Koonfur Galbeed
+        value: South West State
+      - match: Gobollada Waqooyi
+        value: Northern Regions
+      - match: Banaadir
+        value: Banaadir
+      # The Speaker's card carries his office address here instead of a
+      # constituency, and seven cards give no location at all.
+      - match:
+          - Villa Hargiesa, Mogadishu, Somalia
+          - null
+        value: null
+
+  type.date:
+    options:
+      # Day/month order is not recoverable from these, and the third is the member's
+      # job title typed into the date-of-birth field.
+      - match:
+          - 01/05/1989
+          - "07, 11, 1978"
+          - Current Member of the House of the People of the Federal Parliament of Somalia
+        value: null
