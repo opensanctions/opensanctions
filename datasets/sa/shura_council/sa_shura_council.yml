@@ -1,0 +1,102 @@
+# The site is geo-blocked: connections from outside the Gulf time out, so the
+# roster is fetched through Zyte with a Saudi exit.
+#
+# The roster is the sitting council only. It publishes no appointment dates, so
+# every occupancy is emitted as current; members who leave are dropped from the
+# page (their CV URLs start returning 404).
+title: Saudi Arabia Members of the Shura Council
+name: sa_shura_council
+prefix: sa-shura
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-20
+load_statements: true
+ci_test: false
+summary: >-
+  Appointed members and presiding officers of Saudi Arabia's consultative assembly
+description: |
+  Current members of the Shura Council (Majlis al-Shura), the consultative assembly
+  of the Kingdom of Saudi Arabia. The council consists of a Speaker and 150 members,
+  all appointed by royal order for a four-year term. It reviews and proposes
+  legislation, studies international treaties and government reports, and gives
+  its opinion on state policy, while final legislative authority rests with the
+  King and the Council of Ministers.
+
+  The Speaker, Vice Speaker and Assistant Speaker are included alongside the
+  members.
+url: https://www.shura.gov.sa/wps/wcm/connect/shuraen/internet/cv/
+publisher:
+  name: Shura Council of Saudi Arabia
+  description: >
+    The Shura Council (Majlis al-Shura) is the appointed consultative assembly of
+    the Kingdom of Saudi Arabia.
+  url: https://www.shura.gov.sa/
+  country: sa
+  official: true
+data:
+  # The list is paged at 9 cards by default; the WCM page size parameter returns the
+  # whole roster in one response. The crawler fails if pagination links reappear.
+  url: https://www.shura.gov.sa/wps/wcm/connect/shuraen/internet/cv/?WCM_PI=1&WCM_Page.64c7eaaf-7977-40f9-8593-3711eb70462a=1&WCM_PageSize.64c7eaaf-7977-40f9-8593-3711eb70462a=500
+  format: HTML
+  lang: eng
+
+names:
+  prefixes_strip:
+    - Dr.
+    - Eng.
+    - Mr.
+    - Ms.
+    - Professor.
+    - H.E
+    - Maj. Gen.
+    - H.R.H
+    - Prince.
+    - Princess.
+
+tags:
+  - list.pep
+
+lookups:
+  # The role label on each leadership card, mapped to every position it holds.
+  # The council is "a Speaker and 150 members" (Shura Council Law, Art. 3), so the
+  # Speaker holds no member seat, while the Vice Speaker and Assistant Speaker are
+  # appointed from among the members and do not appear again in the member list.
+  # The Secretary-General is the council's chief civil servant, not a member.
+  position:
+    required: true
+    options:
+      - match: Speaker of Council
+        values:
+          - Speaker of the Consultative Assembly of Saudi Arabia
+      - match: Vice Speaker of Council
+        values:
+          - Vice Speaker of the Consultative Assembly of Saudi Arabia
+          - Member of the Consultative Assembly of Saudi Arabia
+      - match: Assistant of Council
+        values:
+          - Assistant Speaker of the Consultative Assembly of Saudi Arabia
+          - Member of the Consultative Assembly of Saudi Arabia
+      - match: General Secretary
+        value: null
+  # Member cards whose caption names a different member, keyed on the card's CV
+  # URL slug. The English site captions Faihan bin Abdulaziz bin Lubdah's card with
+  # Ziyad Al-Atiyah's name (who has his own card); the CV behind it and the Arabic
+  # roster identify the member, so his Arabic name is used.
+  card_name:
+    options:
+      - match: faihan+bin+abdulaziz+bin+labdah
+        name: فيحان بن عبدالعزيز بن قنيفذ بن لبدة
+        lang: ara
+
+assertions:
+  min:
+    schema_entities:
+      Person: 140
+      Position: 4
+    country_entities:
+      sa: 140
+  max:
+    schema_entities:
+      Person: 170
+      Position: 4
