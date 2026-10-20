@@ -1,0 +1,79 @@
+title: Madagascar Members of the National Assembly
+name: mg_assembly
+prefix: mg-an
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-19
+load_statements: true
+summary: >-
+  Lower house of Madagascar's bicameral Parliament (Assemblée nationale)
+description: |
+  Current and recently departed members of the National Assembly (Assemblée nationale),
+  the lower house of the bicameral Parliament of Madagascar. Its deputies are
+  elected for a five-year term in single- and two-member districts and, together with
+  the Senate, hold the country's legislative power, including passing laws and
+  approving the budget.
+
+  Deputies who have left the chamber mid-term — by resignation, death, or appointment
+  to government — remain in the source and are published with an ended occupancy.
+url: https://assemblee-nationale.mg/deputes/
+publisher:
+  name: Antenimierampirenena
+  name_en: National Assembly of Madagascar
+  description: >
+    The National Assembly is the lower house of the Parliament of Madagascar. It
+    publishes its membership through an open data portal under the Licence Ouverte
+    v2.0.
+  url: https://assemblee-nationale.mg/
+  country: mg
+  official: true
+data:
+  url: https://assemblee-nationale.mg/opendata/api/deputes/
+  format: JSON
+  lang: fra
+# The server rejects the default `python-requests/...` user agent with a 403;
+# any identifying agent is accepted.
+http:
+  user_agent: zavod (opensanctions.org)
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 150
+      Position: 1
+    country_entities:
+      mg: 150
+  max:
+    schema_entities:
+      Person: 360
+      Position: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: Masculin
+        value: male
+      - match: Feminin
+        value: female
+  # The source publishes no mandate dates and no legislature identifier in any
+  # endpoint, so occupancies are undated and this status is the only signal of
+  # whether a deputy still sits. The sitting deputies were elected on 2024-05-29
+  # and first sat on 2024-07-09; nothing in the source will mark the change of
+  # term at the next election, so re-check these semantics then.
+  occupancy_status:
+    required: true
+    options:
+      - match: ACTIVE
+        # The mandate is ongoing. Leaving the status unset lets make_occupancy
+        # derive `current` from the absent end date.
+        value: null
+      - match:
+          - RESIGNED
+          - DECEASED
+          # Appointed to government, which vacates the seat.
+          - NOMINATED
+        value: ended
