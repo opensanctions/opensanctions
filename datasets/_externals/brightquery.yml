@@ -117,6 +117,7 @@ lookups:
           - "FL"
           - "MD"
           - "NA"
+          - "NY"
         value: null
       - match: USA
         prop: country
