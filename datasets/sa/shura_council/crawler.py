@@ -60,31 +60,28 @@ def crawl_person(
 
 
 def crawl(context: Context) -> None:
+    # The roster is paged 9 cards at a time; a larger page size returns all of it.
+    url = f"{context.data_url}?WCM_PageSize.64c7eaaf-7977-40f9-8593-3711eb70462a=500"
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=f".//a[{CARD}]",
+        html_source="httpResponseBody",
+        geolocation="SA",
+        absolute_links=True,
+    )
+    pager = h.xpath_strings(doc, ".//a[contains(@href, 'WCM_Page.')]/@href")
+    assert len(pager) == 0, f"Roster is paginated, check the page size: {pager}"
+
     seen: dict[str, str] = {}
-    visited: set[str] = set()
-    url: str | None = context.data_url
-    while url is not None:
-        visited.add(url)
-        doc = zyte_api.fetch_html(
-            context,
-            url,
-            unblock_validator=f".//a[{CARD}]",
-            html_source="httpResponseBody",
-            geolocation="SA",
-            absolute_links=True,
-        )
-        # Leadership cards: the name links to the CV, the role label sits below
-        # it. The <p> bio under the role ("Speaker since 1430 AH, ...") is free text.
-        for card in h.xpath_elements(doc, f".//div[{CARD}]"):
-            role = h.element_text(h.xpath_element(card, ".//h6"))
-            res = context.lookup("position", role)
-            assert res is not None, role
-            crawl_person(context, seen, h.xpath_element(card, ".//h5/a"), res.values)
+    # Leadership cards: the name links to the CV, the role label sits below it.
+    # The <p> bio under the role ("Speaker since 1430 AH, ...") is free text.
+    for card in h.xpath_elements(doc, f".//div[{CARD}]"):
+        role = h.element_text(h.xpath_element(card, ".//h6"))
+        res = context.lookup("position", role)
+        assert res is not None, role
+        crawl_person(context, seen, h.xpath_element(card, ".//h5/a"), res.values)
 
-        # Member cards are links to the CV, captioned with the member's name.
-        for card in h.xpath_elements(doc, f".//a[{CARD}]"):
-            crawl_person(context, seen, card, [MEMBER])
-
-        next_urls = h.xpath_strings(doc, ".//a[normalize-space()='>']/@href")
-        assert len(next_urls) <= 1, next_urls
-        url = next_urls[0] if next_urls and next_urls[0] not in visited else None
+    # Member cards are links to the CV, captioned with the member's name.
+    for card in h.xpath_elements(doc, f".//a[{CARD}]"):
+        crawl_person(context, seen, card, [MEMBER])
