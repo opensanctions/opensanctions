@@ -25,7 +25,7 @@ The easiest way to run zavod is to use Docker. [See the documentation](https://z
 
 # Developing
 
-If you want to make changes to the code or debug an issues, you'll want to set up a development environment. Read more about how to install zavod in a local Python virtual environment in [the documentation](https://zavod.opensanctions.org/install/#python-virtual-environment)
+If you want to make changes to the code or debug an issue, you'll want to set up a development environment. Read more about how to install zavod in a local Python virtual environment in [the documentation](https://zavod.opensanctions.org/install/#python-virtual-environment).
 
 ## Review UI
 
@@ -41,7 +41,7 @@ Crawlers that use [Data Reviews](https://zavod.opensanctions.org/data_reviews/) 
 
 Regarding the use of AI tools, while we have no definite policy, we think that contributions should have meaningful human effort, judgement and context. Reviewing PRs is work for maintainers, so please make sure that the human effort you put into a contribution is in a reasonable proportion to the human effort required from maintainers reviewing it.
 
-In other words, if you're just pasting an issue tracker link or a generic prompt into an AI tool, don't do it — we can write LLM prompts or run automated tools ourselves, and that would be faster and more secure. We've recently seen an influx of agents farming our issue tracker and submitting PRs, presumably without any human intervention and only in an effort to make make their GitHub profile look more impressive. In these cases, we will reject the contribution and ban the offending account.
+In other words, if you're just pasting an issue tracker link or a generic prompt into an AI tool, don't do it — we can write LLM prompts or run automated tools ourselves, and that would be faster and more secure. We've recently seen an influx of agents farming our issue tracker and submitting PRs, presumably without any human intervention and only in an effort to make their GitHub profile look more impressive. In these cases, we will reject the contribution and ban the offending account.
 
 That said, we welcome contributors and collaborating organizations and recognize that PR reviews are a learning opportunity for all participants. Also, if you're using zavod and your contribution makes your life better, that's a great reason for us to spend some time on it. So if you're a human wanting to get involved or scratching an itch, please reach out!
 

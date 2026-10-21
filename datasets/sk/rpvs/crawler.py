@@ -96,7 +96,7 @@ def apply_address(context: Context, entity: Entity, address: dict[str, Any]) -> 
         city=city,
         place=city_code,
         postal_code=postal_code,
-        lang="svk",
+        lang="slk",
     )
     h.copy_address(entity, addr_entity)
 

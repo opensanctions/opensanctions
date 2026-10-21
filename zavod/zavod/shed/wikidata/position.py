@@ -2,8 +2,8 @@ from datetime import datetime
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
-from nomenklatura.wikidata.lang import MULTI_LANG
 from nomenklatura.wikidata.value import clean_wikidata_name
+from rigour.langs import MULTI_LANG
 from rigour.territories import get_territory, get_territory_by_qid
 from rigour.time import iso_datetime
 
