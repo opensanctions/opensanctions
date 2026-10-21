@@ -429,6 +429,11 @@ lookups:
           - "11月29"
           - "12月10"
           - "12月14"
+          # Second item of "2020年７月16日（2023年10月30日、12月19日及び2026年10月15日に
+          # 改訂）" (QDi.427, 告示番号 786) - the Japanese enumeration lets 12月19日
+          # inherit the 2023 of the preceding item, but that year sits in a part of
+          # the cell the split discards.
+          - "12月19"
           - "12月2"
           - "12月20"
           - "12月21"
