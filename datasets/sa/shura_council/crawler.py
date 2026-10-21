@@ -6,7 +6,9 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 MEMBER = "Member of the Consultative Assembly of Saudi Arabia"
-CARD = "contains(concat(' ', normalize-space(@class), ' '), ' council-member-card ')"
+CARD = "contains(concat(' ', @class, ' '), ' council-member-card ')"
+WRAP = "contains(concat(' ', @class, ' '), ' council-member-cards-wrap ')"
+FEATURED = "contains(concat(' ', @class, ' '), ' featured ')"
 
 
 def crawl_person(
@@ -77,14 +79,15 @@ def crawl(context: Context) -> None:
     assert len(pager) == 0, f"Roster is paginated, check the page size: {pager}"
 
     seen: dict[str, str] = {}
-    # Leadership cards: the name links to the CV, the role label sits below it.
-    # The <p> bio under the role ("Speaker since 1430 AH, ...") is free text.
-    for card in h.xpath_elements(doc, f".//div[{CARD}]"):
+    # Leadership cards sit in the "featured" wraps: the name links to the CV, the
+    # role label sits below it. The <p> bio under the role is free text.
+    for card in h.xpath_elements(doc, f".//div[{WRAP} and {FEATURED}]//div[{CARD}]"):
         role = h.element_text(h.xpath_element(card, ".//h6"))
         res = context.lookup("position", role)
         assert res is not None, role
         crawl_person(context, seen, h.xpath_element(card, ".//h5/a"), res.values)
 
-    # Member cards are links to the CV, captioned with the member's name.
-    for card in h.xpath_elements(doc, f".//a[{CARD}]"):
+    # Member cards, in the one non-featured wrap, link to the CV and carry the name.
+    members = h.xpath_element(doc, f".//div[{WRAP} and not({FEATURED})]")
+    for card in h.xpath_elements(members, f".//a[{CARD}]"):
         crawl_person(context, seen, card, [MEMBER])
