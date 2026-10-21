@@ -49,3 +49,21 @@ assertions:
   max:
     schema_entities:
       Person: 100
+
+lookups:
+  type.name:
+    options:
+      # იგივე means "also known as".
+      - match: ზაურ ცეცხლაძე იგივე მიხეილ თარბა
+        values:
+          - ზაურ ცეცხლაძე
+          - მიხეილ თარბა
+      # A second given name in brackets.
+      - match: ციბრონა (ეკა) ახალაია
+        values:
+          - ციბრონა ახალაია
+          - ეკა ახალაია
+      - match: შურიკ (ალექსანდრე) კოკოსკერია
+        values:
+          - შურიკ კოკოსკერია
+          - ალექსანდრე კოკოსკერია
