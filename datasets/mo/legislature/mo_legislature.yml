@@ -18,7 +18,7 @@ description: |
   professional sectors, and some appointed by the Chief Executive.
 
   This dataset records each member of the sitting legislature with their name and year of birth.
-url: https://www.al.gov.mo/en/deputies
+url: https://www.al.gov.mo/pt/members.html
 publisher:
   name_en: Legislative Assembly of the Macao SAR
   name: 澳門特別行政區立法會
@@ -31,12 +31,12 @@ publisher:
   country: mo
   official: true
 data:
-  url: https://www.al.gov.mo/en/deputies
+  url: https://www.al.gov.mo/pt/members.html
   format: HTML
   lang: zho
 
 dates:
-  formats: ["%Y"]
+  formats: ["%Y年"]
 
 tags:
   - list.pep
