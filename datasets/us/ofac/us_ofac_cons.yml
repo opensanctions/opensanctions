@@ -122,6 +122,10 @@ lookups:
         value: US-BURMA
       - match: ILLICIT-DRUGS-EO14059
         value: US-NARCO
+      - match: PAIPA
+        # Protecting American Intellectual Property Act designations, which OFAC
+        # administers as part of its Cyber-Related Sanctions program.
+        value: US-CYB
       - match: "561-Related"
         # Foreign financial institutions restricted under the Iranian Financial
         # Sanctions Regulations, 31 CFR 561.
