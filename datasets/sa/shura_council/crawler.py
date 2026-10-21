@@ -28,7 +28,7 @@ def crawl_person(
         name = h.strip_name_titles(context, raw_name)
         assert name is not None, href
         # The source has captioned one card with another member's name.
-        if name in seen:
+        if name in seen and seen[name] != href:
             context.log.warning(
                 "Two cards share a name", name=name, urls=[seen[name], href]
             )
@@ -36,8 +36,6 @@ def crawl_person(
         original = raw_name if name != raw_name else None
         person.add("name", name, original_value=original)
     person.add("sourceUrl", href)
-    # Members must be Saudi nationals "by descent and upbringing": Shura Council
-    # Law, Art. 4(a). https://qanoniah.com/en/File/YVP9MlWq2rLYRe57gzOQ0kjmd-Shura-Council-Law
     person.add("citizenship", "sa")
 
     for title in titles:
@@ -62,27 +60,31 @@ def crawl_person(
 
 
 def crawl(context: Context) -> None:
-    doc = zyte_api.fetch_html(
-        context,
-        context.data_url,
-        unblock_validator=f".//a[{CARD}]",
-        html_source="httpResponseBody",
-        geolocation="SA",
-        absolute_links=True,
-    )
-    # The page size in data.url must return the whole roster in one page.
-    pagination = h.xpath_elements(doc, ".//a[contains(@href, 'WCM_Page.')]")
-    assert len(pagination) == 0, "Roster is paginated; check the WCM page size"
-
     seen: dict[str, str] = {}
-    # Leadership cards: the name links to the CV, the role label sits below it.
-    # The <p> bio under the role ("Speaker since 1430 AH, ...") is free text.
-    for card in h.xpath_elements(doc, f".//div[{CARD}]"):
-        role = h.element_text(h.xpath_element(card, ".//h6"))
-        res = context.lookup("position", role)
-        assert res is not None, role
-        crawl_person(context, seen, h.xpath_element(card, ".//h5/a"), res.values)
+    visited: set[str] = set()
+    url: str | None = context.data_url
+    while url is not None:
+        visited.add(url)
+        doc = zyte_api.fetch_html(
+            context,
+            url,
+            unblock_validator=f".//a[{CARD}]",
+            html_source="httpResponseBody",
+            geolocation="SA",
+            absolute_links=True,
+        )
+        # Leadership cards: the name links to the CV, the role label sits below
+        # it. The <p> bio under the role ("Speaker since 1430 AH, ...") is free text.
+        for card in h.xpath_elements(doc, f".//div[{CARD}]"):
+            role = h.element_text(h.xpath_element(card, ".//h6"))
+            res = context.lookup("position", role)
+            assert res is not None, role
+            crawl_person(context, seen, h.xpath_element(card, ".//h5/a"), res.values)
 
-    # Member cards are links to the CV, captioned with the member's name.
-    for card in h.xpath_elements(doc, f".//a[{CARD}]"):
-        crawl_person(context, seen, card, [MEMBER])
+        # Member cards are links to the CV, captioned with the member's name.
+        for card in h.xpath_elements(doc, f".//a[{CARD}]"):
+            crawl_person(context, seen, card, [MEMBER])
+
+        next_urls = h.xpath_strings(doc, ".//a[normalize-space()='>']/@href")
+        assert len(next_urls) <= 1, next_urls
+        url = next_urls[0] if next_urls and next_urls[0] not in visited else None
