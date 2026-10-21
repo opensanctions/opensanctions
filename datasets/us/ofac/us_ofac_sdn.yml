@@ -120,6 +120,7 @@ lookups:
           - CYBER2
           - CYBER3
           - CYBER4
+          - PAIPA
         value: US-CYB
       - match: DRCONGO
         value: US-DRC
