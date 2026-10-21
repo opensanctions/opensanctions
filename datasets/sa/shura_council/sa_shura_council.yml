@@ -68,13 +68,13 @@ lookups:
           - Member of the Consultative Assembly of Saudi Arabia
       - match: General Secretary
         value: null
-  # Mis-captioned cards, keyed on CV slug: this one shows Ziyad Al-Atiyah's name;
-  # the name is taken from the Arabic roster.
+  # Mis-captioned cards, keyed on CV slug: this one shows Ziyad Al-Atiyah's name.
   card_name:
     options:
       - match: faihan+bin+abdulaziz+bin+labdah
-        name: فيحان بن عبدالعزيز بن قنيفذ بن لبدة
-        lang: ara
+        # English spelling from the source's own 2022 CV page.
+        name: Fayhan bin Abdulaziz bin Qunaifth bin Lbdah
+        arabic_name: فيحان بن عبدالعزيز بن قنيفذ بن لبدة
 
 assertions:
   min:

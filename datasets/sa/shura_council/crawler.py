@@ -16,13 +16,17 @@ def crawl_person(
     assert href is not None, link
     slug = href.rstrip("/").rsplit("/", 1)[-1]
 
+    raw_name = h.element_text(link)
+
     person = context.make("Person")
-    person.id = context.make_id(slug)
     override = context.lookup("card_name", slug)
     if override is not None:
-        person.add("name", override.name, lang=override.lang)
+        # The caption names another member, so key on the corrected name.
+        person.id = context.make_id(override.name)
+        person.add("name", override.name)
+        person.add("name", override.arabic_name, lang="ara")
     else:
-        raw_name = h.element_text(link)
+        person.id = context.make_id(raw_name)
         name = h.strip_name_titles(context, raw_name)
         assert name is not None, href
         # The source has captioned one card with another member's name.
