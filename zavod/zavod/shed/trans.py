@@ -10,6 +10,14 @@ from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
 from zavod.util import LangText
 from zavod import helpers as h
 
+NAME_TRANSLIT_MODEL = "gpt-6.1-sol"
+"""LLM model used to transliterate names, except from Chinese."""
+# gpt-6-luna is faster and cheaper than gpt-6.1-sol, and both give the same
+# Chinese transliterations. For other scripts, gpt-6.1-sol is more accurate
+# and does not translate names instead of transliterating them.
+CHINESE_NAME_TRANSLIT_MODEL = "gpt-6-luna"
+"""LLM model used to transliterate names from Chinese."""
+
 
 class TransliterationLanguageSpec(NamedTuple):
     """Specification for a transliteration output language."""
@@ -190,7 +198,7 @@ def apply_translit_names(
     first_name: str,
     last_name: str,
     output_spec: list[TransliterationLanguageSpec] = [ENGLISH],
-    model: str = DEFAULT_MODEL,
+    model: str | None = None,
 ) -> None:
     """
     Apply transliterated names to an entity.
@@ -202,7 +210,15 @@ def apply_translit_names(
         first_name: The first name to transliterate.
         last_name: The last name to transliterate.
         output_spec: A list of language specifications for the output names.
+        model: GPT model used to transliterate the names. Defaults to
+            ``CHINESE_NAME_TRANSLIT_MODEL`` for Chinese input, otherwise
+            ``NAME_TRANSLIT_MODEL``.
     """
+    if model is None:
+        if input_code in ("chi", "zho"):
+            model = CHINESE_NAME_TRANSLIT_MODEL
+        else:
+            model = NAME_TRANSLIT_MODEL
     prompt = make_name_translit_prompt(input_code, output_spec)
     output_langs = [spec.language_code for spec in output_spec]
     first_result = run_translation_prompt(
@@ -261,7 +277,7 @@ def apply_translit_full_name(
     output: Sequence[TransliterationLanguageSpec] = (PREFERRED_LANGUAGE,),
     prompt: str | None = None,
     alias: bool = False,
-    model: str = DEFAULT_MODEL,
+    model: str | None = None,
 ) -> None:
     """Apply a transliterated name to an entity.
 
@@ -277,9 +293,16 @@ def apply_translit_full_name(
         output: The language specifications for the output names.
         prompt: An optional override for the transliteration prompt.
         alias: Whether to apply the results as aliases rather than names.
-        model: GPT model used to translate/transliterate the name.
+        model: GPT model used to transliterate the name. Defaults to
+            ``CHINESE_NAME_TRANSLIT_MODEL`` for Chinese input, otherwise
+            ``NAME_TRANSLIT_MODEL``.
     """
     assert name.lang is not None, "Source language is required for transliteration"
+    if model is None:
+        if name.lang in ("chi", "zho"):
+            model = CHINESE_NAME_TRANSLIT_MODEL
+        else:
+            model = NAME_TRANSLIT_MODEL
     if prompt is None:
         prompt = make_name_translit_prompt(name.lang, output)
     output_langs = [spec.language_code for spec in output]
