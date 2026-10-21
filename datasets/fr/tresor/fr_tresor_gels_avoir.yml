@@ -219,6 +219,35 @@ lookups:
   #
   ####################################################################################################
   ####################################################################################################
+  # Labels used in the "<label>: <value>" segments of the identification field, mapped
+  # to the property each one introduces. The crawler splits a field into its segments
+  # and resolves every label here; a field with any unknown label is left to
+  # `identification_full` or to the warning.
+  #
+  # Only add a label whose whole class of values maps to one property, without needing
+  # to look at the value. Anything that takes a per-value decision — a place that is
+  # really an address, a code whose scheme the source doesn't name — belongs in
+  # `identification_full` instead.
+  identification_label:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - "Type d'entité"
+          - "Type d'entités"
+          # The source drops the leading "T" on some records.
+          - "ype d'entité"
+        prop: legalForm
+      - match: "Lieu d'enregistrement"
+        prop: jurisdiction
+      - match: "Date d'enregistrement"
+        prop: incorporationDate
+      - match: "Numéro d'enregistrement (OGRN)"
+        prop: ogrnCode
+      - match: "Numéro d'identification fiscale (INN)"
+        prop: innCode
+  ####################################################################################################
+  ####################################################################################################
   # Matched against the whole identification field ("<Commentaire>: <Identification>",
   # stripped of separators). This is the place to fix an identification warning — the
   # `full=` value logged with the warning is the string to match on.
@@ -11520,6 +11549,14 @@ lookups:
       - match: "numéro d'identification fiscale: 5010030050"
         props:
           taxNumber: "5010030050"
+      # The place of registration is missing: the source repeats the label where the
+      # value belongs, so there is nothing to map.
+      - match: "Lieu d'enregistrement: Lieu d'enregistrement"
+      # The trailing "Lieu" is the start of the next label, which leaked into this
+      # value; the entity type itself is the usual "société par actions".
+      - match: "Type d'entité: société par actions  Lieu"
+        props:
+          legalForm: société par actions
       # Russian registry fields: entity type, place and date of registration, OGRN and INN.
       - match: "Numéro d'enregistrement (OGRN): 1021301064950"
         props:
