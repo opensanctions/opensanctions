@@ -84,6 +84,12 @@ nk.DB_URL = env.get("OPENSANCTIONS_DATABASE_URI", nk.DB_URL)
 ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
 OPENAI_API_KEY = env.get("OPENAI_API_KEY", None)
 
+# Funes web-inspection runner settings. The browser endpoint and artifact
+# storage are shared Pravda concepts, so they carry Pravda's env names.
+PRAVDA_BROWSER_WS_URL = env.get("PRAVDA_BROWSER_WS_URL", None)
+PRAVDA_STORAGE_BASE_PATH = env.get("PRAVDA_STORAGE_BASE_PATH", None)
+FUNES_MODEL = env.get("FUNES_MODEL", None)
+
 # Test code in prod code is generally a Bad Idea.
 # This is here to allow for fallbacks to skip some external service usage
 # which allows us to run more crawlers in CI without introducing mocking for those runs.

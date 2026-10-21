@@ -1,6 +1,6 @@
 name: au_judges
 title: Judges of Australian courts
-disabled: true  # until the funes inspection runner is ported to zavod
+entry_point: zavod.shed.funes.runner:crawl
 ci_test: false
 config:
   funes:

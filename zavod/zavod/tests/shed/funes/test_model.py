@@ -3,10 +3,10 @@ machine enforced by the check constraints on ``funes_attempt``, and the
 one-to-one relation between attempts and snapshots."""
 
 import uuid
+from datetime import UTC, datetime
 
 import pytest
 from nomenklatura.db import Session
-from pravda.db import SnapshotRecord
 from sqlalchemy import insert
 from sqlalchemy.exc import IntegrityError
 
@@ -16,6 +16,7 @@ from zavod.shed.funes.model import (
     dataset_table,
     InspectionOutcome,
     SnapshotStatus,
+    snapshot_table,
     subject_table,
 )
 
@@ -50,9 +51,10 @@ def make_candidate(session: Session) -> tuple[uuid.UUID, uuid.UUID]:
         )
     )
     session.execute(
-        insert(SnapshotRecord.__table__).values(
+        insert(snapshot_table).values(
             id=snapshot_id,
             url=f"https://example.com/{candidate_id}",
+            captured_at=datetime.now(UTC),
         )
     )
     return candidate_id, snapshot_id

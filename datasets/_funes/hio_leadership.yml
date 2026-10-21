@@ -1,6 +1,6 @@
 name: hio_leadership
 title: Leadership of international organizations
-disabled: true  # until the funes inspection runner is ported to zavod
+entry_point: zavod.shed.funes.runner:crawl
 ci_test: false
 config:
   funes:
