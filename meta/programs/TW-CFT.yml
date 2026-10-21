@@ -1,0 +1,18 @@
+title: Counter-Terrorism Financing Act Article 4 Designations
+key: TW-CFT
+url: https://law.moj.gov.tw/ENG/LawClass/LawAll.aspx?pcode=I0030047
+summary: >
+  Targets individuals, legal persons and entities, inside or outside Taiwan,
+  that the Ministry of Justice designates with the approval of its review
+  committee because they are suspected of terrorism offences, or because an
+  international treaty, international cooperation or a UN Security Council
+  resolution requires it. Their financial accounts and property are frozen,
+  and collecting or providing funds or property for them is prohibited,
+  subject to exemptions such as basic living expenses.
+issuer: tw_moj
+dataset: tw_moj_sanctions
+aliases:
+  - 資恐防制法第4條第1項
+  - Counter-Terrorism Financing Act Article 4(1)
+measures:
+  - Asset freeze

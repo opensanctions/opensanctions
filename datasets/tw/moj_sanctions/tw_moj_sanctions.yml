@@ -1,0 +1,79 @@
+title: Taiwan MOJ Counter-Terrorism Financing Act Sanctions
+prefix: tw-moj
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-08-14
+load_statements: true
+
+summary: >-
+  Individuals and companies sanctioned under Article 4(1) of Taiwan's CFT Act
+description: |
+  Individuals and companies designated as sanctioned by Taiwan's Ministry of
+  Justice under Article 4, Paragraph 1 of the Counter-Terrorism
+  Financing Act.
+url: https://www.mjib.gov.tw/EditPage/?PageID=2f940503-6044-4a8f-baeb-3499ade2dd57
+publisher:
+  name: 法務部
+  name_en: Ministry of Justice
+  acronym: MOJ
+  description: >-
+    Taiwan's Ministry of Justice publishes these designations through the
+    Investigation Bureau (MJIB) Anti-Money Laundering Division page.
+  url: https://www.moj.gov.tw/
+  country: tw
+  official: true
+data:
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/tw/moj_sanctions/moj_sanctions.csv
+  format: CSV
+  lang: zho
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.sanction
+
+# moj_sanctions.csv holds the records from the MOJ announcement PDFs
+# (scanned, in Chinese). The rows are drafted by LLM extraction of the scans,
+# then checked against them. To resolve an "Unreviewed MOJ announcement PDF"
+# warning:
+#
+# 1. Extract the new PDF into CSV rows: a designation (CFT Act Art. 4(1))
+#    adds rows, and a delisting (Art. 4(3)) fills the Delisting columns of
+#    the existing row instead of deleting it. Dates are in ROC years (+1911).
+# 2. Check the draft against the scan. A record can continue across a page
+#    break, and LLM extraction has attached such fields to the next record.
+#    Copy ruling numbers exactly: their digits are the entity IDs.
+# 3. Set Related party to the related party's ruling number. That party
+#    needs its own row, which the crawler checks. Copy the relationship text
+#    verbatim; new wording needs a relationship.type lookup option.
+# 4. Add the PDF url (percent-decoded) and its sha1 (`shasum file.pdf`) to
+#    PDF_HASHES in crawler.py. For a PDF with no records, add a comment
+#    saying what it contains.
+#
+# A "URL hash changed" warning means a PDF was replaced under the same url:
+# re-check the rows that cite it, then update its hash. A revised PDF under a
+# new filename instead triggers "no longer listed" for the old url: re-check
+# the rows that cite it, point them at the new url, and replace its entry.
+
+lookups:
+  relationship.type:
+    required: true
+    options:
+      - regex: ^負責人及唯一股東為.+$
+        ownership: true
+        directorship: true
+        percentage: "100"
+      - regex: ^由.+百分之百持股$
+        ownership: true
+        percentage: "100"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1
+      Company: 4
+  max:
+    schema_entities:
+      Person: 1
+      Company: 4
