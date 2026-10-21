@@ -97,6 +97,8 @@ lookups:
       # Real short place names, marked as curated to silence the length smell:
       - match: zug  # Zug, Switzerland
         value: zug
+      - match: Zug
+        value: Zug
       - match: Raa  # Råå, Sweden
         value: Raa
       # The source only records a country for some foreign officers:
