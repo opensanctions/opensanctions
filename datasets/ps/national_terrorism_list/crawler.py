@@ -5,6 +5,7 @@ from normality import latinize_text
 from rigour.mime.types import XLS
 from zavod.shed.trans import (
     ENGLISH,
+    NAME_TRANSLIT_MODEL,
     apply_translit_full_name,
     make_name_translit_prompt,
     run_translation_prompt,
@@ -50,7 +51,9 @@ def apply_names(context: Context, entity: Entity, raw_name: str) -> None:
     # The Arabic is itself a rendering of the Hebrew, so prefer the Hebrew form.
     lang = "heb" if "heb" in by_lang else "ara"
     prompt = make_name_translit_prompt(lang, [ENGLISH])
-    result = run_translation_prompt(context, prompt=prompt, text=by_lang[lang])
+    result = run_translation_prompt(
+        context, prompt=prompt, text=by_lang[lang], model=NAME_TRANSLIT_MODEL
+    )
     translit = result.get_preferred_language()
     if translit is None:
         return
