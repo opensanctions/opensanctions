@@ -8,7 +8,7 @@ from normality import squash_spaces
 from pydantic import JsonValue
 from rigour.names import contains_split_phrase, remove_person_prefixes
 from rigour.text import is_nullword
-from rigour.text.scripts import is_dense_script
+from rigour.text.scripts import is_dense_script, text_scripts
 
 from zavod import settings
 from zavod.constants import ORIGIN_INFERRED
@@ -45,6 +45,16 @@ def _title_terms(terms: list[str]) -> list[str]:
     return sorted([term for term in terms_ if term.strip()], key=len, reverse=True)
 
 
+def _is_self_delimiting_script(char: str) -> bool:
+    """Whether a title term ending (prefix) or starting (suffix) with this
+    character can match without whitespace between it and the name."""
+    if not char.isalnum():
+        return True
+    # Thai, Lao, Khmer and Myanmar don't separate words with spaces, so a
+    # title runs straight into the name, e.g. Thai นายสมชาย.
+    return bool(text_scripts(char) & {"Thai", "Lao", "Khmer", "Myanmar"})
+
+
 def _strip_title_prefixes(name: str, terms: list[str]) -> str:
     terms_ = _title_terms(terms)
     while True:
@@ -55,7 +65,7 @@ def _strip_title_prefixes(name: str, terms: list[str]) -> str:
             # A term ending in punctuation ("Hon.", "(Dr.)", "Dato' ") delimits
             # itself. A bare word term ("Hon") must be followed by whitespace or
             # the end of the name, so it cannot eat into names like "Honorata".
-            if term[-1].isalnum() and not (
+            if not _is_self_delimiting_script(term[-1]) and not (
                 len(remainder) == 0 or remainder[0].isspace()
             ):
                 continue
@@ -75,7 +85,7 @@ def _strip_title_suffixes(name: str, terms: list[str]) -> str:
             # A term starting with punctuation (", MP", " (MP)") delimits
             # itself. A bare word term ("MP") must be preceded by whitespace or
             # the start of the name, so it cannot eat into names like "Kamp".
-            if term[0].isalnum() and not (
+            if not _is_self_delimiting_script(term[0]) and not (
                 len(remainder) == 0 or remainder[-1].isspace()
             ):
                 continue
@@ -98,7 +108,9 @@ def strip_name_titles(context: Context, name: str | None) -> str | None:
     A term is only stripped at a word boundary: terms delimited by their own
     punctuation (`"Hon."`, `"(Dr.)"`) match directly, while bare word terms
     (`"Hon"`) must be followed (prefixes) or preceded (suffixes) by whitespace,
-    so they never truncate names like "Honorata". If stripping consumes the
+    so they never truncate names like "Honorata". Terms in Thai, Lao, Khmer and
+    Myanmar script match without whitespace, because these scripts don't
+    separate words with spaces. If stripping consumes the
     entire name, a warning is emitted and `None` is returned so the affected
     record surfaces in the issue log instead of silently losing its name.
     """

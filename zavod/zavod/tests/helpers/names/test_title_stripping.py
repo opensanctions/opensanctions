@@ -104,6 +104,24 @@ def test_strip_bare_prefix_requires_word_boundary(vcontext: Context) -> None:
     assert strip_name_titles(vcontext, "Hon. Hon Honorata Doe") == "Honorata Doe"
 
 
+def test_strip_prefix_in_unspaced_script(vcontext: Context) -> None:
+    # th_house_representatives: Thai honorifics run straight into the name.
+    configure_titles(vcontext, prefixes=["นางสาว", "นาย", "นาง", "พันเอก"])
+
+    assert strip_name_titles(vcontext, "นายกรณ์ จาติกวณิช") == "กรณ์ จาติกวณิช"
+    assert strip_name_titles(vcontext, "นางสาวจิราพร สินธุไพร") == "จิราพร สินธุไพร"
+    assert strip_name_titles(vcontext, "พันเอก นายสมชาย ใจดี") == "สมชาย ใจดี"
+    # Latin terms keep requiring a word boundary.
+    configure_titles(vcontext, prefixes=["Hon"])
+    assert strip_name_titles(vcontext, "Honorata Nabakooza") == "Honorata Nabakooza"
+
+
+def test_strip_suffix_in_unspaced_script(vcontext: Context) -> None:
+    configure_titles(vcontext, suffixes=["ครับ"])
+
+    assert strip_name_titles(vcontext, "สมชาย ใจดีครับ") == "สมชาย ใจดี"
+
+
 def test_strip_bare_suffix_requires_word_boundary(vcontext: Context) -> None:
     configure_titles(vcontext, suffixes=["MP"])
 

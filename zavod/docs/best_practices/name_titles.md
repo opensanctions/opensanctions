@@ -60,6 +60,8 @@ Stripping is **iterative**: the helper peels one matching affix per pass and rep
 "Hon. Dr. Jane Doe, MP"  ->  "Jane Doe"
 ```
 
+A bare word affix only matches at a **word boundary**. A prefix such as `Hon` must be followed by whitespace, so it does not truncate `Honorata`. An affix that ends in punctuation, such as `Hon.`, delimits itself. Thai, Lao, Khmer and Myanmar do not separate words with spaces, so affixes in these scripts match without whitespace: `นาย` strips from `นายสมชาย ใจดี`.
+
 ## Preserve the original value
 
 When the cleaned name differs from the source string, keep the original on the statement with `original_value` so the source form stays traceable:
