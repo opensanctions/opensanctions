@@ -1,0 +1,89 @@
+title: Saudi Arabia Members of the Shura Council
+name: sa_shura_council
+prefix: sa-shura
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-20
+load_statements: true
+ci_test: false
+summary: >-
+  Appointed members and presiding officers of Saudi Arabia's consultative assembly
+description: |
+  Current members of the Shura Council (Majlis al-Shura), the consultative assembly
+  of the Kingdom of Saudi Arabia. The council consists of a Speaker and 150 members,
+  all appointed by royal order for a four-year term. It reviews and proposes
+  legislation, studies international treaties and government reports, and gives
+  its opinion on state policy, while final legislative authority rests with the
+  King and the Council of Ministers.
+
+  The Speaker, Vice Speaker and Assistant Speaker are included alongside the
+  members.
+url: https://www.shura.gov.sa/wps/wcm/connect/shuraen/internet/cv/
+publisher:
+  name: Shura Council of Saudi Arabia
+  description: >
+    The Shura Council (Majlis al-Shura) is the appointed consultative assembly of
+    the Kingdom of Saudi Arabia.
+  url: https://www.shura.gov.sa/
+  country: sa
+  official: true
+data:
+  url: https://www.shura.gov.sa/wps/wcm/connect/shuraen/internet/cv/
+  format: HTML
+  lang: eng
+
+names:
+  prefixes_strip:
+    - Dr.
+    - Eng.
+    - Mr.
+    - Ms.
+    - Professor.
+    - H.E
+    - Maj. Gen.
+    - H.R.H
+    - Prince.
+    - Princess.
+
+tags:
+  - list.pep
+
+lookups:
+  # Leadership card role -> positions held. The Speaker has no member seat
+  # (Shura Council Law, Art. 3); the Secretary-General is staff, not a member.
+  position:
+    required: true
+    options:
+      - match: Speaker of Council
+        values:
+          - Speaker of the Consultative Assembly of Saudi Arabia
+      - match: Vice Speaker of Council
+        values:
+          - Vice Speaker of the Consultative Assembly of Saudi Arabia
+          - Member of the Consultative Assembly of Saudi Arabia
+      - match: Assistant of Council
+        values:
+          - Assistant Speaker of the Consultative Assembly of Saudi Arabia
+          - Member of the Consultative Assembly of Saudi Arabia
+      - match: General Secretary
+        value: null
+  # Mis-captioned cards, keyed on CV slug: this one shows Ziyad Al-Atiyah's name.
+  card_name:
+    options:
+      - match: faihan+bin+abdulaziz+bin+labdah
+        # English spelling from the source's own 2022 CV page.
+        name: Fayhan bin Abdulaziz bin Qunaifth bin Lbdah
+        arabic_name: فيحان بن عبدالعزيز بن قنيفذ بن لبدة
+
+assertions:
+  min:
+    schema_entities:
+      Person: 140
+      Position: 4
+    country_entities:
+      sa: 140
+  max:
+    schema_entities:
+      Person: 170
+      Position: 4
