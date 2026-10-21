@@ -6,8 +6,6 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 MEMBER = "Member of the Consultative Assembly of Saudi Arabia"
-# Only the member seat has a Wikidata item.
-POSITION_QIDS = {MEMBER: "Q21328601"}
 CARD = "contains(concat(' ', normalize-space(@class), ' '), ' council-member-card ')"
 
 
@@ -44,7 +42,8 @@ def crawl_person(
             name=title,
             country="sa",
             topics=["gov.national", "gov.legislative"],
-            wikidata_id=POSITION_QIDS.get(title),
+            # Only the member seat has a Wikidata item.
+            wikidata_id="Q21328601" if title == MEMBER else None,
             lang="eng",
         )
         categorisation = categorise(context, position)
