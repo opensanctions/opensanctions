@@ -133,7 +133,7 @@ def crawl_member(
     person.add("citizenship", "ve")
     person.add("political", party)
     context.log.debug(f"Unique ID {person.id}")
-    h.apply_name(person, full=member_name, lang="esp")
+    h.apply_name(person, full=member_name, lang="spa")
 
     member_href = member_link.get("href")
     if member_href is None:
