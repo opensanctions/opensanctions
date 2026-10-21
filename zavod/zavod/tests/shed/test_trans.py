@@ -5,8 +5,10 @@ from zavod.extract.llm import TextPromptResponse
 from zavod.shed.trans import (
     CHINESE_NAME_TRANSLIT_MODEL,
     NAME_TRANSLIT_MODEL,
+    POSITION_TRANSLATION_MODEL,
     apply_translit_full_name,
     apply_translit_names,
+    translate_position_name,
 )
 from zavod.util import LangText
 
@@ -63,3 +65,15 @@ def test_apply_translit_names_selects_model(vcontext: Context) -> None:
     assert models == [NAME_TRANSLIT_MODEL, NAME_TRANSLIT_MODEL]
     assert entity.get("firstName") == ["Davit"]
     assert entity.get("lastName") == ["Ovashvili"]
+
+
+def test_translate_position_name_model(vcontext: Context) -> None:
+    response = TextPromptResponse(
+        content='{"eng": "Minister of Culture"}', cache_key="key"
+    )
+    with patch("zavod.shed.trans.run_text_prompt", return_value=response) as prompt:
+        result = translate_position_name(
+            vcontext, LangText("Ministro de Cultura", "spa")
+        )
+    assert prompt.call_args.kwargs["model"] == POSITION_TRANSLATION_MODEL
+    assert result.origin == POSITION_TRANSLATION_MODEL

@@ -6,10 +6,12 @@ import orjson
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
-from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
+from zavod.extract.llm import run_text_prompt
 from zavod.util import LangText
 from zavod import helpers as h
 
+POSITION_TRANSLATION_MODEL = "gpt-6.1-sol"
+"""LLM model used to translate position names."""
 NAME_TRANSLIT_MODEL = "gpt-6.1-sol"
 """LLM model used to transliterate names, except from Chinese."""
 # gpt-6-luna is faster and cheaper than gpt-6.1-sol, and both give the same
@@ -116,7 +118,7 @@ def run_translation_prompt(
     prompt: str,
     text: str,
     output_langs: list[str] = ["eng"],
-    model: str = DEFAULT_MODEL,
+    model: str,
 ) -> TranslationResult:
     """Run a translation/transliteration prompt and return the result as
     LangText instances together with the underlying response's cache key.
@@ -175,7 +177,7 @@ def translate_position_name(
     context: Context,
     label: LangText,
     *,
-    model: str = DEFAULT_MODEL,
+    model: str = POSITION_TRANSLATION_MODEL,
 ) -> TranslationResult:
     """Translate a public office position label into English.
 
