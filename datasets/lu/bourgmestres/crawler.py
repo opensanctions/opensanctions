@@ -1,4 +1,8 @@
+from datetime import datetime
 from typing import Any
+
+from openpyxl import load_workbook
+from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
@@ -7,18 +11,26 @@ from zavod.stateful.positions import categorise
 DATASETS_QUERY_URL = "https://data.public.lu/api/1/datasets/?lang=en&q=bourgmestre"
 
 
+def to_source_date(value: str | None) -> str | None:
+    if value is None:
+        return None
+    return datetime.strptime(value, "%Y-%m-%d").strftime("%d/%m/%Y")
+
+
 def crawl_record(
     context: Context,
     record: dict[str, Any],
 ) -> None:
-    commune_code = record.pop("COM_CODE")
-    commune_label = record.pop("COM_LABEL")
-    position_label = record.pop("MAN_LABEL")
-    first_name = record.pop("ELU_FIRST_NAME")
-    last_name = record.pop("ELU_LAST_NAME")
-    gender = record.pop("ELU_SEX")
-    start_date = record.pop("COAC_START_DATE")
-    end_date = record.pop("COAC_END_DATE")
+    commune_code = record.pop("com_code")
+    commune_label = record.pop("com_label")
+    position_label = record.pop("man_label")
+    first_name = record.pop("elu_first_name")
+    last_name = record.pop("elu_last_name")
+    gender = record.pop("elu_sex")
+    # Render dates as the retired JSON resource did (dd/mm/YYYY): make_occupancy hashes the
+    # raw date strings into the Occupancy ID, so ISO dates would re-key every occupancy.
+    start_date = to_source_date(record.pop("coac_start_date"))
+    end_date = to_source_date(record.pop("coac_end_date"))
 
     res = context.lookup("position", position_label)
     assert res is not None, f"Unknown position: {position_label!r}"
@@ -81,14 +93,17 @@ def crawl(context: Context) -> None:
         )
         raise
 
-    json_resource = next(
-        (r for r in dataset["resources"] if r["format"] == "json"),
-        None,
-    )
-    assert json_resource is not None, "No JSON resource found in dataset"
+    # The publisher replaced the JSON resource with CSV + XLSX on 2026-10-14. The CSV is
+    # Latin-1 and mangles names outside it (e.g. "Ćosić" -> "?osi?"), so read the XLSX.
+    # The same file is sometimes re-uploaded as a second XLSX resource: take the newest.
+    xlsx_resources = [r for r in dataset["resources"] if r["format"] == "xlsx"]
+    assert len(xlsx_resources) > 0, "No XLSX resource found in dataset"
+    xlsx_resource = max(xlsx_resources, key=lambda r: r["last_modified"])
 
-    data = context.fetch_json(json_resource["url"], cache_days=1)
-    assert isinstance(data, list), f"Expected list, got {type(data)}"
-
-    for record in data:
+    path = context.fetch_resource("source.xlsx", xlsx_resource["url"])
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    workbook = load_workbook(path, read_only=True)
+    # The sheet name carries the upload date (e.g. "Schäfferot20261014").
+    assert len(workbook.worksheets) == 1, workbook.sheetnames
+    for record in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
         crawl_record(context, record)
