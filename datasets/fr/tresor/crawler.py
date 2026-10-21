@@ -1,8 +1,10 @@
 import json
+import re
 from typing import Any
 
 from banal import ensure_list
 from datapatch import Lookup
+from followthemoney import registry
 from prefixdate import parse_parts
 from rigour.mime.types import JSON
 
@@ -13,6 +15,11 @@ HEADERS = {
     "Accept": "application/json",
     "User-Agent": "custom-agent",
 }
+
+# The "<label>: <value>" segments of an identification field are joined by a dash.
+# The source is inconsistent about the spacing around it, but always leaves at least
+# one space on one side, so hyphenated words inside a value are left alone.
+IDENTIFICATION_SEPARATOR = re.compile(r"\s+-\s*|\s*-\s+")
 
 SCHEMATA = {
     "Personne physique": "Person",
@@ -67,6 +74,85 @@ def apply_identification_lookup(
     return True
 
 
+def lookup_identification_prop(context: Context, label: str) -> str | None:
+    """Map a label from the identification field to an entity property, if it is known."""
+    result = context.lookup("identification_label", label)
+    if result is None:
+        return None
+    prop: str = result.prop
+    return prop
+
+
+def resolve_identification_labels(
+    context: Context, comment: str, content: str
+) -> list[tuple[str, str]] | None:
+    """Resolve a labelled identification field into (property, value) pairs.
+
+    The field carries one or more "<label>: <value>" segments joined by a dash, where
+    the `identification_label` lookup maps a label to the property it introduces. Where
+    one label covers the whole entry, the source puts the label in either `Commentaire`
+    or `Identification` and the value in the other field.
+
+    Returns None unless every part of the field is a segment with a known label, so that
+    a field which is only partially understood is left to the warning instead.
+    """
+    parts = [p.strip(" ./;").removesuffix(":").strip() for p in (comment, content)]
+    parts = [p for p in parts if len(p)]
+    if not len(parts):
+        return None
+
+    if len(parts) == 2 and not any(":" in p for p in parts):
+        # One field holds the label and the other the value, in either order.
+        pairs: list[tuple[str, str]] = []
+        for label, value in ((parts[0], parts[1]), (parts[1], parts[0])):
+            prop = lookup_identification_prop(context, label)
+            if prop is not None:
+                pairs.append((prop, value))
+        # Both readings being label-like means we cannot tell label from value.
+        return pairs if len(pairs) == 1 else None
+
+    props: list[tuple[str, str]] = []
+    for part in parts:
+        for segment in IDENTIFICATION_SEPARATOR.split(part):
+            segment = segment.strip(" ./;")
+            if not len(segment):
+                continue
+            label, separator, value = segment.partition(":")
+            value = value.strip(" ./;")
+            if not len(separator) or not len(value):
+                return None
+            prop = lookup_identification_prop(context, label)
+            if prop is None:
+                return None
+            props.append((prop, value))
+    return props if len(props) else None
+
+
+def apply_identification_labels(
+    context: Context, entity: Entity, props: list[tuple[str, str]]
+) -> bool:
+    """Apply resolved identification properties, or none of them if any value is unusable."""
+    values: list[tuple[str, list[str], str]] = []
+    for prop, value in props:
+        prop_ = entity.schema.get(prop)
+        if prop_ is None:
+            return False
+        if prop_.type == registry.date:
+            try:
+                dates = h.extract_date(
+                    context.dataset, value, fallback_to_original=False
+                )
+            except ValueError:
+                return False
+            values.append((prop, dates, value))
+        else:
+            values.append((prop, [value], value))
+
+    for prop, cleaned, original in values:
+        entity.add(prop, cleaned, lang="fra", original_value=original)
+    return True
+
+
 def parse_identification(
     context: Context,
     entity: Entity,
@@ -74,19 +160,27 @@ def parse_identification(
 ) -> None:
     """Parse the identification field and add the appropriate properties to the entity.
 
-    The field is free text following a loose "<label>: <value>" convention. Each
-    distinct field is mapped by an option in the `identification_full` lookup, whose
-    leading comment holds the rules for adding one. An unmatched field raises a
-    warning with the string to match on.
+    The field is free text following a loose "<label>: <value>" convention. A field
+    needing a per-value decision is mapped by an option in the `identification_full`
+    lookup, whose leading comment holds the rules for adding one. Anything left is
+    split into its labelled segments and mapped by label through the
+    `identification_label` lookup. A field neither of them covers raises a warning
+    with the string to match on.
     """
     comment = value.pop("Commentaire")
     content = value.pop("Identification")
     full = f"{comment}: {content}".strip("/:;-. ")
 
-    if not apply_identification_lookup(
+    if apply_identification_lookup(
         context, context.get_lookup("identification_full"), entity, full
     ):
-        context.log.warning("Cannot parse identification field.", full=full)
+        return
+
+    labelled = resolve_identification_labels(context, comment, content)
+    if labelled is not None and apply_identification_labels(context, entity, labelled):
+        return
+
+    context.log.warning("Cannot parse identification field.", full=full)
 
 
 def apply_prop(
