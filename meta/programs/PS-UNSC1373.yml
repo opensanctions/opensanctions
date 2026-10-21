@@ -1,0 +1,16 @@
+title: Palestine Counter-Terrorism (UNSCR 1373) National Designations
+key: PS-UNSC1373
+url: https://sanction.pgp.ps/ar/SanctionFiles_arb
+summary: Palestine implements UN Security Council Resolution 1373 (2001) through a
+  national designation list maintained by the Committee for the Implementation of
+  UN Security Council Resolutions, established under Decree-Law No. 20 of 2015 on
+  Combating Money Laundering and Terrorist Financing. Individuals and entities
+  involved in terrorist acts are designated without prior notice, and their funds
+  and economic resources are frozen.
+issuer: ps_ps
+dataset: ps_national_terrorism_list
+aliases:
+  - Resolution 1373
+  - Decree-Law No. 20 of 2015
+measures:
+  - Asset freeze

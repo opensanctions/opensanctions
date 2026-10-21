@@ -1,0 +1,185 @@
+title: Palestine National Terrorist Designations (UNSCR 1373)
+entry_point: crawler.py
+prefix: ps-terr
+coverage:
+  frequency: daily
+  start: 2026-10-20
+load_statements: true
+ci_test: false # LLM-based transliteration
+summary: >-
+  Individuals and entities designated as terrorists on the Palestinian national
+  list under UN Security Council Resolution 1373.
+description: |
+  Individuals and entities on the national designation list
+  of the Palestinian Committee for the Implementation of UN Security Council
+  Resolutions, which implements UN Security Council Resolution 1373 (2001) on
+  combating terrorism and its financing. Most designations target Israeli settlers
+  and settler groups and outposts in the West Bank.
+
+  Individuals are listed with their names in Arabic and Hebrew, gender, father's
+  and mother's names, alias, affiliated entity, address, date of birth, identity
+  document number, nationality, listing date and last amendment. Entities are
+  listed with their name, a short description, listing date and last amendment.
+url: https://sanction.pgp.ps/ar/SanctionFiles_arb
+publisher:
+  name: لجنة تنفيذ قرارات مجلس الامن الدولي
+  name_en: Committee for the Implementation of UN Security Council Resolutions
+  description: |
+    The committee was established under
+    Article 47 of Decree-Law No. 20 of 2015 on Combating Money Laundering and
+    Terrorist Financing. It implements UN Security Council resolutions on
+    terrorism, its financing and proliferation financing, and maintains the
+    Palestinian national designation list.
+  url: https://sanction.pgp.ps/en/About
+  country: ps
+  official: true
+data:
+  url: https://sanction.pgp.ps/ar/SanctionFiles_arb
+  format: XLS
+  lang: ara
+dates:
+  formats: ["%Y/%m/%d"]
+tags:
+  - list.sanction
+  - sector.counterterrorism
+
+assertions:
+  min:
+    schema_entities:
+      Person: 35
+      Organization: 12
+    country_entities:
+      il: 30
+  max:
+    schema_entities:
+      Person: 90
+      Organization: 30
+
+names:
+  schema_rules:
+    # Notes in the Arabic part of a name, e.g. ملقب "كوكو" (nicknamed "Koko"),
+    # اسم الشهرة (known as), اسم العائلة السابق (former surname). " is not
+    # rejected, as Hebrew uses it in abbreviations like בע"מ (Ltd).
+    Person:
+      reject_chars: "،"
+      reject_strings: ["ملقب", "اسم الشهرة", "اسم العائلة السابق"]
+    LegalEntity:
+      # منظمة "…" الإسرائيلية - "the Israeli organisation …"
+      reject_chars: "()،"
+      reject_strings: ["منظمة"]
+
+lookups:
+  # parse_xls_sheet slugifies the Arabic headers; map them to English keys.
+  columns:
+    options:
+      - match: alrqm # الرقم
+        value: number
+      - match: alasm # الإسم
+        value: name
+      - match: aljns # الجنس
+        value: gender
+      - match: asm_alwald # اسم الوالد
+        value: father_name
+      - match: alknyt # الكنية
+        value: alias
+      - match: alkyan_almrtbt # الكيان المرتبط
+        value: affiliation
+      - match: alnwan # العنوان
+        value: address
+      - match: tarykh_almylad # تاريخ الميلاد
+        value: birth_date
+      - match: alwthyqt_alshkhsyt # الوثيقة الشخصية
+        value: doc_type
+      - match: rqm_alwthyqt # رقم الوثيقة
+        value: doc_number
+      - match: asm_alam # اسم الأم
+        value: mother_name
+      - match: aljnsyt # الجنسية
+        value: nationality
+      - match: tarykh_aladraj # تاريخ الإدراج
+        value: listing_date
+      # مضمون آخر تعديل (individuals) / آخر تعديل (entities)
+      - match: [mdmwn_akhr_tdyl, akhr_tdyl]
+        value: amendment
+      - match: tarykh_akhr_tdyl # تاريخ آخر تعديل
+        value: amendment_date
+      - match: alasm_alkyan # الإسم الكيان
+        value: entity_name
+      - match: alwsf # الوصف
+        value: description
+  type.gender:
+    options:
+      - match: ذكر
+        value: male
+      - match: انثى
+        value: female
+  type.country:
+    normalize: true
+    options:
+      - match:
+          - إسرائيلي
+          - اسرائيلي
+          - إسرائيلية
+          - اسرائيلية
+        value: il
+      # "Israeli, possibly also holding US/French citizenship" - only the
+      # Israeli nationality is asserted by the source.
+      - match:
+          - إسرائيلي، احتمال وجود جنسية أمريكية (جدته سوزانا كاتس أمريكية)
+          - إسرائيلي، احتمالية وجود جنسية فرنسية (والده فرنسي)
+          - إسرائيلي، احتمالية وجود جنسية أمريكية
+        value: il
+  type.date:
+    options:
+      - match: "-"
+        value: null
+      # "unconfirmed"
+      - match: 2000/09/06- غير مؤكد
+        value: "2000-09-06"
+  type.name:
+    options:
+      - match: "-"
+        value: null
+  type.string:
+    options:
+      - match: "-"
+        value: null
+  type.text:
+    options:
+      - match: "-"
+        value: null
+  doc_type:
+    normalize: true
+    options:
+      - match:
+          - هوية إسرائيلية
+          - هوية اسرائيلية
+        doc_type: Israeli identity card
+        country: il
+  affiliation:
+    options:
+      - match: "-"
+        value: null
+      # Hilltop Youth, incl. the truncated "הגבעו" variant
+      - match:
+          - شبيبة التلال/فتيان التلال، بالعبرية נוער הגבעות
+          - شبيبة التلال/فتيان التلال، بالعبرية נוער הגבעו
+        value: شبيبة التلال / فتيان التلال ، بالعبرية נוער הגבעות
+      # Price Tag
+      - match:
+          - تدفيع الثمن (تاغ ميخير)
+          - من نشطاء منظمة تدفيع الثمن
+          - جماعة تدفيع الثمن المتطرفة
+        value: تدفيع الثمن (تاغ ميخير)
+      - match: منظمة لاهافا اليمينية
+        value: 'ليهافا، بالعبرية: להב"ה'
+      # "the far right" - not a listed entity
+      - match: اليمين المتطرف
+        value: null
+      # "unspecified (works as a guard of the Yitzhar settlement)"
+      - match: غير محدد (يعمل حارس مستعمرة يتسهار)
+        value: null
+      # "member of the extremist organisation Tsav 8": the list designates
+      # Tzav 9, but the source does not say they are the same group.
+      - match: عضوة في منظمة تساف8 المتطرفة
+        value: null
