@@ -1,4 +1,6 @@
 from urllib.parse import urljoin
+
+from followthemoney import registry
 from rigour.mime.types import PDF
 from rigour.names import remove_person_prefixes
 
@@ -6,12 +8,20 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.extract.llm import run_image_prompt
 
+LLM_MODEL = "gpt-6.1-sol"
+
 prompt = """
 Extract structured data from the following page of a PDF document. Return
 a JSON list (`holders`) in which each object represents an office-holder
 (e.g. head of government, head of state, minister of foreign affairs).
 Each object should have the following fields: `country`, `full_title`,
-`honorary_prefix`, `person_name`, `date_of_appointment`.
+`honorary_prefix`, `person_name`, `post_nominals`, `date_of_appointment`.
+
+Copy every value verbatim from the page. Keep capitalisation, accents,
+punctuation and apostrophes exactly as printed. Do not translate, abbreviate,
+correct or complete any value. When a value continues over several lines,
+join the lines with a single space.
+
 Return an empty string for unset fields.
 """
 
@@ -31,7 +41,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.pdf", pdf_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for page_path in h.make_pdf_page_images(path):
-        data = run_image_prompt(context, prompt, page_path)
+        data = run_image_prompt(context, prompt, page_path, model=LLM_MODEL)
         assert "holders" in data, data
         for holder in data.get("holders", []):
             person_name = holder.get("person_name")
@@ -53,9 +63,12 @@ def crawl(context: Context) -> None:
                         country=country,
                     )
                 continue
-            country = holder.get("country")
+            # The LLM varies the casing of the country name between runs, so
+            # the IDs use the country code instead.
+            country_code = registry.country.clean(country)
+            assert country_code is not None, country
             entity = context.make("Person")
-            entity.id = context.make_id(country, holder.get("person_name"))
+            entity.id = context.make_id(country_code, holder.get("person_name"))
             entity.add("topics", "role.pep")
             if norm_name != holder.get("person_name"):
                 context.log.debug(
@@ -70,7 +83,7 @@ def crawl(context: Context) -> None:
             position = h.make_position(
                 context,
                 name=full_title,
-                country=country,
+                country=country_code,
                 topics=["gov.national"],
             )
             start_date = start_date if len(start_date) < 18 else None
