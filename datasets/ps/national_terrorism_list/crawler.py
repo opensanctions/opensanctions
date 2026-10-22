@@ -33,7 +33,7 @@ def apply_names(
     context: Context, entity: Entity, raw_name: str, prop: str = "name"
 ) -> None:
     """Apply the Arabic and Hebrew/English forms of the name, sending irregular
-    ones to human review, and add an English transliteration."""
+    ones to human review, and add English transliterations."""
     names = split_scripts(raw_name)
     for lang, value in names.items():
         h.apply_reviewed_name_string(
@@ -43,10 +43,16 @@ def apply_names(
         return
     # The Arabic is itself a rendering of the Hebrew, so prefer the Hebrew form.
     lang = "heb" if "heb" in names else "ara"
-    # The transliteration keeps its origin, so it isn't mistaken for a source name.
-    apply_translit_full_name(
-        context, entity, LangText(names[lang], lang), alias=prop == "alias"
-    )
+    # Transliterate the reviewed names; ones awaiting review are still irregular.
+    for name_prop in ("name", "alias"):
+        for stmt in entity.get_statements(name_prop):
+            if stmt.lang == lang and not h.is_name_irregular(entity, stmt.value):
+                apply_translit_full_name(
+                    context,
+                    entity,
+                    LangText(stmt.value, lang),
+                    alias=name_prop == "alias",
+                )
 
 
 def apply_parent_names(entity: Entity, prop: str, raw: str | None) -> None:

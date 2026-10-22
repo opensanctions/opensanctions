@@ -131,37 +131,6 @@ lookups:
       # "unconfirmed"
       - match: 2000/09/06- غير مؤكد
         value: "2000-09-06"
-  # English transliterations skip review, so notes carried over from the
-  # source name are cleaned here, and mistransliterations corrected. Dropped
-  # notes are still kept in the reviewed source names.
-  type.name:
-    options:
-      # ملقب "كوكو" - nicknamed "Koko"
-      - match: Harel Libi "Koko"
-        value: Harel Libi
-      # اسم العائلة السابق - former surname
-      - match: Yehud Chaim Hoshen (Unger)
-        value: Yehud Chaim Hoshen
-      - match: Zvi Avia'ad Bar-Yosef Shofek (Zvi Bar Yosef)
-        values:
-          - Zvi Avia'ad Bar-Yosef Shofek
-          - Zvi Bar Yosef
-      - match: Elishiv Nahum (Yehuda)
-        value: Elishiv Nahum
-      - match: Hamza Adel Mohammad Al-Sheikh Eid (Al-Zamili)
-        value: Hamza Adel Mohammad Al-Sheikh Eid
-      - match: Basil Khaled Hussein Eid (Al-Zamli)
-        value: Basil Khaled Hussein Eid
-      - match: Tadfiyah Al-Thaman (Tagh Mikhayir)
-        values:
-          - Tadfiyah Al-Thaman
-          - Tagh Mikhayir
-      # בן-ישי אשד / بن يشاي ايشيد - Eshed, not the city of Ashdod
-      - match: Ben-Ishai Ashdod
-        value: Ben-Ishai Eshed
-      # אברהם פופר / ابراهم بوبر
-      - match: Avraham Pofer
-        value: Avraham Popper
   type.string:
     options:
       - match: "-"
