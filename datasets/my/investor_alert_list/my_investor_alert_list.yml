@@ -77,6 +77,10 @@ lookups:
         value: https://islamicinc.asia/
       - match: "http://www.xeraya-capital.com (clone website)"
         value: http://www.xeraya-capital.com
+      - match: "https://antospnc.net (antospnc.asia)"
+        values:
+          - https://antospnc.net
+          - antospnc.asia
   type.address:
     options:
       - match: ","

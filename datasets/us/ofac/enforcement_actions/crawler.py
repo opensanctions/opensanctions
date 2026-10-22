@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 from zavod.entity import Entity
-from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
@@ -12,6 +12,8 @@ from zavod.stateful.review import (
 
 from zavod import Context
 from zavod import helpers as h
+
+LLM_MODEL = "gpt-6.1-sol"
 
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
 CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
@@ -130,13 +132,13 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         url=url,
     )
     prompt_result = run_typed_text_prompt(
-        context, PROMPT, source_value.value_string, Defendants
+        context, PROMPT, source_value.value_string, Defendants, model=LLM_MODEL
     )
     review = review_extraction(
         context,
         source_value=source_value,
         original_extraction=prompt_result,
-        origin=DEFAULT_MODEL,
+        origin=LLM_MODEL,
     )
 
     if not review.accepted:

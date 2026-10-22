@@ -30,59 +30,60 @@ def write_html_for_manual_diff(node: HtmlElement, path: Path) -> None:
 
 
 def crawl_terrorism_act(context: Context) -> None:
-    _, _, _, html_source = zyte_api.fetch_text(context, context.data_url)
-    doc = html.fromstring(html_source)
+    # The site serves an AWS WAF JavaScript challenge, so it needs browser rendering.
+    doc = zyte_api.fetch_html(context, context.data_url, ".//td[@class='tailSTxt']")
 
     html_resource_path = context.get_resource_path("source.html")
-    html_resource_path.write_text(html_source)
+    html_resource_path.write_text(html.tostring(doc, encoding="unicode"))
     context.export_resource(html_resource_path, HTML, title=context.SOURCE_TITLE)
 
-    for node in doc.findall(".//td[@class='tailSTxt']"):
-        if not h.element_text(node).startswith("2."):
+    # The schedule has three paragraphs, of which paragraph 2 lists the designated
+    # individuals. A change in the count means the schedule needs a manual review.
+    _, node, _ = h.xpath_elements(doc, ".//td[@class='tailSTxt']", expect_exactly=3)
+    assert h.element_text(node).startswith("2."), h.element_text(node)
+    for item in node.findall(".//tr"):
+        number = h.element_text(item.find(".//td[@class='sProvP1No']"))
+        text = h.element_text(item.find(".//td[@class='sProvP1']"))
+        if text.startswith("[Deleted"):
             continue
-        for item in node.findall(".//tr"):
-            number = h.element_text(item.find(".//td[@class='sProvP1No']"))
-            text = h.element_text(item.find(".//td[@class='sProvP1']"))
-            if text.startswith("[Deleted"):
+        text = text.strip().rstrip(";").rstrip(".")
+        name, _ = text.split("(", 1)
+        names = h.multi_split(name, ["s/o", "@"])
+
+        entity = context.make("Person")
+        entity.id = context.make_slug(number, name)
+        entity.add("name", names)
+        entity.add("topics", "sanction")
+
+        sanction = h.make_sanction(
+            context,
+            entity,
+            program_key=PROGRAM_KEY,
+        )
+
+        for match in IN_BRACKETS.findall(text):
+            # match = match.replace("\xa0", "")
+            res = context.lookup("props", match)
+            if res is not None:
+                for prop, value in res.props.items():
+                    entity.add(prop, value)
                 continue
-            text = text.strip().rstrip(";").rstrip(".")
-            name, _ = text.split("(", 1)
-            names = h.multi_split(name, ["s/o", "@"])
+            if match.endswith("citizen"):
+                cit = match.replace("citizen", "")
+                entity.add("citizenship", cit)
+                continue
+            if match.startswith(DOB):
+                dob = match.replace(DOB, "").strip()
+                h.apply_date(entity, "birthDate", dob)
+                continue
+            if match.startswith(PASSPORT):
+                passport = match.replace(PASSPORT, "").strip()
+                entity.add("passportNumber", passport)
+                continue
+            context.log.warn("Unparsed bracket term", term=match)
 
-            entity = context.make("Person")
-            entity.id = context.make_slug(number, name)
-            entity.add("name", names)
-            entity.add("topics", "sanction")
-
-            sanction = h.make_sanction(
-                context,
-                entity,
-                program_key=PROGRAM_KEY,
-            )
-
-            for match in IN_BRACKETS.findall(text):
-                # match = match.replace("\xa0", "")
-                res = context.lookup("props", match)
-                if res is not None:
-                    for prop, value in res.props.items():
-                        entity.add(prop, value)
-                    continue
-                if match.endswith("citizen"):
-                    cit = match.replace("citizen", "")
-                    entity.add("citizenship", cit)
-                    continue
-                if match.startswith(DOB):
-                    dob = match.replace(DOB, "").strip()
-                    h.apply_date(entity, "birthDate", dob)
-                    continue
-                if match.startswith(PASSPORT):
-                    passport = match.replace(PASSPORT, "").strip()
-                    entity.add("passportNumber", passport)
-                    continue
-                context.log.warn("Unparsed bracket term", term=match)
-
-            context.emit(entity)
-            context.emit(sanction)
+        context.emit(entity)
+        context.emit(sanction)
 
 
 def crawl_additional_lists(context: Context) -> None:

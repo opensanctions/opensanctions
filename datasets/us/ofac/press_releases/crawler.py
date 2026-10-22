@@ -2,7 +2,7 @@ from typing import Literal
 
 from lxml.html import tostring
 from pydantic import BaseModel, Field
-from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
@@ -12,11 +12,15 @@ from zavod.stateful.review import (
 from zavod import Context
 from zavod import helpers as h
 
+LLM_MODEL = "gpt-6.1-sol"
+
 Schema = Literal[
     "Person", "Organization", "Company", "LegalEntity", "Vessel", "Airplane"
 ]
 
-MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
+# The largest press releases name several hundred designees: jy0677 needs about
+# 14,000 completion tokens.
+MAX_TOKENS = 32768
 
 schema_field = Field(
     description=(
@@ -181,13 +185,18 @@ def crawl_press_release(context: Context, url: str) -> None:
         url=url,
     )
     prompt_result = run_typed_text_prompt(
-        context, PROMPT, source_value.value_string, Designees, MAX_TOKENS
+        context,
+        PROMPT,
+        source_value.value_string,
+        Designees,
+        MAX_TOKENS,
+        model=LLM_MODEL,
     )
     review = review_extraction(
         context,
         source_value=source_value,
         original_extraction=prompt_result,
-        origin=DEFAULT_MODEL,
+        origin=LLM_MODEL,
     )
     if not review.accepted:
         return
