@@ -1,3 +1,4 @@
+import re
 from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
 from lxml.etree import _Element
@@ -7,6 +8,9 @@ from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
 
 FCA_URL = "https://www.fca.org.uk/"
+# The FCA's clone annotation, e.g. "(clone)" or "(Clone of FCA authorised firm)",
+# but not a firm that merely has "clone" in its name.
+CLONE_ANNOTATION = re.compile(r"\(clone\b[^)]*\)", re.IGNORECASE)
 
 # Prefixes of the standard FCA disclaimer that ends the firm details.
 DISCLAIMERS = (
@@ -82,8 +86,8 @@ def crawl_item(context: Context, item: _Element) -> None:
     h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
     entity.add("sourceUrl", url)
     entity.add("topics", "reg.warn")
-    # Older warning pages have no clone section, only the clone wording in the name.
-    if "clone " in name.lower():
+    # Older warning pages have no clone section, only the clone annotation in the name.
+    if CLONE_ANNOTATION.search(name):
         entity.add("topics", "corp.clone")
 
     crawl_details_page(context, entity, url)
