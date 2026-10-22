@@ -9,13 +9,13 @@ from zavod.extract import zyte_api
 
 LOCAL_PATH = Path(__file__).parent
 PDF_URL = (
-    "https://www.dans.bg/upload/298/RESHENIE_265_na_MS_ot_23042003_g_za_priemane"
+    "https://www.dans.bg/upload/4449/RESHENIE_265_na_MS_ot_23042003_g_za_priemane"
     "_Spisyk_na_fiziceskite_lica_uridiceskite_lica_grupite_i_.pdf"
 )
 # SHA1 of the consolidated list PDF as last reviewed, with amendments through
-# State Gazette no. 47 of 30.05.2023. A copy of that version is committed next
+# State Gazette no. 70 of 20.08.2024. A copy of that version is committed next
 # to this crawler as dans_list.pdf; see the runbook comment in the yml.
-PDF_HASH = "c05bfa98aa2037403fe7d4eda60f8e784e8a9087"
+PDF_HASH = "74113e6a47f7c1ca003961d6aecc8493703551df"
 
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
