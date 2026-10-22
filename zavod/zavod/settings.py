@@ -89,6 +89,7 @@ OPENAI_API_KEY = env.get("OPENAI_API_KEY", None)
 PRAVDA_BROWSER_WS_URL = env.get("PRAVDA_BROWSER_WS_URL", None)
 PRAVDA_STORAGE_BASE_PATH = env.get("PRAVDA_STORAGE_BASE_PATH", None)
 FUNES_MODEL = env.get("FUNES_MODEL", None)
+FUNES_THINKING = env.get("FUNES_THINKING", None)
 
 # Test code in prod code is generally a Bad Idea.
 # This is here to allow for fallbacks to skip some external service usage

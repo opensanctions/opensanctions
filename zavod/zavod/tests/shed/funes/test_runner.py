@@ -42,6 +42,7 @@ BRIEF = Brief(
 )
 
 MODEL = "test-model"
+THINKING = "low"
 
 
 def make_dataset() -> Dataset:
@@ -124,6 +125,7 @@ def inspect(
                 capture=capture,
                 read_resource=read_resource,
                 model=MODEL,
+                thinking=THINKING,
                 brief=BRIEF,
                 candidate_id=candidate_id(context),
                 url=SOURCE_URL,

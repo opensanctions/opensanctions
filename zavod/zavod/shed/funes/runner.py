@@ -15,7 +15,10 @@ import asyncio
 import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass
+from typing import cast
 
+from pydantic_ai import ModelSettings
+from pydantic_ai.settings import ThinkingEffort
 from pravda import Pravda, Snapshot, Storage
 from sqlalchemy import insert
 
@@ -57,6 +60,7 @@ class FunesRuntime:
     browser_ws_url: str
     storage_base_path: str
     model: str
+    thinking: ThinkingEffort
 
 
 def load_runtime() -> FunesRuntime:
@@ -70,10 +74,14 @@ def load_runtime() -> FunesRuntime:
     model = settings.FUNES_MODEL
     if model is None:
         raise ConfigurationException("No $FUNES_MODEL provided.")
+    thinking = settings.FUNES_THINKING
+    if thinking is None:
+        raise ConfigurationException("No $FUNES_THINKING provided.")
     return FunesRuntime(
         browser_ws_url=browser_ws_url,
         storage_base_path=storage_base_path,
         model=model,
+        thinking=cast(ThinkingEffort, thinking),
     )
 
 
@@ -108,6 +116,7 @@ async def _inspect_candidates(
             capture=capture,
             read_resource=read_resource,
             model=runtime.model,
+            thinking=runtime.thinking,
             brief=Brief(
                 people_sought=definition.people_sought,
                 subject_label=definition.subject_label,
@@ -125,6 +134,7 @@ async def _inspect_candidate(
     capture: Capture,
     read_resource: ReadResource,
     model: str,
+    thinking: ThinkingEffort,
     brief: Brief,
     candidate_id: uuid.UUID,
     url: str,
@@ -175,6 +185,7 @@ async def _inspect_candidate(
     run = await extraction_agent.run(
         build_prompt(metadata, outline),
         model=model,
+        model_settings=ModelSettings(thinking=thinking),
         run_id=str(attempt_id),
         deps=deps,
     )
