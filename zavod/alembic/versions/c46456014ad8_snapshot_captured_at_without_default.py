@@ -24,21 +24,21 @@ def upgrade() -> None:
     # Pravda mints captured_at at capture; no insert path can omit it,
     # so the column has no default. (Pravda 0.9 removed the database
     # write that carried the original server default.)
-    op.alter_column(
-        "snapshot",
-        "captured_at",
-        server_default=None,
-        existing_type=sa.DateTime(timezone=True),
-        existing_nullable=False,
-    )
+    with op.batch_alter_table("snapshot") as batch:
+        batch.alter_column(
+            "captured_at",
+            server_default=None,
+            existing_type=sa.DateTime(timezone=True),
+            existing_nullable=False,
+        )
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.alter_column(
-        "snapshot",
-        "captured_at",
-        server_default=sa.func.now(),
-        existing_type=sa.DateTime(timezone=True),
-        existing_nullable=False,
-    )
+    with op.batch_alter_table("snapshot") as batch:
+        batch.alter_column(
+            "captured_at",
+            server_default=sa.func.now(),
+            existing_type=sa.DateTime(timezone=True),
+            existing_nullable=False,
+        )

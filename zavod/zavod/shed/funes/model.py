@@ -5,7 +5,7 @@ subject, candidate) and the terminal verdict of each completed run
 (attempt). Extracted people and positions are emitted as FollowTheMoney
 entities rather than stored.
 
-```funes_snapshot`` is the persisted form of a Pravda ``Snapshot``
+```snapshot`` is the persisted form of a Pravda ``Snapshot``
 value: Pravda captures and returns values; the runner persists them.
 Artifact fields are storage-relative paths. Snapshots are one-to-one
 with attempts: each run captures its own snapshot, and the capture
@@ -14,9 +14,10 @@ it.
 
 Tables live on their own metadata (``meta``), passed explicitly
 into the Alembic ``target_metadata`` list and created explicitly in
-tests via ``meta.create_all``. They are prefixed ``funes_``
-because the database hosts other projects' tables (including zavod's
-own ``position``). Following the stateful tables, access is Core-level,
+tests via ``meta.create_all``. The pipeline's own tables are prefixed
+``funes_`` because the database hosts other projects' tables (including
+zavod's own ``position``).
+Following the stateful tables, access is Core-level,
 not ORM.
 """
 
@@ -141,7 +142,7 @@ candidate_table = Table(
 # value. The id and timestamp are minted at capture by Pravda, so
 # inserts always pass them explicitly; no insert path can omit them.
 snapshot_table = Table(
-    "funes_snapshot",
+    "snapshot",
     meta,
     Column("id", Uuid, primary_key=True),
     Column("url", Text, nullable=False),
@@ -182,7 +183,7 @@ attempt_table = Table(
     Column(
         "snapshot_id",
         Uuid,
-        ForeignKey("funes_snapshot.id", ondelete="RESTRICT"),
+        ForeignKey("snapshot.id", ondelete="RESTRICT"),
         nullable=False,
     ),
     Column(
