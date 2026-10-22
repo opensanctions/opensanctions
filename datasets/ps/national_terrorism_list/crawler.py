@@ -1,15 +1,10 @@
 import re
 
 import xlrd
-from normality import latinize_text
 from rigour.mime.types import XLS
-from zavod.shed.trans import (
-    ENGLISH,
-    NAME_TRANSLIT_MODEL,
-    apply_translit_full_name,
-    make_name_translit_prompt,
-    run_translation_prompt,
-)
+from rigour.names.org_types import extract_org_types
+from rigour.text.scripts import text_scripts
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.review import assert_all_accepted
 from zavod.util import LangText
 
@@ -17,13 +12,12 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 # "<Arabic name>، بالعبرية: <Hebrew name>" / "…، بالإنجليزية: <English name>"
-SCRIPT_MARKER = re.compile(r"\s*،?\s*بال(عبرية|إنجليزية)\s*:?\s*")
-MARKER_LANGS = {"عبرية": "heb", "إنجليزية": "eng"}
+SCRIPT_LANGS = {"بالعبرية": "heb", "بالإنجليزية": "eng"}
+SCRIPT_MARKER = re.compile(rf"\s*،?\s*({'|'.join(SCRIPT_LANGS)})\s*:?\s*")
 # "…، الأصل/ الولايات المتحدة" - country of origin attached to parent names
-ORIGIN_SUFFIX = re.compile(r"،\s*الا?[أا]صل\s*/.*$")
-# "(حسب الجنسية الفرنسية)" - "(according to the French nationality)"
-NATIONALITY_NOTE = re.compile(r"\(حسب [^)]*\)")
-DOC_NUMBER = re.compile(r"^\d{1,9}$")
+ORIGIN_SUFFIX = re.compile(r"،\s*(الأصل|الاصل)\s*/.*$")
+# Generic rigour org types that are company legal forms, e.g. المحدودة / בע"מ (Ltd)
+COMPANY_TYPES = {"llc", "jsc", "llp", "lp"}
 
 
 def split_scripts(text: str) -> list[tuple[str, str]]:
@@ -31,57 +25,48 @@ def split_scripts(text: str) -> list[tuple[str, str]]:
     parts = SCRIPT_MARKER.split(text)
     names = [(parts[0], "ara")]
     for marker, value in zip(parts[1::2], parts[2::2]):
-        names.append((value, MARKER_LANGS[marker]))
-    return [(v.strip(" ،:"), lang) for v, lang in names if v.strip(" ،:")]
+        names.append((value, SCRIPT_LANGS[marker]))
+    return [(v.strip(), lang) for v, lang in names if v.strip()]
 
 
-def apply_names(context: Context, entity: Entity, raw_name: str) -> None:
+def apply_names(
+    context: Context, entity: Entity, raw_name: str, prop: str = "name"
+) -> None:
     """Apply the Arabic and Hebrew/English parts of the name, sending irregular
-    parts to human review, and add an LLM-cleaned English transliteration."""
+    parts to human review, and add an English transliteration."""
     parts = split_scripts(raw_name)
     by_lang = {lang: value for value, lang in parts}
     assert len(by_lang) == len(parts), parts
     # Source names are legal designations: irregular ones are reviewed by a human.
     for value, lang in parts:
         original = h.Names()
-        original.add("name", value)
+        original.add(prop, value)
         h.apply_reviewed_names(context, entity, original=original, lang=lang)
     if "eng" in by_lang:
         return
     # The Arabic is itself a rendering of the Hebrew, so prefer the Hebrew form.
     lang = "heb" if "heb" in by_lang else "ara"
-    prompt = make_name_translit_prompt(lang, [ENGLISH])
-    result = run_translation_prompt(
-        context, prompt=prompt, text=by_lang[lang], model=NAME_TRANSLIT_MODEL
-    )
-    translit = result.get_preferred_language()
-    if translit is None:
-        return
-    # The transliteration is ours, not the source's, so notes carried over from
-    # the source (e.g. a nickname) are left to LLM cleaning.
-    original = h.Names()
-    original.add("name", translit.text)
-    h.apply_reviewed_names(
-        context,
-        entity,
-        original=original,
-        lang="eng",
-        llm_cleaning=True,
-        default_accepted=True,
+    # The transliteration keeps its origin, so it isn't mistaken for a source name.
+    apply_translit_full_name(
+        context, entity, LangText(by_lang[lang], lang), alias=prop == "alias"
     )
 
 
-def parse_parent_names(raw: str | None) -> list[str]:
+def apply_parent_names(entity: Entity, prop: str, raw: str | None) -> None:
     """Parent name cells mix Arabic and Hebrew forms, e.g. "عامي بوبر (עמי פופר)"."""
     if raw is None:
-        return []
+        return
     raw = ORIGIN_SUFFIX.sub("", raw)
-    raw = NATIONALITY_NOTE.sub("", raw)
-    parts = h.multi_split(raw, ["بالعبرية", "(", ")", "/"])
-    return [p.strip(" ،:") for p in parts if p.strip(" ،:")]
+    for part in h.multi_split(raw, [*SCRIPT_LANGS, "(", ")", "/"]):
+        part = part.strip(" ،:")
+        if part:
+            lang = "heb" if "Hebrew" in text_scripts(part) else "ara"
+            entity.add(prop, part, lang=lang)
 
 
-def crawl_person(context: Context, row: dict[str, str | None]) -> None:
+def crawl_person(
+    context: Context, row: dict[str, str | None], orgs: dict[str, Entity]
+) -> None:
     raw_name = row.pop("name")
     assert raw_name is not None, row
     raw_doc_number = row.pop("doc_number")
@@ -89,24 +74,31 @@ def crawl_person(context: Context, row: dict[str, str | None]) -> None:
 
     # Excel stripped the leading zeros off the 9-digit ID numbers.
     # Check if this is still corrupted and correct with zfill()
-    assert DOC_NUMBER.match(raw_doc_number), raw_doc_number
+    assert re.fullmatch(r"\d{1,9}", raw_doc_number), raw_doc_number
     doc_number = raw_doc_number.zfill(9)
 
     person = context.make("Person")
     person.id = context.make_id(raw_doc_number)
     apply_names(context, person, raw_name)
-    for alias, lang in split_scripts(row.pop("alias") or ""):
-        person.add("alias", alias, lang=lang)
-        if alias != latinize_text(alias):
-            apply_translit_full_name(context, person, LangText(alias, lang), alias=True)
+    alias = row.pop("alias")
+    if alias is not None and alias != "-":
+        apply_names(context, person, alias, prop="alias")
     person.add("gender", row.pop("gender"))
-    person.add("fatherName", parse_parent_names(row.pop("father_name")))
-    person.add("motherName", parse_parent_names(row.pop("mother_name")))
+    apply_parent_names(person, "fatherName", row.pop("father_name"))
+    apply_parent_names(person, "motherName", row.pop("mother_name"))
     h.apply_date(person, "birthDate", row.pop("birth_date"))
     person.add("nationality", row.pop("nationality"))
 
-    addr = h.make_address(context, full=row.pop("address"), lang="ara")
-    h.copy_address(person, addr)
+    raw_address = row.pop("address")
+    assert raw_address is not None, row
+    res = context.lookup("address", raw_address)
+    # "وفقا لبيانات اخرى" ("according to other data") introduces an alternative
+    # address, "الكيان المرتبط" ("affiliated entity") a misplaced affiliation.
+    if res is None and ("لبيانات" in raw_address or "الكيان المرتبط" in raw_address):
+        context.log.warning("Address needs a lookup", address=raw_address)
+    for address in [raw_address] if res is None else res.values:
+        addr = h.make_address(context, full=address, lang="ara")
+        h.copy_address(person, addr)
 
     doc_type = row.pop("doc_type")
     res = (
@@ -131,12 +123,12 @@ def crawl_person(context: Context, row: dict[str, str | None]) -> None:
     if affiliation is not None:
         res = context.lookup("affiliation", affiliation, warn_unmatched=True)
         if res is not None and res.value is not None:
-            # Lookup values are the entity names as listed, from which their IDs derive.
-            org_id = context.make_id(res.value)
+            # Lookup values are the entity names as listed in the entities sheet.
+            org = orgs[res.value]
             link = context.make("UnknownLink")
-            link.id = context.make_id(person.id, "affiliation", org_id)
+            link.id = context.make_id(person.id, "affiliation", org.id)
             link.add("subject", person)
-            link.add("object", org_id)
+            link.add("object", org)
             link.add("role", "Affiliated entity")
             context.emit(link)
 
@@ -151,12 +143,16 @@ def crawl_person(context: Context, row: dict[str, str | None]) -> None:
     context.audit_data(row, ignore=["number"])
 
 
-def crawl_organization(context: Context, row: dict[str, str | None]) -> None:
+def crawl_organization(
+    context: Context, row: dict[str, str | None], orgs: dict[str, Entity]
+) -> None:
     raw_name = row.pop("entity_name")
     assert raw_name is not None, row
 
-    org = context.make("Organization")
+    org_types = {t for _, t in extract_org_types(raw_name.casefold(), generic=True)}
+    org = context.make("Company" if org_types & COMPANY_TYPES else "Organization")
     org.id = context.make_id(raw_name)
+    orgs[raw_name] = org
     apply_names(context, org, raw_name)
 
     sanction = h.make_sanction(context, org, program_key="PS-UNSC1373")
@@ -192,14 +188,15 @@ def crawl(context: Context) -> None:
     book = xlrd.open_workbook(path.as_posix(), encoding_override="cp1256")
     assert book.sheet_names() == ["الأفراد", "الكيانات"], book.sheet_names()
 
-    # Entities
+    # Entities, keyed by their listed name for the individuals' affiliations
+    orgs: dict[str, Entity] = {}
     for row in h.parse_xls_sheet(context, book["الكيانات"], skiprows=2):
         row = {context.lookup_value("columns", k, k) or k: v for k, v in row.items()}
-        crawl_organization(context, row)
+        crawl_organization(context, row, orgs)
 
     # Individuals
     for row in h.parse_xls_sheet(context, book["الأفراد"], skiprows=2):
         row = {context.lookup_value("columns", k, k) or k: v for k, v in row.items()}
-        crawl_person(context, row)
+        crawl_person(context, row, orgs)
 
     assert_all_accepted(context, raise_on_unaccepted=False)

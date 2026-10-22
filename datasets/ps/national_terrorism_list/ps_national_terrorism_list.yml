@@ -136,18 +136,77 @@ lookups:
       # "unconfirmed"
       - match: 2000/09/06- غير مؤكد
         value: "2000-09-06"
+  # English transliterations skip review, so notes carried over from the
+  # source name are cleaned here, and mistransliterations corrected.
   type.name:
     options:
-      - match: "-"
-        value: null
+      # ملقب "كوكو" - nicknamed "Koko"
+      - match: Harel Libi "Koko"
+        value: Harel Libi
+      # اسم العائلة السابق - former surname, kept in the source names
+      - match: Yehud Chaim Hoshen (Unger)
+        value: Yehud Chaim Hoshen
+      - match: Zvi Avia'ad Bar-Yosef Shofek (Zvi Bar Yosef)
+        values:
+          - Zvi Avia'ad Bar-Yosef Shofek
+          - Zvi Bar Yosef
+      - match: Elishiv Nahum (Yehuda)
+        value: Elishiv Nahum
+      - match: Hamza Adel Mohammad Al-Sheikh Eid (Al-Zamili)
+        value: Hamza Adel Mohammad Al-Sheikh Eid
+      - match: Basil Khaled Hussein Eid (Al-Zamli)
+        value: Basil Khaled Hussein Eid
+      - match: Tadfiyah Al-Thaman (Tagh Mikhayir)
+        values:
+          - Tadfiyah Al-Thaman
+          - Tagh Mikhayir
+      # בן-ישי אשד / بن يشاي ايشيد - Eshed, not the city of Ashdod
+      - match: Ben-Ishai Ashdod
+        value: Ben-Ishai Eshed
+      # אברהם פופר / ابراهم بوبر
+      - match: Avraham Pofer
+        value: Avraham Popper
   type.string:
     options:
       - match: "-"
+        value: null
+      # "(according to the French nationality)", a note on one father's name
+      - match: حسب الجنسية الفرنسية
         value: null
   type.text:
     options:
       - match: "-"
         value: null
+  # "وفقا لبيانات اخرى: …" ("according to other data: …") gives an alternative
+  # address; one cell also repeats the affiliated entity (الكيان المرتبط).
+  address:
+    normalize: true
+    options:
+      - match: "مستوطنة يتسهار (وفقا لبيانات اخرى: كفار سابا)"
+        values:
+          - مستوطنة يتسهار
+          - كفار سابا
+      - match: "بؤرة شومريه عهيمك الاستعمارية قرب مستعمرة شيلو المقامة على اراضي محافظة رام الله، (وفقاً لبيانات أخرى: في بؤرة حفات هارونيه)"
+        values:
+          - بؤرة شومريه عهيمك الاستعمارية قرب مستعمرة شيلو المقامة على اراضي محافظة رام الله
+          - بؤرة حفات هارونيه
+      - match: "مستعمرة كوخاف يعقوب مقامة على اراضي محافظة القدس، يقيم في بؤرة استعمارية -مزرعة وادي ترزة، تابعة لمستعمرة الحمرا في منطقة الاغوار (وفقاً لبيانات أخرى: مزرعة موشي)."
+        values:
+          - مستعمرة كوخاف يعقوب مقامة على اراضي محافظة القدس، يقيم في بؤرة استعمارية -مزرعة وادي ترزة، تابعة لمستعمرة الحمرا في منطقة الاغوار
+          - مزرعة موشي
+      - match: 'البؤرة الاستيطانية "يشوف هداعت" (وفقا لبيانات اخرى : مستوطنة شيلو)'
+        values:
+          - البؤرة الاستيطانية "يشوف هداعت"
+          - مستوطنة شيلو
+      - match: 'البؤرة الاستيطانية "هافات هجلعاد" بالقرب من قرية فرعته بين محافظتي نابلس وقلقيلية (وفقا لبيانات اخرى: مستوطنة يتسهار)'
+        values:
+          - البؤرة الاستيطانية "هافات هجلعاد" بالقرب من قرية فرعته بين محافظتي نابلس وقلقيلية
+          - مستوطنة يتسهار
+      # Stray leading colon and unbalanced quote
+      - match: ': مستعمرة ياكير- مقامة على اراضي سلفيت، يتواجد في بؤرة " شوفي آرتس الاستعمارية مقامة على أراضي سلفيت.'
+        value: مستعمرة ياكير- مقامة على اراضي سلفيت، يتواجد في بؤرة شوفي آرتس الاستعمارية مقامة على أراضي سلفيت.
+      - match: "بؤرة متزبي يئير الاستعمارية، قرب سوسيا – يطا، محافظة الخليل\n\u00ad\tالكيان المرتبط: شبيبة التلال/فتيان التلال، بالعبرية נוער הגבעות"
+        value: بؤرة متزبي يئير الاستعمارية، قرب سوسيا – يطا، محافظة الخليل
   doc_type:
     normalize: true
     options:
