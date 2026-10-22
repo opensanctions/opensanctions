@@ -1,4 +1,5 @@
 name: au_judges
+prefix: au-jud
 title: Judges of Australian courts
 entry_point: zavod.shed.funes.runner:crawl
 ci_test: false

@@ -1,4 +1,5 @@
 name: hio_leadership
+prefix: hio
 title: Leadership of international organizations
 entry_point: zavod.shed.funes.runner:crawl
 ci_test: false
