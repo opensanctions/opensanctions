@@ -9,7 +9,7 @@ from rigour.text import is_nullword
 from zavod import Context, Entity
 from zavod import helpers as h
 
-CACHE = 7
+CACHE = 30
 
 
 def decode_email(encoded: str | None) -> list[str]:
@@ -109,26 +109,22 @@ def crawl_ls_member(
         # context.log.info(f"Skipping non-PEP {person.id}")
         return
 
-    try:
-        biodata = context.fetch_json(
-            f"https://sansad.in/api_ls/member/{mpsno}?locale=en",
-            cache_days=CACHE,
-        )
-
-        emit_rca(context, person, biodata.get("spouseName"), "spouse")
-        emit_rca(context, person, biodata.get("fatherName"), "father")
-        emit_rca(context, person, biodata.get("motherName"), "mother")
-        person.add("name", biodata.pop("fullname", None))
-        h.apply_date(person, "birthDate", biodata.pop("dateOfBirth", None))
-        person.add("education", clean_text(biodata.pop("qualification", None)))
-        person.add("education", clean_text(biodata.pop("education", None)))
-        person.add("notes", clean_notes(biodata.pop("otherInfo", None)))
-        person.add("political", clean_text(biodata.pop("partyFname", None)))
-        person.add("address", clean_text(biodata.pop("permanentFaddr", None)))
-        person.add("address", clean_text(biodata.pop("presentFaddr", None)))
-        person.add("birthPlace", clean_text(biodata.pop("birthPlace", None)))
-    except RequestException as exc:
-        context.log.info(f"Broken MP biodata for {person.id}", exc=str(exc))
+    biodata = context.fetch_json(
+        f"https://sansad.in/api_ls/member/{mpsno}?locale=en",
+        cache_days=CACHE,
+    )
+    emit_rca(context, person, biodata.get("spouseName"), "spouse")
+    emit_rca(context, person, biodata.get("fatherName"), "father")
+    emit_rca(context, person, biodata.get("motherName"), "mother")
+    person.add("name", biodata.pop("fullname", None))
+    h.apply_date(person, "birthDate", biodata.pop("dateOfBirth", None))
+    person.add("education", clean_text(biodata.pop("qualification", None)))
+    person.add("education", clean_text(biodata.pop("education", None)))
+    person.add("notes", clean_notes(biodata.pop("otherInfo", None)))
+    person.add("political", clean_text(biodata.pop("partyFname", None)))
+    person.add("address", clean_text(biodata.pop("permanentFaddr", None)))
+    person.add("address", clean_text(biodata.pop("presentFaddr", None)))
+    person.add("birthPlace", clean_text(biodata.pop("birthPlace", None)))
 
     context.emit(person)
 
@@ -164,6 +160,32 @@ def crawl_ls(context: Context) -> None:
         crawl_ls_member(context, position, periods, member)
 
 
+def fetch_rs_record(
+    context: Context, endpoint: str, mpsno: int, params: dict[str, Any]
+) -> dict[str, Any]:
+    """Fetch a Rajya Sabha member record, skipping known-broken ones.
+
+    Returns an empty record for mpCodes listed under `broken_records` in the
+    dataset config; any other failure aborts the run.
+    """
+    broken: list[int] = context.dataset.config["broken_records"][endpoint]
+    if mpsno in broken:
+        context.log.info(
+            "Skipping listed broken record", endpoint=endpoint, mpsno=mpsno
+        )
+        return {}
+    try:
+        data: dict[str, Any] = context.fetch_json(
+            f"https://sansad.in/api_rs/member/{endpoint}",
+            params=params,
+            cache_days=CACHE,
+        )
+    except RequestException as exc:
+        msg = f"{endpoint} failed for mpCode {mpsno}; see broken_records in the dataset config"
+        raise RuntimeError(msg) from exc
+    return data
+
+
 def crawl_rs_member(context: Context, position: Entity, member: dict[str, Any]) -> None:
     person = context.make("Person")
     mpsno = member.pop("mpsno", None)
@@ -188,46 +210,32 @@ def crawl_rs_member(context: Context, position: Entity, member: dict[str, Any]) 
     person.add("address", clean_text(member.pop("otherPermanentAdd", None)))
     person.add("citizenship", "in")
 
-    try:
-        terms = context.fetch_json(
-            "https://sansad.in/api_rs/member/term-years",
-            params={"mpCode": mpsno},
-            cache_days=CACHE,
+    terms = fetch_rs_record(context, "term-years", mpsno, {"mpCode": mpsno})
+    for term in terms.get("records", []):
+        period = term.get("termPeriod", "")
+        start, end = period.split("-")
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            start_date=start,
+            end_date=end,
         )
-        for term in terms.get("records", []):
-            period = term.get("termPeriod", "")
-            start, end = period.split("-")
-            occupancy = h.make_occupancy(
-                context,
-                person,
-                position,
-                start_date=start,
-                end_date=end,
-            )
-            if occupancy is not None:
-                context.emit(occupancy)
-    except RequestException as exc:
-        context.log.info(f"Broken MP term data for {person.id}", exc=str(exc))
+        if occupancy is not None:
+            context.emit(occupancy)
 
     if person.has("deathDate"):
         return
     if "role.pep" not in person.get("topics") and member["mpFlag"] == 0:
         return
 
-    try:
-        biodata = context.fetch_json(
-            "https://sansad.in/api_rs/member/bio-data",
-            params={"mpCode": mpsno, "locale": "en"},
-            cache_days=CACHE,
-        )
-
-        emit_rca(context, person, biodata.get("spouseName"), "spouse")
-        emit_rca(context, person, biodata.get("fatherName"), "father")
-        emit_rca(context, person, biodata.get("motherName"), "mother")
-        person.add("education", clean_text(biodata.pop("qualification", None)))
-        person.add("notes", clean_notes(biodata.pop("essentialInformation", None)))
-    except RequestException as exc:
-        context.log.info(f"Broken MP biodata for {person.id}", exc=str(exc))
+    params = {"mpCode": mpsno, "locale": "en"}
+    biodata = fetch_rs_record(context, "bio-data", mpsno, params)
+    emit_rca(context, person, biodata.get("spouseName"), "spouse")
+    emit_rca(context, person, biodata.get("fatherName"), "father")
+    emit_rca(context, person, biodata.get("motherName"), "mother")
+    person.add("education", clean_text(biodata.pop("qualification", None)))
+    person.add("notes", clean_notes(biodata.pop("essentialInformation", None)))
 
     context.emit(person)
 
