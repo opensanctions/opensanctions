@@ -62,7 +62,7 @@ def build_position_name(data: dict[str, str]) -> str | None:
     """
     title = data.pop("position")
     legal_entity_name = data.pop("legal_entity")
-    if title is None and legal_entity_name is None:
+    if h.is_empty(title) and h.is_empty(legal_entity_name):
         return None
 
     # Use the Croatian "Unknown position" placeholder so the whole name is one
