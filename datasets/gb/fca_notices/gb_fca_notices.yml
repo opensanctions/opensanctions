@@ -42,12 +42,10 @@ names:
   schema_rules:
     LegalEntity:
       reject_chars: "/();"
-      # Clone/status annotations the FCA appends to names, e.g.
-      # "Fortradefx (Clone of FCA authorised firm)" or "Acme (new)".
+      # Clone annotations the FCA appends to names, e.g.
+      # "Fortradefx (Clone of FCA authorised firm)".
       reject_strings:
         - "clone of"
-        - "(new)"
-        - "(updated)"
         - "aka"
         - "previously"
         - "now known as"
