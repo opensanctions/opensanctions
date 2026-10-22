@@ -1,0 +1,95 @@
+title: Somalia Members of the Upper House
+name: so_senate
+prefix: so-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-22
+load_statements: true
+summary: >-
+  Senators of the Upper House (Golaha Aqalka Sare) of Somalia's bicameral Parliament
+description: |
+  Current members of the Upper House (Golaha Aqalka Sare), the upper chamber of
+  Somalia's bicameral Federal Parliament. Its seats are apportioned between the
+  federal member states — eleven each for Puntland and the northern regions claimed
+  by Somaliland, eight each for Galmudug, Hirshabelle, Jubaland and South West — and
+  are filled for a four-year term by the states' electoral colleges. Together with
+  the House of the People its members hold the country's legislative power, including
+  passing laws, approving the budget and electing the President.
+url: https://senate.gov.so/
+publisher:
+  name: Golaha Aqalka Sare ee Baarlamaanka Federaalka Soomaaliya
+  name_en: Upper House of the Federal Parliament of Somalia
+  description: >
+    The Upper House is the upper chamber of Somalia's bicameral Federal
+    Parliament, first constituted in 2016. It maintains its own website,
+    separate from that of the House of the People, and publishes the roster
+    of its sitting senators there.
+  url: https://senate.gov.so/
+  country: so
+  official: true
+data:
+  # Redirects to a term-specific slug (currently /sanatarradab11/, the 11th Federal
+  # Parliament). The crawler emits no term dates, so a new parliament served from
+  # this URL needs no change here; a new parliament served from a *new* slug, with
+  # this redirect left pointing at the old one, would go unnoticed. Re-check the
+  # redirect target when Somalia next seats a parliament.
+  url: https://senate.gov.so/the-senators/
+  format: HTML
+
+dates:
+  formats:
+    # "23 Oct 1963". Slash-separated dates are handled in the crawler, which has to
+    # decide their day/month order per value.
+    - "%d %b %Y"
+
+names:
+  prefixes_strip:
+    - Sen.
+    - Prof/Dr.
+    - Prof.
+    - Dr.
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 45
+      Position: 2
+    entities_with_prop:
+      Occupancy:
+        holder: 48
+    country_entities:
+      so: 45
+  max:
+    schema_entities:
+      Person: 110
+      Position: 6
+    entities_with_prop:
+      Occupancy:
+        holder: 120
+
+lookups:
+  position:
+    required: true
+    normalize: true
+    options:
+      # A presiding officer is elected from among the senators and keeps their
+      # seat, so each of these labels denotes two positions held at once.
+      - match: Guddoomiyaha Golaha
+        values:
+          - Speaker of the Upper House of Somalia
+          - Member of the Upper House of Somalia
+      - match:
+          - Guddoomiye Ku-xigeenka 1aad
+          - Guddoomiye Ku-xigeenka 2aad
+        values:
+          - Deputy Speaker of the Upper House of Somalia
+          - Member of the Upper House of Somalia
+      # The Habdhowre is the chamber's whip, an internal office of the Upper House
+      # rather than a position in its own right, so it maps to the seat alone.
+      - match: Habdhowraha Golaha
+        values:
+          - Member of the Upper House of Somalia
