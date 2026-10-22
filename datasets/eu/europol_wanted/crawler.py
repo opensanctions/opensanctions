@@ -24,6 +24,8 @@ def crawl(context: Context) -> None:
         person_id = link.text
         if person_id is None or not person_id.startswith("/"):
             continue
+        # The site serves profile links both with and without this prefix.
+        person_id = person_id.removeprefix("/index.php")
         if person_id.startswith("/el/"):
             continue
         url = urljoin(base_url, person_id)
