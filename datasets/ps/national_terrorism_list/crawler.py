@@ -2,7 +2,6 @@ import re
 
 import xlrd
 from rigour.mime.types import XLS
-from rigour.names.org_types import extract_org_types
 from rigour.text.scripts import text_scripts
 from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.review import assert_all_accepted
@@ -16,39 +15,37 @@ SCRIPT_LANGS = {"بالعبرية": "heb", "بالإنجليزية": "eng"}
 SCRIPT_MARKER = re.compile(rf"\s*،?\s*({'|'.join(SCRIPT_LANGS)})\s*:?\s*")
 # "…، الأصل/ الولايات المتحدة" - country of origin attached to parent names
 ORIGIN_SUFFIX = re.compile(r"،\s*(الأصل|الاصل)\s*/.*$")
-# Generic rigour org types that are company legal forms, e.g. المحدودة / בע"מ (Ltd)
-COMPANY_TYPES = {"llc", "jsc", "llp", "lp"}
 
 
-def split_scripts(text: str) -> list[tuple[str, str]]:
-    """Split "<Arabic>، بالعبرية: <Hebrew>" into (value, lang) pairs."""
+def split_scripts(text: str) -> dict[str, str]:
+    """Split "<Arabic>، بالعبرية: <Hebrew>" into its forms, keyed by language."""
     parts = SCRIPT_MARKER.split(text)
-    names = [(parts[0], "ara")]
+    assert text_scripts(parts[0]) == {"Arabic"}, text
+    names = {"ara": parts[0].strip()}
     for marker, value in zip(parts[1::2], parts[2::2]):
-        names.append((value, SCRIPT_LANGS[marker]))
-    return [(v.strip(), lang) for v, lang in names if v.strip()]
+        lang = SCRIPT_LANGS[marker]
+        assert lang not in names, text
+        names[lang] = value.strip()
+    return names
 
 
 def apply_names(
     context: Context, entity: Entity, raw_name: str, prop: str = "name"
 ) -> None:
-    """Apply the Arabic and Hebrew/English parts of the name, sending irregular
-    parts to human review, and add an English transliteration."""
-    parts = split_scripts(raw_name)
-    by_lang = {lang: value for value, lang in parts}
-    assert len(by_lang) == len(parts), parts
-    # Source names are legal designations: irregular ones are reviewed by a human.
-    for value, lang in parts:
-        original = h.Names()
-        original.add(prop, value)
-        h.apply_reviewed_names(context, entity, original=original, lang=lang)
-    if "eng" in by_lang:
+    """Apply the Arabic and Hebrew/English forms of the name, sending irregular
+    ones to human review, and add an English transliteration."""
+    names = split_scripts(raw_name)
+    for lang, value in names.items():
+        h.apply_reviewed_name_string(
+            context, entity, string=value, original_prop=prop, lang=lang
+        )
+    if "eng" in names:
         return
     # The Arabic is itself a rendering of the Hebrew, so prefer the Hebrew form.
-    lang = "heb" if "heb" in by_lang else "ara"
+    lang = "heb" if "heb" in names else "ara"
     # The transliteration keeps its origin, so it isn't mistaken for a source name.
     apply_translit_full_name(
-        context, entity, LangText(by_lang[lang], lang), alias=prop == "alias"
+        context, entity, LangText(names[lang], lang), alias=prop == "alias"
     )
 
 
@@ -59,9 +56,7 @@ def apply_parent_names(entity: Entity, prop: str, raw: str | None) -> None:
     raw = ORIGIN_SUFFIX.sub("", raw)
     for part in h.multi_split(raw, [*SCRIPT_LANGS, "(", ")", "/"]):
         part = part.strip(" ،:")
-        if part:
-            lang = "heb" if "Hebrew" in text_scripts(part) else "ara"
-            entity.add(prop, part, lang=lang)
+        entity.add(prop, part, lang="heb" if "Hebrew" in text_scripts(part) else "ara")
 
 
 def crawl_person(
@@ -72,8 +67,7 @@ def crawl_person(
     raw_doc_number = row.pop("doc_number")
     assert raw_doc_number is not None, row
 
-    # Excel stripped the leading zeros off the 9-digit ID numbers.
-    # Check if this is still corrupted and correct with zfill()
+    # Excel strips the leading zeros off the 9-digit ID numbers; restore them.
     assert re.fullmatch(r"\d{1,9}", raw_doc_number), raw_doc_number
     doc_number = raw_doc_number.zfill(9)
 
@@ -90,41 +84,41 @@ def crawl_person(
     person.add("nationality", row.pop("nationality"))
 
     raw_address = row.pop("address")
-    assert raw_address is not None, row
-    res = context.lookup("address", raw_address)
-    # "وفقا لبيانات اخرى" ("according to other data") introduces an alternative
-    # address, "الكيان المرتبط" ("affiliated entity") a misplaced affiliation.
-    if res is None and ("لبيانات" in raw_address or "الكيان المرتبط" in raw_address):
-        context.log.warning("Address needs a lookup", address=raw_address)
-    for address in [raw_address] if res is None else res.values:
-        addr = h.make_address(context, full=address, lang="ara")
-        h.copy_address(person, addr)
+    address_res = context.lookup("address", raw_address)
+    for address in [raw_address] if address_res is None else address_res.values:
+        # "وفقا لبيانات اخرى" ("according to other data") introduces an alternative
+        # address, "الكيان المرتبط" ("affiliated entity") a misplaced affiliation.
+        if address is not None and (
+            "لبيانات" in address or "الكيان المرتبط" in address
+        ):
+            context.log.warning("Address needs a lookup", address=address)
+        h.copy_address(person, h.make_address(context, full=address, lang="ara"))
 
     doc_type = row.pop("doc_type")
-    res = (
+    doc_res = (
         None
         if doc_type is None
         else context.lookup("doc_type", doc_type, warn_unmatched=True)
     )
-    if res is None:
+    if doc_res is None:
         person.add("idNumber", doc_number)
     else:
         ident = h.make_identification(
             context,
             person,
             number=doc_number,
-            doc_type=res.doc_type,
-            country=res.country,
+            doc_type=doc_res.doc_type,
+            country=doc_res.country,
         )
         if ident is not None:
             context.emit(ident)
 
     affiliation = row.pop("affiliation")
     if affiliation is not None:
-        res = context.lookup("affiliation", affiliation, warn_unmatched=True)
-        if res is not None and res.value is not None:
+        org_res = context.lookup("affiliation", affiliation, warn_unmatched=True)
+        if org_res is not None and org_res.value is not None:
             # Lookup values are the entity names as listed in the entities sheet.
-            org = orgs[res.value]
+            org = orgs[org_res.value]
             link = context.make("UnknownLink")
             link.id = context.make_id(person.id, "affiliation", org.id)
             link.add("subject", person)
@@ -149,8 +143,8 @@ def crawl_organization(
     raw_name = row.pop("entity_name")
     assert raw_name is not None, row
 
-    org_types = {t for _, t in extract_org_types(raw_name.casefold(), generic=True)}
-    org = context.make("Company" if org_types & COMPANY_TYPES else "Organization")
+    # Mostly settler groups, outposts and movements rather than companies.
+    org = context.make("Organization")
     org.id = context.make_id(raw_name)
     orgs[raw_name] = org
     apply_names(context, org, raw_name)
@@ -167,11 +161,9 @@ def crawl_organization(
 
 
 def crawl(context: Context) -> None:
-    # The national list link is an ASP.NET postback, which redirects to the file.
-    # no cache so we fetch the fresh view state that carries the download link
-    # for ASP.NET to rebuild from
+    # The list link is an ASP.NET postback: fetch the page uncached for a fresh
+    # view state, then post its hidden form fields back to get the file.
     doc = context.fetch_html(context.data_url)
-    # build the POST data from the hidden fields in the form
     form = h.xpath_element(doc, "//form[@id='form1']")
     data = {
         "__EVENTTARGET": "ctl00$ContentPlaceHolder1$BulletedList2",
@@ -185,7 +177,7 @@ def crawl(context: Context) -> None:
         "source.xls", context.data_url, method="POST", data=data
     )
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
-    book = xlrd.open_workbook(path.as_posix(), encoding_override="cp1256")
+    book = xlrd.open_workbook(path.as_posix())
     assert book.sheet_names() == ["الأفراد", "الكيانات"], book.sheet_names()
 
     # Entities, keyed by their listed name for the individuals' affiliations

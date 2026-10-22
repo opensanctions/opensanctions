@@ -3,23 +3,18 @@ entry_point: crawler.py
 prefix: ps-terr
 coverage:
   frequency: daily
-  start: 2026-10-20
+  start: 2026-10-22
 load_statements: true
 ci_test: false # LLM-based transliteration
 summary: >-
   Individuals and entities designated as terrorists on the Palestinian national
-  list under UN Security Council Resolution 1373.
+  list under UN Security Council Resolution 1373
 description: |
-  Individuals and entities on the national designation list
-  of the Palestinian Committee for the Implementation of UN Security Council
-  Resolutions, which implements UN Security Council Resolution 1373 (2001) on
-  combating terrorism and its financing. Most designations target Israeli settlers
-  and settler groups and outposts in the West Bank.
-
-  Individuals are listed with their names in Arabic and Hebrew, gender, father's
-  and mother's names, alias, affiliated entity, address, date of birth, identity
-  document number, nationality, listing date and last amendment. Entities are
-  listed with their name, a short description, listing date and last amendment.
+  Individuals and entities on the national designation list of the Palestinian
+  Committee for the Implementation of UN Security Council Resolutions, which
+  implements UN Security Council Resolution 1373 (2001) on combating terrorism
+  and its financing. Most designations target Israeli settlers and settler groups
+  and outposts in the West Bank.
 url: https://sanction.pgp.ps/ar/SanctionFiles_arb
 publisher:
   name: لجنة تنفيذ قرارات مجلس الامن الدولي
@@ -41,7 +36,6 @@ dates:
   formats: ["%Y/%m/%d"]
 tags:
   - list.sanction
-  - sector.counterterrorism
 
 assertions:
   min:
@@ -58,10 +52,11 @@ assertions:
 names:
   schema_rules:
     # Notes in the Arabic part of a name, e.g. ملقب "كوكو" (nicknamed "Koko"),
-    # اسم الشهرة (known as), اسم العائلة السابق (former surname). " is not
-    # rejected, as Hebrew uses it in abbreviations like בע"מ (Ltd).
+    # اسم الشهرة (known as), اسم العائلة السابق (former surname), and curly
+    # quotes around a nickname, e.g. הראל ליבי “קוקו”. " is not rejected, as
+    # Hebrew uses it in abbreviations like בע"מ (Ltd).
     Person:
-      reject_chars: "،"
+      reject_chars: "،“”"
       reject_strings: ["ملقب", "اسم الشهرة", "اسم العائلة السابق"]
     LegalEntity:
       # منظمة "…" الإسرائيلية - "the Israeli organisation …"
@@ -137,13 +132,14 @@ lookups:
       - match: 2000/09/06- غير مؤكد
         value: "2000-09-06"
   # English transliterations skip review, so notes carried over from the
-  # source name are cleaned here, and mistransliterations corrected.
+  # source name are cleaned here, and mistransliterations corrected. Dropped
+  # notes are still kept in the reviewed source names.
   type.name:
     options:
       # ملقب "كوكو" - nicknamed "Koko"
       - match: Harel Libi "Koko"
         value: Harel Libi
-      # اسم العائلة السابق - former surname, kept in the source names
+      # اسم العائلة السابق - former surname
       - match: Yehud Chaim Hoshen (Unger)
         value: Yehud Chaim Hoshen
       - match: Zvi Avia'ad Bar-Yosef Shofek (Zvi Bar Yosef)
@@ -215,10 +211,10 @@ lookups:
           - هوية اسرائيلية
         doc_type: Israeli identity card
         country: il
+  # Maps the affiliated-entity cell to the entity's name exactly as listed on
+  # the entities sheet; null means no listed entity.
   affiliation:
     options:
-      - match: "-"
-        value: null
       # Hilltop Youth, incl. the truncated "הגבעו" variant
       - match:
           - شبيبة التلال/فتيان التلال، بالعبرية נוער הגבעות
@@ -230,15 +226,16 @@ lookups:
           - من نشطاء منظمة تدفيع الثمن
           - جماعة تدفيع الثمن المتطرفة
         value: تدفيع الثمن (تاغ ميخير)
+      # "the right-wing organisation Lahava" - Lehava, spelled differently
       - match: منظمة لاهافا اليمينية
         value: 'ليهافا، بالعبرية: להב"ה'
-      # "the far right" - not a listed entity
-      - match: اليمين المتطرف
-        value: null
-      # "unspecified (works as a guard of the Yitzhar settlement)"
-      - match: غير محدد (يعمل حارس مستعمرة يتسهار)
-        value: null
-      # "member of the extremist organisation Tsav 8": the list designates
-      # Tzav 9, but the source does not say they are the same group.
-      - match: عضوة في منظمة تساف8 المتطرفة
+      - match:
+          - "-"
+          # "the far right" - not a listed entity
+          - اليمين المتطرف
+          # "unspecified (works as a guard of the Yitzhar settlement)"
+          - غير محدد (يعمل حارس مستعمرة يتسهار)
+          # "member of the extremist organisation Tsav 8": the list designates
+          # Tzav 9, but the source does not say they are the same group.
+          - عضوة في منظمة تساف8 المتطرفة
         value: null
