@@ -16,7 +16,7 @@ description: |
 
   The list is continuously updated and includes entities operating in the UK
   financial services sector without the required FCA authorisation.
-url: https://www.fca.org.uk/news/search-results
+url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
 publisher:
   name: Financial Conduct Authority
   acronym: FCA
@@ -32,22 +32,23 @@ tags:
   - issuer.west
   - sector.financial
 data:
-  url: https://www.fca.org.uk/news/search-results?n_search_term=&category=warnings&sort_by=dmetaZ&start=1
+  url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
   format: HTML
   lang: eng
 
 dates:
   formats: ["%d/%m/%Y", "%Y-%m-%d"]
 names:
+  # Status markers the warning list appends to every name, e.g. "Acme (new)".
+  suffixes_strip:
+    - "(new)"
+    - "(updated)"
   schema_rules:
     LegalEntity:
       reject_chars: "/();"
-      # Clone/status annotations the FCA appends to names, e.g.
-      # "Fortradefx (Clone of FCA authorised firm)" or "Acme (new)".
       reject_strings:
-        - "clone of"
-        - "(new)"
-        - "(updated)"
+        # Clone annotations, e.g. "Fortradefx (Clone of FCA authorised firm)".
+        - "clone"
         - "aka"
         - "previously"
         - "now known as"
