@@ -11552,6 +11552,12 @@ lookups:
       # The place of registration is missing: the source repeats the label where the
       # value belongs, so there is nothing to map.
       - match: "Lieu d'enregistrement: Lieu d'enregistrement"
+      - match: "Lieu d'enregistrement: Lieu d'enregistrement: Fédération de Russie"
+        props:
+          jurisdiction: ru
+      # The INN is missing: the source puts the OGRN label where the value belongs,
+      # and the OGRN itself is given in a separate field.
+      - match: "Numéro d'identification fiscale (INN): Numéro d'enregistrement (OGRN)"
       # The trailing "Lieu" is the start of the next label, which leaked into this
       # value; the entity type itself is the usual "société par actions".
       - match: "Type d'entité: société par actions  Lieu"
