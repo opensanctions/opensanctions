@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Any
 
 from openpyxl import load_workbook
@@ -11,12 +10,6 @@ from zavod.stateful.positions import categorise
 DATASETS_QUERY_URL = "https://data.public.lu/api/1/datasets/?lang=en&q=bourgmestre"
 
 
-def to_source_date(value: str | None) -> str | None:
-    if value is None:
-        return None
-    return datetime.strptime(value, "%Y-%m-%d").strftime("%d/%m/%Y")
-
-
 def crawl_record(
     context: Context,
     record: dict[str, Any],
@@ -27,10 +20,8 @@ def crawl_record(
     first_name = record.pop("elu_first_name")
     last_name = record.pop("elu_last_name")
     gender = record.pop("elu_sex")
-    # Render dates as the retired JSON resource did (dd/mm/YYYY): make_occupancy hashes the
-    # raw date strings into the Occupancy ID, so ISO dates would re-key every occupancy.
-    start_date = to_source_date(record.pop("coac_start_date"))
-    end_date = to_source_date(record.pop("coac_end_date"))
+    start_date = record.pop("coac_start_date")
+    end_date = record.pop("coac_end_date")
 
     res = context.lookup("position", position_label)
     assert res is not None, f"Unknown position: {position_label!r}"

@@ -27,11 +27,8 @@ publisher:
 
 data:
   url: https://data.public.lu/en/datasets/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/
-  format: JSON
+  format: XLSX
   lang: fra
-
-dates:
-  formats: ["%d/%m/%Y"]
 
 tags:
   - list.pep
