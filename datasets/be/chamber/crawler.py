@@ -23,6 +23,9 @@ BORN_DATE_RE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 HEADERS = ["name", "group", "email", "website"]
+# The Chamber's member number, e.g. cvview54.cfm?key=07115&lactivity=55; it stays
+# the same across legislatures, while lactivity changes.
+MEMBER_KEY_RE = re.compile(r"[?&]key=(?P<key>\w+)")
 
 
 @dataclass
@@ -51,6 +54,8 @@ def crawl_person(
 ) -> None:
     name = h.element_text(row["name"])
     profile_url = h.xpath_string(row["name"], ".//a/@href")
+    key_match = MEMBER_KEY_RE.search(profile_url)
+    assert key_match is not None, profile_url
 
     group_texts = h.xpath_strings(row["group"], ".//a/text()")
     political_group = group_texts[0].strip() if group_texts else ""
@@ -84,14 +89,8 @@ def crawl_person(
     birth_date_match = BORN_DATE_RE.search(bio_text) if bio_text else None
     birth_date = birth_date_match.group("date") if birth_date_match else None
 
-    # Key on the parsed birth date, not the raw string, so that a change in how
-    # the site lays out or formats dates does not re-key the member.
-    birth_dates = h.extract_date(context.dataset, birth_date)
-    assert len(birth_dates) <= 1, (birth_dates, profile_url)
-    if len(birth_dates) == 0 and context.lookup_value("no_birth_date", name) is None:
-        context.log.warning("No birth date found", name=name, profile_url=profile_url)
     entity = context.make("Person")
-    entity.id = context.make_id(name, *birth_dates)
+    entity.id = context.make_id(key_match.group("key"), name)
     entity.add("name", name)
     entity.add("political", political_group)
     entity.add("sourceUrl", profile_url)

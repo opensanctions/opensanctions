@@ -61,15 +61,6 @@ assertions:
         birthDate: 0.95
 
 lookups:
-  # Members whose bio gives no birth date. Their ID uses the name only.
-  no_birth_date:
-    options:
-      - match:
-          - De Spiegeleer Pieter
-          - Raemaekers Magda
-          - Ramlot Carmen
-          - Verduyckt Kris
-        value: none
   type.date:
     options:
       - match: Née à Vilvorde
