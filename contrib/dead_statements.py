@@ -3,9 +3,9 @@ from typing import Any
 
 import click
 import requests
+from nomenklatura.db import get_engine
 from sqlalchemy import delete, func, select
 
-from zavod.db import get_engine
 from zavod.stateful.model import statement_table
 
 CATALOG_URL = "https://data.opensanctions.org/datasets/latest/default/catalog.json"
