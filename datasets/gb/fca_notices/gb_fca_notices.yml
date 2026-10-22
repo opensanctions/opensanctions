@@ -39,13 +39,16 @@ data:
 dates:
   formats: ["%d/%m/%Y", "%Y-%m-%d"]
 names:
+  # Status markers the warning list appends to every name, e.g. "Acme (new)".
+  suffixes_strip:
+    - "(new)"
+    - "(updated)"
   schema_rules:
     LegalEntity:
       reject_chars: "/();"
-      # Clone annotations the FCA appends to names, e.g.
-      # "Fortradefx (Clone of FCA authorised firm)".
       reject_strings:
-        - "clone of"
+        # Clone annotations, e.g. "Fortradefx (Clone of FCA authorised firm)".
+        - "clone"
         - "aka"
         - "previously"
         - "now known as"

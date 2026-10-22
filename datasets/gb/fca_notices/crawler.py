@@ -27,6 +27,9 @@ def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None
         return
     elif prop == "address":
         entity.add(prop, value)
+    elif prop == "name":
+        # Repeats the warning list title, which is the name we use.
+        return
     else:
         entity.add(prop, h.multi_split(value, [","]))
 
@@ -60,7 +63,7 @@ def crawl_item(context: Context, item: _Element) -> None:
     links = h.xpath_elements(item, "./th/a[@href]")
     if not links:
         return
-    name = h.element_text(links[0])
+    name = h.strip_name_titles(context, h.element_text(links[0]))
     href = links[0].get("href")
     if not name or not href:
         return
@@ -68,9 +71,6 @@ def crawl_item(context: Context, item: _Element) -> None:
     if not url.startswith(FCA_URL):
         context.log.warning("Skipping off-site warning link", url=url)
         return
-    # The warning list marks every name with its status.
-    for suffix in ("(new)", "(updated)"):
-        name = name.removesuffix(suffix).strip()
 
     date_raw: str | None = None
     dates = h.xpath_elements(item, "./td[contains(@class,'published-date')]")
@@ -82,7 +82,8 @@ def crawl_item(context: Context, item: _Element) -> None:
     h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
     entity.add("sourceUrl", url)
     entity.add("topics", "reg.warn")
-    if "clone of" in name.lower():
+    # Older warning pages have no clone section, only the clone wording in the name.
+    if "clone " in name.lower():
         entity.add("topics", "corp.clone")
 
     crawl_details_page(context, entity, url)
@@ -103,7 +104,7 @@ def crawl(context: Context) -> None:
             {
                 "items_per_page": 100,
                 "order": "field_published_date",
-                "sort": "asc",
+                "sort": "desc",
                 "page": page,
             }
         )
