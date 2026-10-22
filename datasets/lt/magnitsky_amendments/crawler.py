@@ -47,6 +47,8 @@ def crawl_page(context: Context, entry: dict[str, Any]) -> None:
 
 def crawl(context: Context) -> None:
     page = 0
+    num_found: int | None = None
+    crawled = 0
     while True:
         url = f"https://www.migracija.lt/external/nam/search?pageNo={page}&pageSize=100&language=lt"
         path = context.fetch_resource(f"source_{page}.json", url)
@@ -55,6 +57,8 @@ def crawl(context: Context) -> None:
         )
         with open(path, encoding="utf-8") as fh:
             data = json.load(fh)
+            if num_found is None:
+                num_found = data["numFound"]
             if data.get("list") == []:
                 break
         page += 1
@@ -65,3 +69,7 @@ def crawl(context: Context) -> None:
 
         for entry in data.get("list"):
             crawl_page(context, entry)
+            crawled += 1
+
+    if crawled != num_found:
+        raise ValueError(f"Crawled {crawled} entries, source reports {num_found}")
