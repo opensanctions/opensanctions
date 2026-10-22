@@ -68,6 +68,9 @@ def crawl_item(context: Context, item: _Element) -> None:
     if not url.startswith(FCA_URL):
         context.log.warning("Skipping off-site warning link", url=url)
         return
+    # The warning list marks every name with its status.
+    for suffix in ("(new)", "(updated)"):
+        name = name.removesuffix(suffix).strip()
 
     date_raw: str | None = None
     dates = h.xpath_elements(item, "./td[contains(@class,'published-date')]")
