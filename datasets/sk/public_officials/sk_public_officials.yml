@@ -31,9 +31,9 @@ publisher:
   url: https://www.nrsr.sk/web/
   official: true
   country: sk
-url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=2
+url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=1
 data:
-  url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=2
+  url: https://www.nrsr.sk/web/Default.aspx?sid=vnf%2fzoznam&ViewType=1
   format: HTML
   lang: slk
 
