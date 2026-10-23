@@ -1,6 +1,10 @@
 import string
+import zipfile
 from collections import defaultdict
+from datetime import date as date_type
 from datetime import datetime
+from io import BytesIO
+from pathlib import Path
 from typing import Any
 
 import openpyxl
@@ -26,6 +30,15 @@ ADDRESS_SPLITS = [
     "_x000D_\n",
     "_x000D_",
 ]
+# openpyxl only understands the Transitional OOXML namespaces. The source is
+# sometimes saved as Strict OOXML, in which case openpyxl finds no worksheets.
+# TODO: Remove once XLSX reading moves to a Strict-capable reader:
+# https://github.com/opensanctions/opensanctions/issues/6012
+STRICT_TO_TRANSITIONAL_NAMESPACES = {
+    b"http://purl.oclc.org/ooxml/spreadsheetml/main": b"http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+    b"http://purl.oclc.org/ooxml/officeDocument/relationships": b"http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+    b"http://purl.oclc.org/ooxml/drawingml/main": b"http://schemas.openxmlformats.org/drawingml/2006/main",
+}
 PROVISION_FIELDS = [
     "travel_ban",
     "arms_embargo",
@@ -56,7 +69,9 @@ def clean_date(date: str) -> list[str]:
     if " to " in date_str or "between" in date_str:
         return [date_str]
     if isinstance(date, datetime):
-        date = date.date().isoformat()
+        date = date.date()
+    if isinstance(date, date_type):
+        date = date.isoformat()
     if isinstance(date, int):
         date = str(date)
     if date is None:
@@ -161,7 +176,7 @@ def parse_reference(
         if notes:
             entity.add("notes", (note.replace("_x000D_", "") for note in notes))
         listing_info = row.pop("listing_information")
-        if isinstance(listing_info, datetime):
+        if isinstance(listing_info, date_type):
             h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
@@ -191,6 +206,24 @@ def parse_reference(
     context.emit(sanction)
 
 
+def strict_to_transitional(path: Path) -> BytesIO:
+    """Rewrite Strict OOXML namespaces to Transitional so openpyxl can read the
+    workbook. Transitional files pass through unchanged."""
+    buffer = BytesIO()
+    with (
+        zipfile.ZipFile(path) as source,
+        zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as target,
+    ):
+        for info in source.infolist():
+            data = source.read(info)
+            if info.filename.endswith((".xml", ".rels")):
+                for strict, transitional in STRICT_TO_TRANSITIONAL_NAMESPACES.items():
+                    data = data.replace(strict, transitional)
+            target.writestr(info, data)
+    buffer.seek(0)
+    return buffer
+
+
 def hash_row(row: dict[str, Any]) -> int:
     """Hash a row to detect duplicates."""
     return hash(tuple((k, v) for k, v in sorted(row.items())))
@@ -200,7 +233,11 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    workbook: openpyxl.Workbook = openpyxl.load_workbook(
+        strict_to_transitional(path), read_only=True
+    )
+    if len(workbook.worksheets) == 0:
+        context.log.error("No worksheets found in workbook")
     references = defaultdict(list)
     raw_references: dict[str, dict[str, Any]] = dict()
     reference_blocks_seen_count: dict[str, int] = dict()
