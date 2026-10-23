@@ -100,6 +100,15 @@ and confirm the delta is plausible:
 zavod export datasets/<path>/<dataset_name>.yml
 ```
 
+To see what changed against the last published run, diff the statements with
+[ftm-stmt](https://github.com/opensanctions/ftm-inspect):
+
+```bash
+uvx --from git+https://github.com/opensanctions/ftm-inspect.git ftm-stmt diff -o diff \
+    $(zavod archive url statements.pack --latest datasets/<path>/<dataset_name>.yml) \
+    data/datasets/<dataset_name>/statements.pack
+```
+
 A healthy run shows:
 - No errors in the crawl log
 - Delta (added/deleted/modified) consistent with elapsed time since the last run
