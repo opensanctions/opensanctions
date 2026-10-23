@@ -19,21 +19,9 @@ POSITION_QIDS = {
 }
 
 
-def crawl_post(context: Context, post: dict[str, Any]) -> None:
-    if NEWS_CATEGORY in post["categories"]:
-        print(post)
-        return
-    doc = html.fromstring(post["content"]["rendered"])
-    table = h.xpath_element(doc, ".//table")
-    row: dict[str, str | None] = {}
-    for tr in h.xpath_elements(table, ".//tr"):
-        cells = [h.element_text(td) for td in h.xpath_elements(tr, "./td")]
-        assert len(cells) in (1, 2), cells
-        # Map the Arabic labels to English keys; unknown ones fail the audit.
-        key = context.lookup_value("columns", cells[0], cells[0]) or cells[0]
-        # A profile with a blank field omits its value cell.
-        row[key] = cells[1] if len(cells) == 2 else None
-
+def crawl_row(
+    context: Context, post: dict[str, Any], row: dict[str, str | None]
+) -> None:
     person = context.make("Person")
     person.id = context.make_slug(post["id"])
     name = row.pop("name")
@@ -108,6 +96,18 @@ def crawl(context: Context) -> None:
     while fetched < total:
         posts = context.fetch_json(context.data_url, params={"page": page})
         for post in posts:
-            crawl_post(context, post)
+            if NEWS_CATEGORY in post["categories"]:
+                continue
+            # Each profile is a table of label/value rows; a blank field omits
+            # its value cell. Unknown labels stay in Arabic and fail the audit.
+            doc = html.fromstring(post["content"]["rendered"])
+            table = h.xpath_element(doc, ".//table")
+            row: dict[str, str | None] = {}
+            for tr in h.xpath_elements(table, ".//tr"):
+                label, *value = [h.element_text(td) for td in tr.findall("td")]
+                assert len(value) <= 1, (label, value)
+                key = context.lookup_value("columns", label) or label
+                row[key] = value[0] if value else None
+            crawl_row(context, post, row)
         fetched += len(posts)
         page += 1
