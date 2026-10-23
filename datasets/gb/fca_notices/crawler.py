@@ -118,6 +118,7 @@ def crawl(context: Context) -> None:
             url,
             ITEMS_XPATH,
             html_source="httpResponseBody",
+            cache_days=1,
         )
         items = h.xpath_elements(doc, ITEMS_XPATH)
         if last_page is None:
