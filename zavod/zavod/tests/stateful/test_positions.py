@@ -309,7 +309,7 @@ def test_categorise_updates_changed_metadata(testdataset1: Dataset, zavod_db):
     context.close()
 
 
-def test_categorise_sets_last_seen(testdataset1: Dataset):
+def test_categorise_sets_last_seen(testdataset1: Dataset, zavod_db):
     context = make_context(testdataset1)
     position = make_position(context, "Minister of Health", country="us")
     categorise(context, position, default_is_pep=None)
