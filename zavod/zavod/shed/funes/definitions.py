@@ -41,6 +41,7 @@ class DatasetDefinition(BaseModel):
     subject_label: str
     """Names the subject's role in the inspection brief (e.g. Organization,
     Court, Sending country)."""
+
     subjects: list[SubjectDefinition] = Field(min_length=1)
     """Non-empty: candidates are URLs of subjects, and the pipeline
     discovers URLs, never subjects."""
