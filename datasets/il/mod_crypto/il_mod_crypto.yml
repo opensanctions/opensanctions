@@ -65,10 +65,10 @@ assertions:
 lookups:
   coin_type:
     options:
-      - match: חשבון Binance # Binance account
+      - match: חשבון Binance  # Binance account
         exchange: Binance
         account: true
-      - match: חשבון OKX # OKX account
+      - match: חשבון OKX  # OKX account
         exchange: OKX
         account: true
       - match: Unknown
