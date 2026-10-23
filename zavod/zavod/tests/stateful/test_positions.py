@@ -194,7 +194,7 @@ def test_occupancy_status(testdataset1: Dataset):
     context.close()
 
 
-def test_categorise_flow(testdataset1: Dataset):
+def test_categorise_flow(testdataset1: Dataset, zavod_db):
     context = make_context(testdataset1)
     position = make_position(
         context, "A position", country="ls", subnational_area="Maseru"
@@ -235,6 +235,7 @@ def test_categorise_flow(testdataset1: Dataset):
 
 def test_categorised_position_qids_returns_reviewed_verdicts(
     testdataset1: Dataset,
+    zavod_db,
 ):
     context = make_context(testdataset1)
     values = [
@@ -275,7 +276,7 @@ def test_categorised_position_qids_returns_reviewed_verdicts(
     context.close()
 
 
-def test_categorise_updates_changed_metadata(testdataset1: Dataset):
+def test_categorise_updates_changed_metadata(testdataset1: Dataset, zavod_db):
     """When caption/countries/subnationalArea on a position change, the
     existing row is updated in place rather than a new one being inserted."""
     context = make_context(testdataset1)

@@ -141,7 +141,7 @@ def test_split_comma_names(vcontext: Context, caplog):
 
 
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)  # For validity
-def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
+def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context, zavod_db):
     """The original name is used."""
 
     entity = vcontext.make("Person")
@@ -157,7 +157,7 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
 def test_apply_reviewed_names_llm_service_fallback(
-    run_typed_text_prompt: MagicMock, vcontext: Context
+    run_typed_text_prompt: MagicMock, vcontext: Context, zavod_db
 ):
     """
     Verify that when env var OPENAI_API_KEY is set, we don't call OpenAPI,
@@ -177,7 +177,9 @@ def test_apply_reviewed_names_llm_service_fallback(
 
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", "AAABBBCCC")  # For validity
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_apply_reviewed_names_llm(run_typed_text_prompt: MagicMock, vcontext: Context):
+def test_apply_reviewed_names_llm(
+    run_typed_text_prompt: MagicMock, vcontext: Context, zavod_db
+):
     """
     The original name is used.
     A review is created but the automatically extracted names are not applied until accepted.
@@ -215,7 +217,7 @@ def test_apply_reviewed_names_llm(run_typed_text_prompt: MagicMock, vcontext: Co
 
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
 def test_apply_reviewed_names_manual_irregular(
-    run_typed_text_prompt: MagicMock, vcontext: Context
+    run_typed_text_prompt: MagicMock, vcontext: Context, zavod_db
 ):
     """
     A review is created but the manually extracted names are not applied until accepted.
@@ -272,7 +274,7 @@ def test_apply_reviewed_names_suggested_with_llm_cleaning_raises(vcontext: Conte
         )
 
 
-def test_apply_reviewed_names_suggested_no_llm(vcontext: Context):
+def test_apply_reviewed_names_suggested_no_llm(vcontext: Context, zavod_db):
     """
     A review is created if suggested different from original is passed.
     Neither original nor suggested needs to be irregular.
@@ -303,7 +305,7 @@ def test_apply_reviewed_names_suggested_no_llm(vcontext: Context):
     assert entity.get("alias") == []
 
 
-def test_apply_reviewed_names_suggested_original(vcontext: Context):
+def test_apply_reviewed_names_suggested_original(vcontext: Context, zavod_db):
     """
     If suggested equals original, no review is created unless is_irregular is True.
 

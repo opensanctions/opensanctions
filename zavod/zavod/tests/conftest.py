@@ -45,7 +45,6 @@ def wrap_test():
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
     settings.DATA_PATH = Path(mkdtemp()).resolve()
     get_version_history.cache_clear()
-    meta.create_all(bind=get_engine())
     yield
     get_catalog.cache_clear()
     # Cache and Resolver own per-instance MetaData, so dropping a fixed list of
@@ -57,6 +56,15 @@ def wrap_test():
     drop_meta.reflect(bind=engine)
     drop_meta.drop_all(bind=engine)
     close_db()
+
+
+@pytest.fixture(scope="function")
+def zavod_db() -> None:
+    """The stateful tables, created engine-bound: ``create_all`` commits
+    its DDL inside ``engine.begin()``, so the schema is visible to any
+    later pooled connection, such as the session the code under test
+    opens lazily via ``context.db``."""
+    meta.create_all(bind=get_engine())
 
 
 @pytest.fixture(scope="function")

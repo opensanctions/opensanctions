@@ -38,7 +38,7 @@ def get_all_rows(conn, key):
     return list(conn.execute(sel).mappings().all())
 
 
-def test_new_key_saved_and_accepted_false(testdataset1: Dataset):
+def test_new_key_saved_and_accepted_false(testdataset1: Dataset, zavod_db):
     context = make_context(testdataset1)
     data = DummyModel(foo="bar")
     review = review_extraction(
@@ -57,7 +57,7 @@ def test_new_key_saved_and_accepted_false(testdataset1: Dataset):
     context.close()
 
 
-def test_no_change_updates_last_seen_version(testdataset1):
+def test_no_change_updates_last_seen_version(testdataset1, zavod_db):
     #   preconditions:
     #     - same crawler version
     #     - source hasn't changed
@@ -102,7 +102,7 @@ def test_no_change_updates_last_seen_version(testdataset1):
     context2.close()
 
 
-def test_source_changed_resets_review(testdataset1: Dataset):
+def test_source_changed_resets_review(testdataset1: Dataset, zavod_db):
     #   preconditions:
     #     - there is an existing accepted review
     #     - the source AND extraction have changed
@@ -163,7 +163,7 @@ def test_source_changed_resets_review(testdataset1: Dataset):
     context2.close()
 
 
-def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
+def test_unaccepted_updates_original_extraction(testdataset1: Dataset, zavod_db):
     #   preconditions:
     #     - there is an existing unaccepted review
     #     - the source hasn't changed but extraction has
@@ -209,7 +209,7 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
     context2.close()
 
 
-def test_crawler_version_bump_resets_review(testdataset1: Dataset):
+def test_crawler_version_bump_resets_review(testdataset1: Dataset, zavod_db):
     context1 = make_context(testdataset1)
     review = review_extraction(
         context1,
@@ -321,7 +321,7 @@ def test_text_source_comparison(testdataset1: Dataset):
     assert not source_value2.matches(review)
 
 
-def test_source_changed_updates_source_fields(testdataset1: Dataset):
+def test_source_changed_updates_source_fields(testdataset1: Dataset, zavod_db):
     #   preconditions:
     #     - there is an existing review
     #     - the source value has changed
