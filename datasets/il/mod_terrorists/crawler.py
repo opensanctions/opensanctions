@@ -6,6 +6,7 @@ from lxml.etree import _Element as Element
 from rigour.mime.types import JSON
 from zavod.entity import Entity
 from zavod.shed.il_mod import (
+    LANGS,
     SPLITS,
     Item,
     apply_aliases,
@@ -13,7 +14,7 @@ from zavod.shed.il_mod import (
     apply_operative_details,
     apply_partial_date,
     drop_fallbacks,
-    fetch_variants,
+    fetch_content,
     pop_blocks,
     source_url,
 )
@@ -24,17 +25,28 @@ from zavod import helpers as h
 
 def fetch_designated(context: Context, content_type: str) -> list[list[Item]]:
     """Fetch designated items, each as a list of its [en, he, ar] culture variants."""
+    by_lang = {lang: fetch_content(context, content_type, lang) for lang in LANGS}
     designated: list[list[Item]] = []
-    for item_id, variants in fetch_variants(context, content_type).items():
+    for item_id, item in by_lang["en"].items():
         # isDesignated separates designation records, active or cancelled, from
         # entities which are only named in seizure orders. It doesn't change when a
         # designation is cancelled; that's given by status and cancellationDate.
-        flag = variants[0]["properties"]["isDesignated"]
+        flag = item["properties"]["isDesignated"]
         if flag is False:
             continue
         if flag is not True:
             context.log.warning("Unexpected designation flag", id=item_id, flag=flag)
             continue
+        variants: list[Item] = []
+        for lang in LANGS:
+            variant = by_lang[lang].get(item_id)
+            if variant is None:
+                # An item which isn't published in a culture is missing from that
+                # culture's listing. Stand in with the English variant, as the CMS
+                # does for an untranslated value, so a designation is still crawled.
+                context.log.warning("Item missing culture", id=item_id, lang=lang)
+                variant = item
+            variants.append(variant)
         designated.append(variants)
     path = context.get_resource_path(f"{content_type}.json")
     path.write_bytes(orjson.dumps(designated))
@@ -96,6 +108,19 @@ def apply_designation(
             context.log.warning("Unexpected cancellation comment", comment=comment)
     sanction.add("authority", props.pop("localDesignator"))
     sanction.add("recordId", props.pop("foreignDesignationReferenceNumber"))
+
+
+def apply_designation_files(
+    context: Context, sanction: Entity, props: dict[str, Any], key: str
+) -> None:
+    """Add the PDFs of the designation orders as sources of the sanction.
+
+    Organizations give them as `documents`, operatives as `designationFiles`."""
+    for block in pop_blocks(props, key, "designationFileBlock"):
+        sanction.add("sourceUrl", block.pop("documentFile")["url"])
+        # updateType says whether the file is the temporary or the permanent
+        # designation order, which the sanction's dates already distinguish.
+        context.audit_data(block, ignore=["updateType"])
 
 
 def apply_address(context: Context, entity: Entity, block: dict[str, Any]) -> None:
@@ -205,6 +230,7 @@ def crawl_organization(
     for block in pop_blocks(props, "lastPublicationDetails", "regulationFileBlock"):
         sanction.add("publisher", block.pop("regulationFileName"))
         context.audit_data(block)
+    apply_designation_files(context, sanction, props, "documents")
     apply_designation(context, sanction, props, comments)
 
     for operatives in comments.pop("Key operatives", []):
@@ -261,6 +287,7 @@ def crawl_operative(
         context.audit_data(block)
     sanction.add("program", props.pop("foreignDesignator"))
     sanction.add("sourceUrl", source_url(item))
+    apply_designation_files(context, sanction, props, "designationFiles")
     apply_designation(context, sanction, props, comments)
 
     apply_status_topic(context, entity, props.pop("status"))
