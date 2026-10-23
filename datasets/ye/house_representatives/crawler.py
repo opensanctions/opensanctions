@@ -10,9 +10,10 @@ from zavod.util import LangText
 from zavod import Context
 from zavod import helpers as h
 
-# Posts in the member category that are news stories, not member profiles.
+# The member category also holds a few news stories (e.g. death notices); they
+# carry the news category and have no profile table.
 NEWS_CATEGORY = 491
-# Only the member seat and the Speaker have a Wikidata item.
+# Deputy Speaker has no Wikidata item.
 POSITION_QIDS = {
     "Member of the House of Representatives of Yemen": "Q24810806",
     "Speaker of the House of Representatives of Yemen": "Q63143442",
@@ -28,16 +29,16 @@ def crawl_person(
     assert name is not None, post["id"]
     person.add("name", name)
     apply_translit_full_name(context, person, LangText(name, "ara"))
-    # The post title is sometimes a shorter form of the name.
+    # The post title is sometimes a shorter name.
     alias = squash_spaces(post["title"]["rendered"])
     if alias != name:
         person.add("alias", alias)
     person.add("political", row.pop("political_bloc"))
-    person.add("education", row.pop("education"))
+    person.add("education", row.pop("education", None))
     person.add("sourceUrl", post["link"])
     person.add("citizenship", "ye")
 
-    # One profile has no constituency number, only the governorate.
+    # One profile lacks the constituency number.
     parts = [row.pop("constituency"), row.pop("governorate")]
     constituency = " - ".join(p for p in parts if p is not None)
 
@@ -60,8 +61,7 @@ def crawl_person(
             person,
             position,
             categorisation=categorisation,
-            # The roster gives no dates and still lists members who have died,
-            # so a listing does not prove a member is still in office.
+            # No dates, and deceased members stay listed.
             status=OccupancyStatus.UNKNOWN,
         )
         if occupancy is None:
@@ -77,8 +77,8 @@ def crawl_person(
 def crawl_post(context: Context, post: dict[str, Any]) -> None:
     if NEWS_CATEGORY in post["categories"]:
         return
-    # Each profile is a table of label/value rows; a blank field omits its
-    # value cell. Unknown labels stay in Arabic and fail the audit.
+    # Each profile is one table of "label: value" rows. A blank field has only
+    # the label cell, so its value is None.
     doc = html.fromstring(post["content"]["rendered"])
     table = h.xpath_element(doc, ".//table")
     row: dict[str, str | None] = {}
@@ -91,8 +91,7 @@ def crawl_post(context: Context, post: dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    # WordPress rejects a page past the last one, so stop once we have fetched
-    # as many posts as the category holds.
+    # WordPress errors past the last page, so stop at the category's count.
     total = context.fetch_json(urljoin(context.data_url, "categories/468"))["count"]
     assert total is not None
     fetched = 0

@@ -1,11 +1,3 @@
-# The roster is a one-off import of member profiles (February 2023) that the
-# House does not maintain: members who have died since are still listed, e.g.
-# post 1963 after the House's own death notice in post 4443 (April 2025). No
-# profile carries a date, so occupancies are emitted with status unknown rather
-# than current.
-#
-# The member category also holds the odd news story; those posts are skipped by
-# their news category (491).
 title: Yemen Members of the House of Representatives
 name: ye_house_representatives
 prefix: ye-hor
@@ -33,7 +25,7 @@ publisher:
   name_en: House of Representatives of Yemen
   description: >
     The House of Representatives is the elected lower house of Yemen's
-    parliament. This website is run by the House under Speaker Sultan
+    parliament. This website is maintained by the House under Speaker Sultan
     al-Barakani, aligned with the internationally recognised government and the
     Presidential Leadership Council.
   url: https://parliament-ye.com/
@@ -48,7 +40,7 @@ tags:
   - list.pep
 
 lookups:
-  # Profile table labels -> English keys used by the crawler.
+  # Profile labels -> English keys.
   columns:
     options:
       - match: "إسم العضو:" # member name
@@ -65,9 +57,7 @@ lookups:
         value: committee_role
       - match: "المؤهلات العلمية:" # education
         value: education
-  # "Role in committee" -> positions held. Committee posts (member, rapporteur,
-  # chair) confer no separate position; the presidium roles name the Speaker and
-  # Deputy Speakers, who keep their member seats. Blank on two profiles.
+  # Committee role -> positions held; presiding officers keep their seat.
   position:
     required: true
     options:
