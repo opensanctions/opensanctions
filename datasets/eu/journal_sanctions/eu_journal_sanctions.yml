@@ -283,6 +283,12 @@ config:
     # (EU) No 1284/2009; it designates nobody. Both entries leave the dataset
     # with the next 02009R1284 consolidation.
     - 32026R2318
+    # The Annex deletes entry 97 (LOGARCHEO S.A., alias LOGARCHEO AG) from
+    # Annex IV to Regulation (EC) No 1210/2003, following the UN Sanctions
+    # Committee decision of 5.10.2026; it designates nobody, and amendment
+    # files hold positive state only. The entry leaves the dataset with the
+    # next 02003R1210 consolidation.
+    - 32026R2388
 
 assertions:
   min:
