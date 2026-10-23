@@ -7,6 +7,7 @@ from pathlib import Path
 import requests
 from zavod.shed.ojeu import cellar
 from zavod.shed.ojeu.celex import eur_lex_url
+from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context, Entity, settings
 from zavod import helpers as h
@@ -330,5 +331,4 @@ def crawl(context: Context) -> None:
 
     # Warn rather than raise: the dataset keeps publishing the source wording
     # while the name review backlog is worked through.
-    # FIXME: avoid triggering loads of re-runs while the initial review is in progress.
-    # assert_all_accepted(context, raise_on_unaccepted=False)
+    assert_all_accepted(context, raise_on_unaccepted=False)

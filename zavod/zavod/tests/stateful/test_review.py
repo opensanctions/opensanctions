@@ -1,3 +1,5 @@
+import logging
+
 from lxml import html
 from rigour.time import utc_now
 from pydantic import BaseModel
@@ -11,6 +13,7 @@ from zavod.stateful.review import (
     HtmlSourceValue,
     Review,
     TextSourceValue,
+    assert_all_accepted,
     review_extraction,
     review_key,
 )
@@ -375,3 +378,25 @@ def test_review_key():
     assert review_key(["part1", "part2"]) != review_key(["part2", "part1"])
     # Whitespace stripped from each part
     assert review_key([" part1 ", "part2"]) == review_key(["part1", "part2"])
+
+
+def test_unaccepted_warning_is_skipped_by_agent(
+    testdataset1: Dataset, logger: logging.Logger
+):
+    context = make_context(testdataset1)
+    context.begin()
+    review_extraction(
+        context,
+        crawler_version=1,
+        source_value=mock_source_value("key-unaccepted"),
+        original_extraction=DummyModel(foo="bar"),
+        origin="test data",
+    )
+    assert_all_accepted(context, raise_on_unaccepted=False)
+    context.close()
+
+    issues = list(context.issues.all())
+    assert len(issues) == 1
+    assert issues[0]["level"] == "warning"
+    assert "1 unaccepted items" in issues[0]["message"]
+    assert issues[0]["data"]["agent"] == "skip"
