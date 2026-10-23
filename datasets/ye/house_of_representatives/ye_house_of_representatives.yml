@@ -1,0 +1,86 @@
+# The roster is a one-off import of member profiles (February 2023) that the
+# House does not maintain: members who have died since are still listed, e.g.
+# post 1963 after the House's own death notice in post 4443 (April 2025). No
+# profile carries a date, so occupancies are emitted with status unknown rather
+# than current.
+#
+# The member category also holds the odd news story; those posts are skipped by
+# their news category (491).
+title: Yemen Members of the House of Representatives
+name: ye_house_of_representatives
+prefix: ye-hor
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-23
+load_statements: true
+summary: >-
+  Members and presiding officers of Yemen's elected chamber of parliament
+description: |
+  Members of the House of Representatives (Majlis al-Nuwwab) of the
+  Republic of Yemen. Its 301 members are elected by majority vote in
+  single-member constituencies, and the house holds the country's legislative
+  power, including passing laws, approving the budget and overseeing the
+  government. The members elected in 2003 continue to sit, as the term has been
+  extended repeatedly since 2009 in the absence of new elections.
+
+  The roster covers all members of the 2003 house, including those who sit in
+  the rival Sanaa-based house under Houthi control. It is not updated when
+  members die or leave office, so it can list former members. The Speaker and
+  Deputy Speakers are included alongside the members.
+url: https://parliament-ye.com/index.php/category/members-of-parliament/
+publisher:
+  name: مجلس النواب اليمني
+  name_en: House of Representatives of Yemen
+  description: >
+    The House of Representatives is the elected lower house of Yemen's
+    parliament. This website is run by the House under Speaker Sultan
+    al-Barakani, aligned with the internationally recognised government and the
+    Presidential Leadership Council.
+  url: https://parliament-ye.com/
+  country: ye
+  official: true
+data:
+  url: https://parliament-ye.com/index.php/wp-json/wp/v2/posts?categories=468&per_page=100
+  format: JSON
+  lang: ara
+
+tags:
+  - list.pep
+
+lookups:
+  # "Role in committee" -> positions held. Committee posts (member, rapporteur,
+  # chair) confer no separate position; the presidium roles name the Speaker and
+  # Deputy Speakers, who keep their member seats. Blank on two profiles.
+  position:
+    required: true
+    options:
+      - match:
+          - عضواً
+          - مقررا
+          - رئيساً
+          - ""
+        value: Member of the House of Representatives of Yemen
+      - match: رئيس مجلس النواب
+        values:
+          - Speaker of the House of Representatives of Yemen
+          - Member of the House of Representatives of Yemen
+      - match:
+          - نائب رئيس المجلس للشئون التشريعية والرقابية
+          - نائب رئيس مجلس النواب للشؤون التنظيمية والفنية
+          - نائب رئيس مجلس النواب للشؤون البرلمانية العلاقات الخارجية
+        values:
+          - Deputy Speaker of the House of Representatives of Yemen
+          - Member of the House of Representatives of Yemen
+
+assertions:
+  min:
+    schema_entities:
+      Person: 260
+      Position: 3
+    country_entities:
+      ye: 260
+  max:
+    schema_entities:
+      Person: 320
+      Position: 3
