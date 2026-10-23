@@ -26,7 +26,7 @@ from zavod import settings
 from zavod.context import Context
 from zavod.exc import ConfigurationException
 from zavod.shed.funes.agents import Brief
-from zavod.shed.funes.attempts import select_due_candidates
+from zavod.shed.funes.attempts import DueCandidate, select_due_candidates
 from zavod.shed.funes.capture import first_error_line, inspectability_issue
 from zavod.shed.funes.catalogue import sync_catalogue
 from zavod.shed.funes.definitions import DatasetDefinition, dataset_definition
@@ -102,7 +102,7 @@ def crawl(context: Context) -> None:
 async def _inspect_candidates(
     context: Context,
     definition: DatasetDefinition,
-    candidates: list[tuple[uuid.UUID, str, str]],
+    candidates: list[DueCandidate],
     runtime: FunesRuntime,
 ) -> None:
     """Capture and judge each due candidate inside one shared event loop."""
@@ -110,7 +110,7 @@ async def _inspect_candidates(
     pravda = Pravda(runtime.browser_ws_url, storage)
     capture: Capture = pravda.capture
     read_resource: ReadResource = storage.read_artifact
-    for candidate_id, url, subject_name in candidates:
+    for candidate in candidates:
         await _inspect_candidate(
             context,
             capture=capture,
@@ -120,10 +120,10 @@ async def _inspect_candidates(
             brief=Brief(
                 people_sought=definition.people_sought,
                 subject_label=definition.subject_label,
-                subject=subject_name,
+                subject=candidate.subject_name,
             ),
-            candidate_id=candidate_id,
-            url=url,
+            candidate_id=candidate.candidate_id,
+            url=candidate.url,
         )
         context.flush()
 

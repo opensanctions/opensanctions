@@ -1,6 +1,7 @@
 """Due-candidate selection for funes inspection runs."""
 
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_, func, or_, select
@@ -20,10 +21,19 @@ for a new run. Scheduling policy, not part of the inspection brief; if
 timing concerns multiply, move it to the config object."""
 
 
-def select_due_candidates(context: Context) -> list[tuple[uuid.UUID, str, str]]:
-    """The context dataset's candidates due for an inspection run, as
-    ``(candidate_id, url, subject_name)`` tuples in deterministic (subject,
-    url) order. The subject name scopes the inspection brief.
+@dataclass(frozen=True)
+class DueCandidate:
+    """One candidate due for an inspection run, with its subject name."""
+
+    candidate_id: uuid.UUID
+    url: str
+    subject_name: str
+
+
+def select_due_candidates(context: Context) -> list[DueCandidate]:
+    """The context dataset's candidates due for an inspection run, in
+    deterministic (subject, url) order. The subject name scopes the
+    inspection brief.
 
     A candidate is due iff it has no attempt yet, or its latest attempt
     (by ``created_at``, ties broken by the greater id) is a hit older
@@ -76,4 +86,4 @@ def select_due_candidates(context: Context) -> list[tuple[uuid.UUID, str, str]]:
         .order_by(subject_table.c.name, candidate_table.c.url)
     )
     rows = context.db.execute(statement).all()
-    return [(row.id, row.url, row.subject_name) for row in rows]
+    return [DueCandidate(row.id, row.url, row.subject_name) for row in rows]
