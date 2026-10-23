@@ -7,7 +7,7 @@ from rigour.mime.types import JSON
 from zavod.entity import Entity
 from zavod.shed.il_mod import (
     SPLITS,
-    Item,
+    LanguageVariants,
     apply_aliases,
     apply_date,
     apply_operative_details,
@@ -22,9 +22,9 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def fetch_designated(context: Context, content_type: str) -> list[list[Item]]:
-    """Fetch designated items, each as a list of its [en, he, ar] culture variants."""
-    designated: list[list[Item]] = []
+def fetch_designated(context: Context, content_type: str) -> list[LanguageVariants]:
+    """Fetch designated items, each with its [en, he, ar] culture variants."""
+    designated: list[LanguageVariants] = []
     for item_id, variants in fetch_variants(context, content_type).items():
         # isDesignated separates designation records, active or cancelled, from
         # entities which are only named in seizure orders. It doesn't change when a
@@ -152,7 +152,7 @@ def emit_key_operatives(context: Context, entity: Entity, operatives: str) -> No
 
 def crawl_organization(
     context: Context,
-    variants: list[Item],
+    variants: LanguageVariants,
     org_ids: dict[str, tuple[str, str]],
     links: list[tuple[str, str]],
 ) -> None:
@@ -226,7 +226,7 @@ def crawl_organization(
 
 def crawl_operative(
     context: Context,
-    variants: list[Item],
+    variants: LanguageVariants,
     person_ids: dict[str, str],
     links: list[tuple[str, str]],
 ) -> None:

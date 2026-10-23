@@ -4,6 +4,7 @@ from typing import Any
 from zavod.entity import Entity
 from zavod.shed.il_mod import (
     Item,
+    LanguageVariants,
     apply_date,
     apply_operative_details,
     drop_fallbacks,
@@ -41,7 +42,7 @@ def operative_key(props: dict[str, Any], name: str | None) -> str | None:
     return name
 
 
-def make_operative(context: Context, variants: list[Item]) -> Entity | None:
+def make_operative(context: Context, variants: LanguageVariants) -> Entity | None:
     """Make the holder Person, or None for a placeholder such as "אנונימי"
     (anonymous), given for wallets whose holder isn't known."""
     item = variants[0]
@@ -71,7 +72,7 @@ def make_operative(context: Context, variants: list[Item]) -> Entity | None:
     return entity
 
 
-def make_organization(context: Context, variants: list[Item]) -> Entity:
+def make_organization(context: Context, variants: LanguageVariants) -> Entity:
     item = variants[0]
     name_en, name_he, name_ar = drop_fallbacks(variants, "organizationName")
     props = dict(item["properties"])
@@ -108,8 +109,8 @@ def crawl_wallet(
     context: Context,
     wallet_item: Item,
     order: Item,
-    operatives: dict[str, list[Item]],
-    orgs: dict[str, list[Item]],
+    operatives: dict[str, LanguageVariants],
+    orgs: dict[str, LanguageVariants],
 ) -> None:
     """Emit the wallets of a wallet item, with their holders and a sanction for
     the order."""
@@ -159,8 +160,8 @@ def crawl_order(
     context: Context,
     order: Item,
     wallets: dict[str, Item],
-    operatives: dict[str, list[Item]],
-    orgs: dict[str, list[Item]],
+    operatives: dict[str, LanguageVariants],
+    orgs: dict[str, LanguageVariants],
 ) -> None:
     """Emit the wallets seized by an Administrative Seizure Order (ASO) or
     Forfeiture Order (FO)."""
