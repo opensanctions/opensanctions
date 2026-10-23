@@ -104,6 +104,7 @@ children:
   - pl_finanse_sanctions
   - pl_mswia_sanctions
   - ps_local_freezing
+  - ps_national_terrorism_list
   - qa_nctc_sanctions
   - ro_onpcsb_sanctions
   - rs_apml_domestic
