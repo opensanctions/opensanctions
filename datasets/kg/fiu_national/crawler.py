@@ -11,9 +11,9 @@ def parse_person(context: Context, node: Element) -> None:
     name = node.findtext("./Name")
     patronymic = node.findtext("./Patronymic")
     surname = node.findtext("./Surname")
-    # The ID keys start with the element names of the former fiu.gov.kg/sked/9
-    # XML, which keeps IDs consistent with entities first published from it.
-    entity.id = context.make_id("KyrgyzPhysicPerson", name, patronymic, surname)
+    source_id = node.findtext("./Id")
+    assert source_id is not None, "Person without Id"
+    entity.id = context.make_slug("person", source_id)
     h.apply_name(
         entity,
         given_name=name,
@@ -30,7 +30,9 @@ def parse_legal(context: Context, node: Element) -> None:
     entity = context.make("LegalEntity")
     names = node.findtext("./Name")
     assert names is not None
-    entity.id = context.make_id("KyrgyzLegalPerson", names)
+    source_id = node.findtext("./Id")
+    assert source_id is not None, "Legal entity without Id"
+    entity.id = context.make_slug("legal", source_id)
     entity.add("name", names.split(", "))
     emit_target(context, entity)
 
