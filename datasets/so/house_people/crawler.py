@@ -42,7 +42,12 @@ def crawl_member(context: Context, member_id: str, member: dict[str, str]) -> No
     person = context.make("Person")
     person.id = context.make_slug(member_id)
     clean_name = h.strip_name_titles(context, name)
-    person.add("name", clean_name, original_value=name if clean_name != name else None, lang="som")
+    person.add(
+        "name",
+        clean_name,
+        original_value=name if clean_name != name else None,
+        lang="som",
+    )
     person.add("name", h.remove_bracketed(clean_name), lang="som")
     person.add("email", h.element_text(parse_fragment(member["email"]).find(".//span")))
     # Members of the Federal Parliament must be Somali citizens: Provisional

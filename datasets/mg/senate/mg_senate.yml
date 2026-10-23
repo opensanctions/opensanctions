@@ -1,0 +1,105 @@
+title: Madagascar Members of the Senate
+name: mg_senate
+prefix: mg-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-22
+load_statements: true
+summary: >-
+  Senators of the Sénat, the upper chamber of the Parliament of Madagascar, who
+  served the legislature that ran from 2021 to 2026
+description: |
+  Members of the Senate of Madagascar (Sénat de Madagascar), the upper chamber of the
+  country's bicameral Parliament, who served the legislature seated in January 2021.
+  Its 18 seats — twelve filled by an electoral college of mayors and municipal
+  councillors, two for each of the six provinces, and six filled by presidential
+  appointment — carry a five-year mandate, and together with the National Assembly the
+  chamber holds the country's legislative power, including passing laws and approving
+  the budget.
+
+  The chamber has no sitting members. The senators elected on 11 December 2020 took
+  office at the special session that opened on 19 January 2021, and the Haute Cour
+  Constitutionnelle held in its avis of 19 January 2026 that their mandate had expired
+  "sans prorogation possible" at midnight on 18 January 2026. The senatorial election
+  due in December 2025 was postponed indefinitely and the National Assembly has
+  exercised legislative power alone since, so every occupancy here has ended.
+
+  Occupancies are dated to the legislature rather than to each senator, because the
+  chamber's roster page gives no date for anyone. It also still lists three members
+  whose seats were vacated before the term ran out, and it names presiding offices
+  inconsistently, so only the ordinary Senate seat is recorded.
+url: https://senat.mg/
+publisher:
+  name: Sénat de Madagascar
+  name_en: Senate of Madagascar
+  description: >
+    The Senate is the upper chamber of Madagascar's bicameral Parliament, re-established
+    under the 2010 Constitution of the Fourth Republic. Its administration maintains the
+    chamber's website, separate from that of the National Assembly, and publishes the
+    roster of its senators there.
+  url: https://senat.mg/
+  country: mg
+  official: true
+data:
+  # A hand-written page rather than a WordPress post type, so there is no API behind it
+  # (the REST route for this page returns empty content). It has stood unchanged since
+  # the senators' mandates expired, which is why the crawler can hard-code the term
+  # dates; it asserts the roster's size so that a new chamber published here stops the
+  # crawl instead of being dated from the expired term.
+  url: https://senat.mg/vos-senateurs/
+  format: HTML
+  lang: fra
+
+tags:
+  - list.pep
+
+assertions:
+  # A healthy run emits the 19 people the roster names: the 16 senators whose mandates
+  # ran to expiry, plus the three whose seats were vacated during the term and whose
+  # cards the page still carries.
+  min:
+    schema_entities:
+      Person: 16
+      Position: 1
+    entities_with_prop:
+      Occupancy:
+        holder: 16
+    country_entities:
+      mg: 16
+  max:
+    schema_entities:
+      Person: 38
+      Position: 2
+    entities_with_prop:
+      Occupancy:
+        holder: 38
+
+lookups:
+  gender:
+    normalize: true
+    lowercase: true
+    options:
+      # Whether the seat was elected or filled by presidential appointment. French
+      # agreement makes the feminine forms the only place the source states a
+      # senator's gender; the masculine forms are also the unmarked default, so they
+      # say nothing about the holder.
+      - match:
+          - elue
+          - designee
+        value: female
+      - match:
+          - elu
+          - designe
+        value: null
+
+  death_date:
+    options:
+      # The roster still carries his card, but he resigned the seat on health grounds
+      # and died on 12 September 2024, aged 55. The Haute Cour Constitutionnelle had
+      # already declared the seat vacant on 19 March 2024 (arrêt n° 03-HCC/AR), after
+      # he was appointed to head the special delegation of the urban commune of
+      # Antananarivo, and Lalatiana Henriette Rakotondrazafy was appointed to replace
+      # him in February 2025. https://www.lexpress.mg/2024/09/antananarivo-deces-de-richard.html
+      - match: RAMANAMBITANA Richard Barjohn
+        value: 2024-09-12
