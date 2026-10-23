@@ -1,15 +1,17 @@
 import re
 from typing import Any
 
+from lxml import html
 from zavod.entity import Entity
 from zavod.shed.il_mod import (
     Item,
+    LANGS,
     apply_date,
     apply_operative_details,
     drop_fallbacks,
     fetch_content,
-    fetch_variants,
     is_placeholder,
+    pop_blocks,
     source_url,
 )
 
@@ -24,6 +26,41 @@ WALLET_HOLDER_PROPS = [
     "nonDesignatedOrganizations",
 ]
 CURRENCY_CODE = re.compile(r"^[A-Z]{2,5}$")
+# Fields of an order document block we don't map; the file is all we use.
+ORDER_DOCUMENT_IGNORE = [
+    "documentDate",
+    "documentType",
+    "documentTitle",
+    "amendmentNumber",
+    "notes",
+]
+
+
+def fetch_variants(context: Context, content_type: str) -> dict[str, list[Item]]:
+    """Fetch all items of a content type, each as a list of its [en, he, ar]
+    culture variants, keyed by item ID.
+
+    An item the CMS hasn't published in a culture is absent from that culture's
+    listing (the item's `cultures` key says which ones it has), so the English
+    item stands in for the missing variant. `drop_fallbacks` then drops that
+    copy, exactly as it drops the ones the CMS fills in itself.
+
+    This replaces `zavod.shed.il_mod.fetch_variants`, which raises a KeyError on
+    such an item; the fix belongs there, shared with il_mod_terrorists.
+    """
+    by_lang = {lang: fetch_content(context, content_type, lang) for lang in LANGS}
+    variants: dict[str, list[Item]] = {}
+    for item_id, item_en in by_lang["en"].items():
+        missing = [lang for lang in LANGS if item_id not in by_lang[lang]]
+        if len(missing) > 0:
+            context.log.info(
+                "Item not published in all cultures",
+                content_type=content_type,
+                id=item_id,
+                missing=missing,
+            )
+        variants[item_id] = [by_lang[lang].get(item_id, item_en) for lang in LANGS]
+    return variants
 
 
 def operative_key(props: dict[str, Any], name: str | None) -> str | None:
@@ -104,10 +141,49 @@ def apply_address(context: Context, wallet: Entity, address: str, coin: str) -> 
     wallet.add("currency", res.currency if res is not None else coin)
 
 
+def order_documents(context: Context, order_props: dict[str, Any]) -> list[str]:
+    """Pop the order's published documents, returning the URL of each file.
+
+    These are the signed seizure or forfeiture orders, e.g.
+    `/media/ztgf0lbz/seizure-order-924-afrodita-1.pdf`."""
+    urls: list[str] = []
+    for block in pop_blocks(order_props, "orderDocuments", "orderDocumentBlock"):
+        document = block.pop("documentFile")
+        if document is not None:
+            urls.append(document["url"])
+        context.audit_data(block, ignore=ORDER_DOCUMENT_IGNORE)
+    return urls
+
+
+def rich_text(value: str) -> str:
+    """Plain text of a CMS rich text field, one line per paragraph or break."""
+    lines: list[str] = []
+    for part in h.split_html_newline_tags(value):
+        text = h.element_text(html.fragment_fromstring(part, create_parent="div"))
+        if len(text) > 0:
+            lines.append(text)
+    return "\n".join(lines)
+
+
+def order_descriptions(context: Context, order_props: dict[str, Any]) -> list[str]:
+    """Pop the order's descriptions of what it seizes and from whom.
+
+    The source misspells the field as `descriprtions`."""
+    descriptions: list[str] = []
+    for block in pop_blocks(order_props, "descriprtions", "orderDescriptionBlock"):
+        description = block.pop("description")
+        if description is not None:
+            descriptions.append(rich_text(description))
+        context.audit_data(block)
+    return descriptions
+
+
 def crawl_wallet(
     context: Context,
     wallet_item: Item,
     order: Item,
+    document_urls: list[str],
+    descriptions: list[str],
     operatives: dict[str, list[Item]],
     orgs: dict[str, list[Item]],
 ) -> None:
@@ -145,9 +221,11 @@ def crawl_wallet(
         )
         sanction.add("authorityId", order["name"])
         sanction.add("provisions", order_props["orderType"])
+        sanction.add("description", descriptions)
         apply_date(sanction, "startDate", order_props["orderDate"])
         apply_date(sanction, "endDate", order_props["validityDate"])
         sanction.add("sourceUrl", source_url(order))
+        sanction.add("sourceUrl", document_urls)
         if h.is_active(sanction):
             wallet.add("topics", "crime.terror")
         context.emit(sanction)
@@ -171,6 +249,15 @@ def crawl_order(
         return
     if hidden is not False:
         raise ValueError(f"Unexpected isHidden: {hidden!r} ({order['name']})")
+    # Only set on orders added since the field was introduced, null on the rest
+    canceled = order_props.pop("isCanceled")
+    if canceled is True:
+        context.log.warning("Skipping canceled order", order=order["name"])
+        return
+    if canceled is not None and canceled is not False:
+        raise ValueError(f"Unexpected isCanceled: {canceled!r} ({order['name']})")
+    document_urls = order_documents(context, order_props)
+    descriptions = order_descriptions(context, order_props)
     # Assets also include other property, given as generalAsset items
     for asset in order_props.pop("assets") or []:
         if asset["id"] in wallets:
@@ -178,6 +265,8 @@ def crawl_order(
                 context,
                 wallets[asset["id"]],
                 order,
+                document_urls,
+                descriptions,
                 operatives,
                 orgs,
             )
@@ -192,6 +281,10 @@ def crawl_order(
             # Also given on the wallets, but the order lists holders of all
             # seized assets
             *WALLET_HOLDER_PROPS,
+            # Flags an order which corrects an earlier one. What it corrects is
+            # given in correctionVersionName and previousSeizureOrders, which
+            # are still audited and will warn once the source populates them.
+            "isCorrectionVersion",
         ],
     )
 
