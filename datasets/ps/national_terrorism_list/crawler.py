@@ -15,6 +15,8 @@ SCRIPT_LANGS = {"بالعبرية": "heb", "بالإنجليزية": "eng"}
 SCRIPT_MARKER = re.compile(rf"\s*،?\s*({'|'.join(SCRIPT_LANGS)})\s*:?\s*")
 # "…، الأصل/ الولايات المتحدة" - country of origin attached to parent names
 ORIGIN_SUFFIX = re.compile(r"،\s*(الأصل|الاصل)\s*/.*$")
+# Address cells that name more than one place or carry other notes
+ADDRESS_MARKERS = ["لبيانات", "يتواجد", "يقيم", "يسكن", "حالياً", "الكيان المرتبط"]
 
 
 def split_scripts(text: str) -> dict[str, str]:
@@ -93,9 +95,12 @@ def crawl_person(
     address_res = context.lookup("address", raw_address)
     for address in [raw_address] if address_res is None else address_res.values:
         # "وفقا لبيانات اخرى" ("according to other data") introduces an alternative
-        # address, "الكيان المرتبط" ("affiliated entity") a misplaced affiliation.
+        # address, "يتواجد" ("stays at"), "يقيم"/"يسكن" ("lives") and "حالياً"
+        # ("currently") a second place of residence, "الكيان المرتبط" ("affiliated
+        # entity") a misplaced affiliation. Hebrew is a duplicate place name.
         if address is not None and (
-            "لبيانات" in address or "الكيان المرتبط" in address
+            any(m in address for m in ADDRESS_MARKERS)
+            or "Hebrew" in text_scripts(address)
         ):
             context.log.warning("Address needs a lookup", address=address)
         h.copy_address(person, h.make_address(context, full=address, lang="ara"))
