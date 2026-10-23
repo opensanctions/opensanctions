@@ -1,0 +1,92 @@
+title: Yemen Members of the House of Representatives
+name: ye_house_representatives
+prefix: ye-hor
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-23
+load_statements: true
+ci_test: false
+summary: >-
+  Members and presiding officers of Yemen's elected chamber of parliament
+description: |
+  Members of the House of Representatives (Majlis al-Nuwwab) of the
+  Republic of Yemen. Its 301 members are elected by majority vote in
+  single-member constituencies, and the house holds the country's legislative
+  power, including passing laws, approving the budget and overseeing the
+  government. The members elected in 2003 continue to sit, as the term has been
+  extended repeatedly since 2009 in the absence of new elections.
+
+  The source is not updated when members die or leave office, so it can list former
+  members. The Speaker and Deputy Speakers are included alongside the members.
+url: https://parliament-ye.com/index.php/category/members-of-parliament/
+publisher:
+  name: مجلس النواب اليمني
+  name_en: House of Representatives of Yemen
+  description: >
+    The House of Representatives is the elected lower house of Yemen's
+    parliament. This website is maintained by the House under Speaker Sultan
+    al-Barakani, aligned with the internationally recognised government and the
+    Presidential Leadership Council.
+  url: https://parliament-ye.com/
+  country: ye
+  official: true
+data:
+  url: https://parliament-ye.com/index.php/wp-json/wp/v2/posts?categories=468&per_page=100
+  format: JSON
+  lang: ara
+
+tags:
+  - list.pep
+
+lookups:
+  # Profile labels -> English keys.
+  columns:
+    options:
+      - match: "إسم العضو:" # member name
+        value: name
+      - match: "الكتلة السياسية:" # political bloc
+        value: political_bloc
+      - match: "الدائرة الإنتخابية:" # electoral constituency
+        value: constituency
+      - match: "المحافظة:" # governorate
+        value: governorate
+      - match: "اللجنة المشارك فيها:" # committee
+        value: committee
+      - match: "الصفة في اللجنة:" # role in committee
+        value: committee_role
+      - match: "المؤهلات العلمية:" # education
+        value: education
+  # Committee role -> positions held; presiding officers keep their seat.
+  position:
+    required: true
+    options:
+      - match:
+          - عضواً
+          - مقررا
+          - رئيساً
+          - ""
+        value: Member of the House of Representatives of Yemen
+      - match: رئيس مجلس النواب
+        values:
+          - Speaker of the House of Representatives of Yemen
+          - Member of the House of Representatives of Yemen
+      - match:
+          - نائب رئيس المجلس للشئون التشريعية والرقابية
+          - نائب رئيس مجلس النواب للشؤون التنظيمية والفنية
+          - نائب رئيس مجلس النواب للشؤون البرلمانية العلاقات الخارجية
+        values:
+          - Deputy Speaker of the House of Representatives of Yemen
+          - Member of the House of Representatives of Yemen
+
+assertions:
+  min:
+    schema_entities:
+      Person: 260
+      Position: 3
+    country_entities:
+      ye: 260
+  max:
+    schema_entities:
+      Person: 320
+      Position: 3
