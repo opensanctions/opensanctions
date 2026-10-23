@@ -138,9 +138,8 @@ candidate_table = Table(
 )
 
 
-# One captured web page: the persisted form of a Pravda ``Snapshot``
-# value. The id and timestamp are minted at capture by Pravda, so
-# inserts always pass them explicitly; no insert path can omit them.
+# One captured web page. The id and captured_at are minted at capture
+# by Pravda, so the columns have no defaults.
 snapshot_table = Table(
     "snapshot",
     meta,

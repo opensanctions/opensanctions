@@ -47,7 +47,7 @@ from zavod.shed.funes.outline import build_outline, har_resource_media_types
 from zavod.shed.funes.page import build_prompt, metadata_from_html
 
 Capture = Callable[[str], Awaitable[Snapshot]]
-"""The capture seam: one fresh Pravda snapshot per candidate URL."""
+"""One fresh Pravda snapshot per candidate URL."""
 
 ReadResource = Callable[[str], Awaitable[bytes]]
 """Artifact read access for one capture's storage backend."""
@@ -55,7 +55,7 @@ ReadResource = Callable[[str], Awaitable[bytes]]
 
 @dataclass(frozen=True)
 class FunesRuntime:
-    """Process-level runner configuration, loaded from zavod settings."""
+    """Process-level runner configuration."""
 
     browser_ws_url: str
     storage_base_path: str
@@ -64,7 +64,6 @@ class FunesRuntime:
 
 
 def load_runtime() -> FunesRuntime:
-    """The runner's runtime settings; unset configuration is an error."""
     browser_ws_url = settings.PRAVDA_BROWSER_WS_URL
     if browser_ws_url is None:
         raise ConfigurationException("No $PRAVDA_BROWSER_WS_URL provided.")
@@ -144,8 +143,7 @@ async def _inspect_candidate(
     context.log.info("Capturing", url=url)
     snapshot = await capture(url)
     # Failed captures are evidence too: they arrive with ``error`` set
-    # and no artifacts, and persist like any other snapshot. The
-    # dataclass fields mirror the table's columns one-to-one.
+    # and no artifacts, and persist like any other snapshot.
     context.db.execute(insert(snapshot_table).values(**asdict(snapshot)))
 
     issue = inspectability_issue(snapshot)

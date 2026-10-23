@@ -23,7 +23,7 @@ timing concerns multiply, move it to the config object."""
 
 @dataclass(frozen=True)
 class DueCandidate:
-    """One candidate due for an inspection run, with its subject name."""
+    """One candidate due for an inspection run."""
 
     candidate_id: uuid.UUID
     url: str
