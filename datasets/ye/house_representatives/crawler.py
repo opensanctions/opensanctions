@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from lxml import html
 from normality import squash_spaces
 from zavod.shed.trans import apply_translit_full_name
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import OccupancyStatus, categorise
 from zavod.util import LangText
 
 from zavod import Context
@@ -19,7 +19,7 @@ POSITION_QIDS = {
 }
 
 
-def crawl_row(
+def crawl_person(
     context: Context, post: dict[str, Any], row: dict[str, str | None]
 ) -> None:
     person = context.make("Person")
@@ -29,23 +29,17 @@ def crawl_row(
     person.add("name", name)
     apply_translit_full_name(context, person, LangText(name, "ara"))
     # The post title is sometimes a shorter form of the name.
-    title = squash_spaces(post["title"]["rendered"])
-    if title != name:
-        person.add("alias", title)
+    alias = squash_spaces(post["title"]["rendered"])
+    if alias != name:
+        person.add("alias", alias)
     person.add("political", row.pop("political_bloc"))
-    # The Speaker's profile has no education row.
     person.add("education", row.pop("education"))
     person.add("sourceUrl", post["link"])
-    # Representatives must be Yemeni: Constitution of Yemen, Art. 64(2).
-    # https://www.constituteproject.org/constitution/Yemen_2015
     person.add("citizenship", "ye")
 
-    number = row.pop("constituency")
-    governorate = row.pop("governorate")
-    if number is None:
-        constituency = governorate
-    else:
-        constituency = f"الدائرة {number} - {governorate}"
+    # One profile has no constituency number, only the governorate.
+    parts = [row.pop("constituency"), row.pop("governorate")]
+    constituency = " - ".join(p for p in parts if p is not None)
 
     res = context.lookup("position", row.pop("committee_role"))
     assert res is not None
@@ -65,12 +59,10 @@ def crawl_row(
             context,
             person,
             position,
-            # The 2003 general election; the term has been extended since.
-            period_start="2003-04-27",
-            # The roster still lists members who have died, so a listing does
-            # not prove a member is still in office.
-            no_end_implies_current=False,
             categorisation=categorisation,
+            # The roster gives no dates and still lists members who have died,
+            # so a listing does not prove a member is still in office.
+            status=OccupancyStatus.UNKNOWN,
         )
         if occupancy is None:
             continue
@@ -79,11 +71,23 @@ def crawl_row(
         context.emit(position)
         context.emit(person)
 
-    context.audit_data(
-        row,
-        # The committee seat has no FollowTheMoney property.
-        ignore=["committee"],
-    )
+    context.audit_data(row, ignore=["committee"])
+
+
+def crawl_post(context: Context, post: dict[str, Any]) -> None:
+    if NEWS_CATEGORY in post["categories"]:
+        return
+    # Each profile is a table of label/value rows; a blank field omits its
+    # value cell. Unknown labels stay in Arabic and fail the audit.
+    doc = html.fromstring(post["content"]["rendered"])
+    table = h.xpath_element(doc, ".//table")
+    row: dict[str, str | None] = {}
+    for tr in h.xpath_elements(table, ".//tr"):
+        label, *value = [h.element_text(td) for td in tr.findall("td")]
+        assert len(value) <= 1, (label, value)
+        key = context.lookup_value("columns", label, warn_unmatched=True) or label
+        row[key] = value[0] if value else None
+    crawl_person(context, post, row)
 
 
 def crawl(context: Context) -> None:
@@ -96,18 +100,6 @@ def crawl(context: Context) -> None:
     while fetched < total:
         posts = context.fetch_json(context.data_url, params={"page": page})
         for post in posts:
-            if NEWS_CATEGORY in post["categories"]:
-                continue
-            # Each profile is a table of label/value rows; a blank field omits
-            # its value cell. Unknown labels stay in Arabic and fail the audit.
-            doc = html.fromstring(post["content"]["rendered"])
-            table = h.xpath_element(doc, ".//table")
-            row: dict[str, str | None] = {}
-            for tr in h.xpath_elements(table, ".//tr"):
-                label, *value = [h.element_text(td) for td in tr.findall("td")]
-                assert len(value) <= 1, (label, value)
-                key = context.lookup_value("columns", label) or label
-                row[key] = value[0] if value else None
-            crawl_row(context, post, row)
+            crawl_post(context, post)
         fetched += len(posts)
         page += 1

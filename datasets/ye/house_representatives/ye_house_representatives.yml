@@ -7,7 +7,7 @@
 # The member category also holds the odd news story; those posts are skipped by
 # their news category (491).
 title: Yemen Members of the House of Representatives
-name: ye_house_of_representatives
+name: ye_house_representatives
 prefix: ye-hor
 entry_point: crawler.py
 coverage:
@@ -25,8 +25,8 @@ description: |
   government. The members elected in 2003 continue to sit, as the term has been
   extended repeatedly since 2009 in the absence of new elections.
 
-  The source is not updated when members die or leave office, so it can list
-  former members. The Speaker and Deputy Speakers are included alongside the members.
+  The source is not updated when members die or leave office, so it can list former
+  members. The Speaker and Deputy Speakers are included alongside the members.
 url: https://parliament-ye.com/index.php/category/members-of-parliament/
 publisher:
   name: مجلس النواب اليمني
