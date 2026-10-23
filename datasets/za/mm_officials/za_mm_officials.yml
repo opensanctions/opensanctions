@@ -40,6 +40,10 @@ assertions:
       Person: 800
 
 lookups:
+  type.name:
+    options:
+      - match: Khulekani Wesley Grant Ngcobo (Acting MM
+        value: Khulekani Wesley Grant Ngcobo
   type.email:
     lowercase: true
     options:
