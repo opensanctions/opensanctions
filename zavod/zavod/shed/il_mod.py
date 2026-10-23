@@ -35,6 +35,9 @@ PLACEHOLDERS = {
 }
 
 Item = dict[str, Any]
+# An item's [en, he, ar] culture variants. Some items are missing from the
+# Arabic culture.
+LanguageVariants = tuple[Item, Item, Item | None]
 
 
 def fetch_content(context: Context, content_type: str, lang: str) -> dict[str, Item]:
@@ -62,12 +65,13 @@ def fetch_content(context: Context, content_type: str, lang: str) -> dict[str, I
     return items
 
 
-def fetch_variants(context: Context, content_type: str) -> dict[str, list[Item]]:
-    """Fetch all items of a content type, each as a list of its [en, he, ar]
-    culture variants, keyed by item ID."""
+def fetch_variants(context: Context, content_type: str) -> dict[str, LanguageVariants]:
+    """Fetch all items of a content type, each with its [en, he, ar] culture
+    variants, keyed by item ID."""
     by_lang = {lang: fetch_content(context, content_type, lang) for lang in LANGS}
     return {
-        item_id: [by_lang[lang][item_id] for lang in LANGS] for item_id in by_lang["en"]
+        item_id: (item, by_lang["he"][item_id], by_lang["ar"].get(item_id))
+        for item_id, item in by_lang["en"].items()
     }
 
 
@@ -85,7 +89,7 @@ def source_url(item: Item) -> str:
 
 
 def drop_fallbacks(
-    variants: list[Item], prop: str
+    variants: LanguageVariants, prop: str
 ) -> tuple[str | None, str | None, str | None]:
     """Names in [en, he, ar], dropping copies from another language.
 
@@ -96,7 +100,9 @@ def drop_fallbacks(
 
     Do not clean anything else here - we use raw values for making IDs.
     Do further cleaning after make_id."""
-    name_en, name_he, name_ar = [item["properties"][prop] for item in variants]
+    name_en, name_he, name_ar = [
+        None if item is None else item["properties"][prop] for item in variants
+    ]
     if name_en == name_he:
         if HEBREW.search(name_he or "") is not None:
             name_en = None
@@ -107,8 +113,10 @@ def drop_fallbacks(
     return name_en, name_he, name_ar
 
 
-def apply_aliases(entity: Entity, variants: list[Item], prop: str) -> None:
+def apply_aliases(entity: Entity, variants: LanguageVariants, prop: str) -> None:
     for item, lang in zip(variants, LANGS.values()):
+        if item is None:
+            continue
         for alias in item["properties"][prop] or []:
             entity.add("alias", h.multi_split(alias, SPLITS), lang=lang)
 
