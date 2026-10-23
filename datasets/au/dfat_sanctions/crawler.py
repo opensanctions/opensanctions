@@ -1,8 +1,7 @@
 import string
 import zipfile
 from collections import defaultdict
-from datetime import date as date_type
-from datetime import datetime
+from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -52,7 +51,7 @@ PROVISION_FIELDS = [
 # (they're interrupted by other entries).
 
 
-def clean_date(date: str) -> list[str]:
+def clean_date(value: str | int | date | None) -> list[str]:
     splits = [
         "Approximately",
         ", and,",
@@ -64,20 +63,20 @@ def clean_date(date: str) -> list[str]:
         "\xa0",
         # " ",
     ]
-    dates = []
-    date_str = str(date).lower()
+    dates: list[str] = []
+    date_str = str(value).lower()
     if " to " in date_str or "between" in date_str:
         return [date_str]
-    if isinstance(date, datetime):
-        date = date.date()
-    if isinstance(date, date_type):
-        date = date.isoformat()
-    if isinstance(date, int):
-        date = str(date)
-    if date is None:
+    if value is None:
         return dates
-    date = date.replace("\n", " ")
-    for part in h.multi_split(date, splits):
+    if isinstance(value, datetime):
+        value = value.date()
+    if isinstance(value, date):
+        value = value.isoformat()
+    elif isinstance(value, int):
+        value = str(value)
+    value = value.replace("\n", " ")
+    for part in h.multi_split(value, splits):
         part = part.strip().strip(",")
         if not len(part):
             continue
@@ -176,7 +175,7 @@ def parse_reference(
         if notes:
             entity.add("notes", (note.replace("_x000D_", "") for note in notes))
         listing_info = row.pop("listing_information")
-        if isinstance(listing_info, date_type):
+        if isinstance(listing_info, date):
             h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
