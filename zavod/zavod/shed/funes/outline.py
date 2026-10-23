@@ -21,6 +21,7 @@ Example::
 
 import json
 from collections.abc import Iterator
+from dataclasses import dataclass
 from typing import Any
 from urllib.parse import quote, urldefrag, urljoin
 
@@ -194,23 +195,32 @@ def har_resource_media_types(http_archive: dict[str, Any] | None) -> dict[str, s
     beacons routinely respond without a Content-Type.
     """
     media: dict[str, str] = {}
-    for _url, file, content in _stored_bodies(http_archive):
-        media_type = _normalized_media_type(content.get("mimeType"))
+    for body in _stored_bodies(http_archive):
+        media_type = _normalized_media_type(body.content.get("mimeType"))
         if media_type is not None:
-            media[file] = media_type
+            media[body.file] = media_type
     return media
+
+
+@dataclass(frozen=True)
+class StoredBody:
+    """One HAR response with a body stored in the snapshot artifacts."""
+
+    url: str
+    file: str
+    content: dict[str, Any]
 
 
 def _stored_bodies(
     http_archive: dict[str, Any] | None,
-) -> Iterator[tuple[str, str, dict[str, Any]]]:
+) -> Iterator[StoredBody]:
     if http_archive is None:
         return
     for entry in http_archive["log"]["entries"]:
         content = entry["response"]["content"]
         file = content.get("_file")
         if file:
-            yield entry["request"]["url"], file, content
+            yield StoredBody(entry["request"]["url"], file, content)
 
 
 def _normalized_media_type(mime_type: str | None) -> str | None:
@@ -230,8 +240,8 @@ def _har_bodies(http_archive: dict[str, Any] | None) -> dict[str, str]:
     """The latest entry with a stored body wins; bodyless entries never
     shadow an earlier body for the same URL."""
     bodies: dict[str, str] = {}
-    for url, file, _content in _stored_bodies(http_archive):
-        bodies[url] = file
+    for body in _stored_bodies(http_archive):
+        bodies[body.url] = body.file
     return bodies
 
 
