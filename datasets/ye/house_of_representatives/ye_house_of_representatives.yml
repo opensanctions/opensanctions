@@ -14,6 +14,7 @@ coverage:
   frequency: monthly
   start: 2026-10-23
 load_statements: true
+ci_test: false
 summary: >-
   Members and presiding officers of Yemen's elected chamber of parliament
 description: |
@@ -24,10 +25,8 @@ description: |
   government. The members elected in 2003 continue to sit, as the term has been
   extended repeatedly since 2009 in the absence of new elections.
 
-  The roster covers all members of the 2003 house, including those who sit in
-  the rival Sanaa-based house under Houthi control. It is not updated when
-  members die or leave office, so it can list former members. The Speaker and
-  Deputy Speakers are included alongside the members.
+  The source is not updated when members die or leave office, so it can list
+  former members. The Speaker and Deputy Speakers are included alongside the members.
 url: https://parliament-ye.com/index.php/category/members-of-parliament/
 publisher:
   name: مجلس النواب اليمني
@@ -49,6 +48,23 @@ tags:
   - list.pep
 
 lookups:
+  # Profile table labels -> English keys used by the crawler.
+  columns:
+    options:
+      - match: "إسم العضو:" # member name
+        value: name
+      - match: "الكتلة السياسية:" # political bloc
+        value: political_bloc
+      - match: "الدائرة الإنتخابية:" # electoral constituency
+        value: constituency
+      - match: "المحافظة:" # governorate
+        value: governorate
+      - match: "اللجنة المشارك فيها:" # committee
+        value: committee
+      - match: "الصفة في اللجنة:" # role in committee
+        value: committee_role
+      - match: "المؤهلات العلمية:" # education
+        value: education
   # "Role in committee" -> positions held. Committee posts (member, rapporteur,
   # chair) confer no separate position; the presidium roles name the Speaker and
   # Deputy Speakers, who keep their member seats. Blank on two profiles.

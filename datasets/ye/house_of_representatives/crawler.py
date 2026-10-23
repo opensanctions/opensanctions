@@ -1,8 +1,11 @@
 from typing import Any
+from urllib.parse import urljoin
 
 from lxml import html
 from normality import squash_spaces
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import categorise
+from zavod.util import LangText
 
 from zavod import Context
 from zavod import helpers as h
@@ -18,6 +21,7 @@ POSITION_QIDS = {
 
 def crawl_post(context: Context, post: dict[str, Any]) -> None:
     if NEWS_CATEGORY in post["categories"]:
+        print(post)
         return
     doc = html.fromstring(post["content"]["rendered"])
     table = h.xpath_element(doc, ".//table")
@@ -25,33 +29,37 @@ def crawl_post(context: Context, post: dict[str, Any]) -> None:
     for tr in h.xpath_elements(table, ".//tr"):
         cells = [h.element_text(td) for td in h.xpath_elements(tr, "./td")]
         assert len(cells) in (1, 2), cells
+        # Map the Arabic labels to English keys; unknown ones fail the audit.
+        key = context.lookup_value("columns", cells[0], cells[0]) or cells[0]
         # A profile with a blank field omits its value cell.
-        row[cells[0]] = cells[1] if len(cells) == 2 else None
+        row[key] = cells[1] if len(cells) == 2 else None
 
     person = context.make("Person")
-    person.id = context.make_slug(str(post["id"]))
-    name = row.pop("إسم العضو:")
+    person.id = context.make_slug(post["id"])
+    name = row.pop("name")
+    assert name is not None, post["id"]
     person.add("name", name)
+    apply_translit_full_name(context, person, LangText(name, "ara"))
     # The post title is sometimes a shorter form of the name.
     title = squash_spaces(post["title"]["rendered"])
     if title != name:
         person.add("alias", title)
-    person.add("political", row.pop("الكتلة السياسية:"))
+    person.add("political", row.pop("political_bloc"))
     # The Speaker's profile has no education row.
-    person.add("education", row.pop("المؤهلات العلمية:", None))
+    person.add("education", row.pop("education"))
     person.add("sourceUrl", post["link"])
     # Representatives must be Yemeni: Constitution of Yemen, Art. 64(2).
     # https://www.constituteproject.org/constitution/Yemen_2015
     person.add("citizenship", "ye")
 
-    number = row.pop("الدائرة الإنتخابية:")
-    governorate = row.pop("المحافظة:")
+    number = row.pop("constituency")
+    governorate = row.pop("governorate")
     if number is None:
         constituency = governorate
     else:
         constituency = f"الدائرة {number} - {governorate}"
 
-    res = context.lookup("position", row.pop("الصفة في اللجنة:"))
+    res = context.lookup("position", row.pop("committee_role"))
     assert res is not None
     for title in res.values:
         position = h.make_position(
@@ -86,18 +94,20 @@ def crawl_post(context: Context, post: dict[str, Any]) -> None:
     context.audit_data(
         row,
         # The committee seat has no FollowTheMoney property.
-        ignore=["اللجنة المشارك فيها:"],
+        ignore=["committee"],
     )
 
 
 def crawl(context: Context) -> None:
+    # WordPress rejects a page past the last one, so stop once we have fetched
+    # as many posts as the category holds.
+    total = context.fetch_json(urljoin(context.data_url, "categories/468"))["count"]
+    assert total is not None
+    fetched = 0
     page = 1
-    while True:
-        # WordPress rejects a page past the last one, so read the page count from
-        # the response headers rather than waiting for a short page.
-        response = context.fetch_response(f"{context.data_url}&page={page}")
-        for post in response.json():
+    while fetched < total:
+        posts = context.fetch_json(context.data_url, params={"page": page})
+        for post in posts:
             crawl_post(context, post)
-        if page >= int(response.headers["X-WP-TotalPages"]):
-            break
+        fetched += len(posts)
         page += 1
