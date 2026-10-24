@@ -13,7 +13,10 @@ def crawl(context: Context) -> None:
             for name in zf.namelist():
                 if not name.endswith(".json"):
                     continue
-                tmpfile = zf.extract(name, path=tmpdir)
-                with open(tmpfile, "rb") as fh:
+                target = os.path.join(tmpdir, name)
+                if os.path.commonpath([tmpdir, os.path.abspath(target)]) != os.path.abspath(tmpdir):
+                    raise ValueError(f"Unsafe path in archive: {name}")
+                zf.extract(name, path=tmpdir)
+                with open(target, "rb") as fh:
                     parse_bods_fh(context, fh)
                 os.unlink(tmpfile)
