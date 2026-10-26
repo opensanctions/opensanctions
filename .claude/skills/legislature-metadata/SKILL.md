@@ -72,7 +72,7 @@ unchanged). If it is already `monthly`, leave it.
 
 Re-read the edited fields. Confirm any constitutional fact you stated against a source,
 any scope note reflects what the crawler actually does, and no sourcing, mechanics,
-per-field language or crawled counts remain.
+or per-field language remains.
 
 If the user asked for a full metadata pass, continue with the `/dataset-metadata`
 checklist for the remaining fields.
