@@ -1,5 +1,5 @@
 import re
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -50,13 +50,13 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("list.xlsx", excel_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
 
     entity = None
     sanction = None
     current_alias = []
-    assert wb.active is not None
-    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active):
+    for item in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         name = item.get("terminated_excluded_provider_s")
         if name and REGEX_AKA.match(name):
             current_alias.append(REGEX_AKA.sub("", name))
