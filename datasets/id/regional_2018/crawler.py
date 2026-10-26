@@ -1,6 +1,6 @@
 import re
 from typing import Any
-import openpyxl
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -79,9 +79,9 @@ def crawl_pair(
 def crawl(context: Context) -> None:
     path = context.fetch_resource("individuals.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook = openpyxl.load_workbook(path, read_only=True)
-    for row in h.parse_xlsx_sheet_openpyxl(
-        context, workbook["Pemilihan Gubernur"], skiprows=3
+    workbook = CalamineWorkbook.from_path(path)
+    for row in h.parse_xlsx_sheet(
+        context, workbook.get_sheet_by_name("Pemilihan Gubernur"), skiprows=3
     ):
         crawl_pair(
             context,
@@ -94,8 +94,10 @@ def crawl(context: Context) -> None:
             ["gov.executive", "gov.state"],
         )
 
-    for row in h.parse_xlsx_sheet_openpyxl(
-        context, workbook["Pemilihan Bupati atau Walikota"], skiprows=3
+    for row in h.parse_xlsx_sheet(
+        context,
+        workbook.get_sheet_by_name("Pemilihan Bupati atau Walikota"),
+        skiprows=3,
     ):
         crawl_pair(
             context,
