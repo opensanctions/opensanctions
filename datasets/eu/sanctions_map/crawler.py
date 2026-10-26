@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 from typing import Any
 
-import openpyxl
+from python_calamine import CalamineWorkbook
 
 from zavod import Context
 from zavod import helpers as h
@@ -137,15 +137,11 @@ def crawl_regime(context: Context) -> None:
 
 def crawl_vessels(context: Context) -> None:
     path = context.fetch_resource("vessels.xlsx", VESSELS_URL)
-    # read_only is not just an optimisation here: the full parser silently discards
-    # any row containing a cached formula error, and dozens of rows have #REF! dates.
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(
-        path, read_only=True, data_only=True
-    )
-    assert workbook.sheetnames == ["Sheet1"]
-    for row in h.parse_xlsx_sheet_openpyxl(
+    workbook = CalamineWorkbook.from_path(path)
+    assert workbook.sheet_names == ["Sheet1"], workbook.sheet_names
+    for row in h.parse_xlsx_sheet(
         context,
-        sheet=workbook["Sheet1"],
+        sheet=workbook.get_sheet_by_name("Sheet1"),
         header_lookup=context.get_lookup("vessel_columns"),
     ):
         name = row.pop("vessel_name")
