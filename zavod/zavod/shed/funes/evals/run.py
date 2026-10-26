@@ -5,11 +5,12 @@ models when loaded; fixtures are fictional pages structurally equivalent to
 real captures. Unlike the pytest suite, this hits a real model and costs tokens —
 run it deliberately, with the zavod virtualenv active:
 
-    python -m zavod.shed.funes.evals.run [--dataset PATH] [--model NAME]
-        [--case NAME ...]
+    python -m zavod.shed.funes.evals.run [--dataset PATH] [--case NAME ...]
 
-``--model`` defaults to $FUNES_MODEL; the thinking level always comes from
-$FUNES_THINKING, so evals judge the agent exactly as the runner configures it.
+The model ($FUNES_MODEL) and thinking level ($FUNES_THINKING) always come
+from the environment, so evals judge the agent exactly as the runner
+configures it.
+
 Exit status is nonzero when a case fails, raises, or an evaluator crashes.
 """
 
@@ -37,11 +38,6 @@ def main() -> int:
         "--dataset", type=Path, default=DEFAULT_DATASET, help="dataset YAML file"
     )
     parser.add_argument(
-        "--model",
-        default=None,
-        help="model id (provider:model); defaults to $FUNES_MODEL",
-    )
-    parser.add_argument(
         "--case",
         action="append",
         default=[],
@@ -49,9 +45,8 @@ def main() -> int:
         help="run only this case; may be supplied more than once",
     )
     args = parser.parse_args()
-    model = args.model or settings.FUNES_MODEL
-    if model is None:
-        raise ConfigurationException("No --model given and no $FUNES_MODEL provided.")
+    if settings.FUNES_MODEL is None:
+        raise ConfigurationException("No $FUNES_MODEL provided.")
     if settings.FUNES_THINKING is None:
         raise ConfigurationException("No $FUNES_THINKING provided.")
 
@@ -67,10 +62,10 @@ def main() -> int:
     report = dataset.evaluate_sync(
         partial(
             extract,
-            model=model,
+            model=settings.FUNES_MODEL,
             thinking=cast(ThinkingEffort, settings.FUNES_THINKING),
         ),
-        name=f"inspection:{model}",
+        name=f"inspection:{settings.FUNES_MODEL}",
         progress=False,
     )
     report.print(
