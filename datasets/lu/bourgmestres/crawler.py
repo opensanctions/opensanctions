@@ -1,6 +1,6 @@
 from typing import Any
 
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -93,8 +93,8 @@ def crawl(context: Context) -> None:
 
     path = context.fetch_resource("source.xlsx", xlsx_resource["url"])
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
     # The sheet name carries the upload date (e.g. "Schäfferot20261014").
-    assert len(workbook.worksheets) == 1, workbook.sheetnames
-    for record in h.parse_xlsx_sheet_openpyxl(context, workbook.worksheets[0]):
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    for record in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         crawl_record(context, record)
