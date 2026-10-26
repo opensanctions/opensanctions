@@ -33,6 +33,7 @@ KEEP_HEADINGS = {
 REGEX_POSITIONISH = re.compile(
     r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
 )
+REGEX_TERM_HEADING = re.compile(r"^(\d{4})[-–](\d{4}) Members$")
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
 HONORIFICS = ["Hon. ", "Hon ", "Ms. ", "Mr. ", "Mrs. ", "Sir ", "Dr. "]
 NAMES_ALLOW_LIST = ["A. Royston (Roy) Tatum", "Johany S. (Jay) Ebanks"]
@@ -47,7 +48,26 @@ def clean_name(context: Context, name: str) -> str:
     return name.strip()
 
 
-def crawl_card_2025(context: Context, position_str: str, el: Element) -> Entity | None:
+def parse_current_term(doc: Element) -> tuple[str, str]:
+    """Return the start and end year of the current term."""
+    terms: list[re.Match[str]] = []
+    for heading_el in h.xpath_elements(
+        doc, ".//div[@class='elementor-image-box-content']/h3"
+    ):
+        match = REGEX_TERM_HEADING.match(h.element_text(heading_el))
+        if match is not None:
+            terms.append(match)
+    assert len(terms) == 1, f"Expected one current term heading, found {len(terms)}"
+    return terms[0].group(1), terms[0].group(2)
+
+
+def crawl_card(
+    context: Context,
+    position_str: str,
+    el: Element,
+    period_start: str,
+    period_end: str,
+) -> Entity | None:
     content_el = h.xpath_element(el, ".//div[@class='member-select-content']")
     links_el = h.xpath_element(el, ".//div[@class='member-select-links']")
     name = clean_name(context, h.xpath_string(content_el, "./h1/text()"))
@@ -83,8 +103,8 @@ def crawl_card_2025(context: Context, position_str: str, el: Element) -> Entity 
         context,
         entity,
         position,
-        period_start="2025",
-        period_end="2029",
+        period_start=period_start,
+        period_end=period_end,
         categorisation=categorisation,
     )
     constituency = h.xpath_strings(
@@ -143,9 +163,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
-    # crawl_card assumes 2025-2029 members are current
-    # update  period_start and period_end in crawl_card if this changes
-    assert "2025-2029 Members" in h.xpath_strings(doc, ".//h3/text()")
+    period_start, period_end = parse_current_term(doc)
     expected_current_member_count = 22
     current_member_count = 0
     heading = None
@@ -169,7 +187,7 @@ def crawl(context: Context) -> None:
             for el in h.xpath_elements(
                 section, ".//div[contains(@class, 'member-select-main')]"
             ):
-                if crawl_card_2025(context, heading, el):
+                if crawl_card(context, heading, el, period_start, period_end):
                     current_member_count += 1
     if current_member_count < 20:
         context.log.warning(
