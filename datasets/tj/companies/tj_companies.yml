@@ -69,6 +69,13 @@ lookups:
       Полное название: name
       Дата ре-гистрации: date_of_reg
       Статус: status
+  type.name:
+    options:
+      # The source uses straight double quotes to delimit organisation names
+      # (48k of 53k names); this single record types them as << >> instead,
+      # which trips the HTML/XSS smell detector.
+      - match: Муассисаи Давлати <<Маркази Ҷумҳуриявии Пешгири ва Мубориза Бар Зидди Бемории ВНМО>>
+        value: 'Муассисаи Давлати "Маркази Ҷумҳуриявии Пешгири ва Мубориза Бар Зидди Бемории ВНМО"'
   type.date:
     options:
       - match:
