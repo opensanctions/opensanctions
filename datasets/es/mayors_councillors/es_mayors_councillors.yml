@@ -8,10 +8,12 @@ coverage:
 summary: >
   Individuals holding mayoral or municipal councillor positions in Spain.
 description: |
-  This dataset contains information on individuals currently serving as mayors or councillors
-  in Spanish municipalities. It includes their names, roles, political affiliations, and
-  relevant administrative details. The dataset reflects current officeholders and includes
-  historical data from the 2019–2023 municipal term.
+  Mayors (alcaldes) and councillors (concejales) of Spain's municipalities. Municipal
+  councils are elected for four-year terms in nationwide local elections, and each
+  council elects the mayor from among its members.
+
+  Covers the councillors and mayors of the current municipal term, as well as the mayors
+  of the preceding term.
 publisher:
   name: Ministerio de Política Territorial y Memoria Democrática
   name_en: Ministry of Territorial Policy and Democratic Memory

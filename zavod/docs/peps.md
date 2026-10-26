@@ -244,7 +244,9 @@ source is actively maintained and can be trusted to drop departed office-holders
 
 Let `make_occupancy` derive the `status` from these dates; do not pass `status="ended"`
 yourself when you have an end date. Override `status` only when the source states that a
-mandate is current or ended but gives no date to derive it from.
+mandate is current or ended but gives no date to derive it from. An explicit `status` also
+skips the age-out and death checks, so the occupancy is emitted for as long as the source
+lists it.
 
 ### Only emit if the person is a PEP
 
@@ -332,6 +334,22 @@ Two mechanisms divide the labor:
 Date each occupancy as described in [Creating occupancies](#creating-occupancies). Whole-term
 archives are the typical case for `periodStart`/`periodEnd` (the same term bounds applied to
 everyone who served), while a source giving per-person dates uses `startDate`/`endDate`.
+
+### Term dates
+
+Take term dates from what the source publishes, such as a heading, file name, caption or
+profile line, never from literals or per-term tables in the crawler: those silently
+mislabel the next term's members. A frozen single-term snapshot (`frequency: never`) is
+exempt. Where several parts of the source describe the current term, cross-check them so
+a site that is mid-transition fails the run. Emit an end date only when the source states
+it or the next term's start implies it.
+
+When the source lists terms without dating them, emit the newest with no dates, so it
+resolves to `current`. Emit earlier terms with `status=OccupancyStatus.ENDED`, or with a
+`periodEnd` taken from the next term's start where that is dated. Undated `ended`
+occupancies never age out, so bound the number of terms crawled by the after-office window
+and term length, stating the reasoning in a comment. Also cap how many trailing terms may
+be undated, so that a source losing its dates fails the run.
 
 ## Relatives and close associates
 

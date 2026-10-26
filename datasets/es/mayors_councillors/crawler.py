@@ -1,3 +1,5 @@
+import re
+
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -20,6 +22,12 @@ IGNORE = [
 DEFAULT_TOPICS = ["gov.muni"]
 MAYOR_TOPICS = ["gov.muni", "gov.executive"]
 COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
+# e.g. .../Alcaldes_Mandato_2019_2023.xlsx, one file per completed mandate
+MANDATE_FILE_RE = re.compile(r"Alcaldes_Mandato_(\d{4})_(\d{4})\.xlsx$")
+# e.g. "MAYORS AND COUNCILLORS BY MUNICIPALITY 2023-2027"
+CURRENT_TERM_RE = re.compile(r".* (\d{4})-(\d{4})$")
+# e.g. "Ficha de Concejales de la Legislatura 2023"
+CURRENT_TITLE_RE = re.compile(r"Ficha de Concejales de la Legislatura (\d{4})$")
 
 
 def crawl_item(
@@ -116,6 +124,7 @@ def process_excel(
     skiprows: int,
     period_start: str,
     period_end: str | None,
+    title_re: re.Pattern[str] | None = None,
 ) -> None:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, XLSX, title=title)
@@ -126,6 +135,16 @@ def process_excel(
             sheetnames=workbook.sheetnames,
         )
     sheet = workbook[workbook.sheetnames[0]]
+    if title_re is not None:
+        # Cross-check the term against the title in the rows above the header
+        title_years: set[str] = set()
+        for title_row in sheet.iter_rows(max_row=skiprows, values_only=True):
+            for cell in title_row:
+                if isinstance(cell, str):
+                    match = title_re.match(cell.strip())
+                    if match is not None:
+                        title_years.add(match.group(1))
+        assert title_years == {period_start}, (title_years, period_start)
     for row in h.parse_xlsx_sheet(
         context,
         sheet,
@@ -138,23 +157,39 @@ def process_excel(
 def crawl(context: Context) -> None:
     """Crawl Spanish mayors and councillors data from official sources."""
     assert context.dataset.model.url is not None
-    # Process historical mayors data (2019-2023)
-    hist_doc = context.fetch_html(
+    index_doc = context.fetch_html(
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
-    # Note: Once hist_url xpath fails on 2019_2023, check the dates in the process_excel calls below and update if needed
-    hist_url = h.xpath_string(
-        hist_doc,
-        ".//li[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href",
-    )
+    links = h.xpath_elements(index_doc, ".//li[@class='dnt-link-default']/a")
+    # Process historical mayors data from the latest completed mandate
+    mandates: dict[tuple[str, str], str] = {}
+    for link in links:
+        href = link.get("href")
+        assert href is not None, h.element_text(link)
+        match = MANDATE_FILE_RE.search(href)
+        if match is not None:
+            mandates[(match.group(1), match.group(2))] = href
+    assert len(mandates) > 0, "No mayoral mandate files found"
+    hist_start, hist_end = max(mandates)
+    # The current term is in the label of the link to the councillors application
+    current_links = [
+        link for link in links if "concejales.redsara.es" in link.get("href", "")
+    ]
+    assert len(current_links) == 1, current_links
+    current_label = h.element_text(current_links[0])
+    match = CURRENT_TERM_RE.match(current_label)
+    assert match is not None, current_label
+    current_start, current_end = match.group(1), match.group(2)
+    # Terms must be contiguous: the current term starts when the last completed one ends
+    assert current_start == hist_end, (hist_start, hist_end, current_start)
     process_excel(
         context=context,
         filename="historical.xlsx",
-        url=hist_url,
-        title="Mayors 2019-2023",
+        url=mandates[(hist_start, hist_end)],
+        title=f"Mayors {hist_start}-{hist_end}",
         skiprows=7,
-        period_start="2019",
-        period_end="2023",
+        period_start=hist_start,
+        period_end=hist_end,
     )
     # Process current mayors and councillors data
     current_doc = context.fetch_html(
@@ -169,6 +204,7 @@ def crawl(context: Context) -> None:
         url=current_url,
         title=context.SOURCE_TITLE,
         skiprows=5,
-        period_start="2023",
-        period_end="2027",
+        period_start=current_start,
+        period_end=current_end,
+        title_re=CURRENT_TITLE_RE,
     )
