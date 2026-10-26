@@ -2,7 +2,7 @@
 
 Remove a known set of honorific prefixes and post-nominal suffixes from source names with per-dataset configuration, without a human review.
 
-Many official sources publish names with titles attached: `Hon. Jane Doe, MP`, `Dr. John Smith`, `Sen. (Rtd) Amina Yusuf`. These titles are not part of the name and reduce match quality. Strip them with [`h.strip_name_titles`][zavod.helpers.strip_name_titles]. When a name needs the [name review system](../extract/names.md) instead is covered there.
+Many official sources publish names with titles attached: `Hon. Jane Doe, MP`, `Dr. John Smith`, `Sen. (Rtd) Amina Yusuf`. These titles are not part of the name. Where a few of them recur, strip them with [`h.strip_name_titles`][zavod.helpers.strip_name_titles].
 
 ## The pattern
 
@@ -31,6 +31,8 @@ original_name = raw_name if clean_name != raw_name else None
 person.add("name", clean_name, lang="eng", original_value=original_name)
 ```
 
+Keep the source form with `original_value` only when stripping changed the name; passing it when nothing was stripped records a redundant provenance entry.
+
 `datasets/ke/national_assembly/crawler.py` and `datasets/ke/senate/crawler.py` follow this idiom directly. `datasets/ug/parliament/crawler.py` shows the variant that feeds the cleaned string into [`h.apply_name`][zavod.helpers.apply_name]:
 
 ```python
@@ -55,14 +57,3 @@ Stripping is **iterative**: the helper peels one matching affix per pass and rep
 ```
 
 A bare word affix only matches at a **word boundary**. A prefix such as `Hon` must be followed by whitespace, so it does not truncate `Honorata`. An affix that ends in punctuation, such as `Hon.`, delimits itself. Thai, Lao, Khmer and Myanmar do not separate words with spaces, so affixes in these scripts match without whitespace: `นาย` strips from `นายสมชาย ใจดี`.
-
-## Preserve the original value
-
-When the cleaned name differs from the source string, keep the original on the statement with `original_value` so the source form stays traceable:
-
-```python
-original_name = raw_name if clean_name != raw_name else None
-person.add("name", clean_name, lang="eng", original_value=original_name)
-```
-
-Set `original_value` only when the strings differ. Passing the raw value when nothing was stripped records a redundant provenance entry.

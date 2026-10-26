@@ -78,8 +78,7 @@ final report and proceed.
 - Set every person property `make_occupancy` reads (`birthDate`, `deathDate`) before
   calling it, and emit the person after it — it adds `role.pep` to the person.
 - For judicial positions, also add `role.judge` to the person's topics.
-- Honorifics: `zavod/docs/best_practices/name_titles.md`. Other name cleaning:
-  `zavod/docs/extract/names.md`.
+- Honorifics: `zavod/docs/best_practices/name_titles.md`.
 
 ## Step 3: Validate
 

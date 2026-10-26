@@ -10,16 +10,16 @@ Clean, correctly categorised names are important to maximise recall (finding all
 
 While we've done this using simple, explainable logic for the most part, this leaves some noise or incorrectly-categorised names for a number of sources.
 
-When a source attaches honorific titles to names (`Hon.`, `Dr.`, `, MP`), strip the recurring ones deterministically rather than through review. See [stripping name prefixes and suffixes](../best_practices/name_titles.md).
-
-In most cases, the end goal is to use the [zavod.helpers.apply_reviewed_name_string][] or [zavod.helpers.apply_reviewed_names][] to
+The [zavod.helpers.apply_reviewed_name_string][] and [zavod.helpers.apply_reviewed_names][] helpers
 
 - determine whether names need cleaning
 - carry out some heuristic or llm-based cleaning
 - create a [Data Review](../data_reviews.md)
 - apply the cleaned or original names, depending on cleaning needs and review acceptance.
 
-New crawlers can use the most appropriate of the `apply_reviewed_...` helpers straight away.
+A new crawler uses them when its source's names show the kind of pollution described in [What's a dirty name?](#whats-a-dirty-name), as sanctions lists often do. Clean names there are what makes the data usable for screening transactions.
+
+Honorific titles attached to names (`Hon.`, `Dr.`, `, MP`) are handled separately, without review: see [stripping name prefixes and suffixes](../best_practices/name_titles.md).
 
 Existing crawlers which already do some splitting/cleaning can be [migrated to these helpers](#migrating-to-the-name-cleaning-helpers).
 

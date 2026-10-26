@@ -142,11 +142,10 @@ if h.is_active(sanction):
 
 ### Name handling in sanctions crawlers
 
-Full reference: `zavod/docs/extract/names.md`
-
-Sanctioned names are legal designations — **do not use LLM-based name cleaning**.
-Any normalisation must be human-reviewed via the stateful review system, or handled
-with explicit lookup entries.
+Check the source's names for pollution: labels, several names in one cell,
+transliteration variants. If you find it, pass the raw names to `h.apply_reviewed_names`
+and tune `names.schema_rules` in the YAML to the pollution you found, as
+`datasets/jp/mof_sanctions` does. The rules are in `zavod/docs/extract/names.md`.
 
 ### Relationships between sanctioned entities
 
