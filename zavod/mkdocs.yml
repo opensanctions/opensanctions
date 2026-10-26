@@ -57,6 +57,7 @@ nav:
   - context.md
   - helpers.md
   - Best practices:
+      - best_practices/source_recon.md
       - best_practices/strict_interpretation.md
       - best_practices/change_detection.md
       - best_practices/curated_datasets.md
@@ -73,7 +74,9 @@ nav:
       - best_practices/release.md
       - best_practices/xpath_and_html.md
   - Sanctions Programs: programs.md
-  - PEPs: peps.md
+  - PEPs:
+      - peps/index.md
+      - Examples: peps/examples.md
   - Data extraction:
       - Names: extract/names.md
       - Enforcements: extract/enforcements.md

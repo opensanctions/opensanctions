@@ -22,8 +22,8 @@ source files for patterns — use only the files listed above.
 
 ## Step 1: Understand the source
 
-Before writing any code, inspect the data source. In addition to the general checks
-(fields, date formats, language, record count), sanctions sources need:
+Before writing any code, inspect the data source as described in
+`zavod/docs/best_practices/source_recon.md`. In addition, sanctions sources need:
 
 - Identify entity types present: persons, organizations, vessels, aircraft
 - Identify how sanctions programs are labeled in the source

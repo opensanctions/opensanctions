@@ -1,6 +1,6 @@
 ---
 name: crawler-constants-to-yml
-description: Move hardcoded lookup/config constants (gender maps, header dicts, value translations, column-label maps, date formats) out of a crawler and into the dataset .yml — as datapatch lookups wherever possible, otherwise http / config / dates metadata. Use when asked to move, hoist, or "put in the yml" a crawler constant such as GENDERS or HEADERS.
+description: Move hardcoded lookup/config constants (gender maps, header dicts, column-label maps, date formats) out of a crawler and into the dataset .yml — as datapatch lookups wherever possible, otherwise http / config / dates metadata. Use when asked to move, hoist, or "put in the yml" a crawler constant such as GENDERS or HEADERS.
 argument-hint: "[dataset .yml or crawler.py path]"
 allowed-tools: Read, Edit, Bash, Grep, Glob
 ---
@@ -23,7 +23,7 @@ Read the relevant `zavod/docs` before editing — do not re-derive the mechanics
 | Constant in code | Belongs in | Mechanism |
 |---|---|---|
 | Map of source value → clean value for a **typed property** (gender, country, …) | `lookups: type.<type>` | Auto-applied on `entity.add(prop, raw)`. Pass the raw value; delete the dict. |
-| Map/translation of a value for a **non-type** property, or a categorical label | `lookups: <name>` | `context.lookup_value("<name>", raw, warn_unmatched=True)` |
+| Map of a value for a **non-type** property, or a categorical label | `lookups: <name>` | `context.lookup_value("<name>", raw, warn_unmatched=True)` |
 | Request `User-Agent` | `http.user_agent` | Applied to the session; drop `headers=` if it held only the UA. |
 | Static structural/config dict (column labels, field maps used for validation) | `config:` | Read via `context.dataset.config["key"]` |
 | Date formats / non-English month names | `dates.formats`, `dates.months` | Consumed by `h.apply_date` |

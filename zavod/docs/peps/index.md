@@ -1,7 +1,7 @@
 # Developing crawlers for Politically Exposed Persons (PEPs)
 
 If this is your first crawler, start with a basic one by following the
-[tutorial](tutorial.md), then come back here. For common approaches, look at the
+[tutorial](../tutorial.md), then come back here. For common approaches, look at the
 children of the [peps collection](https://github.com/opensanctions/opensanctions/blob/main/datasets/_collections/peps.yml).
 
 Being classified as a PEP does not imply you have done anything wrong. The
@@ -39,13 +39,16 @@ Every property in the schema is welcome: capture whatever the source gives you
 cleanly. The authoritative list for each is `ftm ref schema Person` / `Position`
 / `Occupancy`. The notes below cover only what is required or specifically
 valuable for political exposure; for general attributes and how to prioritize
-effort, see [data collection priorities](best_practices/priorities.md).
+effort, see [data collection priorities](../best_practices/priorities.md).
 
 **On the person:** use the most precise country property the source supports,
 without overstating. Use `citizenship` for elected officials, who in most countries
 must be citizens to hold office (the United Kingdom being a notable exception). Use
 `country` for civil servants, state-owned-enterprise managers, and appointed
-officials, who face no such requirement.
+officials, who face no such requirement. Every PEP needs one of `citizenship`, `country`
+or `nationality`. When you add `citizenship`, cite the provision that requires it
+(constitution, electoral law) in a comment next to it. Holders of judicial positions also
+get the `role.judge` topic.
 
 **On the position:** `country` is required; occasionally several apply (e.g.
 *Ambassador of Palestine to Germany*). `subnationalArea` locates a sub-national
@@ -72,6 +75,8 @@ Pass `topics` for positions the crawler names itself, where it knows which posit
     Most political positions in the world already exist in Wikidata. If your crawler emits only
     a small number of positions, it is best practice to look up the Wikidata QIDs for these
     and supply them to the `h.make_position` helper so that reconciliation is automatic.
+    Check on Wikidata that the item is an `instance of (P31)` position and that its
+    `applies to jurisdiction (P1001)` matches; a plausible label is not enough.
 
 ### Selecting a position name
 
@@ -93,9 +98,7 @@ Do
   `translate_name=True`, wrongly sent to the translator). When the position name
   comes from the source in a non-English language, pass it unmodified with
   `translate_name=True` — the helper translates it to English and derives the
-  entity ID from the untranslated name, keeping IDs stable. When the source has
-  only very few distinct labels, a `position` lookup in the YAML translating them
-  to English is an acceptable alternative.
+  entity ID from the untranslated name, keeping IDs stable.
 - include the role
 - include the organizational body where needed
 - include the specific geographic jurisdiction where relevant. A national position's
@@ -151,7 +154,7 @@ This categorization determines whether a position, its holders, and the Occupanc
 entities relating them should be emitted, based on whether it is a PEP position
 and the PEP duration of its scope.
 
-![Review UI for categorizing a position as PEP or not, with its scope and role](images/position-ui.png)
+![Review UI for categorizing a position as PEP or not, with its scope and role](../images/position-ui.png)
 
 To allow newly discovered positions to be added to the database, and to use the
 `is_pep` value from the database, call `zavod.stateful.positions:categorise` with the Position.
@@ -193,6 +196,8 @@ position within the past 40 years. In this case the occupancy status should be
 
 When the source records that a person has died or left office mid-term, set their
 `deathDate` (on the person) and the occupancy `endDate`, rather than skipping them.
+`make_occupancy` reads the person's `birthDate` and `deathDate`, so set them before
+calling it.
 `make_occupancy` applies the thresholds above and returns `None` once the person no
 longer qualifies, so a recently deceased or recently removed office holder is still
 emitted with an `ended` occupancy, while one who left long ago is dropped automatically.
@@ -211,7 +216,11 @@ source is actively maintained and can be trusted to drop departed office-holders
 
 Let `make_occupancy` derive the `status` from these dates; do not pass `status="ended"`
 yourself when you have an end date. Override `status` only when the source states that a
-mandate is current or ended but gives no date to derive it from.
+mandate is current or ended but gives no date to derive it from: an explicit `status`
+skips the death and age checks, so people who left long ago or have died are emitted.
+When some of the source's dates are stale, such as re-elected members still carrying their
+previous term, keep them as they are and explain the gap in a maintainer comment in the
+dataset YAML.
 
 ### Only emit if the person is a PEP
 
@@ -227,42 +236,8 @@ be emitted.
 
 ### Example
 
-```python
-# ... looping over people in a province ...
-person = context.make("Person")
-source_id = person_data.pop("id")
-person.add("name", person_data.pop("name"))
-person.add("citizenship", "us")
-# Set deathDate rather than skipping the person; make_occupancy decides PEP status.
-h.apply_date(person, "deathDate", person_data.pop("death_date", None))
-# ... more person properties ...
-
-for role in person_data.pop("roles"):
-    position = h.make_position(
-        context,
-        f"Member of the {province} Legislature",
-        wikidata_id="Q....",
-        country="us",
-        subnational_area=province
-    )
-    categorisation = categorise(context, position)
-    if not categorisation.is_pep:
-        continue
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        start_date=role.get("start_date", None),
-        end_date=role.get("end_date", None),
-        categorisation=categorisation,
-    )
-    if occupancy is not None:
-        context.emit(occupancy)
-        # Emitting the position and person multiple times is a bit wasteful
-        # but not harmful:
-        context.emit(position)
-        context.emit(person)
-```
+The [reference crawler](examples.md#reference-crawler) shows a complete PEP crawler for a
+national legislature.
 
 ## Several positions in one crawler
 
@@ -270,10 +245,10 @@ A crawler can cover more than one position: the chambers of a bicameral parliame
 a roster plus its presiding offices. Each position can be defined in the crawler or in
 the dataset YAML, depending on whether the source names it:
 
-- **The source labels it.** Key a `position` [lookup](best_practices/datapatch_lookups.md)
+- **The source labels it.** Key a `position` [lookup](../best_practices/datapatch_lookups.md)
   on the label the source itself uses, and let the result carry the position's `name`,
   `topics` and `wikidata_id`. See
-  [mapping to richer concepts](best_practices/datapatch_lookups.md#mapping-to-richer-concepts)
+  [mapping to richer concepts](../best_practices/datapatch_lookups.md#mapping-to-richer-concepts)
   for the mechanism. This keeps the definitions reviewable as data instead of burying
   them in code, and because the match is on the source's own wording, a renamed or newly
   added chamber shows up as an unmatched value rather than quietly losing its position.
@@ -282,7 +257,7 @@ the dataset YAML, depending on whether the source names it:
   topics and QID as arguments. A module-level table adds nothing here.
 
 Position labels are categorical input, so the lookup owes
-[complete coverage](best_practices/strict_interpretation.md#key-categorical-fields-need-complete-coverage):
+[complete coverage](../best_practices/strict_interpretation.md#key-categorical-fields-need-complete-coverage):
 pass `warn_unmatched=True`, and give labels that are *not* positions an option with
 `value: null` and no `name`. An unmatched label is then a signal to maintain the lookup,
 while a matched one with no `name` is a label already known not to denote a position.
@@ -296,7 +271,7 @@ own right.
 The membership is the position built up front. Where the source labels the role, a
 `position` lookup option for each presiding-office label carries that office's `name`,
 `topics` and `wikidata_id`, and the crawler builds the office for its holder in addition
-to their membership. Worked example: `examples.md` → "Presiding offices".
+to their membership. See [Presiding offices](examples.md#presiding-offices).
 
 ## Historical and multi-term sources
 
@@ -308,6 +283,8 @@ still matter.
 Date each occupancy as described in [Creating occupancies](#creating-occupancies). Whole-term
 archives are the typical case for `periodStart`/`periodEnd` (the same term bounds applied to
 everyone who served), while a source giving per-person dates uses `startDate`/`endDate`.
+Set `no_end_implies_current` per occupancy: only the sitting term is still open. See
+[Multi-term source](examples.md#multi-term-source).
 
 ### Noticing a new term
 

@@ -12,11 +12,13 @@ companies into a database.
     team does not automatically assume that responsibility for code contributed by
     others. See our general [inclusion critera](https://www.opensanctions.org/docs/criteria/).
 
-1. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
+1. [Study the source](best_practices/source_recon.md): find the authoritative,
+   still-updated publication and the best way to access it.
+2. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
    to discuss the suggested source.
-2. Create a [YAML metadata](#data-source-metadata) description for the new source.
-3. Create a [Python script](#developing-a-crawler-script) to fetch and process the data.
-4. Address any data normalisation issues the framework might report.
+3. Create a [YAML metadata](#data-source-metadata) description for the new source.
+4. Create a [Python script](#developing-a-crawler-script) to fetch and process the data.
+5. Address any data normalisation issues the framework might report.
 
 ## Data source metadata
 
@@ -242,7 +244,7 @@ You may now want to level up your crawler by looking at
 - [helpers](helpers.md) for common tasks,
 - [common patterns](best_practices/patterns.md) for building crawlers,
 - the [data priorities guide](best_practices/priorities.md) for what attributes to scope into the crawler,
-- the [PEPs guide](peps.md) if you're crawling Politically Exposed Persons and their Relatives and Close Associates.
+- the [PEPs guide](peps/index.md) if you're crawling Politically Exposed Persons and their Relatives and Close Associates.
 - the [merge checklist](best_practices/merge_checklist.md) we'll follow before merging a new crawler
 
 ## Checklist

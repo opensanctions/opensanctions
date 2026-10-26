@@ -1,12 +1,13 @@
-# PEP Crawler Examples
+# PEP crawler examples
 
-## Reference crawler: a finished national legislature
+Worked code for the rules in the [PEP guide](index.md). Start from the reference crawler;
+the other sections show how it changes for other kinds of source.
 
-This is what "done" looks like: a crawler for Luxembourg's Chamber of Deputies, written
-to current practice. One position, a current-only roster published as a CSV, per-person
-start dates. Match its shape before reaching for anything more elaborate; the other
-patterns in this file are variations on it. It's based on `lu_chamber`, but work from
-this version: the crawler in the repo predates these conventions.
+## Reference crawler
+
+A crawler for Luxembourg's Chamber of Deputies: one position, a current-only roster
+published as a CSV, and per-person start dates. It's based on `lu_chamber`, but work from
+this version: the crawler in the repository predates these conventions.
 
 ```python
 import csv
@@ -106,7 +107,7 @@ def crawl(context: Context) -> None:
             crawl_row(context, position, categorisation, row)
 ```
 
-The YAML side — date formats and the gender values live in metadata, not in code:
+The date formats and the gender values live in the dataset YAML, not in code:
 
 ```yaml
 data:
@@ -124,36 +125,27 @@ lookups:
         value: female
 ```
 
-What first drafts most often get wrong, and this gets right:
+Two things first drafts most often get wrong, and this gets right:
 
-- **The row loop feeds `crawl_row` directly** — no discovery helper collecting IDs
-  first, no repeated requests "to be safe", no hand-written row-count check (the YAML
-  `assertions` own totals).
-- **The position most members hold is built and categorised once, in `crawl()`**.
+- **The row loop feeds `crawl_row` directly**: no discovery helper collecting IDs first,
+  no repeated requests "to be safe", no hand-written row-count check. The YAML
+  `assertions` own totals.
 - **Each workaround carries its reason** (the uncached catalog lookup, the `cp1252`
   encoding), so a reviewer can tell necessary code from machinery.
-- **Status comes from the dates.** This roster is republished daily and drops departed
-  members, so `make_occupancy`'s defaults are right. Where dates can't be trusted,
-  see SKILL.md, Step 3.
 
-## Pattern B: Mixed dataset with `default_is_pep=None` (declaration-style)
+## Mixed dataset
 
-For sources that list officials across many roles where some are PEP and some aren't.
-PEP status is determined by the UI review workflow, not the crawler.
+A source that lists officials across many roles, only some of them PEPs, such as an
+asset-declaration register. See [Categorizing positions](index.md#categorizing-positions).
 
 ```python
 def crawl_member(context: Context, row: dict[str, Any]) -> None:
-    role = row.pop("role")  # source-supplied, in French
-    # No topics: the crawler doesn't know which position this is, so the review and
-    # classification system decides both PEP status and topics.
     position = h.make_position(
-        context, name=role, country="fr", lang="fra", translate_name=True
+        context, name=row.pop("role"), country="fr", lang="fra", translate_name=True
     )
-    # default_is_pep=None: defers PEP determination to the UI
     categorisation = categorise(context, position, default_is_pep=None)
-
     if not categorisation.is_pep:
-        return  # UI has not (yet) marked this position as PEP
+        return
 
     person = context.make("Person")
     person.id = context.make_id(row.pop("id"))
@@ -164,8 +156,9 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
         person,
         position,
         categorisation=categorisation,
-        status=OccupancyStatus.UNKNOWN,      # declaration != current office
-        no_end_implies_current=False,         # no end date != still in office
+        # A declaration gives no dates to derive a status from.
+        status=OccupancyStatus.UNKNOWN,
+        no_end_implies_current=False,
     )
     if occupancy is not None:
         context.emit(occupancy)
@@ -173,59 +166,29 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
         context.emit(person)
 ```
 
-Key differences from the reference crawler:
-- `default_is_pep=None` — positions start uncategorised; the UI must mark them.
-- `no_end_implies_current=False` — a declaration doesn't prove current office.
-- `status=OccupancyStatus.UNKNOWN` — the declaration gives no dates to derive a status
-  from, and with none `make_occupancy` would drop the person. This is the one case
-  where overriding is right; if the source does give dates, pass them and drop the
-  override, since an explicit status also skips the death and age checks.
-- Position is created per-record (each unique role string becomes a position).
+### Subnational positions
 
-### Subnational variant (per-municipality / per-region positions)
-
-Same `default_is_pep=None` shape as Pattern B, but used for sources where each record names
-a sub-national position (e.g. mayor of municipality X). Two extras:
-
-- Translate the role label to English via a `position` lookup. This is only
-  applicable when the source has very few distinct position names (a handful of
-  role labels shared across all municipalities). Otherwise, pass the
-  source-language label with `lang=` and `translate_name=True` as in Pattern B.
-- Pass `subnational_area=...` and **omit `wikidata_id`** — a Wikidata ID would
-  collapse every municipality into the same entity.
+The same shape for sources where each record names a sub-national position, such as the
+mayor of a municipality. Pass the locality as `subnational_area`, and no `wikidata_id`:
 
 ```python
-res = context.lookup("position", row.pop("MAN_LABEL"))
-assert res is not None, f"Unknown position: {row['MAN_LABEL']!r}"
 position = h.make_position(
     context,
-    name=f"{res.value} of {commune_label}",   # English name + locality
+    name=f"{row.pop('MAN_LABEL')}, {commune_label}",
     country="lu",
-    topics=["gov.muni", "gov.executive"],     # the role and tier are known; only the locality varies
-    subnational_area=commune_label,           # NOT wikidata_id — per-locality
-    lang="eng",                               # already English after the lookup
+    subnational_area=commune_label,
+    lang="fra",
+    translate_name=True,
 )
 categorisation = categorise(context, position, default_is_pep=None)
 if not categorisation.is_pep:
-    return  # one locality among many — skip it, as in Pattern B
+    return
 ```
 
-YAML side — declare the translation lookup:
+## Several positions
 
-```yaml
-lookups:
-  position:
-    options:
-      - match: Bourgmestre
-        value: Mayor
-      - match: Échevin
-        value: Alderman
-```
-
-## Pattern C: Several positions in one crawler
-
-The rules are in `zavod/docs/peps.md` → "Several positions in one crawler". This is the
-code shape for the lookup case.
+See [Several positions in one crawler](index.md#several-positions-in-one-crawler). This is
+the code shape for the lookup case.
 
 ```yaml
 lookups:
@@ -268,9 +231,8 @@ if occupancy is not None:
 
 ### Presiding offices
 
-A Speaker keeps their seat, so they hold the membership as well as the presiding
-office. The membership is built once in `crawl()`, as in the reference crawler. Here
-the source's `role` field is empty for plain members and names the presiding office
+The membership is built once in `crawl()`, as in the reference crawler. Here the
+source's `role` field is empty for plain members and names the presiding office
 otherwise, so the lookup maps each role to its office, built per person:
 
 ```yaml
@@ -303,8 +265,6 @@ def crawl_member(
 
     role = row.pop("role")
     if role is not None:
-        # required: true only halts the crawl via context.lookup —
-        # context.lookup_value catches the exception and returns None.
         res = context.lookup("position", role)
         assert res is not None, role
         office = h.make_position(
@@ -329,9 +289,7 @@ def crawl_member(
 ## Multi-term source
 
 The default shape whenever the source exposes past terms, not just the sitting roster.
-Term bounds go in `period_start`/`period_end` (identical for everyone who served that
-term); a personal entry or exit date, where the source gives one, goes in
-`start_date`/`end_date` alongside them.
+See [Historical and multi-term sources](index.md#historical-and-multi-term-sources).
 
 ```python
 from dataclasses import dataclass
@@ -356,10 +314,10 @@ def crawl_member(
     row: dict[str, Any],
 ) -> None:
     person = context.make("Person")
-    person.id = context.make_id(row.pop("member_id"))  # a stable source id, not the name
+    person.id = context.make_id(row.pop("member_id"))
     person.add("name", row.pop("name"), lang="eng")
-    person.add("citizenship", "xx")  # cite the electoral law in a comment here
-    # ... remaining person props, all set BEFORE make_occupancy ...
+    person.add("citizenship", "xx")
+    # ... remaining person props ...
 
     occupancy = h.make_occupancy(
         context,
@@ -368,13 +326,11 @@ def crawl_member(
         categorisation=categorisation,
         period_start=term.period_start,
         period_end=term.period_end,
-        # Per occupancy, not per dataset: only the sitting term is still open.
         no_end_implies_current=term.period_end is None,
     )
     if occupancy is None:
         return
     occupancy.add("constituency", row.pop("district", None))
-    # The parliamentary faction, distinct from Person:political party membership.
     occupancy.add("politicalGroup", row.pop("group", None))
     context.emit(occupancy)
     context.emit(person)
@@ -410,6 +366,5 @@ def crawl(context: Context) -> None:
 ```
 
 `discover_terms` reads the terms from the source (a term switcher in the HTML, an
-`ElectionId` parameter, a `/legislaturas` endpoint); the sitting term has no
-`period_end`. How a crawler notices a new term is covered in `zavod/docs/peps.md` →
-"Noticing a new term".
+`ElectionId` parameter, a `/legislaturas` endpoint); see
+[Noticing a new term](index.md#noticing-a-new-term).

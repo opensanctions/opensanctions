@@ -105,10 +105,10 @@ doc = context.parse_resource_xml(path)
 
 ### JS-rendered pages and anti-bot protection
 
-If the source is a JS-rendered SPA, look for API endpoints in the page source or JS
-bundles first — a clean JSON endpoint is almost always simpler than rendering. If the
-source requires JS rendering or anti-bot protection that prevents `context.fetch_*` from
-working, route the request through the Zyte API (`zavod.extract.zyte_api`). See
+Before reaching for rendering or Zyte, do the recon in
+`zavod/docs/best_practices/source_recon.md`. If the source still requires JS rendering or
+anti-bot protection that prevents `context.fetch_*` from working, route the request
+through the Zyte API (`zavod.extract.zyte_api`). See
 `zavod/docs/best_practices/http_operations.md` for which helper to use (`fetch_html` for
 browser rendering, `fetch_text` / `fetch_json` / `fetch_resource` otherwise) and how to
 handle geo-blocking. Crawlers that use Zyte set `ci_test: false`, since the API key isn't
@@ -299,20 +299,27 @@ entity.add("name", latin_name, lang="eng")         # override
 See also: `zavod/docs/usage.md`
 
 ```bash
-zavod crawl datasets/xx/foo/xx_foo.yml
-# Output: data/datasets/xx_foo/
+zavod crawl datasets/xx/foo/xx_foo.yml           # writes a run under data/datasets/xx_foo/_artifacts/<run>/
+zavod export datasets/xx/foo/xx_foo.yml          # runs the dataset validators and assertions
+contrib/lint_dataset.sh datasets/xx/foo/xx_foo.yml  # ruff + mypy + pre-commit as CI runs them
 ```
+
+Use the lint script rather than bare `ruff`/`mypy`, which lack the repo config.
 
 For a dataset already deployed, `python -m contrib.maintenance.diagnose <name>` prints
 its production runtime state: run verdict, artifact links, current issues, assertion
 drift.
 
-Check `issues.log` for errors, then spot-check with qsv:
+Each run's `issues.json` and `statements.pack` are in its
+`data/datasets/xx_foo/_artifacts/<run>/` folder (older zavod versions wrote `issues.log`
+and `statements.pack` to `data/datasets/xx_foo/` directly). Check the issues, then
+spot-check the statements with qsv:
 
 ```bash
-qsv count data/datasets/xx_foo/statements.pack
-qsv frequency -s prop --limit 30 data/datasets/xx_foo/statements.pack
-qsv search -s prop "^Person:id$" data/datasets/xx_foo/statements.pack | qsv count
+P=$(ls data/datasets/xx_foo/_artifacts/*/statements.pack | tail -1)
+qsv count "$P"
+qsv frequency -s prop --limit 30 "$P"
+qsv search -s prop "^Person:id$" "$P" | qsv count
 ```
 
 ## Before merging
