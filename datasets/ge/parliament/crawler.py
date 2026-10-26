@@ -34,11 +34,10 @@ def crawl_member(
         ]
         person.add("biography", "\n".join(p for p in paragraphs if p))
 
+    # contactInfo also lists phone numbers, which are not extracted for PEPs.
     contact_info = member.pop("contactInfo")
     for email in contact_info["emails"]:
         person.add("email", email)
-    for phone in contact_info["phones"]:
-        person.add("phone", phone)
 
     # Candidates for Parliament must be citizens of Georgia (Constitution of Georgia,
     # Article 37(4)). https://www.constituteproject.org/constitution/Georgia_2018

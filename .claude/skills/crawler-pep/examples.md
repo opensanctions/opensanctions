@@ -50,6 +50,7 @@ def crawl_row(
     if occupancy is None:
         return
     occupancy.add("constituency", row.pop("derniere_circonscription"))
+    person.add("email", row.pop("email"))
     context.emit(occupancy)
     context.emit(person)
 
@@ -59,11 +60,10 @@ def crawl_row(
             # "Groupe politique"/"Sensibilité politique": the group's parliamentary
             # standing, which has no FollowTheMoney property.
             "rattachement_type",
-            # Contact details are not extracted for PEPs.
+            # Phone numbers and private addresses are not extracted for PEPs.
             "address",
             "phone_ext",
             "phone_mobile",
-            "email",
         ],
     )
 
@@ -79,6 +79,7 @@ def crawl(context: Context) -> None:
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
         return
     context.emit(position)
 
@@ -224,10 +225,8 @@ lookups:
 
 ## Pattern C: Several positions in one crawler
 
-Where a position's definition belongs — a `position` lookup keyed on the source's own
-label, or arguments to `h.make_position` in the crawler — is decided in `zavod/docs/peps.md`
-→ "Where a position's definition belongs". Read that first; this is only the code shape
-for the lookup case.
+The rules are in `zavod/docs/peps.md` → "Several positions in one crawler". This is only
+the code shape for the lookup case.
 
 ```yaml
 lookups:
@@ -260,16 +259,15 @@ position = h.make_position(
 )
 categorisation = categorise(context, position)
 if not categorisation.is_pep:
+    context.log.warning("Position is not categorised as PEP", position=position.id)
     return
 context.emit(position)
 ```
 
 ### One label, several held positions
 
-When a role label implies more than one held office — a Speaker is elected from among
-the members and keeps their seat — map the label to every held position name with a
-multi-`values` lookup option, and make an occupancy for each
-(`zavod/docs/peps.md` → "One person, several positions"):
+A Speaker keeps their seat, so the label maps to both held positions, with an occupancy
+for each (`zavod/docs/peps.md` → "Several positions in one crawler"):
 
 ```yaml
 lookups:

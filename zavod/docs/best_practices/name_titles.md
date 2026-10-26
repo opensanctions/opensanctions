@@ -1,14 +1,8 @@
 # Stripping name prefixes and suffixes
 
-Remove a known set of honorific prefixes and post-nominal suffixes from source names with per-dataset configuration, without a human review.
+Remove the honorifics and post-nominals a source attaches to names (`Hon. Jane Doe, MP`, `Dr. John Smith`) with per-dataset configuration.
 
-Many official sources publish names with titles attached: `Hon. Jane Doe, MP`, `Dr. John Smith`, `Sen. (Rtd) Amina Yusuf`. These titles are not part of the name and reduce match quality. When a source uses a fixed, predictable set of titles, strip them deterministically with [`h.strip_name_titles`][zavod.helpers.strip_name_titles] instead of routing the names through the [name review system](../extract/names.md).
-
-## Prefer deterministic stripping when the affix set is known
-
-If the honorifics and post-nominals a source uses are a closed, enumerable list (`Hon.`, `Dr.`, `Prof.`, `, MP`, `, CS`), declare them in the dataset metadata and call `h.strip_name_titles`. Do not send predictable titles through the review system: that adds LLM cost and human-review latency to a problem the crawler can solve on its own, and every new member waits on a review before their name is clean.
-
-Reach for the name review system only when the name is genuinely ambiguous: multiple names packed into one string, alias or previous-name categorization, or transliteration variants. Those cases are covered under [when to use the review system instead](#when-to-use-the-review-system-instead).
+Stripping titles is a nice-to-have, not a requirement. A title that is part of how an official website writes a person's name barely affects matching, because screening works around it. So strip the short list of titles that actually recur with [`h.strip_name_titles`][zavod.helpers.strip_name_titles], accept that a rare one slips through, and don't grow a long table chasing every degree or rank. Cleaning titles alone is not a reason to bring in the [name review system](../extract/names.md) or LLM cleaning; those are for [structural problems](#when-to-use-the-review-system-instead).
 
 ## The pattern
 
@@ -75,11 +69,10 @@ Set `original_value` only when the strings differ. Passing the raw value when no
 
 ## When to use the review system instead
 
-Deterministic stripping handles a fixed affix list and nothing else. Use [the name review system](../extract/names.md) when a name needs judgment rather than a lookup:
+Use [the name review system](../extract/names.md) when a name string has a structural problem that would break matching:
 
-- **Multiple names in one string**, such as `John Smith; Jonny Smith` or a name plus its former name.
+- **Several people or names in one string**, such as `John Smith; Jonny Smith` or a name plus its former or maiden name.
 - **Categorization** into `alias`, `weakAlias`, or `previousName`.
-- **Splitting** or handling transliteration variants like `Aleksandr(Oleksandr) KALYUSSKY`.
-- **Open-ended dirt** that isn't a predictable, enumerable set of titles.
+- **Embedded notes**, such as a death date or by-election remark in brackets, and transliteration variants like `Aleksandr(Oleksandr) KALYUSSKY`.
 
-The two approaches compose. Strip the known titles deterministically, and the irregularity checks in [`h.is_name_irregular`][zavod.helpers.is_name_irregular] and the `apply_reviewed_*` helpers still apply to whatever remains.
+The two compose: strip the known titles first, and [`h.is_name_irregular`][zavod.helpers.is_name_irregular] and the `apply_reviewed_*` helpers apply to whatever remains.

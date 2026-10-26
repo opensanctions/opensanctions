@@ -53,9 +53,7 @@ that looks finished and is worthless.
   (constitution, electoral law) that requires citizenship for this specific position.
   Cite its URL in a comment next to `person.add("citizenship", ...)`, or next to its
   omission if not required.
-- **Term-bounded source** (fixed mandates, per-term pages)? Note a *structural*
-  signature (page URL, file name, term id) and fail in `crawl()` when it changes, so a
-  new term can't go unnoticed.
+- **How will the crawler notice a new term?** See `zavod/docs/peps.md` → "Detecting a new term".
 - **Check the records against reality.** Count them by role and by term, and compare
   with the seats the body actually has. Could a record's dates be stale (e.g. a
   re-elected member still carrying their previous term)?
@@ -81,8 +79,8 @@ final report and proceed.
 - Set every person property `make_occupancy` reads (`birthDate`, `deathDate`) before
   calling it, and emit the person after it — it adds `role.pep` to the person.
 - For judicial positions, also add `role.judge` to the person's topics.
-- Honorifics: `zavod/docs/best_practices/name_titles.md`. LLM-assisted or reviewed name
-  cleaning is acceptable for PEP data (unlike sanctions): `zavod/docs/extract/names.md`.
+- Names: `zavod/docs/best_practices/name_titles.md`. Stripping titles is optional;
+  review is only for structural problems.
 
 ## Step 3: Validate
 

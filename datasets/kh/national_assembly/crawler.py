@@ -104,8 +104,9 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21295974",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
         return
     context.emit(position)
 

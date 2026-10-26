@@ -8,6 +8,10 @@ Use `context` methods for HTTP operations, as they handle common tasks such as c
 text = context.fetch_text(context.data_url, method="POST", headers=headers, data=body, cache_days=cache_days)
 ```
 
+## Credentials
+
+Credentials issued to OpenSanctions (API keys, accounts) come from `OPENSANCTIONS_*` environment variables, never from the code, so the crawler sets `ci_test: false`. A token the site ships to every visitor's browser, such as a public API key in its JavaScript bundle, is not a secret: inline it, with a comment saying where it comes from.
+
 ## Handling bot blocking
 
 Many sites employ bot blocking strategies. We believe this is primarily to mitigate Denial of Service attacks and manage server load, rather than protecting the content from extraction, since the purpose of the sites we scrape is dissemination of their block lists. As long as we are sensitive to our impact on their service and identifiable in their requests, we believe it is ok to work around their bot blocking strategies.

@@ -58,9 +58,8 @@ Valuable where available: `constituency`; `electionDate`; and `politicalGroup`,
 the parliamentary faction held within the body, distinct from general party
 membership in `Person:political`.
 
-**Do not extract**, even when cleanly available: private individual addresses (a
-privacy concern) and phone numbers (more sensitive than emails). These are
-prohibitions, not low priorities.
+**Do not extract** phone numbers or private addresses, even when cleanly available:
+these are prohibitions, not low priorities. Official email addresses are fine.
 
 ## Creating positions
 
@@ -73,28 +72,27 @@ Pass `topics` for positions the crawler names itself, where it knows which posit
     a small number of positions, it is best practice to look up the Wikidata QIDs for these
     and supply them to the `h.make_position` helper so that reconciliation is automatic.
 
-### Where a position's definition belongs
+### Several positions in one crawler
 
-A crawler covering more than one position — the chambers of a bicameral parliament, a
-roster plus its presiding offices — can define them in the crawler or in the dataset
-YAML. Which one depends on whether the source names the position:
+A crawler covering more than one position, such as the chambers of a bicameral parliament
+or a roster plus its presiding offices, defines them in one of two ways:
 
-- **The source labels it.** Key a `position` [lookup](best_practices/datapatch_lookups.md)
-  on the label the source itself uses, and let the result carry the position's `name`,
-  `topics` and `wikidata_id`. See
-  [mapping to richer concepts](best_practices/datapatch_lookups.md#mapping-to-richer-concepts)
-  for the mechanism. This keeps the definitions reviewable as data instead of burying
-  them in code, and because the match is on the source's own wording, a renamed or newly
-  added chamber shows up as an unmatched value rather than quietly losing its position.
-- **The crawler knows them outright.** When there is no label to match on — two chambers
-  fetched from separate URLs, say — call `h.make_position` for each and pass the name,
-  topics and QID as arguments. A module-level table adds nothing here.
+- **The source labels the role.** Key a `position` [lookup](best_practices/datapatch_lookups.md)
+  on the source's own label and let the result carry `name`, `topics` and `wikidata_id`
+  ([mapping to richer concepts](best_practices/datapatch_lookups.md#mapping-to-richer-concepts)).
+  The definitions stay reviewable as data, and a renamed or new role shows up as an
+  unmatched value. Pass `warn_unmatched=True`
+  ([complete coverage](best_practices/strict_interpretation.md#key-categorical-fields-need-complete-coverage)),
+  and give labels that are not positions an option with `value: null`.
+- **The crawler knows them outright**, e.g. two chambers fetched from separate URLs:
+  call `h.make_position` for each with the name, topics and QID as arguments.
 
-Position labels are categorical input, so the lookup owes
-[complete coverage](best_practices/strict_interpretation.md#key-categorical-fields-need-complete-coverage):
-pass `warn_unmatched=True`, and give labels that are *not* positions an option with
-`value: null` and no `name`. An unmatched label is then a signal to maintain the lookup,
-while a matched one with no `name` is a label already known not to denote a position.
+Presiding offices are positions in their own right. A Speaker elected from among the
+members keeps their seat, so they get an occupancy for both the Speaker office and the
+membership. A lookup option with several `values`
+([result values](best_practices/datapatch_lookups.md#result-values)) maps one label to
+every held position; loop over `context.lookup(...).values`. Worked example:
+`examples.md` → "One label, several held positions".
 
 ### Selecting a position name
 
@@ -179,27 +177,18 @@ and the PEP duration of its scope.
 
 ![Review UI for categorizing a position as PEP or not, with its scope and role](images/position-ui.png)
 
-To allow newly discovered positions to be added to the database, and to use the
-`is_pep` value from the database, call `zavod.stateful.positions:categorise` with the Position.
-If the data source is known to only include PEP positions, or if the crawler only
-attempts to create positions known to be PEPs, `default_is_pep` should be `True` — which
-is the parameter's default, so plain `categorise(context, position)` is the idiomatic
-call and passing `default_is_pep=True` is redundant. Pass `default_is_pep=None`
-explicitly when the position should instead be categorized manually in the database.
-**Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
-See the example below.
+Call `categorise(context, position)` for every position: it registers new positions in
+the database and returns the reviewed `is_pep` (and `topics`, used in
+[enrichment](https://www.opensanctions.org/datasets/annotations/)).
+**Only make occupancies and emit entities when `categorisation.is_pep` is `True`.**
 
-With `default_is_pep=None`, a not-yet-reviewed position returns `is_pep=None` and
-its holders are not emitted. A new crawler against an uncategorized source then
-produces no PEP output until someone sets `is_pep` in the review UI, and only the
-next crawl picks those people up. Use `None` only when the source genuinely mixes
-PEP and non-PEP roles; when the source is known to consist entirely of PEPs,
-`True` is correct.
-
-Positions are created in the database if they don't already exist, and can be
-categorized manually later. The `is_pep` and `topics` values from the database
-are then used during crawling and [enrichment](https://www.opensanctions.org/datasets/annotations/)
-respectively.
+- **The crawler names its positions** (a parliament's chambers and presiding offices):
+  use the plain call. A non-PEP result means someone has to look at the categorisation,
+  so log a warning and skip.
+- **The source mixes PEP and non-PEP roles:** pass `default_is_pep=None` so new positions
+  wait for manual categorisation, and skip non-PEP positions silently. Holders of
+  unreviewed positions are emitted only on the first crawl after someone categorises them
+  (see `examples.md` → "Pattern B").
 
 ### ::: zavod.stateful.positions.categorise
 
@@ -280,6 +269,7 @@ for role in person_data.pop("roles"):
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
         continue
     occupancy = h.make_occupancy(
         context,
@@ -297,19 +287,6 @@ for role in person_data.pop("roles"):
         context.emit(person)
 ```
 
-### One person, several positions
-
-Some role labels imply more than one held office: a parliament's Speaker is typically
-elected from among the members and keeps their seat, so they hold the Speaker office
-and the plain membership at once. Create an occupancy for each held position, not just
-the most senior one — each is politically exposing in its own right.
-
-Where the source labels the role, a `position` lookup option with multiple `values`
-(see [result values](best_practices/datapatch_lookups.md#result-values)) maps the label
-to all held position names declaratively; the crawler then loops over
-`context.lookup(...).values`, applying the pattern above to each name. Worked example:
-`examples.md` → "One label, several held positions".
-
 ## Historical and multi-term sources
 
 Current office holders are the priority, but when a source also exposes past terms
@@ -319,15 +296,27 @@ still matter.
 
 Two mechanisms divide the labor:
 
-- [`earliest_term_start`][zavod.helpers.earliest_term_start] bounds how far back you
-  **crawl**: skip fetching whole terms or archive pages older than the PEP-relevance
-  window. The only thing it buys you is the crawl you avoid, so there is no point
-  applying it to terms you would fetch anyway; [`make_occupancy`][zavod.helpers.make_occupancy]
-  gates those records more precisely. Log a skipped term at `info`; it is a deliberate
-  gap, not something the crawler team can fix.
-- [`make_occupancy`][zavod.helpers.make_occupancy] is the decider on whether political
-  exposure still applies, per occupancy. The cutoff is deliberately more generous than
-  this window, so it never skips a term whose members would still qualify.
+- [`make_occupancy`][zavod.helpers.make_occupancy] is the inclusion policy: it alone
+  decides, per occupancy, whether political exposure still applies.
+- [`earliest_term_start`][zavod.helpers.earliest_term_start] only limits the scope of the
+  crawl, for efficiency. Use it wherever fetching individual terms costs real network
+  requests, to skip terms too old to qualify; log a skipped term at `info`. Never use it,
+  or any other date filter, to decide who is included; that is `make_occupancy`'s job.
+
+### Detecting a new term
+
+A crawler that quietly misses a newly elected term is a serious failure: the new
+members are missing from the dataset with nothing to tell us so. In order of
+preference:
+
+1. Discover the terms from the source (a term list, an `ElectionId` parameter, a
+   `/legislaturas` endpoint), so a new term is picked up automatically.
+2. If the source offers no such list, pin a structural signature of the current term
+   (URL, term id, file name) and assert on it, so the crawl fails when a newer term
+   appears.
+
+Hard-coding facts about concluded terms is fine. Never hard-code future-looking ones,
+such as the end of the current term: an early election makes them wrong.
 
 Date each occupancy as described in [Creating occupancies](#creating-occupancies). Whole-term
 archives are the typical case for `periodStart`/`periodEnd` (the same term bounds applied to
