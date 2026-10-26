@@ -15,7 +15,7 @@ Some things that are easy to forget but critical for new crawlers. Scope and per
     - `publisher` - see if there's another dataset with the same publisher that you can copy from. Description is important.
         - country code is correct
         - description is often skipped, but it's important
-    - `ci_test` - `false` only for the reasons in [metadata](../metadata.md#continuous-integration), and the comment states the real one.
+    - `ci_test` - default `true`; see [metadata](../metadata.md#continuous-integration) for when to set `false`.
 - Crawler
     - It emits as many entities as are available at the source
     - When first added, it doesn't emit warnings or errors (except transient, e.g. network timeout/server error that can be expected to go away tomorrow)
