@@ -121,7 +121,7 @@ The `deploy` section configures the Kubernetes job that runs the crawler in prod
 
 ### Continuous Integration
 
-- `ci_test` - boolean, default `true`. If true, the crawler is run when its python or yaml is modified in CI. Set it to `false` only when the crawler needs a credential CI doesn't have (an `OPENSANCTIONS_*` key, including Zyte; see [credentials](best_practices/http_operations.md#credentials)) or runs for more than 2 minutes, and say which in a comment. Take extra care when modifying such crawlers.
+- `ci_test` - boolean, default `true`. If true, the crawler is run when its python or yaml is modified in CI. Set to false for extremely slow crawlers, or those that require credentials (an `OPENSANCTIONS_*` key, including Zyte; see [credentials](best_practices/http_operations.md#credentials)), note the reason in a comment, and then take extra care when modifying them.
 
 ### Exports
 

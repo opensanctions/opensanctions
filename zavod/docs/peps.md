@@ -83,7 +83,7 @@ or a roster plus its presiding offices, defines them in one of two ways:
   The definitions stay reviewable as data, and a renamed or new role shows up as an
   unmatched value. Pass `warn_unmatched=True`
   ([complete coverage](best_practices/strict_interpretation.md#key-categorical-fields-need-complete-coverage)),
-  and give labels that are not positions an option with `value: null`.
+  and give labels that are not positions an option with `value: null` and no `name`.
 - **The crawler knows them outright**, e.g. two chambers fetched from separate URLs:
   call `h.make_position` for each with the name, topics and QID as arguments.
 
@@ -183,12 +183,14 @@ the database and returns the reviewed `is_pep` (and `topics`, used in
 **Only make occupancies and emit entities when `categorisation.is_pep` is `True`.**
 
 - **The crawler names its positions** (a parliament's chambers and presiding offices):
-  use the plain call. A non-PEP result means someone has to look at the categorisation,
-  so log a warning and skip.
+  `default_is_pep` defaults to `True`, so use the plain call. When the crawler creates
+  only a few positions itself, a non-PEP result is unexpected; consider logging a warning
+  before skipping.
 - **The source mixes PEP and non-PEP roles:** pass `default_is_pep=None` so new positions
-  wait for manual categorisation, and skip non-PEP positions silently. Holders of
-  unreviewed positions are emitted only on the first crawl after someone categorises them
-  (see `examples.md` → "Pattern B").
+  wait for manual categorisation, and skip non-PEP positions. A not-yet-reviewed position
+  then returns `is_pep=None` and its holders are not emitted: a new crawler produces no
+  PEP output until someone sets `is_pep` in the review UI, and only the next crawl picks
+  those people up (see `examples.md` → "Pattern B").
 
 ### ::: zavod.stateful.positions.categorise
 
@@ -269,7 +271,6 @@ for role in person_data.pop("roles"):
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        context.log.warning("Position is not categorised as PEP", position=position.id)
         continue
     occupancy = h.make_occupancy(
         context,
@@ -296,12 +297,16 @@ still matter.
 
 Two mechanisms divide the labor:
 
-- [`make_occupancy`][zavod.helpers.make_occupancy] is the inclusion policy: it alone
-  decides, per occupancy, whether political exposure still applies.
-- [`earliest_term_start`][zavod.helpers.earliest_term_start] only limits the scope of the
-  crawl, for efficiency. Use it wherever fetching individual terms costs real network
-  requests, to skip terms too old to qualify; log a skipped term at `info`. Never use it,
-  or any other date filter, to decide who is included; that is `make_occupancy`'s job.
+- [`earliest_term_start`][zavod.helpers.earliest_term_start] bounds how far back you
+  **crawl**: use it wherever fetching individual terms costs real network requests, to
+  skip whole terms or archive pages older than the PEP-relevance window. The only thing
+  it buys you is the crawl you avoid, so there is no point applying it to terms you would
+  fetch anyway; [`make_occupancy`][zavod.helpers.make_occupancy] gates those records more
+  precisely. Log a skipped term at `info`; it is a deliberate gap, not something the
+  crawler team can fix.
+- [`make_occupancy`][zavod.helpers.make_occupancy] is the decider on whether political
+  exposure still applies, per occupancy. The cutoff is deliberately more generous than
+  this window, so it never skips a term whose members would still qualify.
 
 ### Detecting a new term
 

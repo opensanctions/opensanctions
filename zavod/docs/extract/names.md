@@ -87,7 +87,7 @@ h.apply_reviewed_names(context, entity, original=original)
 
 It can be nice to migrate existing crawlers which already do some cleaning themselves such that all the names cleaned through the helpers are fully reviewed when the switchover takes place. This is important because the original string(s) are applied as names when reviews are not accepted yet.
 
-The goal of the migration is to hand crawler-specific name cleaning off to the review system. Title stripping is the exception: it stays deterministic in the crawler ([name titles](../best_practices/name_titles.md)).
+The goal of the migration is to remove all crawler-specific name cleaning and hand it off to the review system.
 
 The approach in step 1 differs by dataset type:
 

@@ -1,8 +1,14 @@
 # Stripping name prefixes and suffixes
 
-Remove the honorifics and post-nominals a source attaches to names (`Hon. Jane Doe, MP`, `Dr. John Smith`) with per-dataset configuration.
+Remove a known set of honorific prefixes and post-nominal suffixes from source names with per-dataset configuration.
 
-Stripping titles is a nice-to-have, not a requirement. A title that is part of how an official website writes a person's name barely affects matching, because screening works around it. So strip the short list of titles that actually recur with [`h.strip_name_titles`][zavod.helpers.strip_name_titles], accept that a rare one slips through, and don't grow a long table chasing every degree or rank. Cleaning titles alone is not a reason to bring in the [name review system](../extract/names.md) or LLM cleaning; those are for [structural problems](#when-to-use-the-review-system-instead).
+Many official sources publish names with titles attached: `Hon. Jane Doe, MP`, `Dr. John Smith`, `Sen. (Rtd) Amina Yusuf`. These titles are not part of the name and reduce match quality. When a source uses a fixed, predictable set of titles, strip them deterministically with [`h.strip_name_titles`][zavod.helpers.strip_name_titles].
+
+## Keep the list to the titles the source uses
+
+If the honorifics and post-nominals a source uses are a closed, enumerable list (`Hon.`, `Dr.`, `Prof.`, `, MP`, `, CS`), declare them in the dataset metadata and call `h.strip_name_titles`.
+
+List the titles that actually recur in the source. A title left in a name barely affects matching, so accept that a rare one slips through rather than growing a long table of every degree or rank.
 
 ## The pattern
 
@@ -66,13 +72,3 @@ person.add("name", clean_name, lang="eng", original_value=original_name)
 ```
 
 Set `original_value` only when the strings differ. Passing the raw value when nothing was stripped records a redundant provenance entry.
-
-## When to use the review system instead
-
-Use [the name review system](../extract/names.md) when a name string has a structural problem that would break matching:
-
-- **Several people or names in one string**, such as `John Smith; Jonny Smith` or a name plus its former or maiden name.
-- **Categorization** into `alias`, `weakAlias`, or `previousName`.
-- **Embedded notes**, such as a death date or by-election remark in brackets, and transliteration variants like `Aleksandr(Oleksandr) KALYUSSKY`.
-
-The two compose: strip the known titles first, and [`h.is_name_irregular`][zavod.helpers.is_name_irregular] and the `apply_reviewed_*` helpers apply to whatever remains.
