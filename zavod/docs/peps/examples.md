@@ -145,7 +145,7 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
     )
     categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:
-        return
+        return  # UI has not (yet) marked this position as PEP
 
     person = context.make("Person")
     person.id = context.make_id(row.pop("id"))

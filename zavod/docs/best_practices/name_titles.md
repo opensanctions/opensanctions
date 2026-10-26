@@ -27,11 +27,8 @@ In the crawler, pass each raw name through `h.strip_name_titles`. It reads the c
 
 ```python
 clean_name = h.strip_name_titles(context, raw_name)
-original_name = raw_name if clean_name != raw_name else None
-person.add("name", clean_name, lang="eng", original_value=original_name)
+person.add("name", clean_name, lang="eng", original_value=raw_name)
 ```
-
-Keep the source form with `original_value` only when stripping changed the name; passing it when nothing was stripped records a redundant provenance entry.
 
 `datasets/ke/national_assembly/crawler.py` and `datasets/ke/senate/crawler.py` follow this idiom directly. `datasets/ug/parliament/crawler.py` shows the variant that feeds the cleaned string into [`h.apply_name`][zavod.helpers.apply_name]:
 
