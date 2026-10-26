@@ -8,8 +8,7 @@ import xlrd
 from followthemoney.types.identifier import IdentifierType
 from normality import squash_spaces, stringify
 from normality.cleaning import decompose_nfkd
-from openpyxl import load_workbook
-from openpyxl.cell import Cell, MergedCell
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLS, XLSX
 
 from zavod import Context, Entity, settings
@@ -51,10 +50,7 @@ def note_long_ids(entity: Entity, identifiers: list[str]) -> None:
             entity.add("notes", identifier)
 
 
-def str_cell(cell: Cell | MergedCell) -> str | None:
-    value = cell.value
-    if value is None:
-        return None
+def str_cell(value: object) -> str | None:
     if isinstance(value, (datetime, date)):
         return value.isoformat()
     if isinstance(value, bool):
@@ -62,11 +58,10 @@ def str_cell(cell: Cell | MergedCell) -> str | None:
     text = stringify(value)
     if text is None:
         return None
-    # `_x000D_` is the OOXML escape for a carriage return (0x0D). openpyxl surfaces
-    # it verbatim instead of un-escaping it, so cells with in-cell line breaks arrive
-    # carrying the literal artifact. Turn it back into a newline so the `\n` token in
-    # SPLITS separates multi-value cells cleanly (rather than leaving it in the text).
-    return text.replace("_x000D_", "\n")
+    # Cells with in-cell line breaks carry carriage returns. Turn them into
+    # newlines so the `\n` token in SPLITS separates multi-value cells cleanly
+    # (rather than leaving a stray `\r` in the text).
+    return text.replace("\r", "\n")
 
 
 def parse_date(text: list[str]) -> list[str]:
@@ -246,13 +241,17 @@ def read_xlsx_sheets(
 ) -> list[tuple[str, list[list[str | None]]]]:
     path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    wb = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
     sheets: list[tuple[str, list[list[str | None]]]] = []
-    for sheet in wb.worksheets:
+    for sheet_name in workbook.sheet_names:
+        sheet = workbook.get_sheet_by_name(sheet_name)
+        # Keep leading empty rows and columns: the section title is expected in
+        # the first row, and the header is matched on the first column.
         rows: list[list[str | None]] = [
-            [str_cell(c) for c in cells] for cells in sheet.iter_rows()
+            [str_cell(value) for value in cells]
+            for cells in sheet.to_python(skip_empty_area=False)
         ]
-        sheets.append((sheet.title, rows))
+        sheets.append((sheet_name, rows))
     return sheets
 
 
