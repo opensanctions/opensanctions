@@ -5,17 +5,19 @@ subject, candidate) and the terminal verdict of each completed run
 (attempt). Extracted people and positions are emitted as FollowTheMoney
 entities rather than stored.
 
-``attempt.snapshot_id`` references the ``snapshot`` table, which is owned
-by zavod's Alembic chain but defined by the pravda package
-(``pravda.db.SnapshotRecord``). Snapshots are one-to-one with attempts:
-each run captures its own snapshot, and the capture timestamp lives on
-the snapshot row.
+```snapshot`` is the persisted form of a Pravda ``Snapshot``
+value: Pravda captures and returns values; the runner persists them.
+Artifact fields are storage-relative paths. Snapshots are one-to-one
+with attempts: each run captures its own snapshot, and the capture
+timestamp lives on the snapshot row. ``attempt.snapshot_id`` references
+it.
 
-Tables live on their own metadata (``funes_meta``), passed explicitly
+Tables live on their own metadata (``meta``), passed explicitly
 into the Alembic ``target_metadata`` list and created explicitly in
-tests via ``funes_meta.create_all``. They are prefixed ``funes_``
-because the database hosts other projects' tables (including zavod's
-own ``position``). Following the stateful tables, access is Core-level,
+tests via ``meta.create_all``. The pipeline's own tables are prefixed
+``funes_`` because the database hosts other projects' tables (including
+zavod's own ``position``).
+Following the stateful tables, access is Core-level,
 not ORM.
 """
 
@@ -23,11 +25,13 @@ import uuid
 from enum import StrEnum
 
 from sqlalchemy import (
+    JSON,
     CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
     Index,
+    Integer,
     MetaData,
     Table,
     Text,
@@ -35,10 +39,9 @@ from sqlalchemy import (
     Uuid,
     func,
 )
+from sqlalchemy.dialects import postgresql
 
-from pravda.db import SnapshotRecord
-
-funes_meta = MetaData()
+meta = MetaData()
 
 
 class SnapshotStatus(StrEnum):
@@ -70,7 +73,7 @@ class InspectionOutcome(StrEnum):
 # inspection brief.
 dataset_table = Table(
     "funes_dataset",
-    funes_meta,
+    meta,
     Column("id", Uuid, primary_key=True, default=uuid.uuid4),
     Column("name", Text, nullable=False),
     Column("people_sought", Text, nullable=False),
@@ -88,7 +91,7 @@ dataset_table = Table(
 # One named entity scoping a dataset's people sought.
 subject_table = Table(
     "funes_subject",
-    funes_meta,
+    meta,
     Column("id", Uuid, primary_key=True, default=uuid.uuid4),
     Column(
         "dataset_id",
@@ -114,7 +117,7 @@ subject_table = Table(
 # discovery selected this candidate, and the selecting model's reason.
 candidate_table = Table(
     "funes_candidate",
-    funes_meta,
+    meta,
     Column("id", Uuid, primary_key=True, default=uuid.uuid4),
     Column(
         "subject_id",
@@ -135,12 +138,37 @@ candidate_table = Table(
 )
 
 
+# One captured web page. The id and captured_at are minted at capture
+# by Pravda, so the columns have no defaults.
+snapshot_table = Table(
+    "snapshot",
+    meta,
+    Column("id", Uuid, primary_key=True),
+    Column("url", Text, nullable=False),
+    Column("final_url", Text, nullable=True),
+    Column(
+        "captured_at",
+        DateTime(timezone=True),
+        nullable=False,
+    ),
+    Column("http_status", Integer, nullable=True),
+    Column("error", Text, nullable=True),
+    Column("rendered_html", Text, nullable=True),
+    Column("screenshot", Text, nullable=True),
+    Column(
+        "http_archive",
+        JSON().with_variant(postgresql.JSONB(), "postgresql"),
+        nullable=True,
+    ),
+)
+
+
 # One completed run: the candidate inspected, the snapshot it captured,
 # and the run's terminal verdict. Infra failures (exceptions) write no
 # row.
 attempt_table = Table(
     "funes_attempt",
-    funes_meta,
+    meta,
     # The id is caller-allocated: minted at run start, it identifies the
     # run — as the model run id, transcript basename, and repair-routing
     # id — long before this terminal row exists.
@@ -154,7 +182,7 @@ attempt_table = Table(
     Column(
         "snapshot_id",
         Uuid,
-        ForeignKey(SnapshotRecord.__table__.c.id, ondelete="RESTRICT"),
+        ForeignKey("snapshot.id", ondelete="RESTRICT"),
         nullable=False,
     ),
     Column(

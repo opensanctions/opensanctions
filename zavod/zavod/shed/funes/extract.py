@@ -351,18 +351,14 @@ async def view_resource(
 
 
 # The one extraction agent for the whole application, reused across runs like
-# a FastAPI app. Every run supplies its model. NativeOutput compiles the result
-# members into one provider-enforced, strict JSON schema: a tagged envelope
-# {"result": {"kind": ..., "data": ...}} whose kind names the result class.
-# Pydantic still validates the selected member and retries constraint failures
-# the provider cannot express.
+# a FastAPI app. Every run supplies its model. Pydantic still validates the
+# selected member and retries constraint failures the provider cannot express.
 extraction_agent: Agent[ExtractionDependencies, PageResult] = Agent(
     name="extraction",
     output_type=NativeOutput[PageResult](
         [Hit, Miss, BrokenSnapshot], name="page_result", strict=True
     ),
     instructions=_EXTRACTION_INSTRUCTIONS,
-    model_settings={"thinking": "low"},
     deps_type=ExtractionDependencies,
     tools=[view_resource],
 )

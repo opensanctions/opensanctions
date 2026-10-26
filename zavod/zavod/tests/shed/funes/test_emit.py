@@ -56,7 +56,7 @@ def make_hit(
                         name="Justice",
                         organization=organization,
                         description="Decides cases.",
-                        jurisdiction="Germany",
+                        jurisdiction="Adelaide and at circuit locations",
                         start_date=start_date,
                         end_date=end_date,
                     )
@@ -73,16 +73,6 @@ def emit(dataset: Dataset, hit: Hit) -> Context:
     return context
 
 
-def read_entities(dataset: Dataset, context: Context) -> list[Entity]:
-    context.finalize_statements()
-    context.close()
-    view = get_test_view(dataset, clear=True)
-    try:
-        return list(view.entities())
-    finally:
-        view.store.close()
-
-
 def by_schema(entities: list[Entity]) -> dict[str, list[Entity]]:
     result: dict[str, list[Entity]] = {}
     for entity in entities:
@@ -93,8 +83,14 @@ def by_schema(entities: list[Entity]) -> dict[str, list[Entity]]:
 def test_emits_full_graph(zavod_db: None) -> None:
     dataset = make_dataset()
     context = emit(dataset, make_hit())
+    context.finalize_statements()
+    context.close()
 
-    entities = by_schema(read_entities(dataset, context))
+    view = get_test_view(dataset, clear=True)
+    try:
+        entities = by_schema(list(view.entities()))
+    finally:
+        view.store.close()
     assert set(entities) == {"Person", "Position", "Organization", "Occupancy"}
 
     person = entities["Person"][0]
@@ -108,7 +104,7 @@ def test_emits_full_graph(zavod_db: None) -> None:
 
     position = entities["Position"][0]
     assert position.get("name") == ["Justice"]
-    assert position.get("country") == ["de"]
+    assert position.get("country") == []
     assert position.get("description") == ["Decides cases."]
     assert position.get("sourceUrl") == [SOURCE_URL]
     assert position.get("organization") == [organization.id]
@@ -117,13 +113,20 @@ def test_emits_full_graph(zavod_db: None) -> None:
     assert occupancy.get("holder") == [person.id]
     assert occupancy.get("post") == [position.id]
     assert occupancy.get("startDate") == ["2022-01-01"]
+    assert occupancy.get("constituency") == ["Adelaide and at circuit locations"]
 
 
 def test_organization_absent(zavod_db: None) -> None:
     dataset = make_dataset()
     context = emit(dataset, make_hit(organization=None))
+    context.finalize_statements()
+    context.close()
 
-    entities = by_schema(read_entities(dataset, context))
+    view = get_test_view(dataset, clear=True)
+    try:
+        entities = by_schema(list(view.entities()))
+    finally:
+        view.store.close()
     assert "Organization" not in entities
     assert entities["Position"][0].get("organization") == []
 
@@ -134,8 +137,14 @@ def test_after_office_position_is_dropped(zavod_db: None) -> None:
     threshold, so make_occupancy returns None."""
     dataset = make_dataset()
     context = emit(dataset, make_hit(start_date="1980-01-01", end_date="1990-01-01"))
+    context.finalize_statements()
+    context.close()
 
-    assert read_entities(dataset, context) == []
+    view = get_test_view(dataset, clear=True)
+    try:
+        assert list(view.entities()) == []
+    finally:
+        view.store.close()
 
 
 def test_missing_definition_raises() -> None:

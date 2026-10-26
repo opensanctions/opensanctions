@@ -1,7 +1,12 @@
 name: au_judges
+prefix: au-jud
 title: Judges of Australian courts
-disabled: true  # until the funes inspection runner is ported to zavod
+entry_point: zavod.shed.funes.runner:crawl
 ci_test: false
+# Funes extraction copies dates verbatim from subject pages worldwide;
+# day-first is assumed, and a month-first source adds "%m/%d/%Y" first.
+dates:
+  formats: ["%d %B %Y", "%d %b %Y", "%B %d, %Y", "%b %d, %Y", "%B %d %Y", "%b %d %Y", "%d/%m/%Y", "%d.%m.%Y"]
 config:
   funes:
     people_sought: Judges, justices, magistrates, and other judicial officers of the court.
