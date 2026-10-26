@@ -1,0 +1,119 @@
+title: Tunisia Members of the National Council of Regions and Districts
+entry_point: crawler.py
+prefix: tn-cnrd
+coverage:
+  frequency: monthly
+load_statements: true
+ci_test: false  # LLM translation
+summary: Upper chamber indirectly elected from Tunisia's regional and district councils
+description: |
+  Current members of the National Council of Regions and Districts (المجلس الوطني للجهات
+  والأقاليم), the upper chamber of Tunisia's bicameral parliament under the
+  2022 constitution. Its 77 members are elected indirectly for a five-year term: three by
+  each of the 24 regional councils from among their members, and one by each of the five
+  district councils. Alongside the Assembly of the Representatives of the
+  People, it must approve the state budget and regional and national development plans.
+url: https://www.cnrd.tn/
+publisher:
+  name: المجلس الوطني للجهات والأقاليم
+  name_en: National Council of Regions and Districts
+  acronym: CNRD
+  description: >
+    The National Council of Regions and Districts is the upper chamber of the Tunisian
+    parliament, made up of representatives of the country's regional and district
+    councils.
+  url: https://www.cnrd.tn/
+  country: tn
+  official: true
+data:
+  url: https://www.cnrd.tn/%d9%82%d8%a7%d8%a6%d9%85%d8%a9-%d8%a7%d9%84%d9%86%d9%88%d8%a7%d8%a8/
+  format: HTML
+  lang: ara
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 70
+      Position: 1
+    country_entities:
+      tn: 70
+  max:
+    schema_entities:
+      Person: 85
+      Position: 1
+
+lookups:
+  # Table headers -> English keys.
+  columns:
+    options:
+      - match: الاسم واللقب
+        value: name
+      - match: الولاية
+        value: governorate
+      - match: الإقليم
+        value: district
+  # Governorates (ولايات) and districts (أقاليم) -> English names.
+  regions:
+    required: true
+    options:
+      - match: أريانة
+        value: Ariana
+      - match: باجة
+        value: Béja
+      - match: بن عروس
+        value: Ben Arous
+      - match: بنزرت
+        value: Bizerte
+      - match: تطاوين
+        value: Tataouine
+      - match: توزر
+        value: Tozeur
+      - match: تونس
+        value: Tunis
+      - match: جندوبة
+        value: Jendouba
+      - match: زغوان
+        value: Zaghouan
+      - match: سليانة
+        value: Siliana
+      - match: سوسة
+        value: Sousse
+      - match: سيدي بوزيد
+        value: Sidi Bouzid
+      - match: صفاقس
+        value: Sfax
+      - match: قابس
+        value: Gabès
+      - match: قبلي
+        value: Kebili
+      - match: القصرين
+        value: Kasserine
+      - match: قفصة
+        value: Gafsa
+      - match: القيروان
+        value: Kairouan
+      - match: الكاف
+        value: Kef
+      - match: مدنين
+        value: Medenine
+      - match: المنستير
+        value: Monastir
+      - match: منوبة
+        value: Manouba
+      - match: المهدية
+        value: Mahdia
+      - match: نابل
+        value: Nabeul
+      - match: الإقليم الأول
+        value: First District
+      - match: الإقليم الثاني
+        value: Second District
+      - match: الإقليم الثالث
+        value: Third District
+      - match: الإقليم الرابع
+        value: Fourth District
+      - match: الإقليم الخامس
+        value: Fifth District
