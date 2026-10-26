@@ -129,7 +129,7 @@ What first drafts most often get wrong, and this gets right:
 - **The row loop feeds `crawl_row` directly** — no discovery helper collecting IDs
   first, no repeated requests "to be safe", no hand-written row-count check (the YAML
   `assertions` own totals).
-- **`categorise` runs once, in `crawl()`**, next to the position it gates.
+- **The position most members hold is built and categorised once, in `crawl()`**.
 - **Each workaround carries its reason** (the uncached catalog lookup, the `cp1252`
   encoding), so a reviewer can tell necessary code from machinery.
 - **Status comes from the dates.** This roster is republished daily and drops departed
@@ -168,8 +168,6 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
         no_end_implies_current=False,         # no end date != still in office
     )
     if occupancy is not None:
-        # Emit the position only once an occupancy holds it: positions are per-record
-        # here, so emitting earlier leaves some with no occupancy.
         context.emit(occupancy)
         context.emit(position)
         context.emit(person)
@@ -260,16 +258,19 @@ position = h.make_position(
 )
 categorisation = categorise(context, position)
 if not categorisation.is_pep:
-    context.log.warning("Position is not categorised as PEP", position=position.id)
     return
-context.emit(position)
+occupancy = h.make_occupancy(context, person, position, categorisation=categorisation)
+if occupancy is not None:
+    context.emit(occupancy)
+    context.emit(position)
+    context.emit(person)
 ```
 
-### One label, several held positions
+### Presiding offices
 
-When a role label implies more than one held office, such as a Speaker who keeps their
-seat, map the label to every held position name with a multi-`values` lookup option, and
-make an occupancy for each:
+A Speaker keeps their seat, so they hold the membership as well as the presiding
+office. The membership is built once in `crawl()`, as in the reference crawler; the
+lookup names only the presiding offices, which are built per person:
 
 ```yaml
 lookups:
@@ -277,42 +278,52 @@ lookups:
     required: true
     options:
       - match: Member of Parliament
-        value: Member of the Parliament of Examplia
+        value: null
       - match: Speaker
-        values:
-          - Speaker of the Parliament of Examplia
-          - Member of the Parliament of Examplia
+        name: Speaker of the Parliament of Examplia
+        wikidata_id: Q...
+        topics: [gov.national, gov.legislative]
 ```
 
 ```python
-# Only the member seat has a Wikidata item.
-POSITION_QIDS = {"Member of the Parliament of Examplia": "Q..."}
+def crawl_member(
+    context: Context,
+    member: Entity,
+    categorisation: PositionCategorisation,
+    row: dict[str, Any],
+) -> None:
+    person = context.make("Person")
+    # ... set person props ...
 
-# required: true only halts the crawl via context.lookup —
-# context.lookup_value catches the exception and returns None.
-res = context.lookup("position", role)
-assert res is not None, role
-for title in res.values:
-    position = h.make_position(
-        context,
-        name=title,
-        country="xx",
-        topics=["gov.national", "gov.legislative"],
-        wikidata_id=POSITION_QIDS.get(title),
-        lang="eng",
-    )
-    categorisation = categorise(context, position)
-    if not categorisation.is_pep:
-        context.log.warning("Position is not categorised as PEP", position=position.id)
-        continue
     occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
+        context, person, member, categorisation=categorisation
     )
-    if occupancy is not None:
-        context.emit(occupancy)
-        # Repeated emits of the same position/person are fine.
-        context.emit(position)
-        context.emit(person)
+    if occupancy is None:
+        return
+    context.emit(occupancy)
+
+    # required: true only halts the crawl via context.lookup —
+    # context.lookup_value catches the exception and returns None.
+    res = context.lookup("position", row.pop("role"))
+    assert res is not None
+    if res.name is not None:
+        office = h.make_position(
+            context,
+            name=res.name,
+            country="xx",
+            topics=res.topics,
+            wikidata_id=res.wikidata_id,
+            lang="eng",
+        )
+        office_categorisation = categorise(context, office)
+        if office_categorisation.is_pep:
+            office_occupancy = h.make_occupancy(
+                context, person, office, categorisation=office_categorisation
+            )
+            if office_occupancy is not None:
+                context.emit(office_occupancy)
+                context.emit(office)
+    context.emit(person)
 ```
 
 ## Multi-term source

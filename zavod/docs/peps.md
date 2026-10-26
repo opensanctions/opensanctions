@@ -132,16 +132,13 @@ Avoid
 
 Use the [`make_position`][zavod.helpers.make_position] helper to generate position entities consistently.
 
-!!! info "Pro tip"
-    It's perfectly fine to emit the same position over and over for each instance
-    of a person holding that position, if that simplifies your code.
-
-    It is often convenient to create the person, all their positions, and
-    occupancies in a loop. You don't have to track created positions in your
-    crawler to avoid duplicates, as long as the position `id` is consistent for
-    each distinct position encountered. This is the case if the values you pass
-    [`make_position`][zavod.helpers.make_position] are consistent. The export
-    process takes care of deduplication of entities with consistent `id`s.
+A position that most people in the dataset hold, such as the membership of a
+parliament, is built and categorized once at the start of the crawl and passed to the
+code handling each person. Build any other position afresh for each person who holds it,
+passing [`make_position`][zavod.helpers.make_position] the same values every time so
+that its `id` stays the same, and emit it only together with an occupancy. Emitting the
+same position once per holder is harmless: the export deduplicates entities with the
+same `id`.
 
 ## Categorizing positions
 
@@ -164,9 +161,7 @@ the source mixes PEP and non-PEP roles: a not-yet-reviewed position then returns
 review UI and the crawler runs again.
 
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
-When the crawler names its positions itself, a non-PEP result contradicts what the
-crawler knows, so log a warning rather than skipping the position silently. See the
-example below.
+See the example below.
 
 Positions are created in the database if they don't already exist, and can be
 categorized manually later. The `is_pep` and `topics` values from the database
@@ -252,7 +247,6 @@ for role in person_data.pop("roles"):
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        context.log.warning("Position is not categorised as PEP", position=position.id)
         continue
     occupancy = h.make_occupancy(
         context,
@@ -299,11 +293,10 @@ members and keeps their seat, so they hold both offices at once. Create an occup
 each held position, not just the most senior one — each is politically exposing in its
 own right.
 
-Where the source labels the role, a `position` lookup option with multiple `values`
-(see [result values](best_practices/datapatch_lookups.md#result-values)) maps the label
-to all held position names; the crawler then loops over `context.lookup(...).values`,
-applying the [example above](#example) to each name. Worked example:
-`examples.md` → "One label, several held positions".
+The membership is the position built up front. Where the source labels the role, a
+`position` lookup option for each presiding-office label carries that office's `name`,
+`topics` and `wikidata_id`, and the crawler builds the office for its holder in addition
+to their membership. Worked example: `examples.md` → "Presiding offices".
 
 ## Historical and multi-term sources
 

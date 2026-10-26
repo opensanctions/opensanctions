@@ -291,8 +291,8 @@ entity.add("name", latin_name, lang="eng")         # override
 - Keep `crawl()` thin; delegate to per-record helpers.
 - No single-use module-level constants: inline a literal at its only call site
   instead of hoisting it to the top of the file. Named constants are for
-  precompiled regexes, values used at 2+ sites, and enumerations-as-data
-  (e.g. a `POSITIONS` table). See `zavod/docs/best_practices/patterns.md`.
+  precompiled regexes, values used at 2+ sites, and enumerations-as-data.
+  See `zavod/docs/best_practices/patterns.md`.
 
 ## Running and testing
 

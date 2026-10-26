@@ -97,7 +97,7 @@ context.emit(sanction)
         ```
 
     - **Genuine reuse.** The value appears at two or more call sites, so a single source of truth keeps the copies from drifting apart.
-    - **Enumeration that is itself the data.** A mapping such as a `POSITIONS` dict that collects all the known cases in one table.
+    - **Enumeration that is itself the data.** A mapping that collects all the known cases in one table.
 
     Otherwise, inline it. Single-use `TOPICS`, `COLUMNS`, header-name lists and the like read better as literals at the point of use.
 
