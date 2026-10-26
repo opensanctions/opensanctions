@@ -37,9 +37,8 @@ already uses only if it reads naturally; prefer the plain form.
 
 ## 3. Description — the legislature pattern
 
-The rules, including what to keep out and which numbers are allowed, are in
-[`zavod/docs/metadata.md`](../../../zavod/docs/metadata.md) → Description. One short
-paragraph, optionally two:
+The rules are in [`zavod/docs/metadata.md`](../../../zavod/docs/metadata.md) →
+Description. One short paragraph, optionally two:
 
 **Paragraph 1 — who the members are + institutional context.** Scope-prefixed
 ("Current members of …" / "Current and historical members of …"), naming the body
