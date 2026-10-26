@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -845,11 +845,11 @@ wheels = [
 
 [[package]]
 name = "filelock"
-version = "4.0.7"
+version = "4.2.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/35/f5/14097cca69f53794270d8c7970b48321636302affe3154c7e0ba114eeff9/filelock-4.0.7.tar.gz", hash = "sha256:da5915714a70b55d167fdc7e251ad91302b0a36816fb574dfafae8f4f2c9bb21", size = 248489, upload-time = "2026-09-29T23:04:05.995Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/98/771d8ca889f220d7d7e352addf500666368f0fd081c6080a83767580c6e4/filelock-4.2.1.tar.gz", hash = "sha256:c4c937ccac2a813cee448e662a56366cfb374c0f8702e75f295c412cc1c5d5a3", size = 650997, upload-time = "2026-10-17T16:48:14.435Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/cf/1731c0dd182ee35f80a39e63afb3d03056ea0dd561b7498932b10b2e34d9/filelock-4.0.7-py3-none-any.whl", hash = "sha256:a93c4d93269b339a6af4848342c7e940d0f9928ad95eff64764699e5f1bf8a6a", size = 109242, upload-time = "2026-09-29T23:04:04.696Z" },
+    { url = "https://files.pythonhosted.org/packages/28/00/db89d339bc4ecdc8087fa7b8607ba22ffc27bf96286f340c9620bea428b3/filelock-4.2.1-py3-none-any.whl", hash = "sha256:7be2662e9e826b9bba28afc0f843a123280d799a2ea44bb5d35ccec67905ae44", size = 162455, upload-time = "2026-10-17T16:48:12.937Z" },
 ]
 
 [[package]]
@@ -2273,7 +2273,7 @@ wheels = [
 
 [[package]]
 name = "nomenklatura"
-version = "4.17.3"
+version = "4.17.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -2291,7 +2291,7 @@ dependencies = [
     { name = "urllib3" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/22/4cafe0468253b8590887aab5fd1161929dff0e6fd4f68a4197a5e46d5637/nomenklatura-4.17.3-py3-none-any.whl", hash = "sha256:bb116769a110797e6f617cfdf3db458acf326faff0797046364c29248d9a107c", size = 222743, upload-time = "2026-10-21T20:19:49.603Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/1b/78318a9c4bea456e9e202fd8ef19f782e89c90cb2890cbf8735f5d677aa3/nomenklatura-4.17.4-py3-none-any.whl", hash = "sha256:a1bd5bd68b20c6fe14268f64b346b1a199f7ee5536d1d36d2a318de373eb4817", size = 222867, upload-time = "2026-10-22T14:20:36.758Z" },
 ]
 
 [[package]]
@@ -4143,7 +4143,7 @@ requires-dist = [
     { name = "mkdocs-material", marker = "extra == 'docs'" },
     { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'" },
     { name = "mypy", marker = "extra == 'dev'" },
-    { name = "nomenklatura", specifier = "==4.17.3" },
+    { name = "nomenklatura", specifier = "==4.17.4" },
     { name = "openai", specifier = ">=1.33.0,<4.0.0" },
     { name = "openpyxl", specifier = "==3.1.5" },
     { name = "opensanctions-pravda", specifier = "==0.6.0" },
