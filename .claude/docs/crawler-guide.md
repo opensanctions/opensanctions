@@ -28,10 +28,10 @@ coverage:
 load_statements: true   # always true for production datasets
 
 summary: >-
-  One sentence description.
+  See "Summary" in zavod/docs/metadata.md.
 
 description: |
-  Multi-paragraph description.
+  See "Description" in zavod/docs/metadata.md.
 
 url: https://...
 

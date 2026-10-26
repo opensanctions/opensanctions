@@ -11,8 +11,9 @@ Some things that are easy to forget but critical for new crawlers. Scope and per
         - `assertions` - see [Data Assertions](../metadata.md#data-assertions)
     - dataset `name` is clear and conforms to convention. It's fine if it's just the yaml file name and not included in the file.
     - dataset `title` is concise and meaningful
+    - `summary` and `description` follow [Dataset metadata](../metadata.md)
     - dataset `prefix` is short yet meaningful
-    - `publisher` - see if there's another dataset with the same publisher that you can copy from. Description is important.
+    - `publisher` - see if there's another dataset with the same publisher that you can copy from.
         - country code is correct
         - description is often skipped, but it's important
     - `ci_test` - see [Continuous Integration](../metadata.md#continuous-integration)

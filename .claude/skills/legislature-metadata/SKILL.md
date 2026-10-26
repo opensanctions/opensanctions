@@ -62,7 +62,7 @@ coverage, a bounded period.
 title: Georgia Members of Parliament
 description: |
   Current members of the Parliament of Georgia, the country's unicameral national
-  legislature. Its 150 members are elected under proportional representation for a
+  legislature. Its members are elected under proportional representation for a
   four-year term and hold the country's legislative power, including passing laws,
   approving the budget, and overseeing the government.
 ```
@@ -74,9 +74,9 @@ unchanged). If it is already `monthly`, leave it.
 
 ## Verify
 
-Re-read the edited fields. Confirm the term, election method and any seat count match the
-source, any scope note reflects what the crawler actually does, and no sourcing,
+Re-read the edited fields. Confirm the term and election method match the source, any
+scope note reflects what the crawler actually does, and no sourcing,
 mechanics, or per-field language remains.
 
-If the user asked for a full metadata pass, continue with the `/dataset-metadata`
-checklist for the remaining fields.
+If the user asked for a full metadata pass, continue with `/dataset-metadata` for
+the remaining fields.
