@@ -2,7 +2,7 @@
 
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
-from typing import get_args
+from typing import Annotated, Literal, get_args
 
 from pydantic import Field
 from pydantic_ai import (
@@ -164,37 +164,37 @@ evidence.
 <example>
 Brief: People sought: board members. Organization: Example Foundation.
 Source: Title "Board of Directors — Example Foundation"; outline "Amina Diallo".
-Output: {"result":{"kind":"Hit","data":{"persons":[{"name":"Amina Diallo","positions":[{"name":"Director","organization":"Example Foundation"}]}]}}}
+Output: {"kind":"hit","persons":[{"name":"Amina Diallo","positions":[{"name":"Director","organization":"Example Foundation"}]}]}
 </example>
 
 <example>
 Brief: People sought: national legislators. Sending country: France.
 Source: "Honorary Life Members: Luis Ortega, Mina Park."
-Output: {"result":{"kind":"Miss","data":{"reason":"The page lists honorary members, not national legislators."}}}
+Output: {"kind":"miss","reason":"The page lists honorary members, not national legislators."}
 </example>
 
 <example>
 Brief: People sought: heads of international organizations. Organization: Green Climate Fund.
 Source: Title "Boardroom — Global Environment Facility"; outline "Chair: Carlos Mehta".
-Output: {"result":{"kind":"Miss","data":{"reason":"The page lists the Global Environment Facility board, not the Green Climate Fund."}}}
+Output: {"kind":"miss","reason":"The page lists the Global Environment Facility board, not the Green Climate Fund."}
 </example>
 
 <example>
 Brief: People sought: officeholders of the association. Organization: Harborlight Members' Club.
 Source: "The association was founded by Eleanor Vance."
-Output: {"result":{"kind":"Miss","data":{"reason":"The page names a founder action but no officeholder or position."}}}
+Output: {"kind":"miss","reason":"The page names a founder action but no officeholder or position."}
 </example>
 
 <example>
 Brief: People sought: board members of the association. Organization: Harborlight Members' Club.
 Source: "Accept the cookie policy and site terms to view this page."
-Output: {"result":{"kind":"BrokenSnapshot","data":{"reason":"A click-through consent gate blocks the page content."}}}
+Output: {"kind":"broken","reason":"A click-through consent gate blocks the page content."}
 </example>
 
 <example>
 Brief: People sought: board members of the association. Organization: Harborlight Members' Club.
 Source: "Sign in with an existing member account to continue."
-Output: {"result":{"kind":"Miss","data":{"reason":"The page is an account-required login wall."}}}
+Output: {"kind":"miss","reason":"The page is an account-required login wall."}
 </example>
 """
 
@@ -281,6 +281,7 @@ class Hit(StrictModel):
     """The snapshot satisfies the brief: at least one person-position
     relationship relevant to it."""
 
+    kind: Literal["hit"] = "hit"
     persons: list[Person] = Field(
         min_length=1,
         description=(
@@ -298,6 +299,7 @@ class Miss(StrictModel):
     account login, or subscription paywall.
     """
 
+    kind: Literal["miss"] = "miss"
     reason: str = Field(
         description="What the captured page is and why it does not meet the brief."
     )
@@ -306,12 +308,14 @@ class Miss(StrictModel):
 class BrokenSnapshot(StrictModel):
     """Nonterminal capture failure eligible for supported recapture."""
 
+    kind: Literal["broken"] = "broken"
     reason: str = Field(description="The observed condition blocking content.")
 
 
-# Which member a run selected. NativeOutput discriminates the members via its
-# own tagged envelope, so no pydantic discriminator is needed here.
-PageResult = Hit | Miss | BrokenSnapshot
+# Which member a run selected. Members self-declare through ``kind``, so the
+# union discriminates wherever it validates directly; the evals dataset files
+# reuse the same tag for their expectations.
+PageResult = Annotated[Hit | Miss | BrokenSnapshot, Field(discriminator="kind")]
 
 
 @dataclass(frozen=True)

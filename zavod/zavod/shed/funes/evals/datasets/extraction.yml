@@ -1,0 +1,769 @@
+name: inspection
+cases:
+  - name: office_of_the_sg
+    inputs:
+      fixture: office_of_the_sg
+      url: https://www.caf.example.org/about/office-of-the-sg
+      people_sought: Leadership of the Office of the Secretary-General
+      subject_label: Organization
+      subject: CAF
+    expected_output:
+      kind: hit
+      persons:
+        - name: Mirela Voss
+          positions:
+            - name: Secretary-General
+              organization: CAF
+        - name: Tomas Lindqvist
+          positions:
+            - name: Chef de Cabinet
+              organization: CAF
+    evaluators:
+      - InspectionF1
+  - name: roster_table
+    inputs:
+      fixture: roster_table
+      url: https://www.lbc.example.org/governance/delegates
+      people_sought: Council delegates and alternates
+      subject_label: Organization
+      subject: Lakes Basin Commission
+    expected_output:
+      kind: hit
+      persons:
+        - name: Ms. Ingrid Halloway
+          positions:
+            - name: Delegate
+              organization: Lakes Basin Commission Council
+              jurisdiction: Bellanor, Ferndale, Harwick
+              start_date: Mar, 2024
+        - name: Mr. Peter Oskanson
+          positions:
+            - name: Alternate
+              organization: Lakes Basin Commission Council
+              jurisdiction: Bellanor, Ferndale, Harwick
+              start_date: Mar, 2024
+        - name: Dr. Marta Velling
+          positions:
+            - name: Delegate
+              organization: Lakes Basin Commission Council
+              jurisdiction: Caldera Isles, Pinehaven, Stonebrook
+              start_date: Jun, 2025
+        - name: Mrs. Rosa Delacampra
+          positions:
+            - name: Alternate
+              organization: Lakes Basin Commission Council
+              jurisdiction: Caldera Isles, Pinehaven, Stonebrook
+              start_date: Jun, 2025
+        - name: Mr. Anders Quill
+          positions:
+            - name: Delegate
+              organization: Lakes Basin Commission Council
+              jurisdiction: Thornwick
+              start_date: Jan, 2026
+    evaluators:
+      - InspectionF1
+  - name: wrong_subject_roster
+    inputs:
+      fixture: roster_table
+      url: https://www.lbc.example.org/governance/delegates
+      people_sought: Council delegates and alternates
+      subject_label: Organization
+      subject: Calder Sea Commission
+    expected_output:
+      kind: miss
+      reason: The page lists delegates and alternates of the Lakes Basin Commission Council, not the Calder Sea Commission.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: bot_challenge
+    inputs:
+      fixture: bot_challenge
+      url: https://www.nw-tribunal.example.org/secretariat/council
+      people_sought: Judges and officeholders of the secretariat council
+      subject_label: Organization
+      subject: Northwest Tribunal
+    expected_output:
+      kind: broken
+      reason: Bot-detection security challenge interstitial ("Just a moment...", "verifies you are not a bot"); no usable source content.
+    evaluators:
+      - IsInstance:
+          type_name: BrokenSnapshot
+          evaluation_name: broken_match
+  - name: not_found
+    inputs:
+      fixture: not_found
+      url: https://www.nw-tribunal.example.org/secretariat/council
+      people_sought: Judges and officeholders of the secretariat council
+      subject_label: Organization
+      subject: Northwest Tribunal
+      http_status: 404
+    expected_output:
+      kind: miss
+      reason: The URL returns a 404 page and therefore provides no council roster.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: account_login
+    inputs:
+      fixture: account_login
+      url: https://members.nw-tribunal.example.org/secretariat/council
+      people_sought: Judges and officeholders of the secretariat council
+      subject_label: Organization
+      subject: Northwest Tribunal
+    expected_output:
+      kind: miss
+      reason: The page requires an existing member account and exposes no public council content.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: subscription_paywall
+    inputs:
+      fixture: subscription_paywall
+      url: https://directory.northstar.example.org/leadership
+      people_sought: Leaders
+      subject_label: Organization
+      subject: Northstar Forum
+    expected_output:
+      kind: miss
+      reason: The directory requires a paid subscription and exposes no public leadership content.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: cookie_consent_wall
+    inputs:
+      fixture: cookie_consent_wall
+      url: https://www.northstar.example.org/leadership
+      people_sought: Leaders
+      subject_label: Organization
+      subject: Northstar Forum
+    expected_output:
+      kind: broken
+      reason: A click-through cookie and terms gate blocks the page content.
+    evaluators:
+      - IsInstance:
+          type_name: BrokenSnapshot
+          evaluation_name: broken_match
+  - name: server_error
+    inputs:
+      fixture: server_error
+      url: https://www.northstar.example.org/leadership
+      people_sought: Leaders
+      subject_label: Organization
+      subject: Northstar Forum
+      http_status: 503
+      capture_error: upstream service unavailable
+    expected_output:
+      kind: broken
+      reason: The capture contains only a transient 503 service-unavailable page.
+    evaluators:
+      - IsInstance:
+          type_name: BrokenSnapshot
+          evaluation_name: broken_match
+  - name: server_error_with_content
+    inputs:
+      fixture: server_error_with_content
+      url: https://www.northstar.example.org/leadership
+      people_sought: Leaders
+      subject_label: Organization
+      subject: Northstar Forum
+      http_status: 503
+      capture_error: secondary service request returned 503
+    expected_output:
+      kind: hit
+      persons:
+        - name: Amara Vale
+          positions:
+            - name: President
+              organization: Northstar Forum
+        - name: Tomas Ilyan
+          positions:
+            - name: Secretary-General
+              organization: Northstar Forum
+    evaluators:
+      - InspectionF1
+  - name: unexpected_redirect
+    inputs:
+      fixture: unexpected_redirect
+      url: https://www.northstar.example.org/leadership
+      people_sought: Leaders
+      subject_label: Organization
+      subject: Northstar Forum
+      final_url: https://search.example.net/
+    expected_output:
+      kind: miss
+      reason: The URL redirects to an unrelated search portal that contains no Northstar Forum leadership information.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: elections_no_holders
+    inputs:
+      fixture: elections_no_holders
+      url: https://www.aia.example.org/elecciones
+      people_sought: Members of the 2027-2028 Mesa Directiva
+      subject_label: Organization
+      subject: Asamblea del Istmo Austral
+    expected_output:
+      kind: miss
+      reason: The page announces the 2027-2028 Mesa Directiva election process (call, calendar, electoral roll, candidacy deadlines) but names no board members or other position holders.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: nav_menu_hallucination
+    inputs:
+      fixture: nav_menu_hallucination
+      url: https://www.maresia.example.org/o-compacto/organizacao
+      people_sought: Heads of departments and organizational units
+      subject_label: Organization
+      subject: Maresia Compact Secretariat
+    expected_output:
+      kind: miss
+      reason: The page is a navigation menu plus a mission description; it lists curators and executive members by name under nav headings but names no department heads or unit leadership.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: conjoined_role_misattribution
+    inputs:
+      fixture: conjoined_role_misattribution
+      url: https://www.vu.example.org/en/chairperson
+      people_sought: Chairpersons
+      subject_label: Organization
+      subject: Veltrane Union
+    expected_output:
+      kind: hit
+      persons:
+        - name: Adama Kessi
+          positions:
+            - name: Chairperson of the Veltrane Union
+              organization: Veltrane Union
+        - name: Omar Nasri
+          positions:
+            - name: Chairperson of the Veltrane Union
+              organization: Veltrane Union
+        - name: Lucas Marek
+          positions:
+            - name: Chairperson of the Veltrane Union
+              organization: Veltrane Union
+    evaluators:
+      - InspectionF1
+  - name: board_member_cards
+    inputs:
+      fixture: board_member_cards
+      url: https://www.meridian.example.org/board
+      people_sought: Board members, including the chair and alternates
+      subject_label: Organization
+      subject: Meridian Accord
+    expected_output:
+      kind: hit
+      persons:
+        - name: Dr. Ibembe Orlu
+          positions:
+            - name: Board member
+              organization: Meridian Accord
+            - name: Chair of the Board
+              organization: Meridian Accord
+        - name: Tomas Ferreira Lopes
+          positions:
+            - name: Board member
+              organization: Meridian Accord
+              jurisdiction: Northern Region
+        - name: Nadia Solheim
+          positions:
+            - name: Board member alternate
+              organization: Meridian Accord
+              jurisdiction: Northern Region
+        - name: Peter Anand Mukherjee
+          positions:
+            - name: Board member
+              organization: Meridian Accord
+              jurisdiction: Southern Region
+        - name: Ingrid Dahl
+          positions:
+            - name: Board member
+              organization: Meridian Accord
+              jurisdiction: Southern Region
+    evaluators:
+      - InspectionF1
+  - name: parenthetical_home_authority
+    inputs:
+      fixture: parenthetical_home_authority
+      url: https://www.cisa.example.org/governance/leadership
+      people_sought: Chairs and vice chairs of the executive, audit, budget, and standards committees
+      subject_label: Organization
+      subject: Corvara Insurance Supervisors Alliance
+    expected_output:
+      kind: hit
+      persons:
+        - name: Aksel Brandvold
+          positions:
+            - name: Chair, Executive Committee (Norlandia)
+              organization: Corvara Insurance Supervisors Alliance
+              jurisdiction: Norlandia
+        - name: Miriam Osei-Trekker
+          positions:
+            - name: Vice Chair, Executive Committee (Valmont Margin Authority)
+              organization: Corvara Insurance Supervisors Alliance
+        - name: Hugo Delacroix-Ferre
+          positions:
+            - name: Vice Chair, Executive Committee (Taldoria)
+              organization: Corvara Insurance Supervisors Alliance
+              jurisdiction: Taldoria
+        - name: Yuki Marchetti
+          positions:
+            - name: Chair, Audit Committee (Verucia)
+              organization: Corvara Insurance Supervisors Alliance
+              jurisdiction: Verucia
+        - name: Priscilla Odum
+          positions:
+            - name: Chair, Budget Committee (Petricor Insurance Regulatory Board)
+              organization: Corvara Insurance Supervisors Alliance
+        - name: Jonas Mbeki-Strand
+          positions:
+            - name: Chair, Standards Committee (Zephyria)
+              organization: Corvara Insurance Supervisors Alliance
+              jurisdiction: Zephyria
+    evaluators:
+      - InspectionF1
+  - name: cross_roster_duplicate
+    inputs:
+      fixture: cross_roster_duplicate
+      url: https://www.viat.example.org/chambers
+      people_sought: Judges, including reserve judges, of the First Chamber
+      subject_label: Organization
+      subject: Velandra International Arbitration Tribunal
+    expected_output:
+      kind: hit
+      persons:
+        - name: Justice Aurelio Brandt
+          positions:
+            - name: Judge of the First Chamber
+              organization: Velandra International Arbitration Tribunal
+              start_date: '2021'
+              end_date: '2025'
+            - name: Reserve Judge of the First Chamber
+              organization: Velandra International Arbitration Tribunal
+              start_date: '2026'
+        - name: Justice Irmgard Havel
+          positions:
+            - name: Judge of the First Chamber
+              organization: Velandra International Arbitration Tribunal
+        - name: Justice Tomas Reyes Ocampo
+          positions:
+            - name: Reserve Judge of the First Chamber
+              organization: Velandra International Arbitration Tribunal
+    evaluators:
+      - InspectionF1
+  - name: nationality_vs_origin
+    inputs:
+      fixture: nationality_vs_origin
+      url: https://www.helixconsortium.example.org/our-team
+      people_sought: Team members
+      subject_label: Organization
+      subject: Helix Consortium
+    expected_output:
+      kind: hit
+      persons:
+        - name: Dr. Amara Nkemdirim
+          countries:
+            - Kelmora
+          positions:
+            - name: Executive officer
+              organization: Helix Consortium
+        - name: Petar Novakovic
+          countries:
+            - Solvaria
+            - Meridia
+          positions:
+            - name: Communications officer
+              organization: Helix Consortium
+        - name: Marina Delgado
+          positions:
+            - name: Partnerships officer
+              organization: Helix Consortium
+              start_date: '2019'
+        - name: Maxime Perrault
+          positions:
+            - name: Communications officer
+              organization: Helix Consortium
+        - name: Judith Palmer
+          positions:
+            - name: Resource mobilization manager
+              organization: Helix Consortium
+              start_date: '2021'
+    evaluators:
+      - InspectionF1
+  - name: collective_role_label
+    inputs:
+      fixture: collective_role_label
+      url: https://www.harborlight.example.org/partners/representatives
+      people_sought: Heads and named representatives of partner organizations
+      subject_label: Organization
+      subject: Harborlight
+    expected_output:
+      kind: hit
+      persons:
+        - name: Njeri Kamau
+          positions:
+            - name: Director
+              organization: Uzima Health Initiative
+        - name: Aarav Deshpande
+          positions:
+            - name: Trustee
+              organization: Setu Foundation for Children
+        - name: Ingrid Halvorsen
+          positions:
+            - name: Executive Director
+    evaluators:
+      - InspectionF1
+  - name: image_only_staff
+    inputs:
+      fixture: image_only_staff
+      url: https://www.caldris.example.org/about/staff-directory
+      people_sought: Department heads
+      subject_label: Organization
+      subject: Caldris Energy Forum
+    expected_output:
+      kind: hit
+      persons:
+        - name: Dr Leona Marwick
+          positions:
+            - name: Policy Coordination Department Head
+              organization: Caldris Energy Forum
+    evaluators:
+      - InspectionF1
+  - name: deep_governance_tables
+    inputs:
+      fixture: deep_governance_tables
+      url: https://www.aurora-array.example.org/governance
+      people_sought: Executive Directorate members and heads of departments
+      subject_label: Organization
+      subject: Aurora Research Array
+    expected_output:
+      kind: hit
+      persons:
+        - name: Dr. Linnea Varga
+          positions:
+            - name: Director-General
+              organization: Aurora Research Array
+        - name: Malik Osei
+          positions:
+            - name: Deputy Director-General
+              organization: Aurora Research Array
+        - name: Ana Petrescu
+          positions:
+            - name: Director of Research
+              organization: Aurora Research Array
+        - name: Tomás Ibarra
+          positions:
+            - name: Chief Information Officer
+              organization: Aurora Research Array
+        - name: Keiko Marin
+          positions:
+            - name: Head of Detector Systems
+              organization: Aurora Research Array
+        - name: Kwame Adusei
+          positions:
+            - name: Head of Data Operations
+              organization: Aurora Research Array
+        - name: Mirela Drago
+          positions:
+            - name: Head of Engineering
+              organization: Aurora Research Array
+        - name: Jonas Falk
+          positions:
+            - name: Head of Scientific Computing
+              organization: Aurora Research Array
+        - name: Samira El-Amin
+          positions:
+            - name: Head of Site Operations
+              organization: Aurora Research Array
+        - name: Peter Ndlovu
+          positions:
+            - name: Head of External Partnerships
+              organization: Aurora Research Array
+    evaluators:
+      - InspectionF1
+  - name: structure_link_index
+    inputs:
+      fixture: structure_link_index
+      url: https://www.orinth-bank.example.org/about/structure-management
+      people_sought: Members and officers of the governing bodies
+      subject_label: Organization
+      subject: Orinth Development Bank
+    expected_output:
+      kind: miss
+      reason: The page links to sections about governing bodies and offices but names no human position holders.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: generic_access_denied
+    inputs:
+      fixture: generic_access_denied
+      url: https://www.northwind-forum.example.org/leadership
+      people_sought: Leaders
+      subject_label: Organization
+      subject: Northwind Development Forum
+      http_status: 403
+    expected_output:
+      kind: broken
+      reason: A generic infrastructure access-denied response blocks the public page.
+    evaluators:
+      - IsInstance:
+          type_name: BrokenSnapshot
+          evaluation_name: broken_match
+  - name: mixed_scope_governing_board
+    inputs:
+      fixture: mixed_scope_rosters
+      url: https://www.lydian-water.example.org/governance
+      people_sought: Members of the Board of Trustees
+      subject_label: Organization
+      subject: Lydian Water Foundation
+    expected_output:
+      kind: hit
+      persons:
+        - name: Amara Nwosu
+          positions:
+            - name: Chair of the Board
+              organization: Lydian Water Foundation
+        - name: Lukas Venn
+          positions:
+            - name: Trustee
+              organization: Lydian Water Foundation
+        - name: Sofía Belmonte
+          positions:
+            - name: Trustee
+              organization: Lydian Water Foundation
+        - name: Idris Kader
+          positions:
+            - name: Trustee
+              organization: Lydian Water Foundation
+    evaluators:
+      - InspectionF1
+  - name: mixed_scope_advisory_panel
+    inputs:
+      fixture: mixed_scope_rosters
+      url: https://www.lydian-water.example.org/governance
+      people_sought: Members of the Scientific Advisory Panel
+      subject_label: Organization
+      subject: Lydian Water Foundation
+    expected_output:
+      kind: hit
+      persons:
+        - name: Eleri Moss
+          positions:
+            - name: Chair, Scientific Advisory Panel
+              organization: Lydian Water Foundation
+        - name: Ravi Mensah
+          positions:
+            - name: Member, Scientific Advisory Panel
+              organization: Lydian Water Foundation
+        - name: Clara Jovan
+          positions:
+            - name: Member, Scientific Advisory Panel
+              organization: Lydian Water Foundation
+    evaluators:
+      - InspectionF1
+  - name: repeated_terms_table
+    inputs:
+      fixture: repeated_terms_table
+      url: https://www.astrean-tribunal.example.org/presidency
+      people_sought: Presidents and Vice-Presidents
+      subject_label: Court
+      subject: Astrean Maritime Tribunal
+    expected_output:
+      kind: hit
+      persons:
+        - name: Elif Karadag
+          positions:
+            - name: Vice-President
+              organization: Astrean Maritime Tribunal
+              start_date: '2018'
+              end_date: '2021'
+            - name: Vice-President
+              organization: Astrean Maritime Tribunal
+              start_date: '2024'
+              end_date: '2027'
+            - name: President
+              organization: Astrean Maritime Tribunal
+              start_date: '2027'
+              end_date: '2030'
+    evaluators:
+      - InspectionF1
+  - name: roster_among_portraits
+    inputs:
+      fixture: roster_among_portraits
+      url: https://www.solmere-health.example.org/governance/executive-board
+      people_sought: Members of the Executive Board
+      subject_label: Organization
+      subject: Solmere Public Health Alliance
+    expected_output:
+      kind: hit
+      persons:
+        - name: Dr. Imani Kessler
+          positions:
+            - name: Chair
+              organization: Solmere Public Health Alliance
+        - name: Paulo Neri
+          positions:
+            - name: Vice Chair
+              organization: Solmere Public Health Alliance
+        - name: Mei Tanaka
+          positions:
+            - name: Treasurer
+              organization: Solmere Public Health Alliance
+        - name: Amina Fors
+          positions:
+            - name: Board member
+              organization: Solmere Public Health Alliance
+        - name: Leo Markovic
+          positions:
+            - name: Board member
+              organization: Solmere Public Health Alliance
+    evaluators:
+      - InspectionF1
+  - name: french_commission_leadership
+    inputs:
+      fixture: french_commission_leadership
+      url: https://www.union-estuaires.example.org/fr/gouvernance
+      people_sought: Leadership and commissioners of the Commission
+      subject_label: Organization
+      subject: Union des Estuaires
+    expected_output:
+      kind: hit
+      persons:
+        - name: Son Excellence l’Ambassadrice Dr. Mireille Kanza
+          positions:
+            - name: Présidente de la Commission
+              organization: Union des Estuaires
+              start_date: 1er septembre 2024
+        - name: Étienne M’Bala
+          positions:
+            - name: Vice-Président de la Commission
+              organization: Union des Estuaires
+        - name: Aïcha N’Diaye
+          positions:
+            - name: Commissaire à l’Environnement et aux Estuaires
+              organization: Union des Estuaires
+        - name: João Ferrand
+          positions:
+            - name: Commissaire à la Coopération régionale
+              organization: Union des Estuaires
+        - name: Maëlle Tounkara
+          positions:
+            - name: Commissaire aux Affaires économiques
+              organization: Union des Estuaires
+    evaluators:
+      - InspectionF1
+  - name: concatenated_judges
+    inputs:
+      fixture: concatenated_judges
+      url: https://www.nemeris-court.example.org/chambers/second
+      people_sought: President, Vice-President, and judges of the Second Chamber
+      subject_label: Court
+      subject: Nemeris Administrative Court
+    expected_output:
+      kind: hit
+      persons:
+        - name: Dr. Celia Varen
+          positions:
+            - name: President of the Second Chamber
+              organization: Nemeris Administrative Court
+        - name: Omar Neves
+          positions:
+            - name: Vice-President of the Second Chamber
+              organization: Nemeris Administrative Court
+        - name: Nadia Elsen
+          positions:
+            - name: Judge of the Second Chamber
+              organization: Nemeris Administrative Court
+        - name: Mateo Corvin
+          positions:
+            - name: Judge of the Second Chamber
+              organization: Nemeris Administrative Court
+        - name: Łucja Marek
+          positions:
+            - name: Judge of the Second Chamber
+              organization: Nemeris Administrative Court
+        - name: Tәmir Aslan
+          positions:
+            - name: Judge of the Second Chamber
+              organization: Nemeris Administrative Court
+        - name: Éva Sorel
+          positions:
+            - name: Judge of the Second Chamber
+              organization: Nemeris Administrative Court
+    evaluators:
+      - InspectionF1
+  - name: soft_not_found
+    inputs:
+      fixture: soft_not_found
+      url: https://www.orbis-council.example.org/about/leadership
+      people_sought: Leaders
+      subject_label: Organization
+      subject: Orbis Cooperation Council
+      http_status: 200
+    expected_output:
+      kind: miss
+      reason: The server returns a page-not-found document with HTTP 200 and provides no leadership information.
+    evaluators:
+      - IsInstance:
+          type_name: Miss
+          evaluation_name: miss_match
+  - name: empty_spa_shell
+    inputs:
+      fixture: empty_spa_shell
+      url: https://www.veyra-coast.example.org/governance/board
+      people_sought: Board members
+      subject_label: Organization
+      subject: Veyra Coastal Authority
+    expected_output:
+      kind: broken
+      reason: The capture has the correct board-page metadata and site shell, but the client-rendered board content is empty.
+    evaluators:
+      - IsInstance:
+          type_name: BrokenSnapshot
+          evaluation_name: broken_match
+  - name: stale_metadata_conflict
+    inputs:
+      fixture: stale_metadata_conflict
+      url: https://www.halcyon-relief.example.org/governance
+      people_sought: Executive Board leadership
+      subject_label: Organization
+      subject: Halcyon Relief Network
+    expected_output:
+      kind: hit
+      persons:
+        - name: Nadia Voss
+          positions:
+            - name: Chair of the Executive Board
+              organization: Halcyon Relief Network
+        - name: Anton Mirek
+          positions:
+            - name: Executive Director
+              organization: Halcyon Relief Network
+    evaluators:
+      - InspectionF1
+  - name: malformed_source_date
+    inputs:
+      fixture: malformed_source_date
+      url: https://www.vardos-exchange.example.org/secretariat/office
+      people_sought: Secretary-General
+      subject_label: Organization
+      subject: Vardos Cultural Exchange
+    expected_output:
+      kind: hit
+      persons:
+        - name: Laila Omondi
+          positions:
+            - name: Secretary-General
+              organization: Vardos Cultural Exchange
+              start_date: 1st August, 20018
+    evaluators:
+      - InspectionF1

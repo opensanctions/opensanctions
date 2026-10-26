@@ -1,0 +1,34 @@
+{
+  "log": {
+    "entries": [
+      {
+        "request": {"url": "https://www.solmere-health.example.org/media/portrait-nora-vale.png"},
+        "response": {"content": {"_file": "roster_among_portraits/portrait-nora-vale.png", "mimeType": "image/png"}}
+      },
+      {
+        "request": {"url": "https://www.solmere-health.example.org/media/portrait-daniel-ko.png"},
+        "response": {"content": {"_file": "roster_among_portraits/portrait-daniel-ko.png", "mimeType": "image/png"}}
+      },
+      {
+        "request": {"url": "https://www.solmere-health.example.org/media/portrait-samira-ortiz.png"},
+        "response": {"content": {"_file": "roster_among_portraits/portrait-samira-ortiz.png", "mimeType": "image/png"}}
+      },
+      {
+        "request": {"url": "https://www.solmere-health.example.org/media/portrait-hugo-fenn.png"},
+        "response": {"content": {"_file": "roster_among_portraits/portrait-hugo-fenn.png", "mimeType": "image/png"}}
+      },
+      {
+        "request": {"url": "https://www.solmere-health.example.org/media/portrait-lena-park.png"},
+        "response": {"content": {"_file": "roster_among_portraits/portrait-lena-park.png", "mimeType": "image/png"}}
+      },
+      {
+        "request": {"url": "https://www.solmere-health.example.org/media/portrait-omar-silva.png"},
+        "response": {"content": {"_file": "roster_among_portraits/portrait-omar-silva.png", "mimeType": "image/png"}}
+      },
+      {
+        "request": {"url": "https://www.solmere-health.example.org/media/executive-board-roster.png"},
+        "response": {"content": {"_file": "roster_among_portraits/executive-board-roster.png", "mimeType": "image/png"}}
+      }
+    ]
+  }
+}

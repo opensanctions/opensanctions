@@ -88,7 +88,7 @@ def test_agent_exposes_tool_and_brief() -> None:
                     )
                 ]
             )
-        # NativeOutput union envelope: {"result": {"kind": ..., "data": ...}}
+        # NativeOutput union envelope; the member payload self-declares kind
         return ModelResponse(
             parts=[
                 TextPart(
@@ -96,7 +96,10 @@ def test_agent_exposes_tool_and_brief() -> None:
                         {
                             "result": {
                                 "kind": "Miss",
-                                "data": {"reason": "No officeholders on the page."},
+                                "data": {
+                                    "kind": "miss",
+                                    "reason": "No officeholders on the page.",
+                                },
                             }
                         }
                     )

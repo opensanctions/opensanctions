@@ -57,6 +57,7 @@ Issues = "https://github.com/opensanctions/opensanctions/issues"
 
 [project.optional-dependencies]
 dev = [
+    "pydantic-evals >= 2.57, < 3", # run the funes evals suite against a real model
     "isort >= 6.0.1",
     "wheel >= 0.29.0",
     "twine",
