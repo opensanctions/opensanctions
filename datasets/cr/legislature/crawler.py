@@ -1,7 +1,7 @@
 import re
 from urllib.parse import quote, urlencode
 
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -103,8 +103,10 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    workbook = load_workbook(path, read_only=True)
-    sheet = workbook.worksheets[0]
+    workbook = CalamineWorkbook.from_path(path)
+    # The single sheet is named after the report month.
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    sheet = workbook.get_sheet_by_index(0)
 
     position = h.make_position(
         context,
@@ -117,5 +119,5 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    for row in h.parse_xlsx_sheet_openpyxl(context, sheet):
+    for row in h.parse_xlsx_sheet(context, sheet):
         crawl_deputy(context, row, position, categorisation)
