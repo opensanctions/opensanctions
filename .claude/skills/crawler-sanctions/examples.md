@@ -32,7 +32,7 @@ def crawl_entry(context: Context, node: _Element) -> None:
     for alias_node in node.findall("./Alias"):
         entity.add("alias", alias_node.text)
 
-    # 4. Add dates (ALWAYS through h.apply_date)
+    # 4. Add dates
     h.apply_date(entity, "birthDate", node.findtext("./DOB"))
 
     # 5. Add address
@@ -252,13 +252,12 @@ the stateful review system:
 
 ```python
 from pydantic import BaseModel, Field
-from typing import Optional
 from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import TextSourceValue, review_extraction
 
 class ExtractedInfo(BaseModel):
-    birth_place: Optional[str] = None
-    nationality: Optional[str] = None
+    birth_place: str | None = None
+    nationality: str | None = None
     related_entities: list[str] = Field(default_factory=list)
 
 PROMPT = """Extract structured information from this sanctions entry's remarks field.

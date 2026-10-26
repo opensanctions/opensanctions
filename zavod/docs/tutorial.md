@@ -152,9 +152,9 @@ Responses from the ``context.http`` session can also be cached using built-in he
 ```python
 from lxml import html
 
-def crawl(context):
-    # Fetch, cache and parse the HTTP response into an lxml DOM:
-    doc = context.fetch_html(context.dataset.data.url, cache_days=7)
+def crawl_person(context, url):
+    # Fetch, cache and parse a person's detail page into an lxml DOM:
+    doc = context.fetch_html(url, cache_days=7)
 
     # Query the DOM for specific elements to extract data from:
     for element in doc.findall('.//div[@class="person"]'):

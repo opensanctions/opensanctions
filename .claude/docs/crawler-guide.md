@@ -25,7 +25,7 @@ entry_point: crawler.py
 coverage:
   frequency: daily      # house defaults per dataset type: see metadata.md
   start: 2024-01-01
-load_statements: true   # always true for production datasets
+load_statements: true
 
 summary: >-
   See "Summary" in zavod/docs/metadata.md.
@@ -67,10 +67,7 @@ assertions:
 ```
 
 Key rules:
-- Always set `load_statements: true`.
-- Set assertions on the counts you expect. They are checked by `zavod export`, not by
-  `zavod crawl`. For the band widths, the metrics and the comparison semantics, follow
-  the "Data assertions" section of `zavod/docs/metadata.md`.
+- Assertions: see "Data assertions" in `zavod/docs/metadata.md`.
 - `title`, `summary` and `description` conventions live in `zavod/docs/metadata.md`.
 
 ## The crawler module
@@ -93,15 +90,13 @@ See also: `zavod/docs/best_practices/caching.md`
 
 ```python
 doc = context.fetch_html(context.data_url, absolute_links=True)
-data = context.fetch_json(url, params={"page": 1}, cache_days=7)
+data = context.fetch_json(detail_url, cache_days=7)
 
 from rigour.mime.types import XML
 path = context.fetch_resource("source.xml", url)
 context.export_resource(path, XML, title=context.SOURCE_TITLE)
 doc = context.parse_resource_xml(path)
 ```
-
-`cache_days=1` for index pages, `cache_days=7` for detail pages.
 
 ### JS-rendered pages and anti-bot protection
 
@@ -111,8 +106,7 @@ anti-bot protection that prevents `context.fetch_*` from working, route the requ
 through the Zyte API (`zavod.extract.zyte_api`). See
 `zavod/docs/best_practices/http_operations.md` for which helper to use (`fetch_html` for
 browser rendering, `fetch_text` / `fetch_json` / `fetch_resource` otherwise) and how to
-handle geo-blocking. Crawlers that use Zyte set `ci_test: false`, since the API key isn't
-available in CI.
+handle geo-blocking.
 
 ### Creating and emitting entities
 
@@ -124,40 +118,12 @@ h.apply_date(entity, "birthDate", row["dob"])
 context.emit(entity)
 ```
 
-- `entity.add()` skips `None` and empty strings — never guard with `if value:`.
-- See `zavod/docs/best_practices/entity_id.md` for the ID design rules; the two hard rules to remember:
-    - **Never put PII into `make_slug`.**
-    - **Never change entity IDs** of existing crawlers without team coordination.
+- Entity IDs require careful planning; see `zavod/docs/best_practices/entity_id.md`.
 - **Never emit** an entity without setting `.id`.
 
 ### Audit and fail fast
 
-See also: `zavod/docs/best_practices/patterns.md`
-
-Use `dict.pop()` to consume fields, then `context.audit_data()` at the end.
-**Do not pop fields just to discard them** — pass unused fields in `ignore`:
-
-```python
-# Good
-context.audit_data(record, ignore=["photo_url", "internal_id"])
-
-# Bad — hides fields from audit
-record.pop("photo_url", None)
-context.audit_data(record)
-```
-
-## FTM Schemata
-
-Discover available schemata and properties with the `ftm ref` command group (see the project
-`CLAUDE.md`) — e.g. `ftm ref schema Person`, `ftm ref prop Person:nationality`. This is
-the authoritative, always-current view of the model; don't rely on remembered property lists.
-Captured output is always JSON, so pipe to `jq` to extract fields.
-
-A few usage notes that the model itself doesn't capture:
-
-- **dates**: always set via `h.apply_date()` — never assign raw strings.
-- **names**: fingerprinted for dedup, so add all known forms including aliases.
-- **topics**: values like `sanction`, `role.pep`, `role.rca` drive downstream logic.
+See `zavod/docs/best_practices/strict_interpretation.md`.
 
 ## Helpers (`from zavod import helpers as h`)
 
@@ -170,8 +136,6 @@ h.apply_name(entity, first_name=first, last_name=last, lang="eng", alias=False)
 full = h.make_name(full=row.get("fullname"), first_name=first, last_name=last)
 ```
 
-Use `h.apply_name()` for Person entities. For name-only: `entity.add("name", ...)`.
-
 To strip honorifics and post-nominals (`Hon.`, `Dr.`, `, MP`) from source names, see `zavod/docs/best_practices/name_titles.md`.
 
 ### Dates
@@ -180,8 +144,6 @@ To strip honorifics and post-nominals (`Hon.`, `Dr.`, `, MP`) from source names,
 h.apply_date(entity, "birthDate", raw_string)
 h.apply_dates(entity, "birthDate", [date1, date2])
 ```
-
-**Never** add raw date strings directly. For dates in free text, extract with regex first.
 
 ### Addresses
 
@@ -242,23 +204,11 @@ lookups:
 `context.lookup_value()` explicitly when you need the result before adding (to branch
 or build an ID), or for non-`type.*` lookups (e.g. `sanction.program`).
 
-**Strategy**: Start without lookups. Run the crawler, note warnings, then add entries.
-
 ## Common patterns
 
 ### RCAs (Relatives and Close Associates)
 
-```python
-rca = context.make("Person")
-rca.id = context.make_id(person.id, role, name)
-rca.add("name", name)
-rca.add("topics", "role.rca")
-link = context.make("Family")
-link.id = context.make_id(person.id, "family", name)
-link.add("person", person)
-link.add("relative", rca)
-link.add("relationship", role)
-```
+See the relatives and close associates section of `zavod/docs/peps/index.md`.
 
 ### Paginated JSON APIs
 
@@ -266,33 +216,12 @@ link.add("relationship", role)
 from itertools import count
 
 for page in count(1):
-    data = context.fetch_json(url, params={"page": page, "size": 50}, cache_days=1)
-    for record in data.get("records", []):
+    data = context.fetch_json(url, params={"page": page, "size": 50})
+    for record in data["records"]:
         crawl_record(context, record)
     if page >= data["_metadata"]["totalPages"]:
         break
 ```
-
-### Non-Latin script names
-
-`data.lang` sets the default language tag. Only specify `lang=` when the value differs:
-
-```python
-entity.add("name", arabic_name)                    # uses data.lang default
-entity.add("name", latin_name, lang="eng")         # override
-```
-
-## Code style
-
-- Full type annotations. Use `str | None` not `Optional[str]`.
-- Use `lxml`, never BeautifulSoup or stdlib xml.
-- Use `context.fetch_*`, never `requests`.
-- Use `rigour.mime.types` constants, never string literals.
-- Keep `crawl()` thin; delegate to per-record helpers.
-- No single-use module-level constants: inline a literal at its only call site
-  instead of hoisting it to the top of the file. Named constants are for
-  precompiled regexes, values used at 2+ sites, and enumerations-as-data.
-  See `zavod/docs/best_practices/patterns.md`.
 
 ## Running and testing
 
@@ -303,10 +232,6 @@ zavod crawl datasets/xx/foo/xx_foo.yml
 zavod export datasets/xx/foo/xx_foo.yml          # runs the dataset validators and assertions
 contrib/lint_dataset.sh datasets/xx/foo/xx_foo.yml  # ruff + mypy + pre-commit as CI runs them
 ```
-
-For a dataset already deployed, `python -m contrib.maintenance.diagnose <name>` prints
-its production runtime state: run verdict, artifact links, current issues, assertion
-drift.
 
 Check the run's issues, then spot-check its statements with qsv:
 
