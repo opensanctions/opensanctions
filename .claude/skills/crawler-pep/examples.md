@@ -269,16 +269,15 @@ if occupancy is not None:
 ### Presiding offices
 
 A Speaker keeps their seat, so they hold the membership as well as the presiding
-office. The membership is built once in `crawl()`, as in the reference crawler; the
-lookup names only the presiding offices, which are built per person:
+office. The membership is built once in `crawl()`, as in the reference crawler. Here
+the source's `role` field is empty for plain members and names the presiding office
+otherwise, so the lookup maps each role to its office, built per person:
 
 ```yaml
 lookups:
   position:
     required: true
     options:
-      - match: Member of Parliament
-        value: null
       - match: Speaker
         name: Speaker of the Parliament of Examplia
         wikidata_id: Q...
@@ -302,11 +301,12 @@ def crawl_member(
         return
     context.emit(occupancy)
 
-    # required: true only halts the crawl via context.lookup —
-    # context.lookup_value catches the exception and returns None.
-    res = context.lookup("position", row.pop("role"))
-    assert res is not None
-    if res.name is not None:
+    role = row.pop("role")
+    if role is not None:
+        # required: true only halts the crawl via context.lookup —
+        # context.lookup_value catches the exception and returns None.
+        res = context.lookup("position", role)
+        assert res is not None, role
         office = h.make_position(
             context,
             name=res.name,
