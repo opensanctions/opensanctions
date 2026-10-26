@@ -139,6 +139,11 @@ lookups:
           - COLHOZUL "CHETROSU"
           - COLHOZUL "BORIS GLAVAN"
           - COLHOZUL "VIAȚA-NOUĂ"
+      # The founders cell of "Societatea cu Răspundere Limitată  ORAL SPARES"
+      # spells out the Romanian registration details of the corporate founder
+      # after its name, which exceeds the length of the name type.
+      - match: 'DENTOP CLINIC S.R.L., PERSOANĂ JURIDICĂ ÎNREGISTRATĂ ÎN ROMÂNIA, CU SEDIUL SOCIAL ÎN MUN. BUCUREȘTI, STR. PETRU RAREȘ, NR. 15, PARTER, SPAȚIUL NR. 2, BIROUL NR. 1, SECTOR 1, ÎNMATRICULATĂ LA OFICIUL REGISTRULUI COMERȚULUI DE PE LÂNGĂ TRIBUNALUL BUCUREȘTI SUB NR. J2018004062401, AVÂND IDENTIFICATOR UNIC LA NIVEL EUROPEAN (EUID ROONRC: J2018004062401, COD UNIC DE ÎNREGISTRARE RO39076462,'
+        value: DENTOP CLINIC S.R.L.
       - match:
           - ","
           - "< <"
