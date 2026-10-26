@@ -4,7 +4,7 @@ prefix: ye-hor
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-10-23
+  start: 2026-10-26
 load_statements: true
 ci_test: false
 summary: >-
@@ -14,10 +14,11 @@ description: |
   Republic of Yemen. Its 301 members are elected by majority vote in
   single-member constituencies, and the house holds the country's legislative
   power, including passing laws, approving the budget and overseeing the
-  government. The members elected in 2003 continue to sit, as the term has been
-  extended repeatedly since 2009 in the absence of new elections.
+  government.
 
-  The source is not updated when members die or leave office, so it can list former
+  As of October 2026, the members elected in 2003 continue to sit, as the term
+  has been extended repeatedly since 2009 in the absence of new elections. The
+  source is not updated when members die or leave office, so it can list former
   members. The Speaker and Deputy Speakers are included alongside the members.
 url: https://parliament-ye.com/index.php/category/members-of-parliament/
 publisher:
