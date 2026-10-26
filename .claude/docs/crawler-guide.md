@@ -211,9 +211,9 @@ h.remove_namespace(doc)
 parts = h.multi_split(text, [";", ",", " / "])
 clean = h.remove_bracketed(text)
 
-from openpyxl import load_workbook
-wb = load_workbook(path, read_only=True)
-for row in h.parse_xlsx_sheet_openpyxl(context, wb["Sheet1"]):
+from python_calamine import CalamineWorkbook
+wb = CalamineWorkbook.from_path(path)
+for row in h.parse_xlsx_sheet(context, wb.get_sheet_by_name("Sheet1")):
     name = row.pop("full_name")
 ```
 
