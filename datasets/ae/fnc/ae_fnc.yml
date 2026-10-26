@@ -1,0 +1,58 @@
+title: United Arab Emirates Members of the Federal National Council
+entry_point: crawler.py
+prefix: ae-fnc
+coverage:
+  frequency: monthly
+  start: 2026-10-26
+load_statements: true
+# The site is geo-fenced to UAE/Gulf IP ranges, so it is fetched through Zyte, whose
+# API key isn't available in CI.
+ci_test: false
+summary: >-
+  Unicameral federal legislature, with half of its members elected by emirate
+  electoral colleges and half appointed by the rulers of the emirates
+description: |
+  Current members of the Federal National Council (المجلس الوطني الاتحادي) of the
+  United Arab Emirates, the country's unicameral federal parliamentary body. Its 40
+  seats are allocated among the seven emirates; half of the members are elected by
+  each emirate's electoral college and half are appointed by its ruler, for a
+  four-year term. The council reviews and amends federal draft laws, discusses the
+  federal budget, and questions ministers.
+url: https://www.almajles.gov.ae/
+publisher:
+  name: Federal National Council
+  acronym: FNC
+  description: >
+    The Federal National Council is the parliamentary body of the United Arab
+    Emirates, with members representing each of the seven emirates.
+  url: https://www.almajles.gov.ae/
+  country: ae
+  official: true
+data:
+  url: https://www.almajles.gov.ae/Pages/Members.aspx
+  format: HTML
+  lang: ara
+
+names:
+  prefixes_strip:
+    - سعادة/
+    - سعادة الدكتور/
+    - سعادة الدكتورة/
+    - سعادة الشيخ/
+    - معالي/
+    - معالي الدكتور/
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 38
+      Position: 1
+    country_entities:
+      ae: 38
+  max:
+    schema_entities:
+      Person: 45
+      Position: 1
