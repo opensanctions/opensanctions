@@ -35,12 +35,12 @@ data:
 
 names:
   prefixes_strip:
-    - سعادة/
-    - سعادة الدكتور/
-    - سعادة الدكتورة/
-    - سعادة الشيخ/
-    - معالي/
-    - معالي الدكتور/
+    - سعادة/ # His/Her Excellency
+    - سعادة الدكتور/ # His Excellency Dr.
+    - سعادة الدكتورة/ # Her Excellency Dr.
+    - سعادة الشيخ/ # His Excellency Sheikh
+    - معالي/ # His/Her Excellency (ministerial rank)
+    - معالي الدكتور/ # His Excellency Dr. (ministerial rank)
 
 tags:
   - list.pep

@@ -1,6 +1,8 @@
 from lxml.etree import _Element as Element
 from zavod.extract import zyte_api
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import LangText
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -12,7 +14,9 @@ def crawl_member(
     categorisation: PositionCategorisation,
     member: Element,
 ) -> None:
-    raw_name = h.xpath_string(member, ".//div[contains(@class, 'SubjectCSS')]//text()")
+    raw_name = h.element_text(
+        h.xpath_element(member, ".//div[contains(@class, 'SubjectCSS')]")
+    )
     name = h.strip_name_titles(context, raw_name)
     # Every name carries an honorific ending in "/"; one left over is a title missing
     # from names.prefixes_strip.
@@ -24,6 +28,7 @@ def crawl_member(
     person = context.make("Person")
     person.id = context.make_id(raw_name)
     person.add("name", name, original_value=raw_name)
+    apply_translit_full_name(context, person, LangText(name, "ara"))
     # Members must be citizens of an emirate: Constitution of the UAE, Art. 70.
     # https://www.constituteproject.org/constitution/United_Arab_Emirates_2009
     person.add("citizenship", "ae")
