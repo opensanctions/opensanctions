@@ -1,7 +1,7 @@
 from typing import Any
 
 from normality import collapse_spaces
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
@@ -138,27 +138,29 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
 
-    for item in h.parse_xlsx_sheet_openpyxl(
-        context, wb["الإرهابيين"], header_lookup=context.get_lookup("columns")
+    for item in h.parse_xlsx_sheet(
+        context,
+        workbook.get_sheet_by_name("الإرهابيين"),
+        header_lookup=context.get_lookup("columns"),
     ):
         crawl_terrorist(context, item)
 
-    for item in h.parse_xlsx_sheet_openpyxl(
+    for item in h.parse_xlsx_sheet(
         context,
-        wb["الكيانات الإرهابية"],
+        workbook.get_sheet_by_name("الكيانات الإرهابية"),
         skiprows=1,
         header_lookup=context.get_lookup("columns"),
     ):
         crawl_terrorist_entities(context, item)
 
-    for item in h.parse_xlsx_sheet_openpyxl(
+    for item in h.parse_xlsx_sheet(
         context,
-        wb["الشخصيات الاعتبارية"],
+        workbook.get_sheet_by_name("الشخصيات الاعتبارية"),
         skiprows=1,
         header_lookup=context.get_lookup("columns"),
     ):
         crawl_legal_persons(context, item)
 
-    assert len(wb.sheetnames) == 3, wb.sheetnames
+    assert len(workbook.sheet_names) == 3, workbook.sheet_names
