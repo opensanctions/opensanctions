@@ -17,7 +17,7 @@ def read_table(
 ) -> Generator[list[CellValue], None, None]:
     doc = etree.parse(fh)
     doc = h.remove_namespace(doc)
-    for sheet in doc.findall(f"/body/spreadsheet/table[@name='{sheet_name}']"):
+    for sheet in doc.findall(f"./body/spreadsheet/table[@name='{sheet_name}']"):
         for row in sheet.findall(".//table-row"):
             # print(inspect(row))
             cells: list[CellValue] = []
@@ -66,7 +66,7 @@ def crawl(context: Context) -> None:
         entity.id = context.make_id(*values)
         if entity.id is None:
             continue
-        entity.add("topics", "crime")
+        entity.add("topics", ["crime", "sanction", "crime.terror"])
 
         sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
         surname = row.pop("Surname")[1]
