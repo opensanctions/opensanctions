@@ -1,7 +1,7 @@
 from rigour.mime.types import XLSX
 from typing import Any
 from zavod import helpers as h
-import openpyxl
+from python_calamine import CalamineWorkbook
 import re
 
 from zavod import Context
@@ -185,11 +185,14 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = openpyxl.load_workbook(source_path, read_only=True)
-    assert wb.active
+    workbook = CalamineWorkbook.from_path(source_path)
+    assert workbook.sheet_names == ["list"], workbook.sheet_names
     for row_num, row in enumerate(
-        h.parse_xlsx_sheet_openpyxl(
-            context, wb.active, header_lookup=context.get_lookup("columns"), skiprows=2
+        h.parse_xlsx_sheet(
+            context,
+            workbook.get_sheet_by_name("list"),
+            header_lookup=context.get_lookup("columns"),
+            skiprows=2,
         )
     ):
         # Check that additional header rows are consistent with first row
