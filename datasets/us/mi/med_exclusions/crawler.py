@@ -135,5 +135,5 @@ def crawl(context: Context) -> None:
         if source_cell.value == SOURCE_HEADER:
             source_cell.value = SOURCE_HEADERS[str(date_cell.value)]
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active, skiprows=1):
         crawl_item(item, context)

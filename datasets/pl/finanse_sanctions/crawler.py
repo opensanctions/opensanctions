@@ -119,7 +119,9 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path)
     assert len(wb.worksheets) == 1
-    for row in h.parse_xlsx_sheet(context, sheet=wb.worksheets[0], extract_links=True):
+    for row in h.parse_xlsx_sheet_openpyxl(
+        context, sheet=wb.worksheets[0], extract_links=True
+    ):
         crawl_row(context, row)
 
     # UN Security Council stubs

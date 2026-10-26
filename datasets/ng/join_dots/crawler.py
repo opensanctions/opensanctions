@@ -1,6 +1,6 @@
-import openpyxl
 from typing import cast
 from normality import squash_spaces, slugify
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 import re
 
@@ -192,8 +192,8 @@ def crawl(context: Context) -> None:
         "peps.xlsx", context.data_url + "datasets/nigeria/PEP_data.xlsx"
     )
     context.export_resource(peps_path, XLSX, title="PEPs source data")
-    workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
+    workbook = CalamineWorkbook.from_path(peps_path)
+    for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         name, entity_id = crawl_pep(context, row)
         if name is None:
             continue
@@ -213,7 +213,7 @@ def crawl(context: Context) -> None:
         context.data_url + "datasets/nigeria/PEP_relatives_data.xlsx",
     )
     context.export_resource(peps_path, XLSX, title="PEP Relatives source data")
-    workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
+    workbook = CalamineWorkbook.from_path(peps_path)
+    for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         if row:
             crawl_relative(context, row, pep_ids)

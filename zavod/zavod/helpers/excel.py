@@ -1,5 +1,6 @@
-from collections.abc import Generator, Iterator
+from collections.abc import Generator, Iterator, Sequence
 from datetime import datetime
+from typing import Any
 from datapatch import Lookup
 from normality import slugify_text, stringify
 from rigour.time import datetime_iso
@@ -14,6 +15,7 @@ from xlrd.book import Book
 from xlrd.sheet import Cell, Sheet
 from xlrd.xldate import xldate_as_datetime
 from openpyxl.worksheet.worksheet import Worksheet
+from python_calamine import CalamineSheet
 
 from zavod.context import Context
 
@@ -142,7 +144,78 @@ def parse_xls_sheet(
         yield record
 
 
+def _xlsx_headers(cells: Sequence[Any], header_lookup: Lookup | None) -> list[str]:
+    """
+    Convert the cells of a header row into record keys.
+
+    Both XLSX parsers use this function, so that they make the same keys.
+    An empty cell, or a heading that slugifies to nothing, gets the key
+    `column_<index>`. The lookup translates the heading before it is slugified.
+
+    Args:
+        cells: The cell values of the header row.
+        header_lookup: The lookup for translating headings.
+
+    Raises:
+        AssertionError: If two columns get the same key.
+    """
+    headers: list[str] = []
+    for idx, cell in enumerate(cells):
+        header = stringify(cell)
+        if header is None:
+            header = f"column_{idx}"
+        if header_lookup:
+            header = header_lookup.get_value(header) or header
+        headers.append(slugify_text(header, sep="_") or f"column_{idx}")
+    duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+    # Records are built by zipping headers with cells, so a duplicate
+    # header would silently drop the earlier column's cell.
+    assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
+    return headers
+
+
 def parse_xlsx_sheet(
+    context: Context,
+    sheet: CalamineSheet,
+    skiprows: int = 0,
+    header_lookup: Lookup | None = None,
+) -> Iterator[dict[str, str | None]]:
+    """
+    Parse an Excel sheet read with python-calamine into a sequence of dictionaries.
+
+    Keys are the column headings slugified with _ as separator. Columns without
+    a heading get the key `column_<index>`. Date and datetime cells become ISO
+    dates, numbers drop a zero fractional part (`2.0` gives `"2"`), and empty
+    cells become `None`.
+
+    Use `parse_xlsx_sheet_openpyxl` if you need hyperlinks from the cells.
+
+    Args:
+        context: Crawler context.
+        sheet: The sheet, e.g. from `CalamineWorkbook.from_path(path).get_sheet_by_name(name)`.
+        skiprows: The number of rows to skip, counted from the first row of the sheet.
+        header_lookup: The lookup key for translating headers.
+    """
+    headers: list[str] | None = None
+    # Keep leading empty rows and columns so that skiprows and column_<index>
+    # keys count from cell A1.
+    for row in sheet.to_python(skip_empty_area=False)[skiprows:]:
+        if headers is None:
+            headers = _xlsx_headers(row, header_lookup)
+            continue
+
+        record: dict[str, str | None] = {header: None for header in headers}
+        for header, value in zip(headers, row):
+            if isinstance(value, datetime):
+                value = value.date()
+            record[header] = stringify(value)
+
+        if all(v is None for v in record.values()):
+            continue
+        yield record
+
+
+def parse_xlsx_sheet_openpyxl(
     context: Context,
     sheet: Worksheet,
     skiprows: int = 0,
@@ -169,23 +242,8 @@ def parse_xlsx_sheet(
         # Skip the desired number of rows
         if row_counter <= skiprows:
             continue
-        cells = [c.value for c in row]
         if headers is None:
-            headers = []
-            for idx, header in enumerate(cells):
-                header = stringify(header)
-                if header is None:
-                    header = f"column_{idx}"
-                if header_lookup:
-                    header = header_lookup.get_value(header) or header
-                header_slug = slugify_text(header, sep="_")
-                if header_slug is None and header is not None:
-                    header_slug = f"column_{idx}"
-                headers.append(header_slug)
-            duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
-            # Records are built by zipping headers with cells, so a duplicate
-            # header would silently drop the earlier column's cell.
-            assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
+            headers = _xlsx_headers([c.value for c in row], header_lookup)
             continue
 
         record: dict[str, str | None] = {}

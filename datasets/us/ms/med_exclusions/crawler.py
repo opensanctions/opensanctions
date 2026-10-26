@@ -106,7 +106,7 @@ def crawl(context: Context) -> None:
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert "Sheet1" in workbook.sheetnames, workbook.sheetnames
     header_lookup = context.dataset.lookups["headers"]
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context,
         sheet=workbook["Sheet1"],
         skiprows=8,

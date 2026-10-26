@@ -187,7 +187,7 @@ def parse_nonprofits(context: Context, wb: Workbook) -> None:
     active_sheet = wb.active
     assert active_sheet is not None
     assert set(wb.sheetnames) == {active_sheet.title}
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context,
         wb["O.N."],
         skiprows=4,

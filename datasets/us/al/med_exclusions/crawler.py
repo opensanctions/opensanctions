@@ -274,7 +274,7 @@ def crawl(context: Context) -> None:
     assert ws is not None, "No active worksheet"
     assert len(wb.worksheets) == 1, len(wb.worksheets)
 
-    rows = h.parse_xlsx_sheet(context, ws, skiprows=33)
+    rows = h.parse_xlsx_sheet_openpyxl(context, ws, skiprows=33)
     category = None
     for row in rows:
         name_raw = row.pop("column_0")

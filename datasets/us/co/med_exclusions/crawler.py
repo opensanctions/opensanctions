@@ -56,11 +56,11 @@ def crawl(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
 
     # Currently terminated providers
-    for item in h.parse_xlsx_sheet(context, wb["Termination List"]):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb["Termination List"]):
         crawl_item(item, context)
 
     # Providers that where terminated but are now reinstated
     if "Reinstated Providers" in wb.sheetnames:
-        for item in h.parse_xlsx_sheet(context, wb["Reinstated Providers"]):
+        for item in h.parse_xlsx_sheet_openpyxl(context, wb["Reinstated Providers"]):
             crawl_item(item, context)
     assert len(set(wb.sheetnames) - {"Termination List", "Reinstated Providers"}) == 0

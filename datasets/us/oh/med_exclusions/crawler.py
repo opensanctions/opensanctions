@@ -1,6 +1,6 @@
 from itertools import product
 from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 import re
 
 from zavod import Context, helpers as h
@@ -123,15 +123,15 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
-    sheet_names = wb.sheetnames
+    wb = CalamineWorkbook.from_path(path)
+    sheet_names = list(wb.sheet_names)
     sheet_names.remove("Instructions")
 
-    for item in h.parse_xlsx_sheet(context, wb["Individuals"]):
+    for item in h.parse_xlsx_sheet(context, wb.get_sheet_by_name("Individuals")):
         crawl_individual(item, context)
     sheet_names.remove("Individuals")
 
-    for item in h.parse_xlsx_sheet(context, wb["Organizations"]):
+    for item in h.parse_xlsx_sheet(context, wb.get_sheet_by_name("Organizations")):
         crawl_organization(item, context)
     sheet_names.remove("Organizations")
 

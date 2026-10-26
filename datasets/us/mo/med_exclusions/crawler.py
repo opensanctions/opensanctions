@@ -1,5 +1,5 @@
 from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 
 from zavod import Context
 from zavod.extract import zyte_api
@@ -61,11 +61,7 @@ def crawl(context: Context) -> None:
         context, "source.xlsx", excel_url, expected_media_type=XLSX, geolocation="US"
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    wb = load_workbook(path, read_only=True)
-
-    if len(wb.sheetnames) > 1:
-        context.log.warning("Additional sheet found")
-
-    assert wb.active is not None, "No active sheet found in workbook"
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+    wb = CalamineWorkbook.from_path(path)
+    assert len(wb.sheet_names) == 1, wb.sheet_names
+    for item in h.parse_xlsx_sheet(context, wb.get_sheet_by_index(0), skiprows=1):
         crawl_item(item, context)

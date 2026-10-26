@@ -1,11 +1,16 @@
+from datetime import datetime
+from pathlib import Path
+
 import pytest
 import xlrd  # type: ignore
 from openpyxl import Workbook, load_workbook
+from python_calamine import CalamineWorkbook
 from zavod.context import Context
 from zavod.helpers.excel import (
     convert_excel_cell,
     convert_excel_date,
     parse_xlsx_sheet,
+    parse_xlsx_sheet_openpyxl,
     parse_xls_sheet,
 )
 from zavod.tests.conftest import FIXTURES_PATH
@@ -67,10 +72,10 @@ def test_parse_xls_sheet_split_header(vcontext: Context):
     }
 
 
-def test_parse_xlsx_sheet(vcontext: Context):
+def test_parse_xlsx_sheet_openpyxl(vcontext: Context):
     book = load_workbook(XLSX_BOOK.as_posix())
     sheet = book.active
-    rows = list(parse_xlsx_sheet(vcontext, sheet, extract_links=True))
+    rows = list(parse_xlsx_sheet_openpyxl(vcontext, sheet, extract_links=True))
     assert len(rows) == 1
     assert rows[0] == {
         "column_0": None,
@@ -83,6 +88,55 @@ def test_parse_xlsx_sheet(vcontext: Context):
     }
 
 
+def test_parse_xlsx_sheet(vcontext: Context):
+    sheet = CalamineWorkbook.from_path(XLSX_BOOK).get_sheet_by_index(0)
+    rows = list(parse_xlsx_sheet(vcontext, sheet))
+    assert rows == [
+        {
+            "column_0": None,
+            "numeric": "1",
+            "date": "2023-07-26",
+            "text": "Hello, World!",
+            "column_4": "blank_header_value",
+        }
+    ]
+
+
+def test_parse_xlsx_sheet_skiprows(vcontext: Context, tmp_path: Path):
+    book = Workbook()
+    sheet = book.active
+    sheet["B3"] = "Name"
+    sheet["C3"] = "Count"
+    sheet["D3"] = "Listed"
+    sheet["B4"] = "a"
+    sheet["C4"] = 2
+    sheet["D4"] = datetime(2020, 1, 2, 3, 4)
+    sheet["B6"] = "b"
+    sheet["C6"] = 2.5
+    path = tmp_path / "skiprows.xlsx"
+    book.save(path)
+
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
+    rows = list(parse_xlsx_sheet(vcontext, sheet, skiprows=2))
+    assert rows == [
+        {"column_0": None, "name": "a", "count": "2", "listed": "2020-01-02"},
+        {"column_0": None, "name": "b", "count": "2.5", "listed": None},
+    ]
+
+
+def test_parse_xlsx_sheet_duplicate_headers(vcontext: Context, tmp_path: Path):
+    book = Workbook()
+    sheet = book.active
+    sheet.append(["Name", "Name", "DOB"])
+    sheet.append(["original", "latin", "1970"])
+    path = tmp_path / "duplicates.xlsx"
+    book.save(path)
+
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(parse_xlsx_sheet(vcontext, sheet))
+
+
 def test_parse_xls_sheet_duplicate_headers(vcontext: Context):
     # Headers that collide after slugification would silently drop the
     # earlier column's cell ({"name": "latin", "dob": "1970"}).
@@ -92,10 +146,10 @@ def test_parse_xls_sheet_duplicate_headers(vcontext: Context):
         list(parse_xls_sheet(vcontext, sheet))
 
 
-def test_parse_xlsx_sheet_duplicate_headers(vcontext: Context):
+def test_parse_xlsx_sheet_openpyxl_duplicate_headers(vcontext: Context):
     book = Workbook()
     sheet = book.active
     sheet.append(["Name", "Name", "DOB"])
     sheet.append(["original", "latin", "1970"])
     with pytest.raises(AssertionError, match="Duplicate headers"):
-        list(parse_xlsx_sheet(vcontext, sheet))
+        list(parse_xlsx_sheet_openpyxl(vcontext, sheet))
