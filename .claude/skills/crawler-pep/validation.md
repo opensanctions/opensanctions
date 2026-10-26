@@ -1,6 +1,6 @@
 # PEP crawl output integrity checks
 
-Spot-check the crawl output with qsv against the latest run's `statements.pack`. Within
+Spot-check the crawl output with qsv against the run's `statements.pack`. Within
 one dataset's pack, `entity_id` matches the ids that `Occupancy:holder` references. Each
 check below should print nothing:
 

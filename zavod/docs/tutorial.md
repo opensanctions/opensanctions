@@ -214,7 +214,7 @@ pager like `less` together to browse and search within the
 and `statistics.json` outputs using a command like
 
 ```bash
-jq . data/datasets/eu_fsf_demo/targets.nested.json --color-output | less -R
+jq . "$(ls data/datasets/eu_fsf_demo/_artifacts/*/targets.nested.json | tail -1)" --color-output | less -R
 ```
 
 Good things to check are

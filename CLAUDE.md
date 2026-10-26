@@ -17,7 +17,7 @@ This project contains crawlers that import source data, such as sanctions lists 
     * To run a crawler: `zavod crawl <file_path>` in the project root. Running crawl several times might re-use the same data fetched in the initial run (`context.fetch_resource`).
     * When a crawler encounters uncertainty in any of the data it is parsing, it should crash or produce an error instead of emitting ambiguous data.
     * Crawlers use `lookups` to override specific values for entity properties of a particular type. For ambiguous data, individual cases can be clarified by adding lookups.
-    * After running a crawler, output data is written to `data/datasets/<dataset_name>/`. The file `issues.log` contains line-based JSON of any warnings or errors produced by the crawler. Often the source data fetched by `context.fetch_resource` is also available in that folder.
+    * Each crawler run writes its output (`issues.json`, `issues.log`, `statements.pack`, exports) to `data/datasets/<dataset_name>/_artifacts/<run>/`. Run folders sort chronologically, and some hold only a backfilled `index.json`, so find the latest copy of a file by globbing for it: `ls data/datasets/<dataset_name>/_artifacts/*/statements.pack | tail -1`. Source data fetched by `context.fetch_resource` stays in `data/datasets/<dataset_name>/`.
     * To see a dataset's state in production — whether the latest run failed and since when, links to its archived artifacts, the current issues, and assertion drift — run `python -m contrib.maintenance.diagnose <dataset_name>` from the repo root.
     * Crawlers commonly do `from zavod import helpers as h`. The relevant code is in `zavod/zavod/helpers`. Use this pattern over direct imports.
 * `ui` contains a NextJS user interface for reviewing and verifying information from crawlers. The contained table structures need to match those in `zavod.stateful`.
@@ -65,5 +65,6 @@ This section applies when you help a new external contributor.
 * When adding type hints, use the container types such as `set`, `tuple` or `dict` instead of the now-deprecated `typing.Set`, `typing.Tuple` or `typing.Dict`.
 * All new crawlers should be written using typed Python. Suggest adding types to existing ones.
 * We use `lxml` for parsing HTML/XML, and `context.fetch_` functions the retrieve online data. Other libraries are listed in `zavod/pyproject.toml`. NEVER use beautifulsoup, or the Python stdlib xml modules.
-* For crawlers that traverse HTML using XPath expressions, use the sensibly-typed helpers in `zavod.helpers.html` (`h.xpath_element(s)`, `h.element_text`). Raw `.xpath()` returns `Any` and fails the `mypy --strict` check enforced on datasets by the `mypy-datasets` pre-commit hook — run `mypy --strict` on a new crawler before committing.
+* For crawlers that traverse HTML using XPath expressions, use the sensibly-typed helpers in `zavod.helpers.html` (`h.xpath_element(s)`, `h.element_text`). Raw `.xpath()` returns `Any` and fails the `mypy --strict` check enforced on datasets by the `mypy-datasets` pre-commit hook.
+* Lint crawler changes with `contrib/lint_dataset.sh <path>`, not bare `ruff`/`mypy`, which miss the repo config and the hook exclusions.
 * Prefix commit messages and GitHub issue titles with `[dataset_name]`, e.g. `[us_ms_med_exclusions] Source website down`.

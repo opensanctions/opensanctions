@@ -51,8 +51,9 @@ For pure type-annotation errors, defer to the `/typechecker-fixes` skill.
 
 1. **Read the crawler and its `.yml`.** Note the data source shape (HTML/CSV/XLSX/JSON/API)
    and the existing `lookups:`, `dates:`, and `http:` sections.
-2. **Capture a baseline**: run `zavod crawl` on the unmodified crawler and copy
-   `data/datasets/<dataset_name>/statements.pack` aside to diff against later.
+2. **Capture a baseline**: run `zavod crawl` on the unmodified crawler and note its
+   statements (`ls data/datasets/<dataset_name>/_artifacts/*/statements.pack | tail -1`).
+   Later crawls add new run folders beside it, so it stays available to diff against.
 3. **Read the docs for the areas the crawler touches** and apply them, most impactful
    first: structure → selectors/parsing → IDs → dates/addresses → lookups → HTTP/caching →
    logging/assertions → style nits.
@@ -66,7 +67,7 @@ From the repo root:
 
 ```bash
 ruff check --fix --select I <path/to/crawler.py>   # import order
-cd zavod && mypy --strict <path/to/crawler.py>     # enforced by the mypy-datasets hook
+contrib/lint_dataset.sh <path/to/dataset.yml>
 zavod crawl <path/to/dataset.yml>                  # from the repo root
 ```
 
@@ -74,13 +75,14 @@ Then confirm:
 
 - New strict-interpretation guards are welcome — but when one fires on today's data, add
   the missing lookup mapping rather than handing the warning off. The facility for many
-  warnings stays in the code; `issues.log` is clean (transient network errors excepted).
+  warnings stays in the code; the run's issues are clean (transient network errors excepted).
 - Diff the output against the baseline run and **account for every difference** — each
   must trace to a named methodological gain:
 
   ```bash
   uvx --from git+https://github.com/opensanctions/ftm-inspect.git ftm-stmt diff -o diff \
-      <baseline>/statements.pack data/datasets/<dataset_name>/statements.pack
+      <baseline statements.pack> \
+      "$(ls data/datasets/<dataset_name>/_artifacts/*/statements.pack | tail -1)"
   ```
 - The crawler still satisfies its `assertions:` in the `.yml`.
 - Walk the `merge_checklist.md` items relevant to what you touched.

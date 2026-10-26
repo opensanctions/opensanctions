@@ -54,7 +54,7 @@ Run a clean crawl when the change is significant enough that end-to-end behavior
 
     zavod crawl --clear-data {{ yaml_path }}
 
-When you crawl, read `data/datasets/{{ name }}/issues.log`. The issues you targeted must be gone and no new warnings or errors may have appeared. Do not open the PR if the crawl fails or makes the issue set worse.
+When you crawl, read `data/datasets/{{ name }}/_artifacts/*/issues.log`. The issues you targeted must be gone and no new warnings or errors may have appeared. Do not open the PR if the crawl fails or makes the issue set worse.
 {% else %}
 This agent run has lint-only verification. Do not attempt a crawl.
 {% endif %}

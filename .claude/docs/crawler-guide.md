@@ -299,21 +299,16 @@ entity.add("name", latin_name, lang="eng")         # override
 See also: `zavod/docs/usage.md`
 
 ```bash
-zavod crawl datasets/xx/foo/xx_foo.yml           # writes a run under data/datasets/xx_foo/_artifacts/<run>/
+zavod crawl datasets/xx/foo/xx_foo.yml
 zavod export datasets/xx/foo/xx_foo.yml          # runs the dataset validators and assertions
 contrib/lint_dataset.sh datasets/xx/foo/xx_foo.yml  # ruff + mypy + pre-commit as CI runs them
 ```
-
-Use the lint script rather than bare `ruff`/`mypy`, which lack the repo config.
 
 For a dataset already deployed, `python -m contrib.maintenance.diagnose <name>` prints
 its production runtime state: run verdict, artifact links, current issues, assertion
 drift.
 
-Each run's `issues.json` and `statements.pack` are in its
-`data/datasets/xx_foo/_artifacts/<run>/` folder (older zavod versions wrote `issues.log`
-and `statements.pack` to `data/datasets/xx_foo/` directly). Check the issues, then
-spot-check the statements with qsv:
+Check the run's issues, then spot-check its statements with qsv:
 
 ```bash
 P=$(ls data/datasets/xx_foo/_artifacts/*/statements.pack | tail -1)

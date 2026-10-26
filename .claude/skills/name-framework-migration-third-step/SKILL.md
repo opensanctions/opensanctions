@@ -37,9 +37,9 @@ After the edit, tell the user to check, once the Step 3 deployment has run, that
 
 ## After changes
 
-After every edit, run `uvx ruff check --fix $ARGUMENTS && uvx ruff format $ARGUMENTS` and fix anything it reports.
+After every edit, run `contrib/lint_dataset.sh $ARGUMENTS` and fix anything it reports.
 
-Once ruff passes, `git add $ARGUMENTS` and output this suggested commit message (do not commit):
+Once lint passes, `git add $ARGUMENTS` and output this suggested commit message (do not commit):
 
 ```
 [<dataset_slug>] name migration step 3

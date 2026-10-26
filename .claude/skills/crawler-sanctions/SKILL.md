@@ -171,19 +171,21 @@ After running `zavod crawl`, use these sanctions-specific qsv checks (see the cr
 guide for general qsv patterns):
 
 ```bash
+P=$(ls data/datasets/cc_dataset/_artifacts/*/statements.pack | tail -1)
+
 # Entity counts by schema
-qsv search -s prop "^Person:id$" data/datasets/cc_dataset/statements.pack | qsv count
-qsv search -s prop "^Organization:id$" data/datasets/cc_dataset/statements.pack | qsv count
-qsv search -s prop "^Sanction:id$" data/datasets/cc_dataset/statements.pack | qsv count
+qsv search -s prop "^Person:id$" "$P" | qsv count
+qsv search -s prop "^Organization:id$" "$P" | qsv count
+qsv search -s prop "^Sanction:id$" "$P" | qsv count
 
 # Sanction program distribution
-qsv search -s prop "^Sanction:program$" data/datasets/cc_dataset/statements.pack | qsv frequency -s value
+qsv search -s prop "^Sanction:program$" "$P" | qsv frequency -s value
 
 # Every Sanction:entity must point to a real entity
-qsv search -s prop "^Sanction:entity$" data/datasets/cc_dataset/statements.pack | qsv select value | qsv behead | sort > /tmp/sanction_targets.txt && qsv search -s prop ":id$" data/datasets/cc_dataset/statements.pack | qsv select entity_id | qsv behead | sort -u > /tmp/all_entities.txt && comm -23 /tmp/sanction_targets.txt /tmp/all_entities.txt
+qsv search -s prop "^Sanction:entity$" "$P" | qsv select value | qsv behead | sort > /tmp/sanction_targets.txt && qsv search -s prop ":id$" "$P" | qsv select entity_id | qsv behead | sort -u > /tmp/all_entities.txt && comm -23 /tmp/sanction_targets.txt /tmp/all_entities.txt
 
 # Check all entities have topics=sanction
-qsv search -s prop ":id$" data/datasets/cc_dataset/statements.pack | qsv select entity_id | qsv behead | sort -u > /tmp/all_ids.txt && qsv search -s prop ":topics$" data/datasets/cc_dataset/statements.pack | qsv search -s value "^sanction$" | qsv select entity_id | qsv behead | sort -u > /tmp/sanctioned.txt && comm -23 /tmp/all_ids.txt /tmp/sanctioned.txt
+qsv search -s prop ":id$" "$P" | qsv select entity_id | qsv behead | sort -u > /tmp/all_ids.txt && qsv search -s prop ":topics$" "$P" | qsv search -s value "^sanction$" | qsv select entity_id | qsv behead | sort -u > /tmp/sanctioned.txt && comm -23 /tmp/all_ids.txt /tmp/sanctioned.txt
 ```
 
 Then run `zavod export datasets/cc/dataset/cc_dataset.yml`, which checks the dataset

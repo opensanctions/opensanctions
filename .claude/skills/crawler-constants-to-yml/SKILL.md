@@ -70,12 +70,12 @@ removing the header entirely.
 ## 3. Verify — always run the crawler
 
 ```bash
-ruff check <crawler.py> && mypy --strict <crawler.py>
+contrib/lint_dataset.sh <dataset.yml>
 zavod crawl <dataset.yml>
-# issues.log must be clean (or only carry warnings you expect):
-python3 -c "import json;[print(json.loads(l)['level'],json.loads(l).get('message')) for l in open('data/datasets/<name>/issues.log')]" | sort | uniq -c
+# the run's issues must be clean (or only carry warnings you expect):
+python3 -c "import json;[print(json.loads(l)['level'],json.loads(l).get('message')) for l in open('$(ls data/datasets/<name>/_artifacts/*/issues.log | tail -1)')]" | sort | uniq -c
 # confirm the value still lands, at the expected coverage:
-grep -a ',<Schema>:<prop>,' data/datasets/<name>/statements.pack | awk -F, '{print $3}' | sort | uniq -c
+grep -a ',<Schema>:<prop>,' "$(ls data/datasets/<name>/_artifacts/*/statements.pack | tail -1)" | awk -F, '{print $3}' | sort | uniq -c
 ```
 
 When probing which headers a server requires, drop them one at a time against the live
