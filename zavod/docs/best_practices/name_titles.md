@@ -2,17 +2,11 @@
 
 Remove a known set of honorific prefixes and post-nominal suffixes from source names with per-dataset configuration, without a human review.
 
-Many official sources publish names with titles attached: `Hon. Jane Doe, MP`, `Dr. John Smith`, `Sen. (Rtd) Amina Yusuf`. These titles are not part of the name and reduce match quality. When a source uses a fixed, predictable set of titles, strip them deterministically with [`h.strip_name_titles`][zavod.helpers.strip_name_titles] instead of routing the names through the [name review system](../extract/names.md).
-
-## Prefer deterministic stripping when the affix set is known
-
-If the honorifics and post-nominals a source uses are a closed, enumerable list (`Hon.`, `Dr.`, `Prof.`, `, MP`, `, CS`), declare them in the dataset metadata and call `h.strip_name_titles`. Do not send predictable titles through the review system: that adds LLM cost and human-review latency to a problem the crawler can solve on its own, and every new member waits on a review before their name is clean.
-
-Reach for the name review system only when the name is genuinely ambiguous: multiple names packed into one string, alias or previous-name categorization, or transliteration variants. Those cases are covered under [when to use the review system instead](#when-to-use-the-review-system-instead).
+Many official sources publish names with titles attached: `Hon. Jane Doe, MP`, `Dr. John Smith`, `Sen. (Rtd) Amina Yusuf`. These titles are not part of the name and reduce match quality. Strip them with [`h.strip_name_titles`][zavod.helpers.strip_name_titles]. When a name needs the [name review system](../extract/names.md) instead is covered there.
 
 ## The pattern
 
-Declare the titles under a `names` block in the dataset YAML, listing prefixes and suffixes separately:
+Declare the titles that recur in the source's names under a `names` block in the dataset YAML, listing prefixes and suffixes separately. The list need not be complete: a rare title left on a name is an acceptable loss.
 
 ```yaml
 names:
@@ -72,14 +66,3 @@ person.add("name", clean_name, lang="eng", original_value=original_name)
 ```
 
 Set `original_value` only when the strings differ. Passing the raw value when nothing was stripped records a redundant provenance entry.
-
-## When to use the review system instead
-
-Deterministic stripping handles a fixed affix list and nothing else. Use [the name review system](../extract/names.md) when a name needs judgment rather than a lookup:
-
-- **Multiple names in one string**, such as `John Smith; Jonny Smith` or a name plus its former name.
-- **Categorization** into `alias`, `weakAlias`, or `previousName`.
-- **Splitting** or handling transliteration variants like `Aleksandr(Oleksandr) KALYUSSKY`.
-- **Open-ended dirt** that isn't a predictable, enumerable set of titles.
-
-The two approaches compose. Strip the known titles deterministically, and the irregularity checks in [`h.is_name_irregular`][zavod.helpers.is_name_irregular] and the `apply_reviewed_*` helpers still apply to whatever remains.

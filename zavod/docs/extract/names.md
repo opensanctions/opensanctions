@@ -10,7 +10,7 @@ Clean, correctly categorised names are important to maximise recall (finding all
 
 While we've done this using simple, explainable logic for the most part, this leaves some noise or incorrectly-categorised names for a number of sources.
 
-When a source attaches a fixed, predictable set of honorific titles to names (`Hon.`, `Dr.`, `, MP`), strip them deterministically rather than through review. See [stripping name prefixes and suffixes](../best_practices/name_titles.md).
+When a source attaches honorific titles to names (`Hon.`, `Dr.`, `, MP`), strip the recurring ones deterministically rather than through review. See [stripping name prefixes and suffixes](../best_practices/name_titles.md).
 
 In most cases, the end goal is to use the [zavod.helpers.apply_reviewed_name_string][] or [zavod.helpers.apply_reviewed_names][] to
 

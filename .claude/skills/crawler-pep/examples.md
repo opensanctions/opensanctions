@@ -36,6 +36,7 @@ def crawl_row(
     h.apply_date(person, "birthDate", dob)
     person.add("gender", row.pop("per_titre"))
     person.add("political", row.pop("rattachement_abrv"))
+    person.add("email", row.pop("email"))
     # Deputies must be Luxembourgish: Constitution of Luxembourg (2023), Art. 64(1)
     # and (2). https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-REF(2023)013-f
     person.add("citizenship", "lu")
@@ -59,11 +60,11 @@ def crawl_row(
             # "Groupe politique"/"Sensibilité politique": the group's parliamentary
             # standing, which has no FollowTheMoney property.
             "rattachement_type",
-            # Contact details are not extracted for PEPs.
+            # A home address for some members; private addresses are not extracted.
             "address",
+            # Phone numbers are not extracted for PEPs.
             "phone_ext",
             "phone_mobile",
-            "email",
         ],
     )
 
@@ -79,6 +80,7 @@ def crawl(context: Context) -> None:
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
         return
     context.emit(position)
 
@@ -224,10 +226,8 @@ lookups:
 
 ## Pattern C: Several positions in one crawler
 
-Where a position's definition belongs — a `position` lookup keyed on the source's own
-label, or arguments to `h.make_position` in the crawler — is decided in `zavod/docs/peps.md`
-→ "Where a position's definition belongs". Read that first; this is only the code shape
-for the lookup case.
+The rules are in `zavod/docs/peps.md` → "Several positions in one crawler". This is the
+code shape for the lookup case.
 
 ```yaml
 lookups:
@@ -260,16 +260,16 @@ position = h.make_position(
 )
 categorisation = categorise(context, position)
 if not categorisation.is_pep:
+    context.log.warning("Position is not categorised as PEP", position=position.id)
     return
 context.emit(position)
 ```
 
 ### One label, several held positions
 
-When a role label implies more than one held office — a Speaker is elected from among
-the members and keeps their seat — map the label to every held position name with a
-multi-`values` lookup option, and make an occupancy for each
-(`zavod/docs/peps.md` → "One person, several positions"):
+When a role label implies more than one held office, such as a Speaker who keeps their
+seat, map the label to every held position name with a multi-`values` lookup option, and
+make an occupancy for each:
 
 ```yaml
 lookups:
@@ -303,6 +303,7 @@ for title in res.values:
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
         continue
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
@@ -380,6 +381,7 @@ def crawl(context: Context) -> None:
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
         return
     context.emit(position)
 
@@ -397,7 +399,6 @@ def crawl(context: Context) -> None:
 ```
 
 `discover_terms` reads the terms from the source (a term switcher in the HTML, an
-`ElectionId` parameter, a `/legislaturas` endpoint). Where the source labels terms but
-gives no dates, map the ordinal to its election year in a module-level table and
-**warn on an ordinal missing from it**, so a newly added term surfaces as maintenance
-work instead of being emitted with guessed dates.
+`ElectionId` parameter, a `/legislaturas` endpoint); the sitting term has no
+`period_end`. How a crawler notices a new term is covered in `zavod/docs/peps.md` →
+"Noticing a new term".

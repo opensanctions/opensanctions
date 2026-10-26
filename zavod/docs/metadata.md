@@ -24,6 +24,7 @@ A short line (50–90 characters — aim just above the lower bound) shown with 
 - One plain sentence or fragment, no trailing period.
 - Complement the title: add what it doesn't already convey (kind of measure, scope, legal basis) rather than repeating title words.
 - No humor, no editorializing.
+- No counts of members, seats or records.
 
 ## Description
 
@@ -39,6 +40,7 @@ Keep out of the description:
 - Per-record field listings ("records each person with their name, gender and date of birth") — that is visible from the data and its statistics, and drifts as the crawler changes.
 - Routine ETL mechanics: fetching, parsing, pagination, lookups.
 - Sourcing narration ("the data is sourced from the official website") — that is what `publisher` and `data.url` convey.
+- Counts of members or records, which go stale with each update. A constitutional fact such as a parliament's number of seats may be included.
 
 ## Maintainer notes (YAML comments)
 

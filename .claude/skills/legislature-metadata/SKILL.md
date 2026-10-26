@@ -21,7 +21,7 @@ here unless the user asked for a full metadata pass.
 Open the dataset's `entry_point` (usually `crawler.py` next to the `.yml`) and note the
 scope facts the description depends on:
 - unicameral vs bicameral, and (for a bicameral body) which chamber this is;
-- seat count, term length, and how members are elected (e.g. proportional
+- term length and how members are elected (e.g. proportional
   representation, by district, appointed);
 - whether the dataset is current-only or also historical (look for
   `earliest_term_start` / a PEP look-back cutoff → "Current and historical");
@@ -47,7 +47,7 @@ Follow the `description` guidance in
 **Paragraph 1 — who the members are + institutional context.** Scope-prefixed
 ("Current members of …" / "Current and historical members of …"), naming the body
 with its original-language name in parentheses, then the defining facts: chamber type,
-seat count, how and for how long members are elected, and one clause on the chamber's
+how and for how long members are elected, and one clause on the chamber's
 role ("… and hold the country's legislative power, including passing laws and approving
 the budget."). For an SAR or subnational body say "the region's" rather than "the
 country's".
@@ -74,7 +74,7 @@ unchanged). If it is already `monthly`, leave it.
 
 ## Verify
 
-Re-read the edited fields. Confirm the seat count / term / election method match the
+Re-read the edited fields. Confirm the term, election method and any seat count match the
 source, any scope note reflects what the crawler actually does, and no sourcing,
 mechanics, or per-field language remains.
 
