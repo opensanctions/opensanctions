@@ -56,7 +56,7 @@ def make_hit(
                         name="Justice",
                         organization=organization,
                         description="Decides cases.",
-                        jurisdiction="Germany",
+                        jurisdiction="Adelaide and at circuit locations",
                         start_date=start_date,
                         end_date=end_date,
                     )
@@ -104,7 +104,7 @@ def test_emits_full_graph(zavod_db: None) -> None:
 
     position = entities["Position"][0]
     assert position.get("name") == ["Justice"]
-    assert position.get("country") == ["de"]
+    assert position.get("country") == []
     assert position.get("description") == ["Decides cases."]
     assert position.get("sourceUrl") == [SOURCE_URL]
     assert position.get("organization") == [organization.id]
@@ -113,6 +113,7 @@ def test_emits_full_graph(zavod_db: None) -> None:
     assert occupancy.get("holder") == [person.id]
     assert occupancy.get("post") == [position.id]
     assert occupancy.get("startDate") == ["2022-01-01"]
+    assert occupancy.get("constituency") == ["Adelaide and at circuit locations"]
 
 
 def test_organization_absent(zavod_db: None) -> None:

@@ -41,7 +41,6 @@ def emit_hit(context: Context, hit: Hit, *, source_url: str) -> None:
                 context,
                 name=position_data.name,
                 description=position_data.description,
-                country=position_data.jurisdiction,
                 organization=organization,
                 source_url=source_url,
             )
@@ -54,6 +53,9 @@ def emit_hit(context: Context, hit: Hit, *, source_url: str) -> None:
                 end_date=position_data.end_date,
             )
             if occupancy is not None:
+                # The jurisdiction is per-holding geography (duty station,
+                # constituency), not a property of the position itself.
+                occupancy.add("constituency", position_data.jurisdiction)
                 context.emit(occupancy)
                 context.emit(position)
                 if organization is not None:
