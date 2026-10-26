@@ -40,7 +40,7 @@ Keep out of the description:
 - Per-record field listings ("records each person with their name, gender and date of birth") — that is visible from the data and its statistics, and drifts as the crawler changes.
 - Routine ETL mechanics: fetching, parsing, pagination, lookups.
 - Sourcing narration ("the data is sourced from the official website") — that is what `publisher` and `data.url` convey.
-- Counts of members or records, which go stale with each update. A constitutional fact such as a parliament's number of seats may be included.
+- Counts of members or records, which go stale with each update.
 
 ## Maintainer notes (YAML comments)
 

@@ -43,9 +43,8 @@ that looks finished and is worthless.
 - **Establish the pagination contract from the response** — the per-page cap, the
   total or `next` link. An API that silently caps page size truncates without error.
 - **Enumerate every field** the source returns and decide each one: emit, or ignore.
-- **Find the terms the source exposes** — a term switcher, an `ElectionId` parameter,
-  a `/legislaturas` endpoint — whether dates are per person or per term, and how the
-  crawler will notice a new term (`zavod/docs/peps.md` → "Noticing a new term").
+- **Find the terms the source exposes** and whether dates are per person or per term.
+  New terms: `zavod/docs/peps.md` → "Noticing a new term".
 - **Wikidata QIDs:** check on Wikidata that the item is `instance of (P31): position`
   and `applies to jurisdiction (P1001)` matches the country; a plausible label is not
   enough. Never pass one QID to two positions — it becomes the entity ID, and they'd
