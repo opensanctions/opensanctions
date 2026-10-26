@@ -188,7 +188,7 @@ def crawl(context: Context) -> None:
     wb = openpyxl.load_workbook(source_path, read_only=True)
     assert wb.active
     for row_num, row in enumerate(
-        h.parse_xlsx_sheet(
+        h.parse_xlsx_sheet_openpyxl(
             context, wb.active, header_lookup=context.get_lookup("columns"), skiprows=2
         )
     ):

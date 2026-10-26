@@ -117,5 +117,5 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    for row in h.parse_xlsx_sheet(context, sheet):
+    for row in h.parse_xlsx_sheet_openpyxl(context, sheet):
         crawl_deputy(context, row, position, categorisation)

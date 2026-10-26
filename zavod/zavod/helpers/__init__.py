@@ -64,7 +64,7 @@ from zavod.helpers.excel import (
     convert_excel_cell,
     convert_excel_date,
     parse_xls_sheet,
-    parse_xlsx_sheet,
+    parse_xlsx_sheet_openpyxl,
 )
 from zavod.helpers.html import (
     cells_to_str,
@@ -128,7 +128,7 @@ __all__ = [
     "extract_years",
     "parse_formats",
     "parse_xls_sheet",
-    "parse_xlsx_sheet",
+    "parse_xlsx_sheet_openpyxl",
     "apply_date",
     "apply_dates",
     "extract_date",

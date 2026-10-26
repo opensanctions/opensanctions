@@ -142,7 +142,7 @@ def crawl(context: Context) -> None:
     assert ws is not None, "No active worksheet in workbook"
 
     rows = list(
-        h.parse_xlsx_sheet(
+        h.parse_xlsx_sheet_openpyxl(
             context,
             ws,
             skiprows=1,  # skip the merged title row before the header row

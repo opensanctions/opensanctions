@@ -24,7 +24,7 @@ def xlsx_url(doc: HtmlElement) -> str | None:
 
 
 def crawl_person(context: Context, worksheet: Worksheet) -> None:
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context,
         worksheet,
         skiprows=2,
@@ -95,7 +95,7 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
 
 
 def crawl_legal_entities(context: Context, worksheet: Worksheet) -> None:
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context,
         worksheet,
         skiprows=1,

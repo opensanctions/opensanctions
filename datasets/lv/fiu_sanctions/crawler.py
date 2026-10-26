@@ -204,7 +204,7 @@ def crawl_assets_xlsx(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
     assert set(wb.sheetnames) == {"Dati", "Informācija par datiem"}
 
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context, wb["Dati"], header_lookup=context.get_lookup("columns")
     ):
         name = row.pop("freeze_subject_name")

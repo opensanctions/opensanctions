@@ -143,7 +143,7 @@ def crawl_vessels(context: Context) -> None:
         path, read_only=True, data_only=True
     )
     assert workbook.sheetnames == ["Sheet1"]
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context,
         sheet=workbook["Sheet1"],
         header_lookup=context.get_lookup("vessel_columns"),

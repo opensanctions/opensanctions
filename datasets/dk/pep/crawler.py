@@ -179,7 +179,7 @@ def crawl(context: Context) -> None:
             if "Tidligere PEP'ere" in wb.sheetnames
             else "Tidligere PEP'er"
         )
-        for row in h.parse_xlsx_sheet(
+        for row in h.parse_xlsx_sheet_openpyxl(
             context, wb[old_sheet], header_lookup=context.get_lookup("columns")
         ):
             # the current sheet removed the last_name header and left blank
@@ -203,7 +203,7 @@ def crawl(context: Context) -> None:
         # header. We carry the current header in `category` and stamp it onto
         # each member row.
         category = None
-        for row in h.parse_xlsx_sheet(
+        for row in h.parse_xlsx_sheet_openpyxl(
             context, wb[new_sheet], 1, header_lookup=context.get_lookup("columns")
         ):
             if not any([row["category"], row["first_name"], row["last_name"]]):

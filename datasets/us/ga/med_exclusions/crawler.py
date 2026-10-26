@@ -95,5 +95,5 @@ def crawl(context: Context) -> None:
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
-    for item in h.parse_xlsx_sheet(context, wb["Sheet1"], skiprows=2):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb["Sheet1"], skiprows=2):
         crawl_item(item, context)

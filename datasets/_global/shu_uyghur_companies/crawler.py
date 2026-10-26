@@ -45,7 +45,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url: str) -> None:
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == set(APP_LABOUR_SHEETS)
     for sheet in LABOUR_SHEETS:
-        for row in h.parse_xlsx_sheet(
+        for row in h.parse_xlsx_sheet_openpyxl(
             context,
             sheet=workbook[sheet],
             skiprows=1,
@@ -145,7 +145,7 @@ def crawl_operating(context: Context, companies_url: str) -> None:
     path = context.fetch_resource("companies_registry.xlsx", companies_url)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == OPERATING_SHEETS
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context, sheet=workbook["1. Companies Operating in XUAR"], skiprows=1
     ):
         name_en = row.pop("company_machine_translated_english")

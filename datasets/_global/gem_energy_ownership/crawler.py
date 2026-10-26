@@ -269,7 +269,7 @@ def crawl(context: Context) -> None:
     skipped: set[str] = set()
 
     ownership_rows = list(
-        h.parse_xlsx_sheet(context, sheet=workbook["Entity Ownership"])
+        h.parse_xlsx_sheet_openpyxl(context, sheet=workbook["Entity Ownership"])
     )
     owned_ids = {
         subject_id
@@ -277,7 +277,9 @@ def crawl(context: Context) -> None:
         if (subject_id := row["subject_entity_id"]) is not None
     }
 
-    entity_rows = list(h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]))
+    entity_rows = list(
+        h.parse_xlsx_sheet_openpyxl(context, sheet=workbook["All Entities"])
+    )
     entity_ids = {
         entity_id for row in entity_rows if (entity_id := row["entity_id"]) is not None
     }

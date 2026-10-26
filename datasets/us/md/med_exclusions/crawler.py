@@ -70,7 +70,7 @@ def crawl(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
 
     assert wb.active is not None
-    for item in h.parse_xlsx_sheet(context, wb.active):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active):
         # it means the table has ended and the rest is just the sanction types
         if item.get("last_name_organization") == "Sanction Type":
             return

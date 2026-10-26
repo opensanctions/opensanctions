@@ -102,7 +102,7 @@ def crawl(context: Context) -> None:
 
     assert wb.active is not None
     skiprows = count_preamble_rows(wb.active)
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=skiprows):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active, skiprows=skiprows):
         crawl_item(item, context)
 
     sheet_names.remove(wb.active.title)

@@ -24,7 +24,7 @@ def parse_aliases(raw: str | None) -> list[str]:
 
 
 def crawl_row(context: Context, row: dict[str, str | None]) -> None:
-    # parse_xlsx_sheet slugifies headers: "Full Name" -> "full_name"
+    # parse_xlsx_sheet_openpyxl slugifies headers: "Full Name" -> "full_name"
     # Pre-clean n/a placeholders so entity.add() receives None rather than the string
     row = {
         k: (None if isinstance(v, str) and v.strip().lower() == "n/a" else v)
@@ -92,7 +92,7 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
     assert "Sheet1" in wb.sheetnames, wb.sheetnames
-    for row in h.parse_xlsx_sheet(context, wb["Sheet1"]):
+    for row in h.parse_xlsx_sheet_openpyxl(context, wb["Sheet1"]):
         crawl_row(context, row)
 
     assert_all_accepted(context, raise_on_unaccepted=False)

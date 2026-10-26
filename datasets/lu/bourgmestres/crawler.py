@@ -96,5 +96,5 @@ def crawl(context: Context) -> None:
     workbook = load_workbook(path, read_only=True)
     # The sheet name carries the upload date (e.g. "Schäfferot20261014").
     assert len(workbook.worksheets) == 1, workbook.sheetnames
-    for record in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
+    for record in h.parse_xlsx_sheet_openpyxl(context, workbook.worksheets[0]):
         crawl_record(context, record)

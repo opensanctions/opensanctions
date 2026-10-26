@@ -99,5 +99,5 @@ def crawl(context: Context) -> None:
         wb = load_workbook(file_path, read_only=True)
 
         assert wb.active is not None
-        for item in h.parse_xlsx_sheet(context, wb.active):
+        for item in h.parse_xlsx_sheet_openpyxl(context, wb.active):
             crawl_item(item, context)

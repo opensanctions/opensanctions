@@ -87,7 +87,7 @@ def crawl(context: Context) -> None:
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     wb: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert len(wb.sheetnames) == 1, wb.sheetnames
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context, wb["Export"], header_lookup=context.get_lookup("headers")
     ):
         crawl_row(context, row)

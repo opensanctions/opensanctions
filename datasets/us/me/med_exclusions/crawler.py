@@ -102,7 +102,7 @@ def crawl(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
     sheet_names = wb.sheetnames
     assert wb.active is not None, "No active sheet found"
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=26):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active, skiprows=26):
         crawl_item(item, context)
     sheet_names.remove(wb.active.title)
     for sheet_name in sheet_names:

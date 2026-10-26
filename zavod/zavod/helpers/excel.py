@@ -142,7 +142,7 @@ def parse_xls_sheet(
         yield record
 
 
-def parse_xlsx_sheet(
+def parse_xlsx_sheet_openpyxl(
     context: Context,
     sheet: Worksheet,
     skiprows: int = 0,

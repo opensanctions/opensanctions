@@ -285,7 +285,9 @@ def crawl(context: Context) -> None:
         if schema is None:
             context.log.warning("Unmapped sheet", sheet=sheet)
             continue
-        for row in h.parse_xlsx_sheet(context, workbook[sheet], header_lookup=columns):
+        for row in h.parse_xlsx_sheet_openpyxl(
+            context, workbook[sheet], header_lookup=columns
+        ):
             crawl_row(context, schema, row)
 
     # Ambiguous document extractions await human review; warn rather than block

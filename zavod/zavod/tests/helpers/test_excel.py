@@ -5,7 +5,7 @@ from zavod.context import Context
 from zavod.helpers.excel import (
     convert_excel_cell,
     convert_excel_date,
-    parse_xlsx_sheet,
+    parse_xlsx_sheet_openpyxl,
     parse_xls_sheet,
 )
 from zavod.tests.conftest import FIXTURES_PATH
@@ -70,7 +70,7 @@ def test_parse_xls_sheet_split_header(vcontext: Context):
 def test_parse_xlsx_sheet(vcontext: Context):
     book = load_workbook(XLSX_BOOK.as_posix())
     sheet = book.active
-    rows = list(parse_xlsx_sheet(vcontext, sheet, extract_links=True))
+    rows = list(parse_xlsx_sheet_openpyxl(vcontext, sheet, extract_links=True))
     assert len(rows) == 1
     assert rows[0] == {
         "column_0": None,
@@ -98,4 +98,4 @@ def test_parse_xlsx_sheet_duplicate_headers(vcontext: Context):
     sheet.append(["Name", "Name", "DOB"])
     sheet.append(["original", "latin", "1970"])
     with pytest.raises(AssertionError, match="Duplicate headers"):
-        list(parse_xlsx_sheet(vcontext, sheet))
+        list(parse_xlsx_sheet_openpyxl(vcontext, sheet))

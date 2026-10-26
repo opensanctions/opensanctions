@@ -56,7 +56,7 @@ def crawl(context: Context) -> None:
     sanction = None
     current_alias = []
     assert wb.active is not None
-    for item in h.parse_xlsx_sheet(context, wb.active):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active):
         name = item.get("terminated_excluded_provider_s")
         if name and REGEX_AKA.match(name):
             current_alias.append(REGEX_AKA.sub("", name))

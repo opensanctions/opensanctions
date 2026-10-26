@@ -70,7 +70,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("statutory.xlsx", STATUTORY_XLSX_URL)
     context.export_resource(path, XLSX, title="Statutory Debarments")
     wb = openpyxl.load_workbook(path, read_only=True)
-    for row in h.parse_xlsx_sheet(context, wb.worksheets[0]):
+    for row in h.parse_xlsx_sheet_openpyxl(context, wb.worksheets[0]):
         crawl_debarment(
             context, row, "Statutorily Debarred Parties", "party_name", "notice_date"
         )
@@ -78,7 +78,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
     context.export_resource(path, XLSX, title="Administrative Debarments")
     wb = openpyxl.load_workbook(path, read_only=True)
-    for row in h.parse_xlsx_sheet(context, wb.worksheets[0]):
+    for row in h.parse_xlsx_sheet_openpyxl(context, wb.worksheets[0]):
         crawl_debarment(
             context, row, "Administratively Debarred Parties", "name", "date"
         )

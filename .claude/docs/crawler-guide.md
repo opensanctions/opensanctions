@@ -213,7 +213,7 @@ clean = h.remove_bracketed(text)
 
 from openpyxl import load_workbook
 wb = load_workbook(path, read_only=True)
-for row in h.parse_xlsx_sheet(context, wb["Sheet1"]):
+for row in h.parse_xlsx_sheet_openpyxl(context, wb["Sheet1"]):
     name = row.pop("full_name")
 ```
 

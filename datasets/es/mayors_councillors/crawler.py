@@ -126,7 +126,7 @@ def process_excel(
             sheetnames=workbook.sheetnames,
         )
     sheet = workbook[workbook.sheetnames[0]]
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context,
         sheet,
         skiprows=skiprows,

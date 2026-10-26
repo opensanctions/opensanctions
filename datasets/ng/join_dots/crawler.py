@@ -193,7 +193,7 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(peps_path, XLSX, title="PEPs source data")
     workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
+    for row in h.parse_xlsx_sheet_openpyxl(context, workbook.worksheets[0]):
         name, entity_id = crawl_pep(context, row)
         if name is None:
             continue
@@ -214,6 +214,6 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(peps_path, XLSX, title="PEP Relatives source data")
     workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
+    for row in h.parse_xlsx_sheet_openpyxl(context, workbook.worksheets[0]):
         if row:
             crawl_relative(context, row, pep_ids)

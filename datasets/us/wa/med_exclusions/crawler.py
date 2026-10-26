@@ -56,6 +56,6 @@ def crawl(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
 
     assert wb.active is not None
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=3):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active, skiprows=3):
         print(item)
         crawl_item(item, context)

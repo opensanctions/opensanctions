@@ -160,7 +160,7 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str) -> Non
     wb = load_workbook(path, read_only=True)
     for sheet in wb.worksheets:
         context.log.info(f"Processing sheet {sheet.title} with program {program}")
-        for row in h.parse_xlsx_sheet(
+        for row in h.parse_xlsx_sheet_openpyxl(
             context, sheet, header_lookup=context.get_lookup("columns")
         ):
             crawl_row(context, row, program, url)

@@ -67,5 +67,5 @@ def crawl(context: Context) -> None:
         context.log.warning("Additional sheet found")
 
     assert wb.active is not None, "No active sheet found in workbook"
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active, skiprows=1):
         crawl_item(item, context)

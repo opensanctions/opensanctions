@@ -127,11 +127,11 @@ def crawl(context: Context) -> None:
     sheet_names = wb.sheetnames
     sheet_names.remove("Instructions")
 
-    for item in h.parse_xlsx_sheet(context, wb["Individuals"]):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb["Individuals"]):
         crawl_individual(item, context)
     sheet_names.remove("Individuals")
 
-    for item in h.parse_xlsx_sheet(context, wb["Organizations"]):
+    for item in h.parse_xlsx_sheet_openpyxl(context, wb["Organizations"]):
         crawl_organization(item, context)
     sheet_names.remove("Organizations")
 

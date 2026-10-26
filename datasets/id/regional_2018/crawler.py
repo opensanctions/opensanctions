@@ -80,7 +80,9 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("individuals.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     workbook = openpyxl.load_workbook(path, read_only=True)
-    for row in h.parse_xlsx_sheet(context, workbook["Pemilihan Gubernur"], skiprows=3):
+    for row in h.parse_xlsx_sheet_openpyxl(
+        context, workbook["Pemilihan Gubernur"], skiprows=3
+    ):
         crawl_pair(
             context,
             row,
@@ -92,7 +94,7 @@ def crawl(context: Context) -> None:
             ["gov.executive", "gov.state"],
         )
 
-    for row in h.parse_xlsx_sheet(
+    for row in h.parse_xlsx_sheet_openpyxl(
         context, workbook["Pemilihan Bupati atau Walikota"], skiprows=3
     ):
         crawl_pair(
