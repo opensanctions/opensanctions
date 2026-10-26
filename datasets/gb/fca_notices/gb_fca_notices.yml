@@ -60,15 +60,15 @@ lookups:
     options:
       - match: name
         value: name
-      - match: [website, url, web address]
+      - match: [website, url, web address, social media, social media details]
         value: website
-      - match: [telephone, tel, mobile, phone]
+      - match: [telephone, tel, mobile, phone, fax]
         value: phone
       - match: [email, e-mail]
         value: email
       - match: address
         value: address
-      - match: [other information, social media details]
+      - match: [other information, apps]
         value: notes
   type.email:
     lowercase: true
@@ -84,8 +84,6 @@ assertions:
   min:
     schema_entities:
       LegalEntity: 5000
-      Sanction: 5000
   max:
     schema_entities:
       LegalEntity: 30000
-      Sanction: 30000
