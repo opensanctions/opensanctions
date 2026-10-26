@@ -1,4 +1,4 @@
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -58,7 +58,7 @@ def crawl(context: Context) -> None:
     _, _, _, path = zyte_api.fetch_resource(context, "source.xlsx", excel_url)
     context.export_resource(path, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
-
-    for item in h.parse_xlsx_sheet_openpyxl(context, wb["Exclusions List"]):
+    workbook = CalamineWorkbook.from_path(path)
+    sheet = workbook.get_sheet_by_name("Exclusions List")
+    for item in h.parse_xlsx_sheet(context, sheet):
         crawl_item(item, context)
