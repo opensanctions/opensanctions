@@ -3,6 +3,10 @@ prefix: hio
 title: Leadership of international organizations
 entry_point: zavod.shed.funes.runner:crawl
 ci_test: false
+# Funes extraction copies dates verbatim from subject pages worldwide;
+# day-first is assumed, and a month-first source adds "%m/%d/%Y" first.
+dates:
+  formats: ["%d %B %Y", "%d %b %Y", "%B %d, %Y", "%b %d, %Y", "%B %d %Y", "%b %d %Y", "%d/%m/%Y", "%d.%m.%Y"]
 config:
   funes:
     people_sought: Holders of prominent functions in the organization — its head (for example Secretary-General,
