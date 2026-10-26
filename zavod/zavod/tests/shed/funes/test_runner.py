@@ -86,14 +86,14 @@ async def read_resource(path: str) -> bytes:
     return ARTIFACTS[path]
 
 
-def native_output(member: str, payload: dict[str, Any]) -> str:
+def native_output(member: str, kind: str, payload: dict[str, Any]) -> str:
     """Serialize one PageResult member in the native-output envelope."""
-    return json.dumps({"result": {"kind": member, "data": payload}})
+    return json.dumps({"result": {"kind": member, "data": {"kind": kind, **payload}}})
 
 
-def output_model(member: str, payload: dict[str, Any]) -> FunctionModel:
+def output_model(member: str, kind: str, payload: dict[str, Any]) -> FunctionModel:
     def fn(messages: Any, info: Any) -> ModelResponse:
-        return ModelResponse(parts=[TextPart(native_output(member, payload))])
+        return ModelResponse(parts=[TextPart(native_output(member, kind, payload))])
 
     return FunctionModel(fn)
 
@@ -176,6 +176,7 @@ def test_inspect_candidate_model_broken(zavod_db: None, funes_db: None) -> None:
         make_snapshot(),
         model=output_model(
             "BrokenSnapshot",
+            "broken",
             {"reason": "A click-through consent gate blocks the page content."},
         ),
     )
@@ -213,7 +214,7 @@ def test_inspect_candidate_hit(zavod_db: None, funes_db: None) -> None:
         ]
     }
     snapshot = make_snapshot()
-    inspect(context, snapshot, model=output_model("Hit", hit))
+    inspect(context, snapshot, model=output_model("Hit", "hit", hit))
 
     attempt = read_attempt(context)
     assert attempt.status == SnapshotStatus.USABLE
@@ -242,7 +243,9 @@ def test_inspect_candidate_miss(zavod_db: None, funes_db: None) -> None:
     inspect(
         context,
         make_snapshot(),
-        model=output_model("Miss", {"reason": "The page lists no officeholders."}),
+        model=output_model(
+            "Miss", "miss", {"reason": "The page lists no officeholders."}
+        ),
     )
 
     attempt = read_attempt(context)

@@ -1,0 +1,17 @@
+{
+  "log": {
+    "entries": [
+      {
+        "request": {
+          "url": "https://www.caldris.example.org/media/team-card.png"
+        },
+        "response": {
+          "content": {
+            "_file": "image_only_staff/team-card.png",
+            "mimeType": "image/png"
+          }
+        }
+      }
+    ]
+  }
+}
