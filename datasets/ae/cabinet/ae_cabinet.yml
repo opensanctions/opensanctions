@@ -92,16 +92,11 @@ lookups:
       - match: Minister of Human Resources and Emiratisation and Acting Minister of Higher Education and Scientific Research
         values:
           - Minister of Human Resources and Emiratisation of the United Arab Emirates
-          - Minister of Higher Education and Scientific Research of the United Arab Emirates
+          - Acting Minister of Higher Education and Scientific Research of the United Arab Emirates
       - match: Minister of State and Secretary General of The UAE Cabinet
         values:
           - Minister of State of the United Arab Emirates
-          - Secretary General of the Cabinet of the United Arab Emirates
-      # The President's council card omits his emirate, which seats him on the council.
-      - match: President of the United Arab Emirates
-        values:
-          - President of the United Arab Emirates
-          - Ruler of Abu Dhabi
+          - Secretary General of The UAE Cabinet
       # Single portfolios.
       - match: Minister of Climate Change and Environment
         value: Minister of Climate Change and Environment of the United Arab Emirates
