@@ -46,3 +46,27 @@ timeout by setting `NOMENKLATURA_DB_STMT_TIMEOUT` (`0` to disable it).
    ```
 
 3. Apply it with `alembic upgrade head`.
+
+
+## DB layer
+
+We prefer a pattern of sqlalchemy-core + pydantic models for persistence in a database.
+
+Historically this started because we liked something that's easy to dynamically generate queries yet be close to SQL we were used to writing. We don't hate it, but if we did want to migrate from it, we should do so with a lot of care.
+
+Mixing sqlalchemy-core with sqlalchemy ORM could be problematic. We normally use a Nomenklatura Session which is basically just connection. A zavod context has a connection and we checkpoint and commit it at selective points in a run. sqlalchemy ORM has state in python which might become out of sync with the Nomenklatura session, and automatically flushes which might bring surprises and zavod isn't currently set up to work with this.
+
+The pattern:
+
+- Schema: tables are defined with SQLAlchemy Core on one MetaData, which Alembic manages.
+- Models: one pydantic model per table, with fields matching the column names, so `model_validate(row._mapping)` works directly.
+- Data access on the model:
+  - `load(conn, stmt)` is where a row becomes a model.
+  - `by_<key>` builds a select and hands it to load.
+  - `create` inserts with .returning(id), then reads the row back through by_id so server defaults are included.
+  - save runs `update ... values(model_dump(exclude={id, created_at}))`.
+  - `delete` and `count_*` are classmethods.
+- Return types: methods return `Self`, `Self | None`, `list[Self]` or a scalar, never Rows or tuples.
+- Transactions belong to the caller: methods take the connection as their first argument and never commit.
+- Postgres/SQLite differences live in shared helpers: upserts (Session.insert, upsert), UTC handling (UTCDateTime, add_utc_timezone) and SQLite foreign-key enforcement.
+- History: where history matters, rows are soft-deleted with deleted_at.
