@@ -9,6 +9,8 @@ from zavod import Context
 from zavod import helpers as h
 
 TYPES = {"C": "HE", "P": "S", "O": "AE", "N": "BN", "B": "B"}
+NAME_COL = "ORGANISATION_NAME"
+TYPE_COL = "ORGANISATION_TYPE_CODE"
 
 
 def company_id(org_type: str, reg_nr: str | None) -> str | None:
@@ -20,16 +22,88 @@ def company_id(org_type: str, reg_nr: str | None) -> str | None:
     return f"oc-companies-cy-{org_type_oc}{reg_nr}".lower()
 
 
-def iter_rows(path: Path) -> Generator[dict[str, str], None, None]:
+def iter_cells(path: Path) -> Generator[list[str], None, None]:
+    """Yield the header line, then every non-empty line, as cleaned cells."""
     with open(path) as fh:
         fh.read(1)  # bom
-        for row in csv.DictReader(fh):
-            data = {}
-            for k, v in row.items():
-                sv = squash_spaces(remove_unsafe_chars(v))
-                if len(sv) > 0:
-                    data[k] = sv
-            yield data
+        for cells in csv.reader(fh):
+            if len(cells) == 0:
+                continue
+            yield [squash_spaces(remove_unsafe_chars(c)) for c in cells]
+
+
+def make_row(header: list[str], cells: list[str]) -> dict[str, str]:
+    """Map cells onto their column names, dropping columns without a value."""
+    return {k: v for k, v in zip(header, cells) if len(v) > 0}
+
+
+def iter_rows(path: Path) -> Generator[dict[str, str], None, None]:
+    cells = iter_cells(path)
+    header = next(cells)
+    for row in cells:
+        yield make_row(header, row)
+
+
+def rejoin_record(
+    context: Context, header: list[str], name: str, cells: list[str]
+) -> dict[str, str] | None:
+    """Map the trailing half of a split record back onto its columns.
+
+    The trailing values are right-aligned against the end of the record, i.e.
+    they are padded with empty columns on the right to make up a full-width
+    line. Stripping that padding recovers which column each value belongs to.
+    """
+    tail = list(cells)
+    while len(tail) > 0 and len(tail[-1]) == 0:
+        tail.pop()
+    pad = len(header) - len(tail) - 1
+    if pad < 0:
+        context.log.error("Cannot re-join split record", name=name, cells=cells)
+        return None
+    row = make_row(header, [name] + [""] * pad + tail)
+    if row.get(TYPE_COL) not in TYPES:
+        context.log.error("Cannot re-join split record", name=name, cells=cells)
+        return None
+    context.log.info("Re-joined split record", row=row)
+    return row
+
+
+def iter_organisations(
+    context: Context, path: Path
+) -> Generator[dict[str, str], None, None]:
+    """Yield organisation rows, re-joining records the source split across lines.
+
+    The registry occasionally breaks a record right after the organisation
+    name: the name is published on a line of its own and the rest of the record
+    follows on a later line. Both halves are padded out to the full column
+    count, so they parse as syntactically valid rows and can only be recognised
+    by their contents.
+    """
+    cells = iter_cells(path)
+    header = next(cells)
+    # The re-joining below only holds while the name is the leading column.
+    assert header[0] == NAME_COL, header
+    pending: str | None = None
+    for row in cells:
+        if not any(len(c) > 0 for c in row):
+            continue
+        fields = make_row(header, row)
+        if list(fields.keys()) == [NAME_COL]:
+            # A line carrying nothing but a name: the values that belong with
+            # it are published on one of the following lines.
+            if pending is not None:
+                context.log.warning("Incomplete split record", name=pending)
+            pending = fields[NAME_COL]
+            continue
+        if pending is not None:
+            merged = rejoin_record(context, header, pending, row)
+            pending = None
+            if merged is not None:
+                yield merged
+            continue
+        yield fields
+    if pending is not None:
+        context.log.warning("Incomplete split record", name=pending)
 
 
 def parse_organisations(
@@ -153,7 +227,7 @@ def crawl(context: Context) -> None:
     context.log.info(f"Loaded {len(addresses)} addresses")
 
     org_path = get_path(files, "organisations_")
-    parse_organisations(context, iter_rows(org_path), addresses)
+    parse_organisations(context, iter_organisations(context, org_path), addresses)
 
     officials_path = get_path(files, "organisation_officials_")
     parse_officials(context, iter_rows(officials_path))
