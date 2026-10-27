@@ -1,9 +1,8 @@
-import openpyxl
-from openpyxl import Workbook
 from banal import as_bool
 from normality import stringify
-from datetime import datetime, time
+from datetime import date, datetime, time
 from typing import Any
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, Entity
@@ -36,7 +35,9 @@ def clean_date(value: Any) -> Any:
         return None
     if isinstance(value, datetime):
         return value.date()
-    if isinstance(value, (int, time)):
+    if isinstance(value, date):
+        return value
+    if isinstance(value, (int, float, time)):
         return None
     return value.strip()
 
@@ -156,12 +157,13 @@ def crawl(context: Context) -> None:
 
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook: Workbook = openpyxl.load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
     has_listing = False
-    for sheet in workbook.worksheets:
+    for sheet_name in workbook.sheet_names:
+        sheet = workbook.get_sheet_by_name(sheet_name)
         headers: list[str | None] | None = None
-        for row in sheet.rows:
-            cells = [c.value for c in row]
+        for row in sheet.to_python(skip_empty_area=False):
+            cells = [None if value == "" else value for value in row]
             if "Unique Identifier" in cells and "DOB" in cells:
                 headers = [stringify(h) for h in cells]
                 has_listing = True
@@ -173,4 +175,4 @@ def crawl(context: Context) -> None:
             crawl_entity(context, data_)
 
     if not has_listing:
-        context.log.error("Could not identify data sheet", sheets=workbook.sheetnames)
+        context.log.error("Could not identify data sheet", sheets=workbook.sheet_names)
