@@ -574,6 +574,9 @@ def parse_entry(
     if len(dates_):
         entity.add("createdAt", min(dates_))
         entity.add("modifiedAt", max(dates_))
+        sanction.add("modifiedAt", max(dates_))
+    if not sanction.has("modifiedAt"):
+        sanction.add("modifiedAt", sanction.get("listingDate"), origin=ORIGIN_INFERRED)
 
     if last_modification_type == "de-listed":
         return
