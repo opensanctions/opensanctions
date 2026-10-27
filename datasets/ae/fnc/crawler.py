@@ -113,12 +113,7 @@ def crawl(context: Context) -> None:
         geolocation="AE",
         cache_days=1,
     )
-    # Warn when a new term replaces the 18th as the default.
     current = h.xpath_element(doc, f"{TERM_SELECT}/option[@selected]")
-    if h.element_text(current) != "18":
-        context.log.warning(
-            "Default legislative term has changed", term=h.element_text(current)
-        )
     # By position: option values don't match their labels.
     previous = h.xpath_element(current, "./preceding-sibling::option[1]")
     previous_doc = fetch_previous_term(
