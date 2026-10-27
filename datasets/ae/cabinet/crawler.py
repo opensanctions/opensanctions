@@ -55,7 +55,9 @@ def role_positions(context: Context, role: str) -> list[str]:
     return [role]
 
 
-def crawl_member(context: Context, card: Element, council: Entity | None) -> None:
+def crawl_member(
+    context: Context, card: Element, membership: Entity, is_minister: bool
+) -> None:
     link = h.xpath_element(card, ".//a[@class='name_']")
     raw_name = h.element_text(link)
     name = h.strip_name_titles(context, raw_name)
@@ -79,20 +81,19 @@ def crawl_member(context: Context, card: Element, council: Entity | None) -> Non
     person.add("biography", "\n".join(text for text in texts if text != ""))
     person.add("sourceUrl", popup_url)
 
-    positions = [
-        h.make_position(context, name=title, country="ae", lang="eng")
-        for title in role_positions(context, role)
-    ]
-    if council is None:
+    if is_minister:
         # Ministers must be UAE citizens (Constitution, Art. 56):
         # https://www.constituteproject.org/constitution/United_Arab_Emirates_2009
         person.add("citizenship", "ae")
     else:
         # Council members are the emirates' rulers (Art. 46); no citizenship rule.
         person.add("country", "ae")
-        positions.append(council)
 
-    for position in positions:
+    positions = [
+        h.make_position(context, name=title, country="ae", lang="eng")
+        for title in role_positions(context, role)
+    ]
+    for position in [membership] + positions:
         categorisation = categorise(context, position)
         if not categorisation.is_pep:
             continue
@@ -107,12 +108,18 @@ def crawl_member(context: Context, card: Element, council: Entity | None) -> Non
 
 
 def crawl(context: Context) -> None:
+    cabinet = h.make_position(
+        context,
+        name="Member of the Cabinet of the United Arab Emirates",
+        country="ae",
+        lang="eng",
+    )
     url = context.data_url
     # The list loads 12 members per page; the last page has an empty nextPage.
     while url != "":
         doc = fetch_list(context, url)
         for card in h.xpath_elements(doc, "//div[contains(@class, 'cabItem')]"):
-            crawl_member(context, card, council=None)
+            crawl_member(context, card, cabinet, is_minister=True)
         script = h.xpath_string(doc, "//script[contains(., 'var nextPage')]/text()")
         match = NEXT_PAGE.search(script)
         assert match is not None, url
@@ -126,4 +133,4 @@ def crawl(context: Context) -> None:
     )
     doc = fetch_list(context, "https://uaecabinet.ae/en/federal-supreme-council")
     for card in h.xpath_elements(doc, "//div[contains(@class, 'cabItem')]"):
-        crawl_member(context, card, council=council)
+        crawl_member(context, card, council, is_minister=False)
