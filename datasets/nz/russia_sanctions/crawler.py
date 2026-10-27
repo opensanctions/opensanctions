@@ -120,6 +120,7 @@ def crawl_entity(context: Context, data: dict[str, Any]) -> None:
         parse_associates(context, entity, associates)
 
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
+    sanction.add("authorityId", unique_id)
     sanction.add("startDate", data.pop("Date of Sanction"))
     modified_at = clean_date(data.pop("Date of Additional Sanction"))
     h.apply_date(sanction, "modifiedAt", modified_at)
