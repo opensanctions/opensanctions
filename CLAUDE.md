@@ -29,13 +29,9 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 
 ## Content guidelines
 
-* The documentation for how we want crawlers to be written in `zavod/docs` is authoritative.
-* When best practices are identified or changed, it should be documented in `zavod/docs`, and conflicting documentation should be updated.
+* Where a rule, procedure or example belongs is set by `zavod/docs/skills_layout.md`. Read it before creating or editing a skill, `.claude/docs` or `zavod/docs`, block content that it puts elsewhere, and review such changes with `/review-docs`.
 * Refer to the [documentation styleguide for the broader FollowTheMoney ecosystem](https://github.com/opensanctions/followthemoney/blob/main/docs/styleguide.md).
 * Do not assume that existing crawlers are implemented according to current best practices. Only use patterns in existing crawlers to update the documentation when prompted to, and in that case, identify specific patterns and propose specific aspects as separate concepts.
-* Claude skills should reference and search relevant documentation in `zavod/docs`.
-  * When writing skills, only the skill-specific procedures and examples should be in the skill directory.
-  * Any expansion or clarification of how crawlers should be written or how zavod should be used should take place in `zavod/docs`.
 * Keep documentation files under 500 lines. Split documentation into more specific files at conceptual/logical boundaries at the latest when approaching this limit.
 * The audience of `zavod/docs` is crawler maintainers and zavod maintainers at OpenSanctions as well as non-staff users of the zavod framework.
 
