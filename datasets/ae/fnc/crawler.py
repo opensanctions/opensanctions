@@ -63,7 +63,7 @@ def crawl_member(
     # Not extracted: the photo and the undated list of terms served.
 
 
-def fetch__previous_term(context: Context, doc: Element, value: str) -> Element:
+def fetch_previous_term(context: Context, doc: Element, value: str) -> Element:
     """Post the page's form back with the term `value` selected."""
     select_name = h.xpath_string(doc, f"{TERM_SELECT}/@name")
     form = {
@@ -121,7 +121,7 @@ def crawl(context: Context) -> None:
         )
     # By position: option values don't match their labels.
     previous = h.xpath_element(current, "./preceding-sibling::option[1]")
-    previous_doc = fetch__previous_term(
+    previous_doc = fetch_previous_term(
         context, doc, h.xpath_string(previous, "./@value")
     )
 
