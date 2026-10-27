@@ -1,7 +1,7 @@
 from typing import Any
 from urllib.parse import urlencode
 
-import xlrd
+from python_calamine import CalamineWorkbook
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -9,7 +9,7 @@ from rigour.mime.types import XLS
 from rigour.names.split_phrases import contains_split_phrase
 
 
-def crawl_row(drow: dict[str, Any], context: Context, wb: xlrd.book.Book) -> None:
+def crawl_row(drow: dict[str, Any], context: Context) -> None:
     for k, v in drow.items():
         if isinstance(v, str) and v.lower() in ["n/a"]:  # normalize NAs in values
             drow[k] = None
@@ -108,8 +108,8 @@ def crawl(context: Context) -> None:
 
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
-    wb = xlrd.open_workbook(str(path))  # old .xls version not supported by openpyxl
-    assert len(wb.sheets()) == 1
-    sh = wb.sheet_by_name("EXCEL_Destination")
-    for row in h.parse_xls_sheet(context, sh):
-        crawl_row(row, context, wb)
+    workbook = CalamineWorkbook.from_path(path)
+    assert len(workbook.sheet_names) == 1
+    sheet = workbook.get_sheet_by_name("EXCEL_Destination")
+    for row in h.parse_xlsx_sheet(context, sheet):
+        crawl_row(row, context)
