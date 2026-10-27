@@ -1,17 +1,28 @@
+from urllib.parse import urlencode
+
+from lxml import html
 from lxml.etree import _Element as Element
 from zavod.extract import zyte_api
 from zavod.shed.trans import apply_translit_full_name
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
 from zavod.util import LangText
 
 from zavod import Context, Entity
 from zavod import helpers as h
+
+TERM_SELECT = "//select[contains(@id, 'ddlTerms')]"
 
 
 def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
+    term: str,
+    status: OccupancyStatus | None,
     member: Element,
 ) -> None:
     raw_name = h.element_text(
@@ -20,7 +31,9 @@ def crawl_member(
     name = h.strip_name_titles(context, raw_name)
     # Every name carries an honorific ending in "/"; one left over is a title missing
     # from names.prefixes_strip.
-    assert name is not None and "/" not in name, raw_name
+    if name is None or "/" in name:
+        context.log.warning("Unknown honorific in member name", name=raw_name)
+        return
     emirate = h.element_text(
         h.xpath_element(member, ".//div[contains(@class, 'EMCSS')]")
     )
@@ -33,10 +46,15 @@ def crawl_member(
     # https://www.constituteproject.org/constitution/United_Arab_Emirates_2009
     person.add("citizenship", "ae")
 
-    # The roster only lists the sitting term and gives no dates, so membership
-    # implies a current mandate.
     occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
+        context,
+        person,
+        position,
+        categorisation=categorisation,
+        status=status,
+        # The source gives no dates, so the term keeps a re-elected member's two
+        # occupancies apart.
+        key_prefix=term,
     )
     if occupancy is None:
         return
@@ -46,6 +64,33 @@ def crawl_member(
     context.emit(person)
     # Not extracted: the photo, and the list of terms served ("الفصل التشريعي"),
     # which has no dates to model the earlier terms with.
+
+
+def fetch_term(context: Context, doc: Element, value: str) -> Element:
+    """Post the page's form back with the term `value` selected."""
+    select_name = h.xpath_string(doc, f"{TERM_SELECT}/@name")
+    form = {
+        h.xpath_string(field, "./@name"): field.get("value", "")
+        for field in h.xpath_elements(doc, "//form//input[@type='hidden']")
+    }
+    form.update(
+        {select_name: value, "__EVENTTARGET": select_name, "__EVENTARGUMENT": ""}
+    )
+    result = zyte_api.fetch(
+        context,
+        zyte_api.ZyteAPIRequest(
+            url=context.data_url,
+            method="POST",
+            body=urlencode(form).encode("utf-8"),
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            geolocation="AE",
+        ),
+    )
+    term_doc = html.fromstring(result.response_text)
+    # A postback that didn't switch terms returns the default term's members.
+    shown = h.xpath_string(term_doc, f"{TERM_SELECT}/option[@selected]/@value")
+    assert shown == value, (shown, value)
+    return term_doc
 
 
 def crawl(context: Context) -> None:
@@ -71,12 +116,24 @@ def crawl(context: Context) -> None:
         geolocation="AE",
         cache_days=1,
     )
-    # The page shows the 18th legislative term by default. A new term means new
-    # members, so fail loudly when the default selection changes.
-    term = h.xpath_string(
-        doc, "//select[contains(@id, 'ddlTerms')]/option[@selected]/text()"
-    )
-    assert term == "18", term
+    # The page opens on the sitting term, the 18th. Flag a new one so a maintainer
+    # confirms the page still lists the sitting term first.
+    current = h.xpath_element(doc, f"{TERM_SELECT}/option[@selected]")
+    if h.element_text(current) != "18":
+        context.log.warning(
+            "Default legislative term has changed", term=h.element_text(current)
+        )
+    # Step back by position: option values drift from their labels (label 15 is
+    # value 16).
+    previous = h.xpath_element(current, "./preceding-sibling::option[1]")
+    previous_doc = fetch_term(context, doc, h.xpath_string(previous, "./@value"))
 
-    for member in h.xpath_elements(doc, "//div[@class='members-list']/ul/li"):
-        crawl_member(context, position, categorisation, member)
+    # The source gives no dates: the default term is the sitting one, and members
+    # of the term before it have since left that mandate.
+    for option, term_doc, status in [
+        (current, doc, None),
+        (previous, previous_doc, OccupancyStatus.ENDED),
+    ]:
+        term = h.element_text(option)
+        for member in h.xpath_elements(term_doc, "//div[@class='members-list']/ul/li"):
+            crawl_member(context, position, categorisation, term, status, member)
