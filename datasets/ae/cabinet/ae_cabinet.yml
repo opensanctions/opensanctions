@@ -47,6 +47,13 @@ tags:
   - list.pep
 
 lookups:
+  type.gender:
+    lowercase: true
+    options:
+      - match: his
+        value: male
+      - match: her
+        value: female
   # Splits roles joining several offices; " and " alone can't tell them from
   # single portfolios such as "Energy and Infrastructure". Federal offices are
   # qualified with the country, emirate offices name their emirate.
