@@ -1,5 +1,5 @@
 from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -50,14 +50,17 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
 
     # Currently terminated providers
-    for item in h.parse_xlsx_sheet_openpyxl(context, wb["Termination List"]):
+    terminated = workbook.get_sheet_by_name("Termination List")
+    for item in h.parse_xlsx_sheet(context, terminated):
         crawl_item(item, context)
 
     # Providers that where terminated but are now reinstated
-    if "Reinstated Providers" in wb.sheetnames:
-        for item in h.parse_xlsx_sheet_openpyxl(context, wb["Reinstated Providers"]):
+    if "Reinstated Providers" in workbook.sheet_names:
+        reinstated = workbook.get_sheet_by_name("Reinstated Providers")
+        for item in h.parse_xlsx_sheet(context, reinstated):
             crawl_item(item, context)
-    assert len(set(wb.sheetnames) - {"Termination List", "Reinstated Providers"}) == 0
+    sheet_names = set(workbook.sheet_names)
+    assert len(sheet_names - {"Termination List", "Reinstated Providers"}) == 0
