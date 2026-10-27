@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 # Senator profile links on the listing pages, e.g.
@@ -40,7 +41,7 @@ def crawl_senator(
     categorisation: PositionCategorisation,
 ) -> None:
     url = DETAIL_URL % senator_id
-    doc = context.fetch_html(url, cache_days=7)
+    doc = zyte_api.fetch_html(context, url, unblock_validator="//th", cache_days=7)
 
     name = h.xpath_string(doc, "//title/text()").strip()
     if not name:
@@ -103,7 +104,12 @@ def crawl_legislature(
         )
         return
 
-    doc = context.fetch_html(LEG_URL % legislature.leg, cache_days=1)
+    doc = zyte_api.fetch_html(
+        context,
+        LEG_URL % legislature.leg,
+        unblock_validator="//a[contains(@href, 'showSenator')]",
+        cache_days=1,
+    )
     senator_ids = sorted(
         {
             match.group(1)
@@ -121,7 +127,12 @@ def crawl_legislature(
 
 
 def parse_legislatures(context: Context) -> list[Legislature]:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator="//a[contains(@href, 'SenPerType&LEG=')]",
+        cache_days=1,
+    )
     legislatures: dict[str, Legislature] = {}
     for anchor in h.xpath_elements(doc, "//a[contains(@href, 'SenPerType&LEG=')]"):
         href = anchor.get("href")
