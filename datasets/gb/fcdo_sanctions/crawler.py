@@ -333,6 +333,9 @@ def crawl_xml(context: Context) -> None:
             # Add the creation date
             for date in designation.iterfind(".//DateDesignated"):
                 h.apply_date(sanction, "startDate", date.text)
+            # UK designations take effect when made, so this is also the listing date.
+            for stmt in sanction.get_statements("startDate"):
+                sanction.adopt_statement(stmt, prop="listingDate")
             # Add the source of the sanction
             for authority in designation.iterfind(".//DesignationSource"):
                 sanction.add("authority", h.multi_split(authority.text, ["|"]))
@@ -593,6 +596,9 @@ def crawl_csv(context: Context) -> None:
             sanction.add("reason", html.unescape(row.pop("UK Statement of Reasons")))
             h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
             h.apply_date(sanction, "startDate", row.pop("Date Designated"))
+            # UK designations take effect when made, so this is also the listing date.
+            for stmt in sanction.get_statements("startDate"):
+                sanction.adopt_statement(stmt, prop="listingDate")
 
             other_information = row.pop("Other Information")
             entity.add("notes", other_information)
