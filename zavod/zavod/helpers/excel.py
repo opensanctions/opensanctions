@@ -167,11 +167,22 @@ def _xlsx_headers(cells: Sequence[Any], header_lookup: Lookup | None) -> list[st
         if header_lookup:
             header = header_lookup.get_value(header) or header
         headers.append(slugify_text(header, sep="_") or f"column_{idx}")
-    duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
-    # Records are built by zipping headers with cells, so a duplicate
-    # header would silently drop the earlier column's cell.
-    assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
+    _assert_unique_headers(headers)
     return headers
+
+
+def _assert_unique_headers(headers: Sequence[str]) -> None:
+    """
+    Check that no two columns get the same record key.
+
+    Records are built by zipping headers with cells, so a duplicate header
+    would silently drop the earlier column's cell.
+
+    Raises:
+        AssertionError: If two columns get the same key.
+    """
+    duplicates = {hdr for hdr in headers if headers.count(hdr) > 1}
+    assert not duplicates, f"Duplicate headers: {sorted(duplicates)}"
 
 
 def parse_xlsx_sheet(
@@ -179,6 +190,7 @@ def parse_xlsx_sheet(
     sheet: CalamineSheet,
     skiprows: int = 0,
     header_lookup: Lookup | None = None,
+    headers: Sequence[str] | None = None,
 ) -> Iterator[dict[str, str | None]]:
     """
     Parse an Excel sheet read with python-calamine into a sequence of dictionaries.
@@ -195,20 +207,46 @@ def parse_xlsx_sheet(
         sheet: The sheet, e.g. from `CalamineWorkbook.from_path(path).get_sheet_by_name(name)`.
         skiprows: The number of rows to skip, counted from the first row of the sheet.
         header_lookup: The lookup key for translating headers.
+        headers: The record keys in column order, used as given. Every row
+            after `skiprows` is then a data row, so skip the heading row too.
+            Use this when the headings of the sheet cannot give unique keys,
+            e.g. two columns with the same heading. The crawler should then
+            check the heading row itself, so that a change in the columns
+            of the source makes it fail.
+
+    Raises:
+        ValueError: If both `headers` and `header_lookup` are given, or if a
+            row has a value in a column beyond `headers`.
+        AssertionError: If two columns get the same key.
     """
-    headers: list[str] | None = None
+    if headers is not None and header_lookup is not None:
+        raise ValueError("Give either headers or header_lookup, not both.")
+    keys: list[str] | None = None
+    if headers is not None:
+        keys = list(headers)
+        _assert_unique_headers(keys)
+
     # Keep leading empty rows and columns so that skiprows and column_<index>
     # keys count from cell A1.
-    for row in sheet.to_python(skip_empty_area=False)[skiprows:]:
-        if headers is None:
-            headers = _xlsx_headers(row, header_lookup)
+    rows = sheet.to_python(skip_empty_area=False)
+    for row_ix, row in enumerate(rows[skiprows:], start=skiprows):
+        if keys is None:
+            keys = _xlsx_headers(row, header_lookup)
             continue
 
-        record: dict[str, str | None] = {header: None for header in headers}
-        for header, value in zip(headers, row):
+        # Records are built by zipping keys with cells, which drops the cells
+        # of columns beyond the keys.
+        dropped = [v for v in row[len(keys) :] if stringify(v) is not None]
+        if dropped:
+            raise ValueError(
+                f"Row {row_ix + 1} has values beyond the {len(keys)} headers: {dropped}"
+            )
+
+        record: dict[str, str | None] = {key: None for key in keys}
+        for key, value in zip(keys, row):
             if isinstance(value, datetime):
                 value = value.date()
-            record[header] = stringify(value)
+            record[key] = stringify(value)
 
         if all(v is None for v in record.values()):
             continue

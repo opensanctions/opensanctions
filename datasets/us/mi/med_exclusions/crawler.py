@@ -1,18 +1,28 @@
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
-from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 URL_XPATH = "//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a"
 
-HEADER_ROW = 2
-SOURCE_HEADER = "Sanction Source"
-# Names for the two identically-headed provenance columns.
-SOURCE_HEADERS = {
-    "Sanction Date1": "Sanction Source1",
-    "Sanction Date2": "Sanction Source2",
-}
+# The source heads the provenance column of each of its two sanction dates
+# "Sanction Source", so the keys come from this list and not from the sheet.
+COLUMNS = [
+    ("Entity Name", "entity_name"),
+    ("Last Name", "last_name"),
+    ("First Name", "first_name"),
+    ("Middle Name", "middle_name"),
+    ("Provider Category", "provider_category"),
+    ("NPI#", "npi"),
+    ("City", "city"),
+    ("License#", "license"),
+    ("Sanction Date1", "sanction_date1"),
+    ("Sanction Source", "sanction_source1"),
+    ("Sanction Date2", "sanction_date2"),
+    ("Sanction Source", "sanction_source2"),
+    ("Reason", "reason"),
+]
 
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
@@ -123,17 +133,14 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    # Not read-only: the header cells are relabelled in place below.
-    wb = load_workbook(path)
+    workbook = CalamineWorkbook.from_path(path)
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    sheet = workbook.get_sheet_by_index(0)
 
-    assert wb.active is not None
-    # The source heads the provenance column of each of its two sanction dates
-    # "Sanction Source". Both slugify to one key, which drops the first column's
-    # values, so name each after the sanction date it follows.
-    header = wb.active[HEADER_ROW]
-    for date_cell, source_cell in zip(header, header[1:]):
-        if source_cell.value == SOURCE_HEADER:
-            source_cell.value = SOURCE_HEADERS[str(date_cell.value)]
+    # Row 1 is a title, row 2 holds the headings.
+    labels = [str(cell) for cell in sheet.to_python(skip_empty_area=False)[1]]
+    assert labels == [label for label, _ in COLUMNS], labels
 
-    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active, skiprows=1):
+    headers = [key for _, key in COLUMNS]
+    for item in h.parse_xlsx_sheet(context, sheet, skiprows=2, headers=headers):
         crawl_item(item, context)
