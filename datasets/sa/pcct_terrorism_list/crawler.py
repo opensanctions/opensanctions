@@ -1,8 +1,8 @@
 import json
 from typing import Literal, NamedTuple
 
-from openpyxl import load_workbook
 from pydantic import BaseModel, JsonValue
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 from zavod.entity import Entity
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
@@ -277,16 +277,16 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
 
     columns = context.get_lookup("columns")
-    for sheet in workbook.sheetnames:
+    for sheet in workbook.sheet_names:
         schema = context.lookup_value("schema", sheet)
         if schema is None:
             context.log.warning("Unmapped sheet", sheet=sheet)
             continue
-        for row in h.parse_xlsx_sheet_openpyxl(
-            context, workbook[sheet], header_lookup=columns
+        for row in h.parse_xlsx_sheet(
+            context, workbook.get_sheet_by_name(sheet), header_lookup=columns
         ):
             crawl_row(context, schema, row)
 
