@@ -1,8 +1,7 @@
 from zavod import Context
 from zavod import helpers as h
-from lxml.html import HtmlElement
-from openpyxl import load_workbook
-from openpyxl.worksheet.worksheet import Worksheet
+from zavod.extract import zyte_api
+from python_calamine import CalamineSheet, CalamineWorkbook
 from rigour.mime.types import XLSX
 
 IGNORE_FIELDS = [
@@ -11,20 +10,11 @@ IGNORE_FIELDS = [
 ]
 
 
-class MissingDataFile(Exception):
-    pass
+XLSX_XPATH = ".//a[contains(@href, '.xlsx')]"
 
 
-def xlsx_url(doc: HtmlElement) -> str | None:
-    for link in doc.iterlinks():
-        ext = link[2].split(".")[-1]
-        if "xlsx" in ext:
-            return str(link[2])
-    return None
-
-
-def crawl_person(context: Context, worksheet: Worksheet) -> None:
-    for row in h.parse_xlsx_sheet_openpyxl(
+def crawl_person(context: Context, worksheet: CalamineSheet) -> None:
+    for row in h.parse_xlsx_sheet(
         context,
         worksheet,
         skiprows=2,
@@ -94,8 +84,8 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
         context.audit_data(row, IGNORE_FIELDS)
 
 
-def crawl_legal_entities(context: Context, worksheet: Worksheet) -> None:
-    for row in h.parse_xlsx_sheet_openpyxl(
+def crawl_legal_entities(context: Context, worksheet: CalamineSheet) -> None:
+    for row in h.parse_xlsx_sheet(
         context,
         worksheet,
         skiprows=1,
@@ -122,21 +112,30 @@ def crawl_legal_entities(context: Context, worksheet: Worksheet) -> None:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url)
-    url = xlsx_url(doc)
-    if not url:
-        msg = "XLSX file does not exist!"
-        context.log.error(msg)
-        raise MissingDataFile(msg)
+    # The host only accepts connections from Jordanian IPs
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=XLSX_XPATH,
+        html_source="httpResponseBody",
+        geolocation="JO",
+        absolute_links=True,
+    )
+    # The same link appears twice, in the desktop and mobile layouts
+    urls = set(h.xpath_strings(doc, XLSX_XPATH + "/@href"))
+    assert len(urls) == 1, urls
+    url = urls.pop()
 
-    path = context.fetch_resource("source.xlsx", url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.xlsx", url, expected_media_type=XLSX, geolocation="JO"
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
-    assert len(wb.worksheets) == 2
+    wb = CalamineWorkbook.from_path(path)
+    assert len(wb.sheet_names) == 2, wb.sheet_names
 
-    person_worksheet = wb["الأفراد"]  # "Individuals"
-    legal_entity_worksheet = wb["الكيانات"]  # "Entities"
+    person_worksheet = wb.get_sheet_by_name("الأفراد")  # "Individuals"
+    legal_entity_worksheet = wb.get_sheet_by_name("الكيانات")  # "Entities"
 
     crawl_person(context, person_worksheet)
     crawl_legal_entities(context, legal_entity_worksheet)

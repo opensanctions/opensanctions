@@ -1,5 +1,5 @@
 from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -33,16 +33,13 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
 
 def crawl_excel_url(context: Context) -> str:
-    file_xpath = ".//*[@about='/provider-termination']"
-    doc = zyte_api.fetch_html(context, context.data_url, file_xpath)
-    section = h.xpath_element(doc, file_xpath)
-    for a in h.xpath_elements(section, ".//a"):
-        if "Terminated Provider List" in h.element_text(a):
-            href = a.get("href")
-            assert href is not None
-            return href
-
-    raise RuntimeError("No link to excel file found")
+    link_xpath = ".//a[contains(., 'Terminated Provider List')][@href]"
+    doc = zyte_api.fetch_html(
+        context, context.data_url, link_xpath, absolute_links=True
+    )
+    href = h.xpath_element(doc, link_xpath).get("href")
+    assert href is not None
+    return href
 
 
 def crawl(context: Context) -> None:
@@ -53,14 +50,17 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
 
     # Currently terminated providers
-    for item in h.parse_xlsx_sheet_openpyxl(context, wb["Termination List"]):
+    terminated = workbook.get_sheet_by_name("Termination List")
+    for item in h.parse_xlsx_sheet(context, terminated):
         crawl_item(item, context)
 
     # Providers that where terminated but are now reinstated
-    if "Reinstated Providers" in wb.sheetnames:
-        for item in h.parse_xlsx_sheet_openpyxl(context, wb["Reinstated Providers"]):
+    if "Reinstated Providers" in workbook.sheet_names:
+        reinstated = workbook.get_sheet_by_name("Reinstated Providers")
+        for item in h.parse_xlsx_sheet(context, reinstated):
             crawl_item(item, context)
-    assert len(set(wb.sheetnames) - {"Termination List", "Reinstated Providers"}) == 0
+    sheet_names = set(workbook.sheet_names)
+    assert len(sheet_names - {"Termination List", "Reinstated Providers"}) == 0
