@@ -1,6 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
-from lxml.html import HtmlElement
+from zavod.extract import zyte_api
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from rigour.mime.types import XLSX
@@ -11,16 +11,7 @@ IGNORE_FIELDS = [
 ]
 
 
-class MissingDataFile(Exception):
-    pass
-
-
-def xlsx_url(doc: HtmlElement) -> str | None:
-    for link in doc.iterlinks():
-        ext = link[2].split(".")[-1]
-        if "xlsx" in ext:
-            return str(link[2])
-    return None
+XLSX_XPATH = ".//a[contains(@href, '.xlsx')]"
 
 
 def crawl_person(context: Context, worksheet: Worksheet) -> None:
@@ -122,14 +113,23 @@ def crawl_legal_entities(context: Context, worksheet: Worksheet) -> None:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url)
-    url = xlsx_url(doc)
-    if not url:
-        msg = "XLSX file does not exist!"
-        context.log.error(msg)
-        raise MissingDataFile(msg)
+    # The host only accepts connections from Jordanian IPs
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=XLSX_XPATH,
+        html_source="httpResponseBody",
+        geolocation="JO",
+        absolute_links=True,
+    )
+    # The same link appears twice, in the desktop and mobile layouts
+    urls = set(h.xpath_strings(doc, XLSX_XPATH + "/@href"))
+    assert len(urls) == 1, urls
+    url = urls.pop()
 
-    path = context.fetch_resource("source.xlsx", url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.xlsx", url, expected_media_type=XLSX, geolocation="JO"
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
