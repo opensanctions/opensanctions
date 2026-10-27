@@ -172,9 +172,8 @@ def xml_make_person(
         # Add nationalities
         for nationality in individual.iterfind(".//Nationalities//Nationality"):
             entity.add("nationality", nationality.text)
-        # Add positions
-        for position in individual.iterfind(".//Positions//Position"):
-            entity.add("position", h.multi_split(position.text, ["|", "; and ", "; "]))
+        # Positions come from the CSV: the XML repeats them with curly quotes,
+        # which would add near-duplicate values.
 
 
 def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) -> None:
