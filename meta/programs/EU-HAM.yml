@@ -20,6 +20,8 @@ aliases:
   - Restrictive measures against those who support, facilitate or enable violent
     actions by Hamas and the Palestinian Islamic Jihad
   - HAM
+target_territories:
+  - ps
 measures:
   - Asset freeze
   - Travel ban

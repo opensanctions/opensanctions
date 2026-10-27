@@ -10,3 +10,4 @@ issuer: ch_seco
 dataset: ch_seco_sanctions
 target_territories:
 - yucs
+status: ended

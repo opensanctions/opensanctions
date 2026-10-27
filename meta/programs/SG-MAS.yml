@@ -22,7 +22,6 @@ issuer: sg_mas
 dataset: null
 target_territories:
 - il
-- ps
 - ru
 - ua-dpr
 - ua-lpr
