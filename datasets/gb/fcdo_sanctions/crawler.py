@@ -2,6 +2,7 @@ import re
 import csv
 import html
 
+from followthemoney.util import join_text
 from rigour.langs import iso_639_alpha3
 from rigour.mime.types import CSV
 from zavod.util import ElementOrTree
@@ -167,7 +168,7 @@ def xml_make_person(
         for details in individual.iterfind(".//BirthDetails//Location"):
             town = details.findtext(".//TownOfBirth")
             country = details.findtext(".//CountryOfBirth")
-            entity.add("birthPlace", ", ".join(p for p in (town, country) if p))
+            entity.add("birthPlace", join_text(town, country, sep=", "))
         # Add nationalities
         for nationality in individual.iterfind(".//Nationalities//Nationality"):
             entity.add("nationality", nationality.text)
@@ -423,8 +424,9 @@ def csv_make_person(context: Context, row: dict[str, str], entity: Entity) -> No
     h.apply_date(entity, "birthDate", row.pop("D.O.B"))
     entity.add("title", row.pop("Title"))
     entity.add("gender", row.pop("Gender"))
-    entity.add("birthPlace", row.pop("Town of birth"))
-    entity.add("birthPlace", row.pop("Country of birth"))
+    town = row.pop("Town of birth")
+    country = row.pop("Country of birth")
+    entity.add("birthPlace", join_text(town, country, sep=", "))
     entity.add("idNumber", row.pop("National Identifier number"))
     entity.add("nationality", row.pop("Nationality(/ies)"))
     entity.add("position", h.multi_split(row.pop("Position"), ["|", "; and ", "; "]))
