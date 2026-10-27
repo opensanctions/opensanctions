@@ -86,8 +86,7 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     # The catalog republishes the CSV daily under a new timestamped URL and deletes
-    # the old one, so resolve the current file from the dataset's metadata on every
-    # run, uncached.
+    # the old one, so resolve the current file from the dataset's metadata.
     dataset = context.fetch_json(
         urljoin(
             context.data_url,
@@ -130,7 +129,7 @@ Two things first drafts most often get wrong, and this gets right:
 - **The row loop feeds `crawl_row` directly**: no discovery helper collecting IDs first,
   no repeated requests "to be safe", no hand-written row-count check. The YAML
   `assertions` own totals.
-- **Each workaround carries its reason** (the uncached catalog lookup, the `cp1252`
+- **Each workaround carries its reason** (the catalog lookup, the `cp1252`
   encoding), so a reviewer can tell necessary code from machinery.
 
 ## Mixed dataset
