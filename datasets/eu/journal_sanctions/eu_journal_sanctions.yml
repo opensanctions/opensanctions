@@ -259,6 +259,10 @@ config:
   # Acts that the discovery check found and that a reviewer closed with no
   # transcription.
   reviewed_acts:
+    # Article 1 replaces the date in Article 4(2) of Decision 2010/573/CFSP,
+    # extending the Transnistria measures from 31 October 2026 to 31 October
+    # 2027. The act has no annex and designates nobody.
+    - 32026D2397
     - 32026R1844
     # Deletes the entries of four natural persons from Annex III and renews the
     # regime; it designates nobody, and amendment files hold positive state only.
@@ -283,6 +287,12 @@ config:
     # (EU) No 1284/2009; it designates nobody. Both entries leave the dataset
     # with the next 02009R1284 consolidation.
     - 32026R2318
+    # Article 1 amends operative articles of Regulation (EC) No 1183/2005 only:
+    # it widens the arms-embargo prohibitions (Articles 1, 1a, 1b), adds a
+    # designation criterion on obstructing MONUSCO (Article 2a(1)(l)) and
+    # rewrites the information-sharing, penalty and scope articles. The act has
+    # no annex and designates nobody.
+    - 32026R2374
     # The Annex deletes entry 97 (LOGARCHEO S.A., alias LOGARCHEO AG) from
     # Annex IV to Regulation (EC) No 1210/2003, following the UN Sanctions
     # Committee decision of 5.10.2026; it designates nobody, and amendment
