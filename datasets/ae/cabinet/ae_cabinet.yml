@@ -1,0 +1,125 @@
+title: United Arab Emirates Cabinet and Federal Supreme Council
+entry_point: crawler.py
+prefix: ae-cab
+coverage:
+  frequency: monthly
+  start: 2026-10-27
+load_statements: true
+ci_test: false
+summary: >-
+  Ministers of the UAE federal government and the rulers of the seven emirates who
+  form the Federal Supreme Council
+description: |
+  Current members of the Council of Ministers (Cabinet) of the United Arab Emirates
+  and of the Federal Supreme Council, as published by the UAE Cabinet's General
+  Secretariat.
+
+  The Federal Supreme Council is the highest constitutional authority of the
+  federation. It is made up of the rulers of the seven emirates, and elects the
+  President and Vice President from among its members. The Cabinet, led by the
+  Prime Minister, is the federation's executive body. Many of its senior members
+  also hold office in an emirate's government, such as its ruler or crown prince,
+  and these roles are captured as positions of their own.
+url: https://uaecabinet.ae/en/the-cabinet
+publisher:
+  name: General Secretariat of the UAE Cabinet
+  description: >
+    The General Secretariat supports the UAE Cabinet, the executive authority of the
+    federation, and publishes its membership and resolutions.
+  url: https://uaecabinet.ae/
+  country: ae
+  official: true
+data:
+  url: https://uaecabinet.ae/en/cabinet-members
+  format: HTML
+  lang: eng
+
+names:
+  prefixes_strip:
+    - His Highness
+    - His Excellency
+    - Her Excellency
+    - Sheikh
+    - Dr.
+    - Lieutenant General
+
+tags:
+  - list.pep
+
+lookups:
+  # Splits roles joining several offices; " and " alone can't tell them from
+  # single portfolios such as "Energy and Infrastructure". Federal offices are
+  # qualified with the country, emirate offices name their emirate.
+  position:
+    options:
+      - match:
+          - UAE Vice President, Prime Minister of the UAE and Ruler of Dubai
+          - UAE Vice President, Prime Minister and Ruler of Dubai
+        values:
+          - Vice President of the United Arab Emirates
+          - Prime Minister of the United Arab Emirates
+          - Ruler of Dubai
+      - match: UAE Vice President, Deputy Prime Minister and Chairman of the Presidential Court
+        values:
+          - Vice President of the United Arab Emirates
+          - Deputy Prime Minister of the United Arab Emirates
+          - Chairman of the Presidential Court of the United Arab Emirates
+      - match: Crown Prince of Dubai, Deputy Prime Minister and Minister of Defence
+        values:
+          - Crown Prince of Dubai
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Defence of the United Arab Emirates
+      - match: First Deputy Ruler of Dubai, Deputy Prime Minister and Minister of Finance
+        values:
+          - First Deputy Ruler of Dubai
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Finance of the United Arab Emirates
+      - match: Deputy Prime Minister and Minister of Interior
+        values:
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Interior of the United Arab Emirates
+      - match: Deputy Prime Minister and Minister of Foreign Affairs
+        values:
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Foreign Affairs of the United Arab Emirates
+      - match: Minister of Human Resources and Emiratisation and Acting Minister of Higher Education and Scientific Research
+        values:
+          - Minister of Human Resources and Emiratisation of the United Arab Emirates
+          - Minister of Higher Education and Scientific Research of the United Arab Emirates
+      - match: Minister of State and Secretary General of The UAE Cabinet
+        values:
+          - Minister of State of the United Arab Emirates
+          - Secretary General of the Cabinet of the United Arab Emirates
+      # The President's council card omits his emirate, which seats him on the council.
+      - match: President of the United Arab Emirates
+        values:
+          - President of the United Arab Emirates
+          - Ruler of Abu Dhabi
+      # Single portfolios.
+      - match: Minister of Climate Change and Environment
+        value: Minister of Climate Change and Environment of the United Arab Emirates
+      - match: Minister of Energy and Infrastructure
+        value: Minister of Energy and Infrastructure of the United Arab Emirates
+      - match: Minister of Industry and Advanced Technology
+        value: Minister of Industry and Advanced Technology of the United Arab Emirates
+      - match: Minister of Tolerance and Coexistence
+        value: Minister of Tolerance and Coexistence of the United Arab Emirates
+      - match: Minister of Health and Prevention
+        value: Minister of Health and Prevention of the United Arab Emirates
+      - match: Minister of Economy and Tourism
+        value: Minister of Economy and Tourism of the United Arab Emirates
+      # Trailing zero-width space.
+      - match: "Minister of Education\u200b"
+        value: Minister of Education of the United Arab Emirates
+
+assertions:
+  min:
+    schema_entities:
+      Person: 30
+      Position: 35
+    country_entities:
+      ae: 30
+  max:
+    schema_entities:
+      Person: 50
+      Position: 60
