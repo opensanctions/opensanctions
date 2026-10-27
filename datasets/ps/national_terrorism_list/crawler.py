@@ -1,6 +1,6 @@
 import re
 
-import xlrd
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLS
 from rigour.text.scripts import text_scripts
 from zavod.shed.trans import apply_translit_full_name
@@ -188,17 +188,21 @@ def crawl(context: Context) -> None:
         "source.xls", context.data_url, method="POST", data=data
     )
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
-    book = xlrd.open_workbook(path.as_posix())
-    assert book.sheet_names() == ["الأفراد", "الكيانات"], book.sheet_names()
+    workbook = CalamineWorkbook.from_path(path)
+    assert workbook.sheet_names == ["الأفراد", "الكيانات"], workbook.sheet_names
 
     # Entities, keyed by their listed name for the individuals' affiliations
     orgs: dict[str, Entity] = {}
-    for row in h.parse_xls_sheet(context, book["الكيانات"], skiprows=2):
+    for row in h.parse_xlsx_sheet(
+        context, workbook.get_sheet_by_name("الكيانات"), skiprows=2
+    ):
         row = {context.lookup_value("columns", k, k) or k: v for k, v in row.items()}
         crawl_organization(context, row, orgs)
 
     # Individuals
-    for row in h.parse_xls_sheet(context, book["الأفراد"], skiprows=2):
+    for row in h.parse_xlsx_sheet(
+        context, workbook.get_sheet_by_name("الأفراد"), skiprows=2
+    ):
         row = {context.lookup_value("columns", k, k) or k: v for k, v in row.items()}
         crawl_person(context, row, orgs)
 
