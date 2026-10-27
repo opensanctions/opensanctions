@@ -36,6 +36,8 @@ entity.add("name", row.pop("full_name"))
 entity.add("birthPlace", row.pop("place_of_birth"))
 ```
 
+`entity.add` skips `None` and empty strings, so a popped value needs no `if` guard before it is added. Add every name form the source gives, such as aliases and transliterations, since matching uses each one.
+
 The method `entity.add` works seamlessly with both a single string and a list of strings. In the long run, however, we want to make the typing of `entity.add` more strict to accept only one argument at a time. With this in mind, it's generally better to add values individually if they are already in that form, rather than forcing them into a list unnecessarily.
 
   ```python
@@ -97,7 +99,7 @@ context.emit(sanction)
         ```
 
     - **Genuine reuse.** The value appears at two or more call sites, so a single source of truth keeps the copies from drifting apart.
-    - **Enumeration that is itself the data.** A mapping such as a `POSITIONS` dict that collects all the known cases in one table.
+    - **Enumeration that is itself the data.** A mapping that collects all the known cases in one table.
 
     Otherwise, inline it. Single-use `TOPICS`, `COLUMNS`, header-name lists and the like read better as literals at the point of use.
 
@@ -174,11 +176,7 @@ See the [addresses guide](addresses.md) for the full pattern, country handling, 
 
 ## Detect unhandled data
 
-If a variable number of fields can extracted automatically (e.g. from a list or table):
-
-* Capture all fields provided by the data source in a `dict`.
-* `dict_obj.pop()` individual fields when adding them to entities.
-* Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`. It takes the `ignore` argument to explicitly list fields that are unused.
+See [strict interpretation](strict_interpretation.md#structured-records-pop-then-audit-the-remainder).
 
 ## Fields with no FollowTheMoney equivalent
 
@@ -284,7 +282,7 @@ Prefer code that fails in a way that clearly indicates what went wrong. e.g.
 a KeyError if the API response changes:
 
 ```python
-next_url: Optional[str] = context.data_url
+next_url: str | None = context.data_url
 while next_url:
     response = context.fetch_json(next_url)
     next_url = response["links"]["next"]  # KeyError if structure changes; None on last page

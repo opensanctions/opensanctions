@@ -1,6 +1,6 @@
 ---
 name: crawler-constants-to-yml
-description: Move hardcoded lookup/config constants (gender maps, header dicts, value translations, column-label maps, date formats) out of a crawler and into the dataset .yml — as datapatch lookups wherever possible, otherwise http / config / dates metadata. Use when asked to move, hoist, or "put in the yml" a crawler constant such as GENDERS or HEADERS.
+description: Move hardcoded lookup/config constants (gender maps, header dicts, column-label maps, date formats) out of a crawler and into the dataset .yml — as datapatch lookups wherever possible, otherwise http / config / dates metadata. Use when asked to move, hoist, or "put in the yml" a crawler constant such as GENDERS or HEADERS.
 argument-hint: "[dataset .yml or crawler.py path]"
 allowed-tools: Read, Edit, Bash, Grep, Glob
 ---
@@ -23,7 +23,7 @@ Read the relevant `zavod/docs` before editing — do not re-derive the mechanics
 | Constant in code | Belongs in | Mechanism |
 |---|---|---|
 | Map of source value → clean value for a **typed property** (gender, country, …) | `lookups: type.<type>` | Auto-applied on `entity.add(prop, raw)`. Pass the raw value; delete the dict. |
-| Map/translation of a value for a **non-type** property, or a categorical label | `lookups: <name>` | `context.lookup_value("<name>", raw, warn_unmatched=True)` |
+| Map of a value for a **non-type** property, or a categorical label | `lookups: <name>` | `context.lookup_value("<name>", raw, warn_unmatched=True)` |
 | Request `User-Agent` | `http.user_agent` | Applied to the session; drop `headers=` if it held only the UA. |
 | Static structural/config dict (column labels, field maps used for validation) | `config:` | Read via `context.dataset.config["key"]` |
 | Date formats / non-English month names | `dates.formats`, `dates.months` | Consumed by `h.apply_date` |
@@ -70,12 +70,12 @@ removing the header entirely.
 ## 3. Verify — always run the crawler
 
 ```bash
-ruff check <crawler.py> && mypy --strict <crawler.py>
+contrib/lint_dataset.sh <dataset.yml>
 zavod crawl <dataset.yml>
-# issues.log must be clean (or only carry warnings you expect):
-python3 -c "import json;[print(json.loads(l)['level'],json.loads(l).get('message')) for l in open('data/datasets/<name>/issues.log')]" | sort | uniq -c
+# the run's issues must be clean (or only carry warnings you expect):
+python3 -c "import json;[print(json.loads(l)['level'],json.loads(l).get('message')) for l in open('$(ls data/datasets/<name>/_artifacts/*/issues.log | tail -1)')]" | sort | uniq -c
 # confirm the value still lands, at the expected coverage:
-grep -a ',<Schema>:<prop>,' data/datasets/<name>/statements.pack | awk -F, '{print $3}' | sort | uniq -c
+grep -a ',<Schema>:<prop>,' "$(ls data/datasets/<name>/_artifacts/*/statements.pack | tail -1)" | awk -F, '{print $3}' | sort | uniq -c
 ```
 
 When probing which headers a server requires, drop them one at a time against the live

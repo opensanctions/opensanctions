@@ -4,7 +4,7 @@ Excellent dataset metadata is a relatively low-effort way to demonstrate the tra
 
 Remember to give the context that people from different countries need to make sense of systems they are not entirely familiar with. Share what you learned when figuring out what a source dataset represents.
 
-Metadata fields are user-facing prose. Knowledge addressed to future maintainers of the crawler — failure modes, source quirks, the purpose of a lookup — belongs in [YAML comments](#maintainer-notes-yaml-comments) instead.
+Metadata fields are user-facing prose. State only facts you can trace to a trustworthy public source. Knowledge addressed to future maintainers of the crawler — failure modes, source quirks, the purpose of a lookup — belongs in [YAML comments](#maintainer-notes-yaml-comments) instead.
 
 Use the `.yml` extension.
 
@@ -39,6 +39,7 @@ Keep out of the description:
 - Per-record field listings ("records each person with their name, gender and date of birth") — that is visible from the data and its statistics, and drifts as the crawler changes.
 - Routine ETL mechanics: fetching, parsing, pagination, lookups.
 - Sourcing narration ("the data is sourced from the official website") — that is what `publisher` and `data.url` convey.
+- Counts of members, seats or records (in the `summary` too), which go stale with each update.
 
 ## Maintainer notes (YAML comments)
 
@@ -47,7 +48,7 @@ Document technical knowledge about the crawler as `#` comments in the `.yml`, ad
 - A top-of-file comment block for crawler-level notes: known failure modes and how to handle them, source publication quirks, runbooks for recurring warnings.
 - A short comment above each lookup that is not a plain type lookup (`type.country`, `type.date`, …), explaining its structure and purpose: what raw values it matches, and what the crawler does with the result.
 
-Comments record known facts — observed failures, documented source behaviour, decisions that were made — never speculation. Good examples: `datasets/cn/sanctions/cn_sanctions.yml` (a runbook for handling designation-notice warnings), `datasets/fr/tresor/fr_tresor_gels_avoir.yml` (one-line annotations on the groups within a large lookup).
+Comments record known facts — observed failures, documented source behaviour, decisions that were made — never speculation. Keep existing comments that still hold. Good examples: `datasets/cn/sanctions/cn_sanctions.yml` (a runbook for handling designation-notice warnings), `datasets/fr/tresor/fr_tresor_gels_avoir.yml` (one-line annotations on the groups within a large lookup).
 
 ## Properties
 

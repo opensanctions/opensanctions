@@ -6,7 +6,7 @@ argument-hint: "[crawler.py path]"
 
 # Typechecker Fixes for Crawlers
 
-Fix mypy strict-mode errors in opensanctions crawler files. Run `mypy --strict --explicit-package-bases` on the target directory to find errors, then apply the patterns below.
+Fix mypy strict-mode errors in opensanctions crawler files. Run `contrib/lint_dataset.sh` on the target files to find errors, then apply the patterns below.
 
 ## Read first
 
@@ -14,9 +14,9 @@ Fix mypy strict-mode errors in opensanctions crawler files. Run `mypy --strict -
 - `zavod/zavod/util.py` — `Element` and `ElementOrTree` type aliases
 ## Workflow
 
-1. Run `mypy --strict <crawler.py>` to see current errors
+1. Run `contrib/lint_dataset.sh <crawler.py>` to see current errors
 2. Apply fixes using the patterns below
-3. Run `mypy --strict <crawler.py>` again to verify errors resolved
+3. Run `contrib/lint_dataset.sh <crawler.py>` again to verify errors resolved
 
 ## Patterns (most common first)
 
