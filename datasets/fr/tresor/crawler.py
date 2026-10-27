@@ -235,7 +235,9 @@ def apply_prop(
     elif field == "AUTRE_IDENTITE":
         entity.add("idNumber", value.pop("NumeroCarte"))
     elif field == "REFERENCE_UE":
-        sanction.add("authorityId", value.pop("ReferenceUe"))
+        # The EU's identifier for the listing, not this registry's: authorityId
+        # carries IdRegistre, and eu_fsf publishes the EU reference itself.
+        value.pop("ReferenceUe")
     elif field == "REFERENCE_ONU":
         sanction.add("unscId", value.pop("ReferenceOnu"))
     elif field == "FONDEMENT_JURIDIQUE":
@@ -284,6 +286,7 @@ def crawl_entity(context: Context, data: dict[str, Any]) -> None:
             source_program_key=program_name,
             program_key=h.lookup_sanction_program_key(context, program_name),
         )
+        sanction.add("authorityId", reg_id)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
