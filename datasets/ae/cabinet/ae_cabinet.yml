@@ -47,9 +47,8 @@ tags:
   - list.pep
 
 lookups:
-  # Role strings join several offices into one ("Deputy Prime Minister and Minister
-  # of Interior"), but " and " also occurs inside single portfolios, so the split
-  # is spelled out here. Roles not listed are taken as a single position.
+  # Splits roles joining several offices; " and " alone can't tell them from
+  # single portfolios such as "Energy and Infrastructure".
   position:
     options:
       - match:
@@ -90,7 +89,7 @@ lookups:
         values:
           - Minister of State
           - Secretary General of the UAE Cabinet
-      # Single portfolios whose names contain "and".
+      # Single portfolios.
       - match: Minister of Climate Change and Environment
         value: Minister of Climate Change and Environment
       - match: Minister of Energy and Infrastructure
@@ -103,7 +102,7 @@ lookups:
         value: Minister of Health and Prevention
       - match: Minister of Economy and Tourism
         value: Minister of Economy and Tourism
-      # The source label carries a trailing zero-width space.
+      # Trailing zero-width space.
       - match: "Minister of Education​"
         value: Minister of Education
 
