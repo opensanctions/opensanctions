@@ -1,14 +1,13 @@
 import re
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
-DATA_BASE_URL = "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf"
-DEPUTIES_LIST_URL = f"{DATA_BASE_URL}/deputies?OpenView&lang=EN&count=1000"
-
 
 def crawl_item(context: Context, unid: str) -> None:
-    member_url = f"{DATA_BASE_URL}/0/{unid}?OpenDocument&lang=EN"
+    # Resolves against the term's .nsf database in data.url, e.g. .../saeima14_depweb_public.nsf/0/<unid>
+    member_url = urljoin(context.data_url, f"0/{unid}?OpenDocument&lang=EN")
 
     member_doc = context.fetch_html(member_url)
 
@@ -71,11 +70,13 @@ def crawl_item(context: Context, unid: str) -> None:
 
 def crawl(context: Context) -> None:
     assert context.dataset.url is not None
-    overview_page = context.fetch_html(context.dataset.url)
+    overview_page = context.fetch_html(context.dataset.url, encoding="utf-8")
     # Check if the overview page still lists the 14th Saeima in the main menu.
     if (
         len(
-            h.xpath_elements(overview_page, ".//*[@id='menu']//a[text()='14th Saeima']")
+            h.xpath_elements(
+                overview_page, "//a[normalize-space(.)='14. Saeimas deputāti']"
+            )
         )
         == 0
     ):
@@ -83,7 +84,7 @@ def crawl(context: Context) -> None:
             "Hardcoded term is no longer current on the overview page, they probably elected a new Saeima.",
         )
 
-    deputies_list_page = context.fetch_html(DEPUTIES_LIST_URL)
+    deputies_list_page = context.fetch_html(context.data_url)
     # The links are generated using JS, so we parse the ID from some embedded javascript
     # Using a a regex and build the URL from that.
     members_data = h.xpath_string(
