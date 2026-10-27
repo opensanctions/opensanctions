@@ -51,7 +51,7 @@ assertions:
   max:
     schema_entities:
       Person: 8070
-      Organization: 4600
+      Organization: 3200
       LegalEntity: 60
       Vessel: 80
       Company: 320
