@@ -122,6 +122,9 @@ def crawl_entity(context: Context, data: dict[str, Any]) -> None:
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction.add("authorityId", unique_id)
     sanction.add("startDate", data.pop("Date of Sanction"))
+    # Commencement of the regulations is both the listing and the start date.
+    for stmt in sanction.get_statements("startDate"):
+        sanction.adopt_statement(stmt, prop="listingDate")
     modified_at = clean_date(data.pop("Date of Additional Sanction"))
     h.apply_date(sanction, "modifiedAt", modified_at)
     sanction.add("status", data.pop("Sanction Status"))
