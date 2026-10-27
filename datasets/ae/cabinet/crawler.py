@@ -12,6 +12,10 @@ NEXT_PAGE = re.compile(r'var nextPage = "(.*?)";')
 # Catches honorifics missing from names.prefixes_strip.
 HONORIFIC = re.compile(r"\b(Highness|Excellency|Sheikha?)\b", re.IGNORECASE)
 ALL_CAPS_WORD = re.compile(r"\b[A-Z]{3,}\b")
+# "His/Her Highness/Excellency" gives the member's gender.
+POSSESSIVE = re.compile(r"\b(His|Her)\b", re.IGNORECASE)
+# Link captions closing some biographies.
+LINK_CAPTION = re.compile(r"^(https?://\S+|For more information, please click here)$")
 
 
 def fetch_list(context: Context, url: str) -> Element:
@@ -75,15 +79,20 @@ def crawl_member(
     # Keep <br> from gluing words together.
     for br in h.xpath_elements(popup, ".//br"):
         br.tail = "\n" + (br.tail or "")
-    texts = [
-        h.element_text(p)
-        for p in h.xpath_elements(popup, ".//div[contains(@class, 'textBox')]//p")
-    ]
+    blocks = h.xpath_elements(
+        popup,
+        ".//div[contains(@class, 'textBox')]//*[self::p[not(ancestor::li)] or self::li]",
+    )
+    texts = [h.element_text(block) for block in blocks]
+    bio = [text for text in texts if text != "" and not LINK_CAPTION.match(text)]
 
     person = context.make("Person")
     person.id = context.make_id(raw_name)
     person.add("name", name, original_value=raw_name if name != raw_name else None)
-    person.add("biography", "\n".join(text for text in texts if text != ""))
+    possessive = POSSESSIVE.search(raw_name)
+    if possessive is not None:
+        person.add("gender", possessive.group(1))
+    person.add("biography", "\n".join(bio))
     person.add("sourceUrl", popup_url)
 
     if is_minister:
