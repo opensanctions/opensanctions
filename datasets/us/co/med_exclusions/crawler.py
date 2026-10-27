@@ -33,16 +33,13 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
 
 def crawl_excel_url(context: Context) -> str:
-    file_xpath = ".//*[@about='/provider-termination']"
-    doc = zyte_api.fetch_html(context, context.data_url, file_xpath)
-    section = h.xpath_element(doc, file_xpath)
-    for a in h.xpath_elements(section, ".//a"):
-        if "Terminated Provider List" in h.element_text(a):
-            href = a.get("href")
-            assert href is not None
-            return href
-
-    raise RuntimeError("No link to excel file found")
+    link_xpath = ".//a[contains(., 'Terminated Provider List')][@href]"
+    doc = zyte_api.fetch_html(
+        context, context.data_url, link_xpath, absolute_links=True
+    )
+    href = h.xpath_element(doc, link_xpath).get("href")
+    assert href is not None
+    return href
 
 
 def crawl(context: Context) -> None:
