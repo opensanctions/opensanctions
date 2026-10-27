@@ -141,6 +141,7 @@ def parse_reference(
                 else None
             ),
         )
+        sanction.add("authorityId", clean_reference(reference))
         country = h.multi_split(row.pop("citizenship"), [";"])
         if entity.schema.is_a("Person"):
             entity.add("citizenship", country)
