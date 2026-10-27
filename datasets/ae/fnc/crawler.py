@@ -29,20 +29,16 @@ def crawl_member(
         h.xpath_element(member, ".//div[contains(@class, 'SubjectCSS')]")
     )
     name = h.strip_name_titles(context, raw_name)
-    # Every name carries an honorific ending in "/"; one left over is a title missing
-    # from names.prefixes_strip.
+    # A leftover "/" means an honorific missing from names.prefixes_strip.
     if name is None or "/" in name:
         context.log.warning("Unknown honorific in member name", name=raw_name)
         return
-    emirate = h.element_text(
-        h.xpath_element(member, ".//div[contains(@class, 'EMCSS')]")
-    )
 
     person = context.make("Person")
     person.id = context.make_id(raw_name)
     person.add("name", name, original_value=raw_name)
     apply_translit_full_name(context, person, LangText(name, "ara"))
-    # Members must be citizens of an emirate: Constitution of the UAE, Art. 70.
+    # Citizenship required: UAE Constitution, Art. 70.
     # https://www.constituteproject.org/constitution/United_Arab_Emirates_2009
     person.add("citizenship", "ae")
 
@@ -52,21 +48,22 @@ def crawl_member(
         position,
         categorisation=categorisation,
         status=status,
-        # The source gives no dates, so the term keeps a re-elected member's two
-        # occupancies apart.
+        # No dates: the term keeps a re-elected member's occupancies apart.
         key_prefix=term,
     )
     if occupancy is None:
         return
-    # Members represent their emirate, e.g. "إمارة دبي".
-    occupancy.add("constituency", emirate)
+    # The emirate represented.
+    occupancy.add(
+        "constituency",
+        h.element_text(h.xpath_element(member, ".//div[contains(@class, 'EMCSS')]")),
+    )
     context.emit(occupancy)
     context.emit(person)
-    # Not extracted: the photo, and the list of terms served ("الفصل التشريعي"),
-    # which has no dates to model the earlier terms with.
+    # Not extracted: the photo and the undated list of terms served.
 
 
-def fetch_term(context: Context, doc: Element, value: str) -> Element:
+def fetch__previous_term(context: Context, doc: Element, value: str) -> Element:
     """Post the page's form back with the term `value` selected."""
     select_name = h.xpath_string(doc, f"{TERM_SELECT}/@name")
     form = {
@@ -87,7 +84,7 @@ def fetch_term(context: Context, doc: Element, value: str) -> Element:
         ),
     )
     term_doc = html.fromstring(result.response_text)
-    # A postback that didn't switch terms returns the default term's members.
+    # Guard against a postback that stays on the default term.
     shown = h.xpath_string(term_doc, f"{TERM_SELECT}/option[@selected]/@value")
     assert shown == value, (shown, value)
     return term_doc
@@ -107,7 +104,7 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # The site only answers requests from UAE/Gulf IP ranges.
+    # Geo-fenced to UAE IP ranges.
     doc = zyte_api.fetch_html(
         context,
         context.data_url,
@@ -116,20 +113,19 @@ def crawl(context: Context) -> None:
         geolocation="AE",
         cache_days=1,
     )
-    # The page opens on the sitting term, the 18th. Flag a new one so a maintainer
-    # confirms the page still lists the sitting term first.
+    # Warn when a new term replaces the 18th as the default.
     current = h.xpath_element(doc, f"{TERM_SELECT}/option[@selected]")
     if h.element_text(current) != "18":
         context.log.warning(
             "Default legislative term has changed", term=h.element_text(current)
         )
-    # Step back by position: option values drift from their labels (label 15 is
-    # value 16).
+    # By position: option values don't match their labels.
     previous = h.xpath_element(current, "./preceding-sibling::option[1]")
-    previous_doc = fetch_term(context, doc, h.xpath_string(previous, "./@value"))
+    previous_doc = fetch__previous_term(
+        context, doc, h.xpath_string(previous, "./@value")
+    )
 
-    # The source gives no dates: the default term is the sitting one, and members
-    # of the term before it have since left that mandate.
+    # No dates in the source: the sitting term is current, the previous one ended.
     for option, term_doc, status in [
         (current, doc, None),
         (previous, previous_doc, OccupancyStatus.ENDED),

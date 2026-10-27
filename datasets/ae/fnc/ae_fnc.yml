@@ -5,19 +5,16 @@ coverage:
   frequency: monthly
   start: 2026-10-26
 load_statements: true
-# The site is geo-fenced to UAE/Gulf IP ranges, so it is fetched through Zyte, whose
-# API key isn't available in CI.
 ci_test: false
 summary: >-
   Unicameral federal legislature, with half of its members elected by emirate
   electoral colleges and half appointed by the rulers of the emirates
 description: |
-  Current and recent members of the Federal National Council (المجلس الوطني الاتحادي) of the
-  United Arab Emirates, the country's unicameral federal parliamentary body. Its 40
-  seats are allocated among the seven emirates; half of the members are elected by
-  each emirate's electoral college and half are appointed by its ruler, for a
-  four-year term. The council reviews and amends federal draft laws, discusses the
-  federal budget, and questions ministers.
+  Current and recent members of the Federal National Council of the UAE, the country's
+  unicameral federal parliamentary body. Its 40 seats are allocated among the seven
+  emirates; half of the members are elected by each emirate's electoral college and
+  half are appointed by its ruler, for a four-year term. The council reviews and amends
+  federal draft laws, discusses the federal budget, and questions ministers.
 
   The dataset covers the members of the sitting legislative term and of the term
   before it. Members who leave mid-term may remain listed after they have left.
@@ -49,8 +46,7 @@ names:
 tags:
   - list.pep
 
-# Provisional bands: two terms of 40 seats, less the members re-elected into the
-# sitting term. Re-base them on the first successful crawl.
+# TODO: update once deduped
 assertions:
   min:
     schema_entities:
