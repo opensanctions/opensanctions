@@ -12,6 +12,7 @@ NEXT_PAGE = re.compile(r'var nextPage = "(.*?)";')
 # Catches honorifics missing from names.prefixes_strip.
 HONORIFIC = re.compile(r"\b(Highness|Excellency|Sheikha?)\b", re.IGNORECASE)
 ALL_CAPS_WORD = re.compile(r"\b[A-Z]{3,}\b")
+BIN = re.compile(r"\bBint?\b")
 # "His/Her Highness/Excellency" gives the member's gender.
 POSSESSIVE = re.compile(r"\b(His|Her)\b", re.IGNORECASE)
 # Link captions closing some biographies.
@@ -62,7 +63,11 @@ def role_positions(context: Context, role: str, is_minister: bool) -> list[str]:
 
 
 def crawl_member(
-    context: Context, card: Element, membership: Entity, is_minister: bool
+    context: Context,
+    card: Element,
+    membership: Entity,
+    list_url: str,
+    is_minister: bool,
 ) -> None:
     link = h.xpath_element(card, ".//a[@class='name_']")
     raw_name = h.element_text(link)
@@ -70,9 +75,10 @@ def crawl_member(
     assert name is not None, raw_name
     if HONORIFIC.search(name):
         context.log.warning("Name keeps an honorific", name=raw_name)
-    # Some names are published in capitals.
+    # Some names are published in capitals; re-case them the way the site writes
+    # the others, with a lowercase "bin"/"bint".
     if ALL_CAPS_WORD.search(name):
-        name = name.title()
+        name = BIN.sub(lambda m: m.group(0).lower(), name.title())
     role = h.element_text(h.xpath_element(card, ".//div[@class='dec_']"))
     popup_url = h.xpath_string(link, "./@href")
     popup = fetch_popup(context, popup_url)
@@ -93,7 +99,8 @@ def crawl_member(
     if possessive is not None:
         person.add("gender", possessive.group(1))
     person.add("biography", "\n".join(bio))
-    person.add("sourceUrl", popup_url)
+    # The popup URL only answers AJAX requests, so link the list page instead.
+    person.add("sourceUrl", list_url)
 
     if is_minister:
         # Ministers must be UAE citizens (Constitution, Art. 56):
@@ -133,7 +140,7 @@ def crawl(context: Context) -> None:
     while url != "":
         doc = fetch_list(context, url)
         for card in h.xpath_elements(doc, "//div[contains(@class, 'cabItem')]"):
-            crawl_member(context, card, cabinet, is_minister=True)
+            crawl_member(context, card, cabinet, context.data_url, is_minister=True)
         script = h.xpath_string(doc, "//script[contains(., 'var nextPage')]/text()")
         match = NEXT_PAGE.search(script)
         assert match is not None, url
@@ -145,6 +152,7 @@ def crawl(context: Context) -> None:
         country="ae",
         lang="eng",
     )
-    doc = fetch_list(context, "https://uaecabinet.ae/en/federal-supreme-council")
+    council_url = "https://uaecabinet.ae/en/federal-supreme-council"
+    doc = fetch_list(context, council_url)
     for card in h.xpath_elements(doc, "//div[contains(@class, 'cabItem')]"):
-        crawl_member(context, card, council, is_minister=False)
+        crawl_member(context, card, council, council_url, is_minister=False)
