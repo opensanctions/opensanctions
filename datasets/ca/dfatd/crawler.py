@@ -183,6 +183,9 @@ def parse_entry(context: Context, node: Element) -> None:
     h.apply_date(
         sanction, "listingDate", row.pop("DateOfListing-DateDinscription", None)
     )
+    # Amending regulations are made, registered and in force on the same day.
+    for stmt in sanction.get_statements("listingDate"):
+        sanction.adopt_statement(stmt, prop="startDate")
 
     names = squash_spaces(row.pop("Aliases-Alias", ""))
     if names:
