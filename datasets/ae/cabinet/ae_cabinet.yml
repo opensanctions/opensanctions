@@ -48,63 +48,69 @@ tags:
 
 lookups:
   # Splits roles joining several offices; " and " alone can't tell them from
-  # single portfolios such as "Energy and Infrastructure".
+  # single portfolios such as "Energy and Infrastructure". Federal offices are
+  # qualified with the country, emirate offices name their emirate.
   position:
     options:
       - match:
           - UAE Vice President, Prime Minister of the UAE and Ruler of Dubai
           - UAE Vice President, Prime Minister and Ruler of Dubai
         values:
-          - UAE Vice President
-          - Prime Minister of the UAE
+          - Vice President of the United Arab Emirates
+          - Prime Minister of the United Arab Emirates
           - Ruler of Dubai
       - match: UAE Vice President, Deputy Prime Minister and Chairman of the Presidential Court
         values:
-          - UAE Vice President
-          - Deputy Prime Minister
-          - Chairman of the Presidential Court
+          - Vice President of the United Arab Emirates
+          - Deputy Prime Minister of the United Arab Emirates
+          - Chairman of the Presidential Court of the United Arab Emirates
       - match: Crown Prince of Dubai, Deputy Prime Minister and Minister of Defence
         values:
           - Crown Prince of Dubai
-          - Deputy Prime Minister
-          - Minister of Defence
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Defence of the United Arab Emirates
       - match: First Deputy Ruler of Dubai, Deputy Prime Minister and Minister of Finance
         values:
           - First Deputy Ruler of Dubai
-          - Deputy Prime Minister
-          - Minister of Finance
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Finance of the United Arab Emirates
       - match: Deputy Prime Minister and Minister of Interior
         values:
-          - Deputy Prime Minister
-          - Minister of Interior
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Interior of the United Arab Emirates
       - match: Deputy Prime Minister and Minister of Foreign Affairs
         values:
-          - Deputy Prime Minister
-          - Minister of Foreign Affairs
+          - Deputy Prime Minister of the United Arab Emirates
+          - Minister of Foreign Affairs of the United Arab Emirates
       - match: Minister of Human Resources and Emiratisation and Acting Minister of Higher Education and Scientific Research
         values:
-          - Minister of Human Resources and Emiratisation
-          - Minister of Higher Education and Scientific Research
+          - Minister of Human Resources and Emiratisation of the United Arab Emirates
+          - Minister of Higher Education and Scientific Research of the United Arab Emirates
       - match: Minister of State and Secretary General of The UAE Cabinet
         values:
-          - Minister of State
-          - Secretary General of the UAE Cabinet
+          - Minister of State of the United Arab Emirates
+          - Secretary General of the Cabinet of the United Arab Emirates
+      # The President's council card omits his emirate, which seats him on the council.
+      - match: President of the United Arab Emirates
+        values:
+          - President of the United Arab Emirates
+          - Ruler of Abu Dhabi
       # Single portfolios.
       - match: Minister of Climate Change and Environment
-        value: Minister of Climate Change and Environment
+        value: Minister of Climate Change and Environment of the United Arab Emirates
       - match: Minister of Energy and Infrastructure
-        value: Minister of Energy and Infrastructure
+        value: Minister of Energy and Infrastructure of the United Arab Emirates
       - match: Minister of Industry and Advanced Technology
-        value: Minister of Industry and Advanced Technology
+        value: Minister of Industry and Advanced Technology of the United Arab Emirates
       - match: Minister of Tolerance and Coexistence
-        value: Minister of Tolerance and Coexistence
+        value: Minister of Tolerance and Coexistence of the United Arab Emirates
       - match: Minister of Health and Prevention
-        value: Minister of Health and Prevention
+        value: Minister of Health and Prevention of the United Arab Emirates
       - match: Minister of Economy and Tourism
-        value: Minister of Economy and Tourism
+        value: Minister of Economy and Tourism of the United Arab Emirates
       # Trailing zero-width space.
-      - match: "Minister of Education​"
-        value: Minister of Education
+      - match: "Minister of Education\u200b"
+        value: Minister of Education of the United Arab Emirates
 
 assertions:
   min:

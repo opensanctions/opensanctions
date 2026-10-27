@@ -11,6 +11,7 @@ from zavod import helpers as h
 NEXT_PAGE = re.compile(r'var nextPage = "(.*?)";')
 # Catches honorifics missing from names.prefixes_strip.
 HONORIFIC = re.compile(r"\b(Highness|Excellency|Sheikha?)\b", re.IGNORECASE)
+ALL_CAPS_WORD = re.compile(r"\b[A-Z]{3,}\b")
 
 
 def fetch_list(context: Context, url: str) -> Element:
@@ -45,14 +46,15 @@ def fetch_popup(context: Context, url: str) -> Element:
     return popup
 
 
-def role_positions(context: Context, role: str) -> list[str]:
+def role_positions(context: Context, role: str, is_minister: bool) -> list[str]:
     res = context.lookup("position", role)
     if res is not None:
         return res.values
     if "," in role or " and " in role:
         context.log.warning("Role needs a position lookup entry", role=role)
         return []
-    return [role]
+    # Cabinet portfolios are federal; council roles name their emirate.
+    return [f"{role} of the United Arab Emirates" if is_minister else role]
 
 
 def crawl_member(
@@ -64,6 +66,9 @@ def crawl_member(
     assert name is not None, raw_name
     if HONORIFIC.search(name):
         context.log.warning("Name keeps an honorific", name=raw_name)
+    # Some names are published in capitals.
+    if ALL_CAPS_WORD.search(name):
+        name = name.title()
     role = h.element_text(h.xpath_element(card, ".//div[@class='dec_']"))
     popup_url = h.xpath_string(link, "./@href")
     popup = fetch_popup(context, popup_url)
@@ -91,7 +96,7 @@ def crawl_member(
 
     positions = [
         h.make_position(context, name=title, country="ae", lang="eng")
-        for title in role_positions(context, role)
+        for title in role_positions(context, role, is_minister)
     ]
     for position in [membership] + positions:
         categorisation = categorise(context, position)
