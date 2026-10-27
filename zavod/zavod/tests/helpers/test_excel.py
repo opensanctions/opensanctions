@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 import xlrd  # type: ignore
+from datapatch import Lookup
 from openpyxl import Workbook, load_workbook
 from python_calamine import CalamineWorkbook
 from zavod.context import Context
@@ -135,6 +136,84 @@ def test_parse_xlsx_sheet_duplicate_headers(vcontext: Context, tmp_path: Path):
     sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
     with pytest.raises(AssertionError, match="Duplicate headers"):
         list(parse_xlsx_sheet(vcontext, sheet))
+
+
+def test_parse_xlsx_sheet_explicit_headers(vcontext: Context, tmp_path: Path):
+    book = Workbook()
+    sheet = book.active
+    sheet["A1"] = "Title"
+    sheet.append(["Name", "Date", "Source", "Date", "Source"])
+    sheet.append(["a", datetime(2020, 1, 2), "HHS", datetime(2021, 3, 4), "OIG"])
+    sheet.append([])
+    sheet.append(["b", datetime(2019, 5, 6), "HHS"])
+    path = tmp_path / "explicit.xlsx"
+    book.save(path)
+
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
+    headers = ["Name", "date1", "source1", "date2", "source2"]
+    rows = list(parse_xlsx_sheet(vcontext, sheet, skiprows=2, headers=headers))
+    assert rows == [
+        {
+            "Name": "a",
+            "date1": "2020-01-02",
+            "source1": "HHS",
+            "date2": "2021-03-04",
+            "source2": "OIG",
+        },
+        {
+            "Name": "b",
+            "date1": "2019-05-06",
+            "source1": "HHS",
+            "date2": None,
+            "source2": None,
+        },
+    ]
+
+    # Without skiprows, the heading rows are data rows.
+    rows = list(parse_xlsx_sheet(vcontext, sheet, headers=headers))
+    assert rows[0]["Name"] == "Title"
+    assert rows[1]["source2"] == "Source"
+
+
+def test_parse_xlsx_sheet_explicit_headers_duplicate(vcontext: Context, tmp_path: Path):
+    book = Workbook()
+    book.active.append(["a", "b"])
+    path = tmp_path / "duplicates.xlsx"
+    book.save(path)
+
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
+    with pytest.raises(AssertionError, match="Duplicate headers"):
+        list(parse_xlsx_sheet(vcontext, sheet, headers=["name", "name"]))
+
+
+def test_parse_xlsx_sheet_explicit_headers_extra_value(
+    vcontext: Context, tmp_path: Path
+):
+    book = Workbook()
+    sheet = book.active
+    sheet.append(["a", "b"])
+    sheet.append(["c", "d", "extra"])
+    path = tmp_path / "extra.xlsx"
+    book.save(path)
+
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
+    # Row 1 passes: its cell beyond the keys is empty.
+    with pytest.raises(ValueError, match="Row 2 has values beyond the 2 headers"):
+        list(parse_xlsx_sheet(vcontext, sheet, headers=["x", "y"]))
+
+
+def test_parse_xlsx_sheet_explicit_headers_and_lookup(
+    vcontext: Context, tmp_path: Path
+):
+    book = Workbook()
+    book.active.append(["a"])
+    path = tmp_path / "lookup.xlsx"
+    book.save(path)
+
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
+    lookup = Lookup("headers", {"options": []})
+    with pytest.raises(ValueError, match="not both"):
+        list(parse_xlsx_sheet(vcontext, sheet, headers=["x"], header_lookup=lookup))
 
 
 def test_parse_xls_sheet_duplicate_headers(vcontext: Context):
