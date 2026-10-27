@@ -72,10 +72,14 @@ lookups:
   type.name:
     options:
       # The source uses straight double quotes to delimit organisation names
-      # (48k of 53k names); this single record types them as << >> instead,
+      # (48k of 53k names); a handful of records type them as << >> instead,
       # which trips the HTML/XSS smell detector.
       - match: Муассисаи Давлати <<Маркази Ҷумҳуриявии Пешгири ва Мубориза Бар Зидди Бемории ВНМО>>
         value: 'Муассисаи Давлати "Маркази Ҷумҳуриявии Пешгири ва Мубориза Бар Зидди Бемории ВНМО"'
+      # Here the straight quotes are already present and << >> is doubled up
+      # inside them, so only the angle brackets are dropped.
+      - match: 'ҶАМЪИЯТИ ДОРОИ МАСЪУЛИЯТИ МАҲДУДИ "<<САДИЯ>>"'
+        value: 'ҶАМЪИЯТИ ДОРОИ МАСЪУЛИЯТИ МАҲДУДИ "САДИЯ"'
   type.date:
     options:
       - match:
