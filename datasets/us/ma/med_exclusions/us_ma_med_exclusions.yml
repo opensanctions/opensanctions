@@ -47,5 +47,10 @@ assertions:
 lookups:
   type.identifier:
     options:
+      # "Suspended/Excluded ..." is the spreadsheet's own title, which the publisher
+      # occasionally leaks into the NPI cell of a provider row. The trailing
+      # "effective through <month> <year>" is refreshed on each update, so match on
+      # the stable prefix.
       - match: NONE
+        contains: Suspended/Excluded MassHealth Providers effective through
         value: null
