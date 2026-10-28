@@ -101,28 +101,11 @@ lookups:
           - Vacant Position
         value: null
   constituency:
-    normalize: true
     options:
-      # Federal member states, plus Banaadir and the northern regions (Somaliland).
-      - match: Puntland
-        value: Puntland
-      - match: Jubbaland
-        value: Jubaland
-      - match: Galmudug
-        value: Galmudug
-      - match: Hirshabelle
-        value: Hirshabelle
-      - match: Koonfur Galbeed
-        value: South West State
-      - match: Gobollada Waqooyi
-        value: Northern Regions
-      - match: Banaadir
-        value: Banaadir
-      # The Speaker's office address, and cards with no location.
-      - match:
-          - Villa Hargiesa, Mogadishu, Somalia
-          - null
+      # The Speaker's card gives an office address instead.
+      - match: Villa Hargiesa, Mogadishu, Somalia
         value: null
+
   type.date:
     options:
       # Ambiguous day/month order, and a job title in the date field.

@@ -63,9 +63,9 @@ def crawl_member(context: Context, member_id: str, member: dict[str, str]) -> No
         h.apply_date(person, "birthDate", value)
 
     # A federal member state, not an electoral district.
-    constituency = context.lookup_value(
-        "constituency", member.pop("location"), warn_unmatched=True
-    )
+    location = member.pop("location")
+    res = context.lookup("constituency", location)
+    constituency = location if res is None else res.value
     # HTML-escaped, though without markup.
     job_title = unescape(member.pop("job_title"))
     res = context.lookup("position", job_title, warn_unmatched=True)
