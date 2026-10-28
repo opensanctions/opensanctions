@@ -1,6 +1,5 @@
 from python_calamine import CalamineSheet, CalamineWorkbook
 from rigour.mime.types import XLSX
-from datetime import date
 from typing import Any
 from urllib.parse import urljoin
 import re
@@ -45,8 +44,8 @@ def read_ckan(context: Context, source_url: str, label: str) -> str:
     raise RuntimeError("No data URL on data resource page!")
 
 
-def parse_directors(context: Context, company: Entity, directors: str | None) -> None:
-    if directors is None:
+def parse_directors(context: Context, company: Entity, directors: str) -> None:
+    if not directors:
         return
     for director in directors.split("],"):
         # if "[" not in director:
@@ -79,11 +78,12 @@ def parse_directors(context: Context, company: Entity, directors: str | None) ->
         context.emit(dship)
 
 
-def parse_founders(context: Context, company: Entity, founders: str | None) -> None:
-    if founders is None:
-        return
-    if isinstance(founders, int):
+def parse_founders(context: Context, company: Entity, founders: str | float) -> None:
+    # A number in the founders column marks the last line of the sheet.
+    if isinstance(founders, float):
         context.log.info(f"last line: {founders!r}")
+        return
+    if not founders:
         return
     for founder in founders.split("),"):
         founder = founder.replace(")", "")
@@ -107,8 +107,8 @@ def parse_founders(context: Context, company: Entity, founders: str | None) -> N
         context.emit(own)
 
 
-def parse_owners(context: Context, company: Entity, owners: str | None) -> None:
-    if owners is None:
+def parse_owners(context: Context, company: Entity, owners: str) -> None:
+    if not owners:
         return
     for owner in owners.split("),"):
         owner = owner.replace(")", "")
@@ -140,7 +140,13 @@ def parse_company(context: Context, data: dict[str, Any]) -> None:
     name = data.pop("Denumirea completă")
     address = data.pop("Adresa")
     company = context.make("Company")
-    if idno is not None and str(idno).strip():
+    # IDNO codes are numeric cells, and the ID must not carry a ".0" fraction.
+    if isinstance(idno, float):
+        assert idno.is_integer(), idno
+        idno = str(int(idno))
+    assert isinstance(idno, str), idno
+    idno = idno.strip()
+    if idno:
         company.id = f"oc-companies-md-{idno}"
     else:
         company.id = context.make_id(name, address)
@@ -161,36 +167,24 @@ def parse_company(context: Context, data: dict[str, Any]) -> None:
     company.add("legalForm", data.pop("Forma org./jurid."))
     parse_directors(context, company, data.pop("Lista conducătorilor"))
     parse_founders(context, company, data.pop("Lista fondatorilor"))
-    parse_owners(context, company, data.pop("Lista beneficiarilor efectivi", None))
+    parse_owners(context, company, data.pop("Lista beneficiarilor efectivi", ""))
 
     context.emit(company)
     context.audit_data(data, ignore=IGNORE_COLUMNS)
-
-
-def company_cell(value: Any) -> str | int | float | date | None:
-    # Text is kept unstripped because entity IDs are built from it.
-    if value == "":
-        return None
-    # IDNO codes are numeric cells and go into entity IDs without a fraction.
-    if isinstance(value, float) and value.is_integer():
-        return int(value)
-    assert isinstance(value, (str, float, date)), value
-    return value
 
 
 def parse_companies(context: Context, sheet: CalamineSheet) -> None:
     headers: list[str] | None = None
     # Iterate lazily: the sheet has several hundred thousand rows.
     for idx, row in enumerate(sheet.iter_rows()):
-        cells = [company_cell(value) for value in row]
         if headers is None:
-            if "Denumirea completă" in cells:
+            if "Denumirea completă" in row:
                 headers = []
-                for cell in cells:
+                for cell in row:
                     header = str(cell).split(" (", 1)[0]
                     headers.append(header)
             continue
-        data = dict(zip(headers, cells))
+        data = dict(zip(headers, row))
         parse_company(context, data)
         if idx > 0 and idx % 10000 == 0:
             context.log.info(f"Read {idx} companies...")
