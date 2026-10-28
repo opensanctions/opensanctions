@@ -40,6 +40,7 @@ description: |
 publisher:
   name: U.S. Customs and Border Protection
   acronym: CBP
+  country: us
   official: true
   url: https://www.cbp.gov/
   description: |
