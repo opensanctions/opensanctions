@@ -4,7 +4,7 @@ prefix: so-hop
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-10-19
+  start: 2026-10-28
 load_statements: true
 summary: >-
   Lower chamber of Somalia's bicameral Parliament, the House of the People (Golaha Shacabka)
