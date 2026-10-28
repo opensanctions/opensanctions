@@ -15,8 +15,8 @@ description: |
   the Senate, hold the country's legislative power, including passing laws and
   approving the budget.
 
-  Deputies who have left the chamber mid-term — by resignation, death, or appointment
-  to government — remain in the source and are published with an ended occupancy.
+  Deputies who left mid-term, through resignation, death or appointment to another
+  office, are included with an ended occupancy.
 url: https://assemblee-nationale.mg/deputes/
 publisher:
   name: Antenimierampirenena
@@ -32,8 +32,7 @@ data:
   url: https://assemblee-nationale.mg/opendata/api/deputes/
   format: JSON
   lang: fra
-# The server rejects the default `python-requests/...` user agent with a 403;
-# any identifying agent is accepted.
+# The default python-requests user agent gets a 403.
 http:
   user_agent: zavod (opensanctions.org)
 
@@ -65,23 +64,17 @@ lookups:
         value: male
       - match: Feminin
         value: female
-  # The source publishes no mandate dates and no legislature identifier in any
-  # endpoint, so occupancies are undated and this status is the only signal of
-  # whether a deputy still sits. The sitting deputies were elected on 2024-05-29
-  # and first sat on 2024-07-09; nothing in the source will mark the change of
-  # term at the next election, so re-check these semantics then. Departed deputies
-  # carry no end date either, so their `ended` status persists for as long as the
-  # source keeps listing them.
+  # No mandate dates or term id anywhere: this status is the only tenure signal,
+  # and an `ended` one never ages out. Re-check after the next election (the
+  # sitting deputies were elected on 2024-05-29).
   occupancy_status:
     required: true
     options:
       - match: ACTIVE
-        # The mandate is ongoing. Leaving the status unset lets make_occupancy
-        # derive `current` from the absent end date.
-        value: null
+        value: current
       - match:
           - RESIGNED
           - DECEASED
-          # Appointed to government, which vacates the seat.
+          # Appointed to another office, e.g. the High Constitutional Court.
           - NOMINATED
         value: ended

@@ -1,4 +1,3 @@
-from itertools import count
 from typing import Any
 from urllib.parse import urljoin
 
@@ -17,23 +16,17 @@ def crawl_deputy(
     categorisation: PositionCategorisation,
     row: dict[str, Any],
 ) -> None:
-    slug = row.pop("slug")
-
     person = context.make("Person")
-    person.id = context.make_id(str(row.pop("id")))
+    person.id = context.make_id(row.pop("id"))
     h.apply_name(person, first_name=row.pop("prenom"), last_name=row.pop("nom"))
     person.add("gender", row.pop("genre"))
     party = row.pop("parti_politique")
     person.add("political", context.lookup_value("political", party, default=party))
     person.add("profession", row.pop("profession_avant_mandat"))
-    person.add("sourceUrl", urljoin(context.data_url, f"/depute/{slug}/"))
-    # Deputies must be Malagasy citizens: Loi organique n° 2018-010 du 11 mai 2018
-    # relative à l'élection des Députés à l'Assemblée nationale, art. 8.
-    # https://cnlegis.gov.mg/page_acces_pdf/eoVfpUisR44
+    person.add("sourceUrl", urljoin(context.data_url, f"/depute/{row.pop('slug')}/"))
+    # Loi organique n° 2018-010, art. 8: https://cnlegis.gov.mg/page_acces_pdf/eoVfpUisR44
     person.add("citizenship", "mg")
 
-    # The source gives no mandate dates anywhere, so this status is the only
-    # signal of whether a deputy still sits.
     status = context.lookup("occupancy_status", row.pop("status"))
     assert status is not None  # the lookup is required
     occupancy = h.make_occupancy(
@@ -41,7 +34,7 @@ def crawl_deputy(
         person,
         position,
         categorisation=categorisation,
-        status=None if status.value is None else OccupancyStatus(status.value),
+        status=OccupancyStatus(status.value),
     )
     if occupancy is None:
         return
@@ -49,11 +42,10 @@ def crawl_deputy(
     group = row.pop("groupe_parlementaire")
     if group is not None:
         group_name = group.pop("nom")
-        # "Non_Affilié" marks a deputy outside any parliamentary group.
+        # No parliamentary group.
         if group_name != "Non_Affilié":
             occupancy.add("politicalGroup", group_name)
-        # The member's office within the caucus, which has no FollowTheMoney
-        # property.
+        # The office held within the group.
         context.audit_data(group, ignore=["fonction"])
     context.emit(occupancy)
     context.emit(person)
@@ -61,14 +53,13 @@ def crawl_deputy(
     context.audit_data(
         row,
         ignore=[
-            # Seat index in the chamber, cleared once a deputy leaves.
+            # Seat index, cleared once a deputy leaves.
             "numero",
-            # The administrative areas containing the district already captured
-            # as the constituency.
+            # Areas containing the district.
             "region",
             "province",
             "photo_url",
-            # Contact details are not extracted for PEPs.
+            # Contact details.
             "facebook_url",
             "instagram_url",
             "linkedin_url",
@@ -91,15 +82,8 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    for page in count(1):
-        # per_page is silently capped at 200: a larger value is accepted and
-        # quietly truncated, so page through in smaller steps instead.
-        data = context.fetch_json(
-            context.data_url,
-            params={"page": page, "per_page": 100},
-            cache_days=1,
-        )
-        for row in data["data"]:
-            crawl_deputy(context, position, categorisation, row)
-        if not data["pagination"]["has_next"]:
-            break
+    # per_page above 200 is silently truncated; the roster fits in one page.
+    data = context.fetch_json(context.data_url, params={"per_page": 200}, cache_days=1)
+    assert not data["pagination"]["has_next"], data["pagination"]
+    for row in data["data"]:
+        crawl_deputy(context, position, categorisation, row)
