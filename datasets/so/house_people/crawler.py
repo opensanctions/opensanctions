@@ -75,6 +75,8 @@ def crawl_member(context: Context, member_id: str, member: dict[str, str]) -> No
         position, categorisation = get_position(context, title)
         if not categorisation.is_pep:
             continue
+        # No dates are given; an undated occupancy is current, as the roster is
+        # maintained and marks vacated seats.
         occupancy = h.make_occupancy(
             context, person, position, categorisation=categorisation, status=status
         )
