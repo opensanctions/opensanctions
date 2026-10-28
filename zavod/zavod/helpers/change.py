@@ -1,12 +1,11 @@
 from pathlib import Path
-from lxml import etree
 from hashlib import sha1
 from typing import Any
-from normality import squash_spaces
 
 from zavod.logs import get_logger
 from zavod.context import Context
 from zavod.util import ElementOrTree
+from zavod.helpers.xml import xml_node_hash
 
 log = get_logger(__name__)
 
@@ -66,32 +65,6 @@ def assert_file_hash(
     return True
 
 
-def _compute_node_hash(
-    node: ElementOrTree | None, text_only: bool = False
-) -> str | None:
-    digest = sha1()
-    if node is None:
-        return None
-    if text_only:
-        serialised = etree.tostring(
-            node,
-            method="text",
-            encoding="utf-8",
-        )
-    else:
-        serialised = etree.tostring(
-            node,
-            with_comments=False,
-            pretty_print=True,
-            method="c14n2",
-        )
-    text = squash_spaces(serialised.decode("utf-8").lower())
-    if len(text) == 0:
-        return None
-    digest.update(text.replace(" ", "").encode("utf-8"))
-    return digest.hexdigest()
-
-
 def assert_dom_hash(
     node: ElementOrTree | None,
     hash: str,
@@ -99,7 +72,7 @@ def assert_dom_hash(
     text_only: bool = False,
 ) -> bool:
     """Assert that a DOM node has a given SHA1 hash."""
-    actual = _compute_node_hash(node, text_only=text_only)
+    actual = xml_node_hash(node, text_only=text_only)
     if actual != hash:
         if raise_exc:
             msg = f"Expected hash {hash}, got {actual} for {node!r}"
