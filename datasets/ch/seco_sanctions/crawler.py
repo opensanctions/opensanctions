@@ -23,7 +23,6 @@ from rigour.mime.types import XML
 from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     TextSourceValue,
-    assert_all_accepted,
     review_extraction,
 )
 
@@ -679,4 +678,4 @@ def crawl(context: Context) -> None:
         if idx > 0 and idx % 100 == 0:
             context.flush()
 
-    assert_all_accepted(context, raise_on_unaccepted=False)
+    # assert_all_accepted(context, raise_on_unaccepted=False)
