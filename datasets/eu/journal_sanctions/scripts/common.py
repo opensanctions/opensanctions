@@ -485,17 +485,28 @@ def to_record(row: Row, celex: str, program_key: str) -> dict[str, str]:
 
 def validate_records(records: list[dict[str, str]]) -> None:
     seen_rows: set[tuple[str, ...]] = set()
-    seen_ids: set[tuple[str, str]] = set()
+    seen_ids: set[tuple[str, str, str, str]] = set()
     for record in records:
         key = tuple(record[column] for column in CONSOLIDATED_COLUMNS)
         if key in seen_rows:
             raise ParseError(f"{record['annex']}: duplicate row {record['name']!r}")
         seen_rows.add(key)
         if record["recordId"]:
-            id_key = (record["annex"], record["recordId"])
+            # ../data/FORMAT.md keys an entry number on the act, annex,
+            # program, measure and schema: one entry listed under two measures
+            # is two rows. A snapshot holds one act and one program, so the
+            # annex, the measure and the schema remain.
+            id_key = (
+                record["annex"],
+                record["measure"],
+                record["schema"],
+                record["recordId"],
+            )
             if id_key in seen_ids:
                 raise ParseError(
-                    f"{record['annex']}: duplicate entry number {record['recordId']}"
+                    f"{record['annex']}: duplicate entry number "
+                    f"{record['recordId']} for {record['measure']!r} "
+                    f"{record['schema']}"
                 )
             seen_ids.add(id_key)
 

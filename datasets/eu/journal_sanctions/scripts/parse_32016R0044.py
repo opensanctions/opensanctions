@@ -14,14 +14,17 @@ The regulation's target annexes:
   paragraph with a fixed label sequence, and optional narrative paragraphs.
 - Annex III — EU-autonomous listings (Article 6(2)) as tables with parts
   A. Persons and B. Entities.
+- Annex V — the vessels the Sanctions Committee designates under Article 15,
+  emptied by ▼M19 and reinstated by ▼M56, as an indented name heading
+  followed by the listing paragraph and an "Additional information" line.
 - Annex VI — the Article 5(4) partial freeze (Libyan Investment Authority
   and Libyan Africa Investment Portfolio), in the UN narrative layout with
   entity field labels.
 
-Annex V (vessels) is currently empty; Annexes I, IV and VII list goods and
-authorities, not designations. In the narrative layout the trailing
-paragraphs are the reason and the field paragraph's "Other information"
-goes to notes; entries without narrative paragraphs state no reason.
+Annexes I, IV and VII list goods and authorities, not designations. In the
+narrative layout the trailing paragraphs are the reason and the field
+paragraph's "Other information" goes to notes; entries without narrative
+paragraphs state no reason.
 Dates are transcribed as the source prints them ("26 Feb. 2011",
 "Approximately 1952"); the crawler normalizes dates.
 
@@ -70,19 +73,15 @@ FRAMEWORK_CELEX = "32016R0044"
 PROGRAM_KEY = "EU-LBY"
 # Annexes II, III and VI all implement the regulation's fund freezes
 # (Articles 6(1), 6(2) and 5(4)); travel bans live in Decision 2015/1333.
+# Annex V vessels carry the prohibitions the Sanctions Committee specifies
+# for them instead, one measure per printed prohibition.
 MEASURE = "Asset freeze"
 
 NON_TARGET = frozenset({"I", "IV", "VII"})
-# Annex V (vessels) was emptied by ▼M19; a repopulation must break the run.
-EXPECTED_EMPTY = frozenset({"V"})
-# All an emptied annex block still prints: its number, its heading and the
-# change markers of the acts that emptied and repopulated it. Text under any
-# other class is an entry.
-EMPTY_ANNEX_CLASSES = frozenset({"title-annex-1", "title-gr-seq-level-1", "modref"})
 
 # UN narrative headings: "6. Name: 1: ABU 2: ZAYD 3: UMAR 4: DORDA" for
 # persons (four name components, unused ones printed as na/n/a), and
-# "1. Name: LIBYAN INVESTMENT AUTHORITY" for entities.
+# "1. Name: LIBYAN INVESTMENT AUTHORITY" for entities and vessels.
 PERSON_HEADING_RE = re.compile(r"^(\d+)\. Name: 1: (.+) 2: (.+) 3: (.+) 4: (.+)$")
 ENTITY_HEADING_RE = re.compile(r"^(\d+)\. Name: (.+)$")
 NOT_AVAILABLE = frozenset({"na", "n/a"})
@@ -228,6 +227,32 @@ III_INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]
         # The registrant's personal name has no column in the CSV contract.
         "Registered under name: Kenesbayev Umirbek Zharmenovich": (),
     },
+}
+
+# The vessel's listing paragraph opens with its UN designation date, and
+# prints the measures the Sanctions Committee specified as a parenthetical
+# run of prohibitions: "… resolution 2819 (2026) (prohibition to load,
+# transport or discharge; prohibition to enter ports; …)".
+V_LISTED_ON_RE = re.compile(r"^Listed on ([^.]+)\.")
+V_PROHIBITIONS_RE = re.compile(r"\((prohibition to [^()]+)\)")
+V_PROHIBITION_MEASURES = {
+    "prohibition to load, transport or discharge": "Transportation restrictions",
+    "prohibition to enter ports": "Transportation restrictions",
+    "prohibition to provide bunkering and vessel services": (
+        "Transportation restrictions"
+    ),
+    "prohibition to engage in financial transactions with regard to petroleum": (
+        "Financial restrictions"
+    ),
+}
+V_SENTINEL = "Additional information"
+# The information line prints labelled sentences before free prose: "IMO:
+# 9058713. Flag State: Cameroon. As of 4 April 2026, the vessel was located
+# near the anchorage area of the Benghazi Old Harbour, Libya."
+V_INFO_SENTENCE_RE = re.compile(r"^([A-Za-z][A-Za-z ]{0,30}): ([^.]+)\.\s*")
+V_INFO_COLUMNS = {
+    "IMO": "imoNumber",
+    "Flag State": "flag",
 }
 
 
@@ -579,42 +604,119 @@ def parse_annex_iii(roman: str, block: Element) -> list[Row]:
     return rows
 
 
+# --- Annex V vessels ---------------------------------------------------------
+
+
+def v_measures(ctx: str, listing: str) -> list[str]:
+    """The measures the listing paragraph's run of prohibitions imposes.
+
+    The Committee specifies the applicable measures per vessel, so they are
+    read from the entry rather than fixed for the annex. A prohibition this
+    document has not shown is a review event, not a fallback case.
+    """
+    match = V_PROHIBITIONS_RE.search(listing)
+    if match is None:
+        raise ParseError(f"{ctx}: listing states no prohibitions")
+    measures: list[str] = []
+    for prohibition in split_values(match.group(1)):
+        measure = V_PROHIBITION_MEASURES.get(prohibition)
+        if measure is None:
+            raise ParseError(f"{ctx}: unrecognized prohibition {prohibition!r}")
+        if measure not in measures:
+            measures.append(measure)
+    return measures
+
+
+def parse_v_information(ctx: str, line: str, row: Row) -> None:
+    """Split the "Additional information" line into its fields and prose."""
+    rest = line
+    while True:
+        match = V_INFO_SENTENCE_RE.match(rest)
+        if match is None:
+            break
+        column = V_INFO_COLUMNS.get(match.group(1))
+        if column is None:
+            raise ParseError(
+                f"{ctx}: unrecognized information label {match.group(1)!r}"
+            )
+        row.add(column, [match.group(2).strip()])
+        rest = rest[match.end() :]
+    if ":" in rest:
+        raise ParseError(f"{ctx}: unrecognized information text {rest[:60]!r}")
+    row.add("notes", [rest])
+
+
+def parse_annex_v(roman: str, block: Element) -> list[Row]:
+    """One row per vessel per measure; the listing paragraph is the reason."""
+    entries: list[tuple[str, list[str]]] = []
+    for child in block.iterchildren():
+        if not isinstance(child.tag, str):
+            continue
+        cls = child.get("class") or ""
+        if child.tag == "hr" and cls == "separator-annex":
+            continue
+        if child.tag == "p" and cls == "modref":
+            check_marker(" ".join(element_text(child).split()), roman)
+            continue
+        if child.tag == "p" and cls in SKIP_P_CLASSES:
+            continue
+        if child.tag == "p" and cls == "title-gr-seq-level-1":
+            # The annex's own title line carries no entries.
+            continue
+        if child.tag == "div" and cls == "":
+            # The hanging-indent div that prints one vessel's name heading.
+            norm = xpath_elements(child, "./p[@class='norm']", expect_exactly=1)[0]
+            entries.append((clean(element_text(norm), roman), []))
+            continue
+        text = clean(element_text(child), roman)
+        if child.tag == "p" and cls == "list":
+            if not entries:
+                raise ParseError(f"{roman}: text before first entry: {text[:50]!r}")
+            entries[-1][1].append(text)
+            continue
+        raise ParseError(f"{roman}: unexpected <{child.tag} class={cls!r}>")
+
+    rows: list[Row] = []
+    for heading, lines in entries:
+        match = ENTITY_HEADING_RE.match(heading)
+        if match is None:
+            raise ParseError(f"{roman}: unrecognized entry heading {heading[:60]!r}")
+        record_id = match.group(1)
+        ctx = f"{roman} entry {record_id}"
+        if len(lines) != 3 or lines[1] != V_SENTINEL:
+            raise ParseError(
+                f"{ctx}: expected a listing line, {V_SENTINEL!r} and one "
+                f"information line, got {lines}"
+            )
+        listed_on = V_LISTED_ON_RE.match(lines[0])
+        if listed_on is None:
+            raise ParseError(f"{ctx}: listing states no date: {lines[0][:60]!r}")
+        for measure in v_measures(ctx, lines[0]):
+            row = Row(roman, "Vessel", measure, record_id=record_id)
+            row.add("name", [match.group(2)])
+            row.start_date = verbatim_date(listed_on.group(1), ctx, DATE_FORMATS)
+            row.reason = lines[0]
+            parse_v_information(ctx, lines[2], row)
+            rows.append(row)
+    return rows
+
+
 # --- assembly and CLI ------------------------------------------------------
 
 
 TARGET_PARSERS: dict[str, Callable[[str, Element], list[Row]]] = {
     "II": parse_annex_ii,
     "III": parse_annex_iii,
+    "V": parse_annex_v,
     "VI": parse_annex_vi,
 }
 
 
-def assert_annex_empty(roman: str, block: Element) -> None:
-    """Break when an annex this parser does not transcribe lists an entry.
-
-    The shared `assert_empty` recognises table, list and grid containers
-    only. ▼M56 reinstated Annex V as an indented `norm` paragraph carrying
-    the vessel name, followed by `list` paragraphs, so the emptied-annex
-    guard passed an annex that designates a target.
-    """
-    for element in xpath_elements(block, "./*"):
-        if element.get("class") in EMPTY_ANNEX_CLASSES:
-            continue
-        text = element_text(element).strip()
-        if text:
-            raise ParseError(
-                f"{roman}: expected-empty annex has entry content {text[:60]!r}"
-            )
-
-
 def parse_document(doc: Element) -> list[Row]:
     rows: list[Row] = []
-    known = set(TARGET_PARSERS) | set(EXPECTED_EMPTY) | set(NON_TARGET)
+    known = set(TARGET_PARSERS) | set(NON_TARGET)
     for roman, block in annex_blocks(doc, known):
         if roman in NON_TARGET:
-            continue
-        if roman in EXPECTED_EMPTY:
-            assert_annex_empty(roman, block)
             continue
         annex_rows = TARGET_PARSERS[roman](roman, block)
         if not annex_rows:
@@ -632,7 +734,8 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry(PROGRAM_KEY, [MEASURE], ("Person", "LegalEntity"))
+        measures = [MEASURE, *sorted(set(V_PROHIBITION_MEASURES.values()))]
+        check_registry(PROGRAM_KEY, measures, ("Person", "LegalEntity", "Vessel"))
         check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
