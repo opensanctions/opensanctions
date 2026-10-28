@@ -30,8 +30,8 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          # zavod's pyicu and plyvel dependencies build from source.
-          sudo apt-get install -y -qq libicu-dev libleveldb-dev
+          # zavod's pyicu dependency builds from source.
+          sudo apt-get install -y -qq libicu-dev
       - name: Set up uv
         uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:

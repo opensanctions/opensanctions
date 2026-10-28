@@ -10,6 +10,7 @@ from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
 from zavod.meta import Dataset
 from zavod.publish import publish_dataset
+from zavod.runtime.lake import build_statements_parquet, dump_statements_pack
 from zavod.runtime.manifest import Manifest
 from zavod.store import View, get_store
 
@@ -32,19 +33,26 @@ def make_context(dataset: Dataset, version: Version | None = None) -> Context:
     return Context(dataset, version or settings.RUN_VERSION)
 
 
+def finish_statements(context: Context) -> None:
+    """Seal a manually-emitted context's raw statements file and derive the
+    run's parquet and pack artifacts from it, as `crawl_dataset` does after
+    the crawl. Use after emitting fixture entities through a bare Context, so
+    stores and exports built off the run's manifest can read them."""
+    context.finalize_statements()
+    build_statements_parquet(context.dataset, context.version)
+    dump_statements_pack(context.dataset, context.version)
+
+
 def get_test_view(
     dataset: Dataset,
     linker: Linker[Entity] | None = None,
     version: Version | None = None,
-    clear: bool = False,
 ) -> View:
     """A synced store view over the run pinned by the dataset's manifest."""
     if linker is None:
         linker = get_dataset_linker(dataset)
     manifest = get_manifest(dataset, version)
-    store = get_store(manifest, linker)
-    store.sync(clear=clear)
-    return store.view(dataset)
+    return get_store(manifest, linker).view(dataset)
 
 
 def run_dataset(

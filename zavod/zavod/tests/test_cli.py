@@ -208,7 +208,7 @@ def test_xref_dataset(testdataset1: Dataset):
         assert list(resolver.get_judgements()) == []
 
     result = runner.invoke(
-        cli, ["xref", "--rebuild-store", DATASET_1_YML.as_posix()], env=env
+        cli, ["xref", "--refresh", DATASET_1_YML.as_posix()], env=env
     )
     assert result.exit_code == 0, result.output
 

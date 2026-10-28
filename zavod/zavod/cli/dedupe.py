@@ -17,10 +17,18 @@ from zavod.integration.dedupe import blocking_xref, merge_entities, explode_clus
 from zavod.runtime.manifest import Manifest
 from zavod.store import get_store
 
+refresh_option = click.option(
+    "-r",
+    "--refresh",
+    is_flag=True,
+    default=False,
+    help="Pin the latest dataset versions instead of reusing the scope's manifest",
+)
+
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
+@refresh_option
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus", type=str, multiple=True)
 @click.option("-s", "--schema", type=str, default=None)
@@ -29,7 +37,7 @@ from zavod.store import get_store
 @click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
 def xref(
     dataset_paths: list[Path],
-    rebuild_store: bool,
+    refresh: bool,
     limit: int,
     threshold: float | None,
     algorithm: str,
@@ -41,9 +49,8 @@ def xref(
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        manifest = Manifest.get_transient(dataset, refresh_leaf_versions=rebuild_store)
+        manifest = Manifest.get_transient(dataset, refresh_leaf_versions=refresh)
         store = get_store(manifest, resolver)
-        store.sync(clear=rebuild_store)
         blocking_xref(
             resolver,
             session,
@@ -72,15 +79,14 @@ def xref_prune() -> None:
 
 @cli.command("dedupe", help="Interactively decide xref candidates")
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def dedupe(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
+@refresh_option
+def dedupe(dataset_paths: list[Path], refresh: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        manifest = Manifest.get_transient(dataset, refresh_leaf_versions=rebuild_store)
+        manifest = Manifest.get_transient(dataset, refresh_leaf_versions=refresh)
         store = get_store(manifest, resolver)
-        store.sync(clear=rebuild_store)
         dedupe_ui(
             resolver, session, store, url_base="https://opensanctions.org/entities/%s/"
         )
@@ -91,7 +97,7 @@ def dedupe(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
     help="Match dataset persons against Wikidata in a review UI",
 )
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
+@refresh_option
 @click.option("--aliases/--no-aliases", default=True)
 @click.option("-a", "--algorithm", type=str, default=DedupeAlgorithm.NAME)
 @click.option(
@@ -103,7 +109,7 @@ def dedupe(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
 )
 def wikidata_reconcile(
     dataset_paths: list[Path],
-    rebuild_store: bool = False,
+    refresh: bool = False,
     aliases: bool = True,
     algorithm: str = DedupeAlgorithm.NAME,
     output: Path | None = None,
@@ -128,9 +134,8 @@ def wikidata_reconcile(
     session = make_session()
     resolver = get_resolver(session)
     resolver.load_into_memory()
-    manifest = Manifest.get_transient(dataset, refresh_leaf_versions=rebuild_store)
+    manifest = Manifest.get_transient(dataset, refresh_leaf_versions=refresh)
     store = get_store(manifest, resolver)
-    store.sync(clear=rebuild_store)
 
     # Cite the dataset itself when an entity carries no sourceUrl/retrieved date.
     retrieved: str | None = None
@@ -196,8 +201,8 @@ def merge(entity_ids: list[str], force: bool = False) -> None:
 
 @cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def dedupe_edges(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
+@refresh_option
+def dedupe_edges(dataset_paths: list[Path], refresh: bool = False) -> None:
     from zavod.integration import edges
 
     dataset = _load_datasets(dataset_paths)
@@ -205,11 +210,8 @@ def dedupe_edges(dataset_paths: list[Path], rebuild_store: bool = False) -> None
         with make_session() as session:
             resolver = get_resolver(session)
             resolver.load_into_memory()
-            manifest = Manifest.get_transient(
-                dataset, refresh_leaf_versions=rebuild_store
-            )
+            manifest = Manifest.get_transient(dataset, refresh_leaf_versions=refresh)
             store = get_store(manifest, resolver)
-            store.sync(clear=rebuild_store)
             edges.dedupe_edges(resolver, session, store.view(dataset, external=True))
     except Exception:
         log.exception(f"Failed to dedupe edge entities: {dataset_paths!r}")
