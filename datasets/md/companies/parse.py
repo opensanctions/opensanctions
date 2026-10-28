@@ -1,5 +1,6 @@
-from openpyxl import Workbook, load_workbook
+from python_calamine import CalamineSheet, CalamineWorkbook
 from rigour.mime.types import XLSX
+from datetime import date
 from typing import Any
 from urllib.parse import urljoin
 import re
@@ -166,10 +167,22 @@ def parse_company(context: Context, data: dict[str, Any]) -> None:
     context.audit_data(data, ignore=IGNORE_COLUMNS)
 
 
-def parse_companies(context: Context, book: Workbook) -> None:
+def company_cell(value: Any) -> str | int | float | date | None:
+    # Text is kept unstripped because entity IDs are built from it.
+    if value == "":
+        return None
+    # IDNO codes are numeric cells and go into entity IDs without a fraction.
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    assert isinstance(value, (str, float, date)), value
+    return value
+
+
+def parse_companies(context: Context, sheet: CalamineSheet) -> None:
     headers: list[str] | None = None
-    for idx, row in enumerate(book["Company"].iter_rows()):
-        cells = [c.value for c in row]
+    # Iterate lazily: the sheet has several hundred thousand rows.
+    for idx, row in enumerate(sheet.iter_rows()):
+        cells = [company_cell(value) for value in row]
         if headers is None:
             if "Denumirea completă" in cells:
                 headers = []
@@ -183,13 +196,11 @@ def parse_companies(context: Context, book: Workbook) -> None:
             context.log.info(f"Read {idx} companies...")
 
 
-def parse_nonprofits(context: Context, wb: Workbook) -> None:
-    active_sheet = wb.active
-    assert active_sheet is not None
-    assert set(wb.sheetnames) == {active_sheet.title}
-    for row in h.parse_xlsx_sheet_openpyxl(
+def parse_nonprofits(context: Context, workbook: CalamineWorkbook) -> None:
+    assert workbook.sheet_names == ["O.N."], workbook.sheet_names
+    for row in h.parse_xlsx_sheet(
         context,
-        wb["O.N."],
+        workbook.get_sheet_by_name("O.N."),
         skiprows=4,
         header_lookup=context.get_lookup("nonprofit_headers"),
     ):
@@ -241,8 +252,8 @@ def crawl(context: Context) -> None:
     context.export_resource(
         data_le_path, XLSX, title="State Register of Legal Entities"
     )
-    wb = load_workbook(data_le_path, read_only=True, data_only=True)
-    parse_companies(context, wb)
+    workbook = CalamineWorkbook.from_path(data_le_path)
+    parse_companies(context, workbook.get_sheet_by_name("Company"))
 
     # Nonprofits
     nonprofits_url = read_ckan(context, NONPROFITS_URL, "nonprofits")
@@ -250,5 +261,4 @@ def crawl(context: Context) -> None:
     context.export_resource(
         data_np_path, XLSX, title="State Register of Non-Profit Organizations"
     )
-    wb = load_workbook(data_np_path, read_only=True)
-    parse_nonprofits(context, wb)
+    parse_nonprofits(context, CalamineWorkbook.from_path(data_np_path))

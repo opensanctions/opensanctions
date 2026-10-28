@@ -1,7 +1,7 @@
 import string
 from urllib.parse import urlencode, urljoin
 
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 from zavod.extract import zyte_api
 from zavod.stateful.review import assert_all_accepted
@@ -65,9 +65,10 @@ def crawl(context: Context) -> None:
             geolocation="US",
         )
 
-        workbook = load_workbook(path, read_only=True)
-        assert workbook.active is not None
-        for item in h.parse_xlsx_sheet_openpyxl(context, workbook.active, skiprows=7):
+        workbook = CalamineWorkbook.from_path(path)
+        assert len(workbook.sheet_names) == 1, workbook.sheet_names
+        sheet = workbook.get_sheet_by_index(0)
+        for item in h.parse_xlsx_sheet(context, sheet, skiprows=7):
             crawl_item(item, context)
 
     assert_all_accepted(context, raise_on_unaccepted=False)

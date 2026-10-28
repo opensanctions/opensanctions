@@ -1,6 +1,7 @@
-import openpyxl
-from rigour.mime.types import XLSX
 from typing import Any
+
+from python_calamine import CalamineWorkbook
+from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
@@ -69,16 +70,18 @@ def crawl_debarment(
 def crawl(context: Context) -> None:
     path = context.fetch_resource("statutory.xlsx", STATUTORY_XLSX_URL)
     context.export_resource(path, XLSX, title="Statutory Debarments")
-    wb = openpyxl.load_workbook(path, read_only=True)
-    for row in h.parse_xlsx_sheet_openpyxl(context, wb.worksheets[0]):
+    workbook = CalamineWorkbook.from_path(path)
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         crawl_debarment(
             context, row, "Statutorily Debarred Parties", "party_name", "notice_date"
         )
 
     path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
     context.export_resource(path, XLSX, title="Administrative Debarments")
-    wb = openpyxl.load_workbook(path, read_only=True)
-    for row in h.parse_xlsx_sheet_openpyxl(context, wb.worksheets[0]):
+    workbook = CalamineWorkbook.from_path(path)
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         crawl_debarment(
             context, row, "Administratively Debarred Parties", "name", "date"
         )

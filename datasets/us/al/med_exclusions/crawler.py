@@ -1,7 +1,7 @@
 import re
 
-from openpyxl import load_workbook
 from pydantic import BaseModel, Field
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 from rigour.names.org_types import extract_org_types
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
@@ -269,12 +269,11 @@ def crawl(context: Context) -> None:
     filename = url.split("/")[-1]
     assert ".xlsx" in filename, filename
 
-    wb = load_workbook(path, read_only=True)
-    ws = wb.active
-    assert ws is not None, "No active worksheet"
-    assert len(wb.worksheets) == 1, len(wb.worksheets)
+    workbook = CalamineWorkbook.from_path(path)
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    sheet = workbook.get_sheet_by_index(0)
 
-    rows = h.parse_xlsx_sheet_openpyxl(context, ws, skiprows=33)
+    rows = h.parse_xlsx_sheet(context, sheet, skiprows=33)
     category = None
     for row in rows:
         name_raw = row.pop("column_0")
