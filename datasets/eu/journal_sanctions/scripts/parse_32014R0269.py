@@ -172,6 +172,7 @@ INFO_LABELS = {
     # tax identifiers (INN-explicit forms → innCode)
     "INN": "innCode",
     "INN/TIN": "innCode",
+    "Tax ID (INN)": "innCode",
     "Tax ID (INN no.)": "innCode",
     "Tax Identification Number (INN)": "innCode",
     "Tax Identification Number (ИНН)": "innCode",
@@ -181,6 +182,7 @@ INFO_LABELS = {
     "Tax number": "taxNumber",
     "Tax Number": "taxNumber",
     "Tax ID": "taxNumber",
+    "Tax-ID": "taxNumber",
     "Tax ID No.": "taxNumber",
     "Tax ID No": "taxNumber",
     "Tax ID number": "taxNumber",
@@ -459,6 +461,7 @@ REGISTRATION_TERRITORIES = frozenset(
         "Republic of Mauritius",
         "Russia",
         "Russian Federation",
+        "Seychelles",
         "Singapore",
         "Türkiye",
         "Ukraine",
@@ -615,6 +618,7 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
         "Samara, Russian Federation",
         "Sarapul, Russian Federation",
         "Sevastopol, Crimea",
+        "Seychelles",
         "Sharjah, United Arab Emirates",
         "Singapore",
         "St Petersburg and Moscow, Russian Federation",
@@ -652,13 +656,22 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
 # Country-only business places are country associations, not street addresses.
 # The remaining printed values stay in address pending individual review.
 BUSINESS_LABELS = frozenset(
-    {"Principal place of business", "Principal places of business"}
+    {
+        "Principal place of business",
+        # Entry 1838 (ENTITIES), printed under M129, title-cases the label.
+        "Principal Place of Business",
+        "Principal places of business",
+    }
 )
 BUSINESS_TERRITORIES = REGISTRATION_TERRITORIES | {
     "Czech Republic",
     "Iran",
     "Liberia",
     "Republic of Azerbaijan",
+    # Entry 1842 (DIS Logistics DMCC) prints the singular form here, while its
+    # address and place of registration print the plural. The wording is kept
+    # verbatim per data/FORMAT.md; the yml's type.country lookup resolves it.
+    "United Arab Emirate",
 }
 BUSINESS_REVIEWED_VALUES = frozenset(
     {
@@ -723,6 +736,7 @@ BUSINESS_REVIEWED_VALUES = frozenset(
         "Türkiye",
         "Ukraine",
         "Ukraine, Russian Federation",
+        "United Arab Emirate",
         "United Arab Emirates",
         "United Arab Emirates, Russian Federation, European Union",
         "Volgograd, Russian Federation",

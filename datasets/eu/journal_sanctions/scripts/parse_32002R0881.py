@@ -252,6 +252,10 @@ GLUED_LABEL_PINS: dict[str, int] = {
     "(expired on 27.3.2025) Address:": 23,
     # Muthana: "… expires on 27 Jul. 2020) Other information: …"
     "27 Jul. 2020) Other information:": 14,
+    # Khatiba Jama'at al-Tawhid wal-Jihad (M369): the entry closes its
+    # "(original script: …)" group without a full stop before the alias
+    # label, where Annex I otherwise prints "(alias: (a) …)".
+    "валь-Джихад) A.k.a.:": 13,
 }
 
 # Reviewed structural repairs for printing defects (a lost parenthesis, a
