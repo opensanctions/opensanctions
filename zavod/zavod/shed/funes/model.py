@@ -15,8 +15,7 @@ Tables live on their own metadata (``funes_meta``), passed explicitly
 into the Alembic ``target_metadata`` list and created explicitly in
 tests via ``funes_meta.create_all``. They are prefixed ``funes_``
 because the database hosts other projects' tables (including zavod's
-own ``position``). Following the stateful tables, access is Core-level,
-not ORM.
+own ``position``). Access is Core-level, not ORM.
 """
 
 import uuid

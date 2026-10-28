@@ -1,5 +1,5 @@
-"""The funes catalogue, after the pattern of ``zavod.stateful.review``:
-Core-level table access through the caller's session, not the ORM."""
+"""The funes catalogue: Core-level table access through the caller's
+session, not the ORM."""
 
 import uuid
 from datetime import UTC, datetime, timedelta
