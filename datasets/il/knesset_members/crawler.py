@@ -17,7 +17,10 @@ PEPS: set[str] = set()
 def fetch_json_with_retry(context: Context, url: str, *, cache_days: int) -> Any:
     """Get JSON from the picky knesset API.
 
-    Sometimes we get 200 "access denied" responses (yeah, great) with invalid JSON, retry those."""
+    Sometimes we get 200 "access denied" responses (yeah, great) with invalid JSON, retry those.
+    Zyte also answers 500 for the odd request to the MK endpoints; repeating the same request
+    returns the JSON. A recovered attempt needs no attention, so it is logged at info level -
+    once the retries are exhausted, increment() raises MaxRetryError and fails the crawl."""
 
     retry = Retry(total=3, backoff_factor=3)
     while not retry.is_exhausted():
@@ -26,7 +29,7 @@ def fetch_json_with_retry(context: Context, url: str, *, cache_days: int) -> Any
                 context, url, cache_days=cache_days, geolocation="IL"
             )
         except Exception as err:
-            context.log.warning("HTTP request error", url=url, err=str(err))
+            context.log.info("HTTP request error, retrying", url=url, err=str(err))
             # increment() raises MaxRetryError once the retries are exhausted.
             retry = retry.increment(url=url, error=err)
             retry.sleep()
