@@ -5,8 +5,8 @@ from typing import Any
 
 from sqlalchemy import select
 
-from zavod.meta import Dataset as MetaDataset
-from zavod.shed.funes.catalogue import Dataset
+from zavod.meta import Dataset
+from zavod.shed.funes.catalogue import sync_catalogue
 from zavod.shed.funes.definitions import DatasetDefinition
 from zavod.shed.funes.model import candidate_table, dataset_table, subject_table
 from zavod.tests.util import make_context
@@ -29,9 +29,9 @@ def definition(**overrides: Any) -> DatasetDefinition:
     return DatasetDefinition.model_validate(data)
 
 
-def test_sync_creates_rows(testdataset1: MetaDataset, funes_db) -> None:
+def test_sync_creates_rows(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     assert len(context.db.execute(dataset_table.select()).fetchall()) == 1
     assert len(context.db.execute(subject_table.select()).fetchall()) == 2
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
@@ -41,17 +41,17 @@ def test_sync_creates_rows(testdataset1: MetaDataset, funes_db) -> None:
     assert people_sought == "board members"
 
 
-def test_resync_idempotent(testdataset1: MetaDataset, funes_db) -> None:
+def test_resync_idempotent(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
+    sync_catalogue(context.db, definition())
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
 
 
-def test_brief_synced_on_change(testdataset1: MetaDataset, funes_db) -> None:
+def test_brief_synced_on_change(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
-    Dataset.sync(context.db, definition(people_sought="chief executives"))
+    sync_catalogue(context.db, definition())
+    sync_catalogue(context.db, definition(people_sought="chief executives"))
     assert len(context.db.execute(dataset_table.select()).fetchall()) == 1
     people_sought = context.db.execute(
         select(dataset_table.c.people_sought)
@@ -59,10 +59,10 @@ def test_brief_synced_on_change(testdataset1: MetaDataset, funes_db) -> None:
     assert people_sought == "chief executives"
 
 
-def test_removed_subject_and_url_kept(testdataset1: MetaDataset, funes_db) -> None:
+def test_removed_subject_and_url_kept(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
-    Dataset.sync(
+    sync_catalogue(context.db, definition())
+    sync_catalogue(
         context.db,
         definition(subjects=[{"name": "Bank A", "urls": ["https://a.example/board"]}]),
     )
@@ -71,10 +71,10 @@ def test_removed_subject_and_url_kept(testdataset1: MetaDataset, funes_db) -> No
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
 
 
-def test_added_subject_and_url(testdataset1: MetaDataset, funes_db) -> None:
+def test_added_subject_and_url(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
-    Dataset.sync(
+    sync_catalogue(context.db, definition())
+    sync_catalogue(
         context.db,
         definition(
             subjects=[
@@ -91,9 +91,9 @@ def test_added_subject_and_url(testdataset1: MetaDataset, funes_db) -> None:
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 5
 
 
-def test_same_url_two_subjects(testdataset1: MetaDataset, funes_db) -> None:
+def test_same_url_two_subjects(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(
+    sync_catalogue(
         context.db,
         definition(
             subjects=[
@@ -105,10 +105,10 @@ def test_same_url_two_subjects(testdataset1: MetaDataset, funes_db) -> None:
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 2
 
 
-def test_two_datasets_share_url(testdataset1: MetaDataset, funes_db) -> None:
+def test_two_datasets_share_url(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
-    Dataset.sync(
+    sync_catalogue(context.db, definition())
+    sync_catalogue(
         context.db,
         definition(
             name="second",

@@ -1,6 +1,7 @@
-"""The funes catalogue: pydantic models over the dataset, subject and
-candidate tables, after the pattern of ``zavod.stateful.review`` —
-Core-level table access through the caller's session."""
+"""The funes catalogue: syncing dataset definitions into the
+catalogue tables, and the model that reads due candidates from them,
+after the pattern of ``zavod.stateful.review`` — Core-level table
+access through the caller's session."""
 
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -23,79 +24,60 @@ REVISIT_INTERVAL_DAYS = 30
 for a new run. Scheduling policy, not part of the inspection brief."""
 
 
-class Dataset(BaseModel):
-    """One input dataset of the pipeline (``funes_dataset`` row)."""
+def sync_catalogue(session: Session, definition: DatasetDefinition) -> None:
+    """Sync one dataset definition into the catalogue tables.
 
-    id: uuid.UUID
-    name: str
-    people_sought: str
-    subject_label: str
-    created_at: datetime
-
-    @classmethod
-    def sync(cls, session: Session, definition: DatasetDefinition) -> "Dataset":
-        """Sync one dataset definition into the catalogue tables and
-        return the synced dataset.
-
-        Called at the start of each dataset's inspection run with the
-        brief validated from that dataset's metadata. The metadata
-        stays the source of truth for the brief; subjects and
-        candidates are append-only and survive brief edits.
-        """
-        dataset_upsert = session.insert(dataset_table).values(
-            name=definition.name,
-            people_sought=definition.people_sought,
-            subject_label=definition.subject_label,
+    Called at the start of each dataset's inspection run with the
+    brief validated from that dataset's metadata. The metadata
+    stays the source of truth for the brief; subjects and
+    candidates are append-only and survive brief edits.
+    """
+    dataset_upsert = session.insert(dataset_table).values(
+        name=definition.name,
+        people_sought=definition.people_sought,
+        subject_label=definition.subject_label,
+    )
+    session.execute(
+        dataset_upsert.on_conflict_do_update(
+            index_elements=["name"],
+            set_={
+                "people_sought": dataset_upsert.excluded.people_sought,
+                "subject_label": dataset_upsert.excluded.subject_label,
+            },
         )
+    )
+    dataset_id: uuid.UUID = session.execute(
+        select(dataset_table.c.id).where(dataset_table.c.name == definition.name)
+    ).scalar_one()
+    session.execute(
+        session.insert(subject_table)
+        .values(
+            [
+                {"dataset_id": dataset_id, "name": subject.name}
+                for subject in definition.subjects
+            ]
+        )
+        .on_conflict_do_nothing(index_elements=["dataset_id", "name"])
+    )
+    subject_id_by_name: dict[str, uuid.UUID] = dict(
         session.execute(
-            dataset_upsert.on_conflict_do_update(
-                index_elements=["name"],
-                set_={
-                    "people_sought": dataset_upsert.excluded.people_sought,
-                    "subject_label": dataset_upsert.excluded.subject_label,
-                },
+            select(subject_table.c.name, subject_table.c.id).where(
+                subject_table.c.dataset_id == dataset_id
             )
-        )
-        row = session.execute(
-            select(
-                dataset_table.c.id,
-                dataset_table.c.name,
-                dataset_table.c.people_sought,
-                dataset_table.c.subject_label,
-                dataset_table.c.created_at,
-            ).where(dataset_table.c.name == definition.name)
-        ).one()
-        dataset = cls.model_validate(dict(row._mapping))
+        ).all()
+    )
+    candidates = [
+        {"subject_id": subject_id_by_name[subject.name], "url": url}
+        for subject in definition.subjects
+        for url in subject.urls
+    ]
+    if candidates:
         session.execute(
-            session.insert(subject_table)
-            .values(
-                [
-                    {"dataset_id": dataset.id, "name": subject.name}
-                    for subject in definition.subjects
-                ]
-            )
-            .on_conflict_do_nothing(index_elements=["dataset_id", "name"])
+            session.insert(candidate_table)
+            .values(candidates)
+            .on_conflict_do_nothing(index_elements=["subject_id", "url"])
         )
-        subject_id_by_name: dict[str, uuid.UUID] = dict(
-            session.execute(
-                select(subject_table.c.name, subject_table.c.id).where(
-                    subject_table.c.dataset_id == dataset.id
-                )
-            ).all()
-        )
-        candidates = [
-            {"subject_id": subject_id_by_name[subject.name], "url": url}
-            for subject in definition.subjects
-            for url in subject.urls
-        ]
-        if candidates:
-            session.execute(
-                session.insert(candidate_table)
-                .values(candidates)
-                .on_conflict_do_nothing(index_elements=["subject_id", "url"])
-            )
-        session.checkpoint()
-        return dataset
+    session.checkpoint()
 
 
 class Candidate(BaseModel):

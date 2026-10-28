@@ -8,8 +8,8 @@ from pravda.db import SnapshotRecord
 from sqlalchemy import insert, select
 
 from zavod.context import Context
-from zavod.meta import Dataset as MetaDataset
-from zavod.shed.funes.catalogue import Candidate, Dataset
+from zavod.meta import Dataset
+from zavod.shed.funes.catalogue import Candidate, sync_catalogue
 from zavod.shed.funes.definitions import DatasetDefinition
 from zavod.shed.funes.model import (
     InspectionOutcome,
@@ -76,9 +76,9 @@ def make_attempt(
     )
 
 
-def test_unattempted_candidates_due(testdataset1: MetaDataset, funes_db) -> None:
+def test_unattempted_candidates_due(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     due = Candidate.select_due(context.db, context.dataset.name)
     assert [(c.subject_name, c.url) for c in due] == [
         ("Bank A", "https://a.example/about"),
@@ -88,9 +88,9 @@ def test_unattempted_candidates_due(testdataset1: MetaDataset, funes_db) -> None
     assert all(c.subject_id is not None for c in due)
 
 
-def test_recent_hit_blocks(testdataset1: MetaDataset, funes_db) -> None:
+def test_recent_hit_blocks(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -105,9 +105,9 @@ def test_recent_hit_blocks(testdataset1: MetaDataset, funes_db) -> None:
     ]
 
 
-def test_aged_hit_due_again(testdataset1: MetaDataset, funes_db) -> None:
+def test_aged_hit_due_again(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -123,9 +123,9 @@ def test_aged_hit_due_again(testdataset1: MetaDataset, funes_db) -> None:
     ]
 
 
-def test_miss_blocks_regardless_of_age(testdataset1: MetaDataset, funes_db) -> None:
+def test_miss_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -141,9 +141,9 @@ def test_miss_blocks_regardless_of_age(testdataset1: MetaDataset, funes_db) -> N
     ]
 
 
-def test_broken_blocks_regardless_of_age(testdataset1: MetaDataset, funes_db) -> None:
+def test_broken_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -157,9 +157,9 @@ def test_broken_blocks_regardless_of_age(testdataset1: MetaDataset, funes_db) ->
     ]
 
 
-def test_latest_attempt_decides(testdataset1: MetaDataset, funes_db) -> None:
+def test_latest_attempt_decides(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -183,11 +183,9 @@ def test_latest_attempt_decides(testdataset1: MetaDataset, funes_db) -> None:
     ]
 
 
-def test_created_at_tie_broken_by_greater_id(
-    testdataset1: MetaDataset, funes_db
-) -> None:
+def test_created_at_tie_broken_by_greater_id(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     aged = datetime.now(UTC) - timedelta(days=60)
     older, newer = sorted((uuid.uuid4(), uuid.uuid4()))
     make_attempt(
@@ -215,14 +213,14 @@ def test_created_at_tie_broken_by_greater_id(
     ]
 
 
-def test_scoped_to_context_dataset(testdataset1: MetaDataset, funes_db) -> None:
+def test_scoped_to_context_dataset(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    Dataset.sync(context.db, definition())
+    sync_catalogue(context.db, definition())
     other = definition(
         name="other",
         subjects=[{"name": "Bank C", "urls": ["https://c.example/board"]}],
     )
-    Dataset.sync(context.db, other)
+    sync_catalogue(context.db, other)
     assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://a.example/board",
