@@ -39,14 +39,6 @@ lookups:
         value: GB-RUS
       - match: The Cyber (Sanctions) (EU Exit) Regulations 2020
         value: GB-CYB
-  sanction.measure:
-    options:
-      - match: Asset freeze
-        value: Asset freeze
-      - match: Travel ban
-        value: Travel ban
-      - match: Trust services sanctions
-        value: Services ban
 ```
 
 ```python
@@ -93,11 +85,7 @@ def crawl_designation(context: Context, item: dict[str, Any]) -> None:
         )
         h.apply_date(sanction, "listingDate", regime.pop("date_published"))
         h.apply_date(sanction, "startDate", regime.pop("date_in_force"))
-        for measure in regime.pop("measures"):
-            sanction.add(
-                "provisions",
-                context.lookup_value("sanction.measure", measure, warn_unmatched=True),
-            )
+        sanction.add("provisions", regime.pop("measures"))
         context.audit_data(regime)
         context.emit(sanction)
 
@@ -147,6 +135,9 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", row.pop("motif"), lang="fra")
     h.apply_date(sanction, "listingDate", row.pop("date_inscription"))
+    # Designations take effect when listed, so this is also the start date.
+    for stmt in sanction.get_statements("listingDate"):
+        sanction.adopt_statement(stmt, prop="startDate")
 
     entity.add("topics", "sanction")
     context.emit(sanction)
