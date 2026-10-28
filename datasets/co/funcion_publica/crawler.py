@@ -1,4 +1,3 @@
-from datetime import timedelta
 from normality import slugify
 from rigour.mime.types import CSV
 import csv
@@ -8,8 +7,7 @@ from zavod import helpers as h
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.util import Element
-from zavod.stateful.positions import YEAR_DAYS, OccupancyStatus, categorise
-from zavod import settings
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 # NUMERO DOCUMENTO
 # NOMBRE PEP
@@ -172,18 +170,35 @@ def crawl_table_row(
 
     entity_name = str_row.pop("entidad")
     key = slugify([id_number, role, entity_name])
-
     if key in seen:
-        return
-
-    fecha_publicacion = str_row.pop("fecha_publicacion")
-    assert fecha_publicacion is not None
-    if fecha_publicacion < h.backdate(settings.RUN_TIME, timedelta(days=YEAR_DAYS * 5)):
-        context.log.warning("Skipping potentially too old position", key=key)
         return
 
     if str_row.pop("es_contratista") != "NO":
         context.log.warning("Unexpectedly found a contractor", key=key)
+        return
+
+    fecha_publicacion = str_row.pop("fecha_publicacion")
+    assert fecha_publicacion is not None
+    # Compared as a string below, so the ISO prefix must hold
+    assert re.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}$", fecha_publicacion), (
+        fecha_publicacion
+    )
+
+    assert role and entity_name
+    position = build_position(context, role=role, entity_name=entity_name)
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
+    # The listing has no term dates. A PEP declaration is filed on taking the post
+    # and on later changes, so its publication date shows the post was held then;
+    # a missing newer declaration does not mean the person left. Only drop
+    # positions declared before the (generous) PEP window.
+    if fecha_publicacion < h.earliest_term_start(categorisation.topics):
+        context.log.info(
+            "Skipping declaration older than the PEP window",
+            key=key,
+            published=fecha_publicacion,
+        )
         return
 
     links = h.links_to_dict(row.pop("enlaces_externos"))
@@ -192,12 +207,6 @@ def crawl_table_row(
     # Declarations of assets and income, conflicts of interest, and income and
     # complementary taxes (Law 2013 of 2019)
     person.add("sourceUrl", links.pop("consultar_declaraciones_ley_2013_de_2019"))
-
-    assert role and entity_name
-    position = build_position(context, role=role, entity_name=entity_name)
-    categorisation = categorise(context, position)
-    if not categorisation.is_pep:
-        return
 
     occupancy = h.make_occupancy(
         context,
@@ -209,6 +218,7 @@ def crawl_table_row(
     )
     # assert added during typechecker fixes to not change behavior; may not reflect reality
     assert occupancy is not None
+    h.apply_date(occupancy, "declarationDate", fecha_publicacion)
     context.emit(person)
     context.emit(position)
     context.emit(occupancy)
