@@ -17,6 +17,38 @@ by `key=` (see [sub-entity IDs](../best_practices/entity_id.md#sub-entity-ids-ar
 Assert `Sanction` counts alongside the `Person` and `Organization` counts (see
 [data assertions](../metadata.md#data-assertions)).
 
+## Sanction properties
+
+[`h.make_sanction`][zavod.helpers.make_sanction] fills `entity`, `authority`, `country`
+and `sourceUrl` from the dataset metadata. The crawler fills the rest from the source:
+
+- `authorityId`: the issuing authority's own reference for the designation.
+- `program` and `programId`: see [programs](programs.md).
+- `provisions`: the restrictions imposed by the designation.
+- `reason`: the source's statement of grounds.
+
+### Dates
+
+The date properties describe the designation as the authority made it, not our
+processing of it:
+
+- `listingDate`: when the designation was listed.
+- `startDate`: when it took effect.
+- `endDate`: when it expires, usually in the future.
+- `modifiedAt`: when the authority last amended the designation.
+
+Fill each one the source gives. When the source gives one date and the legal instrument
+makes listing and effect fall on that same day, set it as both `listingDate` and
+`startDate`. Otherwise set only the property the date actually is. Don't set
+`createdAt`, and never use the crawl time for any of these.
+
+Before mapping a source date to `modifiedAt`, check that the authority updates it when
+it amends the designation, and only then.
+
+When the source lists a designation whose `endDate` has passed, emit it, but add
+`topics: sanction` only if [`h.is_active`][zavod.helpers.is_active] is true for its
+`Sanction`.
+
 ## Choosing the schema
 
 - `Person` for individuals and `Vessel` for ships.
@@ -39,26 +71,6 @@ name, date of birth and jurisdiction. See [entity IDs](../best_practices/entity_
 New sanctions crawlers add names through `h.apply_reviewed_names`. Base the
 `names.schema_rules` in the dataset YAML on what you find when studying the source's
 names. See [names](../extract/names.md).
-
-## Programs and measures
-
-See [programs](programs.md) for linking a `Sanction` to a program.
-
-Map the source's measure labels to `Sanction:provisions` through a `sanction.measure`
-lookup whose values come from the `Measure` vocabulary in `zavod/stateful/programs.py`.
-
-## Dates
-
-- `listingDate` is when the designation was published.
-- `startDate` is when it took effect.
-- `endDate` is when it expires, which is usually in the future.
-
-Fill both `listingDate` and `startDate` where the source gives them. Don't set
-`createdAt`.
-
-When the source lists a designation whose `endDate` has passed, emit it, but add
-`topics: sanction` only if [`h.is_active`][zavod.helpers.is_active] is true for its
-`Sanction`.
 
 ## De-listings
 
