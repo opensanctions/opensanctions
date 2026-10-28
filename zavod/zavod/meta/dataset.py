@@ -23,6 +23,7 @@ from zavod.meta.http import HTTP
 from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.names import NamesSpec
 from zavod.meta.numbers import NumbersSpec
+from zavod.meta.tags import derive_tags
 from zavod.meta.validators import ValidatorsSpec
 
 if TYPE_CHECKING:
@@ -196,6 +197,9 @@ class Dataset(FollowTheMoneyDataset):
 
         # Add the type field: collection, source, or external
         data["type"] = self._type
+
+        # Add tags derived from the publisher and program metadata
+        data["tags"] = derive_tags(self)
 
         # Add the list of collections that this dataset belongs to
         if not self.is_collection:
