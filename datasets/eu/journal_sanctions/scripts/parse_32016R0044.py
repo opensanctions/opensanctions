@@ -47,7 +47,6 @@ from .common import (
     Row,
     annex_blocks,
     annex_id,
-    assert_empty,
     cell_line,
     cell_lines,
     check_consolidated_celex,
@@ -76,6 +75,10 @@ MEASURE = "Asset freeze"
 NON_TARGET = frozenset({"I", "IV", "VII"})
 # Annex V (vessels) was emptied by ▼M19; a repopulation must break the run.
 EXPECTED_EMPTY = frozenset({"V"})
+# All an emptied annex block still prints: its number, its heading and the
+# change markers of the acts that emptied and repopulated it. Text under any
+# other class is an entry.
+EMPTY_ANNEX_CLASSES = frozenset({"title-annex-1", "title-gr-seq-level-1", "modref"})
 
 # UN narrative headings: "6. Name: 1: ABU 2: ZAYD 3: UMAR 4: DORDA" for
 # persons (four name components, unused ones printed as na/n/a), and
@@ -586,6 +589,24 @@ TARGET_PARSERS: dict[str, Callable[[str, Element], list[Row]]] = {
 }
 
 
+def assert_annex_empty(roman: str, block: Element) -> None:
+    """Break when an annex this parser does not transcribe lists an entry.
+
+    The shared `assert_empty` recognises table, list and grid containers
+    only. ▼M56 reinstated Annex V as an indented `norm` paragraph carrying
+    the vessel name, followed by `list` paragraphs, so the emptied-annex
+    guard passed an annex that designates a target.
+    """
+    for element in xpath_elements(block, "./*"):
+        if element.get("class") in EMPTY_ANNEX_CLASSES:
+            continue
+        text = element_text(element).strip()
+        if text:
+            raise ParseError(
+                f"{roman}: expected-empty annex has entry content {text[:60]!r}"
+            )
+
+
 def parse_document(doc: Element) -> list[Row]:
     rows: list[Row] = []
     known = set(TARGET_PARSERS) | set(EXPECTED_EMPTY) | set(NON_TARGET)
@@ -593,7 +614,7 @@ def parse_document(doc: Element) -> list[Row]:
         if roman in NON_TARGET:
             continue
         if roman in EXPECTED_EMPTY:
-            assert_empty(roman, block)
+            assert_annex_empty(roman, block)
             continue
         annex_rows = TARGET_PARSERS[roman](roman, block)
         if not annex_rows:
