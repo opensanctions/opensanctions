@@ -1,7 +1,5 @@
-"""The funes catalogue: syncing dataset definitions into the
-catalogue tables, and the model that reads due candidates from them,
-after the pattern of ``zavod.stateful.review`` — Core-level table
-access through the caller's session."""
+"""The funes catalogue, after the pattern of ``zavod.stateful.review``:
+Core-level table access through the caller's session, not the ORM."""
 
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -27,10 +25,8 @@ for a new run. Scheduling policy, not part of the inspection brief."""
 def sync_catalogue(session: Session, definition: DatasetDefinition) -> None:
     """Sync one dataset definition into the catalogue tables.
 
-    Called at the start of each dataset's inspection run with the
-    brief validated from that dataset's metadata. The metadata
-    stays the source of truth for the brief; subjects and
-    candidates are append-only and survive brief edits.
+    Called at the start of each dataset's inspection run with the brief
+    validated from that metadata, which is the source of truth for it.
     """
     dataset_upsert = session.insert(dataset_table).values(
         name=definition.name,
@@ -81,9 +77,6 @@ def sync_catalogue(session: Session, definition: DatasetDefinition) -> None:
 
 
 class Candidate(BaseModel):
-    """One unit of pipeline work: a URL of a subject
-    (``funes_candidate`` row)."""
-
     id: uuid.UUID
     subject_id: uuid.UUID
     url: str
@@ -91,17 +84,14 @@ class Candidate(BaseModel):
     attempt_id: uuid.UUID | None = None
     reason: str | None = None
     subject_name: str | None = None
-    """Not a column of ``funes_candidate``: the subject's name, read from
-    the joined subject row and populated only by ``select_due``."""
+    """Not a column of ``funes_candidate``."""
 
     @classmethod
     def select_due(cls, session: Session, dataset_name: str) -> list["Candidate"]:
-        """The named dataset's candidates due for an inspection run, in
-        deterministic (subject, url) order, with ``subject_name`` set.
+        """The named dataset's candidates due for an inspection run.
 
-        Due: never attempted, or the latest attempt a hit older than
-        ``REVISIT_INTERVAL_DAYS``. A latest miss or broken attempt
-        blocks the candidate: repair, not selection, re-drives those.
+        A latest miss or broken attempt blocks its candidate: repair, not
+        selection, re-drives those.
         """
         ranked = select(
             attempt_table.c.candidate_id.label("candidate_id"),
