@@ -1,4 +1,4 @@
-title: Swiss SECO Sanctions/Embargoes
+title: Switzerland SECO Sanctions/Embargoes
 entry_point: crawler.py
 prefix: ch-seco
 coverage:
@@ -9,8 +9,7 @@ deploy:
   memory: 1500Mi
 load_statements: true
 summary: >-
-  Switzerland manages a sanctions lists with a high degree of detail on the
-  individuals that are subject to it's embargoes
+  Asset freezes, travel bans and other measures under the Swiss Embargo Act
 description: |
   The Confederation can adopt coercive measures to enforce sanctions that have
   been decided by the United Nations Organization, the Organization for Security
@@ -29,8 +28,8 @@ publisher:
   name: State Secretariat for Economic Affairs
   acronym: SECO
   description: |
-    The State Secretariat for Economic Affairs is the Swiss governments
-    center of competence for economic, labour and trade matters.
+    The State Secretariat for Economic Affairs is the Swiss government's
+    centre of competence for economic, labour and trade matters.
   country: ch
   url: https://www.seco.admin.ch/
   official: true
@@ -75,6 +74,8 @@ assertions:
       Vessel: 700
 
 lookups:
+  # English program-name of the sanctions-program each target's sanctions-set
+  # belongs to, mapped to the program key in meta/programs/.
   sanction.program:
     options:
       - match: "Ordinance of 16 March 2022 on measures against Belarus (SR 946.231.116.9), annex 5, 13, 14 and 15"
@@ -148,6 +149,8 @@ lookups:
         value: SECO-TALIBAN
       - match: "Ordinance on measures against persons, groups, undertakings and entities associated with ISIL (Da'esh) and Al-Qaida"
         value: SECO-ISIL
+  # Relation schema and source/target/text properties, keyed by the XML
+  # relation-type or by the relationship_schema of an LLM-extracted relation.
   relations:
     lowercase: true
     options:
