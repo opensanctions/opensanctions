@@ -394,6 +394,8 @@ lookups:
           - "Environ 1968"
           - "environ 1968"
         value: 1968
+      - match: Environ 1971
+        value: 1971
       - match: entre 1958 et 1964
         values:
           - 1958
