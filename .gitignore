@@ -25,6 +25,7 @@ balkhashdb
 env/
 venv/
 .venv/
+contrib/tune/uv.lock
 build/
 develop-eggs/
 dist/
