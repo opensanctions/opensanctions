@@ -168,7 +168,7 @@ class Dataset(FollowTheMoneyDataset):
         )
 
     def to_dict(self) -> dict[str, Any]:
-        """Generate a metadata export, not including operational details."""
+        """Generate a metadata export, not including operational details or derived tags."""
         data = super().to_dict()
         data["hidden"] = self.model.hidden
         data["disabled"] = self.model.disabled
@@ -198,7 +198,8 @@ class Dataset(FollowTheMoneyDataset):
         # Add the type field: collection, source, or external
         data["type"] = self._type
 
-        # Add tags derived from the publisher and program metadata
+        # Extend the hand-set tags with ones derived from the publisher and
+        # program metadata
         data["tags"] = derive_tags(self)
 
         # Add the list of collections that this dataset belongs to

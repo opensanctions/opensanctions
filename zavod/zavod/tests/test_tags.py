@@ -1,4 +1,3 @@
-from collections.abc import Generator
 from typing import Any
 
 import pytest
@@ -6,12 +5,7 @@ from rigour.territories import get_territory
 
 from zavod.meta import get_catalog
 from zavod.meta.dataset import Dataset
-from zavod.meta.tags import (
-    EU_MEMBERS,
-    PUBLISHER_BLOCS,
-    derive_tags,
-    get_target_tags_by_dataset,
-)
+from zavod.meta.tags import EU_MEMBERS, PUBLISHER_BLOCS, derive_tags
 from zavod.stateful.programs import Program
 
 
@@ -27,18 +21,14 @@ def make_dataset(
 
 
 @pytest.fixture(autouse=True)
-def no_programs(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
+def no_programs(monkeypatch: pytest.MonkeyPatch) -> None:
     """Isolate publisher tests from the real program metadata."""
     monkeypatch.setattr("zavod.meta.tags.get_all_programs_by_key", lambda: {})
-    get_target_tags_by_dataset.cache_clear()
-    yield
-    get_target_tags_by_dataset.cache_clear()
 
 
 def set_programs(monkeypatch: pytest.MonkeyPatch, programs: list[Program]) -> None:
     by_key = {p.key: p for p in programs}
     monkeypatch.setattr("zavod.meta.tags.get_all_programs_by_key", lambda: by_key)
-    get_target_tags_by_dataset.cache_clear()
 
 
 def test_official_publisher_country():
@@ -173,3 +163,4 @@ def test_export_includes_derived_tags():
     assert data["tags"] == ["list.sanction", "publisher.fr", "publisher.eu_efta"]
     # Derived tags are export-only:
     assert ds.model.tags == ["list.sanction"]
+    assert ds.to_dict()["tags"] == ["list.sanction"]

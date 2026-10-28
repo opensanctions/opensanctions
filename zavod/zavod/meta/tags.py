@@ -14,7 +14,6 @@ against a catalog loaded from the dataset YAMLs can't select on them. Catalogs
 loaded from the published metadata do include them.
 """
 
-import functools
 from typing import TYPE_CHECKING
 
 from zavod.stateful.programs import get_all_programs_by_key
@@ -64,33 +63,23 @@ def derive_publisher_tags(dataset: "Dataset") -> list[str]:
     return tags
 
 
-@functools.cache
-def get_target_tags_by_dataset() -> dict[str, list[str]]:
-    """Index ``target.<territory>`` tags by the dataset each program names.
+def derive_target_tags(dataset: "Dataset") -> list[str]:
+    """Derive ``target.<territory>`` from the programs that name this dataset.
 
-    Built once from all programs, so exporting many datasets doesn't loop over
-    every program per dataset. Programs that have ended are skipped, as is the
-    global pseudo-territory. Legacy programs count, since their designations
-    persist.
+    Programs that have ended are skipped, as is the global pseudo-territory.
+    Legacy programs count, since their designations persist.
     """
-    by_dataset: dict[str, list[str]] = {}
+    tags: list[str] = []
     for program in get_all_programs_by_key().values():
-        if program.dataset is None or program.status == "ended":
+        if program.dataset != dataset.name or program.status == "ended":
             continue
-        tags = by_dataset.setdefault(program.dataset, [])
         for territory in program.target_territories:
             if territory == GLOBAL:
                 continue
             tag = f"target.{territory}"
             if tag not in tags:
                 tags.append(tag)
-    return by_dataset
-
-
-def derive_target_tags(dataset: "Dataset") -> list[str]:
-    """Derive ``target.<territory>`` from the programs that name this dataset."""
-    # Copy, so callers can't modify the cached index:
-    return list(get_target_tags_by_dataset().get(dataset.name, []))
+    return tags
 
 
 def derive_tags(dataset: "Dataset") -> list[str]:

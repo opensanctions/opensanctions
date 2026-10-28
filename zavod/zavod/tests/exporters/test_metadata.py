@@ -16,6 +16,7 @@ from zavod.exporters.metadata import DatasetVersionResult, write_dataset_index
 from zavod.meta import Dataset
 from zavod.exporters.metadata.model import CatalogDatasetModel
 from zavod.publish import publish_dataset
+from zavod.stateful.programs import Program
 from zavod.tests.util import get_manifest, get_test_view, make_context
 
 
@@ -52,8 +53,19 @@ def test_catalog_dataset_requires_index(
 
 
 def test_metadata_collection_export(
-    testdataset1: Dataset, collection: Dataset, resolver: Resolver[Entity]
+    testdataset1: Dataset,
+    collection: Dataset,
+    resolver: Resolver[Entity],
+    monkeypatch: MonkeyPatch,
 ) -> None:
+    # Give testdataset1 a derived tag, to check that it ends up in both the
+    # index and the catalog:
+    program = Program(
+        key="XX-TEST", title="Test", dataset="testdataset1", target_territories=["ru"]
+    )
+    monkeypatch.setattr(
+        "zavod.meta.tags.get_all_programs_by_key", lambda: {program.key: program}
+    )
     version = settings.RUN_VERSION
     ds_path = dataset_artifact_directory(testdataset1.name, version)
     crawl_dataset(testdataset1, version)
@@ -72,6 +84,7 @@ def test_metadata_collection_export(
         # When resolve is false, the resolve key is exported with correct value
         assert testdataset1.model.resolve is False
         assert index["resolve"] is False, index
+        assert "target.ru" in index["tags"], index
         # The written index conforms to the output contract zavod validates against.
         CatalogDatasetModel.model_validate(index)
 
@@ -104,6 +117,7 @@ def test_metadata_collection_export(
         assert ds["updated_at"] == settings.RUN_TIME_ISO
         assert ds["version"] == version.id
     assert len(entries[testdataset1.name]["resources"]) > 2
+    assert "target.ru" in entries[testdataset1.name]["tags"]
     # The collection has no published version yet. Its own entry must still
     # describe the current run, with the resources this export just wrote.
     assert len(entries[collection.name]["resources"]) > 2
