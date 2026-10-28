@@ -219,7 +219,7 @@ def parse_list_entry(context: Context, list_entry: dict[str, Any]) -> None:
                 context,
                 entity.id,
                 related_name=related_name,
-                list_entry=list_entry,
+                list_entry=dict(list_entry),
                 source_program=source_program,
             )
     else:
