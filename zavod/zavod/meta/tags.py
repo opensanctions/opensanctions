@@ -26,9 +26,24 @@ if TYPE_CHECKING:
 # nothing about where a list comes from or who it targets, so it's never a tag.
 GLOBAL = "zz"
 
+EU_MEMBERS = frozenset(
+    "at be bg cy cz de dk ee es fi fr gr hr hu ie it lt lu lv mt nl pl pt ro se si sk".split()
+)
+EFTA_MEMBERS = frozenset({"ch", "is", "li", "no"})
+
+# Blocs of publisher countries. A dataset whose publisher country is a member
+# also gets ``publisher.<bloc>``.
+# TODO: placeholder bloc to exercise the mechanism; replace with the agreed
+# blocs (e.g. ``west``) once their membership is settled.
+# TODO: move these somewhere more central for reuse once they're settled
+# and if we decide to keep them.
+PUBLISHER_BLOCS: dict[str, frozenset[str]] = {
+    "eu_efta": EU_MEMBERS | EFTA_MEMBERS,
+}
+
 
 def derive_publisher_tags(dataset: "Dataset") -> list[str]:
-    """Derive ``publisher.<country>`` from the dataset's publisher.
+    """Derive ``publisher.<country>`` and ``publisher.<bloc>`` from the publisher.
 
     Nothing is derived for unofficial publishers, for PEP datasets (where the
     publisher country adds no insight), or when the country is missing or
@@ -42,7 +57,11 @@ def derive_publisher_tags(dataset: "Dataset") -> list[str]:
     country = publisher.country
     if country is None or country == GLOBAL:
         return []
-    return [f"publisher.{country}"]
+    tags = [f"publisher.{country}"]
+    for bloc, members in PUBLISHER_BLOCS.items():
+        if country in members:
+            tags.append(f"publisher.{bloc}")
+    return tags
 
 
 @functools.cache

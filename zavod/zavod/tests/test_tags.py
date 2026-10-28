@@ -2,10 +2,16 @@ from collections.abc import Generator
 from typing import Any
 
 import pytest
+from rigour.territories import get_territory
 
 from zavod.meta import get_catalog
 from zavod.meta.dataset import Dataset
-from zavod.meta.tags import derive_tags, get_target_tags_by_dataset
+from zavod.meta.tags import (
+    EU_MEMBERS,
+    PUBLISHER_BLOCS,
+    derive_tags,
+    get_target_tags_by_dataset,
+)
 from zavod.stateful.programs import Program
 
 
@@ -36,13 +42,26 @@ def set_programs(monkeypatch: pytest.MonkeyPatch, programs: list[Program]) -> No
 
 
 def test_official_publisher_country():
-    ds = make_dataset(publisher={"country": "fr", "official": True})
-    assert derive_tags(ds) == ["publisher.fr"]
+    ds = make_dataset(publisher={"country": "us", "official": True})
+    assert derive_tags(ds) == ["publisher.us"]
 
 
 def test_publisher_country_eu():
     ds = make_dataset(publisher={"country": "eu", "official": True})
     assert derive_tags(ds) == ["publisher.eu"]
+
+
+@pytest.mark.parametrize("country", ["fr", "li"])
+def test_publisher_bloc(country: str):
+    ds = make_dataset(publisher={"country": country, "official": True})
+    assert derive_tags(ds) == [f"publisher.{country}", "publisher.eu_efta"]
+
+
+def test_publisher_bloc_members_are_territories():
+    assert len(EU_MEMBERS) == 27
+    for members in PUBLISHER_BLOCS.values():
+        for code in members:
+            assert get_territory(code) is not None, code
 
 
 @pytest.mark.parametrize(
@@ -71,10 +90,10 @@ def test_no_publisher_tag_for_peps():
 
 def test_hand_set_tags_kept_first_without_duplicates():
     ds = make_dataset(
-        tags=["list.sanction", "publisher.fr", "publisher.west"],
-        publisher={"country": "fr", "official": True},
+        tags=["list.sanction", "publisher.us", "publisher.west"],
+        publisher={"country": "us", "official": True},
     )
-    assert derive_tags(ds) == ["list.sanction", "publisher.fr", "publisher.west"]
+    assert derive_tags(ds) == ["list.sanction", "publisher.us", "publisher.west"]
 
 
 def test_target_tags_from_programs(monkeypatch: pytest.MonkeyPatch):
@@ -115,10 +134,10 @@ def test_target_tags_from_programs(monkeypatch: pytest.MonkeyPatch):
             ),
         ],
     )
-    ds = make_dataset(tags=["target.ru"], publisher={"country": "fr", "official": True})
+    ds = make_dataset(tags=["target.ru"], publisher={"country": "us", "official": True})
     assert derive_tags(ds) == [
         "target.ru",
-        "publisher.fr",
+        "publisher.us",
         "target.by",
         "target.ua",
         "target.ip",
@@ -151,6 +170,6 @@ def test_export_includes_derived_tags():
         tags=["list.sanction"], publisher={"country": "fr", "official": True}
     )
     data = ds.to_opensanctions_dict(get_catalog())
-    assert data["tags"] == ["list.sanction", "publisher.fr"]
+    assert data["tags"] == ["list.sanction", "publisher.fr", "publisher.eu_efta"]
     # Derived tags are export-only:
     assert ds.model.tags == ["list.sanction"]
