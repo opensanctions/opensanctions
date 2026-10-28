@@ -160,6 +160,18 @@ jobs:
           prompt: ${{ env.TASK_PROMPT }}
           claude_args: "--model claude-opus-5-5 --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
+          # The session ends when the agent stops, so a background command is
+          # killed before the agent can act on its result. Keep commands in the
+          # foreground and give them room for long steps, e.g. a full parser
+          # re-run, while staying under the job timeout.
+          settings: |
+            {
+              "env": {
+                "CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "1",
+                "BASH_DEFAULT_TIMEOUT_MS": "600000",
+                "BASH_MAX_TIMEOUT_MS": "1200000"
+              }
+            }
 
       # The agent opens its PR via mcp__github__create_pull_request, which takes no
       # labels. The branch name is deterministic, so label it here rather than trusting
