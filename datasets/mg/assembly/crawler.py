@@ -24,10 +24,7 @@ def crawl_deputy(
     h.apply_name(person, first_name=row.pop("prenom"), last_name=row.pop("nom"))
     person.add("gender", row.pop("genre"))
     party = row.pop("parti_politique")
-    # "Indépendant" marks the absence of a party, not an affiliation. The source
-    # is inconsistent about the capitalisation of party names.
-    if party is not None and party.casefold() != "indépendant":
-        person.add("political", party)
+    person.add("political", context.lookup_value("political", party, default=party))
     person.add("profession", row.pop("profession_avant_mandat"))
     person.add("sourceUrl", urljoin(context.data_url, f"/depute/{slug}/"))
     # Deputies must be Malagasy citizens: Loi organique n° 2018-010 du 11 mai 2018
@@ -51,7 +48,10 @@ def crawl_deputy(
     occupancy.add("constituency", row.pop("district"))
     group = row.pop("groupe_parlementaire")
     if group is not None:
-        occupancy.add("politicalGroup", group.pop("nom"))
+        group_name = group.pop("nom")
+        # "Non_Affilié" marks a deputy outside any parliamentary group.
+        if group_name != "Non_Affilié":
+            occupancy.add("politicalGroup", group_name)
         # The member's office within the caucus, which has no FollowTheMoney
         # property.
         context.audit_data(group, ignore=["fonction"])

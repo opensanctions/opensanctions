@@ -10,7 +10,7 @@ summary: >-
   Lower house of Madagascar's bicameral Parliament (Assemblée nationale)
 description: |
   Current and recently departed members of the National Assembly (Assemblée nationale),
-  the lower house of the bicameral Parliament of Madagascar. Its deputies are
+  the lower house of the bicameral Parliament of Madagascar. Its 163 deputies are
   elected for a five-year term in single- and two-member districts and, together with
   the Senate, hold the country's legislative power, including passing laws and
   approving the budget.
@@ -49,10 +49,16 @@ assertions:
       mg: 150
   max:
     schema_entities:
-      Person: 360
+      Person: 200
       Position: 1
 
 lookups:
+  political:
+    lowercase: true
+    options:
+      # Spelled Firaisankina, FIraisankina and FIRAISANKINA.
+      - match: Firaisankina
+        value: Firaisankina
   type.gender:
     options:
       - match: Masculin
@@ -63,7 +69,9 @@ lookups:
   # endpoint, so occupancies are undated and this status is the only signal of
   # whether a deputy still sits. The sitting deputies were elected on 2024-05-29
   # and first sat on 2024-07-09; nothing in the source will mark the change of
-  # term at the next election, so re-check these semantics then.
+  # term at the next election, so re-check these semantics then. Departed deputies
+  # carry no end date either, so their `ended` status persists for as long as the
+  # source keeps listing them.
   occupancy_status:
     required: true
     options:
