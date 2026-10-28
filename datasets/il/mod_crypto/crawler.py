@@ -193,6 +193,10 @@ def crawl_order(
             # Also given on the wallets, but the order lists holders of all
             # seized assets
             *WALLET_HOLDER_PROPS,
+            "orderDocuments",
+            "descriprtions",
+            "isCanceled",
+            "isCorrectionVersion",
         ],
     )
 

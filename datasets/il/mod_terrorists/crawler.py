@@ -220,6 +220,7 @@ def crawl_organization(
             "isDesignated",
             "foreignDesignationDate",
             "notes",
+            "documents",
         ],
     )
 
@@ -267,7 +268,10 @@ def crawl_operative(
     context.emit(entity)
     context.emit(sanction)
     context.audit_data(comments)
-    context.audit_data(props, ignore=["isDesignated", "foreignDesignationDate"])
+    context.audit_data(
+        props,
+        ignore=["isDesignated", "foreignDesignationDate", "designationFiles"],
+    )
 
 
 def emit_links(
