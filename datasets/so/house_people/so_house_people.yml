@@ -14,8 +14,8 @@ description: |
   under the 4.5 power-sharing formula and filled for four-year terms by electoral
   colleges of delegates nominated in the federal member states. Together with the
   Upper House its members hold the country's legislative power, including passing
-  laws, approving the budget and electing the President.
-# Undated occupancies are current: the roster marks vacated seats as such.
+  laws, approving the budget and electing the President. Former members are included
+  where the source still names them on a seat it marks as vacant.
 url: https://parliament.gov.so/
 publisher:
   name: Baarlamaanka Federaalka Soomaaliya
@@ -32,10 +32,7 @@ data:
   format: JSON
 
 dates:
-  formats:
-    # "Saturday, December 15, 1973", sometimes without the comma.
-    - "%A, %B %d, %Y"
-    - "%A %B %d, %Y"
+  formats: ["%A, %B %d, %Y", "%A %B %d, %Y"]
 
 names:
   prefixes_strip:
@@ -94,7 +91,15 @@ lookups:
         values:
           - Deputy Speaker of the House of the People of Somalia
           - Member of the House of the People of Somalia
-
+  vacant_seat:
+    options:
+      # The former holder named on a vacated seat's card, or null if none is.
+      - match: Hon. Mohamud Mohamed Jimale Jowle - vacant position
+        value: Hon. Mohamud Mohamed Jimale Jowle
+      - match:
+          - HOP#097 Vacanta Position
+          - Vacant Position
+        value: null
   constituency:
     normalize: true
     options:
@@ -118,7 +123,6 @@ lookups:
           - Villa Hargiesa, Mogadishu, Somalia
           - null
         value: null
-
   type.date:
     options:
       # Ambiguous day/month order, and a job title in the date field.

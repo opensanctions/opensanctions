@@ -33,14 +33,14 @@ def get_position(context: Context, name: str) -> tuple[Entity, PositionCategoris
 
 def crawl_member(context: Context, member_id: str, member: dict[str, str]) -> None:
     name = member.pop("name")
-    # Vacated seats stay on the roster as placeholder cards. One still names its
-    # former holder, whose mandate has ended, at an undisclosed date.
+    # Vacated seats stay on the roster as placeholder cards, some naming the former
+    # holder, whose mandate has ended at an undisclosed date.
     status = None
     if "vacant" in name.lower():
-        name, vacated, _ = name.partition(" - vacant position")
-        if vacated == "":
-            context.log.info("Skipping vacant seat", name=name)
+        former = context.lookup_value("vacant_seat", name, warn_unmatched=True)
+        if former is None:
             return
+        name = former
         status = OccupancyStatus.ENDED
 
     person = context.make("Person")
