@@ -10,14 +10,12 @@ summary: >-
   Lower chamber of Somalia's bicameral Parliament, the House of the People (Golaha Shacabka)
 description: |
   Current members of the House of the People (Golaha Shacabka), the lower chamber of
-  Somalia's bicameral Federal Parliament. Its seats are shared out between clans
+  Somalia's bicameral Federal Parliament. Its 275 seats are shared out between clans
   under the 4.5 power-sharing formula and filled for four-year terms by electoral
   colleges of delegates nominated in the federal member states. Together with the
   Upper House its members hold the country's legislative power, including passing
   laws, approving the budget and electing the President.
-
-  The parliament publishes only its sitting members, and gives no date on which any
-  of them entered office, so occupancies carry no dates and are recorded as current.
+# Undated occupancies are current: the roster marks vacated seats and lists successors.
 url: https://parliament.gov.so/
 publisher:
   name: Baarlamaanka Federaalka Soomaaliya
@@ -35,7 +33,7 @@ data:
 
 dates:
   formats:
-    # "Saturday, December 15, 1973", and the handful typed without the comma.
+    # "Saturday, December 15, 1973", sometimes without the comma.
     - "%A, %B %d, %Y"
     - "%A %B %d, %Y"
 
@@ -51,22 +49,20 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 220
-      Position: 1
+      Person: 250
+      Position: 3
     country_entities:
-      so: 220
+      so: 250
   max:
     schema_entities:
-      Person: 550
-      Position: 6
+      Person: 300
+      Position: 3
 
 lookups:
   position:
     normalize: true
     options:
-      # The plain member seat. Most titles name a committee chairmanship or the
-      # Sergeant-at-Arms post held alongside it; those are internal offices of the
-      # chamber rather than positions in their own right, so they map to the seat.
+      # Committee chairs and the Sergeant-at-Arms are internal offices: map to the seat.
       - match:
           - Xildhibaan Golaha Shacabka ee Baarlamaanka Federaalka Soomaaliya
           - Current Member of the House of the People of the Federal Parliament of Somalia
@@ -98,14 +94,11 @@ lookups:
         values:
           - Deputy Speaker of the House of the People of Somalia
           - Member of the House of the People of Somalia
-      - match: Vacant Position - this seat is vacant
-        value: null
 
   constituency:
     normalize: true
     options:
-      # The federal member states, plus the Banaadir region and the northern
-      # regions (Somaliland), which return members but are not member states.
+      # Federal member states, plus Banaadir and the northern regions (Somaliland).
       - match: Puntland
         value: Puntland
       - match: Jubbaland
@@ -120,8 +113,7 @@ lookups:
         value: Northern Regions
       - match: Banaadir
         value: Banaadir
-      # The Speaker's card carries his office address here instead of a
-      # constituency, and seven cards give no location at all.
+      # The Speaker's office address, and cards with no location.
       - match:
           - Villa Hargiesa, Mogadishu, Somalia
           - null
@@ -129,10 +121,11 @@ lookups:
 
   type.date:
     options:
-      # Day/month order is not recoverable from these, and the third is the member's
-      # job title typed into the date-of-birth field.
+      # Ambiguous day/month order, and a job title in the date field.
       - match:
           - 01/05/1989
           - "07, 11, 1978"
           - Current Member of the House of the People of the Federal Parliament of Somalia
         value: null
+      - match: Januaray 05, 1986
+        value: "1986-01-05"
