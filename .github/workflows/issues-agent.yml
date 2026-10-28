@@ -158,7 +158,7 @@ jobs:
           # allowlist exact so other bots cannot start an agent implicitly.
           allowed_bots: opensanctions-watchful
           prompt: ${{ env.TASK_PROMPT }}
-          claude_args: "--model claude-opus-5 --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
+          claude_args: "--model claude-opus-5-5 --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
 
       # The agent opens its PR via mcp__github__create_pull_request, which takes no
