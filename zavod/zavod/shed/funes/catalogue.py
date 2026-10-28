@@ -1,8 +1,6 @@
-"""The funes catalogue: the dataset, subject and candidate rows that
-make up the pipeline's units of work, and the pydantic models that
-read and write them, after the pattern of ``zavod.stateful.review``:
-Core-level table access through the caller's session, wrapped in model
-classes with class and instance methods."""
+"""The funes catalogue: pydantic models over the dataset, subject and
+candidate tables, after the pattern of ``zavod.stateful.review`` —
+Core-level table access through the caller's session."""
 
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -22,8 +20,7 @@ from zavod.shed.funes.model import (
 
 REVISIT_INTERVAL_DAYS = 30
 """How many days a hit attempt must age before its candidate is due
-for a new run. Scheduling policy, not part of the inspection brief; if
-timing concerns multiply, move it to the config object."""
+for a new run. Scheduling policy, not part of the inspection brief."""
 
 
 class Dataset(BaseModel):
@@ -32,10 +29,7 @@ class Dataset(BaseModel):
     id: uuid.UUID
     name: str
     people_sought: str
-    """Names the class of position holders the dataset is after."""
     subject_label: str
-    """Names the subject's role in the inspection brief (e.g. Organization,
-    Court, Sending country)."""
     created_at: datetime
 
     @classmethod
@@ -44,13 +38,9 @@ class Dataset(BaseModel):
         return the synced dataset.
 
         Called at the start of each dataset's inspection run with the
-        brief validated from that dataset's metadata. The dataset brief
-        columns (``people_sought``, ``subject_label``) are updated so the
-        dataset metadata stays the source of truth; subjects and
+        brief validated from that dataset's metadata. The metadata
+        stays the source of truth for the brief; subjects and
         candidates are append-only and survive brief edits.
-
-        Checkpoints the session so the catalogue rows are durable
-        before the run reads its due candidates.
         """
         dataset_upsert = session.insert(dataset_table).values(
             name=definition.name,
@@ -109,17 +99,15 @@ class Dataset(BaseModel):
 
 
 class Candidate(BaseModel):
-    """One unit of pipeline work: a URL of a subject, inspected under
-    the dataset brief (``funes_candidate`` row)."""
+    """One unit of pipeline work: a URL of a subject
+    (``funes_candidate`` row)."""
 
     id: uuid.UUID
     subject_id: uuid.UUID
     url: str
     created_at: datetime
     attempt_id: uuid.UUID | None = None
-    """The discovery run that selected this candidate, if any."""
     reason: str | None = None
-    """The selecting model's reason, if any."""
     subject_name: str | None = None
     """Not a column of ``funes_candidate``: the subject's name, read from
     the joined subject row and populated only by ``select_due``."""
@@ -129,11 +117,9 @@ class Candidate(BaseModel):
         """The named dataset's candidates due for an inspection run, in
         deterministic (subject, url) order, with ``subject_name`` set.
 
-        A candidate is due iff it has no attempt yet, or its latest
-        attempt (by ``created_at``, ties broken by the greater id) is a
-        hit older than ``REVISIT_INTERVAL_DAYS``. A latest miss or
-        broken attempt blocks the candidate: repair, not selection,
-        re-drives those.
+        Due: never attempted, or the latest attempt a hit older than
+        ``REVISIT_INTERVAL_DAYS``. A latest miss or broken attempt
+        blocks the candidate: repair, not selection, re-drives those.
         """
         ranked = select(
             attempt_table.c.candidate_id.label("candidate_id"),
