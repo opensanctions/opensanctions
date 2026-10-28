@@ -39,6 +39,12 @@ from zavod import settings
 # only public servers
 # contractors only
 
+# How long after publication a declaration is still taken as evidence of a
+# position worth emitting. The listing carries no start or end dates, so the
+# publication date is the only thing bounding for how long a person keeps the
+# PEP flag. Mirrors the default PEP after-office period.
+DECLARATION_MAX_AGE = timedelta(days=YEAR_DAYS * 5)
+
 REGEX_ID = re.compile(
     r"""
     ^
@@ -178,8 +184,17 @@ def crawl_table_row(
 
     fecha_publicacion = str_row.pop("fecha_publicacion")
     assert fecha_publicacion is not None
-    if fecha_publicacion < h.backdate(settings.RUN_TIME, timedelta(days=YEAR_DAYS * 5)):
-        context.log.warning("Skipping potentially too old position", key=key)
+    # The listing is a cumulative archive sorted newest-first, whose oldest entry
+    # was published 2021-10-27. Since the 2026-10-27 run the rolling window
+    # reaches past the start of the archive, so its tail rows age out of scope a
+    # few at a time, every day. That is the recency scope working as intended,
+    # not an unmapped source value, so it's logged at info rather than warning.
+    if fecha_publicacion < h.backdate(settings.RUN_TIME, DECLARATION_MAX_AGE):
+        context.log.info(
+            "Skipping declaration older than the recency window",
+            key=key,
+            published=fecha_publicacion,
+        )
         return
 
     if str_row.pop("es_contratista") != "NO":
