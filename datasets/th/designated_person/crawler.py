@@ -67,9 +67,7 @@ def crawl_item(url: str, context: Context) -> None:
     )
     entity.add(
         "program",
-        "Thailand Counter-Terrorism and Proliferation Financing Act B.E. 2559 section 7, Notificaton Number: {}".format(
-            info_dict.pop("Personal ID")
-        ),
+        f"Thailand Counter-Terrorism and Proliferation Financing Act B.E. 2559 section 7, Notificaton Number: {info_dict.pop('Notification Number')}",
     )
 
     passport_numbers = info_dict.pop("Passport Number", None) or ""
