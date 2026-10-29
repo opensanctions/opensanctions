@@ -24,21 +24,21 @@ def parse_description(description: str) -> tuple[list[str], str | None]:
     return actions, memo.strip() or None
 
 
-def parse_action(context: Context, action: str) -> tuple[str, str | None, bool]:
-    """Return (action name, end date, for_life) for one action string."""
+def parse_action(context: Context, action: str) -> tuple[str, str | None]:
+    """Return (action name, end date) for one action string; life terms have no end."""
     match = REGEX_ACTION.match(action)
     if match is None:
         context.log.warning("Cannot parse administrative action", action=action)
-        return action, None, False
+        return action, None
     name = match.group("action").strip()
     term = match.group("term").strip()
     if term.lower() == "for life":
-        return name, None, True
+        return name, None
     until = REGEX_UNTIL.match(term)
     if until is None:
         context.log.warning("Unexpected action term", action=action, term=term)
-        return name, None, False
-    return name, until.group("date").strip() or None, False
+        return name, None
+    return name, until.group("date").strip() or None
 
 
 def crawl_item(context: Context, item: dict[str, str | None]) -> None:
@@ -63,27 +63,22 @@ def crawl_item(context: Context, item: dict[str, str | None]) -> None:
     person.add("sourceUrl", link)
 
     actions, memo = parse_description(item.pop("description") or "")
-    person.add("notes", memo)
     if not actions:
         context.log.warning("Item without administrative actions", title=title)
 
     for action in actions:
-        name, end_date, for_life = parse_action(context, action)
+        name, end_date = parse_action(context, action)
         sanction = h.make_sanction(
             context,
             person,
             key=name,
             program_key="US-HHS-ORI",
+            end_date=end_date,
         )
         sanction.add("provisions", name)
+        sanction.add("summary", memo)
         sanction.add("sourceUrl", link)
-        if for_life:
-            sanction.add("description", "Imposed for life")
-        else:
-            h.apply_date(sanction, "endDate", end_date)
-        active = h.is_active(sanction)
-        sanction.add("status", "active" if active else "inactive")
-        if active:
+        if h.is_active(sanction):
             if name == "Debarment":
                 person.add("topics", "debarment")
             else:
