@@ -58,17 +58,21 @@ def crawl_item(
     pep.add("political", row.pop("party"))
     pep.add("topics", "role.pep")
 
+    position_title = context.lookup_value(
+        "positions", position_label, warn_unmatched=True
+    )
+    if position_title is None:
+        return
     position = h.make_position(
         context,
-        f"{position_label}, {area_name}",
+        f"{position_title} of {area_name}",
         country="es",
         subnational_area=area_name,
-        lang="spa",
-        translate_name=True,
+        lang="eng",
     )
     # Key the ID on the INE code, not the municipality name, because the source
     # spells some municipality names differently between files
-    position.id = context.make_id(position_label, "es", ine_code)
+    position.id = context.make_id(position_title, "es", ine_code)
     categorisation = categorise(context, position)
     pep.add("position", position.get("name"))
 
