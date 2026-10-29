@@ -29,12 +29,8 @@ def crawl_item(
         context.log.warning("Missing required fields", row=row)
         return
 
-    position_title = context.lookup_value(
-        "positions", position_label, warn_unmatched=True
-    )
-    if position_title is None:
-        return
-    area_name = area_names.get(ine_code.zfill(6), f"{municipality}, {province}")
+    ine_code = ine_code.zfill(6)
+    area_name = area_names.get(ine_code, f"{municipality}, {province}")
 
     pep = context.make("Person")
     pep.id = context.make_id(
@@ -61,11 +57,9 @@ def crawl_item(
         lang="spa",
         translate_name=True,
     )
-    # The ID is keyed on an English name from the positions lookup and on the
-    # INE code, not on the source label. Positions are reviewed and categorised
-    # in the database under these IDs, so the key must not change.
-    id_name = f"{position_title} of {municipality}, {province}"
-    position.id = context.make_id(id_name, "es", ine_code)
+    # Key the ID on the INE code, not the municipality name, because the source
+    # spells some municipality names differently between files
+    position.id = context.make_id(position_label, "es", ine_code)
     categorisation = categorise(context, position)
     pep.add("position", position.get("name"))
 
