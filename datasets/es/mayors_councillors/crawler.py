@@ -25,6 +25,7 @@ COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 def crawl_item(
     context: Context,
     row: dict[str, str | None],
+    area_names: dict[str, str],
     period_start: str,
     period_end: str | None,
 ) -> None:
@@ -78,14 +79,19 @@ def crawl_item(
                 DEFAULT_TOPICS,
             )
     pep.add("position", position_name)
+    ine_code = row.pop("ine_code")
+    assert ine_code is not None
+    area_name = area_names.get(ine_code.zfill(6), f"{municipality}, {province}")
     position = h.make_position(
         context,
         position_name,
         country="es",
-        subnational_area=row.pop("ine_code"),
+        subnational_area=area_name,
         lang="spa",
         topics=topics,
     )
+    # make_position keys the ID on subnational_area; keep the INE code in the ID
+    position.id = context.make_id(position_name, "es", ine_code)
     categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
@@ -108,15 +114,13 @@ def crawl_item(
     context.audit_data(row, IGNORE)
 
 
-def process_excel(
+def load_rows(
     context: Context,
     filename: str,
     url: str,
     title: str,
     skiprows: int,
-    period_start: str,
-    period_end: str | None,
-) -> None:
+) -> list[dict[str, str | None]]:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, XLSX, title=title)
     workbook = load_workbook(path, read_only=True)
@@ -126,13 +130,14 @@ def process_excel(
             sheetnames=workbook.sheetnames,
         )
     sheet = workbook[workbook.sheetnames[0]]
-    for row in h.parse_xlsx_sheet_openpyxl(
-        context,
-        sheet,
-        skiprows=skiprows,
-        header_lookup=context.get_lookup("columns"),
-    ):
-        crawl_item(context, row, period_start=period_start, period_end=period_end)
+    return list(
+        h.parse_xlsx_sheet_openpyxl(
+            context,
+            sheet,
+            skiprows=skiprows,
+            header_lookup=context.get_lookup("columns"),
+        )
+    )
 
 
 def crawl(context: Context) -> None:
@@ -142,19 +147,17 @@ def crawl(context: Context) -> None:
     hist_doc = context.fetch_html(
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
-    # Note: Once hist_url xpath fails on 2019_2023, check the dates in the process_excel calls below and update if needed
+    # Note: Once hist_url xpath fails on 2019_2023, check the dates in the crawl_item calls below and update if needed
     hist_url = h.xpath_string(
         hist_doc,
         ".//li[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href",
     )
-    process_excel(
-        context=context,
+    hist_rows = load_rows(
+        context,
         filename="historical.xlsx",
         url=hist_url,
         title="Mayors 2019-2023",
         skiprows=7,
-        period_start="2019",
-        period_end="2023",
     )
     # Process current mayors and councillors data
     current_doc = context.fetch_html(
@@ -163,12 +166,26 @@ def crawl(context: Context) -> None:
     current_url = h.xpath_string(
         current_doc, ".//a[@id='concejales_legislatura']/@href"
     )
-    process_excel(
-        context=context,
+    current_rows = load_rows(
+        context,
         filename="current.xlsx",
         url=current_url,
         title=context.SOURCE_TITLE,
         skiprows=5,
-        period_start="2023",
-        period_end="2027",
     )
+
+    # The two files spell some municipality names differently, and some INE
+    # codes lose their leading zero. Name each municipality as the current
+    # file does, so a code always maps to one subnationalArea.
+    area_names: dict[str, str] = {}
+    for row in current_rows:
+        if row["ine_code"] is None:
+            continue
+        area_names[row["ine_code"].zfill(6)] = (
+            f"{row['municipality']}, {row['province']}"
+        )
+
+    for row in hist_rows:
+        crawl_item(context, row, area_names, period_start="2019", period_end="2023")
+    for row in current_rows:
+        crawl_item(context, row, area_names, period_start="2023", period_end="2027")
