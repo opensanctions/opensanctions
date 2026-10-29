@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: ae-cab
 coverage:
   frequency: monthly
-  start: 2026-10-28
+  start: 2026-10-29
 load_statements: true
 ci_test: false
 summary: >-
