@@ -4,7 +4,7 @@ attempt verdict history."""
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import Row, and_, func, or_, select
+from sqlalchemy import Row, and_, or_, select
 
 from zavod.context import Context
 from zavod.shed.funes.model import (
@@ -30,42 +30,27 @@ def select_due_candidates(context: Context) -> list[Row[tuple[uuid.UUID, str]]]:
     than ``REVISIT_INTERVAL_DAYS``. A latest miss or broken attempt
     blocks the candidate.
     """
-    ranked = select(
-        attempt_table.c.candidate_id.label("candidate_id"),
-        attempt_table.c.created_at.label("created_at"),
-        attempt_table.c.outcome.label("outcome"),
-        func.row_number()
-        .over(
-            partition_by=attempt_table.c.candidate_id,
-            order_by=(
-                attempt_table.c.created_at.desc(),
-                attempt_table.c.id.desc(),
-            ),
-        )
-        .label("rank"),
-    ).subquery()
-    latest = (
-        select(
-            ranked.c.candidate_id,
-            ranked.c.created_at,
-            ranked.c.outcome,
-        )
-        .where(ranked.c.rank == 1)
-        .subquery()
+    latest_id = (
+        select(attempt_table.c.id)
+        .where(attempt_table.c.candidate_id == candidate_table.c.id)
+        .order_by(attempt_table.c.created_at.desc(), attempt_table.c.id.desc())
+        .limit(1)
+        .correlate(candidate_table)
+        .scalar_subquery()
     )
     cutoff = datetime.now(UTC) - timedelta(days=REVISIT_INTERVAL_DAYS)
     statement = (
         select(candidate_table.c.id, candidate_table.c.url)
         .join(subject_table, subject_table.c.id == candidate_table.c.subject_id)
         .join(dataset_table, dataset_table.c.id == subject_table.c.dataset_id)
-        .outerjoin(latest, latest.c.candidate_id == candidate_table.c.id)
+        .outerjoin(attempt_table, attempt_table.c.id == latest_id)
         .where(dataset_table.c.name == context.dataset.name)
         .where(
             or_(
-                latest.c.candidate_id.is_(None),
+                attempt_table.c.id.is_(None),
                 and_(
-                    latest.c.created_at < cutoff,
-                    latest.c.outcome == InspectionOutcome.HIT,
+                    attempt_table.c.created_at < cutoff,
+                    attempt_table.c.outcome == InspectionOutcome.HIT,
                 ),
             )
         )
