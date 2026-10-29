@@ -9,7 +9,7 @@ def crawl_item(
     context: Context,
     *,
     row: dict[str, str | None],
-    position_label: str,
+    position_title: str,
     area_names: dict[str, str],
     period_start: str,
     period_end: str,
@@ -29,11 +29,10 @@ def crawl_item(
         context.log.warning("Missing required fields", row=row)
         return
 
-    position_res = context.lookup("positions", position_label, warn_unmatched=True)
-    if position_res is None:
+    topics_res = context.lookup("position_topics", position_title, warn_unmatched=True)
+    if topics_res is None:
         return
-    assert position_res.value is not None, position_label
-    position_name = f"{position_res.value} of {municipality}, {province}"
+    position_name = f"{position_title} of {municipality}, {province}"
 
     pep = context.make("Person")
     pep.id = context.make_id(
@@ -61,7 +60,7 @@ def crawl_item(
             ine_code.zfill(6), f"{municipality}, {province}"
         ),
         lang="spa",
-        topics=position_res.topics,
+        topics=topics_res.topics,
     )
     # make_position keys the ID on subnational_area; keep the INE code in the ID
     position.id = context.make_id(position_name, "es", ine_code)
@@ -153,10 +152,8 @@ def crawl(context: Context) -> None:
         crawl_item(
             context,
             row=row,
-            # "Alcalde" (Mayor) is the label the current file uses for mayors.
-            # The historical file lists only mayors and has no position column,
-            # so its rows go through the positions lookup under this label.
-            position_label="Alcalde",
+            # The historical file lists only mayors and has no position column
+            position_title="Mayor",
             area_names=area_names,
             period_start="2019",
             period_end="2023",
@@ -164,10 +161,15 @@ def crawl(context: Context) -> None:
     for row in current_rows:
         position_label = row.pop("position")
         assert position_label is not None, row
+        position_title = context.lookup_value(
+            "positions", position_label, warn_unmatched=True
+        )
+        if position_title is None:
+            continue
         crawl_item(
             context,
             row=row,
-            position_label=position_label,
+            position_title=position_title,
             area_names=area_names,
             period_start="2023",
             period_end="2027",

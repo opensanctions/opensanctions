@@ -46,19 +46,26 @@ lookups:
           - Alcalde
           - Alcalde en Funciones
         value: Mayor
-        topics: [gov.muni, gov.executive]
       - match: Concejal
         value: Councillor
-        topics: [gov.muni, gov.legislative]
       - match: Teniente de Alcalde
         value: Deputy Mayor
-        topics: [gov.muni, gov.executive]
       - match: Presidente Gestor
         value: Managing President
-        topics: [gov.muni]
       - match: Vocal gestor
         value: Managing Councillor
+  position_topics:
+    options:
+      - match:
+          - Mayor
+          - Deputy Mayor
+        topics: [gov.muni, gov.executive]
+      - match:
+          - Councillor
+          - Managing Councillor
         topics: [gov.muni, gov.legislative]
+      - match: Managing President
+        topics: [gov.muni]
   columns:
     options:
       - match:
