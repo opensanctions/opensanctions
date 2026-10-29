@@ -1,6 +1,6 @@
 from lxml.etree import _Element
 from normality import slugify
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX, XML
 
 from zavod import Context, Entity
@@ -201,11 +201,13 @@ def crawl_listed_names(
 def crawl_assets_xlsx(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", FROZEN_ASSETS_URL)
     context.export_resource(path, XLSX, title="Assets of listed entities")
-    wb = load_workbook(path, read_only=True)
-    assert set(wb.sheetnames) == {"Dati", "Informācija par datiem"}
+    workbook = CalamineWorkbook.from_path(path)
+    assert set(workbook.sheet_names) == {"Dati", "Informācija par datiem"}
 
-    for row in h.parse_xlsx_sheet_openpyxl(
-        context, wb["Dati"], header_lookup=context.get_lookup("columns")
+    for row in h.parse_xlsx_sheet(
+        context,
+        workbook.get_sheet_by_name("Dati"),
+        header_lookup=context.get_lookup("columns"),
     ):
         name = row.pop("freeze_subject_name")
         birth_date_or_id = row.pop("birth_date_or_id")
