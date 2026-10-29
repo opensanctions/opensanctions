@@ -43,7 +43,9 @@ def crawl_item(
     # https://www.senado.es/web/conocersenado/normas/constitucion/detalleconstitucioncompleta/index.html?lang=en
     pep.add("country", "es")
     if first_last_name or second_last_name:
-        last_name = f"{first_last_name} {second_last_name}"
+        last_name = " ".join(
+            n for n in (first_last_name, second_last_name) if n is not None
+        )
         h.apply_name(pep, first_name=name, last_name=last_name)
     else:
         pep.add("name", name)
