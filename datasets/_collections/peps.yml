@@ -31,6 +31,7 @@ description: |
 children:
   - ad_consell_general
   - ae_cabinet
+  - ae_fnc
   - al_kuvendi
   - am_hetq_officials
   - am_national_assembly
