@@ -90,10 +90,15 @@ class Candidate(BaseModel):
     def select_due(cls, session: Session, dataset_name: str) -> list["Candidate"]:
         """The named dataset's candidates due for an inspection run.
 
-        A latest miss or broken attempt blocks its candidate: repair, not
-        selection, re-drives those.
+        A candidate is due if either
+
+        - it's never been attempted
+        - its latest attempt was a hit more than REVISIT_INTERVAL_DAYS ago
+
+        A latest miss or broken attempt blocks its candidate from being due again.
         """
-        ranked = select(
+        # Rank attempts per candidate by recency
+        ranked_attempts = select(
             attempt_table.c.candidate_id.label("candidate_id"),
             attempt_table.c.created_at.label("created_at"),
             attempt_table.c.outcome.label("outcome"),
@@ -107,28 +112,32 @@ class Candidate(BaseModel):
             )
             .label("rank"),
         ).subquery()
-        latest = (
+        # Get the latest attempt for each candidate
+        latest_attempts = (
             select(
-                ranked.c.candidate_id,
-                ranked.c.created_at,
-                ranked.c.outcome,
+                ranked_attempts.c.candidate_id,
+                ranked_attempts.c.created_at,
+                ranked_attempts.c.outcome,
             )
-            .where(ranked.c.rank == 1)
+            .where(ranked_attempts.c.rank == 1)
             .subquery()
         )
         cutoff = datetime.now(UTC) - timedelta(days=REVISIT_INTERVAL_DAYS)
+        # Get due candidates for the given dataset
         statement = (
             select(candidate_table, subject_table.c.name.label("subject_name"))
             .join(subject_table, subject_table.c.id == candidate_table.c.subject_id)
             .join(dataset_table, dataset_table.c.id == subject_table.c.dataset_id)
-            .outerjoin(latest, latest.c.candidate_id == candidate_table.c.id)
+            .outerjoin(
+                latest_attempts, latest_attempts.c.candidate_id == candidate_table.c.id
+            )
             .where(dataset_table.c.name == dataset_name)
             .where(
                 or_(
-                    latest.c.candidate_id.is_(None),
+                    latest_attempts.c.candidate_id.is_(None),
                     and_(
-                        latest.c.created_at < cutoff,
-                        latest.c.outcome == InspectionOutcome.HIT,
+                        latest_attempts.c.created_at < cutoff,
+                        latest_attempts.c.outcome == InspectionOutcome.HIT,
                     ),
                 )
             )
