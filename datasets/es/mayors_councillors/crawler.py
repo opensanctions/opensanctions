@@ -5,6 +5,17 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
+def _build_canonical_ine_code(ine_code: str | None) -> str:
+    """Pad an INE municipality code to its six digits.
+
+    Some source rows store the code as a number, which drops its leading zero.
+    """
+    assert ine_code is not None
+    canonical = ine_code.zfill(6)
+    assert len(canonical) == 6 and canonical.isdigit(), ine_code
+    return canonical
+
+
 def crawl_item(
     context: Context,
     *,
@@ -19,17 +30,15 @@ def crawl_item(
     municipality = row.pop("municipality")
     first_last_name = row.pop("last_name", None)
     second_last_name = row.pop("second_last_name", None)
-    ine_code = row.pop("ine_code")
+    ine_code = _build_canonical_ine_code(row.pop("ine_code"))
     start_date = row.pop("start_date")
     end_date = row.pop("end_date", None)
-    assert ine_code is not None, row
     assert start_date is not None, row
 
     if not name or not province or not municipality:
         context.log.warning("Missing required fields", row=row)
         return
 
-    ine_code = ine_code.zfill(6)
     area_name = area_names.get(ine_code, f"{municipality}, {province}")
 
     pep = context.make("Person")
@@ -135,15 +144,13 @@ def crawl(context: Context) -> None:
         skiprows=5,
     )
 
-    # The two files spell some municipality names differently, and some INE
-    # codes lose their leading zero. Name each municipality as the current
-    # file does, so a code always maps to one subnationalArea.
+    # The two files spell some municipality names differently. Name each
+    # municipality as the current file does, so a code always maps to one
+    # subnationalArea.
     area_names: dict[str, str] = {}
     for row in current_rows:
-        assert row["ine_code"] is not None, row
-        area_names[row["ine_code"].zfill(6)] = (
-            f"{row['municipality']}, {row['province']}"
-        )
+        ine_code = _build_canonical_ine_code(row["ine_code"])
+        area_names[ine_code] = f"{row['municipality']}, {row['province']}"
 
     for row in hist_rows:
         crawl_item(
