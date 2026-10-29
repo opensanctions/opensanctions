@@ -12489,6 +12489,14 @@ lookups:
         props:
           jurisdiction: "ru"
           legalForm: "société par actions"
+      # Carried by 22 DPRK vessels, where the field names the company operating them
+      # rather than anything identifying the vessel itself. The listing reason of each
+      # one says so explicitly ("Navire appartenant à Ocean Maritime Management Company
+      # (OMM)"), and OMM is listed in its own right (IdRegistre 2424), so the name is
+      # linked rather than kept as a note.
+      - match: "Ocean Maritime Management Company, Limited"
+        associates:
+          - "Ocean Maritime Management Company, Limited"
   # =====================================
   #
   #  ADDRESSES
