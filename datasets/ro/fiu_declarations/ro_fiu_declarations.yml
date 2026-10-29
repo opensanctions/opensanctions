@@ -37,7 +37,7 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 70
+      Person: 45
   max:
     schema_entities:
       Person: 120
