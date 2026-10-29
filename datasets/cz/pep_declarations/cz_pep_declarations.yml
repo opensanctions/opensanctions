@@ -32,6 +32,7 @@ publisher:
   official: true
 data:
   url: https://cro.gov.cz/verejnost/api/funkcionari
+  format: JSON
 dates:
   formats: ["%d.%m.%Y"]
   lang: ces
@@ -50,6 +51,16 @@ assertions:
       cz: 1
 
 lookups:
+  position:
+    options:
+      - match: poslanec
+        name: Member of the Chamber of Deputies of the Czech Republic
+        wikidata_id: Q19803234
+        topics: [gov.national, gov.legislative]
+      - match: senátor
+        name: Member of the Senate of the Czech Republic
+        wikidata_id: Q18941264
+        topics: [gov.national, gov.legislative]
   type.name:
     options:
       - match:

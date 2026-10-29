@@ -6,39 +6,7 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
-IGNORE = [
-    # Name composed from the parts above.
-    "fullName",
-    # Declaration-filing records (private, canOpen=false) and metadata about
-    # them - not biographical data about the official.
-    "statements",
-    "hasPoint3",
-    "hasRequestStatement",
-    "hasSecretStatement",
-    # Visibility metadata for the declaration record (e.g. SECRET, REQUEST),
-    # mirroring the statement flags above - not biographical data.
-    "visibility",
-    # Whether the person currently holds any registered position.
-    "active",
-    # Flattened, human-readable duplicates of workingPositions[].
-    "concatenatedWorkingPositions",
-    "concatenatedWorkingPositionDates",
-    "concatenatedWorkingPositionOrganizations",
-    "workingFrom",
-    "workingTo",
-    # Person-level summary flags; the per-position deputy/senator flags inside
-    # workingPositions[].workingPosition are used instead.
-    "deputy",
-    "senator",
-    "deputyAndOthers",
-    "senatorAndOthers",
-    "judge",
-    "government",
-    "ovmName",
-]
-
-
-def crawl_person(context: Context, item: dict[str, Any]) -> None:
+def crawl_person(context: Context, item: dict[str, Any], source_url: str) -> None:
     person_id = item.pop("id")
     first_name = item.pop("firstName")
     last_name = item.pop("lastName")
@@ -58,35 +26,44 @@ def crawl_person(context: Context, item: dict[str, Any]) -> None:
     )
     entity.add("title", item.pop("titleBefore", None))
     entity.add("nameSuffix", item.pop("titleAfter", None))
-    entity.add("citizenship", "cz")
+    entity.add("sourceUrl", source_url)
+
+    has_occupancy = False
+    is_legislator = False
     for wp in item.pop("workingPositions", []):
         wp_data = wp.pop("workingPosition")
-        # is_deputy and is_senator are position-level flags
+        role_name = wp_data.pop("name")
         is_deputy = wp_data.pop("deputy")
         is_senator = wp_data.pop("senator")
-        # Only deputies and senators are marked as PEP by default
         if is_deputy or is_senator:
-            is_pep = True
+            res = context.lookup("position", role_name, warn_unmatched=True)
+            assert res is not None, role_name
+            position_name = res.name
+            position = h.make_position(
+                context,
+                name=res.name,
+                country="cz",
+                topics=res.topics,
+                wikidata_id=res.wikidata_id,
+                lang="eng",
+            )
+            categorisation = categorise(context, position)
         else:
-            is_pep = None
-
-        role_name = wp_data.pop("name")
-        org_name = wp.pop("organization")
-        # Construct a clean position_name:
-        # e.g. Poslanec, Kancelář Poslanecké sněmovny Parlamentu
-        position_name = (
-            f"{role_name.capitalize()}, {org_name}" if org_name else role_name
-        )
-        position = h.make_position(
-            context,
-            name=position_name,
-            country="cz",
-            lang="ces",
-            translate_name=True,
-        )
-        entity.add("position", position_name)
-
-        categorisation = categorise(context, position, default_is_pep=is_pep)
+            # The source mixes PEP and non-PEP roles, so these are left to the
+            # review UI to categorise.
+            org_name = wp.pop("organization")
+            # e.g. Ředitel odboru, Ministerstvo zemědělství
+            position_name = (
+                f"{role_name.capitalize()}, {org_name}" if org_name else role_name
+            )
+            position = h.make_position(
+                context,
+                name=position_name,
+                country="cz",
+                lang="ces",
+                translate_name=True,
+            )
+            categorisation = categorise(context, position, default_is_pep=None)
         if not categorisation.is_pep:
             continue
 
@@ -100,15 +77,27 @@ def crawl_person(context: Context, item: dict[str, Any]) -> None:
             end_date=wp.pop("end", None),
             categorisation=categorisation,
         )
-        if occupancy is not None:
-            context.emit(
-                entity,
-                origin=f"https://cro.justice.cz/verejnost/api/funkcionari/{person_id}",
-            )
-            context.emit(position)
-            context.emit(occupancy)
+        if occupancy is None:
+            continue
+        has_occupancy = True
+        if is_deputy or is_senator:
+            is_legislator = True
+        if "gov.judicial" in categorisation.topics:
+            entity.add("topics", "role.judge")
+        entity.add("position", position_name)
+        context.emit(position)
+        context.emit(occupancy)
 
-    context.audit_data(item, ignore=IGNORE)
+    if not has_occupancy:
+        return
+    if is_legislator:
+        # Only Czech citizens can be elected to either chamber: Constitution of
+        # the Czech Republic, Art. 19(1) and (2).
+        # https://www.psp.cz/docs/laws/constitution.html
+        entity.add("citizenship", "cz")
+    else:
+        entity.add("country", "cz")
+    context.emit(entity)
 
 
 def crawl(context: Context) -> None:
@@ -126,7 +115,6 @@ def crawl(context: Context) -> None:
             # The list endpoint only returns flattened summary fields; the
             # structured workingPositions array lives on the detail endpoint.
             detail_url = f"{context.data_url}/{item['id']}"
-
             # As of 2024-06-17, one detail page returns a 404 despite being listed in the
             # declaration list for a few days.
             # https://cro.gov.cz/verejnost/api/funkcionari/5a7e5a80-6a0e-493a-9d79-ca7ffef33778
@@ -140,7 +128,7 @@ def crawl(context: Context) -> None:
             try:
                 detail = context.fetch_json(detail_url, cache_days=14)
                 assert detail is not None, "Expected JSON response"
-                crawl_person(context, detail)
+                crawl_person(context, detail, detail_url)
             except HTTPError as e:
                 if e.response.status_code in [404, 500]:
                     context.log.info("Failed to fetch detail", item=item, error=e)
