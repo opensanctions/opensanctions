@@ -149,11 +149,13 @@ def crawl(context: Context) -> None:
             f"{row['municipality']}, {row['province']}"
         )
 
-    # The historical file lists only mayors and has no position column
     for row in hist_rows:
         crawl_item(
             context,
             row=row,
+            # "Alcalde" (Mayor) is the label the current file uses for mayors.
+            # The historical file lists only mayors and has no position column,
+            # so its rows go through the positions lookup under this label.
             position_label="Alcalde",
             area_names=area_names,
             period_start="2019",
