@@ -9,8 +9,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # Slovak title of the position held by every member of the National Council.
 POSITION_NAME = "Member of the National Council of the Slovak Republic"
 POSITION_QID = "Q19967563"
-# Outside Slovakia, the source serves a bot detection page that lacks this panel.
-UNBLOCK_VALIDATOR = '//div[@id="_sectionLayoutContainer__panelContent"]'
 
 
 def clean(value: str | None) -> str | None:
@@ -45,7 +43,8 @@ def crawl_member(
     doc = zyte_api.fetch_html(
         context,
         href,
-        UNBLOCK_VALIDATOR,
+        # Outside Slovakia, the source serves a bot detection page that lacks this panel.
+        '//div[@id="_sectionLayoutContainer__panelContent"]',
         html_source="httpResponseBody",
         geolocation="SK",
         cache_days=1,
@@ -108,7 +107,7 @@ def crawl(context: Context) -> None:
     doc = zyte_api.fetch_html(
         context,
         context.data_url,
-        UNBLOCK_VALIDATOR,
+        '//div[@id="_sectionLayoutContainer__panelContent"]',
         html_source="httpResponseBody",
         geolocation="SK",
         cache_days=1,
