@@ -45,9 +45,8 @@ makes listing and effect fall on that same day, set it as both `listingDate` and
 Before mapping a source date to `modifiedAt`, check that the authority updates it when
 it amends the designation, and only then.
 
-When the source lists a designation whose `endDate` has passed, emit it, but add
-`topics: sanction` only if [`h.is_active`][zavod.helpers.is_active] is true for its
-`Sanction`.
+When the source lists a designation whose `endDate` has passed, emit it, and set its
+topics as described in [topics](../best_practices/topics.md#risk-topics-while-in-force).
 
 ## Choosing the schema
 
