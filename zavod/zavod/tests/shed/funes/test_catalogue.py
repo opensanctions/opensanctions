@@ -31,7 +31,7 @@ def definition(**overrides: Any) -> DatasetDefinition:
 
 def test_sync_creates_rows(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     assert len(context.db.execute(dataset_table.select()).fetchall()) == 1
     assert len(context.db.execute(subject_table.select()).fetchall()) == 2
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
@@ -43,15 +43,15 @@ def test_sync_creates_rows(testdataset1: Dataset, funes_db) -> None:
 
 def test_resync_idempotent(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
+    sync_catalogue(context.db, definition())
     assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
 
 
 def test_brief_synced_on_change(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
-    sync_catalogue(context, definition(people_sought="chief executives"))
+    sync_catalogue(context.db, definition())
+    sync_catalogue(context.db, definition(people_sought="chief executives"))
     assert len(context.db.execute(dataset_table.select()).fetchall()) == 1
     people_sought = context.db.execute(
         select(dataset_table.c.people_sought)
@@ -61,21 +61,26 @@ def test_brief_synced_on_change(testdataset1: Dataset, funes_db) -> None:
 
 def test_removed_subject_and_url_kept(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     sync_catalogue(
-        context,
+        context.db,
         definition(subjects=[{"name": "Bank A", "urls": ["https://a.example/board"]}]),
     )
-    # Bank B and the management URL stay in the catalogue:
-    assert len(context.db.execute(subject_table.select()).fetchall()) == 2
-    assert len(context.db.execute(candidate_table.select()).fetchall()) == 3
+    subjects = context.db.execute(select(subject_table.c.name))
+    assert sorted(subjects.scalars()) == ["Bank A", "Bank B"]
+    candidates = context.db.execute(select(candidate_table.c.url))
+    assert sorted(candidates.scalars()) == [
+        "https://a.example/board",
+        "https://a.example/management",
+        "https://b.example/board",
+    ]
 
 
 def test_added_subject_and_url(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     sync_catalogue(
-        context,
+        context.db,
         definition(
             subjects=[
                 {"name": "Bank A", "urls": ["https://a.example/board"]},
@@ -86,15 +91,22 @@ def test_added_subject_and_url(testdataset1: Dataset, funes_db) -> None:
             ]
         ),
     )
-    assert len(context.db.execute(subject_table.select()).fetchall()) == 3
-    # Bank C contributes both its URLs, including the one Bank B already has:
-    assert len(context.db.execute(candidate_table.select()).fetchall()) == 5
+    subjects = context.db.execute(select(subject_table.c.name))
+    assert sorted(subjects.scalars()) == ["Bank A", "Bank B", "Bank C"]
+    candidates = context.db.execute(select(candidate_table.c.url))
+    assert sorted(candidates.scalars()) == [
+        "https://a.example/board",
+        "https://a.example/management",
+        "https://b.example/board",
+        "https://b.example/board",
+        "https://c.example/board",
+    ]
 
 
 def test_same_url_two_subjects(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
     sync_catalogue(
-        context,
+        context.db,
         definition(
             subjects=[
                 {"name": "Bank A", "urls": ["https://shared.example/board"]},
@@ -107,9 +119,9 @@ def test_same_url_two_subjects(testdataset1: Dataset, funes_db) -> None:
 
 def test_two_datasets_share_url(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     sync_catalogue(
-        context,
+        context.db,
         definition(
             name="second",
             subjects=[{"name": "Bank A", "urls": ["https://a.example/board"]}],

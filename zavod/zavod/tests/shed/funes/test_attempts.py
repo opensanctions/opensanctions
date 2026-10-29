@@ -9,8 +9,7 @@ from sqlalchemy import insert, select
 
 from zavod.context import Context
 from zavod.meta import Dataset
-from zavod.shed.funes.attempts import select_due_candidates
-from zavod.shed.funes.catalogue import sync_catalogue
+from zavod.shed.funes.catalogue import Candidate, sync_catalogue
 from zavod.shed.funes.definitions import DatasetDefinition
 from zavod.shed.funes.model import (
     InspectionOutcome,
@@ -79,17 +78,19 @@ def make_attempt(
 
 def test_unattempted_candidates_due(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
-    assert [url for _, url in select_due_candidates(context)] == [
-        "https://a.example/about",
-        "https://a.example/board",
-        "https://b.example/board",
+    sync_catalogue(context.db, definition())
+    due = Candidate.select_due(context.db, context.dataset.name)
+    assert [(c.subject_name, c.url) for c in due] == [
+        ("Bank A", "https://a.example/about"),
+        ("Bank A", "https://a.example/board"),
+        ("Bank B", "https://b.example/board"),
     ]
+    assert all(c.subject_id is not None for c in due)
 
 
 def test_recent_hit_blocks(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -98,7 +99,7 @@ def test_recent_hit_blocks(testdataset1: Dataset, funes_db) -> None:
         outcome=InspectionOutcome.HIT,
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context)] == [
+    assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -106,7 +107,7 @@ def test_recent_hit_blocks(testdataset1: Dataset, funes_db) -> None:
 
 def test_aged_hit_due_again(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -115,7 +116,7 @@ def test_aged_hit_due_again(testdataset1: Dataset, funes_db) -> None:
         outcome=InspectionOutcome.HIT,
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context)] == [
+    assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://a.example/board",
         "https://b.example/board",
@@ -124,7 +125,7 @@ def test_aged_hit_due_again(testdataset1: Dataset, funes_db) -> None:
 
 def test_miss_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -134,7 +135,7 @@ def test_miss_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> None:
         reason="nothing satisfies the brief",
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context)] == [
+    assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -142,7 +143,7 @@ def test_miss_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> None:
 
 def test_broken_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -150,7 +151,7 @@ def test_broken_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> Non
         status=SnapshotStatus.BROKEN,
         reason="rejected by deterministic checks",
     )
-    assert [url for _, url in select_due_candidates(context)] == [
+    assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -158,7 +159,7 @@ def test_broken_blocks_regardless_of_age(testdataset1: Dataset, funes_db) -> Non
 
 def test_latest_attempt_decides(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     make_attempt(
         context,
         candidate_id(context, "https://a.example/board"),
@@ -176,7 +177,7 @@ def test_latest_attempt_decides(testdataset1: Dataset, funes_db) -> None:
         reason="nothing satisfies the brief anymore",
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context)] == [
+    assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -184,7 +185,7 @@ def test_latest_attempt_decides(testdataset1: Dataset, funes_db) -> None:
 
 def test_created_at_tie_broken_by_greater_id(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     aged = datetime.now(UTC) - timedelta(days=60)
     older, newer = sorted((uuid.uuid4(), uuid.uuid4()))
     make_attempt(
@@ -206,7 +207,7 @@ def test_created_at_tie_broken_by_greater_id(testdataset1: Dataset, funes_db) ->
         reason="nothing satisfies the brief",
         model="inspector-model",
     )
-    assert [url for _, url in select_due_candidates(context)] == [
+    assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://b.example/board",
     ]
@@ -214,13 +215,13 @@ def test_created_at_tie_broken_by_greater_id(testdataset1: Dataset, funes_db) ->
 
 def test_scoped_to_context_dataset(testdataset1: Dataset, funes_db) -> None:
     context = make_context(testdataset1)
-    sync_catalogue(context, definition())
+    sync_catalogue(context.db, definition())
     other = definition(
         name="other",
         subjects=[{"name": "Bank C", "urls": ["https://c.example/board"]}],
     )
-    sync_catalogue(context, other)
-    assert [url for _, url in select_due_candidates(context)] == [
+    sync_catalogue(context.db, other)
+    assert [c.url for c in Candidate.select_due(context.db, context.dataset.name)] == [
         "https://a.example/about",
         "https://a.example/board",
         "https://b.example/board",
