@@ -4,7 +4,7 @@ prefix: so-hop
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-10-28
+  start: 2026-10-29
 load_statements: true
 summary: >-
   Lower chamber of Somalia's bicameral Parliament, the House of the People (Golaha Shacabka)
@@ -14,8 +14,10 @@ description: |
   under the 4.5 power-sharing formula and filled for four-year terms by electoral
   colleges of delegates nominated in the federal member states. Together with the
   Upper House its members hold the country's legislative power, including passing
-  laws, approving the budget and electing the President. Former members are included
-  where the source still names them on a seat it marks as vacant.
+  laws, approving the budget and electing the President.
+
+  Vacant seats are marked as such in the source and may still name the member who
+  held them. Those former members are included with an ended occupancy.
 url: https://parliament.gov.so/
 publisher:
   name: Baarlamaanka Federaalka Soomaaliya
