@@ -10,8 +10,10 @@ from zavod import helpers as h
 #   Administrative Actions:<br><ul><li>Debarment (until 06/18/2030)<li>No PHS
 #   Advisory (For life)</ul>Memo: Request Retraction of Article(s);
 # The <li> elements are never closed, so they are split on the opening tag.
-REGEX_ACTION = re.compile(r"^(?P<action>.+?)\s*\((?P<term>[^)]*)\)\s*$")
-REGEX_UNTIL = re.compile(r"^until\s*(?P<date>.*)$", re.IGNORECASE)
+REGEX_ACTION = re.compile(
+    r"^(?P<action>.+?)\s*\((?:For life|until\s*(?P<date>[^)]*))\)\s*$",
+    re.IGNORECASE,
+)
 
 
 def parse_description(description: str) -> tuple[list[str], str | None]:
@@ -22,23 +24,6 @@ def parse_description(description: str) -> tuple[list[str], str | None]:
     items = items.replace("</ul>", "")
     actions = [a.strip() for a in items.split("<li>") if a.strip()]
     return actions, memo.strip() or None
-
-
-def parse_action(context: Context, action: str) -> tuple[str, str | None]:
-    """Return (action name, end date) for one action string; life terms have no end."""
-    match = REGEX_ACTION.match(action)
-    if match is None:
-        context.log.warning("Cannot parse administrative action", action=action)
-        return action, None
-    name = match.group("action").strip()
-    term = match.group("term").strip()
-    if term.lower() == "for life":
-        return name, None
-    until = REGEX_UNTIL.match(term)
-    if until is None:
-        context.log.warning("Unexpected action term", action=action, term=term)
-        return name, None
-    return name, until.group("date").strip() or None
 
 
 def crawl_item(context: Context, item: dict[str, str | None]) -> None:
@@ -57,7 +42,6 @@ def crawl_item(context: Context, item: dict[str, str | None]) -> None:
         person,
         first_name=first_name.strip() or None,
         last_name=last_name.strip(),
-        lang="eng",
     )
     person.add("country", "us")
     person.add("sourceUrl", link)
@@ -67,7 +51,13 @@ def crawl_item(context: Context, item: dict[str, str | None]) -> None:
         context.log.warning("Item without administrative actions", title=title)
 
     for action in actions:
-        name, end_date = parse_action(context, action)
+        match = REGEX_ACTION.match(action)
+        if match is None:
+            context.log.warning("Cannot parse administrative action", action=action)
+            continue
+        name = match.group("action")
+        # Life terms have no end date; "until " with a blank date has none either.
+        end_date = (match.group("date") or "").strip() or None
         sanction = h.make_sanction(
             context,
             person,
