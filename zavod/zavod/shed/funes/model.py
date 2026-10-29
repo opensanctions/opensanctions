@@ -15,8 +15,7 @@ Tables live on their own metadata (``funes_meta``), passed explicitly
 into the Alembic ``target_metadata`` list and created explicitly in
 tests via ``funes_meta.create_all``. They are prefixed ``funes_``
 because the database hosts other projects' tables (including zavod's
-own ``position``). Following the stateful tables, access is Core-level,
-not ORM.
+own ``position``). Access is Core-level, not ORM.
 """
 
 import uuid
@@ -141,8 +140,9 @@ candidate_table = Table(
 attempt_table = Table(
     "funes_attempt",
     funes_meta,
-    # The id is caller-allocated: it doubles as the model run id and the
-    # repair-routing id.
+    # The id is caller-allocated: minted at run start, it identifies the
+    # run — as the model run id, transcript basename, and repair-routing
+    # id — long before this terminal row exists.
     Column("id", Uuid, primary_key=True),
     Column(
         "candidate_id",
