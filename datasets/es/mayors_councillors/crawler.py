@@ -9,7 +9,7 @@ def crawl_item(
     context: Context,
     *,
     row: dict[str, str | None],
-    position_title: str,
+    position_label: str,
     area_names: dict[str, str],
     period_start: str,
     period_end: str,
@@ -29,10 +29,12 @@ def crawl_item(
         context.log.warning("Missing required fields", row=row)
         return
 
-    topics_res = context.lookup("position_topics", position_title, warn_unmatched=True)
-    if topics_res is None:
+    position_title = context.lookup_value(
+        "positions", position_label, warn_unmatched=True
+    )
+    if position_title is None:
         return
-    position_name = f"{position_title} of {municipality}, {province}"
+    area_name = area_names.get(ine_code.zfill(6), f"{municipality}, {province}")
 
     pep = context.make("Person")
     pep.id = context.make_id(
@@ -50,21 +52,22 @@ def crawl_item(
         pep.add("name", name)
     pep.add("political", row.pop("party"))
     pep.add("topics", "role.pep")
-    pep.add("position", position_name)
 
     position = h.make_position(
         context,
-        position_name,
+        f"{position_label}, {area_name}",
         country="es",
-        subnational_area=area_names.get(
-            ine_code.zfill(6), f"{municipality}, {province}"
-        ),
+        subnational_area=area_name,
         lang="spa",
-        topics=topics_res.topics,
+        translate_name=True,
     )
-    # make_position keys the ID on subnational_area; keep the INE code in the ID
-    position.id = context.make_id(position_name, "es", ine_code)
-    categorisation = categorise(context, position, default_is_pep=True)
+    # The ID is keyed on an English name from the positions lookup and on the
+    # INE code, not on the source label. Positions are reviewed and categorised
+    # in the database under these IDs, so the key must not change.
+    id_name = f"{position_title} of {municipality}, {province}"
+    position.id = context.make_id(id_name, "es", ine_code)
+    categorisation = categorise(context, position)
+    pep.add("position", position.get("name"))
 
     occupancy = h.make_occupancy(
         context,
@@ -152,8 +155,9 @@ def crawl(context: Context) -> None:
         crawl_item(
             context,
             row=row,
-            # The historical file lists only mayors and has no position column
-            position_title="Mayor",
+            # The historical file lists only mayors and has no position column.
+            # "Alcalde" (mayor) is the label the current file uses for them.
+            position_label="Alcalde",
             area_names=area_names,
             period_start="2019",
             period_end="2023",
@@ -161,15 +165,10 @@ def crawl(context: Context) -> None:
     for row in current_rows:
         position_label = row.pop("position")
         assert position_label is not None, row
-        position_title = context.lookup_value(
-            "positions", position_label, warn_unmatched=True
-        )
-        if position_title is None:
-            continue
         crawl_item(
             context,
             row=row,
-            position_title=position_title,
+            position_label=position_label,
             area_names=area_names,
             period_start="2023",
             period_end="2027",

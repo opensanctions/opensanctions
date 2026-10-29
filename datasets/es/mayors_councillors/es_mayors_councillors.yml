@@ -40,6 +40,7 @@ assertions:
       Person: 70000
 
 lookups:
+  # English position titles that position IDs are keyed on
   positions:
     options:
       - match:
@@ -54,18 +55,6 @@ lookups:
         value: Managing President
       - match: Vocal gestor
         value: Managing Councillor
-  position_topics:
-    options:
-      - match:
-          - Mayor
-          - Deputy Mayor
-        topics: [gov.muni, gov.executive]
-      - match:
-          - Councillor
-          - Managing Councillor
-        topics: [gov.muni, gov.legislative]
-      - match: Managing President
-        topics: [gov.muni]
   columns:
     options:
       - match:
