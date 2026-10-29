@@ -23,8 +23,10 @@ Role = Literal[
     "role.diplo",
     "pol.party",
     "gov.religion",
+    "none",
+    "undecided",
 ]
-Seniority = Literal["leadership", "senior", "middle", "junior", "undecided"]
+Seniority = Literal["leadership", "senior", "middle", "junior", "none", "undecided"]
 
 LEVELS: tuple[Level, ...] = Level.__args__  # type: ignore[attr-defined]
 ROLES: tuple[Role, ...] = Role.__args__  # type: ignore[attr-defined]
@@ -57,23 +59,37 @@ class Annotation(BaseModel):
 
     level: Level = Field(
         description=(
-            "The governing jurisdiction. 'none' if no government level applies, "
-            "'undecided' if one applies but the evidence does not identify it."
+            "The governing jurisdiction. 'none' if none of the other values apply, "
+            "'undecided' if no decision can be made."
         )
     )
     roles: list[Role] = Field(
-        description="The roles of the office. Empty if the evidence does not establish a role."
+        description=(
+            "The roles of the office. 'none' if none of the other values apply, "
+            "'undecided' if no decision can be made. 'none' and "
+            "'undecided' are the only entry when used."
+        )
     )
     seniority: Seniority = Field(
         description=(
-            "The rank within the level/role combination. 'undecided' if the "
-            "evidence does not establish it."
+            "The rank within the level/role combination. 'none' if none of the "
+            "other values apply, 'undecided' if no decision can be made."
         )
     )
 
+    @model_validator(mode="after")
+    def check_roles(self) -> Self:
+        if not self.roles:
+            raise ValueError("Roles must not be empty: use 'none' or 'undecided'.")
+        if len(self.roles) > 1 and ("none" in self.roles or "undecided" in self.roles):
+            raise ValueError("'none' and 'undecided' must be the only role.")
+        return self
+
     def is_undecided(self) -> bool:
         return (
-            self.level == "undecided" or not self.roles or self.seniority == "undecided"
+            self.level == "undecided"
+            or "undecided" in self.roles
+            or self.seniority == "undecided"
         )
 
     def labels(self) -> "Annotation":

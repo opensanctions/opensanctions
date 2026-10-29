@@ -30,14 +30,18 @@ from models import (
     HumanAnnotation,
     Level,
     PrimaryAnnotation,
+    Role,
     Seniority,
 )
 
 TAGGER_LEVELS: tuple[Level, ...] = tuple(
     level for level in LEVELS if level not in ("none", "undecided")
 )
+TAGGER_ROLES: tuple[Role, ...] = tuple(
+    role for role in ROLES if role not in ("none", "undecided")
+)
 TAGGER_SENIORITIES: tuple[Seniority, ...] = tuple(
-    seniority for seniority in SENIORITIES if seniority != "undecided"
+    seniority for seniority in SENIORITIES if seniority not in ("none", "undecided")
 )
 
 STATE_STYLES = {
@@ -84,7 +88,7 @@ def editable_annotation(record: AnnotationRecord) -> Annotation | None:
 def format_annotation(annotation: Annotation) -> Table:
     table = Table.grid(padding=(0, 2))
     table.add_row("Level", str(annotation.level))
-    table.add_row("Roles", ", ".join(annotation.roles) or "[dim]undecided[/dim]")
+    table.add_row("Roles", ", ".join(annotation.roles))
     table.add_row("Seniority", str(annotation.seniority))
     return table
 
@@ -195,7 +199,9 @@ class Tagger(Horizontal):
             yield SingleSelectionList(TAGGER_LEVELS, id="level")
         with Vertical():
             yield Label("Roles")
-            yield SelectionList[str](*((role, role) for role in ROLES), id="roles")
+            yield SelectionList[str](
+                *((role, role) for role in TAGGER_ROLES), id="roles"
+            )
         with Vertical():
             yield Label("Seniority")
             yield SingleSelectionList(TAGGER_SENIORITIES, id="seniority")
@@ -211,7 +217,8 @@ class Tagger(Horizontal):
         roles = self.query_one("#roles", SelectionList)
         roles.deselect_all()
         for role in annotation.roles:
-            roles.select(role)
+            if role in TAGGER_ROLES:
+                roles.select(role)
 
     @property
     def level_list(self) -> SingleSelectionList[Level]:
@@ -225,7 +232,7 @@ class Tagger(Horizontal):
         selected = self.query_one("#roles", SelectionList).selected
         return Annotation(
             level=self.level_list.value() or "undecided",
-            roles=[role for role in ROLES if role in selected],
+            roles=[role for role in TAGGER_ROLES if role in selected] or ["undecided"],
             seniority=self.seniority_list.value() or "undecided",
         )
 

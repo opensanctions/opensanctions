@@ -52,8 +52,8 @@ evidence.
 
 Assume all enterprises encountered in our datasets meet the SOE criteria.
 
-For each undecided dimension, return 'undecided' for level or seniority, or no roles
-for role. Do not guess.
+Return 'undecided' for each dimension where no decision can be made.
+Do not guess.
 
 Web search is available, up to {WEB_SEARCH_MAX_USES} searches: facts found through web
 research count as evidence. Use it to check facts about the office or its

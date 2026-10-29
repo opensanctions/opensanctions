@@ -14,15 +14,17 @@ and tenure dates require separate decisions.
   equivalent instances. A shared word does not establish an equivalent role.
 - Distinguish public bodies, state enterprises, intergovernmental organizations,
   political parties, and religious leadership from private organizations.
-- An unclear role is **undecided**. Undecided is not a seniority band.
-- Resolve each dimension separately. If evidence is missing or contradictory,
-  leave that dimension undecided and record the missing evidence.
+- Resolve each dimension separately. Each dimension has two values besides its categories:
+  - a) `none`: None of the other values of the dimension apply.
+  - b) `undecided`: No decision for one of the values can be made.
+- `none` is a decision. When no decision can be made, use `undecided`, not `none`.
+- `none` and `undecided` are not seniority bands. For roles, each is the only value when used.
 - Ignore `former`, `acting`, and `interim` when assigning these attributes.
   These modifiers describe tenure or status. Keep rank modifiers such as `deputy`.
 - Separate distinct offices in a compound label where possible.
   Assign each office its own level, role, and seniority.
   Do not compare seniority bands across different level/role combinations.
-  Leave an inseparable combination undecided when one classification cannot represent it.
+  Use `undecided` for an inseparable combination when one classification cannot represent it.
 
 ## Level describes the governing jurisdiction
 
@@ -47,8 +49,9 @@ For an ambassador, use the sending government when established.
 A posting abroad does not make an office `gov.igo`.
 
 Diplomatic, party, and religious roles do not require a level in this methodology.
-Leave level unassigned when no government level applies.
-Use undecided when a government level applies but the evidence does not identify it.
+
+- `none`: No government level applies.
+- `undecided`: No decision for one of the levels can be made.
 
 ## Role describes the office's work or organization
 
@@ -79,6 +82,8 @@ Seniority does not determine role.
   Examples: party leader, deputy leader, secretary-general.
 - `gov.religion`: Religious leadership with significant political influence.
   Example: leader of a religious body with a documented political role.
+- `none`: None of the roles above apply.
+- `undecided`: No decision for one of the roles can be made.
 
 Apply these boundaries:
 
@@ -118,6 +123,8 @@ Leading a team or holding the highest rank in one ministry does not automaticall
   Examples: deputy minister, ministry division head, enterprise division manager.
 - `junior`: A lower rank with limited authority or supporting duties within the combination.
   Examples: junior officer, clerk, administrative assistant.
+- `none`: None of the bands above apply.
+- `undecided`: No decision for one of the bands can be made.
 
 For a national ministry:
 
@@ -141,7 +148,7 @@ Apply these rank boundaries:
 - `Senior` in a title needs evidence of a senior professional or management rank.
   It does not automatically make a routine support role `senior`.
 - A `gov.head` position always has `leadership` seniority.
-- An unsupported rank stays undecided. `middle` and `junior` are not substitutes for missing evidence.
+- An unsupported rank stays `undecided`. `middle`, `junior` and `none` are not substitutes for missing evidence.
 
 ### Seniority anchors by role
 
