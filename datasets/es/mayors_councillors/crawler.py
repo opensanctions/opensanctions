@@ -7,7 +7,9 @@ from zavod.stateful.positions import categorise
 
 def crawl_item(
     context: Context,
+    *,
     row: dict[str, str | None],
+    position_label: str,
     area_names: dict[str, str],
     period_start: str,
     period_end: str,
@@ -17,11 +19,9 @@ def crawl_item(
     municipality = row.pop("municipality")
     first_last_name = row.pop("last_name", None)
     second_last_name = row.pop("second_last_name", None)
-    position_label = row.pop("position")
     ine_code = row.pop("ine_code")
     start_date = row.pop("start_date")
     end_date = row.pop("end_date", None)
-    assert position_label is not None, row
     assert ine_code is not None, row
     assert start_date is not None, row
 
@@ -149,10 +149,24 @@ def crawl(context: Context) -> None:
             f"{row['municipality']}, {row['province']}"
         )
 
+    # The historical file lists only mayors and has no position column
     for row in hist_rows:
-        # The historical file lists only mayors and has no position column
-        assert "position" not in row, row
-        row["position"] = "Alcalde"
-        crawl_item(context, row, area_names, period_start="2019", period_end="2023")
+        crawl_item(
+            context,
+            row=row,
+            position_label="Alcalde",
+            area_names=area_names,
+            period_start="2019",
+            period_end="2023",
+        )
     for row in current_rows:
-        crawl_item(context, row, area_names, period_start="2023", period_end="2027")
+        position_label = row.pop("position")
+        assert position_label is not None, row
+        crawl_item(
+            context,
+            row=row,
+            position_label=position_label,
+            area_names=area_names,
+            period_start="2023",
+            period_end="2027",
+        )
