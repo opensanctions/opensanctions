@@ -5,6 +5,7 @@ import { softDeleteAndCreatePosition } from '../../../../lib/db';
 
 interface PositionUpdateData {
   is_pep: boolean | null;
+  seniority: string | null;
   topics: string[];
 }
 
