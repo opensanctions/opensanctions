@@ -22,7 +22,7 @@
     "kysely": "^0.29.7",
     "next": "16.4.3",
     "pg": "^8.23.1",
-    "query-string": "^9.5.1",
+    "query-string": "^10.0.0",
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-icons": "^1.11.6",
     "react-dom": "^19.3.1",
