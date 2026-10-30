@@ -1,0 +1,99 @@
+title: Egypt Members of the Senate
+name: eg_senate
+prefix: eg-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-20
+load_statements: true
+summary: >-
+  Current members of the Senate, the upper chamber of the Egyptian parliament.
+description: |
+  Current members of the Senate (Majlis al-Shuyukh), the upper chamber of Egypt's
+  bicameral parliament. Of its 300 members, 100 are elected from individual-candidacy
+  constituencies, 100 from closed party lists and 100 are appointed by the President,
+  each serving a five-year term, and together they advise on constitutional amendments,
+  draft laws and the state's development plans.
+url: https://www.elections.eg/
+publisher:
+  name: National Election Authority
+  acronym: NEA
+  description: >
+    The National Election Authority is the independent body that administers
+    presidential, parliamentary and local elections and referendums in Egypt.
+  url: https://www.elections.eg/
+  country: eg
+  official: true
+data:
+  url: https://www.elections.eg/
+  format: HTML
+  lang: ara
+http:
+  # sis.gov.eg, which lists the presidential appointees, sits behind a CDN that can
+  # reject non-browser clients.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/124.0.0.0 Safari/537.36
+
+tags:
+  - list.pep
+
+# There is no Senate website with a member directory. The roster is assembled from the
+# National Election Authority's final-round results for the latest election (200
+# elected members), found via the site navigation, and the State Information
+# Service's article on Presidential Decree 575/2025 (100 appointees). Both are
+# snapshots of the chamber as constituted and won't reflect deaths, resignations or
+# by-elections, so occupancies are emitted with status unknown rather than current.
+# The appointees article is specific to the 2025 term: once the NEA publishes the next
+# election, the crawler fails until APPOINTEES_URL points to the new decree.
+names:
+  prefixes_strip:
+    # Doctor
+    - الدكتور
+    # Major general
+    - اللواء
+
+lookups:
+  columns:
+    required: true
+    options:
+      # Individual-candidacy winners
+      - match: اسم المرشح # Candidate name
+        value: name
+      - match: اسم الشهرة # Known as
+        value: alias
+      - match: الانتماء الحزبي # Party affiliation
+        value: party
+      # Closed-list candidates
+      - match: الترتيب في القائمة # Rank on the list
+        value: list_rank
+      - match: الاسم الكامل # Full name
+        value: name
+      - match: مستقل/الانتماء الحزبي # Independent/party affiliation
+        value: party
+      - match: النوع # Gender
+        value: gender
+  type.name:
+    options:
+      - match: "-"
+        value: null
+      - match: Suleiman Salman Mousa Ibrahim El-Zamlout.
+        value: Suleiman Salman Mousa Ibrahim El-Zamlout
+  type.gender:
+    options:
+      - match: ذكر
+        value: male
+      - match: انثى
+        value: female
+
+assertions:
+  min:
+    schema_entities:
+      Person: 290
+      Position: 1
+    country_entities:
+      eg: 290
+  max:
+    schema_entities:
+      Person: 310
+      Position: 1
