@@ -2,6 +2,7 @@ import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 # The biography opens with a "Born ..." sentence carrying the date of birth. The
@@ -16,8 +17,16 @@ def crawl_member(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    detail_page = context.fetch_html(source_url)
-    name = h.xpath_string(detail_page, ".//h1/text()").strip()
+    name_xpath = ".//h1/text()"
+    detail_page = zyte_api.fetch_html(
+        context,
+        source_url,
+        unblock_validator=name_xpath,
+        html_source="httpResponseBody",
+        geolocation="BY",
+        cache_days=1,
+    )
+    name = h.xpath_string(detail_page, name_xpath).strip()
 
     person = context.make("Person")
     person.id = context.make_id(name, source_url)
@@ -64,8 +73,16 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-    for member_link in h.xpath_strings(
-        doc, '//a[contains(@href, "/senators-en/view/")]/@href'
-    ):
+    # sovrep.gov.by times out connections from our production network, so go via Zyte.
+    xpath = '//a[contains(@href, "/senators-en/view/")]/@href'
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=xpath,
+        html_source="httpResponseBody",
+        geolocation="BY",
+        cache_days=1,
+        absolute_links=True,
+    )
+    for member_link in h.xpath_strings(doc, xpath):
         crawl_member(context, member_link, position, categorisation)
