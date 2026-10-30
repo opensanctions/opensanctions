@@ -7,8 +7,7 @@ from zavod.util import Element, LangText
 from zavod import Context, Entity
 from zavod import helpers as h
 
-# Profile pages label the term as "المدة النيابية: 2024-2029" or
-# "الدورة النيابية: 2024-2029".
+# e.g. "المدة النيابية: 2024-2029"
 TERM_RE = re.compile(r"^(?:المدة|الدورة) النيابية: (\d{4})-(\d{4})$")
 
 
@@ -38,22 +37,19 @@ def crawl_row(
     name_cell = row.pop("name")
     name = h.element_text(name_cell)
     governorate = h.element_text(row.pop("governorate"))
+    district = h.element_text(row.pop("district"))
 
     person = context.make("Person")
     person.id = context.make_id(name, governorate)
     person.add("name", name, lang="ara")
     apply_translit_full_name(context, person, LangText(name, "ara"))
-    # Only about half the members have a profile page ("بطاقة نائب"), the sole
-    # place the term is stated. The rest stay undated.
+    # The term is only given on profile pages, which about half the members have.
     term: tuple[str, str] | None = None
     if len(h.xpath_elements(name_cell, "./a")) > 0:
         profile_url = h.xpath_string(name_cell, "./a/@href")
         person.add("sourceUrl", profile_url)
         term = fetch_term(context, profile_url)
-    # Council candidates must be Tunisian voters holding no other nationality
-    # (Decree-Law 2023-10, Art. 16), and only council members can stand for the
-    # CNRD (Art. 25).
-    # https://legislation-securite.tn/wp-content/uploads/sites/5/2023/11/مرسوم-عدد-10-لسنة-2023-مؤرّخ-في-8-مارس-2023.pdf
+    # Candidates must be Tunisian with no other nationality (Decree-Law 2023-10, Art. 16).
     person.add("citizenship", "tn")
 
     occupancy = h.make_occupancy(
@@ -66,10 +62,8 @@ def crawl_row(
     )
     if occupancy is None:
         return
-    # One member per district sits for the district rather than the governorate,
-    # but the table doesn't say which, so we record the governorate within its
-    # district.
-    constituency = f"{governorate}, {h.element_text(row.pop('district'))}"
+    # The table doesn't mark district (vs. governorate) seats, so record both.
+    constituency = ", ".join(p for p in (governorate, district) if p != "")
     occupancy.add("constituency", constituency, lang="ara")
     context.emit(occupancy)
     context.emit(person)
