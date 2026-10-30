@@ -39,6 +39,7 @@ repos:
         exclude: |
           (?x)^(
           zavod/zavod/tests|
+          zavod/zavod/extract/positions/|
           contrib/|
           datasets/
           )
