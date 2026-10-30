@@ -47,6 +47,34 @@ def test_publisher_bloc(country: str):
     assert derive_tags(ds) == [f"publisher.{country}", "publisher.eu_efta"]
 
 
+def test_member_state_sanctions_list_gets_publisher_eu():
+    ds = make_dataset(
+        tags=["list.sanction"], publisher={"country": "fr", "official": True}
+    )
+    assert derive_tags(ds) == [
+        "list.sanction",
+        "publisher.fr",
+        "publisher.eu",
+        "publisher.eu_efta",
+    ]
+
+
+@pytest.mark.parametrize(
+    "tags,publisher",
+    [
+        # Not a sanctions list:
+        (["list.wanted"], {"country": "fr", "official": True}),
+        # Not an EU member state:
+        (["list.sanction"], {"country": "ch", "official": True}),
+        # Not official:
+        (["list.sanction"], {"country": "fr", "official": False}),
+    ],
+)
+def test_no_publisher_eu(tags: list[str], publisher: dict[str, Any]):
+    ds = make_dataset(tags=tags, publisher=publisher)
+    assert "publisher.eu" not in derive_tags(ds)
+
+
 def test_publisher_bloc_members_are_territories():
     assert len(EU_MEMBERS) == 27
     for members in PUBLISHER_BLOCS.values():
@@ -160,7 +188,12 @@ def test_export_includes_derived_tags():
         tags=["list.sanction"], publisher={"country": "fr", "official": True}
     )
     data = ds.to_opensanctions_dict(get_catalog())
-    assert data["tags"] == ["list.sanction", "publisher.fr", "publisher.eu_efta"]
+    assert data["tags"] == [
+        "list.sanction",
+        "publisher.fr",
+        "publisher.eu",
+        "publisher.eu_efta",
+    ]
     # Derived tags are export-only:
     assert ds.model.tags == ["list.sanction"]
     assert ds.to_dict()["tags"] == ["list.sanction"]
