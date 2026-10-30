@@ -7,7 +7,7 @@ Some things that are easy to forget but critical for new crawlers. Scope and per
 - Crawler
     - It follows [strict interpretation](strict_interpretation.md)
     - It reads the best data path the source offers (see [source recon](source_recon.md))
-    - It emits as many entities as are available at the source, including past terms or listings the source publishes
+    - It emits as many entities as are available at the source, including past terms or expired designations the source publishes
     - Entities carry the identifying attributes the source offers, and nothing is marked active or risky beyond what the source says
     - Its effort is proportionate: no large amounts of code spent on details that don't matter to users, such as elaborate title cleaning (see [priorities](priorities.md))
     - It matches crawlers for similar sources, for example in its `list.*` tag and topics
