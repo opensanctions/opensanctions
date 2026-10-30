@@ -73,7 +73,7 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # sovrep.gov.by times out connections from our production network, so go via Zyte.
+    # sovrep.gov.by times out connections from outside Belarus, so go via Zyte.
     xpath = '//a[contains(@href, "/senators-en/view/")]/@href'
     doc = zyte_api.fetch_html(
         context,
