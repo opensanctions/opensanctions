@@ -9,6 +9,7 @@
 # - Make sure each other-information tag's value is fully extracted if it fits the allowed props,
 #   or include_in_notes is true so that the unextracted information is captured in notes.
 
+import re
 from itertools import product
 from typing import Literal
 
@@ -18,6 +19,7 @@ from followthemoney.util import join_text
 from lxml.etree import _Element as Element, tostring
 from prefixdate import parse_parts
 from pydantic import BaseModel, Field
+from rigour.mime.types import XML
 from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     TextSourceValue,
@@ -28,8 +30,11 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
 
-# TODO: sanctions-program full parse
 MayStr = str | None
+# English program-name and sanctions-set text, keyed by the sanctions-set ssid.
+SanctionsSet = tuple[MayStr, MayStr]
+
+UNSC_ID = re.compile(r"^[A-Z]{2}[ie]\.\d{3}$")
 
 SKIP_OLD = {"41406"}
 # SECO doesn't date modifications older than the go-live of its sanctions list
@@ -201,7 +206,7 @@ Other properties:
 
 def parse_address(node: Element) -> dict[str, str]:
     address = {
-        "remarks": node.findtext("./remarks"),
+        "remarks": node.findtext("./remark"),
         "co": node.findtext("./c-o"),
         "location": node.findtext("./location"),
         "address-details": node.findtext("./address-details"),
@@ -240,12 +245,15 @@ def compose_address(
     )
 
 
-def parse_name(context: Context, entity: Entity, node: Element) -> None:
+def parse_name(context: Context, entity: Entity, node: Element, is_main: bool) -> None:
     # verification:
     # al-Nu'Aymi   - in full name
     # Lutsky   - Lutsky Ihar Uladzimiravich as primary name
 
     name_prop = NAME_TYPE[node.get("name-type")]
+    # The primary name of a secondary identity is another name the target uses.
+    if name_prop == "name" and not is_main:
+        name_prop = "alias"
     is_weak = NAME_QUALITY_WEAK[node.get("quality")]
     if is_weak:
         name_prop = "weakAlias"
@@ -272,9 +280,6 @@ def parse_name(context: Context, entity: Entity, node: Element) -> None:
 
     ordered: dict[tuple[MayStr, MayStr], dict[int, list[MayStr]]] = {}
     for part_type, lang, script, order, value in parts:
-        # if part_type in ("suffix", "title"):
-        #     print("XXX", part_type, value)
-
         # Begin building whole names:
         cult = (lang, script)
         if cult not in ordered:
@@ -311,14 +316,25 @@ def parse_name(context: Context, entity: Entity, node: Element) -> None:
             entity.add(full_prop, whole_name, lang=lang)
 
 
+def issuer_country(doc: Element) -> str | None:
+    issuer = doc.find("./issuer")
+    if issuer is None:
+        return None
+    code = issuer.get("code")
+    return code if code is not None else issuer.text
+
+
 def parse_identity(
     context: Context,
     entity: Entity,
     node: Element,
     places: dict[str | None, dict[str, str]],
 ) -> None:
+    main = node.get("main")
+    if main not in ("true", "false"):
+        raise ValueError(f"Unexpected identity main flag: {main!r}")
     for name in node.findall(".//name"):
-        parse_name(context, entity, name)
+        parse_name(context, entity, name, main == "true")
 
     for address_node in node.findall(".//address"):
         place = places.get(address_node.get("place-id"))
@@ -349,14 +365,12 @@ def parse_identity(
     for doc in node.findall(".//identification-document"):
         type_ = doc.get("document-type")
         is_passport = type_ in ("passport", "diplomatic-passport")
-        doc_country = doc.findtext("./issuer")
-        entity.add("nationality", doc_country, quiet=True)
         passport = h.make_identification(
             context,
             entity,
             number=doc.findtext("./number"),
             doc_type=type_,
-            country=doc_country,
+            country=issuer_country(doc),
             summary=doc.findtext("./remark"),
             start_date=doc.findtext("./date-of-issue"),
             end_date=doc.findtext("./expiry-date"),
@@ -500,7 +514,7 @@ def crawl_other_info(
 def parse_entry(
     context: Context,
     target: Element,
-    programs: dict[str, str | None],
+    sets: dict[str, SanctionsSet],
     places: dict[str | None, dict[str, str]],
 ) -> None:
     entity = context.make("LegalEntity")
@@ -534,7 +548,7 @@ def parse_entry(
     if ssid is None:
         ssid = target.findtext("./sanctions-set-id")
 
-    program_name = programs.get(ssid) if ssid is not None else None
+    program_name, set_text = sets.get(ssid, (None, None)) if ssid else (None, None)
     sanction = h.make_sanction(
         context,
         entity,
@@ -543,6 +557,9 @@ def parse_entry(
         program_key=h.lookup_sanction_program_key(context, program_name),
     )
     sanction.add("authorityId", entity_ssid)
+    # The articles and annex the target is listed under, naming the measures,
+    # e.g. "art. 16 (Financial sanctions), art. 26 (Travel ban) ..., annex 11".
+    sanction.add("provisions", set_text)
     last_modification = None
     last_modification_type = None
     dates = set()
@@ -572,8 +589,6 @@ def parse_entry(
             sanction.add("startDate", effective_date)
     dates_ = [d for d in dates if d is not None]
     if len(dates_):
-        entity.add("createdAt", min(dates_))
-        entity.add("modifiedAt", max(dates_))
         sanction.add("modifiedAt", max(dates_))
     if not sanction.has("modifiedAt"):
         sanction.add("modifiedAt", sanction.get("listingDate"), origin=ORIGIN_INFERRED)
@@ -582,8 +597,13 @@ def parse_entry(
         return
     entity.add("topics", "sanction")
 
+    # Besides UN reference numbers, foreign-identifier holds the entry's
+    # number in an ordinance annex, e.g. "123." or "I.47.I.1." for Iran.
     foreign_id = target.findtext("./foreign-identifier")
-    sanction.add("unscId", foreign_id)
+    if foreign_id is not None and UNSC_ID.match(foreign_id):
+        sanction.add("unscId", foreign_id)
+    else:
+        sanction.add("recordId", foreign_id)
 
     justifications: list[tuple[str, str]] = []
     for justification in node.findall("./justification"):
@@ -591,9 +611,8 @@ def parse_entry(
         if just_ssid is not None and justification.text is not None:
             justifications.append((just_ssid, justification.text))
 
-    # TODO: should this go into sanction:reason?
-    notes = [n for (s, n) in sorted(justifications)]
-    entity.add("notes", h.clean_note("\n\n".join(notes)))
+    reasons = [n for (s, n) in sorted(justifications)]
+    sanction.add("reason", h.clean_note("\n\n".join(reasons)))
 
     crawl_other_info(context, entity_ssid, entity, node)
 
@@ -616,9 +635,6 @@ def parse_entry(
         rel.add(res.target, target_id)
         rel.add(res.text, rel_type)
 
-        # rel_target = context.make(rel.schema.get(res.target).range)
-        # rel_target.id = target_id
-        # context.emit(rel_target)
         source_prop = rel.schema.get(res.source)
         if source_prop is not None and source_prop.range is not None:
             entity.add_schema(source_prop.range)
@@ -633,32 +649,29 @@ def parse_entry(
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     root = doc.getroot()
     assert root is not None
-    # date = root.get("date")
-    # if date is not None:
-    #     context.data_time = datetime.strptime(date, "%Y-%m-%d")
 
-    # TODO(Leon Handreke): Add a lookup to see if a new sanctions program shows up that we don't have in the database
-    programs: dict[str, MayStr] = {}
+    sets: dict[str, SanctionsSet] = {}
     for sanc in doc.findall(".//sanctions-program"):
-        sanc_set = sanc.find("./sanctions-set")
+        sanc_set = sanc.find('./sanctions-set[@lang="eng"]')
         if sanc_set is None:
             context.log.warning("No sanctions-set", program=sanc)
             continue
         ssid = sanc_set.get("ssid")
         if ssid is None:
             continue
-        programs[ssid] = sanc.findtext('./program-name[@lang="eng"]')
+        program_name = sanc.findtext('./program-name[@lang="eng"]')
+        sets[ssid] = (program_name, sanc_set.text)
 
     places = {}
     for place in doc.findall(".//place"):
         places[place.get("ssid")] = parse_address(place)
 
     for idx, target in enumerate(doc.findall("./target")):
-        parse_entry(context, target, programs, places)
+        parse_entry(context, target, sets, places)
 
         # Flush more frequently than we normally would to cache LLM queries
         # before we get restarted (e.g. getting evicted and restarted).
