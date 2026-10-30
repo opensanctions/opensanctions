@@ -7,6 +7,7 @@ them into every dataset YAML they are derived when the metadata is exported:
   publishers with a specific country.
 * ``publisher.eu`` for official sanctions lists published by an EU member
   state.
+* ``publisher.us_ofac`` for datasets published by OFAC.
 * ``target.<territory>`` from the ``target_territories`` of the sanctions
   programs that name the dataset as their primary ``dataset``.
 
@@ -46,7 +47,8 @@ PUBLISHER_BLOCS: dict[str, frozenset[str]] = {
 def derive_publisher_tags(dataset: "Dataset") -> list[str]:
     """Derive ``publisher.<country>`` and ``publisher.<bloc>`` from the publisher.
 
-    Sanctions lists published by an EU member state also get ``publisher.eu``.
+    Sanctions lists published by an EU member state also get ``publisher.eu``,
+    and datasets published by OFAC get ``publisher.us_ofac``.
     Nothing is derived for unofficial publishers, for PEP datasets (where the
     publisher country adds no insight), or when the country is missing or
     global.
@@ -62,6 +64,8 @@ def derive_publisher_tags(dataset: "Dataset") -> list[str]:
     tags = [f"publisher.{country}"]
     if country in EU_MEMBERS and "list.sanction" in dataset.model.tags:
         tags.append("publisher.eu")
+    if country == "us" and publisher.acronym == "OFAC":
+        tags.append("publisher.us_ofac")
     for bloc, members in PUBLISHER_BLOCS.items():
         if country in members:
             tags.append(f"publisher.{bloc}")

@@ -75,6 +75,24 @@ def test_no_publisher_eu(tags: list[str], publisher: dict[str, Any]):
     assert "publisher.eu" not in derive_tags(ds)
 
 
+def test_ofac_publisher():
+    ds = make_dataset(publisher={"country": "us", "acronym": "OFAC", "official": True})
+    assert derive_tags(ds) == ["publisher.us", "publisher.us_ofac"]
+
+
+@pytest.mark.parametrize(
+    "publisher",
+    [
+        {"country": "us", "acronym": "BIS", "official": True},
+        {"country": "gb", "acronym": "OFAC", "official": True},
+        {"country": "us", "acronym": "OFAC", "official": False},
+    ],
+)
+def test_no_ofac_publisher(publisher: dict[str, Any]):
+    ds = make_dataset(publisher=publisher)
+    assert "publisher.us_ofac" not in derive_tags(ds)
+
+
 def test_publisher_bloc_members_are_territories():
     assert len(EU_MEMBERS) == 27
     for members in PUBLISHER_BLOCS.values():
