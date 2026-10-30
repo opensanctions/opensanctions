@@ -37,6 +37,7 @@ from models import (
     read_records,
     write_records,
 )
+from pep import PepDecision, decide_pep
 from ui import STATE_STYLES, ListApp, record_state
 
 PRIMARY_MODEL = "anthropic:claude-opus-5-5"
@@ -344,10 +345,18 @@ def print_summary(console: Console, records: list[AnnotationRecord]) -> None:
     table.add_row("Approved by reviewer", str(states.count("approved")))
     table.add_row("Decided by human", str(states.count("human")))
     table.add_row("Vetoed, pending human", str(states.count("vetoed")))
-    table.add_row("Undecided, pending human", str(states.count("undecided")))
+    table.add_row("Insufficient, pending human", str(states.count("insufficient")))
     table.add_row("LLM calls incomplete", str(states.count("pending")))
     table.add_row("Total", str(len(records)), style="bold")
     console.print(table)
+
+    decisions = [decide_pep(r) for r in records]
+    pep_table = Table(title="PEP decisions")
+    pep_table.add_column("Decision")
+    pep_table.add_column("Items", justify="right")
+    for decision in PepDecision:
+        pep_table.add_row(str(decision), str(decisions.count(decision)))
+    console.print(pep_table)
 
 
 @click.group()

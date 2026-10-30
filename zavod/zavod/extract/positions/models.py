@@ -32,6 +32,11 @@ LEVELS: tuple[Level, ...] = Level.__args__  # type: ignore[attr-defined]
 ROLES: tuple[Role, ...] = Role.__args__  # type: ignore[attr-defined]
 SENIORITIES: tuple[Seniority, ...] = Seniority.__args__  # type: ignore[attr-defined]
 
+# The codebook does not require a government level for these roles.
+LEVEL_FREE_ROLES: frozenset[Role] = frozenset(
+    {"role.diplo", "pol.party", "gov.religion"}
+)
+
 
 class Item(BaseModel):
     """A position label in the context it was published in."""
@@ -83,14 +88,14 @@ class Annotation(BaseModel):
             raise ValueError("Roles must not be empty: use 'none' or 'undecided'.")
         if len(self.roles) > 1 and ("none" in self.roles or "undecided" in self.roles):
             raise ValueError("'none' and 'undecided' must be the only role.")
+        offices = [r for r in self.roles if r not in ("none", "undecided")]
+        if self.level == "none" and any(r not in LEVEL_FREE_ROLES for r in offices):
+            raise ValueError(
+                "Level 'none' is only valid for diplomatic, party and religious roles."
+            )
+        if self.seniority == "none" and offices:
+            raise ValueError("Seniority 'none' is only valid without a role.")
         return self
-
-    def is_undecided(self) -> bool:
-        return (
-            self.level == "undecided"
-            or "undecided" in self.roles
-            or self.seniority == "undecided"
-        )
 
     def labels(self) -> "Annotation":
         return Annotation(

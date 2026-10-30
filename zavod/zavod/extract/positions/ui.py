@@ -2,6 +2,7 @@ import getpass
 from collections.abc import Callable
 from datetime import UTC, datetime
 
+from pydantic import ValidationError
 from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
@@ -33,22 +34,22 @@ from models import (
     Role,
     Seniority,
 )
+from pep import PepDecision, decide_pep
 
+# An empty selection is saved as 'undecided', so the tagger does not offer it.
 TAGGER_LEVELS: tuple[Level, ...] = tuple(
-    level for level in LEVELS if level not in ("none", "undecided")
+    level for level in LEVELS if level != "undecided"
 )
-TAGGER_ROLES: tuple[Role, ...] = tuple(
-    role for role in ROLES if role not in ("none", "undecided")
-)
+TAGGER_ROLES: tuple[Role, ...] = tuple(role for role in ROLES if role != "undecided")
 TAGGER_SENIORITIES: tuple[Seniority, ...] = tuple(
-    seniority for seniority in SENIORITIES if seniority not in ("none", "undecided")
+    seniority for seniority in SENIORITIES if seniority != "undecided"
 )
 
 STATE_STYLES = {
     "pending": "dim",
     "approved": "green",
     "vetoed": "red",
-    "undecided": "magenta",
+    "insufficient": "magenta",
     "human": "blue",
     "golden": "yellow",
 }
@@ -60,17 +61,16 @@ def record_state(record: AnnotationRecord) -> str:
     primary = record.latest_primary()
     if primary is None or primary.review is None:
         return "pending"
-    if record.human_on(primary) is not None:
-        return "human"
-    if primary.review.veto:
+    human = record.human_on(primary)
+    if human is None and primary.review.veto:
         return "vetoed"
-    if primary.is_undecided():
-        return "undecided"
-    return "approved"
+    if decide_pep(record) is PepDecision.INSUFFICIENT:
+        return "insufficient"
+    return "human" if human is not None else "approved"
 
 
 def needs_human(record: AnnotationRecord) -> bool:
-    return record_state(record) in ("vetoed", "undecided")
+    return record_state(record) in ("vetoed", "insufficient")
 
 
 def editable_annotation(record: AnnotationRecord) -> Annotation | None:
@@ -103,6 +103,7 @@ def render_record(record: AnnotationRecord) -> Group:
     item_table.add_row("ID", str(record.id))
     state = record_state(record)
     item_table.add_row("State", Text(state, style=STATE_STYLES[state]))
+    item_table.add_row("PEP", str(decide_pep(record)))
 
     panels: list[Panel] = [Panel(item_table, title="Position")]
     for annotation in record.annotations:
@@ -229,6 +230,7 @@ class Tagger(Horizontal):
         return self.query_one("#seniority", SingleSelectionList)
 
     def read(self) -> Annotation:
+        """Raise a ValidationError if the selection breaks a codebook rule."""
         selected = self.query_one("#roles", SelectionList).selected
         return Annotation(
             level=self.level_list.value() or "undecided",
@@ -270,7 +272,7 @@ class ListScreen(Screen[None]):
         table.add_column("Title")
         table.add_column("Location")
         table.add_column("Dataset")
-        for key in ("State", "Level", "Roles", "Seniority"):
+        for key in ("State", "PEP", "Level", "Roles", "Seniority"):
             table.add_column(key, key=key)
         for index, record in enumerate(self.records):
             table.add_row(
@@ -298,7 +300,11 @@ class ListScreen(Screen[None]):
                 ", ".join(annotation.roles),
                 str(annotation.seniority),
             ]
-        return [Text(state, style=STATE_STYLES[state]), *labels]
+        return [
+            Text(state, style=STATE_STYLES[state]),
+            str(decide_pep(record)),
+            *labels,
+        ]
 
     def update_subtitle(self) -> None:
         open_count = sum(1 for r in self.records if needs_human(r))
@@ -337,13 +343,19 @@ class ListScreen(Screen[None]):
         tagger = self.query_one(Tagger)
         if tagger.disabled:
             return
+        try:
+            annotation = tagger.read()
+        except ValidationError as exc:
+            message = "; ".join(str(error["msg"]) for error in exc.errors())
+            self.notify(message, title="Not saved", severity="error")
+            return
         record = self.record
         golden = record.golden()
         if golden is not None:
             # A golden record is a reference: edits replace it rather than layer on it.
             index = record.annotations.index(golden)
             record.annotations[index] = GoldenAnnotation(
-                **tagger.read().model_dump(), note=golden.note
+                **annotation.model_dump(), note=golden.note
             )
         else:
             primary = record.latest_primary()
@@ -353,7 +365,7 @@ class ListScreen(Screen[None]):
                 record.annotations.remove(previous)
             record.annotations.append(
                 HumanAnnotation(
-                    **tagger.read().model_dump(),
+                    **annotation.model_dump(),
                     created_at=datetime.now(UTC),
                     author=getpass.getuser(),
                     target=primary.id,
@@ -363,7 +375,7 @@ class ListScreen(Screen[None]):
         table = self.query_one("#records", DataTable)
         row_key = str(table.cursor_row)
         for key, value in zip(
-            ("State", "Level", "Roles", "Seniority"), self.status_cells(record)
+            ("State", "PEP", "Level", "Roles", "Seniority"), self.status_cells(record)
         ):
             table.update_cell(row_key, key, value)
         self.query_one("#record", Static).update(render_record(record))
