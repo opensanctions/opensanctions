@@ -24,6 +24,16 @@ git worktree add <scratchpad>/review-<n> review-<n>
 If given a dataset path, diff its directory against `origin/main`, including uncommitted
 changes.
 
+Crawl and export the dataset. From a worktree, point zavod at the worktree's metadata
+and keep the output out of the user's `data/`:
+
+```bash
+ZAVOD_META_RESOURCE_PATH=<worktree>/meta OPENSANCTIONS_DATA_PATH=<scratchpad>/data \
+  zavod crawl <worktree>/datasets/.../<name>.yml
+ZAVOD_META_RESOURCE_PATH=<worktree>/meta OPENSANCTIONS_DATA_PATH=<scratchpad>/data \
+  zavod export <worktree>/datasets/.../<name>.yml
+```
+
 ## 2. Run the merge checklist
 
 See [the merge checklist](../../../zavod/docs/best_practices/merge_checklist.md). Go
