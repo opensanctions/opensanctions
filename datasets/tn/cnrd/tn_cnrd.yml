@@ -9,10 +9,10 @@ summary: Upper chamber indirectly elected from Tunisia's regional and district c
 description: |
   Current members of the National Council of Regions and Districts (المجلس الوطني للجهات
   والأقاليم), the upper chamber of Tunisia's bicameral parliament under the
-  2022 constitution. Its 77 members are elected indirectly for a five-year term: three by
-  each of the 24 regional councils from among their members, and one by each of the five
-  district councils. Alongside the Assembly of the Representatives of the
-  People, it must approve the state budget and regional and national development plans.
+  2022 constitution. Its members are elected indirectly for a five-year term by the
+  regional councils from among their own members and by the district councils.
+  Alongside the Assembly of the Representatives of the People, it must approve the
+  state budget and regional and national development plans.
 url: https://www.cnrd.tn/
 publisher:
   name: المجلس الوطني للجهات والأقاليم
@@ -42,7 +42,7 @@ assertions:
       tn: 70
   max:
     schema_entities:
-      Person: 85
+      Person: 120
       Position: 1
 
 lookups:

@@ -46,7 +46,8 @@ def crawl_row(
     # Only about half the members have a profile page ("بطاقة نائب"), the sole
     # place the term is stated. The rest stay undated.
     term: tuple[str, str] | None = None
-    for profile_url in h.xpath_strings(name_cell, "./a/@href"):
+    if len(h.xpath_elements(name_cell, "./a")) > 0:
+        profile_url = h.xpath_string(name_cell, "./a/@href")
         person.add("sourceUrl", profile_url)
         term = fetch_term(context, profile_url)
     # Council candidates must be Tunisian voters holding no other nationality
