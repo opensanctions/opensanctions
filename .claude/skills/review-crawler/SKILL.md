@@ -30,6 +30,8 @@ and keep the output out of the user's `data/`:
 ```bash
 ZAVOD_META_RESOURCE_PATH=<worktree>/meta OPENSANCTIONS_DATA_PATH=<scratchpad>/data \
   zavod crawl <worktree>/datasets/.../<name>.yml
+ZAVOD_META_RESOURCE_PATH=<worktree>/meta OPENSANCTIONS_DATA_PATH=<scratchpad>/data \
+  zavod export <worktree>/datasets/.../<name>.yml
 ```
 
 ## 2. Run the merge checklist
