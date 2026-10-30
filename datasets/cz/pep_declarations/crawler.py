@@ -58,8 +58,7 @@ def crawl_person(context: Context, item: dict[str, Any]) -> None:
     )
     entity.add("title", item.pop("titleBefore", None))
     entity.add("nameSuffix", item.pop("titleAfter", None))
-    requires_citizenship = False
-    occupancies = []
+    entity.add("citizenship", "cz")
     for wp in item.pop("workingPositions", []):
         wp_data = wp.pop("workingPosition")
         # is_deputy and is_senator are position-level flags
@@ -88,19 +87,6 @@ def crawl_person(context: Context, item: dict[str, Any]) -> None:
         entity.add("position", position_name)
 
         categorisation = categorise(context, position, default_is_pep=is_pep)
-        # Constitution (Act 1/1993 Coll.) Art. 19: only a "občan České
-        # republiky" with the right to vote can be elected to the Chamber of
-        # Deputies (aged 21+, para. 1) or the Senate (aged 40+, para. 2).
-        if is_deputy or is_senator:
-            requires_citizenship = True
-        else:
-            res = context.lookup(
-                "role_country_prop",
-                role_name,
-                warn_unmatched=categorisation.is_pep is True,
-            )
-            if res is not None and res.value == "citizenship":
-                requires_citizenship = True
         if not categorisation.is_pep:
             continue
 
@@ -115,19 +101,11 @@ def crawl_person(context: Context, item: dict[str, Any]) -> None:
             categorisation=categorisation,
         )
         if occupancy is not None:
+            context.emit(
+                entity,
+                origin=f"https://cro.justice.cz/verejnost/api/funkcionari/{person_id}",
+            )
             context.emit(position)
-            occupancies.append(occupancy)
-
-    if occupancies:
-        if requires_citizenship:
-            entity.add("citizenship", "cz")
-        else:
-            entity.add("country", "cz")
-        context.emit(
-            entity,
-            origin=f"https://cro.justice.cz/verejnost/api/funkcionari/{person_id}",
-        )
-        for occupancy in occupancies:
             context.emit(occupancy)
 
     context.audit_data(item, ignore=IGNORE)
