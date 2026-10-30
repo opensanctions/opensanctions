@@ -8,7 +8,7 @@ This prototype classifies positions from the position table and decides whether 
 position table ──load──> items ──classify──> annotations ──decide──> PEP decisions ──upload──> position table
 ```
 
-1. **Load** (`load.py`): reads positions from the position table and writes them to `data/all.jsonl`. It also writes a sample across datasets to `data/test.jsonl`. `--random` samples uniformly at random instead. `--dataset <name>` selects only from that dataset, and takes all of its positions unless you give `--sample`. `--output <name>` writes the subset to `data/<name>.jsonl`, and `--skip-all` leaves `data/all.jsonl` unchanged.
+1. **Load** (`load.py`): reads positions from the position table and writes them to `data/all.jsonl`. It also writes a sample across datasets to `data/test.jsonl`. `--random` samples uniformly at random instead. `--dataset <name>` selects only from that dataset, and takes all of its positions unless you give `--sample`. `--modified-by <user>` loads only positions that this user modified last, and `--unreviewed` only positions that no user has modified. `--output <name>` writes the subset to `data/<name>.jsonl`, and `--skip-all` leaves `data/all.jsonl` unchanged.
 2. **Classify** (`annotate.py annotate`): gives each position a level, roles and seniority, as defined in `codebook.md`.
     - a) An annotator model classifies the position. It can search the web.
     - b) A reviewer model checks the classification and can veto it.

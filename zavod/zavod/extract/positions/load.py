@@ -32,6 +32,7 @@ position_table = Table(
     Column("dataset", Unicode),
     Column("created_at", DateTime),
     Column("last_seen", DateTime),
+    Column("modified_by", Unicode),
     Column("deleted_at", DateTime),
 )
 
@@ -72,8 +73,38 @@ def sample_across_datasets(
 
 @click.command()
 @click.option(
-    "--sample", default=50, show_default=True, help="Size of the test subset."
+    "--sample",
+    type=int,
+    help="Size of the test subset. Defaults to 50, or to all items with --dataset.",
 )
+@click.option(
+    "--random",
+    "uniform",
+    is_flag=True,
+    help="Sample uniformly at random instead of evenly across datasets.",
+)
+@click.option(
+    "--dataset",
+    "datasets",
+    multiple=True,
+    help="Select the test subset from this dataset only. Repeatable.",
+)
+@click.option(
+    "--modified-by",
+    help="Only load positions last modified by this user, e.g. friedrich@opensanctions.org.",
+)
+@click.option(
+    "--unreviewed",
+    is_flag=True,
+    help="Only load positions that no user has modified.",
+)
+@click.option(
+    "--output",
+    default="test",
+    show_default=True,
+    help="Name of the test subset file in data/, without .jsonl.",
+)
+@click.option("--skip-all", is_flag=True, help="Do not write data/all.jsonl.")
 @click.option("--seed", default=0, show_default=True, help="Seed for the test subset.")
 @click.option(
     "--since",
@@ -82,8 +113,18 @@ def sample_across_datasets(
     show_default=True,
     help="Only load positions first seen after this date.",
 )
-def main(sample: int, seed: int, since: datetime) -> None:
-    """Load all non-Wikidata position items with a last_seen date into data/all.jsonl and sample data/test.jsonl."""
+def main(
+    sample: int | None,
+    uniform: bool,
+    datasets: tuple[str, ...],
+    modified_by: str | None,
+    unreviewed: bool,
+    output: str,
+    skip_all: bool,
+    seed: int,
+    since: datetime,
+) -> None:
+    """Load all non-Wikidata position items with a last_seen date into data/all.jsonl and select a test subset from them."""
     table = position_table
     query = select(
         table.c.id,
@@ -97,6 +138,12 @@ def main(sample: int, seed: int, since: datetime) -> None:
         table.c.last_seen.is_not(None),
         ~table.c.dataset.like("wd\\_%", escape="\\"),
     )
+    if modified_by is not None and unreviewed:
+        raise click.UsageError("--modified-by and --unreviewed are mutually exclusive.")
+    if modified_by is not None:
+        query = query.where(table.c.modified_by == modified_by)
+    if unreviewed:
+        query = query.where(table.c.modified_by.is_(None))
     items: list[Item] = []
     engine = create_engine(get_database_uri())
     with console.status("Reading positions"), engine.connect() as conn:
@@ -113,15 +160,27 @@ def main(sample: int, seed: int, since: datetime) -> None:
 
     # Sort by ID so the files, and the seeded sample, are stable across runs.
     all_items = sorted(items, key=lambda item: item.id)
-    if sample > len(all_items):
-        raise click.UsageError(f"Sample {sample} exceeds {len(all_items)} items.")
-    test_items = sample_across_datasets(all_items, sample, random.Random(seed))
+    pool = all_items
+    if datasets:
+        pool = [item for item in all_items if item.dataset in datasets]
+        missing = sorted(set(datasets) - {item.dataset for item in pool})
+        if missing:
+            raise click.UsageError(f"No items for dataset(s): {', '.join(missing)}")
+    if sample is None:
+        sample = len(pool) if datasets else 50
+    if sample > len(pool):
+        raise click.UsageError(f"Sample {sample} exceeds {len(pool)} items.")
+    rng = random.Random(seed)
+    if uniform:
+        test_items = rng.sample(pool, sample)
+    else:
+        test_items = sample_across_datasets(pool, sample, rng)
 
-    write_jsonl(DATA_DIR / "all.jsonl", all_items)
-    write_jsonl(DATA_DIR / "test.jsonl", test_items)
-    console.print(
-        f"Wrote {len(all_items)} items to all.jsonl and {sample} to test.jsonl."
-    )
+    if not skip_all:
+        write_jsonl(DATA_DIR / "all.jsonl", all_items)
+        console.print(f"Wrote {len(all_items)} items to all.jsonl.")
+    write_jsonl(DATA_DIR / f"{output}.jsonl", test_items)
+    console.print(f"Wrote {len(test_items)} items to {output}.jsonl.")
 
 
 if __name__ == "__main__":
