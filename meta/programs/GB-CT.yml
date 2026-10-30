@@ -13,8 +13,6 @@ dataset: gb_fcdo_sanctions
 aliases:
   - SI 2019/577
   - The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019
-target_territories:
-  - gb
 measures:
   - Asset freeze
   - Travel ban

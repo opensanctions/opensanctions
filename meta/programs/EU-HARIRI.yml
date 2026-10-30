@@ -16,8 +16,6 @@ aliases:
   - Regulation (EC) No 305/2006
   - Common Position 2005/888/CFSP
   - UNSCR 1636
-target_territories:
-  - lb
 measures:
   - Asset freeze
   - Travel ban

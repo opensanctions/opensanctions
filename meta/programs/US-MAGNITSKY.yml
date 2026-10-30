@@ -17,6 +17,8 @@ aliases:
   - Sergei Magnitsky Rule of Law Accountability Act of 2012
   - Russia and Moldova Jackson–Vanik Repeal and Sergei Magnitsky Rule of Law
     Accountability Act of 2012
+target_territories:
+  - ru
 measures:
   - Asset freeze
   - Travel ban

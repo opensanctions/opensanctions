@@ -19,3 +19,5 @@ summary: 'The [Human Rights Council (HRC)](https://www.ohchr.org/en/hr-bodies/hr
   Jerusalem (A/HRC/22/63).'
 issuer: un_ohchr
 dataset: ps_ohchr_settlement
+target_territories:
+  - il

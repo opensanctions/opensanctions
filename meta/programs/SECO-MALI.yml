@@ -2,9 +2,9 @@ id: 136
 title: Former Measures Against The Republic Of Mali
 key: SECO-MALI
 url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen_mali.html
-summary: These sanctions target individuals and entities involved in the conflict
+summary: These sanctions targeted individuals and entities involved in the conflict
   and destabilizing activities in Mali, including terrorism and human rights abuses.
-  The measures include asset freezes and prohibitions on transactions to support peace,
+  The measures included asset freezes and prohibitions on transactions to support peace,
   security, and governance in Mali.
 issuer: ch_seco
 dataset: ch_seco_sanctions
@@ -13,3 +13,4 @@ target_territories:
 measures:
 - Financial restrictions
 - Travel ban
+status: ended
