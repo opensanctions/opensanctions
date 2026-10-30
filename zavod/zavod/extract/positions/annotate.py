@@ -51,8 +51,6 @@ describe where the label was published. Use them as context for the title. A
 dataset note, if given, states facts about all positions in the dataset: treat it as
 evidence.
 
-Assume all enterprises encountered in our datasets meet the SOE criteria.
-
 Return 'undecided' for each dimension where no decision can be made.
 Do not guess.
 
@@ -72,8 +70,6 @@ that states it verbatim. Do not present inferences as facts.
 
 REVIEWER_PROMPT = f"""An annotator classified a position label by government level, role
 and seniority, using the codebook below. Re-check the annotation against the label.
-
-Assume all enterprises encountered in our datasets meet the SOE criteria.
 
 Veto — escalating the label to a human — only if the annotation itself is unsafe: it
 contradicts a codebook rule, it ignores information in the label or its context, or it
