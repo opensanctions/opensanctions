@@ -141,7 +141,13 @@ def parse_common(context: Context, entity: Entity, node: Element) -> Entity:
     for last_day_updated in values(node.find("./LAST_DAY_UPDATED")):
         h.apply_date(sanction, "modifiedAt", last_day_updated)
         h.apply_date(entity, "modifiedAt", last_day_updated)
-    sanction.add("unscId", node.findtext("./REFERENCE_NUMBER"))
+    # The UN only dates amendments, so an entry without one is unchanged since listing.
+    if not sanction.has("modifiedAt"):
+        for stmt in sanction.get_statements("listingDate"):
+            sanction.adopt_statement(stmt, prop="modifiedAt")
+    reference = node.findtext("./REFERENCE_NUMBER")
+    sanction.add("unscId", reference)
+    sanction.add("authorityId", reference)
     return sanction
 
 

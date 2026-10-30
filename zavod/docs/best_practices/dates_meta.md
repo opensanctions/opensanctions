@@ -3,7 +3,7 @@
 `zavod` provides helpers for date parsing that can handle multiple date formats and re-write
 international date strings into ones that Python can parse.
 
-Consider using [`h.apply_date`][zavod.helpers.dates.apply_date] (and [`h.apply_dates`][zavod.helpers.dates.apply_dates] for lists) when parsing dates. This will:
+Use [`h.apply_date`][zavod.helpers.dates.apply_date] (and [`h.apply_dates`][zavod.helpers.dates.apply_dates] for lists) when possible. This will:
 
 a) Use the dataset-level date parsing instructions (see below)
 b) Cause warnings to be emitted for all invalid dates

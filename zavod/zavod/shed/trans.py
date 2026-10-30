@@ -10,14 +10,14 @@ from zavod.extract.llm import run_text_prompt
 from zavod.util import LangText
 from zavod import helpers as h
 
-POSITION_TRANSLATION_MODEL = "gpt-6.1-sol"
+POSITION_TRANSLATION_MODEL = "openai:gpt-6.1-sol"
 """LLM model used to translate position names."""
-NAME_TRANSLIT_MODEL = "gpt-6.1-sol"
+NAME_TRANSLIT_MODEL = "openai:gpt-6.1-sol"
 """LLM model used to transliterate names, except from Chinese."""
 # gpt-6-luna is faster and cheaper than gpt-6.1-sol, and both give the same
 # Chinese transliterations. For other scripts, gpt-6.1-sol is more accurate
 # and does not translate names instead of transliterating them.
-CHINESE_NAME_TRANSLIT_MODEL = "gpt-6-luna"
+CHINESE_NAME_TRANSLIT_MODEL = "openai:gpt-6-luna"
 """LLM model used to transliterate names from Chinese."""
 
 

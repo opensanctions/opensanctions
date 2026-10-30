@@ -7,6 +7,7 @@ from zavod import Context
 from zavod.shed.il_mod import (
     API_URL,
     Item,
+    LanguageVariants,
     apply_operative_details,
     drop_fallbacks,
     fetch_content,
@@ -54,13 +55,37 @@ def test_fetch_variants(vcontext: Context) -> None:
     with requests_mock.Mocker() as m:
         m.get(API_URL, json=respond)
         variants = fetch_variants(vcontext, "operative")
-    names = [item["properties"]["fullName"] for item in variants["a"]]
+    names = [
+        None if item is None else item["properties"]["fullName"]
+        for item in variants["a"]
+    ]
     assert names == ["name-en", "name-he", "name-ar"]
 
 
+def test_fetch_variants_missing(vcontext: Context) -> None:
+    def respond(request: Any, context: Any) -> dict[str, Any]:
+        lang = request.headers["Accept-Language"]
+        if lang == "ar":
+            return {"total": 0, "items": []}
+        return {"total": 1, "items": [make_item("a", fullName=f"name-{lang}")]}
+
+    with requests_mock.Mocker() as m:
+        m.get(API_URL, json=respond)
+        variants = fetch_variants(vcontext, "operative")
+    item_en, item_he, item_ar = variants["a"]
+    assert item_en["properties"]["fullName"] == "name-en"
+    assert item_he["properties"]["fullName"] == "name-he"
+    assert item_ar is None
+    assert drop_fallbacks(variants["a"], "fullName") == ("name-en", "name-he", None)
+
+
 def test_drop_fallbacks() -> None:
-    def variants(en: str, he: str, ar: str) -> list[Item]:
-        return [make_item("a", fullName=name) for name in (en, he, ar)]
+    def variants(en: str, he: str, ar: str) -> LanguageVariants:
+        return (
+            make_item("a", fullName=en),
+            make_item("a", fullName=he),
+            make_item("a", fullName=ar),
+        )
 
     assert drop_fallbacks(variants("Ali", "עלי", "علي"), "fullName") == (
         "Ali",
@@ -103,7 +128,8 @@ def test_is_not_placeholder(value: str) -> None:
 
 
 def test_drop_fallbacks_keeps_placeholders() -> None:
-    variants = [make_item("a", fullName="Unknown_Name_User") for _ in range(3)]
+    item = make_item("a", fullName="Unknown_Name_User")
+    variants = (item, item, item)
     assert drop_fallbacks(variants, "fullName") == ("Unknown_Name_User", None, None)
 
 

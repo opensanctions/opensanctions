@@ -14,7 +14,7 @@ from zavod.util import Element
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 
-LLM_MODEL = "gpt-6.1-sol"
+LLM_MODEL = "openai:gpt-6.1-sol"
 
 schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."

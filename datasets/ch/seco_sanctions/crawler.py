@@ -26,11 +26,15 @@ from zavod.stateful.review import (
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.constants import ORIGIN_INFERRED
 
 # TODO: sanctions-program full parse
 MayStr = str | None
 
 SKIP_OLD = {"41406"}
+# SECO doesn't date modifications older than the go-live of its sanctions list
+# application, so pre-launch listings carry no dates at all.
+SECO_LAUNCH_DATE = "2012-11-27"
 NAME_QUALITY_WEAK: dict[MayStr, bool] = {"good": False, "low": True}
 NAME_TYPE: dict[MayStr, str] = {
     "primary-name": "name",
@@ -109,7 +113,7 @@ class OtherInfo(BaseModel):
 # gpt-4o-mini was filling in Unknown for props not in the data.
 # gpt-5 is very slow as at 2026-01-05.
 # gpt-5-mini is a bit slow but it seems to hallucinate less than gpt-4o or gpt-4o-mini.
-LLM_VERSION = "gpt-5-mini"
+LLM_VERSION = "openai:gpt-5-mini"
 PROMPT = """
 The attached text is the XML of an international
 financial sanctions entry about an entity type of {schema}.
@@ -553,12 +557,26 @@ def parse_entry(
         if mod_type == "de-listed":
             sanction.add("endDate", effective_date)
             continue
-        sanction.add("listingDate", mod.get("publication-date"))
-        sanction.add("startDate", effective_date)
+        if mod_type != "listed":
+            continue
+        publication_date = mod.get("publication-date")
+        if (
+            mod.get("enactment-date") is None
+            and publication_date is None
+            and effective_date is None
+        ):
+            sanction.add("listingDate", SECO_LAUNCH_DATE, origin=ORIGIN_INFERRED)
+            sanction.add("startDate", SECO_LAUNCH_DATE, origin=ORIGIN_INFERRED)
+        else:
+            sanction.add("listingDate", publication_date)
+            sanction.add("startDate", effective_date)
     dates_ = [d for d in dates if d is not None]
     if len(dates_):
         entity.add("createdAt", min(dates_))
         entity.add("modifiedAt", max(dates_))
+        sanction.add("modifiedAt", max(dates_))
+    if not sanction.has("modifiedAt"):
+        sanction.add("modifiedAt", sanction.get("listingDate"), origin=ORIGIN_INFERRED)
 
     if last_modification_type == "de-listed":
         return

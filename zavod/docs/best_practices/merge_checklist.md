@@ -7,15 +7,16 @@ Some things that are easy to forget but critical for new crawlers. Scope and per
         - `coverage`
             - `frequency` (normally `daily`, but `weekly` for gpt crawlers, and `monthly` for company registers)
             - `start` - set when the dataset is released, not at merge time. Once the dataset has passed QA and initial de-duplication, it can be [released](release.md).
-        - `load_statements`: `true` for normal crawlers, `false` for KYB data.
+        - `load_statements` - see [metadata](../metadata.md)
         - `assertions` - see [Data Assertions](../metadata.md#data-assertions)
     - dataset `name` is clear and conforms to convention. It's fine if it's just the yaml file name and not included in the file.
     - dataset `title` is concise and meaningful
+    - `summary` and `description` follow [Dataset metadata](../metadata.md)
     - dataset `prefix` is short yet meaningful
-    - `publisher` - see if there's another dataset with the same publisher that you can copy from. Description is important.
+    - `publisher` - see if there's another dataset with the same publisher that you can copy from.
         - country code is correct
         - description is often skipped, but it's important
-    - `ci_test` - default `true` should not be overridden to `false` unless the crawler requires some secret key or runs for more than 2 minutes.
+    - `ci_test` - see [Continuous Integration](../metadata.md#continuous-integration)
 - Crawler
     - It emits as many entities as are available at the source
     - When first added, it doesn't emit warnings or errors (except transient, e.g. network timeout/server error that can be expected to go away tomorrow)

@@ -41,6 +41,30 @@ data:
   format: JSON
   lang: eng
 
+http:
+  total_retries: 5
+  backoff_factor: 2
+
+config:
+  # Rajya Sabha mpCodes whose /api_rs/member/<endpoint> record is broken on
+  # the source side; those records are skipped instead of failing the run.
+  #
+  # Handling a "<endpoint> failed for mpCode N" crash:
+  #
+  # 1. Retry `curl -s "https://sansad.in/api_rs/member/<endpoint>?mpCode=N"` a
+  #    few times, and compare with a neighbouring mpCode. A failure for every
+  #    mpCode is an outage: don't list anything, let the next run retry.
+  # 2. If only N fails persistently (e.g. HTTP 500 while N-1 and N+1 return
+  #    200), add N under that endpoint below.
+  # 3. Periodically re-check listed codes and remove any that respond again.
+  broken_records:
+    term-years:
+      - 165
+    bio-data:
+      - 2103
+      - 2108
+      - 2110
+
 dates:
   formats: ["%d/%m/%Y", "%d-%m-%Y", "%d-%b-%Y", "%d-%B-%Y"]
 

@@ -1,7 +1,6 @@
 import re
 from rigour.mime.types import XLSX
-from openpyxl import load_workbook
-from openpyxl.worksheet.worksheet import Worksheet
+from python_calamine import CalamineSheet, CalamineWorkbook
 
 from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_resource
@@ -13,15 +12,14 @@ HEADER_FIRST_CELL = "First Name"
 MAX_PREAMBLE_ROWS = 10
 
 
-def count_preamble_rows(sheet: Worksheet) -> int:
+def count_preamble_rows(sheet: CalamineSheet) -> int:
     """Count the rows preceding the header row of the table.
 
     The source publishes a varying number of notes rows above the table, so the
     header is located by its first cell rather than assumed at a fixed offset.
     """
-    for index, row in enumerate(
-        sheet.iter_rows(max_row=MAX_PREAMBLE_ROWS, values_only=True)
-    ):
+    rows = sheet.to_python(skip_empty_area=False)
+    for index, row in enumerate(rows[:MAX_PREAMBLE_ROWS]):
         cell = row[0]
         if isinstance(cell, str) and cell.strip() == HEADER_FIRST_CELL:
             return index
@@ -96,18 +94,15 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
+    data_sheet_name, *other_sheet_names = workbook.sheet_names
 
-    sheet_names = wb.sheetnames
-
-    assert wb.active is not None
-    skiprows = count_preamble_rows(wb.active)
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=skiprows):
+    data_sheet = workbook.get_sheet_by_name(data_sheet_name)
+    skiprows = count_preamble_rows(data_sheet)
+    for item in h.parse_xlsx_sheet(context, data_sheet, skiprows=skiprows):
         crawl_item(item, context)
 
-    sheet_names.remove(wb.active.title)
-
-    for sheet_name in sheet_names:
-        sheet = wb[sheet_name]
-        if not (sheet.max_row == 1 and sheet.max_column == 1 and not sheet["A1"].value):
+    for sheet_name in other_sheet_names:
+        rows = workbook.get_sheet_by_name(sheet_name).to_python()
+        if any(cell != "" for row in rows for cell in row):
             context.log.warning(f"Sheet {sheet_name} is not empty")

@@ -1,0 +1,80 @@
+title: Madagascar Members of the National Assembly
+name: mg_assembly
+prefix: mg-an
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-19
+load_statements: true
+summary: >-
+  Lower house of Madagascar's bicameral Parliament (Assemblée nationale)
+description: |
+  Current and recently departed members of the National Assembly (Assemblée nationale),
+  the lower house of the bicameral Parliament of Madagascar. Its 163 deputies are
+  elected for a five-year term in single- and two-member districts and, together with
+  the Senate, hold the country's legislative power, including passing laws and
+  approving the budget.
+
+  Deputies who left mid-term, through resignation, death or appointment to another
+  office, are included with an ended occupancy.
+url: https://assemblee-nationale.mg/deputes/
+publisher:
+  name: Antenimierampirenena
+  name_en: National Assembly of Madagascar
+  description: >
+    The National Assembly is the lower house of the Parliament of Madagascar. It
+    publishes its membership through an open data portal under the Licence Ouverte
+    v2.0.
+  url: https://assemblee-nationale.mg/
+  country: mg
+  official: true
+data:
+  url: https://assemblee-nationale.mg/opendata/api/deputes/
+  format: JSON
+  lang: fra
+# The default python-requests user agent gets a 403.
+http:
+  user_agent: zavod (opensanctions.org)
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 150
+      Position: 1
+    country_entities:
+      mg: 150
+  max:
+    schema_entities:
+      Person: 200
+      Position: 1
+
+lookups:
+  political:
+    lowercase: true
+    options:
+      # Spelled Firaisankina, FIraisankina and FIRAISANKINA.
+      - match: Firaisankina
+        value: Firaisankina
+  type.gender:
+    options:
+      - match: Masculin
+        value: male
+      - match: Feminin
+        value: female
+  # No mandate dates or term id anywhere: this status is the only tenure signal,
+  # and an `ended` one never ages out. Re-check after the next election (the
+  # sitting deputies were elected on 2024-05-29).
+  occupancy_status:
+    required: true
+    options:
+      - match: ACTIVE
+        value: current
+      - match:
+          - RESIGNED
+          - DECEASED
+          # Appointed to another office, e.g. the High Constitutional Court.
+          - NOMINATED
+        value: ended

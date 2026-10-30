@@ -8,6 +8,6 @@ Documentation: https://zavod.opensanctions.org/
 ### Building the documentation
 
 ```bash
-$ pip install -e '.[docs][dev]'
+$ pip install -e '.[docs,dev]'
 $ mkdocs serve
 ```

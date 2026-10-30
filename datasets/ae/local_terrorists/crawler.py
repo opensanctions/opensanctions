@@ -1,9 +1,10 @@
-import xlrd
 import re
+from datetime import date, datetime, time
 
 from typing import NamedTuple
 from pathlib import Path
-from normality import collapse_spaces, squash_spaces
+from normality import collapse_spaces, squash_spaces, stringify
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLS
 
 from zavod import Context
@@ -119,39 +120,40 @@ def parse_row(
 
 
 def parse_excel(context: Context, path: Path) -> None:
-    # Pass formatting_info=True to get the merged cells
-    xls = xlrd.open_workbook(str(path), formatting_info=True)
-    for sheet in xls.sheets():
-        res = context.lookup("sanction_is_active", sheet.name)
+    workbook = CalamineWorkbook.from_path(path)
+    for sheet_name in workbook.sheet_names:
+        sheet = workbook.get_sheet_by_name(sheet_name)
+        res = context.lookup("sanction_is_active", sheet_name)
         if res is None:
-            context.log.warning("Unknown sheet", sheet=sheet.name)
+            context.log.warning("Unknown sheet", sheet=sheet_name)
             is_active = True
         else:
             is_active = res.is_active
 
-        # sheet.merged_cells is a list of tuples (rlo, rhi, clo, chi)
-        # of row/column indices that are merged together.
-        # cell (rlo, clo) (the top left one) will carry the data and
-        # formatting info; the remainder will be recorded as blank cells
-        # merged_cells_map is a map from any (r, c) in the merged cells
-        # to the top left cell
+        # Only the top-left cell of a merged range carries the value, so map
+        # every cell of the range to that cell.
         merged_cells_map = {
-            (r, c): (rlo, clo)
-            for (rlo, rhi, clo, chi) in sheet.merged_cells
-            for r in range(rlo, rhi)
-            for c in range(clo, chi)
+            (r, c): (start_row, start_col)
+            for (start_row, start_col), (end_row, end_col) in (
+                sheet.merged_cell_ranges or []
+            )
+            for r in range(start_row, end_row + 1)
+            for c in range(start_col, end_col + 1)
         }
+        rows = sheet.to_python(skip_empty_area=False)
         headers: list[HeaderSpec] | None = None
-        for r in range(1, sheet.nrows):
-            row = []
-            for c in range(sheet.ncols):
-                # Resolve the cell coordinates to the top left cell of the merged cell
-                # or the cell itself if it's not part of a merged cell
-                cell_coords = merged_cells_map.get((r, c)) or (r, c)
-                cell = sheet.cell(*cell_coords)
-                row.append(h.convert_excel_cell(xls, cell))
+        for r in range(1, len(rows)):
+            row: list[str | None] = []
+            for c in range(len(rows[r])):
+                cell_r, cell_c = merged_cells_map.get((r, c), (r, c))
+                value = rows[cell_r][cell_c]
+                # Date cells keep a zero time part, e.g. "2023-07-26T00:00:00",
+                # because whole rows feed into the entity IDs. Without it, the
+                # entities would get new IDs.
+                if type(value) is date:
+                    value = datetime.combine(value, time())
+                row.append(stringify(value))
 
-            # Skip empty rows (present because formatting_info=True)
             if row[0] is None:
                 continue
             # "#" is the header for the first (index) column

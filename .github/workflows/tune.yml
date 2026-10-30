@@ -40,4 +40,4 @@ jobs:
       - name: Run tune tests
         working-directory: contrib/tune
         run: |
-          uv run --locked pytest
+          uv run pytest

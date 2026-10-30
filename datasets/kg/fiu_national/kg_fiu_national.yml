@@ -5,12 +5,13 @@ coverage:
   frequency: daily
   start: 2021-01-31
 load_statements: true
+ci_test: false
 summary: >
   A simple list of sanctioned individuals and entities published by the
   Kyrgyz' State Financial Intelligence Service.
 description: |
   Published by the State Financial Intelligence Service (the Financial Intelligence
-  Unit - FIU) under the Cabinet of Ministers of Kyrgyzstan. The list is minimalistic 
+  Unit - FIU) under the Cabinet of Ministers of Kyrgyzstan. The list is minimalistic
   and has limited quality.
 publisher:
   name: караштуу Финансылык чалгындоо мамлекеттик кызматы
@@ -19,13 +20,11 @@ publisher:
   url: https://fiu.gov.kg/
   country: kg
   official: true
-url: https://fiu.gov.kg/sked/9
+url: https://fiu.gov.kg/sanctionLists
 data:
-  url: https://fiu.gov.kg/sked/9?language=ru
+  url: https://fiu.gov.kg/api/v1/public/sanction-lists/PERSON_PHYSIC/report?fileType=XML
   format: xml
   lang: rus
-dates:
-  formats: ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 tags:
   - list.sanction
 
@@ -37,15 +36,9 @@ assertions:
     schema_entities:
       Person: 1400
 lookups:
-  type.date:
+  type.identifier:
     options:
-      - match: "06.02.1974"
-        value: "1974-02-06"
-      - match: 17.01.2018, 29.05.2018
-        values:
-          - 2018-01-17
-          - 2018-05-29
-      - match: 27.12.1979, 26.12.1979
-        values:
-          - 1979-12-26
-          - 1979-12-27
+      - match: "-"
+        value: null
+      - match: "№ВНЖ: 99175525036"
+        value: "99175525036"

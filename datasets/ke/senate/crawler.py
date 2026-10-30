@@ -29,8 +29,7 @@ def crawl_senator(
     person = context.make("Person")
     person.id = context.make_slug("senator", slug)
     clean_name = h.strip_name_titles(context, raw_name)
-    original_name = raw_name if clean_name != raw_name else None
-    person.add("name", clean_name, lang="eng", original_value=original_name)
+    person.add("name", clean_name, lang="eng", original_value=raw_name)
     party = field(row, "views-field-field-party-senator")
     person.add("political", party)
     # Senators must be Kenyan citizens (Constitution art. 99); as State officers they

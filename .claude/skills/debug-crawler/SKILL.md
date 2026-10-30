@@ -93,11 +93,20 @@ above works over plain HTTPS.
 zavod crawl datasets/<path>/<dataset_name>.yml
 ```
 
-Check `data/datasets/<dataset_name>/issues.log` for remaining warnings. Then export
+Check the run's issues for remaining warnings. Then export
 and confirm the delta is plausible:
 
 ```bash
 zavod export datasets/<path>/<dataset_name>.yml
+```
+
+To see what changed against the last published run, diff the statements with
+[ftm-stmt](https://github.com/opensanctions/ftm-inspect):
+
+```bash
+uvx --from git+https://github.com/opensanctions/ftm-inspect.git ftm-stmt diff -o diff \
+    $(zavod archive url statements.pack --latest datasets/<path>/<dataset_name>.yml) \
+    "$(ls data/datasets/<dataset_name>/_artifacts/*/statements.pack | tail -1)"
 ```
 
 A healthy run shows:

@@ -113,13 +113,20 @@ def crawl(context: Context) -> None:
         else:
             context.log.warning("Uncategorised role", role=role)
 
+        municipality_name = municipalities[municipality_code].get(
+            "municipality.long_name"
+        )
+        position_name = f"{role} of {municipality_name}"
         position = h.make_position(
             context,
-            f"{role} of {municipalities[municipality_code].get('municipality.long_name')}",
+            position_name,
             country="za",
             topics=["gov.muni"],
-            subnational_area=municipality_code,
+            subnational_area=municipality_name,
         )
+        # make_position keys the ID on subnational_area; keep the demarcation code
+        # in the ID
+        position.id = context.make_id(position_name, "za", municipality_code)
 
         categorisation = categorise(context, position, default_is_pep=is_pep)
 

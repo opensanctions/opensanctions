@@ -25,6 +25,8 @@ following pagination, or applying an algorithm that should work for unseen value
 growing chain of literal comparisons or regexes added one warning at a time is a signal
 that the rule belongs in a lookup.
 
+Write the crawler without lookups first, run it, and add options for the values it warns about.
+
 
 ## Two ways lookups get invoked
 

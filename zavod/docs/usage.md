@@ -22,6 +22,9 @@ $ zavod publish datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 
 # Combine crawl, export and publish in one command:
 $ zavod run datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
+
+# Lint a crawler with the same ruff, mypy and pre-commit checks CI runs:
+$ contrib/lint_dataset.sh datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 ```
 
 When you are developing a crawler, it can be handy to rerun the crawler a number

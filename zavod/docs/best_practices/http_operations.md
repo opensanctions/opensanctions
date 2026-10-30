@@ -8,6 +8,19 @@ Use `context` methods for HTTP operations, as they handle common tasks such as c
 text = context.fetch_text(context.data_url, method="POST", headers=headers, data=body, cache_days=cache_days)
 ```
 
+## Credentials
+
+Read an API key, token or password issued to OpenSanctions from an environment variable named `OPENSANCTIONS_<NAME>`, and fail the crawl when it is unset. Such a crawler can't run in CI; see [`ci_test`](../metadata.md#continuous-integration).
+
+```python
+API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
+
+def crawl(context: Context) -> None:
+    assert API_KEY is not None, "No $OPENSANCTIONS_US_CONGRESS_API_KEY key set."
+```
+
+A token the site ships to every visitor's browser, such as an API key embedded in its JavaScript, is not a secret. Put it in the crawler, with a comment saying where it comes from.
+
 ## Handling bot blocking
 
 Many sites employ bot blocking strategies. We believe this is primarily to mitigate Denial of Service attacks and manage server load, rather than protecting the content from extraction, since the purpose of the sites we scrape is dissemination of their block lists. As long as we are sensitive to our impact on their service and identifiable in their requests, we believe it is ok to work around their bot blocking strategies.

@@ -226,13 +226,23 @@ def crawl(context: Context) -> None:
     next_link: str | None = (
         "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
     )
+    page_url = next_link
+    pages_fetched = 0
+    last_page = 0
     while next_link:
-        context.log.info("Fetching page", url=next_link)
-        doc = context.fetch_html(next_link, cache_days=1, absolute_links=True)
+        page_url = next_link
+        context.log.info("Fetching page", url=page_url)
+        # No HTTP cache: the listing is sorted newest-first with offset paging,
+        # so each new declaration shifts every row down. Mixing pages fetched on
+        # different days skips or duplicates rows at every page boundary.
+        doc = context.fetch_html(page_url, absolute_links=True)
+        pages_fetched += 1
         step_anchors = h.xpath_elements(doc, "//a[contains(@class, 'step')]")
-        context.log.info("Pages", pagenums=[h.element_text(a) for a in step_anchors])
-        if not step_anchors:
-            context.log.warning("No pagination found", url=next_link)
+        page_nums = [h.element_text(a) for a in step_anchors]
+        context.log.info("Pages", pagenums=page_nums)
+        for page_num in page_nums:
+            if page_num.isdigit():
+                last_page = max(last_page, int(page_num))
         next_anchors = h.xpath_elements(doc, "//a[contains(@class, 'nextLink')]")
         if next_anchors:
             href = next_anchors[0].get("href")
@@ -243,3 +253,9 @@ def crawl(context: Context) -> None:
 
         for html_row in h.parse_html_table(h.xpath_element(doc, ".//table")):
             crawl_table_row(context, seen, html_row)
+
+    if last_page == 0 or pages_fetched < last_page:
+        raise ValueError(
+            f"Pagination ended after {pages_fetched} of {last_page} pages, "
+            f"last page fetched: {page_url}"
+        )

@@ -483,3 +483,10 @@ lookups:
       # own nameservers (ns1.beget.com), while begetkz.com does not exist.
       - match: "beget kz.com"
         value: beget-kz.com
+      # VK (previously Mail.ru Group, VK Company Limited): two separate sites in
+      # one value - vk.com is the VKontakte social network, vk.company the
+      # corporate site. Both resolve.
+      - match: Vk.com Vk.company
+        values:
+          - vk.com
+          - vk.company

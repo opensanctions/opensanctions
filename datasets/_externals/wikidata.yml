@@ -115,6 +115,10 @@ lookups:
         value: "ピーター・クック"
       - match: "シャリーフ<!-- リダイレクト先の「[ ]」は、[ ] とリンク -->"
         value: "シャリーフ"
+      # Malak (Q3843768): the ja alias carries a MediaWiki editor comment
+      # ("<!-- [[:en:Marraco]] とリンク -->"); the ja label is plain マラク.
+      - match: "マラク<!-- [ ] とリンク -->"
+        value: "マラク"
       - match: "Meng Xuenong<br />孟学农"
         values:
           - Meng Xuenong

@@ -12,179 +12,49 @@ and/or a GitHub issue URL: $ARGUMENTS
 If given a GitHub issue URL, fetch it first to extract the data source URL and any
 context about the dataset before proceeding.
 
-**Before writing any code, read these files — they contain everything you need:**
-1. `.claude/docs/crawler-guide.md` — shared crawler patterns (YAML template, fetching data, entity creation, helpers, lookups, FTM schemata, qsv analysis)
-2. `.claude/skills/crawler-sanctions/examples.md` — full sanctions code examples
+**Read upfront.** These are the rules; this skill is the procedure for applying them:
 
-**Do NOT search the repository for similar crawlers or patterns.** The guide and examples
-above are the authoritative reference. Do not read `datasets/CLAUDE.md` or other crawler
-source files for patterns — use only the files listed above.
+1. `zavod/docs/sanctions/index.md`
+2. `zavod/docs/sanctions/examples.md`
+3. `.claude/docs/crawler-guide.md`
+
+**Do NOT search the repository for similar crawlers or patterns.** Ground the crawler in
+these files, not in other crawlers.
 
 ## Step 1: Understand the source
 
-Before writing any code, inspect the data source. In addition to the general checks
-(fields, date formats, language, record count), sanctions sources need:
+Do the recon in `zavod/docs/best_practices/source_recon.md` before writing any code. For a
+sanctions source, also identify:
 
-- Identify entity types present: persons, organizations, vessels, aircraft
-- Identify how sanctions programs are labeled in the source
-- Check if the source provides unique opaque IDs per entry (for slug-based IDs)
-- Check if relationships between entities are encoded (ownership, family, associates)
-- Identify the data structure: flat list vs nested XML vs paginated API
+- the entity types present: persons, organizations, vessels, aircraft
+- how sanctions programs are labeled in the source
+- whether the source provides unique opaque IDs per entry
+- whether relationships between entities are encoded (ownership, family, associates)
 
-## Step 2: YAML metadata — sanctions-specific parts
+## Step 2: Write the YAML and crawler
 
-Use the generic YAML template from the crawler guide. Sanctions-specific additions:
+Follow the pages above and `zavod/docs/metadata.md`.
 
-```yaml
-tags:
-  - list.sanction
-  - issuer.west          # optional
+## Step 3: Validate
 
-assertions:
-  min:
-    schema_entities:
-      Person: 1000       # band widths: see "Data assertions" in zavod/docs/metadata.md
-      Organization: 200
-      Sanction: 1000
-    country_entities:
-      cc: 100
-  max:
-    schema_entities:
-      Person: 5000
-      Organization: 1000
-```
-
-- `coverage.frequency: daily` (house default for sanctions — see `zavod/docs/metadata.md`). Don't add a cron `schedule:` unless the run must follow the source's own publication time.
-- Assert Sanction entity counts alongside Person/Organization counts.
-
-### Sanctions-specific lookups
-
-The most important sanctions lookup maps source program names to OpenSanctions keys:
-
-```yaml
-lookups:
-  # Entity type dispatch (when source uses custom type labels)
-  type.entity:
-    lowercase: true
-    options:
-      - match: [individual, person]
-        value: Person
-      - match: [entity, company, organization]
-        value: Organization
-      - match: [vessel, ship]
-        value: Vessel
-
-  # Map source program names to OpenSanctions program keys
-  sanction.program:
-    options:
-      - match: "Executive Order 13224"
-        value: US-EO13224
-
-  # Date edge cases common in sanctions data
-  type.date:
-    options:
-      - match: "1972-08-10 or 1972-08-11"
-        values: ["1972-08-10", "1972-08-11"]
-      - match: "1975-19-25"       # typo
-        value: "1975"
-```
-
-`type.*` lookups are applied automatically by `entity.add()`. The `sanction.program`
-lookup must be called explicitly via `h.lookup_sanction_program_key()`.
-
-## Step 3: Write the crawler module
-
-### Sanction entity creation
-
-Full reference: `zavod/docs/programs.md`
-
-`h.make_sanction()` automatically sets `country`, `authority`, and `sourceUrl` from
-dataset metadata. The key parameters:
-
-```python
-sanction = h.make_sanction(
-    context,
-    entity,                                    # the sanctioned entity (required)
-    key=entry_id,                              # disambiguator when entity has multiple sanctions
-    program_name=program,                      # human-readable program name
-    source_program_key=program,                # raw value from source (preserved as original_value)
-    program_key=h.lookup_sanction_program_key(  # OpenSanctions program key from yaml lookup
-        context, program
-    ),
-    start_date=listing_date,                   # optional: when sanction began
-    end_date=end_date,                         # optional: when sanction ended
-)
-```
-
-- **`key`**: Use when an entity appears on multiple sanctions lists/programs. The sanction
-  ID is `make_id("Sanction", entity.id, key)`, so `key` disambiguates multiple sanctions
-  per entity.
-- **`program_key`**: Always go through `h.lookup_sanction_program_key()` which reads the
-  `sanction.program` yaml lookup. Add entries to the lookup as you encounter new program
-  names.
-- **`source_program_key`**: The raw program string from the source, preserved as
-  `original_value` on the programId property for auditability.
-- **Always** also set `entity.add("topics", "sanction")` on the sanctioned entity.
-
-For simple datasets with a single known program, you can skip the lookup:
-
-```python
-sanction = h.make_sanction(context, entity, program_key="US-DOS-CU-PAL")
-```
-
-#### Checking if a sanction is active
-
-```python
-if h.is_active(sanction):
-    entity.add("topics", "sanction")
-# Only mark as sanctioned if the sanction is currently active
-```
-
-### Name handling in sanctions crawlers
-
-Full reference: `zavod/docs/extract/names.md`
-
-Sanctioned names are legal designations — **do not use LLM-based name cleaning**.
-Any normalisation must be human-reviewed via the stateful review system, or handled
-with explicit lookup entries.
-
-### Relationships between sanctioned entities
-
-See the crawler guide for the generic Family and Ownership patterns.
-See [examples.md](examples.md) for UnknownLink (sanctions-specific untyped relationships).
-
-### De-listing and modification tracking
-
-When the source tracks modifications and de-listings, use `sanction.add("endDate", ...)`
-for de-listings and `sanction.add("modifiedAt", ...)` for amendments. See
-[examples.md](examples.md) for the full pattern.
-
-### LLM extraction from free-text fields
-
-Full reference: `zavod/docs/data_reviews.md`
-
-For sources with unstructured "remarks" fields, use GPT extraction with the stateful
-review system. Requires `ci_test: false`. See [examples.md](examples.md) for the pattern.
-
-## Step 4: Sanctions-specific validation checks
-
-After running `zavod crawl`, use these sanctions-specific qsv checks (see the crawler
-guide for general qsv patterns):
+After running `zavod crawl`, run these checks:
 
 ```bash
+P=$(ls data/datasets/cc_dataset/_artifacts/*/statements.pack | tail -1)
+
 # Entity counts by schema
-qsv search -s prop "^Person:id$" data/datasets/cc_dataset/statements.pack | qsv count
-qsv search -s prop "^Organization:id$" data/datasets/cc_dataset/statements.pack | qsv count
-qsv search -s prop "^Sanction:id$" data/datasets/cc_dataset/statements.pack | qsv count
+qsv search -s prop "^Person:id$" "$P" | qsv count
+qsv search -s prop "^Organization:id$" "$P" | qsv count
+qsv search -s prop "^Sanction:id$" "$P" | qsv count
 
 # Sanction program distribution
-qsv search -s prop "^Sanction:program$" data/datasets/cc_dataset/statements.pack | qsv frequency -s value
+qsv search -s prop "^Sanction:program$" "$P" | qsv frequency -s value
 
 # Every Sanction:entity must point to a real entity
-qsv search -s prop "^Sanction:entity$" data/datasets/cc_dataset/statements.pack | qsv select value | qsv behead | sort > /tmp/sanction_targets.txt && qsv search -s prop ":id$" data/datasets/cc_dataset/statements.pack | qsv select entity_id | qsv behead | sort -u > /tmp/all_entities.txt && comm -23 /tmp/sanction_targets.txt /tmp/all_entities.txt
+qsv search -s prop "^Sanction:entity$" "$P" | qsv select value | qsv behead | sort -u > /tmp/sanction_targets.txt && qsv search -s prop ":id$" "$P" | qsv select entity_id | qsv behead | sort -u > /tmp/all_entities.txt && comm -23 /tmp/sanction_targets.txt /tmp/all_entities.txt
 
-# Check all entities have topics=sanction
-qsv search -s prop ":id$" data/datasets/cc_dataset/statements.pack | qsv select entity_id | qsv behead | sort -u > /tmp/all_ids.txt && qsv search -s prop ":topics$" data/datasets/cc_dataset/statements.pack | qsv search -s value "^sanction$" | qsv select entity_id | qsv behead | sort -u > /tmp/sanctioned.txt && comm -23 /tmp/all_ids.txt /tmp/sanctioned.txt
+# Designated entities without topics=sanction (expect only expired designations)
+qsv search -s prop ":topics$" "$P" | qsv search -s value "^sanction$" | qsv select entity_id | qsv behead | sort -u > /tmp/sanctioned.txt && comm -23 /tmp/sanction_targets.txt /tmp/sanctioned.txt
 ```
 
 Then run `zavod export datasets/cc/dataset/cc_dataset.yml`, which checks the dataset

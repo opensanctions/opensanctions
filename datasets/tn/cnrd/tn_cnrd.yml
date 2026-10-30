@@ -1,0 +1,57 @@
+title: Tunisia Members of the National Council of Regions and Districts
+entry_point: crawler.py
+prefix: tn-cnrd
+coverage:
+  frequency: monthly
+load_statements: true
+ci_test: false  # LLM translation
+summary: Upper chamber indirectly elected from Tunisia's regional and district councils
+description: |
+  Current members of the National Council of Regions and Districts (المجلس الوطني للجهات
+  والأقاليم), the upper chamber of Tunisia's bicameral parliament under the
+  2022 constitution. Its members are elected indirectly for a five-year term by the
+  regional councils from among their own members and by the district councils.
+  Alongside the Assembly of the Representatives of the People, it must approve the
+  state budget and regional and national development plans.
+url: https://www.cnrd.tn/
+publisher:
+  name: المجلس الوطني للجهات والأقاليم
+  name_en: National Council of Regions and Districts
+  acronym: CNRD
+  description: >
+    The National Council of Regions and Districts is the upper chamber of the Tunisian
+    parliament, made up of representatives of the country's regional and district
+    councils.
+  url: https://www.cnrd.tn/
+  country: tn
+  official: true
+data:
+  url: https://www.cnrd.tn/?page_id=8051
+  format: HTML
+  lang: ara
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 70
+      Position: 1
+    country_entities:
+      tn: 70
+  max:
+    schema_entities:
+      Person: 120
+      Position: 1
+
+lookups:
+  # Table headers -> English keys.
+  columns:
+    options:
+      - match: الاسم واللقب
+        value: name
+      - match: الولاية
+        value: governorate
+      - match: الإقليم
+        value: district

@@ -18,7 +18,7 @@ from zavod.stateful.review import (
 
 BASE_URL = "https://www.nfa.futures.org"
 
-LLM_MODEL_VERSION = "gpt-5.4"
+LLM_MODEL_VERSION = "openai:gpt-5.4"
 EXTRACT_PROMPT = """
 Extract name by removing any parenthetical clauses and the
 'et al' clause. For example:

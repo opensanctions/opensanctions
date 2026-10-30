@@ -405,12 +405,8 @@ lookups:
   type.date:
     options:
       - match:
-          - 10月10
-          - 10月22
           - "59"
           - "31"
-          - 6月14
-          - 7月10
           - "1402-06-24"
           # "From the forged passport"
           - 偽造旅券より
@@ -419,67 +415,17 @@ lookups:
           - ヒジュラ暦
           - "の間"
           - "から"
-          - "4月13"
-          - "10月17"
-          - "10月19"
-          - "10月3"
-          - "11月14"
-          - "11月24"
-          - "11月26"
-          - "11月29"
-          - "12月10"
-          - "12月14"
-          # Second item of "2020年７月16日（2023年10月30日、12月19日及び2026年10月15日に
-          # 改訂）" (QDi.427, 告示番号 786) - the Japanese enumeration lets 12月19日
-          # inherit the 2023 of the preceding item, but that year sits in a part of
-          # the cell the split discards.
-          - "12月19"
-          - "12月2"
-          - "12月20"
-          - "12月21"
-          - "12月23"
-          - "12月29"
-          - "12月30"
-          - "12月31"
-          - "3月15"
-          - "3月18"
-          - "4月20"
-          - "4月28"
-          - "5月1"
-          - "5月18"
-          - "5月29"
-          - "5月31"
-          - "6月2"
-          - "6月3"
-          - "7月18"
-          - "7月21"
-          - "7月23"
-          - "7月25"
-          - "7月27"
-          - "7月30"
-          - "7月31"
-          - "8月13"
-          - "8月14"
-          - "8月18"
-          - "8月27"
-          - "9月1"
-          - "9月21"
-          - "9月27"
-          # Second half of "2026年８月14日及び９月４日に改訂" - the year only
-          # exists in the earlier part of the cell, which the split discards.
-          - "9月4"
           - yearunknown
-          - 9月28
-          - 3月13
           - おおむね30~35歳
-          - 7月17
-          - 3月25
-          - 6月10
+          - 訂
           - 、11月15
           - 、5月1
           - 、3月24
-          - 訂
           - "_x000D_"
+        value: null
+      # Month and day without a year, e.g. the "12月19" in "2020年７月16日（2023年10月30日、
+      # 12月19日及び2026年10月15日に改訂）": the year only appears in an earlier part of the cell.
+      - regex: '^\d{1,2}月\d{1,2}$'
         value: null
       - match: Born at Ravni, Republic of Serbia, on 1 June 1941
         value: "1941-06-01"
@@ -836,10 +782,12 @@ lookups:
         value: FA0157612
       - match: パキスタン旅券 NC5140251 （2009年10月23日発行、2014年10月22日失効、2013年時点で公式に失効措置済み）
         value: NC5140251
-      - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行）
+      - match: フランス番号 05AT521433（2005年11月30日にLorient, Franceにおいてsous-prefecture of policeにより発行）
         value: 05AT521433
-      - match: フランス国民IDカード番号050456101445（2005年5月19日Sous-Prefecture of police of Lorient, Franceにより発行）
-        value: "050456101445"
+      - match: フランス050456101445（2005年５月19日にLorient, Franceにおいてsous-prefecture of policeにより発行）； フランス0205561020089（2002年５月30日 にEmilie Edwige Konig 名義で発行）
+        values:
+          - "050456101445"
+          - "0205561020089"
       - match: インドネシア旅券番号 W344982（1985年3月4日Jakarta, Indonesia生まれのAngga Dimas Peshadaとして発行）
         value: W344982
       - match: インドネシア旅券番号 A2823222（1975年7月14日Rembang, Jawa Tengah, Indonesia生まれのWiji Joko Santosoとして2012年5月28日発行、2017年5月28日失効）

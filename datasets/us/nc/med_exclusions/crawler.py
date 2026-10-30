@@ -1,5 +1,5 @@
 from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 
 from zavod import Context, helpers as h
 
@@ -56,8 +56,8 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("list.xlsx", excel_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
 
-    assert wb.active is not None
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=6):
+    for item in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0), skiprows=6):
         crawl_item(item, context)

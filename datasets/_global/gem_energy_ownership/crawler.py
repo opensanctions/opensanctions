@@ -1,5 +1,5 @@
-import openpyxl
 import re
+from python_calamine import CalamineWorkbook
 
 from zavod import Context
 from zavod import helpers as h
@@ -265,11 +265,13 @@ def crawl(context: Context) -> None:
         "gem_energy_ownership/Global-Energy-Ownership-Tracker-August-2026-V2.xlsx",
         path,
     )
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    workbook = CalamineWorkbook.from_path(path)
     skipped: set[str] = set()
 
     ownership_rows = list(
-        h.parse_xlsx_sheet(context, sheet=workbook["Entity Ownership"])
+        h.parse_xlsx_sheet(
+            context, sheet=workbook.get_sheet_by_name("Entity Ownership")
+        )
     )
     owned_ids = {
         subject_id
@@ -277,7 +279,9 @@ def crawl(context: Context) -> None:
         if (subject_id := row["subject_entity_id"]) is not None
     }
 
-    entity_rows = list(h.parse_xlsx_sheet(context, sheet=workbook["All Entities"]))
+    entity_rows = list(
+        h.parse_xlsx_sheet(context, sheet=workbook.get_sheet_by_name("All Entities"))
+    )
     entity_ids = {
         entity_id for row in entity_rows if (entity_id := row["entity_id"]) is not None
     }

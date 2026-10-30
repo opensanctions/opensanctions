@@ -72,12 +72,12 @@ Tell the user, after the edit: for sanctions, check a sample of created reviews 
 After every edit to the crawler file, run:
 
 ```
-uvx ruff check --fix $ARGUMENTS && uvx ruff format $ARGUMENTS
+contrib/lint_dataset.sh $ARGUMENTS
 ```
 
-Fix any errors ruff reports before proceeding.
+Fix any errors it reports before proceeding.
 
-Once all changes are complete and ruff passes, stage the file:
+Once all changes are complete and lint passes, stage the file:
 
 ```
 git add $ARGUMENTS

@@ -107,4 +107,4 @@ Copy the rows from the CSV into the sheet, matching the column layout. Key rules
 
 ### Verification
 
-The `eu_journal_sanctions` crawler runs on a `0 */2 * * *` schedule (every two hours). After the next run, check `data/datasets/eu_journal_sanctions/issues.log` for any parsing errors or unexpected warnings related to your new rows.
+The `eu_journal_sanctions` crawler runs on a `0 */2 * * *` schedule (every two hours). After the next run, check the [dataset's issues](https://www.opensanctions.org/issues/eu_journal_sanctions/) for any parsing errors or unexpected warnings related to your new rows.
