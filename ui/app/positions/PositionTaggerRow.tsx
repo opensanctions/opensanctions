@@ -233,6 +233,7 @@ export default function PositionTaggerRow({ countries, position, isSelected, onS
         </div>
       </td>
       <td className="text-nowrap" title={position.created_at.toISOString()}>{position.created_at.toISOString().slice(0, 10)}</td>
+      <td className="text-nowrap" title={position.last_seen?.toISOString()}>{position.last_seen?.toISOString().slice(0, 10)}</td>
       <td className="text-nowrap" title={state.modified_at?.toISOString()}>
         {state.modified_at && (
           <>
