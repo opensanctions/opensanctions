@@ -468,6 +468,9 @@ lookups:
           # Second half of "2026年８月14日及び９月４日に改訂" - the year only
           # exists in the earlier part of the cell, which the split discards.
           - "9月4"
+          # Last item of "2015年９月29日（2016年６月24日、2021年11月15日、2026年８月18日
+          # 及び10月26日に改訂）" (QDi.376) - same year-inheritance as above.
+          - "10月26"
           - yearunknown
           - 9月28
           - 3月13
@@ -836,10 +839,15 @@ lookups:
         value: FA0157612
       - match: パキスタン旅券 NC5140251 （2009年10月23日発行、2014年10月22日失効、2013年時点で公式に失効措置済み）
         value: NC5140251
-      - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行）
+      - match: フランス番号 05AT521433（2005年11月30日にLorient, Franceにおいてsous-prefecture of policeにより発行）
         value: 05AT521433
-      - match: フランス国民IDカード番号050456101445（2005年5月19日Sous-Prefecture of police of Lorient, Franceにより発行）
-        value: "050456101445"
+      # French ID 050456101445 (issued 2005-05-19 by the sous-prefecture of
+      # police, Lorient); French ID 0205561020089 (issued 2002-05-30 in the
+      # name of Emilie Edwige Konig, the designee's own name).
+      - match: フランス050456101445（2005年５月19日にLorient, Franceにおいてsous-prefecture of policeにより発行）； フランス0205561020089（2002年５月30日 にEmilie Edwige Konig 名義で発行）
+        values:
+          - "050456101445"
+          - "0205561020089"
       - match: インドネシア旅券番号 W344982（1985年3月4日Jakarta, Indonesia生まれのAngga Dimas Peshadaとして発行）
         value: W344982
       - match: インドネシア旅券番号 A2823222（1975年7月14日Rembang, Jawa Tengah, Indonesia生まれのWiji Joko Santosoとして2012年5月28日発行、2017年5月28日失効）
