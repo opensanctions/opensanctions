@@ -1,0 +1,343 @@
+title: Angola Members of the National Assembly
+entry_point: crawler.py
+prefix: ao-parl
+coverage:
+  frequency: monthly
+  start: 2026-10-21
+load_statements: true
+ci_test: true
+summary: >-
+  Current and historical members of the National Assembly of Angola
+description: |
+  Current and historical members of the National Assembly (Assembleia Nacional), the
+  unicameral national legislature of Angola. Its 220 deputies are elected by
+  proportional representation for a five-year term, 130 in a single national
+  constituency and 90 in the provincial constituencies, and hold the country's
+  legislative power, including passing laws and approving the budget.
+
+  Members of every legislature since 1992 are listed with their name, date of birth,
+  email address, party, parliamentary group, constituency and the legislature they
+  served in, with the date they were sworn in where known.
+url: https://parlamento.ao/
+publisher:
+  name: Assembleia Nacional de Angola
+  acronym: AN
+  description: >
+    The National Assembly is the unicameral legislature of the Republic of Angola.
+  url: https://parlamento.ao/
+  country: ao
+  official: true
+data:
+  url: https://portaladmin.parlamento.ao/api/info/MainMenu
+  format: JSON
+  lang: por
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+dates:
+  formats: ["%d-%m-%Y", "%d/%m/%Y", "%d.%m.%Y", "%Y"]
+
+tags:
+  - list.pep
+
+names:
+  schema_rules:
+    Person:
+      # Nicknames in quotes: António dos Santos França "Ndalu".
+      reject_chars: '"'
+
+assertions:
+  min:
+    schema_entities:
+      Person: 700
+      Position: 1
+    country_entities:
+      ao: 700
+  max:
+    schema_entities:
+      Person: 1100
+      Position: 1
+
+lookups:
+  # Legislatures listed in the site's "Deputados" menu. `lists` names the API pages
+  # holding each roster: `V_Legislatura` holds members sworn in after the roster on
+  # `V_Legislatura1` was published. Term bounds from the legislature history pages
+  # (Historia_*_Legislatura) and the constitutive sessions.
+  legislature:
+    required: true
+    options:
+      - match: V Legislatura
+        period_start: "2022-09-16"
+        lists: [V_Legislatura1, V_Legislatura]
+      - match: IV Legislatura
+        period_start: "2017-09-28"
+        period_end: "2022-09-16"
+        lists: [IV-legislatura]
+      - match: III Legislatura
+        period_start: "2012-09"
+        period_end: "2017-09-28"
+        lists: [III-legislatura]
+      - match: II Legislatura
+        period_start: "2008-09"
+        period_end: "2012-09"
+        lists: [II-legislatura]
+      - match: I Legislatura
+        period_start: "1992-11-26"
+        period_end: "2008-09"
+        lists: [I_Legislatura]
+
+  # Labels in the free-text profile, mapped to the field they introduce. The value
+  # follows the colon or sits on the following line(s). Fields outside the crawler's
+  # scope (education, profession, committees, career) map to `ignore`; they still
+  # delimit the in-scope fields before them.
+  profile_label:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - Data de Nascimento
+          - Data da Nascimento
+          - Data de Nacimento
+          - Data Nascimento
+          # Only seen as the first line of a profile, holding the date of birth.
+          - Data
+          - Dados de Nascimento
+          - Data de Aniversário
+          - Nascido
+          - Nascida
+        value: birth_date
+      - match: Natural
+        value: birth_place
+      - match: [Partido, Partida]
+        value: party
+      - match: Grupo Parlamentar
+        value: political_group
+      - match:
+          - Círculo Eleitoral
+          - Círculo Nacional
+          # Section heading followed by the constituency in the IV legislature.
+          - Gabinete Local
+        value: constituency
+      - match:
+          - Tomada de Posse
+          - Tomada
+          - Deputada Tomada de Posse
+          - DeputadoTomada de Posse
+        value: sworn_in
+      - match: Perda de Mandato
+        value: mandate_lost
+      - match:
+          - Cargo que Desempenha
+          - Cargos que Desempenha
+          - Cargos que Desmpenha
+          - Cargo que Deempenha
+          - Cargo Desempenhado
+          - Cargo Desempenhadas
+          - Cargo que Exerce
+          - Cargos que Dempenha
+          - Cargo
+          - Função
+          - Position held
+        # The roles held; "Deputado"/"Deputada" here contradicts itself across a
+        # member's legislatures too often to derive a gender from.
+        value: ignore
+      - match:
+          - Actual
+          - Actualmente
+          - Actalmente
+          - Actualmemte
+          - Actuamente
+          - Atualmente
+          - Área de Actuação
+          - Cargo que exercidos
+          - Cargos desempenhados
+          - Cargos Reverantes
+          - Experiência e Reconhecimento
+          - Positions held
+          - Hablitações Literárias
+          - Habilitações
+          - HABILITAÇÕES LITERÁRlAS
+          - Legistalatura
+          - Prifissão
+          - Comissões Parlamentare
+          # Career lines in the shape of a label.
+          - Professor
+          - Membro Fundadora da ADMA
+          - Cargo Exercidos
+          - Cargo Relevantes
+          - Cargos Execidos
+          - Cargos Exercido
+          - Cargos Exercidos
+          - Cargos que Exerce
+          - Cargos Relevantes
+          - Comissão
+          - Comisssão
+          - Comissõo
+          - Commission
+          - Comissão Parlamentar
+          - Comissões
+          - Comissões Parlamentares
+          - E Mail
+          - Email
+          - Habilidades Literárias
+          - Habilitação Literárias
+          - Habilitações Literária
+          - Habilitações Literárias
+          - Habilitações Literarais
+          - Habilitações Profissionais
+          - Legislatura
+          - Mail
+          - Nome
+          - Obs
+          - Profissão
+          - Província
+          # Mandate suspended (e.g. to take up a government post) and resumed.
+          # Not a departure: the seat stays the member's.
+          - Suspensão
+          - Suspensão do Mandato
+          - Suspensão de Mandato
+          - Retoma do Mandato
+          - Retomada
+        value: ignore
+
+  party:
+    normalize: true
+    lowercase: true
+    options:
+      - match: [MPLA, MLPA]
+        value: MPLA
+      - match: UNITA
+        value: UNITA
+      - match: CASA-CE
+        value: CASA-CE
+      - match: [PRS, "Partido de Renovação Social (PRS)"]
+        value: PRS
+      - match: FNLA
+        value: FNLA
+      - match: PHA
+        value: PHA
+      - match: [ND, Nova Democracia]
+        value: ND
+      - match: [PLD, Partido Liberal Democrático]
+        value: PLD
+      - match: [FDA, F.D.A]
+        value: FDA
+      - match: PAJOCA
+        value: PAJOCA
+      - match: PSD
+        value: PSD
+      - match: PNDA
+        value: PNDA
+      - match: AD-Coligação
+        value: AD-Coligação
+      - match: PDA/ANA
+        value: PDP-ANA
+      - match: PRD
+        value: PRD
+      - match: [Nacional, Cabinda]
+        value: null
+
+  # Normalised (lowercase ASCII, punctuation as spaces) before matching
+  constituency:
+    normalize: true
+    lowercase: true
+    options:
+      - regex: "^(circulo ?(eleitoral|elaitoral)? ?)?nacional( mpla| casa ce)?$"
+        value: Nacional
+      - regex: ".*\\bbengo$"
+        value: Bengo
+      - regex: ".*\\bbenguela$"
+        value: Benguela
+      - regex: ".*\\bbie$"
+        value: Bié
+      - regex: ".*\\bcabinda$"
+        value: Cabinda
+      - regex: ".*\\b(cuando|kuando) (cubango|kubango)$"
+        value: Cuando Cubango
+      - regex: ".*\\b(cuanza|kuanza|kwanza) norte$"
+        value: Cuanza Norte
+      - regex: ".*\\b(cuanza|kuanza|kwanza) sul$"
+        value: Cuanza Sul
+      - regex: ".*\\bcunene$"
+        value: Cunene
+      - regex: ".*\\bhuambo$"
+        value: Huambo
+      - regex: ".*\\bhuila$"
+        value: Huíla
+      - regex: ".*\\bluanda$"
+        value: Luanda
+      - regex: ".*\\blunda norte$"
+        value: Lunda Norte
+      - regex: ".*\\blunda sul$"
+        value: Lunda Sul
+      - regex: ".*\\bmalan(j|g)e$"
+        value: Malanje
+      - regex: ".*\\b(moxico|muxico)$"
+        value: Moxico
+      - regex: ".*\\bnamibe$"
+        value: Namibe
+      - regex: ".*\\buige$"
+        value: Uíge
+      - regex: ".*\\bzaire$"
+        value: Zaire
+      - match: [Provincial, Provincal, Círculo Eleitoral]
+        value: null
+      # A municipality in the Zaire province.
+      - match: Maquela do Zombo
+        value: Zaire
+
+  type.date:
+    options:
+      - regex: "^de Posse: ?16[-/]09[-/]2022$"
+        value: "2022-09-16"
+      - regex: "^28-09-2017 ?Cargos Exercidos"
+        value: "2017-09-28"
+      - regex: "^27-10-2017 em substituição"
+        value: "2017-10-27"
+      - regex: "^19-01-2018 em substituição"
+        value: "2018-01-19"
+      - regex: "^22-02-2018 em substituição"
+        value: "2018-02-22"
+      - regex: "^17-05-2018 em substituição"
+        value: "2018-05-17"
+      - regex: "^30-03-1954 ?PARTIDO"
+        value: "1954-03-30"
+      - match: AOS 13/08/1960
+        value: "1960-08-13"
+      - match: 30.05 1977
+        value: "1977-05-30"
+      - match: 16-19-2022
+        value: "2022-09-16"
+      - match: [16/09/202, 16-09-20]
+        value: "2022-09-16"
+      - match: 18-05-11940
+        value: "1940-05-18"
+      - match: 24/041934
+        value: "1934-04-24"
+      - match: 10-16-1978
+        value: "1978-10-16"
+      - match: 24/03/46
+        value: "1946-03-24"
+      - match: 25/11/57
+        value: "1957-11-25"
+      - match: N/A
+        value: null
+
+  type.email:
+    options:
+      # "O deputado ... não têm e-mail no sistema."
+      - regex: ".* não têm e-mail no sistema\\.$"
+        value: null
+      - match: Faustino. Manuel@parlamento.ao
+        value: Faustino.Manuel@parlamento.ao
+      - match: Joana. Martins@parlamento.ao
+        value: Joana.Martins@parlamento.ao
+      - match: Ldomingos@hotnal.com
+        value: Ldomingos@hotmail.com
+      - match: lourdesGeiga@yohoo.com
+        value: lourdesGeiga@yahoo.com
+      # Spaces in the local part; the intended address is unclear.
+      - match:
+          - José Nelumba@hotmail.com
+          - Filomena Trindade@hohamail.com
+          - ifdos anjos 60@yahoo.com.br
+        value: null
