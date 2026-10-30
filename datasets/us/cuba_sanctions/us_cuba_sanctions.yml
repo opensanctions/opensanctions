@@ -49,7 +49,6 @@ data:
 tags:
   - list.sanction
   - target.cu
-  - juris.us
   - issuer.west
 
 # Maintaining the two list files

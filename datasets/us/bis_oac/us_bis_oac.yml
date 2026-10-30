@@ -34,7 +34,6 @@ publisher:
 url: https://www.bis.gov/OAC
 tags:
   - list.export
-  - juris.us
 data:
   url: https://www.bis.gov/OAC
   format: html

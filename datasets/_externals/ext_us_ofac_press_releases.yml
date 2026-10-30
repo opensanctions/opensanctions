@@ -36,7 +36,6 @@ publisher:
   url: https://ofac.treasury.gov/
   official: true
 tags:
-  - juris.us
   - issuer.west
 url: https://ofac.treasury.gov/press-releases
 
