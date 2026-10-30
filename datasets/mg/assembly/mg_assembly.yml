@@ -4,7 +4,7 @@ prefix: mg-an
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-10-29
+  start: 2026-10-30
 load_statements: true
 summary: >-
   Lower house of Madagascar's bicameral Parliament (Assemblée nationale)
