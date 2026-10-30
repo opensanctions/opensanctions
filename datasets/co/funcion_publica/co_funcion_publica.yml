@@ -23,7 +23,10 @@ description: |
   This dataset publishes the names, national ID numbers, and positions of public office
   held by public servants in Colombia. We link to their Curriculim Vitae and asset declarations when available.
   It currently excludes the contractor
-  information available at the same website.
+  information available at the same website, as well as declarations published
+  more than five years ago: the online search tool states no start or end date
+  for the position, so the publication date of the declaration is our only
+  indication of how current the role is.
 
   We periodically supplement the data from the online search tool with their Excel download
   which contains a little more information for a selection of people, although
