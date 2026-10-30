@@ -5,6 +5,8 @@ import { Table } from "react-bootstrap";
 
 import { Position } from "@/lib/db";
 
+import styles from "@/styles/PositionTagger.module.scss";
+
 import PositionTaggerRow from "./PositionTaggerRow";
 
 type PositionTaggerTableProps = {
@@ -65,19 +67,20 @@ export default function PositionTaggerTable({ countries, positions }: PositionTa
     <Table bordered hover>
       <thead>
         <tr>
-          <th>Position</th>
+          <th className={styles.positionColumn}>Position</th>
           <th>Territory</th>
           <th>Dataset</th>
           <th className="text-nowrap">Is a PEP</th>
           <th>Categories</th>
           <th>First seen</th>
+          <th>Last seen</th>
           <th>Modified</th>
         </tr>
       </thead>
       <tbody>
         {
           positions.length == 0 ?
-            <tr><td colSpan={6}>No matching results</td></tr> :
+            <tr><td colSpan={8}>No matching results</td></tr> :
             positions.map((row: Position) => {
               return <PositionTaggerRow
                 countries={countries}
