@@ -4,6 +4,10 @@ from rigour.mime.types import XLSX
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
+DEFAULT_TOPICS = ["gov.muni"]
+MAYOR_TOPICS = ["gov.muni", "gov.executive"]
+COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
+
 
 def _build_canonical_ine_code(ine_code: str | None) -> str:
     """Pad an INE municipality code to its six digits.
@@ -63,12 +67,20 @@ def crawl_item(
     )
     if position_title is None:
         return
+    topics = (
+        MAYOR_TOPICS
+        if "Mayor" in position_title
+        else COUNCILLOR_TOPICS
+        if "Councillor" in position_title
+        else DEFAULT_TOPICS
+    )
     position = h.make_position(
         context,
         f"{position_title} of {area_name}",
         country="es",
         subnational_area=area_name,
         lang="eng",
+        topics=topics,
     )
     # Key the ID on the INE code, not the municipality name, because the source
     # spells some municipality names differently between files
