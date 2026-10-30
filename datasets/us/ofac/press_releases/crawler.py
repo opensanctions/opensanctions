@@ -12,7 +12,7 @@ from zavod.stateful.review import (
 from zavod import Context
 from zavod import helpers as h
 
-LLM_MODEL = "gpt-6.1-sol"
+LLM_MODEL = "openai:gpt-6.1-sol"
 
 Schema = Literal[
     "Person", "Organization", "Company", "LegalEntity", "Vessel", "Airplane"
