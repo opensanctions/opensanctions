@@ -68,6 +68,11 @@ lookups:
         values:
           - "2008-44783"
           - "2019-267485"
+      # Address entered into the PhilGEPS registration number field (ELITE
+      # GENERAL CONTRACTOR AND DEVELOPMENT CORP., permanent debarment); the
+      # same address appears on the company's temporary debarment entry.
+      - match: 792 SGC Executive Bldg., 5F Room 507, F. Manalo St. bambang, Pasig City
+        value: null
   type.name:
     options:
       - match: "453453"
