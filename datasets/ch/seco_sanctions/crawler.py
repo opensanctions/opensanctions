@@ -113,7 +113,7 @@ class OtherInfo(BaseModel):
 # gpt-4o-mini was filling in Unknown for props not in the data.
 # gpt-5 is very slow as at 2026-01-05.
 # gpt-5-mini is a bit slow but it seems to hallucinate less than gpt-4o or gpt-4o-mini.
-LLM_VERSION = "gpt-5-mini"
+LLM_VERSION = "openai:gpt-5-mini"
 PROMPT = """
 The attached text is the XML of an international
 financial sanctions entry about an entity type of {schema}.

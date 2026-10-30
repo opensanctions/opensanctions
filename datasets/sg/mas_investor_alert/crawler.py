@@ -53,7 +53,7 @@ RELATIONSHIP_KEYWORDS = [
 IMPERSONATED = re.compile(r"\s*\(impersonated\)", re.IGNORECASE)
 # Distinct addresses are separated by a blank line; single newlines break lines within one.
 ADDRESS_SPLITTER = re.compile(r"\n\s*\n")
-LLM_MODEL_VERSION = "gpt-5.4"
+LLM_MODEL_VERSION = "openai:gpt-5.4"
 EXTRACT_PROMPT = """Extract structured entity data from an entry on the Monetary
 Authority of Singapore's Investor Alert List.
 

@@ -14,7 +14,7 @@ from zavod.util import Element
 
 from zavod import helpers as h
 
-LLM_MODEL = "gpt-6.1-sol"
+LLM_MODEL = "openai:gpt-6.1-sol"
 
 # Ensure never more than 10 requests per second
 # https://www.sec.gov/about/privacy-information#security

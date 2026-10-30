@@ -8,7 +8,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.extract.llm import run_image_prompt
 
-LLM_MODEL = "gpt-6.1-sol"
+LLM_MODEL = "openai:gpt-6.1-sol"
 
 prompt = """
 Extract structured data from the following page of a PDF document. Return

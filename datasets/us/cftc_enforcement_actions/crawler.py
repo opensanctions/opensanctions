@@ -14,7 +14,7 @@ from zavod.util import Element
 
 from zavod import helpers as h
 
-LLM_MODEL = "gpt-6.1-sol"
+LLM_MODEL = "openai:gpt-6.1-sol"
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 

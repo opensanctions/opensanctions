@@ -1,45 +1,61 @@
-import base64
-from dataclasses import dataclass
 import json
 import logging
-import mimetypes
+from dataclasses import dataclass
 from functools import cache
 from hashlib import sha1
 from pathlib import Path
 from typing import Any, TypeVar
 
-from openai import OpenAI
+import pydantic_ai
 from pydantic import BaseModel
+from pydantic_ai import Agent, BinaryContent, UserContent
+from pydantic_ai.exceptions import UserError
+from pydantic_ai.models import Model, infer_model
+from pydantic_ai.settings import ModelSettings
 
-from zavod import settings
 from zavod.context import Context
 from zavod.exc import ConfigurationException
 from zavod.logs import get_logger
 
-DEFAULT_MODEL = "gpt-4o"
+DEFAULT_MODEL = "openai:gpt-4o"
 
 log = get_logger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
+pydantic_ai.BANNER_ENABLED = False
 
 ResponseType = TypeVar("ResponseType", bound=BaseModel)
 
 
 @cache
-def get_client() -> OpenAI:
-    """Get the OpenAI client."""
-    if settings.OPENAI_API_KEY is None:
-        raise ConfigurationException("No $OPENAI_API_KEY key provided.")
-    return OpenAI(api_key=settings.OPENAI_API_KEY)
+def get_model(name: str) -> Model:
+    """Get a model by name.
+
+    Names are given as `provider:model`, e.g. `openai:gpt-4o`,
+    `openrouter:anthropic/claude-sonnet-4.6` or `ollama:qwen3`. Providers read
+    their credentials from their standard environment variables, e.g.
+    `OPENAI_API_KEY` or `OPENROUTER_API_KEY`.
+
+    Models are cached because each holds its own HTTP connection pool."""
+    try:
+        return infer_model(name)
+    except UserError as exc:
+        # Missing credentials or an unknown provider.
+        raise ConfigurationException(str(exc)) from exc
 
 
-def encode_file(file: Path, mime_type: str | None = None) -> str:
-    """Encode a file as a base64 data URL."""
-    if mime_type is None:
-        mime_type, _ = mimetypes.guess_type(file.name)
-    with open(file, "rb") as f:
-        data = f.read()
-        encoded = base64.b64encode(data).decode("utf-8")
-        return f"data:{mime_type};base64,{encoded}"
+def run_prompt[OutputType](
+    model: str,
+    user_prompt: list[UserContent],
+    output_type: type[OutputType],
+    max_tokens: int,
+) -> OutputType:
+    """Run a single-turn prompt and return the validated output."""
+    agent = Agent(
+        get_model(model),
+        output_type=output_type,
+        model_settings=ModelSettings(max_tokens=max_tokens),
+    )
+    return agent.run_sync(user_prompt).output
 
 
 def run_image_prompt(
@@ -51,34 +67,16 @@ def run_image_prompt(
     model: str = DEFAULT_MODEL,
 ) -> Any:
     """Run an image prompt."""
-    client = get_client()
-    image_url = encode_file(image_path)
-    cache_hash = sha1(image_url.encode("utf-8"))
+    image = BinaryContent.from_path(image_path)
+    cache_hash = sha1(image.data_uri.encode("utf-8"))
     cache_hash.update(prompt.encode("utf-8"))
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info(f"GPT cache hit: {image_path.name}")
+        log.info(f"LLM cache hit: {image_path.name}")
         return cached_data
     log.info(f"Prompting {model!r} for: {image_path.name}")
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": image_url}},
-                ],
-            }
-        ],
-        response_format={"type": "json_object"},
-        max_completion_tokens=max_tokens,
-    )
-    assert len(response.choices) > 0
-    assert response.choices[0].message is not None
-    assert response.choices[0].message.content is not None
-    data = json.loads(response.choices[0].message.content)
+    data = run_prompt(model, [prompt, image], dict[str, Any], max_tokens)
     context.cache.set_json(cache_key, data)
     return data
 
@@ -93,40 +91,20 @@ def run_typed_image_prompt[ResponseType: BaseModel](
     model: str = DEFAULT_MODEL,
 ) -> ResponseType:
     """Run an image prompt."""
-    client = get_client()
-    image_url = encode_file(image_path)
-    cache_hash = sha1(image_url.encode("utf-8"))
+    image = BinaryContent.from_path(image_path)
+    cache_hash = sha1(image.data_uri.encode("utf-8"))
     cache_hash.update(prompt.encode("utf-8"))
     json_schema = response_type.model_json_schema()
     cache_hash.update(json.dumps(json_schema, sort_keys=True).encode("utf-8"))
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info(f"GPT cache hit: {image_path.name}")
+        log.info(f"LLM cache hit: {image_path.name}")
         return response_type.model_validate(cached_data)
     log.info(f"Prompting {model!r} for: {image_path.name}")
-    response = client.chat.completions.parse(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": image_url}},
-                ],
-            }
-        ],
-        response_format=response_type,
-        max_completion_tokens=max_tokens,
-    )
-    assert len(response.choices) > 0
-    assert response.choices[0].message is not None
-    assert response.choices[0].message.content is not None
-    json_data = json.loads(response.choices[0].message.content)
-    context.cache.set_json(cache_key, json_data)
-    assert response.choices[0].message.parsed is not None
-    structured_data = response.choices[0].message.parsed
-    return structured_data
+    output = run_prompt(model, [prompt, image], response_type, max_tokens)
+    context.cache.set_json(cache_key, output.model_dump(mode="json"))
+    return output
 
 
 @dataclass
@@ -149,35 +127,17 @@ def run_text_prompt(
     cache_days: int = 100,
     model: str = DEFAULT_MODEL,
 ) -> TextPromptResponse:
-    """Run a text prompt."""
-    client = get_client()
+    """Run a text prompt. The response content is a JSON object."""
     cache_hash = sha1(string.encode("utf-8"))
     cache_hash.update(prompt.encode("utf-8"))
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info(f"GPT cache hit: {string[:50]}")
+        log.info(f"LLM cache hit: {string[:50]}")
         return TextPromptResponse(content=cached_data, cache_key=cache_key)
     log.info(f"Prompting {model!r} for: {string[:50]}")
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "text", "text": string},
-                ],
-            }
-        ],
-        response_format={"type": "json_object"},
-        max_completion_tokens=max_tokens,
-    )
-    assert len(response.choices) > 0
-    assert response.choices[0].message is not None
-
-    content = response.choices[0].message.content
-    assert content is not None
+    data = run_prompt(model, [prompt, string], dict[str, Any], max_tokens)
+    content = json.dumps(data)
     context.cache.set(cache_key, content)
     return TextPromptResponse(content=content, cache_key=cache_key)
 
@@ -192,7 +152,6 @@ def run_typed_text_prompt[ResponseType: BaseModel](
     model: str = DEFAULT_MODEL,
 ) -> ResponseType:
     """Run a text prompt."""
-    client = get_client()
     cache_hash = sha1(string.encode("utf-8"))
     cache_hash.update(prompt.encode("utf-8"))
     json_schema = response_type.model_json_schema()
@@ -200,28 +159,9 @@ def run_typed_text_prompt[ResponseType: BaseModel](
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
-        log.info(f"GPT cache hit: {string[:50]}")
+        log.info(f"LLM cache hit: {string[:50]}")
         return response_type.model_validate(cached_data)
     log.info(f"Prompting {model!r} for: {string[:50]}")
-    response = client.chat.completions.parse(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "text", "text": string},
-                ],
-            }
-        ],
-        response_format=response_type,
-        max_completion_tokens=max_tokens,
-    )
-    assert len(response.choices) > 0
-    assert response.choices[0].message is not None
-    assert response.choices[0].message.content is not None
-    json_data = json.loads(response.choices[0].message.content)
-    context.cache.set_json(cache_key, json_data)
-    assert response.choices[0].message.parsed is not None
-    structured_data = response.choices[0].message.parsed
-    return structured_data
+    output = run_prompt(model, [prompt, string], response_type, max_tokens)
+    context.cache.set_json(cache_key, output.model_dump(mode="json"))
+    return output

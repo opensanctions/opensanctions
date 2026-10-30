@@ -13,7 +13,7 @@ from zavod.stateful.review import (
 from zavod import Context
 from zavod import helpers as h
 
-LLM_MODEL = "gpt-6.1-sol"
+LLM_MODEL = "openai:gpt-6.1-sol"
 
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
 CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"

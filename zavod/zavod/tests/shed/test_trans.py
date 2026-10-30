@@ -41,9 +41,9 @@ def test_apply_translit_full_name_explicit_model(vcontext: Context) -> None:
         entity = vcontext.make("Person")
         entity.id = "zh-person"
         apply_translit_full_name(
-            vcontext, entity, LangText("蔡奇", "chi"), model="gpt-4o"
+            vcontext, entity, LangText("蔡奇", "chi"), model="openai:gpt-4o"
         )
-    assert prompt.call_args.kwargs["model"] == "gpt-4o"
+    assert prompt.call_args.kwargs["model"] == "openai:gpt-4o"
 
 
 def test_apply_translit_names_selects_model(vcontext: Context) -> None:
