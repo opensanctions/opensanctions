@@ -19,7 +19,7 @@ classifiers = [
 requires-python = ">= 3.12"
 dependencies = [
     "alembic == 1.20.1",
-    "followthemoney == 4.11.1",
+    "followthemoney == 4.11.2",
     "nomenklatura == 4.17.4",
     "plyvel == 1.5.1", # Also update macOS install docs
     "rigour == 2.6.1",
