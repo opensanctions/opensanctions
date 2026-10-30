@@ -159,6 +159,7 @@ children:
   - md_parliament
   - me_acp_peps
   - me_skupstina
+  - mg_assembly
   - mh_nitijela
   - mk_officials
   - mn_parliament

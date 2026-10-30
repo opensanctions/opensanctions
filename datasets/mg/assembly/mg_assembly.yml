@@ -4,19 +4,18 @@ prefix: mg-an
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-10-19
+  start: 2026-10-30
 load_statements: true
 summary: >-
   Lower house of Madagascar's bicameral Parliament (Assemblée nationale)
 description: |
-  Current and recently departed members of the National Assembly (Assemblée nationale),
-  the lower house of the bicameral Parliament of Madagascar. Its 163 deputies are
-  elected for a five-year term in single- and two-member districts and, together with
-  the Senate, hold the country's legislative power, including passing laws and
-  approving the budget.
+  Current and recently departed members of the National Assembly, the lower house of
+  the bicameral Parliament of Madagascar. Its 163 deputies are elected for a five-year
+  term in single- and two-member districts and, together with the Senate, hold the
+  country's legislative power, including passing laws and approving the budget.
 
   Deputies who left mid-term, through resignation, death or appointment to another
-  office, are included with an ended occupancy.
+  office, are included.
 url: https://assemblee-nationale.mg/deputes/
 publisher:
   name: Antenimierampirenena
