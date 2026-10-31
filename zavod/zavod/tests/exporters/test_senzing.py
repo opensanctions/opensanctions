@@ -3,36 +3,68 @@ from json import loads
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import clear_data_path, dataset_artifact_directory
-from zavod.exporters.senzing import SenzingExporter, canonical_national_id_type
+from zavod.exporters.senzing import (
+    SenzingExporter,
+    classify_identification,
+    ogrn_subtype,
+)
 from zavod.crawl import crawl_dataset
 from zavod.tests.exporters.util import harnessed_export
 
 
-def test_canonical_national_id_type():
-    """The Identification adjacency must canonicalize its free-text FtM `type` to the SAME
-    upper-case scheme the typed properties and the Sayari mapper emit, so the same scheme
-    bridges across sources; generic/unrecognized labels must fall back to a blank type."""
-    # Deducible + canonical -> canonical scheme (equals the Sayari mapper's labels).
-    assert canonical_national_id_type("C.U.R.P.") == "CURP"
-    assert canonical_national_id_type("Cedula No.") == "CEDULA"
-    assert canonical_national_id_type("D.N.I.") == "DNI"
-    assert canonical_national_id_type("C.U.I.T.") == "CUIT"
-    assert canonical_national_id_type("C.U.I.") == "CUI"
-    assert canonical_national_id_type("Commercial Register") == "REGISTRATION_NUMBER"
-    # Case / punctuation variants collapse to the same canonical scheme.
-    assert canonical_national_id_type("curp") == "CURP"
-    assert canonical_national_id_type("CURP") == "CURP"
-    assert canonical_national_id_type("dni") == "DNI"
-    # C.U.I. and C.U.I.T. must NOT collide.
-    assert canonical_national_id_type("C.U.I.") != canonical_national_id_type(
-        "C.U.I.T."
+def test_classify_identification():
+    """An Identification's free-text `type` decides both the Senzing feature and the canonical
+    scheme within it, so the same scheme bridges across sources; generic or unrecognized
+    labels fall back to an untyped NATIONAL_ID."""
+    # National-id schemes -> canonical scheme (+ the issuing country when there is only one).
+    assert classify_identification("C.U.R.P.") == ("NATIONAL_ID", "CURP", "mx")
+    assert classify_identification("Cedula No.") == ("NATIONAL_ID", "CEDULA", None)
+    assert classify_identification("D.N.I.") == ("NATIONAL_ID", "DNI", None)
+    assert classify_identification("C.U.I.") == ("NATIONAL_ID", "CUI", None)
+    assert classify_identification("N.I.E.") == ("NATIONAL_ID", "NIE", "es")
+    assert classify_identification("Commercial Register") == (
+        "NATIONAL_ID",
+        "REGISTRATION_NUMBER",
+        None,
     )
-    # Generic or unrecognized -> blank (None); Senzing learns the untyped id.
-    assert canonical_national_id_type("National ID No.") is None
-    assert canonical_national_id_type("Identification Number") is None
-    assert canonical_national_id_type("N.I.E.") is None
-    assert canonical_national_id_type("Some Unknown Doc Type") is None
-    assert canonical_national_id_type(None) is None
+    # Case / punctuation variants collapse to the same scheme.
+    assert classify_identification("curp") == ("NATIONAL_ID", "CURP", "mx")
+    assert classify_identification("dni") == ("NATIONAL_ID", "DNI", None)
+    # A CUIT is a tax id, not a national id; C.U.I. and C.U.I.T. must not collide.
+    assert classify_identification("C.U.I.T.") == ("TAX_ID", "CUIT", "ar")
+    # Other documents get their own feature or OTHER_ID scheme.
+    assert classify_identification("Driver's License No.") == ("DRLIC", None, None)
+    assert classify_identification("License") == ("OTHER_ID", "LICENSE", None)
+    assert classify_identification("Birth Certificate Number") == (
+        "OTHER_ID",
+        "BIRTH_CERT",
+        None,
+    )
+    # Unlisted labels are typed by keyword.
+    assert classify_identification("Driving Licence") == ("DRLIC", None, None)
+    assert classify_identification("Service Passport") == ("PASSPORT", None, None)
+    assert classify_identification("Business Licence") == ("OTHER_ID", "LICENSE", None)
+    assert classify_identification("Tax Registration No.") == ("TAX_ID", None, None)
+    # Not an identifier at all.
+    assert classify_identification("Government Gazette Number")[0] is None
+    # Generic or unrecognized -> untyped NATIONAL_ID; Senzing learns the untyped id.
+    assert classify_identification("National ID No.") == ("NATIONAL_ID", None, None)
+    assert classify_identification("Identification Number") == (
+        "NATIONAL_ID",
+        None,
+        None,
+    )
+    assert classify_identification("Some Unknown Doc Type") == (
+        "NATIONAL_ID",
+        None,
+        None,
+    )
+    assert classify_identification(None) == ("NATIONAL_ID", None, None)
+
+
+def test_ogrn_subtype():
+    assert ogrn_subtype("1027700132195") == "OGRN"  # 13 digits: a legal entity
+    assert ogrn_subtype("315183100004295") == "OGRNIP"  # 15: individual entrepreneur
 
 
 def test_senzing(testdataset1: Dataset):
@@ -86,3 +118,9 @@ def test_senzing(testdataset1: Dataset):
     assert {"NATIONALITY": "dd"} in person_features
     assert person["DATA_SOURCE"] == "OS_TESTDATASET1"
     assert person["RECORD_ID"] == "osv-hans-gruber"
+    # The OpenSanctions id is asserted once, as the OPENSANCTIONS_ID feature, not again as an
+    # OTHER_ID.
+    assert person["OPENSANCTIONS_ID"] == "osv-hans-gruber"
+    assert not [
+        f for f in person_features if f.get("OTHER_ID_TYPE") == "OPEN_SANCTIONS"
+    ]
