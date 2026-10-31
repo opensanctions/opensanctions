@@ -218,6 +218,11 @@ def classify_identification(
     return ("NATIONAL_ID", None, None)
 
 
+# Sources name a wallet's asset by full name or by an alternative ticker; the crosswalk (like
+# OFAC's "Digital Currency Address - XBT") uses one code per asset, so the same address bridges.
+CRYPTO_ASSET_CODES = {"BITCOIN": "XBT", "BTC": "XBT", "ETHEREUM": "ETH"}
+
+
 def crypto_id_type(wallet: Entity) -> str:
     """CRYPTO_<asset> for a wallet address (CRYPTO_XBT, CRYPTO_ETH, ...), CRYPTO when the
     currency is unknown."""
@@ -227,6 +232,7 @@ def crypto_id_type(wallet: Entity) -> str:
         or ""
     )
     currency = NORM_TEXT.sub("", currency).upper()
+    currency = CRYPTO_ASSET_CODES.get(currency, currency)
     return f"CRYPTO_{currency}" if currency else "CRYPTO"
 
 

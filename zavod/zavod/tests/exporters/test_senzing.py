@@ -1,11 +1,13 @@
 from json import loads
 
 from zavod import settings
+from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.senzing import (
     SenzingExporter,
     classify_identification,
+    crypto_id_type,
     ogrn_subtype,
 )
 from zavod.crawl import crawl_dataset
@@ -149,3 +151,19 @@ def test_source_name(tmp_path):
         source_name({"name": "openownership", "children": ["gleif"]})
         == "OPEN_OWNERSHIP"
     )
+
+
+def test_crypto_id_type():
+    """A wallet's asset becomes the crosswalk code, whichever name the source used."""
+
+    def wallet(**props):
+        return Entity(
+            Dataset({"name": "test", "title": "Test"}),
+            {"schema": "CryptoWallet", "id": "w", "properties": props},
+        )
+
+    assert crypto_id_type(wallet(currency=["bitcoin"])) == "CRYPTO_XBT"
+    assert crypto_id_type(wallet(currency=["BTC"])) == "CRYPTO_XBT"
+    assert crypto_id_type(wallet(currency=["Ethereum"])) == "CRYPTO_ETH"
+    assert crypto_id_type(wallet(currency=["USDT"])) == "CRYPTO_USDT"
+    assert crypto_id_type(wallet()) == "CRYPTO"
