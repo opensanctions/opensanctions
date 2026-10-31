@@ -1,0 +1,59 @@
+# Senzing configuration updates for the Senzing exporter.
+#
+# Apply with:  sz_configtool -f senzing_config_updates.gtc
+#
+# Registers what the exporter emits but a default config lacks: OPENSANCTIONS_ID, BQ_ID,
+# NATIONAL_ID_SUBTYPE, and the vessel/aircraft/security/OFAC identifier features. Without them, the
+# attributes are carried as payload at load and never compared.
+#
+# TAX_ID_TYPE is in senzing_config_updates_tax_id_type.gtc, for configs older than Senzing 4.4's default
+# only: on a config that already has it, sz_configtool reports the commands as present and does not save.
+#
+# ---------------------------------------------------------------------------------------------
+# OPENSANCTIONS_ID -- the canonical OpenSanctions entity id, as an A1ES exclusive feature.
+#
+# The exporter already writes entity.id as RECORD_ID, but Senzing never COMPARES a RECORD_ID, so
+# it cannot keep two different OpenSanctions entities apart. A1ES denies on a value mismatch:
+# every record carries exactly one id and the ids are unique, so two distinct entities can no
+# longer co-resolve no matter what weak evidence pulls them together.
+#
+# The failure this prevents is a reference list being read as identity. Other datasets cite
+# OpenSanctions ids; a record carrying a LIST of them is citing entities, not claiming to be
+# them. Without a deny on the authoritative side, each cited entity resolves into the citing
+# record and therefore into every other entity in the list. Measured on a sibling corpus: one
+# organization record carrying 700 referenced ids fused 84 distinct real entities into itself,
+# and the same A1ES twin pattern reduced that class of fusion by 99.8%.
+#
+# templateAdd/GLOBAL_ID is used rather than a hand-rolled addFeature because it decomposes A1ES
+# correctly into FREQ=A1 / EXCL=Yes / STAB=Yes. A hand-rolled definition is the documented way
+# to register an A1ES feature that silently misbehaves.
+templateAdd  {"feature": "OPENSANCTIONS_ID", "template": "GLOBAL_ID", "behavior": "A1ES"}
+getFeature   OPENSANCTIONS_ID
+# ---------------------------------------------------------------------------------------------
+# NATIONAL_ID_SUBTYPE -- the specific registry within a broad NATIONAL_ID_TYPE.
+#
+# ogrnCode is emitted as NATIONAL_ID_TYPE=REGISTRATION_NUMBER plus NATIONAL_ID_SUBTYPE=OGRN (or OGRNIP for
+# an individual entrepreneur). A bare REGISTRATION_NUMBER from a source that does not know the registry
+# then partial-matches the subtyped one instead of conflicting. Same three steps as TAX_ID_TYPE, on a new
+# ID_SUBTYPE element: store it on NATIONAL_ID, score it in the comparison call, map the attribute.
+# No execOrder: the new element is appended after the existing NATIONAL_ID rows.
+addElement                {"element": "ID_SUBTYPE", "datatype": "string"}
+addElementToFeature       {"feature": "NATIONAL_ID", "element": "ID_SUBTYPE", "derived": "No", "display": 1}
+addComparisonCallElement  {"feature": "NATIONAL_ID", "element": "ID_SUBTYPE"}
+addAttribute              {"attribute": "NATIONAL_ID_SUBTYPE", "class": "IDENTIFIER", "feature": "NATIONAL_ID", "element": "ID_SUBTYPE", "required": "No"}
+# ---------------------------------------------------------------------------------------------
+# Vessel, aircraft, security and OFAC identifiers, emitted as their own features (IMO_NUMBER,
+# MMSI_NUMBER, CALL_SIGN, ISIN_NUMBER, OFAC_ID) rather than OTHER_ID, so each is compared only with
+# itself. F1E: usually one entity per value, and two different values of the same scheme count against
+# a match.
+templateAdd  {"feature": "IMO_NUMBER", "template": "GLOBAL_ID", "behavior": "F1E"}
+templateAdd  {"feature": "MMSI_NUMBER", "template": "GLOBAL_ID", "behavior": "F1E"}
+templateAdd  {"feature": "CALL_SIGN", "template": "GLOBAL_ID", "behavior": "F1E"}
+templateAdd  {"feature": "ISIN_NUMBER", "template": "GLOBAL_ID", "behavior": "F1E"}
+templateAdd  {"feature": "OFAC_ID", "template": "GLOBAL_ID", "behavior": "F1E"}
+# ---------------------------------------------------------------------------------------------
+# BQ_ID -- the BrightQuery / OpenData.org company id (FtM brightQueryId). A1ES like OPENSANCTIONS_ID:
+# one curated id per company, so a mismatch keeps two companies apart.
+templateAdd  {"feature": "BQ_ID", "template": "GLOBAL_ID", "behavior": "A1ES"}
+
+save
