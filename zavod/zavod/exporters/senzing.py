@@ -538,7 +538,8 @@ class SenzingExporter(Exporter):
                 continue
             seen_identifiers.add(stmt.value)
 
-            if stmt.prop in NON_ID_PROPS:
+            if stmt.prop in NON_ID_PROPS or stmt.prop == "wikidataId":
+                # wikidataId is emitted once, as TRUSTED_ID WIKIDATA, further down.
                 continue
             identifier_type = STMT_PROPS_TO_MAP.get(stmt.prop)
             if identifier_type is not None:
