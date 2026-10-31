@@ -274,6 +274,12 @@ class SenzingExporter(Exporter):
         if entity.id is None:
             return None
 
+        # A held wallet is emitted on its holder's record (see the adjacency loop), the way
+        # OFAC lists wallets, so the address bridges across sources; only an unheld wallet
+        # (e.g. a ransomware payment address) stays a record of its own.
+        if entity.schema.is_a("CryptoWallet") and entity.has("holder"):
+            return None
+
         record_type = None
         is_org = False
 
@@ -487,7 +493,14 @@ class SenzingExporter(Exporter):
         map(entity, "sourceUrl", record, "SOURCE_LINKS", "SOURCE_URL")
 
         for _, adj in view.get_adjacent(entity):
-            if adj.schema.name == "Address":
+            if adj.schema.is_a("CryptoWallet") and entity.id in adj.get("holder"):
+                for address in adj.get("publicKey") + adj.get("cryptoAddress"):
+                    wallet = {
+                        "OTHER_ID_NUMBER": address,
+                        "OTHER_ID_TYPE": crypto_id_type(adj),
+                    }
+                    push(record, "IDENTIFIERS", wallet)
+            elif adj.schema.name == "Address":
                 adj_data = {"ADDR_FULL": adj.first("full")}
                 push(record, "ADDRESSES", clean(adj_data))
 

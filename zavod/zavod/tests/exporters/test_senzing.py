@@ -167,3 +167,43 @@ def test_crypto_id_type():
     assert crypto_id_type(wallet(currency=["Ethereum"])) == "CRYPTO_ETH"
     assert crypto_id_type(wallet(currency=["USDT"])) == "CRYPTO_USDT"
     assert crypto_id_type(wallet()) == "CRYPTO"
+
+
+def test_wallet_on_holder(tmp_path):
+    """A held wallet's address is an identifier of its holder; an unheld wallet stays a record."""
+    ds = Dataset({"name": "test", "title": "Test"})
+    holder = Entity(
+        ds, {"schema": "Company", "id": "h", "properties": {"name": ["Exchange"]}}
+    )
+    held = Entity(
+        ds,
+        {
+            "schema": "CryptoWallet",
+            "id": "w1",
+            "properties": {"holder": ["h"], "publicKey": ["1Abc"], "currency": ["BTC"]},
+        },
+    )
+    unheld = Entity(
+        ds,
+        {"schema": "CryptoWallet", "id": "w2", "properties": {"publicKey": ["1Xyz"]}},
+    )
+
+    class View:
+        def get_adjacent(self, entity):
+            if entity.id == "h":
+                yield held.schema.get("holder"), held
+
+    exporter = SenzingExporter.__new__(SenzingExporter)
+    exporter.dataset = ds
+    exporter.path = tmp_path / "senzing.json"
+    exporter.setup()
+    for entity in (holder, held, unheld):
+        exporter.feed(entity, View())
+    exporter.fh.close()
+    records = {r["RECORD_ID"]: r for r in map(loads, open(exporter.path))}
+    assert set(records) == {"h", "w2"}
+    wallet = {"OTHER_ID_NUMBER": "1Abc", "OTHER_ID_TYPE": "CRYPTO_XBT"}
+    assert wallet in records["h"]["FEATURES"]
+    assert {"OTHER_ID_NUMBER": "1Xyz", "OTHER_ID_TYPE": "CRYPTO"} in records["w2"][
+        "FEATURES"
+    ]
