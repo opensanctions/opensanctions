@@ -128,3 +128,24 @@ def test_senzing(testdataset1: Dataset):
     assert not [
         f for f in person_features if f.get("OTHER_ID_TYPE") == "OPEN_SANCTIONS"
     ]
+
+
+def test_source_name(tmp_path):
+    """DATA_SOURCE: a source dataset is OS_<NAME> unless overridden; a collection is
+    OPEN_SANCTIONS, except the openownership collection, which keeps its override."""
+
+    def source_name(data):
+        exporter = SenzingExporter.__new__(SenzingExporter)
+        exporter.dataset = Dataset({"title": "Test", **data})
+        exporter.path = tmp_path / "senzing.json"
+        exporter.setup()
+        exporter.fh.close()
+        return exporter.source_name
+
+    assert source_name({"name": "us_ofac_sdn"}) == "OS_US_OFAC_SDN"
+    assert source_name({"name": "gleif"}) == "GLEIF"
+    assert source_name({"name": "default", "children": ["gleif"]}) == "OPEN_SANCTIONS"
+    assert (
+        source_name({"name": "openownership", "children": ["gleif"]})
+        == "OPEN_OWNERSHIP"
+    )

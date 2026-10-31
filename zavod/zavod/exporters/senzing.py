@@ -37,8 +37,8 @@ STMT_PROPS_TO_MAP = {
 }
 NORM_TEXT = re.compile(r"[^\w\d]", re.U)
 SOURCE_NAME_OVERRIDES = {
-    "OS-OPENOWNERSHIP": "OPEN_OWNERSHIP",
-    "OS-GLEIF": "GLEIF",
+    "OS_OPENOWNERSHIP": "OPEN_OWNERSHIP",
+    "OS_GLEIF": "GLEIF",
 }
 
 
