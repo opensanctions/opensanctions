@@ -30,6 +30,10 @@ def test_classify_identification():
     # Case / punctuation variants collapse to the same scheme.
     assert classify_identification("curp") == ("NATIONAL_ID", "CURP", "mx")
     assert classify_identification("dni") == ("NATIONAL_ID", "DNI", None)
+    # CPF / CNPJ are Brazilian tax ids; a CUIL stays a national id.
+    assert classify_identification("CPF") == ("TAX_ID", "CPF", "br")
+    assert classify_identification("CNPJ") == ("TAX_ID", "CNPJ", "br")
+    assert classify_identification("C.U.I.L.") == ("NATIONAL_ID", "CUIL", "ar")
     # A CUIT is a tax id, not a national id; C.U.I. and C.U.I.T. must not collide.
     assert classify_identification("C.U.I.T.") == ("TAX_ID", "CUIT", "ar")
     # Other documents get their own feature or OTHER_ID scheme.

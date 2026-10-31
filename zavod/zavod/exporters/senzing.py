@@ -6,10 +6,11 @@
 # nomenklatura resolver file and then used to generate integrated FtM entities.
 #
 # Senzing config note: apply the companion `senzing_config_updates.gtc` (`sz_configtool -f ...`)
-# before loading. It registers what this exporter emits but a default config may lack -- the
-# OPENSANCTIONS_ID feature, NATIONAL_ID_SUBTYPE, TAX_ID_TYPE (in the Senzing 4.4 default config, not
-# in older ones) and the IMO_NUMBER / MMSI_NUMBER / CALL_SIGN / ISIN_NUMBER / OFAC_ID features.
-# Without it those attributes are kept as payload and never compared.
+# before loading. It registers what this exporter emits but a default config lacks -- the
+# OPENSANCTIONS_ID and BQ_ID features, NATIONAL_ID_SUBTYPE, and the IMO_NUMBER / MMSI_NUMBER /
+# CALL_SIGN / ISIN_NUMBER / OFAC_ID features. Configs older than Senzing 4.4's default also need
+# `senzing_config_updates_tax_id_type.gtc` for TAX_ID_TYPE. Without them those attributes are kept
+# as payload and never compared.
 
 import re
 from itertools import product
@@ -32,6 +33,7 @@ STMT_PROPS_TO_MAP = {
     "isin": "ISIN_NUMBER",
     "isinCode": "ISIN_NUMBER",
     "npiCode": "NPI_NUMBER",
+    "brightQueryId": "BQ_ID",
 }
 NORM_TEXT = re.compile(r"[^\w\d]", re.U)
 SOURCE_NAME_OVERRIDES = {
@@ -99,26 +101,32 @@ def hash_value(value: str) -> str:
     return NORM_TEXT.sub("", value).lower()
 
 
-# FtM identifier properties -> canonical OTHER_ID_TYPE (+ the issuing country when the scheme has
-# only one). Tokens are the UPPER-CASE schemes of the Senzing identifier crosswalk, so every source
-# sharing a Senzing instance lands in one namespace per scheme. Unlisted identifier properties keep
-# the FtM property name as their TYPE.
-OTHER_ID_TYPES: dict[str, tuple[str, str | None]] = {
-    "swiftBic": ("SWIFT_BIC", None),
-    "bikCode": ("BIK", "ru"),
-    "okpoCode": ("OKPO", "ru"),
-    "giiNumber": ("GIIN", None),
-    "permId": ("PERMID", None),
-    "uniqueEntityId": ("SAM_UEI", "us"),
-    "cageCode": ("CAGE", None),
-    "cikCode": ("CIK", "us"),
-    "licenseNumber": ("LICENSE", None),
+# FtM identifier properties -> (family, canonical TYPE, issuing country, NATIONAL_ID subtype).
+# Tokens are the UPPER-CASE schemes of the Senzing identifier crosswalk, so every source sharing a
+# Senzing instance lands in one namespace per scheme; the country is set when the scheme has only
+# one issuer. Unlisted identifier properties become an OTHER_ID typed by the FtM property name.
+ID_PROP_TYPES: dict[str, tuple[str, str, str | None, str | None]] = {
+    "swiftBic": ("OTHER_ID", "SWIFT_BIC", None, None),
+    "bikCode": ("OTHER_ID", "BIK", "ru", None),
+    "okpoCode": ("OTHER_ID", "OKPO", "ru", None),
+    "giiNumber": ("OTHER_ID", "GIIN", None, None),
+    "permId": ("OTHER_ID", "PERMID", None, None),
+    "uniqueEntityId": ("OTHER_ID", "SAM_UEI", "us", None),
+    "cageCode": ("OTHER_ID", "CAGE", None, None),
+    "cikCode": ("OTHER_ID", "CIK", "us", None),
+    "licenseNumber": ("OTHER_ID", "LICENSE", None, None),
+    "bvdId": ("OTHER_ID", "BVD_ID", None, None),
     # FtM defines serialNumber only on Airplane: the manufacturer serial number (MSN).
-    "serialNumber": ("AIRCRAFT_MSN", None),
+    "serialNumber": ("OTHER_ID", "AIRCRAFT_MSN", None, None),
+    # China's Unified Social Credit Code is the company registration number.
+    "uscCode": ("NATIONAL_ID", "REGISTRATION_NUMBER", "cn", "USCC"),
+    "voenCode": ("TAX_ID", "VOEN", "az", None),
 }
-# Identifier-typed properties whose values are shared by many entities (a KPP reason code, a
-# listed instrument's ticker/RIC). Not mapped as identifiers at all.
-NON_ID_PROPS = {"kppCode", "ticker", "ricCode"}
+# Identifier-typed properties that do not identify one entity: a KPP reason code and a listed
+# instrument's ticker/RIC are shared, an Airplane's icaoCode is its aircraft TYPE designator
+# (e.g. B738), and a Vessel's crsNumber is a classification-society register number with no
+# canonical scheme. Not mapped as identifiers.
+NON_ID_PROPS = {"kppCode", "ticker", "ricCode", "icaoCode", "crsNumber"}
 
 # Senzing attributes per identifier family: (number, type, country). PASSPORT and DRLIC are
 # specific features with no TYPE.
@@ -150,8 +158,6 @@ IDENTIFICATION_TYPES: dict[str, tuple[str | None, str | None, str | None]] = {
         "D.N.I.": ("NATIONAL_ID", "DNI", None),
         "C.U.I.": ("NATIONAL_ID", "CUI", None),  # Guatemala
         "C.U.I.L.": ("NATIONAL_ID", "CUIL", "ar"),
-        "CNPJ": ("NATIONAL_ID", "CNPJ", "br"),
-        "CPF": ("NATIONAL_ID", "CPF", "br"),
         "N.I.E.": ("NATIONAL_ID", "NIE", "es"),
         "CNP (Personal Numerical Code)": ("NATIONAL_ID", "CNP", "ro"),
         "Turkish Identification Number": ("NATIONAL_ID", "TCKN", "tr"),
@@ -166,6 +172,8 @@ IDENTIFICATION_TYPES: dict[str, tuple[str | None, str | None, str | None]] = {
         # Tax ids.
         "C.U.I.T.": ("TAX_ID", "CUIT", "ar"),
         "NIT #": ("TAX_ID", "NIT", None),
+        "CNPJ": ("TAX_ID", "CNPJ", "br"),  # Brazil, legal entity
+        "CPF": ("TAX_ID", "CPF", "br"),  # Brazil, natural person
         # Other documents: each its own scheme, never a national id.
         "Driver's License No.": ("DRLIC", None, None),
         "License": ("OTHER_ID", "LICENSE", None),
@@ -213,7 +221,12 @@ def classify_identification(
 def crypto_id_type(wallet: Entity) -> str:
     """CRYPTO_<asset> for a wallet address (CRYPTO_XBT, CRYPTO_ETH, ...), CRYPTO when the
     currency is unknown."""
-    currency = NORM_TEXT.sub("", wallet.first("currency", quiet=True) or "").upper()
+    currency = (
+        wallet.first("currency", quiet=True)
+        or wallet.first("currencySymbol", quiet=True)
+        or ""
+    )
+    currency = NORM_TEXT.sub("", currency).upper()
     return f"CRYPTO_{currency}" if currency else "CRYPTO"
 
 
@@ -510,23 +523,18 @@ class SenzingExporter(Exporter):
                         }
                         push(record, "RELATIONSHIPS", edge)
 
-        # A generic idNumber/taxNumber often repeats the number of a typed Identification
-        # document (a driver's licence, a CURP). Keep only the typed copy: a bare NATIONAL_ID
-        # holding a birth-certificate number could otherwise bridge to an unrelated scheme.
-        if idents := record.get("IDENTIFIERS"):
-            typed = {
-                v for i in idents if not is_generic_id(i) for v in number_values(i)
-            }
-            record["IDENTIFIERS"] = [
-                i for i in idents if not (is_generic_id(i) and number_values(i) & typed)
-            ]
-
         seen_identifiers = set()
+        generic_numbers = set()
         for ident in record.get("IDENTIFIERS", []):
             seen_identifiers.update(ident.values())
+            if is_generic_id(ident):
+                generic_numbers.update(number_values(ident))
 
         for stmt in entity.get_type_statements(registry.identifier, matchable=True):
-            if stmt.value in seen_identifiers:
+            # A specific scheme still applies when its number was only seen as a generic id;
+            # the generic copy is dropped below.
+            specific = stmt.prop in ID_PROP_TYPES and stmt.value in generic_numbers
+            if stmt.value in seen_identifiers and not specific:
                 continue
             seen_identifiers.add(stmt.value)
 
@@ -536,18 +544,40 @@ class SenzingExporter(Exporter):
             if identifier_type is not None:
                 push(record, "IDENTIFIERS", {identifier_type: stmt.value})
                 continue
-            if stmt.prop == "publicKey":
-                other_type, other_country = crypto_id_type(entity), None
+            if stmt.prop == "accountId":
+                # A platform account on the wallet's exchange, which is its domain.
+                account = {
+                    "ACCOUNT_NUMBER": stmt.value,
+                    "ACCOUNT_DOMAIN": entity.first("managingExchange", quiet=True),
+                }
+                push(record, "IDENTIFIERS", clean(account))
+                continue
+            if stmt.prop in ("publicKey", "cryptoAddress"):
+                family, scheme = "OTHER_ID", crypto_id_type(entity)
+                country, subtype = None, None
             else:
-                other_type, other_country = OTHER_ID_TYPES.get(
-                    stmt.prop, (stmt.prop, None)
+                family, scheme, country, subtype = ID_PROP_TYPES.get(
+                    stmt.prop, ("OTHER_ID", stmt.prop, None, None)
                 )
-            identifier = {
-                "OTHER_ID_TYPE": other_type,
-                "OTHER_ID_NUMBER": stmt.value,
-                "OTHER_ID_COUNTRY": other_country,
-            }
+            num_attr, type_attr, ctry_attr = ID_ATTRS[family]
+            identifier = {num_attr: stmt.value, ctry_attr: country}
+            if type_attr is not None:
+                identifier[type_attr] = scheme
+            if subtype is not None:
+                identifier["NATIONAL_ID_SUBTYPE"] = subtype
             push(record, "IDENTIFIERS", clean(identifier))
+
+        # A generic idNumber/taxNumber often repeats the number of a typed Identification
+        # document or a specific scheme (a driver's licence, a CURP, a USCC). Keep only the
+        # typed copy: a bare NATIONAL_ID holding a birth-certificate number could otherwise
+        # bridge to an unrelated scheme.
+        if idents := record.get("IDENTIFIERS"):
+            typed = {
+                v for i in idents if not is_generic_id(i) for v in number_values(i)
+            }
+            record["IDENTIFIERS"] = [
+                i for i in idents if not (is_generic_id(i) and number_values(i) & typed)
+            ]
 
         # Retrieve the OFAC ID from the OFAC URL and add to IDENTIFIERS
         for value in entity.get("sourceUrl", quiet=True):

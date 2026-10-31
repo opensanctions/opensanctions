@@ -2,21 +2,13 @@
 #
 # Apply with:  sz_configtool -f senzing_config_updates.gtc
 #
-# Registers what the exporter emits but a default config may lack: TAX_ID_TYPE, NATIONAL_ID_SUBTYPE,
-# OPENSANCTIONS_ID, and the vessel/aircraft/security/OFAC identifier features. Without them, the
+# Registers what the exporter emits but a default config lacks: OPENSANCTIONS_ID, BQ_ID,
+# NATIONAL_ID_SUBTYPE, and the vessel/aircraft/security/OFAC identifier features. Without them, the
 # attributes are carried as payload at load and never compared.
 #
-# TAX_ID_TYPE: the exporter types tax ids by scheme (INN, VAT, CUIT, NIT; a generic taxNumber carries no
-# type) so distinct schemes stay in separate exclusivity namespaces. It needs an ID_TYPE element on the
-# TAX_ID feature AND in its comparison call -- the comparison-call row is what makes the type SCORED, not
-# just stored. Senzing 4.4's default config ships this; the commands below add it to older configs
-# (mirrors NATIONAL_ID, which already carries a scored ID_TYPE).
+# TAX_ID_TYPE is in senzing_config_updates_tax_id_type.gtc, for configs older than Senzing 4.4's default
+# only: on a config that already has it, sz_configtool reports the commands as present and does not save.
 #
-# execOrder values match the 4.4.0-26224 template.
-
-addElementToFeature       {"feature": "TAX_ID", "element": "ID_TYPE", "derived": "No", "display": 1, "execOrder": 7}
-addComparisonCallElement  {"feature": "TAX_ID", "element": "ID_TYPE", "execOrder": 3}
-addAttribute              {"attribute": "TAX_ID_TYPE", "class": "IDENTIFIER", "feature": "TAX_ID", "element": "ID_TYPE", "required": "Desired"}
 # ---------------------------------------------------------------------------------------------
 # OPENSANCTIONS_ID -- the canonical OpenSanctions entity id, as an A1ES exclusive feature.
 #
@@ -59,5 +51,9 @@ templateAdd  {"feature": "MMSI_NUMBER", "template": "GLOBAL_ID", "behavior": "F1
 templateAdd  {"feature": "CALL_SIGN", "template": "GLOBAL_ID", "behavior": "F1E"}
 templateAdd  {"feature": "ISIN_NUMBER", "template": "GLOBAL_ID", "behavior": "F1E"}
 templateAdd  {"feature": "OFAC_ID", "template": "GLOBAL_ID", "behavior": "F1E"}
+# ---------------------------------------------------------------------------------------------
+# BQ_ID -- the BrightQuery / OpenData.org company id (FtM brightQueryId). A1ES like OPENSANCTIONS_ID:
+# one curated id per company, so a mismatch keeps two companies apart.
+templateAdd  {"feature": "BQ_ID", "template": "GLOBAL_ID", "behavior": "A1ES"}
 
 save
