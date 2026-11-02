@@ -38,19 +38,45 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 200  # raw count 218
+      LegalEntity: 150  # raw count 185
   max:
     schema_entities:
       LegalEntity: 450
 
 lookups:
+  provider_names:
+    options:
+      - match: Bordeaux Collins/Shenika
+        name: Shenika Bordeaux Collins
+      - match: Kongnyuy/Veronica
+        name: Veronica Kongnyuy
+      - match: Licklider/Carrie A
+        name: Carrie A Licklider
+      - match: Waithaka/Margaret W
+        name: Margaret W Waithaka
+      - match: DINA L HILL MBR (Good Neighbor Support SVCS)
+        name: Good Neighbor Support SVCS
+        alias: Dina L Hill
+      - match: Lotus Health Arizona (DONISHA PARDUE)
+        name: Lotus Health Arizona
+        alias: Donisha Pardue
   manual_extraction:
     options:
       - match: |
+          name-provider-peace-and-love-behavioral-health-llc-npi-1073148722-action-type-suspend-terminate-suspend-effective-date-12-8-2023
+          name-provider-solace-behavioral-health-llc-dba-sondercare-nbehavioral-health-npi-1023614609-action-type-suspend-terminate-suspend-effective-date-12-8-2023
           name-provider-f-a-c-t-s-behavioral-health-npi-1386928414-action-type-suspend-terminate-suspend-effective-date-12-1-2023
           name-provider-none-npi-1235787599-action-type-suspend-terminate-none-effective-date-12-1-2023
           name-provider-desert-foothills-counseling-npi-1730553058-action-type-suspend-terminate-suspend-effective-date-11-9-2023
         rows:
+          - name_provider: 'Peace and Love Behavioral Health, LLC'
+            npi: '1073148722'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '12/8/2023'
+          - name_provider: 'Solace Behavioral Health LLC dba Sondercare Behavioral Health'
+            npi: '1023614609'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '12/8/2023'
           - name_provider: 'F.A.C.T.S. Behavioral Health'
             npi: ['1386928414', '1235787599']
             action_type_suspend_terminate: 'Suspend'
@@ -78,24 +104,3 @@ lookups:
             npi: '1790411825'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '11/3/2023'
-      - match: |
-          name-provider-legacy-healthcare-llc-npi-1295329001-action-type-suspend-terminate-suspend-effective-date-10-13-2023
-          name-provider-stepping-stone-treatment-center-nwe-kare-behavioral-health-npi-1588338685-n1508454471-action-type-suspend-terminate-suspend-nsuspend-effective-date-10-13-2023-n10-6-2023
-          name-provider-maa-wellness-center-inc-npi-1366094393-action-type-suspend-terminate-suspend-effective-date-9-29-2023
-        rows:
-          - name_provider: 'Legacy Healthcare, LLC'
-            npi: '1295329001'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-          - name_provider: 'Stepping Stone Treatment Center'
-            npi: '1588338685'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-          - name_provider: 'We Kare Behavioral Health'
-            npi: '1508454471'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/6/2023'
-          - name_provider: 'MAA Wellness Center, Inc.'
-            npi: '1366094393'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '9/29/2023'
