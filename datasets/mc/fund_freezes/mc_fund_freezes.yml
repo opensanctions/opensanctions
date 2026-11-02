@@ -211,7 +211,9 @@ lookups:
         aliases:
           - RFNC-VNIITF
           - VNITTF
-      - match: "Khirullah Said Wali Khairkhwa (né à Kandahar le 01/01/1967)"
+      - match:
+          - "Khirullah Said Wali Khairkhwa (né à Kandahar le 01/01/1967)"
+          - "Khirullah Said Wali Khairkhwa (né en Kandahar, le 01/01/1967)"
         aliases:
           - Khirullah Said Wali Khairkhwa
       - match: "Iadena Mohammad (né le 01/01/1969)"
