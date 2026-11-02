@@ -85,6 +85,10 @@ def crawl_person(context: Context, url: str) -> None:
     if not info["birth_date"]:
         # The birth date is what distinguishes namesakes in the entity ID, so without
         # it we would risk merging distinct people into one entity.
+        # New profiles are sometimes published before the birth date is filled in.
+        # Evict the cached page so the next run re-fetches it instead of reusing the
+        # incomplete copy for the whole cache period.
+        context.clear_url(url)
         context.log.warning("Skipping person without a birth date", url=url)
         return
 
