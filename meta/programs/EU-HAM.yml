@@ -22,6 +22,7 @@ aliases:
   - HAM
 target_territories:
   - ps
+  - il
 measures:
   - Asset freeze
   - Travel ban

@@ -17,5 +17,6 @@ aliases:
     of the Transnistrian region of the Republic of Moldova
 target_territories:
   - md-pmr
+  - md
 measures:
   - Travel ban

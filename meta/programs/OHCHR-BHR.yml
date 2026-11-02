@@ -21,3 +21,4 @@ issuer: un_ohchr
 dataset: ps_ohchr_settlement
 target_territories:
   - il
+  - ps
