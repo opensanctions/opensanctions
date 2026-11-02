@@ -5,6 +5,11 @@ updates:
     open-pull-requests-limit: 99
     schedule:
       interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/contrib/tune"
+    open-pull-requests-limit: 99
+    schedule:
+      interval: "daily"
   - package-ecosystem: "npm"
     directory: "/ui"
     open-pull-requests-limit: 99
