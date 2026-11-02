@@ -153,3 +153,5 @@ lookups:
         values: [AZ, UA]
       - match: HISZPANIA ROSJA
         values: [ES, RU]
+      - match: KOSOWO FINLANDIA
+        values: [XK, FI]
