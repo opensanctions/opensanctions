@@ -11,15 +11,21 @@ from nomenklatura.wikidata.client import WikidataClient
 from nomenklatura.wikidata.write import serialize
 
 from zavod.archive import dataset_state_path
-from zavod.cli import cli, DatasetInPath, _load_datasets, log
+from zavod.cli import cli, DatasetInPath, _load_datasets, _load_query, log
 from zavod.integration import get_resolver
 from zavod.integration.dedupe import blocking_xref, merge_entities, explode_cluster
 from zavod.runtime.manifest import Manifest
 from zavod.store import get_store
 
 
-@cli.command("xref", help="Generate dedupe candidates from the given dataset")
-@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@cli.command(
+    "xref",
+    help=(
+        "Generate dedupe candidates from the datasets selected by QUERY. "
+        "See https://followthemoney.tech/docs/metadata/#dataset-query-dsl."
+    ),
+)
+@click.argument("query", type=str)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus", type=str, multiple=True)
@@ -28,7 +34,7 @@ from zavod.store import get_store
 @click.option("-t", "--threshold", type=float, default=None)
 @click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
 def xref(
-    dataset_paths: list[Path],
+    query: str,
     rebuild_store: bool,
     limit: int,
     threshold: float | None,
@@ -37,7 +43,7 @@ def xref(
     schema: str | None = None,
     discount_internal: float = 1.0,
 ) -> None:
-    dataset = _load_datasets(dataset_paths)
+    dataset = _load_query(query)
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
@@ -70,11 +76,17 @@ def xref_prune() -> None:
         sys.exit(1)
 
 
-@cli.command("dedupe", help="Interactively decide xref candidates")
-@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@cli.command(
+    "dedupe",
+    help=(
+        "Interactively decide xref candidates in the datasets selected by QUERY. "
+        "See https://followthemoney.tech/docs/metadata/#dataset-query-dsl."
+    ),
+)
+@click.argument("query", type=str)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def dedupe(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
-    dataset = _load_datasets(dataset_paths)
+def dedupe(query: str, rebuild_store: bool = False) -> None:
+    dataset = _load_query(query)
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
@@ -194,13 +206,16 @@ def merge(entity_ids: list[str], force: bool = False) -> None:
         sys.exit(1)
 
 
-@cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
-@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@cli.command(
+    "dedupe-edges",
+    help="Merge edge entities that are effectively duplicates in the datasets selected by QUERY",
+)
+@click.argument("query", type=str)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def dedupe_edges(dataset_paths: list[Path], rebuild_store: bool = False) -> None:
+def dedupe_edges(query: str, rebuild_store: bool = False) -> None:
     from zavod.integration import edges
 
-    dataset = _load_datasets(dataset_paths)
+    dataset = _load_query(query)
     try:
         with make_session() as session:
             resolver = get_resolver(session)
@@ -212,5 +227,5 @@ def dedupe_edges(dataset_paths: list[Path], rebuild_store: bool = False) -> None
             store.sync(clear=rebuild_store)
             edges.dedupe_edges(resolver, session, store.view(dataset, external=True))
     except Exception:
-        log.exception(f"Failed to dedupe edge entities: {dataset_paths!r}")
+        log.exception(f"Failed to dedupe edge entities: {query!r}")
         sys.exit(1)

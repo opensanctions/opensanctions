@@ -1,4 +1,5 @@
 import pytest
+from structlog.testing import capture_logs
 from followthemoney.exc import MetadataException
 from followthemoney.model import Model
 from followthemoney.settings import USER_AGENT
@@ -189,3 +190,20 @@ def test_multi_dataset(analyzer: Dataset, testdataset1: Dataset):
     ds = get_multi_dataset(get_catalog(), [analyzer.name, testdataset1.name])
     assert analyzer in ds.children
     assert testdataset1 in ds.children
+
+
+def test_multi_dataset_skips_disabled(testdataset1: Dataset):
+    catalog = get_catalog()
+    disabled = catalog.make_dataset(
+        {"name": "test_disabled", "title": "Disabled", "disabled": True}
+    )
+    with capture_logs() as cap_logs:
+        ds = get_multi_dataset(catalog, [testdataset1.name, disabled.name])
+    assert ds == testdataset1
+    assert {
+        "event": "Skipping disabled dataset: test_disabled",
+        "log_level": "info",
+    } in cap_logs
+
+    with pytest.raises(MetadataException):
+        get_multi_dataset(catalog, [disabled.name])

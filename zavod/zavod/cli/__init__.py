@@ -4,11 +4,14 @@ from pathlib import Path
 import click
 from click.shell_completion import CompletionItem
 
+from followthemoney.dataset import evaluate_query, parse_query
+from followthemoney.exc import InvalidDatasetQuery, MetadataException
 from followthemoney.statement import FORMATS
 import requests
 from zavod import settings
 from zavod.logs import configure_logging, get_logger, set_logging_context_dataset_name
 from zavod.meta import load_dataset_from_path, get_catalog, get_multi_dataset, Dataset
+from zavod.meta import load_directory_catalog
 
 log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
@@ -46,10 +49,33 @@ def _load_dataset(path: Path) -> Dataset:
 
 
 def _load_datasets(paths: list[Path]) -> Dataset:
+    """Load multiple datasets from paths and combine them into a single dataset."""
     inputs: list[str] = []
     for path in paths:
         inputs.append(_load_dataset(path).name)
     return get_multi_dataset(get_catalog(), inputs)
+
+
+def _load_query(query: str) -> Dataset:
+    """Combine the datasets selected by a dataset query into a single dataset."""
+    catalog = load_directory_catalog()
+    try:
+        selected = evaluate_query(catalog, parse_query(query))
+    except InvalidDatasetQuery as exc:
+        raise click.BadParameter(str(exc), param_hint="QUERY")
+    if not selected:
+        raise click.BadParameter(
+            f"Query selects no datasets: {query!r}", param_hint="QUERY"
+        )
+    try:
+        dataset = get_multi_dataset(catalog, sorted(d.name for d in selected))
+    except MetadataException as exc:
+        raise click.BadParameter(str(exc), param_hint="QUERY")
+    names = sorted(d.name for d in dataset.leaves)
+    log.info(
+        f"Dataset query selects {len(names)} datasets", query=query, datasets=names
+    )
+    return dataset
 
 
 @click.group(help="Zavod data factory")

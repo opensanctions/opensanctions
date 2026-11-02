@@ -60,16 +60,21 @@ def load_directory_catalog(datasets_path: Path | None = None) -> ArchiveBackedCa
 
 def get_multi_dataset(catalog: DataCatalog[Dataset], names: list[str]) -> Dataset:
     """The scopes of a dataset is the set of other datasets on which analysis or
-    enrichment should be performed by the runner."""
+    enrichment should be performed by the runner. Disabled datasets are skipped."""
     inputs: list[Dataset] = []
     for input_name in names:
         try:
-            inputs.append(catalog.require(input_name))
+            dataset = catalog.require(input_name)
         except MetadataException as exc:
             log.error(
                 f"Invalid dataset input: {exc}",
                 input=input_name,
             )
+            continue
+        if dataset.model.disabled:
+            log.info(f"Skipping disabled dataset: {dataset.name}")
+            continue
+        inputs.append(dataset)
     if not len(inputs):
         raise MetadataException(f"No valid input datasets: {names!r}")
     if len(inputs) == 1:
