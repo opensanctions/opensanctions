@@ -85,7 +85,7 @@ def test_senzing(testdataset1: Dataset):
     with open(dataset_path / "senzing.json") as senzing_file:
         targets = [loads(line) for line in senzing_file.readlines()]
     # The exporter emits the single-list FEATURES schema: every feature is an object in FEATURES;
-    # only DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL stay at the top level.
+    # DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL and the non-feature payload stay at the top level.
     company = [t for t in targets if t["RECORD_ID"] == "osv-umbrella-corp"][0]
     company_features = company["FEATURES"]
 
@@ -124,9 +124,10 @@ def test_senzing(testdataset1: Dataset):
     assert {"NATIONALITY": "dd"} in person_features
     assert person["DATA_SOURCE"] == "OS_TESTDATASET1"
     assert person["RECORD_ID"] == "osv-hans-gruber"
-    # The OpenSanctions id is asserted once, as the OPENSANCTIONS_ID feature, not again as an
-    # OTHER_ID.
-    assert person["OPENSANCTIONS_ID"] == "osv-hans-gruber"
+    # The OpenSanctions id is asserted once, as the OPENSANCTIONS_ID feature (in FEATURES,
+    # never at the record root), not again as an OTHER_ID.
+    assert {"OPENSANCTIONS_ID": "osv-hans-gruber"} in person_features
+    assert "OPENSANCTIONS_ID" not in person
     assert not [
         f for f in person_features if f.get("OTHER_ID_TYPE") == "OPEN_SANCTIONS"
     ]
@@ -206,4 +207,59 @@ def test_wallet_on_holder(tmp_path):
     assert wallet in records["h"]["FEATURES"]
     assert {"OTHER_ID_NUMBER": "1Xyz", "OTHER_ID_TYPE": "CRYPTO"} in records["w2"][
         "FEATURES"
+    ]
+
+
+def test_features_shape(tmp_path):
+    """FEATURES holds only Senzing feature attributes and never an empty object; descriptive
+    values that are not features (topics, source URLs, dissolution date) are root payload
+    strings, never lists or objects."""
+    ds = Dataset({"name": "test", "title": "Test"})
+    company = Entity(
+        ds,
+        {
+            "schema": "Company",
+            "id": "c",
+            "properties": {
+                "name": ["Acme"],
+                "topics": ["sanction", "debarment"],
+                "sourceUrl": ["https://example.org/a"],
+                "dissolutionDate": ["2020-01-02"],
+            },
+        },
+    )
+    no_number = Entity(
+        ds,
+        {
+            "schema": "Identification",
+            "id": "i",
+            "properties": {"holder": ["c"], "country": ["ru"]},
+        },
+    )
+    no_text = Entity(ds, {"schema": "Address", "id": "a", "properties": {}})
+
+    class View:
+        def get_adjacent(self, entity):
+            yield no_number.schema.get("holder"), no_number
+            yield company.schema.get("addressEntity"), no_text
+
+    exporter = SenzingExporter.__new__(SenzingExporter)
+    exporter.dataset = ds
+    exporter.path = tmp_path / "senzing.json"
+    exporter.setup()
+    exporter.feed(company, View())
+    exporter.fh.close()
+    (record,) = map(loads, open(exporter.path))
+    feats = record["FEATURES"]
+    assert {"OPENSANCTIONS_ID": "c"} in feats
+    assert all(feats), "an empty FEATURES object"
+    assert not [f for f in feats if "NATIONAL_ID_COUNTRY" in f]
+    for attr in ("TOPIC", "SOURCE_URL", "DISSOLUTION_DATE"):
+        assert not [f for f in feats if attr in f]
+    assert "OPENSANCTIONS_ID" not in record
+    assert sorted(record["TOPIC"].split("; ")) == ["debarment", "sanction"]
+    assert record["SOURCE_URL"] == "https://example.org/a"
+    assert record["DISSOLUTION_DATE"] == "2020-01-02"
+    assert not [
+        k for k, v in record.items() if k != "FEATURES" and isinstance(v, (list, dict))
     ]

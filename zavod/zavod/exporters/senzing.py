@@ -35,6 +35,12 @@ STMT_PROPS_TO_MAP = {
     "npiCode": "NPI_NUMBER",
     "brightQueryId": "BQ_ID",
 }
+# FtM property -> record-level payload attribute (not a Senzing feature; see feed()).
+PAYLOAD_PROPS = {
+    "topics": "TOPIC",
+    "sourceUrl": "SOURCE_URL",
+    "dissolutionDate": "DISSOLUTION_DATE",
+}
 NORM_TEXT = re.compile(r"[^\w\d]", re.U)
 SOURCE_NAME_OVERRIDES = {
     "OS_OPENOWNERSHIP": "OPEN_OWNERSHIP",
@@ -321,7 +327,7 @@ class SenzingExporter(Exporter):
             # entities into itself until the authoritative side asserted an A1ES twin.
             #
             # Requires the companion senzing_config_updates.gtc, which registers the feature.
-            "OPENSANCTIONS_ID": entity.id,
+            # A feature attribute, so it is emitted in FEATURES (see the flattening below).
         }
 
         # Collect name hashes to deduplicate names that have different case but are otherwise the same
@@ -343,15 +349,10 @@ class SenzingExporter(Exporter):
             if genders[0] == "female":
                 record["GENDER"] = "F"
 
-        map(entity, "topics", record, "RISKS", "TOPIC")
         map(entity, "address", record, "ADDRESSES", "ADDR_FULL")
         map(entity, "birthDate", record, "DATES", "DATE_OF_BIRTH")
         map(entity, "deathDate", record, "DATES", "DATE_OF_DEATH")
         map(entity, "incorporationDate", record, "DATES", "REGISTRATION_DATE")
-        # Organization dissolution date — the org analog of a person's DATE_OF_DEATH.
-        # Emitted formatted for Senzing; a consumer can register a DISSOLUTION_DATE feature
-        # if they want it scored (parallel to REGISTRATION_DATE for incorporation).
-        map(entity, "dissolutionDate", record, "DATES", "DISSOLUTION_DATE")
         map(entity, "birthPlace", record, "ADDRESSES", "PLACE_OF_BIRTH")
         map(
             entity,
@@ -490,7 +491,6 @@ class SenzingExporter(Exporter):
         map(entity, "socialSecurityNumber", record, "IDENTIFIERS", "SSN_NUMBER")
         map(entity, "leiCode", record, "IDENTIFIERS", "LEI_NUMBER")
         map(entity, "dunsCode", record, "IDENTIFIERS", "DUNS_NUMBER")
-        map(entity, "sourceUrl", record, "SOURCE_LINKS", "SOURCE_URL")
 
         for _, adj in view.get_adjacent(entity):
             if adj.schema.is_a("CryptoWallet") and entity.id in adj.get("holder"):
@@ -501,8 +501,8 @@ class SenzingExporter(Exporter):
                     }
                     push(record, "IDENTIFIERS", wallet)
             elif adj.schema.name == "Address":
-                adj_data = {"ADDR_FULL": adj.first("full")}
-                push(record, "ADDRESSES", clean(adj_data))
+                if full := adj.first("full"):
+                    push(record, "ADDRESSES", {"ADDR_FULL": full})
 
             elif adj.schema.is_a("Identification"):
                 # The document's free-text `type` decides the feature (a driver's licence is not
@@ -513,7 +513,9 @@ class SenzingExporter(Exporter):
                     if adj.schema.name == "Passport"
                     else classify_identification(adj.first("type"))
                 )
-                if family is not None:
+                # A document without a number identifies nothing: never emit its country
+                # (or an empty object) alone.
+                if family is not None and adj.first("number"):
                     num_attr, type_attr, ctry_attr = ID_ATTRS[family]
                     adj_data = {
                         num_attr: adj.first("number"),
@@ -651,24 +653,31 @@ class SenzingExporter(Exporter):
         # resolves them identically; the single list is cleaner and consistent across mappers. Built
         # via sub-lists above (so the address/name dedup and BUSINESS tagging stay simple), flattened
         # here. Record-level metadata (DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL) stays at the top level.
-        feats: list[dict[str, Any]] = []
+        feats: list[dict[str, Any]] = [{"OPENSANCTIONS_ID": entity.id}]
         if record_type is not None:
             feats.append({"RECORD_TYPE": record_type})
         if (gender := record.pop("GENDER", None)) is not None:
             feats.append({"GENDER": gender})
         for section in (
             "NAMES",
-            "RISKS",
             "ADDRESSES",
             "DATES",
             "COUNTRIES",
             "CONTACTS",
             "IDENTIFIERS",
-            "SOURCE_LINKS",
             "RELATIONSHIPS",
         ):
-            feats.extend(record.pop(section, []))
+            # Never an empty object: Senzing would load it as a feature with no attributes.
+            feats.extend(f for f in record.pop(section, []) if f)
         record["FEATURES"] = feats
+
+        # Descriptive values that are not Senzing features: kept as record-level payload (shown
+        # with the record, never compared), not in FEATURES, where an unregistered attribute is
+        # rejected or silently dropped by the engine. Multiple values are joined with "; ".
+        # DISSOLUTION_DATE has no Entity Specification attribute (unlike REGISTRATION_DATE).
+        for prop, attr in PAYLOAD_PROPS.items():
+            if values := entity.get(prop, quiet=True):
+                record[attr] = "; ".join(values)
 
         # pprint(record)
         write_json(record, self.fh)
