@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: tn-cnrd
 coverage:
   frequency: monthly
+  start: 2026-11-02
 load_statements: true
 ci_test: false  # LLM translation
 summary: Upper chamber indirectly elected from Tunisia's regional and district councils
