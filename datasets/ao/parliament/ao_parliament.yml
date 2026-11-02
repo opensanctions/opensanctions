@@ -14,10 +14,6 @@ description: |
   proportional representation for a five-year term, 130 in a single national
   constituency and 90 in the provincial constituencies, and hold the country's
   legislative power, including passing laws and approving the budget.
-
-  Members of every legislature since 1992 are listed with their name, date of birth,
-  email address, party, parliamentary group, constituency and the legislature they
-  served in, with the date they were sworn in where known.
 url: https://parlamento.ao/
 publisher:
   name: Assembleia Nacional de Angola
@@ -60,35 +56,85 @@ assertions:
 lookups:
   # Legislatures listed in the site's "Deputados" menu. `lists` names the API pages
   # holding each roster: `V_Legislatura` holds members sworn in after the roster on
-  # `V_Legislatura1` was published. Term bounds from the legislature history pages
-  # (Historia_*_Legislatura) and the constitutive sessions.
+  # `V_Legislatura1` was published. `current` marks the sitting legislature, whose
+  # members without a "Perda de Mandato" are current PEPs. When a new legislature
+  # appears in the menu, add it here and move `current: true` to it, so that the
+  # previous one resolves to an unknown status.
   legislature:
     required: true
     options:
       - match: V Legislatura
-        period_start: "2022-09-16"
+        current: true
         lists: [V_Legislatura1, V_Legislatura]
       - match: IV Legislatura
-        period_start: "2017-09-28"
-        period_end: "2022-09-16"
         lists: [IV-legislatura]
       - match: III Legislatura
-        period_start: "2012-09"
-        period_end: "2017-09-28"
         lists: [III-legislatura]
       - match: II Legislatura
-        period_start: "2008-09"
-        period_end: "2012-09"
         lists: [II-legislatura]
       - match: I Legislatura
-        period_start: "1992-11-26"
-        period_end: "2008-09"
         lists: [I_Legislatura]
 
+  # Seats taken over mid-term, named "Successor ( Ex.Departed)". The page keeps the
+  # departed deputy's (`member`) profile and title. The successor is not emitted:
+  # the source holds nothing about them beyond their name.
+  succession:
+    normalize: true
+    options:
+      - match: "Jesualdo Muvuma  ( Ex.Simão Muvuma Satambi)"
+        member: "Simão Muvuma Satambi"
+      - match: "Ricardo Satula ( Ex.Abel Satula)"
+        member: "Abel Satula"
+      - match: "Henriqueta B. Neves Lucia Nunes    ( Ex. Afonso Mbidingani)"
+        member: "Afonso Mbidingani"
+      - match: "Teresa João Carvalho do Amaral Gourgel ( EX. Alexandre  Gourgel )"
+        member: "Alexandre  Gourgel"
+      - match: "Maria José Delgado da Encarnação ( EX.André Domingos)"
+        member: "André Domingos"
+      - match: "Leopordina  António  Nicolau ( Ex.André Paulo)"
+        member: "André Paulo"
+      - match: "Fernando Eduardo da Silva (EX.Antónia Junjo da Silva)"
+        member: "Antónia Junjo da Silva"
+      - match: "Maria Regina Nunes Nóbrega Fontura (Ex.Carlos de Oliveira Fontoura)"
+        member: "Carlos de Oliveira Fontoura"
+      - match: "Pedro Tondela Mendes (Ex. Maria José Pereira da  Gama)"
+        member: "Maria José Pereira da  Gama"
+      - match: "Julieta  Laurindo ( Ex.Mariano Sozinho)"
+        member: "Mariano Sozinho"
+      - match: "Leonor Ndaedelao (Ex.Mário Saumbwako)"
+        member: "Mário Saumbwako"
+      - match: "Isabel Nacuenda Sousa ( Ex.Mateus Sousa)"
+        member: "Mateus Sousa"
+      - match: "Isabel Sofia (Ex.Pedro Hilário Antonio)"
+        member: "Pedro Hilário Antonio"
+      - match: "Guilhermina Mandele Chiteculo  (Ex.Ribeiro Chiteculo)"
+        member: "Ribeiro Chiteculo"
+
+  # Members whose "Tomada de Posse" holds a date of birth, a mistyped year, another
+  # legislature's date or several dates; their sworn-in date is dropped. Matched by name rather than
+  # as a `type.date` lookup, since the parsed dates are real dates of birth or
+  # sworn-in dates for other members.
+  invalid_sworn_in:
+    normalize: true
+    options:
+      - match:
+          # 15-08-1968, their date of birth.
+          - João Mpilamosi Domingos
+          # 16-09-1953 and 16-09-1968, months after their date of birth.
+          - José António Lopes Semedo
+          - Simão Albino António Dembo
+          # 20-02-2022, seven months before the V legislature began.
+          - Cicília de Sousa Portalegre de Barros
+          - Fernanda Lurdes Nguissi
+          # 16-09-2022, in the I legislature.
+          - Julião António
+          # 28-09-2017 and 10-08-2021; unclear which marks the start of the mandate.
+          - Cesinanda Teresa José de kerlan Xavier Narciso
+        value: invalid
+
   # Labels in the free-text profile, mapped to the field they introduce. The value
-  # follows the colon or sits on the following line(s). Fields outside the crawler's
-  # scope (education, profession, committees, career) map to `ignore`; they still
-  # delimit the in-scope fields before them.
+  # follows the colon or sits on the following line. Other labels (education,
+  # profession, committees, career) end the field before them.
   profile_label:
     normalize: true
     lowercase: true
@@ -104,6 +150,7 @@ lookups:
           - Data de Aniversário
           - Nascido
           - Nascida
+          - Nasceu aos
         value: birth_date
       - match: Natural
         value: birth_place
@@ -125,79 +172,6 @@ lookups:
         value: sworn_in
       - match: Perda de Mandato
         value: mandate_lost
-      - match:
-          - Cargo que Desempenha
-          - Cargos que Desempenha
-          - Cargos que Desmpenha
-          - Cargo que Deempenha
-          - Cargo Desempenhado
-          - Cargo Desempenhadas
-          - Cargo que Exerce
-          - Cargos que Dempenha
-          - Cargo
-          - Função
-          - Position held
-        # The roles held; "Deputado"/"Deputada" here contradicts itself across a
-        # member's legislatures too often to derive a gender from.
-        value: ignore
-      - match:
-          - Actual
-          - Actualmente
-          - Actalmente
-          - Actualmemte
-          - Actuamente
-          - Atualmente
-          - Área de Actuação
-          - Cargo que exercidos
-          - Cargos desempenhados
-          - Cargos Reverantes
-          - Experiência e Reconhecimento
-          - Positions held
-          - Hablitações Literárias
-          - Habilitações
-          - HABILITAÇÕES LITERÁRlAS
-          - Legistalatura
-          - Prifissão
-          - Comissões Parlamentare
-          # Career lines in the shape of a label.
-          - Professor
-          - Membro Fundadora da ADMA
-          - Cargo Exercidos
-          - Cargo Relevantes
-          - Cargos Execidos
-          - Cargos Exercido
-          - Cargos Exercidos
-          - Cargos que Exerce
-          - Cargos Relevantes
-          - Comissão
-          - Comisssão
-          - Comissõo
-          - Commission
-          - Comissão Parlamentar
-          - Comissões
-          - Comissões Parlamentares
-          - E Mail
-          - Email
-          - Habilidades Literárias
-          - Habilitação Literárias
-          - Habilitações Literária
-          - Habilitações Literárias
-          - Habilitações Literarais
-          - Habilitações Profissionais
-          - Legislatura
-          - Mail
-          - Nome
-          - Obs
-          - Profissão
-          - Província
-          # Mandate suspended (e.g. to take up a government post) and resumed.
-          # Not a departure: the seat stays the member's.
-          - Suspensão
-          - Suspensão do Mandato
-          - Suspensão de Mandato
-          - Retoma do Mandato
-          - Retomada
-        value: ignore
 
   party:
     normalize: true
@@ -303,6 +277,8 @@ lookups:
         value: "1954-03-30"
       - match: AOS 13/08/1960
         value: "1960-08-13"
+      - match: 17 DE JANEIRO DE 1963 NA PROVÍNCIA DE LUANDA
+        value: "1963-01-17"
       - match: 30.05 1977
         value: "1977-05-30"
       - match: 16-19-2022
@@ -320,24 +296,4 @@ lookups:
       - match: 25/11/57
         value: "1957-11-25"
       - match: N/A
-        value: null
-
-  type.email:
-    options:
-      # "O deputado ... não têm e-mail no sistema."
-      - regex: ".* não têm e-mail no sistema\\.$"
-        value: null
-      - match: Faustino. Manuel@parlamento.ao
-        value: Faustino.Manuel@parlamento.ao
-      - match: Joana. Martins@parlamento.ao
-        value: Joana.Martins@parlamento.ao
-      - match: Ldomingos@hotnal.com
-        value: Ldomingos@hotmail.com
-      - match: lourdesGeiga@yohoo.com
-        value: lourdesGeiga@yahoo.com
-      # Spaces in the local part; the intended address is unclear.
-      - match:
-          - José Nelumba@hotmail.com
-          - Filomena Trindade@hohamail.com
-          - ifdos anjos 60@yahoo.com.br
         value: null

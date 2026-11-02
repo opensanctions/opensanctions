@@ -3,7 +3,6 @@ from collections import defaultdict
 from typing import Any
 from urllib.parse import urljoin
 
-from datapatch import Result
 from lxml import html
 from normality import squash_spaces
 from zavod.stateful.positions import PositionCategorisation, categorise
@@ -15,14 +14,14 @@ from zavod import helpers as h
 TOPICS = ["gov.national", "gov.legislative"]
 # A short, digit-free text before a colon: the shape of a field label.
 LABEL_RE = re.compile(r"^[^\d:]{3,30}$")
+# A label and a value starting with a digit, without a colon between them:
+# "Nascido 02/05/1962", "Data de Nascimento -01-05-1961".
+LABEL_VALUE_RE = re.compile(r"^([^\d:]{3,30}?)[\s-]*(\d[^:]*)$")
 # A constituency without a colon after its label, sometimes glued to the preceding
 # "Gabinete Local" heading: "Gabinete LocalCírculo Eleitoral Provincial do Bié".
 CONSTITUENCY_RE = re.compile(
     r"^(?:gabinete local\s*)?(c[ií]rculo eleitoral\s.+)$", re.I
 )
-# A seat taken over mid-term: "Ricardo Satula ( Ex.Abel Satula)". The page keeps the
-# departed deputy's profile, title and email; only the label names the successor.
-SUCCESSION_RE = re.compile(r"^(.+?)\s*\(\s*ex\.\s*(.+?)\s*\)$", re.I)
 # Stray spaces around a date separator: "18 -05- 1955".
 DATE_SPACES_RE = re.compile(r"\s*([-/.])\s*")
 
@@ -40,9 +39,9 @@ def profile_lines(text: str) -> list[str]:
 def parse_profile(context: Context, text: str) -> dict[str, list[str]]:
     """Group the lines of a profile by the field their label introduces.
 
-    A label is either followed by a colon and the value, or stands alone with the
-    value on the following line. Each in-scope field takes one value; the lines under
-    an `ignore` label (career, committees) run on until the next label."""
+    A label is followed by a colon and the value, directly by a value starting with
+    a digit, or stands alone with the value on the following line. Each in-scope field takes one value; any other
+    label-shaped line ends the field."""
     fields: dict[str, list[str]] = defaultdict(list)
     field: str | None = None
     for line in profile_lines(text):
@@ -53,6 +52,10 @@ def parse_profile(context: Context, text: str) -> dict[str, list[str]]:
             field = None
             continue
         res = context.lookup("profile_label", label) if colon else None
+        split = LABEL_VALUE_RE.match(line) if not colon else None
+        if split is not None:
+            res = context.lookup("profile_label", split.group(1))
+            value = split.group(2)
         if res is None:
             res = context.lookup("profile_label", line)
             value = ""
@@ -60,8 +63,8 @@ def parse_profile(context: Context, text: str) -> dict[str, list[str]]:
             field = res.value
             line = value.strip()
         elif colon and LABEL_RE.match(label):
-            context.log.warning("Unknown profile label", label=label, line=line)
-        if field is None or field == "ignore" or line == "":
+            field = None
+        if field is None or line == "":
             continue
         fields[field].append(line)
         field = None
@@ -74,17 +77,12 @@ def clean_date(value: str) -> str:
     return value.rstrip(".,:")
 
 
-def make_person(context: Context, name: str, title: str | None = None) -> Entity:
+def make_person(context: Context, name: str, title: str) -> Entity:
     person = context.make("Person")
-    # Persons merge across legislatures by name, which is spaced and capitalised
-    # inconsistently between them: "Eduardo kuangana", "Manuel  Sampaio Mucanda".
-    person.id = context.make_id(squash_spaces(name).lower())
+    person.id = context.make_id(name)
     names = h.Names(name=name)
     # The display title is sometimes a shorter or differently spelled form.
-    if (
-        title is not None
-        and squash_spaces(title).lower() != squash_spaces(name).lower()
-    ):
+    if squash_spaces(title).lower() != squash_spaces(name).lower():
         names.add("alias", title)
     h.apply_reviewed_names(context, person, original=names, llm_cleaning=True)
     # Deputies must be Angolan citizens: Lei n.º 36/11 (Lei Orgânica sobre as Eleições
@@ -93,43 +91,21 @@ def make_person(context: Context, name: str, title: str | None = None) -> Entity
     return person
 
 
-def crawl_successor(
-    context: Context,
-    position: Entity,
-    categorisation: PositionCategorisation,
-    term: Result,
-    name: str,
-) -> None:
-    """Emit a deputy who took over a seat mid-term. The source holds nothing about
-    them beyond their name."""
-    person = make_person(context, name)
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-        period_start=term.period_start,
-        period_end=term.period_end,
-        no_end_implies_current=term.period_end is None,
-    )
-    if occupancy is None:
-        return
-    context.emit(occupancy)
-    context.emit(person)
-
-
 def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    term: Result,
+    legislature: str,
+    is_latest: bool,
     record: dict[str, Any],
 ) -> None:
     name = record.pop("keyMenu")
-    succession = SUCCESSION_RE.match(name)
+    succession = context.lookup("succession", name)
     if succession is not None:
-        successor, name = succession.groups()
-        crawl_successor(context, position, categorisation, term, successor)
+        name = succession.member
+    elif "(" in name:
+        context.log.warning("Unknown succession", name=name)
+        return
     fields = parse_profile(context, record.pop("context"))
 
     person = make_person(context, name, record.pop("title"))
@@ -140,23 +116,35 @@ def crawl_member(
         person.add(
             "political", context.lookup_value("party", value, warn_unmatched=True)
         )
-    person.add("email", record.pop("email"))
 
     start_date = None
-    for value in fields["sworn_in"]:
-        value = clean_date(value)
-        # Some records carry a date of birth or another legislature's date here.
-        # Values the formats don't parse come back unchanged and resolve via lookups.
-        parsed = h.extract_date(context.dataset, value)[0]
-        if parsed != value and not (
-            term.period_start[:4] <= parsed[:4] <= (term.period_end or "9999")[:4]
-        ):
-            context.log.info("Sworn-in date outside the term", name=name, value=value)
-            continue
-        start_date = value
+    # Some records carry a date of birth or another legislature's date here.
+    if context.lookup("invalid_sworn_in", name) is None:
+        if len(fields["sworn_in"]) > 1:
+            context.log.warning(
+                "Several sworn-in dates", name=name, values=fields["sworn_in"]
+            )
+        for value in fields["sworn_in"]:
+            start_date = clean_date(value)
     end_date = None
     for value in fields["mandate_lost"]:
         end_date = clean_date(value)
+    context.audit_data(
+        record,
+        ignore=[
+            "id",
+            "imgCapa",
+            "email",
+            "object_iuu",
+            "user_id",
+            "ordem",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+            "localkeyMenu",
+            "entityType",
+        ],
+    )
 
     occupancy = h.make_occupancy(
         context,
@@ -165,9 +153,8 @@ def crawl_member(
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,
-        period_start=term.period_start,
-        period_end=term.period_end,
-        no_end_implies_current=term.period_end is None,
+        no_end_implies_current=is_latest,
+        key_prefix=legislature,
     )
     if occupancy is None:
         return
@@ -199,25 +186,30 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     # The "Deputados" menu has one entry per legislature, each with a "Perfil" page
-    # listing its members. A new legislature fails the required `legislature` lookup.
+    # listing its members. The source gives no term dates: the roster marked
+    # `current` in the `legislature` lookup is the sitting one, earlier rosters
+    # resolve to an unknown status. A new legislature fails the required lookup.
     menu = context.fetch_json(context.data_url)
     deputies_menu = [m for m in menu["data"]["mainMenu"] if m["context"] == "Deputados"]
     assert len(deputies_menu) == 1, deputies_menu
     for item in deputies_menu[0]["elements"]:
-        term = context.lookup("legislature", item["context"])
-        assert term is not None, item["context"]
+        legislature = item["context"]
+        term = context.lookup("legislature", legislature)
+        assert term is not None, legislature
         profiles = [
             e["url"] for e in item["elements"] if e["context"].startswith("Perfil")
         ]
         assert len(profiles) == 1 and profiles[0] in term.lists, (term, profiles)
-        if term.period_end is not None and term.period_end < h.earliest_term_start(
-            TOPICS
-        ):
-            context.log.info("Term predates the PEP window", term=item["context"])
-            continue
         for list_key in term.lists:
             data = context.fetch_json(urljoin(context.data_url, list_key))
             for record in data["data"]:
-                crawl_member(context, position, categorisation, term, record)
+                crawl_member(
+                    context,
+                    position,
+                    categorisation,
+                    legislature,
+                    term.current is True,
+                    record,
+                )
 
     assert_all_accepted(context, raise_on_unaccepted=False)
