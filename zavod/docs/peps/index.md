@@ -295,6 +295,11 @@ and the previous term's members would still appear as current office holders.
   parameter, a terms endpoint), so a new term is crawled without a code change. If the
   source labels terms without dating them and the crawler maps the labels to dates, log
   a warning for a label missing from that mapping rather than guessing its dates.
+- Read the sitting term's dates from what the source publishes about it, such as a
+  heading, file name, caption or profile line, not from literals in the crawler: those
+  silently mislabel the next term's members. Where several parts of the source describe
+  the current term, cross-check them so that a site that is mid-transition fails the run.
+  A frozen single-term snapshot (`frequency: never`) is exempt.
 - Where the source offers no way to discover its terms, pin the current term (its id,
   page URL or file name) and raise an error when the source shows a different one, so
   that a maintainer updates the crawler. This costs a manual fix after every election,
@@ -314,6 +319,15 @@ and the previous term's members would still appear as current office holders.
   the crawler team can fix.
 - [`make_occupancy`][zavod.helpers.make_occupancy] decides, per occupancy, whether
   political exposure still applies.
+
+### Undated terms
+
+When the source lists terms without dating them, emit the newest with no dates, so it
+resolves to `current`. Emit earlier terms with `status=OccupancyStatus.ENDED`, or with a
+`periodEnd` taken from the next term's start where that is dated. Undated `ended`
+occupancies never age out, so bound the number of terms crawled by the after-office window
+and term length, stating the reasoning in a comment. Also cap how many trailing terms may
+be undated, so that a source losing its dates fails the run.
 
 ## Relatives and close associates
 
