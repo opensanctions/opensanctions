@@ -88,7 +88,8 @@ def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
     we keep the Albanian (first) half. Some profiles drop the ":" on an otherwise-labelled
     row (e.g. ``Gjinia Mashkull``), which we recover via a known label prefix; rows that
     are neither labelled nor recognised (e.g. a value paragraph the source split off from
-    its label) are skipped. The block is empty for some deputies, returning an empty dict.
+    its label) are skipped, as are narrative prose paragraphs whose text before the ":"
+    contains a sentence break. The block is empty for some deputies, returning an empty dict.
     """
     block = doc.find(".//div[@class='bio-hidden']")
     if block is None:
@@ -102,6 +103,12 @@ def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
             label, value = text.split(":", 1)
             # Drop the Serbian half of bilingual ``Albanian\Serbian`` labels.
             label = label.split("\\")[0].strip()
+            # Some profiles carry a narrative biography in prose instead of labelled
+            # rows, where a ":" introduces a list mid-sentence. No field label spans a
+            # sentence break, so text before the ":" containing one is prose, not a label.
+            if ". " in label:
+                context.log.info("Skipping narrative bio paragraph", row=text)
+                continue
         else:
             recovered, value = recover_unlabelled(text)
             if recovered is None:
