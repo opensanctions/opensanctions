@@ -319,6 +319,7 @@ def fetch_text(
     cache_days: int | None = None,
     expected_media_type: str | None = None,
     expected_charset: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> tuple[bool, str | None, str | None, str]:
     """
     Fetch a text document using the Zyte API.
@@ -331,11 +332,15 @@ def fetch_text(
     Args:
         context: The context object.
         url: The URL of the text document.
-        headers: A list of dicts of headers to send with the request.
+        geolocation: The country code to route the request through.
+        cache_days: The allowed age of a cache hit. If set, the response is
+            also written to the cache.
         expected_media_type: If set, assert that the media type in the
             response content-type header matches this value.
         expected_charset: If set, assert that the charset in the response
             content-type header matches this value.
+        headers: HTTP headers to send to the target server, by name. They
+            are part of the cache key.
 
     Returns:
         A tuple of:
@@ -349,6 +354,7 @@ def fetch_text(
         ZyteAPIRequest(
             scrape_type=ZyteScrapeType.HTTP_RESPONSE_BODY,
             url=url,
+            headers=headers,
             geolocation=geolocation,
         ),
         cache_days=cache_days,
