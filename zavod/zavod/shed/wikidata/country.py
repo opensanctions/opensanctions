@@ -6,6 +6,21 @@ from rigour.territories.territory import Territory
 # Positions and polities that ended before this date confer no PEP status.
 POSITION_ABOLISHED_CUTOFF = "1990-12-26"
 
+
+def abolished_clause(var: str) -> str:
+    """SPARQL fragment that binds `?abolished` to the best-rank dissolution
+    (P576) or end (P582) date of `?{var}`, if it has one. Pair it with
+    `is_abolished` on the bound value."""
+    return f"""
+    OPTIONAL {{ ?{var} p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
+"""
+
+
+def is_abolished(date: str | None) -> bool:
+    """Check whether a dissolution date falls before `POSITION_ABOLISHED_CUTOFF`."""
+    return date is not None and date < POSITION_ABOLISHED_CUTOFF
+
+
 # Places we refuse to derive a country from, because their P17 claims name every
 # state they span. Cultural and supranational regions only, plus historical
 # territories `is_historical_country` misses - contested subdivisions keep all of
