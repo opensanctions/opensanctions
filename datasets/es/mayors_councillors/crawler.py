@@ -25,9 +25,7 @@ COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 # e.g. .../Alcaldes_Mandato_2019_2023.xlsx, one file per completed mandate
 MANDATE_FILE_RE = re.compile(r"Alcaldes_Mandato_(\d{4})_(\d{4})\.xlsx$")
 # e.g. "MAYORS AND COUNCILLORS BY MUNICIPALITY 2023-2027"
-CURRENT_TERM_RE = re.compile(r".* (\d{4})-(\d{4})$")
-# e.g. "Ficha de Concejales de la Legislatura 2023"
-CURRENT_TITLE_RE = re.compile(r"Ficha de Concejales de la Legislatura (\d{4})$")
+CURRENT_TERM_RE = re.compile(r".* (\d{4})[-–](\d{4})$")
 
 
 def crawl_item(
@@ -102,13 +100,13 @@ def crawl_item(
         position,
         start_date=start_date,
         end_date=end_date,
+        period_start=period_start,
+        period_end=period_end,
         categorisation=categorisation,
     )
 
     if occupancy:
         occupancy.add("constituency", province)
-        occupancy.add("periodStart", period_start)
-        occupancy.add("periodEnd", period_end)
         context.emit(occupancy)
         context.emit(position)
         context.emit(pep)
@@ -124,7 +122,7 @@ def process_excel(
     skiprows: int,
     period_start: str,
     period_end: str | None,
-    title_re: re.Pattern[str] | None = None,
+    expected_title: str | None = None,
 ) -> None:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, XLSX, title=title)
@@ -135,16 +133,15 @@ def process_excel(
             sheetnames=workbook.sheetnames,
         )
     sheet = workbook[workbook.sheetnames[0]]
-    if title_re is not None:
+    if expected_title is not None:
         # Cross-check the term against the title in the rows above the header
-        title_years: set[str] = set()
-        for title_row in sheet.iter_rows(max_row=skiprows, values_only=True):
-            for cell in title_row:
-                if isinstance(cell, str):
-                    match = title_re.match(cell.strip())
-                    if match is not None:
-                        title_years.add(match.group(1))
-        assert title_years == {period_start}, (title_years, period_start)
+        titles = {
+            cell.strip()
+            for title_row in sheet.iter_rows(max_row=skiprows, values_only=True)
+            for cell in title_row
+            if isinstance(cell, str)
+        }
+        assert expected_title in titles, (expected_title, titles)
     for row in h.parse_xlsx_sheet_openpyxl(
         context,
         sheet,
@@ -160,31 +157,28 @@ def crawl(context: Context) -> None:
     index_doc = context.fetch_html(
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
-    links = h.xpath_elements(index_doc, ".//li[@class='dnt-link-default']/a")
     # Process historical mayors data from the latest completed mandate
     mandates: dict[tuple[str, str], str] = {}
-    for link in links:
-        href = link.get("href")
-        assert href is not None, h.element_text(link)
+    for href in h.xpath_strings(index_doc, ".//li[@class='dnt-link-default']/a/@href"):
         match = MANDATE_FILE_RE.search(href)
         if match is not None:
             mandates[(match.group(1), match.group(2))] = href
     assert len(mandates) > 0, "No mayoral mandate files found"
     hist_start, hist_end = max(mandates)
     # The current term is in the label of the link to the councillors application
-    current_links = [
-        link for link in links if "concejales.redsara.es" in link.get("href", "")
-    ]
-    assert len(current_links) == 1, current_links
-    current_label = h.element_text(current_links[0])
+    current_link = h.xpath_element(
+        index_doc,
+        ".//li[@class='dnt-link-default']/a[contains(@href, 'concejales.redsara.es')]",
+    )
+    current_label = h.element_text(current_link)
     match = CURRENT_TERM_RE.match(current_label)
     assert match is not None, current_label
-    current_start, current_end = match.group(1), match.group(2)
+    current_start = match.group(1)
     # Terms must be contiguous: the current term starts when the last completed one ends
     assert current_start == hist_end, (hist_start, hist_end, current_start)
     process_excel(
         context=context,
-        filename="historical.xlsx",
+        filename=f"historical_{hist_start}_{hist_end}.xlsx",
         url=mandates[(hist_start, hist_end)],
         title=f"Mayors {hist_start}-{hist_end}",
         skiprows=7,
@@ -205,6 +199,6 @@ def crawl(context: Context) -> None:
         title=context.SOURCE_TITLE,
         skiprows=5,
         period_start=current_start,
-        period_end=current_end,
-        title_re=CURRENT_TITLE_RE,
+        period_end=None,
+        expected_title=f"Ficha de Concejales de la Legislatura {current_start}",
     )
