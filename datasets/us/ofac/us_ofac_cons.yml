@@ -38,7 +38,7 @@ publisher:
   official: true
 tags:
   - list.sanction
-  - issuer.west
+  - publisher.west
   - sector.maritime
   - sector.energy
   - sector.securities

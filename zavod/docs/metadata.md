@@ -100,7 +100,7 @@ Comments record known facts — observed failures, documented source behaviour, 
 
 Currently, tags cover the following dimensions:
 - list type (e.g. `list.sanction`, `list.pep`);
-- issuer and jurisdiction (e.g. `issuer.west`, `juris.eu`);
+- publisher country or bloc (e.g. `publisher.fr`, `publisher.eu`), replacing the older issuer and jurisdiction tags (e.g. `issuer.west`, `juris.eu`);
 - target countries (e.g. `target.ru`, `target.us`)
 - sectors (e.g. `sector.financial`, `sector.maritime`)
 - risk themes (e.g. `risk.klepto`).
@@ -108,6 +108,17 @@ Currently, tags cover the following dimensions:
 Tag matching is by exact string, not by prefix: a dataset tagged only `list.pep.bulk` does not match `list.pep`. Sub-tags qualify a base tag and should be applied alongside it — `list.pep.bulk` marks PEP datasets (also tagged `list.pep`) that are excluded from broad PEP cross-referencing, such as declaration registries and sub-national officeholder lists.
 
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
+
+#### Derived tags
+
+Some tags are added automatically when the dataset metadata is exported, so don't set them by hand in the dataset YAML:
+
+- `publisher.<country>` from `publisher.country`, when the publisher is `official: true`, the country isn't `zz`, and the dataset isn't tagged `list.pep`.
+- `publisher.<bloc>` for each bloc the publisher country belongs to, under the same conditions. The blocs are defined in `PUBLISHER_BLOCS` in `zavod/meta/tags.py`.
+- `publisher.eu` under the same conditions, when the publisher country is an EU member state and the dataset is tagged `list.sanction`. Datasets published by the EU itself get `publisher.eu` from their country.
+- `publisher.us_ofac` under the same conditions, when the publisher country is `us` and the publisher acronym is `OFAC`.
+
+Derived tags appear in the published `index.json` and catalogs, but not in `dataset.model.tags`. `#tag` queries against a catalog loaded from the dataset YAMLs therefore don't see them.
 
 ### Deployment
 

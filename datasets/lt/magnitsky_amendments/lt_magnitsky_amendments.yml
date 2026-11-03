@@ -33,7 +33,7 @@ http:
 tags:
   - list.sanction
   - risk.klepto
-  - issuer.west
+  - publisher.west
 
 assertions:
   min:

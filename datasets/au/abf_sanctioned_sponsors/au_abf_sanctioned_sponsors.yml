@@ -19,7 +19,7 @@ description: |
 url: https://www.abf.gov.au/about-us/what-we-do/sponsor-sanctions/register-of-sanctioned-sponsors#
 tags:
   - list.debarment
-  - issuer.west
+  - publisher.west
 publisher:
   name: Australian Border Force
   acronym: ABF

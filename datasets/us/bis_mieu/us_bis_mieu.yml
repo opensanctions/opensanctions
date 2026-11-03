@@ -56,7 +56,7 @@ dates:
   formats: ["%Y-%m-%d"]
 tags:
   - list.export
-  - issuer.west
+  - publisher.west
   - sector.defense
 
 assertions:

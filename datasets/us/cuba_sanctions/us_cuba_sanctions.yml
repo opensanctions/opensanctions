@@ -49,7 +49,7 @@ data:
 tags:
   - list.sanction
   - target.cu
-  - issuer.west
+  - publisher.west
 
 # Maintaining the two list files
 #

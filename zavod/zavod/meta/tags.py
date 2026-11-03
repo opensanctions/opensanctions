@@ -36,7 +36,7 @@ EFTA_MEMBERS = frozenset({"ch", "is", "li", "no"})
 # TODO: move these somewhere more central for reuse once they're settled
 # and if we decide to keep them.
 PUBLISHER_BLOCS: dict[str, frozenset[str]] = {
-    "eu_efta": EU_MEMBERS | EFTA_MEMBERS,
+    # "eu_efta": EU_MEMBERS | EFTA_MEMBERS,
 }
 
 

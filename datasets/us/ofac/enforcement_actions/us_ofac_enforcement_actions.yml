@@ -35,7 +35,7 @@ publisher:
   url: https://ofac.treasury.gov/
   official: true
 tags:
-  - issuer.west
+  - publisher.west
   - list.enforcement
 url: https://ofac.treasury.gov/recent-actions/enforcement-actions
 data:

@@ -31,7 +31,7 @@ publisher:
   url: https://ofac.treasury.gov/
   official: true
 tags:
-  - issuer.west
+  - publisher.west
 url: https://ofac.treasury.gov/press-releases
 data:
   url: https://ofac.treasury.gov/press-releases

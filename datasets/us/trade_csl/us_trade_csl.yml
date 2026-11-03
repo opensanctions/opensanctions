@@ -44,7 +44,7 @@ publisher:
 tags:
   - list.sanction
   - list.export
-  - issuer.west
+  - publisher.west
   - sector.maritime
 url: https://www.trade.gov/consolidated-screening-list
 data:

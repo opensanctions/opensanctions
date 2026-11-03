@@ -29,7 +29,7 @@ publisher:
   official: true
 tags:
   - list.regulatory
-  - issuer.west
+  - publisher.west
   - sector.financial
 data:
   url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms

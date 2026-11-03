@@ -25,7 +25,7 @@ description: |
 url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
 tags:
   - list.sanction
-  - issuer.west
+  - publisher.west
   - sector.maritime
 publisher:
   name: Global Affairs Canada

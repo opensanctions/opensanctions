@@ -55,7 +55,7 @@ data:
   format: JSON
 tags:
   - list.sanction
-  - issuer.west
+  - publisher.west
   - sector.maritime
 dates:
   formats: ["%d.%m.%Y", "%d.%m.%Y’"]

@@ -34,7 +34,7 @@ data:
 tags:
   - list.sanction
   - sector.financial
-  - issuer.west
+  - publisher.west
 
 assertions:
   min:
