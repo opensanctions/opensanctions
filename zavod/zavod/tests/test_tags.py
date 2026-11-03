@@ -6,7 +6,6 @@ from rigour.territories import get_territory
 from zavod.meta import get_catalog
 from zavod.meta.dataset import Dataset
 from zavod.meta.tags import EU_MEMBERS, PUBLISHER_BLOCS, derive_tags
-from zavod.stateful.programs import Program
 
 
 def make_dataset(
@@ -18,17 +17,6 @@ def make_dataset(
     if publisher is not None:
         data["publisher"] = {"name": "Test Publisher", **publisher}
     return get_catalog().make_dataset(data)
-
-
-@pytest.fixture(autouse=True)
-def no_programs(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Isolate publisher tests from the real program metadata."""
-    monkeypatch.setattr("zavod.meta.tags.get_all_programs_by_key", lambda: {})
-
-
-def set_programs(monkeypatch: pytest.MonkeyPatch, programs: list[Program]) -> None:
-    by_key = {p.key: p for p in programs}
-    monkeypatch.setattr("zavod.meta.tags.get_all_programs_by_key", lambda: by_key)
 
 
 def test_official_publisher_country():
@@ -132,63 +120,7 @@ def test_hand_set_tags_kept_first_without_duplicates():
     assert derive_tags(ds) == ["list.sanction", "publisher.us", "publisher.west"]
 
 
-def test_target_tags_from_programs(monkeypatch: pytest.MonkeyPatch):
-    set_programs(
-        monkeypatch,
-        [
-            Program(
-                key="XX-RUS",
-                title="Active",
-                dataset="test",
-                target_territories=["ru", "by"],
-            ),
-            Program(
-                key="XX-LEGACY",
-                title="Legacy",
-                dataset="test",
-                status="legacy",
-                target_territories=["ua", "ru"],
-            ),
-            Program(
-                key="XX-ENDED",
-                title="Ended",
-                dataset="test",
-                status="ended",
-                target_territories=["lr"],
-            ),
-            Program(
-                key="XX-GLOBAL",
-                title="Global",
-                dataset="test",
-                target_territories=["zz", "ip"],
-            ),
-            Program(
-                key="XX-OTHER",
-                title="Other dataset",
-                dataset="other",
-                target_territories=["cn"],
-            ),
-        ],
-    )
-    ds = make_dataset(tags=["target.ru"], publisher={"country": "us", "official": True})
-    assert derive_tags(ds) == [
-        "target.ru",
-        "publisher.us",
-        "target.by",
-        "target.ua",
-        "target.ip",
-    ]
-
-
-def test_collection_gets_no_derived_tags(monkeypatch: pytest.MonkeyPatch):
-    set_programs(
-        monkeypatch,
-        [
-            Program(
-                key="XX-RUS", title="Active", dataset="coll", target_territories=["ru"]
-            )
-        ],
-    )
+def test_collection_gets_no_derived_tags():
     make_dataset()
     coll = get_catalog().make_dataset(
         {

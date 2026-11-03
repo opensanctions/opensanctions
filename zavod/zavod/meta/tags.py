@@ -8,8 +8,6 @@ them into every dataset YAML they are derived when the metadata is exported:
 * ``publisher.eu`` for official sanctions lists published by an EU member
   state.
 * ``publisher.us_ofac`` for datasets published by OFAC.
-* ``target.<territory>`` from the ``target_territories`` of the sanctions
-  programs that name the dataset as their primary ``dataset``.
 
 Derived tags only appear in the exported metadata (``index.json`` and the
 catalogs). They are not added to ``dataset.model.tags``, so ``#tag`` queries
@@ -19,13 +17,11 @@ loaded from the published metadata do include them.
 
 from typing import TYPE_CHECKING
 
-from zavod.stateful.programs import get_all_programs_by_key
-
 if TYPE_CHECKING:
     from zavod.meta.dataset import Dataset
 
-# Pseudo-territory for global/international publishers and programs. It says
-# nothing about where a list comes from or who it targets, so it's never a tag.
+# Pseudo-territory for global/international publishers. It says nothing about
+# where a list comes from, so it's never a tag.
 GLOBAL = "zz"
 
 EU_MEMBERS = frozenset(
@@ -72,25 +68,6 @@ def derive_publisher_tags(dataset: "Dataset") -> list[str]:
     return tags
 
 
-def derive_target_tags(dataset: "Dataset") -> list[str]:
-    """Derive ``target.<territory>`` from the programs that name this dataset.
-
-    Programs that have ended are skipped, as is the global pseudo-territory.
-    Legacy programs count, since their designations persist.
-    """
-    tags: list[str] = []
-    for program in get_all_programs_by_key().values():
-        if program.dataset != dataset.name or program.status == "ended":
-            continue
-        for territory in program.target_territories:
-            if territory == GLOBAL:
-                continue
-            tag = f"target.{territory}"
-            if tag not in tags:
-                tags.append(tag)
-    return tags
-
-
 def derive_tags(dataset: "Dataset") -> list[str]:
     """Return the dataset's tags with the derived ones appended.
 
@@ -100,7 +77,7 @@ def derive_tags(dataset: "Dataset") -> list[str]:
     tags = list(dataset.model.tags)
     if dataset.is_collection:
         return tags
-    for tag in derive_publisher_tags(dataset) + derive_target_tags(dataset):
+    for tag in derive_publisher_tags(dataset):
         if tag not in tags:
             tags.append(tag)
     return tags
