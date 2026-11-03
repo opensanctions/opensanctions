@@ -50,7 +50,9 @@ templateAdd  {"feature": "IMO_NUMBER", "template": "GLOBAL_ID", "behavior": "F1E
 templateAdd  {"feature": "MMSI_NUMBER", "template": "GLOBAL_ID", "behavior": "F1E"}
 templateAdd  {"feature": "CALL_SIGN", "template": "GLOBAL_ID", "behavior": "F1E"}
 templateAdd  {"feature": "ISIN_NUMBER", "template": "GLOBAL_ID", "behavior": "F1E"}
-templateAdd  {"feature": "OFAC_ID", "template": "GLOBAL_ID", "behavior": "F1E"}
+# OFAC_ID is compared exactly: the template default ID_COMP is fuzzy and scored neighbouring SDN uids
+# (7321 vs 7322) as close, which joined distinct parties.
+templateAdd  {"feature": "OFAC_ID", "template": "GLOBAL_ID", "behavior": "F1E", "comparison": "EXACT_COMP"}
 # ---------------------------------------------------------------------------------------------
 # BQ_ID -- the BrightQuery / OpenData.org company id (FtM brightQueryId). A1ES like OPENSANCTIONS_ID:
 # one curated id per company, so a mismatch keeps two companies apart.
