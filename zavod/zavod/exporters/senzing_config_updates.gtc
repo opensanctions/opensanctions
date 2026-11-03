@@ -57,6 +57,7 @@ templateAdd  {"feature": "OFAC_ID", "template": "GLOBAL_ID", "behavior": "F1E", 
 # ---------------------------------------------------------------------------------------------
 # BQ_ID -- the BrightQuery / OpenData.org company id (FtM brightQueryId). A1ES like OPENSANCTIONS_ID:
 # one curated id per company, so a mismatch keeps two companies apart.
-templateAdd  {"feature": "BQ_ID", "template": "GLOBAL_ID", "behavior": "A1ES"}
+# Compared exactly, like OPENSANCTIONS_ID: the template default ID_COMP is fuzzy.
+templateAdd  {"feature": "BQ_ID", "template": "GLOBAL_ID", "behavior": "A1ES", "comparison": "EXACT_COMP"}
 
 save
