@@ -27,7 +27,8 @@
 # templateAdd/GLOBAL_ID is used rather than a hand-rolled addFeature because it decomposes A1ES
 # correctly into FREQ=A1 / EXCL=Yes / STAB=Yes. A hand-rolled definition is the documented way
 # to register an A1ES feature that silently misbehaves.
-templateAdd  {"feature": "OPENSANCTIONS_ID", "template": "GLOBAL_ID", "behavior": "A1ES"}
+# Compared exactly: the template default ID_COMP is fuzzy and would score near-identical ids as close.
+templateAdd  {"feature": "OPENSANCTIONS_ID", "template": "GLOBAL_ID", "behavior": "A1ES", "comparison": "EXACT_COMP"}
 getFeature   OPENSANCTIONS_ID
 # ---------------------------------------------------------------------------------------------
 # NATIONAL_ID_SUBTYPE -- the specific registry within a broad NATIONAL_ID_TYPE.
