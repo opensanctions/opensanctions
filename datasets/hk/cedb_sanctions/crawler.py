@@ -1,5 +1,3 @@
-from lxml.etree import _Element as Element
-from normality import squash_spaces
 from rigour.mime.types import XML
 from zavod.shed.un_sc import get_legal_entities, get_persons, load_un_sc
 
@@ -7,21 +5,13 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def text(node: Element, path: str) -> str | None:
-    value = node.findtext(path)
-    if value is None:
-        return None
-    return squash_spaces(value) or None
-
-
 def crawl_file(context: Context, name: str, url: str, title: str, prefix: str) -> None:
     path = context.fetch_resource(f"{name}.xml", url)
     context.export_resource(path, XML, title=f"Source data - {title}")
     doc = context.parse_resource_xml(path)
-    assert prefix is not None, "Dataset prefix is required"
-    for node, person in get_persons(context, prefix, doc):
+    for _node, person in get_persons(context, prefix, doc):
         context.emit(person)
-    for node, entity in get_legal_entities(context, prefix, doc):
+    for _node, entity in get_legal_entities(context, prefix, doc):
         context.emit(entity)
 
 
@@ -29,6 +19,7 @@ def crawl(context: Context) -> None:
     # using the UNSC's prefix like for TR and PL
     un_meta, _ = load_un_sc(context)
     prefix = un_meta.prefix
+    assert prefix is not None, "UN SC dataset prefix is required"
 
     # The dataset page lists one XML resource per regime, each linked twice
     # (details and download).
