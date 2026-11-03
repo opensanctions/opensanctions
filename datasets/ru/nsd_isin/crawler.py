@@ -20,7 +20,7 @@ def parse_date(text: str) -> str:
 
 def crawl_item(context: Context, url: str) -> None:
     try:
-        html = context.fetch_html(url, cache_days=60)
+        html = context.fetch_html(url, cache_days=60, encoding="utf-8")
     except RequestException as re:
         time.sleep(10)
         context.log.error(f"HTTP error: {re!r}", url=url)
@@ -105,6 +105,7 @@ def crawl(context: Context) -> None:
             doc = context.fetch_html(
                 context.data_url,
                 params=params,
+                encoding="utf-8",
                 # cache_days=10 if page > 5 else 0,
             )
         except RequestException:
