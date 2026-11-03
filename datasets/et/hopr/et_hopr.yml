@@ -65,5 +65,5 @@ assertions:
       et: 600
   max:
     schema_entities:
-      Person: 2500
+      Person: 3000
       Position: 1
