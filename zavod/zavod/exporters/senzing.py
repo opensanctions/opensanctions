@@ -7,8 +7,8 @@
 #
 # Senzing config note: apply the companion `senzing_config_updates.gtc` (`sz_configtool -f ...`)
 # before loading. It registers what this exporter emits but a default config lacks -- the
-# OPENSANCTIONS_ID and BQ_ID features, NATIONAL_ID_SUBTYPE, and the IMO_NUMBER / MMSI_NUMBER /
-# CALL_SIGN / ISIN_NUMBER / OFAC_ID features. Configs older than Senzing 4.4's default also need
+# REF_OPENSANCTIONS_ID, OPENSANCTIONS_ID, BQ_ID and WIKIDATA_ID features, NATIONAL_ID_SUBTYPE, and the
+# IMO_NUMBER / MMSI_NUMBER / CALL_SIGN / ISIN_NUMBER / OFAC_ID features. Configs older than Senzing 4.4's default also need
 # `senzing_config_updates_tax_id_type.gtc` for TAX_ID_TYPE. Without them those attributes are kept
 # as payload and never compared.
 
@@ -311,8 +311,9 @@ class SenzingExporter(Exporter):
             "DATA_SOURCE": self.source_name,
             "RECORD_ID": entity.id,
             "LAST_CHANGE": entity.last_change,
-            # The canonical OpenSanctions entity id, asserted a SECOND time as a feature
-            # (OPENSANCTIONS_ID, behavior A1ES) rather than only as the RECORD_ID.
+            # The canonical OpenSanctions entity id, asserted again as features rather than only
+            # as the RECORD_ID: REF_OPENSANCTIONS_ID (behavior A1ES), because OpenSanctions issues
+            # this id, and OPENSANCTIONS_ID (F1E), the feature other sources cite it with.
             #
             # RECORD_ID is bookkeeping: Senzing never compares it, so it cannot stop two
             # different OpenSanctions entities being merged by weak evidence. A1ES DENIES on a
@@ -560,7 +561,7 @@ class SenzingExporter(Exporter):
             seen_identifiers.add(stmt.value)
 
             if stmt.prop in NON_ID_PROPS or stmt.prop == "wikidataId":
-                # wikidataId is emitted once, as TRUSTED_ID WIKIDATA, further down.
+                # wikidataId is emitted once, as WIKIDATA_ID, further down.
                 continue
             identifier_type = STMT_PROPS_TO_MAP.get(stmt.prop)
             if identifier_type is not None:
@@ -608,13 +609,11 @@ class SenzingExporter(Exporter):
                 if ofac_id:
                     push(record, "IDENTIFIERS", {"OFAC_ID": ofac_id})
 
-        for wd_id in (entity.id, entity.first("wikidataId")):
+        # A Wikidata QID is CITED here (Wikidata issues it), so it is the plain WIKIDATA_ID feature that
+        # matches other sources carrying the same QID; only a Wikidata source would emit REF_WIKIDATA_ID.
+        for wd_id in dict.fromkeys((entity.id, entity.first("wikidataId"))):
             if wd_id is not None and is_qid(wd_id):
-                wd = {
-                    "TRUSTED_ID_TYPE": "WIKIDATA",
-                    "TRUSTED_ID_NUMBER": wd_id,
-                }
-                push(record, "IDENTIFIERS", wd)
+                push(record, "IDENTIFIERS", {"WIKIDATA_ID": wd_id})
 
         entity_url = make_entity_url(entity)
         if entity_url is not None:
@@ -653,7 +652,10 @@ class SenzingExporter(Exporter):
         # resolves them identically; the single list is cleaner and consistent across mappers. Built
         # via sub-lists above (so the address/name dedup and BUSINESS tagging stay simple), flattened
         # here. Record-level metadata (DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL) stays at the top level.
-        feats: list[dict[str, Any]] = [{"OPENSANCTIONS_ID": entity.id}]
+        feats: list[dict[str, Any]] = [
+            {"REF_OPENSANCTIONS_ID": entity.id},
+            {"OPENSANCTIONS_ID": entity.id},
+        ]
         if record_type is not None:
             feats.append({"RECORD_TYPE": record_type})
         if (gender := record.pop("GENDER", None)) is not None:

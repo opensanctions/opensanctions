@@ -124,8 +124,9 @@ def test_senzing(testdataset1: Dataset):
     assert {"NATIONALITY": "dd"} in person_features
     assert person["DATA_SOURCE"] == "OS_TESTDATASET1"
     assert person["RECORD_ID"] == "osv-hans-gruber"
-    # The OpenSanctions id is asserted once, as the OPENSANCTIONS_ID feature (in FEATURES,
-    # never at the record root), not again as an OTHER_ID.
+    # The OpenSanctions id is asserted as REF_OPENSANCTIONS_ID (the issuer's own id) and
+    # OPENSANCTIONS_ID (in FEATURES, never at the record root), not again as an OTHER_ID.
+    assert {"REF_OPENSANCTIONS_ID": "osv-hans-gruber"} in person_features
     assert {"OPENSANCTIONS_ID": "osv-hans-gruber"} in person_features
     assert "OPENSANCTIONS_ID" not in person
     assert not [
@@ -225,6 +226,7 @@ def test_features_shape(tmp_path):
                 "topics": ["sanction", "debarment"],
                 "sourceUrl": ["https://example.org/a"],
                 "dissolutionDate": ["2020-01-02"],
+                "wikidataId": ["Q42"],
             },
         },
     )
@@ -251,7 +253,11 @@ def test_features_shape(tmp_path):
     exporter.fh.close()
     (record,) = map(loads, open(exporter.path))
     feats = record["FEATURES"]
+    assert {"REF_OPENSANCTIONS_ID": "c"} in feats
     assert {"OPENSANCTIONS_ID": "c"} in feats
+    # A cited Wikidata QID is the plain WIKIDATA_ID feature, never a TRUSTED_ID.
+    assert {"WIKIDATA_ID": "Q42"} in feats
+    assert not [f for f in feats if "TRUSTED_ID_TYPE" in f]
     assert all(feats), "an empty FEATURES object"
     assert not [f for f in feats if "NATIONAL_ID_COUNTRY" in f]
     for attr in ("TOPIC", "SOURCE_URL", "DISSOLUTION_DATE"):
