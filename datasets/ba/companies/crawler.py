@@ -1,8 +1,11 @@
 import datetime
 import re
+from dataclasses import dataclass, replace
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
+from lxml.html import HtmlElement
 
 from zavod import Context
 from zavod import helpers as h
@@ -31,6 +34,10 @@ from zavod import helpers as h
 # fully-encoded URL over both GET and POST, while other "&" names go through
 # untouched (7 records in the same run). That is also outside our control, but
 # it is rare and the rule may change, so it stays at warning level.
+WAF_REJECTION = "The requested URL was rejected"
+
+# Companies emitted from their listing row alone because their pages failed
+# verification even on a fresh session.
 EXPECTED_ERRORS = 100
 
 # A well-formed detail link carries eight colon-delimited APEX arguments - app,
@@ -39,18 +46,34 @@ EXPECTED_ERRORS = 100
 # company name.
 APEX_ARG_COLONS = 7
 
-# Unfortunately no cache for the listing page, as the state of the current
-# page is stored in the session and no cache for details page, as
-# the url is always changing
-CACHE_DAYS = None
+# The listing never returns more than this many rows, so a slice that reaches it
+# has been truncated.
+LISTING_CAP = 500
+# Codes of the legal form filter: d.o.o., d.d., k.d., d.n.s.o., ob/pred, other
+LEGAL_FORMS = ["1", "2", "3", "4", "6", "5"]
 
 BASE_URL = "https://bizreg.pravosudje.ba/pls/apex/"
-# URL to retrieve the list of cities
-DICTS_URL = f"{BASE_URL}/wwv_flow.show"
-# URL to issue two preliminary requests to get the system recognize us
-TOUCH_URL = DICTS_URL
-# URL to retrieve the list of companies
-RETRIEVE_URL = f"{BASE_URL}/f"
+# Endpoint for the APEX application processes that set up a search
+PROCESS_URL = f"{BASE_URL}wwv_flow.show"
+# Endpoint for rendering a page, or one report region of it
+PAGE_URL = f"{BASE_URL}f"
+# The founders (21) and managers (22) pages carry no company identifier: they
+# show whichever company the session last opened on the detail page (13).
+FOUNDERS_PAGE = 21
+MANAGERS_PAGE = 22
+
+REGEX_COMPANY_KEY = re.compile(r"P13_NAZIV:(\d+)%2C")
+REGEX_REPORT_PAGE = re.compile(r"\$a_report\('(\d+)','(\d+)','(\d+)','(\d+)'\)")
+# A founder's registration number followed by its old number, as in
+# "51-01-0812-09 (stari broj 1-4819)" or "65-01-0198-12 (1-7422)"
+REGEX_OLD_REGNO = re.compile(
+    r"^(.*?)\s*\((?:stari broj\s*:?)?\s*([^()]+)\)\s*$", re.IGNORECASE
+)
+# Labels written in front of a founder's numbers, as in "MBS: 51-01-0081-12" or
+# "65-01-0045-24  JIB: 4203286650000"
+REGEX_REGNO_LABEL = re.compile(r"\b(?:MBS|JIB|PIB|ID(?: broj)?)\s*:\s*")
+# The text "Naprijed" ("Next") also labels an image in the same cell.
+NEXT_PAGE_XPATH = '//a[@class="fielddata" and normalize-space()="Naprijed"]/@href'
 
 # The founder table of a formerly state-owned company routinely carries a note
 # about the collective of shareholders ("dioničari") or about where their list is
@@ -96,6 +119,40 @@ SPLITS = [
 ]
 REMOVE_REGEX = re.compile("|".join(REMOVE_PATTERNS), flags=re.IGNORECASE)
 
+Record = dict[str, str]
+
+
+class SessionLost(Exception):
+    """The registry stopped serving the pages of the company that was opened."""
+
+
+@dataclass(frozen=True)
+class Search:
+    """One query of the registry's advanced search.
+
+    The "-1" and "" defaults leave a filter out. Each yes/no filter takes "1" or
+    "0", and the two values between them cover every company.
+    """
+
+    city: str
+    legal_form: str = "-1"
+    removed: str = "-1"
+    bankrupt: str = "-1"
+    foreign_trade: str = "-1"
+    registered_from: str = ""
+    registered_to: str = ""
+
+
+@dataclass
+class CrawlState:
+    """The APEX session all requests run in, and how often it had to be rescued."""
+
+    instance: str
+    renewals: int = 0
+    errors: int = 0
+    # A search that listed companies earlier in the run
+    canary: Search | None = None
+
 
 def roughly_valid_regno(regno: str) -> bool:
     """
@@ -139,9 +196,16 @@ def apex_link_broken(url: str) -> bool:
     return args.count(":") > APEX_ARG_COLONS
 
 
-def get_secret_param(context: Context) -> str:
+def company_key(details_url: str) -> str:
+    """Return the registry's internal ID of a company from its detail link."""
+    match = REGEX_COMPANY_KEY.search(details_url)
+    assert match is not None, details_url
+    return match.group(1)
+
+
+def open_session(context: Context) -> str:
     """
-    Goes through the chain of redirects to get the secret param.
+    Goes through the chain of redirects to get the APEX session instance.
 
     The whole crawl hangs off this session identifier, so a failure here is
     structural: it is raised rather than logged, so that an unreachable registry
@@ -150,13 +214,33 @@ def get_secret_param(context: Context) -> str:
     Args:
         context: The context object for the current dataset.
     Returns:
-        The secret param as a str.
+        The session instance as a str.
     """
     resp = context.fetch_text(context.data_url)
     assert resp is not None, context.data_url
     matches = re.search(r"f\?p=18\d\:\d+\:(\d+)", resp)
     assert matches is not None, f"Cannot find secret param at {context.data_url}"
     return matches.group(1)
+
+
+def renew_session(context: Context, state: CrawlState, reason: str) -> None:
+    """Replace a broken APEX session with a fresh one."""
+    state.renewals += 1
+    # A healthy run needs a handful of renewals at most; past that the registry
+    # is failing faster than we can recover.
+    assert state.renewals <= 50, f"Too many session renewals, last: {reason}"
+    context.log.info("Renewing registry session", reason=reason)
+    state.instance = open_session(context)
+    # The search returns no rows in a session that has not loaded the city list.
+    seed_city(context, state)
+
+
+def fetch_page(
+    context: Context, url: str, data: dict[str, str] | None = None
+) -> HtmlElement:
+    """Fetch a registry page, which is UTF-8 even where the response omits it."""
+    method = "GET" if data is None else "POST"
+    return context.fetch_html(url, method=method, data=data, encoding="utf-8")
 
 
 def clean_name(raw_name: str | None) -> list[str]:
@@ -172,18 +256,34 @@ def clean_name(raw_name: str | None) -> list[str]:
     return names
 
 
-def seed_city(context: Context, secret_param: str) -> list[dict[str, str]]:
+def parse_records(doc: HtmlElement) -> list[Record]:
+    """Read every label/value block on a registry page into a record.
+
+    Values keep their raw text, because entity IDs are derived from them.
+    """
+    records: list[Record] = []
+    for table in h.xpath_elements(doc, '//table[contains(@class, "vertical2")]'):
+        record: Record = {}
+        for row in h.xpath_elements(table, './tr[td[@class="L"]]'):
+            label, value = h.xpath_elements(row, "./td", expect_exactly=2)
+            record[h.element_text(label)] = h.element_text(value, squash=False)
+        if record:
+            records.append(record)
+    return records
+
+
+def seed_city(context: Context, state: CrawlState) -> list[dict[str, str]]:
     """
     Fetches the list of cities from the website.
     Args:
         context: The context object for the current dataset.
-        secret_param: The secret param for the request.
+        state: The crawl state holding the registry session.
     Returns:
         The list of cities as a list of dicts.
     """
     payload = {
         "p_request": "APPLICATION_PROCESS=populateShuttleOps",
-        "p_instance": secret_param,
+        "p_instance": state.instance,
         "p_flow_id": "186",
         "p_flow_step_id": "0",
         "x01": "",
@@ -191,78 +291,57 @@ def seed_city(context: Context, secret_param: str) -> list[dict[str, str]]:
         "x03": "-1",
         "x04": "-1",
     }
-    resp = context.fetch_text(url=DICTS_URL, method="POST", data=payload)
+    resp = context.fetch_text(url=PROCESS_URL, method="POST", data=payload)
     assert resp is not None
     cities = re.findall(r'id: (\d+), data: "([\w /-]+)"', resp)
 
     return [{"city": city, "code": code} for code, city in cities]
 
 
-def parse_city(
-    context: Context,
-    secret_param: str,
-    city: dict[str, str],
-    from_date: str,
-    to_date: str,
+def list_companies(
+    context: Context, state: CrawlState, search: Search
 ) -> list[dict[str, str | None]]:
-    """
-    Fetches the list of companies from the website.
-    Args:
-        context: The context object for the current dataset.
-        secret_param: The secret param for the request.
-        city: The city to fetch the companies for.
-        from_date: from company registration date.
-        to_date: to company registration date.
-    """
-
-    TOUCH_PAYLOAD1 = {
+    """Run a search and return the companies it lists, at most `LISTING_CAP`."""
+    params = {
         "p_request": "APPLICATION_PROCESS=NAPREDNA_PRETRAGA_PARAMS",
-        "p_instance": secret_param,
+        "p_instance": state.instance,
         "p_flow_id": "186",
         "p_flow_step_id": "0",
-        "x01": city["code"],
-        "x02": "-1",
+        "x01": search.city,
+        "x02": search.legal_form,
         "x03": "-1",
         "x04": "",
-        "x05": from_date,
-        "x06": to_date,
+        "x05": search.registered_from,
+        "x06": search.registered_to,
         "x07": "-1",
         "x08": "-1",
         "x09": "",
     }
-
-    TOUCH_PAYLOAD2 = {
+    context.fetch_text(url=PROCESS_URL, method="POST", data=params)
+    status_params = {
         "p_request": "APPLICATION_PROCESS=NAPREDNA_PRETRAGA_PARAMS_2",
-        "p_instance": secret_param,
+        "p_instance": state.instance,
         "p_flow_id": "186",
         "p_flow_step_id": "0",
-        "x01": "-1",
-        "x02": "-1",
-        "x03": "-1",
+        "x01": search.bankrupt,
+        "x02": search.removed,
+        "x03": search.foreign_trade,
     }
-
-    RETRIEVE_PAYLOAD = {
-        "p": f"186:3:{secret_param}:FLOW_PPR_OUTPUT_R16339113485096783_pg_"
+    context.fetch_text(url=PROCESS_URL, method="POST", data=status_params)
+    retrieve = {
+        "p": f"186:3:{state.instance}:FLOW_PPR_OUTPUT_R16339113485096783_pg_"
         + "R_16339113485096783:NO",
         "pg_max_rows": "5000",
         "pg_min_row": "1",
         "pg_rows_fetched": "undefined",
     }
-
-    context.fetch_text(url=TOUCH_URL, method="POST", data=TOUCH_PAYLOAD1)
-
-    context.fetch_text(url=TOUCH_URL, method="POST", data=TOUCH_PAYLOAD2)
-
-    result = context.fetch_html(url=RETRIEVE_URL, method="POST", data=RETRIEVE_PAYLOAD)
-
-    rows = result.findall(".//tr")
+    result = fetch_page(context, PAGE_URL, data=retrieve)
 
     records = []
-    for row in rows:
+    for row in result.findall(".//tr"):
         if row.find(".//td/a") is None:
             continue
         record: dict[str, str | None] = {}
-        record["city"] = city.get("city", "")
         record["registration_number"] = row[0].text
         record["name"] = row[1][0].text
         record["abbreviation"] = row[2][0].text
@@ -272,292 +351,420 @@ def parse_city(
         record["details_url"] = (
             apex_url(urljoin(BASE_URL, detail_hrefs[0])) if detail_hrefs else None
         )
-
         records.append(record)
-
     return records
 
 
-def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
+def list_checked(
+    context: Context, state: CrawlState, search: Search
+) -> list[dict[str, str | None]]:
+    """Run a search, renewing the session if an empty result came from a dead one.
+
+    A dead session answers a search exactly like a city without companies, so
+    an empty listing is only trusted while the canary search still lists some.
     """
-    Fetches and emits the details of a company from the website.
+    records = list_companies(context, state, search)
+    if records:
+        if state.canary is None:
+            state.canary = search
+        return records
+    if state.canary is None or list_companies(context, state, state.canary):
+        return records
+    renew_session(context, state, "the canary search listed no companies")
+    return list_checked(context, state, search)
 
-    Returns False if an error occurred, True otherwise.
 
-    Args:
-        context: The context object for the current dataset.
-        record: The record to fetch the details for.
+def fetch_report(
+    context: Context, state: CrawlState, page: int, regno: str
+) -> list[Record]:
+    """Fetch the founders or managers of the company the session last opened.
+
+    Every page of a paginated report is followed. The page is checked against
+    the company's registration number, and must either list records or say that
+    there are none, so that a page served for another company or by a broken
+    session is never read as that company's data.
+
+    Raises:
+        SessionLost: The page does not belong to the expected company.
+    """
+    url = f"{PAGE_URL}?p=186:{page}:{state.instance}::NO::"
+    try:
+        doc = fetch_page(context, url)
+    except requests.exceptions.HTTPError as exc:
+        raise SessionLost(f"page {page}: {exc}")
+    shown = h.xpath_strings(doc, '//span[@class="display_only"]/text()')
+    if not shown or shown[0].strip() != regno.strip():
+        raise SessionLost(f"page {page} shows {shown[:1]}, expected {regno!r}")
+    records = parse_records(doc)
+    if not records and not h.xpath_elements(doc, '//span[@class="nodatafound"]'):
+        raise SessionLost(f"page {page} has neither records nor a no-data note")
+
+    for first_link in h.xpath_strings(doc, NEXT_PAGE_XPATH):
+        link: str | None = first_link
+        while link is not None:
+            match = REGEX_REPORT_PAGE.search(link)
+            assert match is not None, link
+            region, min_row, max_rows, fetched = match.groups()
+            data = {
+                "p": f"186:{page}:{state.instance}:FLOW_PPR_OUTPUT_R{region}_pg_R_{region}:NO",
+                "pg_max_rows": max_rows,
+                "pg_min_row": min_row,
+                "pg_rows_fetched": fetched,
+            }
+            try:
+                fragment = fetch_page(context, PAGE_URL, data=data)
+            except requests.exceptions.HTTPError as exc:
+                raise SessionLost(f"page {page} from row {min_row}: {exc}")
+            more = parse_records(fragment)
+            if not more:
+                raise SessionLost(f"page {page} from row {min_row} is empty")
+            records.extend(more)
+            links = h.xpath_strings(fragment, NEXT_PAGE_XPATH)
+            link = links[0] if links else None
+    return records
+
+
+def fetch_company(
+    context: Context, state: CrawlState, record: dict[str, str | None]
+) -> dict[str, Any] | None:
+    """Fetch the detail, founders and managers pages of one company.
+
+    Returns None when the registry's firewall rejects the detail link.
+
+    Raises:
+        SessionLost: A page does not belong to the expected company.
     """
     details_url = record["details_url"]
-    assert details_url is not None
+    regno = record["registration_number"]
+    assert details_url is not None and regno is not None, record
     try:
-        details_page = context.fetch_html(details_url, cache_days=CACHE_DAYS)
+        doc = fetch_page(context, details_url)
     except requests.exceptions.HTTPError as exc:
-        context.log.warning(
-            f"Failed to fetch company {details_url}: {type(exc)}, {exc}"
-        )
-        return False
+        raise SessionLost(f"details: {exc}")
+    details = parse_records(doc)
+    if len(details) != 1 or details[0].get("Registration Number") != regno:
+        if WAF_REJECTION in h.element_text(doc):
+            context.log.warning("Details page rejected by firewall", url=details_url)
+            return None
+        raise SessionLost(f"details page does not show {regno!r}")
+    return {
+        "details": details[0],
+        "founders": fetch_report(context, state, FOUNDERS_PAGE, regno),
+        "managers": fetch_report(context, state, MANAGERS_PAGE, regno),
+    }
 
-    legal_form = h.xpath_strings(
-        details_page,
-        '//td[contains(text(), "Legal form of organization")]/following-sibling::td/text()',
-    )
-    if legal_form:
-        record["legal_form"] = legal_form[0]
 
-    address_add = h.xpath_strings(
-        details_page,
-        '//td[contains(text(), "Address")]/following-sibling::td/text()',
-    )
-    if address_add:
-        record["address_additional"] = address_add[0]
+def emit_company(
+    context: Context,
+    record: dict[str, str | None],
+    pages: dict[str, Any] | None,
+) -> None:
+    """Emit a company from its listing row, and from its pages where available."""
+    entity = context.make("Company")
+    reg_number = record.get("registration_number")
+    if reg_number is not None and roughly_valid_regno(reg_number):
+        entity.id = context.make_slug(reg_number)
+    else:
+        assert record["name"] is not None
+        entity.id = context.make_id("BACompany", record["name"])
 
-    status = h.xpath_strings(
-        details_page,
-        '//td[contains(text(), "Status (Bankruptcy – YES/NO)")]/following-sibling::td/text()',
-    )
-    if status:
-        record["status_bankruptcy"] = status[0]
+    # Abbreviation isn't so much an alias as simply a shortened but totally valid form
+    # name:   MIDAX d.o.o. za proizvodnju, promet i usluge Banovići
+    # google translate:
+    #         MIDAX d.o.o. for production, trade and services Banovići
+    # abbrev: MIDAX d.o.o. Banovići
+    for raw_name in [record["name"], record["abbreviation"]]:
+        if names := clean_name(raw_name):
+            entity.add("name", names[0], lang="bos")
+            entity.add("alias", names[1:], lang="bos")
+    if not entity.has("name"):
+        context.log.warning("No valid name found", url=record["details_url"])
+        return
 
-    uin = h.xpath_strings(
-        details_page,
-        '//td[contains(text(), "Unique Identification Number")]/following-sibling::td/text()',
-    )
+    entity.add("country", "ba")
+    address: str | None = record["address"]
+    if address != "-":
+        entity.add("address", address, lang="bos")
+    entity.add("registrationNumber", record["registration_number"])
+    entity.add("modifiedAt", record["date_of_last_decision"])
+
+    if pages is None:
+        context.emit(entity)
+        return
+
+    details: Record = dict(pages["details"])
+    entity.add("legalForm", details.pop("Legal form of organization"), lang="bos")
+    entity.add("address", details.pop("Address"), lang="bos")
+    entity.add("status", details.pop("Status (Bankruptcy – YES/NO)"), lang="bos")
     # Jedinstveni identifikacioni broj - JIB or UIN
     # https://www.vatify.eu/bosnia-and-herzegovina-vat-number.html
-    if uin:
-        record["unique_id"] = uin[0]
-
-    customs_number = h.xpath_strings(
-        details_page,
-        '//td[contains(text(), "Customs Number")]/following-sibling::td/text()',
+    entity.add("registrationNumber", details.pop("Unique Identification Number"))
+    context.audit_data(
+        details,
+        ignore=["Registration Number", "Name", "Abbreviation", "Customs Number"],
     )
-    if customs_number and customs_number[0].replace("\xa0", " ").strip():
-        record["customs_number"] = f"Customs number: {customs_number[0]}"
+    context.emit(entity)
+    company_id = entity.id
+    assert company_id is not None
 
-    founders_people: list[dict[str, str]] = []
-    founders_companies: list[dict[str, str]] = []
-    managers: list[dict[str, str]] = []
-
-    try:
-        founders_hrefs = h.xpath_strings(details_page, '//*[@id="podmeni"]/p/a/@href')
-        founders_url = urljoin(BASE_URL, founders_hrefs[0])
-    except IndexError:
-        if apex_link_broken(details_url):
-            context.log.info(
-                "Details page unreachable: registry link has an unescaped colon",
-                url=details_url,
-            )
+    for founder_record in pages["founders"]:
+        founder_record = dict(founder_record)
+        if "Ime osnivača" in founder_record:
+            emit_founder_person(context, company_id, founder_record)
         else:
-            context.log.warning("Details page empty", url=details_url)
-    else:
-        founders_page = context.fetch_html(founders_url)
+            emit_founder_company(context, company_id, founder_record)
+        context.audit_data(founder_record)
 
-        names = h.xpath_strings(
-            founders_page,
-            '//td[contains(text(), "Ime osnivača")]/following-sibling::td/text()',
-        )
-        cap_paid = h.xpath_strings(
-            founders_page,
-            '//td[contains(text(), "Kapital [uplaćeni]")]/following-sibling::td/text()',
-        )
-        shares = h.xpath_strings(
-            founders_page,
-            '//td[contains(text(), "Dionice [broj]")]/following-sibling::td/text()',
-        )
-        basic_data = h.xpath_strings(
-            founders_page,
-            '//td[contains(text(), "Basic data")]/following-sibling::td/text()',
-        )
-        reg_num = h.xpath_strings(
-            founders_page,
-            '//td[contains(text(), "Registration Number")]/following-sibling::td/text()',
-        )
+    for manager_record in pages["managers"]:
+        manager_record = dict(manager_record)
+        emit_manager(context, company_id, manager_record)
+        context.audit_data(manager_record)
 
-        for i, name in enumerate(names):
-            founders_people.append(
-                {
-                    "name": name,
-                    "capital_paid": cap_paid[i],
-                    "shares": shares[i],
-                }
-            )
 
-        for i, bd in enumerate(basic_data):
-            parsed_bd = list(map(str.strip, bd.split(" ,")))
-            company_name = parsed_bd[0]
-
-            # includes country
-            comp_address = ", ".join(parsed_bd[1:]).strip().strip(",")
-            country = ""
-            if len(parsed_bd) > 1:
-                country = parsed_bd[-1]
-
-            founders_companies.append(
-                {
-                    "basic_data": bd,
-                    "registration_number": (
-                        reg_num[i] if re.search(r"\d", reg_num[i]) else ""
-                    ),
-                    "name": company_name,
-                    "address": comp_address,
-                    "country": country,
-                }
-            )
-
-        managers_hrefs = h.xpath_strings(founders_page, '//*[@id="podmeni"]/p/a/@href')
-        managers_url = urljoin(BASE_URL, managers_hrefs[1])
-        managers_page = context.fetch_html(managers_url)
-        managers_names = h.xpath_strings(
-            managers_page,
-            '//td[contains(text(), "Name")]/following-sibling::td/text()',
+def emit_founder_person(context: Context, company_id: str, record: Record) -> None:
+    name = record.pop("Ime osnivača")
+    # The contracted capital is mostly equal to the paid-in capital, and there is
+    # no property on Ownership to tell the two apart.
+    record.pop("Kapital [ugovoreni]")
+    capital_paid = record.pop("Kapital [uplaćeni]")
+    shares = record.pop("Dionice [broj]")
+    if name in FOUNDER_DENY_LIST:
+        return
+    founder = context.make("Person")
+    founder.id = context.make_id("BAFounder", company_id, name)
+    founder.add("name", name, lang="bos")
+    if not founder.has("name"):
+        context.log.info(
+            "Skipping founder without a usable name", name=name, company=company_id
         )
-        managers_pos = h.xpath_strings(
-            managers_page,
-            '//td[contains(text(), "Position")]/following-sibling::td/text()',
-        )[1::2]
-        managers_auth = h.xpath_strings(
-            managers_page,
-            '//td[contains(text(), "Authorisations/ Position limits")]/following-sibling::td/text()',
+        return
+    context.emit(founder)
+
+    own = context.make("Ownership")
+    own.id = context.make_id("BAOwnership", company_id, founder.id)
+    own.add("asset", company_id)
+    own.add("owner", founder.id)
+    own.add("role", "Founder", lang="eng")
+    own.add("sharesValue", capital_paid)
+    if shares.replace("\xa0", " ").strip("	 -"):
+        own.add("sharesCount", shares)
+    context.emit(own)
+
+
+def split_registration_numbers(value: str) -> list[str]:
+    """Split a founder's registration number field into the numbers it holds.
+
+    Placeholders such as "-" or "-//-" yield nothing.
+    """
+    parts = [value]
+    if match := REGEX_OLD_REGNO.match(value):
+        parts = list(match.groups())
+    numbers: list[str] = []
+    for part in parts:
+        numbers.extend(REGEX_REGNO_LABEL.split(part))
+    return [n.strip() for n in numbers if re.search(r"\d", n)]
+
+
+def emit_founder_company(context: Context, company_id: str, record: Record) -> None:
+    basic_data = record.pop("Basic data")
+    reg_num = record.pop("Registration Number")
+    # The registry joins name, location and country with " ,", as in
+    # 'OPĆINA FOJNICA ,Fojnica,  Bosanska bb, Fojnica ,Bosna I Hercegovina'. The
+    # name itself occasionally contains " ,", so the country is the last part
+    # and the location everything in between.
+    parts = [p.strip() for p in basic_data.split(" ,")]
+    name = parts[0]
+    if name in FOUNDER_DENY_LIST:
+        return
+    if SHAREHOLDER_NOTE in name.lower():
+        context.log.info(
+            "Skipping shareholder note used as a founder name",
+            name=name,
+            company=company_id,
         )
-        if managers_names:
-            for i, mgr_name in enumerate(managers_names):
-                managers.append(
-                    {
-                        "name": mgr_name,
-                        "authorizations": managers_auth[i],
-                        "position": managers_pos[i],
-                    }
+        return
+    if len(parts) < 3:
+        context.log.warning(
+            "Founder data is not name, location and country",
+            basic_data=basic_data,
+            company=company_id,
+        )
+        parts = [name, "", ""]
+
+    founder = context.make("LegalEntity")
+    founder.id = context.make_id("BAFounderCompany", company_id, name)
+    founder.add("name", name, lang="bos")
+    if not founder.has("name"):
+        context.log.info(
+            "Skipping founder company without a usable name",
+            name=name,
+            company=company_id,
+        )
+        return
+    if parts[-1]:
+        founder.add("country", parts[-1], lang="bos")
+    location = [p.strip() for p in ",".join(parts[1:-1]).split(",")]
+    address = ", ".join(p for p in location if p not in ("", "-"))
+    if address:
+        founder.add("address", address, lang="bos")
+    founder.add("registrationNumber", split_registration_numbers(reg_num))
+    context.emit(founder)
+
+    own = context.make("Ownership")
+    own.id = context.make_id("BAOwnership", company_id, founder.id)
+    own.add("asset", company_id)
+    own.add("owner", founder.id)
+    own.add("role", "Founder", lang="eng")
+    context.emit(own)
+
+
+def emit_manager(context: Context, company_id: str, record: Record) -> None:
+    name = record.pop("Name")
+    director = context.make("Person")
+    director.id = context.make_id("BAdirector", company_id, name)
+    director.add("name", name, lang="bos")
+    if not director.has("name"):
+        context.log.info(
+            "Skipping director without a usable name", name=name, company=company_id
+        )
+        return
+    context.emit(director)
+
+    rel = context.make("Directorship")
+    rel.id = context.make_id("BADirectorship", company_id, director.id)
+    rel.add("role", record.pop("Position"), lang="bos")
+    rel.add("description", record.pop("Authorisations/ Position limits"), lang="bos")
+    rel.add("director", director)
+    rel.add("organization", company_id)
+    context.emit(rel)
+
+
+def crawl_company(
+    context: Context, state: CrawlState, record: dict[str, str | None]
+) -> None:
+    """Emit one company, from the record cache or freshly fetched pages.
+
+    Raises:
+        SessionLost: A page does not belong to the expected company.
+    """
+    details_url = record["details_url"]
+    assert details_url is not None, record
+    if apex_link_broken(details_url):
+        context.log.info(
+            "Details page unreachable: registry link has an unescaped colon",
+            url=details_url,
+        )
+        emit_company(context, record, None)
+        return
+
+    # Keyed on the date of the last registry decision, so that a company that
+    # changed since it was cached is fetched again.
+    cache_key = f"record:{company_key(details_url)}:{record['date_of_last_decision']}"
+    cache_days: int = context.dataset.config["record_cache_days"]
+    pages = context.cache.get_json(cache_key, max_age=cache_days)
+    if pages is None:
+        pages = fetch_company(context, state, record)
+        if pages is not None:
+            context.cache.set_json(cache_key, pages)
+    emit_company(context, record, pages)
+
+
+def crawl_listed(
+    context: Context,
+    state: CrawlState,
+    search: Search,
+    records: list[dict[str, str | None]],
+) -> None:
+    """Emit the companies a search listed.
+
+    When a company's pages fail verification, the session is renewed and the
+    search run again, because detail links only work in the session that listed
+    them. A company that fails again on the fresh session is emitted from its
+    listing row alone.
+    """
+    done: set[str] = set()
+    failed_once: set[str] = set()
+    while True:
+        current: dict[str, str | None] = {}
+        try:
+            for current in records:
+                assert current["details_url"] is not None, current
+                if company_key(current["details_url"]) in done:
+                    continue
+                crawl_company(context, state, current)
+                done.add(company_key(current["details_url"]))
+            return
+        except SessionLost as exc:
+            assert current["details_url"] is not None, current
+            key = company_key(current["details_url"])
+            if key not in failed_once:
+                failed_once.add(key)
+                renew_session(context, state, str(exc))
+            else:
+                context.log.warning(
+                    "Company pages failed verification on a fresh session",
+                    url=current["details_url"],
+                    reason=str(exc),
                 )
+                state.errors += 1
+                emit_company(context, current, None)
+                done.add(key)
+        listed = len(records)
+        records = list_checked(context, state, search)
+        # A renewed session must list the same companies as the first one did.
+        assert len(records) == listed, search
 
-    finally:
-        entity = context.make("Company")
-        reg_number = record.get("registration_number")
-        if reg_number is not None and roughly_valid_regno(reg_number):
-            entity.id = context.make_slug(reg_number)
-        else:
-            assert record["name"] is not None
-            entity.id = context.make_id("BACompany", record["name"])
 
-        # Abbreviation isn't so much an alias as simply a shortened but totally valid form
-        # name:   MIDAX d.o.o. za proizvodnju, promet i usluge Banovići
-        # google translate:
-        #         MIDAX d.o.o. for production, trade and services Banovići
-        # abbrev: MIDAX d.o.o. Banovići
-        for raw_name in [record["name"], record["abbreviation"]]:
-            if names := clean_name(raw_name):
-                entity.add("name", names[0], lang="bos")
-                entity.add("alias", names[1:], lang="bos")
-        if not entity.has("name"):
-            context.log.warning("No valid name found", url=record["details_url"])
-            return True
-        entity.add("status", record.get("status_bankruptcy", None), lang="bos")
+def split_search(search: Search, periods: list[tuple[str, str]]) -> list[Search]:
+    """Split a search that hit the listing cap into searches that cover it.
 
-        entity.add("country", "ba")
-        address: str | None = record["address"]
-        if address != "-":
-            entity.add("address", address, lang="bos")
-        entity.add("address", record.get("address_additional", None), lang="bos")
+    Registration date periods come last, because a company without a
+    registration date matches none of them.
+    """
+    if search.legal_form == "-1":
+        return [
+            replace(search, legal_form=form, removed=removed)
+            for form in LEGAL_FORMS
+            for removed in ("1", "0")
+        ]
+    if search.bankrupt == "-1":
+        return [
+            replace(search, bankrupt=bankrupt, foreign_trade=foreign_trade)
+            for bankrupt in ("1", "0")
+            for foreign_trade in ("1", "0")
+        ]
+    assert search.registered_from == "", f"Cannot split search further: {search}"
+    return [
+        replace(search, registered_from=from_date, registered_to=to_date)
+        for from_date, to_date in periods
+    ]
 
-        entity.add("legalForm", record.get("legal_form", None), lang="bos")
-        entity.add("registrationNumber", record["registration_number"])
-        entity.add("registrationNumber", record.get("unique_id", None))
-        entity.add("description", record.get("customs_number", None), lang="eng")
 
-        entity.add("sourceUrl", record["details_url"])
-        entity.add("modifiedAt", record["date_of_last_decision"])
-        context.emit(entity)
+def crawl_search(
+    context: Context,
+    state: CrawlState,
+    search: Search,
+    periods: list[tuple[str, str]],
+) -> int:
+    """Emit the companies a search finds, splitting it while it hits the cap.
 
-        for person in founders_people:
-            if person["name"] in FOUNDER_DENY_LIST:
-                continue
-            founder = context.make("Person")
-            founder.id = context.make_id("BAFounder", entity.id, person["name"])
-            founder.add("name", person["name"], lang="bos")
-            if not founder.has("name"):
-                context.log.info(
-                    "Skipping founder without a usable name",
-                    name=person["name"],
-                    url=record["details_url"],
-                )
-                continue
-            context.emit(founder)
-
-            own = context.make("Ownership")
-            own.id = context.make_id("BAOwnership", entity.id, founder.id)
-            own.add("asset", entity.id)
-            own.add("owner", founder.id)
-            own.add("role", "Founder", lang="eng")
-
-            own.add("sharesValue", person["capital_paid"])
-            if person["shares"].replace("\xa0", " ").strip("	 -"):
-                own.add("sharesCount", person["shares"])
-            context.emit(own)
-
-        for comp in founders_companies:
-            if comp["name"] in FOUNDER_DENY_LIST:
-                continue
-            if SHAREHOLDER_NOTE in comp["name"].lower():
-                context.log.info(
-                    "Skipping shareholder note used as a founder name",
-                    name=comp["name"],
-                    url=record["details_url"],
-                )
-                continue
-
-            founder_company = context.make("LegalEntity")
-            founder_company.id = context.make_id(
-                "BAFounderCompany", entity.id, comp["name"]
-            )
-            founder_company.add("name", comp["name"], lang="bos")
-            if not founder_company.has("name"):
-                context.log.info(
-                    "Skipping founder company without a usable name",
-                    name=comp["name"],
-                    url=record["details_url"],
-                )
-                continue
-            if comp.get("country"):
-                founder_company.add("country", comp["country"], lang="bos")
-
-            if comp.get("address") and comp["address"] != "-":
-                founder_company.add("address", comp["address"], lang="bos")
-
-            if comp.get("registration_number"):
-                founder_company.add("registrationNumber", comp["registration_number"])
-
-            context.emit(founder_company)
-
-            own = context.make("Ownership")
-            own.id = context.make_id("BAOwnership", entity.id, founder_company.id)
-            own.add("asset", entity.id)
-            own.add("owner", founder_company.id)
-            own.add("role", "Founder", lang="eng")
-
-            context.emit(own)
-
-        for manager in managers:
-            director = context.make("Person")
-            director.id = context.make_id("BAdirector", entity.id, manager["name"])
-            director.add("name", manager["name"], lang="bos")
-            if not director.has("name"):
-                context.log.info(
-                    "Skipping director without a usable name",
-                    name=manager["name"],
-                    url=record["details_url"],
-                )
-                continue
-            context.emit(director)
-
-            rel = context.make("Directorship")
-            rel.id = context.make_id("BADirectorship", entity.id, director.id)
-            rel.add("role", manager["position"], lang="bos")
-            rel.add("description", manager["authorizations"], lang="bos")
-            rel.add("director", director)
-            rel.add("organization", entity)
-
-            context.emit(rel)
-        return True
+    Returns:
+        The number of companies listed.
+    """
+    records = list_checked(context, state, search)
+    if len(records) < LISTING_CAP:
+        crawl_listed(context, state, search, records)
+        return len(records)
+    parts = split_search(search, periods)
+    if parts[0].registered_from != "":
+        context.log.info(
+            "Splitting search by registration date, undated companies are missed",
+            search=search,
+        )
+    total = sum(crawl_search(context, state, part, periods) for part in parts)
+    # The parts must together list at least what the capped search listed.
+    assert total >= LISTING_CAP, (search, total)
+    return total
 
 
 def generate_periods(
@@ -594,55 +801,20 @@ def crawl(context: Context) -> None:
     Bosnia and Herzegovina
     """
 
-    secret_param = get_secret_param(context)
-    cities = seed_city(context, secret_param)
+    state = CrawlState(instance=open_session(context))
+    cities = seed_city(context, state)
 
     periods: list[tuple[str, str]] = [
-        # There are no companies registered before 2000
-        ("01/01/2000", "01/01/2010"),
-        # But some regions registered more than 500 companies
-        # in one years, so we need to go all way down to 6 months step
+        ("01/01/1900", "01/01/2010"),
+        # Some searches still list more than 500 companies registered within a
+        # year, so the later periods are six months long.
     ] + generate_periods(
         from_date=datetime.date(2010, 1, 1),
         to_date=datetime.date.today(),
         step_months=6,
     )
 
-    total = 0
-    error_count = 0
-
     for city in cities:
-        # Lets grab try to grab all records to see if it's less than 500
-        new_recs = parse_city(
-            context=context,
-            city=city,
-            secret_param=secret_param,
-            from_date="",
-            to_date="",
-        )
-
-        if len(new_recs) == 500:
-            for period in periods:
-                new_recs = parse_city(
-                    context=context,
-                    city=city,
-                    secret_param=secret_param,
-                    from_date=period[0],
-                    to_date=period[1],
-                )
-                context.log.debug(
-                    f"{city['city']}, {period[0]}-{period[1]}: {len(new_recs)}"
-                )
-                total += len(new_recs)
-
-                for rec in new_recs:
-                    if not crawl_details(context, rec):
-                        error_count += 1
-        else:
-            context.log.debug(f"{city['city']}, all the time: {len(new_recs)}")
-            total += len(new_recs)
-
-            for rec in new_recs:
-                if not crawl_details(context, rec):
-                    error_count += 1
-    assert error_count < EXPECTED_ERRORS, f"Too many errors: {error_count}"
+        count = crawl_search(context, state, Search(city=city["code"]), periods)
+        context.log.debug(f"{city['city']}: {count}")
+    assert state.errors < EXPECTED_ERRORS, f"Too many errors: {state.errors}"

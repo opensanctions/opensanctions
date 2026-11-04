@@ -3,7 +3,7 @@ prefix: ba-reg
 disabled: false
 entry_point: crawler
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2023-03-21
 exports:
   - statistics.json
@@ -17,8 +17,9 @@ summary: |
   Information from the Registers of business entities in Bosnia and Herzegovina.
 description: |
   The database of available electronic court registers of business entities:
-  Register of Business Entities in the District Brčko of BiH, Register of Business
-  Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska.
+  Register of Business Entities in the District Brčko of BiH and Register of Business
+  Entities in the Federation of BiH. Republika Srpska keeps a separate register,
+  which is not included.
 
   The electronic court registers contain information on all business/legal entities
   that are required to register by the Laws on Registration of Business Entities
@@ -40,10 +41,18 @@ description: |
 assertions:
   min:
     schema_entities:
-      # Only a floor to catch a run that emitted nothing at all: the crawler
-      # walks the register city by city, so a partial listing failure shows up
-      # in the delta rather than here.
-      Company: 1
+      # Floors well below the 2026-10 counts (52k companies, 138k people, 7k
+      # legal entities), to fail a run in which the registry session broke down
+      # without the crawler noticing.
+      Company: 50000
+      Person: 125000
+      LegalEntity: 6000
+
+config:
+  # Days for which a company's fetched pages are reused, so that a run restarted
+  # after a failure skips what it already fetched. Keep this well below the
+  # crawl interval, or a scheduled run reuses the previous run's data.
+  record_cache_days: 7
 
 url: https://bizreg.pravosudje.ba
 publisher:
