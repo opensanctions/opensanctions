@@ -1,5 +1,4 @@
 title: Egypt Members of the Senate
-name: eg_senate
 prefix: eg-sen
 entry_point: crawler.py
 coverage:
@@ -7,16 +6,27 @@ coverage:
   start: 2026-10-20
 load_statements: true
 summary: >-
-  Current members of the Senate, the upper chamber of the Egyptian parliament.
+  Elected and presidentially appointed legislators of Egypt's upper parliamentary chamber
 description: |
-  Current members of the Senate (Majlis al-Shuyukh), the upper chamber of Egypt's
-  bicameral parliament. Of its 300 members, 100 are elected from individual-candidacy
-  constituencies, 100 from closed party lists and 100 are appointed by the President,
-  each serving a five-year term, and together they advise on constitutional amendments,
-  draft laws and the state's development plans.
+  Current and historical members of the Senate (مجلس الشيوخ, Majlis al-Shuyukh), the upper
+  chamber of Egypt's bicameral parliament. Two thirds of its members are directly elected —
+  half of those from individual-candidacy constituencies and half from closed party lists —
+  and one third is appointed by the President, each serving a five-year term. Unlike the
+  House of Representatives, the Senate has an advisory role: it gives its opinion on
+  constitutional amendments, draft laws and the state's development plans.
+
+  Elected members come from the National Election Authority's election results, and the
+  presidential appointees from the State Information Service (الهيئة العامة للاستعلامات),
+  the government's official information agency. Coverage spans the chamber's terms since
+  its re-establishment in 2020. Each term's members are listed as the chamber was
+  constituted after the election and are not updated for later deaths, resignations or
+  by-elections, so whether a member of the current term still holds the seat is unknown.
+  For the 2020–2025 term only members elected in the first round of voting are included;
+  the runoff winners and the presidential appointees are missing.
 url: https://www.elections.eg/
 publisher:
-  name: National Election Authority
+  name: الهيئة الوطنية للانتخابات
+  name_en: National Election Authority
   acronym: NEA
   description: >
     The National Election Authority is the independent body that administers
@@ -39,19 +49,30 @@ tags:
   - list.pep
 
 # There is no Senate website with a member directory. The roster is assembled from the
-# National Election Authority's final-round results for the latest election (200
-# elected members), found via the site navigation, and the State Information
-# Service's article on Presidential Decree 575/2025 (100 appointees). Both are
-# snapshots of the chamber as constituted and won't reflect deaths, resignations or
-# by-elections, so occupancies are emitted with status unknown rather than current.
+# National Election Authority's results for each Senate election in the site's archive
+# menu (elected members), and the State Information Service's article on Presidential
+# Decree 575/2025 (appointees of the current term). The final round's results page
+# lists all of an election's winners, except in 2020, whose runoff page was published
+# empty: that term falls back to the first round, which misses the runoff winners and
+# says "لا يوجد مرشحين فائزين" (no winning candidates) where a constituency's seats all
+# went to the runoff. The sources are snapshots of the chamber as constituted and
+# won't reflect deaths, resignations or by-elections, so occupancies of the current
+# term are emitted with status unknown rather than current. Each earlier term ends in
+# the year of the next election.
 # The appointees article is specific to the 2025 term: once the NEA publishes the next
-# election, the crawler fails until APPOINTEES_URL points to the new decree.
+# election, the crawler fails until APPOINTEES_URL points to the new decree. No Arabic
+# or Official Gazette text of Decree 575/2025 is published online by a government
+# body; Arabic name lists exist only in news reports.
 names:
   prefixes_strip:
     # Doctor
     - الدكتور
+    - د/
+    - دكتور
+    - دكتور/
     # Major general
     - اللواء
+    - "لواء /"
 
 lookups:
   columns:
@@ -73,6 +94,11 @@ lookups:
         value: party
       - match: النوع # Gender
         value: gender
+      # 2020 results
+      - match: مسلسل # Serial number
+        value: serial
+      - match: صفة المرشح # Candidate category (the quota a list place was reserved for)
+        value: quota
   type.name:
     options:
       - match: "-"
@@ -85,15 +111,21 @@ lookups:
         value: male
       - match: انثى
         value: female
+      # The 2020 list results give the quota a candidate's place was reserved for:
+      # women, or "-" for none.
+      - match: مرأة # Woman
+        value: female
+      - match: "-"
+        value: null
 
 assertions:
   min:
     schema_entities:
-      Person: 290
+      Person: 380
       Position: 1
     country_entities:
-      eg: 290
+      eg: 380
   max:
     schema_entities:
-      Person: 310
+      Person: 900
       Position: 1
