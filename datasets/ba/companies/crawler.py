@@ -1,6 +1,7 @@
 import datetime
 import re
-from dataclasses import dataclass, replace
+import time
+from dataclasses import dataclass, field, replace
 from typing import Any
 from urllib.parse import urljoin
 
@@ -158,6 +159,14 @@ class CrawlState:
     errors: int = 0
     # A search that listed companies earlier in the run
     canary: Search | None = None
+    # Companies emitted with their pages, and how many of them without founders
+    companies: int = 0
+    without_founders: int = 0
+    # Companies whose founders page listed nobody, held back to be fetched again,
+    # by registry company ID: the search listing them, the listing row and pages
+    deferred: dict[str, tuple[Search, dict[str, str | None], dict[str, Any]]] = field(
+        default_factory=dict
+    )
 
 
 def roughly_valid_regno(regno: str) -> bool:
@@ -684,13 +693,20 @@ def emit_manager(context: Context, company_id: str, record: Record) -> None:
 
 
 def crawl_company(
-    context: Context, state: CrawlState, record: dict[str, str | None], removed: bool
+    context: Context,
+    state: CrawlState,
+    search: Search,
+    record: dict[str, str | None],
 ) -> None:
     """Emit one company, from the record cache or freshly fetched pages.
+
+    A company whose founders page lists nobody is held back in `state.deferred`
+    instead, see `recheck_deferred`.
 
     Raises:
         SessionLost: A page does not belong to the expected company.
     """
+    removed = search.removed == "1"
     details_url = record["details_url"]
     assert details_url is not None, record
     if apex_link_broken(details_url):
@@ -706,10 +722,21 @@ def crawl_company(
     cache_key = f"record:{company_key(details_url)}:{record['date_of_last_decision']}"
     cache_days: int = context.dataset.config["record_cache_days"]
     pages = context.cache.get_json(cache_key, max_age=cache_days)
+    # The registry at times serves founders pages that list nobody for
+    # companies that have founders, so such pages are neither cached nor
+    # trusted from the cache.
+    if pages is not None and not pages["founders"]:
+        pages = None
     if pages is None:
         pages = fetch_company(context, state, record)
-        if pages is not None:
-            context.cache.set_json(cache_key, pages)
+        if pages is None:
+            emit_company(context, record, None, removed)
+            return
+        if not pages["founders"]:
+            state.deferred[company_key(details_url)] = (search, record, pages)
+            return
+        context.cache.set_json(cache_key, pages)
+    state.companies += 1
     emit_company(context, record, pages, removed)
 
 
@@ -718,14 +745,22 @@ def crawl_listed(
     state: CrawlState,
     search: Search,
     records: list[dict[str, str | None]],
+    only: set[str] | None = None,
 ) -> None:
-    """Emit the companies a search listed.
+    """Emit the companies a search listed, or only those with the given IDs.
 
     When a company's pages fail verification, the session is renewed and the
     search run again, because detail links only work in the session that listed
     them. A company that fails again on the fresh session is emitted from its
     listing row alone.
     """
+
+    def selected(rows: list[dict[str, str | None]]) -> list[dict[str, str | None]]:
+        if only is None:
+            return rows
+        return [r for r in rows if company_key(str(r["details_url"])) in only]
+
+    records = selected(records)
     done: set[str] = set()
     failed_once: set[str] = set()
     while True:
@@ -735,7 +770,7 @@ def crawl_listed(
                 assert current["details_url"] is not None, current
                 if company_key(current["details_url"]) in done:
                     continue
-                crawl_company(context, state, current, search.removed == "1")
+                crawl_company(context, state, search, current)
                 done.add(company_key(current["details_url"]))
             return
         except SessionLost as exc:
@@ -754,9 +789,52 @@ def crawl_listed(
                 emit_company(context, current, None, search.removed == "1")
                 done.add(key)
         listed = len(records)
-        records = list_checked(context, state, search)
+        records = selected(list_checked(context, state, search))
         # A renewed session must list the same companies as the first one did.
         assert len(records) == listed, search
+
+
+def recheck_deferred(context: Context, state: CrawlState) -> None:
+    """Fetch the companies whose founders page listed nobody again, then emit all.
+
+    The registry at times serves the founders report without its records for
+    an hour or more, so the re-checks wait increasingly long. After the first
+    round, they go on only while more companies lack founders than the run
+    allows. Companies still without founders after the last round are emitted
+    from the pages fetched for them.
+    """
+    delays: list[int] = context.dataset.config["recheck_delays_minutes"]
+    max_share: float = context.dataset.config["max_share_without_founders"]
+    for attempt, delay in enumerate(delays):
+        pending = state.deferred
+        share = len(pending) / max(1, state.companies + len(pending))
+        if not pending or (attempt > 0 and share <= max_share):
+            break
+        context.log.info(
+            "Re-checking companies without founders",
+            companies=len(pending),
+            share=f"{share:.1%}",
+            delay_minutes=delay,
+        )
+        time.sleep(delay * 60)
+        renew_session(context, state, "re-checking founders")
+        state.deferred = {}
+        by_search: dict[Search, set[str]] = {}
+        for key, (search, _, _) in pending.items():
+            by_search.setdefault(search, set()).add(key)
+        for search, keys in by_search.items():
+            records = list_checked(context, state, search)
+            listed = {company_key(str(r["details_url"])) for r in records}
+            for key in keys - listed:
+                state.deferred[key] = pending[key]
+            crawl_listed(context, state, search, records, only=keys)
+
+    for search, record, pages in state.deferred.values():
+        state.companies += 1
+        state.without_founders += 1
+        emit_company(context, record, pages, search.removed == "1")
+    share = state.without_founders / max(1, state.companies)
+    assert share <= max_share, f"Companies without founders: {share:.1%}"
 
 
 def split_search(search: Search, periods: list[tuple[str, str]]) -> list[Search]:
@@ -861,4 +939,5 @@ def crawl(context: Context) -> None:
             search = Search(city=city["code"], removed=removed)
             count = crawl_search(context, state, search, periods)
             context.log.debug(f"{city['city']}, removed={removed}: {count}")
+    recheck_deferred(context, state)
     assert state.errors < EXPECTED_ERRORS, f"Too many errors: {state.errors}"

@@ -59,6 +59,13 @@ config:
   # after a failure skips what it already fetched. Keep this well below the
   # crawl interval, or a scheduled run reuses the previous run's data.
   record_cache_days: 7
+  # Minutes to wait before each round of fetching the companies whose founders
+  # page listed nobody again. The registry at times serves the founders report
+  # without its records for an hour or more.
+  recheck_delays_minutes: [15, 30, 60]
+  # The run fails if more companies than this end up without founders; about
+  # one in ten has none in the register.
+  max_share_without_founders: 0.2
 
 url: https://bizreg.pravosudje.ba
 publisher:
