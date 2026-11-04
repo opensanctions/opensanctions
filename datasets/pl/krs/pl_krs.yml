@@ -2,7 +2,7 @@ title: Poland National Court Register (KRS)
 prefix: pl-krs
 entry_point: crawler.py
 coverage:
-  frequency: monthly
+  frequency: daily
   start: 2026-11-03
 deploy:
   disk: 30Gi
@@ -47,8 +47,15 @@ data:
   format: JSON
 
 config:
-  full_scan_days: 180
+  batch_size: 50_000
+  # A guess at a run of unused numbers long enough to mean the end of the
+  # register, not checked against gaps in the KRS numbering.
   stop_after_misses: 5000
+
+assertions:
+  min:
+    schema_entities:
+      Company: 10_000
 
 dates:
   formats: ["%d.%m.%Y"]

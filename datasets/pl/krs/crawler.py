@@ -1,7 +1,6 @@
 import gzip
 import shutil
 from datetime import date, timedelta
-from itertools import chain
 from pathlib import Path
 from typing import Any
 from collections.abc import Generator, Iterable, Iterator
@@ -18,9 +17,10 @@ from zavod.archive import (
 )
 
 # The previous run's extracts, carried from run to run so that a run only
-# refetches the numbers named in the court bulletin since then. Line one is a
-# header with `bulletin_date`, `max_krs` and `full_scan`, each further line one
-# KRS number with `krs`, `rejestr`, `fetched` and `odpis`, sorted by number.
+# refetches the numbers named in the court bulletin since then, plus a batch of
+# numbers from a cursor that cycles through the register. Line one is a header
+# with `bulletin_date`, `max_krs` and `cursor`, each further line one KRS number
+# with `krs`, `rejestr`, `fetched` and `odpis`, sorted by number.
 SNAPSHOT = "krs_snapshot.jsonl.gz"
 EXTRACT_URL = "https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/{krs:010d}"
 BULLETIN_URL = "https://api-krs.ms.gov.pl/api/Krs/Biuletyn/{day}"
@@ -71,23 +71,52 @@ def fetch_record(context: Context, krs: int, refresh: bool) -> Record | None:
     return None
 
 
-def probe(
-    context: Context, start: int, stop_after: int, reach: int
+class Window:
+    """Fetch a batch of numbers from the cursor, stopping early at the end of
+    the register: a long run of misses past `reach`, the highest number known
+    to exist."""
+
+    def __init__(self, start: int, size: int, reach: int, stop_after: int) -> None:
+        self.start = start
+        self.size = size
+        self.reach = reach
+        self.stop_after = stop_after
+        self.stop = start
+        self.wrapped = False
+
+    def fetch(self, context: Context) -> Generator[Record, None, None]:
+        misses = 0
+        krs = self.start
+        while krs < self.start + self.size:
+            if misses >= self.stop_after and krs > self.reach:
+                self.wrapped = True
+                break
+            record = fetch_record(context, krs, refresh=False)
+            if record is None:
+                misses += 1
+            else:
+                misses = 0
+                yield record
+            if krs % PROGRESS_EVERY == 0:
+                context.log.info("Scanning KRS numbers", krs=krs)
+            krs += 1
+        self.stop = krs
+
+
+def splice(
+    records: Iterator[Record], window: Window, context: Context
 ) -> Generator[Record, None, None]:
-    """Fetch every number from `start` upward, past `reach`, until a long run of
-    numbers that are in neither register."""
-    misses = 0
-    krs = start
-    while misses < stop_after or krs <= reach:
-        record = fetch_record(context, krs, refresh=False)
-        if record is None:
-            misses += 1
-        else:
-            misses = 0
-            yield record
-        if krs % PROGRESS_EVERY == 0:
-            context.log.info("Probing KRS numbers", krs=krs)
-        krs += 1
+    """Replace the records in the window's range with fresh extracts."""
+    record = next(records, None)
+    while record is not None and record["krs"] < window.start:
+        yield record
+        record = next(records, None)
+    yield from window.fetch(context)
+    while record is not None and record["krs"] < window.stop:
+        record = next(records, None)
+    if record is not None:
+        yield record
+        yield from records
 
 
 def merge(
@@ -215,6 +244,9 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity:
 
     person = context.make("Person")
     person.id = context.make_id(krs, organ, last_name, given, middle, pesel, birth_date)
+    # Masking leaves a lone asterisk for some middle names.
+    if middle == "*":
+        middle = None
     h.apply_name(person, first_name=given, middle_name=middle, last_name=last_name)
     h.apply_date(person, "birthDate", birth_date)
     context.emit(person)
@@ -243,10 +275,14 @@ def make_legal_entity(context: Context, krs: str, organ: str, item: Data) -> Ent
     return entity
 
 
-def make_party(context: Context, krs: str, organ: str, item: Data) -> Entity:
+def make_party(context: Context, krs: str, organ: str, item: Data) -> Entity | None:
     if "nazwisko" in item:
         return make_person(context, krs, organ, item)
-    return make_legal_entity(context, krs, organ, item)
+    if "nazwa" in item:
+        return make_legal_entity(context, krs, organ, item)
+    # Some entries list a role, but no one holding it.
+    context.log.info("Skipping a party without a name", krs=krs, item=item)
+    return None
 
 
 def crawl_owners(
@@ -254,6 +290,8 @@ def crawl_owners(
 ) -> None:
     for item in items:
         owner = make_party(context, krs, section, item)
+        if owner is None:
+            continue
         ownership = context.make("Ownership")
         ownership.id = context.make_id(krs, section, owner.id)
         ownership.add("owner", owner)
@@ -289,6 +327,8 @@ def crawl_directors(
 ) -> None:
     for item in items:
         director = make_party(context, krs, organ, item)
+        if director is None:
+            continue
         role = organ if role_key is None else item.pop(role_key, None) or organ
         directorship = context.make("Directorship")
         directorship.id = context.make_id(krs, organ, director.id, role)
@@ -420,16 +460,19 @@ def crawl_extract(context: Context, record: Record) -> None:
         crawl_directors(context, company, krs, organ, members, "funkcjaWOrganie")
         context.audit_data(board, ignore=["sposobReprezentacji"])
     for supervisory in dzial2.pop("organNadzoru", []):
+        # Some associations list a supervisory organ without any details.
+        if supervisory == {}:
+            continue
         organ = supervisory.pop("nazwa")
         members = supervisory.pop("sklad", [])
         crawl_directors(context, company, krs, organ, members, None)
         context.audit_data(supervisory)
     proxies = dzial2.pop("prokurenci", [])
     crawl_directors(context, company, krs, "prokurenci", proxies, "rodzajProkury")
-    context.audit_data(
-        dzial2,
-        ignore=["osobyReprezentujacePZ", "reprezentacjaIBIGBPPSPZOZ", "pelnomocnicy"],
-    )
+    # The people who represent a foreign company in its Polish branch.
+    branch_reps = dzial2.pop("osobyReprezentujacePZ", [])
+    crawl_directors(context, company, krs, "osobyReprezentujacePZ", branch_reps, None)
+    context.audit_data(dzial2, ignore=["reprezentacjaIBIGBPPSPZOZ", "pelnomocnicy"])
 
     dzial3 = dane.pop("dzial3", {})
     activity = dzial3.pop("przedmiotDzialalnosci", {})
@@ -454,39 +497,36 @@ def crawl_extract(context: Context, record: Record) -> None:
 
 
 def crawl(context: Context) -> None:
-    full_scan_days: int = context.dataset.config["full_scan_days"]
+    batch_size: int = context.dataset.config["batch_size"]
     stop_after: int = context.dataset.config["stop_after_misses"]
-    today = settings.RUN_TIME.date()
-    yesterday = today - timedelta(days=1)
+    yesterday = settings.RUN_TIME.date() - timedelta(days=1)
 
-    records: Iterable[Record]
-    full_scan = today
-    incremental = False
     previous = load_previous(context)
+    old_records: Iterator[Record] = iter(())
+    # A first run reads one day of the bulletin, to learn the highest number.
+    bulletin_date = yesterday - timedelta(days=1)
+    max_krs = 0
+    cursor = 1
     if previous is not None:
         old_header, old_records = previous
-        last_full_scan = date.fromisoformat(old_header["full_scan"])
-        if last_full_scan >= today - timedelta(days=full_scan_days):
-            full_scan = last_full_scan
-            incremental = True
-    if not incremental:
-        context.log.info("Running a full scan of the register")
-        records = probe(context, 1, stop_after, 0)
-    else:
         bulletin_date = date.fromisoformat(old_header["bulletin_date"])
-        max_krs: int = old_header["max_krs"]
-        changed = fetch_bulletins(context, bulletin_date, yesterday)
-        context.log.info(
-            "Running an incremental update",
-            since=bulletin_date.isoformat(),
-            changed=len(changed),
-        )
-        known = sorted(krs for krs in changed if krs <= max_krs)
-        reach = max(changed, default=0)
-        records = chain(
-            merge(context, old_records, known),
-            probe(context, max_krs + 1, stop_after, reach),
-        )
+        max_krs = old_header["max_krs"]
+        cursor = old_header["cursor"]
+
+    changed = fetch_bulletins(context, bulletin_date, yesterday)
+    window = Window(cursor, batch_size, max([max_krs, *changed]), stop_after)
+    known = sorted(
+        krs
+        for krs in changed
+        if krs <= max_krs and not cursor <= krs < cursor + batch_size
+    )
+    context.log.info(
+        "Updating the register snapshot",
+        since=bulletin_date.isoformat(),
+        changed=len(known),
+        cursor=cursor,
+    )
+    records = splice(merge(context, old_records, known), window, context)
 
     path = dataset_artifact_path(context.dataset.name, context.version, SNAPSHOT)
     writer = SnapshotWriter(path)
@@ -494,11 +534,13 @@ def crawl(context: Context) -> None:
         writer.write(record)
         if record["odpis"] is not None:
             crawl_extract(context, record)
+    if window.wrapped:
+        context.log.info("Reached the end of the register", krs=window.stop)
     # The days of this run are replayed from the bulletin by the next one.
     writer.close(
         {
             "bulletin_date": yesterday.isoformat(),
             "max_krs": writer.max_krs,
-            "full_scan": full_scan.isoformat(),
+            "cursor": 1 if window.wrapped else window.stop,
         }
     )
