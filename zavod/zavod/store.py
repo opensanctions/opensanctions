@@ -5,6 +5,7 @@ from nomenklatura.resolver import Linker
 from nomenklatura.store.base import View as BaseView
 from nomenklatura.store.duckdb_batch import DuckDBBatchStore
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
@@ -34,7 +35,7 @@ class LakeStore(DuckDBBatchStore[Dataset, Entity]):
         path = dataset_state_path(manifest.scope.name) / "store.duckdb"
         path.unlink(missing_ok=True)
         path.with_name(path.name + ".wal").unlink(missing_ok=True)
-        conn = duck.connect(path)
+        conn = duck.connect(path, memory_mb=settings.STORE_DUCKDB_MEMORY)
         relation = manifest_statements_view(conn, manifest)
         super().__init__(manifest.scope, linker, conn, relation)
         self.manifest = manifest
