@@ -134,7 +134,11 @@ def crawl_member(
         " ".join(h.xpath_strings(location, "./br/following-sibling::text()"))
     )
 
-    clean_name = h.strip_name_titles(context, name)
+    # Some cards carry only the honorific (e.g. "Honorable Ms."); the lookup
+    # supplies the full name from the member's detail page, keyed by MemberId.
+    clean_name = context.lookup_value("member_names", member_id)
+    if clean_name is None:
+        clean_name = h.strip_name_titles(context, name)
     if clean_name is None:
         return
 
