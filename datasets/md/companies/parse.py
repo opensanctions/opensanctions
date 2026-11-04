@@ -13,10 +13,6 @@ from zavod import Context, Entity, helpers as h
 # Only the 'find_xlsx_url' function is shared between them; the rest of the
 # extraction logic is unrelated. Grouping them under the same parser
 # allows us to streamline enrichment and maintain them together.
-#
-# Both registers used to be published via the CKAN portal at dataset.gov.md,
-# which went offline in late October 2026. The Public Services Agency (ASP)
-# publishes the same extracts on its own open data pages.
 
 IGNORE_COLUMNS = [
     "Codul unităţii administrativ-teritoriale",
