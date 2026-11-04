@@ -116,6 +116,10 @@ class HashDelta:
         """Ids seen in the previous run but not in this one. Call after the
         last flush(), when the current hash file is complete."""
         self.fh.flush()
+        # The id index serves only the per-batch lookups. DuckDB cannot evict
+        # an index from memory, and the anti-join needs that memory for its
+        # hash table.
+        self.conn.execute("DROP INDEX IF EXISTS prev_hashes_id")
         query = "SELECT DISTINCT id FROM prev_hashes"
         if self.curr_path.stat().st_size > 0:
             path_sql = str(self.curr_path).replace("'", "''")
