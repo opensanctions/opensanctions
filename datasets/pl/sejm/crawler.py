@@ -30,11 +30,12 @@ def extract_party_name(context: Context, doc: HtmlElement, label_id: str) -> str
 
 def crawl_person(context: Context, url: str) -> None:
     name_xpath = ".//div[@id='title_content']/h1/text()"
+    # Member pages sit behind a JavaScript bot challenge, so they need the
+    # browser-rendered HTML (the html_source default).
     pep_doc = zyte_api.fetch_html(
         context,
         url,
         name_xpath,
-        html_source="httpResponseBody",
         cache_days=1,
         geolocation="pl",
     )

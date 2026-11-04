@@ -52,7 +52,7 @@ assertions:
       Person: 3000
       LegalEntity: 1500
       Address: 1200
-      Vessel: 100
+      Vessel: 500
     # Set at roughly a quarter of the production fill rate: low enough that a
     # shift in the shape of the source data doesn't hold up the release, high
     # enough to catch a crawler that stopped parsing a field altogether.
@@ -72,7 +72,7 @@ assertions:
       Person: 8500
       LegalEntity: 4400
       Address: 4300
-      Vessel: 700
+      Vessel: 1000
 
 lookups:
   sanction.program:
