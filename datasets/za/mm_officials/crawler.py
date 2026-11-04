@@ -4,31 +4,13 @@ import re
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
+from zavod.stateful.review import assert_all_accepted
 
 DEMARCATION_CHANGES_URL = (
     "https://municipaldata.treasury.gov.za/api/cubes/demarcation_changes/facts"
 )
 MUNICIPALITIES_URL = (
     "https://municipaldata.treasury.gov.za/api/cubes/municipalities/facts"
-)
-REGEX_NAME_CLEAN = re.compile(
-    r"""
-    \((
-        Acting\sCity\sManager|
-        Acting\sCfo|
-        Assistant\sDirector|
-        Deputy\sCFO|
-        Acting|
-        CFO|
-        DA|
-        ANC|
-        PDC|
-    )\)|
-    \(Municipal\sManage|
-    Acting\sMunicipal\sManager|
-    \bVacant\b
-    """,
-    re.VERBOSE + re.IGNORECASE,
 )
 
 
@@ -52,10 +34,6 @@ def clean_phones(phones: str | None) -> list[str]:
         )
         out.append(phone.strip())
     return out
-
-
-def clean_name(name: str) -> str:
-    return REGEX_NAME_CLEAN.sub("", name).strip()
 
 
 def crawl(context: Context) -> None:
@@ -85,15 +63,12 @@ def crawl(context: Context) -> None:
         if municipality_code in disestablished_municipalities:
             continue
 
-        name = clean_name(person_data.get("contact_details.name"))
-        if h.is_empty(name):
+        name = person_data.get("contact_details.name")
+        if h.is_empty(name) or name.lower() == "vacant":
             continue
-        if "vacant" in name.lower():
-            context.log.warning("Double-check vacant position", name=name)
 
         entity = context.make("Person")
         entity.id = context.make_id(name, municipality_code)
-        entity.add("name", name)
         entity.add("title", person_data.get("contact_details.title"))
         entity.add(
             "email", clean_emails(person_data.get("contact_details.email_address"))
@@ -132,6 +107,7 @@ def crawl(context: Context) -> None:
 
         if not categorisation.is_pep:
             continue
+        h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
         occupancy = h.make_occupancy(
             context,
             entity,
@@ -142,3 +118,5 @@ def crawl(context: Context) -> None:
             context.emit(entity)
             context.emit(position)
             context.emit(occupancy)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
