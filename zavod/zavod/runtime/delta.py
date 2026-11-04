@@ -6,6 +6,7 @@ from nomenklatura import duck
 
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.runtime.duckdb_memory import warn_memory_pressure
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.archive import (
@@ -116,9 +117,9 @@ class HashDelta:
         """Ids seen in the previous run but not in this one. Call after the
         last flush(), when the current hash file is complete."""
         self.fh.flush()
+        warn_memory_pressure(self.conn, "delta")
         # The id index serves only the per-batch lookups. DuckDB cannot evict
-        # an index from memory, and the anti-join needs that memory for its
-        # hash table.
+        # an index from memory, and the anti-join needs that memory.
         self.conn.execute("DROP INDEX IF EXISTS prev_hashes_id")
         query = "SELECT DISTINCT id FROM prev_hashes"
         if self.curr_path.stat().st_size > 0:
