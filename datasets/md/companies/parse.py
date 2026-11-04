@@ -98,34 +98,6 @@ def parse_founders(context: Context, company: Entity, founders: str | float) -> 
         context.emit(own)
 
 
-def parse_owners(context: Context, company: Entity, owners: str) -> None:
-    if not owners:
-        return
-    for owner in owners.split("),"):
-        owner = owner.replace(")", "")
-        country = None
-        if "(" in owner:
-            owner, country = owner.rsplit("(", 1)
-
-        owner = owner.strip()
-        bo = context.make("LegalEntity")
-        bo.id = context.make_id(company.id, owner)
-        bo.add("name", owner)
-        bo.add("country", country)
-        if country is not None and not bo.has("country"):
-            context.log.warn("Unknown country code", country=country)
-        if not bo.has("name"):
-            continue
-        context.emit(bo)
-
-        own = context.make("Ownership")
-        own.id = context.make_id("Ownership", company.id, owner)
-        own.add("asset", company.id)
-        own.add("owner", bo.id)
-        own.add("role", "beneficiarilor efectivi")
-        context.emit(own)
-
-
 def parse_company(context: Context, data: dict[str, Any]) -> None:
     idno = data.pop("IDNO/ Cod fiscal")
     name = data.pop("Denumirea completă")
@@ -158,7 +130,6 @@ def parse_company(context: Context, data: dict[str, Any]) -> None:
     company.add("legalForm", data.pop("Forma org./jurid."))
     parse_directors(context, company, data.pop("Lista conducătorilor"))
     parse_founders(context, company, data.pop("Lista fondatorilor"))
-    parse_owners(context, company, data.pop("Lista beneficiarilor efectivi", ""))
 
     context.emit(company)
     context.audit_data(data, ignore=IGNORE_COLUMNS)
