@@ -7,6 +7,7 @@ from nomenklatura.store.duckdb_batch import DuckDBBatchStore
 
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.runtime.duckdb_memory import warn_memory_pressure
 from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.archive import dataset_state_path
@@ -53,5 +54,8 @@ class LakeStore(DuckDBBatchStore[Dataset, Entity]):
         return entity
 
     def close(self) -> None:
+        # Checked before the views are dropped, while the indexes their
+        # lookups loaded are still held.
+        warn_memory_pressure(self.conn, "store")
         super().close()
         self.conn.close()
