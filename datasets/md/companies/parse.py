@@ -10,38 +10,33 @@ from zavod import Context, Entity, helpers as h
 # 1. State Register of legal entities in the Republic of Moldova
 # 2. Moldovan Registry of Non-Profit Organizations
 #
-# Only the 'read_ckan' function is shared between them; the rest of the
+# Only the 'find_xlsx_url' function is shared between them; the rest of the
 # extraction logic is unrelated. Grouping them under the same parser
 # allows us to streamline enrichment and maintain them together.
+#
+# Both registers used to be published via the CKAN portal at dataset.gov.md,
+# which went offline in late October 2026. The Public Services Agency (ASP)
+# publishes the same extracts on its own open data pages.
 
 IGNORE_COLUMNS = [
     "Codul unităţii administrativ-teritoriale",
     "Genuri de activitate nelicentiate",
     "Genuri de activitate licentiate",
 ]
-NONPROFITS_URL = "https://dataset.gov.md/dataset/date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
-LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
+NONPROFITS_URL = "https://www.asp.gov.md/ro/date-deschise/date-statistice/rson"
+LEGAL_ENTITIES_URL = "https://www.asp.gov.md/ro/date-deschise/date-statistice/company"
 REGEX_CONTAINS_WORDS = re.compile(r"\w{2}")
 
 
-def read_ckan(context: Context, source_url: str, label: str) -> str:
-    resource_list_doc = context.fetch_html(source_url)
-
-    resource_item_els = list(
-        resource_list_doc.findall('.//li[@class="resource-item"]/a')
+def find_xlsx_url(context: Context, page_url: str) -> str:
+    doc = context.fetch_html(page_url)
+    # Each page links exactly one spreadsheet: the current register extract.
+    link_el = h.xpath_element(
+        doc, '//div[@class="rich-text"]//a[contains(@href, ".xlsx")]'
     )
-    if len(resource_item_els) == 0:
-        raise RuntimeError("No resource URLs on data catalog page!")
-    resource_url = urljoin(source_url, resource_item_els[-1].get("href", ""))
-
-    resource_detail_doc = context.fetch_html(resource_url)
-
-    for action_anchor_el in resource_detail_doc.findall('.//div[@class="actions"]//a'):
-        href = action_anchor_el.get("href")
-        assert href is not None
-        return href
-
-    raise RuntimeError("No data URL on data resource page!")
+    href = link_el.get("href")
+    assert href is not None, page_url
+    return urljoin(page_url, href)
 
 
 def parse_directors(context: Context, company: Entity, directors: str) -> None:
@@ -241,7 +236,7 @@ def parse_nonprofits(context: Context, workbook: CalamineWorkbook) -> None:
 
 def crawl(context: Context) -> None:
     # Companies
-    legal_entities_url = read_ckan(context, LEGAL_ENTITIES_URL, "companies")
+    legal_entities_url = find_xlsx_url(context, LEGAL_ENTITIES_URL)
     data_le_path = context.fetch_resource("legal_entities.xlsx", legal_entities_url)
     context.export_resource(
         data_le_path, XLSX, title="State Register of Legal Entities"
@@ -250,7 +245,7 @@ def crawl(context: Context) -> None:
     parse_companies(context, workbook.get_sheet_by_name("Company"))
 
     # Nonprofits
-    nonprofits_url = read_ckan(context, NONPROFITS_URL, "nonprofits")
+    nonprofits_url = find_xlsx_url(context, NONPROFITS_URL)
     data_np_path = context.fetch_resource("nonprofits.xlsx", nonprofits_url)
     context.export_resource(
         data_np_path, XLSX, title="State Register of Non-Profit Organizations"
