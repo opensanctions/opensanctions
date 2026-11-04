@@ -166,7 +166,9 @@ def make_relation(
     end = party.pop("validTo", None)
 
     rel = context.make(schema)
-    rel.id = context.make_id(company_id, type_data["code"], party_id, start)
+    # Statutory body and stakeholder types come from codelists with overlapping codes.
+    codelist, code = type_data["codelistCode"], type_data["code"]
+    rel.id = context.make_id(company_id, codelist, code, party_id, start)
     if schema == "Directorship":
         rel.add("director", party_id)
         rel.add("organization", company_id)
