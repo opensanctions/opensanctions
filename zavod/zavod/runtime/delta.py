@@ -12,6 +12,7 @@ from zavod.archive import (
     HASH_FILE,
     backfill_artifact,
     dataset_artifact_path,
+    dataset_state_path,
     get_last_successful_version,
 )
 
@@ -36,7 +37,13 @@ class HashDelta:
         self.prev = get_last_successful_version(self.dataset.name)
         self.curr_path = dataset_artifact_path(dataset.name, self.curr, HASH_FILE)
         self.fh = self.curr_path.open("w")
-        self.conn = duck.connect(memory_mb=settings.DELTA_DUCKDB_MEMORY)
+        # An in-memory database spills to `.tmp` in the working directory by
+        # default, which may not be writable, and which the store's database
+        # would also use if it were in-memory.
+        self.conn = duck.connect(
+            memory_mb=settings.DELTA_DUCKDB_MEMORY,
+            temp_directory=dataset_state_path(dataset.name) / "delta.tmp",
+        )
         self.conn.execute("CREATE TABLE prev_hashes (id VARCHAR, hash VARCHAR)")
         self._batch: list[tuple[str, str, Entity]] = []
 
