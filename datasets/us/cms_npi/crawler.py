@@ -44,7 +44,7 @@ def npi_id(npi: Any) -> str | None:
 
 def crawl_data_file(context: Context) -> str:
     """Fetch the NPI data file index page and extract the ZIP file URL."""
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = context.fetch_html(context.data_url)
     for link in h.xpath_elements(doc, ".//a"):
         href = link.get("href")
         if href is None:
