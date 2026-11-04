@@ -39,6 +39,11 @@ assertions:
     schema_entities:
       Person: 800
 
+names:
+  schema_rules:
+    Person:
+      reject_strings: [" acting "]
+
 lookups:
   type.email:
     lowercase: true

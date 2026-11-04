@@ -1,0 +1,465 @@
+title: Slovakia Commercial Register
+prefix: sk-rpo
+disabled: false
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-03
+deploy:
+  memory: 4Gi
+  disk: 20Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - entities.delta.json
+resolve: false
+ci_test: false
+summary: >-
+  Active Slovak companies with their directors, partners and legal successions.
+description: |
+  Companies registered in the Slovak Commercial Register (Obchodný register), as
+  published in the bulk export of the Register of Legal Entities, Entrepreneurs and
+  Public Authorities (RPO). The dataset covers companies that have not been
+  dissolved, with their statutory bodies, supervisory board members, partners and
+  shareholders, procurators, and the companies they succeeded or were succeeded by.
+
+  The register does not publish dates of birth or personal identification numbers of
+  the people involved. Beneficial ownership data has not been public in the RPO since
+  July 2025. The RPO data is published under the Creative Commons Attribution 4.0
+  licence.
+url: https://rpo.minv.sk/rpo-api-doc.html
+publisher:
+  name: Ministerstvo vnútra Slovenskej republiky
+  name_en: Ministry of Interior of the Slovak Republic
+  acronym: MV SR
+  url: https://www.minv.sk
+  description: |
+    The Ministry of Interior is the operator of the Register of Legal Entities,
+    Entrepreneurs and Public Authorities (RPO), which consolidates the data of the
+    Slovak source registers, including the Commercial Register.
+  country: sk
+  official: true
+data:
+  url: https://frkqbrydxwdp.compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo/
+  format: JSON
+  lang: slk
+
+assertions:
+  min:
+    schema_entities:
+      Company: 340_000
+      Person: 900_000
+      Ownership: 1_100_000
+      Directorship: 1_000_000
+  max:
+    schema_entities:
+      Company: 500_000
+      Person: 1_400_000
+      Ownership: 1_700_000
+      Directorship: 1_600_000
+
+lookups:
+  legal_form:
+    options:
+      - match:
+          - Spoločnosť s ručením obmedzeným
+          - Akciová spoločnosť
+          - Komanditná spoločnosť
+          - Verejná obchodná spoločnosť
+          - Jednoduchá spoločnosť na akcie
+          - Európska spoločnosť
+          - Štátny podnik
+          - Obecný podnik
+          - Zahraničná osoba, právnická osoba so sídlom mimo územia SR
+          - Podnik zahraničnej osoby (organizačná zložka podniku zahraničnej osoby)
+          - Organizačná zložka podniku
+        schema: Company
+      - match:
+          - Družstvo
+          - Európske družstvo
+          - Európske zoskupenie hospodárskych záujmov
+          - Nešpecifikovaná právna forma
+        schema: Organization
+  # Members of statutory bodies are always directors; this maps the other parties.
+  stakeholder_type:
+    options:
+      - match:
+          - Spoločník v.o.s. / s.r.o.
+          - Jediný akcionár a.s.
+          - Komanditista
+          - Komplementár
+          - Zriaďovateľ ZO
+          - Zakladateľ štátneho podniku
+          - Člen EZHZ
+        value: Ownership
+      - match:
+          - Člen dozorného orgánu
+          - Člen správnej rady
+          - Vedúci podniku zahraničnej osoby / organizačnej zložky podniku zahraničnej osoby
+        value: Directorship
+      - match:
+          - Prokurista
+          - Správca konkurznej podstaty
+          - Správca reštrukturalizačného konania
+          - Správca vyrovnacieho konania
+        value: Representation
+      # Partnerships whose assets were taken over are covered by the successions.
+      - match:
+          - v.o.s., ktorej imanie sa preberá
+          - Spoločník v.o.s., ktorý prevzal jej imanie
+          - Neurčené
+        value: skip
+  # Short but real place names, curated to mark them reviewed.
+  type.address:
+    options:
+      - match: Zug
+        value: Zug
+      - match: Koš
+        value: Koš
+      - match: Tôň
+        value: Tôň
+      - match: Láb
+        value: Láb
+      - match: Iža
+        value: Iža
+      # Legal form suffix entered as an address, dropped.
+      - match: Kft
+        value: null
+  type.name:
+    options:
+      - match: "5638/20"
+        value: null
+      # Genuine company name that uses angle brackets.
+      - match: "Business system: (? < > /) s.r.o."
+        value: "Business system: (? < > /) s.r.o."
+        silence_warnings: [xss-html-smell]
+  # UN M49 codes (codelist CL000086) to ISO 3166-1 alpha-2.
+  country:
+    options:
+      # Unspecified, stateless, and the dissolved Netherlands Antilles.
+      - match: ["530", "898", "998"]
+        value: null
+      - match: "004"
+        value: af
+      - match: "008"
+        value: al
+      - match: "012"
+        value: dz
+      - match: "020"
+        value: ad
+      - match: "024"
+        value: ao
+      - match: "028"
+        value: ag
+      - match: "031"
+        value: az
+      - match: "032"
+        value: ar
+      - match: "036"
+        value: au
+      - match: "040"
+        value: at
+      - match: "044"
+        value: bs
+      - match: "048"
+        value: bh
+      - match: "050"
+        value: bd
+      - match: "051"
+        value: am
+      - match: "052"
+        value: bb
+      - match: "056"
+        value: be
+      - match: "060"
+        value: bm
+      - match: "070"
+        value: ba
+      - match: "076"
+        value: br
+      - match: "084"
+        value: bz
+      - match: "092"
+        value: vg
+      - match: "096"
+        value: bn
+      - match: "100"
+        value: bg
+      - match: "104"
+        value: mm
+      - match: "112"
+        value: by
+      - match: "116"
+        value: kh
+      - match: "120"
+        value: cm
+      - match: "124"
+        value: ca
+      - match: "136"
+        value: ky
+      - match: "144"
+        value: lk
+      - match: "148"
+        value: td
+      - match: "152"
+        value: cl
+      - match: "156"
+        value: cn
+      - match: "158"
+        value: tw
+      - match: "170"
+        value: co
+      - match: "178"
+        value: cg
+      - match: "180"
+        value: cd
+      - match: "188"
+        value: cr
+      - match: "191"
+        value: hr
+      - match: "192"
+        value: cu
+      - match: "196"
+        value: cy
+      - match: "203"
+        value: cz
+      - match: "204"
+        value: bj
+      - match: "208"
+        value: dk
+      - match: "212"
+        value: dm
+      - match: "214"
+        value: do
+      - match: "218"
+        value: ec
+      - match: "222"
+        value: sv
+      - match: "233"
+        value: ee
+      - match: "246"
+        value: fi
+      - match: "250"
+        value: fr
+      - match: "254"
+        value: gf
+      - match: "268"
+        value: ge
+      - match: "275"
+        value: ps
+      - match: "276"
+        value: de
+      - match: "288"
+        value: gh
+      - match: "292"
+        value: gi
+      - match: "300"
+        value: gr
+      - match: "308"
+        value: gd
+      - match: "320"
+        value: gt
+      - match: "324"
+        value: gn
+      - match: "344"
+        value: hk
+      - match: "348"
+        value: hu
+      - match: "352"
+        value: is
+      - match: "356"
+        value: in
+      - match: "360"
+        value: id
+      - match: "364"
+        value: ir
+      - match: "368"
+        value: iq
+      - match: "372"
+        value: ie
+      - match: "376"
+        value: il
+      - match: "380"
+        value: it
+      - match: "384"
+        value: ci
+      - match: "392"
+        value: jp
+      - match: "398"
+        value: kz
+      - match: "400"
+        value: jo
+      - match: "404"
+        value: ke
+      - match: "408"
+        value: kp
+      - match: "410"
+        value: kr
+      - match: "414"
+        value: kw
+      - match: "417"
+        value: kg
+      - match: "418"
+        value: la
+      - match: "422"
+        value: lb
+      - match: "428"
+        value: lv
+      - match: "434"
+        value: ly
+      - match: "438"
+        value: li
+      - match: "440"
+        value: lt
+      - match: "442"
+        value: lu
+      - match: "446"
+        value: mo
+      - match: "454"
+        value: mw
+      - match: "458"
+        value: my
+      - match: "470"
+        value: mt
+      - match: "478"
+        value: mr
+      - match: "480"
+        value: mu
+      - match: "484"
+        value: mx
+      - match: "492"
+        value: mc
+      - match: "496"
+        value: mn
+      - match: "498"
+        value: md
+      - match: "499"
+        value: me
+      - match: "504"
+        value: ma
+      - match: "512"
+        value: om
+      - match: "516"
+        value: na
+      - match: "528"
+        value: nl
+      - match: "531"
+        value: cw
+      - match: "548"
+        value: vu
+      - match: "554"
+        value: nz
+      - match: "566"
+        value: ng
+      - match: "578"
+        value: "no"
+      - match: "581"
+        value: um
+      - match: "584"
+        value: mh
+      - match: "586"
+        value: pk
+      - match: "591"
+        value: pa
+      - match: "600"
+        value: py
+      - match: "604"
+        value: pe
+      - match: "608"
+        value: ph
+      - match: "616"
+        value: pl
+      - match: "620"
+        value: pt
+      - match: "630"
+        value: pr
+      - match: "634"
+        value: qa
+      - match: "642"
+        value: ro
+      - match: "643"
+        value: ru
+      - match: "659"
+        value: kn
+      - match: "660"
+        value: ai
+      - match: "662"
+        value: lc
+      - match: "670"
+        value: vc
+      - match: "674"
+        value: sm
+      - match: "682"
+        value: sa
+      - match: "686"
+        value: sn
+      - match: "688"
+        value: rs
+      - match: "690"
+        value: sc
+      - match: "702"
+        value: sg
+      - match: "703"
+        value: sk
+      - match: "704"
+        value: vn
+      - match: "705"
+        value: si
+      - match: "706"
+        value: so
+      - match: "710"
+        value: za
+      - match: "716"
+        value: zw
+      - match: "724"
+        value: es
+      - match: "736"
+        value: sd
+      - match: "752"
+        value: se
+      - match: "756"
+        value: ch
+      - match: "760"
+        value: sy
+      - match: "762"
+        value: tj
+      - match: "764"
+        value: th
+      - match: "784"
+        value: ae
+      - match: "788"
+        value: tn
+      - match: "792"
+        value: tr
+      - match: "795"
+        value: tm
+      - match: "796"
+        value: tc
+      - match: "804"
+        value: ua
+      - match: "807"
+        value: mk
+      - match: "818"
+        value: eg
+      - match: "826"
+        value: gb
+      - match: "831"
+        value: gg
+      - match: "832"
+        value: je
+      - match: "833"
+        value: im
+      - match: "834"
+        value: tz
+      - match: "840"
+        value: us
+      - match: "854"
+        value: bf
+      - match: "858"
+        value: uy
+      - match: "860"
+        value: uz
+      - match: "862"
+        value: ve
+      - match: "887"
+        value: ye

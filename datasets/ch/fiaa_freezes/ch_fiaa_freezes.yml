@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "45 7 * * *"
 manual_check:
-  last_checked: "2026-07-30"
+  last_checked: "2026-11-01"
   interval: 90
   message: >-
     The Fedlex monitor in this crawler catches amendments to the known freeze

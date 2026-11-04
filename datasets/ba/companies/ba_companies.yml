@@ -1,9 +1,9 @@
-title: Bosnia and Herzegovina Registers of businesses
+title: Bosnia and Herzegovina Business Registers (FBiH and Brčko)
 prefix: ba-reg
 disabled: false
 entry_point: crawler
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2023-03-21
 exports:
   - statistics.json
@@ -14,18 +14,19 @@ deploy:
 resolve: false
 ci_test: false
 summary: |
-  Information from the Registers of business entities in Bosnia and Herzegovina.
+  Business entities registered in the Federation of BiH and Brčko District.
 description: |
   The database of available electronic court registers of business entities:
-  Register of Business Entities in the District Brčko of BiH, Register of Business
-  Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska.
+  Register of Business Entities in the District Brčko of BiH and Register of Business
+  Entities in the Federation of BiH. Republika Srpska keeps a separate register,
+  which is not included.
 
   The electronic court registers contain information on all business/legal entities
   that are required to register by the Laws on Registration of Business Entities
   (a business company or an enterprise established for the purpose of economic activity,
   a cooperative or a cooperative association or any other legal entity performing an
-  economic activity established in accordance with the specific laws of both entities
-  and District Brčko with the aim of generating profit); since the moment those electronic
+  economic activity established in accordance with the specific laws of the Federation
+  of BiH and District Brčko with the aim of generating profit); since the moment those electronic
   registers were introduced in the registration courts.
 
   Available information from electronic registers is for informational purposes only and
@@ -37,13 +38,27 @@ description: |
   as the information on company registration number, unique number, address and optional additional
   address, short and long name of the company, status and the date of the latest change.
 
+  The shareholders of joint-stock companies (d.d.) are often not named in the register,
+  which refers to the securities registries instead. Some companies appear without
+  founders or managers because the register's own links to their details are broken.
+  The register's search returns at most 500 entries per query, so a small number of
+  companies without a registration date in the largest municipalities cannot be listed.
+
 assertions:
   min:
     schema_entities:
-      # Only a floor to catch a run that emitted nothing at all: the crawler
-      # walks the register city by city, so a partial listing failure shows up
-      # in the delta rather than here.
-      Company: 1
+      # Floors well below the 2026-10 counts (52k companies, 138k people, 7k
+      # legal entities), to fail a run in which the registry session broke down
+      # without the crawler noticing.
+      Company: 50000
+      Person: 125000
+      LegalEntity: 6000
+
+config:
+  # Days for which a company's fetched pages are reused, so that a run restarted
+  # after a failure skips what it already fetched. Keep this well below the
+  # crawl interval, or a scheduled run reuses the previous run's data.
+  record_cache_days: 7
 
 url: https://bizreg.pravosudje.ba
 publisher:
@@ -51,8 +66,8 @@ publisher:
   country: ba
   url: https://bizreg.pravosudje.ba
   description: |
-    Register of Business Entities in the District Brčko of BiH, Register of Business
-    Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska.
+    Register of Business Entities in the District Brčko of BiH and Register of Business
+    Entities in the Federation of BiH.
   official: true
 data:
   url: https://bizreg.pravosudje.ba/pls/apex/f?p=186

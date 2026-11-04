@@ -8,6 +8,8 @@ coverage:
   frequency: monthly
   start: 2026-02-03
 deploy:
+  # CMS posts the monthly file dated the 2nd, sometimes not until early on the 3rd UTC.
+  schedule: "0 12 3 * *"
   cpu: "2000m"
   memory: "5000Mi"
   memory_limit: "7000Mi"

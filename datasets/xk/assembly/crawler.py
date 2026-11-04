@@ -79,7 +79,7 @@ def recover_unlabelled(text: str) -> tuple[str | None, str]:
     return None, ""
 
 
-def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
+def parse_bio(context: Context, doc: _Element) -> tuple[dict[str, str], list[str]]:
     """Parse the "Label: value" biography rows from the collapsed bio block.
 
     Each field is its own ``<p>`` (e.g. ``Datëlindja: 19/08/1997;``), so we parse per
@@ -89,14 +89,21 @@ def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
     row (e.g. ``Gjinia Mashkull``), which we recover via a known label prefix; rows that
     are neither labelled nor recognised (e.g. a value paragraph the source split off from
     its label) are skipped. The block is empty for some deputies, returning an empty dict.
+    Prose paragraphs are returned separately, as published.
     """
     block = doc.find(".//div[@class='bio-hidden']")
     if block is None:
-        return {}
+        return {}, []
     result: dict[str, str] = {}
+    prose: list[str] = []
     for para in h.xpath_elements(block, "./p"):
         text = h.element_text(para).replace("\xa0", " ").rstrip(";").strip()
         if text == "":
+            continue
+        # A label never spans a sentence break, so this is a prose biography whose
+        # ":" introduces a list mid-sentence.
+        if ":" in text and ". " in text.split(":", 1)[0]:
+            prose.append(text)
             continue
         if ":" in text:
             label, value = text.split(":", 1)
@@ -109,7 +116,7 @@ def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
                 continue
             label = recovered
         result[label] = value.strip()
-    return result
+    return result, prose
 
 
 def crawl_member(
@@ -159,7 +166,8 @@ def crawl_member(
     if not person.has("political"):
         context.log.warning("Deputy without party", url=url)
 
-    bio = parse_bio(context, doc)
+    bio, prose = parse_bio(context, doc)
+    person.add("biography", prose)
     # Dates use "/", "\" (e.g. 29\03\1970) or "." (e.g. 16.12.1985) as the separator;
     # normalise all to "/" to match the dataset's %d/%m/%Y format.
     for dob_label in DOB_LABELS:

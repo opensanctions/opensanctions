@@ -180,6 +180,8 @@ See [strict interpretation](strict_interpretation.md#structured-records-pop-then
 
 ## Fields with no FollowTheMoney equivalent
 
+Text properties hold only source text; don't add text the crawler writes itself.
+
 Source data sometimes includes descriptive fields (physical appearance, internal classification codes, administrative metadata, etc.) that don't map to any FTM property. Resist the temptation to pack these into narrative fields like `notes` or `description` as formatted strings (e.g. `f"Hair colour: {hair_colour}"`). This mixes structured data into free text where it can't be queried or validated, and clutters entity descriptions with noise.
 
 Instead, explicitly ignore them via `context.audit_data`:
