@@ -21,7 +21,9 @@ publisher:
   name_en: National Assembly of Angola
   acronym: AN
   description: >
-    The National Assembly is the unicameral legislature of the Republic of Angola.
+    The National Assembly is the unicameral parliament of the Republic of Angola. It
+    exercises the legislative power of the State: it passes laws, approves the state
+    budget and oversees the executive branch.
   url: https://parlamento.ao/
   country: ao
   official: true
@@ -101,9 +103,8 @@ lookups:
       - match:
           # 15-08-1968, their date of birth.
           - João Mpilamosi Domingos
-          # 16-09-1953 and 16-09-1968, months after their date of birth.
+          # 16-09-1953, two months after their date of birth.
           - José António Lopes Semedo
-          - Simão Albino António Dembo
           # 20-02-2022, seven months before the V legislature began.
           - Cicília de Sousa Portalegre de Barros
           - Fernanda Lurdes Nguissi
