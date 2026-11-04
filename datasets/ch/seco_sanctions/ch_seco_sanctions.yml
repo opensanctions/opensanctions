@@ -72,7 +72,7 @@ assertions:
       Person: 8500
       LegalEntity: 4400
       Address: 4300
-      Vessel: 700
+      Vessel: 1400
 
 lookups:
   sanction.program:
