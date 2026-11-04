@@ -209,6 +209,16 @@ def company_key(details_url: str) -> str:
     return match.group(1)
 
 
+def comparable_regno(value: str) -> str:
+    """Normalise a registration number for checking a page against the listing.
+
+    The listing writes a missing number as "-", and the pages as an empty or
+    non-breaking space value.
+    """
+    value = value.replace("\xa0", " ").strip()
+    return "" if value == "-" else value
+
+
 def open_session(context: Context) -> str:
     """
     Goes through the chain of redirects to get the APEX session instance.
@@ -401,10 +411,10 @@ def fetch_report(
     # The detail link passes the registration number comma-separated from the
     # other APEX items, so the registry stores and shows a number such as
     # "1-373-00, INT. 364" only up to its first comma.
-    expected = regno.partition(",")[0].strip()
-    shown = h.xpath_strings(doc, '//span[@class="display_only"]/text()')
-    if not shown or shown[0].strip() != expected:
-        raise SessionLost(f"page {page} shows {shown[:1]}, expected {expected!r}")
+    expected = comparable_regno(regno.partition(",")[0])
+    shown = h.xpath_elements(doc, '//span[@class="display_only"]')
+    if not shown or comparable_regno(h.element_text(shown[0])) != expected:
+        raise SessionLost(f"page {page} does not show {expected!r}")
     records = parse_records(doc)
     if not records and not h.xpath_elements(doc, '//span[@class="nodatafound"]'):
         raise SessionLost(f"page {page} has neither records nor a no-data note")
@@ -451,8 +461,15 @@ def fetch_company(
         doc = fetch_page(context, details_url)
     except requests.exceptions.HTTPError as exc:
         raise SessionLost(f"details: {exc}")
-    details = parse_records(doc)
-    if len(details) != 1 or details[0].get("Registration Number") != regno:
+    # Some detail pages repeat the company's record block.
+    details: list[Record] = []
+    for detail in parse_records(doc):
+        if detail not in details:
+            details.append(detail)
+    shown = (
+        comparable_regno(details[0].get("Registration Number", "")) if details else None
+    )
+    if len(details) != 1 or shown != comparable_regno(regno):
         if WAF_REJECTION in h.element_text(doc):
             context.log.info("Details page rejected by firewall", url=details_url)
             state.errors += 1
@@ -645,6 +662,8 @@ def emit_founder_company(context: Context, company_id: str, record: Record) -> N
 
 def emit_manager(context: Context, company_id: str, record: Record) -> None:
     name = record.pop("Name")
+    position = record.pop("Position")
+    authorisations = record.pop("Authorisations/ Position limits")
     director = context.make("Person")
     director.id = context.make_id("BAdirector", company_id, name)
     director.add("name", name, lang="bos")
@@ -657,8 +676,8 @@ def emit_manager(context: Context, company_id: str, record: Record) -> None:
 
     rel = context.make("Directorship")
     rel.id = context.make_id("BADirectorship", company_id, director.id)
-    rel.add("role", record.pop("Position"), lang="bos")
-    rel.add("description", record.pop("Authorisations/ Position limits"), lang="bos")
+    rel.add("role", position, lang="bos")
+    rel.add("description", authorisations, lang="bos")
     rel.add("director", director)
     rel.add("organization", company_id)
     context.emit(rel)
