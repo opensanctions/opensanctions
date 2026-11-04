@@ -54,6 +54,8 @@ Comments record known facts — observed failures, documented source behaviour, 
 
 ### Basics
 
+The dataset name is the `.yml` file name stem, e.g. `us_ofac_sdn`; don't set `name` in the file.
+
 - `entry_point` e.g. `crawler.py:crawl_peps` - the file name, optionally followed by a method name called by the zavod `crawl` command. Defaults to the `crawler.py:crawl` calling an entry point in the dataset directory.
 - `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys. See the [entity ID guide](best_practices/entity_id.md) for the shape and stability rules that apply to IDs.
 - `url` - the home page or most authoritative place where someone can read about this particular dataset at its source. E.g If a source publishes 5 different datasets, try to link to the page describing the data actually contained in this dataset.
