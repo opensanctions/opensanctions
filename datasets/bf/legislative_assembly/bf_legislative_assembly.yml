@@ -37,9 +37,12 @@ names:
     - "Dr "
 
 lookups:
-  # Due to the political transition and that not all references are yet consistent,
-  # we are mapping variations to a current and common form
+  # Bureau roles from the bureau page, mapped to one presiding office each; the
+  # numbered ranks (1er, 2e, ...) collapse into one position. Due to the political
+  # transition not all references are yet consistent, so old and new assembly names
+  # map to a current and common form. An unknown role halts the crawl.
   position:
+    required: true
     normalize: true
     lowercase: true
     options:
@@ -50,6 +53,7 @@ lookups:
         # Wikidata models the presidency of the transitional assembly as the same
         # continuing office as the presidency of the National Assembly.
         wikidata_id: Q94701165
+        topics: [gov.national, gov.legislative]
       - match:
           - 1er Vice-président
           - 2e Vice-président
@@ -57,22 +61,25 @@ lookups:
           - 4e Vice-président
         name: Vice-President of the People's Legislative Assembly of Burkina Faso
         wikidata_id: Q94701265
+        topics: [gov.national, gov.legislative]
       - match:
           - 1er Secrétaire parlementaire
           - 2e Secrétaire parlementaire
           - 3e Secrétaire parlementaire
           - 4e Secrétaire parlementaire
         name: Parliamentary Secretary of the People's Legislative Assembly of Burkina Faso
+        topics: [gov.national, gov.legislative]
       - match:
           - 1er Questeur
           - 2e Questeur
         name: Quaestor of the People's Legislative Assembly of Burkina Faso
+        topics: [gov.national, gov.legislative]
 
 assertions:
   min:
     schema_entities:
       Person: 60
-      Position: 1
+      Position: 5
     # `schema_entities` does not count interval schemata, so occupancies are
     # asserted via the property every one of them carries.
     entities_with_prop:
@@ -83,7 +90,7 @@ assertions:
   max:
     schema_entities:
       Person: 140
-      Position: 1
+      Position: 10
     entities_with_prop:
       Occupancy:
         holder: 165

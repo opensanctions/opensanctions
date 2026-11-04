@@ -2,6 +2,8 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
+BUREAU_URL = "https://www.assembleenationale.bf/bure/depute"
+
 
 def parse_person(context: Context, raw_name: str) -> Entity:
     """Build a deputy from a published `SURNAME Given Names` string."""
@@ -22,6 +24,41 @@ def parse_person(context: Context, raw_name: str) -> Entity:
     # https://mjp.univ-perp.fr/constit/bf2024-1.pdf
     person.add("citizenship", "bf")
     return person
+
+
+def crawl_bureau(context: Context, members: dict[str, Entity]) -> None:
+    """Add the presiding offices held by members of the Bureau."""
+    doc = context.fetch_html(BUREAU_URL, cache_days=1)
+    cards = h.xpath_elements(doc, '//div[strong and span[@class="text-md"]]')
+    assert len(cards) > 0, BUREAU_URL
+    for card in cards:
+        raw_name = h.element_text(h.xpath_element(card, "./strong"))
+        # Join on the cleaned name: the bureau page prefixes the President with "Dr ",
+        # which the roster omits, so the raw names differ.
+        name = h.strip_name_titles(context, raw_name)
+        assert name is not None, raw_name
+        person = members[name]
+        role = h.element_text(h.xpath_element(card, "./span"))
+        res = context.lookup("position", role)
+        assert res is not None, role
+        office = h.make_position(
+            context,
+            name=res.name,
+            country="bf",
+            topics=res.topics,
+            wikidata_id=res.wikidata_id,
+            lang="eng",
+        )
+        categorisation = categorise(context, office)
+        if not categorisation.is_pep:
+            continue
+        occupancy = h.make_occupancy(
+            context, person, office, categorisation=categorisation
+        )
+        if occupancy is None:
+            continue
+        context.emit(occupancy)
+        context.emit(office)
 
 
 def crawl(context: Context) -> None:
@@ -47,10 +84,10 @@ def crawl(context: Context) -> None:
     period_start = legislature.split(":")[1].strip()
     assert period_start.isnumeric(), f"Period start should be year: {period_start}"
 
+    members: dict[str, Entity] = {}
     for card in h.xpath_elements(doc, '//div[contains(@class, "grid")]/div'):
-        person = parse_person(
-            context, h.element_text(h.xpath_element(card, ".//strong"))
-        )
+        raw_name = h.element_text(h.xpath_element(card, ".//strong"))
+        person = parse_person(context, raw_name)
         occupancy = h.make_occupancy(
             context,
             person,
@@ -61,4 +98,11 @@ def crawl(context: Context) -> None:
         if occupancy is None:
             continue
         context.emit(occupancy)
+        name = h.strip_name_titles(context, raw_name)
+        assert name is not None and name not in members, raw_name
+        members[name] = person
+
+    crawl_bureau(context, members)
+    # Emit members last: the bureau occupancies also write to them.
+    for person in members.values():
         context.emit(person)
