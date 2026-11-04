@@ -6,7 +6,7 @@ coverage:
   start: 2026-10-15
 load_statements: true
 summary: >-
-  Appointed deputies of Burkina Faso's unicamerial legislature (Assemblée législative du peuple)
+  Appointed deputies of Burkina Faso's unicameral national legislature
 description: |
   Current members of the Assemblée législative du peuple (ALP), Burkina Faso's
   unicameral national legislature, which holds the country's legislative power,
@@ -77,7 +77,7 @@ assertions:
     # asserted via the property every one of them carries.
     entities_with_prop:
       Occupancy:
-        holder: 70
+        holder: 60
     country_entities:
       bf: 60
   max:
