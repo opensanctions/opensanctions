@@ -96,11 +96,14 @@ lookups:
           - China Passport No.
           - Chinese Passport No.
           - Hungarian Passport No.
+          - Japanese Passport No.
           - Malaysia Passport No.
           - Malaysian Passport No.
           - PRC Passport No.
           - Singaporean Passport No.
           - Slovakia Passport No.
+          - South Korean Passport No.
+          - Zambian Passport Nos.
         value: null
   # Placeholders published where a particular is not known.
   type.string:
