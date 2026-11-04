@@ -38,6 +38,12 @@ description: |
   as the information on company registration number, unique number, address and optional additional
   address, short and long name of the company, status and the date of the latest change.
 
+  The shareholders of joint-stock companies (d.d.) are often not named in the register,
+  which refers to the securities registries instead. Some companies appear without
+  founders or managers because the register's own links to their details are broken.
+  The register's search returns at most 500 entries per query, so a small number of
+  companies without a registration date in the largest municipalities cannot be listed.
+
 assertions:
   min:
     schema_entities:
