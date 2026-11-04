@@ -40,7 +40,8 @@ def parse_profile(context: Context, text: str) -> dict[str, list[str]]:
             label, value = match.groups() if match is not None else (line, "")
         labelled = context.lookup_value("profile_label", label)
         if labelled is not None:
-            field, value = labelled, value.strip()
+            # Some labels carry a doubled colon: "Círculo Eleitoral: :NACIONAL".
+            field, value = labelled, value.strip(" :")
         elif colon != "" or field is None:
             # A line with a label of its own ends the field.
             field = None

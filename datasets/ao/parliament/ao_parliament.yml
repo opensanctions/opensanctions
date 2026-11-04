@@ -40,6 +40,8 @@ tags:
   - list.pep
 
 names:
+  # One-word display titles, such as "Buiti", are a surname or nickname.
+  suggest_weak_alias_person_single_token: true
   schema_rules:
     Person:
       # Nicknames in quotes: António dos Santos França "Ndalu".
@@ -103,8 +105,10 @@ lookups:
       - match:
           # 15-08-1968, their date of birth.
           - João Mpilamosi Domingos
-          # 16-09-1953, two months after their date of birth.
+          # 16-09-1953 and 16-09-1968, months after their date of birth. Dembo's
+          # V legislature record holds it; his IV record has the term start.
           - José António Lopes Semedo
+          - Simão Albino António Dembo
           # 20-02-2022, seven months before the V legislature began.
           - Cicília de Sousa Portalegre de Barros
           - Fernanda Lurdes Nguissi
