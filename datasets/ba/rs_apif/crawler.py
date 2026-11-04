@@ -125,6 +125,9 @@ def crawl_founders(context: Context, company_id: str, founders: str | None) -> N
     if founders is None:
         return
     for name in founders.split("<br>"):
+        # Trimmed before it keys the IDs: the separator leaves a comma and spaces
+        # on the name, and the trimmed name is what lets a founder merge with a
+        # representative or beneficial owner of the same name.
         name = name.strip().removesuffix(",").strip()
         if name == "":
             continue

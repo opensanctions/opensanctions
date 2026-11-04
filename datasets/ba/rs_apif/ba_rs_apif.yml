@@ -19,7 +19,7 @@ deploy:
 resolve: false
 ci_test: false
 summary: >-
-  Companies and business entities registered in Republika Srpska
+  Companies seated in Republika Srpska, with founders, representatives and beneficial owners
 description: |
   The register of business entities of Republika Srpska, one of the two entities
   of Bosnia and Herzegovina. It is kept by the Agency for Intermediary, IT and
@@ -30,7 +30,8 @@ description: |
 
   This dataset includes registered companies, companies in bankruptcy or
   liquidation, and entries carried over from the older court register. Entities
-  deleted from the register, sole traders and associations are not included.
+  deleted from the register or moved out of Republika Srpska, sole traders and
+  associations are not included.
 
 assertions:
   min:
@@ -55,8 +56,9 @@ data:
   lang: srp
 
 lookups:
-  # The first line of a listing row's status. Deleted entities are skipped; the
-  # crawler warns on any status not listed here.
+  # The first line of a listing row's status. Only active entities are emitted;
+  # entities that moved their seat out of Republika Srpska are registered in
+  # another register. The crawler warns on any status not listed here.
   status:
     options:
       - match:
@@ -64,7 +66,8 @@ lookups:
           - podatak iz starog registra
           - otvoren stečajni postupak
           - otvoren likvidacioni postupak
-          - preseljen sa teritorije Republike Srpske
         value: active
+      - match: preseljen sa teritorije Republike Srpske
+        value: moved
       - match: brisan
         value: deleted
