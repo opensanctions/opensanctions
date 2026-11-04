@@ -398,9 +398,13 @@ def fetch_report(
         doc = fetch_page(context, url)
     except requests.exceptions.HTTPError as exc:
         raise SessionLost(f"page {page}: {exc}")
+    # The detail link passes the registration number comma-separated from the
+    # other APEX items, so the registry stores and shows a number such as
+    # "1-373-00, INT. 364" only up to its first comma.
+    expected = regno.partition(",")[0].strip()
     shown = h.xpath_strings(doc, '//span[@class="display_only"]/text()')
-    if not shown or shown[0].strip() != regno.strip():
-        raise SessionLost(f"page {page} shows {shown[:1]}, expected {regno!r}")
+    if not shown or shown[0].strip() != expected:
+        raise SessionLost(f"page {page} shows {shown[:1]}, expected {expected!r}")
     records = parse_records(doc)
     if not records and not h.xpath_elements(doc, '//span[@class="nodatafound"]'):
         raise SessionLost(f"page {page} has neither records nor a no-data note")
