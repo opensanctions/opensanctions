@@ -73,6 +73,7 @@ children:
   - gb_fcdo_sanctions
   - gb_hmt_invbans
   - ge_ot_list
+  - hk_cedb_sanctions
   - id_dttot
   - ie_unlawful_organizations
   - il_mod_crypto
@@ -114,6 +115,7 @@ children:
   - th_designated_person
   - tn_cnlct
   - tr_fcib
+  - tw_moj_sanctions
   - tw_shtc
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
