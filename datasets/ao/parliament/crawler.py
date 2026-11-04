@@ -11,63 +11,32 @@ from zavod.stateful.review import assert_all_accepted
 from zavod import Context, Entity
 from zavod import helpers as h
 
-TOPICS = ["gov.national", "gov.legislative"]
-# A short, digit-free text before a colon: the shape of a field label.
-LABEL_RE = re.compile(r"^[^\d:]{3,30}$")
-# A label and a value starting with a digit, without a colon between them:
-# "Nascido 02/05/1962", "Data de Nascimento -01-05-1961".
-LABEL_VALUE_RE = re.compile(r"^([^\d:]{3,30}?)[\s-]*(\d[^:]*)$")
-# A constituency without a colon after its label, sometimes glued to the preceding
-# "Gabinete Local" heading: "Gabinete LocalCírculo Eleitoral Provincial do Bié".
-CONSTITUENCY_RE = re.compile(
-    r"^(?:gabinete local\s*)?(c[ií]rculo eleitoral\s.+)$", re.I
-)
+# A label directly followed by a date, without a colon: "Nascido 02/05/1962".
+LABEL_DATE_RE = re.compile(r"^([^\d:]{3,30}?)[\s-]*(\d[^:]*)$")
 # Stray spaces around a date separator: "18 -05- 1955".
 DATE_SPACES_RE = re.compile(r"\s*([-/.])\s*")
 
 
-def profile_lines(text: str) -> list[str]:
-    """Split a profile (WordPress block HTML or plain text) into its text lines."""
+def parse_profile(context: Context, text: str) -> dict[str, list[str]]:
+    """Map the "Label: value" lines of a profile (WordPress block HTML) to fields.
+
+    Labels missing from the `profile_label` lookup (education, committees, career)
+    are out of scope."""
     doc = html.fragment_fromstring(text, create_parent="div")
     # Block elements and line breaks separate the lines.
     for el in doc.iter("p", "li", "br", "div", "h1", "h2", "h3", "h4", "h5", "h6"):
         el.tail = "\n" + (el.tail or "")
-    lines = [" ".join(line.split()) for line in doc.text_content().split("\n")]
-    return [line for line in lines if line]
-
-
-def parse_profile(context: Context, text: str) -> dict[str, list[str]]:
-    """Group the lines of a profile by the field their label introduces.
-
-    A label is followed by a colon and the value, directly by a value starting with
-    a digit, or stands alone with the value on the following line. Each in-scope field takes one value; any other
-    label-shaped line ends the field."""
     fields: dict[str, list[str]] = defaultdict(list)
-    field: str | None = None
-    for line in profile_lines(text):
+    for line in doc.text_content().split("\n"):
         label, colon, value = line.partition(":")
-        match = CONSTITUENCY_RE.match(line) if not colon else None
-        if match is not None:
-            fields["constituency"].append(match.group(1))
-            field = None
-            continue
-        res = context.lookup("profile_label", label) if colon else None
-        split = LABEL_VALUE_RE.match(line) if not colon else None
-        if split is not None:
-            res = context.lookup("profile_label", split.group(1))
-            value = split.group(2)
-        if res is None:
-            res = context.lookup("profile_label", line)
-            value = ""
-        if res is not None:
-            field = res.value
-            line = value.strip()
-        elif colon and LABEL_RE.match(label):
-            field = None
-        if field is None or line == "":
-            continue
-        fields[field].append(line)
-        field = None
+        if colon == "":
+            match = LABEL_DATE_RE.match(line.strip())
+            if match is None:
+                continue
+            label, value = match.groups()
+        field = context.lookup_value("profile_label", label)
+        if field is not None and value.strip() != "":
+            fields[field].append(squash_spaces(value))
     return fields
 
 
@@ -77,7 +46,24 @@ def clean_date(value: str) -> str:
     return value.rstrip(".,:")
 
 
-def make_person(context: Context, name: str, title: str) -> Entity:
+def crawl_member(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    legislature: str,
+    is_current: bool,
+    record: dict[str, Any],
+) -> None:
+    name = record.pop("keyMenu")
+    succession = context.lookup("succession", name)
+    if succession is not None:
+        name = succession.member
+    elif "(" in name:
+        context.log.warning("Unknown succession", name=name)
+        return
+    title = record.pop("title")
+    fields = parse_profile(context, record.pop("context"))
+
     person = context.make("Person")
     person.id = context.make_id(name)
     names = h.Names(name=name)
@@ -88,34 +74,11 @@ def make_person(context: Context, name: str, title: str) -> Entity:
     # Deputies must be Angolan citizens: Lei n.º 36/11 (Lei Orgânica sobre as Eleições
     # Gerais), art. 14. https://lex.ao/docs/assembleia-nacional/2011/lei-n-o-36-11-de-21-de-dezembro/
     person.add("citizenship", "ao")
-    return person
-
-
-def crawl_member(
-    context: Context,
-    position: Entity,
-    categorisation: PositionCategorisation,
-    legislature: str,
-    is_latest: bool,
-    record: dict[str, Any],
-) -> None:
-    name = record.pop("keyMenu")
-    succession = context.lookup("succession", name)
-    if succession is not None:
-        name = succession.member
-    elif "(" in name:
-        context.log.warning("Unknown succession", name=name)
-        return
-    fields = parse_profile(context, record.pop("context"))
-
-    person = make_person(context, name, record.pop("title"))
     for value in fields["birth_date"]:
         h.apply_date(person, "birthDate", clean_date(value), original_value=value)
     person.add("birthPlace", fields["birth_place"])
     for value in fields["party"]:
-        person.add(
-            "political", context.lookup_value("party", value, warn_unmatched=True)
-        )
+        person.add("political", context.lookup_value("party", value, default=value))
 
     start_date = None
     # Some records carry a date of birth or another legislature's date here.
@@ -126,14 +89,36 @@ def crawl_member(
             )
         for value in fields["sworn_in"]:
             start_date = clean_date(value)
-    end_date = None
-    for value in fields["mandate_lost"]:
-        end_date = clean_date(value)
+    end_dates = fields["mandate_lost"]
+    assert len(end_dates) <= 1, (name, end_dates)
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        categorisation=categorisation,
+        start_date=start_date,
+        end_date=clean_date(end_dates[0]) if end_dates else None,
+        no_end_implies_current=is_current,
+        key_prefix=legislature,
+    )
+    if occupancy is None:
+        return
+    for value in fields["constituency"]:
+        occupancy.add(
+            "constituency", context.lookup_value("constituency", value, default=value)
+        )
+    # The parliamentary group, distinct from party membership.
+    occupancy.add("politicalGroup", fields["political_group"])
+    context.emit(occupancy)
+    context.emit(person)
+
     context.audit_data(
         record,
         ignore=[
             "id",
             "imgCapa",
+            # Contact details are not extracted for PEPs.
             "email",
             "object_iuu",
             "user_id",
@@ -146,30 +131,6 @@ def crawl_member(
         ],
     )
 
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-        start_date=start_date,
-        end_date=end_date,
-        no_end_implies_current=is_latest,
-        key_prefix=legislature,
-    )
-    if occupancy is None:
-        return
-    for value in fields["constituency"]:
-        res = context.lookup("constituency", value, warn_unmatched=True)
-        if res is not None:
-            occupancy.add("constituency", res.value)
-    for value in fields["political_group"]:
-        occupancy.add(
-            "politicalGroup",
-            context.lookup_value("party", value, warn_unmatched=True),
-        )
-    context.emit(occupancy)
-    context.emit(person)
-
 
 def crawl(context: Context) -> None:
     position = h.make_position(
@@ -177,7 +138,7 @@ def crawl(context: Context) -> None:
         name="Member of the National Assembly of Angola",
         wikidata_id="Q20179557",
         country="ao",
-        topics=TOPICS,
+        topics=["gov.national", "gov.legislative"],
         lang="eng",
     )
     categorisation = categorise(context, position)
@@ -185,31 +146,29 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # The "Deputados" menu has one entry per legislature, each with a "Perfil" page
-    # listing its members. The source gives no term dates: the roster marked
-    # `current` in the `legislature` lookup is the sitting one, earlier rosters
-    # resolve to an unknown status. A new legislature fails the required lookup.
+    # The menu lists the legislatures, sitting one first. It is pinned so that a new
+    # one fails the crawl; earlier ones have no term dates and resolve to unknown.
     menu = context.fetch_json(context.data_url)
-    deputies_menu = [m for m in menu["data"]["mainMenu"] if m["context"] == "Deputados"]
-    assert len(deputies_menu) == 1, deputies_menu
-    for item in deputies_menu[0]["elements"]:
-        legislature = item["context"]
-        term = context.lookup("legislature", legislature)
-        assert term is not None, legislature
+    deputies = [m for m in menu["data"]["mainMenu"] if m["context"] == "Deputados"]
+    assert len(deputies) == 1, deputies
+    legislatures = deputies[0]["elements"]
+    assert legislatures[0]["context"] == "V Legislatura", legislatures[0]["context"]
+    for index, legislature in enumerate(legislatures):
         profiles = [
-            e["url"] for e in item["elements"] if e["context"].startswith("Perfil")
+            e["url"]
+            for e in legislature["elements"]
+            if e["context"].startswith("Perfil")
         ]
-        assert len(profiles) == 1 and profiles[0] in term.lists, (term, profiles)
-        for list_key in term.lists:
-            data = context.fetch_json(urljoin(context.data_url, list_key))
-            for record in data["data"]:
-                crawl_member(
-                    context,
-                    position,
-                    categorisation,
-                    legislature,
-                    term.current is True,
-                    record,
-                )
+        assert len(profiles) == 1, profiles
+        data = context.fetch_json(urljoin(context.data_url, profiles[0]))
+        for record in data["data"]:
+            crawl_member(
+                context,
+                position,
+                categorisation,
+                legislature["context"],
+                index == 0,
+                record,
+            )
 
     assert_all_accepted(context, raise_on_unaccepted=False)
