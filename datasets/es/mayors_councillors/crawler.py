@@ -1,3 +1,5 @@
+import re
+
 from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
@@ -7,6 +9,10 @@ from zavod.stateful.positions import categorise
 DEFAULT_TOPICS = ["gov.muni"]
 MAYOR_TOPICS = ["gov.muni", "gov.executive"]
 COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
+# e.g. .../Alcaldes_Mandato_2019_2023.xlsx, one file per completed mandate
+MANDATE_FILE_RE = re.compile(r"Alcaldes_Mandato_(\d{4})_(\d{4})\.xlsx$")
+# e.g. "MAYORS AND COUNCILLORS BY MUNICIPALITY 2023-2027"
+CURRENT_TERM_RE = re.compile(r".* (\d{4})[-–](\d{4})$")
 
 
 def _build_canonical_ine_code(ine_code: str | None) -> str:
@@ -27,7 +33,7 @@ def crawl_item(
     position_label: str,
     area_names: dict[str, str],
     period_start: str,
-    period_end: str,
+    period_end: str | None,
 ) -> None:
     name = row.pop("name")
     province = row.pop("province")
@@ -94,13 +100,13 @@ def crawl_item(
         position,
         start_date=start_date,
         end_date=end_date,
+        period_start=period_start,
+        period_end=period_end,
         categorisation=categorisation,
     )
 
     if occupancy:
         occupancy.add("constituency", province)
-        occupancy.add("periodStart", period_start)
-        occupancy.add("periodEnd", period_end)
         context.emit(occupancy)
         context.emit(position)
         context.emit(pep)
@@ -113,16 +119,31 @@ def crawl_item(
 
 
 def load_rows(
-    context: Context, filename: str, url: str, title: str, skiprows: int
+    context: Context,
+    filename: str,
+    url: str,
+    title: str,
+    skiprows: int,
+    expected_title: str | None = None,
 ) -> list[dict[str, str | None]]:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, XLSX, title=title)
     workbook = CalamineWorkbook.from_path(path)
     assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    sheet = workbook.get_sheet_by_index(0)
+    if expected_title is not None:
+        # Cross-check the term against the title in the rows above the header
+        titles = {
+            cell.strip()
+            for title_row in sheet.to_python(nrows=skiprows)
+            for cell in title_row
+            if isinstance(cell, str)
+        }
+        assert expected_title in titles, (expected_title, titles)
     return list(
         h.parse_xlsx_sheet(
             context,
-            workbook.get_sheet_by_index(0),
+            sheet,
             skiprows=skiprows,
             header_lookup=context.get_lookup("columns"),
         )
@@ -131,19 +152,33 @@ def load_rows(
 
 def crawl(context: Context) -> None:
     assert context.dataset.model.url is not None
-    hist_doc = context.fetch_html(
+    index_doc = context.fetch_html(
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
-    # The period years passed to crawl_item for these rows follow this file name
-    hist_url = h.xpath_string(
-        hist_doc,
-        ".//li[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href",
+    # Process historical mayors data from the latest completed mandate
+    mandates: dict[tuple[str, str], str] = {}
+    for href in h.xpath_strings(index_doc, ".//li[@class='dnt-link-default']/a/@href"):
+        match = MANDATE_FILE_RE.search(href)
+        if match is not None:
+            mandates[(match.group(1), match.group(2))] = href
+    assert len(mandates) > 0, "No mayoral mandate files found"
+    hist_start, hist_end = max(mandates)
+    # The current term is in the label of the link to the councillors application
+    current_link = h.xpath_element(
+        index_doc,
+        ".//li[@class='dnt-link-default']/a[contains(@href, 'concejales.redsara.es')]",
     )
+    current_label = h.element_text(current_link)
+    match = CURRENT_TERM_RE.match(current_label)
+    assert match is not None, current_label
+    current_start = match.group(1)
+    # Terms must be contiguous: the current term starts when the last completed one ends
+    assert current_start == hist_end, (hist_start, hist_end, current_start)
     hist_rows = load_rows(
         context,
-        filename="historical.xlsx",
-        url=hist_url,
-        title="Mayors 2019-2023",
+        filename=f"historical_{hist_start}_{hist_end}.xlsx",
+        url=mandates[(hist_start, hist_end)],
+        title=f"Mayors {hist_start}-{hist_end}",
         skiprows=7,
     )
     current_doc = context.fetch_html(
@@ -158,6 +193,7 @@ def crawl(context: Context) -> None:
         url=current_url,
         title=context.SOURCE_TITLE,
         skiprows=5,
+        expected_title=f"Ficha de Concejales de la Legislatura {current_start}",
     )
 
     # The two files spell some municipality names differently. Name each
@@ -176,8 +212,8 @@ def crawl(context: Context) -> None:
             # "Alcalde" (mayor) is the label the current file uses for them.
             position_label="Alcalde",
             area_names=area_names,
-            period_start="2019",
-            period_end="2023",
+            period_start=hist_start,
+            period_end=hist_end,
         )
     for row in current_rows:
         position_label = row.pop("position")
@@ -187,6 +223,6 @@ def crawl(context: Context) -> None:
             row=row,
             position_label=position_label,
             area_names=area_names,
-            period_start="2023",
-            period_end="2027",
+            period_start=current_start,
+            period_end=None,
         )

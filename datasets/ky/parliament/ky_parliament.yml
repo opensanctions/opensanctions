@@ -3,7 +3,7 @@ title: Cayman Islands Members of Parliament
 entry_point: crawler
 prefix: ky-la
 coverage:
-  frequency: daily
+  frequency: monthly
   start: 2023-09-03
 load_statements: true
 summary: >-

@@ -30,9 +30,14 @@ KEEP_HEADINGS = {
     "Government Members": "Government Member of parliament",
     "Opposition Members": "Opposition Member of parliament",
 }
+POSITION_QIDS = {
+    "Speaker": "Q109769750",
+    "Premier of the Cayman Islands": "Q3247884",
+}
 REGEX_POSITIONISH = re.compile(
     r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
 )
+REGEX_TERM_HEADING = re.compile(r"^(\d{4})[-–](\d{4}) Members$")
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
 HONORIFICS = ["Hon. ", "Hon ", "Ms. ", "Mr. ", "Mrs. ", "Sir ", "Dr. "]
 NAMES_ALLOW_LIST = ["A. Royston (Roy) Tatum", "Johany S. (Jay) Ebanks"]
@@ -47,7 +52,25 @@ def clean_name(context: Context, name: str) -> str:
     return name.strip()
 
 
-def crawl_card_2025(context: Context, position_str: str, el: Element) -> Entity | None:
+def parse_current_term(doc: Element) -> str:
+    """Return the start year of the current term."""
+    terms: list[re.Match[str]] = []
+    for heading_el in h.xpath_elements(
+        doc, ".//div[@class='elementor-image-box-content']/h3"
+    ):
+        match = REGEX_TERM_HEADING.match(h.element_text(heading_el))
+        if match is not None:
+            terms.append(match)
+    assert len(terms) == 1, f"Expected one current term heading, found {len(terms)}"
+    return terms[0].group(1)
+
+
+def crawl_card(
+    context: Context,
+    position_str: str,
+    el: Element,
+    period_start: str,
+) -> Entity | None:
     content_el = h.xpath_element(el, ".//div[@class='member-select-content']")
     links_el = h.xpath_element(el, ".//div[@class='member-select-links']")
     name = clean_name(context, h.xpath_string(content_el, "./h1/text()"))
@@ -75,6 +98,8 @@ def crawl_card_2025(context: Context, position_str: str, el: Element) -> Entity 
         position_str,
         topics=TOPICS,
         country="ky",
+        wikidata_id=POSITION_QIDS.get(position_str),
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
@@ -83,8 +108,7 @@ def crawl_card_2025(context: Context, position_str: str, el: Element) -> Entity 
         context,
         entity,
         position,
-        period_start="2025",
-        period_end="2029",
+        period_start=period_start,
         categorisation=categorisation,
     )
     constituency = h.xpath_strings(
@@ -119,6 +143,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         row.pop("Position"),
         topics=TOPICS,
         country="ky",
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
@@ -143,9 +168,26 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
-    # crawl_card assumes 2025-2029 members are current
-    # update  period_start and period_end in crawl_card if this changes
-    assert "2025-2029 Members" in h.xpath_strings(doc, ".//h3/text()")
+    period_start = parse_current_term(doc)
+    # Former members sourced from https://parliament.ky/members/former-members/ via a
+    # historical Google Sheet. Some individuals appear multiple times to reflect distinct
+    # roles held across different periods.
+    #
+    # Date precision varies: start/end dates are exact where provided; for entries with
+    # only a term reference (2021–2025), period start/end dates are used. Where a role
+    # ended at "end of term", e.g. “November 23, 2023–end of term”, the end of that term,
+    # i.e. 2025 is assumed as the `end_date`.
+    path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    with open(path) as fh:
+        historical_rows = list(csv.DictReader(fh))
+    # At a new term, the outgoing members leave the current page: fail until they
+    # have been added to the historical sheet, so they don't silently drop out.
+    if not any(row["Period End"] == period_start for row in historical_rows):
+        raise ValueError(
+            f"Historical sheet has no members for the term ending {period_start}; "
+            "add the outgoing members of the previous term to it."
+        )
     expected_current_member_count = 22
     current_member_count = 0
     heading = None
@@ -169,22 +211,11 @@ def crawl(context: Context) -> None:
             for el in h.xpath_elements(
                 section, ".//div[contains(@class, 'member-select-main')]"
             ):
-                if crawl_card_2025(context, heading, el):
+                if crawl_card(context, heading, el, period_start):
                     current_member_count += 1
     if current_member_count < 20:
         context.log.warning(
             f"Expected at least {expected_current_member_count} current members but found {current_member_count}"
         )
-    # Former members sourced from https://parliament.ky/members/former-members/ via a
-    # historical Google Sheet. Some individuals appear multiple times to reflect distinct
-    # roles held across different periods.
-    #
-    # Date precision varies: start/end dates are exact where provided; for entries with
-    # only a term reference (2021–2025), period start/end dates are used. Where a role
-    # ended at "end of term", e.g. “November 23, 2023–end of term”, the end of that term,
-    # i.e. 2025 is assumed as the `end_date`.
-    path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path) as fh:
-        for row in csv.DictReader(fh):
-            crawl_row(context, row)
+    for row in historical_rows:
+        crawl_row(context, row)
