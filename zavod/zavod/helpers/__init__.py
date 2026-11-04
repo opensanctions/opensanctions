@@ -106,7 +106,7 @@ from zavod.helpers.sanctions import (
 from zavod.helpers.securities import make_security
 from zavod.helpers.vessels import make_vessel_imo_id, make_org_imo_id
 from zavod.helpers.text import clean_note, is_empty, multi_split, remove_bracketed
-from zavod.helpers.xml import remove_namespace
+from zavod.helpers.xml import remove_namespace, xml_node_hash
 from zavod.helpers.wikidata import deref_wikidata_id
 
 __all__ = [
@@ -145,6 +145,7 @@ __all__ = [
     "make_vessel_imo_id",
     "make_org_imo_id",
     "remove_namespace",
+    "xml_node_hash",
     "make_name",
     "strip_name_titles",
     "apply_name",
