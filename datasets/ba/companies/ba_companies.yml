@@ -1,4 +1,4 @@
-title: Bosnia and Herzegovina Registers of businesses
+title: Bosnia and Herzegovina Business Registers (FBiH and Brčko)
 prefix: ba-reg
 disabled: false
 entry_point: crawler
@@ -14,7 +14,7 @@ deploy:
 resolve: false
 ci_test: false
 summary: |
-  Information from the Registers of business entities in Bosnia and Herzegovina.
+  Business entities registered in the Federation of BiH and Brčko District.
 description: |
   The database of available electronic court registers of business entities:
   Register of Business Entities in the District Brčko of BiH and Register of Business
@@ -25,8 +25,8 @@ description: |
   that are required to register by the Laws on Registration of Business Entities
   (a business company or an enterprise established for the purpose of economic activity,
   a cooperative or a cooperative association or any other legal entity performing an
-  economic activity established in accordance with the specific laws of both entities
-  and District Brčko with the aim of generating profit); since the moment those electronic
+  economic activity established in accordance with the specific laws of the Federation
+  of BiH and District Brčko with the aim of generating profit); since the moment those electronic
   registers were introduced in the registration courts.
 
   Available information from electronic registers is for informational purposes only and
@@ -60,8 +60,8 @@ publisher:
   country: ba
   url: https://bizreg.pravosudje.ba
   description: |
-    Register of Business Entities in the District Brčko of BiH, Register of Business
-    Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska.
+    Register of Business Entities in the District Brčko of BiH and Register of Business
+    Entities in the Federation of BiH.
   official: true
 data:
   url: https://bizreg.pravosudje.ba/pls/apex/f?p=186
