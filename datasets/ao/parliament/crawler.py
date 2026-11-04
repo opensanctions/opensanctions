@@ -18,25 +18,38 @@ DATE_SPACES_RE = re.compile(r"\s*([-/.])\s*")
 
 
 def parse_profile(context: Context, text: str) -> dict[str, list[str]]:
-    """Map the "Label: value" lines of a profile (WordPress block HTML) to fields.
+    """Map the labelled lines of a profile (WordPress block HTML) to fields.
 
-    Labels missing from the `profile_label` lookup (education, committees, career)
-    are out of scope."""
+    A label is followed by a colon and the value, directly by a date, or stands alone
+    with the value on the next line. Labels missing from the `profile_label` lookup
+    (education, committees, career) are out of scope."""
     doc = html.fragment_fromstring(text, create_parent="div")
     # Block elements and line breaks separate the lines.
     for el in doc.iter("p", "li", "br", "div", "h1", "h2", "h3", "h4", "h5", "h6"):
         el.tail = "\n" + (el.tail or "")
     fields: dict[str, list[str]] = defaultdict(list)
+    # A label whose value is on the next line.
+    field: str | None = None
     for line in doc.text_content().split("\n"):
+        line = squash_spaces(line)
+        if line == "":
+            continue
         label, colon, value = line.partition(":")
         if colon == "":
-            match = LABEL_DATE_RE.match(line.strip())
-            if match is None:
-                continue
-            label, value = match.groups()
-        field = context.lookup_value("profile_label", label)
-        if field is not None and value.strip() != "":
-            fields[field].append(squash_spaces(value))
+            match = LABEL_DATE_RE.match(line)
+            label, value = match.groups() if match is not None else (line, "")
+        labelled = context.lookup_value("profile_label", label)
+        if labelled is not None:
+            field, value = labelled, value.strip()
+        elif colon != "" or field is None:
+            # A line with a label of its own ends the field.
+            field = None
+            continue
+        else:
+            value = line
+        if value != "":
+            fields[field].append(value)
+            field = None
     return fields
 
 
@@ -78,7 +91,8 @@ def crawl_member(
         h.apply_date(person, "birthDate", clean_date(value), original_value=value)
     person.add("birthPlace", fields["birth_place"])
     for value in fields["party"]:
-        person.add("political", context.lookup_value("party", value, default=value))
+        res = context.lookup("party", value)
+        person.add("political", value if res is None else res.value)
 
     start_date = None
     # Some records carry a date of birth or another legislature's date here.
@@ -105,9 +119,8 @@ def crawl_member(
     if occupancy is None:
         return
     for value in fields["constituency"]:
-        occupancy.add(
-            "constituency", context.lookup_value("constituency", value, default=value)
-        )
+        res = context.lookup("constituency", value)
+        occupancy.add("constituency", value if res is None else res.value)
     # The parliamentary group, distinct from party membership.
     occupancy.add("politicalGroup", fields["political_group"])
     context.emit(occupancy)
