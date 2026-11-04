@@ -94,7 +94,11 @@ def fetch_details(context: Context, company_pid: int) -> dict[str, str]:
     details: dict[str, str] = {}
     for group in groups:
         label = h.xpath_element(group, './label[contains(@class, "control-label")]')
-        value = h.xpath_element(group, './/label[contains(@class, "text-info")]')
+        # The status field also nests dated notices about bankruptcy or liquidation
+        # proceedings, which repeat the listing.
+        value = h.xpath_element(
+            group, '(./label | ./div/label)[contains(@class, "text-info")]'
+        )
         details[h.element_text(label)] = h.element_text(value)
     if "ЈИБ" not in details:
         raise ValueError(f"No basic data on detail page: {path}")
