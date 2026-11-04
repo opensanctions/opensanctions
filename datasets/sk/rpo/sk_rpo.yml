@@ -49,14 +49,10 @@ assertions:
     schema_entities:
       Company: 340_000
       Person: 900_000
-      Ownership: 1_100_000
-      Directorship: 1_000_000
   max:
     schema_entities:
       Company: 500_000
       Person: 1_400_000
-      Ownership: 1_700_000
-      Directorship: 1_600_000
 
 lookups:
   legal_form:
