@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: hk-cedb
 coverage:
   frequency: daily
-  start: 2026-09-28
+  start: 2026-11-04
 load_statements: true
 summary: >-
   Persons and entities subject to targeted financial sanctions under Hong
