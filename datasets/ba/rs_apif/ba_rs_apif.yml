@@ -1,0 +1,73 @@
+# The register is geo-fenced: direct requests time out outside Bosnia and
+# Herzegovina, so every request goes through Zyte with a BA exit.
+#
+# The listing can only be walked one municipality at a time: unfiltered or broad
+# text searches time out on the server side, which Zyte reports as a 520
+# "website ban". Municipality IDs are internal integers, probed on every run.
+title: Bosnia and Herzegovina Republika Srpska Register of Business Entities
+prefix: ba-apif
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-03
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - entities.delta.json
+deploy:
+  premium: true
+resolve: false
+ci_test: false
+summary: >-
+  Companies seated in Republika Srpska, with founders, representatives and beneficial owners
+description: |
+  The register of business entities of Republika Srpska, one of the two entities
+  of Bosnia and Herzegovina. It is kept by the Agency for Intermediary, IT and
+  Financial Services (APIF), which runs the one-stop registration system for
+  business entities seated in Republika Srpska. Entities in the Federation of
+  Bosnia and Herzegovina and in Brčko District are registered separately, and are
+  covered by the Bosnia and Herzegovina Registers of businesses dataset.
+
+  This dataset includes registered companies, companies in bankruptcy or
+  liquidation, and entries carried over from the older court register. Entities
+  deleted from the register or moved out of Republika Srpska, sole traders and
+  associations are not included.
+
+assertions:
+  min:
+    schema_entities:
+      Company: 20000
+
+url: https://www.apif.net/index.php?option=com_content&view=article&id=7:registar-poslovnih-subjekata&catid=9:registri&Itemid=118&lang=sr
+publisher:
+  name: Agencija za posredničke, informatičke i finansijske usluge
+  name_en: Agency for Intermediary, IT and Financial Services
+  acronym: APIF
+  country: ba
+  url: https://www.apif.net/
+  description: |
+    APIF is an agency of Republika Srpska. It keeps the
+    register of business entities of Republika Srpska as well as the single
+    register of bank accounts and the register of financial statements.
+  official: true
+data:
+  url: http://bizreg.esrpska.com/Home/PretragaPoslovnogSubjekta
+  format: JSON
+  lang: srp
+
+lookups:
+  # The first line of a listing row's status. Only active entities are emitted;
+  # entities that moved their seat out of Republika Srpska are registered in
+  # another register. The crawler warns on any status not listed here.
+  status:
+    options:
+      - match:
+          - registrovan
+          - podatak iz starog registra
+          - otvoren stečajni postupak
+          - otvoren likvidacioni postupak
+        value: active
+      - match: preseljen sa teritorije Republike Srpske
+        value: moved
+      - match: brisan
+        value: deleted
