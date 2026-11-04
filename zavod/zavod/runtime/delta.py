@@ -4,6 +4,7 @@ from collections.abc import Generator
 from followthemoney.dataset import Version
 from nomenklatura import duck
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.entity import Entity
@@ -35,7 +36,7 @@ class HashDelta:
         self.prev = get_last_successful_version(self.dataset.name)
         self.curr_path = dataset_artifact_path(dataset.name, self.curr, HASH_FILE)
         self.fh = self.curr_path.open("w")
-        self.conn = duck.connect()
+        self.conn = duck.connect(memory_mb=settings.DELTA_DUCKDB_MEMORY)
         self.conn.execute("CREATE TABLE prev_hashes (id VARCHAR, hash VARCHAR)")
         self._batch: list[tuple[str, str, Entity]] = []
 
