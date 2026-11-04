@@ -78,7 +78,7 @@ def crawl(context: Context) -> None:
     # Before you accept a new hash, review the tables and the count in the
     # dataset assertions.
     if not h.assert_dom_hash(
-        content, "fe39d198c390157480051ffa163754eac14d89ac", text_only=True
+        content, "19382c9ae96092f6ada267a2d0c4998df14c2aee", text_only=True
     ):
         context.log.warning("Check changes in page content - see source.html")
     with open(LOCAL_PATH / "source.html", "wb") as fh:
