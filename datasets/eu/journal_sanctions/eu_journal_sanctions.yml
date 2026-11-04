@@ -1619,6 +1619,15 @@ lookups:
           - "05AT521433"
           - "050456101445"
           - "0205561020089"
+      # Amendment 32026R2490 (data/amendments/32026R2490.csv) re-states Emilie
+      # Edwige Konig's documents, splitting the passport from the two identity
+      # card numbers.
+      - match: "(a) 05AT521433 (French passport number, issued on 30.11.2005 in Lorient, France by the sous-prefecture of police)"
+        value: "05AT521433"
+      - match: "(a) 050456101445 (French, issued on 19.5.2005 in Lorient, France (issued by the sous-prefecture of police)); (b) 0205561020089 (French, issued on 30.5.2002 under name Emilie Edwige Konig)"
+        values:
+          - "050456101445"
+          - "0205561020089"
       - match: "(a) K048787 (Jordanian passport number); (b) 486298 (Jordanian passport number)"
         values:
           - "K048787"
