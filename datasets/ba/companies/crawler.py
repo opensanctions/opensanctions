@@ -32,8 +32,9 @@ from zavod import helpers as h
 # APEX by the registry's web application firewall, which answers
 # "The requested URL was rejected. [...] Your support ID is: ..." for the
 # fully-encoded URL over both GET and POST, while other "&" names go through
-# untouched (7 records in the same run). That is also outside our control, but
-# it is rare and the rule may change, so it stays at warning level.
+# untouched (7 records in the same run). That is also outside our control, so
+# it is logged at info level, but counted with the run's errors so that a rise
+# in rejections fails the run.
 WAF_REJECTION = "The requested URL was rejected"
 
 # Companies emitted from their listing row alone because their pages failed
@@ -62,6 +63,11 @@ PAGE_URL = f"{BASE_URL}f"
 FOUNDERS_PAGE = 21
 MANAGERS_PAGE = 22
 
+# Matično registarski broj (MBS), the court register number in the listing, as
+# in "65-01-0119-23" or "1-638-00"
+REGEX_MBS = re.compile(r"^\d+(?:-\d+)+$")
+# Jedinstveni identifikacioni broj (JIB), the tax and statistics ID
+REGEX_JIB = re.compile(r"^\d{13}$")
 REGEX_COMPANY_KEY = re.compile(r"P13_NAZIV:(\d+)%2C")
 REGEX_REPORT_PAGE = re.compile(r"\$a_report\('(\d+)','(\d+)','(\d+)','(\d+)'\)")
 # A founder's registration number followed by its old number, as in
@@ -444,7 +450,8 @@ def fetch_company(
     details = parse_records(doc)
     if len(details) != 1 or details[0].get("Registration Number") != regno:
         if WAF_REJECTION in h.element_text(doc):
-            context.log.warning("Details page rejected by firewall", url=details_url)
+            context.log.info("Details page rejected by firewall", url=details_url)
+            state.errors += 1
             return None
         raise SessionLost(f"details page does not show {regno!r}")
     return {
@@ -458,8 +465,13 @@ def emit_company(
     context: Context,
     record: dict[str, str | None],
     pages: dict[str, Any] | None,
+    removed: bool,
 ) -> None:
-    """Emit a company from its listing row, and from its pages where available."""
+    """Emit a company from its listing row, and from its pages where available.
+
+    Args:
+        removed: The company was struck from the court register.
+    """
     entity = context.make("Company")
     reg_number = record.get("registration_number")
     if reg_number is not None and roughly_valid_regno(reg_number):
@@ -485,8 +497,14 @@ def emit_company(
     address: str | None = record["address"]
     if address != "-":
         entity.add("address", address, lang="bos")
-    entity.add("registrationNumber", record["registration_number"])
+    reg_number = (reg_number or "").strip()
+    if REGEX_MBS.match(reg_number):
+        entity.add("mbsCode", reg_number)
+    elif re.search(r"\d", reg_number):
+        entity.add("registrationNumber", reg_number)
     entity.add("modifiedAt", record["date_of_last_decision"])
+    if removed:
+        entity.add("status", "Brisan iz sudskog registra", lang="bos")
 
     if pages is None:
         context.emit(entity)
@@ -496,13 +514,16 @@ def emit_company(
     entity.add("legalForm", details.pop("Legal form of organization"), lang="bos")
     entity.add("address", details.pop("Address"), lang="bos")
     entity.add("status", details.pop("Status (Bankruptcy – YES/NO)"), lang="bos")
-    # Jedinstveni identifikacioni broj - JIB or UIN
-    # https://www.vatify.eu/bosnia-and-herzegovina-vat-number.html
-    entity.add("registrationNumber", details.pop("Unique Identification Number"))
-    context.audit_data(
-        details,
-        ignore=["Registration Number", "Name", "Abbreviation", "Customs Number"],
-    )
+    jib = details.pop("Unique Identification Number").strip()
+    if REGEX_JIB.match(jib):
+        entity.add("jibCode", jib)
+    elif re.search(r"\d", jib):
+        entity.add("registrationNumber", jib)
+    # The customs number is the PDV (VAT) number: the JIB without its leading 4.
+    customs_number = details.pop("Customs Number").replace("\xa0", " ").strip()
+    if customs_number.lower() not in ("", "-", "nema"):
+        entity.add("vatCode", customs_number)
+    context.audit_data(details, ignore=["Registration Number", "Name", "Abbreviation"])
     context.emit(entity)
     company_id = entity.id
     assert company_id is not None
@@ -640,7 +661,7 @@ def emit_manager(context: Context, company_id: str, record: Record) -> None:
 
 
 def crawl_company(
-    context: Context, state: CrawlState, record: dict[str, str | None]
+    context: Context, state: CrawlState, record: dict[str, str | None], removed: bool
 ) -> None:
     """Emit one company, from the record cache or freshly fetched pages.
 
@@ -654,7 +675,7 @@ def crawl_company(
             "Details page unreachable: registry link has an unescaped colon",
             url=details_url,
         )
-        emit_company(context, record, None)
+        emit_company(context, record, None, removed)
         return
 
     # Keyed on the date of the last registry decision, so that a company that
@@ -666,7 +687,7 @@ def crawl_company(
         pages = fetch_company(context, state, record)
         if pages is not None:
             context.cache.set_json(cache_key, pages)
-    emit_company(context, record, pages)
+    emit_company(context, record, pages, removed)
 
 
 def crawl_listed(
@@ -691,7 +712,7 @@ def crawl_listed(
                 assert current["details_url"] is not None, current
                 if company_key(current["details_url"]) in done:
                     continue
-                crawl_company(context, state, current)
+                crawl_company(context, state, current, search.removed == "1")
                 done.add(company_key(current["details_url"]))
             return
         except SessionLost as exc:
@@ -707,7 +728,7 @@ def crawl_listed(
                     reason=str(exc),
                 )
                 state.errors += 1
-                emit_company(context, current, None)
+                emit_company(context, current, None, search.removed == "1")
                 done.add(key)
         listed = len(records)
         records = list_checked(context, state, search)
@@ -722,11 +743,7 @@ def split_search(search: Search, periods: list[tuple[str, str]]) -> list[Search]
     registration date matches none of them.
     """
     if search.legal_form == "-1":
-        return [
-            replace(search, legal_form=form, removed=removed)
-            for form in LEGAL_FORMS
-            for removed in ("1", "0")
-        ]
+        return [replace(search, legal_form=form) for form in LEGAL_FORMS]
     if search.bankrupt == "-1":
         return [
             replace(search, bankrupt=bankrupt, foreign_trade=foreign_trade)
@@ -815,6 +832,10 @@ def crawl(context: Context) -> None:
     )
 
     for city in cities:
-        count = crawl_search(context, state, Search(city=city["code"]), periods)
-        context.log.debug(f"{city['city']}: {count}")
+        # Every search is split by register status, which the company pages
+        # do not show.
+        for removed in ("1", "0"):
+            search = Search(city=city["code"], removed=removed)
+            count = crawl_search(context, state, search, periods)
+            context.log.debug(f"{city['city']}, removed={removed}: {count}")
     assert state.errors < EXPECTED_ERRORS, f"Too many errors: {state.errors}"
