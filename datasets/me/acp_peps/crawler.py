@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 from zipfile import BadZipFile, ZipFile
 
-from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.stateful.positions import categorise
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -126,8 +126,10 @@ def emit_affiliated_position(
     function: str,
     affiliation_data: dict[str, str],
     filing_date: str,
-) -> None:
+) -> bool:
     """Creates Position and Occupancy after categorization.
+
+    Returns True if an Occupancy was emitted.
 
     A position's name includes the function and the organization name.
 
@@ -160,7 +162,7 @@ def emit_affiliated_position(
 
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
-        return
+        return False
 
     occupancy = h.make_occupancy(
         context,
@@ -169,15 +171,16 @@ def emit_affiliated_position(
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,
+        declaration_date=filing_date,
     )
     # If the person should not be considered a PEP, don't emit the occupancy or position.
     if occupancy is None:
-        return
-    occupancy.add("declarationDate", filing_date)
+        return False
 
     person.add("topics", "role.pep")
     context.emit(position)
     context.emit(occupancy)
+    return True
 
 
 # Verified Jan 2025 that when SRODSTVO == Funkcioner,
@@ -224,18 +227,23 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
 
     person.add("citizenship", "me")
 
+    has_occupancy = False
     if function_rows:
         assert filing_date is not None
         for row in function_rows:
             function = row.pop("FUNKCIJA")
-            emit_affiliated_position(
+            if emit_affiliated_position(
                 context,
                 person=person,
                 function=function,
                 affiliation_data=row,
                 filing_date=filing_date,
-            )
+            ):
+                has_occupancy = True
     else:
+        # Without a readable filing, the date of the latest one still shows the
+        # person held their functions then.
+        latest_filing_date = max((entry["datum"] for entry in dates), default=None)
         for label in function_labels:
             position = h.make_position(context, label, country="me")
             categorisation = categorise(context, position, default_is_pep=True)
@@ -247,12 +255,17 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
                 position,
                 no_end_implies_current=False,
                 categorisation=categorisation,
-                status=OccupancyStatus.UNKNOWN,
+                declaration_date=latest_filing_date,
             )
+            if occupancy is None:
+                continue
             context.emit(position)
-            if occupancy is not None:
-                context.emit(occupancy)
+            context.emit(occupancy)
             person.add("topics", categorisation.topics)
+            has_occupancy = True
+
+    if not has_occupancy:
+        return bool(relatives_rows or function_rows)
 
     if "gov.national" in set(person.get("topics")):
         crawl_relatives(context, person, relatives_rows)
