@@ -11,6 +11,7 @@ from zavod.extract import zyte_api
 DATE_SPLITS = [
     " arab ",
     " مد القرار",  # Decision extended
+    " مد الإدراج",  # Listing extended
     " إعادة النشر في",  # Republished in
     "المد في ",  # extended in
     "إعادة المد في",  # re-extend in
