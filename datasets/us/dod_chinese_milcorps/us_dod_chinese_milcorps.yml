@@ -67,7 +67,6 @@ data:
 ci_test: false  # No zyte key in CI
 
 tags:
-  - list.sanction
   - sector.defense
   - target.cn
   - publisher.west
