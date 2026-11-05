@@ -3,7 +3,7 @@ from lxml import etree
 from lxml.etree import _Element as Element
 from typing import Any
 
-from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
@@ -87,8 +87,8 @@ def crawl_person(
     h.apply_name(person, first_name=name.strip(), last_name=last_name.strip())
     # various roles, some require citizenship (e.g. ministers), some don't (e.g. admin roles)
     person.add("country", "sk")
-    person.add("topics", "role.pep")
     person.add("sourceUrl", href)
+    has_occupancy = False
     for pos in position_slk:
         if pos.startswith(FALLBACK_OFFICIAL_PREFIX):
             pos = pos.replace(FALLBACK_OFFICIAL_PREFIX, "").rstrip(")")
@@ -113,16 +113,17 @@ def crawl_person(
             position,
             no_end_implies_current=False,
             categorisation=categorisation,
-            status=OccupancyStatus.UNKNOWN,
+            declaration_date=year,
         )
         if occupancy is None:
             continue
 
-        occupancy.add("declarationDate", year)
-
         context.emit(position)
         context.emit(occupancy)
-    context.emit(person)
+        has_occupancy = True
+    if has_occupancy:
+        person.add("topics", "role.pep")
+        context.emit(person)
 
 
 def crawl(context: Context) -> None:

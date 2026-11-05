@@ -3,7 +3,7 @@ from rigour.mime.types import CSV
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise, OccupancyStatus
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 
 def crawl_row(context: Context, row: dict[str, str | None]) -> None:
@@ -44,17 +44,21 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     if not categorisation.is_pep:
         return
 
+    filing_date = row.pop("filing_date") or None
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         categorisation=categorisation,
-        status=OccupancyStatus.UNKNOWN,
         no_end_implies_current=False,
+        declaration_date=filing_date,
+        # Rows for declarations that are pending, exempted or not filed have no
+        # date. HATVP lists them because the person holds the post and owes a
+        # declaration, so keep them without a date to age out from.
+        status=OccupancyStatus.UNKNOWN if filing_date is None else None,
     )
     if occupancy is None:
         return
-    h.apply_date(occupancy, "declarationDate", row.pop("filing_date"))
 
     url_declaration_pdf = urljoin(
         "http://www.hatvp.fr/livraison/dossiers/", row.pop("file_name")
