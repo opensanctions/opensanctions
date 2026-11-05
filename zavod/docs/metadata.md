@@ -100,7 +100,7 @@ Comments record known facts — observed failures, documented source behaviour, 
 
 Currently, tags cover the following dimensions:
 - list type (e.g. `list.sanction`, `list.pep`);
-- publisher country or bloc (e.g. `publisher.fr`, `publisher.eu`);
+- publisher country or bloc (e.g. `publisher.fr`, `publisher.europe`);
 - target countries (e.g. `target.ru`, `target.us`)
 - sectors (e.g. `sector.financial`, `sector.maritime`)
 - risk themes (e.g. `risk.klepto`).
