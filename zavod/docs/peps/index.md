@@ -214,7 +214,9 @@ person held a position when they filed. Pass the date of the latest declaration 
 position as `declaration_date`. Without an end date, `make_occupancy` treats it as the
 last date the person is known to have held the position, and applies the after-office
 period from there. A newer declaration updates the same occupancy and so extends its
-retention.
+retention. Where declarations are filed only on taking office, this conservative reading
+can drop people still in office. Positions that warrant longer exposure get it from their
+topics (see [Categorizing positions](#categorizing-positions)), not from the crawler.
 
 Pass `no_end_implies_current=False` for sources that don't reliably remove people when
 they leave office (static snapshots, scraped archives), so an occupancy with no end date
