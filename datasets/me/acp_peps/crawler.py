@@ -14,9 +14,10 @@ from zavod import helpers as h
 def fetch_latest_filing(
     context: Context,
     dates: list[dict[str, Any]],
-) -> tuple[str | None, Path | None]:
+) -> Path | None:
+    """Return the ZIP of the latest filing that has one."""
     if not dates:
-        return None, None
+        return None
 
     # Iterate over all entries in reverse order
     for entry in reversed(dates):
@@ -30,7 +31,7 @@ def fetch_latest_filing(
             zip_path = context.fetch_resource(filename, url)
             try:
                 with ZipFile(zip_path, "r"):
-                    return entry.get("datum"), zip_path
+                    return zip_path
             except BadZipFile as e:
                 context.log.info(
                     "Failed to open ZIP file. Skipping",
@@ -39,7 +40,7 @@ def fetch_latest_filing(
                 )
 
     # If no valid entry is found
-    return None, None
+    return None
 
 
 def read_csv_rows(
@@ -204,7 +205,11 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
     full_name = person_data.pop("imeIPrezime")
     dates = person_data.pop("izvjestajImovine")
     function_labels: list[str] = person_data.pop("nazivFunkcije")
-    filing_date, zip_path = fetch_latest_filing(context, dates)
+    zip_path = fetch_latest_filing(context, dates)
+    # Filings since 2025 come without a ZIP, so the functions are read from an
+    # older filing. The latest filing of any kind still shows the person held
+    # public office then.
+    latest_filing_date = max((entry["datum"] for entry in dates), default=None)
 
     family_rows = []
     function_rows = []
@@ -229,7 +234,7 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
 
     has_occupancy = False
     if function_rows:
-        assert filing_date is not None
+        assert latest_filing_date is not None
         for row in function_rows:
             function = row.pop("FUNKCIJA")
             if emit_affiliated_position(
@@ -237,13 +242,10 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
                 person=person,
                 function=function,
                 affiliation_data=row,
-                filing_date=filing_date,
+                filing_date=latest_filing_date,
             ):
                 has_occupancy = True
     else:
-        # Without a readable filing, the date of the latest one still shows the
-        # person held their functions then.
-        latest_filing_date = max((entry["datum"] for entry in dates), default=None)
         for label in function_labels:
             position = h.make_position(context, label, country="me")
             categorisation = categorise(context, position, default_is_pep=True)
