@@ -55,6 +55,7 @@ children:
   - be_flemish_parliament
   - be_senate
   - be_walloon_parliament
+  - bf_legislative_assembly
   - bg_jud_declarations
   - bg_parliament
   - bh_nuwab
