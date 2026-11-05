@@ -39,20 +39,32 @@ data:
 dates:
   formats: ["%d/%m/%Y", "%Y-%m-%d"]
 names:
-  # Status markers the warning list appends to every name, e.g. "Acme (new)".
   suffixes_strip:
+    # Status markers the warning list appends to every name, e.g. "Acme (new)".
     - "(new)"
     - "(updated)"
+    # Common clone annotations (kept as the corp.clone topic); others go to review.
+    - "(Clone of FCA authorised firm)"
+    - "(Clone of EEA authorised firm)"
+    - "(Clone)"
+    - "(Clone of FCA authorised firms)"
+    - "(Clone of authorised firm)"
+    - "(Clone of an FCA authorised firm)"
+    - "(Clone of FCA registered firm)"
+    - "(Clone of an EEA authorised firm)"
   schema_rules:
     LegalEntity:
       reject_chars: "/();"
       reject_strings:
-        # Clone annotations, e.g. "Fortradefx (Clone of FCA authorised firm)".
+        # Clone annotations not in suffixes_strip.
         - "clone"
-        - "aka"
+        # Padded to spare names like "Nagashima Sakai".
+        - " aka "
         - "previously"
         - "now known as"
         - "formerly"
+        # Cloudflare's placeholder for an obfuscated email.
+        - "[email protected]"
 
 lookups:
   firm_details:

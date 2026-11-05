@@ -72,7 +72,8 @@ def crawl_item(context: Context, item: _Element) -> None:
     links = h.xpath_elements(item, "./th/a[@href]")
     if not links:
         return
-    name = h.strip_name_titles(context, h.element_text(links[0]))
+    raw_name = h.element_text(links[0])
+    name = h.strip_name_titles(context, raw_name)
     href = links[0].get("href")
     if not name or not href:
         return
@@ -91,8 +92,9 @@ def crawl_item(context: Context, item: _Element) -> None:
     h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
     entity.add("sourceUrl", url)
     entity.add("topics", "reg.warn")
-    # Older warning pages have no clone section, only the clone annotation in the name.
-    if CLONE_ANNOTATION.search(name):
+    # Older pages flag clones only in the title; check raw_name, as suffixes_strip
+    # removes common annotations like "(Clone of FCA authorised firm)" from name.
+    if CLONE_ANNOTATION.search(raw_name):
         entity.add("topics", "corp.clone")
 
     crawl_details_page(context, entity, url)
