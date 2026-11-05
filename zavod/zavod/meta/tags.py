@@ -5,9 +5,8 @@ them into every dataset YAML they are derived when the metadata is exported:
 
 * ``publisher.<country>`` from ``publisher.country``, for official, non-PEP
   publishers with a specific country.
-* ``publisher.eu`` for official sanctions lists published by an EU member
-  state.
-* ``publisher.us_ofac`` for datasets published by OFAC.
+* ``publisher.<bloc>`` for each bloc in ``PUBLISHER_BLOCS`` that the
+  publisher country belongs to, under the same conditions.
 
 Derived tags only appear in the exported metadata (``index.json`` and the
 catalogs). They are not added to ``dataset.model.tags``, so ``#tag`` queries
@@ -28,23 +27,27 @@ EU_MEMBERS = frozenset(
     "at be bg cy cz de dk ee es fi fr gr hr hu ie it lt lu lv mt nl pl pt ro se si sk".split()
 )
 EFTA_MEMBERS = frozenset({"ch", "is", "li", "no"})
+# TODO: fact check that all of these should go into `europe`
+UK_AND_CROWN_DEPENDENCIES = frozenset({"gb", "gg", "im", "je"})
+EUROPEAN_MICROSTATES = frozenset({"ad", "mc", "sm", "va"})
+EUROPE_OTHER = frozenset({"al", "ba", "md", "me", "mk", "rs", "ua", "xk"})
 
 # Blocs of publisher countries. A dataset whose publisher country is a member
 # also gets ``publisher.<bloc>``.
-# TODO: placeholder bloc to exercise the mechanism; replace with the agreed
-# blocs (e.g. ``west``) once their membership is settled.
 # TODO: move these somewhere more central for reuse once they're settled
-# and if we decide to keep them.
 PUBLISHER_BLOCS: dict[str, frozenset[str]] = {
-    # "eu_efta": EU_MEMBERS | EFTA_MEMBERS,
+    "europe": EU_MEMBERS
+    | EFTA_MEMBERS
+    | UK_AND_CROWN_DEPENDENCIES
+    | EUROPEAN_MICROSTATES
+    | EUROPE_OTHER
+    | {"eu"},
 }
 
 
 def derive_publisher_tags(dataset: "Dataset") -> list[str]:
     """Derive ``publisher.<country>`` and ``publisher.<bloc>`` from the publisher.
 
-    Sanctions lists published by an EU member state also get ``publisher.eu``,
-    and datasets published by OFAC get ``publisher.us_ofac``.
     Nothing is derived for unofficial publishers, for PEP datasets (where the
     publisher country adds no insight), or when the country is missing or
     global.
@@ -58,10 +61,6 @@ def derive_publisher_tags(dataset: "Dataset") -> list[str]:
     if country is None or country == GLOBAL:
         return []
     tags = [f"publisher.{country}"]
-    if country in EU_MEMBERS and "list.sanction" in dataset.model.tags:
-        tags.append("publisher.eu")
-    if country == "us" and publisher.acronym == "OFAC":
-        tags.append("publisher.us_ofac")
     for bloc, members in PUBLISHER_BLOCS.items():
         if country in members:
             tags.append(f"publisher.{bloc}")

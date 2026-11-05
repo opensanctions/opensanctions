@@ -26,62 +26,26 @@ def test_official_publisher_country():
 
 def test_publisher_country_eu():
     ds = make_dataset(publisher={"country": "eu", "official": True})
-    assert derive_tags(ds) == ["publisher.eu"]
+    assert derive_tags(ds) == ["publisher.eu", "publisher.europe"]
 
 
-@pytest.mark.parametrize("country", ["fr", "li"])
+@pytest.mark.parametrize("country", ["fr", "li", "gb", "je", "mc", "rs", "ua"])
 def test_publisher_bloc(country: str):
     ds = make_dataset(publisher={"country": country, "official": True})
-    # TODO
-    # assert derive_tags(ds) == [f"publisher.{country}", "publisher.eu_efta"]
+    assert derive_tags(ds) == [f"publisher.{country}", "publisher.europe"]
+
+
+@pytest.mark.parametrize("country", ["tr", "ru", "by", "am", "az", "ge"])
+def test_not_in_europe_bloc(country: str):
+    ds = make_dataset(publisher={"country": country, "official": True})
     assert derive_tags(ds) == [f"publisher.{country}"]
 
 
-def test_member_state_sanctions_list_gets_publisher_eu():
+def test_member_state_gets_no_publisher_eu():
     ds = make_dataset(
         tags=["list.sanction"], publisher={"country": "fr", "official": True}
     )
-    assert derive_tags(ds) == [
-        "list.sanction",
-        "publisher.fr",
-        "publisher.eu",
-        # TODO
-        # "publisher.eu_efta",
-    ]
-
-
-@pytest.mark.parametrize(
-    "tags,publisher",
-    [
-        # Not a sanctions list:
-        (["list.wanted"], {"country": "fr", "official": True}),
-        # Not an EU member state:
-        (["list.sanction"], {"country": "ch", "official": True}),
-        # Not official:
-        (["list.sanction"], {"country": "fr", "official": False}),
-    ],
-)
-def test_no_publisher_eu(tags: list[str], publisher: dict[str, Any]):
-    ds = make_dataset(tags=tags, publisher=publisher)
     assert "publisher.eu" not in derive_tags(ds)
-
-
-def test_ofac_publisher():
-    ds = make_dataset(publisher={"country": "us", "acronym": "OFAC", "official": True})
-    assert derive_tags(ds) == ["publisher.us", "publisher.us_ofac"]
-
-
-@pytest.mark.parametrize(
-    "publisher",
-    [
-        {"country": "us", "acronym": "BIS", "official": True},
-        {"country": "gb", "acronym": "OFAC", "official": True},
-        {"country": "us", "acronym": "OFAC", "official": False},
-    ],
-)
-def test_no_ofac_publisher(publisher: dict[str, Any]):
-    ds = make_dataset(publisher=publisher)
-    assert "publisher.us_ofac" not in derive_tags(ds)
 
 
 def test_publisher_bloc_members_are_territories():
@@ -144,9 +108,7 @@ def test_export_includes_derived_tags():
     assert data["tags"] == [
         "list.sanction",
         "publisher.fr",
-        "publisher.eu",
-        # TODO
-        # "publisher.eu_efta",
+        "publisher.europe",
     ]
     # Derived tags are export-only:
     assert ds.model.tags == ["list.sanction"]

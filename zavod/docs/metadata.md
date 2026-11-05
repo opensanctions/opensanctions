@@ -115,8 +115,6 @@ Some tags are added automatically when the dataset metadata is exported, so don'
 
 - `publisher.<country>` from `publisher.country`, when the publisher is `official: true`, the country isn't `zz`, and the dataset isn't tagged `list.pep`.
 - `publisher.<bloc>` for each bloc the publisher country belongs to, under the same conditions. The blocs are defined in `PUBLISHER_BLOCS` in `zavod/meta/tags.py`.
-- `publisher.eu` under the same conditions, when the publisher country is an EU member state and the dataset is tagged `list.sanction`. Datasets published by the EU itself get `publisher.eu` from their country.
-- `publisher.us_ofac` under the same conditions, when the publisher country is `us` and the publisher acronym is `OFAC`.
 
 Derived tags appear in the published `index.json` and catalogs, but not in `dataset.model.tags`. `#tag` queries against a catalog loaded from the dataset YAMLs therefore don't see them.
 
