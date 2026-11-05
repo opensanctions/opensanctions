@@ -22,18 +22,23 @@ SECTION_XPATH = ".//section[@id='section-unauthorised-firm-details' or @id='sect
 
 
 def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None:
-    value = value.strip().strip(",")
+    value = value.strip().strip(",;")
     if not value:
         return
     prop = context.lookup_value("firm_details", label.lower())
     if prop is None:
         context.log.warning("Unhandled firm detail field", label=label, value=value)
         return
-    elif prop == "address":
+    elif prop in ("address", "notes"):
         entity.add(prop, value)
     elif prop == "name":
         # Repeats the warning list title, which is the name we use.
         return
+    elif prop == "website":
+        # e.g. "www.cederbergi.com; www.cederberge.com", "mftreasury.com / mftreasury.io",
+        # "http://www.liffexchange.co; http://www.lifoex.org;, http://..."
+        parts = h.multi_split(value, [",", "; ", " / ", " & "])
+        entity.add(prop, [part.rstrip(";") for part in parts])
     else:
         entity.add(prop, h.multi_split(value, [","]))
 

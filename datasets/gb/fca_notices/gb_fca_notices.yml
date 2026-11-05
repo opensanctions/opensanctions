@@ -60,7 +60,7 @@ lookups:
     options:
       - match: name
         value: name
-      - match: [website, url, web address, social media, social media details]
+      - match: [website, url, web address]
         value: website
       - match: [telephone, tel, mobile, phone, fax]
         value: phone
@@ -68,17 +68,83 @@ lookups:
         value: email
       - match: address
         value: address
-      - match: [other information, apps]
+      # Social media fields mix handles ("@foo"), labels and links; keep them as published.
+      - match: [other information, apps, social media, social media details]
         value: notes
   type.email:
     lowercase: true
     options:
       - match: '[email protected]'
         value: null
+      # Local part exceeds the 64-character limit, so not a deliverable address.
+      - match: nicholas.cooper_at_lyxorassetmanagement_com_b9v5x3caceb2kf_d2yy7553@icloud.com
+        value: null
   type.address:
     options:
-      - match: 'na/'
+      - match: ['na/', 'n.a', 'UK']
         value: null
+  type.url:
+    options:
+      - match: www
+        value: null
+      # Telegram handles listed as websites.
+      - match: ['@BG_Stephen (Telegram)', '@Elena1992818 (Telegram)']
+        value: null
+      # Not valid hostnames.
+      - match: ['https://ZedaronTrader 2.6 Ai.net', 'www.holden&co.org']
+        value: null
+      # Clone firms quoting the authorised firm's own website.
+      - match:
+          - www.axa-im.co.uk(usingFCAAuthorisedFirm’swebsite)
+          - www.svssecurities.com(usingAuthorisedFirm'swebsite)
+          - www.blackrock.co.uk(clonefirmisusingAuthorisedFirm’swebsite)
+        value: null
+      - match: https:// stonehavenmarkets.com
+        value: https://stonehavenmarkets.com
+      - match: https:// omaah-exchange.com
+        value: https://omaah-exchange.com
+      - match: https:// investcan.net
+        value: https://investcan.net
+      - match: https:// crypto-miner.co
+        value: https://crypto-miner.co
+      - match: https:// xrptrading.net
+        value: https://xrptrading.net
+      - match: https;//u-swiftfinance.org
+        value: https://u-swiftfinance.org
+      - match: https;//finex-trade.ltd
+        value: https://finex-trade.ltd
+      - match: https;//fairtradeexpert.live
+        value: https://fairtradeexpert.live
+      - match: https;///www.greenfieldnetworkings.com/
+        value: https://www.greenfieldnetworkings.com/
+      - match: www. traderhive42ai.net
+        value: www.traderhive42ai.net
+      - match: www..helioglobex.com
+        value: www.helioglobex.com
+      - match: https:Buckzer.com
+        value: https://Buckzer.com
+      - match: htttps://Sovonextrader.pro
+        value: https://Sovonextrader.pro
+      - match: "•\thttps://ravonixtrader.net/"
+        value: https://ravonixtrader.net/
+      - match: https://www.sova-am.co.uk /
+        value: https://www.sova-am.co.uk
+      - match: '@bestwallethq https://www.instagram.com/bestwallethq/'
+        value: https://www.instagram.com/bestwallethq/
+      - match: '@BestWalletHQ https://x.com/bestwallethq'
+        value: https://x.com/bestwallethq
+      - match: 'YOUTUBE: www.youtube.com/watch?v=PDnXZOvRuy0'
+        value: www.youtube.com/watch?v=PDnXZOvRuy0
+      - match: 'YOUTUBE: www.youtube.com/watch?v=w7LNWcrsL6Q'
+        value: www.youtube.com/watch?v=w7LNWcrsL6Q
+      - match: 'LinkedIn: https://www.linkedin.com/company/tsh-financial-services-limited/'
+        value: https://www.linkedin.com/company/tsh-financial-services-limited/
+      - match: 'Facebook: https://m.facebook.com/TSH-Financial-Services-Limited-732426897503502/'
+        value: https://m.facebook.com/TSH-Financial-Services-Limited-732426897503502/
+      - match: 'Instagram: https://instagram.com/tshfinancials?igshid=YmMyMTA2M2Y='
+        value: https://instagram.com/tshfinancials?igshid=YmMyMTA2M2Y=
+      - match: 'Twitter: https://twitter.com/Nutmeg_Invest'
+        value: https://twitter.com/Nutmeg_Invest
 
 assertions:
   min:
