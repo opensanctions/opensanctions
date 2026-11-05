@@ -217,6 +217,14 @@ def clean(value: str | None) -> str | None:
     return value
 
 
+def unmask(value: str | None) -> str | None:
+    """Drop a name part that the register masked down to symbols, such as `*`
+    or `#####`."""
+    if value is None or not any(c.isalpha() for c in value):
+        return None
+    return value
+
+
 def clean_regon(regon: str | None) -> str | None:
     # The nine-digit REGON of a legal entity is padded with zeros to the
     # fourteen digits of a local unit's number.
@@ -225,7 +233,7 @@ def clean_regon(regon: str | None) -> str | None:
     return regon
 
 
-def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity:
+def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity | None:
     """Make a stub for a natural person, whose name and PESEL the register
     masks, local to the entity they are listed with."""
     surname = item.pop("nazwisko")
@@ -244,16 +252,22 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity:
 
     person = context.make("Person")
     person.id = context.make_id(krs, organ, last_name, given, middle, pesel, birth_date)
-    # Masking leaves a lone asterisk for some middle names.
-    if middle == "*":
-        middle = None
+    parts = [p for p in (unmask(first), unmask(second)) if p is not None]
+    last_name = "-".join(parts) if parts else None
+    given = unmask(given)
+    middle = unmask(middle)
+    if last_name is None and given is None:
+        context.log.info("Skipping a fully masked person", krs=krs, organ=organ)
+        return None
     h.apply_name(person, first_name=given, middle_name=middle, last_name=last_name)
     h.apply_date(person, "birthDate", birth_date)
     context.emit(person)
     return person
 
 
-def make_legal_entity(context: Context, krs: str, organ: str, item: Data) -> Entity:
+def make_legal_entity(
+    context: Context, krs: str, organ: str, item: Data
+) -> Entity | None:
     name = item.pop("nazwa")
     assert not item.pop("imiona", None), item
     other_krs = item.pop("krs", {}).pop("krs", None)
@@ -268,9 +282,12 @@ def make_legal_entity(context: Context, krs: str, organ: str, item: Data) -> Ent
         entity.add("registrationNumber", other_krs)
     else:
         entity.id = context.make_id(krs, organ, name, regon)
-    entity.add("name", name)
+    entity.add("name", unmask(name))
     entity.add("registrationNumber", regon)
     entity.add("taxNumber", nip)
+    if not entity.properties:
+        context.log.info("Skipping a fully masked legal entity", krs=krs, name=name)
+        return None
     context.emit(entity)
     return entity
 
@@ -364,6 +381,9 @@ def make_address(context: Context, seat: Data) -> str | None:
 
 def add_pkd(entity: Entity, items: list[Data]) -> None:
     for item in items:
+        # Some lists hold an empty entry.
+        if item == {}:
+            continue
         parts = [item["kodDzial"], item.get("kodKlasa"), item.get("kodPodklasa")]
         entity.add("classification", ".".join(p for p in parts if p))
 
@@ -417,11 +437,13 @@ def crawl_extract(context: Context, record: Record) -> None:
     company.add("address", make_address(context, seat))
     # The email field sometimes holds the website instead.
     email = seat.pop("adresPocztyElektronicznej", None)
-    if email is not None and "@" in email:
-        company.add("email", email)
+    if email is not None:
+        emails = h.multi_split(email, [",", ";", " "])
+        company.add("email", [e for e in emails if "@" in e])
     website = seat.pop("adresStronyInternetowej", None)
     if website is not None:
-        company.add("website", h.multi_split(website, [";"]))
+        websites = h.multi_split(website, [";", ",", " "])
+        company.add("website", [w for w in websites if "." in w])
     context.audit_data(
         seat,
         ignore=[
