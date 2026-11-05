@@ -32,8 +32,12 @@ and financial annexes. The designation annexes:
   are vessels despite the part heading's wording, and are emitted with the
   Vessel schema. "Type of ship" has no CSV column and is deliberately not
   transcribed; "Owner:" names another party and is dropped as relational.
+  Entry 3 (Paekyangsan Shipping Co Ltd) is a shipping company printing its
+  IMO company number, pinned to the Company schema.
 - Annex XVI — a further EU-autonomous list (Article 34(1)/(3)), parts
-  (a)/(b), five-column tables whose name cell carries the aliases.
+  (a)/(b), five-column tables whose name cell carries the aliases. A part
+  (b) entry printing a KPP is emitted as Company, the only schema carrying
+  kppCode.
 - Annexes XVII and XVIII — designation annexes that have never held an
   entry; each prints only its subtitle, pinned exactly.
 
@@ -318,6 +322,11 @@ LOCATION_LABELS = {
     "Email": "email",
     "Email addresses": "email",
     "Website": "website",
+    "Place of registration": "jurisdiction",
+    # The combined label names no single registry system.
+    "BIN/OGRN": "registrationNumber",
+    "INN/TIN": "innCode",
+    "KPP": "kppCode",
 }
 # Labels in Annex XV part (f) vessel identifying-information cells.
 VESSEL_INFO_LABELS = {
@@ -336,6 +345,23 @@ DROP_LABELS = frozenset(
         "Owner",
     }
 )
+# Relational labels in XV/XVI person info cells: printed empty-valued, with the
+# associated parties' names on the following bare lines. The label and its
+# name lines are deliberately not transcribed, per the contract.
+PERSON_RELATION_BLOCK_LABELS = frozenset({"Associated entities", "Associated entity"})
+# Relational labels in XVI part (b) location cells, deliberately not
+# transcribed: printed with the party inline, or empty-valued with the
+# party names on the following bare lines (which are not addresses).
+ENTITY_RELATION_LABELS = frozenset({"Associated entity", "Associated individual"})
+# Relational label in XV part (f) cells naming the operated vessel.
+VESSEL_RELATION_LABELS = frozenset({"Associated entity (vessel)"})
+# Entity entries printing a KPP are emitted as Company, the only schema
+# carrying kppCode.
+COMPANY_PROPS = frozenset({"kppCode"})
+# XV part (f) entries that are shipping companies, not vessels: entry 3
+# (Paekyangsan Shipping Co Ltd) prints its IMO company number and names the
+# vessel it operates. Organization-family imoNumber carries the number.
+XV_F_COMPANY_PINS = frozenset({"3"})
 
 # Colon-less label families printed in XIII part (a) info cells.
 BARE_DOB_RE = re.compile(r"^DOB\.? (.+)$")
@@ -390,6 +416,12 @@ BARE_PROSE_PINS: dict[tuple[str, str], dict[str, str]] = {
     },
     ("XVI.A", "33"): {
         "Governor, Primorsky Krai, Russian Federation": "position",
+    },
+    ("XVI.A", "34"): {
+        "CEO, Samolet Group of Companies PJSC": "position",
+    },
+    ("XVI.A", "35"): {
+        "Founder and President of Black Horse": "position",
     },
 }
 
@@ -524,13 +556,23 @@ def parse_person_info(
     pins = BARE_PROSE_PINS.get((annex_part, record_id), {})
     block_column: str | None = None
     block_letters: list[str] = []
+    relation_block = False
     for line in cell_lines(td, ctx):
         labelled = LABELLED_RE.match(line)
         label = labelled.group(1) if labelled is not None else None
         if label in DROP_LABELS:
             block_column = None
+            relation_block = False
+            continue
+        if label is not None and label in PERSON_RELATION_BLOCK_LABELS:
+            assert labelled is not None
+            if labelled.group(2) != "":
+                raise ParseError(f"{ctx}: valued relation label {line[:60]!r}")
+            block_column = None
+            relation_block = True
             continue
         if label is not None and label in PERSON_INFO_LABELS:
+            relation_block = False
             assert labelled is not None
             column = PERSON_INFO_LABELS[label]
             value = labelled.group(2)
@@ -547,6 +589,9 @@ def parse_person_info(
                 # An empty-valued label holds its values on following lines.
                 block_column = column
                 block_letters = []
+            continue
+        if relation_block and label is None:
+            # A party name under the relational label.
             continue
         if label is not None and label not in pins and line not in pins:
             raise ParseError(f"{ctx}: unrecognized info label {label!r}")
@@ -587,9 +632,20 @@ def parse_location_cell(ctx: str, td: Element, row: Row) -> None:
     """Entity Location cells: labelled contact lines, bare lines are
     addresses. An empty-valued label holds its value on the next line."""
     block_column: str | None = None
+    relation_block = False
     for line in cell_lines(td, ctx):
         labelled = LABELLED_RE.match(line)
         label = labelled.group(1) if labelled is not None else None
+        if label is not None and label in ENTITY_RELATION_LABELS:
+            assert labelled is not None
+            if block_column is not None:
+                raise ParseError(f"{ctx}: label {label!r} inside open block")
+            relation_block = labelled.group(2) == ""
+            continue
+        if relation_block and label is None:
+            # A party name under an empty-valued relational label.
+            continue
+        relation_block = False
         if label is not None and label in LOCATION_LABELS:
             if block_column is not None:
                 raise ParseError(f"{ctx}: label {label!r} inside open block")
@@ -617,7 +673,7 @@ def parse_vessel_info(ctx: str, td: Element, row: Row) -> None:
     for line in cell_lines(td, ctx):
         labelled = LABELLED_RE.match(line)
         label = labelled.group(1) if labelled is not None else None
-        if label in DROP_LABELS:
+        if label in DROP_LABELS or label in VESSEL_RELATION_LABELS:
             continue
         if label is not None and label in VESSEL_INFO_LABELS:
             assert labelled is not None
@@ -886,7 +942,10 @@ def parse_annex_xv(roman: str, block: Element) -> list[Row]:
             record_id = entry_number(annex_part, cells[0], last)
             last = int(record_id)
             ctx = f"{annex_part} entry {record_id}"
-            row = Row(annex_part, schema, MEASURE_FREEZE, record_id=record_id)
+            row_schema = schema
+            if annex_part == "XV.F" and record_id in XV_F_COMPANY_PINS:
+                row_schema = "Company"
+            row = Row(annex_part, row_schema, MEASURE_FREEZE, record_id=record_id)
             if schema == "Vessel":
                 row.add("name", [cell_line(cells[1], ctx)])
             else:
@@ -924,6 +983,8 @@ def parse_annex_xvi(roman: str, block: Element) -> list[Row]:
                 parse_person_info(ctx, annex_part, record_id, cells[2], row)
             else:
                 parse_location_cell(ctx, cells[2], row)
+                if any(prop in row.props for prop in COMPANY_PROPS):
+                    row.schema = "Company"
             row.start_date = parse_date_cell(ctx, annex_part, record_id, cells[3])
             row.reason = parse_reason_cell(ctx, cells[4])
             rows.append(row)
@@ -989,7 +1050,7 @@ def parse_document(doc: Element) -> list[Row]:
 )
 def main(celex: str, source: Path | None) -> None:
     try:
-        check_registry(PROGRAM_KEY, [], ("Person", "LegalEntity", "Vessel"))
+        check_registry(PROGRAM_KEY, [], ("Person", "LegalEntity", "Company", "Vessel"))
         check_consolidated_celex(celex, FRAMEWORK_CELEX)
         content = load_source(celex, source)
         doc = html.fromstring(content)
