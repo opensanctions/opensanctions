@@ -1,0 +1,96 @@
+title: Burkina Faso Members of the People's Legislative Assembly
+entry_point: crawler.py
+prefix: bf-alp
+coverage:
+  frequency: monthly
+  start: 2026-10-15
+load_statements: true
+summary: >-
+  Appointed deputies of Burkina Faso's unicameral national legislature
+description: |
+  Current members of the Assemblée législative du peuple (ALP), Burkina Faso's
+  unicameral national legislature, which holds the country's legislative power,
+  including passing laws and approving the budget.
+url: https://www.assembleenationale.bf/depute/depute
+publisher:
+  name: Assemblée législative du peuple
+  name_en: People's Legislative Assembly
+  acronym: ALP
+  description: >
+    The People's Legislative Assembly is Burkina Faso's national legislature. It was
+    established in 2022 as the Transitional Legislative Assembly, an appointed body
+    standing in for the dissolved elected National Assembly for the duration of the
+    military-led transition, and took its present name in 2026.
+  url: https://www.assembleenationale.bf/
+  country: bf
+  official: true
+data:
+  url: https://www.assembleenationale.bf/depute/depute
+  format: HTML
+  lang: fra
+
+tags:
+  - list.pep
+
+names:
+  prefixes_strip:
+    - "Dr "
+
+lookups:
+  # Bureau roles from the bureau page, mapped to one presiding office each; the
+  # numbered ranks (1er, 2e, ...) collapse into one position. Due to the political
+  # transition not all references are yet consistent, so old and new assembly names
+  # map to a current and common form. An unknown role halts the crawl.
+  position:
+    required: true
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - Président de l'Assemblée législative de transition
+          - Président de l'Assemblée législative du peuple
+        name: President of the People's Legislative Assembly of Burkina Faso
+        # Wikidata models the presidency of the transitional assembly as the same
+        # continuing office as the presidency of the National Assembly.
+        wikidata_id: Q94701165
+        topics: [gov.national, gov.legislative]
+      - match:
+          - 1er Vice-président
+          - 2e Vice-président
+          - 3e Vice-président
+          - 4e Vice-président
+        name: Vice-President of the People's Legislative Assembly of Burkina Faso
+        wikidata_id: Q94701265
+        topics: [gov.national, gov.legislative]
+      - match:
+          - 1er Secrétaire parlementaire
+          - 2e Secrétaire parlementaire
+          - 3e Secrétaire parlementaire
+          - 4e Secrétaire parlementaire
+        name: Parliamentary Secretary of the People's Legislative Assembly of Burkina Faso
+        topics: [gov.national, gov.legislative]
+      - match:
+          - 1er Questeur
+          - 2e Questeur
+        name: Quaestor of the People's Legislative Assembly of Burkina Faso
+        topics: [gov.national, gov.legislative]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 5
+    # `schema_entities` does not count interval schemata, so occupancies are
+    # asserted via the property every one of them carries.
+    entities_with_prop:
+      Occupancy:
+        holder: 60
+    country_entities:
+      bf: 60
+  max:
+    schema_entities:
+      Person: 140
+      Position: 10
+    entities_with_prop:
+      Occupancy:
+        holder: 165
