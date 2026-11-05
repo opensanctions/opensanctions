@@ -311,6 +311,7 @@ def crawl_owners(
                 "wartoscWkladuWspolnikaWUmowie",
                 "wkladWspolnikaWUmowieCzyNiepieniezny",
                 "wkladyWniesione",
+                "wkladyZwrocone",
                 "wysokoscSumyKomandytowej",
             ],
         )
@@ -339,8 +340,11 @@ def crawl_directors(
         context.emit(directorship)
 
 
-def make_address(context: Context, seat: Data) -> str:
+def make_address(context: Context, seat: Data) -> str | None:
     address = seat.pop("adres")
+    # Some old entries record no address beyond the country.
+    if address.keys() == {"kraj"}:
+        return None
     country = address.pop("kraj")
     house = clean(address.pop("nrDomu", None))
     flat = clean(address.pop("nrLokalu", None))
@@ -405,6 +409,8 @@ def crawl_extract(context: Context, record: Record) -> None:
             "czyProwadziDzialalnoscZInnymiPodmiotami",
             "innyRejestr",
             "nazwaFormaPrawnaPrzedsiebiorcyZagranicznego",
+            "notyfikacjeBRIS",
+            "prawoPanstwa",
         ],
     )
 
@@ -455,7 +461,7 @@ def crawl_extract(context: Context, record: Record) -> None:
     dzial2 = dane.pop("dzial2", {})
     board = dzial2.pop("reprezentacja", None)
     if board is not None:
-        organ = board.pop("nazwaOrganu")
+        organ = board.pop("nazwaOrganu", None) or "reprezentacja"
         members = board.pop("sklad", [])
         crawl_directors(context, company, krs, organ, members, "funkcjaWOrganie")
         context.audit_data(board, ignore=["sposobReprezentacji"])
@@ -463,7 +469,7 @@ def crawl_extract(context: Context, record: Record) -> None:
         # Some associations list a supervisory organ without any details.
         if supervisory == {}:
             continue
-        organ = supervisory.pop("nazwa")
+        organ = supervisory.pop("nazwa", None) or "organNadzoru"
         members = supervisory.pop("sklad", [])
         crawl_directors(context, company, krs, organ, members, None)
         context.audit_data(supervisory)
@@ -471,7 +477,9 @@ def crawl_extract(context: Context, record: Record) -> None:
     crawl_directors(context, company, krs, "prokurenci", proxies, "rodzajProkury")
     # The people who represent a foreign company in its Polish branch.
     branch_reps = dzial2.pop("osobyReprezentujacePZ", [])
-    crawl_directors(context, company, krs, "osobyReprezentujacePZ", branch_reps, None)
+    crawl_directors(
+        context, company, krs, "osobyReprezentujacePZ", branch_reps, "funkcjaWOddziale"
+    )
     context.audit_data(dzial2, ignore=["reprezentacjaIBIGBPPSPZOZ", "pelnomocnicy"])
 
     dzial3 = dane.pop("dzial3", {})
