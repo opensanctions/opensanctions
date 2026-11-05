@@ -46,7 +46,7 @@ def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None
 def crawl_details_page(context: Context, entity: Entity, url: str) -> None:
     """Fetch the firm page, add its fields."""
     doc = fetch_html(
-        context, url, ".//h1", html_source="httpResponseBody", cache_days=7
+        context, url, ".//h1", html_source="httpResponseBody", cache_days=14
     )
     sections = h.xpath_elements(doc, SECTION_XPATH)
     if len(sections) == 0:
@@ -125,6 +125,8 @@ def crawl(context: Context) -> None:
             url,
             ITEMS_XPATH,
             html_source="httpResponseBody",
+            # Lets a same-day rerun resume after a transient Zyte error.
+            cache_days=1,
         )
         items = h.xpath_elements(doc, ITEMS_XPATH)
         if last_page is None:
