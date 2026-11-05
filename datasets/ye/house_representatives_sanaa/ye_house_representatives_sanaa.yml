@@ -5,27 +5,19 @@ coverage:
   frequency: monthly
   start: 2026-11-05
 load_statements: true
-# The site is behind a JavaScript bot challenge, so requests go through Zyte.
 ci_test: false
 summary: >-
   Leadership of the House of Representatives sitting in Houthi-controlled Sanaa
-# The split and the 2019 by-elections:
-# https://en.wikipedia.org/wiki/House_of_Representatives_(Yemen) and the Sana'a
-# Center's Yemen Review, April 2019:
-# https://sanaacenter.org/files/TYR_April_2019_en.pdf
 description: |
-  The presiding officers and committee chairs and rapporteurs of the House of
-  Representatives (Majlis al-Nuwwab) sitting in Sanaa. Since April 2019, when
-  members who had left Sanaa convened in Seiyun and elected Sultan al-Barakani
-  as Speaker, Yemen's House of Representatives has sat as two rival bodies. The
-  members who remained in Sanaa sit under Speaker Yahya al-Raee in the areas
-  controlled by the Houthi movement, which held by-elections in April 2019 to
-  fill vacant seats there.
+  The Speaker, Deputy Speakers and committee chairs and rapporteurs of the
+  House of Representatives (Majlis al-Nuwwab) sitting in Sanaa under Speaker
+  Yahya al-Raee, in the areas of Yemen controlled by the Houthi movement. The
+  source lists only this leadership, not the full membership.
 
-  The source lists only the house's leadership — the Speaker, the Deputy
-  Speakers and the chairs and rapporteurs of the standing committees — not its
-  full membership. The members of the house sitting under Speaker al-Barakani
-  are published in a [separate dataset](/datasets/ye_house_representatives/).
+  Yemen's House of Representatives has had two Speakers since April 2019, when
+  members meeting in Seiyun, in the government-held Hadramawt governorate,
+  elected Sultan al-Barakani. The members sitting under al-Barakani are
+  published in a [separate dataset](/datasets/ye_house_representatives/).
 url: https://yemenparliament.gov.ye/Members
 publisher:
   name: مجلس النواب اليمني
