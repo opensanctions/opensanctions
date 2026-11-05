@@ -52,6 +52,16 @@ names:
     - "(Clone of an FCA authorised firm)"
     - "(Clone of FCA registered firm)"
     - "(Clone of an EEA authorised firm)"
+    - "(Clone firm)"
+    - "(Clone of appointed representative firm)"
+    - "(Clone of FCA authorised appointed representative)"
+    - "(Clone of UK registered company)"
+    - "(Clone of a UK registered company)"
+    - "(Clone of former PSD agent)"
+    - "(Clone of appointed representative)"
+    - "(Clone of FCA firm)"
+    - "(Clone of FCA recognised fund)"
+    - "(Clone of previously FCA authorised firm)"
   schema_rules:
     LegalEntity:
       reject_chars: "/();"
