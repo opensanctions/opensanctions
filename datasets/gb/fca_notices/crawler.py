@@ -22,18 +22,23 @@ SECTION_XPATH = ".//section[@id='section-unauthorised-firm-details' or @id='sect
 
 
 def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None:
-    value = value.strip().strip(",")
+    value = value.strip().strip(",;")
     if not value:
         return
     prop = context.lookup_value("firm_details", label.lower())
     if prop is None:
         context.log.warning("Unhandled firm detail field", label=label, value=value)
         return
-    elif prop == "address":
+    elif prop in ("address", "notes"):
         entity.add(prop, value)
     elif prop == "name":
         # Repeats the warning list title, which is the name we use.
         return
+    elif prop == "website":
+        # e.g. "www.cederbergi.com; www.cederberge.com", "mftreasury.com / mftreasury.io",
+        # "http://www.liffexchange.co; http://www.lifoex.org;, http://..."
+        parts = h.multi_split(value, [",", "; ", " / ", " & "])
+        entity.add(prop, [part.rstrip(";") for part in parts])
     else:
         entity.add(prop, h.multi_split(value, [","]))
 
@@ -41,7 +46,7 @@ def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None
 def crawl_details_page(context: Context, entity: Entity, url: str) -> None:
     """Fetch the firm page, add its fields."""
     doc = fetch_html(
-        context, url, ".//h1", html_source="httpResponseBody", cache_days=7
+        context, url, ".//h1", html_source="httpResponseBody", cache_days=14
     )
     sections = h.xpath_elements(doc, SECTION_XPATH)
     if len(sections) == 0:
@@ -67,7 +72,8 @@ def crawl_item(context: Context, item: _Element) -> None:
     links = h.xpath_elements(item, "./th/a[@href]")
     if not links:
         return
-    name = h.strip_name_titles(context, h.element_text(links[0]))
+    raw_name = h.element_text(links[0])
+    name = h.strip_name_titles(context, raw_name)
     href = links[0].get("href")
     if not name or not href:
         return
@@ -86,8 +92,9 @@ def crawl_item(context: Context, item: _Element) -> None:
     h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
     entity.add("sourceUrl", url)
     entity.add("topics", "reg.warn")
-    # Older warning pages have no clone section, only the clone annotation in the name.
-    if CLONE_ANNOTATION.search(name):
+    # Older pages flag clones only in the title; check raw_name, as suffixes_strip
+    # removes common annotations like "(Clone of FCA authorised firm)" from name.
+    if CLONE_ANNOTATION.search(raw_name):
         entity.add("topics", "corp.clone")
 
     crawl_details_page(context, entity, url)
@@ -118,6 +125,8 @@ def crawl(context: Context) -> None:
             url,
             ITEMS_XPATH,
             html_source="httpResponseBody",
+            # Lets a same-day rerun resume after a transient Zyte error.
+            cache_days=1,
         )
         items = h.xpath_elements(doc, ITEMS_XPATH)
         if last_page is None:
