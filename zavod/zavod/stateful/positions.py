@@ -174,6 +174,11 @@ def occupancy_status(
     - ``periodEnd`` (term/period end): past implies ENDED, future implies UNKNOWN
       (e.g. a parliamentary term may still be running but the person may have left)
 
+    Without an end date, the latest ``declarationDate`` is the last date the person
+    is known to have held the position. Once it is older than the after-office
+    period, the person is not considered a PEP. A declaration within that period
+    also overrides the maximum-time-in-office check on the start date.
+
     A death date in the past caps the status at ENDED: a deceased person is never
     emitted as a CURRENT or UNKNOWN office-holder.
 
@@ -199,6 +204,7 @@ def occupancy_status(
 
     end_date = max(occupancy.get("endDate"), default=None)
     period_end = max(occupancy.get("periodEnd"), default=None)
+    declaration_date = max(occupancy.get("declarationDate"), default=None)
 
     if not (
         death_date
@@ -206,6 +212,7 @@ def occupancy_status(
         or end_date
         or period_end
         or effective_start_date
+        or declaration_date
         or no_end_implies_current
     ):
         # If we don't have any dates to work with, nor a really well-maintained source,
@@ -264,7 +271,13 @@ def occupancy_status(
         else:
             return OccupancyStatus.ENDED
 
-    if effective_start_date is not None and ended_before(
+    if declaration_date is not None:
+        # A declaration shows the person held the position on that date, so treat
+        # it as the last known in-office date and apply the after-office period
+        # from there.
+        if ended_before(declaration_date, current_time - after_office):
+            return None
+    elif effective_start_date is not None and ended_before(
         effective_start_date, current_time - MAX_OFFICE
     ):
         # start_date is older than MAX_OFFICE threshold - probably not a PEP
