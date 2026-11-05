@@ -12,3 +12,5 @@ summary: US citizens targeted by the Russian Federation with personal sanctions,
   of its actions on the global stage.
 issuer: ru_mfa
 dataset: ru_mfa_sanctions
+target_territories:
+  - us

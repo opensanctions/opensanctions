@@ -10,6 +10,8 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 2713
+target_territories:
+- so
 measures:
 - Arms restrictions
 - Asset freeze

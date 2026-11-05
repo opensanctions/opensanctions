@@ -12,7 +12,7 @@ dataset: un_sc_sanctions
 aliases:
 - Resolution 1533
 target_territories:
-- cg
+- cd
 measures:
 - Arms embargo
 - Asset freeze

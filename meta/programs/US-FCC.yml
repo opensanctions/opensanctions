@@ -21,5 +21,8 @@ aliases:
   - Secure and Trusted Communications Networks Act of 2019
   - Secure Networks Act
   - Public Law 116-124
+target_territories:
+  - cn
+  - ru
 measures:
   - Import restrictions

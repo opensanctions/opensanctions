@@ -64,7 +64,7 @@ from an earlier metadata system.
   well-established abbreviations. Do not use aliases for names of designated
   entities.
 - `target_territories`: List lowercase territory codes for the territories a
-  regime is directed at. Codes are validated against rigour's territory
+  regime concerns. Codes are validated against rigour's territory
   registry, which extends ISO 3166-1 alpha-2 with historical entities (e.g.
   `csxx` for Serbia and Montenegro) and the pseudo-territories `zz` (global)
   and `ip` (cyberspace). Use `zz` when worldwide reach is a defining feature

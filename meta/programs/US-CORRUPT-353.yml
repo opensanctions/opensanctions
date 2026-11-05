@@ -20,5 +20,10 @@ aliases:
   - Engel List
   - United States–Northern Triangle Enhanced Engagement Act
   - 22 U.S.C. § 2277a
+target_territories:
+  - sv
+  - gt
+  - hn
+  - ni
 measures:
   - Travel ban
