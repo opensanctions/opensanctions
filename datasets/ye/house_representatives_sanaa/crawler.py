@@ -28,28 +28,12 @@ def fetch_listing(context: Context, page: int) -> etree._Element:
     return html.fromstring(f"<div>{json.loads(res.response_text)['d']}</div>")
 
 
-def crawl_member(context: Context, card: etree._Element) -> None:
-    category = h.element_text(h.xpath_element(card, ".//div[@class='category']"))
-    href = h.xpath_string(card, ".//div[@class='thumbnail']//a/@href")
-    url = urljoin(context.data_url, f"/{href}")
-    doc = zyte_api.fetch_html(
-        context,
-        url,
-        unblock_validator=".//div[@id='MainContent_personalinformation']",
-        html_source="httpResponseBody",
-    )
-    # Each field is a "label: value" list item behind an icon.
-    row: dict[str, str] = {}
-    for li in h.xpath_elements(doc, ".//div[starts-with(@id, 'MainContent_')]/ul/li"):
-        label, sep, value = h.element_text(li).partition(":")
-        assert sep == ":", (url, label)
-        key = context.lookup_value("columns", label.strip(), warn_unmatched=True)
-        assert key is not None, (url, label)
-        row[key] = value.strip()
-
+def crawl_person(
+    context: Context, member_id: str, url: str, category: str, row: dict[str, str]
+) -> None:
     name = row.pop("name")
     person = context.make("Person")
-    person.id = context.make_slug(href.split("=")[-1])
+    person.id = context.make_slug(member_id)
     person.add("name", name, lang="ara")
     apply_translit_full_name(context, person, LangText(name, "ara"))
     dob = row.pop("birth_date")
@@ -113,12 +97,36 @@ def crawl_member(context: Context, card: etree._Element) -> None:
     )
 
 
+def crawl_profile(context: Context, card: etree._Element) -> None:
+    category = h.element_text(h.xpath_element(card, ".//div[@class='category']"))
+    href = h.xpath_string(card, ".//div[@class='thumbnail']//a/@href")
+    url = urljoin(context.data_url, f"/{href}")
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=".//div[@id='MainContent_personalinformation']",
+        html_source="httpResponseBody",
+    )
+    # Each field is a "label: value" list item behind an icon.
+    row: dict[str, str] = {}
+    for li in h.xpath_elements(doc, ".//div[starts-with(@id, 'MainContent_')]/ul/li"):
+        label, sep, value = h.element_text(li).partition(":")
+        assert sep == ":", (url, label)
+        key = context.lookup_value("columns", label.strip(), warn_unmatched=True)
+        assert key is not None, (url, label)
+        row[key] = value.strip()
+    crawl_person(context, href.split("=")[-1], url, category, row)
+
+
 def crawl(context: Context) -> None:
     for page in count(1):
         doc = fetch_listing(context, page)
         cards = h.xpath_elements(doc, ".//div[contains(@class, 'post-module-member')]")
-        # The page after the last one holds only the pagination links.
-        if len(cards) == 0:
-            break
+        assert len(cards) > 0, page
         for card in cards:
-            crawl_member(context, card)
+            crawl_profile(context, card)
+        # Every page but the last links to the next one as Members(<page>,0).
+        next_links = h.xpath_strings(doc, ".//span[@aria-label='Next']/@onclick")
+        if len(next_links) == 0:
+            break
+        assert next_links == [f"Members({page + 1},0)"], (page, next_links)
