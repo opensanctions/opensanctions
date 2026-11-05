@@ -1,0 +1,131 @@
+title: Egypt Members of the Senate
+prefix: eg-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-20
+load_statements: true
+summary: >-
+  Elected and presidentially appointed legislators of Egypt's upper parliamentary chamber
+description: |
+  Members of the Senate (مجلس الشيوخ, Majlis al-Shuyukh), the upper chamber of Egypt's
+  bicameral parliament. Two thirds of its members are directly elected —
+  half of those from individual-candidacy constituencies and half from closed party lists —
+  and one third is appointed by the President, each serving a five-year term. Unlike the
+  House of Representatives, the Senate has an advisory role: it gives its opinion on
+  constitutional amendments, draft laws and the state's development plans.
+
+  Elected members come from the National Election Authority's election results, and the
+  presidential appointees from the State Information Service (الهيئة العامة للاستعلامات),
+  the government's official information agency. Coverage spans the chamber's terms since
+  its re-establishment in 2020. Each term's members are listed as the chamber was
+  constituted after the election and are not updated for later deaths, resignations or
+  by-elections, so whether a member of the current term still holds the seat is unknown.
+  For the 2020–2025 term only members elected in the first round of voting are included;
+  the runoff winners and the presidential appointees are missing.
+url: https://www.elections.eg/
+publisher:
+  name: الهيئة الوطنية للانتخابات
+  name_en: National Election Authority
+  acronym: NEA
+  description: >
+    The National Election Authority is the independent body that administers
+    presidential, parliamentary and local elections and referendums in Egypt.
+  url: https://www.elections.eg/
+  country: eg
+  official: true
+data:
+  url: https://www.elections.eg/
+  format: HTML
+  lang: ara
+http:
+  # sis.gov.eg, which lists the presidential appointees, sits behind a CDN that can
+  # reject non-browser clients.
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/124.0.0.0 Safari/537.36
+
+tags:
+  - list.pep
+
+# There is no Senate website with a member directory. The roster is assembled from the
+# National Election Authority's results for each Senate election in the site's archive
+# menu (elected members), and the State Information Service's article on Presidential
+# Decree 575/2025 (appointees of the current term). The final round's results page
+# lists all of an election's winners, except in 2020, whose runoff page was published
+# empty: that term falls back to the first round, which misses the runoff winners and
+# says "لا يوجد مرشحين فائزين" (no winning candidates) where a constituency's seats all
+# went to the runoff. The sources are snapshots of the chamber as constituted and
+# won't reflect deaths, resignations or by-elections, so occupancies of the current
+# term are emitted with status unknown rather than current. Each earlier term ends in
+# the year of the next election.
+# The appointees article is specific to the 2025 term: once the NEA publishes the next
+# election, the crawler fails until APPOINTEES_URL points to the new decree. No Arabic
+# or Official Gazette text of Decree 575/2025 is published online by a government
+# body; Arabic name lists exist only in news reports.
+names:
+  prefixes_strip:
+    # Doctor
+    - الدكتور
+    - د/
+    - دكتور
+    - دكتور/
+    # Major general
+    - اللواء
+    - "لواء /"
+
+lookups:
+  columns:
+    required: true
+    options:
+      # Individual-candidacy winners
+      - match: اسم المرشح # Candidate name
+        value: name
+      - match: اسم الشهرة # Known as
+        value: alias
+      - match: الانتماء الحزبي # Party affiliation
+        value: party
+      # Closed-list candidates
+      - match: الترتيب في القائمة # Rank on the list
+        value: list_rank
+      - match: الاسم الكامل # Full name
+        value: name
+      - match: مستقل/الانتماء الحزبي # Independent/party affiliation
+        value: party
+      - match: النوع # Gender
+        value: gender
+      # 2020 results
+      - match: مسلسل # Serial number
+        value: serial
+      - match: صفة المرشح # Candidate category (the quota a list place was reserved for)
+        value: quota
+  type.name:
+    options:
+      - match: "-"
+        value: null
+      - match: Suleiman Salman Mousa Ibrahim El-Zamlout.
+        value: Suleiman Salman Mousa Ibrahim El-Zamlout
+  type.gender:
+    options:
+      - match: ذكر
+        value: male
+      - match: انثى
+        value: female
+      # The 2020 list results give the quota a candidate's place was reserved for:
+      # women, or "-" for none.
+      - match: مرأة # Woman
+        value: female
+      - match: "-"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 380
+      Position: 1
+    country_entities:
+      eg: 380
+  max:
+    schema_entities:
+      Person: 900
+      Position: 1
