@@ -1,5 +1,4 @@
 title: Yemen House of Representatives Leadership (Sanaa)
-name: ye_house_representatives_sanaa
 prefix: ye-hors
 entry_point: crawler.py
 coverage:
@@ -9,30 +8,31 @@ load_statements: true
 # The site is behind a JavaScript bot challenge, so requests go through Zyte.
 ci_test: false
 summary: >-
-  Speaker, Deputy Speakers and committee officers of the Sanaa-based House of
-  Representatives under the Houthi administration
+  Leadership of the House of Representatives sitting in Houthi-controlled Sanaa
+# The split and the 2019 by-elections:
+# https://en.wikipedia.org/wiki/House_of_Representatives_(Yemen) and the Sana'a
+# Center's Yemen Review, April 2019:
+# https://sanaacenter.org/files/TYR_April_2019_en.pdf
 description: |
   The presiding officers and committee chairs and rapporteurs of the House of
-  Representatives (Majlis al-Nuwwab) sitting in Sanaa. Since 2019, Yemen's
-  House of Representatives has been split: the members aligned with the
-  internationally recognised government and the Presidential Leadership Council
-  convene under Speaker Sultan al-Barakani, while the members who remained in
-  Sanaa sit under Speaker Yahya al-Raee in the areas controlled by the Houthi
-  movement (Ansar Allah). The Sanaa-based house filled vacant seats through
-  by-elections in 2019 that the recognised government does not accept.
+  Representatives (Majlis al-Nuwwab) sitting in Sanaa. Since April 2019, when
+  members who had left Sanaa convened in Seiyun and elected Sultan al-Barakani
+  as Speaker, Yemen's House of Representatives has sat as two rival bodies. The
+  members who remained in Sanaa sit under Speaker Yahya al-Raee in the areas
+  controlled by the Houthi movement, which held by-elections in April 2019 to
+  fill vacant seats there.
 
   The source lists only the house's leadership — the Speaker, the Deputy
-  Speakers and the chair and rapporteur of each standing committee — not its
-  full membership. The members of the recognised house are published in a
-  separate dataset.
+  Speakers and the chairs and rapporteurs of the standing committees — not its
+  full membership. The members of the house sitting under Speaker al-Barakani
+  are published in a [separate dataset](/datasets/ye_house_representatives/).
 url: https://yemenparliament.gov.ye/Members
 publisher:
   name: مجلس النواب اليمني
   name_en: House of Representatives of Yemen (Sanaa)
   description: >
     The House of Representatives sitting in Sanaa under Speaker Yahya al-Raee,
-    in the areas controlled by the Houthi movement. It is not recognised by the
-    internationally recognised government of Yemen.
+    in the areas controlled by the Houthi movement.
   url: https://yemenparliament.gov.ye/
   country: ye
   official: true
