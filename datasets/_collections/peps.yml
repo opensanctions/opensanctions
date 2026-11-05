@@ -97,6 +97,7 @@ children:
   - dz_council_nation
   - ee_riigikogu
   - eg_house_representatives
+  - eg_senate
   - es_mayors_councillors
   - es_parliament
   - et_hopr
