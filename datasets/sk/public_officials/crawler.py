@@ -122,7 +122,6 @@ def crawl_person(
         context.emit(occupancy)
         has_occupancy = True
     if has_occupancy:
-        person.add("topics", "role.pep")
         context.emit(person)
 
 
