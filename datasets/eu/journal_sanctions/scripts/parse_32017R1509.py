@@ -358,6 +358,10 @@ VESSEL_RELATION_LABELS = frozenset({"Associated entity (vessel)"})
 # Entity entries printing a KPP are emitted as Company, the only schema
 # carrying kppCode.
 COMPANY_PROPS = frozenset({"kppCode"})
+# XVI part (b) entries pinned to Company although they print no KPP: entry 12
+# (“Samolet Group of Companies” PJSC) prints OGRN and INN and is a PJSC, and
+# the reviewed amendment 32026R2278 transcribes it as Company.
+XVI_B_COMPANY_PINS = frozenset({"12"})
 # XV part (f) entries that are shipping companies, not vessels: entry 3
 # (Paekyangsan Shipping Co Ltd) prints its IMO company number and names the
 # vessel it operates. Organization-family imoNumber carries the number.
@@ -984,6 +988,8 @@ def parse_annex_xvi(roman: str, block: Element) -> list[Row]:
             else:
                 parse_location_cell(ctx, cells[2], row)
                 if any(prop in row.props for prop in COMPANY_PROPS):
+                    row.schema = "Company"
+                elif record_id in XVI_B_COMPANY_PINS:
                     row.schema = "Company"
             row.start_date = parse_date_cell(ctx, annex_part, record_id, cells[3])
             row.reason = parse_reason_cell(ctx, cells[4])
