@@ -1,0 +1,130 @@
+title: Yemen House of Representatives Leadership (Sanaa)
+name: ye_house_representatives_sanaa
+prefix: ye-hors
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-05
+load_statements: true
+# The site is behind a JavaScript bot challenge, so requests go through Zyte.
+ci_test: false
+summary: >-
+  Speaker, Deputy Speakers and committee officers of the Sanaa-based House of
+  Representatives under the Houthi administration
+description: |
+  The presiding officers and committee chairs and rapporteurs of the House of
+  Representatives (Majlis al-Nuwwab) sitting in Sanaa. Since 2019, Yemen's
+  House of Representatives has been split: the members aligned with the
+  internationally recognised government and the Presidential Leadership Council
+  convene under Speaker Sultan al-Barakani, while the members who remained in
+  Sanaa sit under Speaker Yahya al-Raee in the areas controlled by the Houthi
+  movement (Ansar Allah). The Sanaa-based house filled vacant seats through
+  by-elections in 2019 that the recognised government does not accept.
+
+  The source lists only the house's leadership — the Speaker, the Deputy
+  Speakers and the chair and rapporteur of each standing committee — not its
+  full membership. The members of the recognised house are published in a
+  separate dataset.
+url: https://yemenparliament.gov.ye/Members
+publisher:
+  name: مجلس النواب اليمني
+  name_en: House of Representatives of Yemen (Sanaa)
+  description: >
+    The House of Representatives sitting in Sanaa under Speaker Yahya al-Raee,
+    in the areas controlled by the Houthi movement. It is not recognised by the
+    internationally recognised government of Yemen.
+  url: https://yemenparliament.gov.ye/
+  country: ye
+  official: true
+data:
+  url: https://yemenparliament.gov.ye/PWS.asmx/Members
+  format: HTML
+  lang: ara
+dates:
+  formats: ["%Y/%m/%d"]
+
+tags:
+  - list.pep
+
+lookups:
+  # Profile labels -> English keys.
+  columns:
+    options:
+      - match: "الاسم" # name
+        value: name
+      - match: "تاريخ الميلاد" # date of birth
+        value: birth_date
+      - match: "محل الميلاد" # place of birth
+        value: birth_place
+      - match: "المؤهل العلمي" # education
+        value: education
+      - match: "العمل الحالي" # current post
+        value: current_post
+      - match: "المحافظة" # governorate
+        value: governorate
+      - match: "المديرية" # district
+        value: district
+      - match: "الدائرة" # electoral constituency
+        value: constituency
+      - match: "اللجنة" # committee
+        value: committee
+      - match: "صفتة في اللجنة" # role in committee
+        value: committee_role
+      - match: "الانتماء" # affiliation
+        value: political
+      - match: "بيانات أخرى" # other details
+        value: notes
+  # Listing category -> positions held. Committee officers are listed under
+  # their committee and hold only the membership; presiding officers keep their
+  # seat as well.
+  position:
+    required: true
+    options:
+      - match:
+          - الشؤون الدستورية والقانونية
+          - التنمية و النفط والثروات المعدنية
+          - التجارة والصناعة
+          - الشؤون المالية
+          - التربية والتعليم
+          - التعليم العالي والشباب والرياضة
+          - الإعلام والثقافة والسياحة
+          - الخدمات
+          - الصحة العامة والسكان
+          - النقل والإتصالات
+          - الزراعة والري والثروة السمكية
+          - القوى العاملة والشؤون الاجتماعية
+          - الشؤون الخارجية والمغتربين
+          - العدل والأوقاف
+          - تقنين أحكام الشريعة الإسلامية
+          - الدفاع والأمن
+          - السلطة المحلية
+          - العرائض والشكاوى
+          - الحريات العامة وحقوق الإنسان
+          - المياه والبيئة
+        value: Member of the House of Representatives of Yemen (Sanaa)
+      - match: الرئيس # Speaker
+        values:
+          - Speaker of the House of Representatives of Yemen (Sanaa)
+          - Member of the House of Representatives of Yemen (Sanaa)
+      - match: نواب الرئيس # Deputy Speakers
+        values:
+          - Deputy Speaker of the House of Representatives of Yemen (Sanaa)
+          - Member of the House of Representatives of Yemen (Sanaa)
+  type.date:
+    options:
+      # Member?M=46 (Abdu Mahdi Hassan al-Adlah) gives a birth date in 2018,
+      # which is certainly wrong; the intended date cannot be established.
+      - match: "2018-10-16"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 38
+      Position: 3
+    country_entities:
+      ye: 38
+  max:
+    schema_entities:
+      Person: 60
+      Position: 3
