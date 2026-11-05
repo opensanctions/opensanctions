@@ -377,6 +377,67 @@ def test_statements_preserves_consolidated_removals() -> None:
     assert person.get("name") == ["John Doe"]
 
 
+def test_statements_preserves_removals_of_looked_up_neighbours() -> None:
+    """Statements export must include all original statements of an entity
+    even when an earlier entity's export looked it up and consolidated it.
+
+    The traversal runs in canonical id order, so the target "a-person" is
+    exported first, and its nested export looks up its address "z-address"
+    while the address is still waiting for its own turn in the batch."""
+    catalog = get_catalog()
+    # One dataset per entity: emit_entity runs a whole crawl of its dataset.
+    ds_person = Dataset({"name": "test_stmts_nb_ds_person"})
+    ds_a = Dataset({"name": "test_stmts_nb_ds_a"})
+    ds_b = Dataset({"name": "test_stmts_nb_ds_b"})
+    collection = Dataset(
+        {
+            "name": "test_stmts_nb_collection",
+            "children": [ds_person.name, ds_a.name, ds_b.name],
+            "exports": ["statements.csv", "targets.nested.json"],
+        }
+    )
+    catalog.add(ds_person)
+    catalog.add(ds_a)
+    catalog.add(ds_b)
+    catalog.add(collection)
+
+    emit_entity(
+        ds_person,
+        "Person",
+        id_="a-person",
+        properties={
+            "name": ["Jane Doe"],
+            "topics": ["sanction"],
+            "addressEntity": ["z-address"],
+        },
+    )
+    emit_entity(
+        ds_a,
+        "Address",
+        id_="z-address",
+        properties={"full": ["1 Main Street"], "modifiedAt": ["2023-01-01"]},
+    )
+    emit_entity(
+        ds_b,
+        "Address",
+        id_="z-address",
+        properties={"full": ["1 Main Street"], "modifiedAt": ["2024-01-01"]},
+    )
+
+    export(collection)
+
+    # Consolidation keeps only the latest modifiedAt, drops some equivalent names, etc,
+    # but the statements export must maintain all original statements.
+    dataset_path = dataset_artifact_directory(collection.name, settings.RUN_VERSION)
+    stmts = list(read_path_statements(dataset_path / "statements.csv", CSV))
+    modified = {
+        s.value
+        for s in stmts
+        if s.prop == "modifiedAt" and s.canonical_id == "z-address"
+    }
+    assert modified == {"2023-01-01", "2024-01-01"}, modified
+
+
 def test_consolidate_names_never_remove_ofac_names():
     ds_high_quality = Dataset({"name": "us_ofac_sdn"})
     ds_low_quality = Dataset({"name": "xx_garbage"})
