@@ -228,6 +228,8 @@ lookups:
           - "SEC WARNING ON \u201cADVANCE FEE LOAN SCAMS\u00a0and MONEY MULING\u201d"
           - "UNREGISTERED CRYPTO PLATFORMS CONTINUE TO TARGET FILIPINOS — SEC TO ENFORCE SANCTIONS AGAINST VIOLATORS"
           - "ADVISORY ON PREVIOUSLY IMPOSED PENALTIES AGAINST CERTAIN FINANCING AND LENDING COMPANIES"
+          # The named company is the victim of identity misuse; the scammers are unnamed.
+          - "PUBLIC ADVISORY ON THE UNAUTHORIZED USE OF THE CORPORATE IDENTITY OF 4 EL CITY LENDING CORPORATION IN ADVANCE-FEE LOAN SCAM"
         ignore: true
       - match: UMETA CREDIT LENDING CORP. doing business under the name/s and style/s of More Pautang Lending, MetaPeso Lending, MoreJuan Lending and MetaCash Lending
         name:
@@ -482,3 +484,6 @@ lookups:
         name: "BMJ DATA PROCESSING SERVICES"
       - match: GAINEXPRESS
         name: "GAINEXPRESS"
+      # SOFI Financing Inc. is the victim of identity misuse by Peso Flow.
+      - match: "PUBLIC ADVISORY UNAUTHORIZED USE OF THE CORPORATE IDENTITY OF SOFI FINANCING INC. BY “PESO FLOW”"
+        name: "PESO FLOW"
