@@ -1,4 +1,5 @@
 import csv
+import re
 from contextlib import contextmanager
 from io import TextIOWrapper
 from pathlib import Path
@@ -7,6 +8,7 @@ from collections.abc import Generator
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
+from followthemoney.types import registry
 from lxml import etree
 from normality import slugify
 
@@ -22,6 +24,8 @@ CAT_URL = "https://www.gleif.org/en/lei-data/gleif-concatenated-file/download-th
 BIC_URL = "https://mapping.gleif.org/api/v2/bic-lei/latest/download"
 ISIN_URL = "https://mapping.gleif.org/api/v2/isin-lei/latest/download"
 OC_URL = "https://mapping.gleif.org/api/v2/oc-lei/latest/download"
+
+BR_TAG = re.compile(r"\s*,?\s*<br\s*/?>\s*", re.IGNORECASE)
 
 RELATIONSHIPS: dict[str, tuple[str, str, str]] = {
     "IS_FUND-MANAGED_BY": ("Directorship", "organization", "director"),
@@ -44,12 +48,24 @@ ADDRESS_PARTS: dict[str, str] = {
 }
 
 
+def clean_text(text: str | None) -> str | None:
+    """Turn markup-like source text into plain text.
+
+    Angle brackets are used as quotes or room numbers ("<one> GmbH", "8号<8-6>室"),
+    so they become look-alike quotation marks instead of being stripped.
+    """
+    if text is None:
+        return None
+    text = BR_TAG.sub(", ", text)
+    return text.replace("<", "‹").replace(">", "›")
+
+
 def parse_address(entity: Entity, el: Element | None) -> None:
     if el is None:
         return
     parts: dict[str, str | None] = {}  # FirstAddressLine
     for tag, key in ADDRESS_PARTS.items():
-        parts[key] = el.findtext(tag)
+        parts[key] = clean_text(el.findtext(tag))
     country_code = parts.get("country_code")
     state = parts.get("state")
     if state is not None and country_code is not None:
@@ -59,6 +75,9 @@ def parse_address(entity: Entity, el: Element | None) -> None:
         if state == country_code:
             parts["state"] = None
     address = h.format_address(**parts)
+    if address is not None and len(address) > registry.address.max_length:
+        # Some street lines run to a paragraph of directions; keep the locality.
+        address = h.format_address(**{**parts, "street": None, "street2": None})
     if address is not None:
         entity.add("address", address, lang=el.get("lang"))
 
@@ -189,7 +208,7 @@ def parse_lei_record(
         return
     name = entity.find("LegalName")
     if name is not None:
-        proxy.add("name", name.text, lang=name.get("lang"))
+        proxy.add("name", clean_text(name.text), lang=name.get("lang"))
     proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
 
     status = entity.findtext("EntityStatus")
@@ -229,7 +248,9 @@ def parse_lei_record(
     authority = entity.find("RegistrationAuthority")
     if authority is not None:
         reg_id = authority.findtext("RegistrationAuthorityEntityID")
-        proxy.add("registrationNumber", reg_id)
+        # Some registers give a prose citation ("Tomo 5, Folio 77, Hoja M-6").
+        if reg_id is not None and len(reg_id) <= registry.identifier.max_length:
+            proxy.add("registrationNumber", reg_id)
 
     proxy.add_cast("Company", "swiftBic", bics.get(lei))
     proxy.add("leiCode", lei, quiet=True)
