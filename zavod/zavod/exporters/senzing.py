@@ -117,6 +117,8 @@ ID_PROP_TYPES: dict[str, tuple[str, str, str | None, str | None]] = {
     "okpoCode": ("OTHER_ID", "OKPO", "ru", None),
     "giiNumber": ("OTHER_ID", "GIIN", None, None),
     "permId": ("OTHER_ID", "PERMID", None, None),
+    # A security holds one FIGI per listing: many per entity, each unique to one instrument.
+    "figiCode": ("OTHER_ID", "FIGI", None, None),
     "uniqueEntityId": ("OTHER_ID", "SAM_UEI", "us", None),
     "cageCode": ("OTHER_ID", "CAGE", None, None),
     "cikCode": ("OTHER_ID", "CIK", "us", None),

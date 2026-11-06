@@ -269,3 +269,34 @@ def test_features_shape(tmp_path):
     assert not [
         k for k, v in record.items() if k != "FEATURES" and isinstance(v, (list, dict))
     ]
+
+
+def test_figi_many_per_security(tmp_path):
+    """A security holds one FIGI per listing: each becomes its own OTHER_ID typed FIGI."""
+    ds = Dataset({"name": "test", "title": "Test"})
+    security = Entity(
+        ds,
+        {
+            "schema": "Security",
+            "id": "s",
+            "properties": {
+                "name": ["Example Shares"],
+                "figiCode": ["BBG000000001", "BBG000000002"],
+            },
+        },
+    )
+
+    class View:
+        def get_adjacent(self, entity):
+            return iter(())
+
+    exporter = SenzingExporter.__new__(SenzingExporter)
+    exporter.dataset = ds
+    exporter.path = tmp_path / "senzing.json"
+    exporter.setup()
+    exporter.feed(security, View())
+    exporter.fh.close()
+    (record,) = map(loads, open(exporter.path))
+    figis = [f for f in record["FEATURES"] if f.get("OTHER_ID_TYPE") == "FIGI"]
+    assert sorted(f["OTHER_ID_NUMBER"] for f in figis) == ["BBG000000001", "BBG000000002"]
+    assert not [f for f in record["FEATURES"] if f.get("OTHER_ID_TYPE") == "figiCode"]
