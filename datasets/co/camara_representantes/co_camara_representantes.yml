@@ -1,0 +1,70 @@
+title: Colombia Members of the Chamber of Representatives
+prefix: co-cam
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-06
+load_statements: true
+summary: >-
+  Elected legislators of the lower house of Colombia's bicameral Congress
+description: |
+  Current and historical members of the Chamber of Representatives (Cámara de
+  Representantes), the lower house of the Congress of the Republic of Colombia. Its
+  members are elected for a four-year term by proportional representation, in
+  territorial constituencies formed by each department and the capital district, and in
+  special constituencies for Afro-Colombian and indigenous communities and Colombians
+  abroad. Together with the Senate, the chamber holds the country's legislative power,
+  including passing laws and approving the budget.
+
+  Members are listed by legislative year. A member who leaves the chamber during a
+  legislative year remains listed until that year ends. Legislative years before 2016
+  are only partly covered.
+url: https://www.camara.gov.co/representantes/
+publisher:
+  name: Cámara de Representantes
+  name_en: Chamber of Representatives of Colombia
+  description: >
+    The Chamber of Representatives is the lower house of the Congress of the Republic
+    of Colombia.
+  url: https://www.camara.gov.co/
+  country: co
+  official: true
+data:
+  url: https://www.camara.gov.co/representantes/
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+# Members come from the AJAX action `cargar_representantes_legislatura`, one call per
+# legislative year listed in the page's `select-legislatura` dropdown.
+# A year's list keeps members who left mid-year, with no per-member dates, so they stay
+# current until the next year starts on 20 July.
+# Occupancies are dated by the label's years, so the previous year is unknown, not
+# ended, until 31 December.
+# Years before 2016 are sparse; some before 2014 are empty.
+
+lookups:
+  # Member group keys; the opposition seat is not a constituency.
+  constituency:
+    options:
+      - match: OPOSICIÓN
+        value: null
+  # The opposition seat gives its legal basis as its party.
+  political:
+    options:
+      - match: C.P. Art. 112, A.L. 02 de 2015 Art. 1 y Est. de Oposición Ley, 1909 de 2018 Art. 24
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 480
+      Position: 1
+    country_entities:
+      co: 480
+  max:
+    schema_entities:
+      Person: 1150
+      Position: 1
