@@ -1,0 +1,152 @@
+title: Bangladesh Members of Parliament
+entry_point: crawler.py
+prefix: bd-parl
+coverage:
+  frequency: monthly
+  start: 2026-11-06
+load_statements: true
+ci_test: true
+summary: >-
+  Unicameral national legislature of directly elected and women's reserved seats
+description: |
+  Current and historical members of the Parliament of Bangladesh (Jatiya Sangsad), the
+  country's unicameral national legislature. Most of its members are directly elected
+  in single-member constituencies for five-year terms; the remaining seats are
+  reserved for women and allocated to parties in proportion to their seats. Members
+  hold the country's legislative power, including passing laws and approving the
+  budget.
+
+  The dataset also covers the Speaker, the Deputy Speaker, the Leader of the
+  Opposition and the Prime Minister, where the parliament records these roles for a
+  member.
+url: https://www.parliament.gov.bd/members/list-of-members
+publisher:
+  name: বাংলাদেশ জাতীয় সংসদ
+  name_en: Parliament of Bangladesh
+  description: >
+    The Jatiya Sangsad is the national parliament of Bangladesh, a unicameral
+    legislature of 350 members.
+  url: https://www.parliament.gov.bd/
+  country: bd
+  official: true
+data:
+  url: https://www.parliament.gov.bd/members/list-of-members
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+# Per-member start dates are kept as published, although a few are stale: some
+# members re-elected to the 12th parliament still carry 2019-01-03, the start of
+# their 11th-parliament term, and one 10th-parliament member carries a 2023 date.
+# The occupancy's periodStart/periodEnd still date the term correctly.
+#
+# The source omits members of older parliaments: the 10th parliament (2014-2019,
+# 350 seats) lists only 220 members.
+
+names:
+  prefixes_strip:
+    - Dr.
+    - "Dr "
+    - Mr.
+    - Mrs.
+    - Alhaj
+    - Haji
+    - Advocate
+    - Barrister
+    - Engineer
+    - Prof.
+    - Professor
+    - Capt.
+    - Col.
+    - Major
+    - Major General
+    - Brig. General
+  suffixes_strip:
+    - (Retd)
+    # Gallantry awards of the 1971 Liberation War
+    - Bir Uttam
+    - Bir Bikram
+    - Bir Protik
+
+lookups:
+  type.date:
+    options:
+      # Placeholders for an unknown date: 1900-01-01 on birth dates, 1970-01-01 (the
+      # Unix epoch) on birth dates and on the start dates of the 11th parliament.
+      - match:
+          - "1900-01-01"
+          - "1970-01-01"
+        value: null
+  type.email:
+    options:
+      - match: "chittagong.8@parliament.gov.bd, nomanal0809@gmail.com"
+        values:
+          - chittagong.8@parliament.gov.bd
+          - nomanal0809@gmail.com
+      - match: "laxmipur.1@parliament.gov.bd / shahadatsalim66@gmail.com"
+        values:
+          - laxmipur.1@parliament.gov.bd
+          - shahadatsalim66@gmail.com
+      # Official constituency addresses, truncated or with a stray space.
+      - match: chapainawabganj.1@parliament.g...
+        value: chapainawabganj.1@parliament.gov.bd
+      - match:
+          - chapainawabganj.2@parliament.g...
+          - chapai nawabganj.2@parliament.gov.bd
+        value: chapainawabganj.2@parliament.gov.bd
+      - match:
+          - chapainawabganj.3@parliament.g...
+          - chapai nawabganj.3@parliament.gov.bd
+        value: chapainawabganj.3@parliament.gov.bd
+      # Not an email, or broken in a way that can't be repaired without guessing.
+      - match:
+          - "0111781"
+          - sadik Riyaz
+          - tahsin _ali@yahoo.com
+          - rahman7032@gmail
+          - shahid@marafie_kwt.com
+        value: null
+  # Per-term status. Only "active" terms are current without an end date; "died"
+  # also sets deathDate.
+  term_status:
+    options:
+      - match: Active
+        value: active
+      - match: [Completed, Resigned, Cancelled]
+        value: ended
+      - match: Died
+        value: died
+  # Keyed on the source's per-term role flags.
+  position:
+    required: true
+    options:
+      - match: isPm
+        name: Prime Minister of Bangladesh
+        wikidata_id: Q14565638
+        topics: [gov.national, gov.executive, gov.head]
+      - match: isSpeaker
+        name: Speaker of the Jatiya Sangsad
+        wikidata_id: Q16156581
+        topics: [gov.national, gov.legislative]
+      - match: isDeputySpeaker
+        name: Deputy Speaker of the Jatiya Sangsad
+        wikidata_id: Q6597936
+        topics: [gov.national, gov.legislative]
+      - match: isOppositionLeader
+        name: Leader of the Opposition of Bangladesh
+        wikidata_id: Q17068161
+        topics: [gov.national, gov.legislative]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+      Position: 1
+    country_entities:
+      bd: 1000
+  max:
+    schema_entities:
+      Person: 2000
+      Position: 5
