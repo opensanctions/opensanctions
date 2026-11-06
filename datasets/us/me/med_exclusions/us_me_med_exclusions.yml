@@ -35,9 +35,12 @@ publisher:
   country: "us"
 url: "https://mainecare.maine.gov/mhpviewer.aspx?FID=MEEX"
 data:
-  url: https://mainecare.maine.gov/PrvExclRpt/Forms/AllItems.aspx
-  format: XLSX
+  url: https://mainecare.maine.gov/SPDocumentLibrary/DocumentLibrary/Monthly%20Provider%20Exclusion%20Report
+  format: PDF
   lang: eng
+
+dates:
+  formats: ["%m/%d/%Y"]
 
 lookups:
   type.string:
