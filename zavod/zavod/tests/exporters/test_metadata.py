@@ -55,13 +55,7 @@ def test_metadata_collection_export(
     testdataset1: Dataset,
     collection: Dataset,
     resolver: Resolver[Entity],
-    monkeypatch: MonkeyPatch,
 ) -> None:
-    # Give testdataset1 a derived tag, to check that it ends up in both the
-    # index and the catalog:
-    assert testdataset1.model.publisher is not None
-    monkeypatch.setattr(testdataset1.model.publisher, "official", True)
-    monkeypatch.setattr(testdataset1.model.publisher, "country", "de")
     version = settings.RUN_VERSION
     ds_path = dataset_artifact_directory(testdataset1.name, version)
     crawl_dataset(testdataset1, version)

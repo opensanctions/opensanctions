@@ -1,17 +1,17 @@
-"""Dataset tags derived from other metadata at export time.
+"""Dataset tags derived from other metadata.
 
 Some tags restate metadata the dataset already carries, so instead of copying
-them into every dataset YAML they are derived when the metadata is exported:
+them into every dataset YAML they are derived when the dataset is loaded:
 
 * ``publisher.<country>`` from ``publisher.country``, for official, non-PEP
   publishers with a specific country.
 * ``publisher.<bloc>`` for each bloc in ``PUBLISHER_BLOCS`` that the
   publisher country belongs to, under the same conditions.
 
-Derived tags only appear in the exported metadata (``index.json`` and the
-catalogs). They are not added to ``dataset.model.tags``, so ``#tag`` queries
-against a catalog loaded from the dataset YAMLs can't select on them. Catalogs
-loaded from the published metadata do include them.
+Derived tags are part of ``dataset.model.tags``, so they appear in the
+exported metadata and ``#tag`` dataset queries can select on them. Deriving is
+idempotent, so metadata loaded back from the archive, which already carries
+the derived tags, keeps the same tags.
 """
 
 from typing import TYPE_CHECKING

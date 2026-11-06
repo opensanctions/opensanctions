@@ -100,16 +100,18 @@ def test_collection_gets_no_derived_tags():
     assert derive_tags(coll) == []
 
 
-def test_export_includes_derived_tags():
+def test_loaded_dataset_has_derived_tags():
     ds = make_dataset(
         tags=["list.sanction"], publisher={"country": "fr", "official": True}
     )
-    data = ds.to_opensanctions_dict(get_catalog())
-    assert data["tags"] == [
-        "list.sanction",
-        "publisher.fr",
-        "publisher.europe",
-    ]
-    # Derived tags are export-only:
-    assert ds.model.tags == ["list.sanction"]
-    assert ds.to_dict()["tags"] == ["list.sanction"]
+    expected = ["list.sanction", "publisher.fr", "publisher.europe"]
+    assert ds.model.tags == expected
+    assert ds.to_opensanctions_dict(get_catalog())["tags"] == expected
+
+
+def test_reloading_export_keeps_tags():
+    ds = make_dataset(
+        tags=["list.sanction"], publisher={"country": "fr", "official": True}
+    )
+    reloaded = Dataset(ds.to_dict())
+    assert reloaded.model.tags == ds.model.tags
