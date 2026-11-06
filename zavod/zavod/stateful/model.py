@@ -28,6 +28,8 @@ position_table = Table(
     Column("countries", JSON, nullable=False),
     Column("subnational_areas", JSON, nullable=True),
     Column("is_pep", Boolean, nullable=True),
+    # leadership, senior, middle or junior; null while undecided.
+    Column("seniority", Unicode(KEY_LEN), nullable=True),
     Column("topics", JSON, nullable=False),
     Column("dataset", Unicode(VALUE_LEN), nullable=False),
     Column("created_at", DateTime, nullable=False),
