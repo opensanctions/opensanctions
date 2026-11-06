@@ -5,6 +5,7 @@ from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.archive import clear_data_path, dataset_artifact_directory
 from zavod.exporters.senzing import (
+    canonical_id,
     SenzingExporter,
     classify_identification,
     crypto_id_type,
@@ -124,10 +125,8 @@ def test_senzing(testdataset1: Dataset):
     assert {"NATIONALITY": "dd"} in person_features
     assert person["DATA_SOURCE"] == "OS_TESTDATASET1"
     assert person["RECORD_ID"] == "osv-hans-gruber"
-    # The OpenSanctions id is asserted as REF_OPENSANCTIONS_ID (the issuer's own id) and
-    # OPENSANCTIONS_ID (in FEATURES, never at the record root), not again as an OTHER_ID.
-    assert {"REF_OPENSANCTIONS_ID": "osv-hans-gruber"} in person_features
-    assert {"OPENSANCTIONS_ID": "osv-hans-gruber"} in person_features
+    # A dataset-scoped source id is not an identity: no OpenSanctions id features at all.
+    assert not [f for f in person_features if "OPENSANCTIONS_ID" in str(f)]
     assert "OPENSANCTIONS_ID" not in person
     assert not [
         f for f in person_features if f.get("OTHER_ID_TYPE") == "OPEN_SANCTIONS"
@@ -253,8 +252,7 @@ def test_features_shape(tmp_path):
     exporter.fh.close()
     (record,) = map(loads, open(exporter.path))
     feats = record["FEATURES"]
-    assert {"REF_OPENSANCTIONS_ID": "c"} in feats
-    assert {"OPENSANCTIONS_ID": "c"} in feats
+    assert not [f for f in feats if "OPENSANCTIONS_ID" in str(f)]
     # A cited Wikidata QID is the plain WIKIDATA_ID feature, never a TRUSTED_ID.
     assert {"WIKIDATA_ID": "Q42"} in feats
     assert not [f for f in feats if "TRUSTED_ID_TYPE" in f]
@@ -298,5 +296,23 @@ def test_figi_many_per_security(tmp_path):
     exporter.fh.close()
     (record,) = map(loads, open(exporter.path))
     figis = [f for f in record["FEATURES"] if f.get("OTHER_ID_TYPE") == "FIGI"]
-    assert sorted(f["OTHER_ID_NUMBER"] for f in figis) == ["BBG000000001", "BBG000000002"]
+    assert sorted(f["OTHER_ID_NUMBER"] for f in figis) == [
+        "BBG000000001",
+        "BBG000000002",
+    ]
     assert not [f for f in record["FEATURES"] if f.get("OTHER_ID_TYPE") == "figiCode"]
+
+
+def test_opensanctions_id_only_when_canonical():
+    # NK- (deduplicated) and Wikidata QIDs are identities; source ids and look-alikes are not.
+    for entity_id in ("NK-2tuTdT4xoDNVi9SnYbdLMu", "Q42"):
+        assert canonical_id(entity_id), entity_id
+    for entity_id in (
+        "br-pep-66e5",
+        "ru-inn-7704028206",
+        "Q0",
+        "Q42-x",
+        "nk-abc",
+        "NK-",
+    ):
+        assert not canonical_id(entity_id), entity_id

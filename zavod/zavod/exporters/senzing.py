@@ -107,6 +107,20 @@ def hash_value(value: str) -> str:
     return NORM_TEXT.sub("", value).lower()
 
 
+# Only a deduplicated entity's id is an identity: `NK-` (assigned when OpenSanctions merges records)
+# or a Wikidata QID (its canonical id for well-known persons). Any other id is a dataset-scoped source
+# id (`br-pep-...`, `ru-inn-...`) for a record OpenSanctions has not yet deduplicated, so two of them
+# differing says nothing about whether they are the same entity -- asserting them as exclusive ids
+# would deny merges OpenSanctions simply has not made yet.
+# cf. https://www.opensanctions.org/docs/identifiers/
+CANONICAL_ID = re.compile(r"NK-[A-Za-z0-9]+|Q[1-9][0-9]*")
+
+
+def canonical_id(entity_id: str) -> bool:
+    """True when the OpenSanctions entity id is canonical (deduplicated), not a source id."""
+    return CANONICAL_ID.fullmatch(entity_id) is not None
+
+
 # FtM identifier properties -> (family, canonical TYPE, issuing country, NATIONAL_ID subtype).
 # Tokens are the UPPER-CASE schemes of the Senzing identifier crosswalk, so every source sharing a
 # Senzing instance lands in one namespace per scheme; the country is set when the scheme has only
@@ -313,7 +327,8 @@ class SenzingExporter(Exporter):
             "DATA_SOURCE": self.source_name,
             "RECORD_ID": entity.id,
             "LAST_CHANGE": entity.last_change,
-            # The canonical OpenSanctions entity id, asserted again as features rather than only
+            # The canonical OpenSanctions entity id (only a canonical id qualifies; see `canonical_id`),
+            # asserted again as features rather than only
             # as the RECORD_ID: REF_OPENSANCTIONS_ID (behavior A1ES), because OpenSanctions issues
             # this id, and OPENSANCTIONS_ID (F1E), the feature other sources cite it with.
             #
@@ -654,10 +669,10 @@ class SenzingExporter(Exporter):
         # resolves them identically; the single list is cleaner and consistent across mappers. Built
         # via sub-lists above (so the address/name dedup and BUSINESS tagging stay simple), flattened
         # here. Record-level metadata (DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL) stays at the top level.
-        feats: list[dict[str, Any]] = [
-            {"REF_OPENSANCTIONS_ID": entity.id},
-            {"OPENSANCTIONS_ID": entity.id},
-        ]
+        feats: list[dict[str, Any]] = []
+        if canonical_id(entity.id):
+            feats.append({"REF_OPENSANCTIONS_ID": entity.id})
+            feats.append({"OPENSANCTIONS_ID": entity.id})
         if record_type is not None:
             feats.append({"RECORD_TYPE": record_type})
         if (gender := record.pop("GENDER", None)) is not None:
