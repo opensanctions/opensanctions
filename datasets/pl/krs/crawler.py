@@ -47,6 +47,7 @@ def fetch_record(context: Context, krs: int, refresh: bool) -> Record | None:
     is not in either register yields None.
     """
     url = EXTRACT_URL.format(krs=krs)
+    struck_off: Record | None = None
     for rejestr in REGISTERS:
         params = {"rejestr": rejestr, "format": "json"}
         if refresh:
@@ -58,17 +59,22 @@ def fetch_record(context: Context, krs: int, refresh: bool) -> Record | None:
             if exc.response is not None and exc.response.status_code == 404:
                 continue
             raise
-        if odpis is not None:
-            header = odpis["odpis"]["naglowekA"]
-            assert header["numerKRS"] == f"{krs:010d}", (krs, header)
-            assert header["rejestr"] == f"Rej{rejestr}", (krs, header)
-        return {
+        record = {
             "krs": krs,
             "rejestr": rejestr,
             "fetched": settings.RUN_DATE,
             "odpis": odpis,
         }
-    return None
+        if odpis is not None:
+            header = odpis["odpis"]["naglowekA"]
+            assert header["numerKRS"] == f"{krs:010d}", (krs, header)
+            assert header["rejestr"] == f"Rej{rejestr}", (krs, header)
+            return record
+        # Some numbers answer empty in one register while the other holds
+        # their extract, so an empty answer is final only once both are asked.
+        if struck_off is None:
+            struck_off = record
+    return struck_off
 
 
 class Window:
@@ -390,7 +396,7 @@ def crawl_directors(
         directorship.add("director", director)
         directorship.add("organization", company)
         directorship.add("role", role)
-        context.audit_data(item, ignore=["czyZawieszona"])
+        context.audit_data(item, ignore=["czyZawieszona", "dataZawieszeniaDo"])
         context.emit(directorship)
 
 
