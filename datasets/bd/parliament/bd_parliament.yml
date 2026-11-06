@@ -7,22 +7,22 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  Unicameral national legislature, 300 members directly elected for five-year terms
-  and 50 holding seats reserved for women
+  Unicameral national legislature of directly elected and women's reserved seats
 description: |
   Current and historical members of the Parliament of Bangladesh (Jatiya Sangsad), the
-  country's unicameral national legislature. 300 of its 350 members are directly
-  elected in single-member constituencies for five-year terms, and the remaining 50
-  seats are reserved for women and allocated to parties in proportion to their seats.
-  Members hold the country's legislative power, including passing laws and approving
-  the budget.
+  country's unicameral national legislature. Most of its members are directly elected
+  in single-member constituencies for five-year terms; the remaining seats are
+  reserved for women and allocated to parties in proportion to their seats. Members
+  hold the country's legislative power, including passing laws and approving the
+  budget.
 
   The dataset also covers the Speaker, the Deputy Speaker, the Leader of the
   Opposition and the Prime Minister, where the parliament records these roles for a
   member.
 url: https://www.parliament.gov.bd/members/list-of-members
 publisher:
-  name: Parliament of Bangladesh
+  name: বাংলাদেশ জাতীয় সংসদ
+  name_en: Parliament of Bangladesh
   description: >
     The Jatiya Sangsad is the national parliament of Bangladesh, a unicameral
     legislature of 350 members.
@@ -108,6 +108,16 @@ lookups:
           - rahman7032@gmail
           - shahid@marafie_kwt.com
         value: null
+  # Per-term status. Only "active" terms are current without an end date; "died"
+  # also sets deathDate.
+  term_status:
+    options:
+      - match: Active
+        value: active
+      - match: [Completed, Resigned, Cancelled]
+        value: ended
+      - match: Died
+        value: died
   # Keyed on the source's per-term role flags.
   position:
     required: true

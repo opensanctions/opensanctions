@@ -7,42 +7,64 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 TOPICS = ["gov.national", "gov.legislative"]
-# Per-term flags marking an office held alongside the membership, mapped to a
-# position by the `position` lookup.
-ROLE_FLAGS = ["isPm", "isSpeaker", "isDeputySpeaker", "isOppositionLeader"]
-# A larger limit doesn't fail: the source answers it with an empty list.
-PAGE_SIZE = 500
+MEMBER_IGNORE = [
+    "id",
+    "externalId",
+    "userId",
+    "empId",
+    # Always true.
+    "isActive",
+    # No matching property.
+    "isFreedomFighter",
+    "professionBn",
+    "electionCount",
+    # Not extracted for PEPs.
+    "mobile",
+    "additionalMobile",
+    "presentAddressEng",
+    "presentAddressBng",
+    "permanentAddressEng",
+    "permanentAddressBng",
+    "photoUrl",
+    "signUrl",
+    # Speaker profile page content.
+    "speakerProfileImage",
+    "speakerDesignationEn",
+    "speakerDesignationBn",
+    "speakerHeroSummaryEn",
+    "speakerHeroSummaryBn",
+    "speakerDetailsBioEn",
+    "speakerDetailsBioBn",
+    "createdAt",
+    "updatedAt",
+]
+TERM_IGNORE = [
+    "id",
+    "memberId",
+    "partyId",
+    "constituencyId",
+    "statusVal",
+    # No matching property.
+    "oathDate",
+    # Always 1.
+    "count",
+    # Read from the parliaments list instead.
+    "parliamentNo",
+    "parliament",
+    "createdAt",
+    "updatedAt",
+]
 
 
-def fetch_props(context: Context, parliament_no: int | None) -> dict[str, Any]:
-    """Fetch the props of the member list component for one parliament.
-
-    The site is a Next.js app whose member data comes from a backend that isn't
-    publicly reachable. Requested with the `RSC` header, the page returns its React
-    Server Components stream, in which the member list component's props are JSON.
-    The stream's rows aren't reliably line-delimited (length-prefixed text rows run
-    into the next row), so each prop is decoded where its key appears.
-    """
-    params: dict[str, Any] = {"limit": PAGE_SIZE}
-    if parliament_no is not None:
-        params["parliamentNo"] = parliament_no
+def fetch_prop(context: Context, key: str, **params: Any) -> Any:
+    """Decode one prop of the member list from the page's RSC stream, whose rows
+    aren't line-delimited."""
+    # Larger limits return an empty list.
+    params["limit"] = 500
     text = context.fetch_text(context.data_url, params=params, headers={"RSC": "1"})
-    assert text is not None, parliament_no
-    decoder = json.JSONDecoder()
-    props: dict[str, Any] = {}
-    for key in (
-        "memberResponse",
-        "parliamentsList",
-        "initialParliamentNo",
-        "lastParliamentNo",
-    ):
-        marker = f'"{key}":'
-        assert text.count(marker) == 1, (parliament_no, key)
-        props[key], _ = decoder.raw_decode(text, text.index(marker) + len(marker))
-    response = props["memberResponse"]
-    assert response["totalPages"] == 1, response["totalPages"]
-    assert response["total"] == len(response["data"]) > 0, response["total"]
-    return props
+    assert text is not None
+    start = text.index(f'"{key}":') + len(key) + 3
+    return json.JSONDecoder().raw_decode(text, start)[0]
 
 
 def crawl_member(
@@ -56,8 +78,7 @@ def crawl_member(
     dob = member.pop("dateOfBirth")
 
     person = context.make("Person")
-    # The source's member ids are assigned per parliament, so they don't link a
-    # member's terms; the name and birth date do.
+    # Source member ids are per parliament, so they don't link terms.
     person.id = context.make_id(name, dob)
     person.add(
         "name", h.strip_name_titles(context, name), lang="eng", original_value=name
@@ -71,137 +92,70 @@ def crawl_member(
     person.add("gender", member.pop("gender"))
     person.add("email", member.pop("email"))
     person.add("email", member.pop("additionalEmail"))
-    # Members must be citizens of Bangladesh: Constitution of Bangladesh, Art. 66(1).
-    # https://bdlaws.minlaw.gov.bd/act-367/section-24620.html
     person.add("citizenship", "bd")
 
-    sitting = parliament["status"] == 1
-    # Only the sitting parliament's dates are open-ended. Its scheduled last date
-    # is not an end date.
-    period_end = None if sitting else parliament["parliamentLastDate"]
+    # A sitting parliament's (status 1) last date is only scheduled.
+    period_end = None if parliament["status"] == 1 else parliament["parliamentLastDate"]
 
     emit = False
     for term in member.pop("terms"):
-        assert term.pop("parliamentNo") == parliament["parliamentNo"], term
-        status = term.pop("status")
-        term.pop("statusVal")  # the numeric code of `status`
+        status = context.lookup_value(
+            "term_status", term.pop("status"), warn_unmatched=True
+        )
         end_date = term.pop("endDate")
-        if status == "Active":
-            if not sitting:
-                raise ValueError(f"Active term in an ended parliament: {name}")
-            # On sitting members, the end date is either the parliament's scheduled
-            # last date, or stale: a few carry 2022-12-11, from the mass resignation
-            # of their party's members of the 11th parliament.
+        if status == "active":
+            # Scheduled, or stale from the 11th parliament (2022-12-11).
             end_date = None
-        elif status == "Died":
+        elif status == "died":
             h.apply_date(person, "deathDate", end_date)
-        elif status not in ("Completed", "Resigned", "Cancelled"):
-            raise ValueError(f"Unknown term status: {status}")
+        person.add("political", term.pop("party")["nameEng"])
+        constituency = term.pop("constituency") or {}
+        start_date = term.pop("startDate")
+        election_date = term.pop("electionDate")
 
-        constituency = term.pop("constituency")
-        party = term.pop("party")
-        person.add("political", party.pop("nameEng"))
+        posts = [(position, categorisation)]
+        for flag in ("isPm", "isSpeaker", "isDeputySpeaker", "isOppositionLeader"):
+            if term.pop(flag):
+                res = context.lookup("position", flag)
+                assert res is not None, flag
+                office = h.make_position(
+                    context,
+                    name=res.name,
+                    country="bd",
+                    topics=res.topics,
+                    wikidata_id=res.wikidata_id,
+                    lang="eng",
+                )
+                posts.append((office, categorise(context, office)))
 
-        dates: dict[str, Any] = dict(
-            start_date=term.pop("startDate"),
-            end_date=end_date,
-            period_start=parliament["oathDate"],
-            period_end=period_end,
-            election_date=term.pop("electionDate"),
-        )
-        occupancy = h.make_occupancy(
-            context, person, position, categorisation=categorisation, **dates
-        )
-        if occupancy is not None:
-            if constituency is not None:
-                occupancy.add("constituency", constituency.pop("constituencyEng"))
-            context.emit(occupancy)
-            emit = True
-
-        for flag in ROLE_FLAGS:
-            if not term.pop(flag):
+        for post, post_categorisation in posts:
+            if not post_categorisation.is_pep:
                 continue
-            res = context.lookup("position", flag)
-            assert res is not None, flag
-            office = h.make_position(
-                context,
-                name=res.name,
-                country="bd",
-                topics=res.topics,
-                wikidata_id=res.wikidata_id,
-                lang="eng",
-            )
-            office_categorisation = categorise(context, office)
-            if not office_categorisation.is_pep:
-                continue
-            office_occupancy = h.make_occupancy(
+            occupancy = h.make_occupancy(
                 context,
                 person,
-                office,
-                categorisation=office_categorisation,
-                **dates,
+                post,
+                categorisation=post_categorisation,
+                start_date=start_date,
+                end_date=end_date,
+                period_start=parliament["oathDate"],
+                period_end=period_end,
+                election_date=election_date,
+                no_end_implies_current=status == "active",
             )
-            if office_occupancy is not None:
-                context.emit(office_occupancy)
-                context.emit(office)
-                emit = True
+            if occupancy is None:
+                continue
+            if post is position:
+                occupancy.add("constituency", constituency.get("constituencyEng"))
+            context.emit(occupancy)
+            context.emit(post)
+            emit = True
 
-        context.audit_data(
-            term,
-            ignore=[
-                "id",
-                "memberId",
-                "partyId",
-                "constituencyId",
-                # The oath date of a member; Occupancy has no property for it.
-                "oathDate",
-                # The number of the member's term, always 1.
-                "count",
-                # The parliament, read from the list of parliaments instead.
-                "parliament",
-                "createdAt",
-                "updatedAt",
-            ],
-        )
+        context.audit_data(term, ignore=TERM_IGNORE)
 
     if emit:
         context.emit(person)
-
-    context.audit_data(
-        member,
-        ignore=[
-            "id",
-            "externalId",
-            "userId",
-            "empId",
-            # True for every member, past parliaments included.
-            "isActive",
-            # Whether the member fought in the 1971 Liberation War; no matching property.
-            "isFreedomFighter",
-            # Profession in Bengali, free text; no matching property.
-            "professionBn",
-            "electionCount",
-            # Phone numbers and home addresses are not extracted for PEPs.
-            "mobile",
-            "additionalMobile",
-            "presentAddressEng",
-            "presentAddressBng",
-            "permanentAddressEng",
-            "permanentAddressBng",
-            "photoUrl",
-            "signUrl",
-            # The Speaker's and Deputy Speaker's profile page content.
-            "speakerProfileImage",
-            "speakerDesignationEn",
-            "speakerDesignationBn",
-            "speakerHeroSummaryEn",
-            "speakerHeroSummaryBn",
-            "speakerDetailsBioEn",
-            "speakerDetailsBioBn",
-            "createdAt",
-            "updatedAt",
-        ],
-    )
+    context.audit_data(member, ignore=MEMBER_IGNORE)
 
 
 def crawl(context: Context) -> None:
@@ -219,26 +173,14 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # Without a parliament number, the page shows the sitting parliament's members
-    # and lists all parliaments with their dates and status (1: sitting, 2: ended).
-    props = fetch_props(context, None)
-    parliaments = props["parliamentsList"]
-    for parliament in parliaments:
-        assert parliament["status"] in (1, 2), parliament
-    latest = max(parliaments, key=lambda p: p["parliamentNo"])
-    sitting = [p for p in parliaments if p["status"] == 1]
-    # The newest parliament is the sitting one, unless it has been dissolved.
-    assert sitting in ([latest], []), sitting
-    assert props["initialParliamentNo"] == latest["parliamentNo"], props
-    assert props["lastParliamentNo"] == latest["parliamentNo"], props
-
     cutoff = h.earliest_term_start(TOPICS)
+    parliaments = fetch_prop(context, "parliamentsList")
     for parliament in sorted(parliaments, key=lambda p: p["oathDate"], reverse=True):
         number = parliament["parliamentNo"]
         if parliament["parliamentLastDate"] < cutoff:
             context.log.info("Parliament predates the PEP window", parliament=number)
             break
-        if number != latest["parliamentNo"]:
-            props = fetch_props(context, number)
-        for member in props["memberResponse"]["data"]:
+        response = fetch_prop(context, "memberResponse", parliamentNo=number)
+        assert response["total"] == len(response["data"]) > 0, number
+        for member in response["data"]:
             crawl_member(context, position, categorisation, parliament, member)
