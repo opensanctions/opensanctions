@@ -12,7 +12,7 @@ summary: >-
   in the People's Republic of China, especially from the Xinjiang Uyghur Autonomous
   Region.
 description: |
-  > The Uyghur Forced Labor Prevention Act (Public Law No. 117-78), also known as 
+  > The Uyghur Forced Labor Prevention Act (Public Law No. 117-78), also known as
   > the UFLPA, directs the Forced Labor Enforcement Task Force to develop a strategy
   > for supporting enforcement of the prohibition on the importation of goods into the
   > United States manufactured wholly or in part with forced labor in the People's
@@ -43,7 +43,7 @@ dates:
 tags:
   - list.sanction
   - target.cn
-  - issuer.west
+  - publisher.west
 
 assertions:
   min:

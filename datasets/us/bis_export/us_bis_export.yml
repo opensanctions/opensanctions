@@ -27,8 +27,7 @@ publisher:
   official: true
 tags:
   - list.export
-  - juris.us
-  - issuer.west
+  - publisher.west
 url: https://www.bis.gov/enforcement/export-violations
 data:
   url: https://www.bis.gov/enforcement/export-violations

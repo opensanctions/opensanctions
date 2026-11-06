@@ -6,13 +6,13 @@ coverage:
   start: "2023-10-17"
 load_statements: true
 summary: >-
-  Consent agreements entered into by parties accused of violating the Arms 
+  Consent agreements entered into by parties accused of violating the Arms
   Export Control Act (AECA) or International Traffic in Arms Regulations (ITAR)
 description: |
   This dataset provides a current and historical list of names of current individuals
   and companies who entered into consent agreements
   with the Directorate of Defense Trade Controls (DDTC) to settle allegations of violations
-  of the AECA or ITAR. 
+  of the AECA or ITAR.
 
   It includes a short description of the allegations and a link
   to the charging letter for each instance when available.
@@ -22,12 +22,12 @@ description: |
 
   From the DDTC page:
 
-  > Pursuant to the International Traffic in Arms Regulations (ITAR) §127.10, the 
-  > Assistant Secretary for Political-Military Affairs is authorized to impose civil 
-  > penalties for violations of the Arms Export Control Act (AECA) and the ITAR. 
-  > Imposition of civil penalties generally includes the payment of fines to the U.S. 
-  > Treasury and a Consent Agreement, under which the company is required to institute 
-  > enhanced compliance measures. The Consent Agreement outlines the measures required 
+  > Pursuant to the International Traffic in Arms Regulations (ITAR) §127.10, the
+  > Assistant Secretary for Political-Military Affairs is authorized to impose civil
+  > penalties for violations of the Arms Export Control Act (AECA) and the ITAR.
+  > Imposition of civil penalties generally includes the payment of fines to the U.S.
+  > Treasury and a Consent Agreement, under which the company is required to institute
+  > enhanced compliance measures. The Consent Agreement outlines the measures required
   > to enhance compliance programs.
   >
   > Consent Agreements and accompanying documents are made available to the public.
@@ -38,7 +38,6 @@ tags:
   - list.enforcement
   - list.export
   - sector.defense
-  - juris.us
 publisher:
   name: Directorate of Defense Trade Controls
   acronym: DDTC

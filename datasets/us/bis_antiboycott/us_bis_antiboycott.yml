@@ -36,8 +36,7 @@ publisher:
 url: https://www.bis.gov/about-bis/bis-leadership-and-offices/OAC/alleged-antiboycott-violations
 tags:
   - list.export
-  - juris.us
-  - issuer.west
+  - publisher.west
   - sector.financial
   - list.enforcement
 data:
