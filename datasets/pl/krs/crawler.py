@@ -293,11 +293,12 @@ def make_legal_entity(
 
 
 def make_party(context: Context, krs: str, organ: str, item: Data) -> Entity | None:
-    if "nazwisko" in item:
+    if "nazwisko" in item and item["nazwisko"] != {}:
         return make_person(context, krs, organ, item)
     if "nazwa" in item:
         return make_legal_entity(context, krs, organ, item)
-    # Some entries list a role, but no one holding it.
+    # Some entries list a role, but no one holding it, or a person with empty
+    # name blocks.
     context.log.info("Skipping a party without a name", krs=krs, item=item)
     return None
 
