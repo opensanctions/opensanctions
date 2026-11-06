@@ -10,7 +10,6 @@ from zavod.stateful.positions import categorise
 # The entity ID is derived from the member's parliamentary email rather than the
 # source's numeric member ID: the email survived the 2026 site relaunch while the
 # numeric IDs did not, so it is the more stable key.
-LIST_URL = "https://parliament.mn/api/parliament_members_list/"
 DETAIL_URL = "https://parliament.mn/api/parliament_member/detail/{id}/"
 PARLIAMENT_MEMBER = "Гишүүн"
 
@@ -68,5 +67,5 @@ def crawl_member(context: Context, member: dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    for member in context.fetch_json(LIST_URL, cache_days=1)["members"]:
+    for member in context.fetch_json(context.data_url, cache_days=1)["members"]:
         crawl_member(context, member)

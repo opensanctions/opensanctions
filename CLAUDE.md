@@ -61,6 +61,7 @@ This section applies when you help a new external contributor.
 * All zavod code needs to be fully typed, unit tested and thoroughly documented.
 * When adding type hints, use the container types such as `set`, `tuple` or `dict` instead of the now-deprecated `typing.Set`, `typing.Tuple` or `typing.Dict`, and `str | None` instead of `Optional[str]`.
 * Use `rigour.mime.types` constants for MIME types, not string literals.
+* Inline a constant when you can only understand its value together with the code at the use site (e.g. XPath selectors, regexes with capture groups, one-off request payloads, Zyte actions, single label strings). Keep it named when a maintainer reads or changes it without reading the logic.
 * All new crawlers should be written using typed Python. Suggest adding types to existing ones.
 * We use `lxml` for parsing HTML/XML, and `context.fetch_` functions the retrieve online data. Other libraries are listed in `zavod/pyproject.toml`. NEVER use beautifulsoup, or the Python stdlib xml modules.
 * For crawlers that traverse HTML using XPath expressions, use the sensibly-typed helpers in `zavod.helpers.html` (`h.xpath_element(s)`, `h.element_text`). Raw `.xpath()` returns `Any` and fails the `mypy --strict` check enforced on datasets by the `mypy-datasets` pre-commit hook.

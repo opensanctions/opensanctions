@@ -24,16 +24,11 @@ CACHE_DAYS = 14
 # month's trailing period) is left to `h.apply_date` via the dataset `dates` config.
 DATE_RE = re.compile(r"\d{1,2}\s+[A-Za-z]+\.?\s+\d{4}")
 
-# Each member links to a detail page like
-# /ords/pls/parlam/structura2015.mp?idm=1&cam=2&leg=2024&idl=2
+# Detail pages look like /ords/pls/parlam/structura2015.mp?idm=1&cam=2&leg=2024&idl=2.
 # `idm` is an index *within a legislature*, not a stable person ID, so a deputy who
 # served several terms is emitted once per term under a distinct (leg, idm) ID and
 # merged downstream by entity resolution.
-MEMBER_XPATH = ".//a[contains(@href, 'structura2015.mp?idm=')]"
 IDM_RE = re.compile(r"[?&]idm=(\d+)")
-# The roster page also links to every legislature's home page; we read the full set
-# of term years from these so the crawler follows new terms automatically.
-LEG_XPATH = ".//a[contains(@href, 'structura2015.home?leg=')]"
 LEG_RE = re.compile(r"leg=(\d{4})")
 NAME_XPATH = ".//h1[@class='mp-profile-name2025']"
 
@@ -207,7 +202,9 @@ def crawl_roster(
     else:
         roster = doc
     members: dict[str, None] = {}
-    for link in h.xpath_elements(roster, MEMBER_XPATH):
+    for link in h.xpath_elements(
+        roster, ".//a[contains(@href, 'structura2015.mp?idm=')]"
+    ):
         href = link.get("href")
         assert href is not None, link
         members.setdefault(href, None)  # order-preserving de-duplication
@@ -234,7 +231,9 @@ def crawl(context: Context) -> None:
     # page; we read the full set of term years from it.
     root = fetch_html(context, context.data_url, absolute_links=True)
     years: set[int] = set()
-    for link in h.xpath_elements(root, LEG_XPATH):
+    for link in h.xpath_elements(
+        root, ".//a[contains(@href, 'structura2015.home?leg=')]"
+    ):
         href = link.get("href")
         assert href is not None, link
         match = LEG_RE.search(href)

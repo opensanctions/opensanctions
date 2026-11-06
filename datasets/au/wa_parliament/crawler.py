@@ -8,7 +8,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.extract import zyte_api
 from zavod.util import Element
 
-MEMBERS_URL = "https://www.parliament.wa.gov.au/parliament/memblist.nsf/WAllMembers"
 # All 96 members (both houses) are listed in one table; each Member cell is an
 # anchor into the WAllMembersFlat2 Domino view, followed by a "MLA"/"MLC" suffix
 # and a "Party: <abbr>" line.
@@ -115,7 +114,7 @@ def crawl(context: Context) -> None:
 
     doc = zyte_api.fetch_html(
         context,
-        MEMBERS_URL,
+        context.data_url,
         unblock_validator=MEMBER_LINKS,
         absolute_links=True,
         cache_days=1,

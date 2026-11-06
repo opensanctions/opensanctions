@@ -15,9 +15,6 @@ from zavod import helpers as h
 
 LLM_MODEL = "openai:gpt-6.1-sol"
 
-NAME_XPATH = "//span[@class='treas-page-title']/text()"
-CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
-DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
 # Notices issued before 5 July 2016 are PDFs
 MAX_AGE_DAYS = (date.today() - date(2016, 7, 8)).days
 
@@ -121,9 +118,15 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_el = context.fetch_html(url, cache_days=7, absolute_links=True)
     if article_el is None:
         return
-    article_name = h.xpath_strings(article_el, NAME_XPATH)[0]
-    article_element = h.xpath_element(article_el, CONTENT_XPATH)
-    date = h.xpath_strings(article_el, DATE_XPATH)[0]
+    article_name = h.xpath_strings(
+        article_el, "//span[@class='treas-page-title']/text()"
+    )[0]
+    article_element = h.xpath_element(
+        article_el, "//div[@id='block-ofac-content']//div[@class='content']"
+    )
+    date = h.xpath_strings(
+        article_el, "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
+    )[0]
 
     source_value = HtmlSourceValue(
         key_parts=url,
