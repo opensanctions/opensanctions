@@ -502,7 +502,9 @@ def assert_all_accepted(context: Context, *, raise_on_unaccepted: bool = True) -
         if raise_on_unaccepted:
             raise Exception(message)
         else:
-            context.log.warning(message)
+            # A human clears the backlog in the review UI, so a code change
+            # can't fix it.
+            context.log.warning(message, agent="skip")
 
 
 def sort_arrays_in_value(value: JsonValue) -> JsonValue:
