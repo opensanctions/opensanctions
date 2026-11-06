@@ -4,6 +4,7 @@ import time
 from typing import Any
 from urllib.parse import urlencode
 
+from followthemoney.types import registry
 from lxml import html
 
 from zavod import Context
@@ -233,7 +234,8 @@ def crawl_company(context: Context, record: dict[str, Any]) -> None:
         company.add("address", ", ".join(p for p in parts if p != ""))
     company.add("sector", record.pop("PreteznaDjelatnost"))
     company.add("phone", record.pop("Telefon"))
-    company.add("email", record.pop("Email"))
+    # Emails are typed in by hand and often malformed; keep only the valid ones.
+    company.add("email", registry.email.clean(record.pop("Email")))
     jib: str | None = record.pop("JIB")
     company.add("taxNumber", jib)
     company.add("sourceUrl", f"{BASE_URL}/Home/PregledPoslovnogSubjekta/{pid}")
