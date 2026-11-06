@@ -29,8 +29,8 @@ IGNORE = [
 
 
 def cik_id(cik: str) -> str:
-    """Build the dataset-independent entity ID for a CIK."""
-    return f"us-sec-cik-{int(cik)}"
+    """Build the dataset-independent entity ID for a 10-digit, zero-padded CIK."""
+    return f"us-sec-cik-{cik}"
 
 
 def resolve_location(
@@ -78,9 +78,10 @@ def crawl_filer(context: Context, data: dict[str, Any], cutoff: str) -> bool:
     if len(dates) == 0 or max(dates) < cutoff:
         return False
 
-    cik = data.pop("cik")
-    if not cik.isdigit():
-        raise ValueError(f"Invalid CIK: {cik!r}")
+    raw_cik = data.pop("cik")
+    if not raw_cik.isdigit() or len(raw_cik) > 10:
+        raise ValueError(f"Invalid CIK: {raw_cik!r}")
+    cik = raw_cik.zfill(10)
     entity_type = data.pop("entityType")
     if entity_type not in ENTITY_TYPES:
         raise ValueError(f"Unknown entity type {entity_type!r} for CIK {cik}")
