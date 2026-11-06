@@ -1,0 +1,149 @@
+title: US SEC EDGAR Filers
+prefix: us-sec-edgar
+entry_point: crawler.py
+resolve: false
+load_statements: false
+ci_test: false
+coverage:
+  frequency: monthly
+  start: "2026-11-06"
+deploy:
+  memory: 2Gi
+  disk: 20Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
+summary: >-
+  Companies, funds and individuals registered as filers with the US Securities and
+  Exchange Commission's EDGAR system.
+description: |
+  Every filer with the SEC's EDGAR system has a Central Index Key (CIK). This dataset
+  lists the CIKs that have made a filing within the last five years, with their names,
+  former names, tax numbers, jurisdictions of incorporation, addresses and industry
+  sectors.
+
+  Filers registered as operating companies, and other filers with company details such
+  as a tax number or a state of incorporation, are listed as companies. Investment funds
+  and filers without company details, most of them individuals, are listed as legal
+  entities.
+url: https://www.sec.gov/search-filings/edgar-application-programming-interfaces
+publisher:
+  name: Securities and Exchange Commission
+  acronym: SEC
+  description: |
+    > The federal securities laws empower the Securities and Exchange Commission (SEC)
+    > with broad authority over all aspects of the securities industry. The SEC’s
+    > mission is to protect investors; maintain fair, orderly, and efficient markets;
+    > and facilitate capital formation.
+  country: us
+  url: https://www.sec.gov/
+  official: true
+data:
+  url: https://www.sec.gov/Archives/edgar/daily-index/bulkdata/submissions.zip
+  format: ZIP
+http:
+  # SEC fair access policy: requests must declare a contact in the User-Agent.
+  user_agent: OpenSanctions tech@opensanctions.org
+
+assertions:
+  min:
+    schema_entities:
+      Company: 220_000
+      LegalEntity: 95_000
+  max:
+    schema_entities:
+      Company: 300_000
+      LegalEntity: 140_000
+
+lookups:
+  type.name:
+    options:
+      - match: "43010"
+        value: null
+      - match: "C&#298;ON Investment Corp"
+        value: "CĪON Investment Corp"
+  type.identifier:
+    options:
+      # EINs shared by hundreds of CIKs (unit and series trust sponsors).
+      - match:
+          - "481175174"
+          - "520795747"
+        value: null
+  edgar_location:
+    # EDGAR state and country codes. Codes not listed here are resolved from
+    # their description (e.g. E9 -> "Cayman Islands").
+    options:
+      - match:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DE
+          - DC
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+        value: us
+      - match: PR
+        value: pr
+      - match: VI
+        value: vi
+      - match: GU
+        value: gu
+      - match:
+          # Canada (Federal Level), Newfoundland
+          - Z4
+          - A4
+        value: ca
+      - match: 2Q
+        value: ge
+      - match:
+          # XX is UNKNOWN; the others are not in EDGAR's code list.
+          - XX
+          - E6
+          - I8
+          - I9
+          - X9
+        value: null
