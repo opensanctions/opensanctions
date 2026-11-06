@@ -335,6 +335,42 @@ def crawl_owners(
         context.emit(ownership)
 
 
+def crawl_group(context: Context, company: Entity, krs: str, items: list[Data]) -> None:
+    """Link a company to its dominant company or its subsidiaries in a group of
+    companies, which the parent controls by votes or board appointments rather
+    than necessarily by owning it."""
+    section = "wzmiankaOUczestnicwieWGrupieSpolek"
+    for item in items:
+        kind = item.pop("czyPodmiotZaleznyDominujacy")
+        if kind == "SPÓŁKA ZALEŻNA":
+            is_parent = False
+            members = item.pop("podmiotDominujacy")
+        elif kind == "PODMIOT DOMINUJĄCY":
+            is_parent = True
+            members = item.pop("spolkiZalezne")
+        else:
+            context.log.warning(
+                "Unknown role in a group of companies", krs=krs, kind=kind
+            )
+            continue
+        for member_item in members:
+            member = make_legal_entity(context, krs, section, member_item)
+            context.audit_data(member_item)
+            if member is None:
+                continue
+            controller, controlled = (
+                (company, member) if is_parent else (member, company)
+            )
+            control = context.make("Control")
+            # Both the parent and the subsidiary list the link, so the ID must
+            # not depend on which record it is read from.
+            control.id = context.make_id(section, controller.id, controlled.id)
+            control.add("controller", controller)
+            control.add("controlled", controlled)
+            context.emit(control)
+        context.audit_data(item, ignore=["numerWzmianki"])
+
+
 def crawl_directors(
     context: Context,
     company: Entity,
@@ -458,12 +494,15 @@ def crawl_extract(context: Context, record: Record) -> None:
         ("kapitalPSA", "wysokoscKapitaluAkcyjnego"),
     ):
         amount = dzial1.pop(key, {}).get(amount_key)
-        if amount is not None:
+        # An unmapped legal form falls back to LegalEntity, which has no capital.
+        if amount is not None and company.schema.get("capital") is not None:
             value = amount["wartosc"].replace(",", ".")
             company.add("capital", f"{value} {amount['waluta']}")
 
     for section in ("wspolnicySpzoo", "jedynyAkcjonariusz", "wspolnicyPartnerzy"):
         crawl_owners(context, company, krs, section, dzial1.pop(section, []))
+    group = dzial1.pop("wzmiankaOUczestnicwieWGrupieSpolek", [])
+    crawl_group(context, company, krs, group)
     context.audit_data(
         dzial1,
         ignore=[
@@ -477,6 +516,7 @@ def crawl_extract(context: Context, record: Record) -> None:
             "komitetZalozycielski",
             "organSprawujacyNadzor",
             "organPodmiotZalozycielskiMinisterNadzorujacy",
+            "informacjeOpisujaceTowarzystwo",
         ],
     )
 
