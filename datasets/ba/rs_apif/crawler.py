@@ -225,7 +225,7 @@ def crawl_company(context: Context, record: dict[str, Any]) -> None:
     company = context.make("Company")
     company.id = context.make_slug(str(pid))
     company.add("name", record.pop("PoslovnoIme"))
-    company.add("country", "ba")
+    company.add("jurisdiction", "ba")
     company.add("status", status)
     address = record.pop("Sjediste")
     if address is not None:
