@@ -7,7 +7,7 @@ from normality import normalize, slugify
 from collections.abc import Iterator
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise, OccupancyStatus
+from zavod.stateful.positions import categorise
 from zavod.util import Element
 
 # e.g. (name_html, name_pdf)
@@ -215,10 +215,9 @@ def crawl_row(context: Context, row: dict[str, Element], index_url: str) -> None
         position,
         no_end_implies_current=False,
         categorisation=categorisation,
-        status=OccupancyStatus.UNKNOWN,
+        declaration_date=date,
     )
     if occupancy is not None:
-        h.apply_date(occupancy, "declarationDate", date)
         context.emit(position)
         context.emit(occupancy)
         context.emit(person)
