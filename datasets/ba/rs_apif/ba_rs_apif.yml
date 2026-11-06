@@ -69,5 +69,7 @@ lookups:
         value: active
       - match: preseljen sa teritorije Republike Srpske
         value: moved
-      - match: brisan
+      - match:
+          - brisan
+          - neregistrovan - obustavljena registracija
         value: deleted
