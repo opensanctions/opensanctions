@@ -93,89 +93,91 @@ lookups:
   # the 64 character identifier limit. Pull the identifiers out of the prose.
   type.identifier:
     options:
-      - match: "Agencija za privredne registre, R.Srbije, mat.reg.broj 20566744, PIB 106266191"
+      - contains: "mat.reg.broj 20566744, PIB 106266191"
         values:
           - "20566744"
           - "106266191"
-      - match: "Gradski sud u Pragu, Odjeljak C, uložak 234430, matični br. 035 96 338"
+      - contains: "uložak 234430, matični br. 035 96 338"
         values:
           - "C 234430"
           - "03596338"
-      - match: "MBS: 080130530, OIB 13530191392, Trgovački sud Zagreb, R.Hrvatska"
+      - contains: "080130530, OIB 13530191392"
         values:
           - "080130530"
           - "13530191392"
-      - match: "Reg.fondacija, Ministarstvo pravde, RF-3/02, Knjiga II Registra 01.10.2002."
+      - contains: "Reg.fondacija, Ministarstvo pravde, RF-3/02"
         value: "RF-3/02"
-      - match: "Registar privrednih subjekata, Gradski sud u Pragu, Odeljak B, uložak 21913."
+      - contains: "Odeljak B, uložak 21913"
         value: "B 21913"
-      - match: "Privredna komora Chieti Pescara, PDV br. 02493150698, br. REA CH-183219"
+      - contains: "PDV br. 02493150698, br. REA CH-183219"
         values:
           - "02493150698"
           - "CH-183219"
-      - match: "A17013863, Tr. reg. Girona-e T.2.980 F.9, pogl. 171, list 1, str. GI-3095"
+      - contains: "A17013863, Tr. reg. Girona"
         values:
           - "A17013863"
           - "GI-3095"
       # 19 characters, so not a valid (20 character) LEI - kept as a plain identifier.
-      - match: "Ured reg.preduzeća, Privredne komore Venezoa Giulia, pod L.E.I:815600D69B9617DA495"
+      - contains: "L.E.I:815600D69B9617DA495"
         value: "815600D69B9617DA495"
-      - match: "02666995 Centralni registar privrednih subjekata poreske uprave Podgorica, Crna Gora"
+      - contains: "02666995 Centralni registar"
         value: "02666995"
-      - match: "Broj registra: 0000776715, ID broj: 382867177, Poreski broj: 9512480858"
+      - contains: "Broj registra: 0000776715"
+        value: "0000776715"
+      - contains: "382867177, Poreski broj: 9512480858"
         values:
-          - "0000776715"
           - "382867177"
           - "9512480858"
-      - match: "Direktorat privr. registra u Ankari reg. br. 411001, broj u elektronskom registru: 09971382717000021"
+      - contains: "reg. br. 411001, broj u elektronskom registru"
         values:
           - "411001"
           - "09971382717000021"
-      - match: "Osnovni sud Flensburgu upisano pod brojem spisa HRB 11875 FL sa tekućim brojem 3"
+      - contains: "pod brojem spisa HRB 11875 FL"
         value: "HRB 11875 FL"
-      - match: "Trgovački registar kod Općinskog suda  Kleve, pod brojem firme HR B 11896"
+      - contains: "pod brojem firme HR B 11896"
         value: "HRB 11896"
       # Associations, foundations and other non-commercial founders are cited by their
       # entry in a register kept by one of the justice ministries. The R-, RU- and RF-
       # numbers carry a year and identify the entry on their own.
-      - match: "HNK Ministarstvo pravouđa, uprave i lokalne samouprave Mostar br. R-1676/15, str. 346, knjige V"
+      - contains: "Mostar br. R-1676/15"
         value: "R-1676/15"
-      - match: "Ministarstvo pravosuđa HNK br. R-23/03, rješenje br. 03-03-05-UP1-192/16"
+      - contains: "HNK br. R-23/03, rješenje"
         value: "R-23/03"
-      - match: "Ministarstvo pravosuđa HNK/Ž registar Udruga reg. br. R-278/01 novi R-21/03 u knjigu KK (druga H)"
+      - contains: "R-278/01 novi R-21/03"
         values:
           - "R-278/01"
           - "R-21/03"
-      - match: "Registarski broj R-1171/11 knjiga IV Registra Ministarstva pravosuđa, uprave i lokalne samouprave"
+      - contains: "Registarski broj R-1171/11 knjiga"
         value: "R-1171/11"
-      - match: "stranica 242 knjige V Registra udruženja pod registarskim brojem R-1580/14"
+      - contains: "registarskim brojem R-1580/14"
         value: "R-1580/14"
-      - match: "Registar udruga Ministarstva pravde BiH registarski broj RU-275/05, Knjige I Registra"
+      - contains: "registarski broj RU-275/05"
         value: "RU-275/05"
-      - match: "RF-3/02, Knjiga II Registra fondacija pri Ministarstvu pravde BiH"
+      - contains: "RF-3/02, Knjiga II Registra fondacija"
         value: "RF-3/02"
-      - match: "RF-41/06 knjiga II Registra Ministarstva pravde BiH  JMB:4201115180002"
+      - contains: "RF-41/06 knjiga II"
         values:
           - "RF-41/06"
           - "4201115180002"
-      - match: "Registarski br:314/08, knjiga br. II, od 8.10.2008. g. Ministarstvo pravde BiH"
+      - contains: "Registarski br:314/08"
         value: "314/08"
-      - match: "reg.br. 273/07 knjiga broj II kod Ministarstva pravde Bosne i Hercegovine"
+      - contains: "reg.br. 273/07 knjiga"
         value: "273/07"
       # The only numbers these give are the sequential entry number inside a numbered
       # register book, or the number of the decision that ordered the registration.
       # Neither identifies the entity on its own, so drop the prose rather than
       # emitting a fragment of it as a registration number.
-      - match:
-          - "Broj 265 (u knjizi 1 registra Federalnog ministarstva pravde FBiH sa danom 26.04.1999. godine)"
-          - "Federalno ministarstvo pravde, Knjiga broj 1 registarski broj 699"
-          - "Registar regulatorne agencije za humanitarne poslove pod rednim brojem 6."
-          - "Registar udruženja Ministarstva pravde i uprave Kantona Sarajevo knjiga I, registarski broj 425"
-          - "Rješenje Federalnog Ministarstva pravde Sarajevo 04-05-2-236/03 od 3.4.2003.g."
-          - "knjiga I pod registarskim brojm 652 Federalno ministarstvo pravde od 03.04.2003. godine"
-          - "knjiga IX Reg. broj 1623 Ministarstvo za pravosuđe i upravu ZE-DO kantona"
-          - "registar Udruženja kod Federalnog ministarstva pravde Sarajevo reg. 695, Knjiga I registar"
-          - "upisano pod registarskim brojem 315, knjiga I registra, dana 01.12.1999.godine"
+      - match: "Broj 265"
+        contains:
+          - "u knjizi 1 registra Federalnog ministarstva pravde FBiH"
+          - "Knjiga broj 1 registarski broj 699"
+          - "humanitarne poslove pod rednim brojem 6."
+          - "Kantona Sarajevo knjiga I, registarski broj 425"
+          - "Rješenje Federalnog Ministarstva pravde Sarajevo 04-05-2-236/03"
+          - "knjiga I pod registarskim brojm 652"
+          - "knjiga IX Reg. broj 1623"
+          - "Sarajevo reg. 695, Knjiga I"
+          - "upisano pod registarskim brojem 315, knjiga I"
         value: null
   type.name:
     options:
