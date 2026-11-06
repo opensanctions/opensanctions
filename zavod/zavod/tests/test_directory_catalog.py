@@ -91,3 +91,14 @@ def test_default_datasets_path() -> None:
     repo_root = Path(settings.__file__).resolve().parent.parent.parent
     assert settings.DATASETS_PATH == repo_root / "datasets"
     assert settings.DATASETS_PATH.is_dir()
+
+
+def test_query_selects_derived_tags(datasets_path: Path) -> None:
+    official = {
+        "title": "Official Dataset",
+        "publisher": {"name": "Ministry", "country": "de", "official": True},
+    }
+    (datasets_path / "ds_official.yml").write_text(yaml.safe_dump(official))
+    catalog = load_directory_catalog(datasets_path)
+    selected = evaluate_query(catalog, parse_query("#publisher.europe"))
+    assert {d.name for d in selected} == {"ds_official"}

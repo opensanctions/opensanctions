@@ -57,6 +57,7 @@ class Dataset(FollowTheMoneyDataset):
     def __init__(self, data: dict[str, Any]):
         super().__init__(data)
         self.model: ZavodDatasetModel = ZavodDatasetModel.model_validate(data)
+        self.model.tags = derive_tags(self)
         self.prefix = self.model.prefix
 
         # This will make disabled crawlers visible in the metadata:
@@ -168,7 +169,7 @@ class Dataset(FollowTheMoneyDataset):
         )
 
     def to_dict(self) -> dict[str, Any]:
-        """Generate a metadata export, not including operational details or derived tags."""
+        """Generate a metadata export, not including operational details."""
         data = super().to_dict()
         data["hidden"] = self.model.hidden
         data["disabled"] = self.model.disabled
@@ -197,10 +198,6 @@ class Dataset(FollowTheMoneyDataset):
 
         # Add the type field: collection, source, or external
         data["type"] = self._type
-
-        # Extend the hand-set tags with ones derived from the publisher and
-        # program metadata
-        data["tags"] = derive_tags(self)
 
         # Add the list of collections that this dataset belongs to
         if not self.is_collection:
