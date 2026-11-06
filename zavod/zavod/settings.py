@@ -64,6 +64,13 @@ ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
 
+# Memory limits (in MB) for the DuckDB instances of the store and of the delta
+# hash lookup. The two are separate instances open at the same time during an
+# export, and each would otherwise assume DuckDB's default share of the
+# available memory for itself. Unset, nomenklatura's settings apply.
+STORE_DUCKDB_MEMORY = env.get("ZAVOD_STORE_DUCKDB_MEMORY")
+DELTA_DUCKDB_MEMORY = env.get("ZAVOD_DELTA_DUCKDB_MEMORY")
+
 # HTTP settings
 # Connect and read timeout in seconds for the context HTTP session. Can be
 # overridden per-dataset via the `http.timeout` metadata option.
