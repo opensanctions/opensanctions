@@ -140,6 +140,7 @@ def make_occupancy(
     period_start: str | None = None,
     period_end: str | None = None,
     election_date: str | None = None,
+    declaration_date: str | None = None,
     categorisation: PositionCategorisation | None = None,
     status: OccupancyStatus | None = None,
     key_prefix: str | None = None,
@@ -150,8 +151,9 @@ def make_occupancy(
     to the person if an Occupancy is returned.
     **Emit the person after calling this to include this change.**
 
-    Unless `status` is overridden, Occupancies are only returned if end_date is None or
-    less than the after-office period after current_time.
+    Unless `status` is overridden, an occupancy is not returned once its `end_date` is
+    older than the after-office period. Without an end date, the same applies to
+    `declaration_date`.
 
     current_time defaults to the process start date and time.
 
@@ -178,6 +180,10 @@ def make_occupancy(
         current_time: Defaults to the run time of the current crawl.
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
+        declaration_date: The date of the latest declaration (e.g. of assets or
+            interests) the person filed for this position. Without an end date, the
+            after-office period runs from this date. It is not part of the
+            occupancy ID, so a newer declaration updates the same occupancy.
         status: Overrides determining PEP occupancy status
         two_digit_year_base: The earliest year a two-digit year may denote, applied to
             all of the dates. Pass this rather than parsing the dates in the crawler,
@@ -212,6 +218,7 @@ def make_occupancy(
         "periodStart": period_start,
         "periodEnd": period_end,
         "electionDate": election_date,
+        "declarationDate": declaration_date,
     }
     for prop, value in dates.items():
         h.apply_date(occupancy, prop, value, two_digit_year_base=two_digit_year_base)

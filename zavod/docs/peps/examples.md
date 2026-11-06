@@ -155,9 +155,9 @@ def crawl_member(context: Context, row: dict[str, Any]) -> None:
         person,
         position,
         categorisation=categorisation,
-        # A declaration gives no dates to derive a status from.
-        status=OccupancyStatus.UNKNOWN,
         no_end_implies_current=False,
+        # A declaration gives no term dates, only the date it was filed.
+        declaration_date=row.pop("filing_date"),
     )
     if occupancy is not None:
         context.emit(occupancy)
