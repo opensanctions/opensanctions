@@ -521,7 +521,8 @@ def emit_company(
             entity.add("name", names[0], lang="bos")
             entity.add("alias", names[1:], lang="bos")
     if not entity.has("name"):
-        context.log.warning("No valid name found", url=record["details_url"])
+        # The registry names some entries only ".", leaving nothing to emit.
+        context.log.info("Skipping company without a name", url=record["details_url"])
         return
 
     entity.add("country", "ba")
