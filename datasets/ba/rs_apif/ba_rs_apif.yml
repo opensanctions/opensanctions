@@ -73,6 +73,25 @@ lookups:
           - brisan
           - neregistrovan - obustavljena registracija
         value: deleted
+  # Placeholders the register uses for a missing value.
+  type.identifier:
+    options:
+      - match:
+          - "00000000"
+          - "000"
+          - "-"
+          - xxx
+          - Ovaj ne treba
+        value: null
+  type.phone:
+    options:
+      # An area code alone, e.g. "071/".
+      - regex: "^0\\d{1,2}/?$"
+        value: null
+  type.string:
+    options:
+      - match: Bez oznake djelatnosti
+        value: null
   # Founders that are foreign companies often carry their legal form, registry,
   # representatives and capital in the name; old-register companies sometimes
   # carry the court decision that deleted them.
