@@ -29,13 +29,13 @@ def test_publisher_country_eu():
     assert derive_tags(ds) == ["publisher.eu", "publisher.europe"]
 
 
-@pytest.mark.parametrize("country", ["fr", "li", "gb", "je", "mc", "rs", "ua"])
+@pytest.mark.parametrize("country", ["fr", "li", "mc", "rs", "ua"])
 def test_publisher_bloc(country: str):
     ds = make_dataset(publisher={"country": country, "official": True})
     assert derive_tags(ds) == [f"publisher.{country}", "publisher.europe"]
 
 
-@pytest.mark.parametrize("country", ["tr", "ru", "by", "am", "az", "ge"])
+@pytest.mark.parametrize("country", ["tr", "ru", "by", "am", "az", "ge", "gb", "je"])
 def test_not_in_europe_bloc(country: str):
     ds = make_dataset(publisher={"country": country, "official": True})
     assert derive_tags(ds) == [f"publisher.{country}"]
