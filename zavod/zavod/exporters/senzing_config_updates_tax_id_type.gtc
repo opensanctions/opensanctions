@@ -1,0 +1,20 @@
+# Senzing configuration update for the Senzing exporter: TAX_ID_TYPE, for OLDER engine configs only.
+#
+# Apply with:  sz_configtool -f senzing_config_updates_tax_id_type.gtc
+#
+# Do NOT apply it to a config that already has TAX_ID_TYPE (Senzing 4.4's default config does, e.g. 4.4.3):
+# sz_configtool reports each command as already present and does not save. Apply
+# senzing_config_updates.gtc (the custom features) in either case.
+#
+# TAX_ID_TYPE: the exporter types tax ids by scheme (INN, VAT, CUIT, NIT; a generic taxNumber carries no
+# type) so distinct schemes stay in separate exclusivity namespaces. It needs an ID_TYPE element on the
+# TAX_ID feature AND in its comparison call -- the comparison-call row is what makes the type SCORED, not
+# just stored. Senzing 4.4's default config ships this; the commands below add it to older configs
+# (mirrors NATIONAL_ID, which already carries a scored ID_TYPE).
+#
+# execOrder values match the 4.4.0-26224 template.
+
+addElementToFeature       {"feature": "TAX_ID", "element": "ID_TYPE", "derived": "No", "display": 1, "execOrder": 7}
+addComparisonCallElement  {"feature": "TAX_ID", "element": "ID_TYPE", "execOrder": 3}
+addAttribute              {"attribute": "TAX_ID_TYPE", "class": "IDENTIFIER", "feature": "TAX_ID", "element": "ID_TYPE", "required": "Desired"}
+save
