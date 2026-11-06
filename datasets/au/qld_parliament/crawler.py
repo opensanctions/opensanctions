@@ -7,13 +7,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
 MEMBERS_URL = "https://www.parliament.qld.gov.au/Members/Current-Members/Member-List"
-# Each member is one card in the roster; the roster is repeated across grouped
-# views on the page, so distinct members are keyed by their detail-page id.
-CARD = "//div[contains(@class, 'member-listing__profile-content')]"
-NAME = ".//span[contains(@class, 'member-listing__member-name')]"
-LINK = ".//a[contains(@class, 'member-listing__link')]"
-# Listing label, e.g. "Member for Sandgate (ALP)".
-TITLE = ".//span[contains(@class, 'member-listing__title')]"
 TITLE_RE = re.compile(r"^Member for (?P<electorate>.+) \((?P<party>.+)\)$")
 # A formal first name followed by a parenthetical preferred name, e.g.
 # "Rosslyn (Ros) Bates" -> formal "Rosslyn Bates", preferred "Ros Bates".
@@ -36,16 +29,26 @@ def crawl_member(
     categorisation: PositionCategorisation,
     card: Element,
 ) -> None:
-    link = h.xpath_element(card, LINK)
+    link = h.xpath_element(card, ".//a[contains(@class, 'member-listing__link')]")
     # The detail page is the canonical per-member URL; its opaque `id` query
     # parameter is the stable key we hash the entity ID from.
     detail_url = h.xpath_strings(link, "./@href")[0]
     raw_name = re.sub(
-        r"\s+", " ", h.element_text(h.xpath_element(card, NAME)) or ""
+        r"\s+",
+        " ",
+        h.element_text(
+            h.xpath_element(
+                card, ".//span[contains(@class, 'member-listing__member-name')]"
+            )
+        )
+        or "",
     ).strip()
 
     title_text = None
-    for title in h.xpath_elements(card, TITLE):
+    # Listing label, e.g. "Member for Sandgate (ALP)".
+    for title in h.xpath_elements(
+        card, ".//span[contains(@class, 'member-listing__title')]"
+    ):
         text = h.element_text(title)
         if text is not None and text.startswith("Member for"):
             title_text = text
@@ -113,7 +116,11 @@ def crawl(context: Context) -> None:
     # by-election winners from the general-election cohort); fetch the detail page
     # per member if that is wanted in future.
     doc = context.fetch_html(MEMBERS_URL, absolute_links=True, cache_days=1)
-    cards = h.xpath_elements(doc, CARD)
+    # Each member is one card in the roster; the roster is repeated across grouped
+    # views on the page, so distinct members are keyed by their detail-page id.
+    cards = h.xpath_elements(
+        doc, "//div[contains(@class, 'member-listing__profile-content')]"
+    )
     if not (75 <= len(cards) <= 140):
         # 93 seats; a wild count means the listing layout changed.
         context.log.warning("Unexpected member count", count=len(cards))
