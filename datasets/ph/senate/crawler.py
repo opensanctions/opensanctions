@@ -11,9 +11,7 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 # The Senate publishes its directory via a JSON API behind Cloudflare, so all
-# requests are routed through Zyte. `/hq/congress/` lists every Congress; the
-# one with the highest id is the current term, whose members we then fetch.
-CONGRESS_LIST_URL = "https://senate.gov.ph/hq/congress/"
+# requests are routed through Zyte.
 SENATORS_URL = "https://senate.gov.ph/hq/senators/congress/%s?per_page=100"
 
 # Each Congress runs for three years, beginning on 30 June following the May
@@ -114,7 +112,9 @@ def crawl_senator(
 
 
 def crawl(context: Context) -> None:
-    congresses = zyte_api.fetch_json(context, CONGRESS_LIST_URL, cache_days=1)
+    # data.url lists every Congress; the one with the highest id is the current
+    # term, whose members we then fetch.
+    congresses = zyte_api.fetch_json(context, context.data_url, cache_days=1)
 
     position = h.make_position(
         context,

@@ -19,7 +19,6 @@ from zavod import Context
 from zavod import helpers as h
 
 BASE_URL = "http://download.companieshouse.gov.uk/en_output.html"
-PSC_URL = "http://download.companieshouse.gov.uk/en_pscdata.html"
 PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
 
 # Canonical PSC nature-of-control enumeration, published by Companies House
@@ -235,7 +234,7 @@ def parse_base_data(context: Context) -> set[str]:
 
 
 def get_psc_data_url(context: Context) -> str:
-    doc = context.fetch_html(PSC_URL)
+    doc = context.fetch_html(context.data_url)
     for link in doc.findall(".//a"):
         url = urljoin(BASE_URL, link.get("href"))
         if "persons-with-significant-control-snapshot" in url:

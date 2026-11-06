@@ -6,7 +6,6 @@ from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
-MEMBERS_URL = "https://www.parliament.qld.gov.au/Members/Current-Members/Member-List"
 TITLE_RE = re.compile(r"^Member for (?P<electorate>.+) \((?P<party>.+)\)$")
 # A formal first name followed by a parenthetical preferred name, e.g.
 # "Rosslyn (Ros) Bates" -> formal "Rosslyn Bates", preferred "Ros Bates".
@@ -115,7 +114,7 @@ def crawl(context: Context) -> None:
     # page is the election date (-> Occupancy startDate, and it distinguishes
     # by-election winners from the general-election cohort); fetch the detail page
     # per member if that is wanted in future.
-    doc = context.fetch_html(MEMBERS_URL, absolute_links=True, cache_days=1)
+    doc = context.fetch_html(context.data_url, absolute_links=True, cache_days=1)
     # Each member is one card in the roster; the roster is repeated across grouped
     # views on the page, so distinct members are keyed by their detail-page id.
     cards = h.xpath_elements(
