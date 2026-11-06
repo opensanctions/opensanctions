@@ -222,9 +222,10 @@ def comparable_regno(value: str) -> str:
     """Normalise a registration number for checking a page against the listing.
 
     The listing writes a missing number as "-", and the pages as an empty or
-    non-breaking space value.
+    non-breaking space value. Whitespace is collapsed, because the page text
+    is read that way.
     """
-    value = value.replace("\xa0", " ").strip()
+    value = " ".join(value.replace("\xa0", " ").split())
     return "" if value == "-" else value
 
 
@@ -415,7 +416,7 @@ def fetch_report(
     url = f"{PAGE_URL}?p=186:{page}:{state.instance}::NO::"
     try:
         doc = fetch_page(context, url)
-    except requests.exceptions.HTTPError as exc:
+    except requests.exceptions.RequestException as exc:
         raise SessionLost(f"page {page}: {exc}")
     # The detail link passes the registration number comma-separated from the
     # other APEX items, so the registry stores and shows a number such as
@@ -442,7 +443,7 @@ def fetch_report(
             }
             try:
                 fragment = fetch_page(context, PAGE_URL, data=data)
-            except requests.exceptions.HTTPError as exc:
+            except requests.exceptions.RequestException as exc:
                 raise SessionLost(f"page {page} from row {min_row}: {exc}")
             more = parse_records(fragment)
             if not more:
@@ -468,7 +469,7 @@ def fetch_company(
     assert details_url is not None and regno is not None, record
     try:
         doc = fetch_page(context, details_url)
-    except requests.exceptions.HTTPError as exc:
+    except requests.exceptions.RequestException as exc:
         raise SessionLost(f"details: {exc}")
     # Some detail pages repeat the company's record block.
     details: list[Record] = []
