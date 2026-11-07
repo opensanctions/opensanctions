@@ -407,7 +407,7 @@ PCT_HEAD = re.compile(r"(%|percent|owner|interest|held)", re.I)
 PCT_CELL = re.compile(r"^(\d{1,3}(?:\.\d+)?)\s*%")
 # A share without the percent sign, in a column headed "% held".
 PCT_BARE = re.compile(r"^(\d{1,3}(?:\.\d+)?)$")
-FOOTNOTE = re.compile(r"(?:\s*(?:\*+|\(\d{1,2}\)|\(\w\)|\d\)))+\s*$")
+FOOTNOTE = re.compile(r"(?:\s*(?:\*|\(\d{1,2}\)|\(\w\)|\d\)))+\s*$")
 ENUM_CELL = re.compile(r"^(\(?\d{1,4}[.)]?|\(?[a-zA-Z][.)]|[●•·▪\-–*+†‡]+)$")
 JUR_PREFIX = re.compile(
     r"^(an?\s+|the\s+)?((state|commonwealth|province|republic|kingdom)\s+of\s+)?",
