@@ -463,7 +463,8 @@ def crawl_extract(context: Context, record: Record) -> None:
     context.audit_data(ids, ignore=["statusNip", "dataDecyzji"])
     # An entity carried over from an earlier register existed before its
     # entry into the KRS.
-    if subject.pop("daneOWczesniejszejRejestracji", None) is None:
+    previous = subject.pop("daneOWczesniejszejRejestracji", None)
+    if previous is None or previous == {}:
         h.apply_date(company, "incorporationDate", header["dataRejestracjiWKRS"])
     context.audit_data(
         subject,
