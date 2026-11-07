@@ -30,8 +30,7 @@ ANNUAL_FORMS = {"10-K", "10-K/A", "10-KT", "10-KT/A"}
 ARCHIVES = "https://www.sec.gov/Archives/edgar/data"
 # Filings never change, so lookups are kept for longer than the 18-month window.
 FILING_CACHE_DAYS = 600
-# Sustained crawling at 5 requests per second, half the SEC's published limit,
-# still drew 15-minute stalls after a few hundred requests.
+# The SEC throttles sustained crawling well below its published request limit.
 SEC_MIN_INTERVAL = 1.0
 EX21_ROW = re.compile(r"^\s*21(\.\d+)?\b")
 SUBSIDIARY_RE = re.compile(r"subsidiar", re.I)
@@ -202,7 +201,7 @@ def parse_roles(value: str) -> list[str]:
 
 def quarter_files(context: Context, cutoff: str) -> list[tuple[str, str]]:
     """List the Forms 3/4/5 quarterly ZIPs whose quarter ends after the cutoff."""
-    # The URL path changed between quarters, so the links are read off the page.
+    # File paths differ between quarters, so the links are read off the page.
     doc = context.fetch_html(
         "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
         absolute_links=True,
@@ -333,7 +332,7 @@ class Subsidiary:
 
 
 class Pacer:
-    """Keep requests to the SEC under its fair-access limit of 10 per second."""
+    """Space out requests to the SEC, following its fair-access policy."""
 
     def __init__(self) -> None:
         self.last = 0.0
@@ -667,11 +666,9 @@ def emit_subsidiary(context: Context, sub: Subsidiary) -> None:
 
 
 def fetch_bulk(context: Context, name: str, url: str) -> Path:
-    """Download a large file, resuming where the SEC cuts off long transfers."""
-    # The SEC resets connections after roughly 17 minutes, which a slow link
-    # needs for the 1.5 GB submissions.zip.
+    """Download a large file, resuming when the server drops the connection."""
     path = context.get_resource_path(name)
-    # Like fetch_resource: a completed download is reused within the data folder.
+    # Reuse a completed download, as fetch_resource does.
     if path.exists():
         return path
     path.parent.mkdir(parents=True, exist_ok=True)
