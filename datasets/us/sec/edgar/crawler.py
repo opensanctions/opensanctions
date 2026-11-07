@@ -30,9 +30,9 @@ ANNUAL_FORMS = {"10-K", "10-K/A", "10-KT", "10-KT/A"}
 ARCHIVES = "https://www.sec.gov/Archives/edgar/data"
 # Filings never change, so lookups are kept for longer than the 18-month window.
 FILING_CACHE_DAYS = 600
-# The SEC blocks clients for about ten minutes once they exceed 10 requests per
-# second; with retries in the mix, closer pacing runs into that.
-SEC_MIN_INTERVAL = 0.2
+# Sustained crawling at 5 requests per second, half the SEC's published limit,
+# still drew 15-minute stalls after a few hundred requests.
+SEC_MIN_INTERVAL = 1.0
 EX21_ROW = re.compile(r"^\s*21(\.\d+)?\b")
 SUBSIDIARY_RE = re.compile(r"subsidiar", re.I)
 NAME_HEAD = re.compile(r"\b(name|subsidiar|entity|entities)", re.I)
