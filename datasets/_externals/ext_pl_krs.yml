@@ -1,0 +1,64 @@
+type: external
+title: Poland National Court Register (KRS)
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: pl_krs
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2026-11-07
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  cpu: "2000m"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
+  disk: "100Gi"
+load_statements: true
+ci_test: false
+summary: >-
+  Companies and organisations in the Polish National Court Register which match
+  entities in the OpenSanctions database.
+url: https://prs.ms.gov.pl/krs
+publisher:
+  name: Ministerstwo Sprawiedliwości
+  name_en: Ministry of Justice
+  url: https://www.gov.pl/web/sprawiedliwosc
+  country: pl
+  official: true
+
+inputs:
+  - ann_graph_topics
+  - eu_edes
+  - eu_esma_sanctions
+  - eu_esma_saris
+  - ext_ru_egrul
+  - sanctions
+
+config:
+  topic_gated: true
+  index_options:
+    memory: 3000
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - sanction.control
+    - sanction.counter
+    - export.control
+    - export.control.linked
+    - invest.ban
+    - invest.risk
+    - debarment
+    - reg.action
+    - reg.warn
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization

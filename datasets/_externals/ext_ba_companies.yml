@@ -55,6 +55,7 @@ publisher:
 
 inputs:
   - ann_graph_topics
+  - ext_ba_rs_apif
   - sanctions
   - ext_cy_companies
   - ext_cz_business_register
