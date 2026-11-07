@@ -3,7 +3,7 @@ title: US CorpWatch EX-21 Filings
 prefix: us-cw
 entry_point: crawler.py
 coverage:
-  frequency: never
+  frequency: monthly
   start: "2003-01-01"
   end: "2025-01-28"
 deploy:
