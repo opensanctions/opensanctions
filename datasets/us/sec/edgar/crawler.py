@@ -671,6 +671,9 @@ def fetch_bulk(context: Context, name: str, url: str) -> Path:
     # The SEC resets connections after roughly 17 minutes, which a slow link
     # needs for the 1.5 GB submissions.zip.
     path = context.get_resource_path(name)
+    # Like fetch_resource: a completed download is reused within the data folder.
+    if path.exists():
+        return path
     path.parent.mkdir(parents=True, exist_ok=True)
     partial = path.with_name(f"{path.name}.part")
     partial.unlink(missing_ok=True)
