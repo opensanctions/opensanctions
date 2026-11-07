@@ -179,7 +179,10 @@ def crawl_table_row(
     fecha_publicacion = str_row.pop("fecha_publicacion")
     assert fecha_publicacion is not None
     if fecha_publicacion < h.backdate(settings.RUN_TIME, timedelta(days=YEAR_DAYS * 5)):
-        context.log.warning("Skipping potentially too old position", key=key)
+        # Deliberate scope cut-off: declarations published more than five years
+        # ago are not treated as evidence of a current or recent PEP position.
+        # Nothing to fix per record, so this is not surfaced as a warning.
+        context.log.info("Skipping potentially too old position", key=key)
         return
 
     if str_row.pop("es_contratista") != "NO":
