@@ -29,6 +29,11 @@ publisher:
   country: sk
   official: true
 
+assertions:
+  min:
+    schema_entities:
+      Company: 0
+
 inputs:
   - ann_graph_topics
   - eu_edes
