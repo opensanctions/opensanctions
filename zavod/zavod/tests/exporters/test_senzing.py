@@ -316,3 +316,70 @@ def test_opensanctions_id_only_when_canonical():
         "NK-",
     ):
         assert not canonical_id(entity_id), entity_id
+
+
+def export_one(tmp_path, data):
+    """Export a single entity (no adjacent entities) and return its Senzing record."""
+    ds = Dataset({"name": "test", "title": "Test"})
+
+    class View:
+        def get_adjacent(self, entity):
+            return iter(())
+
+    exporter = SenzingExporter.__new__(SenzingExporter)
+    exporter.dataset = ds
+    exporter.path = tmp_path / "senzing.json"
+    exporter.setup()
+    exporter.feed(Entity(ds, data), View())
+    exporter.fh.close()
+    (record,) = map(loads, open(exporter.path))
+    return record
+
+
+def test_retired_qid_is_not_an_identity(tmp_path):
+    """A QID entity whose wikidataId names another item carries a retired (redirected) QID."""
+    retired = export_one(
+        tmp_path,
+        {
+            "schema": "Person",
+            "id": "Q16119148",
+            "properties": {"name": ["Jane Example"], "wikidataId": ["Q12223619"]},
+        },
+    )
+    feats = retired["FEATURES"]
+    assert not [
+        f for f in feats if "REF_OPENSANCTIONS_ID" in f or "OPENSANCTIONS_ID" in f
+    ]
+    # Both QIDs still emitted, so it links to the entity holding the surviving QID.
+    assert sorted(f["WIKIDATA_ID"] for f in feats if "WIKIDATA_ID" in f) == [
+        "Q12223619",
+        "Q16119148",
+    ]
+    surviving = export_one(
+        tmp_path,
+        {
+            "schema": "Person",
+            "id": "Q12223619",
+            "properties": {"name": ["Jane Example"], "wikidataId": ["Q12223619"]},
+        },
+    )
+    assert {"REF_OPENSANCTIONS_ID": "Q12223619"} in surviving["FEATURES"]
+    assert {"OPENSANCTIONS_ID": "Q12223619"} in surviving["FEATURES"]
+
+
+def test_inn_is_always_russian(tmp_path):
+    """INN is a Russian scheme: its country is ru even when the entity is registered elsewhere."""
+    record = export_one(
+        tmp_path,
+        {
+            "schema": "Company",
+            "id": "NK-abc",
+            "properties": {
+                "name": ["Example Ltd"],
+                "jurisdiction": ["gb"],
+                "innCode": ["1327025929"],
+            },
+        },
+    )
+    (inn,) = [f for f in record["FEATURES"] if f.get("TAX_ID_TYPE") == "INN"]
+    assert inn["TAX_ID_COUNTRY"] == "ru"

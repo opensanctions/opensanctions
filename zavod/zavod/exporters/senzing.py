@@ -121,6 +121,19 @@ def canonical_id(entity_id: str) -> bool:
     return CANONICAL_ID.fullmatch(entity_id) is not None
 
 
+def retired_qid(entity: Entity) -> bool:
+    """True when a QID-keyed entity names a DIFFERENT Wikidata item as its `wikidataId`.
+
+    Its own id is then a Wikidata item that was merged into that one (a redirect), and another
+    entity carries the surviving QID: the retired id identifies nothing, so it must not block
+    the two from resolving. WIKIDATA_ID still emits both QIDs, which links them.
+    """
+    if not entity.id or not entity.id.startswith("Q"):
+        return False
+    wikidata_ids = entity.get("wikidataId", quiet=True)
+    return bool(wikidata_ids) and entity.id not in wikidata_ids
+
+
 # FtM identifier properties -> (family, canonical TYPE, issuing country, NATIONAL_ID subtype).
 # Tokens are the UPPER-CASE schemes of the Senzing identifier crosswalk, so every source sharing a
 # Senzing instance lands in one namespace per scheme; the country is set when the scheme has only
@@ -474,7 +487,7 @@ class SenzingExporter(Exporter):
             "IDENTIFIERS",
             tax_num,
             tax_type,
-            id_country,
+            "ru",  # INN is issued only by Russia (FtM: "(RU, ИНН)"), whatever the entity's country
             tax_ctry,
             type_val="INN",
         )
@@ -670,7 +683,7 @@ class SenzingExporter(Exporter):
         # via sub-lists above (so the address/name dedup and BUSINESS tagging stay simple), flattened
         # here. Record-level metadata (DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL) stays at the top level.
         feats: list[dict[str, Any]] = []
-        if canonical_id(entity.id):
+        if canonical_id(entity.id) and not retired_qid(entity):
             feats.append({"REF_OPENSANCTIONS_ID": entity.id})
             feats.append({"OPENSANCTIONS_ID": entity.id})
         if record_type is not None:
