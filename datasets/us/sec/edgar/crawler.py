@@ -15,7 +15,7 @@ from followthemoney.types import registry
 from lxml import etree
 from lxml import html as lxml_html
 from normality import slugify
-from requests.exceptions import HTTPError
+from requests.exceptions import ChunkedEncodingError, ConnectionError, HTTPError
 from rigour.ids import EIN, LEI
 from rigour.mime.types import ZIP
 from rigour.names import is_name
@@ -664,8 +664,43 @@ def emit_subsidiary(context: Context, sub: Subsidiary) -> None:
     context.emit(entity)
 
 
+def fetch_bulk(context: Context, name: str, url: str) -> Path:
+    """Download a large file, resuming where the SEC cuts off long transfers."""
+    # The SEC resets connections after roughly 17 minutes, which a slow link
+    # needs for the 1.5 GB submissions.zip.
+    path = context.get_resource_path(name)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    partial = path.with_name(f"{path.name}.part")
+    partial.unlink(missing_ok=True)
+    total: int | None = None
+    for _ in range(10):
+        offset = partial.stat().st_size if partial.exists() else 0
+        headers = {"Range": f"bytes={offset}-"} if offset else {}
+        try:
+            with context.http.get(url, headers=headers, stream=True) as res:
+                res.raise_for_status()
+                if offset and res.status_code != 206:
+                    raise ValueError(f"Server ignored range request: {url}")
+                if total is None:
+                    total = int(res.headers["Content-Length"])
+                with open(partial, "ab") as fh:
+                    for chunk in res.iter_content(chunk_size=1 << 20):
+                        fh.write(chunk)
+        except (ChunkedEncodingError, ConnectionError) as exc:
+            size = partial.stat().st_size if partial.exists() else 0
+            context.log.info(
+                "Download interrupted, resuming", size=size, error=str(exc)
+            )
+            continue
+        if partial.stat().st_size != total:
+            raise ValueError(f"Incomplete download: {url}")
+        partial.replace(path)
+        return path
+    raise RuntimeError(f"Download kept failing: {url}")
+
+
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("submissions.zip", context.data_url)
+    path = fetch_bulk(context, "submissions.zip", context.data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
     cutoff = h.backdate(settings.RUN_TIME, timedelta(days=5 * 365))
     ex21_cutoff = h.backdate(settings.RUN_TIME, timedelta(days=548))
