@@ -424,8 +424,8 @@ def make_address(context: Context, seat: Data) -> str | None:
 
 def add_pkd(entity: Entity, items: list[Data]) -> None:
     for item in items:
-        # Some lists hold an empty entry.
-        if item == {}:
+        # Some entries are empty or hold only a free-text description.
+        if "kodDzial" not in item:
             continue
         parts = [item["kodDzial"], item.get("kodKlasa"), item.get("kodPodklasa")]
         entity.add("classification", ".".join(p for p in parts if p))
