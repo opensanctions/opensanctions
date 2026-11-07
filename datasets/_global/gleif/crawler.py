@@ -196,12 +196,19 @@ def parse_lei_record(
     ocurls: dict[str, list[str]],
     isins: dict[str, list[str]],
     elfs: dict[str, str],
+    skipped: set[str],
 ) -> None:
     elc = h.remove_namespace(el)
-    proxy = context.make("Organization")
     lei = elc.findtext("LEI")
     if lei is None:
         return
+    registration = elc.find("Registration")
+    if registration is not None:
+        # Issued in error or superseded by another LEI; often fail the LEI checksum.
+        if registration.findtext("RegistrationStatus") in ("ANNULLED", "DUPLICATE"):
+            skipped.add(lei)
+            return
+    proxy = context.make("Organization")
     proxy.id = lei_id(lei)
     entity = elc.find("Entity")
     if entity is None:
@@ -222,26 +229,6 @@ def parse_lei_record(
             # Just in case they ever add a new value to the enum
             context.log.warn("Unknown EntityStatus", status=status, lei=lei)
             pass
-
-    registration_status = entity.findtext("RegistrationStatus")
-    # We expect ISSUED or one of the PENDING_ states
-    if registration_status in (
-        "LAPSED",
-        "MERGED",
-        "RETIRED",
-        "ANNULLED",
-        "CANCELLED",
-        "DUPLICATE",
-        "TRANSFERRED",
-    ):
-        # Note: I don't really know what to do in this case except investigate further
-        # what the combinations of EntityStatus and RegistrationStatus are and whether
-        # we can do anything useful with them.
-        context.log.warn(
-            "Entity RegistrationStatus indicates that EntityStatus shoule be inactive",
-            lei=lei,
-            status=registration_status,
-        )
 
     create_date = parse_date(entity.findtext("EntityCreationDate"))
     proxy.add("incorporationDate", create_date)
@@ -272,7 +259,6 @@ def parse_lei_record(
             proxy.add("legalForm", elfs.get(code))
         proxy.add("legalForm", legal_form.findtext("OtherLegalForm"))
 
-    registration = elc.find("Registration")
     if registration is not None:
         mod_date = parse_date(registration.findtext("LastUpdateDate"))
         proxy.add("modifiedAt", mod_date)
@@ -294,24 +280,37 @@ def parse_lei_record(
     context.emit(proxy)
 
 
-def parse_lei_file(context: Context, fh: IO[bytes]) -> None:
+def parse_lei_file(context: Context, fh: IO[bytes]) -> set[str]:
+    """Emit all LEI records and return the LEIs that were skipped as invalid."""
     elfs = load_elfs()
     bics = load_bic_mapping(context)
     ocurls = load_oc_mapping(context)
     isins = load_isin_mapping(context)
+    skipped: set[str] = set()
 
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=f"{{{LEI}}}LEIRecord")):
         if idx > 0 and idx % 10000 == 0:
             context.log.info(f"Parse LEIRecord: {idx}...")
-        parse_lei_record(context, el, bics=bics, ocurls=ocurls, isins=isins, elfs=elfs)
+        parse_lei_record(
+            context,
+            el,
+            bics=bics,
+            ocurls=ocurls,
+            isins=isins,
+            elfs=elfs,
+            skipped=skipped,
+        )
         el.clear()
 
     if idx == 0:
         raise RuntimeError("No entities!")
+    return skipped
 
 
-def parse_relationship_record(context: Context, el: etree._Element) -> None:
+def parse_relationship_record(
+    context: Context, el: etree._Element, skipped: set[str]
+) -> None:
     elc = h.remove_namespace(el)
     rel = elc.find("Relationship")
     if rel is None:
@@ -341,6 +340,8 @@ def parse_relationship_record(context: Context, el: etree._Element) -> None:
 
     if start_lei is None or end_lei is None:
         context.log.warn("Relationship missing LEI", start=start_lei, end=end_lei)
+        return
+    if start_lei in skipped or end_lei in skipped:
         return
 
     proxy = context.make(rel_schema)
@@ -380,13 +381,13 @@ def parse_relationship_record(context: Context, el: etree._Element) -> None:
     context.emit(proxy)
 
 
-def parse_rr_file(context: Context, fh: IO[bytes]) -> None:
+def parse_rr_file(context: Context, fh: IO[bytes], skipped: set[str]) -> None:
     tag = f"{{{RR}}}RelationshipRecord"
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
         if idx > 0 and idx % 10000 == 0:
             context.log.info(f"Parse RelationshipRecord: {idx}...")
-        parse_relationship_record(context, el)
+        parse_relationship_record(context, el, skipped)
         el.clear()
 
     if idx == 0:
@@ -397,6 +398,6 @@ def crawl(context: Context) -> None:
     lei_file = fetch_lei_file(context)
     rr_file = fetch_rr_file(context)
     with read_zip_file(context, lei_file) as fh:
-        parse_lei_file(context, fh)
+        skipped = parse_lei_file(context, fh)
     with read_zip_file(context, rr_file) as fh:
-        parse_rr_file(context, fh)
+        parse_rr_file(context, fh, skipped)
