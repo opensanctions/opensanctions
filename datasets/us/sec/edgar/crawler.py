@@ -18,7 +18,7 @@ from normality import slugify
 from requests import exceptions as req_exc
 from rigour.ids import EIN, LEI
 from rigour.mime.types import ZIP
-from rigour.names import is_name
+from rigour.names import extract_org_types, is_name
 
 from zavod import Context, settings
 from zavod import helpers as h
@@ -405,6 +405,8 @@ JUR_HEAD = re.compile(
 )
 PCT_HEAD = re.compile(r"(%|percent|owner|interest|held)", re.I)
 PCT_CELL = re.compile(r"^(\d{1,3}(?:\.\d+)?)\s*%")
+# A share without the percent sign, in a column headed "% held".
+PCT_BARE = re.compile(r"^(\d{1,3}(?:\.\d+)?)$")
 FOOTNOTE = re.compile(r"(?:\s*(?:\*+|\(\d{1,2}\)|\(\w\)|\d\)))+\s*$")
 ENUM_CELL = re.compile(r"^(\(?\d{1,4}[.)]?|\(?[a-zA-Z][.)]|[●•·▪\-–*+†‡]+)$")
 JUR_PREFIX = re.compile(
@@ -426,6 +428,7 @@ JUR_SUFFIX = re.compile(
     re.I,
 )
 TRAILING_PAREN = re.compile(r"^(.*\S)\s*\(([^()]+)\)\s*$")
+OWNED_TAIL = re.compile(r",?\s+an?\s+[\d.]+\s*%[- ]?owned\b.*$", re.I)
 
 
 class Pacer:
@@ -594,7 +597,13 @@ def detect_header(context: Context, cells: list[str]) -> dict[str, int] | None:
             columns["jur"] = idx
         elif "pct" not in columns and PCT_HEAD.search(cell):
             columns["pct"] = idx
-    if "name" in columns and ("jur" in columns or len(cells) <= 3):
+    if "name" not in columns:
+        return None
+    # A legal form marks a parent company line, e.g.
+    # "SCI Funeral Services, LLC (Iowa LLC) Alabama subsidiary".
+    if extract_org_types(cells[columns["name"]].casefold()):
+        return None
+    if "jur" in columns or len(cells) <= 3:
         return columns
     return None
 
@@ -624,6 +633,8 @@ def split_name_place(context: Context, text: str) -> tuple[str, str, str] | None
         country = resolve_jurisdiction(context, rest)
         # Drop dot leaders ("Jacobs Engineering Group Inc., …………") but keep "Inc.".
         head = re.sub(r"\s*(?:\.{2}|…)[\s.…]*$", "", text[: match.start()])
+        # "Sonoco New Zealand Limited, a 100%-owned foreign subsidiary"
+        head = OWNED_TAIL.sub("", head)
         name = clean_sub_name(head.strip(" ,"))
         if country is not None and name is not None:
             return name, rest, country
@@ -631,17 +642,28 @@ def split_name_place(context: Context, text: str) -> tuple[str, str, str] | None
 
 
 def parse_row(
-    context: Context, cells: list[str], header: dict[str, int] | None, width: int
+    context: Context,
+    cells: list[str],
+    header: dict[str, int] | None,
+    width: int,
+    heading: str | None,
+    inline_heading: bool = False,
 ) -> SubsidiaryRow | None:
     if header is not None and len(cells) == width:
         name = clean_sub_name(cells[header["name"]])
         jur = cells[header["jur"]] if "jur" in header else None
         pct = PCT_CELL.match(cells[header["pct"]]) if "pct" in header else None
         if name is not None and jur is None:
-            # "PNNT Alabama Holdings Inc. (Delaware)"
-            paren = TRAILING_PAREN.match(name)
-            if paren is not None and resolve_jurisdiction(context, paren.group(2)):
-                name, jur = paren.group(1), paren.group(2)
+            # "PNNT Alabama Holdings Inc. (Delaware)", "Sonoco Holdings, Inc., a
+            # 100%-owned domestic subsidiary, incorporated in Delaware"
+            split = split_name_place(context, name)
+            if split is not None:
+                name, jur, _ = split
+            elif SUBSIDIARY_RE.search(name):
+                # A description of a parent, e.g. "SCI Funeral Services, LLC
+                # (Iowa LLC) Alabama subsidiary", not a subsidiary's name.
+                return None
+        jur = jur or heading
         country = resolve_jurisdiction(context, jur) if jur else None
         if name is not None and (jur is None or country is not None):
             return SubsidiaryRow(name, jur, country, pct.group(1) if pct else None)
@@ -659,6 +681,15 @@ def parse_row(
     if split is not None:
         name, jur, country = split
         return SubsidiaryRow(name, jur, country, pct_text)
+    # Under a place heading ("IDAHO"), a name followed by its ownership share:
+    # "Ballard Mortuary, Inc. | 100%". A heading in the same row needs no share.
+    name = clean_sub_name(cells[0])
+    share = (
+        PCT_CELL.match(cells[1]) or PCT_BARE.match(cells[1]) if len(cells) > 1 else None
+    )
+    if heading is not None and name is not None and (inline_heading or share):
+        share_text = share.group(1) if share else None
+        return SubsidiaryRow(name, heading, resolve_place(context, heading), share_text)
     return None
 
 
@@ -667,6 +698,7 @@ def parse_ex21(context: Context, doc: etree._Element) -> list[SubsidiaryRow]:
     rows: list[SubsidiaryRow] = []
     header: dict[str, int] | None = None
     width = 0
+    heading: str | None = None
     # Tables split across pages repeat or drop the header, so it carries over.
     for tr in h.xpath_elements(doc, ".//tr"):
         cells = compact_cells(tr)
@@ -674,9 +706,19 @@ def parse_ex21(context: Context, doc: etree._Element) -> list[SubsidiaryRow]:
             continue
         found = detect_header(context, cells)
         if found is not None:
-            header, width = found, len(cells)
+            header, width, heading = found, len(cells), None
             continue
-        row = parse_row(context, cells, header, width)
+        # A row naming only a place groups the rows below it ("IDAHO", "Germany:").
+        # It must resolve as a whole, or a name like "Texas Gas" would qualify.
+        if resolve_place(context, cells[0].rstrip(":")) is not None:
+            heading = cells[0].rstrip(":").strip()
+            if len(cells) == 1:
+                continue
+            # The place leads the row and spans the rows below it:
+            # "United States | Ash Grove Cement Company | 100".
+            row = parse_row(context, cells[1:], None, 0, heading, inline_heading=True)
+        else:
+            row = parse_row(context, cells, header, width, heading)
         if row is not None:
             rows.append(row)
     return rows
