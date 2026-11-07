@@ -221,11 +221,15 @@ def crawl_company(context: Context, record: dict[str, Any]) -> None:
     res = context.lookup_value("status", status, warn_unmatched=True)
     if res != "active":
         return
+    name = record.pop("PoslovnoIme")
+    if name is None:
+        context.log.info("Skipping company without a name", pid=pid)
+        return
 
     company = context.make("Company")
     company.id = context.make_slug(str(pid))
-    company.add("name", record.pop("PoslovnoIme"))
-    company.add("country", "ba")
+    company.add("name", name)
+    company.add("jurisdiction", "ba")
     company.add("status", status)
     address = record.pop("Sjediste")
     if address is not None:
