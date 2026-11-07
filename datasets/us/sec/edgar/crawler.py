@@ -15,7 +15,7 @@ from followthemoney.types import registry
 from lxml import etree
 from lxml import html as lxml_html
 from normality import slugify
-from requests.exceptions import ChunkedEncodingError, ConnectionError, HTTPError
+from requests.exceptions import ChunkedEncodingError, ConnectionError, RequestException
 from rigour.ids import EIN, LEI
 from rigour.mime.types import ZIP
 from rigour.names import is_name
@@ -600,7 +600,7 @@ def crawl_report(
     filer_slug = slugify(report.name, sep="")
     try:
         urls = find_ex21_urls(context, pacer, report)
-    except HTTPError as exc:
+    except RequestException as exc:
         # Uncached, so the next run retries this filing.
         context.log.warning("Cannot read filing", url=report.base_url, error=str(exc))
         return
@@ -610,7 +610,7 @@ def crawl_report(
     for url in urls:
         try:
             doc = fetch_ex21(context, pacer, url)
-        except HTTPError as exc:
+        except RequestException as exc:
             context.log.warning("Cannot fetch EX-21", url=url, error=str(exc))
             continue
         except (ValueError, etree.LxmlError) as exc:
