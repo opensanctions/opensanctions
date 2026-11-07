@@ -15,7 +15,7 @@ from followthemoney.types import registry
 from lxml import etree
 from lxml import html as lxml_html
 from normality import slugify
-from requests.exceptions import ChunkedEncodingError, ConnectionError, RequestException
+from requests import exceptions as req_exc
 from rigour.ids import EIN, LEI
 from rigour.mime.types import ZIP
 from rigour.names import is_name
@@ -23,45 +23,16 @@ from rigour.names import is_name
 from zavod import Context, settings
 from zavod import helpers as h
 
+
+def cik_id(cik: str) -> str:
+    """Build the dataset-independent entity ID for a 10-digit, zero-padded CIK."""
+    return f"us-sec-cik-{cik}"
+
+
+# Register of filers, from the bulk submissions.zip ----------------------------
+
 ENTITY_TYPES = {"operating", "investment", "other"}
-ROLE_RE = re.compile(r"Director|Officer|TenPercentOwner|Other")
-QUARTER_RE = re.compile(r"(\d{4})q([1-4])_form345\.zip$")
 ANNUAL_FORMS = {"10-K", "10-K/A", "10-KT", "10-KT/A"}
-ARCHIVES = "https://www.sec.gov/Archives/edgar/data"
-# Filings never change, so lookups are kept for longer than the 18-month window.
-FILING_CACHE_DAYS = 600
-# The SEC throttles sustained crawling well below its published request limit.
-SEC_MIN_INTERVAL = 1.0
-EX21_ROW = re.compile(r"^\s*21(\.\d+)?\b")
-SUBSIDIARY_RE = re.compile(r"subsidiar", re.I)
-NAME_HEAD = re.compile(r"\b(name|subsidiar|entity|entities)", re.I)
-JUR_HEAD = re.compile(
-    r"(jurisdiction|incorporat|organi[sz]|state|country|domicile|formation|laws of|location)",
-    re.I,
-)
-PCT_HEAD = re.compile(r"(%|percent|owner|interest|held)", re.I)
-PCT_CELL = re.compile(r"^(\d{1,3}(?:\.\d+)?)\s*%")
-FOOTNOTE = re.compile(r"(?:\s*(?:\*+|\(\d{1,2}\)|\(\w\)|\d\)))+\s*$")
-ENUM_CELL = re.compile(r"^(\(?\d{1,4}[.)]?|\(?[a-zA-Z][.)]|[●•·▪\-–*+†‡]+)$")
-JUR_PREFIX = re.compile(
-    r"^(an?\s+|the\s+)?((state|commonwealth|province|republic|kingdom)\s+of\s+)?",
-    re.I,
-)
-# "incorporated on June 23, 1994 in TX", "a corporation of Delaware"
-JUR_PHRASE = re.compile(
-    r"\b(?:incorporated|organized|formed|chartered)\b.*?\bin\s+(?:the\s+)?(.+?)"
-    r"(?:\s+and\b.*)?$|\b(?:corporation|company|partnership)\s+of\s+(.+)$",
-    re.I,
-)
-# Separators between a name and its jurisdiction within a single cell.
-NAME_PLACE_SEP = re.compile(r"\s*\(|,\s+|\s+[-–]\s+")
-JUR_SUFFIX = re.compile(
-    r"\s+(limited liability company|limited partnership|general partnership|"
-    r"corporation|partnership|company|statutory trust|business trust|trust|"
-    r"limited|llc|lp|corp\.?|inc\.?)\b.*$",
-    re.I,
-)
-TRAILING_PAREN = re.compile(r"^(.*\S)\s*\(([^()]+)\)\s*$")
 IGNORE = [
     "filings",
     "category",
@@ -79,9 +50,55 @@ IGNORE = [
 ]
 
 
-def cik_id(cik: str) -> str:
-    """Build the dataset-independent entity ID for a 10-digit, zero-padded CIK."""
-    return f"us-sec-cik-{cik}"
+@dataclass
+class AnnualReport:
+    """A 10-K filing whose Exhibit 21 lists the filer's subsidiaries."""
+
+    cik: str
+    name: str
+    accession: str
+    date: str
+    primary_document: str
+
+    @property
+    def base_url(self) -> str:
+        return f"https://www.sec.gov/Archives/edgar/data/{int(self.cik)}/{self.accession.replace('-', '')}"
+
+
+def fetch_bulk(context: Context, name: str, url: str) -> Path:
+    """Download a large file, resuming when the server drops the connection."""
+    path = context.get_resource_path(name)
+    # Reuse a completed download, as fetch_resource does.
+    if path.exists():
+        return path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    partial = path.with_name(f"{path.name}.part")
+    partial.unlink(missing_ok=True)
+    total: int | None = None
+    for _ in range(10):
+        offset = partial.stat().st_size if partial.exists() else 0
+        headers = {"Range": f"bytes={offset}-"} if offset else {}
+        try:
+            with context.http.get(url, headers=headers, stream=True) as res:
+                res.raise_for_status()
+                if offset and res.status_code != 206:
+                    raise ValueError(f"Server ignored range request: {url}")
+                if total is None:
+                    total = int(res.headers["Content-Length"])
+                with open(partial, "ab") as fh:
+                    for chunk in res.iter_content(chunk_size=1 << 20):
+                        fh.write(chunk)
+        except (req_exc.ChunkedEncodingError, req_exc.ConnectionError) as exc:
+            size = partial.stat().st_size if partial.exists() else 0
+            context.log.info(
+                "Download interrupted, resuming", size=size, error=str(exc)
+            )
+            continue
+        if partial.stat().st_size != total:
+            raise ValueError(f"Incomplete download: {url}")
+        partial.replace(path)
+        return path
+    raise RuntimeError(f"Download kept failing: {url}")
 
 
 def resolve_location(
@@ -171,6 +188,65 @@ def crawl_filer(context: Context, data: dict[str, Any], cutoff: str) -> str | No
     context.audit_data(data, ignore=IGNORE)
     context.emit(entity)
     return cik
+
+
+def collect_reports(
+    zf: zipfile.ZipFile, cik: str, name: str, filings: dict[str, Any], cutoff: str
+) -> list[AnnualReport]:
+    """List the filer's 10-Ks since the cutoff, including paginated older filings."""
+    pages: list[dict[str, Any]] = [filings["recent"]]
+    for page in filings["files"]:
+        if page["filingTo"] >= cutoff:
+            pages.append(json.loads(zf.read(page["name"])))
+    reports: list[AnnualReport] = []
+    for page in pages:
+        rows = zip(
+            page["form"],
+            page["accessionNumber"],
+            page["filingDate"],
+            page["primaryDocument"],
+        )
+        for form, accession, date, document in rows:
+            if form in ANNUAL_FORMS and date >= cutoff:
+                reports.append(AnnualReport(cik, name, accession, date, document))
+    return reports
+
+
+def crawl_register(context: Context) -> tuple[set[str], list[AnnualReport]]:
+    """Emit every CIK with a filing in the last five years.
+
+    Returns the emitted CIKs and the annual reports of the last 18 months."""
+    path = fetch_bulk(context, "submissions.zip", context.data_url)
+    context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
+    cutoff = h.backdate(settings.RUN_TIME, timedelta(days=5 * 365))
+    reports_cutoff = h.backdate(settings.RUN_TIME, timedelta(days=548))
+    emitted: set[str] = set()
+    reports: list[AnnualReport] = []
+    skipped = 0
+    with zipfile.ZipFile(path, "r") as zf:
+        for name in zf.namelist():
+            # CIK##########-submissions-NNN.json hold older filing pages only.
+            if not name.startswith("CIK") or "-submissions-" in name:
+                continue
+            data = json.loads(zf.read(name))
+            filings: dict[str, Any] = data["filings"]
+            filer_name: str = data["name"]
+            cik = crawl_filer(context, data, cutoff)
+            if cik is None:
+                skipped += 1
+                continue
+            emitted.add(cik)
+            reports.extend(
+                collect_reports(zf, cik, filer_name, filings, reports_cutoff)
+            )
+    context.log.info("Filers without a recent filing", skipped=skipped)
+    return emitted, reports
+
+
+# Insider roles, from the Forms 3/4/5 quarterly data sets ----------------------
+
+ROLE_RE = re.compile(r"Director|Officer|TenPercentOwner|Other")
+QUARTER_RE = re.compile(r"(\d{4})q([1-4])_form345\.zip$")
 
 
 @dataclass
@@ -296,39 +372,56 @@ def emit_relation(context: Context, rel: Relation) -> None:
     context.emit(entity)
 
 
-@dataclass
-class AnnualReport:
-    """A 10-K filing whose Exhibit 21 lists the filer's subsidiaries."""
-
-    cik: str
-    name: str
-    accession: str
-    date: str
-    primary_document: str
-
-    @property
-    def base_url(self) -> str:
-        return f"{ARCHIVES}/{int(self.cik)}/{self.accession.replace('-', '')}"
-
-
-@dataclass
-class SubsidiaryRow:
-    name: str
-    jurisdiction: str | None
-    country: str | None
-    percent: str | None
+def crawl_insiders(context: Context, emitted: set[str]) -> None:
+    """Link directors, officers and major owners to issuers over the last five years."""
+    cutoff = h.backdate(settings.RUN_TIME, timedelta(days=5 * 365))
+    relations: dict[tuple[str, str, str], Relation] = {}
+    issuers: set[str] = set()
+    for file_name, url in quarter_files(context, cutoff):
+        context.log.info("Parsing insider data set", file=file_name)
+        path = context.fetch_resource(f"form345/{file_name}", url)
+        crawl_insider_file(context, path, relations, emitted, issuers)
+    for rel in relations.values():
+        emit_relation(context, rel)
+    context.log.info("Insider relations", relations=len(relations))
 
 
-@dataclass
-class Subsidiary:
-    """A subsidiary relation of one filer, merged across all its EX-21 documents."""
+# Subsidiaries, from Exhibit 21 of annual reports ------------------------------
 
-    filer: str
-    entity_id: str
-    schema: str
-    date: str
-    percent: str | None
-    urls: set[str] = field(default_factory=set)
+# Filings never change once accepted; cached lookups are reused for three months.
+EX21_CACHE_DAYS = 90
+# The SEC throttles sustained crawling well below its published request limit.
+SEC_MIN_INTERVAL = 1.0
+EX21_ROW = re.compile(r"^\s*21(\.\d+)?\b")
+SUBSIDIARY_RE = re.compile(r"subsidiar", re.I)
+NAME_HEAD = re.compile(r"\b(name|subsidiar|entity|entities)", re.I)
+JUR_HEAD = re.compile(
+    r"(jurisdiction|incorporat|organi[sz]|state|country|domicile|formation|laws of|location)",
+    re.I,
+)
+PCT_HEAD = re.compile(r"(%|percent|owner|interest|held)", re.I)
+PCT_CELL = re.compile(r"^(\d{1,3}(?:\.\d+)?)\s*%")
+FOOTNOTE = re.compile(r"(?:\s*(?:\*+|\(\d{1,2}\)|\(\w\)|\d\)))+\s*$")
+ENUM_CELL = re.compile(r"^(\(?\d{1,4}[.)]?|\(?[a-zA-Z][.)]|[●•·▪\-–*+†‡]+)$")
+JUR_PREFIX = re.compile(
+    r"^(an?\s+|the\s+)?((state|commonwealth|province|republic|kingdom)\s+of\s+)?",
+    re.I,
+)
+# "incorporated on June 23, 1994 in TX", "a corporation of Delaware"
+JUR_PHRASE = re.compile(
+    r"\b(?:incorporated|organized|formed|chartered)\b.*?\bin\s+(?:the\s+)?(.+?)"
+    r"(?:\s+and\b.*)?$|\b(?:corporation|company|partnership)\s+of\s+(.+)$",
+    re.I,
+)
+# Separators between a name and its jurisdiction within a single cell.
+NAME_PLACE_SEP = re.compile(r"\s*\(|,\s+|\s+[-–]\s+")
+JUR_SUFFIX = re.compile(
+    r"\s+(limited liability company|limited partnership|general partnership|"
+    r"corporation|partnership|company|statutory trust|business trust|trust|"
+    r"limited|llc|lp|corp\.?|inc\.?)\b.*$",
+    re.I,
+)
+TRAILING_PAREN = re.compile(r"^(.*\S)\s*\(([^()]+)\)\s*$")
 
 
 class Pacer:
@@ -344,26 +437,16 @@ class Pacer:
         self.last = time.monotonic()
 
 
-def collect_reports(
-    zf: zipfile.ZipFile, cik: str, name: str, filings: dict[str, Any], cutoff: str
-) -> list[AnnualReport]:
-    """List the filer's 10-Ks since the cutoff, including paginated older filings."""
-    pages: list[dict[str, Any]] = [filings["recent"]]
-    for page in filings["files"]:
-        if page["filingTo"] >= cutoff:
-            pages.append(json.loads(zf.read(page["name"])))
-    reports: list[AnnualReport] = []
-    for page in pages:
-        rows = zip(
-            page["form"],
-            page["accessionNumber"],
-            page["filingDate"],
-            page["primaryDocument"],
-        )
-        for form, accession, date, document in rows:
-            if form in ANNUAL_FORMS and date >= cutoff:
-                reports.append(AnnualReport(cik, name, accession, date, document))
-    return reports
+def parse_html(text: str, url: str) -> etree._Element:
+    # lxml refuses str input that carries an XML encoding declaration, which
+    # inline XBRL documents start with.
+    doc = lxml_html.fromstring(re.sub(r"^\s*<\?xml[^>]*\?>", "", text))
+    if not isinstance(doc, lxml_html.HtmlElement):
+        raise ValueError(f"Not an HTML document: {url}")
+    # Exhibit indexes link to documents by relative paths.
+    doc.make_links_absolute(url)
+    parsed: etree._Element = doc
+    return parsed
 
 
 def archive_link(href: str | None) -> str | None:
@@ -374,8 +457,7 @@ def archive_link(href: str | None) -> str | None:
 
 
 def cells_text(row: etree._Element) -> list[str]:
-    texts = [h.element_text(c) for c in h.xpath_elements(row, "./td|./th")]
-    return [t.replace("​", "").strip() for t in texts]
+    return [h.element_text(c) for c in h.xpath_elements(row, "./td|./th")]
 
 
 def find_referenced_ex21(context: Context, pacer: Pacer, url: str) -> list[str]:
@@ -384,7 +466,7 @@ def find_referenced_ex21(context: Context, pacer: Pacer, url: str) -> list[str]:
     text = context.fetch_text(url)
     if text is None:
         raise ValueError(f"Empty filing document: {url}")
-    doc = parse_html(text)
+    doc = parse_html(text, url)
     urls: list[str] = []
     for row in h.xpath_elements(doc, ".//tr"):
         cells = [c for c in cells_text(row) if c]
@@ -401,7 +483,7 @@ def find_referenced_ex21(context: Context, pacer: Pacer, url: str) -> list[str]:
 
 def find_ex21_urls(context: Context, pacer: Pacer, report: AnnualReport) -> list[str]:
     key = f"ex21-urls:{report.accession}"
-    cached = context.cache.get_json(key, max_age=FILING_CACHE_DAYS)
+    cached = context.cache.get_json(key, max_age=EX21_CACHE_DAYS)
     if cached is not None:
         return [str(u) for u in cached]
     pacer.wait()
@@ -425,7 +507,7 @@ def find_ex21_urls(context: Context, pacer: Pacer, report: AnnualReport) -> list
 
 def fetch_ex21(context: Context, pacer: Pacer, url: str) -> etree._Element:
     key = f"ex21-doc:{url}"
-    text = context.cache.get(key, max_age=FILING_CACHE_DAYS)
+    text = context.cache.get(key, max_age=EX21_CACHE_DAYS)
     if text is None:
         pacer.wait()
         text = context.fetch_text(url)
@@ -434,13 +516,15 @@ def fetch_ex21(context: Context, pacer: Pacer, url: str) -> etree._Element:
         # Some exhibits contain NUL bytes, which PostgreSQL text fields reject.
         text = text.replace("\x00", "")
         context.cache.set(key, text)
-    return parse_html(text)
+    return parse_html(text, url)
 
 
-def parse_html(text: str) -> etree._Element:
-    # lxml refuses str input that carries an XML encoding declaration, which
-    # inline XBRL documents start with.
-    return lxml_html.fromstring(re.sub(r"^\s*<\?xml[^>]*\?>", "", text))
+@dataclass
+class SubsidiaryRow:
+    name: str
+    jurisdiction: str | None
+    country: str | None
+    percent: str | None
 
 
 def resolve_place(context: Context, value: str) -> str | None:
@@ -516,6 +600,30 @@ def clean_sub_name(value: str) -> str | None:
     return name
 
 
+def split_name_place(context: Context, text: str) -> tuple[str, str, str] | None:
+    """Split a cell holding both a name and its jurisdiction, rightmost first."""
+    text = text.strip(" .…")
+    for match in reversed(list(NAME_PLACE_SEP.finditer(text))):
+        rest = text[match.end() :]
+        if "(" in match.group(0):
+            # Only a parenthesis closing the cell: "Zoom (Hong Kong) LTD" is a name.
+            if not rest.endswith(")"):
+                continue
+            rest = rest[:-1]
+        if "(" in rest or ")" in rest:
+            continue
+        phrase = JUR_PHRASE.search(rest)
+        if phrase is not None:
+            rest = phrase.group(1) or phrase.group(2)
+        country = resolve_jurisdiction(context, rest)
+        # Drop dot leaders ("Jacobs Engineering Group Inc., …………") but keep "Inc.".
+        head = re.sub(r"\s*(?:\.{2}|…)[\s.…]*$", "", text[: match.start()])
+        name = clean_sub_name(head.strip(" ,"))
+        if country is not None and name is not None:
+            return name, rest, country
+    return None
+
+
 def parse_row(
     context: Context, cells: list[str], header: dict[str, int] | None, width: int
 ) -> SubsidiaryRow | None:
@@ -548,30 +656,6 @@ def parse_row(
     return None
 
 
-def split_name_place(context: Context, text: str) -> tuple[str, str, str] | None:
-    """Split a cell holding both a name and its jurisdiction, rightmost first."""
-    text = text.strip(" .…")
-    for match in reversed(list(NAME_PLACE_SEP.finditer(text))):
-        rest = text[match.end() :]
-        if "(" in match.group(0):
-            # Only a parenthesis closing the cell: "Zoom (Hong Kong) LTD" is a name.
-            if not rest.endswith(")"):
-                continue
-            rest = rest[:-1]
-        if "(" in rest or ")" in rest:
-            continue
-        phrase = JUR_PHRASE.search(rest)
-        if phrase is not None:
-            rest = phrase.group(1) or phrase.group(2)
-        country = resolve_jurisdiction(context, rest)
-        # Drop dot leaders ("Jacobs Engineering Group Inc., …………") but keep "Inc.".
-        head = re.sub(r"\s*(?:\.{2}|…)[\s.…]*$", "", text[: match.start()])
-        name = clean_sub_name(head.strip(" ,"))
-        if country is not None and name is not None:
-            return name, rest, country
-    return None
-
-
 def parse_ex21(context: Context, doc: etree._Element) -> list[SubsidiaryRow]:
     """Read subsidiary rows from the tables of an EX-21 document."""
     rows: list[SubsidiaryRow] = []
@@ -592,26 +676,40 @@ def parse_ex21(context: Context, doc: etree._Element) -> list[SubsidiaryRow]:
     return rows
 
 
+@dataclass
+class Subsidiary:
+    """A subsidiary relation of one filer, merged across all its EX-21 documents."""
+
+    filer: str
+    entity_id: str
+    schema: str
+    date: str
+    percent: str | None
+    urls: set[str] = field(default_factory=set)
+
+
 def crawl_report(
     context: Context,
     pacer: Pacer,
     report: AnnualReport,
     subsidiaries: dict[tuple[str, str, str], Subsidiary],
-) -> None:
+) -> int:
+    """Read the subsidiaries listed in one annual report; returns how many."""
     filer_slug = slugify(report.name, sep="")
     try:
         urls = find_ex21_urls(context, pacer, report)
-    except RequestException as exc:
+    except req_exc.RequestException as exc:
         # Uncached, so the next run retries this filing.
         context.log.warning("Cannot read filing", url=report.base_url, error=str(exc))
-        return
+        return 0
     except (ValueError, etree.LxmlError) as exc:
         context.log.error("Cannot parse filing", url=report.base_url, error=str(exc))
-        return
+        return 0
+    count = 0
     for url in urls:
         try:
             doc = fetch_ex21(context, pacer, url)
-        except RequestException as exc:
+        except req_exc.RequestException as exc:
             context.log.warning("Cannot fetch EX-21", url=url, error=str(exc))
             continue
         except (ValueError, etree.LxmlError) as exc:
@@ -636,6 +734,7 @@ def crawl_report(
             company.add("name", row.name)
             company.add("jurisdiction", row.country)
             context.emit(company)
+            count += 1
             # EX-21 lists entities the registrant controls, directly or not; a
             # stated percentage is an ownership share.
             schema = "Ownership" if row.percent is not None else "Control"
@@ -647,6 +746,7 @@ def crawl_report(
             if report.date >= sub.date:
                 sub.date, sub.percent = report.date, row.percent or sub.percent
             sub.urls.add(url)
+    return count
 
 
 def emit_subsidiary(context: Context, sub: Subsidiary) -> None:
@@ -665,89 +765,25 @@ def emit_subsidiary(context: Context, sub: Subsidiary) -> None:
     context.emit(entity)
 
 
-def fetch_bulk(context: Context, name: str, url: str) -> Path:
-    """Download a large file, resuming when the server drops the connection."""
-    path = context.get_resource_path(name)
-    # Reuse a completed download, as fetch_resource does.
-    if path.exists():
-        return path
-    path.parent.mkdir(parents=True, exist_ok=True)
-    partial = path.with_name(f"{path.name}.part")
-    partial.unlink(missing_ok=True)
-    total: int | None = None
-    for _ in range(10):
-        offset = partial.stat().st_size if partial.exists() else 0
-        headers = {"Range": f"bytes={offset}-"} if offset else {}
-        try:
-            with context.http.get(url, headers=headers, stream=True) as res:
-                res.raise_for_status()
-                if offset and res.status_code != 206:
-                    raise ValueError(f"Server ignored range request: {url}")
-                if total is None:
-                    total = int(res.headers["Content-Length"])
-                with open(partial, "ab") as fh:
-                    for chunk in res.iter_content(chunk_size=1 << 20):
-                        fh.write(chunk)
-        except (ChunkedEncodingError, ConnectionError) as exc:
-            size = partial.stat().st_size if partial.exists() else 0
-            context.log.info(
-                "Download interrupted, resuming", size=size, error=str(exc)
-            )
-            continue
-        if partial.stat().st_size != total:
-            raise ValueError(f"Incomplete download: {url}")
-        partial.replace(path)
-        return path
-    raise RuntimeError(f"Download kept failing: {url}")
-
-
-def crawl(context: Context) -> None:
-    path = fetch_bulk(context, "submissions.zip", context.data_url)
-    context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
-    cutoff = h.backdate(settings.RUN_TIME, timedelta(days=5 * 365))
-    ex21_cutoff = h.backdate(settings.RUN_TIME, timedelta(days=548))
-    emitted_ciks: set[str] = set()
-    reports: list[AnnualReport] = []
-    emitted = 0
-    skipped = 0
-    with zipfile.ZipFile(path, "r") as zf:
-        for name in zf.namelist():
-            # CIK##########-submissions-NNN.json hold older filing pages only.
-            if not name.startswith("CIK") or "-submissions-" in name:
-                continue
-            data = json.loads(zf.read(name))
-            filings: dict[str, Any] = data["filings"]
-            filer_name: str = data["name"]
-            cik = crawl_filer(context, data, cutoff)
-            if cik is not None:
-                emitted_ciks.add(cik)
-                emitted += 1
-                reports.extend(
-                    collect_reports(zf, cik, filer_name, filings, ex21_cutoff)
-                )
-            else:
-                skipped += 1
-            if (emitted + skipped) % 100_000 == 0:
-                context.log.info("Processed filers", emitted=emitted, skipped=skipped)
-    context.log.info("Filers without a recent filing", skipped=skipped)
-
-    relations: dict[tuple[str, str, str], Relation] = {}
-    issuers: set[str] = set()
-    for file_name, url in quarter_files(context, cutoff):
-        context.log.info("Parsing insider data set", file=file_name)
-        file_path = context.fetch_resource(f"form345/{file_name}", url)
-        crawl_insider_file(context, file_path, relations, emitted_ciks, issuers)
-    for rel in relations.values():
-        emit_relation(context, rel)
-    context.log.info("Insider relations", relations=len(relations))
-
+def crawl_subsidiaries(context: Context, reports: list[AnnualReport]) -> None:
+    """Link each filer to the subsidiaries listed in its recent annual reports."""
     pacer = Pacer()
     subsidiaries: dict[tuple[str, str, str], Subsidiary] = {}
     context.log.info("Annual reports to scan for EX-21", reports=len(reports))
-    for idx, report in enumerate(reports):
-        crawl_report(context, pacer, report, subsidiaries)
-        if idx and idx % 500 == 0:
-            context.log.info("Scanned annual reports", reports=idx)
+    for report in reports:
+        count = crawl_report(context, pacer, report, subsidiaries)
+        context.log.info(
+            "Subsidiaries listed",
+            filer=report.name,
+            accession=report.accession,
+            subsidiaries=count,
+        )
     for sub in subsidiaries.values():
         emit_subsidiary(context, sub)
     context.log.info("Subsidiary relations", relations=len(subsidiaries))
+
+
+def crawl(context: Context) -> None:
+    emitted, reports = crawl_register(context)
+    crawl_insiders(context, emitted)
+    crawl_subsidiaries(context, reports)

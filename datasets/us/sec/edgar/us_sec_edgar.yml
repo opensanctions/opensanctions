@@ -8,6 +8,7 @@ coverage:
   frequency: monthly
   start: "2026-11-06"
 deploy:
+  premium: true
   memory: 3Gi
   disk: 20Gi
 exports:
@@ -59,16 +60,15 @@ data:
 http:
   # SEC fair access policy: requests must declare a contact in the User-Agent.
   user_agent: OpenSanctions tech@opensanctions.org
+  timeout: 30
+  total_retries: 5
+  backoff_factor: 2
 
 assertions:
   min:
     schema_entities:
       Company: 220_000
       LegalEntity: 95_000
-  max:
-    schema_entities:
-      Company: 300_000
-      LegalEntity: 140_000
 
 lookups:
   type.name:
