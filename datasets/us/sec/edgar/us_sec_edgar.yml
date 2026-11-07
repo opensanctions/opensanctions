@@ -8,14 +8,14 @@ coverage:
   frequency: monthly
   start: "2026-11-06"
 deploy:
-  memory: 2Gi
+  memory: 3Gi
   disk: 20Gi
 exports:
   - statistics.json
   - entities.ftm.json
 summary: >-
-  Companies, funds and individuals registered as filers with the US Securities and
-  Exchange Commission's EDGAR system.
+  Companies, funds and individuals filing with the US Securities and Exchange
+  Commission, with company insiders and subsidiaries.
 description: |
   Every filer with the SEC's EDGAR system has a Central Index Key (CIK). This dataset
   lists the CIKs that have made a filing within the last five years, with their names,
@@ -32,6 +32,15 @@ description: |
   these forms, the dataset links each such insider to the company, with the officer
   title as stated in the filing and the date of the most recent filing. The forms do not
   state when a role began or ended.
+
+  Companies list their subsidiaries in Exhibit 21 of their annual report on Form 10-K.
+  For the annual reports filed in the last 18 months, the dataset reads the subsidiary
+  tables of these exhibits, including exhibits incorporated by reference from earlier
+  filings, and links each subsidiary to the reporting company. Where the exhibit states
+  an ownership percentage, the link is recorded as ownership; otherwise as control.
+  Subsidiaries listed in prose rather than in a table are not covered, and all
+  subsidiaries are linked directly to the reporting company, even where the exhibit
+  shows intermediate holding companies.
 url: https://www.sec.gov/search-filings/edgar-application-programming-interfaces
 publisher:
   name: Securities and Exchange Commission
