@@ -26,6 +26,12 @@ description: |
   as a tax number or a state of incorporation, are listed as companies. Investment funds
   and filers without company details, most of them individuals, are listed as legal
   entities.
+
+  Directors, officers and owners of more than 10% of a listed company's shares report
+  their holdings and trades on Forms 3, 4 and 5. From the SEC's quarterly extracts of
+  these forms, the dataset links each such insider to the company, with the officer
+  title as stated in the filing and the date of the most recent filing. The forms do not
+  state when a role began or ended.
 url: https://www.sec.gov/search-filings/edgar-application-programming-interfaces
 publisher:
   name: Securities and Exchange Commission

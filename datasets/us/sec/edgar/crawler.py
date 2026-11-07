@@ -1,6 +1,13 @@
+import csv
+import html
 import json
+import re
 import zipfile
-from datetime import timedelta
+from collections.abc import Iterator
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from io import TextIOWrapper
+from pathlib import Path
 from typing import Any
 
 from followthemoney.types import registry
@@ -11,6 +18,8 @@ from zavod import Context, settings
 from zavod import helpers as h
 
 ENTITY_TYPES = {"operating", "investment", "other"}
+ROLE_RE = re.compile(r"Director|Officer|TenPercentOwner|Other")
+QUARTER_RE = re.compile(r"(\d{4})q([1-4])_form345\.zip$")
 IGNORE = [
     "filings",
     "category",
@@ -73,12 +82,12 @@ def make_address(context: Context, addr: dict[str, Any] | None) -> str | None:
     )
 
 
-def crawl_filer(context: Context, data: dict[str, Any], cutoff: str) -> bool:
+def crawl_filer(context: Context, data: dict[str, Any], cutoff: str) -> str | None:
     dates: list[str] = data["filings"]["recent"]["filingDate"]
     if len(dates) == 0 or max(dates) < cutoff:
-        return False
+        return None
 
-    raw_cik = data.pop("cik")
+    raw_cik: str = data.pop("cik")
     if not raw_cik.isdigit() or len(raw_cik) > 10:
         raise ValueError(f"Invalid CIK: {raw_cik!r}")
     cik = raw_cik.zfill(10)
@@ -119,13 +128,137 @@ def crawl_filer(context: Context, data: dict[str, Any], cutoff: str) -> bool:
     context.audit_data(addresses)
     context.audit_data(data, ignore=IGNORE)
     context.emit(entity)
-    return True
+    return cik
+
+
+@dataclass
+class Relation:
+    """An insider role of one owner at one issuer, merged across all filings."""
+
+    issuer: str
+    owner: str
+    kind: str
+    date: str
+    roles: set[str] = field(default_factory=set)
+    remarks: set[str] = field(default_factory=set)
+
+
+def read_tsv(zf: zipfile.ZipFile, name: str) -> Iterator[dict[str, str]]:
+    with zf.open(name) as fh:
+        text = TextIOWrapper(fh, encoding="utf-8")
+        yield from csv.DictReader(text, delimiter="\t", quoting=csv.QUOTE_NONE)
+
+
+def parse_roles(value: str) -> list[str]:
+    # Usually comma-joined, but also concatenated, e.g. "TenPercentOwnerOther".
+    roles = ROLE_RE.findall(value)
+    if ROLE_RE.sub("", value).strip(", ") != "":
+        raise ValueError(f"Unknown reporting owner relationship: {value!r}")
+    return roles
+
+
+def quarter_files(context: Context, cutoff: str) -> list[tuple[str, str]]:
+    """List the Forms 3/4/5 quarterly ZIPs whose quarter ends after the cutoff."""
+    # The URL path changed between quarters, so the links are read off the page.
+    doc = context.fetch_html(
+        "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+        absolute_links=True,
+        cache_days=1,
+    )
+    files: dict[str, str] = {}
+    for link in h.xpath_elements(doc, ".//a[contains(@href, '_form345.zip')]"):
+        url = link.get("href")
+        match = QUARTER_RE.search(url or "")
+        if url is None or match is None:
+            raise ValueError(f"Unexpected data set link: {url!r}")
+        year, quarter = int(match.group(1)), int(match.group(2))
+        next_start = f"{year + quarter // 4}-{(quarter % 4) * 3 + 1:02d}-01"
+        if next_start > cutoff:
+            files[match.group(0)] = url
+    if len(files) == 0:
+        raise ValueError("No Forms 3/4/5 data sets found")
+    return sorted(files.items())
+
+
+def crawl_insider_file(
+    context: Context,
+    path: Path,
+    relations: dict[tuple[str, str, str], Relation],
+    emitted: set[str],
+    issuers: set[str],
+) -> None:
+    with zipfile.ZipFile(path, "r") as zf:
+        filings: dict[str, tuple[str, str, str]] = {}
+        for row in read_tsv(zf, "SUBMISSION.tsv"):
+            issuer = row["ISSUERCIK"].zfill(10)
+            date = datetime.strptime(row["FILING_DATE"], "%d-%b-%Y").date().isoformat()
+            filings[row["ACCESSION_NUMBER"]] = (issuer, date, row["REMARKS"])
+            if issuer not in issuers:
+                # Section 16 issuers have listed equity. Emitting them as Company
+                # also makes funds the register typed LegalEntity a valid
+                # Ownership asset.
+                company = context.make("Company")
+                company.id = cik_id(issuer)
+                company.add("name", row["ISSUERNAME"])
+                company.add("cikCode", issuer)
+                context.emit(company)
+                issuers.add(issuer)
+                emitted.add(issuer)
+
+        for row in read_tsv(zf, "REPORTINGOWNER.tsv"):
+            issuer, date, remarks = filings[row["ACCESSION_NUMBER"]]
+            owner = row["RPTOWNERCIK"].zfill(10)
+            if owner not in emitted:
+                stub = context.make("LegalEntity")
+                stub.id = cik_id(owner)
+                stub.add("name", row["RPTOWNERNAME"])
+                stub.add("cikCode", owner)
+                context.emit(stub)
+                emitted.add(owner)
+            # Titles and remarks carry HTML entities such as &#8211;.
+            title = html.unescape(row["RPTOWNER_TITLE"]).strip()
+            remark = None
+            if title.lower() == "see remarks":
+                # Usually the title itself, sometimes with footnote prose appended.
+                remark = html.unescape(remarks).strip()
+                title = remark if len(remark) <= registry.string.max_length else ""
+            for kind in parse_roles(row["RPTOWNER_RELATIONSHIP"]):
+                key = (issuer, owner, kind)
+                rel = relations.get(key)
+                if rel is None:
+                    rel = relations[key] = Relation(issuer, owner, kind, date)
+                rel.date = max(rel.date, date)
+                if kind == "Officer" and title:
+                    rel.roles.add(title)
+                if kind == "Officer" and remark:
+                    rel.remarks.add(remark)
+                elif kind == "Other" and row["RPTOWNER_TXT"]:
+                    rel.roles.add(row["RPTOWNER_TXT"])
+
+
+def emit_relation(context: Context, rel: Relation) -> None:
+    if rel.kind in ("Director", "Officer"):
+        schema, owner_prop, issuer_prop = "Directorship", "director", "organization"
+    elif rel.kind == "TenPercentOwner":
+        schema, owner_prop, issuer_prop = "Ownership", "owner", "asset"
+    else:
+        schema, owner_prop, issuer_prop = "UnknownLink", "subject", "object"
+    entity = context.make(schema)
+    entity.id = context.make_id(rel.issuer, rel.owner, rel.kind)
+    entity.add(owner_prop, cik_id(rel.owner))
+    entity.add(issuer_prop, cik_id(rel.issuer))
+    entity.add("role", sorted(rel.roles) or rel.kind)
+    entity.add("summary", sorted(rel.remarks))
+    # Forms 3/4/5 do not state when a role began or ended; this is the latest filing.
+    entity.add("date", rel.date)
+    context.emit(entity)
 
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("submissions.zip", context.data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
     cutoff = h.backdate(settings.RUN_TIME, timedelta(days=5 * 365))
+    emitted_ciks: set[str] = set()
     emitted = 0
     skipped = 0
     with zipfile.ZipFile(path, "r") as zf:
@@ -134,10 +267,22 @@ def crawl(context: Context) -> None:
             if not name.startswith("CIK") or "-submissions-" in name:
                 continue
             data = json.loads(zf.read(name))
-            if crawl_filer(context, data, cutoff):
+            cik = crawl_filer(context, data, cutoff)
+            if cik is not None:
+                emitted_ciks.add(cik)
                 emitted += 1
             else:
                 skipped += 1
             if (emitted + skipped) % 100_000 == 0:
                 context.log.info("Processed filers", emitted=emitted, skipped=skipped)
     context.log.info("Filers without a recent filing", skipped=skipped)
+
+    relations: dict[tuple[str, str, str], Relation] = {}
+    issuers: set[str] = set()
+    for file_name, url in quarter_files(context, cutoff):
+        context.log.info("Parsing insider data set", file=file_name)
+        file_path = context.fetch_resource(f"form345/{file_name}", url)
+        crawl_insider_file(context, file_path, relations, emitted_ciks, issuers)
+    for rel in relations.values():
+        emit_relation(context, rel)
+    context.log.info("Insider relations", relations=len(relations))
