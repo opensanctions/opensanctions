@@ -388,8 +388,12 @@ def crawl_insiders(context: Context, emitted: set[str]) -> None:
 
 # Subsidiaries, from Exhibit 21 of annual reports ------------------------------
 
-# Filings never change once accepted; cached lookups are reused for three months.
-EX21_CACHE_DAYS = 90
+# Filings never change once accepted, so exhibits and found exhibit links are kept
+# for as long as the filing stays in the 18-month window.
+EX21_CACHE_DAYS = 550
+# Filings without a found EX-21 are looked up again monthly, so fixes to the
+# lookup reach them.
+EX21_MISSING_CACHE_DAYS = 30
 # The SEC throttles sustained crawling well below its published request limit.
 SEC_MIN_INTERVAL = 1.0
 EX21_ROW = re.compile(r"^\s*21(\.\d+)?\b")
@@ -484,6 +488,8 @@ def find_referenced_ex21(context: Context, pacer: Pacer, url: str) -> list[str]:
 def find_ex21_urls(context: Context, pacer: Pacer, report: AnnualReport) -> list[str]:
     key = f"ex21-urls:{report.accession}"
     cached = context.cache.get_json(key, max_age=EX21_CACHE_DAYS)
+    if cached == []:
+        cached = context.cache.get_json(key, max_age=EX21_MISSING_CACHE_DAYS)
     if cached is not None:
         return [str(u) for u in cached]
     pacer.wait()
