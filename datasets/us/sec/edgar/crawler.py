@@ -432,6 +432,8 @@ def fetch_ex21(context: Context, pacer: Pacer, url: str) -> etree._Element:
         text = context.fetch_text(url)
         if text is None:
             raise ValueError(f"Empty EX-21 response: {url}")
+        # Some exhibits contain NUL bytes, which PostgreSQL text fields reject.
+        text = text.replace("\x00", "")
         context.cache.set(key, text)
     return parse_html(text)
 
