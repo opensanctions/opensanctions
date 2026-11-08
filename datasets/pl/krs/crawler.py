@@ -6,6 +6,7 @@ from typing import Any
 from collections.abc import Generator, Iterable, Iterator
 
 import orjson
+from followthemoney import registry
 from requests.exceptions import HTTPError
 
 from zavod import Context, Entity, settings
@@ -463,7 +464,8 @@ def crawl_extract(context: Context, record: Record) -> None:
     context.audit_data(ids, ignore=["statusNip", "dataDecyzji"])
     # An entity carried over from an earlier register existed before its
     # entry into the KRS.
-    if subject.pop("daneOWczesniejszejRejestracji", None) is None:
+    previous = subject.pop("daneOWczesniejszejRejestracji", None)
+    if previous is None or previous == {}:
         h.apply_date(company, "incorporationDate", header["dataRejestracjiWKRS"])
     context.audit_data(
         subject,
@@ -478,15 +480,16 @@ def crawl_extract(context: Context, record: Record) -> None:
     )
 
     company.add("address", make_address(context, seat))
-    # The email field sometimes holds the website instead.
+    # Contact fields are often malformed beyond repair, or the email field
+    # holds the website, so parts that do not validate are dropped quietly.
     email = seat.pop("adresPocztyElektronicznej", None)
     if email is not None:
         emails = h.multi_split(email, [",", ";", " "])
-        company.add("email", [e for e in emails if "@" in e])
+        company.add("email", [e for e in emails if registry.email.validate(e)])
     website = seat.pop("adresStronyInternetowej", None)
     if website is not None:
         websites = h.multi_split(website, [";", ",", " "])
-        company.add("website", [w for w in websites if "." in w])
+        company.add("website", [w for w in websites if registry.url.validate(w)])
     context.audit_data(
         seat,
         ignore=[

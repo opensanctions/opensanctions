@@ -102,9 +102,24 @@ lookups:
           - ZWIĄZKI ROLNIKÓW, KÓŁEK I ORGANIZACJI ROLNICZYCH
           - ZWIĄZEK ROLNICZYCH ZRZESZEŃ BRANŻOWYCH
           - CECH RZEMIEŚLNICZY
+          - ZWIĄZEK RZEMIOSŁA POLSKIEGO
           - INNA ORGANIZACJA SPOŁECZNA LUB ZAWODOWA
           - INNA ORGANIZACJA PODMIOTÓW GOSPODARCZYCH
           - INNA OSOBA PRAWNA BĘDĄCA ORGANIZACJĄ POŻYTKU PUBLICZNEGO
           - SAMODZIELNY PUBLICZNY ZAKŁAD OPIEKI ZDROWOTNEJ
           - INSTYTUT BADAWCZY / INSTYTUT DZIAŁAJĄCY W RAMACH SIECI BADAWCZEJ ŁUKASIEWICZ
         value: Organization
+  type.url:
+    options:
+      # A host without a top-level domain, left by a bare or truncated entry.
+      - regex: "^[Ww]{3}\\.[^.@]*$"
+        value: null
+      # An email address in the website field.
+      - regex: ".*@"
+        value: null
+      - match:
+          - INFO.
+          - HTTP//:WWW.RAZEM.RZSA.PL/
+          - HTTPS//KTL.GULIP.PL
+          - WWW.HTTP//BINCZE.OSP.PL
+        value: null
