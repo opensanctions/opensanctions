@@ -74,7 +74,6 @@ config:
   topic_gated: true
   index_options:
     memory: 3000
-  threshold: 0.5
   algorithm: regression-v1
   topics:
     - role.pep
@@ -96,7 +95,8 @@ config:
   schemata:
     - Company
     - Organization
-    # - LegalEntity
+    - LegalEntity
+    - Person
 
 assertions:
   min:
