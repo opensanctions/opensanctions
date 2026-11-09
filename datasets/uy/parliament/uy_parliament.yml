@@ -5,15 +5,10 @@ coverage:
   frequency: monthly
   start: 2026-11-06
 load_statements: true
-# parlamento.gub.uy is behind an AWS WAF challenge that only lets Uruguayan traffic
-# through, so every request goes through the Zyte API with UY geolocation.
 ci_test: false
-# Each chamber has two member lists: "Titulares" holds the members elected to each
-# seat, including those on leave (e.g. serving as ministers), and "Actuantes" the
-# members sitting now, including the substitutes holding those seats. The crawler
-# reads both. "Actuantes" gives no legislator ID, so people are keyed on their name,
-# which both lists spell identically; a member who moved up to the other chamber as a
-# substitute holds both chambers' positions.
+# The crawler reads both member lists: "Titulares" (elected, including members on
+# leave) and "Actuantes" (sitting now, including substitutes). "Actuantes" has no
+# legislator ID, so people are keyed on their name, spelled identically in both.
 summary: >-
   Current senators and representatives of Uruguay's bicameral national legislature
 description: |

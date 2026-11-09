@@ -14,6 +14,7 @@ def crawl_member(
     party: str,
     department: str = "",
     url: str | None = None,
+    office: str = "",
 ) -> None:
     # The sitting-members list gives no legislator ID, so both lists are keyed on
     # the name, which they spell identically.
@@ -22,6 +23,8 @@ def crawl_member(
     person.id = context.make_id(name)
     h.apply_name(person, first_name=first_name, last_name=last_name)
     person.add("political", party.strip())
+    # The presiding office, e.g. "Presidenta" for the Vice President in the Senate.
+    person.add("position", office)
     person.add("sourceUrl", url)
     # Representatives and senators must be citizens: Constitution of Uruguay, Art. 90
     # and Art. 98. https://www.impo.com.uy/bases/constitucion/1967-1967
@@ -75,10 +78,11 @@ def crawl_chamber(context: Context, position: Entity, chamber: str) -> None:
             categorisation,
             name=row.pop("Nombres"),
             party=row.pop("Lema"),
+            office=row.pop("Cargo"),
         )
-        # The chamber, the presiding office ("Presidente") and the substitution
-        # note ("Sustituye al Representante ...") are not captured.
-        context.audit_data(row, ignore=["Cuerpo", "Cargo", "Sustituciones"])
+        # The chamber and the substitution note ("Sustituye al Representante ...")
+        # are not captured.
+        context.audit_data(row, ignore=["Cuerpo", "Sustituciones"])
 
 
 def crawl(context: Context) -> None:
