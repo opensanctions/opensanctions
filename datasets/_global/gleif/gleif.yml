@@ -227,6 +227,10 @@ lookups:
         value: 铜锣湾
       - match: 观塘区
         value: 观塘区
+      - match: 柴湾
+        value: 柴湾
+      - match: 尖沙咀
+        value: 尖沙咀
       - match: 皇后区
         value: 皇后区
       - match: 23樓
