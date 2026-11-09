@@ -1,3 +1,5 @@
+import re
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
@@ -81,6 +83,28 @@ def crawl_page(
     return doc
 
 
+def crawl_unsc_1373_list(context: Context, doc: Element) -> None:
+    # The UNSCR 1373 list is published as an ordered list of "NAME, YYYY-MM-DD"
+    # items rather than a table.
+    for item in h.xpath_elements(doc, './/div[@class="content-block"]//ol/li'):
+        text = h.element_text(item)
+        match = re.fullmatch(r"(?P<name>[^,]+), (?P<dob>\d{4}-\d{2}-\d{2})", text)
+        if match is None:
+            raise ValueError(f"Unexpected UNSCR 1373 list item: {text!r}")
+        name = match.group("name")
+        dob = match.group("dob")
+
+        person = context.make("Person")
+        person.id = context.make_slug(name, dob)
+        person.add("name", name)
+        h.apply_date(person, "birthDate", dob)
+        person.add("topics", "sanction")
+
+        sanction = h.make_sanction(context, person, program_key="LT-UNSC1373")
+        context.emit(person)
+        context.emit(sanction)
+
+
 def crawl(context: Context) -> None:
     assert context.dataset.model.url
     # Detect if new sanctions programs are added
@@ -91,7 +115,7 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
     index_main = h.xpath_element(index_doc, ".//main")
-    h.assert_dom_hash(index_main, "1287861e1b996ef570e219d71f6ee431efe6067e")
+    h.assert_dom_hash(index_main, "a562fdddefe9b47fcd09b3182782a6d245bb37df")
     # LIST OF LEGAL ENTITIES OR OTHER ORGANIZATIONS WITHOUT LEGAL PERSONAL STATUS THAT ARE OWNED
     # OR CONTROLLED BY A SANCTIONED ENTITY
     crawl_page(
@@ -107,8 +131,9 @@ def crawl(context: Context) -> None:
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
         ".//*[contains(text(), 'JT ST rezoliucijoje 1373 (2001)')]",
-        program_key="LT-UNSCR1373",
+        program_key="LT-UNSC1373",
         required=False,
     )
+    crawl_unsc_1373_list(context, unsc_1373_doc)
     unsc_1373_main = h.xpath_element(unsc_1373_doc, ".//main")
-    h.assert_dom_hash(unsc_1373_main, "cfcb88db7b9d67150bbc114423f64a467a32fbc3")
+    h.assert_dom_hash(unsc_1373_main, "04d5637f5bf378136eb86d8fbad109c0f8be3251")
