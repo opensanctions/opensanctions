@@ -43,6 +43,8 @@ ignore warnings.
 - [`h.assert_file_hash`][zavod.helpers.assert_file_hash] hashes an already-downloaded
   file. If the crawler must fetch or unpack the file before choosing what to monitor, use
   this helper.
+- [`h.xml_node_hash`][zavod.helpers.xml_node_hash] computes the node hash that
+  `h.assert_dom_hash` checks, for callers that store or compare it themselves.
 
 The helpers return `False` and log a warning when the hash differs. If continuing would
 emit wrong or ambiguous data, set `raise_exc=True`.
