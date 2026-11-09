@@ -88,7 +88,6 @@ def crawl_person(
     # various roles, some require citizenship (e.g. ministers), some don't (e.g. admin roles)
     person.add("country", "sk")
     person.add("sourceUrl", href)
-    has_occupancy = False
     for pos in position_slk:
         if pos.startswith(FALLBACK_OFFICIAL_PREFIX):
             pos = pos.replace(FALLBACK_OFFICIAL_PREFIX, "").rstrip(")")
@@ -120,8 +119,6 @@ def crawl_person(
 
         context.emit(position)
         context.emit(occupancy)
-        has_occupancy = True
-    if has_occupancy:
         context.emit(person)
 
 
