@@ -1,0 +1,15 @@
+title: Lithuania Counter-Terrorism (UNSCR 1373) Sanctions Regime
+key: LT-UNSC1373
+url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/
+summary: >
+  Lithuania implements UN Security Council Resolution 1373 (2001) through a list,
+  published by the Financial Crimes Investigation Service (FNTT), of natural or legal
+  persons, groups and entities associated with terrorist acts. The funds and other
+  financial assets of listed parties must be frozen.
+issuer: lt_lt
+dataset: lt_fiu_freezes
+aliases:
+  - UN Security Council Resolution 1373
+  - UNSCR 1373
+measures:
+  - Asset freeze

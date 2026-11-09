@@ -7,9 +7,15 @@ coverage:
   start: 2023-05-16
 load_statements: true
 summary: >
-  A list of entities whose property is legally owned or controlled by a sanctioned entity.
+  Entities whose property is frozen because they are owned or controlled by a sanctioned
+  entity, and persons, groups and entities associated with terrorist acts listed under
+  UNSCR 1373.
 description: |
-  A small set of Lithuanian companies published by the country's financial intelligence unit.
+  Two lists published by the country's financial intelligence unit: a small set of
+  Lithuanian companies whose property is frozen because a sanctioned entity owns or
+  controls them, and the natural or legal persons, groups and entities associated with
+  terrorist acts whose funds and other financial assets must be frozen under UN Security
+  Council Resolution 1373 (2001).
 publisher:
   name: Finansinių Nusikaltimų Tyrimo Tarnyba
   name_en: Financial Crimes Investigation Service
