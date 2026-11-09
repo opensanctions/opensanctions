@@ -6,23 +6,22 @@ from lxml.html import HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
 from zavod.util import Element
 
 
-MEMBER = "Member of the Upper House of Somalia"
-POSITION_QIDS = {
-    MEMBER: "Q21328640",
-    "Speaker of the Upper House of Somalia": "Q109745150",
-}
 JS_COMMENT = re.compile(r"//[^\n]*")
 JS_KEY = re.compile(r"([{,]\s*)([A-Za-z_][A-Za-z0-9_]*)\s*:")
 JS_DANGLING_COMMA = re.compile(r",(\s*[}\]])")
 SLASH_DATE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
 
 
-def parse_roster(script: str) -> list[dict[str, str]]:
-    """Parse the `const senators` array literal the page holds its members in.
+def parse_roster(doc: Element, variable: str) -> list[dict[str, str]]:
+    """Parse a `const <variable> = [...]` array literal the page holds senators in.
 
     The literal is JSON apart from unquoted keys, `//` comments and a dangling
     comma, and its strings carry no backslash escapes — so splitting on the quote
@@ -30,7 +29,9 @@ def parse_roster(script: str) -> list[dict[str, str]]:
     differences can be rewritten in the even-numbered chunks without touching a
     value. The assertion guards the one assumption that makes that split valid.
     """
-    start = script.index("const senators = [")
+    declaration = f"const {variable} = ["
+    script = h.xpath_string(doc, f"//script[contains(text(), '{declaration}')]/text()")
+    start = script.index(declaration)
     body = script[script.index("[", start) : script.index("];", start) + 1]
     assert "\\" not in body, "Escaped character in roster literal"
     chunks = body.split('"')
@@ -47,7 +48,7 @@ def parse_roster(script: str) -> list[dict[str, str]]:
 
 
 def read_members(doc: Element) -> list[dict[str, str]]:
-    """Read the whole chamber off the page, presiding officers first.
+    """Read the sitting chamber off the page, presiding officers first.
 
     The directory is a hand-written HTML block rather than rendered markup, so the
     two kinds of record are stored differently: the presiding officers as `data-`
@@ -70,8 +71,7 @@ def read_members(doc: Element) -> list[dict[str, str]]:
     )
     for card, role in zip(cards, roles, strict=True):
         card["role"] = role.strip()
-    script = h.xpath_string(doc, "//script[contains(text(), 'const senators')]/text()")
-    return cards + parse_roster(script)
+    return cards + parse_roster(doc, "senators")
 
 
 def apply_birth_date(person: Entity, value: str) -> None:
@@ -96,9 +96,20 @@ def apply_birth_date(person: Entity, value: str) -> None:
 
 
 def crawl_member(
-    context: Context, member: dict[str, str], translated: dict[str, str]
+    context: Context,
+    membership: Entity,
+    categorisation: PositionCategorisation,
+    member: dict[str, str],
+    translated: dict[str, str],
+    role: str | None,
+    dob: str | None,
+    status: OccupancyStatus,
 ) -> None:
-    role = member.pop("role", None)
+    """Emit one senator, with their seat and any presiding office they hold.
+
+    `status` is CURRENT for a sitting senator and ENDED for a former one: the page
+    separates the two, but dates neither.
+    """
     somali_name = member.pop("name")
 
     person = context.make("Person")
@@ -111,7 +122,8 @@ def crawl_member(
         # Several senators are commonly known by the nickname their name carries
         # in brackets, so keep the plain form alongside the full one.
         person.add("name", h.remove_bracketed(name), lang=lang)
-    apply_birth_date(person, member.pop("dob"))
+    if dob is not None:
+        apply_birth_date(person, dob)
     # Members of either chamber of the Federal Parliament must be Somali citizens:
     # Provisional Constitution of the Federal Republic of Somalia (2012), Art.
     # 58(1)(a), "Membership Criteria for the Federal Parliament" — Art. 55 defines
@@ -120,41 +132,41 @@ def crawl_member(
     # https://www.constituteproject.org/constitution/Somalia_2012
     person.add("citizenship", "so")
 
+    positions = [(membership, categorisation)]
+    if role is not None:
+        res = context.lookup("position", role)
+        assert res is not None, role
+        if res.name is not None:
+            office = h.make_position(
+                context,
+                name=res.name,
+                country="so",
+                topics=res.topics,
+                wikidata_id=res.wikidata_id,
+                lang="eng",
+            )
+            positions.append((office, categorise(context, office)))
+
     # The source names the federal member state a senator represents rather than an
     # electoral district: the seats are apportioned between the states and filled by
-    # their electoral colleges.
+    # their state assemblies.
     constituency = translated["region"]
-    if role is None:
-        names = [MEMBER]
-    else:
-        result = context.lookup("position", role)
-        assert result is not None, role
-        names = result.values
-
-    for name in names:
-        position = h.make_position(
-            context,
-            name=name,
-            country="so",
-            topics=["gov.national", "gov.legislative"],
-            wikidata_id=POSITION_QIDS.get(name),
-            lang="eng",
-        )
-        categorisation = categorise(context, position)
-        if not categorisation.is_pep:
+    for position, position_categorisation in positions:
+        if not position_categorisation.is_pep:
             continue
-        # The roster is maintained — an outgoing chamber is moved to a separate list
-        # of former senators — but gives no date on which anyone entered office, so
-        # an occupancy is undated and current.
         occupancy = h.make_occupancy(
-            context, person, position, categorisation=categorisation
+            context,
+            person,
+            position,
+            categorisation=position_categorisation,
+            status=status,
         )
-        if occupancy is None:
-            continue
+        # With the status given, only a position that is not a PEP yields None.
+        assert occupancy is not None, position.id
         occupancy.add("constituency", constituency)
         context.emit(occupancy)
         context.emit(position)
-        context.emit(person)
+    context.emit(person)
 
     # The English rendering carries the same fields; only the name and the federal
     # member state are taken from it.
@@ -188,6 +200,18 @@ def crawl(context: Context) -> None:
     # English. It renders the same records in the same order.
     translated_doc = context.fetch_html(context.data_url, params={"lang": "en"})
 
+    membership = h.make_position(
+        context,
+        name="Member of the Upper House of Somalia",
+        country="so",
+        topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q21328640",
+        lang="eng",
+    )
+    categorisation = categorise(context, membership)
+    if not categorisation.is_pep:
+        return
+
     for member, translated in zip(
         read_members(doc), read_members(translated_doc), strict=True
     ):
@@ -195,4 +219,38 @@ def crawl(context: Context) -> None:
         # have drifted apart and the English names would land on the wrong people.
         assert member["dob"] == translated["dob"], (member, translated)
         assert member.get("img") == translated.get("img"), (member, translated)
-        crawl_member(context, member, translated)
+        role = member.pop("role", None)
+        dob = member.pop("dob")
+        crawl_member(
+            context,
+            membership,
+            categorisation,
+            member,
+            translated,
+            role,
+            dob,
+            OccupancyStatus.CURRENT,
+        )
+
+    # The page renders these as "former-senator-card" cards: senators of the previous
+    # chamber, who no longer hold the seat. Their records carry no dates, so their
+    # occupancies are ENDED, which never age out. The page lists only the one previous
+    # chamber, whose members left office when the sitting one was seated: within the
+    # 20-year after-office window for national positions.
+    for member, translated in zip(
+        parse_roster(doc, "formerSenators"),
+        parse_roster(translated_doc, "formerSenators"),
+        strict=True,
+    ):
+        assert member["img"] == translated["img"], (member, translated)
+        role = member.pop("reason")
+        crawl_member(
+            context,
+            membership,
+            categorisation,
+            member,
+            translated,
+            role,
+            None,
+            OccupancyStatus.ENDED,
+        )

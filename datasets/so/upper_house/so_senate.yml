@@ -8,13 +8,14 @@ load_statements: true
 summary: >-
   Senators of the Upper House (Golaha Aqalka Sare) of Somalia's bicameral Parliament
 description: |
-  Current members of the Upper House (Golaha Aqalka Sare), the upper chamber of
-  Somalia's bicameral Federal Parliament. Its seats are apportioned between the
+  Current and former members of the Upper House (Golaha Aqalka Sare), the upper
+  chamber of Somalia's bicameral Federal Parliament. Its seats are apportioned between the
   federal member states and filled for a four-year term by their state assemblies,
   except for the seats of the northern regions claimed by Somaliland, whose senators
   are elected by delegates meeting in Mogadishu. Together with
   the House of the People its members hold the country's legislative power, including
-  passing laws, approving the budget and electing the President.
+  passing laws, approving the budget and electing the President. The former members
+  are those of the previous chamber; the source does not date their term.
 url: https://senate.gov.so/
 publisher:
   name: Golaha Aqalka Sare ee Baarlamaanka Federaalka Soomaaliya
@@ -23,16 +24,16 @@ publisher:
     The Upper House is the upper chamber of Somalia's bicameral Federal
     Parliament, first constituted in 2016. It maintains its own website,
     separate from that of the House of the People, and publishes the roster
-    of its sitting senators there.
+    of its sitting and previous senators there.
   url: https://senate.gov.so/
   country: so
   official: true
 data:
   # Redirects to a term-specific slug (currently /sanatarradab11/, the 11th Federal
-  # Parliament). The crawler emits no term dates, so a new parliament served from
-  # this URL needs no change here; a new parliament served from a *new* slug, with
-  # this redirect left pointing at the old one, would go unnoticed. Re-check the
-  # redirect target when Somalia next seats a parliament.
+  # Parliament). The page also lists the previous chamber as former senators. A new
+  # parliament served from a *new* slug, with this redirect left pointing at the old
+  # one, would go unnoticed. Re-check the redirect target when Somalia next seats a
+  # parliament.
   url: https://senate.gov.so/the-senators/
   format: HTML
 
@@ -55,40 +56,42 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 45
-      Position: 2
+      Person: 90
+      Position: 3
     entities_with_prop:
       Occupancy:
-        holder: 48
+        holder: 95
     country_entities:
-      so: 45
+      so: 90
   max:
     schema_entities:
-      Person: 110
+      Person: 220
       Position: 6
     entities_with_prop:
       Occupancy:
-        holder: 120
+        holder: 230
 
 lookups:
   position:
     required: true
     normalize: true
     options:
-      # A presiding officer is elected from among the senators and keeps their
-      # seat, so each of these labels denotes two positions held at once.
+      # Maps the role a senator's card names to the office it denotes. Every senator
+      # also holds the seat itself, which the crawler emits regardless: a presiding
+      # officer is elected from among the senators and keeps their seat.
       - match: Guddoomiyaha Golaha
-        values:
-          - Speaker of the Upper House of Somalia
-          - Member of the Upper House of Somalia
+        name: Speaker of the Upper House of Somalia
+        wikidata_id: Q109745150
+        topics: [gov.national, gov.legislative]
       - match:
           - Guddoomiye Ku-xigeenka 1aad
           - Guddoomiye Ku-xigeenka 2aad
-        values:
-          - Deputy Speaker of the Upper House of Somalia
-          - Member of the Upper House of Somalia
-      # The Habdhowre is the chamber's whip, an internal office of the Upper House
-      # rather than a position in its own right, so it maps to the seat alone.
-      - match: Habdhowraha Golaha
-        values:
-          - Member of the Upper House of Somalia
+        name: Deputy Speaker of the Upper House of Somalia
+        topics: [gov.national, gov.legislative]
+      # Labels with no office of their own beyond the seat: the Habdhowre is the
+      # chamber's whip, an internal office, and "Sanatar" is the plain role every
+      # former senator's record carries.
+      - match:
+          - Habdhowraha Golaha
+          - Sanatar
+        value: null
