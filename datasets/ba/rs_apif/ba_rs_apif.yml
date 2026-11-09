@@ -69,5 +69,121 @@ lookups:
         value: active
       - match: preseljen sa teritorije Republike Srpske
         value: moved
-      - match: brisan
+      - match:
+          - brisan
+          - neregistrovan - obustavljena registracija
         value: deleted
+  # Placeholders the register uses for a missing value.
+  type.identifier:
+    options:
+      - match:
+          - "00000000"
+          - "000"
+          - "-"
+          - xxx
+          - Ovaj ne treba
+        value: null
+  type.phone:
+    options:
+      # An area code alone, e.g. "071/".
+      - regex: "^0\\d{1,2}/?$"
+        value: null
+  type.string:
+    options:
+      - match: Bez oznake djelatnosti
+        value: null
+  # Founders that are foreign companies often carry their legal form, registry,
+  # representatives and capital in the name; old-register companies sometimes
+  # carry the court decision that deleted them.
+  type.name:
+    options:
+      - contains: "DOK - ING RAZMINIRANJE d.o.o. za razminiranje je 82152372584"
+        value: "DOK - ING RAZMINIRANJE d.o.o. za razminiranje"
+      - contains: "Bulevar Nikole Tesle 36/15, Beograd Zemun"
+        value: "ARHI ZONA 011 d.o.o. Beograd- Zemun"
+      - contains: "MBS: 07820755"
+        value: "\"BEGING\" Preduzeće za inženjering, projektovanje i trgovinu d.o.o. Beograd (Palilula)"
+      - contains: "pilot zonom za Jinan"
+        value: "China Shandong Hi-Speed Qianfang International Technology Co LTD"
+      - contains: "OIB73413727333"
+        value: "„DALEKOVOD-PROJEKT“ d.o.o.za projektovanje, nadzor, konzalting i inžinjering"
+      - contains: "poreski broj :B85097962"
+        value: "EPTISA SERVICIOS DE INGENERIA SL"
+      - contains: "OIB: 27813060947"
+        value: "EVELIN INC društvo s ograničenom odgovornošću za trgovinu, proizvodnju i usluge"
+      - contains: "broj pasoša 008435605"
+        value: "Privredno društvo za projektovanje izvođenje radova i nadzor \"Girtpro Inženjering\" d.o.o. Beograd"
+      - contains: "JMBG: 1501958860032"
+        value: "IMG-ENGINEERING & CONSTRUCTION PREDUZEĆE ZA KONSALTING, INŽENJERING I PROMET BEOGRAD (VRAČAR)"
+      - contains: "Slobodan Ninić, direktor Registrovani"
+        value: "Društvo za građevinarstvo, promet i usluge \"Investitor kop\" d.o.o. Loznica"
+      - contains: "Goran Soko, JMB: 09062680229"
+        value: "“KONSTRUKTOR PLAN” društvo sa ograničenom odgovornošću za planiranje, projektovanje i usluge"
+      - contains: "Željko Žderić, Direktor, član Uprave"
+        value: "\"KONSTRUKTOR-INŽENJERING\" dioničko društvo za graditeljstvo"
+      - contains: "JMBG:08089598860088"
+        value: "Privredno društvo za tehniča ispitivanja, analize i pružanje usluga PED INSPECT"
+      - contains: "Erik P. Göthlin, rođen"
+        value: "\"VA TECH WABAG\" GmbH"
+      - contains: "pasoš broj 011459551"
+        value: "\"VEKOM GEO\" preduzeće za proizvodnju i pružanje usluga export-import društvo sa ograničenom odgovornošću Beograd"
+      - contains: "pasoš broj: 18FH93227"
+        value: "ENERLIS"
+      - contains: "pasoš broj:015359103"
+        value: "\"DRUŠTVO ZA GRAĐEVINARSTVO PROIZVODNJU I USLUGE MBM RAD DOO LOZNICA\""
+      - contains: "JMBS: 4054261"
+        value: "Građevinsko društvo GRANIT AD – Skopje"
+      - contains: "MBS: 4067533"
+        value: "\"GI MAKEDONIJA\" AD Skopje"
+      - contains: "FN 384723 w"
+        value: "Ivicom Consulting d.o.o. za usluge"
+      - contains: "JMBG: 1001968120026"
+        value: "Preduzeće za inženjering, konsalting i projektovanje \"SATURN ELECTRIC\" d.o.o. Beograd (Zemun)"
+      - contains: "MBS: 06701094"
+        value: "Preduzeće za projektovanje, konsalting i trgovinu ELEM&ELGO d.o.o. Beograd (Čukarica)"
+      - contains: "Pasoš broj:013483128"
+        value: "Privredno društvo sa ograničenom odgovornošću BAUWESEN Lazarevac"
+      - contains: "Li Zhifeng, rođen"
+        value: "Shandong Hi-Speed International Planning & Design Company Kft"
+      - contains: "Walter Troger, rođ."
+        value: "VAMED Standortentwicklung und Engieneering GmbH"
+      - contains: "OIB: 45050126417"
+        value: "KONČAR-Elektroindustrija d.d. za proizvodnju i usluge"
+      - contains: "Ihsan Dede Cad.700"
+        value: "\"MASS Aritma sistemleri insaat sanayi ve ticaret anonim sirketi\""
+      - contains: "059-0-Reg-12-000 622"
+        value: "Društvo sa ograničenom odgovornošću u mješovitoj svojini \"FIEDLER IMPORT -EXPORT TEHNIKA DJEVNOG SVJETLA\" Bijeljina"
+      - contains: "059-0-Reg-11-000 286"
+        value: "Preduzeće za proizvodnju, energetskih mašina i uređaja \"NIGAL\" Društvo sa ograničenom odgovornošću Bijeljina"
+      - contains: "059-0-Reg-11-000 282"
+        value: "Preduzeće za zastupanje u osiguranju \"BOBAR AGENT\" D.o.o. Bijeljina"
+      - contains: "059-0-Reg-12-000 388"
+        value: "Privatno preduzeće \"MULTI LEVEL MARKETING INTERNACIONAL\" Preduzeće za trgovinu, proizvodnju i usluge sa p.o. Bijeljina"
+      - contains: "kostolačka broj 67"
+        value: "Preduzeće za proizvodnju, inženjering i konsalting \"SIMPROLIT\" d.o.o. Beograd"
+      - contains: "059-0-Reg-12-000 750"
+        value: "Preduzeće za proizvodnju, promet i usluge \"MAGROS-KOMERC\" Društvo sa ograničenom odgovornošću Bratunac"
+      - contains: "Trg Cara Jovana Nenada broj 15"
+        value: "DOO ORGANIC CONTROL SYSTEM SUBOTICA"
+      - contains: "registarski broj (TIN) 2000025721"
+        value: "\"AZVIRT\" LIMITED LIABILITY COMPANY"
+      - contains: "Biljana Vuksanović izvršni direktor"
+        value: "Društvo za projektovanje i izgradnju telekomunikacionih, energetskih i građevinskih objekata \"PTT Inženjering\" d.o.o. Podgorica"
+      - contains: "Milan Belović, izvršni direktor"
+        value: "Društvo za građevinarstvo i usluge \"BEMIX\" d.o.o. Herceg Novi"
+      - contains: "JMBG 0406961710134"
+        value: "Institut za vodoprivredu \"Jaroslav Černi\" d.o.o. Beograd"
+      - contains: "080-0-Reg-08-000 139"
+        value: "Trgovinsko ugostiteljsko preduzeće u privatnoj svojini \"LAVANDA\" p.o. Ugljevik"
+      - contains: "Direkcije za trgovačke upise Tatvan"
+        value: "\"ER-BU INSAAT TICARET ANONIM SIRKETI\""
+      - contains: "080-0-Reg-08-000 168"
+        value: "Društvo sa ograničenom odgovornošću, proizvodno prometno i uslužno preduzeće \"AGUM PROTEKT\" Tabanci, Zvornik"
+      - contains: "059-0-Reg-12-000 314"
+        value: "Društvo sa ograničenom odgovornošću za proizvodnju, promet i usluge \"IKEA\" sa p.o. Lokanj"
+      - contains: "271713M9E"
+        value: "NBA INŞAAT ANONİM ŞİRKETI"
+      - contains: "Ignjatović Milutin, bez"
+        value: "Saobraćajni Institut CIP DOO BEOGRAD (Savski Venac)"
+      - contains: "Okružnog suda u Stendalu"
+        value: "FAM Minerals & Mining GmbH"

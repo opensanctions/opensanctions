@@ -174,10 +174,10 @@ def occupancy_status(
     - ``periodEnd`` (term/period end): past implies ENDED, future implies UNKNOWN
       (e.g. a parliamentary term may still be running but the person may have left)
 
-    Without an end date, the latest ``declarationDate`` is the last date the person
-    is known to have held the position. Once it is older than the after-office
-    period, the person is not considered a PEP. A declaration within that period
-    also overrides the maximum-time-in-office check on the start date.
+    Without an end date, the after-office period runs from the latest
+    ``declarationDate``, the last date the person is known to have held the position.
+    A declaration within that period also overrides the maximum-time-in-office check
+    on the start date.
 
     A death date in the past caps the status at ENDED: a deceased person is never
     emitted as a CURRENT or UNKNOWN office-holder.

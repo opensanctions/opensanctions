@@ -23,6 +23,7 @@ from zavod.meta.http import HTTP
 from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.names import NamesSpec
 from zavod.meta.numbers import NumbersSpec
+from zavod.meta.tags import derive_tags
 from zavod.meta.validators import ValidatorsSpec
 
 if TYPE_CHECKING:
@@ -56,6 +57,7 @@ class Dataset(FollowTheMoneyDataset):
     def __init__(self, data: dict[str, Any]):
         super().__init__(data)
         self.model: ZavodDatasetModel = ZavodDatasetModel.model_validate(data)
+        self.model.tags = derive_tags(self)
         self.prefix = self.model.prefix
 
         # This will make disabled crawlers visible in the metadata:

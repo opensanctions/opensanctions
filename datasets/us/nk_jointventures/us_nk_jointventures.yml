@@ -40,6 +40,7 @@ description: |
 publisher:
   name: U.S. Customs and Border Protection
   acronym: CBP
+  country: us
   official: true
   url: https://www.cbp.gov/
   description: |
@@ -49,7 +50,7 @@ publisher:
 tags:
   - list.risk
   - target.kp
-  - issuer.west
+  - publisher.west
 url: "https://www.cbp.gov/document/report/north-korea-sanctions-and-enforcement-actions-advisory"
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRfovKtSGNW3_tS80_-Aa25g3utwny-8Oyoi0CAy9kGke4mbIVVFel9Xgy28NlFFwutRroiVW605NXo/pub?gid=0&single=true&output=csv

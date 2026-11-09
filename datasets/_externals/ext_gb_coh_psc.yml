@@ -68,7 +68,6 @@ config:
     max_candidates: 100
     memory: 8000
   limit: 100
-  threshold: 0.5
   algorithm: regression-v1
   topics:
     - role.pep

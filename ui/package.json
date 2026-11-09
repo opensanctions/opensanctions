@@ -20,7 +20,7 @@
     "jose": "^6.2.15",
     "json-schema-library": "^11.6.16",
     "kysely": "^0.29.8",
-    "next": "16.4.3",
+    "next": "16.4.4",
     "pg": "^8.23.1",
     "query-string": "^10.0.0",
     "react-bootstrap": "^2.10.10",

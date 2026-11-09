@@ -28,7 +28,7 @@ description: |
 url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng
 tags:
   - list.sanction
-  - issuer.west
+  - publisher.west
   - sector.maritime
 publisher:
   name: "Global Affairs Canada"

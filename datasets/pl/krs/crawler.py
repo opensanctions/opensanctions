@@ -6,6 +6,7 @@ from typing import Any
 from collections.abc import Generator, Iterable, Iterator
 
 import orjson
+from followthemoney import registry
 from requests.exceptions import HTTPError
 
 from zavod import Context, Entity, settings
@@ -47,6 +48,7 @@ def fetch_record(context: Context, krs: int, refresh: bool) -> Record | None:
     is not in either register yields None.
     """
     url = EXTRACT_URL.format(krs=krs)
+    struck_off: Record | None = None
     for rejestr in REGISTERS:
         params = {"rejestr": rejestr, "format": "json"}
         if refresh:
@@ -58,17 +60,22 @@ def fetch_record(context: Context, krs: int, refresh: bool) -> Record | None:
             if exc.response is not None and exc.response.status_code == 404:
                 continue
             raise
-        if odpis is not None:
-            header = odpis["odpis"]["naglowekA"]
-            assert header["numerKRS"] == f"{krs:010d}", (krs, header)
-            assert header["rejestr"] == f"Rej{rejestr}", (krs, header)
-        return {
+        record = {
             "krs": krs,
             "rejestr": rejestr,
             "fetched": settings.RUN_DATE,
             "odpis": odpis,
         }
-    return None
+        if odpis is not None:
+            header = odpis["odpis"]["naglowekA"]
+            assert header["numerKRS"] == f"{krs:010d}", (krs, header)
+            assert header["rejestr"] == f"Rej{rejestr}", (krs, header)
+            return record
+        # Some numbers answer empty in one register while the other holds
+        # their extract, so an empty answer is final only once both are asked.
+        if struck_off is None:
+            struck_off = record
+    return struck_off
 
 
 class Window:
@@ -217,6 +224,14 @@ def clean(value: str | None) -> str | None:
     return value
 
 
+def unmask(value: str | None) -> str | None:
+    """Drop a name part that the register masked down to symbols, such as `*`
+    or `#####`."""
+    if value is None or not any(c.isalpha() for c in value):
+        return None
+    return value
+
+
 def clean_regon(regon: str | None) -> str | None:
     # The nine-digit REGON of a legal entity is padded with zeros to the
     # fourteen digits of a local unit's number.
@@ -225,7 +240,7 @@ def clean_regon(regon: str | None) -> str | None:
     return regon
 
 
-def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity:
+def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity | None:
     """Make a stub for a natural person, whose name and PESEL the register
     masks, local to the entity they are listed with."""
     surname = item.pop("nazwisko")
@@ -244,16 +259,22 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity:
 
     person = context.make("Person")
     person.id = context.make_id(krs, organ, last_name, given, middle, pesel, birth_date)
-    # Masking leaves a lone asterisk for some middle names.
-    if middle == "*":
-        middle = None
+    parts = [p for p in (unmask(first), unmask(second)) if p is not None]
+    last_name = "-".join(parts) if parts else None
+    given = unmask(given)
+    middle = unmask(middle)
+    if last_name is None and given is None:
+        context.log.info("Skipping a fully masked person", krs=krs, organ=organ)
+        return None
     h.apply_name(person, first_name=given, middle_name=middle, last_name=last_name)
     h.apply_date(person, "birthDate", birth_date)
     context.emit(person)
     return person
 
 
-def make_legal_entity(context: Context, krs: str, organ: str, item: Data) -> Entity:
+def make_legal_entity(
+    context: Context, krs: str, organ: str, item: Data
+) -> Entity | None:
     name = item.pop("nazwa")
     assert not item.pop("imiona", None), item
     other_krs = item.pop("krs", {}).pop("krs", None)
@@ -268,19 +289,23 @@ def make_legal_entity(context: Context, krs: str, organ: str, item: Data) -> Ent
         entity.add("registrationNumber", other_krs)
     else:
         entity.id = context.make_id(krs, organ, name, regon)
-    entity.add("name", name)
+    entity.add("name", unmask(name))
     entity.add("registrationNumber", regon)
     entity.add("taxNumber", nip)
+    if not entity.properties:
+        context.log.info("Skipping a fully masked legal entity", krs=krs, name=name)
+        return None
     context.emit(entity)
     return entity
 
 
 def make_party(context: Context, krs: str, organ: str, item: Data) -> Entity | None:
-    if "nazwisko" in item:
+    if "nazwisko" in item and item["nazwisko"] != {}:
         return make_person(context, krs, organ, item)
     if "nazwa" in item:
         return make_legal_entity(context, krs, organ, item)
-    # Some entries list a role, but no one holding it.
+    # Some entries list a role, but no one holding it, or a person with empty
+    # name blocks.
     context.log.info("Skipping a party without a name", krs=krs, item=item)
     return None
 
@@ -311,10 +336,47 @@ def crawl_owners(
                 "wartoscWkladuWspolnikaWUmowie",
                 "wkladWspolnikaWUmowieCzyNiepieniezny",
                 "wkladyWniesione",
+                "wkladyZwrocone",
                 "wysokoscSumyKomandytowej",
             ],
         )
         context.emit(ownership)
+
+
+def crawl_group(context: Context, company: Entity, krs: str, items: list[Data]) -> None:
+    """Link a company to its dominant company or its subsidiaries in a group of
+    companies, which the parent controls by votes or board appointments rather
+    than necessarily by owning it."""
+    section = "wzmiankaOUczestnicwieWGrupieSpolek"
+    for item in items:
+        kind = item.pop("czyPodmiotZaleznyDominujacy")
+        if kind == "SPÓŁKA ZALEŻNA":
+            is_parent = False
+            members = item.pop("podmiotDominujacy")
+        elif kind == "PODMIOT DOMINUJĄCY":
+            is_parent = True
+            members = item.pop("spolkiZalezne")
+        else:
+            context.log.warning(
+                "Unknown role in a group of companies", krs=krs, kind=kind
+            )
+            continue
+        for member_item in members:
+            member = make_legal_entity(context, krs, section, member_item)
+            context.audit_data(member_item)
+            if member is None:
+                continue
+            controller, controlled = (
+                (company, member) if is_parent else (member, company)
+            )
+            control = context.make("Control")
+            # Both the parent and the subsidiary list the link, so the ID must
+            # not depend on which record it is read from.
+            control.id = context.make_id(section, controller.id, controlled.id)
+            control.add("controller", controller)
+            control.add("controlled", controlled)
+            context.emit(control)
+        context.audit_data(item, ignore=["numerWzmianki"])
 
 
 def crawl_directors(
@@ -335,12 +397,15 @@ def crawl_directors(
         directorship.add("director", director)
         directorship.add("organization", company)
         directorship.add("role", role)
-        context.audit_data(item, ignore=["czyZawieszona"])
+        context.audit_data(item, ignore=["czyZawieszona", "dataZawieszeniaDo"])
         context.emit(directorship)
 
 
-def make_address(context: Context, seat: Data) -> str:
+def make_address(context: Context, seat: Data) -> str | None:
     address = seat.pop("adres")
+    # Some old entries record no address beyond the country.
+    if address.keys() == {"kraj"}:
+        return None
     country = address.pop("kraj")
     house = clean(address.pop("nrDomu", None))
     flat = clean(address.pop("nrLokalu", None))
@@ -360,6 +425,9 @@ def make_address(context: Context, seat: Data) -> str:
 
 def add_pkd(entity: Entity, items: list[Data]) -> None:
     for item in items:
+        # Some entries are empty or hold only a free-text description.
+        if "kodDzial" not in item:
+            continue
         parts = [item["kodDzial"], item.get("kodKlasa"), item.get("kodPodklasa")]
         entity.add("classification", ".".join(p for p in parts if p))
 
@@ -396,7 +464,8 @@ def crawl_extract(context: Context, record: Record) -> None:
     context.audit_data(ids, ignore=["statusNip", "dataDecyzji"])
     # An entity carried over from an earlier register existed before its
     # entry into the KRS.
-    if subject.pop("daneOWczesniejszejRejestracji", None) is None:
+    previous = subject.pop("daneOWczesniejszejRejestracji", None)
+    if previous is None or previous == {}:
         h.apply_date(company, "incorporationDate", header["dataRejestracjiWKRS"])
     context.audit_data(
         subject,
@@ -405,17 +474,22 @@ def crawl_extract(context: Context, record: Record) -> None:
             "czyProwadziDzialalnoscZInnymiPodmiotami",
             "innyRejestr",
             "nazwaFormaPrawnaPrzedsiebiorcyZagranicznego",
+            "notyfikacjeBRIS",
+            "prawoPanstwa",
         ],
     )
 
     company.add("address", make_address(context, seat))
-    # The email field sometimes holds the website instead.
+    # Contact fields are often malformed beyond repair, or the email field
+    # holds the website, so parts that do not validate are dropped quietly.
     email = seat.pop("adresPocztyElektronicznej", None)
-    if email is not None and "@" in email:
-        company.add("email", email)
+    if email is not None:
+        emails = h.multi_split(email, [",", ";", " "])
+        company.add("email", [e for e in emails if registry.email.validate(e)])
     website = seat.pop("adresStronyInternetowej", None)
     if website is not None:
-        company.add("website", h.multi_split(website, [";"]))
+        websites = h.multi_split(website, [";", ",", " "])
+        company.add("website", [w for w in websites if registry.url.validate(w)])
     context.audit_data(
         seat,
         ignore=[
@@ -430,12 +504,15 @@ def crawl_extract(context: Context, record: Record) -> None:
         ("kapitalPSA", "wysokoscKapitaluAkcyjnego"),
     ):
         amount = dzial1.pop(key, {}).get(amount_key)
-        if amount is not None:
+        # An unmapped legal form falls back to LegalEntity, which has no capital.
+        if amount is not None and company.schema.get("capital") is not None:
             value = amount["wartosc"].replace(",", ".")
             company.add("capital", f"{value} {amount['waluta']}")
 
     for section in ("wspolnicySpzoo", "jedynyAkcjonariusz", "wspolnicyPartnerzy"):
         crawl_owners(context, company, krs, section, dzial1.pop(section, []))
+    group = dzial1.pop("wzmiankaOUczestnicwieWGrupieSpolek", [])
+    crawl_group(context, company, krs, group)
     context.audit_data(
         dzial1,
         ignore=[
@@ -449,13 +526,14 @@ def crawl_extract(context: Context, record: Record) -> None:
             "komitetZalozycielski",
             "organSprawujacyNadzor",
             "organPodmiotZalozycielskiMinisterNadzorujacy",
+            "informacjeOpisujaceTowarzystwo",
         ],
     )
 
     dzial2 = dane.pop("dzial2", {})
     board = dzial2.pop("reprezentacja", None)
     if board is not None:
-        organ = board.pop("nazwaOrganu")
+        organ = board.pop("nazwaOrganu", None) or "reprezentacja"
         members = board.pop("sklad", [])
         crawl_directors(context, company, krs, organ, members, "funkcjaWOrganie")
         context.audit_data(board, ignore=["sposobReprezentacji"])
@@ -463,7 +541,7 @@ def crawl_extract(context: Context, record: Record) -> None:
         # Some associations list a supervisory organ without any details.
         if supervisory == {}:
             continue
-        organ = supervisory.pop("nazwa")
+        organ = supervisory.pop("nazwa", None) or "organNadzoru"
         members = supervisory.pop("sklad", [])
         crawl_directors(context, company, krs, organ, members, None)
         context.audit_data(supervisory)
@@ -471,7 +549,9 @@ def crawl_extract(context: Context, record: Record) -> None:
     crawl_directors(context, company, krs, "prokurenci", proxies, "rodzajProkury")
     # The people who represent a foreign company in its Polish branch.
     branch_reps = dzial2.pop("osobyReprezentujacePZ", [])
-    crawl_directors(context, company, krs, "osobyReprezentujacePZ", branch_reps, None)
+    crawl_directors(
+        context, company, krs, "osobyReprezentujacePZ", branch_reps, "funkcjaWOddziale"
+    )
     context.audit_data(dzial2, ignore=["reprezentacjaIBIGBPPSPZOZ", "pelnomocnicy"])
 
     dzial3 = dane.pop("dzial3", {})

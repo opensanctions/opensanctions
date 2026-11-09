@@ -4,6 +4,7 @@ import time
 from typing import Any
 from urllib.parse import urlencode
 
+from followthemoney.types import registry
 from lxml import html
 
 from zavod import Context
@@ -84,27 +85,36 @@ def fetch_records(
 def fetch_details(context: Context, company_pid: int) -> dict[str, str]:
     """Fetch the basic data tab of a company's detail page as label/value pairs."""
     path = f"/Home/PregledPoslovnogSubjekta/{company_pid}"
-    result = fetch(context, path, None, CACHE_DAYS)
-    doc = html.fromstring(result.response_text)
-    groups = h.xpath_elements(
-        doc,
-        '//div[@id="osnovniPodaci"]//div[contains(@class, "form-group")]'
-        '[label[contains(@class, "control-label")]]',
-    )
-    details: dict[str, str] = {}
-    for group in groups:
-        label = h.xpath_element(group, './label[contains(@class, "control-label")]')
-        # The status field also nests dated notices about bankruptcy or liquidation
-        # proceedings, which repeat the listing.
-        value = h.xpath_element(
-            group, '(./label | ./div/label)[contains(@class, "text-info")]'
+    # The register sometimes answers with a page that lacks the basic data, and
+    # serves it in full on retry.
+    for attempt in range(1, ATTEMPTS + 1):
+        result = fetch(context, path, None, CACHE_DAYS)
+        doc = html.fromstring(result.response_text)
+        groups = h.xpath_elements(
+            doc,
+            '//div[@id="osnovniPodaci"]//div[contains(@class, "form-group")]'
+            '[label[contains(@class, "control-label")]]',
         )
-        details[h.element_text(label)] = h.element_text(value)
-    if "ЈИБ" not in details:
-        raise ValueError(f"No basic data on detail page: {path}")
-    if not result.from_cache:
-        context.cache.set(result.cache_fingerprint, result.response_text)
-    return details
+        details: dict[str, str] = {}
+        for group in groups:
+            label = h.xpath_element(group, './label[contains(@class, "control-label")]')
+            # The status field also nests dated notices about bankruptcy or
+            # liquidation proceedings, which repeat the listing.
+            value = h.xpath_element(
+                group, '(./label | ./div/label)[contains(@class, "text-info")]'
+            )
+            details[h.element_text(label)] = h.element_text(value)
+        if "ЈИБ" in details:
+            if not result.from_cache:
+                context.cache.set(result.cache_fingerprint, result.response_text)
+            return details
+        context.log.info(
+            "No basic data on detail page",
+            path=path,
+            length=len(result.response_text),
+        )
+        time.sleep(10 * attempt)
+    raise ValueError(f"No basic data on detail page after {ATTEMPTS} attempts: {path}")
 
 
 def emit_party(context: Context, schema: str, company_id: str, name: str) -> str | None:
@@ -211,11 +221,15 @@ def crawl_company(context: Context, record: dict[str, Any]) -> None:
     res = context.lookup_value("status", status, warn_unmatched=True)
     if res != "active":
         return
+    name = record.pop("PoslovnoIme")
+    if name is None:
+        context.log.info("Skipping company without a name", pid=pid)
+        return
 
     company = context.make("Company")
     company.id = context.make_slug(str(pid))
-    company.add("name", record.pop("PoslovnoIme"))
-    company.add("country", "ba")
+    company.add("name", name)
+    company.add("jurisdiction", "ba")
     company.add("status", status)
     address = record.pop("Sjediste")
     if address is not None:
@@ -224,7 +238,8 @@ def crawl_company(context: Context, record: dict[str, Any]) -> None:
         company.add("address", ", ".join(p for p in parts if p != ""))
     company.add("sector", record.pop("PreteznaDjelatnost"))
     company.add("phone", record.pop("Telefon"))
-    company.add("email", record.pop("Email"))
+    # Emails are typed in by hand and often malformed; keep only the valid ones.
+    company.add("email", registry.email.clean(record.pop("Email")))
     jib: str | None = record.pop("JIB")
     company.add("taxNumber", jib)
     company.add("sourceUrl", f"{BASE_URL}/Home/PregledPoslovnogSubjekta/{pid}")
@@ -232,7 +247,9 @@ def crawl_company(context: Context, record: dict[str, Any]) -> None:
     details = fetch_details(context, pid)
     if details.pop("ЈИБ") != (jib or ""):
         raise ValueError(f"Detail page of {pid} shows a different JIB")
-    company.add("alias", details.pop("Скраћено пословно име"))
+    short_name = details.pop("Скраћено пословно име")
+    if short_name != "-":
+        company.add("alias", short_name)
     mbs = details.pop("МБС / Рег.уложак")
     if match := REGEX_MBS.match(mbs):
         company.add("registrationNumber", match.groups())

@@ -27,8 +27,7 @@ publisher:
   official: true
 tags:
   - list.export
-  - juris.us
-  - issuer.west
+  - publisher.west
 url: https://www.bis.gov/enforcement/export-violations
 data:
   url: https://www.bis.gov/enforcement/export-violations
@@ -398,11 +397,12 @@ lookups:
           - ['moreJet Ltd']
           - ['Stefan Piotr Kondak', 'Stefan Peter Kondak']
           - ['AC AVIATIE UK Limited', 'Bin Vali Aviation Limited']
-      - match: 'Ribway Airlines Company Limited, AF-Aviation Limited, Andy Farmer John Edward Meadows, Jeffrey John James Ashfield'
+      - match: 'Ribway Airlines Company Limited, AF-Aviation Limited, Andy Farmer, John Edward Meadows, Jeffrey John James Ashfield'
         entities:
           - ['Ribway Airlines Company Limited']
           - ['AF-Aviation Limited']
-          - ['Andy Farmer John Edward Meadows']
+          - ['Andy Farmer']
+          - ['John Edward Meadows']
           - ['Jeffrey John James Ashfield']
       - match: 'Oleg Sergeyevich Patsulva, Vasilii Sergeyevich Besedin, MIC P&I, LLC, Intermodal Maldives, JSC Smartavia Airlines'
         entities:
@@ -507,9 +507,9 @@ lookups:
         entities:
           - ['Weiming Zhang', 'John Zhang']
           - ['Seasia Enterprises (USA), Inc']
-      - match: 'Federal Express Corportation, d/b/a FedEx Express'
+      - match: 'Federal Express Corporation, d/b/a FedEx Express'
         entities:
-          - ['Federal Express Corportation', 'FedEx Express']
+          - ['Federal Express Corporation', 'FedEx Express']
       - match: 'Trilogy International Associates, Inc. and William Michael Johnson'
         entities:
           - ['Trilogy International Associates, Inc']

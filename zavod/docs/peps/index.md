@@ -212,9 +212,11 @@ stand in as a fallback for inferring exposure.
 Declaration registers, such as asset or interest declarations, often state only that a
 person held a position when they filed. Pass the date of the latest declaration for the
 position as `declaration_date`. Without an end date, `make_occupancy` treats it as the
-last date the person is known to have held the position, and applies the after-office
-period from there. A newer declaration updates the same occupancy and so extends its
-retention.
+last date the person is known to have held the position. The after-office period runs
+from that date, and its length comes from the position's topics (see
+[Categorizing positions](#categorizing-positions)). A newer declaration updates the same
+occupancy and so extends its retention. Where declarations are filed only on taking
+office, this conservative reading can drop people still in office.
 
 Pass `no_end_implies_current=False` for sources that don't reliably remove people when
 they leave office (static snapshots, scraped archives), so an occupancy with no end date

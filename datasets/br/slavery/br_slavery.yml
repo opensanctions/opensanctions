@@ -32,6 +32,7 @@ publisher:
     The Ministry of Labour and Employment of Brazil oversees matters relating to
     worker rights, safety, pay, and work permits
   url: https://www.gov.br/trabalho-e-emprego
+  country: br
   official: true
 tags:
   - risk.slavery
