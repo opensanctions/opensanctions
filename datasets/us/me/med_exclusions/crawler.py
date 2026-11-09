@@ -1,15 +1,14 @@
 import json
+import re
+from datetime import datetime
+from typing import Any
+from urllib.parse import quote, urljoin
 
-from openpyxl import load_workbook
-from rigour.mime.types import XLSX
+from rigour.mime.types import PDF
 from zavod.extract import zyte_api
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
-
-
-EXCEL_FILENAME = "PI0008-PM%20Monthly%20Exclusion%20Report.xlsx"
-BASE_URL = "https://mainecare.maine.gov/PrvExclRpt"
 
 
 def crawl_item(row: dict[str, str | None], context: Context) -> None:
@@ -35,15 +34,15 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity.add("name", last_name)
         entity.add("sector", row.pop("provider_type"))
 
-    # Number of alias
     for i in [1, 2, 3, 4]:
         alias_first_name = row.pop(f"alias_first_name_{i}")
         alias_last_name = row.pop(f"alias_last_name_{i}")
 
-        if not alias_first_name and not alias_last_name:
+        if alias_first_name is None and alias_last_name is None:
             continue
 
-        # If the entity is a company and there is an alias, we consider it as an unknown link
+        # The source lists people in the alias columns of a company, but
+        # gives no role for them.
         if entity.schema.name == "Company":
             person = context.make("Person")
             person.id = context.make_id(alias_first_name, alias_last_name)
@@ -79,33 +78,75 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context) -> str:
-    _, _, _, txt = zyte_api.fetch_text(context, context.data_url, geolocation="us")
-    # Parse out the table data JSON embedded in the HTML
-    start = txt.find("WPQ2ListData") + 15
-    end = txt.find("WPQ2SchemaData") - 5
-    assert 15 < start < end, "Table data markers not found in page"
-    rows = json.loads(txt[start:end])["Row"]
-    # Assert that the table is in descending date order (using ID as proxy for date)
-    assert all(a["ID"] > b["ID"] for a, b in zip(rows, rows[1:])), "Not sorted desc"
-    # Pick the first item, assuming the table is sorted in descending date order
-    return f"{BASE_URL}/{rows[0]['FileLeafRef']}/{EXCEL_FILENAME}"
+def fetch_grid_items(context: Context, url: str) -> list[dict[str, Any]]:
+    """Return the document library items embedded in the Kendo grid script."""
+    script_xpath = "//div[@id='gridSPDLI']/following-sibling::script[1]"
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        script_xpath,
+        html_source="httpResponseBody",
+        geolocation="us",
+    )
+    script = h.element_text(h.xpath_element(doc, script_xpath), squash=False)
+    match = re.search(r'"data":(\{"Data":\[.*?\],"Total":\d+\})', script)
+    assert match is not None, f"Grid data not found: {url}"
+    data = json.loads(match.group(1))
+    items: list[dict[str, Any]] = data["Data"]
+    assert len(items) == data["Total"], (url, len(items), data["Total"])
+    return items
+
+
+def clean_cell(value: str | None) -> str | None:
+    # A wrapped line ends in a space when the break falls between words, and
+    # in a letter or hyphen when the report splits a long word.
+    if value is None:
+        return None
+    text = value.replace(" \n", " ").replace("\n", "").strip()
+    return text if len(text) > 0 else None
 
 
 def crawl(context: Context) -> None:
-    # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
-    _, _, _, path = zyte_api.fetch_resource(
-        context, filename="list.xlsx", url=excel_url, geolocation="us"
+    # The library holds one folder per month, in no particular order.
+    folders: dict[datetime, str] = {}
+    for item in fetch_grid_items(context, context.data_url):
+        if item["Type"] != "folder":
+            raise ValueError(f"Unexpected item in report library: {item}")
+        month = datetime.strptime(item["Name"], "%B %Y")
+        folders[month] = item["ServerRelativeUrl"]
+    # folders maps each month to its path relative to data_url, e.g.
+    # datetime(2026, 10, 1) -> "Monthly Provider Exclusion Report--October 2026".
+    # max() picks the latest month, which holds the current report.
+    latest_month = max(folders)
+    months_behind = (settings.RUN_TIME.year - latest_month.year) * 12 + (
+        settings.RUN_TIME.month - latest_month.month
     )
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    wb = load_workbook(path, read_only=True)
-    sheet_names = wb.sheetnames
-    assert wb.active is not None, "No active sheet found"
-    for item in h.parse_xlsx_sheet_openpyxl(context, wb.active, skiprows=26):
-        crawl_item(item, context)
-    sheet_names.remove(wb.active.title)
-    for sheet_name in sheet_names:
-        sheet = wb[sheet_name]
-        if not (sheet.max_row == 1 and sheet.max_column == 1 and not sheet["A1"].value):
-            context.log.warning(f"Sheet {sheet_name} is not empty")
+    if months_behind > 3:
+        context.log.warning(
+            "Latest monthly report is more than 3 months old, check if the "
+            "source is still updated",
+            latest_month=latest_month.strftime("%B %Y"),
+            url=context.data_url,
+        )
+    folder_url = urljoin(context.data_url, quote(folders[latest_month]))
+
+    files = fetch_grid_items(context, folder_url)
+    assert len(files) == 1, f"Expected one report in {folder_url}: {files}"
+    (report,) = files
+    assert report["Type"] == ".pdf", report
+    report_name: str = report["Name"]
+    assert "/" not in report_name, report_name
+    pdf_url = f"{folder_url}/{quote(report_name)}"
+
+    _, _, _, path = zyte_api.fetch_resource(
+        context, report_name, pdf_url, expected_media_type=PDF, geolocation="us"
+    )
+    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    for row in h.parse_pdf_table(
+        context,
+        path,
+        headers_per_page=True,
+        # Keeps the trailing space that clean_cell relies on.
+        page_settings=lambda page: (page, {"text_keep_blank_chars": True}),
+    ):
+        crawl_item({key: clean_cell(value) for key, value in row.items()}, context)

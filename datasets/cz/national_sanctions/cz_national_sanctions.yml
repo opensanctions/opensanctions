@@ -24,7 +24,7 @@ publisher:
   country: "cz"
 tags:
   - list.sanction
-  - issuer.west
+  - publisher.west
 url: "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html"
 data:
   # The sanctions list page only publishes a PDF; the machine-readable CSV is

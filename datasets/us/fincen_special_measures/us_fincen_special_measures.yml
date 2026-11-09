@@ -35,7 +35,7 @@ tags:
   - sector.banking
   - list.sanction
   - sector.financial
-  - issuer.west
+  - publisher.west
 url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
 publisher:
   name: Financial Crimes Enforcement Network

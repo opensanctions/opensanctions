@@ -18,7 +18,7 @@ url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-ls
 tags:
   - list.sanction
   - risk.klepto
-  - issuer.west
+  - publisher.west
 publisher:
   name: "Government of Canada"
   description: |

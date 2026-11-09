@@ -1,7 +1,7 @@
 from typing import cast
 import re
 from datetime import date, timedelta
-from urllib.parse import urlencode
+from urllib.parse import parse_qsl, urlencode, urljoin, urlparse
 
 from zavod import Context
 from zavod import helpers as h
@@ -29,7 +29,6 @@ SUBTITLE_PATTERN = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-LISTING_URL = "https://www.cssf.lu/fr/publications-donnees/"
 PAGE_SIZE = 20
 MAX_PASSES = 5
 
@@ -90,12 +89,11 @@ def crawl_item(context: Context, card: Element) -> None:
 
 
 def fetch_listing(context: Context, start: date, end: date, page: int) -> Element:
-    params = {
-        "content_type": "1387,623,625",
-        "date_from": start.isoformat(),
-        "date_to": end.isoformat(),
-    }
-    url = f"{LISTING_URL}page/{page}/"
+    # data.url carries the content_type filter that selects the sanctions.
+    params = dict(parse_qsl(urlparse(context.data_url).query))
+    params["date_from"] = start.isoformat()
+    params["date_to"] = end.isoformat()
+    url = urljoin(context.data_url, f"page/{page}/")
     return context.fetch_html(f"{url}?{urlencode(params)}", absolute_links=True)
 
 

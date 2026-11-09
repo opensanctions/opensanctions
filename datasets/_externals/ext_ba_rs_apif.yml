@@ -1,0 +1,71 @@
+type: external
+title: Republika Srpska Register of Business Entities
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: ba_rs_apif
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2026-11-07
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  cpu: "2000m"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
+  disk: "100Gi"
+load_statements: true
+ci_test: false
+summary: >-
+  Companies in the Republika Srpska register of business entities which match
+  entities in the OpenSanctions database.
+url: https://www.apif.net/index.php?option=com_content&view=article&id=7:registar-poslovnih-subjekata&catid=9:registri&Itemid=118&lang=sr
+publisher:
+  name: Agencija za posredničke, informatičke i finansijske usluge
+  name_en: Agency for Intermediary, IT and Financial Services
+  acronym: APIF
+  country: ba
+  url: https://www.apif.net/
+  official: true
+
+assertions:
+  min:
+    schema_entities:
+      Company: 0
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - ext_ba_companies
+  - ext_ru_egrul
+  - sanctions
+  - special_interest
+
+config:
+  topic_gated: true
+  index_options:
+    memory: 3000
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - sanction.control
+    - sanction.counter
+    - export.control
+    - export.control.linked
+    - invest.ban
+    - invest.risk
+    - debarment
+    - reg.action
+    - reg.warn
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    - Person

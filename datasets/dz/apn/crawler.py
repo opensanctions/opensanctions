@@ -6,6 +6,8 @@ from typing import Any
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
+from zavod.extract.zyte_api import ZyteAPIRequest
 from zavod.stateful.positions import (
     OccupancyStatus,
     PositionCategorisation,
@@ -89,14 +91,19 @@ def crawl(context: Context) -> None:
     # enforced by the dataset assertions.
     for page in count():
         payload = json.dumps({"size": PAGE_SIZE, "page": page})
-        data = context.fetch_json(
-            context.data_url,
-            method="POST",
-            data=payload,
-            headers=HEADERS,
-            cache_days=7,
+        # The APN times out connections from our production network, so route the
+        # request through the Zyte API.
+        result = zyte_api.fetch(
+            context,
+            ZyteAPIRequest(
+                url=context.data_url,
+                method="POST",
+                body=payload.encode("utf-8"),
+                headers=HEADERS,
+            ),
         )
-        rows = data["data"]
+        assert result.status_code == 200, result.status_code
+        rows = json.loads(result.response_text)["data"]
         if len(rows) == 0:
             break
         for record in rows:

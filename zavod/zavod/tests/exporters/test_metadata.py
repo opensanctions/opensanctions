@@ -52,7 +52,9 @@ def test_catalog_dataset_requires_index(
 
 
 def test_metadata_collection_export(
-    testdataset1: Dataset, collection: Dataset, resolver: Resolver[Entity]
+    testdataset1: Dataset,
+    collection: Dataset,
+    resolver: Resolver[Entity],
 ) -> None:
     version = settings.RUN_VERSION
     ds_path = dataset_artifact_directory(testdataset1.name, version)
@@ -72,6 +74,7 @@ def test_metadata_collection_export(
         # When resolve is false, the resolve key is exported with correct value
         assert testdataset1.model.resolve is False
         assert index["resolve"] is False, index
+        assert "publisher.de" in index["tags"], index
         # The written index conforms to the output contract zavod validates against.
         CatalogDatasetModel.model_validate(index)
 
@@ -104,6 +107,7 @@ def test_metadata_collection_export(
         assert ds["updated_at"] == settings.RUN_TIME_ISO
         assert ds["version"] == version.id
     assert len(entries[testdataset1.name]["resources"]) > 2
+    assert "publisher.de" in entries[testdataset1.name]["tags"]
     # The collection has no published version yet. Its own entry must still
     # describe the current run, with the resources this export just wrote.
     assert len(entries[collection.name]["resources"]) > 2

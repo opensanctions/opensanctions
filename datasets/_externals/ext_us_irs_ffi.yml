@@ -64,7 +64,6 @@ inputs:
 
 config:
   topic_gated: true
-  threshold: 0.7
   index_options:
     memory: 3000
   algorithm: regression-v1

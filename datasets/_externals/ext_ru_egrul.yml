@@ -76,7 +76,6 @@ config:
   index_options:
     max_candidates: 200
     memory: 7000
-  threshold: 0.7
   limit: 100
   algorithm: regression-v1
   topics:

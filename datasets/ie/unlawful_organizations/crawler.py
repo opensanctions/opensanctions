@@ -1,8 +1,5 @@
 from typing import Any
-import requests
 from zavod import Context, helpers as h
-
-QUERY_URL = " https://www.irishstatutebook.ie/solr/all_leg_title/select?q=unlawful+organisation&rows=10&hl.maxAnalyzedChars=-1&sort=year+desc&facet=true&facet.field=year&facet.field=type&facet.limit=300&facet.mincount=1&json.nl=map&wt=json"
 
 HARD_CODED_DATA: list[dict[str, Any]] = [
     {
@@ -61,8 +58,7 @@ HARD_CODED_DATA: list[dict[str, Any]] = [
 
 
 def check_and_raise_for_new_links(context: Context) -> None:
-    response = requests.get(QUERY_URL)
-    data = response.json()
+    data = context.fetch_json(context.data_url)
 
     # Check the 'numFound' field in the response
     num_found = data.get("response", {}).get("numFound", 0)

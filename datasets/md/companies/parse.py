@@ -20,7 +20,6 @@ IGNORE_COLUMNS = [
     "Genuri de activitate licentiate",
 ]
 NONPROFITS_URL = "https://www.asp.gov.md/ro/date-deschise/date-statistice/rson"
-LEGAL_ENTITIES_URL = "https://www.asp.gov.md/ro/date-deschise/date-statistice/company"
 REGEX_CONTAINS_WORDS = re.compile(r"\w{2}")
 
 
@@ -203,7 +202,7 @@ def parse_nonprofits(context: Context, workbook: CalamineWorkbook) -> None:
 
 def crawl(context: Context) -> None:
     # Companies
-    legal_entities_url = find_xlsx_url(context, LEGAL_ENTITIES_URL)
+    legal_entities_url = find_xlsx_url(context, context.data_url)
     data_le_path = context.fetch_resource("legal_entities.xlsx", legal_entities_url)
     context.export_resource(
         data_le_path, XLSX, title="State Register of Legal Entities"

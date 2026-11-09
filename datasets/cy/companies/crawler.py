@@ -1,4 +1,5 @@
 import csv
+import re
 from pathlib import Path
 from collections.abc import Generator, Iterable
 
@@ -9,6 +10,7 @@ from zavod import Context
 from zavod import helpers as h
 
 TYPES = {"C": "HE", "P": "S", "O": "AE", "N": "BN", "B": "B"}
+ORG_TYPE_CODE = re.compile(r"[A-Z]")
 
 
 def company_id(org_type: str, reg_nr: str | None) -> str | None:
@@ -18,6 +20,21 @@ def company_id(org_type: str, reg_nr: str | None) -> str | None:
     if org_type_oc is None:
         return None
     return f"oc-companies-cy-{org_type_oc}{reg_nr}".lower()
+
+
+def pop_org_type(context: Context, row: dict[str, str]) -> str | None:
+    org_type = row.pop("ORGANISATION_TYPE_CODE", None)
+    # The export splits records whose name holds a line break into a name-only
+    # line and a remainder shifted left by one or two columns, which puts empty
+    # or Greek label text into the type code column. The registration number
+    # is lost in some of them, so the records can't be recovered.
+    if org_type is None or not ORG_TYPE_CODE.fullmatch(org_type):
+        context.log.info("Skipping split record line", org_type=org_type, row=row)
+        return None
+    if org_type not in TYPES:
+        context.log.warning("Unknown organisation type code", org_type=org_type)
+        return None
+    return org_type
 
 
 def iter_rows(path: Path) -> Generator[dict[str, str], None, None]:
@@ -36,10 +53,10 @@ def parse_organisations(
     context: Context, rows: Iterable[dict[str, str]], addresses: dict[str, str]
 ) -> None:
     for row in rows:
-        org_type = row.pop("ORGANISATION_TYPE_CODE", None)
-        reg_nr = row.pop("REGISTRATION_NO", None)
-        if org_type is None or org_type == "Εμπορική Επωνυμία":
+        org_type = pop_org_type(context, row)
+        if org_type is None:
             continue
+        reg_nr = row.pop("REGISTRATION_NO", None)
         if reg_nr is None:
             continue
         entity = context.make("Company")
@@ -79,10 +96,9 @@ def parse_organisations(
 
 
 def parse_officials(context: Context, rows: Iterable[dict[str, str]]) -> None:
-    org_types = list(TYPES.keys())
     for row in rows:
-        org_type = row.pop("ORGANISATION_TYPE_CODE", None)
-        if org_type not in org_types:
+        org_type = pop_org_type(context, row)
+        if org_type is None:
             continue
         reg_nr = row.pop("REGISTRATION_NO", None)
         name = row.pop("PERSON_OR_ORGANISATION_NAME", None)

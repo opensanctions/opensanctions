@@ -151,8 +151,9 @@ def make_occupancy(
     to the person if an Occupancy is returned.
     **Emit the person after calling this to include this change.**
 
-    Unless `status` is overridden, Occupancies are only returned if end_date is None or
-    less than the after-office period after current_time.
+    Unless `status` is overridden, an occupancy is not returned once its `end_date` is
+    older than the after-office period. Without an end date, the same applies to
+    `declaration_date`.
 
     current_time defaults to the process start date and time.
 
@@ -165,9 +166,6 @@ def make_occupancy(
     - `current` if `end_date` is some date in the future, unless the dataset
       `coverage.end` is a date in the past, in which case `status` will be `unknown`
     - `ended` if `end_date` is some date in the past.
-
-    Without an end date, an occupancy with a `declaration_date` older than the
-    after-office period is not returned.
 
     Args:
         context: The context to create the entity in.

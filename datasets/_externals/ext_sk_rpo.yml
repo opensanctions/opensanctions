@@ -1,0 +1,71 @@
+type: external
+title: Slovakia Commercial Register
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: sk_rpo
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2026-11-07
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  cpu: "2000m"
+  memory: "6000Mi"
+  memory_limit: "7000Mi"
+  disk: "150Gi"
+load_statements: true
+ci_test: false
+summary: >-
+  Companies in the Slovak Commercial Register which match entities in the
+  OpenSanctions database.
+url: https://rpo.minv.sk/rpo-api-doc.html
+publisher:
+  name: Ministerstvo vnútra Slovenskej republiky
+  name_en: Ministry of Interior of the Slovak Republic
+  acronym: MV SR
+  url: https://www.minv.sk
+  country: sk
+  official: true
+
+assertions:
+  min:
+    schema_entities:
+      Company: 0
+
+inputs:
+  - ann_graph_topics
+  - eu_edes
+  - eu_esma_sanctions
+  - eu_esma_saris
+  - ext_ru_egrul
+  - sanctions
+
+config:
+  topic_gated: true
+  index_options:
+    memory: 3000
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - sanction.control
+    - sanction.counter
+    - export.control
+    - export.control.linked
+    - invest.ban
+    - invest.risk
+    - debarment
+    - reg.action
+    - reg.warn
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    - Person

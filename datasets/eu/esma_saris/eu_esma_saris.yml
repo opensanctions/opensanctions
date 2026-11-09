@@ -43,7 +43,7 @@ tags:
   - list.sanction
   - sector.financial
   - sector.securities
-  - issuer.west
+  - publisher.west
 
 assertions:
   min:

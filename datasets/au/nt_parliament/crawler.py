@@ -7,7 +7,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.extract import zyte_api
 from zavod.util import Element
 
-MEMBERS_URL = "https://parliament.nt.gov.au/members/by-name"
 # Member anchors live in the left-hand sub-navigation of the listing page.
 MEMBER_LINKS = (
     '//div[contains(@class, "sub-subnav")]/a[contains(@href, "/members/by-name/")]'
@@ -87,7 +86,7 @@ def crawl(context: Context) -> None:
 
     doc = zyte_api.fetch_html(
         context,
-        MEMBERS_URL,
+        context.data_url,
         unblock_validator=MEMBER_LINKS,
         absolute_links=True,
         cache_days=1,

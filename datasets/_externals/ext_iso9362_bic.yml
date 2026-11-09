@@ -68,7 +68,6 @@ inputs:
 
 config:
   topic_gated: true
-  threshold: 0.5
   index_options:
     memory: 3000
   topics:

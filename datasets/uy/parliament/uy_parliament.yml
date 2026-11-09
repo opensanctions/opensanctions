@@ -1,0 +1,54 @@
+title: Uruguay Members of the General Assembly
+entry_point: crawler.py
+prefix: uy-parl
+coverage:
+  frequency: monthly
+  start: 2026-11-06
+load_statements: true
+ci_test: false
+# The crawler reads both member lists: "Titulares" (elected, including members on
+# leave) and "Actuantes" (sitting now, including substitutes). "Actuantes" has no
+# legislator ID, so people are keyed on their name, spelled identically in both.
+summary: >-
+  Current senators and representatives of Uruguay's bicameral national legislature
+description: |
+  Current members of the General Assembly (Asamblea General) of Uruguay, the country's
+  bicameral national legislature. Its senators are elected nationwide and its
+  representatives by department, all by proportional representation for a five-year
+  term, and together they hold the country's legislative power, including passing laws
+  and approving the budget.
+
+  The dataset also includes the Vice President of the Republic, who presides over the
+  General Assembly and the Chamber of Senators, and the President of the Chamber of
+  Representatives. It covers both the members elected to each seat, including those
+  on leave, and the substitutes currently sitting in their place. Former members are
+  not included.
+url: https://parlamento.gub.uy/camarasycomisiones/legisladores
+tags:
+  - list.pep
+publisher:
+  name: Parlamento del Uruguay
+  name_en: Parliament of Uruguay
+  description: |
+    The Parliament of Uruguay is the national legislature of the country, formed by the
+    Chamber of Senators and the Chamber of Representatives, which sit jointly as the
+    General Assembly.
+  country: uy
+  url: https://parlamento.gub.uy/
+  official: true
+data:
+  url: https://parlamento.gub.uy/camarasycomisiones/
+  format: JSON
+  lang: spa
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 2
+    country_entities:
+      uy: 120
+  max:
+    schema_entities:
+      Person: 200
+      Position: 2

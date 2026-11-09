@@ -5,11 +5,11 @@ prefix: us-dod-mil
 coverage:
   frequency: never
   start: 2024-03-07
-  end: 2026-06-08
+  end: 2026-11-05
 deploy:
   schedule: "@monthly"
 manual_check:
-  last_checked: "2026-08-14"
+  last_checked: "2026-11-09"
   interval: 90
   message: >-
     The crawler watches the DoD release list for new editions of the Section 1260H list.
@@ -59,11 +59,6 @@ publisher:
   country: us
   url: https://www.defense.gov/
   official: true
-  tags:
-    - list.sanction
-    - sector.defense
-    - target.cn
-    - issuer.west
 url: https://www.war.gov/News/Releases/Release/Article/4511232/dow-releases-list-of-chinese-military-companies-in-accordance-with-section-1260/
 data:
   url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/dod_chinese_milcorps/sanctions.csv
@@ -73,6 +68,8 @@ ci_test: false  # No zyte key in CI
 
 tags:
   - sector.defense
+  - target.cn
+  - publisher.west
 
 assertions:
   min:
