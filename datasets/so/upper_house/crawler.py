@@ -6,6 +6,7 @@ from lxml.html import HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 from zavod.stateful.positions import (
     OccupancyStatus,
     PositionCategorisation,
@@ -116,12 +117,13 @@ def crawl_member(
     person.id = context.make_id(somali_name)
     # FollowTheMoney's language list does not extend to Somali, so only the names
     # from the English rendering can be tagged with the language they are in.
+    # Several senators carry the nickname they are commonly known by in brackets:
+    # "Abshir Maxamed Axmed (Bukhari)". The review splits it off as an alias.
     for raw, lang in ((somali_name, None), (translated["name"], "eng")):
         name = h.strip_name_titles(context, raw)
-        person.add("name", name, lang=lang, original_value=raw if name != raw else None)
-        # Several senators are commonly known by the nickname their name carries
-        # in brackets, so keep the plain form alongside the full one.
-        person.add("name", h.remove_bracketed(name), lang=lang)
+        h.apply_reviewed_names(
+            context, person, original=h.Names(name=name), lang=lang, llm_cleaning=True
+        )
     if dob is not None:
         apply_birth_date(person, dob)
     # Members of either chamber of the Federal Parliament must be Somali citizens:
@@ -254,3 +256,5 @@ def crawl(context: Context) -> None:
             None,
             OccupancyStatus.ENDED,
         )
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

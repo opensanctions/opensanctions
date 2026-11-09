@@ -44,6 +44,8 @@ dates:
     - "%d %b %Y"
 
 names:
+  # Bracketed nicknames are single words: "(Bukhari)", "(Fartaag)".
+  suggest_weak_alias_person_single_token: true
   prefixes_strip:
     - Sen.
     - Prof/Dr.
