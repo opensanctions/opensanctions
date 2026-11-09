@@ -95,7 +95,7 @@ def crawl_unsc_1373_list(context: Context, doc: Element) -> None:
         dob = match.group("dob")
 
         person = context.make("Person")
-        person.id = context.make_slug(name, dob)
+        person.id = context.make_id(name, dob)
         person.add("name", name)
         h.apply_date(person, "birthDate", dob)
         person.add("topics", "sanction")
