@@ -193,7 +193,6 @@ def crawl_row(context: Context, row: dict[str, Element], index_url: str) -> None
     # BG citizenship required to hold all these positions, https://tinyurl.com/3nury6bv
     person.add("citizenship", "bg")
     person.add("name", name, lang="bul")
-    person.add("topics", "role.pep")
     person.add("sourceUrl", declaration_url)
     person.add("position", position_name, lang="bul")
 

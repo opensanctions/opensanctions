@@ -65,10 +65,9 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     )
     occupancy.add("sourceUrl", url_declaration_pdf)
 
-    if occupancy is not None:
-        context.emit(person)
-        context.emit(position)
-        context.emit(occupancy)
+    context.emit(person)
+    context.emit(position)
+    context.emit(occupancy)
 
     context.audit_data(
         row,

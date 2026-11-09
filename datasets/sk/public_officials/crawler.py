@@ -105,7 +105,7 @@ def crawl_person(
 
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
-            return
+            continue
 
         occupancy = h.make_occupancy(
             context,
