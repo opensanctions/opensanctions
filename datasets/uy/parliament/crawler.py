@@ -12,8 +12,8 @@ def crawl_member(
     categorisation: PositionCategorisation,
     name: str,
     party: str,
-    department: str | None,
-    url: str | None,
+    department: str = "",
+    url: str | None = None,
 ) -> None:
     # The sitting-members list gives no legislator ID, so both lists are keyed on
     # the name, which they spell identically.
@@ -21,7 +21,7 @@ def crawl_member(
     person = context.make("Person")
     person.id = context.make_id(name)
     h.apply_name(person, first_name=first_name, last_name=last_name)
-    person.add("political", party)
+    person.add("political", party.strip())
     person.add("sourceUrl", url)
     # Representatives and senators must be citizens: Constitution of Uruguay, Art. 90
     # and Art. 98. https://www.impo.com.uy/bases/constitucion/1967-1967
@@ -33,7 +33,7 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", department)
+    occupancy.add("constituency", department.strip())
     context.emit(occupancy)
     context.emit(person)
 
@@ -45,37 +45,40 @@ def crawl_chamber(context: Context, position: Entity, chamber: str) -> None:
         return
     context.emit(position)
 
-    base_url = f"{context.data_url}{chamber}/plenario/integracion"
-    # Party, department and profile URL, keyed on the name.
-    members: dict[str, tuple[str, str | None, str | None]] = {}
+    url = f"{context.data_url}{chamber}/plenario/integracion"
+
     # The members elected to each seat ("Titulares"), including those on leave, e.g.
     # to serve as a minister.
-    elected = zyte_api.fetch_json(
-        context, f"{base_url}/titulares/json?page&_format=json", geolocation="UY"
-    )
-    for row in elected:
+    elected_url = f"{url}/titulares/json?page&_format=json"
+    for row in zyte_api.fetch_json(context, elected_url, geolocation="UY"):
         # e.g. <a href="http://parlamento.gub.uy/camarasycomisiones/legisladores/9917">Andrade, Oscar</a>
         link = html.fragment_fromstring(row.pop("Nombres"))
-        members[h.element_text(link)] = (
-            row.pop("Lema").strip(),
-            row.pop("Departamento").strip() or None,
-            h.xpath_string(link, "./@href"),
+        crawl_member(
+            context,
+            position,
+            categorisation,
+            name=h.element_text(link),
+            party=row.pop("Lema"),
+            department=row.pop("Departamento"),
+            url=h.xpath_string(link, "./@href"),
         )
         context.audit_data(row)
 
-    # The members sitting now ("Actuantes") add the substitutes holding the seats of
-    # members on leave.
-    sitting = zyte_api.fetch_json(
-        context, f"{base_url}/json?page&_format=json", geolocation="UY"
-    )
-    for row in sitting:
-        members.setdefault(row.pop("Nombres"), (row.pop("Lema").strip(), None, None))
+    # The members sitting now ("Actuantes"), which adds the substitutes holding the
+    # seats of members on leave. Members on both lists are emitted again with the same
+    # IDs, which the export merges.
+    sitting_url = f"{url}/json?page&_format=json"
+    for row in zyte_api.fetch_json(context, sitting_url, geolocation="UY"):
+        crawl_member(
+            context,
+            position,
+            categorisation,
+            name=row.pop("Nombres"),
+            party=row.pop("Lema"),
+        )
         # The chamber, the presiding office ("Presidente") and the substitution
         # note ("Sustituye al Representante ...") are not captured.
         context.audit_data(row, ignore=["Cuerpo", "Cargo", "Sustituciones"])
-
-    for name, (party, department, url) in members.items():
-        crawl_member(context, position, categorisation, name, party, department, url)
 
 
 def crawl(context: Context) -> None:
