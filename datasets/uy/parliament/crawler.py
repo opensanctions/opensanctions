@@ -32,14 +32,13 @@ def crawl_member(
         geolocation="UY",
         cache_days=7,
     )
-    role = h.element_text(h.xpath_element(profile, ROLE_XPATH))
-    res = context.lookup("role", role, warn_unmatched=True)
-    if res is None:
-        return
 
     person = context.make("Person")
     person.id = context.make_slug(url.rsplit("/", 1)[-1])
     h.apply_name(person, first_name=first_name, last_name=last_name)
+    # e.g. "Senador de la República por el Lema PARTIDO FRENTE AMPLIO", or a presiding
+    # office such as "PRESIDENTE DE LA CÁMARA DE REPRESENTANTES - Representante ...".
+    person.add("position", h.element_text(h.xpath_element(profile, ROLE_XPATH)))
     person.add("political", party)
     for mailto in h.xpath_strings(profile, ".//a[starts-with(@href, 'mailto:')]/@href"):
         person.add("email", mailto.removeprefix("mailto:"))
@@ -48,39 +47,16 @@ def crawl_member(
     # and Art. 98. https://www.impo.com.uy/bases/constitucion/1967-1967
     person.add("citizenship", "uy")
 
-    occupancies: list[Entity] = []
-    # The rosters list only sitting members and give no dates. The per-legislature
-    # history on profiles is incomplete for some members, so it is not used for dates.
-    if res.member:
-        occupancy = h.make_occupancy(
-            context, person, position, categorisation=categorisation
-        )
-        if occupancy is not None:
-            occupancy.add("constituency", department or None)
-            occupancies.append(occupancy)
-
-    if res.name is not None:
-        office = h.make_position(
-            context,
-            name=res.name,
-            country="uy",
-            topics=res.topics,
-            wikidata_id=res.wikidata_id,
-            lang="eng",
-        )
-        office_categorisation = categorise(context, office)
-        if office_categorisation.is_pep:
-            office_occupancy = h.make_occupancy(
-                context, person, office, categorisation=office_categorisation
-            )
-            if office_occupancy is not None:
-                context.emit(office)
-                occupancies.append(office_occupancy)
-
-    if len(occupancies) == 0:
+    # The rosters list the members currently elected to each seat, including those on
+    # leave, and give no dates. The per-legislature history on profiles is incomplete
+    # for some members, so it is not used for dates.
+    occupancy = h.make_occupancy(
+        context, person, position, categorisation=categorisation
+    )
+    if occupancy is None:
         return
-    for occupancy in occupancies:
-        context.emit(occupancy)
+    occupancy.add("constituency", department or None)
+    context.emit(occupancy)
     context.emit(person)
 
 

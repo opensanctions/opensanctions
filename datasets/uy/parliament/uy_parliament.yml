@@ -8,6 +8,11 @@ load_statements: true
 # parlamento.gub.uy is behind an AWS WAF challenge that only lets Uruguayan traffic
 # through, so every request goes through the Zyte API with UY geolocation.
 ci_test: false
+# The "Titulares" rosters list the members elected to each seat, including those on
+# leave (e.g. serving as ministers). Substitutes sitting in their place are listed
+# only on the "Actuantes" pages (.../plenario/integracion), which the crawler does
+# not read. A member who has moved up to the other chamber as a substitute keeps
+# only their elected chamber's position; their profile role line shows where they sit.
 summary: >-
   Current senators and representatives of Uruguay's bicameral national legislature
 description: |
@@ -19,7 +24,8 @@ description: |
 
   The dataset also includes the Vice President of the Republic, who presides over the
   General Assembly and the Chamber of Senators, and the President of the Chamber of
-  Representatives. Former members are not included.
+  Representatives. Substitutes sitting in place of members on leave, and former
+  members, are not included.
 url: https://parlamento.gub.uy/camarasycomisiones/legisladores
 tags:
   - list.pep
@@ -49,27 +55,3 @@ assertions:
     schema_entities:
       Person: 160
       Position: 6
-
-lookups:
-  # The role line at the top of each member's profile. `member` says whether it
-  # denotes membership of the chamber whose roster lists them; `name` adds a
-  # presiding office held on top of (or, for the Vice President, instead of) it.
-  role:
-    options:
-      - regex: "^Senadora? de la República por el Lema "
-        member: true
-      - regex: "^Representante Nacional por el Lema "
-        member: true
-      - regex: "^PRESIDENT[EA] DE LA CÁMARA DE REPRESENTANTES - Representante Nacional por el Lema "
-        member: true
-        name: President of the Chamber of Representatives of Uruguay
-        wikidata_id: Q110192733
-        topics: [gov.national, gov.legislative]
-      # Constitution Art. 94: the Vice President presides over the Chamber of
-      # Senators and the General Assembly with voice and vote, in addition to the
-      # Chamber's 30 senators.
-      - regex: "^PRESIDENT[EA] DE LA ASAMBLEA GENERAL Y DE LA CÁMARA DE SENADORES$"
-        member: false
-        name: Vice President of Uruguay
-        wikidata_id: Q3773222
-        topics: [gov.national, gov.executive]
