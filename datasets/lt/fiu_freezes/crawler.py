@@ -84,13 +84,14 @@ def crawl_page(
 
 
 def crawl_unsc_1373_list(context: Context, doc: Element) -> None:
-    # The UNSCR 1373 list is published as an ordered list of "NAME, YYYY-MM-DD"
-    # items rather than a table.
+    # The UNSCR 1373 list is published as an ordered list of "NAME, YYYY-MM-DD" items
     for item in h.xpath_elements(doc, './/div[@class="content-block"]//ol/li'):
         text = h.element_text(item)
         match = re.fullmatch(r"(?P<name>[^,]+), (?P<dob>\d{4}-\d{2}-\d{2})", text)
         if match is None:
-            raise ValueError(f"Unexpected UNSCR 1373 list item: {text!r}")
+            # Skip rather than crash, so one odd item doesn't hold back the rest.
+            context.log.warning("Unexpected UNSCR 1373 list item", text=text)
+            continue
         name = match.group("name")
         dob = match.group("dob")
 
