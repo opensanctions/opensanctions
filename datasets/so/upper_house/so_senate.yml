@@ -1,5 +1,4 @@
 title: Somalia Members of the Upper House
-name: so_senate
 prefix: so-sen
 entry_point: crawler.py
 coverage:
@@ -11,9 +10,9 @@ summary: >-
 description: |
   Current members of the Upper House (Golaha Aqalka Sare), the upper chamber of
   Somalia's bicameral Federal Parliament. Its seats are apportioned between the
-  federal member states — eleven each for Puntland and the northern regions claimed
-  by Somaliland, eight each for Galmudug, Hirshabelle, Jubaland and South West — and
-  are filled for a four-year term by the states' electoral colleges. Together with
+  federal member states and filled for a four-year term by their state assemblies,
+  except for the seats of the northern regions claimed by Somaliland, whose senators
+  are elected by delegates meeting in Mogadishu. Together with
   the House of the People its members hold the country's legislative power, including
   passing laws, approving the budget and electing the President.
 url: https://senate.gov.so/
