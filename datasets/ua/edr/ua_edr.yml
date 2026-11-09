@@ -51,7 +51,7 @@ assertions:
 lookups:
   type.name:
     options:
-      - regex: ^[\s\.\-]+$
+      - regex: ^[\s\.\-,]+$
         value: null
       - match:
           - '53"'
