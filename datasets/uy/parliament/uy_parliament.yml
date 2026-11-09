@@ -8,11 +8,12 @@ load_statements: true
 # parlamento.gub.uy is behind an AWS WAF challenge that only lets Uruguayan traffic
 # through, so every request goes through the Zyte API with UY geolocation.
 ci_test: false
-# The "Titulares" rosters list the members elected to each seat, including those on
-# leave (e.g. serving as ministers). Substitutes sitting in their place are listed
-# only on the "Actuantes" pages (.../plenario/integracion), which the crawler does
-# not read. A member who has moved up to the other chamber as a substitute keeps
-# only their elected chamber's position; their profile role line shows where they sit.
+# Each chamber has two member lists: "Titulares" holds the members elected to each
+# seat, including those on leave (e.g. serving as ministers), and "Actuantes" the
+# members sitting now, including the substitutes holding those seats. The crawler
+# reads both. "Actuantes" gives no legislator ID, so people are keyed on their name,
+# which both lists spell identically; a member who moved up to the other chamber as a
+# substitute holds both chambers' positions.
 summary: >-
   Current senators and representatives of Uruguay's bicameral national legislature
 description: |
@@ -24,8 +25,9 @@ description: |
 
   The dataset also includes the Vice President of the Republic, who presides over the
   General Assembly and the Chamber of Senators, and the President of the Chamber of
-  Representatives. Substitutes sitting in place of members on leave, and former
-  members, are not included.
+  Representatives. It covers both the members elected to each seat, including those
+  on leave, and the substitutes currently sitting in their place. Former members are
+  not included.
 url: https://parlamento.gub.uy/camarasycomisiones/legisladores
 tags:
   - list.pep
@@ -40,7 +42,7 @@ publisher:
   url: https://parlamento.gub.uy/
   official: true
 data:
-  url: https://parlamento.gub.uy/camarasycomisiones/senadores/plenario/integracion/titulares/json?page&_format=json
+  url: https://parlamento.gub.uy/camarasycomisiones/
   format: JSON
   lang: spa
 
@@ -53,5 +55,5 @@ assertions:
       uy: 120
   max:
     schema_entities:
-      Person: 160
+      Person: 200
       Position: 6
