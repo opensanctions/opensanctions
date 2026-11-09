@@ -26,11 +26,13 @@ def test_occupancy_status(testdataset1: Dataset):
         period_start=None,
         period_end=None,
         election_date=None,
+        declaration=None,
     ):
         occupancy = context.make("Occupancy")
         occupancy.id = context.make_id(
             "test-occ", start, end, period_start, period_end, election_date
         )
+        h.apply_date(occupancy, "declarationDate", declaration)
         h.apply_date(occupancy, "startDate", start)
         h.apply_date(occupancy, "endDate", end)
         h.apply_date(occupancy, "periodStart", period_start)
@@ -47,6 +49,7 @@ def test_occupancy_status(testdataset1: Dataset):
         position_topics=[],
         dissolution_date=None,
         period_end=None,
+        declaration=None,
     ):
         pos = make_position(
             context,
@@ -59,7 +62,9 @@ def test_occupancy_status(testdataset1: Dataset):
             context,
             person=person,
             position=pos,
-            occupancy=make_occ(start=start, end=end, period_end=period_end),
+            occupancy=make_occ(
+                start=start, end=end, period_end=period_end, declaration=declaration
+            ),
             no_end_implies_current=implies,
             current_time=datetime(2021, 1, 1),
             birth_date=birth,
@@ -189,6 +194,50 @@ def test_occupancy_status(testdataset1: Dataset):
     assert (
         status(True, "2018-01-01", "2021-01-02", period_end="2025-01-01")
         == OccupancyStatus.CURRENT
+    )
+
+    # --- Declaration date semantics ---
+    # A declaration is enough to work with when no end doesn't imply current.
+    assert (
+        status(False, None, None, declaration="2020-06-01") == OccupancyStatus.UNKNOWN
+    )
+    assert status(True, None, None, declaration="2020-06-01") == OccupancyStatus.CURRENT
+    # The after-office period runs from the latest declaration.
+    assert (
+        status(False, None, None, declaration="2016-06-01") == OccupancyStatus.UNKNOWN
+    )
+    assert status(False, None, None, declaration="2015-06-01") is None
+    # Also when no end implies current: no declaration for that long means they left.
+    assert status(True, None, None, declaration="2015-06-01") is None
+    # A year-precision declaration may have been filed as late as 31 December.
+    assert status(False, None, None, declaration="2016") == OccupancyStatus.UNKNOWN
+    assert status(False, None, None, declaration="2015") is None
+    # The after-office period follows the position topics.
+    assert (
+        status(
+            False,
+            None,
+            None,
+            position_topics=["gov.national"],
+            declaration="2005-01-01",
+        )
+        == OccupancyStatus.UNKNOWN
+    )
+    # A recent declaration shows they still held a position started long ago.
+    assert (
+        status(False, "1975-01-01", None, declaration="2020-06-01")
+        == OccupancyStatus.UNKNOWN
+    )
+    # An end date takes precedence over a declaration.
+    assert status(False, None, "2015-01-01", declaration="2020-06-01") is None
+    assert (
+        status(False, None, "2020-12-01", declaration="2020-06-01")
+        == OccupancyStatus.ENDED
+    )
+    # A recent declaration doesn't override death.
+    assert (
+        status(False, None, None, death="2020-06-01", declaration="2020-01-01")
+        == OccupancyStatus.ENDED
     )
 
     context.close()

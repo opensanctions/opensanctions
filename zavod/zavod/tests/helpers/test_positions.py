@@ -225,6 +225,38 @@ def test_make_occupancy(testdataset1: Dataset):
     context.close()
 
 
+def test_make_occupancy_declaration_date(testdataset1: Dataset):
+    context = make_context(testdataset1)
+    pos = make_position(context, name="A position", country="ls")
+    person = context.make("Person")
+    person.id = "thabo"
+
+    def make(declaration_date):
+        return make_occupancy(
+            context,
+            person=person,
+            position=pos,
+            no_end_implies_current=False,
+            current_time=datetime(2021, 1, 3),
+            declaration_date=declaration_date,
+        )
+
+    recent = make("2020-06-01")
+    assert recent is not None
+    assert recent.get("declarationDate") == ["2020-06-01"]
+    # Status unknown is not recorded on the entity.
+    assert recent.get("status") == []
+
+    # A newer declaration keeps the same occupancy.
+    newer = make("2020-12-01")
+    assert newer is not None
+    assert newer.id == recent.id
+
+    # Declared longer ago than the after-office period.
+    assert make("2015-06-01") is None
+    context.close()
+
+
 def test_make_occupancy_two_digit_year(testdataset1: Dataset):
     """The base year picks the century, but the ID keys on the date string as it was
     given, so adopting a base year does not renumber a dataset's occupancies."""
