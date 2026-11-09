@@ -1,4 +1,5 @@
 import json
+import re
 from itertools import count
 from urllib.parse import urljoin
 
@@ -100,6 +101,8 @@ def crawl_person(
 def crawl_profile(context: Context, card: etree._Element) -> None:
     category = h.element_text(h.xpath_element(card, ".//div[@class='category']"))
     href = h.xpath_string(card, ".//div[@class='thumbnail']//a/@href")
+    match = re.fullmatch(r"Member\?M=(\d+)", href)
+    assert match is not None, href
     url = urljoin(context.data_url, f"/{href}")
     doc = zyte_api.fetch_html(
         context,
@@ -115,7 +118,7 @@ def crawl_profile(context: Context, card: etree._Element) -> None:
         key = context.lookup_value("columns", label.strip(), warn_unmatched=True)
         assert key is not None, (url, label)
         row[key] = value.strip()
-    crawl_person(context, href.split("=")[-1], url, category, row)
+    crawl_person(context, match.group(1), url, category, row)
 
 
 def crawl(context: Context) -> None:

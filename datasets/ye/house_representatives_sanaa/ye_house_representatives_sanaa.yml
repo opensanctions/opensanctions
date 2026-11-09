@@ -30,7 +30,7 @@ publisher:
   official: true
 data:
   url: https://yemenparliament.gov.ye/PWS.asmx/Members
-  format: HTML
+  format: JSON
   lang: ara
 dates:
   formats: ["%Y/%m/%d"]
