@@ -5,11 +5,11 @@ prefix: us-dod-mil
 coverage:
   frequency: never
   start: 2024-03-07
-  end: 2026-06-08
+  end: 2026-11-05
 deploy:
   schedule: "@monthly"
 manual_check:
-  last_checked: "2026-08-14"
+  last_checked: "2026-11-09"
   interval: 90
   message: >-
     The crawler watches the DoD release list for new editions of the Section 1260H list.
