@@ -1,4 +1,3 @@
-from datetime import timedelta
 from normality import slugify
 from rigour.mime.types import CSV
 import csv
@@ -8,8 +7,7 @@ from zavod import helpers as h
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.util import Element
-from zavod.stateful.positions import YEAR_DAYS, OccupancyStatus, categorise
-from zavod import settings
+from zavod.stateful.positions import OccupancyStatus, categorise
 
 # NUMERO DOCUMENTO
 # NOMBRE PEP
@@ -178,9 +176,6 @@ def crawl_table_row(
 
     fecha_publicacion = str_row.pop("fecha_publicacion")
     assert fecha_publicacion is not None
-    if fecha_publicacion < h.backdate(settings.RUN_TIME, timedelta(days=YEAR_DAYS * 5)):
-        context.log.warning("Skipping potentially too old position", key=key)
-        return
 
     if str_row.pop("es_contratista") != "NO":
         context.log.warning("Unexpectedly found a contractor", key=key)
@@ -199,16 +194,18 @@ def crawl_table_row(
     if not categorisation.is_pep:
         return
 
+    # The listing has no term dates, only the publication date of each PEP
+    # declaration, which shows the post was held then.
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         no_end_implies_current=False,
-        status=OccupancyStatus.UNKNOWN,
+        declaration_date=fecha_publicacion,
         categorisation=categorisation,
     )
-    # assert added during typechecker fixes to not change behavior; may not reflect reality
-    assert occupancy is not None
+    if occupancy is None:
+        return
     context.emit(person)
     context.emit(position)
     context.emit(occupancy)
