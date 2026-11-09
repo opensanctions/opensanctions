@@ -105,26 +105,46 @@ def crawl_member(
         for value in fields["sworn_in"]:
             start_date = clean_date(value)
     end_dates = fields["mandate_lost"]
+    suspended = fields["mandate_suspended"]
+    resumed = fields["mandate_resumed"]
     assert len(end_dates) <= 1, (name, end_dates)
-
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-        start_date=start_date,
-        end_date=clean_date(end_dates[0]) if end_dates else None,
-        no_end_implies_current=is_current,
-        key_prefix=legislature,
-    )
-    if occupancy is None:
+    assert len(suspended) <= 1 and len(resumed) <= len(suspended), (name, fields)
+    end_date = clean_date(end_dates[0]) if end_dates else None
+    # A suspension ends the mandate; a resumption starts a new occupancy.
+    spans: list[tuple[str | None, str | None]] = [(start_date, end_date)]
+    if len(suspended) > 0:
+        assert end_date is None or len(resumed) > 0, (name, fields)
+        spans = [(start_date, clean_date(suspended[0]))]
+        if len(resumed) > 0:
+            spans.append((clean_date(resumed[0]), end_date))
+    occupancies = []
+    for span_start, span_end in spans:
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            categorisation=categorisation,
+            start_date=span_start,
+            end_date=span_end,
+            no_end_implies_current=is_current,
+            key_prefix=legislature,
+        )
+        if occupancy is not None:
+            occupancies.append(occupancy)
+    # Spans must follow each other: sworn in, suspended, resumed, mandate lost.
+    dates = [
+        d for occ in occupancies for d in occ.get("startDate") + occ.get("endDate")
+    ]
+    assert dates == sorted(dates), (name, dates)
+    for occupancy in occupancies:
+        for value in fields["constituency"]:
+            res = context.lookup("constituency", value)
+            occupancy.add("constituency", value if res is None else res.value)
+        # The parliamentary group, distinct from party membership.
+        occupancy.add("politicalGroup", fields["political_group"])
+        context.emit(occupancy)
+    if len(occupancies) == 0:
         return
-    for value in fields["constituency"]:
-        res = context.lookup("constituency", value)
-        occupancy.add("constituency", value if res is None else res.value)
-    # The parliamentary group, distinct from party membership.
-    occupancy.add("politicalGroup", fields["political_group"])
-    context.emit(occupancy)
     context.emit(person)
 
     context.audit_data(

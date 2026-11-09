@@ -158,6 +158,13 @@ lookups:
         value: sworn_in
       - match: Perda de Mandato
         value: mandate_lost
+      - match:
+          - Suspensão do Mandato
+          - Suspensão de Mandato
+          - Suspensão
+        value: mandate_suspended
+      - match: [Retoma do Mandato, Retomada]
+        value: mandate_resumed
 
   # Variant spellings of a party, mapped to its acronym. Other values are kept as
   # published. Some profiles give the constituency in the party field.
@@ -225,4 +232,7 @@ lookups:
       - match: 25/11/57
         value: "1957-11-25"
       - match: N/A
+        value: null
+      # Samuel Daniel's I legislature birth date; his II record has 25-06-1956.
+      - match: "2001-05-05"
         value: null
