@@ -110,13 +110,17 @@ def crawl_member(
     assert len(end_dates) <= 1, (name, end_dates)
     assert len(suspended) <= 1 and len(resumed) <= len(suspended), (name, fields)
     end_date = clean_date(end_dates[0]) if end_dates else None
-    # A suspension ends the mandate; a resumption starts a new occupancy.
-    spans: list[tuple[str | None, str | None]] = [(start_date, end_date)]
-    if len(suspended) > 0:
+
+    spans: list[tuple[str | None, str | None]]
+    if len(suspended) == 0:
+        spans = [(start_date, end_date)]
+    else:
+        # A suspension ends the mandate; a resumption starts a new occupancy.
         assert end_date is None or len(resumed) > 0, (name, fields)
         spans = [(start_date, clean_date(suspended[0]))]
         if len(resumed) > 0:
             spans.append((clean_date(resumed[0]), end_date))
+
     occupancies = []
     for span_start, span_end in spans:
         occupancy = h.make_occupancy(
@@ -133,7 +137,9 @@ def crawl_member(
             occupancies.append(occupancy)
     # Spans must follow each other: sworn in, suspended, resumed, mandate lost.
     dates = [
-        d for occ in occupancies for d in occ.get("startDate") + occ.get("endDate")
+        d
+        for occupancy in occupancies
+        for d in occupancy.get("startDate") + occupancy.get("endDate")
     ]
     assert dates == sorted(dates), (name, dates)
     for occupancy in occupancies:
