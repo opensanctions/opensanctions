@@ -215,6 +215,7 @@ children:
   - sm_consiglio
   - sn_assembly
   - so_house_people
+  - so_senate
   - sr_national_assembly
   - sv_legislature
   - th_cabinet
