@@ -33,7 +33,7 @@ publisher:
     > terms
   url: https://www.cftc.gov/
 tags:
-  - issuer.west
+  - publisher.west
   - sector.financial
   - list.enforcement
 data:

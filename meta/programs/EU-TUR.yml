@@ -22,6 +22,7 @@ aliases:
   - TUR
 target_territories:
   - tr
+  - cy
 measures:
   - Asset freeze
   - Travel ban

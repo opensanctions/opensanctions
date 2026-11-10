@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from normality import slugify
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
@@ -95,8 +95,10 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("list.xlsx", excel_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    wb = load_workbook(path, read_only=True)
-    assert wb.active is not None
+    wb = CalamineWorkbook.from_path(path)
+    # The single sheet is named after the month of publication.
+    assert len(wb.sheet_names) == 1, wb.sheet_names
+    sheet = wb.get_sheet_by_index(0)
 
-    for item in h.parse_xlsx_sheet(context, wb.active):
+    for item in h.parse_xlsx_sheet(context, sheet):
         crawl_item(item, context)

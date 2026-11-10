@@ -1,4 +1,5 @@
 import re
+from typing import NamedTuple
 
 import pdfplumber
 from rigour.mime.types import PDF
@@ -26,24 +27,64 @@ TRAILING_LETTER_RE = re.compile(r" ([ء-ي])$")
 # Non-name tokens carried in the name column (table/section header labels).
 SKIP_TOKENS = ("الشخصي", "المستشار", "الجهة", "الدائرة", "الانتماء", "هيئة", "اللائحة")
 
-# The PDF is split into one section per electoral college. Each section is
-# identified by a stable substring of its title and has its own column layout,
-# mapping (name column, party column, region column) by table index; None where
-# the column is absent for that college. pdfplumber's column boundaries shift
-# between the header and body rows, so the layout is keyed off the section rather
-# than the header labels.
-SECTIONS: list[tuple[str, tuple[int, int | None, int | None]]] = [
+
+class RowCells(NamedTuple):
+    """The raw cell texts of one table row, None where the section has no column."""
+
+    name: str | None
+    party: str | None
+    region: str | None
+
+
+class Section(NamedTuple):
+    """One section of the PDF, which lists the members of one electoral college.
+
+    pdfplumber's column boundaries shift between the header and body rows, so the
+    column layout is keyed off the section rather than the header labels.
+    """
+
+    keyword: str
+    """A stable substring of the section title."""
+    name_col: int
+    party_col: int | None
+    region_col: int | None
+
+    def read(self, row: list[str | None]) -> RowCells:
+        def cell(col: int | None) -> str | None:
+            if col is None or col >= len(row):
+                return None
+            return row[col]
+
+        return RowCells(
+            cell(self.name_col), cell(self.party_col), cell(self.region_col)
+        )
+
+
+SECTIONS = [
     # 1 - Representatives of regional councils
-    ("المجالس الجهو", (3, 0, 4)),
+    Section("المجالس الجهو", name_col=3, party_col=0, region_col=4),
     # 2 - Representatives of communal and prefectural/provincial councils
-    ("المجالس الجماع", (3, 0, 4)),
+    Section("المجالس الجماع", name_col=3, party_col=0, region_col=4),
     # 3 - Representatives of professional chambers
-    ("الغرف المهن", (3, 0, 4)),
+    Section("الغرف المهن", name_col=3, party_col=0, region_col=4),
     # 4 - Representatives of employers' organisations (no party affiliation)
-    ("المنظمات المهنية للمشغل", (0, None, 3)),
+    Section("المنظمات المهنية للمشغل", name_col=0, party_col=None, region_col=3),
     # 5 - Representatives of employees / trade unions (union affiliation, skipped)
-    ("المأجور", (3, None, None)),
+    Section("المأجور", name_col=3, party_col=None, region_col=None),
 ]
+
+
+class Cell(NamedTuple):
+    raw: str
+    """The cell text as pdfplumber extracts it."""
+    text: str
+    """The cleaned text in logical order."""
+
+
+class CouncillorRecord(NamedTuple):
+    name: Cell
+    party: Cell | None
+    constituency: Cell | None
 
 
 def reverse_arabic(raw: str | None) -> str | None:
@@ -99,19 +140,17 @@ def is_person_name(name: str | None) -> bool:
     return not any(token in name for token in SKIP_TOKENS)
 
 
-def detect_section(
-    table: list[list[str | None]],
-) -> tuple[int, int | None, int | None]:
-    """Determine the column layout from the section title in the leading rows."""
+def detect_section(table: list[list[str | None]]) -> Section:
+    """Determine the section from its title in the leading rows."""
     header = " ".join(
         text
         for row in table[:3]
         for cell in row
         if (text := reverse_arabic(cell)) is not None
     )
-    for keyword, layout in SECTIONS:
-        if keyword in header:
-            return layout
+    for section in SECTIONS:
+        if section.keyword in header:
+            return section
     raise ValueError(f"Unrecognised section header: {header!r}")
 
 
@@ -149,58 +188,74 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("councillors.pdf", pdf_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    # (name, party, constituency) per councillor.
-    records: list[tuple[str, str | None, str | None]] = []
-    current_layout: tuple[int, int | None, int | None] | None = None
+    records: list[CouncillorRecord] = []
+    current_section: Section | None = None
     # Region cells are vertically merged: the value appears on the first member
     # of each group and is carried down. Reset when the section changes.
-    current_region: str | None = None
+    current_region: Cell | None = None
 
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
+            # pdfplumber gives a ligature glyph, such as lam-alef, as several
+            # characters in logical order. Reverse them so that they read
+            # correctly after reverse_arabic turns the visual order around.
+            for char in page.chars:
+                if len(char["text"]) > 1:
+                    char["text"] = char["text"][::-1]
             tables = page.extract_tables()
             if not tables:
                 continue
             table = max(tables, key=len)
-            layout = detect_section(table)
-            if layout != current_layout:
-                current_layout = layout
+            section = detect_section(table)
+            if section != current_section:
+                current_section = section
                 current_region = None
-            name_col, party_col, region_col = layout
 
             for row in table:
-                if len(row) <= name_col:
-                    continue
-                name = normalize_name(row[name_col])
+                cells = section.read(row)
+                name = normalize_name(cells.name)
                 if not is_person_name(name):
                     continue
-                assert name is not None
+                assert cells.name is not None and name is not None
 
                 party = None
-                if party_col is not None and len(row) > party_col:
-                    affiliation = reverse_arabic(row[party_col])
-                    if affiliation is not None and affiliation.startswith(PARTY_PREFIX):
-                        party = dewrap(affiliation)
+                affiliation = reverse_arabic(cells.party)
+                if (
+                    cells.party is not None
+                    and affiliation is not None
+                    and affiliation.startswith(PARTY_PREFIX)
+                ):
+                    party = Cell(cells.party, dewrap(affiliation))
 
-                if region_col is not None and len(row) > region_col:
-                    region = reverse_arabic(row[region_col])
-                    if region is not None:
-                        current_region = clean_region(region)
-                constituency = current_region if region_col is not None else None
+                region = reverse_arabic(cells.region)
+                if cells.region is not None and region is not None:
+                    current_region = Cell(cells.region, clean_region(region))
+                constituency = None if section.region_col is None else current_region
 
-                records.append((name, party, constituency))
+                records.append(
+                    CouncillorRecord(Cell(cells.name, name), party, constituency)
+                )
 
     if not records:
         raise ValueError("No councillor names parsed from the members PDF")
 
-    for name, party, constituency in records:
+    for record in records:
+        party = record.party
+        constituency = record.constituency
         person = context.make("Person")
-        person.id = context.make_id(name, party, constituency)
-        person.add("name", name, lang="ara")
-        apply_translit_full_name(context, person, LangText(name, "ara"))
+        # Key the ID on the raw cell texts, so that changes to the text cleaning
+        # don't change the IDs.
+        person.id = context.make_id(
+            record.name.raw,
+            None if party is None else party.raw,
+            None if constituency is None else constituency.raw,
+        )
+        person.add("name", record.name.text, lang="ara")
+        apply_translit_full_name(context, person, LangText(record.name.text, "ara"))
         # The party the member ran for; trade-union affiliation (employees'
         # college) is not a political association and is not recorded.
-        person.add("political", party, lang="ara")
+        if party is not None:
+            person.add("political", party.text, lang="ara")
         # Eligibility to the House of Councillors requires Moroccan citizenship: only
         # citizens are electors and eligible (2011 Constitution, Article 30).
         # https://mjp.univ-perp.fr/constit/ma2011.htm
@@ -212,6 +267,7 @@ def crawl(context: Context) -> None:
         if occupancy is None:
             continue
         # The region or electoral district the member represents.
-        occupancy.add("constituency", constituency, lang="ara")
+        if constituency is not None:
+            occupancy.add("constituency", constituency.text, lang="ara")
         context.emit(occupancy)
         context.emit(person)

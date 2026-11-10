@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Any
 from normality import slugify, stringify
-from openpyxl import load_workbook
 from pathlib import Path
+from python_calamine import CalamineWorkbook
 from collections.abc import Generator
 
 from zavod import Context
@@ -229,7 +229,7 @@ def crawl_cv_entry(
 def header_names(cells: list[Any], expected_columns: int) -> list[str]:
     headers: list[str] = []
     for idx, cell in enumerate(cells):
-        if cell is None:
+        if cell == "":
             if idx < expected_columns:
                 raise ValueError(f"Missing header at column {idx}")
         slug = slugify(cell, "_")
@@ -242,11 +242,10 @@ def header_names(cells: list[Any], expected_columns: int) -> list[str]:
 def excel_records(
     path: Path, sheet_name: str, expected_columns: int
 ) -> Generator[dict[str, str | None], None, None]:
-    wb = load_workbook(filename=path, read_only=True)
-    sheet = wb[sheet_name]
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_name(sheet_name)
     headers = None
-    for idx, row in enumerate(sheet.rows):
-        cells = [c.value for c in row][:expected_columns]
+    for row in sheet.to_python(skip_empty_area=False):
+        cells = row[:expected_columns]
         if not any(cells):
             continue
         if headers is None:
@@ -256,8 +255,7 @@ def excel_records(
         for header, value in zip(headers, cells):
             if isinstance(value, datetime):
                 value = value.date()
-            value = stringify(value)
-            record[header] = value
+            record[header] = stringify(value)
         yield record
 
 

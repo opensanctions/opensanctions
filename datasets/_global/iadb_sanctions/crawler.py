@@ -1,11 +1,4 @@
-from datetime import datetime
-from pathlib import Path
-from typing import Any
-from collections.abc import Iterator
-
-from normality import slugify, stringify
-from openpyxl import load_workbook
-
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
@@ -30,36 +23,6 @@ def parse_countries(countries: str | None) -> list[str]:
     return parsed
 
 
-def header_names(cells: list[Any]) -> list[str]:
-    headers = []
-    for idx, cell in enumerate(cells):
-        if cell is None:
-            cell = f"column_{idx}"
-        slug = slugify(cell, "_")
-        assert slug is not None
-        headers.append(slug)
-    return headers
-
-
-def excel_records(path: Path) -> Iterator[dict[str, str]]:
-    wb = load_workbook(filename=path, read_only=True)
-    for sheet in wb.worksheets:
-        headers = None
-        for idx, row in enumerate(sheet.rows):
-            cells = [c.value for c in row]
-            if headers is None:
-                headers = header_names(cells)
-                continue
-            record = {}
-            for header, value in zip(headers, cells):
-                if isinstance(value, datetime):
-                    value = value.date()
-                value = stringify(value)
-                if value is not None:
-                    record[header] = value
-            yield record
-
-
 def crawl(context: Context) -> None:
     # The IADB PowerBI report requires a token to access the data, which it luckily readily provides.
     # Zyte because cloudflare
@@ -77,7 +40,9 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    for row in excel_records(path):
+    workbook = CalamineWorkbook.from_path(path)
+    assert workbook.sheet_names == ["Export"], workbook.sheet_names
+    for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_name("Export")):
         # They mis-classify some entities so we don't use this for schema.
         entity_type = row.pop("entity", None)
         if entity_type is None:

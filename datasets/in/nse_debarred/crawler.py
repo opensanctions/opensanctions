@@ -161,7 +161,7 @@ def parse_xls_or_xlsx_sheet_from_url(
         workbook = openpyxl.load_workbook(filepath)
         # One of the sheets is named "Sheet1" and the other is named "Working" in separate files
         sheet = load_sheet(workbook, ["Sheet1", "Working"])
-        items = h.parse_xlsx_sheet(context, sheet, extract_links=True)
+        items = h.parse_xlsx_sheet_openpyxl(context, sheet, extract_links=True)
     else:
         filepath = Path(
             shutil.move(filepath_tmp, context.get_resource_path(f"{filename}.xls"))

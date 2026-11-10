@@ -1,6 +1,6 @@
 from normality import squash_spaces
-from openpyxl import load_workbook
 import re
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -157,9 +157,10 @@ def crawl_row(
 def crawl_xlsx(context: Context, url: str, program: str, short_name: str) -> None:
     _, _, _, path = fetch_resource(context, f"{short_name}.xlsx", url, XLSX)
     context.export_resource(path, XLSX, title=f"{context.SOURCE_TITLE} - {short_name}")
-    wb = load_workbook(path, read_only=True)
-    for sheet in wb.worksheets:
-        context.log.info(f"Processing sheet {sheet.title} with program {program}")
+    wb = CalamineWorkbook.from_path(path)
+    for sheet_name in wb.sheet_names:
+        context.log.info(f"Processing sheet {sheet_name} with program {program}")
+        sheet = wb.get_sheet_by_name(sheet_name)
         for row in h.parse_xlsx_sheet(
             context, sheet, header_lookup=context.get_lookup("columns")
         ):

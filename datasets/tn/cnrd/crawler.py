@@ -1,0 +1,96 @@
+import re
+
+from zavod.shed.trans import apply_translit_full_name
+from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import Element, LangText
+
+from zavod import Context, Entity
+from zavod import helpers as h
+
+# e.g. "المدة النيابية: 2024-2029"
+TERM_RE = re.compile(r"^(?:المدة|الدورة) النيابية: (\d{4})-(\d{4})$")
+
+
+def fetch_term(context: Context, url: str) -> tuple[str, str] | None:
+    """Read a member's term start and end years from their profile page."""
+    doc = context.fetch_html(url, cache_days=7)
+    terms: list[tuple[str, str]] = []
+    titles = h.xpath_elements(
+        doc, '//div[contains(@class, "e-n-accordion-item-title-text")]'
+    )
+    for title in titles:
+        match = TERM_RE.match(h.element_text(title))
+        if match is not None:
+            terms.append((match.group(1), match.group(2)))
+    if len(terms) != 1:
+        context.log.warning("Expected one term label", url=url, terms=terms)
+        return None
+    return terms[0]
+
+
+def crawl_row(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    row: dict[str, Element],
+) -> None:
+    name_cell = row.pop("name")
+    name = h.element_text(name_cell)
+    governorate = h.element_text(row.pop("governorate"))
+    district = h.element_text(row.pop("district"))
+
+    person = context.make("Person")
+    person.id = context.make_id(name, governorate)
+    person.add("name", name, lang="ara")
+    apply_translit_full_name(context, person, LangText(name, "ara"))
+    # The term is only given on profile pages, which about half the members have.
+    term: tuple[str, str] | None = None
+    if len(h.xpath_elements(name_cell, "./a")) > 0:
+        profile_url = h.xpath_string(name_cell, "./a/@href")
+        person.add("sourceUrl", profile_url)
+        term = fetch_term(context, profile_url)
+    # Candidates must be Tunisian with no other nationality (Decree-Law 2023-10, Art. 16).
+    person.add("citizenship", "tn")
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        period_start=term[0] if term is not None else None,
+        period_end=term[1] if term is not None else None,
+        categorisation=categorisation,
+    )
+    if occupancy is None:
+        return
+    # The table doesn't mark district (vs. governorate) seats, so record both.
+    constituency = ", ".join(p for p in (governorate, district) if p != "")
+    occupancy.add("constituency", constituency, lang="ara")
+    context.emit(occupancy)
+    context.emit(person)
+    context.audit_data(row)
+
+
+def crawl(context: Context) -> None:
+    position = h.make_position(
+        context,
+        name="Member of the National Council of Regions and Districts of Tunisia",
+        country="tn",
+        topics=["gov.national", "gov.legislative"],
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
+    context.emit(position)
+
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
+    table = h.xpath_element(doc, '//table[@id="tablepress-1"]')
+    for cells in h.parse_html_table(table, slugify_headers=False):
+        # The table ends with an empty row.
+        if all(h.element_text(cell) == "" for cell in cells.values()):
+            continue
+        row = {
+            context.lookup_value("columns", key, warn_unmatched=True) or key: cell
+            for key, cell in cells.items()
+        }
+        crawl_row(context, position, categorisation, row)

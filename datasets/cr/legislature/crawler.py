@@ -1,12 +1,13 @@
 import re
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 SITE = "https://www.asamblea.go.cr"
@@ -24,7 +25,7 @@ IGNORE_COLUMNS = [
     "ano",
     "dieta",
     "gastos_de_representacion",
-    "salario_bruto",
+    "remuneracion_bruta",
     "column_8",
     "column_9",
 ]
@@ -32,15 +33,11 @@ IGNORE_COLUMNS = [
 
 def latest_report_url(context: Context) -> str:
     """Return the absolute URL of the most recent monthly salary report."""
-    data = context.fetch_json(
-        context.data_url,
-        params={"$select": "Name,ServerRelativeUrl"},
-        headers={"Accept": "application/json;odata=verbose"},
-        cache_days=1,
-    )
+    query = urlencode({"$select": "Name,ServerRelativeUrl"})
+    data = zyte_api.fetch_json(context, f"{context.data_url}?{query}", cache_days=1)
     latest_key: str | None = None
     latest_path: str | None = None
-    for entry in data["d"]["results"]:
+    for entry in data["value"]:
         match = FILE_RE.match(entry["Name"])
         if match is None:
             continue
@@ -98,12 +95,18 @@ def crawl_deputy(
 
 
 def crawl(context: Context) -> None:
+    # The site times out on direct connections from our servers, so all requests go
+    # through Zyte.
     url = latest_report_url(context)
-    path = context.fetch_resource("diputados.xlsx", url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "diputados.xlsx", url, expected_media_type=XLSX
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    workbook = load_workbook(path, read_only=True)
-    sheet = workbook.worksheets[0]
+    workbook = CalamineWorkbook.from_path(path)
+    # The single sheet is named after the report month.
+    assert len(workbook.sheet_names) == 1, workbook.sheet_names
+    sheet = workbook.get_sheet_by_index(0)
 
     position = h.make_position(
         context,

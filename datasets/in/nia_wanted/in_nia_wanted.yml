@@ -17,7 +17,7 @@ description: |
   case numbers, and, in some cases, addresses.
 tags:
   - list.wanted
-url: https://www.nia.gov.in/most-wanted-photos
+url: https://www.nia.gov.in/en/most-wanted-photos
 publisher:
   name: National Investigation Agency
   acronym: NIA
@@ -31,7 +31,7 @@ publisher:
   country: in
   official: true
 data:
-  url: https://www.nia.gov.in/most-wanted-photos
+  url: https://www.nia.gov.in/en/most-wanted-photos
   format: HTML
   lang: eng
 

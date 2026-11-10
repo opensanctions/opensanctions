@@ -29,8 +29,7 @@ def crawl_member(
     person = context.make("Person")
     person.id = context.make_id(slug)
     clean_name = h.strip_name_titles(context, raw_name)
-    original_name = raw_name if clean_name != raw_name else None
-    person.add("name", clean_name, lang="eng", original_value=original_name)
+    person.add("name", clean_name, lang="eng", original_value=raw_name)
     person.add("political", field(row, "views-field-field-party"))
     # Members must be Kenyan citizens (Constitution art. 99); as State officers they
     # may not hold dual citizenship (art. 78(2)).

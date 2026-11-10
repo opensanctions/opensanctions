@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from itertools import count
 
 from normality import squash_spaces
+from requests.exceptions import RetryError
 
 from zavod import Context
 from zavod import helpers as h
@@ -114,6 +115,10 @@ def crawl_member(
     # Both anchors (photo and name) carry the same MemberId, so the first is enough.
     hrefs = h.xpath_strings(card, './/a[contains(@href, "MemberId=")]/@href')
     match = re.search(r"MemberId=(\d+)", hrefs[0]) if hrefs else None
+    if len(h.xpath_elements(card, './/a[@class="member-name"]')) == 0:
+        # Some new members are listed before their name is entered.
+        context.log.info("Member card without a name", term=term.ordinal, hrefs=hrefs)
+        return
     name = h.element_text(h.xpath_element(card, './/a[@class="member-name"]'))
     if match is None or not name:
         return
@@ -129,7 +134,11 @@ def crawl_member(
         " ".join(h.xpath_strings(location, "./br/following-sibling::text()"))
     )
 
-    clean_name = h.strip_name_titles(context, name)
+    # Some cards carry only the honorific (e.g. "Honorable Ms."); the lookup
+    # supplies the full name from the member's detail page, keyed by MemberId.
+    clean_name = context.lookup_value("member_names", member_id)
+    if clean_name is None:
+        clean_name = h.strip_name_titles(context, name)
     if clean_name is None:
         return
 
@@ -170,7 +179,12 @@ def crawl_term(
         if page > MAX_PAGES:
             raise ValueError(f"HoPR {term.ordinal} term exceeded the page cap")
         url = f"{context.data_url}?ElectionId={term.election_id}&page={page}"
-        doc = fetch_page(context, url)
+        try:
+            doc = fetch_page(context, url)
+        except RetryError as exc:
+            # Some pages always answer HTTP 500; if all do, the page cap ends the run.
+            context.log.info("Member list page failed", url=url, error=str(exc))
+            continue
         cards = h.xpath_elements(doc, './/div[@class="member-card"]')
         # Pages past the last one render no cards; that ends the pagination.
         if not cards:

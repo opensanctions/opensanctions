@@ -139,6 +139,16 @@ def crawl(context: Context) -> None:
         doc = context.fetch_html(
             context.data_url, data=data, method="POST", cache_days=1
         )
+        tables = h.xpath_elements(doc, "//table[@cellspacing=1]")
+        if len(tables) == 0 and (year, month) == (now.year, now.month):
+            # Early in a month the source has no detentions to list yet and leaves out
+            # the whole table. Every past month has detentions, so there it still fails.
+            context.log.info(
+                "No detentions listed yet for the current month",
+                year=year,
+                month=month,
+            )
+            break
         table = h.xpath_element(doc, "//table[@cellspacing=1]")
         for row in h.parse_html_table(
             table, header_tag="td", skiprows=1, slugify_headers=False

@@ -57,17 +57,17 @@ def emit_relationship(
     related_entity = context.make("LegalEntity")
     related_entity.id = context.make_id(related_name)
     related_entity.add("name", related_name)
-    context.emit(related_entity)
-
     make_and_emit_sanction(
         context,
         related_entity,
         source_program=source_program,
         list_entry=list_entry,
     )
+    # Emit after make_and_emit_sanction, which adds programId to the entity.
+    context.emit(related_entity)
 
     rel = context.make("UnknownLink")
-    rel.id = context.make_id(entity_id, "linked to", rel.id)
+    rel.id = context.make_id(entity_id, "linked to", related_entity.id)
     rel.add("subject", entity_id)
     rel.add("object", related_entity.id)
     context.emit(rel)
@@ -205,20 +205,20 @@ def parse_list_entry(context: Context, list_entry: dict[str, Any]) -> None:
         entity.add("previousName", name_with_info_res.properties.get("previous_name"))
         entity.add("notes", name_with_info_res.properties.get("notes"))
 
-        related_names = name_with_info_res.properties.get("related")
+        related_name = name_with_info_res.properties.get("related")
         # For now we only support one related name, even though conceptually there could be multiple
-        assert isinstance(related_names, str) or related_names is None
+        assert isinstance(related_name, str) or related_name is None
         # Example: "Huawei Technologies Co., Ltd. (Huawei). Affiliated Entity: Hangzhou Huawei (...)"
         # Here, the affiliate (Hangzhou Huawei) is processed directly, while the main entity (Huawei)
         # is extracted from the 'related' field and emitted via 'emit_relationship'. Since some main
         # entities might only appear through related names, we also apply 'make_and_emit_sanction'
         # within 'emit_relationship' to ensure they're not missed.
-        if related_names:
+        if related_name is not None:
             assert entity.id is not None
             emit_relationship(
                 context,
                 entity.id,
-                related_name=related_names[0],
+                related_name=related_name,
                 list_entry=list_entry,
                 source_program=source_program,
             )

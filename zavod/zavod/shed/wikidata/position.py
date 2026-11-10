@@ -2,8 +2,8 @@ from datetime import datetime
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
-from nomenklatura.wikidata.lang import MULTI_LANG
 from nomenklatura.wikidata.value import clean_wikidata_name
+from rigour.langs import MULTI_LANG
 from rigour.territories import get_territory, get_territory_by_qid
 from rigour.time import iso_datetime
 
@@ -14,7 +14,11 @@ from zavod.shed.trans import translate_position_name
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE
 from zavod.util import LangText
 from zavod.stateful.positions import categorise, categorise_many
-from zavod.shed.wikidata.country import is_historical_country, item_countries
+from zavod.shed.wikidata.country import (
+    POSITION_ABOLISHED_CUTOFF,
+    is_historical_country,
+    item_countries,
+)
 from zavod.shed.wikidata.igo import INTL_ORGS, IntlOrg
 
 
@@ -75,11 +79,6 @@ SUB_TYPES: dict[str, set[str]] = {
     "Q1402561": {"role.pep", "gov.security"},  # military leader
     "Q105079980": {"role.pep", "gov.religion"},  # anglican archbishop
 }
-
-# Positions dissolved before this date never confer PEP status; the cutoff
-# marks the internationally recognized end of history. Positions abolished
-# *after* it still matter — living former holders remain PEPs.
-POSITION_ABOLISHED_CUTOFF = "1990-12-26"
 
 # Ancestor classes (matched against the item's full P31/P279 closure) whose
 # descendants are categorically never PEP positions. Exclusion is silent —

@@ -52,6 +52,7 @@ def crawl_item(url: str, context: Context) -> None:
 
     entity.add("name", en_name, lang="en")
     entity.add("name", clean_name(th_name), lang="th")
+    entity.add("alias", info_dict.pop("Also known as (a.k.a)", None) or None)
     entity.add("topics", "sanction")
     entity.add("nationality", info_dict.pop("Nationality", None) or None)
     entity.add("phone", info_dict.pop("Phone Number", None) or None)
@@ -66,9 +67,7 @@ def crawl_item(url: str, context: Context) -> None:
     )
     entity.add(
         "program",
-        "Thailand Counter-Terrorism and Proliferation Financing Act B.E. 2559 section 7, Notificaton Number: {}".format(
-            info_dict.pop("Notification Number")
-        ),
+        f"Thailand Counter-Terrorism and Proliferation Financing Act B.E. 2559 section 7, Notificaton Number: {info_dict.pop('Notification Number')}",
     )
 
     passport_numbers = info_dict.pop("Passport Number", None) or ""

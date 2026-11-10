@@ -31,7 +31,7 @@ data:
   format: XLSX
   lang: ara
 
-ci_test: false # 403 from github actions but not Google Cloud
+ci_test: false # requires Zyte; host only reachable from Jordanian IPs
 
 assertions:
   min:

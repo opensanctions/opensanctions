@@ -1,0 +1,125 @@
+title: Poland National Court Register (KRS)
+prefix: pl-krs
+entry_point: crawler.py
+coverage:
+  frequency: daily
+  start: 2026-11-03
+deploy:
+  disk: 30Gi
+  memory: 2Gi
+  premium: true
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - entities.delta.json
+resolve: false
+ci_test: false
+summary: >-
+  Companies, foundations and associations registered in the Polish National
+  Court Register, with their shareholders and officers.
+description: |
+  The National Court Register (Krajowy Rejestr Sądowy, KRS) lists commercial
+  companies, partnerships, cooperatives, state enterprises and branches of
+  foreign companies in its register of entrepreneurs, and associations,
+  foundations and other non-profit organisations in its register of
+  associations.
+
+  The data includes the name, legal form, KRS, REGON and NIP numbers, seat
+  address, website, business activity (PKD) codes and share capital of each
+  active entity, along with its shareholders, management and supervisory
+  boards and commercial proxies.
+
+  The register publishes the names and PESEL numbers of natural persons in a
+  masked form, so the people listed cannot be identified. Entities that have
+  been struck off the register are not included.
+publisher:
+  name: Ministerstwo Sprawiedliwości
+  name_en: Ministry of Justice
+  url: https://www.gov.pl/web/sprawiedliwosc
+  description: |
+    The Ministry of Justice of the Republic of Poland operates the National
+    Court Register on behalf of the registry courts that maintain its entries.
+  country: pl
+  official: true
+url: https://prs.ms.gov.pl/krs
+data:
+  url: https://prs.ms.gov.pl/krs/openApi
+  format: JSON
+
+config:
+  batch_size: 50_000
+  # A guess at a run of unused numbers long enough to mean the end of the
+  # register, not checked against gaps in the KRS numbering.
+  stop_after_misses: 5000
+
+assertions:
+  min:
+    schema_entities:
+      Company: 10_000
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+lookups:
+  legal_form:
+    options:
+      - match:
+          - SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ
+          - SPÓŁKA AKCYJNA
+          - PROSTA SPÓŁKA AKCYJNA
+          - SPÓŁKA JAWNA
+          - SPÓŁKA KOMANDYTOWA
+          - SPÓŁKA KOMANDYTOWO-AKCYJNA
+          - SPÓŁKA PARTNERSKA
+          - SPÓŁDZIELNIA
+          - SPÓŁDZIELCZA KASA OSZCZĘDNOŚCIOWO-KREDYTOWA
+          - PRZEDSIĘBIORSTWO PAŃSTWOWE
+          - TOWARZYSTWO UBEZPIECZEŃ WZAJEMNYCH
+          - ODDZIAŁ ZAGRANICZNEGO PRZEDSIĘBIORCY
+        value: Company
+      - match:
+          - STOWARZYSZENIE
+          - STOWARZYSZENIE KULTURY FIZYCZNEJ
+          - STOWARZYSZENIE KULTURY FIZYCZNEJ O ZASIĘGU OGÓLNOKRAJOWYM
+          - ZWIĄZEK SPORTOWY
+          - POLSKI ZWIĄZEK SPORTOWY
+          - ZWIĄZEK STOWARZYSZEŃ
+          - JEDNOSTKA TERENOWA STOWARZYSZENIA POSIADAJĄCA OSOBOWOŚĆ PRAWNĄ
+          - FUNDACJA
+          - ZWIĄZEK ZAWODOWY
+          - ZWIĄZEK ZAWODOWY ROLNIKÓW INDYWIDUALNYCH
+          - JEDNOSTKA ORGANIZACYJNA ZWIĄZKU ZAWODOWEGO POSIADAJĄCA OSOBOWOŚĆ PRAWNĄ
+          - ZWIĄZEK PRACODAWCÓW
+          - FEDERACJA / KONFEDERACJA ZWIĄZKÓW PRACODAWCÓW
+          - IZBA GOSPODARCZA
+          - IZBA RZEMIEŚLNICZA
+          - OGÓLNOKRAJOWY ZWIĄZEK MIĘDZYBRANŻOWY
+          - OGÓLNOKRAJOWE ZRZESZENIE MIĘDZYBRANŻOWE
+          - ZRZESZENIE TRANSPORTU
+          - ZRZESZENIE HANDLU I USŁUG
+          - KÓŁKO ROLNICZE
+          - ROLNICZE ZRZESZENIE BRANŻOWE
+          - ZWIĄZKI ROLNIKÓW, KÓŁEK I ORGANIZACJI ROLNICZYCH
+          - ZWIĄZEK ROLNICZYCH ZRZESZEŃ BRANŻOWYCH
+          - CECH RZEMIEŚLNICZY
+          - ZWIĄZEK RZEMIOSŁA POLSKIEGO
+          - INNA ORGANIZACJA SPOŁECZNA LUB ZAWODOWA
+          - INNA ORGANIZACJA PODMIOTÓW GOSPODARCZYCH
+          - INNA OSOBA PRAWNA BĘDĄCA ORGANIZACJĄ POŻYTKU PUBLICZNEGO
+          - SAMODZIELNY PUBLICZNY ZAKŁAD OPIEKI ZDROWOTNEJ
+          - INSTYTUT BADAWCZY / INSTYTUT DZIAŁAJĄCY W RAMACH SIECI BADAWCZEJ ŁUKASIEWICZ
+        value: Organization
+  type.url:
+    options:
+      # A host without a top-level domain, left by a bare or truncated entry.
+      - regex: "^[Ww]{3}\\.[^.@]*$"
+        value: null
+      # An email address in the website field.
+      - regex: ".*@"
+        value: null
+      - match:
+          - INFO.
+          - HTTP//:WWW.RAZEM.RZSA.PL/
+          - HTTPS//KTL.GULIP.PL
+          - WWW.HTTP//BINCZE.OSP.PL
+        value: null

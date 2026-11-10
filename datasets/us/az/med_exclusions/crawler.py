@@ -9,9 +9,14 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if not row.get("name_provider") and not row.get("npi"):
         return
 
+    raw_name = row.pop("name_provider")
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(row.get("name_provider"), row.get("npi"))
-    entity.add("name", row.pop("name_provider"))
+    entity.id = context.make_id(raw_name, row.get("npi"))
+    res = None
+    if raw_name is not None and any(char in raw_name for char in "/()"):
+        res = context.lookup("provider_names", raw_name, warn_unmatched=True)
+    entity.add("name", raw_name if res is None else res.name)
+    entity.add("alias", None if res is None else res.alias)
     if row.get("npi") not in ["NONE", "No NPI"]:
         entity.add("npiCode", row.pop("npi"))
     else:

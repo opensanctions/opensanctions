@@ -30,6 +30,8 @@ description: |
   item](https://www.opensanctions.org/faq/165/peps-only/).**
 children:
   - ad_consell_general
+  - ae_cabinet
+  - ae_fnc
   - al_kuvendi
   - am_hetq_officials
   - am_national_assembly
@@ -53,6 +55,7 @@ children:
   - be_flemish_parliament
   - be_senate
   - be_walloon_parliament
+  - bf_legislative_assembly
   - bg_jud_declarations
   - bg_parliament
   - bh_nuwab
@@ -94,6 +97,7 @@ children:
   - dz_council_nation
   - ee_riigikogu
   - eg_house_representatives
+  - eg_senate
   - es_mayors_councillors
   - es_parliament
   - et_hopr
@@ -144,6 +148,7 @@ children:
   - kz_mazhilis
   - kz_senate
   - la_national_assembly
+  - lb_parliament
   - li_landtag
   - lk_parliament
   - lt_seimas
@@ -156,6 +161,7 @@ children:
   - md_parliament
   - me_acp_peps
   - me_skupstina
+  - mg_assembly
   - mh_nitijela
   - mk_officials
   - mn_parliament
@@ -196,6 +202,7 @@ children:
   - ru_federation_council
   - ru_kremlin_persons
   - rw_parliament
+  - sa_shura_council
   - sb_parliament
   - se_riksdag
   - se_soe
@@ -207,14 +214,17 @@ children:
   - sk_public_officials
   - sm_consiglio
   - sn_assembly
+  - so_house_people
   - sr_national_assembly
   - sv_legislature
   - th_cabinet
   - th_house_representatives
   - th_senate
   - tj_majlisi_milli
+  - tl_parliament
   - tm_mejlis
   - tn_arp
+  - tn_cnrd
   - to_legislative_assembly
   - tr_parliament
   - tt_parliament
@@ -238,6 +248,7 @@ children:
   - wd_categories
   - wd_peps
   - xk_assembly
+  - ye_house_representatives
   - za_mm_officials
   - za_pmg_legislators
   - zw_parliament

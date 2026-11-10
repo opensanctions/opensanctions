@@ -1,31 +1,15 @@
-from zavod import Context
-from typing import Any
-from collections.abc import Iterator
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
-import openpyxl
-from normality import slugify
+
+from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 
-def sheet_to_dicts(sheet: Any) -> Iterator[dict[str, Any]]:
-    headers: list[str] | None = None
-    for row in sheet.rows:
-        cells = [c.value for c in row]
-
-        if headers is None and all(cells):
-            headers = [slugify(h) or f"column_{i}" for i, h in enumerate(cells)]
-            continue
-
-        if headers:
-            row = dict(zip(headers, cells))
-            yield row
-
-
-def parse_sheet_row(context: Context, row: dict[str, str]) -> None:
+def parse_sheet_row(context: Context, row: dict[str, str | None]) -> None:
     person = context.make("Person")
 
-    id_number = row.pop("c-i")
+    id_number = row.pop("c_i")
     person_name = row.pop("nombre")
     role = row.pop("cargo")
     organization_name = row.pop("organismo")
@@ -68,7 +52,8 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("uy_pep_list.xlsx", context.data_url)
 
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    rows = sheet_to_dicts(openpyxl.load_workbook(path, read_only=True).worksheets[0])
-
-    for row in rows:
+    workbook = CalamineWorkbook.from_path(path)
+    assert workbook.sheet_names == ["lista_pep"], workbook.sheet_names
+    sheet = workbook.get_sheet_by_name("lista_pep")
+    for row in h.parse_xlsx_sheet(context, sheet, skiprows=4):
         parse_sheet_row(context, row)

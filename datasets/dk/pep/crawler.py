@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from openpyxl import load_workbook
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
@@ -171,24 +171,32 @@ def crawl(context: Context) -> None:
         path = context.fetch_resource(resource.filename, link)
         context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-        wb = load_workbook(path, read_only=True)
+        wb = CalamineWorkbook.from_path(path)
 
         # Crawl old PEP list
         old_sheet = (
             "Tidligere PEP'ere"
-            if "Tidligere PEP'ere" in wb.sheetnames
+            if "Tidligere PEP'ere" in wb.sheet_names
             else "Tidligere PEP'er"
         )
         for row in h.parse_xlsx_sheet(
-            context, wb[old_sheet], header_lookup=context.get_lookup("columns")
+            context,
+            wb.get_sheet_by_name(old_sheet),
+            header_lookup=context.get_lookup("columns"),
         ):
+            # the current sheet removed the last_name header and left blank
+            # which conflicts with the new sheet header lookups. since the old
+            # sheet doesn't use category, we can rename it, which shouldn't cause
+            # a an issue if the source suddenly adds the header last_name back
+            if "last_name" not in row.keys():
+                row["last_name"] = row.pop("category")
             crawl_old_pep_item(
                 context, country=resource.country, lang=resource.lang, row=row
             )
 
         new_sheet = (
             "Nuværende PEP'ere"
-            if "Nuværende PEP'ere" in wb.sheetnames
+            if "Nuværende PEP'ere" in wb.sheet_names
             else "Nuværende PEP'er"
         )
         # Crawl current PEP list. The sheet groups members under category header
@@ -198,7 +206,10 @@ def crawl(context: Context) -> None:
         # each member row.
         category = None
         for row in h.parse_xlsx_sheet(
-            context, wb[new_sheet], 1, header_lookup=context.get_lookup("columns")
+            context,
+            wb.get_sheet_by_name(new_sheet),
+            skiprows=1,
+            header_lookup=context.get_lookup("columns"),
         ):
             if not any([row["category"], row["first_name"], row["last_name"]]):
                 continue
@@ -220,4 +231,4 @@ def crawl(context: Context) -> None:
                 context, country=resource.country, lang=resource.lang, row=row
             )
 
-        assert len(wb.sheetnames) == 2, wb.sheetnames
+        assert len(wb.sheet_names) == 2, wb.sheet_names

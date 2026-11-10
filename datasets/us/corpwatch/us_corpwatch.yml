@@ -5,6 +5,7 @@ entry_point: crawler.py
 coverage:
   frequency: monthly
   start: "2003-01-01"
+  end: "2025-01-28"
 deploy:
   disk: 50Gi
   memory: 2Gi
@@ -29,6 +30,11 @@ description: |
   > NOTE: Some groups of companies may form circular loops due to peculiarities of
   > their filings (Same companies listed as parents and children), or because
   > multiple CIKs refer to the same filing.
+deprecation: |
+  The CorpWatch API data dump on archive.org was last uploaded on 2025-09-18, and its newest
+  filing data is from January 2025. The upstream CorpWatch processing code states that it has
+  not been actively developed since 2010. As the source is no longer being updated, we are
+  marking this dataset as deprecated and will eventually remove it.
 url: http://api.corpwatch.org/documentation/#data
 publisher:
   name: CorpWatch

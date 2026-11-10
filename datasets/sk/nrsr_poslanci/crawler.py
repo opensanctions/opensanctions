@@ -3,6 +3,7 @@ from lxml.etree import _Element as Element
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 # Slovak title of the position held by every member of the National Council.
@@ -39,7 +40,15 @@ def crawl_member(
     categorisation: PositionCategorisation,
     href: str,
 ) -> None:
-    doc = context.fetch_html(href, cache_days=7)
+    doc = zyte_api.fetch_html(
+        context,
+        href,
+        # Outside Slovakia, the source serves a bot detection page that lacks this panel.
+        '//div[@id="_sectionLayoutContainer__panelContent"]',
+        html_source="httpResponseBody",
+        geolocation="SK",
+        cache_days=1,
+    )
     data = parse_details(doc)
 
     first_name = data.pop("Meno", None)
@@ -95,7 +104,15 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    doc = context.fetch_html(context.data_url, absolute_links=True, cache_days=1)
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        '//div[@id="_sectionLayoutContainer__panelContent"]',
+        html_source="httpResponseBody",
+        geolocation="SK",
+        cache_days=1,
+        absolute_links=True,
+    )
     anchors = h.xpath_elements(
         doc,
         '//div[@id="_sectionLayoutContainer__panelContent"]'

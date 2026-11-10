@@ -6,24 +6,27 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
 
-
 FUGITIVES_URL_PREFIX = "https://www.politie.nl/en/wanted/fugitives"
 
 FIELDS = {
     "name": "name",
     "alias": "alias",
     "nicknames": "alias",
+    "also_known_as": "alias",
     "gender": "gender",
     "sex": "gender",
     "nationality": "nationality",
     "place_of_birth": "birthPlace",
     "other_physical_charateristics": None,
     "other_physical_characteristics": None,
+    "distinctive_physical_features": None,
     "length": "height",
     "lenght": "height",
     "height": "height",
+    "estimated_height": "height",
     "other": None,
     "tattoo": "appearance",
+    "tattoos": "appearance",
     "build": None,
     "eye_colour": "eyeColor",
     "eye_color": "eyeColor",
@@ -38,6 +41,9 @@ FIELDS = {
     "case": None,
     "police_region": None,
     "speaks": None,
+    "sentences": "notes",
+    "convicted_in_the_netherlands_for": "notes",
+    "whereabouts": None,
 }
 
 
@@ -91,7 +97,10 @@ def crawl_person(context: Context, source_url: str) -> None:
             continue
 
         prop = FIELDS.get(field)
-        if prop is not None:
+        if prop == "alias":
+            for alias in h.multi_split(value.rstrip("."), [", ", " en "]):
+                person.add("alias" if " " in alias else "weakAlias", alias)
+        elif prop is not None:
             person.add(prop, value)
 
     context.emit(person)

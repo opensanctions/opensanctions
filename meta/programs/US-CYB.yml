@@ -2,13 +2,18 @@ id: 14
 title: Cyber-Related Sanctions
 key: US-CYB
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/sanctions-related-to-significant-malicious-cyber-enabled-activities
-summary: Targets persons responsible for or complicit in significant malicious
+summary: |
+  Targets persons responsible for or complicit in significant malicious
   cyber-enabled activities, such as attacks on critical infrastructure,
-  ransomware operations, misappropriation of funds, trade secrets, or personal
-  data, and cyber-enabled interference with election processes. Designated
-  persons, including hacking groups and enablers such as virtual currency
-  exchanges, have their US assets frozen, and US persons are barred from
-  transactions with them.
+  ransomware operations, election interference, or misappropriation of funds,
+  trade secrets, or personal data. Designated persons generally have their US
+  assets frozen, and US persons are barred from transactions with them.
+
+  The program also covers persons involved in significant theft of US trade
+  secrets under the Protecting American Intellectual Property Act. Measures
+  under the Act vary by designation: entities may also face limits on US
+  loans, banking, foreign exchange, and investment, and individuals are barred
+  from entry into the United States.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
@@ -19,8 +24,14 @@ aliases:
   - CYBER3
   - CYBER4
   - 31 CFR Part 578
+  - Protecting American Intellectual Property Act of 2022
+  - PAIPA
+  - Public Law 117-336
 target_territories:
   # rigour pseudo-territory for cyberspace, cf. zz for global
   - ip
 measures:
   - Asset freeze
+  - Financial restrictions
+  - Investment ban
+  - Travel ban

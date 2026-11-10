@@ -60,5 +60,5 @@ sure not to mark someone as a PEP when they are not.
 
 PEP crawlers have additional required properties (`country`, `position`,
 `occupancy`) and their own effort priorities. These live with the rest of the
-PEP guidance: see [Properties to capture](../peps.md#properties-to-capture) in
-the [guide for building PEP data crawlers](../peps.md).
+PEP guidance: see [Properties to capture](../peps/index.md#properties-to-capture) in
+the [guide for building PEP data crawlers](../peps/index.md).

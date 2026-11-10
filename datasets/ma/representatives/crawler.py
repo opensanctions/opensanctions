@@ -69,7 +69,7 @@ def crawl(context: Context) -> None:
         for row in workbook["ar"].iter_rows(min_row=2, max_col=5)
         if (name := sanitize_text(row[4].value)) is not None
     )
-    for row in h.parse_xlsx_sheet(context, workbook["fr"]):
+    for row in h.parse_xlsx_sheet_openpyxl(context, workbook["fr"]):
         # The sheets have the same ordering, but Said Outghilast is absent from the
         # Arabic sheet. Do not advance the Arabic-name iterator for that member.
         name_ara = None

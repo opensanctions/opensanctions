@@ -1,0 +1,122 @@
+title: Yemen House of Representatives Leadership (Sanaa)
+prefix: ye-hors
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-05
+load_statements: true
+ci_test: false
+summary: >-
+  Leadership of the House of Representatives sitting in Houthi-controlled Sanaa
+description: |
+  The Speaker, Deputy Speakers and committee chairs and rapporteurs of the
+  House of Representatives (Majlis al-Nuwwab) sitting in Sanaa, in the areas
+  of Yemen controlled by the Houthi movement. The source does not list the
+  other members.
+
+  Yemen's House of Representatives has had two Speakers since April 2019, when
+  members meeting in Seiyun, in the government-held Hadramawt governorate,
+  elected a second Speaker. The House sitting in the government-held areas is
+  published in a [separate dataset](/datasets/ye_house_representatives/).
+url: https://yemenparliament.gov.ye/Members
+publisher:
+  name: مجلس النواب اليمني
+  name_en: House of Representatives of Yemen (Sanaa)
+  description: >
+    The House of Representatives sitting in Sanaa under Speaker Yahya al-Raee,
+    in the areas controlled by the Houthi movement.
+  url: https://yemenparliament.gov.ye/
+  country: ye
+  official: true
+data:
+  url: https://yemenparliament.gov.ye/PWS.asmx/Members
+  format: JSON
+  lang: ara
+dates:
+  formats: ["%Y/%m/%d"]
+
+tags:
+  - list.pep
+
+lookups:
+  # Profile labels -> English keys.
+  columns:
+    options:
+      - match: "الاسم" # name
+        value: name
+      - match: "تاريخ الميلاد" # date of birth
+        value: birth_date
+      - match: "محل الميلاد" # place of birth
+        value: birth_place
+      - match: "المؤهل العلمي" # education
+        value: education
+      - match: "العمل الحالي" # current post
+        value: current_post
+      - match: "المحافظة" # governorate
+        value: governorate
+      - match: "المديرية" # district
+        value: district
+      - match: "الدائرة" # electoral constituency
+        value: constituency
+      - match: "اللجنة" # committee
+        value: committee
+      - match: "صفتة في اللجنة" # role in committee
+        value: committee_role
+      - match: "الانتماء" # affiliation
+        value: political
+      - match: "بيانات أخرى" # other details
+        value: notes
+  # Listing category -> positions held. Committee officers are listed under
+  # their committee and hold only the membership; presiding officers keep their
+  # seat as well.
+  position:
+    required: true
+    options:
+      - match:
+          - الشؤون الدستورية والقانونية
+          - التنمية و النفط والثروات المعدنية
+          - التجارة والصناعة
+          - الشؤون المالية
+          - التربية والتعليم
+          - التعليم العالي والشباب والرياضة
+          - الإعلام والثقافة والسياحة
+          - الخدمات
+          - الصحة العامة والسكان
+          - النقل والإتصالات
+          - الزراعة والري والثروة السمكية
+          - القوى العاملة والشؤون الاجتماعية
+          - الشؤون الخارجية والمغتربين
+          - العدل والأوقاف
+          - تقنين أحكام الشريعة الإسلامية
+          - الدفاع والأمن
+          - السلطة المحلية
+          - العرائض والشكاوى
+          - الحريات العامة وحقوق الإنسان
+          - المياه والبيئة
+        value: Member of the House of Representatives of Yemen (Sanaa)
+      - match: الرئيس # Speaker
+        values:
+          - Speaker of the House of Representatives of Yemen (Sanaa)
+          - Member of the House of Representatives of Yemen (Sanaa)
+      - match: نواب الرئيس # Deputy Speakers
+        values:
+          - Deputy Speaker of the House of Representatives of Yemen (Sanaa)
+          - Member of the House of Representatives of Yemen (Sanaa)
+  type.date:
+    options:
+      # Member?M=46 (Abdu Mahdi Hassan al-Adlah) gives a birth date in 2018,
+      # which is certainly wrong; the intended date cannot be established.
+      - match: "2018-10-16"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 38
+      Position: 3
+    country_entities:
+      ye: 38
+  max:
+    schema_entities:
+      Person: 60
+      Position: 3

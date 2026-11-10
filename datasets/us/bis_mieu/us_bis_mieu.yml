@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "30 7 * * *"
 manual_check:
-  last_checked: "2026-07-27"
+  last_checked: "2026-11-01"
   interval: 90
   message: >-
     The eCFR monitor in this crawler catches amendments to 15 CFR 744.22 itself.
@@ -56,8 +56,7 @@ dates:
   formats: ["%Y-%m-%d"]
 tags:
   - list.export
-  - juris.us
-  - issuer.west
+  - publisher.west
   - sector.defense
 
 assertions:

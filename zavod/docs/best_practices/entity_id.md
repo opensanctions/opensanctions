@@ -20,6 +20,8 @@ The choice has to satisfy three tensions:
 - **Stability** — fields the source revises (display names, optional fields that appear later, programmatically-assigned row indices) mutate the ID across runs.
 - **Completeness** — every record must produce a non-None ID. A sometimes-missing field breaks every previously-computed ID for the records where it later starts appearing.
 
+When in doubt, err towards disambiguation: duplicates created by precise IDs are easy to merge, while accidental merges created by loose IDs are hard to split.
+
 ## `make_id` vs `make_slug`
 
 Default to [`context.make_id`][zavod.context.Context.make_id]. It hashes its inputs to a fixed-length opaque identifier and is stable as long as the inputs are.

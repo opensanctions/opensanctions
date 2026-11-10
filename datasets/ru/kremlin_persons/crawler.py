@@ -134,7 +134,7 @@ def crawl_biography(context: Context, person_id: str) -> None:
     h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
     # These are Presidential appointees, civil servants and security officials,
     # not directly elected, so `country` rather than `citizenship` (see
-    # zavod/docs/peps.md, "Properties to capture").
+    # zavod/docs/peps/index.md, "Properties to capture").
     person.add("country", "ru")
     person.add("sourceUrl", url)
     # A Kremlin biography alone makes someone notable enough to record, even

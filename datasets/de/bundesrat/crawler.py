@@ -72,7 +72,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     dob = extract_dob(context, context.get_lookup("birth_dates"), biography)
 
     person = context.make("Person")
-    person.id = context.make_id(name, party, position_name)
+    person.id = context.make_id(url)
     person.add("name", name)
     person.add("political", party)
     person.add("position", position_name)

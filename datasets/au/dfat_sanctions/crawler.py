@@ -1,10 +1,8 @@
+import re
 import string
 from collections import defaultdict
-from datetime import datetime
-from typing import Any
 
-import openpyxl
-from normality import slugify
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -22,9 +20,9 @@ ADDRESS_SPLITS = [
     "b) ",
     "c) ",
     "d) ",
-    "_x000D_,",
-    "_x000D_\n",
-    "_x000D_",
+    "\r,",
+    "\r\n",
+    "\r",
 ]
 PROVISION_FIELDS = [
     "travel_ban",
@@ -39,7 +37,7 @@ PROVISION_FIELDS = [
 # (they're interrupted by other entries).
 
 
-def clean_date(date: str) -> list[str]:
+def clean_date(value: str | None) -> list[str]:
     splits = [
         "Approximately",
         ", and,",
@@ -51,18 +49,14 @@ def clean_date(date: str) -> list[str]:
         "\xa0",
         # " ",
     ]
-    dates = []
-    date_str = str(date).lower()
+    dates: list[str] = []
+    date_str = str(value).lower()
     if " to " in date_str or "between" in date_str:
         return [date_str]
-    if isinstance(date, datetime):
-        date = date.date().isoformat()
-    if isinstance(date, int):
-        date = str(date)
-    if date is None:
+    if value is None:
         return dates
-    date = date.replace("\n", " ")
-    for part in h.multi_split(date, splits):
+    value = value.replace("\n", " ")
+    for part in h.multi_split(value, splits):
         part = part.strip().strip(",")
         if not len(part):
             continue
@@ -76,13 +70,13 @@ def clean_reference(ref: str) -> str | None:
     while len(number):
         try:
             return str(int(number))
-        except Exception:
+        except ValueError:
             number = number[:-1]
     raise ValueError()
 
 
 def parse_reference(
-    context: Context, reference: str, rows: list[dict[str, Any]]
+    context: Context, reference: str, rows: list[dict[str, str | None]]
 ) -> None:
     schemata = set()
     for row in rows:
@@ -110,6 +104,7 @@ def parse_reference(
     names: list[tuple[str, str]] = []
     for row in rows:
         name = row.pop("name_of_individual_or_entity")
+        assert name is not None, (reference, row)
         name_type = row.pop("name_type")
         name_prop = context.lookup_value("name_type", name_type)
         if row.pop("alias_strength") == "Weak":
@@ -133,7 +128,7 @@ def parse_reference(
                 for sub_part in h.multi_split(part, ADDRESS_SPLITS):
                     address = h.make_address(context, full=sub_part)
                     h.apply_address(context, entity, address)
-        source_program: str | None = str(row.pop("committees", "")).strip() or None
+        source_program = row.pop("committees")
         sanction = h.make_sanction(
             context,
             entity,
@@ -146,6 +141,7 @@ def parse_reference(
                 else None
             ),
         )
+        sanction.add("authorityId", clean_reference(reference))
         country = h.multi_split(row.pop("citizenship"), [";"])
         if entity.schema.is_a("Person"):
             entity.add("citizenship", country)
@@ -159,25 +155,31 @@ def parse_reference(
         entity.add("birthPlace", h.multi_split(pob, SPLITS + ["a) "]), quiet=True)
         notes = h.clean_note(row.pop("additional_information"))
         if notes:
-            entity.add("notes", (note.replace("_x000D_", "") for note in notes))
+            entity.add("notes", notes)
         listing_info = row.pop("listing_information")
-        if isinstance(listing_info, datetime):
+        # Most listing information is free text, but some cells hold a date,
+        # which parse_xlsx_sheet turns into an ISO date string.
+        if listing_info is not None and re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}", listing_info
+        ):
             h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
-        else:
-            sanction.add(
-                "summary",
-                str(listing_info).replace("_x000D_", "") if listing_info else None,
-            )
+        elif listing_info is not None:
+            sanction.add("summary", listing_info.replace("\r", ""))
         designation_instrument = row.pop("instrument_of_designation")
         # designation instrument is very often the same as listing info
         if designation_instrument and designation_instrument != listing_info:
             sanction.add("summary", designation_instrument)
         # TODO: consider parsing if it's not a datetime?
         for field in PROVISION_FIELDS:
-            if row.pop(field):  # Boolean field indicating if the sanction applies
+            applies = row.pop(field)
+            if applies == "True":
                 # Convert the field name into a readable label, e.g. "arms_embargo" → "Arms embargo"
                 sanction.add("provisions", field.replace("_", " ").capitalize())
+            elif applies != "False":
+                context.log.error(
+                    "Unexpected provision flag", field=field, value=applies
+                )
         control_date = row.pop("control_date")
         h.apply_date(sanction, "startDate", control_date)
         h.apply_date(entity, "createdAt", control_date)
@@ -191,7 +193,7 @@ def parse_reference(
     context.emit(sanction)
 
 
-def hash_row(row: dict[str, Any]) -> int:
+def hash_row(row: dict[str, str | None]) -> int:
     """Hash a row to detect duplicates."""
     return hash(tuple((k, v) for k, v in sorted(row.items())))
 
@@ -200,31 +202,21 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    references = defaultdict(list)
-    raw_references: dict[str, dict[str, Any]] = dict()
-    reference_blocks_seen_count: dict[str, int] = dict()
+    workbook = CalamineWorkbook.from_path(path)
+    if len(workbook.sheet_names) == 0:
+        context.log.error("No worksheets found in workbook")
+    references: defaultdict[str, list[dict[str, str | None]]] = defaultdict(list)
+    raw_references: dict[str, dict[str, str | None]] = {}
+    reference_blocks_seen_count: dict[str, int] = {}
     last_clean_ref = None
-    for sheet in workbook.worksheets:
-        headers: list[str] | None = None
-        for row_num, raw_row in enumerate(sheet.rows):
-            cells = [c.value for c in raw_row]
-            if headers is None:
-                headers = [slugify(h, sep="_") or "" for h in cells]
-                continue
-            row = dict(zip(headers, cells))
-
+    for sheet_name in workbook.sheet_names:
+        sheet = workbook.get_sheet_by_name(sheet_name)
+        for row in h.parse_xlsx_sheet(context, sheet):
             # We use the numeric part of the reference to combine rows about the same entity.
             raw_ref = row.get("reference")
-            context.log.debug("Parsing row", row_num=row, raw_ref=raw_ref)
             if raw_ref is None:
-                row_values = {
-                    str(v).strip() or None for v in row.values() if v is not None
-                }
-                if row_values and row_values != {None}:
-                    context.log.warning("No reference", row=row)
+                context.log.warning("No reference", row=row)
                 continue
-            raw_ref = str(raw_ref)
             # Get the reference number without the letter suffix.
             reference = clean_reference(raw_ref)
             if reference is None:

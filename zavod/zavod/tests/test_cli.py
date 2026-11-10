@@ -1,5 +1,7 @@
 import shutil
 
+import pytest
+
 from click.testing import CliRunner
 from followthemoney.dataset import VersionHistory
 from nomenklatura.db import make_session
@@ -10,7 +12,8 @@ from zavod.archive import dataset_state_path
 from zavod.cli import cli
 from zavod.integration import get_resolver
 from zavod.meta import Dataset
-from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML
+from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML, DATASET_MARITIME_YML
+from zavod.tests.conftest import FIXTURES_PATH
 
 
 def _read_history(dataset_name: str) -> VersionHistory | None:
@@ -194,7 +197,8 @@ def test_run_update_last_successful_version(
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_xref_dataset(testdataset1: Dataset):
+def test_xref_dataset(testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(settings, "DATASETS_PATH", FIXTURES_PATH)
     runner = CliRunner()
     env = {}
 
@@ -207,9 +211,7 @@ def test_xref_dataset(testdataset1: Dataset):
         assert list(resolver.get_candidates()) == []
         assert list(resolver.get_judgements()) == []
 
-    result = runner.invoke(
-        cli, ["xref", "--rebuild-store", DATASET_1_YML.as_posix()], env=env
-    )
+    result = runner.invoke(cli, ["xref", "--rebuild-store", "testdataset1"], env=env)
     assert result.exit_code == 0, result.output
 
     with make_session() as session:
@@ -225,3 +227,28 @@ def test_xref_dataset(testdataset1: Dataset):
         resolver.load_into_memory()
         assert list(resolver.get_candidates()) == []
         assert list(resolver.get_judgements()) == []
+
+
+def test_xref_dataset_query(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(settings, "DATASETS_PATH", FIXTURES_PATH)
+    runner = CliRunner()
+    for path in (DATASET_1_YML, DATASET_MARITIME_YML):
+        result = runner.invoke(cli, ["crawl", path.as_posix()])
+        assert result.exit_code == 0, result.output
+
+    result = runner.invoke(cli, ["xref", "#list.sanction - #sector.maritime"])
+    assert result.exit_code == 0, result.output
+    assert "Dataset query selects 1 datasets" in result.output
+    assert "['testdataset1']" in result.output
+
+    result = runner.invoke(cli, ["xref", "testdataset1 | #sector.maritime"])
+    assert result.exit_code == 0, result.output
+    assert "['testdataset1', 'testdataset_maritime']" in result.output
+
+    result = runner.invoke(cli, ["xref", "#no.such.tag"])
+    assert result.exit_code != 0
+    assert "Query selects no datasets: '#no.such.tag'" in result.output
+
+    result = runner.invoke(cli, ["xref", "no_such_dataset"])
+    assert result.exit_code != 0
+    assert "Unknown dataset: 'no_such_dataset'" in result.output

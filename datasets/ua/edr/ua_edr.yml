@@ -39,19 +39,19 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 3_200_000
-      Person: 1_300_000
+      LegalEntity: 2_500_000
+      Person: 2_000_000
       Company: 1_500_000
   max:
     schema_entities:
-      LegalEntity: 6_500_000
-      Person: 2_500_000
+      LegalEntity: 5_000_000
+      Person: 4_000_000
       Company: 3_000_000
 
 lookups:
   type.name:
     options:
-      - regex: ^[\s\.\-]+$
+      - regex: ^[\s\.\-,]+$
         value: null
       - match:
           - '53"'
@@ -491,6 +491,9 @@ lookups:
           - '" 2000 "'
           - '" "'
         value: null
+      # Too long for a name; kept as notes.
+      - match: "51 ДЕРЖАВНА ПОЖЕЖНО-РЯТУВАЛЬНА ЧАСТИНА ПО ОХОРОНІ ТОВАРИСТВА З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"РУБІЖАНСЬКИЙ КРАСИТЕЛЬ\" 3 ДЕРЖАВНОГО ПОЖЕЖНО-РЯТУВАЛЬНОГО ЗАГОНУ ПО ОХОРОНІ ТОВАРИСТВА З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"РУБІЖАНСЬКИЙ КРАСИТЕЛЬ\", РУБІЖНЯНСЬКОГО КАЗЕННОГО ХІМІЧНОГО ЗАВОДУ \"ЗОРЯ\", ДЕРЖАВНОГО КОНЦЕРНУ \"УКРОБОРОНПРОМ\" ГОЛОВНОГО ТЕРИТОРІАЛЬНОГО УПРАВЛІННЯ МІНІСТЕРСТВА НАДЗВИЧАЙНИХ СИТУАЦІЙ УКРАЇНИ У ЛУГАНСЬКІЙ ОБЛАСТІ"
+        prop: notes
       # Company names that use angle brackets instead of quotes around a brand
       # name; curated identity lookups mark them as reviewed to silence the
       # HTML/XSS smell warning.
@@ -504,3 +507,47 @@ lookups:
       # curated to silence the HTML/XSS smell warning.
       - match: 'ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НАУКОВО-ВИРОБНИЧЕ ПІДПРИЄМСТВО <МЕДИРЕНТ>", розмір частки - 500,00 грн.'
         value: 'ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НАУКОВО-ВИРОБНИЧЕ ПІДПРИЄМСТВО <МЕДИРЕНТ>", розмір частки - 500,00 грн.'
+  type.country:
+    options:
+      - match: Сполучене Королівство
+        value: gb
+      - match:
+          - Іран, Ісламська Республіка
+          - Іран (Ісламська Республіка)
+        value: ir
+      - match: Сирійська Арабська Республіка
+        value: sy
+      - match: Корея, Республіка
+        value: kr
+      - match: Корейська Народно-Демократична Республіка
+        value: kp
+      - match: Палестинська територія
+        value: ps
+      - match: Лівійська Арабська Джамахірія
+        value: ly
+      - match: Південна Африка
+        value: za
+      - match: Македонія, Колишня Югославська Республіка
+        value: mk
+      - match: Вірґінські острови, Британські
+        value: vg
+      - match: Багами
+        value: bs
+      - match: Острови Уолліс і Футуна
+        value: wf
+      - match: Британська територія в Індійському Океані
+        value: io
+      - match: Теркс і Кайкос, Острови
+        value: tc
+      - match: Об'єднана Республіка Танзанія
+        value: tz
+      - match: Демократична Республіка Конґо
+        value: cd
+      - match: Тайвань, Провінція Китаю
+        value: tw
+      - match: Бруней-Даруссалам
+        value: bn
+      - match: Гонконґ
+        value: hk
+      - match: Боснія і Герцеґовина
+        value: ba

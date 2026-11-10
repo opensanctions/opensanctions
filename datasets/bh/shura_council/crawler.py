@@ -4,6 +4,7 @@ from typing import Any
 
 from normality import squash_spaces
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import (
     OccupancyStatus,
     PositionCategorisation,
@@ -81,15 +82,23 @@ def fetch_api(
     large enough to hold the whole result and fail loudly if the source ever
     grows beyond one page, rather than silently dropping the overflow.
     """
-    payload = context.fetch_json(
-        f"{BASE_URL}/{endpoint}",
-        method="POST",
-        headers={"API-KEY": API_KEY, "Content-Type": "application/json"},
-        data=json.dumps(body),
+    # shura.bh times out connections from outside Bahrain, so go via Zyte.
+    zyte_result = zyte_api.fetch(
+        context,
+        zyte_api.ZyteAPIRequest(
+            url=f"{BASE_URL}/{endpoint}",
+            method="POST",
+            body=json.dumps(body).encode("utf-8"),
+            headers={"API-KEY": API_KEY, "Content-Type": "application/json"},
+            geolocation="BH",
+        ),
         cache_days=cache_days,
     )
+    payload = json.loads(zyte_result.response_text)
     if payload["result"] != 0:
         raise RuntimeError(f"API error for {endpoint}: {payload!r}")
+    if not zyte_result.from_cache:
+        context.cache.set(zyte_result.cache_fingerprint, zyte_result.response_text)
     response = payload["response"]
     pagination = response["pagination"]
     assert pagination["lastPage"] == 1, (endpoint, pagination)

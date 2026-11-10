@@ -163,6 +163,9 @@ def crawl_common(
         decree = action.pop("decree", None) or {}
         sanction.add("sourceUrl", decree.pop("link", None))
         sanction.add("startDate", decree.pop("date", None))
+        # The presidential decree both lists the sanction and puts it into effect.
+        for stmt in sanction.get_statements("startDate"):
+            sanction.adopt_statement(stmt, prop="listingDate")
         sanction.add("program", decree.pop("number", None))
         sanction.add("endDate", action.pop("endDate", None))
         sanction.add("duration", action.pop("term", None), lang="ukr")

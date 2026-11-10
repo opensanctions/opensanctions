@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 from zavod.entity import Entity
-from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
@@ -13,9 +13,8 @@ from zavod.stateful.review import (
 from zavod import Context
 from zavod import helpers as h
 
-NAME_XPATH = "//span[@class='treas-page-title']/text()"
-CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
-DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
+LLM_MODEL = "openai:gpt-6.1-sol"
+
 # Notices issued before 5 July 2016 are PDFs
 MAX_AGE_DAYS = (date.today() - date(2016, 7, 8)).days
 
@@ -119,9 +118,15 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_el = context.fetch_html(url, cache_days=7, absolute_links=True)
     if article_el is None:
         return
-    article_name = h.xpath_strings(article_el, NAME_XPATH)[0]
-    article_element = h.xpath_element(article_el, CONTENT_XPATH)
-    date = h.xpath_strings(article_el, DATE_XPATH)[0]
+    article_name = h.xpath_strings(
+        article_el, "//span[@class='treas-page-title']/text()"
+    )[0]
+    article_element = h.xpath_element(
+        article_el, "//div[@id='block-ofac-content']//div[@class='content']"
+    )
+    date = h.xpath_strings(
+        article_el, "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
+    )[0]
 
     source_value = HtmlSourceValue(
         key_parts=url,
@@ -130,13 +135,13 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         url=url,
     )
     prompt_result = run_typed_text_prompt(
-        context, PROMPT, source_value.value_string, Defendants
+        context, PROMPT, source_value.value_string, Defendants, model=LLM_MODEL
     )
     review = review_extraction(
         context,
         source_value=source_value,
         original_extraction=prompt_result,
-        origin=DEFAULT_MODEL,
+        origin=LLM_MODEL,
     )
 
     if not review.accepted:

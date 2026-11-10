@@ -4,6 +4,7 @@ import re
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 # Listing names sometimes run together without spaces (e.g. "давлаталӣСаид"); insert a
@@ -51,7 +52,14 @@ def crawl_member(
     person.id = context.make_slug(url.rstrip("/").split("/")[-1])
     person.add("name", name, lang="tgk")
 
-    text = h.element_text(context.fetch_html(url, cache_days=7))
+    doc = fetch_html(
+        context,
+        url,
+        unblock_validator="//div[contains(@class, 'elementor-widget-text-editor')]",
+        html_source="httpResponseBody",
+        cache_days=7,
+    )
+    text = h.element_text(doc)
     h.apply_date(person, "birthDate", extract_birth_date(text))
     place_match = BIRTH_PLACE.search(text)
     if place_match is not None:
@@ -82,7 +90,15 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    # The site refuses connections from most regions, including our crawlers; Zyte's
+    # default location reaches it, while pinning a geolocation (even TJ) does not.
+    doc = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator="//div[contains(@class, 'elementor-image-box-content')]",
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     seen: set[str] = set()
     for box in h.xpath_elements(
         doc, "//div[contains(@class, 'elementor-image-box-content')]"

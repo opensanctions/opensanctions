@@ -1,6 +1,6 @@
 import re
-import openpyxl
 from normality import squash_spaces
+from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
@@ -85,9 +85,11 @@ def crawl(context: Context) -> None:
         geolocation="ID",
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    wb: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    assert len(wb.sheetnames) == 1, wb.sheetnames
+    workbook = CalamineWorkbook.from_path(path)
+    assert workbook.sheet_names == ["Export"], workbook.sheet_names
     for row in h.parse_xlsx_sheet(
-        context, wb["Export"], header_lookup=context.get_lookup("headers")
+        context,
+        workbook.get_sheet_by_name("Export"),
+        header_lookup=context.get_lookup("headers"),
     ):
         crawl_row(context, row)

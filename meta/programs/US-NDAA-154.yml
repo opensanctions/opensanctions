@@ -13,5 +13,7 @@ issuer: us_congress
 dataset: us_special_leg
 aliases:
   - NDAA FY2024 Section 154
+target_territories:
+  - cn
 measures:
   - Debarment

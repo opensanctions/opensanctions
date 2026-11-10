@@ -18,8 +18,7 @@ description: |
 tags:
   - list.sanction
   - risk.klepto
-  - juris.eu
-  - issuer.west
+  - publisher.west
 publisher:
   name: Välisministeerium
   name_en: Ministry of Foreign Affairs of Estonia

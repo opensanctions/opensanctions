@@ -1,4 +1,4 @@
-import openpyxl
+from python_calamine import CalamineWorkbook
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -33,7 +33,7 @@ def apply_addresses(
 ) -> None:
     """Create and apply addresses to an entity."""
     if addr:
-        address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
+        address_ent = h.make_address(context, full=addr, city=city, lang="zho")
         h.copy_address(entity, address_ent)
     if addr_en:
         address_en_ent = h.make_address(context, full=addr_en, city=city_en, lang="eng")
@@ -42,12 +42,12 @@ def apply_addresses(
 
 def crawl_labour_transfers(context: Context, labour_transfers_url: str) -> None:
     path = context.fetch_resource("labour_transfers.xlsx", labour_transfers_url)
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    assert set(workbook.sheetnames) == set(APP_LABOUR_SHEETS)
+    workbook = CalamineWorkbook.from_path(path)
+    assert set(workbook.sheet_names) == set(APP_LABOUR_SHEETS)
     for sheet in LABOUR_SHEETS:
         for row in h.parse_xlsx_sheet(
             context,
-            sheet=workbook[sheet],
+            sheet=workbook.get_sheet_by_name(sheet),
             skiprows=1,
         ):
             name_en = row.pop("supplier_machine_translated_english")
@@ -63,7 +63,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url: str) -> None:
             entity = context.make("Organization")
             # Setting the ID based on the translated name to avoid blanks
             entity.id = context.make_id(name_en, addr, sector)
-            entity.add("name", row.pop("supplier"), lang="zhu")
+            entity.add("name", row.pop("supplier"), lang="zho")
             entity.add("name", name_en, lang="eng")
             entity.add("sector", sector, lang="eng")
             entity.add("keywords", row.pop("allegation", None))
@@ -143,10 +143,12 @@ def crawl_labour_transfers(context: Context, labour_transfers_url: str) -> None:
 
 def crawl_operating(context: Context, companies_url: str) -> None:
     path = context.fetch_resource("companies_registry.xlsx", companies_url)
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    assert set(workbook.sheetnames) == OPERATING_SHEETS
+    workbook = CalamineWorkbook.from_path(path)
+    assert set(workbook.sheet_names) == OPERATING_SHEETS
     for row in h.parse_xlsx_sheet(
-        context, sheet=workbook["1. Companies Operating in XUAR"], skiprows=1
+        context,
+        sheet=workbook.get_sheet_by_name("1. Companies Operating in XUAR"),
+        skiprows=1,
     ):
         name_en = row.pop("company_machine_translated_english")
         addr = row.pop("address")
@@ -154,9 +156,9 @@ def crawl_operating(context: Context, companies_url: str) -> None:
 
         entity = context.make("Organization")
         entity.id = context.make_id(name_en, addr, sector)
-        entity.add("name", row.pop("company"), lang="zhu")
+        entity.add("name", row.pop("company"), lang="zho")
         entity.add("name", name_en, lang="eng")
-        entity.add("sector", sector, lang="zhu")
+        entity.add("sector", sector, lang="zho")
         entity.add("sector", row.pop("sector_english"), lang="eng")
         entity.add("program", "Companies operating in the Uyghur region")
         entity.add("country", "cn")

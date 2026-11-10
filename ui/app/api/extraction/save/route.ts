@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { verify } from '../../../../lib/auth';
 import { BASE_URL } from '../../../../lib/constants';
-import { updateExtractionEntry, getNextUnacceptedEntryKey } from '../../../../lib/db';
+import { updateExtractionEntry, getNextEntryKey } from '../../../../lib/db';
 import { parse as parseYaml } from 'yaml';
 
 function getAsString(formData: FormData, key: string) {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     let redirectUrl = `/review/dataset/${encodeURIComponent(dataset)}/${encodeURIComponent(key)}`;
     if (acceptAndContinue) {
-      const nextKey = await getNextUnacceptedEntryKey(dataset);
+      const nextKey = await getNextEntryKey(dataset, email!, key);
       if (nextKey) {
         redirectUrl = `/review/dataset/${encodeURIComponent(dataset)}/${encodeURIComponent(nextKey)}`;
       }

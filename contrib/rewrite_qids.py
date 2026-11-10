@@ -7,10 +7,11 @@ from typing import Set
 
 from rigour.ids.wikidata import is_qid
 from nomenklatura import settings as nk_settings
+from nomenklatura.db import get_engine
 from zavod.logs import configure_logging, get_logger
 from zavod.meta.http import HTTP
 from zavod.runtime.http_ import make_session
-from zavod.db import get_engine, meta
+from zavod.stateful.model import meta
 from sqlalchemy import delete, update, or_
 
 log = get_logger(__name__)

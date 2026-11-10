@@ -43,13 +43,13 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 1050
+      Person: 900  # after dedupe
       Position: 2
     entities_with_prop:
       Occupancy:
         holder: 1200
     country_entities:
-      zw: 1050
+      zw: 900
     property_fill_rate:
       Person:
         political: 0.9  # 95%

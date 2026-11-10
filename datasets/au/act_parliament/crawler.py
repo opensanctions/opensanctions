@@ -8,7 +8,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.extract import zyte_api
 from zavod.util import Element
 
-MEMBERS_URL = "https://www.parliament.act.gov.au/members/current"
 # The first "<day> <Month> <year>" in the electoral-history prose is the date the
 # member was first elected; the "returned to the ... Assemblies" sentences carry no
 # dates.
@@ -98,7 +97,7 @@ def crawl(context: Context) -> None:
 
     doc = zyte_api.fetch_html(
         context,
-        MEMBERS_URL,
+        context.data_url,
         unblock_validator=".//table//a[contains(@href, '/members/current/')]",
         absolute_links=True,
         cache_days=1,

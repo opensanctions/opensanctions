@@ -91,21 +91,30 @@ lookups:
         value: 'SECRETARIO SEGUNDO, COMISIÓN DE INVESTIGACIÓN SOBRE LOS CONTRATOS, LICENCIAS, CONCESIONES, AYUDAS Y OTRAS OPERACIONES DEL GOBIERNO Y DEL SECTOR PÚBLICO, RELACIONADAS CON LA INTERMEDIACIÓN DE KOLDO GARCÍA IZAGUIRRE Y CON LAS DEMÁS PERSONAS VINCULADAS A LA TRAMA INVESTIGADA EN LA OPERACIÓN DELORME'
       # English translations of the same over-length commission names, truncated
       # after "Operation Delorme" like the Spanish originals above.
-      - match: 'First Vice President, Commission of Inquiry into Contracts, Licenses, Concessions, Aid and Other Operations of the Government and Public Sector, Related to the Mediation of Koldo García Izaguirre and Other Persons Linked to the Scheme Investigated in Operation Delorme, and Regarding the Alleged Crimes Related to Corruption that Have a Direct or Indirect Relation or Connection with Them'
+      #
+      # The English name is produced by the LLM translation in make_position
+      # (translate_name=True), so its exact wording drifts whenever the
+      # translation cache expires and the label is translated afresh. Matching
+      # on literal translations therefore produced a new over-length warning —
+      # and another near-duplicate name on the same Position — every few runs.
+      # Match on the role prefix plus the two stable anchors of this commission
+      # ("Koldo García Izaguirre" and a "Delorme," followed by the corruption
+      # clause that makes the label over-length) instead, and pin each role to
+      # one canonical English name. The Position id is derived from the
+      # untranslated Spanish name and is unaffected.
+      - regex: '(?i:^First Vice[- ]?President, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'First Vice President, Commission of Inquiry into Contracts, Licenses, Concessions, Aid and Other Operations of the Government and Public Sector, Related to the Mediation of Koldo García Izaguirre and Other Persons Linked to the Scheme Investigated in Operation Delorme'
-      - match: 'FIRST VICE PRESIDENT, COMMISSION OF INQUIRY INTO THE CONTRACTS, LICENSES, CONCESSIONS, SUBSIDIES, AND OTHER OPERATIONS OF THE GOVERNMENT AND THE PUBLIC SECTOR, RELATED TO THE INTERMEDIATION OF KOLDO GARCÍA IZAGUIRRE AND OTHER PERSONS CONNECTED TO THE NETWORK UNDER INVESTIGATION IN OPERATION DELORME, AND REGARDING THE ALLEGED OFFENSES RELATED TO CORRUPTION THAT HAVE A DIRECT OR INDIRECT RELATION OR CONNECTION WITH THEM'
-        value: 'FIRST VICE PRESIDENT, COMMISSION OF INQUIRY INTO THE CONTRACTS, LICENSES, CONCESSIONS, SUBSIDIES, AND OTHER OPERATIONS OF THE GOVERNMENT AND THE PUBLIC SECTOR, RELATED TO THE INTERMEDIATION OF KOLDO GARCÍA IZAGUIRRE AND OTHER PERSONS CONNECTED TO THE NETWORK UNDER INVESTIGATION IN OPERATION DELORME'
-      - match: 'First Secretary, Commission of Investigation on the Contracts, Licenses, Concessions, Aid and Other Operations of the Government and the Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Scheme Investigated in Operation Delorme, and Regarding the Alleged Crimes Related to Corruption that have a Direct or Indirect Relationship or Connection with the Same'
-        value: 'First Secretary, Commission of Investigation on the Contracts, Licenses, Concessions, Aid and Other Operations of the Government and the Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Scheme Investigated in Operation Delorme'
-      - match: 'Second Secretary, Commission of Investigation on Contracts, Licenses, Concessions, Aids, and Other Government and Public Sector Operations, Related to the Mediation of Koldo García Izaguirre and Other Persons Linked to the Network Investigated in the Operation Delorme, and Regarding the Alleged Crimes Related to Corruption that Have a Direct or Indirect Relationship or Connection with Them'
-        value: 'Second Secretary, Commission of Investigation on Contracts, Licenses, Concessions, Aids, and Other Government and Public Sector Operations, Related to the Mediation of Koldo García Izaguirre and Other Persons Linked to the Network Investigated in the Operation Delorme'
-      - match: 'Second Vice President, Commission of Investigation on Contracts, Licenses, Concessions, Aids, and Other Operations of the Government and the Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Network Investigated in Operation Delorme, and Regarding Alleged Crimes Related to Corruption That Have a Direct or Indirect Relationship or Connection with Them'
+      - regex: '(?i:^Second Vice[- ]?President, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'Second Vice President, Commission of Investigation on Contracts, Licenses, Concessions, Aids, and Other Operations of the Government and the Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Network Investigated in Operation Delorme'
-      - match: 'Spokesperson, Commission of Inquiry on Contracts, Licenses, Concessions, Aid, and Other Operations of the Government and Public Sector Related to the Intermediation of Koldo García Izaguirre and Other Persons Connected to the Network Investigated in Operation Delorme, and Regarding the Alleged Crimes Related to Corruption that have a Direct or Indirect Relationship or Connection with Them'
+      - regex: '(?i:^First Secretary, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
+        value: 'First Secretary, Commission of Investigation on the Contracts, Licenses, Concessions, Aid and Other Operations of the Government and the Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Scheme Investigated in Operation Delorme'
+      - regex: '(?i:^Second Secretary, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
+        value: 'Second Secretary, Commission of Investigation on Contracts, Licenses, Concessions, Aids, and Other Government and Public Sector Operations, Related to the Mediation of Koldo García Izaguirre and Other Persons Linked to the Network Investigated in the Operation Delorme'
+      - regex: '(?i:^Spokes(?:person|man|woman), .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'Spokesperson, Commission of Inquiry on Contracts, Licenses, Concessions, Aid, and Other Operations of the Government and Public Sector Related to the Intermediation of Koldo García Izaguirre and Other Persons Connected to the Network Investigated in Operation Delorme'
-      - match: 'Deputy Spokesperson, Commission of Inquiry into Contracts, Licenses, Concessions, Aids and Other Government and Public Sector Operations Related to the Mediation of Koldo García Izaguirre and Other Individuals Linked to the Network Investigated in the Operation Delorme, and Regarding the Alleged Crimes Related to Corruption that Have a Direct or Indirect Relation or Connection with Them'
+      - regex: '(?i:^(?:Deputy|Vice)[- ]?Spokes(?:person|man|woman), .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'Deputy Spokesperson, Commission of Inquiry into Contracts, Licenses, Concessions, Aids and Other Government and Public Sector Operations Related to the Mediation of Koldo García Izaguirre and Other Individuals Linked to the Network Investigated in the Operation Delorme'
-      - match: 'Member, Commission of Investigation on Contracts, Licenses, Concessions, Aids and Other Operations of the Government and Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Network Investigated in the Operation Delorme, and Regarding Alleged Crimes Related to Corruption that Have a Direct or Indirect Relationship or Connection with Them'
+      - regex: '(?i:^Member, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'Member, Commission of Investigation on Contracts, Licenses, Concessions, Aids and Other Operations of the Government and Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Network Investigated in the Operation Delorme'
   type.gender:
     options:

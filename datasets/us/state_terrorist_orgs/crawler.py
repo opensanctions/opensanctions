@@ -45,6 +45,9 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     # Rely on auditing rows to be sure the default of None doesn't mean we miss these
     # if the column name changes.
     end_date = row.pop("date_removed", None)
+    # The date is part of the entity ID: without it every ID silently changes.
+    if start_date is None and listing_date is None:
+        raise ValueError(f"No designation date for {name!r}; columns: {list(row)}")
 
     name_clean, name_former, alias = split_clean_name(context, name)
     entity = context.make("Organization")

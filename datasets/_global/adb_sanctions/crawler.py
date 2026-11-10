@@ -14,7 +14,7 @@ from zavod.stateful.review import (
     assert_all_accepted,
 )
 
-LLM_MODEL_VERSION = "gpt-5.4"
+LLM_MODEL_VERSION = "openai:gpt-5.4"
 EXTRACT_PROMPT = """Extract structured entity data from an entry from a list
 of debarments from a development bank.
 

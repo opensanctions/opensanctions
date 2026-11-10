@@ -1,4 +1,4 @@
-import { getDb, NewReview, updateExtractionEntry } from './db';
+import { getDb, getNextEntryKey, NewReview, updateExtractionEntry } from './db';
 
 
 describe('updateExtractionEntry integration', () => {
@@ -96,5 +96,38 @@ describe('updateExtractionEntry integration', () => {
     expect(newRows[0].last_seen_version).toBe(initial.last_seen_version);
     expect(newRows[0].deleted_at).toBeNull();
     expect(newRows[0].modified_by).toBe('test@user.com');
+  });
+
+  it('getNextEntryKey cycles through all unaccepted entries before repeating', async () => {
+    const now = new Date().toISOString();
+    const keys = ['k1', 'k2', 'k3', 'k4', 'k5', 'k6'];
+    await (await getDb()).insertInto('review').values(keys.map((key) => ({
+      key,
+      dataset: 'd1',
+      extraction_schema: {},
+      source_value: 'sv',
+      source_mime_type: 'ct',
+      source_label: 'lbl',
+      source_url: 'url',
+      accepted: key === 'k6',
+      original_extraction: {},
+      extracted_data: {},
+      last_seen_version: 'v1',
+      modified_at: now,
+      modified_by: 'zavod ui',
+      deleted_at: null,
+      crawler_version: 1,
+    }))).execute();
+
+    const visited: string[] = [];
+    let cursorKey = 'k1';
+    for (let i = 0; i < 5; i++) {
+      const nextKey = await getNextEntryKey('d1', 'test@user.com', cursorKey);
+      expect(nextKey).not.toBeNull();
+      visited.push(nextKey!);
+      cursorKey = nextKey!;
+    }
+    expect([...visited].sort()).toEqual(['k1', 'k2', 'k3', 'k4', 'k5']);
+    expect(visited[4]).toBe('k1');
   });
 });

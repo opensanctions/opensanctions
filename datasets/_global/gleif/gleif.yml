@@ -47,7 +47,6 @@ assertions:
       Company: 180_000
   max:
     schema_entities:
-      Security: 1_400_000
       Organization: 4_000_000
       Company: 360_000
 
@@ -59,6 +58,142 @@ lookups:
           - "общество с ограниченной ответственностью"
           - "открытое акционерное общество"
         value: null
+      - match: "+1"
+        value: "+1"
+      - match: "0-50"
+        value: "0-50"
+      - match: "00134419"
+        value: "00134419"
+      - match: "1"
+        value: "1"
+      - match: "1.618"
+        value: "1.618"
+      - match: "10-10"
+        value: "10-10"
+      - match: "1024"
+        value: "1024"
+      - match: "11235"
+        value: "11235"
+      - match: "12141520"
+        value: "12141520"
+      - match: "130"
+        value: "130"
+      - match: "131313"
+        value: "131313"
+      - match: "1337"
+        value: "1337"
+      - match: "1404"
+        value: "1404"
+      - match: "1563"
+        value: "1563"
+      - match: "1609"
+        value: "1609"
+      - match: "1640"
+        value: "1640"
+      - match: "17"
+        value: "17"
+      - match: "1713"
+        value: "1713"
+      - match: "1722"
+        value: "1722"
+      - match: "1829"
+        value: "1829"
+      - match: "1885"
+        value: "1885"
+      - match: "1904"
+        value: "1904"
+      - match: "1979"
+        value: "1979"
+      - match: "1987"
+        value: "1987"
+      - match: "1989"
+        value: "1989"
+      - match: "1996"
+        value: "1996"
+      - match: "2"
+        value: "2"
+      - match: "2012"
+        value: "2012"
+      - match: "2012-1"
+        value: "2012-1"
+      - match: "2022"
+        value: "2022"
+      - match: "2023"
+        value: "2023"
+      - match: "2030"
+        value: "2030"
+      - match: "2035"
+        value: "2035"
+      - match: "2040"
+        value: "2040"
+      - match: "24"
+        value: "24"
+      - match: "240"
+        value: "240"
+      - match: "272514"
+        value: "272514"
+      - match: "28"
+        value: "28"
+      - match: "28 & 30"
+        value: "28 & 30"
+      - match: "28666705"
+        value: "28666705"
+      - match: "3"
+        value: "3"
+      - match: "301122"
+        value: "301122"
+      - match: "33"
+        value: "33"
+      - match: "3773"
+        value: "3773"
+      - match: "4&4"
+        value: "4&4"
+      - match: "404"
+        value: "404"
+      - match: "42"
+        value: "42"
+      - match: "42.2"
+        value: "42.2"
+      - match: "43"
+        value: "43"
+      - match: "45"
+        value: "45"
+      - match: "499"
+        value: "499"
+      - match: "5"
+        value: "5"
+      - match: "5020"
+        value: "5020"
+      - match: "559199-9544"
+        value: "559199-9544"
+      - match: "58"
+        value: "58"
+      - match: "5860"
+        value: "5860"
+      - match: "649"
+        value: "649"
+      - match: "666"
+        value: "666"
+      - match: "6855927"
+        value: "6855927"
+      - match: "7014571272"
+        value: "7014571272"
+      - match: "711"
+        value: "711"
+      - match: "75"
+        value: "75"
+      - match: "7576"
+        value: "7576"
+      - match: "808"
+        value: "808"
+      - match: "8822"
+        value: "8822"
+      - match: "8848"
+        value: "8848"
+      - match: "9-99"
+        value: "9-99"
+      - match: "900"
+        value: "900"
   type.country:
     options:
       - match:
@@ -78,17 +213,39 @@ lookups:
         value: GB
       - match: BE-VLG
         value: BE
+  type.address:
+    options:
+      - match: 香港
+        value: 香港
+      - match: 九龙
+        value: 九龙
+      - match: 湾仔
+        value: 湾仔
+      - match: 湾仔区
+        value: 湾仔区
+      - match: 铜锣湾
+        value: 铜锣湾
+      - match: 观塘区
+        value: 观塘区
+      - match: 柴湾
+        value: 柴湾
+      - match: 尖沙咀
+        value: 尖沙咀
+      - match: 皇后区
+        value: 皇后区
+      - match: 23樓
+        value: 23樓
+      - match: "Unit No: 347, DMCC Business Centre, Level No 5, Jewellery &amp; Gemplex, Dubai, DU"
+        value: "Unit No: 347, DMCC Business Centre, Level No 5, Jewellery & Gemplex, Dubai, DU"
   type.date:
     options:
-      - regex: 0\d{3}-\d{2}-\d{2}
-        match:
-          - 9940-12-31
-          - 3032-04-05
-          - 9930-01-11
-          - 9980-12-31
-          - 9970-12-01
+      - regex:
+          - 0\d{3}-\d{2}-\d{2}
+          - "[3-9]\\d{3}-\\d{2}-\\d{2}"
         value: null
       - match: 3015-10-30
         value: 2015-10-30
+        weight: 10
       - match: 3008-01-29
         value: 2008-01-29
+        weight: 10

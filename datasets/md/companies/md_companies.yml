@@ -22,12 +22,12 @@ description: |
   This dataset combines two distinct official registers from the Republic of Moldova:
 
   - **State Register of Legal Entities**: Covers commercial companies, providing information
-    on founders, beneficial owners, and directors.
+    on founders and directors.
 
   - **State Register of Non-Profit Organizations**: Includes associations, foundations,
     and other nonprofit entities, with data on tax identification numbers, legal form,
     registration and liquidation dates, and directors.
-url: https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu
+url: https://www.asp.gov.md/ro/date-deschise/date-statistice/company
 publisher:
   name: Agenția Servicii Publice
   name_en: Public Services Agency
@@ -42,7 +42,7 @@ publisher:
   official: true
 data:
   # Legal entities
-  url: "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
+  url: "https://www.asp.gov.md/ro/date-deschise/date-statistice/company"
   lang: ron
 dates:
   formats: ["%d.%m.%Y"]
@@ -139,6 +139,11 @@ lookups:
           - COLHOZUL "CHETROSU"
           - COLHOZUL "BORIS GLAVAN"
           - COLHOZUL "VIAȚA-NOUĂ"
+      # The founders cell of "Societatea cu Răspundere Limitată  ORAL SPARES"
+      # spells out the Romanian registration details of the corporate founder
+      # after its name, which exceeds the length of the name type.
+      - match: 'DENTOP CLINIC S.R.L., PERSOANĂ JURIDICĂ ÎNREGISTRATĂ ÎN ROMÂNIA, CU SEDIUL SOCIAL ÎN MUN. BUCUREȘTI, STR. PETRU RAREȘ, NR. 15, PARTER, SPAȚIUL NR. 2, BIROUL NR. 1, SECTOR 1, ÎNMATRICULATĂ LA OFICIUL REGISTRULUI COMERȚULUI DE PE LÂNGĂ TRIBUNALUL BUCUREȘTI SUB NR. J2018004062401, AVÂND IDENTIFICATOR UNIC LA NIVEL EUROPEAN (EUID ROONRC: J2018004062401, COD UNIC DE ÎNREGISTRARE RO39076462,'
+        value: DENTOP CLINIC S.R.L.
       - match:
           - ","
           - "< <"

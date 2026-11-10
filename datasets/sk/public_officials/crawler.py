@@ -3,13 +3,16 @@ from lxml import etree
 from lxml.etree import _Element as Element
 from typing import Any
 
-from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 
 FALLBACK_OFFICIAL_PART = "verejný funkcionár"
 FALLBACK_OFFICIAL_PREFIX = "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo), ak tak ustanoví zákon ("
+# Outside Slovakia, the source serves a bot detection page that lacks this panel.
+UNBLOCK_VALIDATOR = '//div[@id="_sectionLayoutContainer__panelContent"]'
 
 
 def parse_details(context: Context, link_el: Element) -> None:
@@ -22,9 +25,18 @@ def parse_details(context: Context, link_el: Element) -> None:
 
     name_raw = h.element_text(link_el)
     # Filter out non-personal links
-    if re.search(r"#section_[A-Za-z]+$", href) or href.endswith("ViewType=2#top"):
+    if re.search(r"#section_[A-Za-z]+$", href) or href.endswith("#top"):
         return
-    doc = context.fetch_html(href, cache_days=2)
+    # Declarations are filed annually, so stale detail pages are acceptable and
+    # a long cache cuts the number of Zyte requests per run.
+    doc = zyte_api.fetch_html(
+        context,
+        href,
+        UNBLOCK_VALIDATOR,
+        html_source="httpResponseBody",
+        geolocation="SK",
+        cache_days=30,
+    )
     table = doc.find(".//table[@class='oznamenie_table']")
     if table is None:
         # Some pages are in development
@@ -75,7 +87,6 @@ def crawl_person(
     h.apply_name(person, first_name=name.strip(), last_name=last_name.strip())
     # various roles, some require citizenship (e.g. ministers), some don't (e.g. admin roles)
     person.add("country", "sk")
-    person.add("topics", "role.pep")
     person.add("sourceUrl", href)
     for pos in position_slk:
         if pos.startswith(FALLBACK_OFFICIAL_PREFIX):
@@ -93,7 +104,7 @@ def crawl_person(
 
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
-            return
+            continue
 
         occupancy = h.make_occupancy(
             context,
@@ -101,43 +112,28 @@ def crawl_person(
             position,
             no_end_implies_current=False,
             categorisation=categorisation,
-            status=OccupancyStatus.UNKNOWN,
+            declaration_date=year,
         )
         if occupancy is None:
             continue
 
-        occupancy.add("declarationDate", year)
-
         context.emit(position)
         context.emit(occupancy)
-    context.emit(person)
+        context.emit(person)
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=2)
-    # Get necessary form fields
-    viewstate = h.xpath_strings(
-        doc, '//input[@name="__VIEWSTATE"]/@value', expect_exactly=1
-    )[0]
-    eventvalidation = h.xpath_strings(
-        doc, '//input[@name="__EVENTVALIDATION"]/@value', expect_exactly=1
-    )[0]
-
-    # Prepare form data for POST request
-    form_data = {
-        "__VIEWSTATE": viewstate,
-        "__EVENTVALIDATION": eventvalidation,
-    }
-
-    results_doc = context.fetch_html(
+    doc = zyte_api.fetch_html(
+        context,
         context.data_url,
-        method="POST",
-        data=form_data,
-        cache_days=2,
+        UNBLOCK_VALIDATOR,
+        html_source="httpResponseBody",
+        geolocation="SK",
+        cache_days=1,
         absolute_links=True,
     )
     link_elements = h.xpath_elements(
-        results_doc, '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
+        doc, '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
     )
     for link_el in link_elements:
         parse_details(context, link_el)

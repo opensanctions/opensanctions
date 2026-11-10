@@ -30,8 +30,7 @@ publisher:
 tags:
   - list.sanction
   - list.export
-  - juris.us
-  - issuer.west
+  - publisher.west
 url: https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl
 data:
   url: https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl

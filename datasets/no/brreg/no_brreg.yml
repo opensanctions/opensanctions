@@ -274,4 +274,5 @@ lookups:
           - REGN_REGN # Regnskapsfører - Accountant
           - DELT_DTPR # Deltaker med delt ansvar - Participant with shared responsibility
           - DELT_DTSO # Deltaker med fullt ansvar - Participant with full responsibility
+          - BOBE_BOBE # Bostyrer - Bankruptcy estate administrator (court-appointed)
         value: "false"

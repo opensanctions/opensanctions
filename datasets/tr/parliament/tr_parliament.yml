@@ -130,3 +130,7 @@ lookups:
       - match: "1974 yılında Konya’nın Seydişehir ilçesi Tepecik köyünde doğdu. Babasının adı Durmuş, annesinin adı Mümüne’dir."
         birth_place: Konya / Seydişehir
         birth_date: "1974"
+      # from source: https://www.tbmm.gov.tr/milletvekili/milletvekilidetay?DonemId=134155f0-c3d6-4d24-893b-f3a2ef695ae7&Id=6d0f8f03-595a-4d5c-8ffe-01884892d207
+      - match: "17.11.1973’de Tekirdağ/Süleymanpaşa’da doğmuştur."
+        birth_place: Tekirdağ / Süleymanpaşa
+        birth_date: "1973-11-17"

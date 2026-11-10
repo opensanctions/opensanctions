@@ -2,7 +2,7 @@ title: UK FCA Warning List of Unauthorised Firms
 prefix: gb-fca-ntc
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-16
 load_statements: true
 ci_test: false
@@ -16,7 +16,7 @@ description: |
 
   The list is continuously updated and includes entities operating in the UK
   financial services sector without the required FCA authorisation.
-url: https://www.fca.org.uk/news/search-results
+url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
 publisher:
   name: Financial Conduct Authority
   acronym: FCA
@@ -29,29 +29,52 @@ publisher:
   official: true
 tags:
   - list.regulatory
-  - issuer.west
+  - publisher.west
   - sector.financial
 data:
-  url: https://www.fca.org.uk/news/search-results?n_search_term=&category=warnings&sort_by=dmetaZ&start=1
+  url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
   format: HTML
   lang: eng
 
 dates:
   formats: ["%d/%m/%Y", "%Y-%m-%d"]
 names:
+  suffixes_strip:
+    # Status markers the warning list appends to every name, e.g. "Acme (new)".
+    - "(new)"
+    - "(updated)"
+    # Common clone annotations (kept as the corp.clone topic); others go to review.
+    - "(Clone of FCA authorised firm)"
+    - "(Clone of EEA authorised firm)"
+    - "(Clone)"
+    - "(Clone of FCA authorised firms)"
+    - "(Clone of authorised firm)"
+    - "(Clone of an FCA authorised firm)"
+    - "(Clone of FCA registered firm)"
+    - "(Clone of an EEA authorised firm)"
+    - "(Clone firm)"
+    - "(Clone of appointed representative firm)"
+    - "(Clone of FCA authorised appointed representative)"
+    - "(Clone of UK registered company)"
+    - "(Clone of a UK registered company)"
+    - "(Clone of former PSD agent)"
+    - "(Clone of appointed representative)"
+    - "(Clone of FCA firm)"
+    - "(Clone of FCA recognised fund)"
+    - "(Clone of previously FCA authorised firm)"
   schema_rules:
     LegalEntity:
       reject_chars: "/();"
-      # Clone/status annotations the FCA appends to names, e.g.
-      # "Fortradefx (Clone of FCA authorised firm)" or "Acme (new)".
       reject_strings:
-        - "clone of"
-        - "(new)"
-        - "(updated)"
-        - "aka"
+        # Clone annotations not in suffixes_strip.
+        - "clone"
+        # Padded to spare names like "Nagashima Sakai".
+        - " aka "
         - "previously"
         - "now known as"
         - "formerly"
+        # Cloudflare's placeholder for an obfuscated email.
+        - "[email protected]"
 
 lookups:
   firm_details:
@@ -61,30 +84,94 @@ lookups:
         value: name
       - match: [website, url, web address]
         value: website
-      - match: [telephone, tel, mobile, phone]
+      - match: [telephone, tel, mobile, phone, fax]
         value: phone
       - match: [email, e-mail]
         value: email
       - match: address
         value: address
-      - match: [other information, social media details]
+      # Social media fields mix handles ("@foo"), labels and links; keep them as published.
+      - match: [other information, apps, social media, social media details]
         value: notes
   type.email:
     lowercase: true
     options:
       - match: '[email protected]'
         value: null
+      # Local part exceeds the 64-character limit, so not a deliverable address.
+      - match: nicholas.cooper_at_lyxorassetmanagement_com_b9v5x3caceb2kf_d2yy7553@icloud.com
+        value: null
   type.address:
     options:
-      - match: 'na/'
+      - match: ['na/', 'n.a', 'UK']
         value: null
+  type.url:
+    options:
+      - match: www
+        value: null
+      # Telegram handles listed as websites.
+      - match: ['@BG_Stephen (Telegram)', '@Elena1992818 (Telegram)']
+        value: null
+      # Not valid hostnames.
+      - match: ['https://ZedaronTrader 2.6 Ai.net', 'www.holden&co.org']
+        value: null
+      # Clone firms quoting the authorised firm's own website.
+      - match:
+          - www.axa-im.co.uk(usingFCAAuthorisedFirm’swebsite)
+          - www.svssecurities.com(usingAuthorisedFirm'swebsite)
+          - www.blackrock.co.uk(clonefirmisusingAuthorisedFirm’swebsite)
+        value: null
+      - match: https:// stonehavenmarkets.com
+        value: https://stonehavenmarkets.com
+      - match: https:// omaah-exchange.com
+        value: https://omaah-exchange.com
+      - match: https:// investcan.net
+        value: https://investcan.net
+      - match: https:// crypto-miner.co
+        value: https://crypto-miner.co
+      - match: https:// xrptrading.net
+        value: https://xrptrading.net
+      - match: https;//u-swiftfinance.org
+        value: https://u-swiftfinance.org
+      - match: https;//finex-trade.ltd
+        value: https://finex-trade.ltd
+      - match: https;//fairtradeexpert.live
+        value: https://fairtradeexpert.live
+      - match: https;///www.greenfieldnetworkings.com/
+        value: https://www.greenfieldnetworkings.com/
+      - match: www. traderhive42ai.net
+        value: www.traderhive42ai.net
+      - match: www..helioglobex.com
+        value: www.helioglobex.com
+      - match: https:Buckzer.com
+        value: https://Buckzer.com
+      - match: htttps://Sovonextrader.pro
+        value: https://Sovonextrader.pro
+      - match: "•\thttps://ravonixtrader.net/"
+        value: https://ravonixtrader.net/
+      - match: https://www.sova-am.co.uk /
+        value: https://www.sova-am.co.uk
+      - match: '@bestwallethq https://www.instagram.com/bestwallethq/'
+        value: https://www.instagram.com/bestwallethq/
+      - match: '@BestWalletHQ https://x.com/bestwallethq'
+        value: https://x.com/bestwallethq
+      - match: 'YOUTUBE: www.youtube.com/watch?v=PDnXZOvRuy0'
+        value: www.youtube.com/watch?v=PDnXZOvRuy0
+      - match: 'YOUTUBE: www.youtube.com/watch?v=w7LNWcrsL6Q'
+        value: www.youtube.com/watch?v=w7LNWcrsL6Q
+      - match: 'LinkedIn: https://www.linkedin.com/company/tsh-financial-services-limited/'
+        value: https://www.linkedin.com/company/tsh-financial-services-limited/
+      - match: 'Facebook: https://m.facebook.com/TSH-Financial-Services-Limited-732426897503502/'
+        value: https://m.facebook.com/TSH-Financial-Services-Limited-732426897503502/
+      - match: 'Instagram: https://instagram.com/tshfinancials?igshid=YmMyMTA2M2Y='
+        value: https://instagram.com/tshfinancials?igshid=YmMyMTA2M2Y=
+      - match: 'Twitter: https://twitter.com/Nutmeg_Invest'
+        value: https://twitter.com/Nutmeg_Invest
 
 assertions:
   min:
     schema_entities:
       LegalEntity: 5000
-      Sanction: 5000
   max:
     schema_entities:
       LegalEntity: 30000
-      Sanction: 30000

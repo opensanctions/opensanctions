@@ -55,7 +55,10 @@ def crawl_member(
     person.id = context.make_id(full_name, governorate, constituency)
     person.add("name", full_name, lang="ara")
     person.add("name", field(doc, FIELDS["short_name"]), lang="ara")
-    person.add("birthPlace", field(doc, FIELDS["birth_place"]), lang="ara")
+    birth_place = field(doc, FIELDS["birth_place"])
+    # "اختر" ("select") is the unfilled option of the site's birth place dropdown.
+    if birth_place != "اختر":
+        person.add("birthPlace", birth_place, lang="ara")
     person.add("political", field(doc, FIELDS["party"]), lang="ara")
     person.add("sourceUrl", url)
     # Members of the House of Representatives must be Egyptian citizens (Constitution of

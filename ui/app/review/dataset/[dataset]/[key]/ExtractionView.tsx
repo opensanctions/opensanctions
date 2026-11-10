@@ -289,6 +289,16 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
             </label>
           </div>
           <SaveButton isValid={result.valid} help={errorSummary} />
+          <OverlayTrigger overlay={<Tooltip id="skip-tooltip">
+            Continue to next review without saving
+          </Tooltip>}>
+            <a
+              className="btn btn-outline-secondary ms-2"
+              href={`/api/extraction/next?dataset=${encodeURIComponent(dataset)}&cursorKey=${encodeURIComponent(entryKey)}`}
+            >
+              Skip &gt;
+            </a>
+          </OverlayTrigger>
           <AcceptAndContinueButton isValid={result.valid} help={errorSummary} />
         </form>
       </div>

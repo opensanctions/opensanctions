@@ -13,5 +13,8 @@ issuer: au_dfat
 dataset: au_dfat_sanctions
 aliases:
   - "Autonomous (Vessels)"
+target_territories:
+  - kp
+  - ru
 measures:
   - Transportation restrictions

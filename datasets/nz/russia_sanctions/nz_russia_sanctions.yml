@@ -36,7 +36,7 @@ dates:
 tags:
   - list.sanction
   - target.ru
-  - issuer.west
+  - publisher.west
 
 assertions:
   min:

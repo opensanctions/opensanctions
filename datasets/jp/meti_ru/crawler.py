@@ -30,7 +30,7 @@ LOCAL_PATH = Path(__file__).parent
 EXPECTED_HASHES = {
     "list_belarus_tokutei.pdf": "cd99cd520f06110ad39f354d6c961fe5c36260e3",
     "250912_list_russia_tokutei.pdf": "16a38c66fe9a05c3acbda50cdca5e93ca420eb83",
-    "250912_list_daisangoku_tokutei.pdf": "1464205ea2708c0348e3a1cff5dbf79c513b672c",
+    "list_daisangoku_tokutei.pdf": "ea562b3f9aa67ab31f726b11fc82ff2175d2ccc8",
 }
 
 
@@ -221,7 +221,7 @@ def crawl(context: Context) -> None:
     )
     content_div = h.xpath_element(doc, divs_xpath)
     # Check hash of the content part of the page
-    h.assert_dom_hash(content_div, "db271c508f831b212fe8fdf1fae2dc271d0810bc")
+    h.assert_dom_hash(content_div, "2070834669f235f5c5132a5870b2428074d90ae4")
     pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
 

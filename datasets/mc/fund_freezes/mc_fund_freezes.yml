@@ -27,7 +27,7 @@ publisher:
 tags:
   - list.sanction
   - sector.financial
-  - issuer.west
+  - publisher.west
   - sector.maritime
 url: https://geldefonds.gouv.mc/
 data:
@@ -211,7 +211,9 @@ lookups:
         aliases:
           - RFNC-VNIITF
           - VNITTF
-      - match: "Khirullah Said Wali Khairkhwa (né à Kandahar le 01/01/1967)"
+      - match:
+          - "Khirullah Said Wali Khairkhwa (né à Kandahar le 01/01/1967)"
+          - "Khirullah Said Wali Khairkhwa (né en Kandahar, le 01/01/1967)"
         aliases:
           - Khirullah Said Wali Khairkhwa
       - match: "Iadena Mohammad (né le 01/01/1969)"
@@ -394,6 +396,8 @@ lookups:
           - "Environ 1968"
           - "environ 1968"
         value: 1968
+      - match: Environ 1971
+        value: 1971
       - match: entre 1958 et 1964
         values:
           - 1958

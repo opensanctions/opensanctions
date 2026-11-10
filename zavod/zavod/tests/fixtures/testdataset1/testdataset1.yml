@@ -2,6 +2,8 @@ entry_point: testentrypoint1
 title: OpenSanctions Validation Dataset
 prefix: osv
 hidden: true
+tags:
+  - list.sanction
 resolve: false
 summary: >
   This dataset is used to validate and test the OpenSanctions data processing pipeline.
@@ -15,7 +17,8 @@ publisher:
   description: |
     Manually created by the project team.
   url: https://www.opensanctions.org
-  official: false
+  official: true
+  country: de
 url: https://github.com/opensanctions/opensanctions
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYliJOm1mk2PrsL0m_BVn2sEbpHIdQ2fuzavp0gqOLndgzCw7gtr9Npqwa_FerVrQBfYFiDeKuwfV-/pub?gid=0&single=true&output=csv

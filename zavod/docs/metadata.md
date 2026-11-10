@@ -4,7 +4,7 @@ Excellent dataset metadata is a relatively low-effort way to demonstrate the tra
 
 Remember to give the context that people from different countries need to make sense of systems they are not entirely familiar with. Share what you learned when figuring out what a source dataset represents.
 
-Metadata fields are user-facing prose. Knowledge addressed to future maintainers of the crawler — failure modes, source quirks, the purpose of a lookup — belongs in [YAML comments](#maintainer-notes-yaml-comments) instead.
+Metadata fields are user-facing prose. State only facts you can trace to a trustworthy public source. Knowledge addressed to future maintainers of the crawler — failure modes, source quirks, the purpose of a lookup — belongs in [YAML comments](#maintainer-notes-yaml-comments) instead.
 
 Use the `.yml` extension.
 
@@ -39,6 +39,7 @@ Keep out of the description:
 - Per-record field listings ("records each person with their name, gender and date of birth") — that is visible from the data and its statistics, and drifts as the crawler changes.
 - Routine ETL mechanics: fetching, parsing, pagination, lookups.
 - Sourcing narration ("the data is sourced from the official website") — that is what `publisher` and `data.url` convey.
+- Counts of members, seats or records (in the `summary` too), which go stale with each update.
 
 ## Maintainer notes (YAML comments)
 
@@ -47,11 +48,13 @@ Document technical knowledge about the crawler as `#` comments in the `.yml`, ad
 - A top-of-file comment block for crawler-level notes: known failure modes and how to handle them, source publication quirks, runbooks for recurring warnings.
 - A short comment above each lookup that is not a plain type lookup (`type.country`, `type.date`, …), explaining its structure and purpose: what raw values it matches, and what the crawler does with the result.
 
-Comments record known facts — observed failures, documented source behaviour, decisions that were made — never speculation. Good examples: `datasets/cn/sanctions/cn_sanctions.yml` (a runbook for handling designation-notice warnings), `datasets/fr/tresor/fr_tresor_gels_avoir.yml` (one-line annotations on the groups within a large lookup).
+Comments record known facts — observed failures, documented source behaviour, decisions that were made — never speculation. Keep existing comments that still hold. Good examples: `datasets/cn/sanctions/cn_sanctions.yml` (a runbook for handling designation-notice warnings), `datasets/fr/tresor/fr_tresor_gels_avoir.yml` (one-line annotations on the groups within a large lookup).
 
 ## Properties
 
 ### Basics
+
+The dataset name is the `.yml` file name stem, e.g. `us_ofac_sdn`; don't set `name` in the file.
 
 - `entry_point` e.g. `crawler.py:crawl_peps` - the file name, optionally followed by a method name called by the zavod `crawl` command. Defaults to the `crawler.py:crawl` calling an entry point in the dataset directory.
 - `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys. See the [entity ID guide](best_practices/entity_id.md) for the shape and stability rules that apply to IDs.
@@ -113,6 +116,13 @@ Tags match by exact string, not by prefix: `list.pep.bulk` does not match `list.
 **Note:** a `target.*` tag must not be the publisher's own country or jurisdiction. A domestic list is already identified by its publisher's country, and where one applies, its `juris.*` tag.
 
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
+
+#### Derived tags
+
+Some tags are added automatically when the dataset is loaded, so don't set them by hand in the dataset YAML:
+
+- `publisher.<country>` from `publisher.country`, when the publisher is `official: true`, the country isn't `zz`, and the dataset isn't tagged `list.pep`.
+- `publisher.<bloc>` for each bloc the publisher country belongs to, under the same conditions. The blocs are defined in `PUBLISHER_BLOCS` in `zavod/meta/tags.py`.
 
 ### Deployment
 

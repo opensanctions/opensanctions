@@ -31,7 +31,7 @@ dates:
   formats: ["%m/%d/%Y"]
 tags:
   - list.sanction
-  - issuer.west
+  - publisher.west
   - sector.maritime
 
 assertions:

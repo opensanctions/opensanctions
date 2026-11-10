@@ -98,6 +98,9 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", listed_on)
+    # ListedOn is the UN date; UN designations take effect in South Africa on adoption.
+    for stmt in sanction.get_statements("listingDate"):
+        sanction.adopt_statement(stmt, prop="startDate")
     sanction.add("unscId", data.pop("ReferenceNumber", None))
 
     context.audit_data(data, ignore=["ApplicationStatus"])

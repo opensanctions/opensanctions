@@ -21,7 +21,7 @@ def fetch_html_with_retry(context: Context, url: str, **kwargs: Any) -> HtmlElem
     # DE exits seem fine for the moment. This may change in the future as the winds of
     # BGP change direction.
     retry = Retry(total=5, backoff_factor=3)
-    while True:
+    while not retry.is_exhausted():
         try:
             return fetch_html(context, url, geolocation="DE", **kwargs)
         except HTTPError as err:

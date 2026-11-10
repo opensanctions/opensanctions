@@ -21,7 +21,8 @@ UNUSED_FIELDS = [
     "მოკლე ფაბულა",  # Short biography
     "შენიშვნა",  # Note
 ]
-PATROYNMIC = re.compile(r"\b(\S+)\s+ძე\s+")
+# ძე ("son of") or ასული ("daughter of") follows the father's name.
+PATROYNMIC = re.compile(r"\b(\S+)\s+(?:ძე|ასული)\s+")
 
 
 def apply_translit_name(context: Context, person: Entity, name: str) -> None:
@@ -33,7 +34,13 @@ def apply_translit_name(context: Context, person: Entity, name: str) -> None:
         name = name[: m.start()] + name[m.end() :]
         context.log.debug(f"Patroynmic: {m.group(1)}")
     h.apply_name(person, full=name, patronymic=patronym, lang="kat")
-    apply_translit_full_name(context, person, LangText(name, "kat"))
+    # Transliterate the emitted names, so that names split by a type.name
+    # datapatch are transliterated one by one.
+    for full_name in person.get("name"):
+        # იგივე ("also known as") and a bracketed given name join several names.
+        if "იგივე" in full_name or "(" in full_name:
+            context.log.warning("Name contains several names", name=full_name)
+        apply_translit_full_name(context, person, LangText(full_name, "kat"))
 
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:

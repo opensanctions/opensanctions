@@ -56,6 +56,15 @@ names:
 tags:
   - list.pep
 
+lookups:
+  # Keyed by MemberId, for member cards whose English name holds only the
+  # honorific. The value is the "Full Name" on the member's detail page,
+  # https://www.hopr.gov.et/Members/MemberInformation?MemberId=<id>
+  member_names:
+    options:
+      - match: "4630"
+        value: Gebeya Tegegn Tesera
+
 assertions:
   min:
     schema_entities:
@@ -65,5 +74,5 @@ assertions:
       et: 600
   max:
     schema_entities:
-      Person: 2500
+      Person: 3000
       Position: 1

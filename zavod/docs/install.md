@@ -59,6 +59,11 @@ $ source zavod/.venv/bin/activate
 $ zavod --help
 ```
 
+## Updating dependencies in dev
+
+We don't keep uv.lock in source control, but in a dev environment, a uv.lock is still generated and would hold your dependencies back. You should regularly run `uv sync --upgrade` in the zavod directory to keep your environment similar to versions installed in production images.
+
+
 ## Running a database
 
 Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database. Zavod uses sqlite by default, but once you need concurrent access to the database, use Postgres. Most of these tables are created automatically on first use; the tables zavod manages itself are created with Alembic (see [Database](database.md)): from the repository root, `cd zavod && alembic upgrade head`.
