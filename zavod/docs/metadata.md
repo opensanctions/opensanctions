@@ -113,12 +113,12 @@ You can find a full overview of available tags [here](https://www.opensanctions.
 
 #### Derived tags
 
-Some tags are added automatically when the dataset metadata is exported, so don't set them by hand in the dataset YAML:
+Some tags are added automatically when the dataset is loaded, so don't set them by hand in the dataset YAML:
 
 - `publisher.<country>` from `publisher.country`, when the publisher is `official: true`, the country isn't `zz`, and the dataset isn't tagged `list.pep`.
 - `publisher.<bloc>` for each bloc the publisher country belongs to, under the same conditions. The blocs are defined in `PUBLISHER_BLOCS` in `zavod/meta/tags.py`.
 
-Derived tags appear in the published `index.json` and catalogs, but not in `dataset.model.tags`. `#tag` queries against a catalog loaded from the dataset YAMLs therefore don't see them.
+Derived tags are part of `dataset.model.tags`, so they appear in the published `index.json` and catalogs, and `#tag` dataset queries can select on them.
 
 ### Deployment
 
