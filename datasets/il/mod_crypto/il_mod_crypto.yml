@@ -36,6 +36,7 @@ http:
 tags:
   - list.sanction
   - sector.crypto
+  - risk.terror
 
 assertions:
   min:

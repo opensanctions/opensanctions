@@ -30,6 +30,7 @@ http:
   additional_retry_statuses: [403]
 tags:
   - list.sanction
+  - risk.terror
 
 names:
   schema_rules:

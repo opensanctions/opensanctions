@@ -29,6 +29,7 @@ url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-ls
 tags:
   - list.sanction
   - publisher.west
+  - risk.terror
 publisher:
   name: "Public Safety Canada"
   description: |

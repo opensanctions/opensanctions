@@ -23,6 +23,9 @@ description: |
   **Note**: The source page also lists symbols and insignia subject to the display prohibition
   under §9 Abs. 1 VereinsG or criminal penalties under §86a Abs. 1 StGB; these are not
   captured in this dataset.
+tags:
+  - list.sanction
+  - risk.terror
 publisher:
   name: Bundesamt für Verfassungsschutz
   name_en: Federal Office for the Protection of the Constitution

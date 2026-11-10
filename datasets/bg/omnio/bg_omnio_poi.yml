@@ -28,6 +28,7 @@ deprecation: |
   and will eventually remove it.
 tags:
   - list.sanction
+  - risk.terror
 publisher:
   name: OMNIO Compliance
   description: |

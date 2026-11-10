@@ -26,6 +26,9 @@ description: |
   You can find more information about proscription [in the Home
   Office's Policy Paper
   here](https://www.gov.uk/government/publications/proscribed-terror-groups-or-organisations--2/proscribed-terrorist-groups-or-organisations-accessible-version).
+tags:
+  - list.sanction
+  - risk.terror
 publisher:
   name: Home Office
   description: >-
