@@ -11,16 +11,21 @@ from zavod import Context
 from zavod import helpers as h
 
 BASE_URL = "https://ilhfspartner3.dynamics365portals.us"
-# Names with a legal form or a business word belong to a company even when the
-# provider type is one practised by individuals, or missing.
-REGEX_ORG = re.compile(
+# Only a legal form makes a name certainly a company. Anything less certain is
+# emitted as LegalEntity, so it is matched by both person and company queries.
+REGEX_LEGAL_FORM = re.compile(
     r"\b(INC|INCORPORATED|L\.?L\.?C|P\.?L\.?L\.?C|CORP|CORPORATION|CO|COMPANY|LTD|"
-    r"LIMITED|S\.?C|P\.?C|P\.?A|PHARMACY|PHCY|DRUGS?|TRANSPORT\w*|TRANS|"
+    r"LIMITED|S\.?C|P\.?C|P\.?A)\b|LLC$"
+)
+# Business words without a legal form are often sole proprietors trading under
+# their own name ("DAVIS DAN TRANSPORT"), so they only rule out Person.
+REGEX_BUSINESS_WORD = re.compile(
+    r"\b(PHARMACY|PHCY|DRUGS?|TRANSPORT\w*|TRANS|"
     r"SERVICES?|SVCS?|SRVC?S?|CENTER|CTR|CLINIC|LAB\w*|CARE|HEALTH\w*|GROUP|"
     r"MEDICAL|MEDICAR|AMBULANCE|SUPPL\w*|EQUIPMENT|HOME|ASSOC\w*|ENTERPRISES?|"
     r"SOLUTIONS|CAB|TAXI|LIVERY|AGENCY|FOUNDATION|HOSPITAL|RX|DIAGNOSTICS?|"
     r"CONSULTANTS?|INSTITUTE|MANAGEMENT|SYSTEMS|THERAPY|WELLNESS|COUNSELING|"
-    r"PSYCHIATRY)\b|LLC$"
+    r"PSYCHIATRY)\b"
 )
 REGEX_DBA = re.compile(r"\s+D\.?/?B\.?/?A\b\.?/?\s*")
 REGEX_NPI = re.compile(r"^\d{10}$")
@@ -41,17 +46,24 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     if raw_name is None:
         context.log.warning("Row without provider name", row=row)
         return
-    name, *aliases = REGEX_DBA.split(raw_name)
+    # "PERSON DBA BUSINESS" is a sole proprietor: the trade name is the name,
+    # the owner's name an alias.
+    owner, *trade_names = REGEX_DBA.split(raw_name)
+    name = trade_names[-1] if trade_names else owner
+    aliases = [owner, *trade_names[:-1]] if trade_names else []
     npi = clean(row.pop("npi"))
     license = clean(row.pop("license"))
     provider_type = clean(row.pop("provider_type"))
     city = clean(row.pop("city"))
 
-    if REGEX_ORG.search(raw_name):
+    if REGEX_LEGAL_FORM.search(raw_name):
         schema = "Company"
+    elif trade_names or REGEX_BUSINESS_WORD.search(raw_name):
+        schema = "LegalEntity"
     elif provider_type is None:
-        # Untyped rows are mostly individuals barred for their role at a vendor.
-        schema = "Person"
+        # Untyped rows are mostly individuals barred for their role at a vendor,
+        # but nothing in the row confirms it.
+        schema = "LegalEntity"
     else:
         res = context.lookup("provider_type", provider_type, warn_unmatched=True)
         schema = "LegalEntity" if res is None or res.value is None else res.value

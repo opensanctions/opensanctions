@@ -54,19 +54,19 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 2300
-      Company: 700
-      LegalEntity: 40
+      Person: 1800
+      Company: 480
+      LegalEntity: 750
   max:
     schema_entities:
-      Person: 5400
-      Company: 1600
-      LegalEntity: 100
+      Person: 4200
+      Company: 1150
+      LegalEntity: 1750
 
 lookups:
-  # Maps the provider type to a schema for names without a business word. Types
-  # practised by individuals give Person; facility and transport types also list
-  # sole proprietors by personal name, so they stay LegalEntity.
+  # Maps the provider type to a schema for names without a legal form or business
+  # word. Types practised by individuals give Person; facility and transport types
+  # also list sole proprietors by personal name, so they stay LegalEntity.
   provider_type:
     options:
       - match:
