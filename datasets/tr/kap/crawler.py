@@ -12,14 +12,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 
-REGEX_ROW_ID = re.compile(rb"[0-9a-f]*:")
-REGEX_ROW_REFERENCE = re.compile(r"^\$([0-9a-f]+)$")
-# Subsidiary names are sometimes numbered by the filer: "7) Agrotech USA LLC".
-REGEX_NUMBERED = re.compile(r"^\d+\)\s*")
-# 11-digit values in a tax number field are national identity numbers (TCKN)
-# of natural persons, not the 10-digit Turkish tax number (VKN).
-REGEX_TCKN = re.compile(r"^\d{11}$")
-
 OFFICER_IGNORE = [
     # The types of the identity documents of the officer and of the natural person
     # acting for a legal person officer. The page carries no numbers for them.
@@ -105,12 +97,12 @@ def parse_rsc_rows(stream: bytes) -> dict[str, Any]:
     rows: dict[str, Any] = {}
     pos = 0
     while pos < len(stream):
-        match = REGEX_ROW_ID.match(stream, pos)
+        match = re.compile(rb"([0-9a-f]*):").match(stream, pos)
         if match is None:
             raise ValueError(
                 f"Invalid RSC row at byte {pos}: {stream[pos : pos + 50]!r}"
             )
-        row_id = match.group()[:-1].decode("ascii")
+        row_id = match.group(1).decode("ascii")
         pos = match.end()
         if stream.startswith(b"T", pos):
             comma = stream.index(b",", pos)
@@ -139,7 +131,7 @@ def resolve_references(value: Any, rows: dict[str, Any]) -> Any:
     if isinstance(value, str) and value.startswith("$"):
         if value.startswith("$$"):
             return value[1:]
-        match = REGEX_ROW_REFERENCE.match(value)
+        match = re.fullmatch(r"\$([0-9a-f]+)", value)
         if match is None:
             raise ValueError(f"Unsupported RSC reference: {value}")
         return rows[match.group(1)]
@@ -254,7 +246,7 @@ def option(value: dict[str, str] | str | None, field: str) -> str | None:
 def apply_tax_number(entity: Entity, value: str | None) -> None:
     """Add a tax number unless it is the national identity number (TCKN) of a
     natural person."""
-    if value is None or REGEX_TCKN.match(value.strip()):
+    if value is None or re.fullmatch(r"\d{11}", value.strip()):
         return
     entity.add("taxNumber", value)
 
@@ -371,7 +363,8 @@ def crawl_subsidiary(
             subsidiary.id = context.make_id("subsidiary", company.id, name)
         # Placeholders for "no subsidiaries" are dropped by the type.name lookup.
         if name is not None:
-            subsidiary.add("name", REGEX_NUMBERED.sub("", name))
+            # Filers sometimes number the names: "7) Agrotech USA LLC".
+            subsidiary.add("name", re.sub(r"^\d+\)\s*", "", name))
         if not subsidiary.has("name"):
             return
         subsidiary.add("leiCode", lei_code)
