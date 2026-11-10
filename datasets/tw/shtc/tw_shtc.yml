@@ -30,8 +30,8 @@ data:
   url: https://publicinfo.trade.gov.tw/icp/Download.action?file=ZgPKOWuRLCD%2B8S4%2FZhAeuw%3D%3D
   format: CSV
 tags:
-  - list.regulatory
-  - list.risk
+  - list.watch
+  - risk.tech
 
 names:
   schema_rules:

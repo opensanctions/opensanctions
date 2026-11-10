@@ -16,6 +16,9 @@ description: |
     - The website address, (generalized) email address or name of the malicious actor
     - The product category concerned or the reason for blacklisting
     - The date on which the site/actor was published on the blacklists
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Autorité des marchés financiers
   name_en: Financial Markets Authority
