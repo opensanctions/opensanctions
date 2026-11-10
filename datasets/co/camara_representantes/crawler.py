@@ -28,7 +28,6 @@ def crawl_member(
     party = row.pop("Partido")
     party_lookup = context.lookup("political", party)
     person.add("political", party if party_lookup is None else party_lookup.value)
-    person.add("email", row.pop("Correo"))
     person.add("citizenship", "co")
 
     occupancy = h.make_occupancy(
@@ -50,9 +49,12 @@ def crawl_member(
     context.audit_data(
         row,
         ignore=[
+            # Not extracted for PEPs.
+            "Correo",
             "Telefono",
             "Oficina",
             "Imagen",
+            # No matching property.
             "Votos",
             "Comision",
             "Comisiones",
@@ -81,7 +83,9 @@ def crawl(context: Context) -> None:
     for option in h.xpath_elements(doc, "//select[@id='select-legislatura']/option"):
         label = h.element_text(option)
         match = LEGISLATURE_LABEL.match(label)
-        assert match is not None, label
+        if match is None:
+            context.log.warning("Unexpected legislative year label", label=label)
+            continue
         start_year, end_year = match.groups()
 
         data = context.fetch_json(
@@ -97,8 +101,15 @@ def crawl(context: Context) -> None:
         assert is_current is (option.get("selected") is not None), label
 
         # Some years before 2014 have no members.
-        if data["departamentos"] == [] and not is_current:
-            context.log.info("No members published for legislative year", label=label)
+        if data["departamentos"] == []:
+            if is_current:
+                context.log.warning(
+                    "Sitting legislative year has no members", label=label
+                )
+            else:
+                context.log.info(
+                    "No members published for legislative year", label=label
+                )
             continue
         for key, members in data["departamentos"].items():
             key_lookup = context.lookup("constituency", key)
