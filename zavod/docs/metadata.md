@@ -118,8 +118,6 @@ Some tags are added automatically when the dataset is loaded, so don't set them 
 - `publisher.<country>` from `publisher.country`, when the publisher is `official: true`, the country isn't `zz`, and the dataset isn't tagged `list.pep`.
 - `publisher.<bloc>` for each bloc the publisher country belongs to, under the same conditions. The blocs are defined in `PUBLISHER_BLOCS` in `zavod/meta/tags.py`.
 
-Derived tags are part of `dataset.model.tags`, so they appear in the published `index.json` and catalogs, and `#tag` dataset queries can select on them.
-
 ### Deployment
 
 The `deploy` section configures the Kubernetes job that runs the crawler in production. It is consumed by the deployment tooling, not by zavod itself. Override the defaults only when a crawler demonstrably needs it:
