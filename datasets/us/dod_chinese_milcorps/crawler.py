@@ -37,7 +37,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity.add("name", clean_name, original_value=raw_name)
     alias_prop = "weakAlias" if len(alias) <= 5 and alias.isupper() else "alias"
     entity.add(alias_prop, alias, original_value=raw_name)
-    entity.add("previousName", row.pop("Previous Name"))
+    entity.add("previousName", h.multi_split(row.pop("Previous Name"), [";"]))
 
     parent_name = row.pop("Parent Name")
     if parent_name and parent_name != clean_name:
@@ -71,6 +71,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     sanction.add("reason", row.pop("Note"))
     sanction.add("summary", row.pop("Removal Note"))
     sanction.add("sourceUrl", row.pop("Source Url"))
+    sanction.add("sourceUrl", row.pop("Removal Url"))
     # A company's rows merge into one entity, so any active listing tags it.
     if h.is_active(sanction):
         entity.add("topics", "debarment")
