@@ -197,6 +197,7 @@ def parse_lei_record(
     isins: dict[str, list[str]],
     elfs: dict[str, str],
     skipped: set[str],
+    emitted: set[str],
 ) -> None:
     elc = h.remove_namespace(el)
     lei = elc.findtext("LEI")
@@ -278,10 +279,14 @@ def parse_lei_record(
     parse_address(proxy, entity.find("HeadquartersAddress"))
 
     context.emit(proxy)
+    emitted.add(lei)
 
 
-def parse_lei_file(context: Context, fh: IO[bytes]) -> set[str]:
-    """Emit all LEI records and return the LEIs that were skipped as invalid."""
+def parse_lei_file(context: Context, fh: IO[bytes], emitted: set[str]) -> set[str]:
+    """Emit all LEI records and return the LEIs that were skipped as invalid.
+
+    The LEIs of all emitted Organization entities are added to `emitted`.
+    """
     elfs = load_elfs()
     bics = load_bic_mapping(context)
     ocurls = load_oc_mapping(context)
@@ -300,6 +305,7 @@ def parse_lei_file(context: Context, fh: IO[bytes]) -> set[str]:
             isins=isins,
             elfs=elfs,
             skipped=skipped,
+            emitted=emitted,
         )
         el.clear()
 
@@ -309,40 +315,46 @@ def parse_lei_file(context: Context, fh: IO[bytes]) -> set[str]:
 
 
 def parse_relationship_record(
-    context: Context, el: etree._Element, skipped: set[str]
-) -> None:
+    context: Context, el: etree._Element, skipped: set[str], emitted: set[str]
+) -> bool:
+    """Emit a relationship record. Returns False if it was dropped because its
+    end node LEI has no LEI record in the golden copy."""
     elc = h.remove_namespace(el)
     rel = elc.find("Relationship")
     if rel is None:
-        return
+        return True
     rel_type = rel.findtext("RelationshipType")
     start_node = rel.find("StartNode")
     end_node = rel.find("EndNode")
     if rel_type is None or start_node is None or end_node is None:
-        return
+        return True
     rel_data = RELATIONSHIPS.get(rel_type)
     if rel_data is None:
         context.log.warn("Unknown relationship: %s", rel_type)
-        return
+        return True
     rel_schema, start_prop, end_prop = rel_data
 
     start_node_type = start_node.findtext("NodeIDType")
     if start_node_type != "LEI":
         context.log.warn("Unknown edge type", node_id_type=start_node_type)
-        return
+        return True
     start_lei = start_node.findtext("NodeID")
 
     end_node_type = end_node.findtext("NodeIDType")
     if end_node_type != "LEI":
         context.log.warn("Unknown edge type", node_id_type=end_node_type)
-        return
+        return True
     end_lei = end_node.findtext("NodeID")
 
     if start_lei is None or end_lei is None:
         context.log.warn("Relationship missing LEI", start=start_lei, end=end_lei)
-        return
+        return True
     if start_lei in skipped or end_lei in skipped:
-        return
+        return True
+    if end_lei not in emitted:
+        # Some relationships point to parents or fund managers that have no
+        # record in the LEI file (and no record in the GLEIF API either).
+        return False
 
     proxy = context.make(rel_schema)
     rel_id = slugify(rel_type, sep="-")
@@ -352,7 +364,7 @@ def parse_relationship_record(
     proxy.add("role", rel_type.replace("_", " "))
     status = rel.findtext("RelationshipStatus")
     if status == "INACTIVE":
-        return
+        return True
     proxy.add("status", status)
 
     if rel_schema == "Ownership":
@@ -379,25 +391,32 @@ def parse_relationship_record(
             context.log.warn("Unknown rel quantifier", amount=amount, units=units)
 
     context.emit(proxy)
+    return True
 
 
-def parse_rr_file(context: Context, fh: IO[bytes], skipped: set[str]) -> None:
+def parse_rr_file(
+    context: Context, fh: IO[bytes], skipped: set[str], emitted: set[str]
+) -> None:
     tag = f"{{{RR}}}RelationshipRecord"
     idx = 0
+    dangling = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
         if idx > 0 and idx % 10000 == 0:
             context.log.info(f"Parse RelationshipRecord: {idx}...")
-        parse_relationship_record(context, el, skipped)
+        if not parse_relationship_record(context, el, skipped, emitted):
+            dangling += 1
         el.clear()
 
     if idx == 0:
         raise RuntimeError("No relationships!")
+    context.log.info("Dropped relationships to unknown LEIs", count=dangling)
 
 
 def crawl(context: Context) -> None:
     lei_file = fetch_lei_file(context)
     rr_file = fetch_rr_file(context)
+    emitted: set[str] = set()
     with read_zip_file(context, lei_file) as fh:
-        skipped = parse_lei_file(context, fh)
+        skipped = parse_lei_file(context, fh, emitted)
     with read_zip_file(context, rr_file) as fh:
-        parse_rr_file(context, fh, skipped)
+        parse_rr_file(context, fh, skipped, emitted)
