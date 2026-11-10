@@ -21,12 +21,14 @@ sanction is keyed on `Start date`, so the periods do not collide.
   is emitted as a separate company with an ownership link.
 - `Note`: the justification the list gives for the listing, emitted as the
   sanction's `reason`. Statutory citations are kept verbatim.
-- `Removal Note`: the reason the list gives for removing the entry, emitted as
-  the sanction's `summary`.
-- `Start date` / `End date`: ISO dates of the editions that added and removed the
-  entry.
-- `Source Url`: the PDF the edition was transcribed from, emitted as the
-  sanction's `sourceUrl`. Never blank.
+- `Removal Note`: the reason the removing edition or notice gives, verbatim,
+  emitted as the sanction's `summary`.
+- `Start date` / `End date`: ISO dates of the editions or notices that added and
+  removed the entry.
+- `Source Url`: the edition PDF or notice the row was transcribed from, emitted
+  as the sanction's `sourceUrl`. Never blank.
+- `Removal Url`: the edition PDF or notice that removed the entry, also emitted
+  as the sanction's `sourceUrl`. Set whenever `End date` is.
 
 Values are single-line: the published PDF wraps text mid-sentence, so newlines
 are collapsed to spaces when transcribing.
@@ -37,9 +39,11 @@ are collapsed to spaces when transcribing.
    against the number the release claims.
 2. For each entry not yet listed, add a row with `Start date` set to the release
    date and `Source Url` to the PDF.
-3. For each entry that has dropped off, set `End date` on every open row of that
-   company rather than deleting the rows, and record any reason the list gives
-   in `Removal Note`.
+3. For each entry that has dropped off, set `End date` and `Removal Url` on every
+   open row of that company rather than deleting the rows, and record any reason
+   the list gives in `Removal Note`. Each edition is the complete list, so an
+   entry it omits has dropped off even when no removal section names it — unless
+   the edition lists the company under a new name.
 4. Transcribe names as the new list prints them, in both `Name` and `Clean
    Name`. Where an entry is clearly an existing entry (e.g. original start date) but includes a
    correction to the name, update the entry in-place. The entity ID might
@@ -60,3 +64,7 @@ Additions and removals made between editions are published in the Federal
 Register but not always as a press release, so the release-list check does not
 see them. They are covered by `manual_check` instead — see the message in the
 dataset yml.
+
+Record a notice like an edition, dated by the day it was signed and citing its
+`https://www.federalregister.gov/d/<document number>` page as `Source Url` or
+`Removal Url`.
