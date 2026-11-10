@@ -283,7 +283,7 @@ def test_fetch_text(testdataset1: Dataset):
 
 
 def test_fetch_text_headers(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = make_context(testdataset1)
     url = "https://test.com/page"
 
     with requests_mock.Mocker() as m:
