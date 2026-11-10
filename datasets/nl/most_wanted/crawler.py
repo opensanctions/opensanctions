@@ -12,6 +12,7 @@ FIELDS = {
     "name": "name",
     "alias": "alias",
     "nicknames": "alias",
+    "also_known_as": "alias",
     "gender": "gender",
     "sex": "gender",
     "nationality": "nationality",
@@ -90,16 +91,16 @@ def crawl_person(context: Context, source_url: str) -> None:
         if field == "date_of_birth":
             h.apply_date(person, "birthDate", value.replace(" ", ""))
             continue
-        if field == "also_known_as":
-            person.add("alias", h.multi_split(value.rstrip("."), [", ", " en "]))
-            continue
 
         if field not in FIELDS:
             context.log.warn("Unkown descriptor", field=field, value=value)
             continue
 
         prop = FIELDS.get(field)
-        if prop is not None:
+        if prop == "alias":
+            for alias in h.multi_split(value.rstrip("."), [", ", " en "]):
+                person.add("alias" if " " in alias else "weakAlias", alias)
+        elif prop is not None:
             person.add(prop, value)
 
     context.emit(person)
