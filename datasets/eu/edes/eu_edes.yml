@@ -20,6 +20,8 @@ description: |
   > effect of the sanctions. Other cases of exclusions and financial penalty are
   > listed in the Commission's database (EDES-DB) which is only accessible to
   > authorised users involved in the implementation of the EU budget.
+tags:
+  - list.debarment
 publisher:
   name: European Commission
   acronym: EC

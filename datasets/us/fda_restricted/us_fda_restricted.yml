@@ -21,6 +21,9 @@ description: |
 
   This dataset lists investigators who have been subject to an administrative clinical
   investigator disqualification action, and indicates the current status of that action.
+tags:
+  - list.debarment
+  - sector.health
 publisher:
   name: US Food and Drug Administration
   description: |

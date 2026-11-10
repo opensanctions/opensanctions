@@ -14,6 +14,8 @@ description: |
   This database enables compliance with Article 60 of Law 8.443/92,
   ensuring that sanctioned individuals are appropriately restricted
   from holding certain influential and sensitive positions in the public sector.
+tags:
+  - list.debarment
 publisher:
   name: Tribunal de Contas da União
   name_en: Federal Court of Accounts of Brazil

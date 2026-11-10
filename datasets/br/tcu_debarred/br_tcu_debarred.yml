@@ -11,6 +11,8 @@ description: |
   The TCU compiles a list of those declared debarred from participating in federal public
   administration tenders, under the terms of art. 46 of the Organic Law of the Court (Law 8.443/92).
   Processes that are ongoing or whose decisions have not become final are not considered.
+tags:
+  - list.debarment
 publisher:
   name: Tribunal de Contas da União
   name_en: Federal Court of Accounts of Brazil
