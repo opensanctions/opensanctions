@@ -102,11 +102,11 @@ The dataset name is the `.yml` file name stem, e.g. `us_ofac_sdn`; don't set `na
 
 Each tag begins with a prefix naming the dimension it describes:
 
-- `list.*` - the type of list (e.g. `list.sanction`, `list.pep`, `list.watch`, `list.debarment`).
-- `risk.*` - the risk its subjects are associated with (e.g. `risk.terror`, `risk.misconduct`).
+- `list.*` - the type of list (e.g. `list.sanction`, `list.pep`, `list.debarment`, `list.export`).
 - `sector.*` - the industry the dataset covers (e.g. `sector.financial`, `sector.maritime`, `sector.health`).
 - `publisher.*` - the publisher's country, and the blocs or coalitions it belongs to (e.g. `publisher.fr`, `publisher.europe`, `publisher.west`).
 - `target.*` - the countries it is aimed at (e.g. `target.ru`, `target.kp`).
+- `risk.*` - the risk theme its subjects are associated with (e.g. `risk.klepto`, `risk.slavery`).
 
 A dataset usually carries tags from several of these dimensions.
 
