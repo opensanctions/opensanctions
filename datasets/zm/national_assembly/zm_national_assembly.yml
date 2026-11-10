@@ -1,5 +1,4 @@
 title: Zambia Members of the National Assembly
-name: zm_national_assembly
 prefix: zm-na
 entry_point: crawler.py
 coverage:
