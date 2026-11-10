@@ -38,8 +38,6 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     alias_prop = "weakAlias" if len(alias) <= 5 and alias.isupper() else "alias"
     entity.add(alias_prop, alias, original_value=raw_name)
     entity.add("previousName", row.pop("Previous Name"))
-    entity.add("sourceUrl", row.pop("Source Url"))
-    entity.add("notes", row.pop("Note"))
 
     parent_name = row.pop("Parent Name")
     if parent_name and parent_name != clean_name:
@@ -65,9 +63,14 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         start_date=start_date,
         end_date=row.pop("End date"),
     )
-    # The list records no amendments, so a listing is unchanged since it was added.
+    # A listing takes effect when its edition is published, and the list records no
+    # amendments, so a listing is unchanged since it was added.
     for stmt in sanction.get_statements("startDate"):
+        sanction.adopt_statement(stmt, prop="listingDate")
         sanction.adopt_statement(stmt, prop="modifiedAt")
+    sanction.add("reason", row.pop("Note"))
+    sanction.add("summary", row.pop("Removal Note"))
+    sanction.add("sourceUrl", row.pop("Source Url"))
     # A company's rows merge into one entity, so any active listing tags it.
     if h.is_active(sanction):
         entity.add("topics", "debarment")

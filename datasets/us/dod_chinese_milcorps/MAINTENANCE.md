@@ -19,11 +19,14 @@ sanction is keyed on `Start date`, so the periods do not collide.
 - `Previous Name`: a former name given by the list ("formerly ...").
 - `Parent Name`: the listed parent, when the list groups an entry under one. It
   is emitted as a separate company with an ownership link.
-- `Note`: the justification given by the list, or maintainer context. Statutory
-  citations are kept verbatim.
+- `Note`: the justification the list gives for the listing, emitted as the
+  sanction's `reason`. Statutory citations are kept verbatim.
+- `Removal Note`: the reason the list gives for removing the entry, emitted as
+  the sanction's `summary`.
 - `Start date` / `End date`: ISO dates of the editions that added and removed the
   entry.
-- `Source Url`: the PDF the edition was transcribed from.
+- `Source Url`: the PDF the edition was transcribed from, emitted as the
+  sanction's `sourceUrl`. Never blank.
 
 Values are single-line: the published PDF wraps text mid-sentence, so newlines
 are collapsed to spaces when transcribing.
@@ -34,8 +37,9 @@ are collapsed to spaces when transcribing.
    against the number the release claims.
 2. For each entry not yet listed, add a row with `Start date` set to the release
    date and `Source Url` to the PDF.
-3. For each entry that has dropped off, set `End date` on its open row rather
-   than deleting the row.
+3. For each entry that has dropped off, set `End date` on every open row of that
+   company rather than deleting the rows, and record any reason the list gives
+   in `Removal Note`.
 4. Transcribe names as the new list prints them, in both `Name` and `Clean
    Name`. Where an entry is clearly an existing entry (e.g. original start date) but includes a
    correction to the name, update the entry in-place. The entity ID might
