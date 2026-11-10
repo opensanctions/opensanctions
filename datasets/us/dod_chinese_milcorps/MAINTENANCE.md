@@ -42,8 +42,10 @@ are collapsed to spaces when transcribing.
 3. For each entry that has dropped off, set `End date` and `Removal Url` on every
    open row of that company rather than deleting the rows, and record any reason
    the list gives in `Removal Note`. Each edition is the complete list, so an
-   entry it omits has dropped off even when no removal section names it — unless
-   the edition lists the company under a new name.
+   entry whose name it no longer prints has dropped off even when no removal
+   section names it. That includes a company the edition prints under a new
+   name: its new-name row carries the listing on, with the old name as
+   `Previous Name` where the edition says "formerly".
 4. Transcribe names as the new list prints them, in both `Name` and `Clean
    Name`. Where an entry is clearly an existing entry (e.g. original start date) but includes a
    correction to the name, update the entry in-place. The entity ID might
