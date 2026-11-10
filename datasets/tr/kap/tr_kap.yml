@@ -7,7 +7,7 @@ entry_point: crawler.py
 prefix: tr-kap
 coverage:
   frequency: weekly
-  start: "2026-08-27"
+  start: "2026-11-10"
 exports:
   - statistics.json
   - entities.ftm.json
@@ -17,9 +17,7 @@ deploy:
 resolve: false
 ci_test: false
 summary: >-
-  Listed companies and other capital-market institutions in Türkiye, with their
-  shareholders, boards of directors and subsidiaries, as disclosed on the Public
-  Disclosure Platform
+  Ownership, boards and subsidiaries of Turkish listed companies and market institutions
 description: |
   The Public Disclosure Platform (Kamuyu Aydınlatma Platformu, KAP) is the statutory
   disclosure channel for the Turkish capital markets. Under the Capital Markets Law
@@ -28,29 +26,28 @@ description: |
   portfolio management companies, independent audit firms and other capital-market
   institutions must be filed on KAP with an electronic signature.
 
-  This dataset covers all KAP members and, from their general information pages,
-  their shareholders, members of the board of directors, and subsidiaries and
-  affiliates. Listed companies disclose shareholders holding 5% or more of the
-  capital, directly and indirectly; other members disclose their full shareholding
-  structure.
+  The dataset covers all KAP members, with the shareholders, officers and
+  subsidiaries from their general information pages. Listed companies disclose
+  shareholders holding 5% or more of the capital, directly and indirectly; other
+  members disclose their full shareholding structure. Indirect holdings are
+  ownership links from the indirect holder to the company, with the ownership type
+  "indirect".
 
   KAP is a disclosure platform: the content is declared by the issuing companies
   under a legal obligation and is not independently verified by MKK or the Capital
   Markets Board. Members without a general information page on KAP (issuers of
   debt instruments that are not traded on the exchange, market institutions and
   some other member types) are included with their identifiers only. National
-  identity numbers of board members, which KAP publishes in its page data, are
-  deliberately not included.
+  identity numbers of natural persons are not included.
 url: https://www.kap.org.tr/tr/sirketler/ALL
-tags:
-  - juris.tr
 publisher:
   name: Merkezi Kayıt Kuruluşu
+  name_en: Central Securities Depository of Türkiye
   acronym: MKK
   description: |
-    Merkezi Kayıt Kuruluşu A.Ş. (MKK, Central Securities Depository of Türkiye) is the central securities depository of
-    Türkiye and the national numbering agency for Turkish securities. It has operated
-    the Public Disclosure Platform on behalf of the Capital Markets Board since 2014.
+    The central securities depository of Türkiye and the national numbering agency
+    for Turkish securities. It has operated the Public Disclosure Platform on behalf
+    of the Capital Markets Board since 2014.
   country: tr
   url: https://www.mkk.com.tr/
   official: true
@@ -68,14 +65,14 @@ numbers:
 assertions:
   min:
     schema_entities:
-      Company: 3700
-      Person: 4500
-      LegalEntity: 2800
+      Company: 3800
+      Person: 7000
+      LegalEntity: 2900
     countries: 1
   max:
     schema_entities:
-      Company: 9500
-      Person: 11500
+      Company: 9000
+      Person: 16500
       LegalEntity: 7000
 
 lookups:
@@ -89,6 +86,22 @@ lookups:
           - KAP TEST YATIRIM A.Ş.
           - BORSA İSTANBUL BISTECH DEVRE KESİCİ UYGULAMASI
         value: skip
+  # KAP member types (kapMemberType), by whether the member has a general
+  # information page. The ones without are issuers of capital market instruments
+  # not traded on the exchange (IGMS), other members (DG) and market institutions
+  # such as the exchange and the regulator (DDK). An unknown type stops the crawl.
+  member_type:
+    options:
+      - match: [IGS, YK, BDK, PYS, FK, DCS]
+        value: page
+      - match: [IGMS, DG, DDK]
+        value: no_page
+  # Text that filers typed into a table instead of rows. "DOBY" is in the
+  # indirect shareholding table of ALTINAY SAVUNMA and names no shareholder.
+  table_text:
+    options:
+      - match: DOBY
+        value: skip
   # Members that are not companies. All other members are emitted as Company.
   member_schema:
     options:
@@ -99,17 +112,22 @@ lookups:
           - KAMUYU AYDINLATMA PLATFORMU
           - TÜRKİYE SERMAYE PİYASALARI BİRLİĞİ
         value: Organization
+  # Placeholders entered as the trade registry number, and the regulator's
+  # made-up number.
+  trade_reg_no:
+    options:
+      - match: ["1", "a", "A", "-", "112233445566"]
+        value: null
   # Rows in the shareholder tables that describe the remainder of the capital
   # rather than a shareholder: "other" (diğer), "publicly held" (halka açık),
-  # "public offering" (halka arz), "total" (toplam), "none" (yoktur),
-  # "traded on the exchange" (işlem gören, BİST).
+  # "total" (toplam).
   shareholder:
     lowercase: true
     normalize: true
     options:
-      - match: [yoktur, toplam, bist]
+      - match: toplam
         value: skip
-      - contains: [diger, halka acik, halka arz, islem goren]
+      - contains: [diger, halka acik]
         value: skip
   # Numbers the filer mistyped, mapped to the source's Turkish number format.
   number:
@@ -150,8 +168,7 @@ lookups:
         value: null
   type.string:
     options:
-      # "Please select", left over from the filing form.
-      - match: ["-", "Seçim Yapınız"]
+      - match: "-"
         value: null
       # "Operating licence obtained from the Capital Markets Board"
       - match: Sermaye Piyasası Kurulundan Faaliyet Yetki Belgesi alınmıştır.
