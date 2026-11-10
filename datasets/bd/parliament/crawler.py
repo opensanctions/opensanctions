@@ -118,11 +118,15 @@ def crawl_member(
         elif status == "died":
             h.apply_date(person, "deathDate", end_date)
         person.add("political", term.pop("party")["nameEng"])
-        constituency = term.pop("constituency") or {}
+        constituency_term = term.pop("constituency")
+        constituency = None
+        if constituency_term is not None:
+            constituency = constituency_term.pop("constituencyEng")
         start_date = term.pop("startDate")
         election_date = term.pop("electionDate")
 
-        posts = [(position, categorisation)]
+        # Members represent a constituency; the Speaker and Deputy Speaker offices don't.
+        posts = [(position, categorisation, constituency)]
         if status == "active" and designation not in (None, ""):
             office_role = h.make_position(
                 context, name=designation, country="bd", lang="eng"
@@ -132,9 +136,9 @@ def crawl_member(
             office_categorisation = categorise(
                 context, office_role, default_is_pep=None
             )
-            posts.append((office_role, office_categorisation))
+            posts.append((office_role, office_categorisation, None))
 
-        for post, post_categorisation in posts:
+        for post, post_categorisation, post_constituency in posts:
             if not post_categorisation.is_pep:
                 continue
             occupancy = h.make_occupancy(
@@ -151,8 +155,7 @@ def crawl_member(
             )
             if occupancy is None:
                 continue
-            if post is position:
-                occupancy.add("constituency", constituency.get("constituencyEng"))
+            occupancy.add("constituency", post_constituency)
             context.emit(occupancy)
             context.emit(post)
             context.emit(person)
