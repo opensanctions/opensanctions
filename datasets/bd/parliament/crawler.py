@@ -19,6 +19,8 @@ MEMBER_IGNORE = [
     "professionBn",
     "electionCount",
     # Not extracted for PEPs.
+    "email",
+    "additionalEmail",
     "mobile",
     "additionalMobile",
     "presentAddressEng",
@@ -29,8 +31,6 @@ MEMBER_IGNORE = [
     "signUrl",
     # Speaker profile page content.
     "speakerProfileImage",
-    "speakerDesignationEn",
-    "speakerDesignationBn",
     "speakerHeroSummaryEn",
     "speakerHeroSummaryBn",
     "speakerDetailsBioEn",
@@ -51,6 +51,11 @@ TERM_IGNORE = [
     # Read from the parliaments list instead.
     "parliamentNo",
     "parliament",
+    # Role flags without office text; the office comes from the member's designation.
+    "isPm",
+    "isSpeaker",
+    "isDeputySpeaker",
+    "isOppositionLeader",
     "createdAt",
     "updatedAt",
 ]
@@ -61,7 +66,10 @@ def fetch_prop(context: Context, key: str, **params: Any) -> Any:
     aren't line-delimited."""
     # Larger limits return an empty list.
     params["limit"] = 500
-    text = context.fetch_text(context.data_url, params=params, headers={"RSC": "1"})
+    # Served as text/x-component without a charset, which would decode as Latin-1.
+    text = context.fetch_text(
+        context.data_url, params=params, headers={"RSC": "1"}, encoding="utf-8"
+    )
     assert text is not None
     start = text.index(f'"{key}":') + len(key) + 3
     return json.JSONDecoder().raw_decode(text, start)[0]
@@ -76,6 +84,10 @@ def crawl_member(
 ) -> None:
     name = member.pop("nameEng")
     dob = member.pop("dateOfBirth")
+    # Set only for the sitting Speaker and Deputy Speaker, e.g. "Speaker, Bangladesh
+    # Parliament"; empty or null for everyone else.
+    designation = member.pop("speakerDesignationEn")
+    designation_bn = member.pop("speakerDesignationBn")
 
     person = context.make("Person")
     # Source member ids are per parliament, so they don't link terms.
@@ -90,14 +102,11 @@ def crawl_member(
     person.add("motherName", member.pop("motherNameBng"), lang="ben")
     h.apply_date(person, "birthDate", dob)
     person.add("gender", member.pop("gender"))
-    person.add("email", member.pop("email"))
-    person.add("email", member.pop("additionalEmail"))
     person.add("citizenship", "bd")
 
     # A sitting parliament's (status 1) last date is only scheduled.
     period_end = None if parliament["status"] == 1 else parliament["parliamentLastDate"]
 
-    emit = False
     for term in member.pop("terms"):
         status = context.lookup_value(
             "term_status", term.pop("status"), warn_unmatched=True
@@ -114,19 +123,16 @@ def crawl_member(
         election_date = term.pop("electionDate")
 
         posts = [(position, categorisation)]
-        for flag in ("isPm", "isSpeaker", "isDeputySpeaker", "isOppositionLeader"):
-            if term.pop(flag):
-                res = context.lookup("position", flag)
-                assert res is not None, flag
-                office = h.make_position(
-                    context,
-                    name=res.name,
-                    country="bd",
-                    topics=res.topics,
-                    wikidata_id=res.wikidata_id,
-                    lang="eng",
-                )
-                posts.append((office, categorise(context, office)))
+        if status == "active" and designation not in (None, ""):
+            office_role = h.make_position(
+                context, name=designation, country="bd", lang="eng"
+            )
+            office_role.add("name", designation_bn, lang="ben")
+            # Emitted once the office is categorised as PEP in the review UI.
+            office_categorisation = categorise(
+                context, office_role, default_is_pep=None
+            )
+            posts.append((office_role, office_categorisation))
 
         for post, post_categorisation in posts:
             if not post_categorisation.is_pep:
@@ -149,12 +155,10 @@ def crawl_member(
                 occupancy.add("constituency", constituency.get("constituencyEng"))
             context.emit(occupancy)
             context.emit(post)
-            emit = True
+            context.emit(person)
 
         context.audit_data(term, ignore=TERM_IGNORE)
 
-    if emit:
-        context.emit(person)
     context.audit_data(member, ignore=MEMBER_IGNORE)
 
 
@@ -181,6 +185,12 @@ def crawl(context: Context) -> None:
             context.log.info("Parliament predates the PEP window", parliament=number)
             break
         response = fetch_prop(context, "memberResponse", parliamentNo=number)
-        assert response["total"] == len(response["data"]) > 0, number
+        if not response["total"] == len(response["data"]) > 0:
+            context.log.warning(
+                "Member list is empty or truncated",
+                parliament=number,
+                total=response["total"],
+                returned=len(response["data"]),
+            )
         for member in response["data"]:
             crawl_member(context, position, categorisation, parliament, member)
