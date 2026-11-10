@@ -107,6 +107,16 @@ def hash_value(value: str) -> str:
     return NORM_TEXT.sub("", value).lower()
 
 
+def stable_first(entity: Entity, prop: str) -> str | None:
+    """The lowest value of a property, or None when it has no value.
+
+    `Entity.first()` returns whichever value a set yields first, and string hashing is
+    randomised per process, so for a multi-valued property it can differ from one export run
+    to the next. Taking the minimum gives the same value for the same input on every run.
+    """
+    return min(entity.get(prop, quiet=True), default=None)
+
+
 # Only a deduplicated entity's id is an identity: `NK-` (assigned when OpenSanctions merges records)
 # or a Wikidata QID (its canonical id for well-known persons). Any other id is a dataset-scoped source
 # id (`br-pep-...`, `ru-inn-...`) for a record OpenSanctions has not yet deduplicated, so two of them
@@ -399,16 +409,17 @@ class SenzingExporter(Exporter):
         map(entity, "email", record, "CONTACTS", "EMAIL_ADDRESS")
         map(entity, "phone", record, "CONTACTS", "PHONE_NUMBER")
         # A single best country to qualify exclusive identifiers. Registration ids use the
-        # legal jurisdiction; a passport uses the holder's nationality.
+        # legal jurisdiction; a passport uses the holder's nationality. stable_first() keeps
+        # the choice the same across runs when a property holds several countries.
         id_country = (
-            entity.first("jurisdiction", quiet=True)
-            or entity.first("country", quiet=True)
-            or entity.first("mainCountry", quiet=True)
-            or entity.first("nationality", quiet=True)
+            stable_first(entity, "jurisdiction")
+            or stable_first(entity, "country")
+            or stable_first(entity, "mainCountry")
+            or stable_first(entity, "nationality")
         )
         passport_country = (
-            entity.first("nationality", quiet=True)
-            or entity.first("citizenship", quiet=True)
+            stable_first(entity, "nationality")
+            or stable_first(entity, "citizenship")
             or id_country
         )
         map(
@@ -550,7 +561,7 @@ class SenzingExporter(Exporter):
                     num_attr, type_attr, ctry_attr = ID_ATTRS[family]
                     adj_data = {
                         num_attr: adj.first("number"),
-                        ctry_attr: adj.first("country") or default_country,
+                        ctry_attr: stable_first(adj, "country") or default_country,
                     }
                     if type_attr is not None:
                         adj_data[type_attr] = scheme
