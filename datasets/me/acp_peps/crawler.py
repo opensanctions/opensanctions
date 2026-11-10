@@ -127,10 +127,8 @@ def emit_affiliated_position(
     function: str,
     affiliation_data: dict[str, str],
     filing_date: str,
-) -> bool:
-    """Creates Position and Occupancy after categorization.
-
-    Returns True if an Occupancy was emitted.
+) -> None:
+    """Emits Position, Occupancy and the person after categorization.
 
     A position's name includes the function and the organization name.
 
@@ -163,7 +161,7 @@ def emit_affiliated_position(
 
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
-        return False
+        return
 
     occupancy = h.make_occupancy(
         context,
@@ -176,12 +174,11 @@ def emit_affiliated_position(
     )
     # If the person should not be considered a PEP, don't emit the occupancy or position.
     if occupancy is None:
-        return False
+        return
 
-    person.add("topics", "role.pep")
     context.emit(position)
     context.emit(occupancy)
-    return True
+    context.emit(person)
 
 
 # Verified Jan 2025 that when SRODSTVO == Funkcioner,
@@ -232,19 +229,17 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
 
     person.add("citizenship", "me")
 
-    has_occupancy = False
     if function_rows:
         assert latest_filing_date is not None
         for row in function_rows:
             function = row.pop("FUNKCIJA")
-            if emit_affiliated_position(
+            emit_affiliated_position(
                 context,
                 person=person,
                 function=function,
                 affiliation_data=row,
                 filing_date=latest_filing_date,
-            ):
-                has_occupancy = True
+            )
     else:
         for label in function_labels:
             position = h.make_position(context, label, country="me")
@@ -261,18 +256,14 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
             )
             if occupancy is None:
                 continue
+            person.add("topics", categorisation.topics)
             context.emit(position)
             context.emit(occupancy)
-            person.add("topics", categorisation.topics)
-            has_occupancy = True
+            context.emit(person)
 
-    if not has_occupancy:
-        return bool(relatives_rows or function_rows)
-
+    # The person only carries topics if an occupancy was emitted above.
     if "gov.national" in set(person.get("topics")):
         crawl_relatives(context, person, relatives_rows)
-
-    context.emit(person)
 
     # True if we got some valid rows from the Zip file
     return bool(relatives_rows or function_rows)
