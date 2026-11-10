@@ -6,7 +6,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
 
-
 FUGITIVES_URL_PREFIX = "https://www.politie.nl/en/wanted/fugitives"
 
 FIELDS = {
@@ -41,6 +40,9 @@ FIELDS = {
     "case": None,
     "police_region": None,
     "speaks": None,
+    "sentences": "notes",
+    "convicted_in_the_netherlands_for": "notes",
+    "whereabouts": None,
 }
 
 
@@ -87,6 +89,9 @@ def crawl_person(context: Context, source_url: str) -> None:
     for field, value in facts.items():
         if field == "date_of_birth":
             h.apply_date(person, "birthDate", value.replace(" ", ""))
+            continue
+        if field == "also_known_as":
+            person.add("alias", h.multi_split(value.rstrip("."), [", ", " en "]))
             continue
 
         if field not in FIELDS:
