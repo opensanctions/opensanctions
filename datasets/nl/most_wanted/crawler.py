@@ -13,6 +13,7 @@ FIELDS = {
     "name": "name",
     "alias": "alias",
     "nicknames": "alias",
+    "also_known_as": "alias",
     "gender": "gender",
     "sex": "gender",
     "nationality": "nationality",
@@ -41,6 +42,9 @@ FIELDS = {
     "case": None,
     "police_region": None,
     "speaks": None,
+    "whereabouts": None,
+    "sentences": None,
+    "convicted_in_the_netherlands_for": None,
 }
 
 

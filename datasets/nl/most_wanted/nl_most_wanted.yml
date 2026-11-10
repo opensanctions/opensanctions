@@ -56,3 +56,10 @@ lookups:
         values:
           - Spain
           - Morocco
+  type.name:
+    options:
+      - match: Bolle Jos, Omar Sharif en Omar Sherrif.
+        values:
+          - Bolle Jos
+          - Omar Sharif
+          - Omar Sherrif
