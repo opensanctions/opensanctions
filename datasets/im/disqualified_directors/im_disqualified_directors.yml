@@ -20,6 +20,9 @@ description: |
    - a person who, in any way, whether directly or indirectly, is concerned or takes part in the promotion, formation or management of a company.
 
   The period of disqualification can range from a minimum of 2 years to a maximum of 15 years.
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: The Isle of Man Financial Services Authority
   acronym: IOMFSA

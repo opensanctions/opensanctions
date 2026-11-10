@@ -16,6 +16,7 @@ description: |
 tags:
   - sector.banking
   - list.enforcement
+  - risk.misconduct
 publisher:
   name: Financial Crimes Enforcement Network
   acronym: FinCEN

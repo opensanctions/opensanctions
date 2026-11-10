@@ -24,6 +24,8 @@ description: |
 
 tags:
   - sector.financial
+  - list.debarment
+  - risk.misconduct
 url: https://www.dfsa.ae/public-register/prohibited-individuals
 publisher:
   name: Dubai Financial Services Authority

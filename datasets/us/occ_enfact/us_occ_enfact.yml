@@ -20,6 +20,8 @@ description: |
   * [Data dictionary](https://occ.gov/static/ots/enforcement/enforcement-order-definitions.pdf)
 tags:
   - sector.banking
+  - list.enforcement
+  - risk.misconduct
 url: https://apps.occ.gov/EASearch/
 publisher:
   name: "Office of the Comptroller of the Currency"
