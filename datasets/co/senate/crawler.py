@@ -1,20 +1,8 @@
-import re
-from html import unescape
-
 from lxml.etree import _Element as Element
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 from zavod import Context, Entity
 from zavod import helpers as h
-
-
-def decode_email(record: Element) -> str:
-    # Joomla's email cloak spells the address out in JavaScript as entity-encoded
-    # string literals: `var addy_text<hash> = '...' + '...';`
-    script = h.xpath_string(record, ".//script/text()")
-    match = re.search(r"var addy_text[0-9a-f]+ = ((?:'[^']*'(?: \+ )?)+);", script)
-    assert match is not None, script
-    return unescape("".join(re.findall(r"'([^']*)'", match.group(1))))
 
 
 def crawl_record(
@@ -34,7 +22,6 @@ def crawl_record(
     )
 
     person.add("sourceUrl", h.xpath_strings(record, ".//blockquote//a/@href"))
-    person.add("email", decode_email(record))
     # Senators must be Colombian by birth: Constitución Política de Colombia (1991),
     # Art. 172. http://www.secretariasenado.gov.co/senado/basedoc/constitucion_politica_1991_pr005.html
     person.add("citizenship", "co")
