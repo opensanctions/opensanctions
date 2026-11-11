@@ -3,6 +3,7 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 # get path to all convocations from metadata url
@@ -75,7 +76,8 @@ def crawl_member(
 
 
 def crawl(context: Context) -> None:
-    metadata = context.fetch_json(context.data_url)
+    # data.rada.gov.ua refuses connections from our hosting IPs.
+    metadata = zyte_api.fetch_json(context, context.data_url)
     for item in metadata["item"]:
         match = SKL_RE.match(item.get("path", ""))
         if match is None:
@@ -83,5 +85,5 @@ def crawl(context: Context) -> None:
         convocation = int(match.group(1))
         print(f"Crawling convocation {convocation}...")
         data_url = f"https://data.rada.gov.ua/ogd/mps/skl{convocation}/mps{convocation:02d}-data.json"
-        for row in context.fetch_json(data_url):
+        for row in zyte_api.fetch_json(context, data_url):
             crawl_member(context, row)
