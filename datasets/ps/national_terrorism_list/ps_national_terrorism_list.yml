@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2026-10-23
 load_statements: true
-ci_test: false # LLM-based transliteration
+ci_test: false  # LLM-based transliteration
 summary: >-
   Individuals and entities designated as terrorists on the Palestinian national
   list under UN Security Council Resolution 1373
@@ -67,40 +67,40 @@ lookups:
   # parse_xls_sheet slugifies the Arabic headers; map them to English keys.
   columns:
     options:
-      - match: alrqm # الرقم
+      - match: alrqm  # الرقم
         value: number
-      - match: alasm # الإسم
+      - match: alasm  # الإسم
         value: name
-      - match: aljns # الجنس
+      - match: aljns  # الجنس
         value: gender
-      - match: asm_alwald # اسم الوالد
+      - match: asm_alwald  # اسم الوالد
         value: father_name
-      - match: alknyt # الكنية
+      - match: alknyt  # الكنية
         value: alias
-      - match: alkyan_almrtbt # الكيان المرتبط
+      - match: alkyan_almrtbt  # الكيان المرتبط
         value: affiliation
-      - match: alnwan # العنوان
+      - match: alnwan  # العنوان
         value: address
-      - match: tarykh_almylad # تاريخ الميلاد
+      - match: tarykh_almylad  # تاريخ الميلاد
         value: birth_date
-      - match: alwthyqt_alshkhsyt # الوثيقة الشخصية
+      - match: alwthyqt_alshkhsyt  # الوثيقة الشخصية
         value: doc_type
-      - match: rqm_alwthyqt # رقم الوثيقة
+      - match: rqm_alwthyqt  # رقم الوثيقة
         value: doc_number
-      - match: asm_alam # اسم الأم
+      - match: asm_alam  # اسم الأم
         value: mother_name
-      - match: aljnsyt # الجنسية
+      - match: aljnsyt  # الجنسية
         value: nationality
-      - match: tarykh_aladraj # تاريخ الإدراج
+      - match: tarykh_aladraj  # تاريخ الإدراج
         value: listing_date
       # مضمون آخر تعديل (individuals) / آخر تعديل (entities)
       - match: [mdmwn_akhr_tdyl, akhr_tdyl]
         value: amendment
-      - match: tarykh_akhr_tdyl # تاريخ آخر تعديل
+      - match: tarykh_akhr_tdyl  # تاريخ آخر تعديل
         value: amendment_date
-      - match: alasm_alkyan # الإسم الكيان
+      - match: alasm_alkyan  # الإسم الكيان
         value: entity_name
-      - match: alwsf # الوصف
+      - match: alwsf  # الوصف
         value: description
   type.gender:
     options:

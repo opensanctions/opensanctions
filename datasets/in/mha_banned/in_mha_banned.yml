@@ -57,7 +57,7 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 57 # In the name of the doc
+      Person: 57  # In the name of the doc
       Organization: 50
 
 lookups:

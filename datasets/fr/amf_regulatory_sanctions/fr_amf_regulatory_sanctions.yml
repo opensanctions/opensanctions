@@ -36,7 +36,7 @@ data:
   url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
   format: json
 tags:
-  - sector.financial # Focuses on financial market regulations
+  - sector.financial  # Focuses on financial market regulations
   - list.enforcement
   - risk.misconduct
 
