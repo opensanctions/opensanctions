@@ -6,14 +6,14 @@ coverage:
   start: 2026-11-09
 load_statements: true
 summary: >-
-  Upper house of the Congress, elected nationwide for four-year terms
+  Members of the upper house of Colombia's Congress, elected for four-year terms
 description: |
   Current members of the Senate of the Republic (Senado de la República), the upper
-  house of the Congress of Colombia. Its senators are elected by proportional
-  representation in a single nationwide constituency, with further seats reserved for
-  indigenous communities and for the runner-up in the presidential election, for a
-  four-year term. Together with the House of Representatives, the Senate holds
-  the country's legislative power, including passing laws and approving the budget.
+  house of the Congress of Colombia. Senators are elected for a four-year term, mostly
+  by proportional representation in a single nationwide constituency, with further
+  seats reserved for indigenous communities and for the runner-up in the presidential
+  election. Together with the House of Representatives, the Senate holds the country's
+  legislative power, including passing laws and approving the budget.
 url: https://www.senado.gov.co/index.php/el-senado/senadores
 publisher:
   name: Senado de la República de Colombia
