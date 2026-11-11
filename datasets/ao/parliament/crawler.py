@@ -108,7 +108,14 @@ def crawl_member(
     suspended = fields["mandate_suspended"]
     resumed = fields["mandate_resumed"]
     assert len(end_dates) <= 1, (name, end_dates)
-    assert len(suspended) <= 1 and len(resumed) <= len(suspended), (name, fields)
+    if len(suspended) > 1 or len(resumed) > len(suspended):
+        context.log.warning(
+            "Unexpected mandate suspension",
+            name=name,
+            suspended=suspended,
+            resumed=resumed,
+        )
+        return
     end_date = clean_date(end_dates[0]) if end_dates else None
 
     spans: list[tuple[str | None, str | None]]
@@ -116,7 +123,14 @@ def crawl_member(
         spans = [(start_date, end_date)]
     else:
         # A suspension ends the mandate; a resumption starts a new occupancy.
-        assert end_date is None or len(resumed) > 0, (name, fields)
+        if end_date is not None and len(resumed) == 0:
+            context.log.warning(
+                "Mandate lost while suspended",
+                name=name,
+                suspended=suspended,
+                end_date=end_date,
+            )
+            return
         spans = [(start_date, clean_date(suspended[0]))]
         if len(resumed) > 0:
             spans.append((clean_date(resumed[0]), end_date))
@@ -141,7 +155,9 @@ def crawl_member(
         for occupancy in occupancies
         for d in occupancy.get("startDate") + occupancy.get("endDate")
     ]
-    assert dates == sorted(dates), (name, dates)
+    if dates != sorted(dates):
+        context.log.warning("Mandate dates out of order", name=name, dates=dates)
+        return
     for occupancy in occupancies:
         for value in fields["constituency"]:
             res = context.lookup("constituency", value)
