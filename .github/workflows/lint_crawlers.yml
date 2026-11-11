@@ -52,6 +52,9 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          # Try a mirror outside ubuntu.com first, so a Canonical DNS outage
+          # doesn't block installs. The runner's own mirrors remain as fallback.
+          sudo sed -i '1i http://mirrors.edge.kernel.org/ubuntu/\tpriority:0' /etc/apt/apt-mirrors.txt
           sudo apt-get update
           # Python 3.13 requires building pyicu and plyvel from source.
           sudo apt-get install -y -qq libicu-dev libleveldb-dev

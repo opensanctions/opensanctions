@@ -3,7 +3,11 @@ FROM ubuntu:26.04 AS build
 ARG BUILD_DATE=static
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get -qq -y update \
+# Fetch packages from a mirror outside ubuntu.com first, so a Canonical DNS
+# outage doesn't block the build. The official archive remains as fallback.
+RUN printf 'http://mirrors.edge.kernel.org/ubuntu/\tpriority:1\nhttp://archive.ubuntu.com/ubuntu/\tpriority:2\n' > /etc/apt/apt-mirrors.txt \
+    && sed -i -E 's#^URIs: http://(archive|security)\.ubuntu\.com/ubuntu/?$#URIs: mirror+file:/etc/apt/apt-mirrors.txt#' /etc/apt/sources.list.d/ubuntu.sources \
+    && apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
     apt-transport-https ca-certificates build-essential gnupg \
@@ -30,7 +34,11 @@ LABEL org.opencontainers.image.source=https://github.com/opensanctions/opensanct
 ARG BUILD_DATE=static
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get -qq -y update \
+# Fetch packages from a mirror outside ubuntu.com first, so a Canonical DNS
+# outage doesn't block the build. The official archive remains as fallback.
+RUN printf 'http://mirrors.edge.kernel.org/ubuntu/\tpriority:1\nhttp://archive.ubuntu.com/ubuntu/\tpriority:2\n' > /etc/apt/apt-mirrors.txt \
+    && sed -i -E 's#^URIs: http://(archive|security)\.ubuntu\.com/ubuntu/?$#URIs: mirror+file:/etc/apt/apt-mirrors.txt#' /etc/apt/sources.list.d/ubuntu.sources \
+    && apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
     locales apt-transport-https ca-certificates gnupg \
