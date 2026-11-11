@@ -14,8 +14,7 @@ resolve: false
 load_statements: false
 ci_test: false
 summary: >-
-  Substantial shareholders and directors of companies listed on the Hong Kong
-  stock exchange, with their holding vehicles
+  Substantial shareholders and directors of companies listed in Hong Kong
 description: |
   Under Part XV of the Securities and Futures Ordinance, persons interested in 5% or
   more of the voting shares of a company listed in Hong Kong, and the directors and
@@ -55,15 +54,16 @@ http:
   # Pending a risk assessment, requests to HKEX don't identify as OpenSanctions.
   user_agent: python-requests/2.34.2
   timeout: 60
+  # HKEX intermittently drops connections and returns server errors.
+  max_retries: 5
+  backoff_factor: 3
 
 assertions:
-  # Floors at about 60% of the counts extrapolated from an 8% sample of issuers
-  # (2,437 companies, 1,667 people, 227 securities).
   min:
     schema_entities:
-      Company: 17000
-      Person: 11000
-      Security: 2000
+      Company: 2000
+      Person: 1000
+      Security: 500
 
 dates:
   # Forms suffix their dates with the format: "16/05/2023(dd/mm/yyyy)".

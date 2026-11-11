@@ -1,5 +1,4 @@
 import re
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import parse_qs, urljoin, urlparse
@@ -8,7 +7,6 @@ from followthemoney import registry
 from lxml.etree import _Element as Element
 from normality import normalize
 from python_calamine import CalamineWorkbook
-from requests.exceptions import RequestException
 
 from zavod import Context, settings
 from zavod import helpers as h
@@ -58,10 +56,8 @@ class Issuer:
 
 
 class Ownerships:
-    """Collect ownership links and keep, for each owner, asset and share class,
-    the one from the most recent notice: notices by different filers, or a
-    director's and a shareholder's notice by the same person, report the same
-    link as at different dates."""
+    """Keep each ownership link from its most recent notice, since several
+    notices can report the same link as at different dates."""
 
     def __init__(self) -> None:
         self.latest: dict[str, tuple[str, Entity]] = {}
@@ -81,22 +77,13 @@ class Ownerships:
 def fetch_page(
     context: Context, url: str, marker: str, cache_days: int | None = None
 ) -> Element:
-    """Fetch a page, retrying with growing pauses after a connection error or
-    while HKEX serves its error page instead. The marker is the ID of a label
-    that only real pages carry."""
-    for attempt in range(5):
-        if attempt > 0:
-            time.sleep(10 * 2**attempt)
-        try:
-            doc = context.fetch_html(url, cache_days=cache_days, absolute_links=True)
-        except RequestException as exc:
-            context.log.info("Request failed, retrying", url=url, error=str(exc))
-            continue
-        if len(h.xpath_elements(doc, f'//span[@id="{marker}"]')) == 1:
-            return doc
+    """Fetch a page, failing on the error page HKEX serves in its place. The
+    marker is the ID of a label that only real pages carry."""
+    doc = context.fetch_html(url, cache_days=cache_days, absolute_links=True)
+    if len(h.xpath_elements(doc, f'//span[@id="{marker}"]')) != 1:
         context.clear_url(url)
-        context.log.info("Error page, retrying", url=url, attempt=attempt)
-    raise ValueError(f"HKEX keeps failing: {url}")
+        raise ValueError(f"HKEX error page: {url}")
+    return doc
 
 
 def label(doc: Element, id: str) -> str | None:
@@ -107,8 +94,7 @@ def label(doc: Element, id: str) -> str | None:
 
 
 def is_blank(cells: list[Element]) -> bool:
-    """Tell whether a table row is empty, or holds only the "Nil" that some
-    filers enter in the first cell of an empty table."""
+    """Tell whether a row is empty, or holds only the "Nil" some filers enter."""
     texts = [h.element_text(cell) for cell in cells]
     return all(text in ("", "Nil") for text in texts)
 
@@ -124,8 +110,8 @@ def table_rows(doc: Element, id: str) -> list[dict[str, Element]]:
 
 
 def nested_rows(doc: Element, id: str) -> list[list[Element]]:
-    """Read a form table whose share counts sit in tables nested inside cells,
-    which `h.parse_html_table` would read as rows of the outer table."""
+    """Read a table with tables nested in its cells, which `h.parse_html_table`
+    would read as rows of the outer table."""
     rows: list[list[Element]] = []
     for tr in h.xpath_elements(doc, f'//table[@id="{id}"]/tr')[1:]:
         cells = tr.findall("./td")
@@ -144,8 +130,7 @@ def form_link(cell: Element) -> tuple[str, str] | None:
 
 
 def split_resigned(name: str | None) -> tuple[str | None, str | None]:
-    """Split off the "(Resigned on 01/10/2016)" that HKEX appends to the name of
-    a director who resigned, returning the name and the date."""
+    """Split off the "(Resigned on 01/10/2016)" HKEX appends to a director's name."""
     if name is None:
         return None, None
     match = re.match(r"^(.*?)\s*\(Resigned on ([\d/]+)\)$", name)
@@ -155,8 +140,8 @@ def split_resigned(name: str | None) -> tuple[str | None, str | None]:
 
 
 def name_key(context: Context, name: str | None) -> str | None:
-    """Key a name so that rows referring to one party as "Mr. Bernard Chan
-    Charnwut" and "Chan Bernard Charnwut" match."""
+    """Key a name so that "Mr. Bernard Chan Charnwut" and "Chan Bernard
+    Charnwut" match."""
     norm = normalize(h.strip_name_titles(context, name), lowercase=True, ascii=True)
     if norm is None:
         return None
@@ -164,11 +149,9 @@ def name_key(context: Context, name: str | None) -> str | None:
 
 
 def reference_names(name: str) -> list[str]:
-    """Return the forms under which other rows of a form may refer to a company:
-    its name without a defined term ("Henderson Development Limited ("HD")") or a
-    former name ("Prosus N.V. (formerly known as "Myriad ...")"), and the defined
-    term itself. These only resolve references; the emitted names go through the
-    name review."""
+    """Return the names other rows of a form may use for a company: without a
+    defined term ("Henderson Development Limited ("HD")") or former name, and
+    the defined term itself."""
     names = [name]
     match = re.match(r"^(.*?)\s*\(\s*[\"“]([^\"”()]+)[\"”]\s*\)$", name)
     if match is not None:
@@ -181,8 +164,8 @@ def reference_names(name: str) -> list[str]:
 
 
 def split_place(text: str) -> tuple[str, str | None]:
-    """Split an address into the address and the place of incorporation that
-    the form appends in parentheses ("..., Grand Cayman (Cayman Islands)")."""
+    """Split the place of incorporation off an address: "..., Grand Cayman
+    (Cayman Islands)"."""
     match = re.match(r"^(.*?)\s*\(([^()]+)\)$", text, re.S)
     if match is None:
         return text, None
@@ -195,15 +178,34 @@ def read_listings(context: Context, path: Path) -> list[list[Listing]]:
     wb = CalamineWorkbook.from_path(path)
     groups: dict[str, list[Listing]] = {}
     for row in h.parse_xlsx_sheet(context, wb.get_sheet_by_index(0), skiprows=2):
-        if row.get("category") != "Equity":
+        if row.pop("category") != "Equity":
             continue
-        code = row.get("stock_code")
-        name = row.get("name_of_securities")
+        code = row.pop("stock_code")
+        name = row.pop("name_of_securities")
         assert code is not None and name is not None, row
-        isin = (row.get("isin") or "").strip() or None
-        currency = row.get("trading_currency")
+        isin = row.pop("isin")
+        currency = row.pop("trading_currency")
         listing = Listing(code=code, name=name, isin=isin, currency=currency)
         groups.setdefault(isin or code, []).append(listing)
+        context.audit_data(
+            row,
+            ignore=[
+                "sub_category",
+                "board_lot",
+                "expiry_date",
+                "subject_to_stamp_duty",
+                "shortsell_eligible",
+                "cas_eligible",
+                "vcm_eligible",
+                "admitted_to_ccass",
+                "debt_securities_board_lot_nominal",
+                "debt_securities_investor_type",
+                "pos_eligible",
+                "spread_table1_part_a3_part_b5_part_d4_6_part_e",
+                # The RMB counter is listed in a row of its own.
+                "rmb_counter",
+            ],
+        )
     for group in groups.values():
         group.sort(key=lambda listing: listing.currency != "HKD")
     return list(groups.values())
@@ -270,8 +272,8 @@ def make_ownership(
     percentage: str | None,
     share_class: str | None = None,
 ) -> Entity:
-    """Make an ownership link; a holding in a listed company is one per class
-    of shares, since its percentage is of the issued shares in that class."""
+    """Make an ownership link, one per share class for a holding in a listed
+    company, since its percentage is of the issued shares in that class."""
     ownership = context.make("Ownership")
     ownership.id = context.make_id("ownership", owner.id, asset.id, share_class)
     ownership.add("owner", owner)
@@ -296,8 +298,7 @@ def make_ownership(
 def make_filer(
     context: Context, doc: Element, issuer: Issuer, kind: str, list_name: str
 ) -> tuple[Entity, list[str]]:
-    """Make the entity that filed the form, with the names under which other
-    rows of the form refer to it."""
+    """Make the filer of a form, with the names other rows of the form use for it."""
     if kind == "NSForm2":
         raw_name = label(doc, "lblDName")
         assert raw_name is not None
@@ -346,7 +347,7 @@ def crawl_controlled(
         ]
         address, place = split_place(address)
         corp = context.make("Company")
-        corp.id = context.make_id("company", raw_name, place)
+        corp.id = context.make_id("company", filer.id, raw_name, place)
         h.apply_reviewed_name_string(context, corp, string=raw_name, llm_cleaning=True)
         corp.add("address", address)
         if place is not None:
@@ -385,7 +386,9 @@ def crawl_controlled(
         # The % control is theirs jointly, so their links carry no percentage.
         parties = [p.strip() for p in controller.split(";") if p.strip()]
         for party in parties:
-            parent = resolve_controller(context, known, party, issuer_entity, url)
+            parent = resolve_controller(
+                context, known, party, filer, issuer_entity, url
+            )
             if parent is None or parent.id == corp.id:
                 continue
             joint = percent if len(parties) == 1 else None
@@ -407,12 +410,12 @@ def resolve_controller(
     context: Context,
     known: dict[str, Entity],
     controller: str,
+    filer: Entity,
     issuer_entity: Entity,
     url: str,
 ) -> Entity | None:
     """Find the entity a form row names as controlling person, or make one for
-    a controller that no other row of the form describes, such as the trustee of
-    a family trust."""
+    a controller no row of the form describes, such as a family trust's trustee."""
     key = name_key(context, controller)
     if key is None:
         return None
@@ -428,7 +431,7 @@ def resolve_controller(
         issuer=issuer_entity.id,
     )
     parent = context.make("LegalEntity")
-    parent.id = context.make_id("controller", controller)
+    parent.id = context.make_id("controller", filer.id, controller)
     h.apply_reviewed_name_string(
         context,
         parent,
@@ -479,11 +482,11 @@ def crawl_form(
     list_name: str,
     ownerships: Ownerships,
 ) -> Entity:
-    """Crawl a notice form, given the form link of a list row. Forms in the
-    archive of notices filed before the electronic filing system label their
-    serial "lblDLogNo" and are linked by a number rather than by the serial."""
+    """Crawl a notice form, given the form link of a list row."""
     fn = parse_qs(urlparse(link).query)["fn"][0]
     url = urljoin(link, f"{kind}.aspx?fn={fn}")
+    # Forms in the archive of notices filed before the electronic filing system
+    # label their serial differently, and are linked by a number.
     serial_label = "lblDLogNo" if "/filing/di/" in url else "lblDSerialNo"
     # A form never changes: an amendment is filed as a new form with its own
     # serial, which appends "(Amendment to <serial>)" to the form's serial label.
@@ -606,9 +609,9 @@ def crawl_archived_shareholders(
     crawled: dict[str, Entity],
     ownerships: Ownerships,
 ) -> None:
-    """Crawl the substantial shareholders whose last notice was filed before
-    the electronic filing system, unless they filed any notice through it since:
-    a holder that fell below 5% filed one but is no longer listed."""
+    """Crawl the substantial shareholders whose last notice predates the
+    electronic filing system, unless they filed through it since: a holder that
+    fell below 5% filed a notice but is no longer listed."""
     # The archive can list a holder twice, with notices years apart: keep the
     # most recent.
     latest: dict[str, dict[str, Element]] = {}
@@ -645,6 +648,8 @@ def crawl_issuer(
                 entity.add("previousName", name)
     entity.add("topics", "corp.public")
     entity.add("sourceUrl", issuer.classes[0].shareholders_url)
+    for listing in listings or []:
+        entity.add("ticker", listing.code)
     context.emit(entity)
 
     if listings is not None:
@@ -654,6 +659,7 @@ def crawl_issuer(
             security.add("issuer", entity)
             security.add("name", primary.name)
             for listing in listings:
+                security.add("ticker", listing.code)
                 security.add("currency", listing.currency)
             context.emit(security)
 
@@ -697,8 +703,9 @@ def crawl_issuer(
                 )
             director = crawled[serial]
         else:
-            # Directors with interests in associated corporations only (Form 3B).
-            if link is not None:
+            # A Form 3B covers interests in associated corporations only, so it
+            # holds no interest in the issuer.
+            if link is not None and link[0] != "NSForm3B":
                 context.log.warning("Unknown director form", kind=link[0], name=name)
             director = context.make("Person")
             director.id = context.make_id("person", issuer.sid, name)
@@ -730,9 +737,8 @@ def crawl_issuer(
 def match_archived(
     context: Context, code: str, issuer: Issuer, archived: list[Issuer]
 ) -> Issuer | None:
-    """Find the issuer in the archive of notices filed before the electronic
-    filing system that is the same company: a stock code can have belonged to
-    a company since delisted, so its names must match."""
+    """Find the archived issuer that is the same company: a stock code can have
+    belonged to a company since delisted, so its names must match."""
 
     # An archived issuer with one share class can still carry its class:
     # "Industrial and Commercial Bank of China Ltd. - H Shares".
