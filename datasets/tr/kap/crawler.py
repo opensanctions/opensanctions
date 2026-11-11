@@ -20,7 +20,6 @@ OFFICER_IGNORE = [
     "positionsHeldInTheCompanyInTheLastFiveYears",
     "currentPositionsHeldOutsideTheCompany",
     "fiveYearsExperience",
-    "shareInCapital",
     "theShareGroupThatTheBoardMemberRepresenting",
     "independentBoardMemberOrNot",
     "executiveOrNon",
@@ -215,7 +214,7 @@ def make_ownership(
     owner: str,
     asset: str,
     ownership_type: str | None,
-    ratio: str | None,
+    percentage: str | None,
     shares: str | None,
     currency: str | None,
 ) -> Entity:
@@ -224,13 +223,12 @@ def make_ownership(
     ownership.add("ownershipType", ownership_type)
     ownership.add("owner", owner)
     ownership.add("asset", asset)
-    percentage = parse_number(context, ratio)
     if percentage is not None and float(percentage) > 100:
         # Some filers swap the share value and ratio columns.
-        context.log.info("Percentage out of range", asset=asset, value=ratio)
+        context.log.info("Percentage out of range", asset=asset, value=percentage)
     else:
         ownership.add("percentage", percentage)
-    ownership.add("sharesValue", parse_number(context, shares))
+    ownership.add("sharesValue", shares)
     ownership.add("sharesCurrency", currency)
     return ownership
 
@@ -288,7 +286,13 @@ def crawl_shareholder(
 
     assert company.id is not None and owner_id is not None
     ownership = make_ownership(
-        context, owner_id, company.id, ownership_type, ratio, shares, currency
+        context,
+        owner_id,
+        company.id,
+        ownership_type,
+        parse_number(context, ratio),
+        parse_number(context, shares),
+        currency,
     )
     context.emit(ownership)
 
@@ -296,6 +300,8 @@ def crawl_shareholder(
 def crawl_officer(context: Context, company: Entity, row: dict[str, Any]) -> None:
     name = row.pop("nameSurname")
     agent_name = row.pop("personWhoBehavesOnBehalfOfLegalPersonBoardMember", None)
+    # The officer's percentage of the capital, typed with either decimal mark.
+    stake: str | None = row.pop("shareInCapital", None)
     if name is None or name.strip() == "":
         # The filer entered the member in the representative column.
         name, agent_name = agent_name, None
@@ -318,6 +324,19 @@ def crawl_officer(context: Context, company: Entity, row: dict[str, Any]) -> Non
     person.add("gender", option(row.pop("gender", None), "key"))
     person.add("profession", option(row.pop("profession"), "text"))
     context.emit(officer)
+
+    assert company.id is not None and officer.id is not None
+    if stake is not None and stake.strip() != "":
+        percentage = stake.strip().replace(",", ".")
+        if re.fullmatch(r"\d+(\.\d+)?", percentage) is None:
+            context.log.warning(
+                "Cannot parse officer stake", company=company.id, value=stake
+            )
+        elif float(percentage) > 0:
+            ownership = make_ownership(
+                context, officer.id, company.id, None, percentage, None, None
+            )
+            context.emit(ownership)
 
     role = option(row.pop("title"), "text")
     directorship = context.make("Directorship")
@@ -378,7 +397,13 @@ def crawl_subsidiary(
 
     assert company.id is not None and subsidiary_id is not None
     ownership = make_ownership(
-        context, company.id, subsidiary_id, None, ratio, shares, currency
+        context,
+        company.id,
+        subsidiary_id,
+        None,
+        parse_number(context, ratio),
+        parse_number(context, shares),
+        currency,
     )
     ownership.add("role", relation)
     context.emit(ownership)
