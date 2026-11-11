@@ -49,12 +49,10 @@ def crawl_member(
     context.audit_data(
         row,
         ignore=[
-            # Not extracted for PEPs.
             "Correo",
             "Telefono",
             "Oficina",
             "Imagen",
-            # No matching property.
             "Votos",
             "Comision",
             "Comisiones",
@@ -103,13 +101,7 @@ def crawl(context: Context) -> None:
         # Some years before 2014 have no members.
         if data["departamentos"] == []:
             if is_current:
-                context.log.warning(
-                    "Sitting legislative year has no members", label=label
-                )
-            else:
-                context.log.info(
-                    "No members published for legislative year", label=label
-                )
+                context.log.warning("Sitting year has no members", label=label)
             continue
         for key, members in data["departamentos"].items():
             key_lookup = context.lookup("constituency", key)
