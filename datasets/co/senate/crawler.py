@@ -23,24 +23,17 @@ def crawl_record(
     categorisation: PositionCategorisation,
     record: Element,
 ) -> None:
-    # Published surname-first ("Agudelo García Ana Paola"); compound surnames make
-    # splitting it into given and family names ambiguous.
     name = h.element_text(h.xpath_element(record, ".//h3"))
-    # The party paragraph follows the name. The office and the switchboard phone
-    # extension below it are not extracted: phone numbers are excluded for PEPs.
-    # The paragraphs carry no class, so a card without a party would put its office
-    # in this place.
-    party = h.element_text(h.xpath_element(record, ".//h3/following-sibling::p[1]"))
 
     person = context.make("Person")
     person.id = context.make_id(name)
     person.add("name", name)
-    if party == "" or re.search(r"Edificio|Capitolio|Piso|Of\.", party):
-        context.log.warning("Party missing or an office", name=name, party=party)
-    else:
-        person.add("political", party)
-    for href in h.xpath_strings(record, ".//blockquote//a/@href"):
-        person.add("sourceUrl", href)
+    person.add(
+        "political",
+        h.element_text(h.xpath_element(record, ".//h3/following-sibling::p[1]")),
+    )
+
+    person.add("sourceUrl", h.xpath_strings(record, ".//blockquote//a/@href"))
     person.add("email", decode_email(record))
     # Senators must be Colombian by birth: Constitución Política de Colombia (1991),
     # Art. 172. http://www.secretariasenado.gov.co/senado/basedoc/constitucion_politica_1991_pr005.html
@@ -70,17 +63,16 @@ def crawl(context: Context) -> None:
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        context.log.warning("Position is not categorised as PEP", position=position.id)
         return
     context.emit(position)
 
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     # The page carries the directory twice: a per-letter view, and an all-letters
     # ("Todos") view that holds every senator.
-    results = h.xpath_element(
+    records = h.xpath_element(
         doc, '//div[@class="modazdirectory__results"][h1="Todos"]'
     )
     for record in h.xpath_elements(
-        results, './/div[contains(@class, "modazdirectory__result ")]'
+        records, './/div[contains(@class, "modazdirectory__result ")]'
     ):
         crawl_record(context, position, categorisation, record)
