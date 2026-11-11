@@ -232,6 +232,12 @@ def unmask(value: str | None) -> str | None:
     return value
 
 
+def clean_name(name: str) -> str:
+    """Swap the angle brackets that some names use as quotation marks for
+    guillemets, which do not read as markup."""
+    return name.replace("<", "‹").replace(">", "›")
+
+
 def clean_regon(regon: str | None) -> str | None:
     # The nine-digit REGON of a legal entity is padded with zeros to the
     # fourteen digits of a local unit's number.
@@ -275,7 +281,7 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity | 
 def make_legal_entity(
     context: Context, krs: str, organ: str, item: Data
 ) -> Entity | None:
-    name = item.pop("nazwa")
+    name = clean_name(item.pop("nazwa"))
     assert not item.pop("imiona", None), item
     other_krs = item.pop("krs", {}).pop("krs", None)
     ident = item.pop("identyfikator", {})
@@ -454,7 +460,7 @@ def crawl_extract(context: Context, record: Record) -> None:
     assert schema is not None
     company = context.make(schema)
     company.id = company_id(krs)
-    company.add("name", subject.pop("nazwa"))
+    company.add("name", clean_name(subject.pop("nazwa")))
     company.add("legalForm", legal_form)
     company.add("jurisdiction", "pl")
     company.add("registrationNumber", krs)
@@ -472,6 +478,7 @@ def crawl_extract(context: Context, record: Record) -> None:
         ignore=[
             "czyPosiadaStatusOPP",
             "czyProwadziDzialalnoscZInnymiPodmiotami",
+            "daneOPoprzedniejRejestracjiEZIG",
             "innyRejestr",
             "nazwaFormaPrawnaPrzedsiebiorcyZagranicznego",
             "notyfikacjeBRIS",
@@ -527,6 +534,7 @@ def crawl_extract(context: Context, record: Record) -> None:
             "organSprawujacyNadzor",
             "organPodmiotZalozycielskiMinisterNadzorujacy",
             "informacjeOpisujaceTowarzystwo",
+            "czlonkowieEZIG",
         ],
     )
 
