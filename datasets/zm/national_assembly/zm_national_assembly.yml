@@ -1,0 +1,78 @@
+title: Zambia Members of the National Assembly
+prefix: zm-na
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-10-15
+load_statements: true
+ci_test: false
+summary: >-
+  Constituency, reserved-seat and nominated legislators, with their earlier terms
+description: |
+  Current members of the National Assembly of Zambia, the country's unicameral
+  legislature. Members are elected in single-member constituencies, allocated
+  to parties by proportional representation in seats reserved for women, youth
+  and persons with disabilities, or nominated by the President, all for five-year
+  terms. They hold the country's legislative power, including passing laws and
+  approving the budget.
+
+  Earlier terms of current members are included where the source records them;
+  former members who did not return to the Assembly are not.
+url: https://www.parliament.gov.zm/members-of-parliament
+publisher:
+  name: National Assembly of Zambia
+  acronym: NAZ
+  description: >
+    The National Assembly is the unicameral legislature of Zambia. It publishes
+    profiles of its members, covering their constituency, party and the terms they
+    have served.
+  url: https://www.parliament.gov.zm/
+  country: zm
+  official: true
+data:
+  url: https://www.parliament.gov.zm/members-of-parliament
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Position: 1
+    country_entities:
+      zm: 200
+  max:
+    schema_entities:
+      Person: 400
+      Position: 1
+
+lookups:
+  # The constituency column of the "Parliamentary History" rows. Drops seat labels
+  # that are not a constituency; every other value is passed through.
+  constituency:
+    options:
+      # Nominated members hold no constituency seat.
+      - match: Nominated
+        value: null
+  # The party column of the "Parliamentary History" rows. Every value must be
+  # listed, so a new party or a junk value warns instead of being emitted.
+  political_group:
+    options:
+      - match: UPND
+        value: UPND
+      - match: PF
+        value: PF
+      - match: Independent
+        value: Independent
+      - match: RP
+        value: RP
+      - match: CF
+        value: CF
+      - match: UNIP
+        value: UNIP
+      # Seat type of nominated members, not a party.
+      - match: Nom
+        value: null
