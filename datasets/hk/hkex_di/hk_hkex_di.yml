@@ -23,14 +23,16 @@ description: |
   their interests and of changes to them. The Stock Exchange publishes these
   notices in its Disclosure of Interests service.
 
-  The dataset covers the equity issuers on the Main Board and GEM, and the notices
-  filed through the Exchange's electronic filing system since 3 July 2017. For each
-  issuer, it lists the substantial shareholders and the directors with notices on
-  file, as stated in their most recent notice. Holdings are dated with the event the notice
-  reports and are not necessarily current. Where a notice lists the corporations
-  through which the interest is held, the dataset links each corporation to its
-  controlling person with the stated percentage of control. Spouses named in a
-  director's notice are included.
+  The dataset covers the equity issuers on the Main Board and GEM. For each issuer,
+  it lists the substantial shareholders and the directors with notices on file, as
+  stated in their most recent notice. Directors are taken from the notices filed
+  through the Exchange's electronic filing system since 3 July 2017. Substantial
+  shareholders whose last notice was filed before then, from 1 April 2003, are
+  included from the Exchange's archive of earlier notices. Holdings are dated with
+  the event the notice reports and are not necessarily current. Where a notice
+  lists the corporations through which the interest is held, the dataset links
+  each corporation to its controlling person with the stated percentage of
+  control. Spouses named in a director's notice are included.
 
   Directors are those who have filed a notice for the company. Ceasing to be a
   director does not require a notice, so the list can include former directors,
@@ -112,6 +114,8 @@ lookups:
         value: gb-sct
       - match: Amsterdam, Netherlands
         value: nl
+      - match: Glbraltar
+        value: gi
       - match: Jersey, Channel Islands
         value: je
       - match: Guernsey, Channel Islands

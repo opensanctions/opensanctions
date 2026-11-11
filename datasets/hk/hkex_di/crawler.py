@@ -46,12 +46,14 @@ class Listing:
 class ShareClass:
     shareholders_url: str
     directors_url: str
+    notices_url: str | None
 
 
 @dataclass
 class Issuer:
     sid: str
-    name: str
+    # Every name the issuer was searched under: a rename shows as another row.
+    names: list[str]
     classes: list[ShareClass]
 
 
@@ -112,13 +114,23 @@ def nested_rows(doc: Element, id: str) -> list[list[Element]]:
 
 
 def form_link(cell: Element) -> tuple[str, str] | None:
-    """Return the form page (e.g. "NSForm2") and serial a list cell links to."""
+    """Return the form page (e.g. "NSForm2") and the link of a list cell."""
     links = h.xpath_elements(cell, ".//a[@href]")
     if len(links) == 0:
         return None
-    url = urlparse(links[0].get("href", ""))
-    page = url.path.rsplit("/", 1)[-1].removesuffix(".aspx")
-    return page, parse_qs(url.query)["fn"][0]
+    href = links[0].get("href", "")
+    return urlparse(href).path.rsplit("/", 1)[-1].removesuffix(".aspx"), href
+
+
+def split_resigned(name: str | None) -> tuple[str | None, str | None]:
+    """Split off the "(Resigned on 01/10/2016)" that HKEX appends to the name of
+    a director who resigned, returning the name and the date."""
+    if name is None:
+        return None, None
+    match = re.match(r"^(.*?)\s*\(Resigned on ([\d/]+)\)$", name)
+    if match is None:
+        return name, None
+    return match.group(1) or None, match.group(2)
 
 
 def name_key(context: Context, name: str | None) -> str | None:
@@ -176,12 +188,13 @@ def read_listings(context: Context, path: Path) -> list[list[Listing]]:
     return list(groups.values())
 
 
-def search_issuers(context: Context, code: str) -> list[Issuer]:
-    assert context.dataset.url is not None
+def search_issuers(context: Context, base_url: str, code: str) -> list[Issuer]:
+    """Search the issuers that filed under a stock code, in the electronic
+    filing system or in the archive of notices filed before it (`base_url`)."""
     # Part XV of the Securities and Futures Ordinance took effect on 1 April 2003.
     end_date = settings.RUN_TIME.strftime("%d/%m/%Y")
     url = urljoin(
-        context.dataset.url,
+        base_url,
         f"NSSrchCorpList.aspx?sa1=cl&scsd=01/04/2003&sced={end_date}&sc={code}"
         "&src=MAIN&lang=EN&g_lang=en",
     )
@@ -198,19 +211,18 @@ def search_issuers(context: Context, code: str) -> list[Issuer]:
             continue
         sid = parse_qs(urlparse(shareholders_url).query)["sid"][0]
         name = h.element_text(row.pop("name_of_listed_corporation"))
+        notices_url = links.get("list_of_notices_filed_by_substantial_shareholders")
         rows.setdefault(sid, []).append(
-            (name, ShareClass(shareholders_url, directors_url))
+            (name, ShareClass(shareholders_url, directors_url, notices_url))
         )
     issuers: list[Issuer] = []
     for sid, classes in rows.items():
-        names = {name for name, _ in classes}
-        if len(classes) > 1:
-            names = {name.rsplit(" - ", 1)[0].strip() for name in names}
-        if len(names) != 1:
-            context.log.warning("Inconsistent issuer names", code=code, names=names)
-        issuers.append(
-            Issuer(sid=sid, name=min(names), classes=[c for _, c in classes])
-        )
+        names: list[str] = []
+        for name, _ in classes:
+            name = name.rsplit(" - ", 1)[0].strip() if len(classes) > 1 else name
+            if name not in names:
+                names.append(name)
+        issuers.append(Issuer(sid=sid, names=names, classes=[c for _, c in classes]))
     return issuers
 
 
@@ -235,9 +247,12 @@ def make_ownership(
     asset: Entity,
     shares: str | None,
     percentage: str | None,
+    share_class: str | None = None,
 ) -> Entity:
+    """Make an ownership link; a holding in a listed company is one per class
+    of shares, since its percentage is of the issued shares in that class."""
     ownership = context.make("Ownership")
-    ownership.id = context.make_id("ownership", owner.id, asset.id)
+    ownership.id = context.make_id("ownership", owner.id, asset.id, share_class)
     ownership.add("owner", owner)
     ownership.add("asset", asset)
     if shares is not None:
@@ -266,7 +281,7 @@ def make_filer(
         return filer, [*reference_names(raw_name), list_name]
 
     surname = label(doc, "lblDSurname")
-    first = label(doc, "lblDFirstname")
+    first, _ = split_resigned(label(doc, "lblDFirstname"))
     middle = label(doc, "lblDMidname")
     full = " ".join(p for p in (surname, first, middle) if p is not None)
     filer = context.make("Person")
@@ -323,7 +338,7 @@ def crawl_controlled(
                 known.setdefault(key, corp)
         if direct not in ("Y", "N"):
             context.log.warning("Unknown direct interest flag", value=direct)
-        long_shares = re.search(r"Long position\s*([\d,]+)", shares)
+        long_shares = re.search(r"Long position\s*([\d,]+)", shares, re.I)
         rows.append(
             (
                 corp,
@@ -349,7 +364,12 @@ def crawl_controlled(
             link.add("sourceUrl", url)
             context.emit(link)
         if is_direct and held is not None:
-            holding = make_ownership(context, corp, issuer_entity, held, None)
+            holding = make_ownership(
+                context, corp, issuer_entity, held, None, share_class
+            )
+            # Notices by different filers can report the same corporation's
+            # holding as at different dates: keep one link per notice.
+            holding.id = context.make_id(holding.id, url)
             holding.add("sharesType", share_class)
             h.apply_date(holding, "date", event_date)
             holding.add("sourceUrl", url)
@@ -396,6 +416,11 @@ def resolve_controller(
 
 def crawl_family(context: Context, doc: Element, filer: Entity, url: str) -> None:
     for cells in nested_rows(doc, "grdFI_Sh"):
+        if len(cells) == 2:
+            # Forms filed before 2004 or so name the child or spouse without
+            # saying which they are.
+            context.log.info("Family member without relation", url=url)
+            continue
         relation, name = h.element_text(cells[0]), h.element_text(cells[1])
         # Children under 18 are not named.
         if relation == "Child":
@@ -422,15 +447,20 @@ def crawl_form(
     issuer: Issuer,
     issuer_entity: Entity,
     kind: str,
+    link: str,
     serial: str,
     list_name: str,
 ) -> Entity:
-    assert context.dataset.url is not None
-    url = urljoin(context.dataset.url, f"{kind}.aspx?fn={serial}")
+    """Crawl a notice form, given the form link of a list row. Forms in the
+    archive of notices filed before the electronic filing system label their
+    serial "lblDLogNo" and are linked by a number rather than by the serial."""
+    fn = parse_qs(urlparse(link).query)["fn"][0]
+    url = urljoin(link, f"{kind}.aspx?fn={fn}")
+    serial_label = "lblDLogNo" if "/filing/di/" in url else "lblDSerialNo"
     # A form never changes: an amendment is filed as a new form with its own
     # serial, which appends "(Amendment to <serial>)" to the form's serial label.
-    doc = fetch_page(context, url, "lblDSerialNo", cache_days=3650)
-    form_serial = label(doc, "lblDSerialNo")
+    doc = fetch_page(context, url, serial_label, cache_days=3650)
+    form_serial = label(doc, serial_label)
     assert form_serial is not None and form_serial.startswith(serial), url
     for table in h.xpath_elements(doc, '//table[starts-with(@id, "grd")]'):
         if table.get("id") not in FORM_TABLES:
@@ -445,10 +475,16 @@ def crawl_form(
     for row in table_rows(doc, "grdSh_AEvt"):
         cells = h.cells_to_str(row)
         shares = cells.pop("total_number_of_shares")
-        if cells.pop("column_0") != "Long position" or shares in (None, "0"):
+        position = cells.pop("column_0") or ""
+        if position.lower() != "long position" or shares in (None, "0"):
             continue
         holding = make_ownership(
-            context, filer, issuer_entity, shares, cells.pop("percentage_figure")
+            context,
+            filer,
+            issuer_entity,
+            shares,
+            cells.pop("percentage_figure"),
+            share_class,
         )
         holding.add("sharesType", share_class)
         h.apply_date(holding, "date", event_date)
@@ -464,12 +500,108 @@ def crawl_form(
     return filer
 
 
+def crawl_shareholder(
+    context: Context,
+    issuer: Issuer,
+    entity: Entity,
+    row: dict[str, Element],
+    crawled: dict[str, Entity],
+) -> None:
+    # The archive of notices filed before the electronic filing system heads
+    # its columns "Form Serial No" and "% of issued share capital".
+    serial_cell = row.pop("form_serial_number", None)
+    if serial_cell is None:
+        serial_cell = row.pop("form_serial_no")
+    name = h.element_text(row.pop("name_of_substantial_shareholder"))
+    serial = h.element_text(serial_cell)
+    link = form_link(serial_cell)
+    if link is None:
+        context.log.warning("Shareholder without form", name=name)
+        return
+    kind, href = link
+    if kind not in ("NSForm1", "NSForm2", "NSForm3A"):
+        context.log.warning("Unknown shareholder form", kind=kind, name=name)
+        return
+    if serial not in crawled:
+        crawled[serial] = crawl_form(context, issuer, entity, kind, href, serial, name)
+    # The holding as at the last notice, which the form itself states.
+    context.audit_data(
+        h.cells_to_str(row),
+        ignore=[
+            "number_of_shares_interested_see_notes_above",
+            "of_issued_voting_shares_see_notes_above",
+            "of_issued_share_capital_see_notes_above",
+            "date_of_last_notice_filed_dd_mm_yyyy",
+        ],
+    )
+
+
+def notice_date(row: dict[str, Element]) -> str:
+    """Return the date of the last notice of a list row as YYYY-MM-DD."""
+    text = h.element_text(row["date_of_last_notice_filed_dd_mm_yyyy"])
+    day, month, year = text.split("/")
+    return f"{year}-{month}-{day}"
+
+
+def notice_filers(context: Context, issuer: Issuer) -> set[str]:
+    """Return the name keys of everyone who filed a substantial shareholder
+    notice for the issuer through the electronic filing system."""
+    filers: set[str] = set()
+    for share_class in issuer.classes:
+        if share_class.notices_url is None:
+            continue
+        for row in list_rows(context, share_class.notices_url):
+            name = h.element_text(row["name_of_substantial_shareholder"])
+            key = name_key(context, name)
+            if key is not None:
+                filers.add(key)
+    return filers
+
+
+def crawl_archived_shareholders(
+    context: Context,
+    issuer: Issuer,
+    archived: Issuer,
+    entity: Entity,
+    current: set[str],
+    crawled: dict[str, Entity],
+) -> None:
+    """Crawl the substantial shareholders whose last notice was filed before
+    the electronic filing system, unless they filed any notice through it since:
+    a holder that fell below 5% filed one but is no longer listed."""
+    # The archive can list a holder twice, with notices years apart: keep the
+    # most recent.
+    latest: dict[str, dict[str, Element]] = {}
+    for share_class in archived.classes:
+        for row in list_rows(context, share_class.shareholders_url):
+            name = h.element_text(row["name_of_substantial_shareholder"])
+            key = name_key(context, name)
+            if key is None or key in current:
+                continue
+            if key not in latest or notice_date(row) > notice_date(latest[key]):
+                latest[key] = row
+    if len(latest) == 0:
+        return
+    filers = notice_filers(context, issuer)
+    for key, row in latest.items():
+        if key not in filers:
+            crawl_shareholder(context, issuer, entity, row, crawled)
+
+
 def crawl_issuer(
-    context: Context, issuer: Issuer, listings: list[Listing] | None
+    context: Context,
+    issuer: Issuer,
+    archived: Issuer | None,
+    listings: list[Listing] | None,
 ) -> None:
     entity = context.make("Company")
     entity.id = context.make_slug(issuer.sid)
-    entity.add("name", issuer.name)
+    entity.add("name", issuer.names[0])
+    if archived is not None:
+        current_name = name_key(context, issuer.names[0])
+        for name in archived.names:
+            if name_key(context, name) != current_name:
+                entity.add("previousName", name)
     entity.add("topics", "corp.public")
     entity.add("sourceUrl", issuer.classes[0].shareholders_url)
     context.emit(entity)
@@ -485,32 +617,17 @@ def crawl_issuer(
             context.emit(security)
 
     crawled: dict[str, Entity] = {}
-    shareholders = [
-        row
-        for share_class in issuer.classes
-        for row in list_rows(context, share_class.shareholders_url)
-    ]
-    for row in shareholders:
-        name = h.element_text(row.pop("name_of_substantial_shareholder"))
-        link = form_link(row.pop("form_serial_number"))
-        if link is None:
-            context.log.warning("Shareholder without form", name=name)
-            continue
-        kind, serial = link
-        if kind not in ("NSForm1", "NSForm2", "NSForm3A"):
-            context.log.warning("Unknown shareholder form", kind=kind, name=name)
-            continue
-        if serial not in crawled:
-            crawled[serial] = crawl_form(context, issuer, entity, kind, serial, name)
-        # The holding as at the last notice, which the form itself states.
-        context.audit_data(
-            h.cells_to_str(row),
-            ignore=[
-                "number_of_shares_interested_see_notes_above",
-                "of_issued_voting_shares_see_notes_above",
-                "date_of_last_notice_filed_dd_mm_yyyy",
-            ],
-        )
+    current: set[str] = set()
+    for share_class in issuer.classes:
+        for row in list_rows(context, share_class.shareholders_url):
+            key = name_key(
+                context, h.element_text(row["name_of_substantial_shareholder"])
+            )
+            if key is not None:
+                current.add(key)
+            crawl_shareholder(context, issuer, entity, row, crawled)
+    if archived is not None:
+        crawl_archived_shareholders(context, issuer, archived, entity, current, crawled)
 
     directors = [
         (share_class.directors_url, row)
@@ -520,12 +637,13 @@ def crawl_issuer(
     for directors_url, row in directors:
         name = h.element_text(row.pop("name_of_director"))
         last_notice = h.element_text(row.pop("date_of_last_notice_filed_dd_mm_yyyy"))
-        link = form_link(row.pop("form_serial_number"))
+        serial_cell = row.pop("form_serial_number")
+        link = form_link(serial_cell)
         if link is not None and link[0] == "NSForm3A":
-            serial = link[1]
+            serial = h.element_text(serial_cell)
             if serial not in crawled:
                 crawled[serial] = crawl_form(
-                    context, issuer, entity, "NSForm3A", serial, name
+                    context, issuer, entity, "NSForm3A", link[1], serial, name
                 )
             director = crawled[serial]
         else:
@@ -534,7 +652,7 @@ def crawl_issuer(
                 context.log.warning("Unknown director form", kind=link[0], name=name)
             director = context.make("Person")
             director.id = context.make_id("person", issuer.sid, name)
-            director.add("name", name)
+            director.add("name", split_resigned(name)[0])
             director.add("sourceUrl", directors_url)
             context.emit(director)
         directorship = context.make("Directorship")
@@ -543,6 +661,7 @@ def crawl_issuer(
         directorship.add("director", director)
         directorship.add("role", "Director")
         h.apply_date(directorship, "date", last_notice or None)
+        h.apply_date(directorship, "endDate", split_resigned(name)[1])
         directorship.add("sourceUrl", directors_url)
         context.emit(directorship)
         # Holdings are read from the form; Form 3B (interests in associated
@@ -558,22 +677,62 @@ def crawl_issuer(
         )
 
 
+def match_archived(
+    context: Context, code: str, issuer: Issuer, archived: list[Issuer]
+) -> Issuer | None:
+    """Find the issuer in the archive of notices filed before the electronic
+    filing system that is the same company: a stock code can have belonged to
+    a company since delisted, so its names must match."""
+
+    # An archived issuer with one share class can still carry its class:
+    # "Industrial and Commercial Bank of China Ltd. - H Shares".
+    def keys(names: list[str]) -> set[str]:
+        found = {name_key(context, name.rsplit(" - ", 1)[0]) for name in names}
+        return {key for key in found if key is not None}
+
+    matches = [other for other in archived if keys(issuer.names) & keys(other.names)]
+    if len(matches) > 1:
+        context.log.warning("Several archived issuers match", code=code)
+        return None
+    if len(matches) == 0 and len(archived) > 0:
+        context.log.info(
+            "No archived issuer matches",
+            code=code,
+            names=issuer.names,
+            archived=[name for other in archived for name in other.names],
+        )
+        return None
+    return matches[0] if matches else None
+
+
 def crawl(context: Context) -> None:
     assert context.data_url is not None
+    assert context.dataset.url is not None
+    # Notices filed before the electronic filing system opened on 3 July 2017
+    # are kept in a separate archive with the same search and list pages.
+    archive_url = urljoin(context.dataset.url, "/filing/di/")
     path = context.fetch_resource("ListOfSecurities.xlsx", context.data_url)
     seen: set[str] = set()
     for listings in read_listings(context, path):
         code = listings[0].code
-        issuers = search_issuers(context, code)
+        issuers = search_issuers(context, context.dataset.url, code)
         if len(issuers) == 0:
             context.log.info("No disclosure records", code=code)
             continue
         if len(issuers) > 1:
             context.log.warning("Several issuers for one stock code", code=code)
+        archived = search_issuers(context, archive_url, code)
         for issuer in issuers:
             if issuer.sid in seen:
                 continue
             seen.add(issuer.sid)
+            if len(issuer.names) > 1:
+                context.log.warning("Inconsistent issuer names", names=issuer.names)
             context.log.info("Crawling issuer", code=code, sid=issuer.sid)
-            crawl_issuer(context, issuer, listings if len(issuers) == 1 else None)
+            crawl_issuer(
+                context,
+                issuer,
+                match_archived(context, code, issuer, archived),
+                listings if len(issuers) == 1 else None,
+            )
     assert_all_accepted(context, raise_on_unaccepted=False)
