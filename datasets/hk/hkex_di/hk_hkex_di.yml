@@ -87,6 +87,8 @@ lookups:
     # "incorporated in" and a leading "the" are removed.
     normalize: true
     lowercase: true
+    # Keep Chinese script, so that the regular expressions below can match it.
+    asciify: false
     options:
       # A label the filer left without a value.
       - match: Place of Incorporation
@@ -116,12 +118,41 @@ lookups:
         value: nl
       - match: Glbraltar
         value: gi
+      # A mainland address given where the place of incorporation goes:
+      # "中國海南省海口市海秀路29號海航發展大廈"
+      - regex: "^中[國国](?!香港|澳門|澳门|台灣|台湾).{4,}$"
+        value: cn
+      # A postal code given where the place of incorporation goes
+      - regex: "^[郵邮]編"
+        value: null
+      # Chinese and English place names run together
+      - match:
+          - 英屬維爾京群島British Virgin Islands
+          - 英屬維爾京群島 British Virgin Islands
+        value: vg
+      - match:
+          - 香港Hong Kong
+          - 香港 Hong Kong
+        value: hk
+      - match:
+          - 開曼群島Cayman Islands
+          - 開曼群島 Cayman Islands
+        value: ky
+      - match:
+          - 百慕達Bermuda
+          - 百慕達 Bermuda
+        value: bm
+      - match:
+          - 中國China
+          - 中國 China
+        value: cn
       - match: Jersey, Channel Islands
         value: je
       - match: Guernsey, Channel Islands
         value: gg
       - match:
           - Mainland China
+          - P. R. C.
           - 中國
           - 中國內地
           - 註冊成立地點：中國
@@ -194,10 +225,14 @@ lookups:
           - 香港特別行政區
           - 註冊成立地點：香港
           - 註冊成立地點：香港特別行政區
+          - 中國香港
+          - 中国香港
         value: hk
       - match:
           - 註冊成立地點：英屬維爾京群島
           - 英屬處女群島
+          - 英属维尔京群岛
+          - 英属处女群岛
           - 註冊成立地點：英屬處女群島
         value: vg
       - match: 註冊成立地點：開曼群島
@@ -210,6 +245,7 @@ lookups:
           - a company limited by guarantee and incorporated in Hong Kong
         value: hk
       - match:
+          - 澳门
           - Macau SAR
           - Macao SAR, PRC
           - Macau SAR, PRC
@@ -283,6 +319,7 @@ lookups:
           - Nil
           - N/A
           - NA
+          - HK
           # "not applicable", simplified and traditional
           - 不适用
           - 不適用

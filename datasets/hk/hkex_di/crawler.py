@@ -57,6 +57,27 @@ class Issuer:
     classes: list[ShareClass]
 
 
+class Ownerships:
+    """Collect ownership links and keep, for each owner, asset and share class,
+    the one from the most recent notice: notices by different filers, or a
+    director's and a shareholder's notice by the same person, report the same
+    link as at different dates."""
+
+    def __init__(self) -> None:
+        self.latest: dict[str, tuple[str, Entity]] = {}
+
+    def add(self, ownership: Entity) -> None:
+        assert ownership.id is not None
+        date = max(ownership.get("date"), default="")
+        known = self.latest.get(ownership.id)
+        if known is None or date > known[0]:
+            self.latest[ownership.id] = (date, ownership)
+
+    def emit(self, context: Context) -> None:
+        for _, ownership in self.latest.values():
+            context.emit(ownership)
+
+
 def fetch_page(
     context: Context, url: str, marker: str, cache_days: int | None = None
 ) -> Element:
@@ -261,7 +282,14 @@ def make_ownership(
         if count is None or unit is not None:
             context.log.warning("Cannot parse share count", value=shares)
         ownership.add("sharesCount", count)
-    ownership.add("percentage", percentage)
+    if percentage is not None and not re.fullmatch(r"\d+(\.\d+)?", percentage):
+        context.log.warning("Cannot parse percentage", value=percentage)
+    elif percentage is not None and float(percentage) > 100:
+        # Interests counting derivatives, such as convertible notes, can
+        # exceed the issued shares.
+        context.log.info("Percentage over 100", owner=owner.id, value=percentage)
+    else:
+        ownership.add("percentage", percentage)
     return ownership
 
 
@@ -302,6 +330,7 @@ def crawl_controlled(
     share_class: str | None,
     event_date: str | None,
     url: str,
+    ownerships: Ownerships,
 ) -> None:
     """Link the corporations through which the filer holds its interest to
     their controlling persons."""
@@ -361,19 +390,17 @@ def crawl_controlled(
                 continue
             joint = percent if len(parties) == 1 else None
             link = make_ownership(context, parent, corp, None, joint)
+            h.apply_date(link, "date", event_date)
             link.add("sourceUrl", url)
-            context.emit(link)
+            ownerships.add(link)
         if is_direct and held is not None:
             holding = make_ownership(
                 context, corp, issuer_entity, held, None, share_class
             )
-            # Notices by different filers can report the same corporation's
-            # holding as at different dates: keep one link per notice.
-            holding.id = context.make_id(holding.id, url)
             holding.add("sharesType", share_class)
             h.apply_date(holding, "date", event_date)
             holding.add("sourceUrl", url)
-            context.emit(holding)
+            ownerships.add(holding)
 
 
 def resolve_controller(
@@ -450,6 +477,7 @@ def crawl_form(
     link: str,
     serial: str,
     list_name: str,
+    ownerships: Ownerships,
 ) -> Entity:
     """Crawl a notice form, given the form link of a list row. Forms in the
     archive of notices filed before the electronic filing system label their
@@ -490,11 +518,19 @@ def crawl_form(
         h.apply_date(holding, "date", event_date)
         holding.add("recordId", serial)
         holding.add("sourceUrl", url)
-        context.emit(holding)
+        ownerships.add(holding)
         context.audit_data(cells)
 
     crawl_controlled(
-        context, doc, issuer_entity, filer, names, share_class, event_date, url
+        context,
+        doc,
+        issuer_entity,
+        filer,
+        names,
+        share_class,
+        event_date,
+        url,
+        ownerships,
     )
     crawl_family(context, doc, filer, url)
     return filer
@@ -506,6 +542,7 @@ def crawl_shareholder(
     entity: Entity,
     row: dict[str, Element],
     crawled: dict[str, Entity],
+    ownerships: Ownerships,
 ) -> None:
     # The archive of notices filed before the electronic filing system heads
     # its columns "Form Serial No" and "% of issued share capital".
@@ -523,7 +560,9 @@ def crawl_shareholder(
         context.log.warning("Unknown shareholder form", kind=kind, name=name)
         return
     if serial not in crawled:
-        crawled[serial] = crawl_form(context, issuer, entity, kind, href, serial, name)
+        crawled[serial] = crawl_form(
+            context, issuer, entity, kind, href, serial, name, ownerships
+        )
     # The holding as at the last notice, which the form itself states.
     context.audit_data(
         h.cells_to_str(row),
@@ -565,6 +604,7 @@ def crawl_archived_shareholders(
     entity: Entity,
     current: set[str],
     crawled: dict[str, Entity],
+    ownerships: Ownerships,
 ) -> None:
     """Crawl the substantial shareholders whose last notice was filed before
     the electronic filing system, unless they filed any notice through it since:
@@ -585,7 +625,7 @@ def crawl_archived_shareholders(
     filers = notice_filers(context, issuer)
     for key, row in latest.items():
         if key not in filers:
-            crawl_shareholder(context, issuer, entity, row, crawled)
+            crawl_shareholder(context, issuer, entity, row, crawled, ownerships)
 
 
 def crawl_issuer(
@@ -593,6 +633,7 @@ def crawl_issuer(
     issuer: Issuer,
     archived: Issuer | None,
     listings: list[Listing] | None,
+    ownerships: Ownerships,
 ) -> None:
     entity = context.make("Company")
     entity.id = context.make_slug(issuer.sid)
@@ -625,9 +666,11 @@ def crawl_issuer(
             )
             if key is not None:
                 current.add(key)
-            crawl_shareholder(context, issuer, entity, row, crawled)
+            crawl_shareholder(context, issuer, entity, row, crawled, ownerships)
     if archived is not None:
-        crawl_archived_shareholders(context, issuer, archived, entity, current, crawled)
+        crawl_archived_shareholders(
+            context, issuer, archived, entity, current, crawled, ownerships
+        )
 
     directors = [
         (share_class.directors_url, row)
@@ -643,7 +686,14 @@ def crawl_issuer(
             serial = h.element_text(serial_cell)
             if serial not in crawled:
                 crawled[serial] = crawl_form(
-                    context, issuer, entity, "NSForm3A", link[1], serial, name
+                    context,
+                    issuer,
+                    entity,
+                    "NSForm3A",
+                    link[1],
+                    serial,
+                    name,
+                    ownerships,
                 )
             director = crawled[serial]
         else:
@@ -713,6 +763,7 @@ def crawl(context: Context) -> None:
     archive_url = urljoin(context.dataset.url, "/filing/di/")
     path = context.fetch_resource("ListOfSecurities.xlsx", context.data_url)
     seen: set[str] = set()
+    ownerships = Ownerships()
     for listings in read_listings(context, path):
         code = listings[0].code
         issuers = search_issuers(context, context.dataset.url, code)
@@ -734,5 +785,7 @@ def crawl(context: Context) -> None:
                 issuer,
                 match_archived(context, code, issuer, archived),
                 listings if len(issuers) == 1 else None,
+                ownerships,
             )
+    ownerships.emit(context)
     assert_all_accepted(context, raise_on_unaccepted=False)
