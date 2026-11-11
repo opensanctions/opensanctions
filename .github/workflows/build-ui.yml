@@ -37,8 +37,10 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm ci
-      - name: Run ESLint
-        run: npm run lint
+      - name: Run prek hooks
+        uses: j178/prek-action@v3.1.0
+        with:
+          working-directory: ui
       - name: Run Jest tests
         run: npm test
 

@@ -62,11 +62,3 @@ repos:
         require_serial: true
         files: "datasets/"
         args: ['--strict', '--explicit-package-bases']
-  - repo: local
-    hooks:
-      - id: zavod-ui-lint
-        name: ESLint
-        entry: bash -c "cd ui && npx eslint --fix"
-        language: system
-        files: '^ui/'
-        pass_filenames: false
