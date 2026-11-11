@@ -1,0 +1,77 @@
+type: external
+title: Türkiye Public Disclosure Platform (KAP) Companies
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: tr_kap
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2026-11-11
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  cpu: "2000m"
+  memory: "6000Mi"
+  memory_limit: "7000Mi"
+  disk: "150Gi"
+load_statements: true
+ci_test: false
+summary: >-
+  Turkish listed companies and market institutions on KAP which match entities in
+  the OpenSanctions database.
+url: https://www.kap.org.tr/tr/sirketler/ALL
+publisher:
+  name: Merkezi Kayıt Kuruluşu
+  name_en: Central Securities Depository of Türkiye
+  acronym: MKK
+  url: https://www.mkk.com.tr/
+  country: tr
+  official: true
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - ext_ru_egrul
+  - ext_tr_kap
+  - ext_ua_edr
+  - opencorporates
+  - sanctions
+  - special_interest
+
+config:
+  topic_gated: true
+  index_options:
+    memory: 3000
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - sanction.control
+    - sanction.counter
+    - export.control
+    - export.control.linked
+    - invest.ban
+    - invest.risk
+    - debarment
+    - reg.action
+    - reg.warn
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    - Person
