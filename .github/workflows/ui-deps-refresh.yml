@@ -48,7 +48,7 @@ jobs:
       - name: Apply remaining non-breaking security fixes
         run: npm audit fix --audit-level=critical
       - name: Run prek hooks
-        uses: j178/prek-action@v3
+        uses: j178/prek-action@v3.1.0
         with:
           working-directory: ui
       - name: Run Jest tests

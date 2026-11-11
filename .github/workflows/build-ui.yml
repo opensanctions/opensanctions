@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run prek hooks
-        uses: j178/prek-action@v3
+        uses: j178/prek-action@v3.1.0
         with:
           working-directory: ui
       - name: Run Jest tests
