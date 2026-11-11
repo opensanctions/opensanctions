@@ -15,6 +15,8 @@ ASSOCIATIONS_LABEL = "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITI
 ORGANISATIONS_LABEL = "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 INDIVIDUALS_LABEL = "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
 RECORD_TITLE_XPATH = ".//div[@class='documentRecordTitle']"
+ASSOCIATIONS_URL = "https://www.mha.gov.in/unlawful-associations-section3-unlawful-activities-prevention-act-1967"
+INDIVIDUALS_URL = "https://www.mha.gov.in/individuals-terrorists-fourth-schedule-unlawful-activities-prevention-act"
 
 # Requiring a capital letter at both ends keeps out bracketed words such as
 # "(Khaplang)" or "(Maoist)", but admits mixed-case acronyms such as "(JeI)".
@@ -215,19 +217,18 @@ def crawl(context: Context) -> None:
     doc = fetch_html(
         context,
         context.data_url,
-        f"{RECORD_TITLE_XPATH}[contains(text(), '{ASSOCIATIONS_LABEL}')]",
+        f"{RECORD_TITLE_XPATH}[contains(text(), '{ORGANISATIONS_LABEL}')]",
         html_source="httpResponseBody",
         cache_days=1,
         absolute_links=True,
     )
 
-    url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
-    crawl_associations(context, url, ASSOCIATIONS_LABEL)
-
+    # The organisations PDF is renamed whenever the list changes, so its link is
+    # read from the landing page.
     url = get_link_by_label(doc, ORGANISATIONS_LABEL)
     crawl_organisations(context, url, ORGANISATIONS_LABEL)
 
-    url = get_link_by_label(doc, INDIVIDUALS_LABEL)
-    crawl_individuals(context, url, INDIVIDUALS_LABEL)
+    crawl_associations(context, ASSOCIATIONS_URL, ASSOCIATIONS_LABEL)
+    crawl_individuals(context, INDIVIDUALS_URL, INDIVIDUALS_LABEL)
 
     assert_all_accepted(context, raise_on_unaccepted=False)

@@ -3,6 +3,7 @@ from typing import Any
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 
@@ -74,7 +75,7 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    payload = context.fetch_json(context.data_url, cache_days=14)
+    payload = zyte_api.fetch_json(context, context.data_url, cache_days=14)
     senators = payload["data"]["parlamentarios"]["data"]
     for senator in senators:
         crawl_member(context, position, categorisation, senator)
