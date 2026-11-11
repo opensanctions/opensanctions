@@ -1,0 +1,98 @@
+title: Bangladesh Members of Parliament
+entry_point: crawler.py
+prefix: bd-parl
+coverage:
+  frequency: monthly
+  start: 2026-11-06
+load_statements: true
+ci_test: true
+summary: >-
+  Unicameral national legislature of directly elected and women's reserved seats
+description: |
+  Current and historical members of the Parliament of Bangladesh (Jatiya Sangsad), the
+  country's unicameral national legislature. Most of its members are directly elected
+  in single-member constituencies for five-year terms; the remaining seats are
+  reserved for women and allocated to parties in proportion to their seats. Members
+  hold the country's legislative power, including passing laws and approving the
+  budget.
+
+  The dataset also covers the offices of the current Speaker and Deputy Speaker, as
+  the parliament designates them.
+url: https://www.parliament.gov.bd/members/list-of-members
+publisher:
+  name: বাংলাদেশ জাতীয় সংসদ
+  name_en: Parliament of Bangladesh
+  description: >
+    The Jatiya Sangsad is the national parliament of Bangladesh, a unicameral
+    legislature.
+  url: https://www.parliament.gov.bd/
+  country: bd
+  official: true
+data:
+  url: https://www.parliament.gov.bd/members/list-of-members
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+# A few per-member start dates are stale (e.g. 2019-01-03 on members re-elected to
+# the 12th parliament) and are kept as published; periodStart/periodEnd still date the
+# term. The source omits members of older parliaments: the 10th lists only 220.
+
+names:
+  prefixes_strip:
+    - Dr.
+    - "Dr "
+    - Mr.
+    - Mrs.
+    - Alhaj
+    - Haji
+    - Advocate
+    - Barrister
+    - Engineer
+    - Prof.
+    - Professor
+    - Capt.
+    - Col.
+    - Major
+    - Major General
+    - Brig. General
+  suffixes_strip:
+    - (Retd)
+    # Gallantry awards of the 1971 Liberation War
+    - Bir Uttam
+    - Bir Bikram
+    - Bir Protik
+
+lookups:
+  type.date:
+    options:
+      # Placeholders for an unknown date: 1900-01-01 on birth dates, 1970-01-01 (the
+      # Unix epoch) on birth dates and on the start dates of the 11th parliament.
+      - match:
+          - "1900-01-01"
+          - "1970-01-01"
+        value: null
+  # Per-term status. Only "active" terms are current without an end date; "died"
+  # also sets deathDate.
+  term_status:
+    options:
+      - match: Active
+        value: active
+      - match: [Completed, Resigned, Cancelled]
+        value: ended
+      - match: Died
+        value: died
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+      Position: 1
+    country_entities:
+      bd: 1000
+  max:
+    schema_entities:
+      Person: 2000
+      Position: 3
