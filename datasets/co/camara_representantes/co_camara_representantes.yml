@@ -36,6 +36,8 @@ tags:
 # A year's list keeps members who left mid-year, with no per-member dates, so they
 # stay current until the next year starts on 20 July. The previous year is unknown,
 # not ended, until 31 December. Years before 2016 are sparse; some before 2014 empty.
+# About 100 members of the 2010-2014 term have only a profile page (in the page
+# sitemap) and appear in no year's list, so they are not crawled.
 
 lookups:
   # Member group keys; the opposition seat is not a constituency.
