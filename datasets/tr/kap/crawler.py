@@ -137,8 +137,11 @@ def resolve_references(value: Any, rows: dict[str, Any]) -> Any:
     return value
 
 
-def collect_items(node: Any, items: dict[str, Any], rows: dict[str, Any]) -> None:
-    """Map the "itemKey" of every "itemObject" on a company page to its value."""
+def collect_items(
+    node: Any, items: dict[str, dict[str, Any]], rows: dict[str, Any]
+) -> None:
+    """Map the "itemKey" of every "itemObject" on a company page to the item, with
+    its value resolved."""
     if isinstance(node, list):
         for child in node:
             collect_items(child, items, rows)
@@ -146,15 +149,15 @@ def collect_items(node: Any, items: dict[str, Any], rows: dict[str, Any]) -> Non
         item = node.get("itemObject")
         if item is not None:
             key = item["itemKey"]
-            value = resolve_references(item["value"], rows)
-            if key in items and items[key] != value:
+            item = {**item, "value": resolve_references(item["value"], rows)}
+            if key in items and items[key]["value"] != item["value"]:
                 raise ValueError(f"Conflicting values for item: {key}")
-            items[key] = value
+            items[key] = item
         for child in node.values():
             collect_items(child, items, rows)
 
 
-def fetch_items(context: Context, url: str) -> dict[str, Any]:
+def fetch_items(context: Context, url: str) -> dict[str, dict[str, Any]]:
     # The RSC header asks Next.js for the server component stream instead of the
     # HTML page. KAP's cache ignores that header and can answer with a cached HTML
     # page, which the _rsc query parameter (as the Next.js client sets) avoids.
@@ -167,7 +170,7 @@ def fetch_items(context: Context, url: str) -> dict[str, Any]:
         expected_media_type="text/x-component",
     )
     rows = parse_rsc_rows(text.encode("utf-8"))
-    items: dict[str, Any] = {}
+    items: dict[str, dict[str, Any]] = {}
     collect_items(list(rows.values()), items, rows)
     return items
 
@@ -189,6 +192,18 @@ def pop_table(
     rows: list[dict[str, Any]] = value
     assert all(isinstance(row, dict) for row in rows), (company.id, key, value)
     return rows
+
+
+def apply_filing(entity: Entity, item: dict[str, Any] | None) -> None:
+    """Date a link with the filing that last set its table on the company page.
+    Some tables carry a date but no filing number."""
+    if item is None:
+        return
+    h.apply_date(entity, "date", item["creationDate"])
+    index = item["disclosureIndex"]
+    assert index is None or isinstance(index, int), item
+    if index is not None and index != 0:
+        entity.add("sourceUrl", f"https://www.kap.org.tr/tr/Bildirim/{index}")
 
 
 def parse_number(context: Context, value: str | None) -> str | None:
@@ -261,6 +276,7 @@ def crawl_shareholder(
     row: dict[str, Any],
     members: Members,
     ownership_type: str,
+    filing: dict[str, Any] | None,
 ) -> None:
     name = row.pop("shareholder")
     ratio = row.pop("ratioInCapital")
@@ -294,10 +310,16 @@ def crawl_shareholder(
         parse_number(context, shares),
         currency,
     )
+    apply_filing(ownership, filing)
     context.emit(ownership)
 
 
-def crawl_officer(context: Context, company: Entity, row: dict[str, Any]) -> None:
+def crawl_officer(
+    context: Context,
+    company: Entity,
+    row: dict[str, Any],
+    filing: dict[str, Any] | None,
+) -> None:
     name = row.pop("nameSurname")
     agent_name = row.pop("personWhoBehavesOnBehalfOfLegalPersonBoardMember", None)
     # The officer's percentage of the capital, typed with either decimal mark.
@@ -336,6 +358,7 @@ def crawl_officer(context: Context, company: Entity, row: dict[str, Any]) -> Non
             ownership = make_ownership(
                 context, officer.id, company.id, None, percentage, None, None
             )
+            apply_filing(ownership, filing)
             context.emit(ownership)
 
     role = option(row.pop("title"), "text")
@@ -345,6 +368,7 @@ def crawl_officer(context: Context, company: Entity, row: dict[str, Any]) -> Non
     directorship.add("director", officer)
     directorship.add("role", role)
     h.apply_date(directorship, "startDate", row.pop("firstChosenDate", None))
+    apply_filing(directorship, filing)
     context.emit(directorship)
     context.audit_data(row, ignore=OFFICER_IGNORE)
 
@@ -354,11 +378,16 @@ def crawl_officer(context: Context, company: Entity, row: dict[str, Any]) -> Non
         representation.id = context.make_id("representation", officer.id, agent.id)
         representation.add("agent", agent)
         representation.add("client", officer)
+        apply_filing(representation, filing)
         context.emit(representation)
 
 
 def crawl_subsidiary(
-    context: Context, company: Entity, row: dict[str, Any], members: Members
+    context: Context,
+    company: Entity,
+    row: dict[str, Any],
+    members: Members,
+    filing: dict[str, Any] | None,
 ) -> None:
     name = row.pop("companyTitle")
     tax_number = row.pop("taxNo")
@@ -406,12 +435,17 @@ def crawl_subsidiary(
         currency,
     )
     ownership.add("role", relation)
+    apply_filing(ownership, filing)
     context.emit(ownership)
 
 
 def crawl_items(
-    context: Context, company: Entity, items: dict[str, Any], members: Members
+    context: Context,
+    company: Entity,
+    page: dict[str, dict[str, Any]],
+    members: Members,
 ) -> None:
+    items = {key: item["value"] for key, item in page.items()}
     company.add("alias", items.pop("kpy41_acc1_isletme_adi", None))
     company.add("sector", items.pop("kpy41_acc2_sektor", None))
     # Operating status, reported under one of two keys depending on member type.
@@ -430,7 +464,9 @@ def crawl_items(
         ("kpy41_acc5_son_durum_sermayeye", "indirect"),
     ):
         for row in pop_table(context, company, items, key):
-            crawl_shareholder(context, company, row, members, ownership_type)
+            crawl_shareholder(
+                context, company, row, members, ownership_type, page.get(key)
+            )
     # Board members, and senior managers with a say in the management.
     for key in (
         "kpy41_acc6_yonetim_kurulu_uyeleri",
@@ -438,9 +474,10 @@ def crawl_items(
         "kpy41_acc6_yonetimde_soz_sahibi",
     ):
         for row in pop_table(context, company, items, key):
-            crawl_officer(context, company, row)
-    for row in pop_table(context, company, items, "kpy41_acc7_bagli_ortakliklar"):
-        crawl_subsidiary(context, company, row, members)
+            crawl_officer(context, company, row, page.get(key))
+    key = "kpy41_acc7_bagli_ortakliklar"
+    for row in pop_table(context, company, items, key):
+        crawl_subsidiary(context, company, row, members, page.get(key))
     context.audit_data(items, ignore=ITEMS_IGNORE)
 
 
@@ -497,7 +534,7 @@ def crawl_member(context: Context, member: dict[str, Any], members: Members) -> 
             )
         else:
             company.add("sourceUrl", url)
-            full_address = items.pop("kpy41_acc1_merkez_adresi")
+            full_address = items.pop("kpy41_acc1_merkez_adresi")["value"]
             crawl_items(context, company, items, members)
     # The headquarters address from the page, or the city from the company list.
     city = member.pop("cityName")

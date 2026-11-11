@@ -32,7 +32,9 @@ description: |
   members disclose their full shareholding structure. Indirect holdings are
   ownership links from the indirect holder to the company, with the ownership type
   "indirect". Board members also declare their own percentage of the capital, which
-  is included as an ownership link without an ownership type.
+  is included as an ownership link without an ownership type. Ownership and board
+  links are dated with the filing that last updated them, and link to that filing
+  where KAP gives one.
 
   KAP is a disclosure platform: the content is declared by the issuing companies
   under a legal obligation and is not independently verified by MKK or the Capital
@@ -58,7 +60,7 @@ data:
   lang: tur
 
 dates:
-  formats: ["%d/%m/%Y %H:%M:%S", "%Y%m%d%H%M%S"]
+  formats: ["%d/%m/%Y %H:%M:%S", "%d/%m/%Y", "%Y%m%d%H%M%S"]
 numbers:
   decimal: ","
   separator: "."
