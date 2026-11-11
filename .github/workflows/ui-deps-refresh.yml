@@ -47,8 +47,10 @@ jobs:
         run: npm update
       - name: Apply remaining non-breaking security fixes
         run: npm audit fix --audit-level=critical
-      - name: Run ESLint
-        run: npm run lint
+      - name: Run prek hooks
+        uses: j178/prek-action@v3
+        with:
+          working-directory: ui
       - name: Run Jest tests
         run: npm test
       - name: Build

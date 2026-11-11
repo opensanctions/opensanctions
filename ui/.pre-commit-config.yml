@@ -1,0 +1,10 @@
+repos:
+  # ESLint and its plugins come from ui/node_modules (`npm ci`), so the hook
+  # runs as a system command instead of in an isolated hook environment.
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: npx eslint --fix
+        language: system
+        files: '\.(js|jsx|mjs|cjs|ts|tsx|mts|cts)$'
