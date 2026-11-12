@@ -31,6 +31,29 @@ data:
   format: HTML
   lang: eng
 
+names:
+  prefixes_strip:
+    - Hon.
+    - Mr.
+    - Mrs.
+    - Ms.
+    - Dr.
+    - Sir
+  suffixes_strip:
+    - ", MP"
+    - ", Hon. MP"
+    - ", JP"
+    - ", KC"
+    - ", OCI"
+    - ", Cert."
+    - ", Cert. Hon."
+    - ", Cert. Hon"
+    - CCI
+  schema_rules:
+    Person:
+      # Nicknames are quoted as well as bracketed; a comma is an unconfigured post-nominal
+      reject_chars: "“”,"
+
 assertions:
   min:
     schema_entities:
