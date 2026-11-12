@@ -11,21 +11,16 @@ from zavod import Context
 from zavod import helpers as h
 
 BASE_URL = "https://ilhfspartner3.dynamics365portals.us"
-# Only a legal form makes a name certainly a company. Anything less certain is
-# emitted as LegalEntity, so it is matched by both person and company queries.
-REGEX_LEGAL_FORM = re.compile(
-    r"\b(INC|INCORPORATED|L\.?L\.?C|P\.?L\.?L\.?C|CORP|CORPORATION|CO|COMPANY|LTD|"
-    r"LIMITED|S\.?C|P\.?C|P\.?A)\b|LLC$"
-)
-# Business words without a legal form are often sole proprietors trading under
-# their own name ("DAVIS DAN TRANSPORT"), so they only rule out Person.
+# A business word rules out Person; anything not certainly a person is emitted
+# as LegalEntity, so it is matched by both person and company queries.
 REGEX_BUSINESS_WORD = re.compile(
-    r"\b(PHARMACY|PHCY|DRUGS?|TRANSPORT\w*|TRANS|"
+    r"\b(INC|INCORPORATED|L\.?L\.?C|P\.?L\.?L\.?C|CORP|CORPORATION|CO|COMPANY|LTD|"
+    r"LIMITED|S\.?C|P\.?C|P\.?A|PHARMACY|PHCY|DRUGS?|TRANSPORT\w*|TRANS|"
     r"SERVICES?|SVCS?|SRVC?S?|CENTER|CTR|CLINIC|LAB\w*|CARE|HEALTH\w*|GROUP|"
     r"MEDICAL|MEDICAR|AMBULANCE|SUPPL\w*|EQUIPMENT|HOME|ASSOC\w*|ENTERPRISES?|"
     r"SOLUTIONS|CAB|TAXI|LIVERY|AGENCY|FOUNDATION|HOSPITAL|RX|DIAGNOSTICS?|"
     r"CONSULTANTS?|INSTITUTE|MANAGEMENT|SYSTEMS|THERAPY|WELLNESS|COUNSELING|"
-    r"PSYCHIATRY)\b"
+    r"PSYCHIATRY)\b|LLC$"
 )
 REGEX_DBA = re.compile(r"\s+D\.?/?B\.?/?A\b\.?/?\s*")
 REGEX_NPI = re.compile(r"^\d{10}$")
@@ -56,9 +51,7 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     provider_type = clean(row.pop("provider_type"))
     city = clean(row.pop("city"))
 
-    if REGEX_LEGAL_FORM.search(raw_name):
-        schema = "Company"
-    elif trade_names or REGEX_BUSINESS_WORD.search(raw_name):
+    if trade_names or REGEX_BUSINESS_WORD.search(raw_name):
         schema = "LegalEntity"
     elif provider_type is None:
         # Untyped rows are mostly individuals barred for their role at a vendor,
@@ -109,7 +102,7 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     sanction.add("provisions", provisions)
 
     if affiliation is not None:
-        vendor = context.make("Company")
+        vendor = context.make("LegalEntity")
         vendor.id = context.make_id("vendor", affiliation)
         vendor.add("name", affiliation)
         vendor.add("country", "us")
