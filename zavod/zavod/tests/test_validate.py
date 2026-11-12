@@ -5,7 +5,6 @@ from structlog.testing import capture_logs
 
 from zavod import Entity, settings
 from zavod.crawl import crawl_dataset
-from zavod.exporters.consolidate import consolidate_entity
 from zavod.exporters.fragment import ViewFragment
 from zavod.runtime.statistics import Statistics
 from zavod.archive import STATEMENTS_FILE, dataset_artifact_path
@@ -42,8 +41,8 @@ def run_validator(clazz: type[BaseValidator], dataset: Dataset):
     with capture_logs() as cap_logs:
         validator = clazz(context, stats)
         for entity in view.entities():
-            entity = consolidate_entity(view.store.linker, entity)
             fragment = ViewFragment(view, entity)
+            entity = fragment.entity
             stats.observe(entity)
             validator.feed(entity, fragment)
         validator.finish()

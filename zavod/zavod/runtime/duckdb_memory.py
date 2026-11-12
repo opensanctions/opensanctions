@@ -1,16 +1,4 @@
-"""Warn before a DuckDB instance outgrows its memory limit.
-
-DuckDB can drop the cached blocks of database and input files from memory and
-read them back when needed. Everything else it holds - indexes, in-memory
-tables, the state of running queries - it can at most spill to its temp
-directory, and indexes not even that. An instance whose held memory approaches
-its limit at a point where it has no query running will fail with an
-out-of-memory error once a query needs room, so the check runs at points like
-that, as the data grows run over run.
-
-This can't catch a single query that needs more memory than the limit while
-it runs; those fail outright rather than growing towards the limit.
-"""
+"""Try and warn before a DuckDB instance outgrows its memory limit."""
 
 import re
 
@@ -66,7 +54,9 @@ def memory_held_ratio(conn: duckdb.DuckDBPyConnection) -> float:
 
 def warn_memory_pressure(conn: duckdb.DuckDBPyConnection, instance: str) -> None:
     """Log a warning if the instance holds more than WARN_RATIO of its limit
-    outside file caches. Call it between queries."""
+    outside file caches. Call it between queries. This doesn't monitor memory
+    during a query. It only warns if the memory held before a query is getting high
+    so that we can take action before the following query starts crashing runs."""
     try:
         ratio = memory_held_ratio(conn)
     except ValueError as exc:
