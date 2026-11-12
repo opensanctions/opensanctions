@@ -50,11 +50,14 @@ def build_person_from_family_row(
         and index_name.casefold() == full_name.casefold()
     ):
         full_name = index_name
-    # Empty maiden names are written as '-/-'; some hold a birth date instead.
-    maiden_name = (row.pop("rodeno_prezime") or "").strip("-").strip("/") or None
+    maiden_name = row.pop("rodeno_prezime")
     dob = None
-    if maiden_name is not None and re.fullmatch(r"[.\d]+", maiden_name):
-        dob, maiden_name = maiden_name, None
+    if maiden_name is not None and re.fullmatch(r"[\d.\s]+", maiden_name):
+        # Some hold a birth date instead, e.g. '04. 12. 1960'.
+        dob, maiden_name = re.sub(r"\s", "", maiden_name), None
+    elif maiden_name is not None and not any(c.isalpha() for c in maiden_name):
+        # Placeholders such as '-/-' or "'".
+        maiden_name = None
 
     city = row.pop("mjesto")
     entity = context.make("Person")
@@ -105,7 +108,8 @@ def parse_function(
     function = row.pop("naziv_funkcije")
     organization = row.pop("organ_vlasti_gdje_se_obavlja_funkcija")
     if function is None or organization is None:
-        context.log.warning(
+        # Mostly old memberships ("Član") that name no body to build a position.
+        context.log.info(
             "Function without a name or organisation",
             person=person.id,
             function=function,
