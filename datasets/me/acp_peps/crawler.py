@@ -88,41 +88,6 @@ def crawl_relatives(
         context.emit(rel)
 
 
-def emit_occupancy(
-    context: Context,
-    person: Entity,
-    position: Entity,
-    *,
-    declaration_date: str | None,
-    start_date: str | None = None,
-    end_date: str | None = None,
-    status: OccupancyStatus | None = None,
-) -> bool:
-    """Emit the occupancy if the position is a PEP. Returns true if it is national."""
-    categorisation = categorise(context, position, default_is_pep=True)
-    if not categorisation.is_pep:
-        return False
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-        start_date=start_date,
-        end_date=end_date,
-        declaration_date=declaration_date,
-        # A filing is a snapshot of the functions held when it was filed.
-        no_end_implies_current=False,
-        status=status,
-    )
-    if occupancy is None:
-        return False
-
-    context.emit(position)
-    context.emit(occupancy)
-    context.emit(person)
-    return "gov.national" in categorisation.topics
-
-
 def crawl_function(
     context: Context,
     person: Entity,
@@ -163,16 +128,30 @@ def crawl_function(
         lang="cnr",
         translate_name=True,
     )
-    return emit_occupancy(
+    categorisation = categorise(context, position, default_is_pep=True)
+    if not categorisation.is_pep:
+        return False
+
+    occupancy = h.make_occupancy(
         context,
         person,
         position,
+        categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,
         declaration_date=filing_date,
+        # A filing is a snapshot of the functions held when it was filed.
+        no_end_implies_current=False,
         # Some functions are marked as ended without an end date.
         status=OccupancyStatus.ENDED if ended == "X" and end_date is None else None,
     )
+    if occupancy is None:
+        return False
+
+    context.emit(position)
+    context.emit(occupancy)
+    context.emit(person)
+    return "gov.national" in categorisation.topics
 
 
 def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
@@ -219,16 +198,29 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
         # Fall back to the functions the index lists.
         for label in function_labels:
             position = h.make_position(context, label, country="me")
-            if emit_occupancy(
+            categorisation = categorise(context, position, default_is_pep=True)
+            if not categorisation.is_pep:
+                continue
+
+            occupancy = h.make_occupancy(
                 context,
                 person,
                 position,
+                categorisation=categorisation,
                 declaration_date=filing_date,
+                no_end_implies_current=False,
                 # The index lists some people without any filing. It lists them
                 # because they hold the function and owe a filing, so keep them
                 # without a date to age out from.
                 status=OccupancyStatus.UNKNOWN if filing_date is None else None,
-            ):
+            )
+            if occupancy is None:
+                continue
+
+            context.emit(position)
+            context.emit(occupancy)
+            context.emit(person)
+            if "gov.national" in categorisation.topics:
                 is_national = True
 
     if is_national:
