@@ -94,7 +94,7 @@ def apply_name(context: Context, person: Entity, full_name: str) -> None:
         person.add("gender", res.gender)
         tokens.pop(0)
     name = " ".join(tokens)
-    person.add("name", name, lang="ara")
+    person.add("name", name)
     apply_translit_full_name(context, person, LangText(name, "ara"))
 
 
@@ -135,9 +135,8 @@ def crawl_member(
         if blocs != "لا يوجد":  # "none"
             entries = [b.split(" - ", 1) for b in blocs.split("/")]
             assert all(len(e) == 2 for e in entries), (url, blocs)
-            political_group = max(entries, key=lambda e: session_number(context, e[0]))[
-                1
-            ]
+            latest = max(entries, key=lambda e: session_number(context, e[0]))
+            political_group = latest[1]
         context.audit_data(
             row,
             ignore=[
@@ -166,7 +165,7 @@ def crawl_member(
         key_prefix=council,
     )
     if occupancy is not None:
-        occupancy.add("politicalGroup", political_group, lang="ara")
+        occupancy.add("politicalGroup", political_group)
         context.emit(occupancy)
     if speaker is not None:
         position, categorisation = speaker
