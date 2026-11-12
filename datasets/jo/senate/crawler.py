@@ -63,7 +63,6 @@ def fetch_pages(context: Context, url: str) -> Iterator[Element]:
             for el in h.xpath_elements(doc, ".//form//input[@type='hidden']")
         }
         data["__EVENTTARGET"] = target.group(1)
-        data["__EVENTARGUMENT"] = ""
         request = zyte_api.ZyteAPIRequest(
             url=url,
             method="POST",
@@ -160,11 +159,10 @@ def parse_note(
     return appointments, resignations
 
 
-def cv_fields(context: Context, doc: Element) -> dict[str, str]:
+def cv_fields(context: Context, content: Element) -> dict[str, str]:
     """Return the text after each CV heading, such as "مكان وتاريخ الولادة:", by the
     field the cv_labels lookup gives for it."""
     fields: dict[str, str] = {}
-    content = h.xpath_element(doc, ".//div[@id='MainContent_DivContent']")
     # A heading is a <h5>, <p> or <div>, sometimes wrapped in <strong> or <span>,
     # and its value is the next element with text.
     for el in h.xpath_elements(content, ".//*"):
@@ -206,7 +204,8 @@ def crawl_member(
     assert person_id is not None, url
     person, name = make_person(context, person_id, label.lstrip("* "))
     person.add("sourceUrl", url)
-    fields = cv_fields(context, doc)
+    content = h.xpath_element(doc, ".//div[@id='MainContent_DivContent']")
+    fields = cv_fields(context, content)
     # "الاسم والشهرة": the name the senator is commonly known by.
     if "alias" in fields:
         alias = clean_name(context, fields["alias"], person)
@@ -231,18 +230,13 @@ def crawl_member(
                 person.add("birthPlace", place)
     person.add("birthPlace", fields.get("birthPlace"))
     if "birth" not in fields and "birthPlace" not in fields:
-        text = h.element_text(
-            h.xpath_element(doc, ".//div[@id='MainContent_DivContent']")
-        )
+        text = h.element_text(content)
         if "الولادة" in text or "الميلاد" in text:
             context.log.warning("Birth details under an unknown heading", url=url)
-    for email in h.xpath_strings(
-        doc,
-        ".//div[@id='MainContent_DivContent']//a[starts-with(@href, 'mailto:')]/@href",
-    ):
+    for email in h.xpath_strings(content, ".//a[starts-with(@href, 'mailto:')]/@href"):
         person.add("email", email.removeprefix("mailto:"))
     # Some pages give the address only as text: "البريد الإلكتروني: x@senate.jo".
-    for para in h.xpath_elements(doc, ".//div[@id='MainContent_DivContent']//p"):
+    for para in h.xpath_elements(content, ".//p"):
         match = re.fullmatch(
             r"البريد ال[إا]لكتروني ?: ?(\S+@\S+)", h.element_text(para)
         )
@@ -256,39 +250,18 @@ def crawl_member(
     end_date = resignations.pop(name_key(name), None)
     assert end_date is None or starred, (url, end_date)
     appointment = appointments.pop(name_key(name), None)
-    emit_occupancy(
-        context,
-        person,
-        position,
-        categorisation,
-        start_date=None if appointment is None else appointment[1],
-        end_date=end_date,
-        status=OccupancyStatus.ENDED if starred and end_date is None else None,
-    )
-
-
-def emit_occupancy(
-    context: Context,
-    person: Entity,
-    position: Entity,
-    categorisation: PositionCategorisation,
-    start_date: str | None,
-    end_date: str | None,
-    status: OccupancyStatus | None,
-) -> None:
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         categorisation=categorisation,
-        start_date=start_date,
+        start_date=None if appointment is None else appointment[1],
         end_date=end_date,
-        status=status,
+        status=OccupancyStatus.ENDED if starred and end_date is None else None,
     )
-    if occupancy is None:
-        return
-    context.emit(occupancy)
-    context.emit(person)
+    if occupancy is not None:
+        context.emit(occupancy)
+        context.emit(person)
 
 
 def crawl(context: Context) -> None:
@@ -329,15 +302,17 @@ def crawl(context: Context) -> None:
         person_id = context.make_id(raw_name)
         assert person_id is not None, raw_name
         person, _ = make_person(context, person_id, raw_name)
-        emit_occupancy(
+        occupancy = h.make_occupancy(
             context,
             person,
             position,
-            categorisation,
+            categorisation=categorisation,
             start_date=start_date,
             end_date=resignations.pop(key, None),
-            status=None,
         )
+        if occupancy is not None:
+            context.emit(occupancy)
+            context.emit(person)
     # A resignation must end the occupancy of a member marked as having left, or
     # of an appointee.
     assert len(resignations) == 0, resignations
