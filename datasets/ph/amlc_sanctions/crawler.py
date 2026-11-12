@@ -1,9 +1,14 @@
 import csv
+import re
+import shutil
 from pathlib import Path
+
+from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
+SANCTIONS_CSV = Path(__file__).parent / "sanctions.csv"
 RESOLUTIONS_CSV = Path(__file__).parent / "resolutions.csv"
 # The cards are rendered client-side, well after the document has loaded, so the
 # browser has to be told to wait for them rather than snapshotting the empty shell.
@@ -17,12 +22,32 @@ ACTIONS = [
 ]
 
 
+def fetch_news_notices(context: Context) -> dict[str, str]:
+    """Map each TF resolution id to the title of its notice in News and Announcements."""
+    notices: dict[str, str] = {}
+    page = 1
+    while True:
+        url = f"https://www.amlc.gov.ph/api/news/combined/feed?page={page}&limit=100"
+        data = zyte_api.fetch_json(context, url, cache_days=1, geolocation="PH")
+        assert data["success"] is True, (url, data)
+        for item in data["data"]:
+            title = " ".join(item["title"].split())
+            # e.g. "Notice of Targeted Financial Sanctions through AMLC Resolution
+            # No. TF-119, Series of 2026 in Relation to ..."
+            match = re.search(r"AMLC Resolution No\. (TF-\d+)", title, re.IGNORECASE)
+            if match is not None:
+                notices[match.group(1).upper()] = title
+        if page >= data["pagination"]["totalPages"]:
+            return notices
+        page += 1
+
+
 def crawl_resolutions(context: Context) -> None:
-    # The spreadsheet at data.url is a hand-maintained extraction of the designations
-    # in the AMLC's terrorism financing resolutions, so a newly published resolution
+    # sanctions.csv is a hand-maintained extraction of the designations in the
+    # AMLC's terrorism financing resolutions, so a newly published resolution
     # has to reach a human rather than silently going missing from the dataset.
     # Rewriting resolutions.csv on every run turns one into a reviewable diff: check
-    # the new resolution, update the spreadsheet, then commit the updated CSV.
+    # the new resolution, add its designations to sanctions.csv, then commit both.
     assert context.dataset.url is not None
     # The validator doubles as the guarantee that the list actually rendered.
     doc = zyte_api.fetch_html(
@@ -39,13 +64,17 @@ def crawl_resolutions(context: Context) -> None:
         # Drop the wrapping quotes; the heading then opens with its resolution id.
         title = h.element_text(element).strip('"')
         published[title.split(" ", 1)[0]] = title
+    # Since TF-114, notices appear only under News and Announcements, not on the
+    # resolutions page.
+    for resolution_id, title in fetch_news_notices(context).items():
+        published.setdefault(resolution_id, title)
 
     with open(RESOLUTIONS_CSV) as fh:
         known = {row["resolution_id"]: row["title"] for row in csv.DictReader(fh)}
     if published != known:
         context.log.warning(
-            "Published AMLC resolutions changed. Reconcile the source spreadsheet "
-            "with the resolutions, then commit the updated resolutions.csv.",
+            "Published AMLC resolutions changed. Reconcile sanctions.csv with the "
+            "resolutions, then commit it with the updated resolutions.csv.",
             added=sorted(published.keys() - known.keys()),
             removed=sorted(known.keys() - published.keys()),
         )
@@ -87,8 +116,10 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.csv", context.data_url)
-    with open(path, encoding="utf-8") as fh:
+    path = context.get_resource_path("source.csv")
+    shutil.copy(SANCTIONS_CSV, path)
+    context.export_resource(path, CSV, context.SOURCE_TITLE)
+    with open(SANCTIONS_CSV, encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             crawl_row(context, row)
