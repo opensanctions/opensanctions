@@ -16,11 +16,10 @@ from zavod.util import Element, LangText
 from zavod import Context, Entity
 from zavod import helpers as h
 
-# "عمان – 1/7/1966", "27/1/1969" or "عمان - 22 نيسان 1952": an optional place of
-# birth, then the date, with the month as a number or a Levantine month name.
-BIRTH = re.compile(
-    r"(?:(?P<place>[^\d–-]+?)\s*[–-]\s*)?"
-    r"(?P<date>\d{1,2}/\d{1,2}/\d{4}|\d{1,2} [^\d]+? \d{4})"
+# The date within the free-text place and date of birth: d/m/Y (also written with
+# backslashes), Y/m/d, "d <Levantine month> Y", or only the year.
+BIRTH_DATE = re.compile(
+    r"\d{1,2}[/\\]\d{1,2}[/\\]\d{4}|\d{4}/\d{1,2}/\d{1,2}|\d{1,2} \D+? \d{4}|\d{4}"
 )
 
 
@@ -125,14 +124,18 @@ def crawl_member(
         person.add("alias", strip_honorifics(context, person, known_as), lang="ara")
     birth = cv_field(doc, "مكان وتاريخ الولادة:")
     if birth is not None:
-        match = BIRTH.fullmatch(birth)
-        if match is None:
+        # "عمان – 1/7/1966", "20 كانون الثاني 1939 - السلط", "السلط 1953": the place
+        # and the date come in either order, separated by spaces, commas or dashes.
+        dates = BIRTH_DATE.findall(birth)
+        if len(dates) != 1 or int(re.findall(r"\d{4}", dates[0])[0]) < 1900:
             context.log.warning(
                 "Cannot parse place and date of birth", url=url, value=birth
             )
         else:
-            h.apply_date(person, "birthDate", match.group("date"))
-            person.add("birthPlace", match.group("place"), lang="ara")
+            h.apply_date(person, "birthDate", dates[0].replace("\\", "/"))
+            place = birth.replace(dates[0], "").strip(" ,،.-–/")
+            if place != "":
+                person.add("birthPlace", place, lang="ara")
     for email in h.xpath_strings(
         doc,
         ".//div[@id='MainContent_DivContent']//a[starts-with(@href, 'mailto:')]/@href",

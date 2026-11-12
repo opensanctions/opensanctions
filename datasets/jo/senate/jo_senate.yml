@@ -33,7 +33,7 @@ data:
   format: HTML
   lang: ara
 dates:
-  formats: ["%d/%m/%Y", "%d %m %Y"]
+  formats: ["%d/%m/%Y", "%Y/%m/%d", "%d %m %Y", "%Y"]
   # Levantine Arabic month names, as in "22 نيسان 1952".
   months:
     "01": كانون الثاني
@@ -43,7 +43,7 @@ dates:
     "05": أيار
     "06": حزيران
     "07": تموز
-    "08": آب
+    "08": [آب, اب]
     "09": أيلول
     "10": تشرين الأول
     "11": تشرين الثاني
