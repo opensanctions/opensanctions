@@ -11,8 +11,8 @@ summary: >
 description: |
   Montenegrin public officials are required by law to report their income, assets
   and public functions to the Agency for Prevention of Corruption, which publishes
-  the reports in a public register. This dataset lists current and former officials
-  as politically exposed persons, based on the functions in their reports.
+  the reports in a public register. This dataset lists current and former officials,
+  based on the functions in their reports.
 
   For officials who served at the national level, it also includes the family
   members listed in their reports.
