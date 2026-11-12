@@ -14,9 +14,8 @@ summary: >-
 description: |
   Current and recent members of the House of Representatives of Jordan (مجلس
   النواب), the lower chamber of the bicameral Parliament of Jordan. Its members are
-  elected for a four-year term and, together with the appointed Senate, hold
-  the country's legislative power, including passing laws, approving the budget
-  and holding the government to account.
+  elected for a four-year term and, together with the appointed Senate, pass
+  laws, approve the budget and hold the government to account.
 
   The dataset covers the sitting House and the one before it, as well as the
   Speaker for the current session.
@@ -24,7 +23,6 @@ url: https://representatives.jo/Ar/Pages/CouncilMembers
 publisher:
   name: مجلس النواب الأردني
   name_en: House of Representatives of Jordan
-  acronym: HoR
   description: >
     The House of Representatives is the elected lower chamber of the Parliament of
     Jordan.
@@ -73,9 +71,9 @@ lookups:
     options:
       - match: ["سعادة", "معالي"]
         gender: null
-      - match: ["السيد", "الدكتور", "المهندس", "المحامي"]
+      - match: ["السيد", "الدكتور", "المهندس", "المحامي", "الاستاذ"]
         gender: male
-      - match: ["السيدة", "الدكتورة", "المهندسة", "المحامية"]
+      - match: ["السيدة", "الدكتورة", "المهندسة", "المحامية", "الآنسة"]
         gender: female
   type.email:
     lowercase: true
@@ -85,6 +83,10 @@ lookups:
         value: null
       - match: Rakeen.AbuHania@representatives.j
         value: Rakeen.AbuHania@representatives.jo
+      # Listed on the profile of Amal al-Shuqran (RepresentativeID 2041), but the
+      # address of another member's surname.
+      - match: Amal.Albashir@representatives.jo
+        value: null
 
 assertions:
   min:

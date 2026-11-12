@@ -82,7 +82,7 @@ def fetch_pages(context: Context, url: str) -> Iterator[Element]:
 
 
 def session_number(context: Context, session: str) -> int:
-    number = context.lookup_value("sessions", session, warn_unmatched=True)
+    number = context.lookup_value("sessions", session)
     assert number is not None, session
     return int(number)
 
@@ -123,9 +123,7 @@ def crawl_member(
         row: dict[str, str] = {}
         for tr in h.xpath_elements(doc, ".//div[@id='info']//tr[count(td) = 2]"):
             label, value = [h.element_text(td) for td in h.xpath_elements(tr, "./td")]
-            key = context.lookup_value(
-                "columns", label.lstrip("- "), warn_unmatched=True
-            )
+            key = context.lookup_value("columns", label.lstrip("- "))
             assert key is not None, (url, label)
             row[key] = value
         person.add("email", row.pop("email"))
@@ -135,8 +133,9 @@ def crawl_member(
         if blocs != "لا يوجد":  # "none"
             entries = [b.split(" - ", 1) for b in blocs.split("/")]
             assert all(len(e) == 2 for e in entries), (url, blocs)
-            latest = max(entries, key=lambda e: session_number(context, e[0]))
-            political_group = latest[1]
+            sessions = [session_number(context, e[0]) for e in entries]
+            assert len(set(sessions)) == len(sessions), (url, blocs)
+            political_group = entries[sessions.index(max(sessions))][1]
         context.audit_data(
             row,
             ignore=[
