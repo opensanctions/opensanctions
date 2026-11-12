@@ -32,7 +32,7 @@ SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
 def _next_version(version: Version, monkeypatch: pytest.MonkeyPatch) -> Version:
-    """Advance the process run version by a day, as a subsequent run would."""
+    """Advance the process run version by a day, as a subsequent run might."""
     next_dt = version.dt + timedelta(days=1)
     next_version = Version.from_string(next_dt.strftime("%Y%m%d%H%M%S") + "-bbb")
     monkeypatch.setattr(settings, "RUN_VERSION", next_version)

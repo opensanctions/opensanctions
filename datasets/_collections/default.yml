@@ -5,7 +5,7 @@ coverage:
   schedule: "0 */6 * * *"
 deploy:
   memory: "4000Mi"
-  memory_limit: "6000Mi"
+  memory_limit: "7000Mi"
   cpu: "1200m"
   cpu_limit: "2000m"
   disk: "100Gi"

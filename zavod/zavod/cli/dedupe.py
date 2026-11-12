@@ -22,7 +22,7 @@ refresh_option = click.option(
     "--refresh",
     is_flag=True,
     default=False,
-    help="Pin the latest dataset versions instead of reusing the scope's manifest",
+    help="Re-pin the latest dataset versions instead of reusing the scope's manifest",
 )
 
 

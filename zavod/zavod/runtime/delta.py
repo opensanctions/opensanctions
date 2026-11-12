@@ -75,7 +75,8 @@ class HashDelta:
 
     def feed(self, entity: Entity) -> list[tuple[str, Entity]]:
         """Hash and buffer one traversal entity. Returns the classified
-        (op, entity) pairs of a full batch, usually an empty list."""
+        (op, entity) pairs of a full batch each time it fills up. Otherwise
+        returns an empty list."""
         if entity.id is None:
             return []
         digest = sha1()
