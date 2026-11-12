@@ -62,7 +62,12 @@ def build_person_from_family_row(
         entity, first_name=first_name, last_name=last_name, maiden_name=maiden_name
     )
     h.apply_date(entity, "birthDate", dob)
-    address = h.make_address(context, city=city, place=row.pop("boraviste"), lang="cnr")
+    residence = row.pop("boraviste")
+    # The residence often repeats the city.
+    if residence is not None and city is not None:
+        if residence.casefold() == city.casefold():
+            residence = None
+    address = h.make_address(context, city=city, place=residence, lang="cnr")
     h.copy_address(entity, address)
     # The family relationship, used by the caller.
     context.audit_data(row, ["srodstvo"])
@@ -180,6 +185,9 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
 
     if officials:
         person = build_person_from_family_row(context, officials[0])
+        # The filing can spell the name differently from the index, e.g. in
+        # Cyrillic, without diacritics or with a married name.
+        h.apply_name(person, full_name)
     else:
         person = context.make("Person")
         # TODO(Leon Handreke): I think we should be passing *function_labels here,

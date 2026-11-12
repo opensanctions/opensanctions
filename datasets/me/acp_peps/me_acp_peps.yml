@@ -51,22 +51,29 @@ lookups:
     lowercase: true
     options:
       - match: Crnogorsko
-        country: me
+        value: me
       - match:
           - SRPSKO
           - Srbijansko
           - Republike Srbije
-        country: rs
+          - R.Srbije
+        value: rs
+      - match: Crnogorsko i srpsko
+        values: [me, rs]
       - match: Britansko
-        country: gb
+        value: gb
       - match: Tursko
-        country: tr
+        value: tr
       - match:
           - američko
           - Americko
-        country: us
+        value: us
       - match: Makedonsko
-        country: mk
+        value: mk
+      - match: Hrvatsko
+        value: hr
+      - match: Austrijsko
+        value: at
   type.address:
     options:
       # Map short address strings to bypass short address warnings
