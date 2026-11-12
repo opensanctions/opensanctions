@@ -109,6 +109,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         program_key=h.lookup_sanction_program_key(context, program),
     )
     sanction.add("program", resolution_no)
+    sanction.add("authorityId", row.pop("resolution_id"))
     context.emit(entity)
     context.emit(sanction)
 
