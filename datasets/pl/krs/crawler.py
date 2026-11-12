@@ -1,4 +1,5 @@
 import gzip
+import re
 import shutil
 from datetime import date, timedelta
 from pathlib import Path
@@ -69,7 +70,9 @@ def fetch_record(context: Context, krs: int, refresh: bool) -> Record | None:
         if odpis is not None:
             header = odpis["odpis"]["naglowekA"]
             assert header["numerKRS"] == f"{krs:010d}", (krs, header)
-            assert header["rejestr"] == f"Rej{rejestr}", (krs, header)
+            # Some numbers answer with the other register's extract.
+            assert header["rejestr"] in ("RejP", "RejS"), (krs, header)
+            record["rejestr"] = header["rejestr"].removeprefix("Rej")
             return record
         # Some numbers answer empty in one register while the other holds
         # their extract, so an empty answer is final only once both are asked.
@@ -261,6 +264,7 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity | 
     ident = item.pop("identyfikator", {})
     pesel = ident.pop("pesel", None)
     birth_date = ident.pop("dataUrodzenia", None)
+    national_id = ident.pop("KrajowyNumerIdentyfikacyjny", None)
     context.audit_data(ident)
 
     person = context.make("Person")
@@ -274,6 +278,12 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity | 
         return None
     h.apply_name(person, first_name=given, middle_name=middle, last_name=last_name)
     h.apply_date(person, "birthDate", birth_date)
+    # Some entries hold the birth date in the national identifier field.
+    if national_id is not None and re.fullmatch(r"\d{2}\.\d{2}\.\d{4}", national_id):
+        if birth_date is None:
+            h.apply_date(person, "birthDate", national_id)
+    else:
+        person.add("idNumber", national_id)
     context.emit(person)
     return person
 
