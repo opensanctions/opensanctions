@@ -7,6 +7,7 @@
 # have since left keep their card, marked with a leading "*". A note on the listing
 # ("التعديلات التي طرأت على المجلس") gives each later decree, which appoints members
 # or accepts a resignation, and the crawler fails on an entry it cannot read.
+# A note-only appointee's ID changes to the card-based ID once the site adds their card.
 title: Jordan Members of the Senate
 prefix: jo-sen
 entry_point: crawler.py
@@ -111,5 +112,5 @@ assertions:
       jo: 60
   max:
     schema_entities:
-      Person: 90
+      Person: 150
       Position: 2

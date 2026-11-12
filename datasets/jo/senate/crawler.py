@@ -40,11 +40,7 @@ def fetch_pages(context: Context, url: str) -> Iterator[Element]:
         assert result.status_code == 200, (url, result.status_code)
         doc = html.fromstring(result.response_text)
         cast(html.HtmlElement, doc).make_links_absolute(context.data_url)
-        pagers = h.xpath_elements(doc, ".//span[@id='pagerList']")
-        if len(pagers) != 1:
-            title = h.xpath_strings(doc, ".//title/text()")
-            raise ValueError(f"No pager on listing page {page}: {title!r}")
-        pager = pagers[0]
+        pager = h.xpath_element(doc, ".//span[@id='pagerList']")
         yield doc
         # "صفحة 3 من 8": page 3 of 8
         nav = h.element_text(h.xpath_element(pager, "./ancestor::nav[1]"))
@@ -97,15 +93,22 @@ def name_key(name: str) -> str:
     return name.replace(" ", "")
 
 
-def make_person(
-    context: Context, person_id: str | None, raw_name: str, url: str
-) -> tuple[Entity, str]:
+def note_key(context: Context, raw_name: str) -> str:
+    """Key a name from the note for matching to a member's card."""
+    name = clean_name(context, raw_name)
+    # The note can spell a name differently from the member's card.
+    res = context.lookup("note_names", name)
+    if res is not None:
+        name = str(res.value)
+    return name_key(name)
+
+
+def make_person(context: Context, person_id: str, raw_name: str) -> tuple[Entity, str]:
     person = context.make("Person")
     person.id = person_id
     name = clean_name(context, raw_name, person)
     person.add("name", name)
     apply_translit_full_name(context, person, LangText(name, "ara"))
-    person.add("sourceUrl", url)
     # Senators must be Jordanian: Constitution of Jordan, Art. 75(1)(a).
     # https://www.constituteproject.org/constitution/Jordan_2016
     person.add("citizenship", "jo")
@@ -148,15 +151,9 @@ def parse_note(
         if appointment is not None:
             # One decree can appoint two members: "يعين دولة … وسعادة …".
             for name in re.split(r" و(?=سعادة |معالي |دولة )", appointment.group(1)):
-                key = name_key(clean_name(context, name))
-                appointments[key] = (name, appointment.group(2))
+                appointments[note_key(context, name)] = (name, appointment.group(2))
         elif resignation is not None:
-            name = clean_name(context, resignation.group(1))
-            # The note can spell a name differently from the member's card.
-            res = context.lookup("note_names", name)
-            if res is not None:
-                name = str(res.value)
-            resignations[name_key(name)] = resignation.group(2)
+            resignations[note_key(context, resignation.group(1))] = resignation.group(2)
         else:
             raise ValueError(f"Unexpected paragraph in the note: {text!r}")
     assert headings == decrees, (headings, decrees)
@@ -176,7 +173,10 @@ def cv_fields(context: Context, doc: Element) -> dict[str, str]:
         if res is None or h.element_text(el.getparent()) == label:
             continue
         values = h.xpath_elements(el, "following::*")
-        value = next(h.element_text(v) for v in values if h.element_text(v) != "")
+        value = next(
+            (h.element_text(v) for v in values if h.element_text(v) != ""), None
+        )
+        assert value is not None, label
         assert res.value not in fields, label
         fields[str(res.value)] = value
     return fields
@@ -200,9 +200,12 @@ def crawl_member(
         cache_days=7,
     )
 
-    # The item number in /ListDetails/<list>/1248/<item> is only unique within the list.
+    # The item number in /ListDetails/<slug>/<list id>/<item> is only unique within
+    # the list.
     person_id = context.make_id(*url.rsplit("/", 2)[1:])
-    person, name = make_person(context, person_id, label.lstrip("* "), url)
+    assert person_id is not None, url
+    person, name = make_person(context, person_id, label.lstrip("* "))
+    person.add("sourceUrl", url)
     fields = cv_fields(context, doc)
     # "الاسم والشهرة": the name the senator is commonly known by.
     if "alias" in fields:
@@ -228,7 +231,9 @@ def crawl_member(
                 person.add("birthPlace", place)
     person.add("birthPlace", fields.get("birthPlace"))
     if "birth" not in fields and "birthPlace" not in fields:
-        text = h.element_text(doc)
+        text = h.element_text(
+            h.xpath_element(doc, ".//div[@id='MainContent_DivContent']")
+        )
         if "الولادة" in text or "الميلاد" in text:
             context.log.warning("Birth details under an unknown heading", url=url)
     for email in h.xpath_strings(
@@ -251,37 +256,34 @@ def crawl_member(
     end_date = resignations.pop(name_key(name), None)
     assert end_date is None or starred, (url, end_date)
     appointment = appointments.pop(name_key(name), None)
-    occupancy = h.make_occupancy(
+    emit_occupancy(
         context,
         person,
         position,
-        categorisation=categorisation,
+        categorisation,
         start_date=None if appointment is None else appointment[1],
         end_date=end_date,
-        status=OccupancyStatus.ENDED if starred else None,
+        status=OccupancyStatus.ENDED if starred and end_date is None else None,
     )
-    if occupancy is None:
-        return
-    context.emit(occupancy)
-    context.emit(person)
 
 
-def crawl_appointee(
+def emit_occupancy(
     context: Context,
+    person: Entity,
     position: Entity,
     categorisation: PositionCategorisation,
-    key: str,
-    raw_name: str,
-    start_date: str,
+    start_date: str | None,
+    end_date: str | None,
+    status: OccupancyStatus | None,
 ) -> None:
-    """Emit a member who is only named in the note, not given a card."""
-    person, _ = make_person(context, context.make_id(key), raw_name, context.data_url)
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         categorisation=categorisation,
         start_date=start_date,
+        end_date=end_date,
+        status=status,
     )
     if occupancy is None:
         return
@@ -309,7 +311,9 @@ def crawl(context: Context) -> None:
     docs = list(fetch_pages(context, context.data_url))
     appointments, resignations = parse_note(context, docs[0])
     for doc in docs:
-        for card in h.xpath_elements(doc, ".//div[@id='divHeight']"):
+        cards = h.xpath_elements(doc, ".//div[@id='divHeight']")
+        assert len(cards) > 0, "No member cards on a listing page"
+        for card in cards:
             crawl_member(
                 context,
                 h.xpath_string(card, ".//a[@id='lnkMore']/@href"),
@@ -319,9 +323,21 @@ def crawl(context: Context) -> None:
                 appointments,
                 resignations,
             )
-    # A resignation must end the occupancy of a member marked as having left.
-    assert len(resignations) == 0, resignations
     # Appointees who have a card were taken off the list with their card, so the
     # rest only appear in the note.
     for key, (raw_name, start_date) in appointments.items():
-        crawl_appointee(context, position, categorisation, key, raw_name, start_date)
+        person_id = context.make_id(raw_name)
+        assert person_id is not None, raw_name
+        person, _ = make_person(context, person_id, raw_name)
+        emit_occupancy(
+            context,
+            person,
+            position,
+            categorisation,
+            start_date=start_date,
+            end_date=resignations.pop(key, None),
+            status=None,
+        )
+    # A resignation must end the occupancy of a member marked as having left, or
+    # of an appointee.
+    assert len(resignations) == 0, resignations
