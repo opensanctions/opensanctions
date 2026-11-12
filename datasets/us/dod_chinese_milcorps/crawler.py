@@ -63,10 +63,12 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         start_date=start_date,
         end_date=row.pop("End date"),
     )
-    # A listing takes effect when its edition is published, and the list records no
-    # amendments, so a listing is unchanged since it was added.
+    # A listing takes effect when its edition is published. The list records no
+    # amendments, so its last change is the removal, or else the listing itself.
     for stmt in sanction.get_statements("startDate"):
         sanction.adopt_statement(stmt, prop="listingDate")
+    last_change = "endDate" if sanction.has("endDate") else "startDate"
+    for stmt in sanction.get_statements(last_change):
         sanction.adopt_statement(stmt, prop="modifiedAt")
     sanction.add("reason", row.pop("Note"))
     sanction.add("summary", row.pop("Removal Note"))
