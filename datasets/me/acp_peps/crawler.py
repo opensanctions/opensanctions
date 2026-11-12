@@ -42,10 +42,19 @@ def read_section(doc: Element, title: str) -> list[dict[str, str | None]]:
 
 
 def build_person_from_family_row(
-    context: Context, row: dict[str, str | None]
+    context: Context, row: dict[str, str | None], index_name: str | None = None
 ) -> Entity:
     first_name = row.pop("ime")
     last_name = row.pop("prezime")
+    # Use the index's spelling of the name when the filing only differs in case,
+    # e.g. AMIR ĐOKAJ for Amir Đokaj.
+    full_name = h.make_name(first_name=first_name, last_name=last_name)
+    if (
+        index_name is not None
+        and full_name is not None
+        and index_name.casefold() == full_name.casefold()
+    ):
+        full_name = index_name
     # We're dealing with: '-/-'
     maiden_name = (row.pop("rodeno_prezime") or "").strip("-").strip("/") or None
     # If the maiden name is actually a birthdate (i.e. only digits and dots),
@@ -59,7 +68,11 @@ def build_person_from_family_row(
     entity.id = context.make_id(first_name, last_name, city)
     entity.add("citizenship", (row.pop("drzavljanstvo") or "").split(","))
     h.apply_name(
-        entity, first_name=first_name, last_name=last_name, maiden_name=maiden_name
+        entity,
+        full=full_name,
+        first_name=first_name,
+        last_name=last_name,
+        maiden_name=maiden_name,
     )
     h.apply_date(entity, "birthDate", dob)
     residence = row.pop("boraviste")
@@ -160,7 +173,7 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
         context.log.warning("Multiple officials in a filing", name=full_name)
 
     if officials:
-        person = build_person_from_family_row(context, officials[0])
+        person = build_person_from_family_row(context, officials[0], full_name)
         # The filing can spell the name differently from the index, e.g. in
         # Cyrillic, without diacritics or with a married name.
         h.apply_name(person, full_name)
