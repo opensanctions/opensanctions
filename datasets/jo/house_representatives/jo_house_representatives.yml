@@ -1,3 +1,6 @@
+# The government network is only reachable through Zyte with JO geolocation, and
+# Zyte intermittently returns 421 errors. A run takes long, hence ci_test: false.
+# Profiles of the previous House are empty, so they are not fetched.
 title: Jordan Members of the House of Representatives
 prefix: jo-hor
 entry_point: crawler.py
@@ -7,12 +10,11 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Current and recent members of the House of Representatives of Jordan, the
-  elected lower chamber of the Parliament
+  Elected lower chamber of the Parliament of Jordan, current and previous term
 description: |
   Current and recent members of the House of Representatives of Jordan (مجلس
-  النواب), the lower chamber of the bicameral Parliament of Jordan. Its 138 members
-  are elected for a four-year term and, together with the appointed Senate, hold
+  النواب), the lower chamber of the bicameral Parliament of Jordan. Its members are
+  elected for a four-year term and, together with the appointed Senate, hold
   the country's legislative power, including passing laws, approving the budget
   and holding the government to account.
 
@@ -57,23 +59,6 @@ lookups:
         value: phone
       - match: "البريد الالكتروني" # email
         value: email
-  # Council (parliament) names -> council number, as in the listing's hfConsId.
-  councils:
-    options:
-      - match: "المجلس النيابي العشرون"
-        value: "20"
-      - match: "المجلس النيابي التاسع عشر"
-        value: "19"
-      - match: "المجلس النيابي الثامن عشر"
-        value: "18"
-      - match: "المجلس النيابي السابع عشر"
-        value: "17"
-      - match: "المجلس النيابي السادس عشر"
-        value: "16"
-      - match: "المجلس النيابي الخامس عشر"
-        value: "15"
-      - match: "المجلس النيابي الرابع عشر"
-        value: "14"
   # Session names -> sequence within a council, to find the latest session.
   sessions:
     options:
@@ -83,17 +68,23 @@ lookups:
         value: "2"
       - match: "الدورة العادية الثالثة"
         value: "3"
-      - match: "الدورة العادية الرابعة"
-        value: "4"
   # Leading honorifics of member names; the title after the rank gives gender.
   honorifics:
     options:
-      - match: ["سعادة", "معالي", "دولة"]
+      - match: ["سعادة", "معالي"]
         gender: null
-      - match: ["السيد", "الدكتور", "المهندس", "المحامي", "الأستاذ"]
+      - match: ["السيد", "الدكتور", "المهندس", "المحامي"]
         gender: male
-      - match: ["السيدة", "الدكتورة", "المهندسة", "المحامية", "الأستاذة"]
+      - match: ["السيدة", "الدكتورة", "المهندسة", "المحامية"]
         gender: female
+  type.email:
+    lowercase: true
+    options:
+      # The House's shared mailbox, listed on many members' profiles.
+      - match: info@representatives.jo
+        value: null
+      - match: Rakeen.AbuHania@representatives.j
+        value: Rakeen.AbuHania@representatives.jo
 
 assertions:
   min:
@@ -102,7 +93,13 @@ assertions:
       Position: 2
     country_entities:
       jo: 200
+    entities_with_prop:
+      Occupancy:
+        holder: 250
   max:
     schema_entities:
-      Person: 300
+      Person: 500
       Position: 2
+    entities_with_prop:
+      Occupancy:
+        holder: 600
