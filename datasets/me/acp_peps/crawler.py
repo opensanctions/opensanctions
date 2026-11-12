@@ -233,6 +233,8 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
 
 def crawl(context: Context) -> None:
     page = 0
+    # About 9 pages in 2026.
+    max_pages = 20
     while True:
         # The API serves at most 2000 people per page.
         people = context.fetch_json(f"{context.data_url}?page={page}&size=2000")
@@ -241,3 +243,8 @@ def crawl(context: Context) -> None:
         for person in people:
             crawl_person(context, person)
         page += 1
+        if page >= max_pages:
+            context.log.warning(
+                f"Emergency exit: Reached the maximum page limit of {max_pages}."
+            )
+            break
