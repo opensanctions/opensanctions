@@ -1,0 +1,255 @@
+import re
+from uuid import uuid4
+from collections.abc import Iterator
+from urllib.parse import urlencode
+
+from lxml import html
+from zavod.extract import zyte_api
+from zavod.shed.trans import apply_translit_full_name
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
+from zavod.util import Element, LangText
+
+from zavod import Context, Entity
+from zavod import helpers as h
+
+DETAIL_URL = "https://representatives.jo/Ar/pages/CouncilMembersDetails"
+PRESIDENT_URL = "https://representatives.jo/Ar/Pages/CouncilPresident"
+
+
+def fetch_html(context: Context, url: str, validator: str, cache_days: int) -> Element:
+    # The government network only serves Jordanian IPs.
+    return zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=validator,
+        html_source="httpResponseBody",
+        geolocation="JO",
+        cache_days=cache_days,
+    )
+
+
+def fetch_pages(context: Context, url: str) -> Iterator[Element]:
+    """Page through an ASP.NET listing by replaying the pager's postback for the
+    link after the current page, until the pager reports the last page."""
+    # The postbacks are checked against the session's anti-forgery cookie, which
+    # the site only sets on the first page, so the whole listing goes through one
+    # Zyte session (same IP, cookies kept).
+    zyte_session = str(uuid4())
+    request = zyte_api.ZyteAPIRequest(
+        url=url, geolocation="JO", session_id=zyte_session
+    )
+    page = 1
+    while True:
+        result = zyte_api.fetch(context, request)
+        assert result.status_code == 200, (url, result.status_code)
+        doc = html.fromstring(result.response_text)
+        yield doc
+        pager = h.xpath_element(doc, ".//span[@id='MainContent_pagerList']")
+        # "صفحة 3 من 12": page 3 of 12
+        nav = h.element_text(h.xpath_element(pager, "./ancestor::nav[1]"))
+        match = re.search(r"صفحة (\d+) من (\d+)", nav)
+        assert match is not None and int(match.group(1)) == page, (page, nav)
+        if page == int(match.group(2)):
+            return
+        # The link after the current page is the next page's number, or "..." for
+        # the next block of page numbers.
+        link = h.xpath_element(
+            pager, "./span[@class='CurrentPageClass']/following-sibling::a[1]"
+        )
+        assert h.element_text(link) in (str(page + 1), "..."), h.element_text(link)
+        target = re.fullmatch(
+            r"javascript:__doPostBack\('([^']+)',''\)", link.get("href", "")
+        )
+        assert target is not None, link.get("href")
+        data = {
+            el.get("name", ""): el.get("value", "")
+            for el in h.xpath_elements(doc, ".//form//input[@type='hidden']")
+        }
+        data["__EVENTTARGET"] = target.group(1)
+        data["__EVENTARGUMENT"] = ""
+        request = zyte_api.ZyteAPIRequest(
+            url=url,
+            method="POST",
+            body=urlencode(data).encode("utf-8"),
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            geolocation="JO",
+            session_id=zyte_session,
+        )
+        page += 1
+
+
+def session_number(context: Context, session: str) -> int:
+    number = context.lookup_value("sessions", session, warn_unmatched=True)
+    assert number is not None, session
+    return int(number)
+
+
+def apply_name(context: Context, person: Entity, full_name: str) -> None:
+    """Strip the rank and title before the name; the title gives the gender."""
+    tokens = full_name.split()
+    while (res := context.lookup("honorifics", tokens[0])) is not None:
+        person.add("gender", res.gender)
+        tokens.pop(0)
+    name = " ".join(tokens)
+    person.add("name", name, lang="ara")
+    apply_translit_full_name(context, person, LangText(name, "ara"))
+
+
+def crawl_member(
+    context: Context,
+    member_id: str,
+    council: str,
+    is_current: bool,
+    positions: list[tuple[Entity, PositionCategorisation]],
+) -> None:
+    url = f"{DETAIL_URL}?RepresentativeID={member_id}"
+    doc = fetch_html(context, url, ".//div[@id='info']", cache_days=7)
+    row: dict[str, str] = {}
+    for tr in h.xpath_elements(doc, ".//div[@id='info']//tr[count(td) = 2]"):
+        label, value = [h.element_text(td) for td in h.xpath_elements(tr, "./td")]
+        key = context.lookup_value("columns", label.lstrip("- "), warn_unmatched=True)
+        assert key is not None, (url, label)
+        row[key] = value
+
+    person = context.make("Person")
+    person.id = context.make_slug(member_id)
+    apply_name(context, person, row.pop("name"))
+    person.add("email", row.pop("email"))
+    person.add("sourceUrl", url)
+    # Members must be Jordanian: Constitution of Jordan, Art. 75(1)(a).
+    # https://www.constituteproject.org/constitution/Jordan_2016
+    person.add("citizenship", "jo")
+
+    councils = [
+        context.lookup_value("councils", c.strip(), warn_unmatched=True)
+        for c in row.pop("councils").split("/")
+    ]
+    if council not in councils:
+        context.log.warning(
+            "Listed member's profile omits the council", url=url, council=council
+        )
+
+    # "<session> - <bloc>/<session> - <bloc>". Sessions are not tied to a
+    # council, so blocs are only attributed to the sitting House.
+    blocs = row.pop("blocs")
+    political_group = None
+    if is_current and blocs != "لا يوجد":  # "none"
+        entries = [b.split(" - ", 1) for b in blocs.split("/")]
+        assert all(len(e) == 2 for e in entries), (url, blocs)
+        political_group = max(entries, key=lambda e: session_number(context, e[0]))[1]
+
+    for position, categorisation in positions:
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            categorisation=categorisation,
+            # Terms are not dated: the sitting House is current, the one before
+            # it has ended. Only one previous House is crawled, as ended
+            # occupancies without dates never age out.
+            status=None if is_current else OccupancyStatus.ENDED,
+            key_prefix=council,
+        )
+        if occupancy is None:
+            continue
+        occupancy.add("politicalGroup", political_group, lang="ara")
+        context.emit(occupancy)
+        context.emit(position)
+    context.emit(person)
+
+    context.audit_data(
+        row,
+        ignore=[
+            "committees",
+            "brotherhood_committees",
+            "friendship_associations",
+            # Phone numbers are not extracted for PEPs.
+            "phone",
+        ],
+    )
+
+
+def crawl_council(
+    context: Context,
+    url: str,
+    council: int,
+    is_current: bool,
+    member: tuple[Entity, PositionCategorisation],
+    speaker: tuple[Entity, PositionCategorisation],
+    speaker_id: str,
+) -> set[str]:
+    member_ids: set[str] = set()
+    # Fetch the whole listing before the slow member pages, so the pager's
+    # postbacks follow each other closely enough to stay within the session.
+    for doc in list(fetch_pages(context, url)):
+        for card in h.xpath_elements(doc, ".//div[contains(@class, 'card ')]"):
+            council_id = h.xpath_string(
+                card, ".//input[contains(@name, 'hfConsId')]/@value"
+            )
+            assert council_id == str(council), (url, council_id)
+            member_id = h.xpath_string(
+                card, ".//input[contains(@name, 'hfRepresentativeID')]/@value"
+            )
+            member_ids.add(member_id)
+            positions = [member]
+            if is_current and member_id == speaker_id:
+                positions.append(speaker)
+            crawl_member(context, member_id, council_id, is_current, positions)
+    return member_ids
+
+
+def make_position(
+    context: Context, name: str, wikidata_id: str | None
+) -> tuple[Entity, PositionCategorisation] | None:
+    position = h.make_position(
+        context,
+        name=name,
+        wikidata_id=wikidata_id,
+        country="jo",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
+        return None
+    return position, categorisation
+
+
+def crawl(context: Context) -> None:
+    member = make_position(
+        context, "Member of the House of Representatives of Jordan", "Q17524418"
+    )
+    speaker = make_position(
+        context, "Speaker of the House of Representatives of Jordan", None
+    )
+    assert member is not None and speaker is not None
+
+    # The presidency page lists the Speaker of each session of the sitting House.
+    doc = fetch_html(context, PRESIDENT_URL, ".//table//tbody/tr", cache_days=1)
+    speakers: dict[int, str] = {}
+    for tr in h.xpath_elements(doc, ".//table//tbody/tr"):
+        session = h.element_text(h.xpath_element(tr, "./td[3]"))
+        href = h.xpath_string(tr, ".//a/@href")
+        speakers[session_number(context, session)] = href.rsplit("=", 1)[1]
+    speaker_id = speakers[max(speakers)]
+
+    # The plain listing shows the sitting House; hfConsId gives its number.
+    listing = fetch_html(
+        context, context.data_url, ".//input[contains(@name, 'hfConsId')]", cache_days=1
+    )
+    current = int(
+        h.xpath_strings(listing, ".//input[contains(@name, 'hfConsId')]/@value")[0]
+    )
+    members = crawl_council(
+        context, context.data_url, current, True, member, speaker, speaker_id
+    )
+    assert speaker_id in members, speaker_id
+    previous_url = f"{context.data_url}?CouncilID={current - 1}"
+    crawl_council(
+        context, previous_url, current - 1, False, member, speaker, speaker_id
+    )

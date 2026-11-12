@@ -1,0 +1,108 @@
+title: Jordan Members of the House of Representatives
+prefix: jo-hor
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-09
+load_statements: true
+ci_test: false
+summary: >-
+  Current and recent members of the House of Representatives of Jordan, the
+  elected lower chamber of the Parliament
+description: |
+  Current and recent members of the House of Representatives of Jordan (مجلس
+  النواب), the lower chamber of the bicameral Parliament of Jordan. Its 138 members
+  are elected for a four-year term and, together with the appointed Senate, hold
+  the country's legislative power, including passing laws, approving the budget
+  and holding the government to account.
+
+  The dataset covers the sitting House and the one before it, as well as the
+  Speaker for the current session.
+url: https://representatives.jo/Ar/Pages/CouncilMembers
+publisher:
+  name: مجلس النواب الأردني
+  name_en: House of Representatives of Jordan
+  acronym: HoR
+  description: >
+    The House of Representatives is the elected lower chamber of the Parliament of
+    Jordan.
+  url: https://representatives.jo/
+  country: jo
+  official: true
+data:
+  url: https://representatives.jo/Ar/Pages/CouncilMembers
+  format: HTML
+  lang: ara
+
+tags:
+  - list.pep
+
+lookups:
+  # Profile table labels -> keys.
+  columns:
+    options:
+      - match: "الاسم" # name
+        value: name
+      - match: "المجالس النيابية المشارك بها" # councils served in
+        value: councils
+      - match: "اللجان النيابية المشارك بها" # committees
+        value: committees
+      - match: "الكتل النيابية المشارك بها" # parliamentary blocs
+        value: blocs
+      - match: "لجان الأخوة المشارك بها" # brotherhood committees
+        value: brotherhood_committees
+      - match: "جمعيات الصداقة المشارك بها" # friendship associations
+        value: friendship_associations
+      - match: "هاتف المكتب" # office phone
+        value: phone
+      - match: "البريد الالكتروني" # email
+        value: email
+  # Council (parliament) names -> council number, as in the listing's hfConsId.
+  councils:
+    options:
+      - match: "المجلس النيابي العشرون"
+        value: "20"
+      - match: "المجلس النيابي التاسع عشر"
+        value: "19"
+      - match: "المجلس النيابي الثامن عشر"
+        value: "18"
+      - match: "المجلس النيابي السابع عشر"
+        value: "17"
+      - match: "المجلس النيابي السادس عشر"
+        value: "16"
+      - match: "المجلس النيابي الخامس عشر"
+        value: "15"
+      - match: "المجلس النيابي الرابع عشر"
+        value: "14"
+  # Session names -> sequence within a council, to find the latest session.
+  sessions:
+    options:
+      - match: "الدورة العادية الأولى" # first ordinary session
+        value: "1"
+      - match: "الدورة العادية الثانية"
+        value: "2"
+      - match: "الدورة العادية الثالثة"
+        value: "3"
+      - match: "الدورة العادية الرابعة"
+        value: "4"
+  # Leading honorifics of member names; the title after the rank gives gender.
+  honorifics:
+    options:
+      - match: ["سعادة", "معالي", "دولة"]
+        gender: null
+      - match: ["السيد", "الدكتور", "المهندس", "المحامي", "الأستاذ"]
+        gender: male
+      - match: ["السيدة", "الدكتورة", "المهندسة", "المحامية", "الأستاذة"]
+        gender: female
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Position: 2
+    country_entities:
+      jo: 200
+  max:
+    schema_entities:
+      Person: 300
+      Position: 2
