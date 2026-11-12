@@ -114,23 +114,15 @@ def make_person(
 
 def parse_note(
     context: Context, doc: Element
-) -> tuple[str | None, dict[str, tuple[str, str]], dict[str, str]]:
-    """Read the listing's header and its note on the changes to the council.
+) -> tuple[dict[str, tuple[str, str]], dict[str, str]]:
+    """Read the listing's note on the changes to the council.
 
     The listing is the royal decree that appointed the sitting Senate. The note
     after it gives each later decree as a numbered heading, the decree's preamble
     and its text, which appoints members or accepts a resignation from a date.
-    Returns the date of the original decree, the appointments by name key (with
-    the full name and start date) and the resignation dates by name key."""
+    Returns the appointments by name key (with the full name and start date) and
+    the resignation dates by name key. The original decree itself is not dated."""
     note = h.xpath_element(doc, ".//p[contains(., 'التعديلات التي طرأت على المجلس')]")
-    header = " ".join(
-        h.element_text(el) for el in h.xpath_elements(note, "preceding-sibling::*")
-    )
-    dates = re.findall(r"\d{4}/\d{1,2}/\d{1,2}|\d{1,2}/\d{1,2}/\d{4}", header)
-    roster_date = dates[0] if len(dates) == 1 else None
-    if roster_date is None:
-        context.log.warning("No date for the roster decree", header=header)
-
     appointments: dict[str, tuple[str, str]] = {}
     resignations: dict[str, str] = {}
     headings = decrees = 0
@@ -168,7 +160,7 @@ def parse_note(
         else:
             raise ValueError(f"Unexpected paragraph in the note: {text!r}")
     assert headings == decrees, (headings, decrees)
-    return roster_date, appointments, resignations
+    return appointments, resignations
 
 
 def cv_fields(context: Context, doc: Element) -> dict[str, str]:
@@ -196,7 +188,6 @@ def crawl_member(
     label: str,
     position: Entity,
     categorisation: PositionCategorisation,
-    roster_date: str | None,
     appointments: dict[str, tuple[str, str]],
     resignations: dict[str, str],
 ) -> None:
@@ -265,7 +256,7 @@ def crawl_member(
         person,
         position,
         categorisation=categorisation,
-        start_date=roster_date if appointment is None else appointment[1],
+        start_date=None if appointment is None else appointment[1],
         end_date=end_date,
         status=OccupancyStatus.ENDED if starred else None,
     )
@@ -316,7 +307,7 @@ def crawl(context: Context) -> None:
     # Fetch the whole listing before the slow member pages, so the pager's
     # postbacks follow each other closely enough to stay within the session.
     docs = list(fetch_pages(context, context.data_url))
-    roster_date, appointments, resignations = parse_note(context, docs[0])
+    appointments, resignations = parse_note(context, docs[0])
     for doc in docs:
         for card in h.xpath_elements(doc, ".//div[@id='divHeight']"):
             crawl_member(
@@ -325,7 +316,6 @@ def crawl(context: Context) -> None:
                 h.element_text(h.xpath_element(card, ".//h6")),
                 position,
                 categorisation,
-                roster_date,
                 appointments,
                 resignations,
             )
