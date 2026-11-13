@@ -1,5 +1,6 @@
 title: Papua New Guinea Members of Parliament
 prefix: pg-parliament
+hidden: true
 entry_point: crawler.py
 coverage:
   frequency: never
