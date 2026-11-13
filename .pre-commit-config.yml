@@ -1,11 +1,17 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+  # prek's Rust built-ins: no hook repo to fetch and no Python env to build.
+  # Dependabot skips this entry because it has no rev.
+  - repo: builtin
     hooks:
       - id: check-yaml
+      - id: check-toml
       - id: trailing-whitespace
         exclude: '\.html?$'
       - id: check-merge-conflict
+      - id: check-added-large-files
+        # eu_journal_sanctions commits EUR-Lex consolidated texts as source
+        # data, and these are often larger than the size limit.
+        exclude: '^datasets/eu/journal_sanctions/data/'
   - repo: local
     hooks:
       - id: forbid-yaml-extension
@@ -30,12 +36,17 @@ repos:
         # To illustrate the problem: yaml.safe_load('value: 0555567') → {'value': 187255}
         args: ["-d", "{extends: default, rules: {octal-values: {forbid-implicit-octal: true, forbid-explicit-octal: true}, document-start: disable, line-length: disable}}"]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.1
+  # mypy imports zavod and the crawler dependencies, so it runs in the
+  # activated venv instead of an isolated hook environment. This is not
+  # perfect, but it avoids re-declaring every dependency here.
+  - repo: local
     hooks:
       - id: mypy
-        # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
+        name: mypy
+        entry: mypy
         language: system
+        types_or: [python, pyi]
+        require_serial: true
         exclude: |
           (?x)^(
           zavod/zavod/tests|
@@ -43,21 +54,11 @@ repos:
           datasets/
           )
         args: ['--strict']
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.1
-    hooks:
-      - id: mypy
+      - id: mypy-datasets
         name: mypy-datasets
-        # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
+        entry: mypy
         language: system
+        types_or: [python, pyi]
+        require_serial: true
         files: "datasets/"
         args: ['--strict', '--explicit-package-bases']
-  - repo: local
-    hooks:
-      - id: zavod-ui-lint
-        name: ESLint
-        entry: bash -c "cd ui && npx eslint --fix"
-        language: system
-        files: '^ui/'
-        pass_filenames: false

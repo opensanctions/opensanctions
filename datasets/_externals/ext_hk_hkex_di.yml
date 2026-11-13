@@ -1,0 +1,67 @@
+type: external
+title: Hong Kong Disclosure of Interests (HKEX)
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: hk_hkex_di
+disabled: false
+hidden: false
+coverage:
+  frequency: monthly
+  start: 2026-11-10
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  memory: "3000Mi"
+load_statements: true
+ci_test: false
+summary: >-
+  Shareholders and directors of companies listed in Hong Kong which match
+  entities in the OpenSanctions database.
+url: https://di.hkex.com.hk/di/NSSrchCorp.aspx?src=MAIN&lang=EN&g_lang=en
+publisher:
+  name: Hong Kong Exchanges and Clearing Limited
+  acronym: HKEX
+  url: https://www.hkex.com.hk/
+  country: hk
+  official: true
+
+assertions:
+  min:
+    schema_entities:
+      Company: 0
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - enforcement
+  - regulatory
+  - sanctions
+  - special_interest
+
+config:
+  topic_gated: true
+  index_options:
+    memory: 2000
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - sanction.control
+    - sanction.counter
+    - export.control
+    - export.control.linked
+    - invest.ban
+    - invest.risk
+    - debarment
+    - reg.action
+    - reg.warn
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    - Person

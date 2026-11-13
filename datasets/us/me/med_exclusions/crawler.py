@@ -4,7 +4,8 @@ from datetime import datetime
 from typing import Any
 from urllib.parse import quote, urljoin
 
-from rigour.mime.types import PDF
+from python_calamine import CalamineWorkbook
+from rigour.mime.types import DEFAULT, XLSX
 from zavod.extract import zyte_api
 
 from zavod import Context, settings
@@ -131,22 +132,27 @@ def crawl(context: Context) -> None:
     folder_url = urljoin(context.data_url, quote(folders[latest_month]))
 
     files = fetch_grid_items(context, folder_url)
-    assert len(files) == 1, f"Expected one report in {folder_url}: {files}"
-    (report,) = files
-    assert report["Type"] == ".pdf", report
+    # Since November 2026 the report comes as both PDF and XLSX. The PDF moves
+    # the exclusion date column onto separate pages, so read the XLSX.
+    assert {f["Type"] for f in files} == {".pdf", ".xlsx"}, files
+    reports = [f for f in files if f["Type"] == ".xlsx"]
+    assert len(reports) == 1, f"Expected one XLSX report in {folder_url}: {files}"
+    (report,) = reports
     report_name: str = report["Name"]
     assert "/" not in report_name, report_name
-    pdf_url = f"{folder_url}/{quote(report_name)}"
+    report_url = f"{folder_url}/{quote(report_name)}"
 
+    # The server sends the XLSX as application/octet-stream.
     _, _, _, path = zyte_api.fetch_resource(
-        context, report_name, pdf_url, expected_media_type=PDF, geolocation="us"
+        context, report_name, report_url, expected_media_type=DEFAULT, geolocation="us"
     )
-    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
-    for row in h.parse_pdf_table(
-        context,
-        path,
-        headers_per_page=True,
-        # Keeps the trailing space that clean_cell relies on.
-        page_settings=lambda page: (page, {"text_keep_blank_chars": True}),
-    ):
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    sheet = CalamineWorkbook.from_path(path).get_sheet_by_index(0)
+    # Rows above the table hold the report title and run date; the table is
+    # spread over spacer columns and ends with an "End of Report" row.
+    for row in h.parse_xlsx_sheet(context, sheet, skiprows=26):
+        if row["provider_last_name"] == "End of Report":
+            break
+        for key in [k for k in row if k.startswith("column_")]:
+            assert row.pop(key) is None, (key, row)
         crawl_item({key: clean_cell(value) for key, value in row.items()}, context)

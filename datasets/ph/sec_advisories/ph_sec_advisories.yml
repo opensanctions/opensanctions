@@ -233,6 +233,8 @@ lookups:
           - "ADVISORY ON PREVIOUSLY IMPOSED PENALTIES AGAINST CERTAIN FINANCING AND LENDING COMPANIES"
           # The named company is the victim of identity misuse; the scammers are unnamed.
           - "PUBLIC ADVISORY ON THE UNAUTHORIZED USE OF THE CORPORATE IDENTITY OF 4 EL CITY LENDING CORPORATION IN ADVANCE-FEE LOAN SCAM"
+          # The named company is the victim of impersonation.
+          - "L.O.G. LENDER AND COLLECTOR INC."
         ignore: true
       - match: UMETA CREDIT LENDING CORP. doing business under the name/s and style/s of More Pautang Lending, MetaPeso Lending, MoreJuan Lending and MetaCash Lending
         name:
@@ -490,3 +492,8 @@ lookups:
       # SOFI Financing Inc. is the victim of identity misuse by Peso Flow.
       - match: "PUBLIC ADVISORY UNAUTHORIZED USE OF THE CORPORATE IDENTITY OF SOFI FINANCING INC. BY “PESO FLOW”"
         name: "PESO FLOW"
+      - match: ADVISORY AGAINST STRYDER RESOURCES
+        name: "STRYDER RESOURCES"
+      # Tekwang Lending Corp. is the victim of identity misuse by Tekcash.
+      - match: "PUBLIC ADVISORY UNAUTHORIZED USE OF THE OLP NAME AND CORPORATE IDENTITY OF TEKWANG LENDING CORP. BY “TEKCASH” (https://tekcash.app/)"
+        name: "TEKCASH"

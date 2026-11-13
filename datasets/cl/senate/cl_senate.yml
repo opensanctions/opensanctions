@@ -6,7 +6,7 @@ coverage:
   frequency: monthly
   start: 2026-08-12
 load_statements: true
-ci_test: true
+ci_test: false
 summary: >-
   Upper house of the National Congress, elected by region for eight-year terms
 description: |

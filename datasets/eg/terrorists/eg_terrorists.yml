@@ -88,6 +88,12 @@ lookups:
         value: commercial_registration_number
       - match: المقر
         value: headquarters
+      - match: الدولة
+        value: country
+      - contains: الاسم بالإنجليزية
+        value: name_english
+      - contains: الاسم بلغة البلد
+        value: name_foreign
 
   type.country:
     lowercase: true
@@ -104,6 +110,42 @@ lookups:
         value: Egyptian
       - match: سوداني
         value: Sudan
+      - match: فرنسي
+        value: France
+      - match: بريطاني
+        value: United Kingdom
+      - match: روسي
+        value: Russia
+      - match: سويدي
+        value: Sweden
+      - match: إيطالي
+        value: Italy
+      - match: اردني
+        value: Jordan
+      - match: تونسي
+        value: Tunisia
+      - match:
+          - البانيا
+          - الباني
+        value: Albania
+      - match: المانيا
+        value: Germany
+      - match: اسبانيا
+        value: Spain
+      - match: ايرلندا
+        value: Ireland
+      - match: المجر
+        value: Hungary
+      - match: البوسنة
+        value: Bosnia and Herzegovina
+      - match: كوسوفو
+        value: Kosovo
+      - match: الدنمارك
+        value: Denmark
+      - match: ملدوفا
+        value: Moldova
+      - match: التشيك
+        value: Czech Republic
   type.date:
     options:
       - match: ال

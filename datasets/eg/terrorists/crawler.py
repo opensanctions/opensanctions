@@ -79,7 +79,16 @@ def crawl_terrorist_entities(context: Context, input_dict: dict[str, Any]) -> No
     entity.id = context.make_id(name, case_number)
     entity.add("name", name)
     entity.add("country", "eg")
+    entity.add("country", input_dict.pop("country"), lang="ara")
     entity.add("topics", "sanction.counter")
+    # Both translated name columns are marked "unofficial translation" in the source.
+    # "(literal)" flags a literal English rendering of the Arabic name.
+    name_english = input_dict.pop("name_english")
+    if name_english is not None:
+        entity.add("alias", name_english.removesuffix(" (literal)"), lang="eng")
+    name_foreign = input_dict.pop("name_foreign")
+    if name_foreign is not None:
+        entity.add("alias", name_foreign.split(" / "))
 
     gazette_issue = input_dict.pop("issue_in_official_gazette")
     sanction = h.make_sanction(

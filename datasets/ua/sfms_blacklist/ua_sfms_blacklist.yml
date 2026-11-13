@@ -191,6 +191,9 @@ lookups:
         value: "1979-03-03"
       - match: "19800808 (information derived from forged Indonesia passport No.S335026)"
         value: "1980-08-08"
+      # MMDDYYYY: founding date of Narodnaya militsiya "LNR" (number-entry 1844)
+      - match: "07142014"
+        value: "2014-07-14"
       - match:
           - Kandahar
           - Logar

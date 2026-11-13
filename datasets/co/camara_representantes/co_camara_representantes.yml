@@ -1,0 +1,64 @@
+title: Colombia Members of the Chamber of Representatives
+prefix: co-cam
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-06
+load_statements: true
+summary: >-
+  Elected legislators of the lower house of Colombia's bicameral Congress
+description: |
+  Current and historical members of the Chamber of Representatives (Cámara de
+  Representantes), the lower house of Colombia's Congress, which with the Senate passes
+  laws and approves the budget. Members are elected for four years by proportional
+  representation in departmental and special constituencies, alongside seats for
+  victims of the armed conflict and the runner-up presidential ticket. A member who
+  leaves mid-year stays listed until the legislative year ends; years before 2016 are
+  only partly covered.
+url: https://www.camara.gov.co/representantes/
+publisher:
+  name: Cámara de Representantes
+  name_en: Chamber of Representatives of Colombia
+  description: >
+    The Chamber of Representatives is the lower house of the Congress of the Republic
+    of Colombia.
+  url: https://www.camara.gov.co/
+  country: co
+  official: true
+data:
+  url: https://www.camara.gov.co/representantes/
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+# A year's list keeps members who left mid-year, with no per-member dates, so they
+# stay current until the next year starts on 20 July. The previous year is unknown,
+# not ended, until 31 December. Years before 2016 are sparse; some before 2014 empty.
+# About 100 members of the 2010-2014 term have only a profile page (in the page
+# sitemap) and appear in no year's list, so they are not crawled.
+
+lookups:
+  # Member group keys; the opposition seat is not a constituency.
+  constituency:
+    options:
+      - match: OPOSICIÓN
+        value: null
+  # The opposition seat gives its legal basis as its party.
+  political:
+    options:
+      - match: C.P. Art. 112, A.L. 02 de 2015 Art. 1 y Est. de Oposición Ley, 1909 de 2018 Art. 24
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 480
+      Position: 1
+    country_entities:
+      co: 480
+  max:
+    schema_entities:
+      Person: 1150
+      Position: 1
