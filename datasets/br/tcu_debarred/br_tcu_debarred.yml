@@ -13,7 +13,6 @@ description: |
   Processes that are ongoing or whose decisions have not become final are not considered.
 tags:
   - list.debarment
-  - risk.misconduct
 publisher:
   name: Tribunal de Contas da União
   name_en: Federal Court of Accounts of Brazil
