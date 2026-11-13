@@ -19,6 +19,8 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
     )
     person.add("sourceUrl", link)
     memo = cells.pop("memo")
+    memo_res = context.lookup("memo_terms", memo, warn_unmatched=True)
+    memo_terms = (memo_res.terms if memo_res is not None else None) or {}
 
     # Columns not in the lookup stay in `cells` and are flagged by audit_data.
     for column in list(cells):
@@ -36,7 +38,12 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
         sanction = h.make_sanction(
             context, person, key=res.value, program_key="US-HHS-ORI"
         )
-        h.apply_date(sanction, "endDate", value)
+        term = memo_terms.get(res.value)
+        if term is not None:
+            h.apply_date(sanction, "startDate", term["start"])
+            h.apply_date(sanction, "endDate", term["end"])
+        else:
+            h.apply_date(sanction, "endDate", value)
         sanction.add("provisions", res.value)
         sanction.add("summary", memo)
         sanction.add("sourceUrl", link)

@@ -74,3 +74,21 @@ lookups:
       - match: supervision_until
         value: Supervision
         topic: reg.action
+  # Every memo must be listed here. `terms` gives the dates a memo states for an
+  # action, keyed by provision, and replaces the action column's value.
+  memo_terms:
+    options:
+      # No memo, or a memo that states no terms.
+      - match:
+          - null
+          - Two years of supervision/certification follows the 3-year debarment
+      # Fernandez: the action columns say "For life"; the memo and the case summary
+      # give 15-year terms.
+      - match: "Debarment: 15 years beginning on 03/25/2026 and ending on 03/24/2041 No PHS Advisory Service: 15 years beginning on 06/22/2025 and ending on 06/21/2040"
+        terms:
+          Debarment:
+            start: 03/25/2026
+            end: 03/24/2041
+          No PHS Advisory:
+            start: 06/22/2025
+            end: 06/21/2040
