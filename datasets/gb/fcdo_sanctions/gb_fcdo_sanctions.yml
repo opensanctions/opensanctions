@@ -1883,6 +1883,17 @@ lookups:
       - match: "USCC: 91370112MA3RNKQ371"
         props:
           uscCode: "91370112MA3RNKQ371"
+      - match: "1067746343708"
+        props:
+          registrationNumber: "1067746343708"
+      - match: "Russia INN - 7708129854Russia OGRN - 1027700151380"
+        props:
+          innCode: "7708129854"
+          ogrnCode: "1027700151380"
+      - match: "TIN 4205049090OGRN 1034205040935"
+        props:
+          taxNumber: "4205049090"
+          ogrnCode: "1034205040935"
   companies:
     normalize: true
     options:
@@ -2566,7 +2577,18 @@ lookups:
           - Tudor Maritime Ltd
           - Valkur LLC
           - Kyrgyz Ministry of Finance
+          - Norvex Pte Ltd
+          - Trivanta Pte Ltd
+          - Global Seaway LLC
+          - Toila Shipping Ltd
+          - Novatek OAO
+          - IOB Co Ltd
+          - Rosneft
+          - Dzovpar Trans Ltd
+          - Trident Dexterity Ltd
         value: SAME
+      - match: Benefit Shipping Ltd-HKG
+        value: Benefit Shipping Ltd
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
           - Organisation for Technological Industries (OTI)
