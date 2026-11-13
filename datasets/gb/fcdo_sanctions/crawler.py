@@ -2,6 +2,8 @@ import re
 import csv
 import html
 
+from followthemoney.util import join_text
+from rigour.langs import iso_639_alpha3
 from rigour.mime.types import CSV
 from zavod.util import ElementOrTree
 
@@ -101,6 +103,15 @@ def warn_on_separator(
             )
 
 
+def lang_code(context: Context, language: str | None) -> str | None:
+    if not language:
+        return None
+    code = iso_639_alpha3(language)
+    if code is None:
+        context.log.warning("Unknown non-latin script language", language=language)
+    return code
+
+
 def entity_type(type: str) -> str:
     match type.lower():
         case "individual":
@@ -155,19 +166,14 @@ def xml_make_person(
         entity.add("title", individual.findtext(".//Title"))
         # Add birthplace
         for details in individual.iterfind(".//BirthDetails//Location"):
-            location = ""
-            if town := details.findtext(".//TownOfBirth"):
-                location += town + "\n"
-                entity.add("birthPlace", town)
-            if country := details.findtext(".//CountryOfBirth"):
-                location += country
-            entity.add("birthPlace", location)
+            town = details.findtext(".//TownOfBirth")
+            country = details.findtext(".//CountryOfBirth")
+            entity.add("birthPlace", join_text(town, country, sep=", "))
         # Add nationalities
         for nationality in individual.iterfind(".//Nationalities//Nationality"):
             entity.add("nationality", nationality.text)
-        # Add positions
-        for position in individual.iterfind(".//Positions//Position"):
-            entity.add("position", h.multi_split(position.text, ["|", "; and ", "; "]))
+        # Positions come from the CSV: the XML repeats them with curly quotes,
+        # which would add near-duplicate values.
 
 
 def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) -> None:
@@ -276,24 +282,21 @@ def crawl_xml(context: Context) -> None:
         for name_tag in designation.iterfind(".//NonLatinNames"):
             # context.inspect(name_tag)
             lang = name_tag.findtext(".//NonLatinScriptLanguage")
-            lang_code = context.lookup_value("languages", lang)
-            if lang is not None and lang_code is None:
-                context.log.warn(
-                    "Unknown language, please add to languages lookup.", language=lang
-                )
+            code = lang_code(context, lang)
+            if lang is not None and code is None:
                 continue
             h.apply_name(
                 entity,
                 name_tag.findtext("./NameNonLatinScript"),
-                lang=lang_code,
+                lang=code,
                 alias=True,
             )
 
         try:
-            if entity.schema.label in ["Person", "Organization"]:
+            if entity.schema.label == "Organization":
                 xml_make_legal_entity(context, designation, entity)
-            # If it is an individual
             elif entity.schema.label == "Person":
+                xml_make_legal_entity(context, designation, entity)
                 xml_make_person(context, designation, entity)
             # If it is a ship
             elif entity.schema.label == "Vessel":
@@ -423,17 +426,21 @@ def csv_make_person(context: Context, row: dict[str, str], entity: Entity) -> No
     h.apply_date(entity, "birthDate", row.pop("D.O.B"))
     entity.add("title", row.pop("Title"))
     entity.add("gender", row.pop("Gender"))
-    entity.add("birthPlace", row.pop("Town of birth"))
-    entity.add("birthPlace", row.pop("Country of birth"))
+    town = row.pop("Town of birth")
+    country = row.pop("Country of birth")
+    entity.add("birthPlace", join_text(town, country, sep=", "))
     entity.add("idNumber", row.pop("National Identifier number"))
     entity.add("nationality", row.pop("Nationality(/ies)"))
     entity.add("position", h.multi_split(row.pop("Position"), ["|", "; and ", "; "]))
 
     passport_no = row.pop("Passport number")
+    passport_info = row.pop("Passport additional information")
+    if not passport_no and not passport_info:
+        return
     passport = context.make("Passport")
     passport.id = context.make_id(passport_no, entity.id)
     passport.add("number", passport_no)
-    passport.add("summary", row.pop("Passport additional information"))
+    passport.add("summary", passport_info)
     passport.add("holder", entity.id)
     context.emit(passport)
 
@@ -557,10 +564,8 @@ def crawl_csv(context: Context) -> None:
             non_latin_name = row.pop("Name non-latin script")
             non_latin_lang = row.pop("Non-latin script language")
             if non_latin_name:
-                lang_code = context.lookup_value(
-                    "languages", non_latin_lang, warn_unmatched=True
-                )
-                h.apply_name(entity, non_latin_name, lang=lang_code, alias=True)
+                code = lang_code(context, non_latin_lang)
+                h.apply_name(entity, non_latin_name, lang=code, alias=True)
 
             if entity.schema.label == "Organization":
                 csv_make_legal_entity(context, row, entity)
