@@ -28,18 +28,18 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
         res = context.lookup("action_columns", column)
         if res is None:
             continue
-        # A date, "For life" or "N/A"; the memo term applies only without a date.
+        # Each action column holds an expiry date, "For life" (no end date) or "N/A"
+        # (action not imposed). The type.date lookup drops both non-dates, so the
+        # sanction has no endDate and the memo term below can fill the dates.
         value = cells.pop(column)
-        term = memo_terms.get(res.value)
-        if term is None and value == "N/A":
-            continue
-        if term is None and value is None:
-            context.log.warning("Empty action term", person=link, column=column)
+        if value == "N/A":
             continue
         sanction = h.make_sanction(
             context, person, key=res.value, program_key="US-HHS-ORI"
         )
         h.apply_date(sanction, "endDate", value)
+        # Fall back to the memo's term when the column gives no date.
+        term = memo_terms.get(res.value)
         if term is not None and not sanction.has("endDate"):
             h.apply_date(sanction, "startDate", term["start"])
             h.apply_date(sanction, "endDate", term["end"])

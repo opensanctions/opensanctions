@@ -56,7 +56,6 @@ assertions:
 lookups:
   type.date:
     options:
-      # No end date.
       - match:
           - For life
           - N/A
