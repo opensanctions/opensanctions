@@ -6,35 +6,19 @@ coverage:
   start: "2026-08-26"
 load_statements: true
 summary: >-
-  Researchers currently subject to administrative actions imposed by the US Office of
-  Research Integrity for research misconduct in Public Health Service funded research
+  Researchers debarred or restricted for misconduct in federally funded research
 description: |
-  The PHS Administrative Action Bulletin Board lists individuals who currently have
-  administrative actions imposed against them by the Office of Research Integrity
-  (ORI), the Assistant Secretary for Health and/or the Department of Health and
-  Human Services (HHS), following findings of research misconduct (fabrication,
-  falsification or plagiarism) in research supported by the US Public Health Service.
+  Individuals with administrative actions currently imposed by the Office of Research
+  Integrity (ORI) and the Department of Health and Human Services (HHS) after
+  findings of research misconduct (fabrication, falsification or plagiarism) in
+  research supported by the US Public Health Service (PHS). Actions run for a fixed
+  term or for life, and include debarment from federal contracts and programs, a ban
+  on serving as a PHS advisor, and supervision or certification of the individual's
+  PHS-funded research.
 
-  The actions imposed vary by case and are listed together with their expiry date.
-  They include:
-
-  * **Debarment** from eligibility for any contracting or subcontracting with any
-    agency of the United States Government, and from eligibility for or involvement
-    in non-procurement programs of the United States Government.
-  * **No PHS Advisory** - prohibition from serving in any advisory or consultant
-    capacity to PHS, including but not limited to service on any PHS advisory
-    committee, board, or peer review committee.
-  * **Supervision** of any PHS-supported research in which the individual participates.
-  * **Certification of work** - a requirement that the institution certify the
-    accuracy of the individual's contributions to PHS-supported research.
-
-  Some actions are imposed for life. Where an action has expired, it is still included
-  here as long as the individual remains on the bulletin board, and the corresponding
-  sanction record is marked as inactive.
-
-  The bulletin board only covers actions imposed by ORI, the Assistant Secretary for
-  Health and HHS. Separate lists of debarred or restricted clinical investigators are
-  maintained by the Food and Drug Administration.
+  Expired actions remain listed while the individual stays on the bulletin board.
+  The Food and Drug Administration lists the individuals it has debarred or
+  restricted separately.
 url: https://ori.hhs.gov/phs-administrative-action-bulletin-board
 tags:
   - list.debarment
@@ -53,8 +37,8 @@ publisher:
   url: https://ori.hhs.gov/
   official: true
 data:
-  url: https://ori.hhs.gov/ORI_PHS_alert.rss
-  format: XML
+  url: https://ori.hhs.gov/ORI_PHS_alert.html
+  format: HTML
   lang: eng
 
 dates:
@@ -64,7 +48,29 @@ assertions:
   min:
     schema_entities:
       Person: 20
-    countries: 1
   max:
     schema_entities:
       Person: 80
+
+lookups:
+  type.date:
+    options:
+      # Life terms have no end date.
+      - match: For life
+        value: null
+  # Slugified "<action> until" column headings of the report table. `value` is the
+  # sanction provision; `topic` goes on the person while the action is in force.
+  action_columns:
+    options:
+      - match: debarment_until
+        value: Debarment
+        topic: debarment
+      - match: no_phs_advisory_until
+        value: No PHS Advisory
+        topic: reg.action
+      - match: certification_of_work_until
+        value: Certification of work
+        topic: reg.action
+      - match: supervision_until
+        value: Supervision
+        topic: reg.action
