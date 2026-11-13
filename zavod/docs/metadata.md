@@ -59,8 +59,9 @@ The dataset name is the `.yml` file name stem, e.g. `us_ofac_sdn`; don't set `na
 - `entry_point` e.g. `crawler.py:crawl_peps` - the file name, optionally followed by a method name called by the zavod `crawl` command. Defaults to the `crawler.py:crawl` calling an entry point in the dataset directory.
 - `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys. See the [entity ID guide](best_practices/entity_id.md) for the shape and stability rules that apply to IDs.
 - `url` - the home page or most authoritative place where someone can read about this particular dataset at its source. E.g If a source publishes 5 different datasets, try to link to the page describing the data actually contained in this dataset.
-- `disabled` - boolean, default `false`. Set to `true` for sources that are not available any more or should not be crawled at the moment: no crawl job is deployed and the coverage frequency is forced to `never`, but the metadata still gets published.
-- `hidden` - boolean, default `false`. Set to `true` to keep the dataset out of the website and other user interfaces while still running and publishing it.
+- `disabled` - boolean, default `false`. Set to `true` for datasets that should not be crawled at the moment: no crawl job is deployed and the coverage frequency is forced to `never`.
+- `deprecation` - a Markdown notice shown on the dataset's page. Setting it marks the dataset as deprecated and requires `coverage.end`. See [Deprecating a dataset](best_practices/deprecation.md).
+- `hidden` - boolean, default `false`. Set to `true` to keep the dataset out of the listings on the website and other user interfaces, and out of search engines, while still running and publishing it. Its page stays reachable by URL.
 
 ### Data Coverage
 
