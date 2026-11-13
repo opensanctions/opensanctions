@@ -1,0 +1,144 @@
+# Seats are statements on the enterprise item (P169 CEO, P488 chair, ...) rather
+# than P39 claims on the person, so this crawler discovers enterprises first and
+# reads their seats, instead of discovering positions like wd_peps does.
+#
+# Bodies are found in three lanes, unioned:
+#  A. P31/P1454 in the state-owned enterprise (Q270791) class tree: the marker
+#     an enterprise carries once its state control is established
+#  B. P127 owned by, or P749 subordinate to, a state actor: a territory QID
+#     known to rigour, or a government body (`government_types`, direct P31)
+#     whose P1001 jurisdiction, else P17 country, is one, or a body in the
+#     international organisation registry (INTL_ORGS)
+#  C. the registry's international bodies themselves
+# Lanes A and B require at least one seat statement. Control is not inferred from
+# ownership chains or shares: subsidiaries are found once they carry the
+# marker themselves. Lane A yields `gov.soe` positions; bodies found only by
+# lane B are institutions and yield `gov.admin`; registry bodies, and bodies
+# whose P749 parent is one, take the registry's country and topics.
+title: Wikidata State-Owned Enterprise Leadership
+entry_point: crawler.py
+prefix: wd
+coverage:
+  frequency: weekly
+  start: 2026-10-17
+deploy:
+  memory: "2000Mi"
+  memory_limit: "4000Mi"
+  schedule: "0 6 * * 1"
+  premium: true
+load_statements: true
+ci_test: false
+exports:
+  - entities.ftm.json
+  - statistics.json
+summary: >
+  Executives and board members of state-owned enterprises and institutions, from Wikidata.
+description: |
+  This dataset includes the executives, directors and members of the supervisory
+  and management boards of state-owned enterprises and state institutions, as
+  recorded on Wikidata.
+
+  Enterprises are included if Wikidata describes them as state-owned (by type or
+  legal form), and institutions if they are owned by or subordinate to a country,
+  one of its subdivisions, or one of their ministries or agencies. People are
+  included for the seats recorded on the enterprise's Wikidata item, such as its
+  chief executive, its chair, or the members of its boards.
+publisher:
+  name: Wikidata
+  description: |
+    Wikidata is a free and open knowledge base that can be read and edited by both humans
+    and machines. It acts as central storage for the structured data of its Wikimedia
+    sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
+  url: https://www.wikidata.org
+  official: false
+  country: zz
+tags:
+  - list.pep
+url: https://www.wikidata.org/wiki/Q270791
+data:
+  url: https://query.wikidata.org/
+  format: JSON
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_methods:
+    - GET
+    - POST
+  timeout: 90
+
+assertions:
+  min:
+    schema_entities:
+      Person: 900
+      Position: 650
+
+config:
+  # Seat statements on the enterprise, matched in order: a row with a
+  # `qualifier` matches claims carrying that P2868 (subject has role) value; a
+  # row without one matches only claims that have no P2868 at all. Claims that
+  # match no row are skipped.
+  roles:
+    - key: ceo
+      property: P169
+      label: Chief Executive
+    - key: director
+      property: P1037
+      label: Director
+    - key: supervisory-chair
+      property: P488
+      qualifier: Q15818143
+      label: Chair of the Supervisory Board
+    - key: chair
+      property: P488
+      label: Chairperson
+    - key: supervisory-deputy-chair
+      property: P5052
+      qualifier: Q1127270
+      label: Deputy Chair of the Supervisory Board
+    - key: supervisory-member
+      property: P5052
+      label: Member of the Supervisory Board
+    - key: supervisory-member
+      property: P3320
+      qualifier: Q63858690
+      label: Member of the Supervisory Board
+    - key: deputy-chair
+      property: P3320
+      qualifier: Q1127270
+      label: Deputy Chair of the Board
+    - key: executive-member
+      property: P3320
+      qualifier: Q141755781
+      label: Member of the Executive Board
+    # "board member": a one-tier board in some languages, an executive board
+    # in others, so read as a plain board seat.
+    - key: board-member
+      property: P3320
+      qualifier: Q2824523
+      label: Member of the Board
+    - key: managing-director
+      property: P3320
+      qualifier: Q19940089
+      label: Managing Director
+    - key: board-member
+      property: P3320
+      label: Member of the Board
+  # Bodies dropped whatever lane found them, matched against the item's full
+  # P31/P279 type closure. Diplomatic missions are covered as positions by
+  # the PEP crawlers; the rest are municipal and historical forms that sit in
+  # the state-owned enterprise class tree.
+  excluded_types:
+    Q213283: diplomatic mission
+    Q1780371: municipal company
+    Q111302220: établissement public local à caractère industriel ou commercial
+    Q2531989: Volkseigener Betrieb
+    Q835400: combine
+    Q12041652: národní podnik
+    Q4380220: production association
+  # Lane B: the classes that make a link target a government body, matched
+  # against its direct P31 only; "government organization" is too broad.
+  government_types:
+    Q192350: ministry
+    Q7188: government
+    Q327333: government agency
+    Q35798: executive branch

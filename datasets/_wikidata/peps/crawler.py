@@ -9,10 +9,11 @@ from rigour.territories.territory import Territory
 from zavod.entity import Entity
 from zavod.shed.wikidata.client import WIKIDATA_QUERY_CACHE, create_wikidata_client
 from zavod.shed.wikidata.country import (
-    POSITION_ABOLISHED_CUTOFF,
+    abolished_clause,
     current_territory_qids,
+    is_abolished,
 )
-from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.human import fetch_human
 from zavod.shed.wikidata.igo import INTL_ORGS
 from zavod.shed.wikidata.position import (
     position_holders,
@@ -29,9 +30,7 @@ from zavod import Context
 # hierarchy is consulted only upward, via `Item.types`, when classifying each
 # candidate in `wikidata_position`.
 
-ABOLISHED_CLAUSE = """
-    OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
-"""
+ABOLISHED_CLAUSE = abolished_clause("position")
 POSITION_CACHE_SIZE = 250_000
 
 
@@ -54,8 +53,7 @@ def collect_positions(context: Context, client: WikidataClient, query: str) -> s
         position_qid = bind.plain("position")
         if position_qid is None or not is_qid(position_qid):
             continue
-        date_abolished = bind.plain("abolished")
-        if date_abolished is not None and date_abolished < POSITION_ABOLISHED_CUTOFF:
+        if is_abolished(bind.plain("abolished")):
             context.log.debug(f"Skipping abolished position: {position_qid}")
             continue
         positions.add(position_qid)
@@ -206,15 +204,10 @@ def crawl_person(
     occupied_positions: set[str] = set()
     if not is_qid(person_qid):
         return occupied_positions
-    item = client.fetch_item(person_qid, modified_at=modified_at)
-    if item is None:
+    fetched = fetch_human(context, client, person_qid, modified_at=modified_at)
+    if fetched is None:
         return occupied_positions
-    if item.id != person_qid:
-        context.resolver.rename_node(person_qid, item.id)
-        context.flush()
-    entity = wikidata_basic_human(context, client, item)
-    if entity is None:
-        return occupied_positions
+    item, entity = fetched
 
     for claim in item.claims:
         if claim.property != "P39" or claim.qid is None:
