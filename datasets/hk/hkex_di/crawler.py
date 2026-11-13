@@ -1,4 +1,5 @@
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import parse_qs, urljoin, urlparse
@@ -77,15 +78,19 @@ class Ownerships:
 def fetch_page(
     context: Context, url: str, marker: str, cache_days: int | None = None
 ) -> Element:
-    """Fetch a page, failing on the error page HKEX serves in its place. The
-    marker is the ID of a label that only real pages carry, and fill in: HKEX
-    also serves pages with the labels left blank."""
-    doc = context.fetch_html(url, cache_days=cache_days, absolute_links=True)
-    markers = h.xpath_elements(doc, f'//span[@id="{marker}"]')
-    if len(markers) != 1 or h.element_text(markers[0]) == "":
+    """Fetch a page, retrying with growing pauses while HKEX serves its error
+    page in its place. The marker is the ID of a label that only real pages
+    carry, and fill in: HKEX also serves pages with the labels left blank."""
+    for attempt in range(5):
+        if attempt > 0:
+            time.sleep(10 * 2 ** (attempt - 1))
+        doc = context.fetch_html(url, cache_days=cache_days, absolute_links=True)
+        markers = h.xpath_elements(doc, f'//span[@id="{marker}"]')
+        if len(markers) == 1 and h.element_text(markers[0]) != "":
+            return doc
         context.clear_url(url)
-        raise ValueError(f"HKEX error page: {url}")
-    return doc
+        context.log.info("Error page, retrying", url=url, attempt=attempt)
+    raise ValueError(f"HKEX error page: {url}")
 
 
 def label(doc: Element, id: str) -> str | None:
