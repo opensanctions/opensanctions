@@ -59,7 +59,9 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
         schema = "LegalEntity"
     else:
         res = context.lookup("provider_type", provider_type, warn_unmatched=True)
-        schema = "LegalEntity" if res is None or res.value is None else res.value
+        if res is None or res.value is None:
+            return
+        schema = res.value
 
     entity = context.make(schema)
     if npi is not None:
@@ -72,9 +74,7 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     entity.add("alias", aliases)
     if npi is not None and not REGEX_NPI.match(npi):
         context.log.warning("Invalid NPI", npi=npi, name=raw_name)
-        entity.add("description", f"NPI: {npi}")
-    else:
-        entity.add("npiCode", npi)
+    entity.add("npiCode", npi)
     entity.add("licenseNumber", license)
     entity.add("sector", provider_type)
     entity.add("topics", "debarment")

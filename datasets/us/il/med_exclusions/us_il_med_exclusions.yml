@@ -62,8 +62,9 @@ assertions:
       LegalEntity: 3000
 
 lookups:
-  # Maps the provider type to a schema for names without a business word. Types practised by individuals give Person; facility and transport types
-  # also list sole proprietors by personal name, so they stay LegalEntity.
+  # Maps the provider type to a schema for names without a business word. Types
+  # practised by individuals give Person; facility and transport types also list
+  # sole proprietors by personal name, so they stay LegalEntity.
   provider_type:
     options:
       - match:
