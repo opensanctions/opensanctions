@@ -44,10 +44,10 @@ tags:
   - list.sanction
 url: https://nigsac.gov.ng/IndSancList
 data:
-  url: https://nigsac.gov.ng/IndSancList
-  format: HTML
+  url: https://nigsac.gov.ng/api/v1/register?lists=NG-NIGSAC&pageSize=200
+  format: JSON
 dates:
-  formats: ["%m/%d/%Y %H:%M:%S %p"]
+  formats: ["%d/ %m %b/ %Y"]
 http:
   total_retries: 5
   backoff_factor: 3
@@ -57,16 +57,16 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 21
-      LegalEntity: 10
+      Person: 40
+      LegalEntity: 18
     country_entities:
-      ng: 12
+      ng: 35
   max:
     schema_entities:
-      Person: 50
+      Person: 80
       LegalEntity: 40
 lookups:
-  entities_as_individuals:
+  group_names:
     options:
       - match: YAN BINDIGA GROUP NLBDG
         props:
