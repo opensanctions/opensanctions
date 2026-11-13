@@ -1,0 +1,46 @@
+title: Ecuador Members of the National Assembly
+prefix: ec-asm
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-12
+load_statements: true
+summary: >-
+  Members of Ecuador's unicameral national legislature
+description: |
+  Current and historical members of the National Assembly of Ecuador (Asamblea
+  Nacional del Ecuador), the country's unicameral national legislature. Its members
+  are elected for four-year terms from provincial, national and overseas
+  constituencies, and hold the country's legislative power, including passing laws,
+  approving the budget and overseeing the executive.
+
+  Alternates (suplentes) listed for each term are included.
+url: https://datos.asambleanacional.gob.ec/
+publisher:
+  name: Asamblea Nacional del Ecuador
+  name_en: National Assembly of Ecuador
+  description: >
+    The National Assembly is Ecuador's unicameral legislature, established by the 2008
+    Constitution. It passes laws, approves the state budget and exercises oversight of
+    the executive branch.
+  url: https://www.asambleanacional.gob.ec/
+  country: ec
+  official: true
+data:
+  url: https://datos.asambleanacional.gob.ec/ecurul/
+  format: JSON
+  lang: spa
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 650
+      Position: 1
+    country_entities:
+      ec: 650
+  max:
+    schema_entities:
+      Person: 1500
+      Position: 1
