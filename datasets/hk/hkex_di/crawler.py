@@ -78,9 +78,11 @@ def fetch_page(
     context: Context, url: str, marker: str, cache_days: int | None = None
 ) -> Element:
     """Fetch a page, failing on the error page HKEX serves in its place. The
-    marker is the ID of a label that only real pages carry."""
+    marker is the ID of a label that only real pages carry, and fill in: HKEX
+    also serves pages with the labels left blank."""
     doc = context.fetch_html(url, cache_days=cache_days, absolute_links=True)
-    if len(h.xpath_elements(doc, f'//span[@id="{marker}"]')) != 1:
+    markers = h.xpath_elements(doc, f'//span[@id="{marker}"]')
+    if len(markers) != 1 or h.element_text(markers[0]) == "":
         context.clear_url(url)
         raise ValueError(f"HKEX error page: {url}")
     return doc
@@ -492,7 +494,9 @@ def crawl_form(
     # serial, which appends "(Amendment to <serial>)" to the form's serial label.
     doc = fetch_page(context, url, serial_label, cache_days=3650)
     form_serial = label(doc, serial_label)
-    assert form_serial is not None and form_serial.startswith(serial), url
+    if form_serial is None or not form_serial.startswith(serial):
+        context.clear_url(url)
+        raise ValueError(f"Form serial {form_serial!r} is not {serial!r}: {url}")
     for table in h.xpath_elements(doc, '//table[starts-with(@id, "grd")]'):
         if table.get("id") not in FORM_TABLES:
             raise ValueError(f"Unknown table {table.get('id')}: {url}")
