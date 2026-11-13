@@ -17,6 +17,7 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
         middle_name=cells.pop("middle_name"),
         last_name=cells.pop("last_name"),
     )
+    person.add("country", "us")
     person.add("sourceUrl", link)
     memo = cells.pop("memo")
     memo_res = context.lookup("memo_terms", memo, warn_unmatched=True)

@@ -48,6 +48,7 @@ assertions:
   min:
     schema_entities:
       Person: 20
+    countries: 1
   max:
     schema_entities:
       Person: 80
