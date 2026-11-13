@@ -56,11 +56,12 @@ assertions:
 lookups:
   type.date:
     options:
-      # Life terms have no end date.
-      - match: For life
+      # No end date.
+      - match:
+          - For life
+          - N/A
         value: null
-  # Slugified "<action> until" column headings of the report table. `value` is the
-  # sanction provision; `topic` goes on the person while the action is in force.
+  # Action column → provision (`value`) and topic while in force.
   action_columns:
     options:
       - match: debarment_until
@@ -75,16 +76,14 @@ lookups:
       - match: supervision_until
         value: Supervision
         topic: reg.action
-  # Every memo must be listed here. `terms` gives the dates a memo states for an
-  # action, keyed by provision, and replaces the action column's value.
+  # All memos; `terms` are dates per provision, used when the column has none.
   memo_terms:
     options:
-      # No memo, or a memo that states no terms.
+      # No terms.
       - match:
           - null
           - Two years of supervision/certification follows the 3-year debarment
-      # Fernandez: the action columns say "For life"; the memo and the case summary
-      # give 15-year terms.
+      # Fernandez: columns say "For life", case summary gives 15 years.
       - match: "Debarment: 15 years beginning on 03/25/2026 and ending on 03/24/2041 No PHS Advisory Service: 15 years beginning on 06/22/2025 and ending on 06/21/2040"
         terms:
           Debarment:

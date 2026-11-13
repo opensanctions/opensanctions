@@ -5,7 +5,7 @@ from zavod import helpers as h
 
 
 def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
-    # The name cells all link to the person's case summary page.
+    # Link to the case summary.
     link = h.xpath_strings(row["last_name"], ".//a/@href", expect_exactly=1)[0]
     cells = h.cells_to_str(row)
 
@@ -23,28 +23,26 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
     memo_res = context.lookup("memo_terms", memo, warn_unmatched=True)
     memo_terms = (memo_res.terms if memo_res is not None else None) or {}
 
-    # Columns not in the lookup stay in `cells` and are flagged by audit_data.
+    # Unknown columns are left for audit_data.
     for column in list(cells):
         res = context.lookup("action_columns", column)
         if res is None:
             continue
-        # An expiry date, "For life" (dropped by the type.date lookup), or "N/A"
-        # when the action was not imposed.
+        # A date, "For life" or "N/A"; the memo term applies only without a date.
         value = cells.pop(column)
-        if value == "N/A":
+        term = memo_terms.get(res.value)
+        if term is None and value == "N/A":
             continue
-        if value is None:
+        if term is None and value is None:
             context.log.warning("Empty action term", person=link, column=column)
             continue
         sanction = h.make_sanction(
             context, person, key=res.value, program_key="US-HHS-ORI"
         )
-        term = memo_terms.get(res.value)
-        if term is not None:
+        h.apply_date(sanction, "endDate", value)
+        if term is not None and not sanction.has("endDate"):
             h.apply_date(sanction, "startDate", term["start"])
             h.apply_date(sanction, "endDate", term["end"])
-        else:
-            h.apply_date(sanction, "endDate", value)
         sanction.add("provisions", res.value)
         sanction.add("summary", memo)
         sanction.add("sourceUrl", link)
@@ -53,8 +51,7 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
         context.emit(sanction)
 
     context.emit(person)
-    # Retraction and correction requests are addressed to journals, not restrictions
-    # on the researcher, and have no FollowTheMoney equivalent.
+    # Requests to journals, not restrictions on the researcher.
     context.audit_data(
         cells,
         ignore=["request_retraction_of_article_s", "request_correction_of_article_s"],
