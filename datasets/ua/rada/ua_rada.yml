@@ -5,7 +5,7 @@ coverage:
   frequency: monthly
   start: 2026-06-11
 load_statements: true
-ci_test: true
+ci_test: false
 summary: >-
   Current and historical members of the Verkhovna Rada, the unicameral parliament
   of Ukraine.

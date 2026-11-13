@@ -55,7 +55,6 @@ children:
   - be_flemish_parliament
   - be_senate
   - be_walloon_parliament
-  - bf_legislative_assembly
   - bg_jud_declarations
   - bg_parliament
   - bh_nuwab
@@ -97,7 +96,6 @@ children:
   - dz_council_nation
   - ee_riigikogu
   - eg_house_representatives
-  - eg_senate
   - es_mayors_councillors
   - es_parliament
   - et_hopr

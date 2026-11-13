@@ -1,5 +1,6 @@
 import csv
 import re
+from collections import Counter
 from contextlib import contextmanager
 from io import TextIOWrapper
 from pathlib import Path
@@ -35,6 +36,33 @@ RELATIONSHIPS: dict[str, tuple[str, str, str]] = {
     "IS_INTERNATIONAL_BRANCH_OF": ("Ownership", "asset", "owner"),
     "IS_FEEDER_TO": ("UnknownLink", "subject", "object"),
 }
+
+# Recognised enum values; anything else is logged as a warning so schema drift shows up.
+ENTITY_STATUSES = {"ACTIVE", "INACTIVE", "NULL"}
+LEI_REGISTRATION_STATUSES = {
+    "ISSUED",
+    "LAPSED",
+    "RETIRED",
+    "DUPLICATE",
+    "ANNULLED",
+    "PENDING_ARCHIVAL",
+    "PENDING_TRANSFER",
+}
+# NULL marks relationship records whose registration was annulled (filed in error).
+RELATIONSHIP_STATUSES = {"ACTIVE", "INACTIVE", "NULL"}
+# LAPSED relationships are kept: the lapse follows the child LEI not being renewed,
+# not the relationship ending.
+RR_REGISTRATION_STATUSES = {
+    "PUBLISHED",
+    "LAPSED",
+    "RETIRED",
+    "DUPLICATE",
+    "ANNULLED",
+    "PENDING_ARCHIVAL",
+    "PENDING_TRANSFER",
+}
+RR_DEAD_REGISTRATIONS = {"RETIRED", "DUPLICATE", "ANNULLED"}
+PERIOD_TYPES = {"RELATIONSHIP_PERIOD", "ACCOUNTING_PERIOD", "DOCUMENT_FILING_PERIOD"}
 
 
 ADDRESS_PARTS: dict[str, str] = {
@@ -204,8 +232,13 @@ def parse_lei_record(
         return
     registration = elc.find("Registration")
     if registration is not None:
+        reg_status = registration.findtext("RegistrationStatus")
+        if reg_status not in LEI_REGISTRATION_STATUSES:
+            context.log.warning(
+                "Unknown LEI RegistrationStatus", status=reg_status, lei=lei
+            )
         # Issued in error or superseded by another LEI; often fail the LEI checksum.
-        if registration.findtext("RegistrationStatus") in ("ANNULLED", "DUPLICATE"):
+        if reg_status in ("ANNULLED", "DUPLICATE"):
             skipped.add(lei)
             return
     proxy = context.make("Organization")
@@ -218,17 +251,12 @@ def parse_lei_record(
         proxy.add("name", clean_text(name.text), lang=name.get("lang"))
     proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
 
+    # INACTIVE and NULL entities are still emitted because they may be owners of others.
     status = entity.findtext("EntityStatus")
-    match status:
-        case "INACTIVE" | "NULL":
-            # We still crawl them because they might be referenced as owners of other entities.
-            proxy.add("status", status)
-        case "ACTIVE":
-            pass
-        case _:
-            # Just in case they ever add a new value to the enum
-            context.log.warn("Unknown EntityStatus", status=status, lei=lei)
-            pass
+    if status not in ENTITY_STATUSES:
+        context.log.warning("Unknown EntityStatus", status=status, lei=lei)
+    if status == "INACTIVE":
+        proxy.add("status", status)
 
     create_date = parse_date(entity.findtext("EntityCreationDate"))
     proxy.add("incorporationDate", create_date)
@@ -309,12 +337,32 @@ def parse_lei_file(context: Context, fh: IO[bytes]) -> set[str]:
 
 
 def parse_relationship_record(
-    context: Context, el: etree._Element, skipped: set[str]
+    context: Context,
+    el: etree._Element,
+    skipped: set[str],
+    dropped: Counter[tuple[str | None, str | None]],
 ) -> None:
     elc = h.remove_namespace(el)
     rel = elc.find("Relationship")
     if rel is None:
         return
+
+    status = rel.findtext("RelationshipStatus")
+    reg_status = elc.findtext("Registration/RegistrationStatus")
+    if status not in RELATIONSHIP_STATUSES:
+        context.log.warning("Unknown RelationshipStatus", status=status)
+    if reg_status not in RR_REGISTRATION_STATUSES:
+        context.log.warning("Unknown RR RegistrationStatus", status=reg_status)
+    if status != "ACTIVE":
+        dropped[(status, reg_status)] += 1
+        return
+    if reg_status in RR_DEAD_REGISTRATIONS:
+        context.log.warning(
+            "Active relationship with dead registration", registration=reg_status
+        )
+        dropped[(status, reg_status)] += 1
+        return
+
     rel_type = rel.findtext("RelationshipType")
     start_node = rel.find("StartNode")
     end_node = rel.find("EndNode")
@@ -350,9 +398,6 @@ def parse_relationship_record(
     proxy.add(start_prop, lei_id(start_lei))
     proxy.add(end_prop, lei_id(end_lei))
     proxy.add("role", rel_type.replace("_", " "))
-    status = rel.findtext("RelationshipStatus")
-    if status == "INACTIVE":
-        return
     proxy.add("status", status)
 
     if rel_schema == "Ownership":
@@ -366,6 +411,8 @@ def parse_relationship_record(
 
     for period in rel.findall(".//RelationshipPeriod"):
         period_type = period.findtext("PeriodType")
+        if period_type not in PERIOD_TYPES:
+            context.log.warning("Unknown PeriodType", period_type=period_type)
         if period_type == "RELATIONSHIP_PERIOD":
             proxy.add("startDate", parse_date(period.findtext("StartDate")))
             proxy.add("endDate", parse_date(period.findtext("EndDate")))
@@ -383,15 +430,23 @@ def parse_relationship_record(
 
 def parse_rr_file(context: Context, fh: IO[bytes], skipped: set[str]) -> None:
     tag = f"{{{RR}}}RelationshipRecord"
+    dropped: Counter[tuple[str | None, str | None]] = Counter()
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
         if idx > 0 and idx % 10000 == 0:
             context.log.info(f"Parse RelationshipRecord: {idx}...")
-        parse_relationship_record(context, el, skipped)
+        parse_relationship_record(context, el, skipped, dropped)
         el.clear()
 
     if idx == 0:
         raise RuntimeError("No relationships!")
+    for (status, reg_status), count in dropped.most_common():
+        context.log.info(
+            "Dropped non-active relationships",
+            status=status,
+            registration=reg_status,
+            count=count,
+        )
 
 
 def crawl(context: Context) -> None:

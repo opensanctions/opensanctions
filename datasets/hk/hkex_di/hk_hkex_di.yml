@@ -1,0 +1,328 @@
+title: Hong Kong Disclosure of Interests (HKEX)
+entry_point: crawler.py
+prefix: hk-hkex-di
+coverage:
+  frequency: monthly
+  start: "2026-11-10"
+deploy:
+  premium: true
+  memory: 2Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
+resolve: false
+load_statements: false
+ci_test: false
+summary: >-
+  Substantial shareholders and directors of companies listed in Hong Kong
+description: |
+  Under Part XV of the Securities and Futures Ordinance, persons interested in 5% or
+  more of the voting shares of a company listed in Hong Kong, and the directors and
+  chief executives of the company, must notify the company and the Stock Exchange of
+  their interests and of changes to them. The Stock Exchange publishes these
+  notices in its Disclosure of Interests service.
+
+  The dataset covers the equity issuers on the Main Board and GEM. For each issuer,
+  it lists the substantial shareholders and the directors with notices on file, as
+  stated in their most recent notice. Directors are taken from the notices filed
+  through the Exchange's electronic filing system since 3 July 2017. Substantial
+  shareholders whose last notice was filed before then, from 1 April 2003, are
+  included from the Exchange's archive of earlier notices. Holdings are dated with
+  the event the notice reports and are not necessarily current. Where a notice
+  lists the corporations through which the interest is held, the dataset links
+  each corporation to its controlling person with the stated percentage of
+  control. Spouses named in a director's notice are included.
+
+  Directors are those who have filed a notice for the company. Ceasing to be a
+  director does not require a notice, so the list can include former directors,
+  and directorships carry the date of the last notice only.
+url: https://di.hkex.com.hk/di/NSSrchCorp.aspx?src=MAIN&lang=EN&g_lang=en
+publisher:
+  name: Hong Kong Exchanges and Clearing Limited
+  acronym: HKEX
+  description: |
+    The operator of the Stock Exchange of Hong Kong. Listed companies, their
+    directors and their substantial shareholders file disclosure of interests
+    notices with the Exchange.
+  country: hk
+  url: https://www.hkex.com.hk/
+  official: true
+data:
+  url: https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx
+  format: XLSX
+http:
+  # Pending a risk assessment, requests to HKEX don't identify as OpenSanctions.
+  user_agent: python-requests/2.34.2
+  timeout: 60
+  # HKEX intermittently drops connections and returns server errors.
+  max_retries: 5
+  backoff_factor: 3
+
+assertions:
+  min:
+    schema_entities:
+      Company: 2000
+      Person: 1000
+      Security: 500
+
+dates:
+  # Forms suffix their dates with the format: "16/05/2023(dd/mm/yyyy)".
+  formats: ["%d/%m/%Y", "%d/%m/%Y(dd/mm/yyyy)"]
+
+names:
+  # Honorifics on the controlling persons named in a form's controlled
+  # corporations table ("Mr. Bernard Chan Charnwut").
+  prefixes_strip:
+    - Mr.
+    - Mrs.
+    - Ms.
+    - Madam
+    - Dr.
+    - Sir
+
+lookups:
+  type.country:
+    # Places of incorporation of controlled corporations, as stated in
+    # parentheses after their address, once "Place of Incorporation:",
+    # "incorporated in" and a leading "the" are removed.
+    normalize: true
+    lowercase: true
+    # Keep Chinese script, so that the regular expressions below can match it.
+    asciify: false
+    options:
+      # A label the filer left without a value.
+      - match: Place of Incorporation
+        value: null
+      - match:
+          - British Virgin Island
+          - British Virigin Islands
+          - British Birgin Islands
+          - British Vitgin Islands
+          - BritishVirgin Islands
+        value: vg
+      # Re-domiciled companies take the jurisdiction they moved to.
+      - match:
+          - British Virgin Islands and re-domiciled to Samoa
+          - British Virgin Islands and subsequently re-domiciled to Samoa
+        value: ws
+      - match:
+          - England & Wales, United Kingdom
+          - England and Wales, United Kingdom
+          - England, United Kingdom
+          - England & Wales, UK
+          - England and Wales, UK
+        value: gb
+      - match: Scotland, United Kingdom
+        value: gb-sct
+      - match: Amsterdam, Netherlands
+        value: nl
+      - match: Glbraltar
+        value: gi
+      # A mainland address given where the place of incorporation goes:
+      # "中國海南省海口市海秀路29號海航發展大廈"
+      - regex: "^中[國国](?!香港|澳門|澳门|台灣|台湾).{4,}$"
+        value: cn
+      # A postal code given where the place of incorporation goes
+      - regex: "^[郵邮]編"
+        value: null
+      # Chinese and English place names run together
+      - match:
+          - 英屬維爾京群島British Virgin Islands
+          - 英屬維爾京群島 British Virgin Islands
+        value: vg
+      - match:
+          - 香港Hong Kong
+          - 香港 Hong Kong
+        value: hk
+      - match:
+          - 開曼群島Cayman Islands
+          - 開曼群島 Cayman Islands
+        value: ky
+      - match:
+          - 百慕達Bermuda
+          - 百慕達 Bermuda
+        value: bm
+      - match:
+          - 中國China
+          - 中國 China
+        value: cn
+      - match: Jersey, Channel Islands
+        value: je
+      - match: Guernsey, Channel Islands
+        value: gg
+      - match:
+          - Mainland China
+          - P. R. C.
+          - 中國
+          - 中國內地
+          - 註冊成立地點：中國
+          - 註冊成立地點：中國內地
+          # China followed by a province-level division ("中国西藏", "中國廣東")
+          - 中国上海
+          - 中国云南
+          - 中国内蒙古
+          - 中国北京
+          - 中国吉林
+          - 中国四川
+          - 中国天津
+          - 中国宁夏
+          - 中国安徽
+          - 中国山东
+          - 中国山西
+          - 中国广东
+          - 中国广西
+          - 中国新疆
+          - 中国江苏
+          - 中国江西
+          - 中国河北
+          - 中国河南
+          - 中国浙江
+          - 中国海南
+          - 中国湖北
+          - 中国湖南
+          - 中国甘肃
+          - 中国福建
+          - 中国西藏
+          - 中国贵州
+          - 中国辽宁
+          - 中国重庆
+          - 中国陕西
+          - 中国青海
+          - 中国黑龙江
+          - 中國上海
+          - 中國內蒙古
+          - 中國北京
+          - 中國吉林
+          - 中國四川
+          - 中國天津
+          - 中國安徽
+          - 中國寧夏
+          - 中國山東
+          - 中國山西
+          - 中國廣東
+          - 中國廣西
+          - 中國新疆
+          - 中國江蘇
+          - 中國江西
+          - 中國河北
+          - 中國河南
+          - 中國浙江
+          - 中國海南
+          - 中國湖北
+          - 中國湖南
+          - 中國甘肅
+          - 中國福建
+          - 中國西藏
+          - 中國貴州
+          - 中國遼寧
+          - 中國重慶
+          - 中國陝西
+          - 中國雲南
+          - 中國青海
+          - 中國黑龍江
+        value: cn
+      - match:
+          - 香港特別行政區
+          - 註冊成立地點：香港
+          - 註冊成立地點：香港特別行政區
+          - 中國香港
+          - 中国香港
+        value: hk
+      - match:
+          - 註冊成立地點：英屬維爾京群島
+          - 英屬處女群島
+          - 英属维尔京群岛
+          - 英属处女群岛
+          - 註冊成立地點：英屬處女群島
+        value: vg
+      - match: 註冊成立地點：開曼群島
+        value: ky
+      - match: 註冊成立地點：百慕達
+        value: bm
+      - match:
+          - Hong Kong, PRC
+          - Hong Kong SAR, PRC
+          - a company limited by guarantee and incorporated in Hong Kong
+        value: hk
+      - match:
+          - 澳门
+          - Macau SAR
+          - Macao SAR, PRC
+          - Macau SAR, PRC
+        value: mo
+      # US state of incorporation
+      - match:
+          - State of Alabama
+          - State of Alaska
+          - State of Arizona
+          - State of Arkansas
+          - State of California
+          - State of Colorado
+          - State of Connecticut
+          - State of Delaware
+          - State of Florida
+          - State of Georgia
+          - State of Hawaii
+          - State of Idaho
+          - State of Illinois
+          - State of Indiana
+          - State of Iowa
+          - State of Kansas
+          - State of Kentucky
+          - State of Louisiana
+          - State of Maine
+          - State of Maryland
+          - State of Massachusetts
+          - State of Michigan
+          - State of Minnesota
+          - State of Mississippi
+          - State of Missouri
+          - State of Montana
+          - State of Nebraska
+          - State of Nevada
+          - State of New Hampshire
+          - State of New Jersey
+          - State of New Mexico
+          - State of New York
+          - State of North Carolina
+          - State of North Dakota
+          - State of Ohio
+          - State of Oklahoma
+          - State of Oregon
+          - State of Pennsylvania
+          - State of Rhode Island
+          - State of South Carolina
+          - State of South Dakota
+          - State of Tennessee
+          - State of Texas
+          - State of Utah
+          - State of Vermont
+          - State of Virginia
+          - State of Washington
+          - State of West Virginia
+          - State of Wisconsin
+          - State of Wyoming
+          - State of Delaware, USA
+          - Delaware, United States
+          - Delaware, United States of America
+        value: us
+      - match:
+          - Taiwan, Province of China
+          # "Taipei 110 Taiwan (Province of China)", after the ISO 3166 name
+          - Province of China
+        value: tw
+  type.address:
+    # Placeholders for an address or registered office the filer did not give.
+    lowercase: true
+    options:
+      - match:
+          - Nil
+          - N/A
+          - NA
+          - HK
+          # "not applicable", simplified and traditional
+          - 不适用
+          - 不適用
+          - 无
+          - 無
+        value: null

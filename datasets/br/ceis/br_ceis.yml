@@ -22,6 +22,7 @@ description: |
   with the entries being directly fed by public entities responsible for the sanctions.
 tags:
   - list.debarment
+  - risk.misconduct
 publisher:
   name: General Control Office of the Union
   acronym: CGU

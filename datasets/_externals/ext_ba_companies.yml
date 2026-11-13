@@ -103,7 +103,9 @@ assertions:
     schema_entities:
       Company: 1
       LegalEntity: 1
+      Person: 1
   max:
     schema_entities:
       Company: 10
-      LegalEntity: 10
+      LegalEntity: 30
+      Person: 30

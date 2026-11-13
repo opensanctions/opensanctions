@@ -1,0 +1,94 @@
+title: US ORI PHS Administrative Actions
+entry_point: crawler.py
+prefix: us-ori
+coverage:
+  frequency: daily
+  start: "2026-08-26"
+load_statements: true
+summary: >-
+  Researchers debarred or restricted for misconduct in federally funded research
+description: |
+  Individuals with administrative actions currently imposed by the Office of Research
+  Integrity (ORI) and the Department of Health and Human Services (HHS) after
+  findings of research misconduct (fabrication, falsification or plagiarism) in
+  research supported by the US Public Health Service (PHS). Actions run for a fixed
+  term or for life, and include debarment from federal contracts and programs, a ban
+  on serving as a PHS advisor, and supervision or certification of the individual's
+  PHS-funded research.
+
+  Expired actions remain listed while the individual stays on the bulletin board.
+  The Food and Drug Administration lists the individuals it has debarred or
+  restricted separately.
+url: https://ori.hhs.gov/phs-administrative-action-bulletin-board
+tags:
+  - list.debarment
+  - sector.health
+  - risk.misconduct
+publisher:
+  name: Office of Research Integrity
+  acronym: ORI
+  description: |
+    The Office of Research Integrity (ORI) is part of the Office of the Assistant
+    Secretary for Health within the US Department of Health and Human Services. ORI
+    oversees and directs Public Health Service (PHS) research integrity activities,
+    reviews institutional investigations of research misconduct, makes findings of
+    research misconduct and recommends administrative actions to the Assistant
+    Secretary for Health.
+  country: us
+  url: https://ori.hhs.gov/
+  official: true
+data:
+  url: https://ori.hhs.gov/ORI_PHS_alert.html
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20
+    countries: 1
+  max:
+    schema_entities:
+      Person: 80
+
+lookups:
+  type.date:
+    options:
+      - match:
+          - For life
+          - N/A
+        value: null
+  # Action column → provision (`value`) and topic while in force.
+  action_columns:
+    options:
+      - match: debarment_until
+        value: Debarment
+        topic: debarment
+      - match: no_phs_advisory_until
+        value: No PHS Advisory
+        topic: reg.action
+      - match: certification_of_work_until
+        value: Certification of work
+        topic: reg.action
+      - match: supervision_until
+        value: Supervision
+        topic: reg.action
+  # All memos; `terms` are dates per provision, used when the column has none.
+  memo_terms:
+    options:
+      # No terms.
+      - match:
+          - null
+          - Two years of supervision/certification follows the 3-year debarment
+      # Fernandez: columns say "For life", case summary gives 15 years.
+      - match: "Debarment: 15 years beginning on 03/25/2026 and ending on 03/24/2041 No PHS Advisory Service: 15 years beginning on 06/22/2025 and ending on 06/21/2040"
+        terms:
+          Debarment:
+            start: 03/25/2026
+            end: 03/24/2041
+          No PHS Advisory:
+            start: 06/22/2025
+            end: 06/21/2040
