@@ -1,10 +1,10 @@
 title: PHS Administrative Actions
 key: US-HHS-ORI
 url: https://ori.hhs.gov/phs-administrative-action-bulletin-board
-summary: The Office of Research Integrity of the US Department of Health and Human
-  Services imposes administrative actions on researchers found to have committed
-  research misconduct (fabrication, falsification or plagiarism) in research
-  supported by the US Public Health Service. Actions are imposed for a fixed term
+summary: Following findings of research misconduct (fabrication, falsification or
+  plagiarism) by the Office of Research Integrity (ORI) in research supported by the
+  US Public Health Service, the US Department of Health and Human Services imposes
+  administrative actions on the researchers concerned. Actions are imposed for a fixed term
   or for life and include debarment from contracting with and participating in
   non-procurement programs of the US Government, a prohibition from serving in any
   advisory capacity to PHS, and supervision and certification requirements for any
@@ -13,6 +13,7 @@ issuer: us_hhs_ori
 dataset: us_ori_admin_actions
 aliases:
   - PHS Administrative Action Bulletin Board
-  - ORI PHS Alert
+  - PHS Alert System
+  - 42 CFR Part 93
 measures:
   - Debarment
