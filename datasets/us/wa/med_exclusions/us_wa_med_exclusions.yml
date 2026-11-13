@@ -13,7 +13,9 @@ description: |
   or 388-113-0020; 388-113-0030; 388-71-0540 (DSHS) and Medicaid providers who have
   been excluded from participation (see 42 CFR 1001).
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Washington State Health Care Authority
   description: |

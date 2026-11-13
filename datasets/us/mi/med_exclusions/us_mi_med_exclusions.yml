@@ -22,7 +22,9 @@ description: |
   > letter. Claims for services/items rendered/ordered/prescribed by a provider for whom sanctions have been removed
   > will be honored retroactively to the date the sanction ended.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Michigan Department of Health & Human Services
   acronym: MDHHS

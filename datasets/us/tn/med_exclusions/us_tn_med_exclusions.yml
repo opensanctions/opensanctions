@@ -26,7 +26,9 @@ description: |
   > do not employ or contract with any individual or entity that has been excluded
   > or debarred.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: TennCare Office of Program Integrity
   description: >

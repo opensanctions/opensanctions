@@ -13,7 +13,9 @@ description: |
   sanctioned providers are not eligible for Medicaid reimbursement. In addition, services provided by entities
   owned or managed by sanctioned providers are not eligible for Medicaid reimbursement.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Iowa Health & Human Services
   description:

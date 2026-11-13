@@ -12,7 +12,9 @@ description: |
   who have been terminated or excluded from the state Medicaid program. Providers listed
   are not allowed to receive reimbursement for Medicaid services in any capacity.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Medicaid Management Information System
   description: |
