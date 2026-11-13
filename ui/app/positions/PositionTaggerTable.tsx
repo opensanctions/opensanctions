@@ -72,6 +72,7 @@ export default function PositionTaggerTable({ countries, positions }: PositionTa
           <th>Dataset</th>
           <th className="text-nowrap">Is a PEP</th>
           <th>Categories</th>
+          <th>Seniority</th>
           <th>First seen</th>
           <th>Last seen</th>
           <th>Modified</th>
@@ -80,7 +81,7 @@ export default function PositionTaggerTable({ countries, positions }: PositionTa
       <tbody>
         {
           positions.length == 0 ?
-            <tr><td colSpan={8}>No matching results</td></tr> :
+            <tr><td colSpan={9}>No matching results</td></tr> :
             positions.map((row: Position) => {
               return <PositionTaggerRow
                 countries={countries}
