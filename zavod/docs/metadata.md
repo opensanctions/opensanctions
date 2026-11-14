@@ -98,14 +98,13 @@ The dataset name is the `.yml` file name stem, e.g. `us_ofac_sdn`; don't set `na
 
 ### Tags
 
-`tags` are a controlled vocabulary used to categorize datasets by shared attributes such as list type, issuer, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
+`tags` are a controlled vocabulary used to categorize datasets by shared attributes such as list type, publisher, target country, or sector. They support cross-referencing within specific scopes, such as distinguishing between sanctions, PEPs, and regulatory actions, and enable users to select the most relevant datasets for a given country, sector, or risk category.
 
 Each tag begins with a prefix naming the dimension it describes:
 
 - `list.*` - the type of list (e.g. `list.sanction`, `list.pep`, `list.debarment`, `list.export`).
 - `sector.*` - the industry the dataset covers (e.g. `sector.financial`, `sector.maritime`, `sector.health`).
-- `issuer.*` - who publishes it, or which coalition the publisher is aligned with (e.g. `issuer.west`).
-- `juris.*` - the legal regime it is issued under (e.g. `juris.eu`, `juris.us`).
+- `publisher.*` - the publisher's country, and the blocs or coalitions it belongs to (e.g. `publisher.fr`, `publisher.europe`, `publisher.west`).
 - `target.*` - the countries it is aimed at (e.g. `target.ru`, `target.kp`).
 - `risk.*` - the risk theme its subjects are associated with (e.g. `risk.klepto`, `risk.slavery`).
 
@@ -113,9 +112,33 @@ A dataset usually carries tags from several of these dimensions.
 
 Tags match by exact string, not by prefix: `list.pep.bulk` does not match `list.pep`. A sub-tag is usually applied alongside its base tag: `list.pep.bulk` marks PEP datasets, also tagged `list.pep`, that are left out of broad PEP cross-referencing, such as declaration registries and sub-national officeholder lists. Some sub-tags are applied without their base tag to keep a dataset out of the broader scope: `list.sanction.counter` is not tagged `list.sanction`.
 
-**Note:** a `target.*` tag must not be the publisher's own country or jurisdiction. A domestic list is already identified by its publisher's country, and where one applies, its `juris.*` tag.
+**Note:** a `target.*` tag must not be the publisher's own country. A domestic list is already identified by its `publisher.*` tag.
 
 You can find a full overview of available tags [here](https://www.opensanctions.org/docs/metadata/).
+
+#### List types and risks
+
+Choose the `list.*` tag by what being listed means for the subject:
+
+- `list.sanction` - designations that freeze assets or prohibit dealings, including terrorist designations and proscribed organizations.
+- `list.wanted` - people sought by law enforcement.
+- `list.enforcement` - registers of enforcement actions, such as fines and rulings by a regulator.
+- `list.debarment` - bans from an activity, such as public procurement, a regulated market, a healthcare program, or a company directorship.
+- `list.export` - export control lists.
+- `list.watch` - warning lists, investment exclusions, and other watchlists that don't fit the types above.
+- `list.pep` - politically exposed persons.
+- `list.pep.bulk` - added alongside `list.pep` for PEP datasets that should be left out of broad PEP cross-referencing, such as asset declaration registries and lists of sub-national officeholders.
+
+Then add a `risk.*` tag that names the risk behind the listing, where one fits. A `list.watch` dataset should usually have one.
+
+- `risk.terror` - terrorism or terrorist financing.
+- `risk.misconduct` - breaches of conduct rules found by a regulator, court, or public body, such as fraud, market abuse, or unfitness to act.
+- `risk.unlicensed` - financial services or gambling offered without the required authorization.
+- `risk.tech` - technology security, such as military end users, restricted research partners, or untrusted telecoms equipment.
+- `risk.klepto` - kleptocracy or grand corruption.
+- `risk.slavery` - forced labor, human trafficking, or modern slavery.
+
+The two dimensions are independent: a terrorist asset freeze list is `list.sanction` with `risk.terror`, and a list of fugitives wanted for terrorism is `list.wanted` with `risk.terror`.
 
 #### Derived tags
 
@@ -123,6 +146,8 @@ Some tags are added automatically when the dataset is loaded, so don't set them 
 
 - `publisher.<country>` from `publisher.country`, when the publisher is `official: true`, the country isn't `zz`, and the dataset isn't tagged `list.pep`.
 - `publisher.<bloc>` for each bloc the publisher country belongs to, under the same conditions. The blocs are defined in `PUBLISHER_BLOCS` in `zavod/meta/tags.py`.
+
+Coalition tags that aren't derived from the publisher country, such as `publisher.west`, are still set by hand.
 
 ### Deployment
 
