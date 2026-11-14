@@ -1,155 +1,137 @@
-import io
 import re
-from csv import DictReader
-from pathlib import Path
 from typing import Any
-from zipfile import BadZipFile, ZipFile
+
+import requests
 
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.util import Element
 
 
-def fetch_latest_filing(
-    context: Context,
-    dates: list[dict[str, Any]],
-) -> tuple[str | None, Path | None]:
-    if not dates:
-        return None, None
+def fetch_filing(context: Context, barcode: int) -> tuple[str, Element | None]:
+    """Fetch a filing of either system as an HTML report.
 
-    # Iterate over all entries in reverse order
-    for entry in reversed(dates):
-        report_id = entry.get("stariIzvjestaj")
-        if (
-            report_id is not None and report_id != -1
-        ):  # Check for the first valid report
-            url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={report_id}"
-            # Ensure ID is an int and not a path traversal attack
-            filename = f"{int(report_id)}.zip"
-            zip_path = context.fetch_resource(filename, url)
-            try:
-                with ZipFile(zip_path, "r"):
-                    return entry.get("datum"), zip_path
-            except BadZipFile as e:
-                context.log.info(
-                    "Failed to open ZIP file. Skipping",
-                    path=zip_path,
-                    exception_str=str(e),
-                )
-
-    # If no valid entry is found
-    return None, None
+    Returns the report URL, and the document or None if the server fails."""
+    url = (
+        "https://obsidian.antikorupcija.me/api/registri/reports/report"
+        "?reportname=registar_izvjestaja_o_prihodima_i_imovini_funkcionera_izvjestaj"
+        f"&reporttype=html&parm_01={int(barcode)}"
+    )
+    try:
+        # Filings don't change. The response omits its UTF-8 charset.
+        return url, context.fetch_html(url, cache_days=90, encoding="utf-8")
+    except (requests.ConnectionError, requests.Timeout) as exc:
+        # The server sometimes stalls for up to an hour, then times out.
+        context.log.warning("Failed to fetch filing", url=url, error=str(exc))
+        return url, None
 
 
-def read_csv_rows(
-    context: Context, zip_path: Path, file_pattern: str
-) -> list[dict[str, Any]]:
-    """Generic CSV fetcher to retrieve CSV rows based on the file pattern."""
-
-    with ZipFile(zip_path, "r") as zip:
-        filtered_names = [
-            name for name in zip.namelist() if name.startswith(file_pattern)
-        ]
-        file_name = next((name for name in filtered_names), None)
-        if not file_name:
-            context.log.warning(
-                "No matching file found in the ZIP archive.", file_pattern
-            )
-            return []
-
-        with zip.open(file_name) as zfh:
-            fh = io.TextIOWrapper(zfh, encoding="utf-8-sig")
-            # The source escapes quotes inside quoted fields with a backslash
-            # (e.g. "JU OŠ \"Maršal Tito\"") rather than by doubling them.
-            # Without escapechar the reader leaves the field in a mangled state
-            # and can even split it on a subsequent comma.
-            reader = DictReader(fh, delimiter=",", quotechar='"', escapechar="\\")
-            return list(reader)
+def read_section(doc: Element, title: str) -> list[dict[str, str | None]]:
+    """Read the non-empty rows of the report table titled `title`."""
+    table = h.xpath_element(
+        doc, f"//table[tr[1]/th[starts-with(normalize-space(.), '{title}')]]"
+    )
+    rows = [h.cells_to_str(row) for row in h.parse_html_table(table, skiprows=1)]
+    return [row for row in rows if any(value is not None for value in row.values())]
 
 
-def build_person_from_family_row(context: Context, row: dict[str, Any]) -> Entity:
-    first_name = row.pop("IME_CLANA_PORODICE")
-    last_name = row.pop("PREZIME_CLANA_PORODICE")
-    # We're dealing with: '-/-'
-    maiden_name = row.pop("RODJENO_PREZIME_CLANA_PORODICE").strip("-").strip("/")
-    # If the maiden name is actually a birthdate (i.e. only digits and dots),
-    # treat it as the date of birth and clear the maiden name field
-    dob = maiden_name if re.fullmatch(r"[.\d]+", maiden_name) else None
-    maiden_name = None if dob else maiden_name
+def build_person_from_family_row(
+    context: Context, row: dict[str, str | None], index_name: str | None = None
+) -> Entity:
+    first_name = row.pop("ime")
+    last_name = row.pop("prezime")
+    # Prefer the index's spelling when only the case differs (AMIR ĐOKAJ).
+    full_name = h.make_name(first_name=first_name, last_name=last_name)
+    if (
+        index_name is not None
+        and full_name is not None
+        and index_name.casefold() == full_name.casefold()
+    ):
+        full_name = index_name
+    maiden_name = row.pop("rodeno_prezime")
+    dob = None
+    if maiden_name is not None and re.fullmatch(r"[\d.\s]+", maiden_name):
+        # Some hold a birth date instead, e.g. '04. 12. 1960'.
+        dob, maiden_name = re.sub(r"\s", "", maiden_name), None
+    elif maiden_name is not None and not any(c.isalpha() for c in maiden_name):
+        # Placeholders such as '-/-' or "'".
+        maiden_name = None
 
-    city = row.pop("MESTO")
+    city = row.pop("mjesto")
     entity = context.make("Person")
     entity.id = context.make_id(first_name, last_name, city)
-    entity.add("citizenship", row.pop("DRZAVLJANSTVO").split(","))
+    entity.add("citizenship", (row.pop("drzavljanstvo") or "").split(","))
     h.apply_name(
-        entity, first_name=first_name, last_name=last_name, maiden_name=maiden_name
+        entity,
+        full=full_name,
+        first_name=first_name,
+        last_name=last_name,
+        maiden_name=maiden_name,
     )
     h.apply_date(entity, "birthDate", dob)
-    address = h.make_address(context, city=city, place=row.pop("BORAVISTE"), lang="cnr")
+    residence = row.pop("boraviste")
+    if residence is not None and city is not None:
+        if residence.casefold() == city.casefold():
+            residence = None
+    address = h.make_address(context, city=city, place=residence, lang="cnr")
     h.copy_address(entity, address)
-    context.audit_data(
-        row,
-        [
-            "SRODSTVO",  # the family relationship, we use it elsewhere
-            "FUNKCIONER_IME",
-            "FUNKCIONER_PREZIME",
-        ],
-    )
+    context.audit_data(row, ["srodstvo"])  # used by the caller
     return entity
 
 
 def crawl_relatives(
-    context: Context, person_entity: Entity, relatives: list[dict[str, Any]]
+    context: Context, person: Entity, relatives: list[dict[str, str | None]]
 ) -> None:
     for row in relatives:
-        relationship = row.pop("SRODSTVO")
+        relationship = row.pop("srodstvo")
         relative = build_person_from_family_row(context, row)
+        # Children are often listed by their initials only.
         if len(relative.caption) < 4:
-            return
+            continue
+        relative.add("topics", "role.rca")
         context.emit(relative)
 
-        # Emit a relationship
         rel = context.make("Family")
-        rel.id = context.make_id(person_entity.id, relationship, relative.id)
+        rel.id = context.make_id(person.id, relationship, relative.id)
         rel.add("relationship", relationship)
-        rel.add("person", person_entity.id)
+        rel.add("person", person.id)
         rel.add("relative", relative.id)
-
         context.emit(rel)
 
 
-def emit_affiliated_position(
-    context: Context,
-    *,
-    person: Entity,
-    function: str,
-    affiliation_data: dict[str, str],
-    filing_date: str,
-) -> None:
-    """Creates Position and Occupancy after categorization.
-
-    A position's name includes the function and the organization name.
-
-    All positions (and Occupancies, Persons) are assumed to be Montenegrin
-    """
-
-    organization = affiliation_data.pop("ORGANIZACIJA")
-    start_date = affiliation_data.pop("DATUM_POCETKA_OBAVLJANJA", None)
-    end_date = affiliation_data.pop("DATUM_PRESTANKA_OBAVLJNJA")
+def parse_function(
+    context: Context, person: Entity, row: dict[str, str | None]
+) -> tuple[Entity, str | None, str | None, OccupancyStatus | None] | None:
+    """Make the position and dates for a function listed in a filing."""
+    function = row.pop("naziv_funkcije")
+    organization = row.pop("organ_vlasti_gdje_se_obavlja_funkcija")
+    if function is None or organization is None:
+        # Mostly old memberships ("Član") that name no body to build a position.
+        context.log.info(
+            "Function without a name or organisation",
+            person=person.id,
+            function=function,
+            organization=organization,
+        )
+        return None
+    ended = row.pop("prestala_funkcija")
+    if ended not in (None, "X"):
+        context.log.warning("Unexpected 'ended' marker", value=ended)
+    start_date = row.pop("datum_pocetka")
+    end_date = row.pop("datum_prestanka")
     context.audit_data(
-        affiliation_data,
+        row,
         ignore=[
-            "ORGANIZACIJA_IMENOVANJA",
-            "ORGANIZACIJA_SAGLASNOSTI",
-            "FUNKCIONER_IME",
-            "FUNKCIONER_PREZIME",
+            "organ_vlasti_koji_bira_imenuje_postavlja",
+            "mjesto_obavljanja",
+            "bez_naknade",
         ],
     )
 
     position_name = f"{function}, {organization}"
     person.add("position", position_name)
-
     position = h.make_position(
         context,
         position_name,
@@ -157,135 +139,109 @@ def emit_affiliated_position(
         lang="cnr",
         translate_name=True,
     )
-
-    categorisation = categorise(context, position, default_is_pep=True)
-    if not categorisation.is_pep:
-        return
-
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-        start_date=start_date,
-        end_date=end_date,
-    )
-    # If the person should not be considered a PEP, don't emit the occupancy or position.
-    if occupancy is None:
-        return
-    occupancy.add("declarationDate", filing_date)
-
-    person.add("topics", "role.pep")
-    context.emit(position)
-    context.emit(occupancy)
+    # Some functions are marked as ended without an end date.
+    status = OccupancyStatus.ENDED if ended == "X" and end_date is None else None
+    return position, start_date, end_date, status
 
 
-# Verified Jan 2025 that when SRODSTVO == Funkcioner,
-# FUNKCIONER_IME roughly equals IME_CLANA_PORODICE (first name)
-# and FUNKCIONER_PREZIME roughly equals PREZIME_CLANA_PORODICE (last name)
-def split_official_and_relatives(
-    rows: list[dict[str, Any]],
-) -> tuple[dict[str, str] | None, list[dict[str, str]]]:
-    """Split family rows into the relatives and the official."""
-    # SRODSTVO contains Funkcioner for the official, else the family relationship.
-    officials = [row for row in rows if row.get("SRODSTVO") == "Funkcioner"]
-    relatives = [row for row in rows if row.get("SRODSTVO") != "Funkcioner"]
-    assert len(officials) <= 1, "Multiple 'Funkcioner' found in the relatives CSV."
-    return officials[0] if officials else None, relatives
-
-
-def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
-    """Crawl a person from the data.
-
-    Returns true if a ZIP was read."""
+def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
     full_name = person_data.pop("imeIPrezime")
-    dates = person_data.pop("izvjestajImovine")
+    filings: list[dict[str, Any]] = person_data.pop("izvjestajImovine")
     function_labels: list[str] = person_data.pop("nazivFunkcije")
-    filing_date, zip_path = fetch_latest_filing(context, dates)
 
-    family_rows = []
-    function_rows = []
-    if zip_path:
-        # Relatives of a person
-        family_rows = read_csv_rows(context, zip_path, "csv_clanovi_porodice_")
-        # Function that this person holds
-        function_rows = read_csv_rows(context, zip_path, "csv_funkcije_funkcionera_")
+    filing_date: str | None = None
+    source_url: str | None = None
+    family_rows: list[dict[str, str | None]] = []
+    function_rows: list[dict[str, str | None]] = []
+    if filings:
+        # A person can file more than once on the same day.
+        latest = max(filings, key=lambda f: (f["datum"], f["barcode"]))
+        filing_date = latest["datum"]
+        source_url, doc = fetch_filing(context, latest["barcode"])
+        # Without the report, fall back to the index labels below.
+        if doc is not None:
+            family_rows = read_section(doc, "2.2 Članovi porodice")
+            function_rows = read_section(doc, "2.4 Javna funkcija")
 
-    official_row, relatives_rows = split_official_and_relatives(family_rows)
+    # The official is listed among their family as "Funkcioner".
+    officials = [row for row in family_rows if row.get("srodstvo") == "Funkcioner"]
+    relatives = [row for row in family_rows if row.get("srodstvo") != "Funkcioner"]
+    if len(officials) > 1:
+        context.log.warning("Multiple officials in a filing", name=full_name)
 
-    if official_row:
-        person = build_person_from_family_row(context, official_row)
+    if officials:
+        person = build_person_from_family_row(context, officials[0], full_name)
+        # Filings may use Cyrillic, drop diacritics or give a married name.
+        h.apply_name(person, full_name)
     else:
         person = context.make("Person")
         # TODO(Leon Handreke): I think we should be passing *function_labels here,
         # but that would mean a re-key.
         person.id = context.make_id(full_name, sorted(function_labels))  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
         h.apply_name(person, full_name)
+    # Appointed officials need not be citizens. Filings state citizenship.
+    person.add("country", "me")
 
-    person.add("citizenship", "me")
-
+    held: list[tuple[Entity, str | None, str | None, OccupancyStatus | None]] = []
     if function_rows:
-        assert filing_date is not None
         for row in function_rows:
-            function = row.pop("FUNKCIJA")
-            emit_affiliated_position(
-                context,
-                person=person,
-                function=function,
-                affiliation_data=row,
-                filing_date=filing_date,
-            )
+            function = parse_function(context, person, row)
+            if function is not None:
+                held.append(function)
     else:
+        # People without a filing still owe one for the function, so keep them.
+        status = OccupancyStatus.UNKNOWN if filing_date is None else None
         for label in function_labels:
             position = h.make_position(context, label, country="me")
-            categorisation = categorise(context, position, default_is_pep=True)
-            if not categorisation.is_pep:
-                continue
-            occupancy = h.make_occupancy(
-                context,
-                person,
-                position,
-                no_end_implies_current=False,
-                categorisation=categorisation,
-                status=OccupancyStatus.UNKNOWN,
-            )
-            context.emit(position)
-            if occupancy is not None:
-                context.emit(occupancy)
-            person.add("topics", categorisation.topics)
+            held.append((position, None, None, status))
 
-    if "gov.national" in set(person.get("topics")):
-        crawl_relatives(context, person, relatives_rows)
+    is_national = False
+    for position, start_date, end_date, status in held:
+        categorisation = categorise(context, position, default_is_pep=True)
+        if not categorisation.is_pep:
+            continue
 
-    context.emit(person)
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            categorisation=categorisation,
+            start_date=start_date,
+            end_date=end_date,
+            declaration_date=filing_date,
+            no_end_implies_current=False,  # a filing is a snapshot
+            status=status,
+        )
+        if occupancy is None:
+            continue
+        occupancy.add("sourceUrl", source_url)
+        if "gov.judicial" in categorisation.topics:
+            person.add("topics", "role.judge")
 
-    # True if we got some valid rows from the Zip file
-    return bool(relatives_rows or function_rows)
+        context.emit(position)
+        context.emit(occupancy)
+        context.emit(person)
+        if "gov.national" in categorisation.topics:
+            is_national = True
+
+    if is_national:
+        crawl_relatives(context, person, relatives)
 
 
 def crawl(context: Context) -> None:
-    valid_zips = 0
     page = 0
-    max_pages = 1200
+    # About 9 pages in 2026.
+    max_pages = 20
     while True:
-        context.log.info("Crawling index page", page=page)
-        data_url = f"{context.data_url}?page={page}&size=20"
-        doc = context.fetch_json(data_url.format(page=page))
-
-        if not doc:  # Break if an empty list is returned
-            context.log.info(f"Stopped at page {page}")
+        # 2000 is the most the API serves per page.
+        people = context.fetch_json(f"{context.data_url}?page={page}&size=2000")
+        if not people:
             break
-
-        for person in doc:
-            if crawl_person(context, person):
-                valid_zips += 1
-
+        for person in people:
+            crawl_person(context, person)
         page += 1
         if page >= max_pages:
             context.log.warning(
                 f"Emergency exit: Reached the maximum page limit of {max_pages}."
             )
             break
-
-        if not valid_zips:
-            context.log.warning("No valid ZIP files found.")

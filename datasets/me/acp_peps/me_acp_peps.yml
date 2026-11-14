@@ -1,4 +1,4 @@
-title: Montenegro declarations of interests by public officials
+title: Montenegro Income and Asset Declarations by Public Officials
 entry_point: crawler.py
 prefix: me-gov
 coverage:
@@ -7,14 +7,15 @@ coverage:
 load_statements: true
 ci_test: false # because it takes hours to run
 summary: >
-  Montenegrin Public Officials Subject to Declaration by the Agency for Prevention of Corruption.
+  Current and former office holders reporting to the anti-corruption agency
 description: |
-  This dataset lists Montenegrin PEPs based on declarations of assets, income
-  and public functions by current and former public officials required to make these
-  declarations. The data is based on their most recent declaration.
+  Montenegrin public officials are required by law to report their income, assets
+  and public functions to the Agency for Prevention of Corruption, which publishes
+  the reports in a public register. This dataset lists current and former officials,
+  based on the functions in their reports.
 
-  It includes information such as the official's name and positions. If an individual
-  served at the national level, it also includes any reported relatives.
+  For officials who served at the national level, it also includes the family
+  members listed in their reports.
 publisher:
   name: Agencija za sprečavanje korupcije
   name_en: Agency for Prevention of Corruption
@@ -51,23 +52,31 @@ lookups:
     lowercase: true
     options:
       - match: Crnogorsko
-        country: me
+        value: me
       - match:
           - SRPSKO
           - Srbijansko
           - Republike Srbije
-        country: rs
+          - R.Srbije
+        value: rs
+      - match: Crnogorsko i srpsko
+        values: [me, rs]
       - match: Britansko
-        country: gb
+        value: gb
       - match: Tursko
-        country: tr
+        value: tr
       - match:
           - američko
           - Americko
-        country: us
+        value: us
       - match: Makedonsko
-        country: mk
+        value: mk
+      - match: Hrvatsko
+        value: hr
+      - match: Austrijsko
+        value: at
   type.address:
+    lowercase: true
     options:
       # Map short address strings to bypass short address warnings
       - match: Bar
