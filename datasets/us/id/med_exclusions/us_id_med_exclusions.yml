@@ -42,11 +42,11 @@ assertions:
   min:
     schema_entities:
       Person: 120
-      Company: 8
+      LegalEntity: 8
   max:
     schema_entities:
       Person: 250
-      Company: 40
+      LegalEntity: 40
 
 lookups:
   names:

@@ -46,10 +46,11 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity.add("weakAlias", res.weakAlias)
         entity.add("position", res.position)
     elif "," not in name:
-        entity.add_schema("Company")
+        # Organisations stay LegalEntity: the source doesn't say whether they
+        # are companies, non-profits or public bodies.
         entity.add("name", name)
         if REGEX_IRREGULAR.search(name):
-            context.log.warning("Irregular company name", name=name)
+            context.log.warning("Irregular organisation name", name=name)
     else:
         akas: list[str] = []
         if match := REGEX_AKA.match(name):
