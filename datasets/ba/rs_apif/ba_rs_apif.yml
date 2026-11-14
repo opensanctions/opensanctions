@@ -9,7 +9,7 @@ prefix: ba-apif
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-11-03
+  start: 2026-11-14
 exports:
   - statistics.json
   - entities.ftm.json

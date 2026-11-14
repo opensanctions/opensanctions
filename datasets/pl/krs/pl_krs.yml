@@ -3,7 +3,7 @@ prefix: pl-krs
 entry_point: crawler.py
 coverage:
   frequency: daily
-  start: 2026-11-03
+  start: 2026-11-14
 deploy:
   disk: 30Gi
   memory: 2Gi
@@ -47,7 +47,7 @@ data:
   format: JSON
 
 config:
-  batch_size: 50_000
+  batch_size: 200_000
   # A guess at a run of unused numbers long enough to mean the end of the
   # register, not checked against gaps in the KRS numbering.
   stop_after_misses: 5000

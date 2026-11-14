@@ -6,7 +6,7 @@ load_statements: false
 ci_test: false
 coverage:
   frequency: monthly
-  start: "2026-11-06"
+  start: "2026-11-14"
 deploy:
   premium: true
   memory: 3Gi

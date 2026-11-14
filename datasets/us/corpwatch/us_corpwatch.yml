@@ -1,6 +1,7 @@
 name: us_corpwatch
 title: US CorpWatch EX-21 Filings
 prefix: us-cw
+disabled: true
 entry_point: crawler.py
 coverage:
   frequency: monthly
