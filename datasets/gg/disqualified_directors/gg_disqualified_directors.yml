@@ -15,6 +15,9 @@ description: |
   functions since 1 November 2021.
 
   Disqualified directors are sourced from the [Guernsey Registry](https://www.guernseyregistry.com/article/4036/Disqualified-Directors).
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: Guernsey Financial Services Commission
   acronym: GFSC

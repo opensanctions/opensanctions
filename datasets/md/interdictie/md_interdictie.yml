@@ -12,6 +12,9 @@ description: |
   The dataset contains a comprehensive list of economic operators that are prohibited
   from participating in public procurement in the Republic of Moldova. It includes the
   names of the companies, the reasons for prohibition, and the duration of the ban.
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: "Ministry of Finance of the Republic of Moldova"
   descrition: |

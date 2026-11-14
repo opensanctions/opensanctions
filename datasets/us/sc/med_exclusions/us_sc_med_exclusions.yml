@@ -21,7 +21,9 @@ description: |
 
   This dataset specifically only includes providers excluded by the State of South Carolina.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: South Carolina Department of Health and Human Services
   description: |

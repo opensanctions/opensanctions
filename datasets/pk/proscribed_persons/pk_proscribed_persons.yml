@@ -36,6 +36,9 @@ description: |
   Note that the technical implementation of the publisher's website currently makes it
   impossible to update the data in a fully automated way. For this reason, the data is
   only updated roughly every 90 days.
+tags:
+  - list.sanction
+  - risk.terror
 publisher:
   name: National Counter Terrorism Authority
   acronym: NACTA

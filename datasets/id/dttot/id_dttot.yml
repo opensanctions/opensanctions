@@ -30,6 +30,7 @@ data:
   lang: ind
 tags:
   - list.sanction
+  - risk.terror
 dates:
   formats: ["%d %B %Y", "%d/%m/%Y", "%d/%m/%Y;", "%d %B %Y;", "00/00/%Y", "00/%m/%Y"]
 

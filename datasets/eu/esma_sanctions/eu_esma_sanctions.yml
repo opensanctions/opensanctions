@@ -12,6 +12,9 @@ description: |
   Register of entities sanctioned by European NCAs and maintained by ESMA.
   The directives and regulations underpinning the sanctions can be found in the [Interactive Single Rulebook.](https://www.esma.europa.eu/publications-and-data/interactive-single-rulebook)
   > Compilation of sanctions applied and published in Member States under CSDR, EMIR, MAD, MAR, MiFID, SFTR, UCITS.
+tags:
+  - list.enforcement
+  - risk.misconduct
 publisher:
   name: European Securities and Markets Authority
   acronym: ESMA

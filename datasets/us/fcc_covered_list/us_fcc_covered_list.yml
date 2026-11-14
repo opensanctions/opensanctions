@@ -42,6 +42,9 @@ description: |
 
   This dataset is manually maintained and is updated shortly after changes to the source.
 
+tags:
+  - list.watch
+  - risk.tech
 publisher:
   name: Federal Communications Comission
   acronym: FCC

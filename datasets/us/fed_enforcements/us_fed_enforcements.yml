@@ -8,7 +8,7 @@ deploy:
   memory: "4500Mi"
   memory_limit: "5500Mi"
 load_statements: true
-ci_test: false # GPT key not available in CI
+ci_test: false  # GPT key not available in CI
 summary: >
   Enforcement actions against entities and individuals for violations of laws, rules, or regulations
 description: |
@@ -27,6 +27,7 @@ description: |
 tags:
   - sector.banking
   - list.enforcement
+  - risk.misconduct
 publisher:
   name: Federal Reserve Board
   acronym: FRB

@@ -46,7 +46,9 @@ description: |
    > reimbursement for providing Kentucky Medicaid services in any capacity,
    > even if they are not on the Kentucky Medicaid list.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Kentucky Department for Medicaid Services
   description: |

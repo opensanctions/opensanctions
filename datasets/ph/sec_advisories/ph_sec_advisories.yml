@@ -16,6 +16,9 @@ description: |
   Note: It [appears as though](https://github.com/opensanctions/crawler-planning/issues/325)
   not all revocations and delinquencies are listed in an advisory.
   We are looking for a more comprehensive source.
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Philippines Securities and Exchange Commission
   acronym: SEC

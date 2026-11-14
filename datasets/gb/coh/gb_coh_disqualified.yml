@@ -38,6 +38,9 @@ description: |
   > * a company insolvency practitioner
 
   Directors can be disqualified for up to 15 years.
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: The Insolvency Service
   acronym: CoH

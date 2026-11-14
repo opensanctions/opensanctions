@@ -31,11 +31,12 @@ url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-
 data:
   url: https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-
   format: HTML
-ci_test: false # Uses Zyte for requests, which is not supported in CI
+ci_test: false  # Uses Zyte for requests, which is not supported in CI
 dates:
   formats: ["%d %B %Y"]
 tags:
   - list.sanction
+  - risk.terror
 
 assertions:
   min:

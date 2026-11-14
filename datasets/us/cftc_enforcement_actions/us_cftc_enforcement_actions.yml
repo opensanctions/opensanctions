@@ -36,10 +36,11 @@ tags:
   - publisher.west
   - sector.financial
   - list.enforcement
+  - risk.misconduct
 data:
   url: https://www.cftc.gov/LawRegulation/EnforcementActions/index.htm
   format: HTML
-ci_test: false # GPT key not available in CI
+ci_test: false  # GPT key not available in CI
 
 dates:
   formats: ["%m/%d/%Y"]
