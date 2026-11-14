@@ -1,8 +1,10 @@
 title: Papua New Guinea Members of Parliament
 prefix: pg-parliament
+hidden: true
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: never
+  schedule: "@weekly"
   start: 2026-06-26
   end: 2026-07-28
 load_statements: true
@@ -18,7 +20,7 @@ deprecation: |
   The PNG Parliament rebuilt their website sometime in the week before 2026-07-28;
   [the new version fails to list](https://github.com/opensanctions/opensanctions/issues/5167)
   the members of parliament. Therefore, we are marking this dataset as deprecated and will
-  eventually remove it.
+  remove it on 2026-11-16.
 url: https://www.parliament.gov.pg
 publisher:
   name: National Parliament of Papua New Guinea
