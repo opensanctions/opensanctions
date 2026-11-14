@@ -1,0 +1,104 @@
+# The vtmedicaid.com portal is an AngularJS app. The crawler reads the link to
+# the spreadsheet from the page template the app loads, so a renamed file is
+# followed rather than silently missed. The portal's /api/excludedProviders/
+# endpoint lists monthly PDF archives that return 404; it is not used.
+#
+# "Provider Exclusion Status End Date" is 2382-12-31 for indefinite exclusions.
+title: US Vermont Medicaid Excluded Providers List
+entry_point: crawler.py
+prefix: us-medvt
+coverage:
+  start: "2026-11-10"
+  schedule: "38 4 1,15 * *"
+load_statements: true
+summary: >
+  Providers whose participation in Vermont Medicaid was terminated for cause
+description: |
+  The Department of Vermont Health Access publishes a monthly list of providers
+  whose participation in the Vermont Medicaid program was terminated "for cause",
+  which may include conduct deemed potentially detrimental to the program. It
+  covers providers excluded by the Department and the Agency of Human Services, and
+  may or may not include providers excluded by other federal or state bodies.
+
+  > Provider is excluded from participation with Vermont Medicaid until if or when
+  > they may qualify for reinstatement or removal of their name(s) from the list by
+  > making a request and receipt of approval.
+
+  Under the Affordable Care Act, a provider terminated from the Medicaid program
+  for any reason is not permitted to provide services to Medicaid recipients.
+tags:
+  - sector.health
+publisher:
+  name: Department of Vermont Health Access
+  acronym: DVHA
+  description: >
+    The Department of Vermont Health Access (DVHA) is the department of the Vermont
+    Agency of Human Services that administers the state's Medicaid program and
+    enrols and oversees the providers who serve Medicaid members.
+  url: https://dvha.vermont.gov/
+  official: true
+  country: "us"
+url: https://dvha.vermont.gov/providers/medicaid-excluded-providers
+data:
+  url: https://www.vtmedicaid.com/assets/provEnroll/excludedProvidersList/ExcludedProvidersList.xlsx
+  format: XLSX
+  lang: eng
+dates:
+  formats: ["%Y-%m-%d"]
+
+names:
+  # Professional credentials appended to the given names, e.g. "MCDONALD,WILLIAM J DMD".
+  suffixes_strip:
+    - APRN
+    - BSLM
+    - DDS
+    - DMD
+    - DO
+    - LCMHC
+    - LICSW
+    - MA
+    - MD
+    - MDDPH
+    - MR.
+    - NP
+    - PHD
+    - PSY D
+
+assertions:
+  min:
+    schema_entities:
+      Person: 45
+      Company: 9
+  max:
+    schema_entities:
+      Person: 110
+      Company: 25
+      Organization: 6
+      LegalEntity: 5
+
+lookups:
+  # Maps the "Provider Type" column to the schema of the excluded provider.
+  # Unmatched provider types are emitted as LegalEntity with a warning.
+  provider_type:
+    normalize: true
+    options:
+      - match:
+          - DENTIST
+          - FAMILY SUPPORT MANAGEMENT
+          - LICENSED MIDWIFE
+          - MSTR LVL PSYCH,LCMHC,LICSW,LPC,LMFT
+          - NURSE PRACTITIONER
+          - PHYSICIAN
+          - PSYCHOLOGIST - DOCTORATE
+        value: Person
+      - match:
+          - DME SUPPLIER
+          - INDEPENDENT LAB
+          - PHARMACY
+          - NURSING HOME - MEDICARE PARTICIPATI
+          - NURSING HOME - NON-MEDICARE PARTICI
+        value: Company
+      # Local ambulance services include municipal and volunteer bodies.
+      - match:
+          - AMBULANCE
+        value: Organization
