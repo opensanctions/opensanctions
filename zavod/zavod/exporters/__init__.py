@@ -1,6 +1,5 @@
 from followthemoney.dataset import Version
 
-from zavod.exporters.consolidate import consolidate_entity
 from zavod.exc import RunFailedException
 from zavod.logs import get_logger
 from zavod.store import View
@@ -84,22 +83,20 @@ def export_data(context: Context, view: View, validate: bool = True) -> None:
         exporter.setup()
 
     try:
-        for idx, entity in enumerate(view.entities()):
+        for idx, entity in enumerate(view.entities(prefetch_nested=True)):
             if idx > 0 and idx % 10000 == 0:
                 log.info(f"Exported {idx} entities...", scope=context.dataset.name)
 
-            # feed_unconsolidated must be called before consolidate_entity, because
-            # consolidate_entity mutates the entity in place.
             for exporter in exporters:
                 exporter.feed_unconsolidated(entity)
 
-            entity = consolidate_entity(view.store.linker, entity)
             fragment = ViewFragment(view, entity)
-            stats.observe(entity)
+            consolidated_entity = fragment.entity
+            stats.observe(consolidated_entity)
             for exporter in exporters:
-                exporter.feed(entity, fragment)
+                exporter.feed(consolidated_entity, fragment)
             for validator in validators:
-                validator.feed(entity, fragment)
+                validator.feed(consolidated_entity, fragment)
 
         # Validators finish before exporters: on a validation abort, no exporter
         # may register its artifact for publication.

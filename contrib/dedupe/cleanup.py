@@ -23,7 +23,6 @@ def cleanup_relations(dataset: Dataset) -> None:
         resolver = get_resolver(session)
         resolver.prune()
         store = get_store(Manifest.get_transient(dataset), resolver)
-        store.sync()
         view = store.default_view()
         used_ids = set()
         for idx, entity in enumerate(view.entities()):

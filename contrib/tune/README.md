@@ -20,37 +20,12 @@ active environment.
 ### On a Mac
 
 As for zavod (see [Dependencies on macOS](https://zavod.opensanctions.org/install/#dependencies-on-macos)),
-pyicu and plyvel must be built from source, otherwise importing plyvel fails with
-`symbol not found in flat namespace '__ZTIN7leveldb10ComparatorE'`.
+pyicu must be built from source against the system ICU library:
 
-1. Ensure native libraries are installed (as usual for zavod):
-
-        brew install icu4c leveldb
-
-2. From the `contrib/tune/` directory, create the environment, building pyicu and plyvel from source:
-
+        brew install icu4c
         cd contrib/tune/
         PATH="$(brew --prefix icu4c)/bin:$PATH" \
-        CPPFLAGS="-I$(brew --prefix leveldb)/include" \
-        LDFLAGS="-L$(brew --prefix leveldb)/lib" \
-        uv sync --no-binary-package pyicu --no-binary-package plyvel
-
-3. Rebuild plyvel with `-fno-rtti`. `uv pip` targets an active `$VIRTUAL_ENV`
-   rather than the project environment, so `--python .venv` is needed to
-   install into the tune environment:
-
-        CXXFLAGS="-fno-rtti" \
-        CPPFLAGS="-I$(brew --prefix leveldb)/include" \
-        LDFLAGS="-L$(brew --prefix leveldb)/lib" \
-        uv pip install --python .venv --no-cache --no-binary plyvel --reinstall-package plyvel plyvel==1.5.1
-
-4. Check it works:
-
-        uv run python -c "import plyvel, icu, dspy; print('ok')"
-
-Later `uv run` calls keep the source-built plyvel. If `uv.lock` changes the
-plyvel version, `uv run` reinstalls it from a wheel; repeat step 3 with the
-new version.
+        uv sync --no-binary-package pyicu
 
 ## Run
 
@@ -68,14 +43,3 @@ By default, `optimise` writes the optimised program to
 ## Warning
 
 Don't import dspy into production ETL code.
-
-Something in DSPy interacts with leveldb in a way that crashes when the
-process exits unless you load leveldb before importing dspy.
-
-It looks like this:
-
-```
-src/tcmalloc.cc:309] Attempt to free invalid pointer 0x600002f2ede0
-```
-
-It appears to be caused by https://github.com/google/leveldb/issues/634

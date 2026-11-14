@@ -14,7 +14,13 @@ Layout
 outputs of a given run, and is what we point to in the metadata. It holds both
 the listed resources (e.g. `entities.ftm.json`) and run artifacts such as
 `index.json`, `statistics.json`, `issues.json`, `statements.pack`,
-`entities.delta.json`, `delta.json` and a `versions.json` snapshot.
+`statements.parquet`, `entities.delta.json`, `delta.json` and a
+`versions.json` snapshot.
+
+The local artifact directory of a run additionally holds `statements.raw`, the
+statements file written by the crawl itself. It is converted into
+`statements.parquet` and `statements.pack` after the crawl and then deleted -
+it is never uploaded to the archive (see `UNPUBLISHED_ARTIFACTS`).
 
 `/artifacts/{dataset}/versions.json` is the root version file: a window of the
 most recent version IDs of the dataset (oldest first, up to
@@ -77,7 +83,9 @@ StatementGen = Generator[Statement, None, None]
 DATASETS = "datasets"
 ARTIFACTS = "artifacts"
 LATEST = "latest"
+STATEMENTS_RAW = "statements.raw"
 STATEMENTS_FILE = "statements.pack"
+STATEMENTS_PARQUET = "statements.parquet"
 HASH_FILE = "entities.hash"
 DELTA_EXPORT_FILE = "entities.delta.json"
 DELTA_INDEX_FILE = "delta.json"
@@ -96,6 +104,11 @@ MANIFEST_FILE = "manifest.json"
 UNLISTED_RESOURCES = [
     STATISTICS_FILE,
     DELTA_EXPORT_FILE,
+]
+# Local working files in the artifact directory that are never uploaded to
+# the archive.
+UNPUBLISHED_ARTIFACTS = [
+    STATEMENTS_RAW,
 ]
 # The only files a failed run publishes. Half-generated data files stay local.
 FAILURE_ARTIFACTS = [

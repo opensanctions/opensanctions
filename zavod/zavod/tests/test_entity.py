@@ -89,3 +89,34 @@ def test_target_logic():
 
     entity.add("topics", "sanction")
     assert entity.target, entity.to_dict()
+
+
+def test_clone_without_statements():
+    catalog = get_catalog()
+    test_ds = catalog.make_dataset(TEST_DATASET)
+    entity = Entity(test_ds, {"schema": "Person", "id": "jane"})
+    entity.add("name", ["Jane Doe", "JANE DOE"])
+    entity.add("nationality", "de")
+    entity.extra_referents.add("other-jane")
+    entity.last_change = "2024-01-01T00:00:00"
+    upper = {s for s in entity._statements["name"] if s.value == "JANE DOE"}
+
+    cloned = entity.clone_without_statements({"name": upper})
+
+    assert cloned is not entity
+    assert cloned.id == "jane"
+    assert cloned.schema == entity.schema
+    assert cloned.dataset == entity.dataset
+    assert cloned.last_change == "2024-01-01T00:00:00"
+    assert cloned.referents == {"other-jane"}
+    assert cloned.get("name") == ["Jane Doe"]
+    # The original keeps its statements.
+    assert sorted(entity.get("name")) == ["JANE DOE", "Jane Doe"]
+    # The copy has its own sets, holding the same statement objects.
+    assert cloned._statements["nationality"] == entity._statements["nationality"]
+    assert cloned._statements["nationality"] is not entity._statements["nationality"]
+    cloned_name = next(iter(cloned._statements["name"]))
+    assert any(s is cloned_name for s in entity._statements["name"])
+    # The referents are the copy's own.
+    cloned.extra_referents.add("third-jane")
+    assert "third-jane" not in entity.extra_referents
