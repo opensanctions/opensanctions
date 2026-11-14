@@ -1,0 +1,139 @@
+# The portal is a Power Pages site. The crawler replays the "Export Data" button:
+# page GET (session cookies + view config), /_layout/tokenhtml (anti-forgery
+# token), POST to /_services/download-as-excel/<site id> for a session key, then
+# GET the workbook with ?key=. The JSON grid endpoint also works anonymously but
+# returns ~70KB of attribute metadata per row.
+title: US Illinois Medicaid Provider Sanctions
+entry_point: crawler.py
+prefix: us-medil
+coverage:
+  schedule: "17 4 1,15 * *"
+  start: "2026-11-10"
+load_statements: true
+summary: >
+  Providers terminated, barred, excluded or suspended from, or voluntarily
+  withdrawn from, Illinois Medicaid
+description: |
+  The Office of Inspector General of the Illinois Department of Healthcare and
+  Family Services publishes the providers against which the Department has taken
+  an administrative action under 305 ILCS 5/12-4.25 and Title 89 of the Illinois
+  Administrative Code, Sections 140.13 to 140.18. Services rendered or ordered by
+  sanctioned providers, or by entities they own or manage, are not eligible for
+  Medicaid reimbursement.
+
+  > Termination, barrment, and exclusion result in a vendor's disenrollment from
+  > the Medical Assistance Program. Such vendors are not eligible to submit claims
+  > for Medicaid services. In addition, these terminated, barred, and excluded
+  > vendors may not own, or be employed by, Medicaid vendors. Suspension is a
+  > time-limited revocation of a vendor's eligibility to participate in the
+  > Program, during which time the vendor cannot receive payment for Medicaid
+  > services.
+
+  The list also includes providers that voluntarily withdrew from the program.
+  Barred individuals are listed once for each vendor they were affiliated with.
+  Providers readmitted to the program are removed from the list.
+tags:
+  - sector.health
+publisher:
+  name: Illinois Department of Healthcare and Family Services, Office of Inspector General
+  acronym: HFS OIG
+  description: |
+    The Illinois Department of Healthcare and Family Services (HFS) administers the
+    state's Medicaid program. Its Office of Inspector General (OIG) investigates
+    fraud and abuse by Medicaid providers and recipients, and imposes sanctions on
+    providers.
+  url: https://hfs.illinois.gov/oig.html
+  official: true
+  country: "us"
+url: https://hfs.illinois.gov/oig/sanctionslist.html
+data:
+  url: https://ilhfspartner3.dynamics365portals.us/sanctions/
+  format: XLSX
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1800
+      LegalEntity: 1200
+  max:
+    schema_entities:
+      Person: 4200
+      LegalEntity: 3000
+
+lookups:
+  # Maps the provider type to a schema for names without a business word. Types
+  # practised by individuals give Person; facility and transport types also list
+  # sole proprietors by personal name, so they stay LegalEntity.
+  provider_type:
+    options:
+      - match:
+          - ADVANCED PRACTICE NURSE
+          - AUDIOLOGIST
+          - CHIROPRACTOR
+          - CLINICAL SOCIAL
+          - DENTAL
+          - DENTIST
+          - NURSE PRACTITIONER
+          - NURSING
+          - OCCUPATIONAL THRPST
+          - OPTOMETRIST
+          - OTH BHVR HLTH PRFSN
+          - OTH BHVR HLTH PRFSNL
+          - PHYSICAL THERAPIST
+          - PHYSICIAN
+          - PHYSICIAN ASSISTANT
+          - PHYSICIANS
+          - PODIATRIST
+          - PSYCHOLOGIST
+          - REGISTERED NURSE
+          - SPEECH THERAPIST
+          # Individual providers of home and community based waiver services.
+          - WAIVER SERVICE PROVIDER
+        value: Person
+      - match:
+          - AMBULANCE SERV PROV
+          - ASSISTIVE EQUIPMENT
+          - BEHAVIOR HEALTH SERVICES
+          - CLINIC
+          - DME/SUPPLIES
+          - FED QLFY HEALTH CNTR
+          - GENERAL HOSPITAL
+          - GROUP
+          - HOME HEALTH
+          - HOME HEALTH AGENCY
+          - HOSPICE
+          - HOSPITAL
+          - INDEPENDENT LAB
+          - INDEPNDENT DIAGNOSTIC TESTING FAC
+          - LABORATORY
+          - LTC FACILITY
+          - MEDICAR PROVIDER
+          - MENTALLY RETRD FCLTY
+          - MH SERVICES PROVIDR
+          - NURSING FACILITIES
+          - OPTOMETRY - FAO
+          - OTH PROV MES-NON-RE
+          - OTH PROV MES-NON-REG
+          - OTH TRAN PROV-NO-REG
+          - PHARMACY
+          - RURAL HEALTH CLINIC
+          - SOCIAL SERVICES - AA
+          - TAXICAB / LIVERY CO
+          - TBI HOME/CMNTY MEDC
+          - TRANSPORTATION - AA
+        value: LegalEntity
+  # Normalises the action type into the sanction provisions.
+  action_type:
+    lowercase: true
+    options:
+      - match: barred
+        value: Barred
+      - match: exclusion
+        value: Exclusion
+      - match: suspended
+        value: Suspended
+      - match: terminated
+        value: Terminated
+      - match: voluntary withdrawal
+        value: Voluntary Withdrawal
