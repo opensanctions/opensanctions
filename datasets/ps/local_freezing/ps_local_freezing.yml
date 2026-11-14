@@ -1,8 +1,10 @@
 title: Palestine Monetary Authority Local Freezing List
 entry_point: crawler.py
 prefix: ps-freezing
+hidden: true
 coverage:
-  frequency: daily
+  frequency: never
+  schedule: "@weekly"
   start: 2024-03-19
   end: 2026-05-04
 load_statements: true
@@ -20,7 +22,7 @@ description: |
 deprecation: |
   The source for the Palestine Monetary Authority Local Freezing List dataset is gone,
   [returning a 404, since at least May 2026](https://github.com/opensanctions/opensanctions/issues/4143).
-  Therefore, we are marking this dataset as deprecated and will eventually remove it.
+  Therefore, we are marking this dataset as deprecated and will remove it on 2026-11-16.
 publisher:
   name: Palestine Monetary Authority
   acronym: PMA
