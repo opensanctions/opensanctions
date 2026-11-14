@@ -18,7 +18,9 @@ description: |
   orders that terminate or suspend a provider. Fines, corrective action plans and
   orders that were later rescinded are not included.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Florida Agency for Health Care Administration
   acronym: AHCA
