@@ -15,7 +15,9 @@ description: |
   Where a period is given, the action ends that many years after its effective
   date; other actions are indefinite.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Connecticut Department of Social Services
   acronym: DSS
