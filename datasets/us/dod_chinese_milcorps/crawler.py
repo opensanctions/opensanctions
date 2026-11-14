@@ -37,10 +37,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity.add("name", clean_name, original_value=raw_name)
     alias_prop = "weakAlias" if len(alias) <= 5 and alias.isupper() else "alias"
     entity.add(alias_prop, alias, original_value=raw_name)
-    entity.add("previousName", row.pop("Previous Name"))
-    entity.add("sourceUrl", row.pop("Source Url"))
-    entity.add("notes", row.pop("Note"))
-    entity.add("topics", "debarment")
+    entity.add("previousName", h.multi_split(row.pop("Previous Name"), [";"]))
 
     parent_name = row.pop("Parent Name")
     if parent_name and parent_name != clean_name:
@@ -66,6 +63,20 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         start_date=start_date,
         end_date=row.pop("End date"),
     )
+    # A listing takes effect when its edition is published. The list records no
+    # amendments, so its last change is the removal, or else the listing itself.
+    for stmt in sanction.get_statements("startDate"):
+        sanction.adopt_statement(stmt, prop="listingDate")
+    last_change = "endDate" if sanction.has("endDate") else "startDate"
+    for stmt in sanction.get_statements(last_change):
+        sanction.adopt_statement(stmt, prop="modifiedAt")
+    sanction.add("reason", row.pop("Note"))
+    sanction.add("summary", row.pop("Removal Note"))
+    sanction.add("sourceUrl", row.pop("Source Url"))
+    sanction.add("sourceUrl", row.pop("Removal Url"))
+    # A company's rows merge into one entity, so any active listing tags it.
+    if h.is_active(sanction):
+        entity.add("topics", "debarment")
     context.emit(sanction)
     context.emit(entity)
     context.audit_data(row)
