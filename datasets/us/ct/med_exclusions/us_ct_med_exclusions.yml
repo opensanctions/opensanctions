@@ -1,0 +1,63 @@
+title: US Connecticut Medicaid Administrative Actions
+entry_point: crawler.py
+prefix: us-medct
+coverage:
+  start: "2026-11-14"
+  schedule: "29 4 1,15 * *"
+load_statements: true
+ci_test: false  # Zyte is not available in CI
+summary: >
+  Providers excluded, suspended or terminated from Connecticut's Medicaid program.
+description: |
+  The Quality Assurance division of the Connecticut Department of Social Services
+  publishes the administrative actions it has taken against Medicaid providers:
+  exclusions, suspensions and terminations, with their effective date and period.
+  Where a period is given, the action ends that many years after its effective
+  date; other actions are indefinite.
+tags:
+  - sector.health
+publisher:
+  name: Connecticut Department of Social Services
+  acronym: DSS
+  description: |
+    The Department of Social Services administers Connecticut's Medicaid program,
+    HUSKY Health, and other social services in the state.
+  url: https://portal.ct.gov/dss
+  official: true
+  country: "us"
+url: https://portal.ct.gov/dss/quality-assurance/quality-assurance-administrative-actions-list
+data:
+  url: https://portaldir.ct.gov/dss/ASPApps/list/actiondb.asp
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+  max:
+    schema_entities:
+      Person: 200
+      LegalEntity: 100
+
+lookups:
+  action:
+    options:
+      - match: Exclusion
+        value: Exclusion
+      # Typo in the source.
+      - match: Exlcusion
+        value: Exclusion
+      - match: Suspension
+        value: Suspension
+      - match: Termination
+        value: Termination
+  names:
+    options:
+      - match: Balkas (Steiner), Nicole
+        first_name: Nicole
+        last_name: Balkas
+        alias: Nicole Steiner
