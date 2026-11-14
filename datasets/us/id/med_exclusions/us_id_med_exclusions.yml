@@ -19,7 +19,9 @@ description: |
   a reinstatement date is listed, even after the provider has become eligible to apply
   for reinstatement.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Idaho Department of Health and Welfare
   acronym: DHW
