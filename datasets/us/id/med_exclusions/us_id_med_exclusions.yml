@@ -1,0 +1,74 @@
+title: US Idaho Medicaid Exclusion List
+entry_point: crawler.py
+prefix: us-medid
+coverage:
+  start: "2026-11-14"
+  schedule: "13 5 1,15 * *"
+load_statements: true
+ci_test: false  # Zyte is not available in CI
+summary: >
+  Providers, individuals and entities excluded from Idaho's Medicaid program.
+description: |
+  The Idaho Department of Health and Welfare publishes a list of providers, individuals,
+  and entities that are excluded from participating in the Idaho Medicaid program. The
+  list only includes exclusions issued by the Department, not federal exclusions or
+  exclusions by other states. It is updated when a new exclusion is added or a provider
+  is reinstated.
+
+  Excluded providers are not reinstated automatically: an exclusion stays in force until
+  a reinstatement date is listed, even after the provider has become eligible to apply
+  for reinstatement.
+tags:
+  - sector.health
+publisher:
+  name: Idaho Department of Health and Welfare
+  acronym: DHW
+  description: |
+    The Idaho Department of Health and Welfare administers the state's Medicaid program
+    and other health and social services in Idaho.
+  url: https://healthandwelfare.idaho.gov/
+  official: true
+  country: "us"
+url: https://healthandwelfare.idaho.gov/providers/idaho-medicaid-providers/information-medicaid-providers
+data:
+  url: https://publicdocuments.dhw.idaho.gov/WebLink/ElectronicFile.aspx?docid=6158&dbid=0&repo=PUBLIC-DOCUMENTS
+  format: PDF
+  lang: eng
+
+dates:
+  formats: ["%m/%d/%y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Company: 8
+  max:
+    schema_entities:
+      Person: 250
+      Company: 40
+
+lookups:
+  names:
+    options:
+      - match: ADAMSON, KERMIT ‘MIKE’ ARTHUR
+        first_name: KERMIT ARTHUR
+        last_name: ADAMSON
+        weakAlias: MIKE
+      - match: CONICA, ELWOOD HENRY (JR)
+        first_name: ELWOOD HENRY
+        last_name: CONICA
+        suffix: JR
+      - match: HUNTER, SHARON M. (LAWLEY)
+        first_name: SHARON M.
+        last_name: HUNTER
+        alias: SHARON M. LAWLEY
+      - match: ROBERTSON, JR, WILLIAM
+        first_name: WILLIAM
+        last_name: ROBERTSON
+        suffix: JR
+      - match: WINMILL, DIANA RENEE LPN (AKA FERRELL)
+        first_name: DIANA RENEE
+        last_name: WINMILL
+        alias: DIANA RENEE FERRELL
+        position: LPN
