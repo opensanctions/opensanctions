@@ -27,7 +27,9 @@ description: |
   Under the Affordable Care Act, a provider terminated from the Medicaid program
   for any reason is not permitted to provide services to Medicaid recipients.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Department of Vermont Health Access
   acronym: DVHA
