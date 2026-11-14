@@ -25,7 +25,7 @@ def clean_cell(value: str | None) -> str | None:
     return text if len(text) > 0 else None
 
 
-def crawl_item(row: dict[str, str | None], context: Context) -> None:
+def crawl_item(context: Context, row: dict[str, str | None]) -> None:
     name = row.pop("name")
     start_date = row.pop("start_date")
     assert name is not None and start_date is not None, (name, start_date)
@@ -131,6 +131,7 @@ def crawl(context: Context) -> None:
                 values = [i for i, cell in enumerate(row) if cell is not None]
                 assert values == [0, 1, 4, 7, 10], (page.page_number, row)
                 crawl_item(
+                    context,
                     {
                         "name": clean_cell(row[0]),
                         "start_date": clean_cell(row[1]),
@@ -138,5 +139,4 @@ def crawl(context: Context) -> None:
                         "reinstated": clean_cell(row[7]),
                         "information": clean_cell(row[10]),
                     },
-                    context,
                 )
