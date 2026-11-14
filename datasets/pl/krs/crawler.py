@@ -366,12 +366,13 @@ def crawl_group(context: Context, company: Entity, krs: str, items: list[Data]) 
     section = "wzmiankaOUczestnicwieWGrupieSpolek"
     for item in items:
         kind = item.pop("czyPodmiotZaleznyDominujacy")
+        # Some entries state the role but name no other company.
         if kind == "SPÓŁKA ZALEŻNA":
             is_parent = False
-            members = item.pop("podmiotDominujacy")
+            members = item.pop("podmiotDominujacy", [])
         elif kind == "PODMIOT DOMINUJĄCY":
             is_parent = True
-            members = item.pop("spolkiZalezne")
+            members = item.pop("spolkiZalezne", [])
         else:
             context.log.warning(
                 "Unknown role in a group of companies", krs=krs, kind=kind
