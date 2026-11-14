@@ -1,0 +1,71 @@
+# The sanctions sit behind AHCA's "Final Orders" search, an ASP.NET page with a
+# cookieless session. The crawler replays the search for "Medicaid Sanctioned
+# Providers" and the ReportViewer's Excel export. AHCA hosts only answer US IPs.
+title: US Florida Medicaid Sanctioned Providers
+entry_point: crawler.py
+prefix: us-medfl
+coverage:
+  start: "2026-11-14"
+  schedule: "23 4 1,15 * *"
+load_statements: true
+ci_test: false  # Zyte is not available in CI
+summary: >
+  Providers terminated or suspended from Florida's Medicaid program.
+description: |
+  The Florida Agency for Health Care Administration publishes the final orders in
+  which it imposes sanctions on Medicaid providers that violate statutes, rules or
+  the terms of their Medicaid provider agreements. This dataset includes the
+  orders that terminate or suspend a provider. Fines, corrective action plans and
+  orders that were later rescinded are not included.
+tags:
+  - sector.health
+publisher:
+  name: Florida Agency for Health Care Administration
+  acronym: AHCA
+  description: |
+    The Agency for Health Care Administration administers Florida's Medicaid
+    program and licenses and regulates health care facilities in the state.
+  url: https://ahca.myflorida.com/
+  official: true
+  country: "us"
+url: https://apps.ahca.myflorida.com/dm_web/
+data:
+  url: https://apps.ahca.myflorida.com/dm_web/default.aspx
+  format: XLS
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1400
+  max:
+    schema_entities:
+      LegalEntity: 3000
+
+lookups:
+  type.identifier:
+    options:
+      # Fails the NPI checksum.
+      - match: "1558646889"
+        value: null
+  # Terminations and suspensions are in scope; the other order types are skipped.
+  sanction_type:
+    options:
+      - match:
+          - TERMINATION
+        value: TERMINATION
+      - match:
+          - SUSPENSION
+        value: SUSPENSION
+      - match:
+          - FINE
+          - FINES
+          - FINE ONLY
+          - CAP
+          - CAP ONLY
+          - CAP AND FINE
+          - NONE
+          - TERMINATION RESCINDED
+          - SUSPENSION RESCINDED
+          - FINES RESCINDED
+        value: skip
