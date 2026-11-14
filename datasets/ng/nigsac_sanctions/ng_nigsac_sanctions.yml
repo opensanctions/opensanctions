@@ -47,7 +47,7 @@ data:
   url: https://nigsac.gov.ng/api/v1/register?lists=NG-NIGSAC&pageSize=200
   format: JSON
 dates:
-  formats: ["%d/ %m %b/ %Y"]
+  formats: ["%d/ %m %b/ %Y", "%m/%d/%Y %I:%M:%S %p"]
 http:
   total_retries: 5
   backoff_factor: 3
