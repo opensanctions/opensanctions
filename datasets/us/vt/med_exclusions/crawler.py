@@ -96,11 +96,9 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
         schema = "LegalEntity"
 
     entity = context.make(schema)
-    # One provider can hold several Vermont Medicaid IDs, but only one NPI.
-    if npi is not None:
-        entity.id = context.make_id("npi", npi)
-    else:
-        entity.id = context.make_id("vt-medicaid", medicaid_id)
+    # Every row has a Medicaid ID, while the NPI is optional. A provider holding
+    # several Medicaid IDs becomes several entities that share an NPI.
+    entity.id = context.make_id("vt-medicaid", medicaid_id)
     if schema == "Person":
         apply_person_name(context, entity, raw_name)
     else:
