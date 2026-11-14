@@ -94,6 +94,7 @@ children:
   - do_congress
   - dz_apn
   - dz_council_nation
+  - ec_national_assembly
   - ee_riigikogu
   - eg_house_representatives
   - es_mayors_councillors
