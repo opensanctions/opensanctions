@@ -80,5 +80,3 @@ datasets:
   - us_irs_ffi
   - us_ofac_press_releases
   - us_sec_edgar
-  # - ba_companies
-  # - dk_cvr
