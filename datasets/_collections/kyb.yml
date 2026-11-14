@@ -49,6 +49,7 @@ description: |
 datasets:
   - abuja_mou_psc
   - ba_companies
+  - ba_rs_apif
   - black_sea_mou_psc
   - cy_companies
   - cz_business_register
@@ -64,18 +65,18 @@ datasets:
   - kz_companies
   - lv_business_register
   - md_companies
+  - pl_krs
   - ror
   - ru_egrul
+  - sk_rpo
   - sk_rpvs
   - tj_companies
   - tokyo_mou_psc
+  - tr_kap
   - ua_edr
   - us_cms_npi
-  - us_corpwatch
   - us_fara_filings
   - us_fincen_msb
   - us_irs_ffi
   - us_ofac_press_releases
-  # - ba_companies
-  # - dk_cvr
-  # - xk_companies
+  - us_sec_edgar
