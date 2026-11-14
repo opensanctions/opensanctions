@@ -193,6 +193,9 @@ class ZyteResult:
     charset: str | None = None
     # Cookies returned by the server, populated when response_cookies=True
     cookies: list[dict[str, Any]] | None = None
+    # The final URL after redirects, e.g. to read a session ID a server puts in
+    # the path. None when the response is served from the cache.
+    url: str | None = None
 
     def invalidate_cache(self, context: Context) -> None:
         context.cache.delete(self.cache_fingerprint)
@@ -309,6 +312,7 @@ def fetch(
         from_cache=False,
         cache_fingerprint=fingerprint,
         cookies=cookies,
+        url=api_response.json().get("url"),
     )
 
 

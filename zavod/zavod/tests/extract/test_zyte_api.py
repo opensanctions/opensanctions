@@ -7,6 +7,8 @@ from zavod.tests.util import make_context
 from zavod.meta.dataset import Dataset
 from zavod.extract.zyte_api import (
     UnblockFailedException,
+    ZyteAPIRequest,
+    fetch,
     fetch_html,
     fetch_json,
     fetch_resource,
@@ -278,6 +280,25 @@ def test_fetch_text(testdataset1: Dataset):
         assert text == "Hello, World!", text
         assert m.call_count == 1
         assert "customHttpRequestHeaders" not in m.request_history[0].json()
+
+    context.close()
+
+
+def test_fetch_final_url(testdataset1: Dataset):
+    context = make_context(testdataset1)
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode(b"<html></html>").decode(),
+                "httpResponseHeaders": [],
+                "statusCode": 200,
+                "url": "https://test.com/(S(abc))/default.aspx",
+            },
+        )
+        result = fetch(context, ZyteAPIRequest(url="https://test.com/default.aspx"))
+        assert result.url == "https://test.com/(S(abc))/default.aspx", result.url
 
     context.close()
 
