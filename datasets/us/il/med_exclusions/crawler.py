@@ -58,16 +58,13 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
         # but nothing in the row confirms it.
         schema = "LegalEntity"
     else:
-        res = context.lookup("provider_type", provider_type, warn_unmatched=True)
-        if res is None or res.value is None:
-            return
-        schema = res.value
+        res = context.lookup_value("provider_type", provider_type, warn_unmatched=True)
+        schema = "LegalEntity" if res is None else res
 
     entity = context.make(schema)
-    if npi is not None:
-        entity.id = context.make_id(raw_name, npi)
-    else:
-        entity.id = context.make_id(raw_name, license, city)
+    # NPI is left out of the key: most rows lack one, and a row that gains one
+    # would otherwise change its ID.
+    entity.id = context.make_id(raw_name, license, city)
     # Persons are listed as "LAST FIRST MIDDLE", without a separator that would
     # allow splitting multi-word surnames reliably.
     entity.add("name", name)
