@@ -92,3 +92,11 @@ assertions:
   max:
     schema_entities:
       Company: 12000
+
+lookups:
+  type.url:
+    options:
+      # PermID lists Stanford CISAC (which profiles militant groups) as the
+      # website of the New Irish Republican Army (permid-5086642215).
+      - match: https://cisac.fsi.stanford.edu/
+        value: null
