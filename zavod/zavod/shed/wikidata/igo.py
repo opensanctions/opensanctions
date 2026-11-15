@@ -118,6 +118,82 @@ INTL_ORGS: dict[str, IntlOrg] = {
     "Q5280604": IntlOrg("Directorate-General for Regional Policy", country="eu"),
     "Q596757": IntlOrg("Directorate-General for Health", country="eu"),
     "Q82664954": IntlOrg("Directorate-General for Defence Industry", country="eu"),
+    # Union agencies, authorities and joint undertakings:
+    "Q130146": IntlOrg("European Medicines Agency", country="eu"),
+    "Q21786841": IntlOrg("European Border and Coast Guard Agency", country="eu"),
+    "Q207203": IntlOrg("Europol", country="eu"),
+    "Q276255": IntlOrg("European Union Aviation Safety Agency", country="eu"),
+    "Q48798": IntlOrg("European Chemicals Agency", country="eu"),
+    "Q632988": IntlOrg("European Environment Agency", country="eu"),
+    "Q1377194": IntlOrg("European Union Agency for Cybersecurity", country="eu"),
+    "Q1377256": IntlOrg("European Union Drugs Agency", country="eu"),
+    "Q1377490": IntlOrg(
+        "European Union Agency for Law Enforcement Training", country="eu"
+    ),
+    "Q1377549": IntlOrg(
+        "European Foundation for the Improvement of Living and Working Conditions",
+        country="eu",
+    ),
+    "Q116214": IntlOrg(
+        "European Centre for the Development of Professional Training", country="eu"
+    ),
+    "Q201372": IntlOrg("European Fisheries Control Agency", country="eu"),
+    "Q4002697": IntlOrg("European Union Agency for Asylum", country="eu"),
+    "Q4440501": IntlOrg(
+        "European Union Agency for the Operational Management of Large-Scale IT Systems in the Area of Freedom, Security and Justice",
+        country="eu",
+    ),
+    "Q55610347": IntlOrg("European Union Agency for the Space Programme", country="eu"),
+    "Q56296301": IntlOrg("European Labour Authority", country="eu"),
+    "Q571118": IntlOrg("European Agency for Safety and Health at Work", country="eu"),
+    "Q792534": IntlOrg("European Union Intellectual Property Office", country="eu"),
+    "Q918501": IntlOrg(
+        "European Centre for Disease Prevention and Control", country="eu"
+    ),
+    "Q922693": IntlOrg("European Maritime Safety Agency", country="eu"),
+    "Q369273": IntlOrg("European Union Agency for Railways", country="eu"),
+    "Q372042": IntlOrg("European Training Foundation", country="eu"),
+    "Q392883": IntlOrg(
+        "European Union Agency for the Cooperation of Energy Regulators", country="eu"
+    ),
+    "Q48718": IntlOrg("European Institute for Gender Equality", country="eu"),
+    "Q48790": IntlOrg("European Union Agency for Fundamental Rights", country="eu"),
+    "Q993120": IntlOrg("European Institute of Innovation and Technology", country="eu"),
+    "Q1388519": IntlOrg("European Union Satellite Centre", country="eu"),
+    "Q289256": IntlOrg("European Union Institute for Security Studies", country="eu"),
+    "Q333743": IntlOrg(
+        "Translation Centre for the Bodies of the European Union", country="eu"
+    ),
+    "Q107658738": IntlOrg("Agency for Support for BEREC", country="eu"),
+    "Q107658626": IntlOrg("European Cybersecurity Competence Centre", country="eu"),
+    "Q138781968": IntlOrg("EU Customs Authority", country="eu"),
+    "Q1501010": IntlOrg("Community Plant Variety Office", country="eu"),
+    "Q769112": IntlOrg("European Securities and Markets Authority", country="eu"),
+    "Q769548": IntlOrg("European Banking Authority", country="eu"),
+    "Q2116004": IntlOrg(
+        "European Insurance and Occupational Pensions Authority", country="eu"
+    ),
+    "Q124795462": IntlOrg("Anti-Money Laundering Authority", country="eu"),
+    "Q19516507": IntlOrg("Single Resolution Board", country="eu"),
+    "Q26877724": IntlOrg("European Data Protection Board", country="eu"),
+    "Q1377836": IntlOrg("European Research Council", country="eu"),
+    "Q3606472": IntlOrg("European Research Executive Agency", country="eu"),
+    "Q106818821": IntlOrg(
+        "European Climate, Infrastructure and Environment Executive Agency",
+        country="eu",
+    ),
+    "Q1383639": IntlOrg(
+        "European Education and Culture Executive Agency", country="eu"
+    ),
+    "Q734374": IntlOrg(
+        "European Innovation Council and SMEs Executive Agency", country="eu"
+    ),
+    "Q60983149": IntlOrg(
+        "European High-Performance Computing Joint Undertaking", country="eu"
+    ),
+    "Q133884630": IntlOrg("Clean Hydrogen Joint Undertaking", country="eu"),
+    "Q3055255": IntlOrg("SESAR Joint Undertaking", country="eu"),
+    "Q5510278": IntlOrg("Fusion for Energy", country="eu"),
     # Council of Europe (not the EU):
     "Q8908": IntlOrg("Council of Europe"),
     "Q939743": IntlOrg("Parliamentary Assembly of the Council of Europe"),
