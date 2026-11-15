@@ -1,8 +1,8 @@
-# Seats are statements on the enterprise item (P169 CEO, P488 chair, ...) rather
-# than P39 claims on the person, so this crawler discovers enterprises first and
+# Seats are statements on the body's item (P169 CEO, P488 chair, ...) rather
+# than P39 claims on the person, so this crawler discovers bodies first and
 # reads their seats, instead of discovering positions like wd_peps does.
 #
-# Bodies are found in three lanes, unioned:
+# Bodies are found in five lanes, unioned:
 #  A. P31/P1454 in the state-owned enterprise (Q270791) class tree: the marker
 #     an enterprise carries once its state control is established
 #  B. P127 owned by, or P749 subordinate to, a state actor: a territory QID
@@ -10,17 +10,20 @@
 #     whose P1001 jurisdiction, else P17 country, is one, or a body in the
 #     international organisation registry (INTL_ORGS)
 #  C. the registry's international bodies themselves
-# Lanes A and B require at least one seat statement. Control is not inferred from
-# ownership chains or shares: subsidiaries are found once they carry the
-# marker themselves. Lane A yields `gov.soe` positions; bodies found only by
-# lane B are institutions and yield `gov.admin`; registry bodies, and bodies
-# whose P749 parent is one, take the registry's country and topics.
-title: Wikidata State-Owned Enterprise Leadership
+#  D. bodies the state's by statute (`statutory_types`, direct P31)
+#  E. political parties and their branches, in the party class tree
+# Lanes A, B, D and E require at least one seat statement. Control is not
+# inferred from ownership chains or shares: subsidiaries are found once they
+# carry the marker themselves. Lane A yields `gov.soe` positions; bodies found
+# only by lanes B or D are institutions and yield `gov.admin`; parties yield
+# `pol.party`; registry bodies, and bodies whose P749 parent is one, take the
+# registry's country and topics.
+title: Wikidata State Enterprise, Institution and Party Leadership
 entry_point: crawler.py
 prefix: wd
 coverage:
   frequency: weekly
-  start: 2026-10-17
+  start: 2026-11-15
 deploy:
   memory: "2000Mi"
   memory_limit: "4000Mi"
@@ -32,17 +35,22 @@ exports:
   - entities.ftm.json
   - statistics.json
 summary: >
-  Executives and board members of state-owned enterprises and institutions, from Wikidata.
+  Executives and board members of state-owned enterprises, state institutions,
+  international bodies and political parties, from Wikidata.
 description: |
   This dataset includes the executives, directors and members of the supervisory
-  and management boards of state-owned enterprises and state institutions, as
-  recorded on Wikidata.
+  and management boards of state-owned enterprises, state institutions and
+  international bodies, and the members of political parties' governing bodies,
+  as recorded on Wikidata.
 
   Enterprises are included if Wikidata describes them as state-owned (by type or
   legal form), and institutions if they are owned by or subordinate to a country,
-  one of its subdivisions, or one of their ministries or agencies. People are
-  included for the seats recorded on the enterprise's Wikidata item, such as its
-  chief executive, its chair, or the members of its boards.
+  one of its subdivisions, or one of their ministries or agencies, or if they are
+  central banks, regulators or public broadcasters. International bodies are those
+  OpenSanctions tracks as intergovernmental organisations, and the bodies they
+  run. People are included for the seats recorded on the body's Wikidata item,
+  such as its chief executive, its chair, its secretary-general or the members of
+  its boards.
 publisher:
   name: Wikidata
   description: |
