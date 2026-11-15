@@ -110,6 +110,13 @@ def state_territory(client: WikidataClient, qid: str | None) -> Territory | None
     return territory
 
 
+def ended_filter(var: str) -> str:
+    """SPARQL fragment that drops a statement `?{var}` whose end time (P582)
+    is past: a privatised enterprise's marker or a sold stake is ended this
+    way rather than removed."""
+    return f"FILTER NOT EXISTS {{ ?{var} pq:P582 ?ended . FILTER(?ended < NOW()) }}"
+
+
 def query_enterprises(
     context: Context, client: WikidataClient, query: str
 ) -> Generator[tuple[str, Any], None, None]:
@@ -152,11 +159,15 @@ def discover(
     enterprises: dict[str, Enterprise] = {}
 
     # Lane A: typed (or legally formed) as a state-owned enterprise, anywhere
-    # in the class tree. The tree's historical and municipal forms are dropped
-    # by `excluded_types` when seats are read.
+    # in the class tree, by a best-rank statement that has not ended. The
+    # tree's historical and municipal forms are dropped by `excluded_types`
+    # when seats are read.
     query = f"""
     SELECT DISTINCT ?enterprise ?modified ?abolished WHERE {{
-        ?enterprise (wdt:P31|wdt:P1454)/wdt:P279* wd:Q270791 .
+        ?enterprise p:P31|p:P1454 ?mark .
+        ?mark a wikibase:BestRank ; ps:P31|ps:P1454 ?class .
+        ?class wdt:P279* wd:Q270791 .
+        {ended_filter("mark")}
         {seat_filter}
         ?enterprise schema:dateModified ?modified .
         {abolished}
@@ -186,6 +197,7 @@ def discover(
         UNION
         {{ VALUES ?link {{ {intl_orgs} }} }}
         FILTER NOT EXISTS {{ ?statement wikibase:rank wikibase:DeprecatedRank }}
+        {ended_filter("statement")}
         {seat_filter}
         ?enterprise schema:dateModified ?modified .
         OPTIONAL {{ ?link wdt:P1001 ?jurisdiction . }}

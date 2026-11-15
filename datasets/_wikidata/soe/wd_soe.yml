@@ -12,6 +12,9 @@
 #  C. the registry's international bodies themselves
 #  D. bodies the state's by statute (`statutory_types`, direct P31)
 #  E. political parties and their branches, in the party class tree
+# Lanes A and B read only statements that have not ended (P582 in the past):
+# a privatised enterprise keeps its marker with an end date, and a sold stake
+# keeps its link the same way.
 # Lanes A, B, D and E require at least one seat statement. Control is not
 # inferred from ownership chains or shares: subsidiaries are found once they
 # carry the marker themselves. Lane A yields `gov.soe` positions; bodies found
