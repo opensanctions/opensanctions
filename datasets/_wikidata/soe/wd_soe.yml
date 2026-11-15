@@ -84,13 +84,18 @@ config:
     - key: director
       property: P1037
       label: Director
-    - key: supervisory-chair
-      property: P488
-      qualifier: Q15818143
-      label: Chair of the Supervisory Board
     - key: chair
       property: P488
       label: Chairperson
+    # A supervisory body's chair is a member with the chair role, never a P488.
+    - key: supervisory-chair
+      property: P5052
+      qualifier: Q15818143
+      label: Chair of the Supervisory Board
+    - key: supervisory-chair
+      property: P5052
+      qualifier: Q140686
+      label: Chair of the Supervisory Board
     - key: supervisory-deputy-chair
       property: P5052
       qualifier: Q1127270
@@ -120,6 +125,13 @@ config:
       property: P3320
       qualifier: Q19940089
       label: Managing Director
+    - key: secretary-general
+      property: P3975
+      label: Secretary-General
+    - key: treasurer
+      property: P3320
+      qualifier: Q388338
+      label: Treasurer
     - key: board-member
       property: P3320
       label: Member of the Board
