@@ -135,14 +135,19 @@ def test_finalize_sanction_defaults(vcontext: Context):
     assert sanction.get("modifiedAt") == []
     assert sanction.get("status") == []
 
-    # Status reflects an end date applied after make_sanction.
+    # Status derived from an end date applied after make_sanction.
     past_end = (settings.RUN_TIME - timedelta(days=10)).date().isoformat()
-    future_end = (settings.RUN_TIME + timedelta(days=30)).date().isoformat()
-    sanction = make_sanction(vcontext, person, key="b", end_date=future_end)
-    assert sanction.get("status") == ["active"]
-    sanction.set("endDate", past_end)
+    sanction = make_sanction(vcontext, person, key="b")
+    sanction.add("endDate", past_end)
     finalize_sanction(vcontext, sanction)
     assert sanction.get("status") == ["inactive"]
+
+    # A status set by the crawler is kept.
+    sanction = make_sanction(vcontext, person, key="c")
+    sanction.add("endDate", past_end)
+    sanction.add("status", "suspended")
+    finalize_sanction(vcontext, sanction)
+    assert sanction.get("status") == ["suspended"]
 
     with pytest.raises(AssertionError):
         finalize_sanction(vcontext, person)

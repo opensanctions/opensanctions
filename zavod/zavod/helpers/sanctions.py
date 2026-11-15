@@ -88,10 +88,9 @@ def make_sanction(
     are automatically set.
 
     If an ``end_date`` is given, a ``status`` of "active" or "inactive" is
-    derived using the same semantics as `is_active`. The status is only
-    computed at construction time: to account for dates applied to the
-    sanction afterwards (e.g. via `h.apply_date`), call `finalize_sanction`
-    before emitting it.
+    derived using the same semantics as `is_active`. Note that the status is
+    only computed at construction time: dates applied to the sanction
+    afterwards (e.g. via `h.apply_date`) do not update it.
 
     Args:
         context: The runner context with dataset metadata.
@@ -136,8 +135,8 @@ def finalize_sanction(
     """Complete a sanction's dates and status once the crawler has set them.
 
     Call this after all source dates are applied to the sanction and before
-    emitting it. If the sanction has an ``endDate``, its ``status`` is
-    recomputed with `is_active`.
+    emitting it. If the sanction has an ``endDate`` but no ``status``, the
+    status is derived with `is_active`.
 
     Args:
         context: The runner context with dataset metadata.
@@ -166,8 +165,8 @@ def finalize_sanction(
     # (dated by the source, observed from the source content changing), the
     # latest one is the modification date.
 
-    if len(sanction.get("endDate")) > 0:
-        sanction.set("status", "active" if is_active(sanction) else "inactive")
+    if sanction.has("endDate") and not sanction.has("status"):
+        sanction.add("status", "active" if is_active(sanction) else "inactive")
 
 
 def make_risk(
