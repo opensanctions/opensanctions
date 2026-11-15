@@ -5,7 +5,13 @@ import structlog
 
 from zavod import Entity, settings
 from zavod.context import Context
-from zavod.helpers.sanctions import make_risk, make_sanction, is_active
+from zavod.constants import ORIGIN_INFERRED
+from zavod.helpers.sanctions import (
+    finalize_sanction,
+    make_risk,
+    make_sanction,
+    is_active,
+)
 
 
 def test_sanctions_helper(vcontext: Context):
@@ -86,6 +92,65 @@ def test_sanctions_status_agrees_with_is_active(vcontext: Context):
     )
     assert not is_active(sanction)
     assert sanction.get("status") == ["inactive"]
+
+
+def test_finalize_sanction_effective_on_listing(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    sanction = make_sanction(vcontext, person)
+    sanction.add("listingDate", "2021-03-01", origin=ORIGIN_INFERRED)
+    finalize_sanction(vcontext, sanction, effective_on_listing=True)
+    assert sanction.get("startDate") == ["2021-03-01"]
+    (stmt,) = sanction.get_statements("startDate")
+    assert stmt.origin == ORIGIN_INFERRED
+
+    sanction = make_sanction(vcontext, person, key="b")
+    sanction.add("startDate", "2021-03-01")
+    finalize_sanction(vcontext, sanction, effective_on_listing=True)
+    assert sanction.get("listingDate") == ["2021-03-01"]
+
+    sanction = make_sanction(vcontext, person, key="c")
+    sanction.add("listingDate", ["2022-05-01", "2021-03-01", "2023"])
+    finalize_sanction(vcontext, sanction, effective_on_listing=True)
+    assert sanction.get("startDate") == ["2021-03-01"]
+
+    # Both given by the source: left as they are.
+    sanction = make_sanction(vcontext, person, key="d")
+    sanction.add("listingDate", "2021-03-01")
+    sanction.add("startDate", "2021-03-05")
+    finalize_sanction(vcontext, sanction, effective_on_listing=True)
+    assert sanction.get("listingDate") == ["2021-03-01"]
+    assert sanction.get("startDate") == ["2021-03-05"]
+
+
+def test_finalize_sanction_defaults(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    sanction = make_sanction(vcontext, person)
+    sanction.add("listingDate", "2021-03-01")
+    finalize_sanction(vcontext, sanction)
+    assert sanction.get("startDate") == []
+    assert sanction.get("modifiedAt") == []
+    assert sanction.get("status") == []
+
+    # Status derived from an end date applied after make_sanction.
+    past_end = (settings.RUN_TIME - timedelta(days=10)).date().isoformat()
+    sanction = make_sanction(vcontext, person, key="b")
+    sanction.add("endDate", past_end)
+    finalize_sanction(vcontext, sanction)
+    assert sanction.get("status") == ["inactive"]
+
+    # A status set by the crawler is kept.
+    sanction = make_sanction(vcontext, person, key="c")
+    sanction.add("endDate", past_end)
+    sanction.add("status", "suspended")
+    finalize_sanction(vcontext, sanction)
+    assert sanction.get("status") == ["suspended"]
+
+    with pytest.raises(AssertionError):
+        finalize_sanction(vcontext, person)
 
 
 def test_sanctions_unparseable_end_date_raises(vcontext: Context):
