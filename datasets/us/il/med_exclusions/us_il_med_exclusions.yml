@@ -33,7 +33,9 @@ description: |
   Barred individuals are listed once for each vendor they were affiliated with.
   Providers readmitted to the program are removed from the list.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Illinois Department of Healthcare and Family Services, Office of Inspector General
   acronym: HFS OIG
