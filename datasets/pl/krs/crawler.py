@@ -253,10 +253,10 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity | 
     """Make a stub for a natural person, whose name and PESEL the register
     masks, local to the entity they are listed with."""
     surname = item.pop("nazwisko")
-    first = surname.pop("nazwiskoICzlon")
+    first = surname.pop("nazwiskoICzlon", None)
     second = surname.pop("nazwiskoIICzlon", None)
     context.audit_data(surname)
-    last_name = first if second is None else f"{first}-{second}"
+    last_name = "-".join(p for p in (first, second) if p is not None) or None
     names = item.pop("imiona")
     given = names.pop("imie", None)
     middle = names.pop("imieDrugie", None)
