@@ -35,15 +35,21 @@ processing of it:
 - `listingDate`: when the designation was listed.
 - `startDate`: when it took effect.
 - `endDate`: when it expires, usually in the future.
-- `modifiedAt`: when the authority last amended the designation.
+- `modifiedAt`: when the authority last amended the designation, or when it was
+  listed if it was never amended.
 
-Fill each one the source gives. When the source gives one date and the legal instrument
-makes listing and effect fall on that same day, set it as both `listingDate` and
-`startDate`. Otherwise set only the property the date actually is. Don't set
-`createdAt`, and never use the crawl time for any of these.
+An entity's `last_change` is separate: it records when our output for the entity
+last changed, including changes caused by our own parsing.
 
-Before mapping a source date to `modifiedAt`, check that the authority updates it when
-it amends the designation, and only then.
+Fill each one the source gives. Before mapping a source date to `modifiedAt`, check
+that the authority updates it when it amends the designation, and only then. Don't
+set `createdAt`, and never use the time of the current crawl for any of these.
+
+Call [`h.finalize_sanction`][zavod.helpers.finalize_sanction] after setting the
+dates and before emitting the Sanction. When the legal instrument makes designations
+on a list take effect when listed, pass `effective_on_listing=True`: it fills
+whichever of `listingDate` and `startDate` is missing from the other. Check this per
+list; on some lists the two dates differ.
 
 When the source lists a designation whose `endDate` has passed, emit it, and set its
 topics as described in [topics](../best_practices/topics.md#risk-topics-while-in-force).

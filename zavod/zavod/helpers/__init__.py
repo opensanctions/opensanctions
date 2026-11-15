@@ -98,6 +98,7 @@ from zavod.helpers.numbers import apply_number
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
 from zavod.helpers.positions import make_occupancy, make_position, earliest_term_start
 from zavod.helpers.sanctions import (
+    finalize_sanction,
     is_active,
     lookup_sanction_program_key,
     make_risk,
@@ -120,6 +121,7 @@ __all__ = [
     "copy_address",
     "postcode_pobox",
     "make_sanction",
+    "finalize_sanction",
     "make_risk",
     "make_article",
     "make_documentation",
