@@ -127,13 +127,16 @@ def nested_rows(doc: Element, id: str) -> list[list[Element]]:
     return rows
 
 
-def form_link(cell: Element) -> tuple[str, str] | None:
-    """Return the form page (e.g. "NSForm2") and the link of a list cell."""
+def form_link(cell: Element) -> tuple[str, str, str] | None:
+    """Return the form page (e.g. "NSForm2"), link and serial of a list cell.
+    The serial is the link text: the cell appends the serial an amendment
+    amends, upper-cased where the form keeps the filer's case."""
     links = h.xpath_elements(cell, ".//a[@href]")
     if len(links) == 0:
         return None
     href = links[0].get("href", "")
-    return urlparse(href).path.rsplit("/", 1)[-1].removesuffix(".aspx"), href
+    page = urlparse(href).path.rsplit("/", 1)[-1].removesuffix(".aspx")
+    return page, href, h.element_text(links[0])
 
 
 def split_resigned(name: str | None) -> tuple[str | None, str | None]:
@@ -562,12 +565,11 @@ def crawl_shareholder(
     if serial_cell is None:
         serial_cell = row.pop("form_serial_no")
     name = h.element_text(row.pop("name_of_substantial_shareholder"))
-    serial = h.element_text(serial_cell)
     link = form_link(serial_cell)
     if link is None:
         context.log.warning("Shareholder without form", name=name)
         return
-    kind, href = link
+    kind, href, serial = link
     if kind not in ("NSForm1", "NSForm2", "NSForm3A"):
         context.log.warning("Unknown shareholder form", kind=kind, name=name)
         return
@@ -698,7 +700,7 @@ def crawl_issuer(
         serial_cell = row.pop("form_serial_number")
         link = form_link(serial_cell)
         if link is not None and link[0] == "NSForm3A":
-            serial = h.element_text(serial_cell)
+            serial = link[2]
             if serial not in crawled:
                 crawled[serial] = crawl_form(
                     context,
