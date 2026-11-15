@@ -47,6 +47,7 @@ from zavod.helpers.change import (
     assert_file_hash,
     assert_html_url_hash,
     assert_url_hash,
+    record_hash,
 )
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.dates import (
@@ -165,6 +166,7 @@ __all__ = [
     "assert_url_hash",
     "assert_file_hash",
     "assert_html_url_hash",
+    "record_hash",
     "split_comma_names",
     "Names",
     "is_name_irregular",
