@@ -77,8 +77,8 @@ http:
 assertions:
   min:
     schema_entities:
-      Person: 900
-      Position: 650
+      Person: 3900
+      Position: 3250
 
 config:
   # Seat statements on the enterprise, matched in order: a row with a
