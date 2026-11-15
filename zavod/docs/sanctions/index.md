@@ -48,8 +48,9 @@ set `createdAt`, and never use the time of the current crawl for any of these.
 Call [`h.finalize_sanction`][zavod.helpers.finalize_sanction] after setting the
 dates and before emitting the Sanction. When the legal instrument makes designations
 on a list take effect when listed, pass `effective_on_listing=True`: it fills
-whichever of `listingDate` and `startDate` is missing from the other. Check this per
-list.
+whichever of `listingDate` and `startDate` is missing from the other. When the source
+dates every amendment, pass `amendments_dated=True`: it fills a missing `modifiedAt`
+from the listing. Check both per list.
 
 When the source lists a designation whose `endDate` has passed, emit it, and set its
 topics as described in [topics](../best_practices/topics.md#risk-topics-while-in-force).

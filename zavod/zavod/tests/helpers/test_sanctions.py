@@ -124,6 +124,44 @@ def test_finalize_sanction_effective_on_listing(vcontext: Context):
     assert sanction.get("startDate") == ["2021-03-05"]
 
 
+def test_finalize_sanction_amendments_dated(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    sanction = make_sanction(vcontext, person)
+    sanction.add("listingDate", ["2022-05-01", "2021-03-01"], origin=ORIGIN_INFERRED)
+    sanction.add("startDate", "2020-01-01")
+    finalize_sanction(vcontext, sanction, amendments_dated=True)
+    assert sanction.get("modifiedAt") == ["2021-03-01"]
+    (stmt,) = sanction.get_statements("modifiedAt")
+    assert stmt.origin == ORIGIN_INFERRED
+
+    sanction = make_sanction(vcontext, person, key="b")
+    sanction.add("startDate", ["2021-03-05", "2021-03-01"])
+    finalize_sanction(vcontext, sanction, amendments_dated=True)
+    assert sanction.get("modifiedAt") == ["2021-03-01"]
+
+    # Dated by the source: left as it is.
+    sanction = make_sanction(vcontext, person, key="c")
+    sanction.add("listingDate", "2021-03-01")
+    sanction.add("modifiedAt", "2024-06-01")
+    finalize_sanction(vcontext, sanction, amendments_dated=True)
+    assert sanction.get("modifiedAt") == ["2024-06-01"]
+
+    # A start date copied to listingDate counts as the listing.
+    sanction = make_sanction(vcontext, person, key="d")
+    sanction.add("startDate", "2021-03-01")
+    finalize_sanction(
+        vcontext, sanction, effective_on_listing=True, amendments_dated=True
+    )
+    assert sanction.get("modifiedAt") == ["2021-03-01"]
+
+    # No dates at all: nothing to fill from.
+    sanction = make_sanction(vcontext, person, key="e")
+    finalize_sanction(vcontext, sanction, amendments_dated=True)
+    assert sanction.get("modifiedAt") == []
+
+
 def test_finalize_sanction_defaults(vcontext: Context):
     person = vcontext.make("Person")
     person.id = "jeff"
