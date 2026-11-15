@@ -38,22 +38,31 @@ exports:
   - entities.ftm.json
   - statistics.json
 summary: >
-  Executives and board members of state-owned enterprises, state institutions,
-  international bodies and political parties, from Wikidata.
+  Board members and executives who count as politically exposed persons
 description: |
-  This dataset includes the executives, directors and members of the supervisory
-  and management boards of state-owned enterprises, state institutions and
-  international bodies, and the members of political parties' governing bodies,
-  as recorded on Wikidata.
+  The people who run or oversee public bodies and political parties: the chief
+  executives, chairs and board members of state-owned enterprises; the heads and
+  boards of public institutions such as central banks, regulators, public
+  broadcasters and government agencies; the leadership of international
+  organisations; and the chairs, secretaries-general and executive committees of
+  political parties. International anti-money-laundering standards, including the
+  FATF Recommendations and the EU Anti-Money Laundering Regulation (2024/1624),
+  treat these roles as prominent public functions, which makes the people who hold
+  them politically exposed persons (PEPs).
 
-  Enterprises are included if Wikidata describes them as state-owned (by type or
-  legal form), and institutions if they are owned by or subordinate to a country,
-  one of its subdivisions, or one of their ministries or agencies, or if they are
-  central banks, regulators or public broadcasters. International bodies are those
-  OpenSanctions tracks as intergovernmental organisations, and the bodies they
-  run. People are included for the seats recorded on the body's Wikidata item,
-  such as its chief executive, its chair, its secretary-general or the members of
-  its boards.
+  Wikidata, a knowledge base edited by volunteers, records an organisation's
+  leadership on the organisation's own entry. A body is included when its entry
+  describes it as state-owned, links it to a government that owns or oversees it,
+  or identifies it as a central bank, regulator, public broadcaster or political
+  party, and when it is an international organisation that OpenSanctions tracks.
+  Companies owned by municipalities are not included. Positions at bodies linked
+  only to another country's government, and lesser party offices, are reviewed by
+  OpenSanctions analysts before their holders are treated as PEPs. The dataset
+  covers current office holders and those who left office within the period set
+  by the OpenSanctions [PEP methodology](https://www.opensanctions.org/docs/pep/methodology/).
+
+  Coverage depends on whether a body's Wikidata entry names its leaders, and
+  varies considerably between countries and kinds of organisation.
 publisher:
   name: Wikidata
   description: |
