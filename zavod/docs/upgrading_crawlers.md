@@ -7,8 +7,7 @@ changed and says how to recognise a crawler written before it.
 
 Sanctions crawlers aim to fill `listingDate`, `startDate` and `modifiedAt` on every
 Sanction. Call [`h.finalize_sanction`][zavod.helpers.finalize_sanction] before
-emitting each Sanction, with `effective_on_listing=True` where designations on the
-list take effect when listed. See [dates](sanctions/index.md#dates).
+emitting each Sanction. See [dates](sanctions/index.md#dates).
 
 Signal: a Sanction emitted without `h.finalize_sanction`, or `listingDate` copied to
 `startDate` with `adopt_statement`.
