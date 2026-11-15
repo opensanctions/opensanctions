@@ -117,6 +117,8 @@ def make_sanction(
     sanction.add("authority", dataset.publisher.name, origin=ORIGIN_METADATA)
     sanction.add("sourceUrl", dataset.url, origin=ORIGIN_METADATA)
     sanction.set("program", program_name)
+    # TODO: derive status only in finalize_sanction, once all sanctions crawlers
+    # call it, so that dates applied after construction count towards it.
     _apply_program_and_dates(
         context,
         entity,
