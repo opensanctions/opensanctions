@@ -393,6 +393,7 @@ def read_seats(
     seats: Seats = {}
     seat_count = 0
     excluded = 0
+    foreign_owner = 0
     done: set[str] = set()
     for idx, enterprise in enumerate(sorted(enterprises.values(), key=lambda e: e.qid)):
         if idx > 0 and idx % 500 == 0:
@@ -449,6 +450,12 @@ def read_seats(
                 subnational = []
             if len(subnational) > 0:
                 topics.append("gov.state")
+            owner_countries = {t.ftm_country for t in enterprise.owners}
+            if not typed and countries.isdisjoint(owner_countries):
+                # Only another country's state is linked: more often an
+                # investor's stake than control, so the seats go to review.
+                default_is_pep = None
+                foreign_owner += 1
 
         positions: dict[str, Entity | None] = {}
         for claim in item.claims:
@@ -477,7 +484,11 @@ def read_seats(
             seats.setdefault(claim.qid, []).append((position, claim))
             seat_count += 1
     context.log.info(
-        "Read seats", seats=seat_count, persons=len(seats), excluded=excluded
+        "Read seats",
+        seats=seat_count,
+        persons=len(seats),
+        excluded=excluded,
+        foreign_owner=foreign_owner,
     )
     return seats
 
