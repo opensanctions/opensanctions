@@ -61,6 +61,7 @@ INTL_ORGS: dict[str, IntlOrg] = {
     # WFP has no leadership position items on Wikidata yet (2026-08-05);
     # registered so they enroll as soon as someone creates and links them.
     "Q204344": IntlOrg("World Food Programme", country="un"),
+    "Q636107": IntlOrg("United Nations Office on Drugs and Crime", country="un"),
     # UN specialized agencies (the Bretton Woods institutions are deliberately
     # "zz": they operate as global bodies, not as UN organs):
     "Q7817": IntlOrg("World Health Organization", country="un"),
@@ -71,6 +72,11 @@ INTL_ORGS: dict[str, IntlOrg] = {
     "Q376150": IntlOrg("International Telecommunication Union", country="un"),
     "Q170424": IntlOrg("World Meteorological Organization", country="un"),
     "Q177773": IntlOrg("World Intellectual Property Organization", country="un"),
+    "Q689859": IntlOrg("International Fund for Agricultural Development", country="un"),
+    "Q386120": IntlOrg(
+        "United Nations Industrial Development Organization", country="un"
+    ),
+    "Q61923": IntlOrg("UN Tourism", country="un"),
     "Q7804": IntlOrg("International Monetary Fund"),
     "Q320863": IntlOrg("World Bank Group"),
     # International courts:
@@ -236,10 +242,46 @@ INTL_ORGS: dict[str, IntlOrg] = {
     "Q488981": IntlOrg("European Bank for Reconstruction and Development"),
     "Q2883427": IntlOrg("West African Development Bank"),
     "Q1010514": IntlOrg("Bureau of International Expositions"),
+    "Q1130098": IntlOrg("European Stability Mechanism"),
+    "Q2020649": IntlOrg("Nordic Investment Bank"),
+    "Q611107": IntlOrg("Council of Europe Development Bank"),
+    "Q2061083": IntlOrg("Black Sea Trade and Development Bank"),
+    "Q604488": IntlOrg("Common Fund for Commodities"),
+    "Q826700": IntlOrg("International Energy Agency"),
+    "Q842490": IntlOrg("Organisation for the Prohibition of Chemical Weapons"),
+    "Q369760": IntlOrg("Nuclear Energy Agency"),
+    "Q1058594": IntlOrg("World Organisation for Animal Health"),
+    "Q1317185": IntlOrg("International Organisation of Vine and Wine"),
+    "Q1967903": IntlOrg("European and Mediterranean Plant Protection Organization"),
+    "Q789769": IntlOrg("Council of the Baltic Sea States"),
+    "Q134102": IntlOrg("Organisation internationale de la Francophonie"),
+    "Q605326": IntlOrg("World Customs Organization"),
+    "Q1192641": IntlOrg("UNIDROIT"),
+    "Q13116": IntlOrg("Benelux"),
+    "Q192177": IntlOrg("Union for the Mediterranean"),
+    "Q392805": IntlOrg("Central European Initiative"),
+    "Q421023": IntlOrg("Organization of Ibero-American States"),
+    "Q1045198": IntlOrg("Permanent Court of Arbitration"),
+    "Q152299": IntlOrg("Dutch Language Union"),
+    "Q30104861": IntlOrg("European Schools"),
+    "Q182500": IntlOrg("Community of Portuguese Language Countries"),
+    "Q1563503": IntlOrg("HELCOM"),
+    "Q1666088": IntlOrg(
+        "Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services"
+    ),
+    "Q47537350": IntlOrg("European Telecommunications Satellite Organization"),
+    "Q840267": IntlOrg(
+        "International Commission for the Conservation of Atlantic Tunas"
+    ),
+    "Q821623": IntlOrg("EU–LAC Foundation"),
+    "Q356694": IntlOrg("Comprehensive Nuclear-Test-Ban Treaty Organization"),
     # Treaty-based scientific organizations:
     "Q42944": IntlOrg("CERN"),
     "Q42262": IntlOrg("European Space Agency"),
     "Q151991": IntlOrg("European Southern Observatory"),
+    "Q692163": IntlOrg("EUMETSAT"),
+    "Q695267": IntlOrg("European Molecular Biology Laboratory"),
+    "Q229478": IntlOrg("International Bureau of Weights and Measures"),
     # International sports bodies — kept out of gov.* topics; their officials
     # are persons of interest, not government officials:
     "Q253414": IntlOrg("FIFA", topics=SPORT),
