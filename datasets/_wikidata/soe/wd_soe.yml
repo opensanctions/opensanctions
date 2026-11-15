@@ -1,0 +1,185 @@
+# Seats are statements on the body's item (P169 CEO, P488 chair, ...) rather
+# than P39 claims on the person, so this crawler discovers bodies first and
+# reads their seats, instead of discovering positions like wd_peps does.
+#
+# Bodies are found in five lanes, unioned:
+#  A. P31/P1454 in the state-owned enterprise (Q270791) class tree: the marker
+#     an enterprise carries once its state control is established
+#  B. P127 owned by, or P749 subordinate to, a state actor: a territory QID
+#     known to rigour, or a government body (`government_types`, direct P31)
+#     whose P1001 jurisdiction, else P17 country, is one, or a body in the
+#     international organisation registry (INTL_ORGS)
+#  C. the registry's international bodies themselves
+#  D. bodies the state's by statute (`statutory_types`, direct P31)
+#  E. political parties and their branches, in the party class tree
+# Lanes A and B read only statements that have not ended (P582 in the past):
+# a privatised enterprise keeps its marker with an end date, and a sold stake
+# keeps its link the same way.
+# Lanes A, B, D and E require at least one seat statement. Control is not
+# inferred from ownership chains or shares: subsidiaries are found once they
+# carry the marker themselves. Lane A yields `gov.soe` positions; bodies found
+# only by lanes B or D are institutions and yield `gov.admin`; parties yield
+# `pol.party`; registry bodies, and bodies whose P749 parent is one, take the
+# registry's country and topics.
+title: Wikidata State Enterprise, Institution and Party Leadership
+entry_point: crawler.py
+prefix: wd
+coverage:
+  frequency: weekly
+  start: 2026-11-15
+deploy:
+  memory: "2000Mi"
+  memory_limit: "4000Mi"
+  schedule: "0 6 * * 1"
+  premium: true
+load_statements: true
+ci_test: false
+exports:
+  - entities.ftm.json
+  - statistics.json
+summary: >
+  Board members and executives who count as politically exposed persons
+description: |
+  The people who run or oversee public bodies and political parties: the chief
+  executives, chairs and board members of state-owned enterprises; the heads and
+  boards of public institutions such as central banks, regulators, public
+  broadcasters and government agencies; the leadership of international
+  organisations; and the chairs, secretaries-general and executive committees of
+  political parties. International anti-money-laundering standards, including the
+  FATF Recommendations and the EU Anti-Money Laundering Regulation (2024/1624),
+  treat these roles as prominent public functions, which makes the people who hold
+  them politically exposed persons (PEPs).
+
+  Wikidata, a knowledge base edited by volunteers, records an organisation's
+  leadership on the organisation's own entry. A body is included when its entry
+  describes it as state-owned, links it to a government that owns or oversees it,
+  or identifies it as a central bank, regulator, public broadcaster or political
+  party, and when it is an international organisation that OpenSanctions tracks.
+  Companies owned by municipalities are not included. Positions at bodies linked
+  only to another country's government, and lesser party offices, are reviewed by
+  OpenSanctions analysts before their holders are treated as PEPs. The dataset
+  covers current office holders and those who left office within the period set
+  by the OpenSanctions [PEP methodology](https://www.opensanctions.org/docs/pep/methodology/).
+
+  Coverage depends on whether a body's Wikidata entry names its leaders, and
+  varies considerably between countries and kinds of organisation.
+publisher:
+  name: Wikidata
+  description: |
+    Wikidata is a free and open knowledge base that can be read and edited by both humans
+    and machines. It acts as central storage for the structured data of its Wikimedia
+    sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
+  url: https://www.wikidata.org
+  official: false
+  country: zz
+tags:
+  - list.pep
+url: https://www.wikidata.org/wiki/Q270791
+data:
+  url: https://query.wikidata.org/
+  format: JSON
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_methods:
+    - GET
+    - POST
+  timeout: 90
+
+assertions:
+  min:
+    schema_entities:
+      Person: 3900
+      Position: 3250
+
+config:
+  # Seat statements on the enterprise, matched in order: a row with a
+  # `qualifier` matches claims carrying that P2868 (subject has role) value; a
+  # row without one matches only claims that have no P2868 at all. Claims that
+  # match no row are skipped.
+  roles:
+    - key: ceo
+      property: P169
+      label: Chief Executive
+    - key: director
+      property: P1037
+      label: Director
+    - key: chair
+      property: P488
+      label: Chairperson
+    # A supervisory body's chair is a member with the chair role, never a P488.
+    - key: supervisory-chair
+      property: P5052
+      qualifier: Q15818143
+      label: Chair of the Supervisory Board
+    - key: supervisory-chair
+      property: P5052
+      qualifier: Q140686
+      label: Chair of the Supervisory Board
+    - key: supervisory-deputy-chair
+      property: P5052
+      qualifier: Q1127270
+      label: Deputy Chair of the Supervisory Board
+    - key: supervisory-member
+      property: P5052
+      label: Member of the Supervisory Board
+    - key: supervisory-member
+      property: P3320
+      qualifier: Q63858690
+      label: Member of the Supervisory Board
+    - key: deputy-chair
+      property: P3320
+      qualifier: Q1127270
+      label: Deputy Chair of the Board
+    - key: executive-member
+      property: P3320
+      qualifier: Q141755781
+      label: Member of the Executive Board
+    # "board member": a one-tier board in some languages, an executive board
+    # in others, so read as a plain board seat.
+    - key: board-member
+      property: P3320
+      qualifier: Q2824523
+      label: Member of the Board
+    - key: managing-director
+      property: P3320
+      qualifier: Q19940089
+      label: Managing Director
+    - key: secretary-general
+      property: P3975
+      label: Secretary-General
+    - key: treasurer
+      property: P3320
+      qualifier: Q388338
+      label: Treasurer
+    - key: board-member
+      property: P3320
+      label: Member of the Board
+  # Bodies dropped whatever lane found them, matched against the item's full
+  # P31/P279 type closure. Diplomatic missions are covered as positions by
+  # the PEP crawlers; then the municipal and historical forms that sit in
+  # the state-owned enterprise class tree, and what the political party
+  # class tree wrongly takes in.
+  excluded_types:
+    Q213283: diplomatic mission
+    Q1780371: municipal company
+    Q111302220: établissement public local à caractère industriel ou commercial
+    Q2531989: Volkseigener Betrieb
+    Q835400: combine
+    Q12041652: národní podnik
+    Q4380220: production association
+    Q849866: communist state
+    Q303329: shadow cabinet
+    Q40482169: defunct political party
+  # Lane B: the classes that make a link target a government body, matched
+  # against its direct P31 only; "government organization" is too broad.
+  government_types:
+    Q192350: ministry
+    Q7188: government
+    Q327333: government agency
+    Q35798: executive branch
+  # Lane D: bodies the state's by statute, matched against their direct P31.
+  statutory_types:
+    Q66344: central bank
+    Q1639780: regulatory agency
+    Q1126006: public broadcaster
