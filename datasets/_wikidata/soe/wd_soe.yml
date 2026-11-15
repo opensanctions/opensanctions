@@ -137,8 +137,9 @@ config:
       label: Member of the Board
   # Bodies dropped whatever lane found them, matched against the item's full
   # P31/P279 type closure. Diplomatic missions are covered as positions by
-  # the PEP crawlers; the rest are municipal and historical forms that sit in
-  # the state-owned enterprise class tree.
+  # the PEP crawlers; then the municipal and historical forms that sit in
+  # the state-owned enterprise class tree, and what the political party
+  # class tree wrongly takes in.
   excluded_types:
     Q213283: diplomatic mission
     Q1780371: municipal company
@@ -147,6 +148,9 @@ config:
     Q835400: combine
     Q12041652: národní podnik
     Q4380220: production association
+    Q849866: communist state
+    Q303329: shadow cabinet
+    Q40482169: defunct political party
   # Lane B: the classes that make a link target a government body, matched
   # against its direct P31 only; "government organization" is too broad.
   government_types:
@@ -154,3 +158,8 @@ config:
     Q7188: government
     Q327333: government agency
     Q35798: executive branch
+  # Lane D: bodies the state's by statute, matched against their direct P31.
+  statutory_types:
+    Q66344: central bank
+    Q1639780: regulatory agency
+    Q1126006: public broadcaster

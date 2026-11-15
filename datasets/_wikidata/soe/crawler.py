@@ -26,6 +26,11 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 ROLE_QUALIFIER = "P2868"
+POLITICAL_PARTY = "Q7278"
+CENTRAL_BANK = "Q66344"
+# A party's chair and secretary-general are PEPs by their seat; its other
+# officers and board members are left to position review.
+PARTY_LEADERSHIP = {"P488", "P3975"}
 
 
 @dataclass(frozen=True)
@@ -45,6 +50,8 @@ class Enterprise:
     modified_at: datetime | None = None
     marked: bool = False
     owners: list[Territory] = field(default_factory=list)
+    statutory: set[str] = field(default_factory=set)
+    party: bool = False
 
 
 def load_roles(context: Context) -> list[Role]:
@@ -137,6 +144,7 @@ def discover(
     client: WikidataClient,
     roles: list[Role],
     government_types: set[str],
+    statutory_types: set[str],
 ) -> dict[str, Enterprise]:
     seat_path = "|".join(sorted({f"wdt:{r.property}" for r in roles}))
     seat_filter = f"FILTER EXISTS {{ ?enterprise {seat_path} ?seat . }}"
@@ -254,6 +262,63 @@ def discover(
         enterprises=len(INTL_ORGS),
         new=len(enterprises) - before_c,
     )
+
+    # Lane D: statutory bodies (central banks, regulators, public
+    # broadcasters), which are the state's by law and often carry no owner.
+    before_d = len(enterprises)
+    statutory = " ".join(f"wd:{qid}" for qid in sorted(statutory_types))
+    query = f"""
+    SELECT DISTINCT ?enterprise ?modified ?abolished ?type WHERE {{
+        VALUES ?type {{ {statutory} }}
+        ?enterprise wdt:P31 ?type .
+        {seat_filter}
+        ?enterprise schema:dateModified ?modified .
+        {abolished}
+    }}
+    """
+    lane_d: set[str] = set()
+    for qid, bind in query_enterprises(context, client, query):
+        type_qid = bind.plain("type")
+        if type_qid is not None:
+            get_enterprise(enterprises, qid, bind).statutory.add(type_qid)
+            lane_d.add(qid)
+    context.log.info(
+        "Lane D: statutory bodies",
+        enterprises=len(lane_d),
+        new=len(enterprises) - before_d,
+    )
+
+    # Lane E: political parties and their branches, anywhere in the party
+    # class tree. A branch, a party under another party, is placed in its
+    # region by P131; on a party of its own, P131 is often only its seat.
+    before_e = len(enterprises)
+    query = f"""
+    SELECT DISTINCT ?enterprise ?modified ?abolished ?region WHERE {{
+        ?enterprise wdt:P31/wdt:P279* wd:{POLITICAL_PARTY} .
+        {seat_filter}
+        ?enterprise schema:dateModified ?modified .
+        OPTIONAL {{
+            ?enterprise wdt:P749|wdt:P361 ?parent .
+            ?parent wdt:P31/wdt:P279* wd:{POLITICAL_PARTY} .
+            ?enterprise wdt:P131 ?region .
+        }}
+        {abolished}
+    }}
+    """
+    lane_e: set[str] = set()
+    for qid, bind in query_enterprises(context, client, query):
+        enterprise = get_enterprise(enterprises, qid, bind)
+        enterprise.party = True
+        lane_e.add(qid)
+        region = state_territory(client, bind.plain("region"))
+        if region is not None and not region.is_country:
+            if region not in enterprise.owners:
+                enterprise.owners.append(region)
+    context.log.info(
+        "Lane E: political parties",
+        enterprises=len(lane_e),
+        new=len(enterprises) - before_e,
+    )
     return enterprises
 
 
@@ -336,7 +401,8 @@ def read_seats(
             continue
         registered = INTL_ORGS.get(item.id)
         intl_org = registered or parent_intl_org(item)
-        if intl_org is None and not enterprise.marked and len(enterprise.owners) == 0:
+        typed = enterprise.marked or enterprise.party or len(enterprise.statutory) > 0
+        if intl_org is None and not typed and len(enterprise.owners) == 0:
             # Found only through an international body's stake in it:
             # an investment, not part of the body.
             continue
@@ -356,7 +422,14 @@ def read_seats(
             if len(countries) == 0:
                 context.log.info("Enterprise has no country", qid=item.id, label=label)
                 continue
-            topics = ["gov.soe" if enterprise.marked else "gov.admin"]
+            if enterprise.party:
+                topics = ["pol.party"]
+            elif enterprise.marked:
+                topics = ["gov.soe"]
+            else:
+                topics = ["gov.admin"]
+            if CENTRAL_BANK in enterprise.statutory:
+                topics.append("gov.financial")
             # A national owner makes the body national, whichever subdivisions
             # share in it.
             subnational = [t.name for t in enterprise.owners if not t.is_country]
@@ -373,6 +446,9 @@ def read_seats(
             if role is None:
                 continue
             if role.key not in positions:
+                role_is_pep = default_is_pep
+                if enterprise.party and role.property not in PARTY_LEADERSHIP:
+                    role_is_pep = None
                 positions[role.key] = make_seat_position(
                     context,
                     item,
@@ -381,7 +457,7 @@ def read_seats(
                     countries,
                     topics,
                     subnational,
-                    default_is_pep,
+                    role_is_pep,
                 )
             position = positions[role.key]
             if position is None:
@@ -399,8 +475,9 @@ def crawl(context: Context) -> None:
     roles = load_roles(context)
     excluded_types = load_types(context, "excluded_types")
     government_types = load_types(context, "government_types")
+    statutory_types = load_types(context, "statutory_types")
 
-    enterprises = discover(context, client, roles, government_types)
+    enterprises = discover(context, client, roles, government_types, statutory_types)
     context.log.info(f"Discovered {len(enterprises)} enterprises")
     seats = read_seats(context, client, roles, excluded_types, enterprises)
 
