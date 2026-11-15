@@ -153,8 +153,8 @@ def finalize_sanction(
         amendments_dated: The source dates every amendment of a designation, so
             one without a ``modifiedAt`` was never amended. Check this per list,
             e.g. against the archived source history. If ``modifiedAt`` is
-            missing, it is filled with the earliest ``listingDate``, or the
-            earliest ``startDate`` if there is no listing date.
+            missing, it is filled with the latest ``listingDate``, or the
+            latest ``startDate`` if there is no listing date.
     """
     assert sanction.schema.is_a("Sanction"), sanction.schema
     if effective_on_listing:
@@ -175,8 +175,8 @@ def finalize_sanction(
         if len(listed) == 0:
             listed = sanction.get_statements("startDate")
         if len(listed) > 0:
-            earliest = min(listed, key=lambda stmt: stmt.value)
-            sanction.adopt_statement(earliest, prop="modifiedAt")
+            latest = max(listed, key=lambda stmt: stmt.value)
+            sanction.adopt_statement(latest, prop="modifiedAt")
 
     if sanction.has("endDate") and not sanction.has("status"):
         sanction.add("status", "active" if is_active(sanction) else "inactive")
