@@ -125,7 +125,7 @@ Choose the `list.*` tag by what being listed means for the subject:
 - `list.enforcement` - registers of enforcement actions, such as fines and rulings by a regulator.
 - `list.debarment` - bans from an activity, such as public procurement, a regulated market, a healthcare program, or a company directorship.
 - `list.export` - export control lists.
-- `list.watch` - warning lists, investment exclusions, and other watchlists that don't fit the types above.
+- `list.watch` - regulator warnings, security advisories, investment exclusions, and other watchlists that don't fit the types above; usually paired with a `risk.*` tag.
 - `list.pep` - politically exposed persons.
 - `list.pep.bulk` - added alongside `list.pep` for PEP datasets that should be left out of broad PEP cross-referencing, such as asset declaration registries and lists of sub-national officeholders.
 
