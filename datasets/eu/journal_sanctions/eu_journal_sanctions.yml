@@ -2325,6 +2325,15 @@ lookups:
           - "In process of liquidation"
           - "ZPentest (Account suspended)"
           - "Zpentestalliance"
+          # Bare VKontakte usernames printed by 32026R2558 ("VKontakte: aperla"),
+          # not URLs. Two of them parse as domain names and must go too.
+          - "aperla"
+          - "golovashin"
+          - "happyalways.olapolosina"
+          - "lex191"
+          - "ulf.vest"
+          - "viktor33"
+          - "Welchomehere"
         value: null
       - match: "cge.evrazia.ru, cge.su"
         values:
