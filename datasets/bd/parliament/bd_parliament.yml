@@ -55,6 +55,7 @@ names:
     - Mr.
     - Mrs.
     - Alhaj
+    - Alhaz
     - Haji
     - Advocate
     - Barrister
@@ -75,6 +76,7 @@ names:
     - হাজী # Haji
     - এডভোকেট # Advocate
     - ব্যারিস্টার # Barrister
+    - ব্যারিষ্টার # Barrister
     - অধ্যাপক # Professor
     - "ক্যাপ্টেন (অব:)" # Capt. (Retd)
     - ক্যাপ্টেন # Capt.
@@ -84,6 +86,7 @@ names:
     - (Retd)
     - Retd.
     - Ad. # Advocate
+    - Advocate
     - "(অবঃ)" # (Retd)
     # Gallantry awards of the 1971 Liberation War
     - Bir Uttam
@@ -92,6 +95,9 @@ names:
     - ", বীর উত্তম"
     - ", বীর বিক্রম"
     - ", বীর প্রতীক"
+    - বীর উত্তম
+    - বীর বিক্রম
+    - বীর প্রতীক
 
 lookups:
   type.date:
