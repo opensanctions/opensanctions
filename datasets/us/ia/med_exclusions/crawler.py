@@ -23,6 +23,22 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity = context.make("Person")
         entity.id = context.make_id(first_name, last_name, npi)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
+        # Some individuals are listed together with the business they operate
+        business_name = row.pop("legal_business_name")
+        if business_name is not None:
+            business = context.make("Company")
+            business.id = context.make_id(business_name, row.get("affiliated_npi"))
+            business.add("name", business_name)
+            business.add("npiCode", row.get("affiliated_npi"))
+            business.add("country", "us")
+            context.emit(business)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, "affiliated", business.id)
+            link.add("subject", entity)
+            link.add("object", business)
+            link.add("role", "Affiliated business")
+            context.emit(link)
     elif enrollment_type == "Organization":
         business_name = row.pop("legal_business_name")
         entity = context.make("Organization")
