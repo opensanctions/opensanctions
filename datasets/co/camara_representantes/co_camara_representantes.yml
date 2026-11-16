@@ -33,11 +33,14 @@ data:
 tags:
   - list.pep
 
-# A year's list keeps members who left mid-year, with no per-member dates, so they
-# stay current until the next year starts on 20 July. The previous year is unknown,
-# not ended, until 31 December. Years before 2016 are sparse; some before 2014 empty.
-# About 100 members of the 2010-2014 term have only a profile page (in the page
-# sitemap) and appear in no year's list, so they are not crawled.
+# The source lists members per legislative year, without individual dates. A member
+# who left mid-year therefore stays current until the next year starts on 20 July,
+# and the previous year's members count as unknown, not ended, until 31 December.
+#
+# About 120 former members, mostly from the 2010-2014 term, are missing from these
+# lists and only have a profile page left over from the old website. We don't crawl
+# them: it would mean scraping those pages separately, they give no constituency,
+# some duplicate members already listed, and Wikidata already covers many of them.
 
 lookups:
   # Member group keys; the opposition seat is not a constituency.
