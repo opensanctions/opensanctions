@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from urllib.parse import quote
+from urllib.parse import quote, urljoin
 
 from normality import collapse_spaces, slugify
 import pdfplumber
@@ -80,7 +80,7 @@ def grid_rows(doc: Element) -> list[Element]:
     return h.xpath_elements(doc, "//tr[@class='rgRow' or @class='rgAltRow']")
 
 
-def crawl_pdf_url(context: Context) -> tuple[str, str]:
+def find_latest_pdf(context: Context) -> tuple[str, str]:
     """Return the URL of the latest monthly list and of the folder page listing it."""
     doc = context.fetch_html(context.data_url)
     folders: dict[int, str] = {}
@@ -94,7 +94,7 @@ def crawl_pdf_url(context: Context) -> tuple[str, str]:
 
     # A new year's folder can exist before its first monthly list is uploaded.
     for year in sorted(folders, reverse=True):
-        folder_url = f"https://www.wvmmis.com/SitePages/{quote(folders[year])}"
+        folder_url = urljoin(context.data_url, quote(folders[year]))
         folder = context.fetch_html(folder_url)
         files: dict[int, tuple[str, str]] = {}
         for row in grid_rows(folder):
@@ -114,16 +114,16 @@ def crawl_pdf_url(context: Context) -> tuple[str, str]:
         # Each monthly file is a full snapshot of the list.
         doc_name, parent_folder = files[max(files)]
         context.log.info("Using monthly list", doc_name=doc_name)
-        pdf_url = (
-            "https://www.wvmmis.com/SharepointDownload?"
-            f"parent={parent_folder}&docname={quote(doc_name)}"
+        pdf_url = urljoin(
+            context.data_url,
+            f"/SharepointDownload?parent={parent_folder}&docname={quote(doc_name)}",
         )
         return pdf_url, folder_url
     raise ValueError("No monthly list found in any year folder")
 
 
 def crawl(context: Context) -> None:
-    pdf_url, folder_url = crawl_pdf_url(context)
+    pdf_url, folder_url = find_latest_pdf(context)
     # The server answers with an empty body when the Referer is the top-level page.
     path = context.fetch_resource(
         "source.pdf", pdf_url, headers={"Referer": folder_url}
