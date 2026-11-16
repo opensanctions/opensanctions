@@ -36,7 +36,7 @@ tags:
   - list.sanction
   - sector.financial
   - publisher.west
-url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
+url: https://www.fincen.gov/resources/statutes-and-regulations/special-measures/
 publisher:
   name: Financial Crimes Enforcement Network
   acronym: FinCEN
@@ -47,7 +47,7 @@ publisher:
   country: us
   url: https://www.fincen.gov
 data:
-  url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
+  url: https://www.fincen.gov/resources/statutes-and-regulations/special-measures/
   format: html
 dates:
   formats: ["%m/%d/%Y"]
@@ -136,6 +136,11 @@ config:
       # exchange houses is covered by their findings, which are mined.
       - https://www.fincen.gov/system/files/shared/311--ExchHouse-H-NPRMFinal.pdf
       - https://www.fincen.gov/system/files/shared/311--ExchHouse-R-NPRMFinal.pdf
+      # The FinCEN table links these instead of the URLs details.csv cites:
+      # the MEXC Global order as its pre-publication PDF, and the Banque Misr
+      # UAE NPRM with a trailing space in the href.
+      - https://www.fincen.gov/system/files/2026-11/MEXC-Section-9714.pdf
+      - https://www.federalregister.gov/public-inspection/2026-17871/proposal-of-special-measure-regarding-banque-misr-uae-as-a-financial-institution-operating-outside%20
       # Procedural revocation of the Ukraine designation; names no details.
       - http://edocket.access.gpo.gov/2003/pdf/03-9411.pdf
       # Procedural extensions/amendments of the CIBanco/Intercam/Vector

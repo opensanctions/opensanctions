@@ -2,7 +2,7 @@
 
 `details.csv` is a manually maintained record of facts stated in the
 rulemaking documents (findings, notices of proposed rulemaking, final rules)
-linked from the [FinCEN special measures table](https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures):
+linked from the [FinCEN special measures table](https://www.fincen.gov/resources/statutes-and-regulations/special-measures/):
 addresses, aliases, identifiers, and the sub-entities the documents name.
 The crawler reads the live table for the measures themselves and joins this
 file for everything document-derived. Changes should be submitted as pull
