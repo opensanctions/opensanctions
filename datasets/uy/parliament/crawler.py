@@ -14,7 +14,7 @@ def crawl_member(
     party: str,
     department: str = "",
     url: str | None = None,
-    office: str = "",
+    office: Entity | None = None,
 ) -> None:
     # The sitting-members list gives no legislator ID, so both lists are keyed on
     # the name, which they spell identically.
@@ -23,8 +23,6 @@ def crawl_member(
     person.id = context.make_id(name)
     h.apply_name(person, first_name=first_name, last_name=last_name)
     person.add("political", party.strip())
-    # The presiding office, e.g. "Presidenta" for the Vice President in the Senate.
-    person.add("position", office)
     person.add("sourceUrl", url)
     # Representatives and senators must be citizens: Constitution of Uruguay, Art. 90
     # and Art. 98. https://www.impo.com.uy/bases/constitucion/1967-1967
@@ -38,10 +36,23 @@ def crawl_member(
         return
     occupancy.add("constituency", department.strip())
     context.emit(occupancy)
+
+    # The presiding officer keeps their seat, so they hold both positions.
+    if office is not None:
+        office_categorisation = categorise(context, office)
+        if office_categorisation.is_pep:
+            office_occupancy = h.make_occupancy(
+                context, person, office, categorisation=office_categorisation
+            )
+            if office_occupancy is not None:
+                context.emit(office_occupancy)
+                context.emit(office)
     context.emit(person)
 
 
-def crawl_chamber(context: Context, position: Entity, chamber: str) -> None:
+def crawl_chamber(
+    context: Context, position: Entity, office: Entity, chamber: str
+) -> None:
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         context.log.warning("Position is not categorised as PEP", position=position.id)
@@ -72,13 +83,18 @@ def crawl_chamber(context: Context, position: Entity, chamber: str) -> None:
     # IDs, which the export merges.
     sitting_url = f"{url}/json?page&_format=json"
     for row in zyte_api.fetch_json(context, sitting_url, geolocation="UY"):
+        # Empty for everyone but the presiding officer.
+        cargo = row.pop("Cargo")
+        presides = cargo in ("Presidente", "Presidenta")
+        if not presides and cargo != "":
+            context.log.warning("Unknown chamber role", chamber=chamber, cargo=cargo)
         crawl_member(
             context,
             position,
             categorisation,
             name=row.pop("Nombres"),
             party=row.pop("Lema"),
-            office=row.pop("Cargo"),
+            office=office if presides else None,
         )
         # The chamber and the substitution note ("Sustituye al Representante ...")
         # are not captured.
@@ -96,6 +112,14 @@ def crawl(context: Context) -> None:
             topics=["gov.national", "gov.legislative"],
             lang="eng",
         ),
+        # Held by the Vice President, or by a senator presiding in their absence.
+        h.make_position(
+            context,
+            name="President of the Chamber of Senators of Uruguay",
+            country="uy",
+            topics=["gov.national", "gov.legislative"],
+            lang="eng",
+        ),
         "senadores",
     )
     crawl_chamber(
@@ -104,6 +128,14 @@ def crawl(context: Context) -> None:
             context,
             name="Member of the Chamber of Representatives of Uruguay",
             wikidata_id="Q19930720",
+            country="uy",
+            topics=["gov.national", "gov.legislative"],
+            lang="eng",
+        ),
+        h.make_position(
+            context,
+            name="President of the Chamber of Representatives of Uruguay",
+            wikidata_id="Q110192733",
             country="uy",
             topics=["gov.national", "gov.legislative"],
             lang="eng",

@@ -18,11 +18,11 @@ description: |
   term, and together they hold the country's legislative power, including passing laws
   and approving the budget.
 
-  The dataset also includes the Vice President of the Republic, who presides over the
-  General Assembly and the Chamber of Senators, and the President of the Chamber of
-  Representatives. It covers both the members elected to each seat, including those
-  on leave, and the substitutes currently sitting in their place. Former members are
-  not included.
+  The dataset also includes the presiding offices of both chambers: the President of the
+  Chamber of Senators, normally the Vice President of the Republic, and the President of
+  the Chamber of Representatives. It covers both the members elected to each seat,
+  including those on leave, and the substitutes currently sitting in their place. Former
+  members are not included.
 url: https://parlamento.gub.uy/camarasycomisiones/legisladores
 tags:
   - list.pep
@@ -51,4 +51,4 @@ assertions:
   max:
     schema_entities:
       Person: 200
-      Position: 2
+      Position: 4
