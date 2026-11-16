@@ -2346,6 +2346,19 @@ lookups:
         value: "https://vk.com/official_cniitm"
       - match: "Facebook: https://www.facebook.com/profile.php?id=100063824414668"
         value: "https://www.facebook.com/profile.php?id=100063824414668"
+      # Council Implementing Regulation (EU) 2026/2558 prints bare VK screen
+      # names under a "Vkontakte" label; a VK profile lives at
+      # https://vk.com/<screen name>.
+      - match: "aperla"
+        value: "https://vk.com/aperla"
+      - match: "viktor33"
+        value: "https://vk.com/viktor33"
+      - match: "golovashin"
+        value: "https://vk.com/golovashin"
+      - match: "lex191"
+        value: "https://vk.com/lex191"
+      - match: "Welchomehere"
+        value: "https://vk.com/Welchomehere"
       - match: "https://www.stc- spb.ru/contacts/"
         value: "https://www.stc-spb.ru/contacts/"
       - match: "https://www.zdship.ru,"
