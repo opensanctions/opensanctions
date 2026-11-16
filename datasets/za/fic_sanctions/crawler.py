@@ -57,32 +57,21 @@ def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
     return passports, ids
 
 
-def parse_aliases(context: Context, names: h.Names, text: str | None) -> None:
-    """Split a packed alias field into the name properties given by its labels.
+def parse_aliases(names: h.Names, text: str | None) -> None:
+    """Split a packed alias field by the UN alias quality labels.
 
-    The source packs aliases as "<label>, <name>, <label>, <name>", where the
-    label is the UN alias quality ("Good", "Low") or a marker like "a.k.a.".
-    Names can contain ", " themselves, so any segment that is not a known label
-    belongs to the name before it.
+    The source packs aliases as "Good, <name>, Low, <name>". Only fields made
+    up entirely of such pairs are split here. Names that contain a comma make
+    the pairing ambiguous, so those fields stay whole and go to review.
     """
     if text is None:
         return
-    segments = text.strip().rstrip(",").split(", ")
-    if context.lookup("name_label", segments[0]) is None:
-        context.log.warning("Alias field does not start with a label", text=text)
+    if re.fullmatch(r"(?:Good|Low), [^,]+(?:, (?:Good|Low), [^,]+)*", text) is None:
         names.add("alias", text)
         return
-    labelled: list[tuple[str | None, list[str]]] = []
-    for segment in segments:
-        label = context.lookup("name_label", segment)
-        if label is not None:
-            labelled.append((label.value, []))
-        else:
-            labelled[-1][1].append(segment)
-    for prop, parts in labelled:
-        name = ", ".join(parts).strip()
-        if prop is not None and name:
-            names.add(prop, name)
+    segments = text.split(", ")
+    for label, name in zip(segments[::2], segments[1::2]):
+        names.add("alias" if label == "Good" else "weakAlias", name)
 
 
 def crawl_row(context: Context, data: dict[str, str]) -> None:
@@ -108,7 +97,7 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
         entity.add("birthPlace", data.pop("IndividualPlaceOfBirth", None))
         dob = data.pop("IndividualDateOfBirth", None)
         h.apply_date(entity, "birthDate", dob)
-        parse_aliases(context, names, data.pop("IndividualAlias", None))
+        parse_aliases(names, data.pop("IndividualAlias", None))
         passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
         entity.add("passportNumber", passports)
         entity.add("idNumber", ids)
@@ -118,7 +107,7 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
         for address in h.multi_split(address, ADDRESS_SPLITS):
             address = address.rstrip(",")
             entity.add("address", address)
-        parse_aliases(context, names, data.pop("EntityAlias", None))
+        parse_aliases(names, data.pop("EntityAlias", None))
 
     h.apply_reviewed_names(context, entity, original=names)
     listed_on = data.pop("ListedOn", None)

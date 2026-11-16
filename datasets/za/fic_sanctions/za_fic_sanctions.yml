@@ -47,16 +47,22 @@ names:
     Person:
       # "?" flags transliteration artefacts; "f.k.a"/"f.n.a" are alias markers
       # not covered by rigour's name_split_phrases_list (which has "f/k/a").
+      # "Good"/"Low" are UN alias-quality labels the source prefixes to each
+      # alias; flag them so the packed alias lists are split via review.
       reject_chars: "?"
       reject_strings:
         - f.k.a
         - f.n.a
+        - Good
+        - Low
     LegalEntity:
       # As Person, plus parentheses (in the Person baseline but not LegalEntity's).
       reject_chars: "?()"
       reject_strings:
         - f.k.a
         - f.n.a
+        - Good
+        - Low
 
 assertions:
   min:
@@ -69,27 +75,6 @@ assertions:
       Person: 900
 
 lookups:
-  # Labels in the packed alias fields. "Good"/"Low" are the UN alias quality.
-  name_label:
-    lowercase: true
-    options:
-      - match:
-          - Good
-          - a.k.a.
-          - a.k.a
-          - EXACT
-          - Unknown
-        value: alias
-      - match: Low
-        value: weakAlias
-      - match:
-          - f.k.a.
-          - f.k.a
-          - f.n.a.
-          - Formerly known as
-        value: previousName
-      - match: None
-        value: null
   type.address:
     lowercase: true
     normalize: true
