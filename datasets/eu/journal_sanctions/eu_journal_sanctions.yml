@@ -1408,6 +1408,16 @@ lookups:
         value: "1200075689"
       - match: "Passport of the Russian Federation no. 3914857478, issued 20.4.2015"
         value: "3914857478"
+      # Council Implementing Regulation (EU) 2026/2568 prints Mustafa Moin
+      # AYASH's documents as "Austrian Refugee Travel Document: no. K1518177"
+      # and "Palestinian Passport: no. …"; the transcription keeps the value
+      # after the label, and the "no." marker is not part of the number.
+      - match: "no. K1518177"
+        value: "K1518177"
+      - match: "no. 6080310"
+        value: "6080310"
+      - match: "no. 6214861"
+        value: "6214861"
       - match:
           # 32026R2143 replaced the entry to correct the "Afhgan" spelling.
           - "01503093 (Afhgan passport, issued on 25.8.2016 in Kabul, Afghanistan and expired on 25.8.2021)"
