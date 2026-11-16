@@ -65,10 +65,15 @@ def parse_aliases(names: h.Names, text: str | None) -> None:
     """
     if text is None:
         return
+    # The capture group makes re.split keep the labels, so the parts alternate
+    # between label and name, after the text before the first label:
+    # "Good, A, B, Low, C" -> ["", "Good", "A, B", "Low", "C"]
     parts = re.split(r"(?:^|, )(Good|Low), ", text)
+    # Text before the first label means the field does not start with one.
     if parts[0] != "":
         names.add("alias", text)
         return
+    # Pair each label (odd indexes) with the name that follows it (even indexes).
     for label, name in zip(parts[1::2], parts[2::2]):
         names.add("alias" if label == "Good" else "weakAlias", name)
 
