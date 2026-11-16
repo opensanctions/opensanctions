@@ -132,7 +132,10 @@ def make_sanction(
 
 
 def finalize_sanction(
-    context: Context, sanction: Entity, effective_on_listing: bool = False
+    context: Context,
+    sanction: Entity,
+    effective_on_listing: bool = False,
+    amendments_dated: bool = False,
 ) -> None:
     """Complete a sanction's dates and status once the crawler has set them.
 
@@ -147,6 +150,11 @@ def finalize_sanction(
             listed, as set by the legal instrument. Check this per list. If one of
             ``listingDate`` and ``startDate`` is missing, it is filled with the
             earliest value of the other, keeping that value's origin.
+        amendments_dated: The source dates every amendment of a designation, so
+            one without a ``modifiedAt`` was never amended. Check this per list,
+            e.g. against the archived source history. If ``modifiedAt`` is
+            missing, it is filled with the latest ``listingDate``, or the
+            latest ``startDate`` if there is no listing date.
     """
     assert sanction.schema.is_a("Sanction"), sanction.schema
     if effective_on_listing:
@@ -159,13 +167,16 @@ def finalize_sanction(
             earliest = min(start, key=lambda stmt: stmt.value)
             sanction.adopt_statement(earliest, prop="listingDate")
 
-    # modifiedAt is the time the authority last amended the designation, or the
-    # listing if it was never amended. It is deliberately not derived from
-    # listingDate or startDate here: such a value asserts the designation was
-    # never amended, which is false on lists that amend designations without
-    # dating the amendment (e.g. eu_fsf). Where several candidate values exist
-    # (dated by the source, observed from the source content changing), the
-    # latest one is the modification date.
+    # A modifiedAt taken from the listing asserts the designation was never
+    # amended, which is false on lists that amend without dating it (e.g. eu_fsf).
+    # Of several candidate dates (source, observed), the latest one wins.
+    if amendments_dated and not sanction.has("modifiedAt"):
+        listed = sanction.get_statements("listingDate")
+        if len(listed) == 0:
+            listed = sanction.get_statements("startDate")
+        if len(listed) > 0:
+            latest = max(listed, key=lambda stmt: stmt.value)
+            sanction.adopt_statement(latest, prop="modifiedAt")
 
     if sanction.has("endDate") and not sanction.has("status"):
         sanction.add("status", "active" if is_active(sanction) else "inactive")
