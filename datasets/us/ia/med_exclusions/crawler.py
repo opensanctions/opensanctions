@@ -26,7 +26,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         # Some individuals are listed together with the business they operate
         business_name = row.pop("legal_business_name")
         if business_name is not None:
-            business = context.make("Organization")
+            business = context.make("Company")
             business.id = context.make_id(business_name, row.get("affiliated_npi"))
             business.add("name", business_name)
             business.add("npiCode", row.get("affiliated_npi"))
