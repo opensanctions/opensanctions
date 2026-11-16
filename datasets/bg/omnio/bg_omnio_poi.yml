@@ -1,8 +1,9 @@
 title: Bulgarian Persons of Interest
 entry_point: crawler.py
 prefix: omnio
+hidden: true
 coverage:
-  frequency: daily
+  frequency: never
   start: 2022-09-06
   end: 2026-11-16
 deploy:
@@ -25,7 +26,7 @@ deprecation: |
   it with a crawler that reads the consolidated PDF published directly by Bulgaria's State
   Agency for National Security (DANS) — an official source, monitored for change, instead
   of a manually maintained copy. As a result, we are marking `bg_omnio_poi` as deprecated
-  and will eventually remove it.
+  and will remove it on 2026-11-16.
 tags:
   - list.sanction
 publisher:
