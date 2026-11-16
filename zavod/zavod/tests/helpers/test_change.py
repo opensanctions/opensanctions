@@ -1,6 +1,6 @@
 from pathlib import Path
 import tempfile
-from datetime import date, datetime
+from datetime import date, datetime, time
 import pytest
 import requests_mock
 from lxml import html
@@ -101,6 +101,7 @@ def test_record_hash_scalars():
     assert record_hash(datetime(2022, 3, 1, 12, 30)) == record_hash(
         "2022-03-01T12:30:00"
     )
+    assert record_hash(time(0, 0)) == record_hash("00:00:00")
 
 
 def test_record_hash_rejects():

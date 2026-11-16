@@ -133,7 +133,7 @@ def _normalise_record(value: Any) -> Any:
         if value.time() == time(0) and value.tzinfo is None:
             return value.date().isoformat()
         return value.isoformat()
-    if isinstance(value, date):
+    if isinstance(value, (date, time)):
         return value.isoformat()
     if isinstance(value, Mapping):
         normalised: dict[str, Any] = {}
@@ -175,8 +175,8 @@ def record_hash(record: Any) -> str:
     * Strings are trimmed but keep their case.
     * Numbers become strings, with floats rounded to two decimals (``1.0`` and
       ``1`` hash alike), and bools become ``"true"`` and ``"false"``.
-    * Dates and datetimes use ISO format; a naive datetime at midnight hashes
-      as its date.
+    * Dates, times and datetimes use ISO format; a naive datetime at midnight
+      hashes as its date.
     * ``None``, empty strings and empty containers are dropped, so a dict key
       holding one hashes like a missing key.
 
