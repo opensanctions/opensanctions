@@ -93,7 +93,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
 def crawl_data_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    url = h.xpath_string(doc, "//a[contains(text(), 'Sanctioned Provider List')]/@href")
+    url = h.xpath_string(doc, "//a[contains(text(), 'Sanctioned Provider')]/@href")
     assert url is not None, "Could not find Excel file URL"
     return url
 

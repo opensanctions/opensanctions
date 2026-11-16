@@ -34,7 +34,7 @@ publisher:
   country: "us"
 url: "https://medicaid.ms.gov/providers/provider-terminations/"
 data:
-  url: https://medicaid.ms.gov/providers/provider-terminations/
+  url: https://www.medicaid.ms.gov/resources
   format: HTML
   lang: eng
 dates:
