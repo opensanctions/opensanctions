@@ -57,6 +57,27 @@ def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
     return passports, ids
 
 
+def parse_aliases(names: h.Names, text: str | None) -> None:
+    """Split a packed "Good, <name>, Low, <name>" alias field by its UN quality labels.
+
+    Names can contain ", ", so each name runs up to the next label. Fields that
+    do not start with a label stay whole and go to review.
+    """
+    if text is None:
+        return
+    # The capture group makes re.split keep the labels, so the parts alternate
+    # between label and name, after the text before the first label:
+    # "Good, A, B, Low, C" -> ["", "Good", "A, B", "Low", "C"]
+    parts = re.split(r"(?:^|, )(Good|Low), ", text)
+    # Text before the first label means the field does not start with one.
+    if parts[0] != "":
+        names.add("alias", text)
+        return
+    # Pair each label (odd indexes) with the name that follows it (even indexes).
+    for label, name in zip(parts[1::2], parts[2::2]):
+        names.add("alias" if label == "Good" else "weakAlias", name)
+
+
 def crawl_row(context: Context, data: dict[str, str]) -> None:
     full_name = data.pop("FullName", None)
     if full_name is not None:
@@ -80,7 +101,7 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
         entity.add("birthPlace", data.pop("IndividualPlaceOfBirth", None))
         dob = data.pop("IndividualDateOfBirth", None)
         h.apply_date(entity, "birthDate", dob)
-        names.add("alias", data.pop("IndividualAlias", None))
+        parse_aliases(names, data.pop("IndividualAlias", None))
         passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
         entity.add("passportNumber", passports)
         entity.add("idNumber", ids)
@@ -90,7 +111,7 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
         for address in h.multi_split(address, ADDRESS_SPLITS):
             address = address.rstrip(",")
             entity.add("address", address)
-        names.add("alias", data.pop("EntityAlias", None))
+        parse_aliases(names, data.pop("EntityAlias", None))
 
     h.apply_reviewed_names(context, entity, original=names)
     listed_on = data.pop("ListedOn", None)
