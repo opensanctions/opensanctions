@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract import zyte_api
 from zavod.extract.llm import run_typed_text_prompt, DEFAULT_MODEL
 from zavod.stateful.review import (
     JSONSourceValue,
@@ -240,7 +241,14 @@ def crawl_row(context: Context, row: dict[str, str | None], table_title: str) ->
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, absolute_links=True)
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        ".//h3[text() = 'Osoby']",
+        html_source="httpResponseBody",
+        geolocation="pl",
+        absolute_links=True,
+    )
     # "Osoby" = Persons
     table = h.xpath_element(
         doc, ".//h3[text() = 'Osoby']/following-sibling::div[1]//table"

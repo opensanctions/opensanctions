@@ -23,6 +23,7 @@ from zavod.shed.un_sc import Regime, get_legal_entities, get_persons, load_un_sc
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 
 PROGRAM_KEY = "PL-AML118"
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
@@ -95,11 +96,16 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
 def crawl(context: Context) -> None:
     url = context.dataset.url
     assert url is not None
-    doc = context.fetch_html(url, absolute_links=True)
-    xlsx_link_elements = h.xpath_elements(
-        doc,
-        ".//a[@class='file-download' and contains(text(), 'art. 118 ust. 1 pkt 2 (wersja xlsx)')]",
+    xlsx_link_xpath = ".//a[@class='file-download' and contains(text(), 'art. 118 ust. 1 pkt 2 (wersja xlsx)')]"
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        xlsx_link_xpath,
+        html_source="httpResponseBody",
+        geolocation="pl",
+        absolute_links=True,
     )
+    xlsx_link_elements = h.xpath_elements(doc, xlsx_link_xpath)
     if len(xlsx_link_elements) != 1:
         raise RuntimeError("Could not find XLSX link element")
 
@@ -114,7 +120,13 @@ def crawl(context: Context) -> None:
             "Page hash has changed. Verify that the lists referenced on the page are the 118 ust. 1 pkt 2, the UNSC Taliban list (resolution 1988 (2011)), and UNSC Al Qaida list (resolution 2253 (2015)). If any lists have been added or removed, update the crawler, otherwise just update the hash"
         )
 
-    path = context.fetch_resource("source.xlsx", xlsx_url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context,
+        "source.xlsx",
+        xlsx_url,
+        expected_media_type=XLSX,
+        geolocation="pl",
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path)
