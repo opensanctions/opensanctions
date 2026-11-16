@@ -129,7 +129,7 @@ Choose the `list.*` tag by what being listed means for the subject:
 - `list.pep` - politically exposed persons.
 - `list.pep.bulk` - added alongside `list.pep` for PEP datasets that should be left out of broad PEP cross-referencing, such as asset declaration registries and lists of sub-national officeholders.
 
-Then add a `risk.*` tag that names the risk behind the listing, where one fits. A `list.watch` dataset should usually have one.
+Then add a `risk.*` tag that names the risk behind the listing, where one fits.
 
 - `risk.terror` - terrorism or terrorist financing.
 - `risk.misconduct` - breaches of conduct rules found by a regulator, court, or public body, such as fraud, market abuse, or unfitness to act.
