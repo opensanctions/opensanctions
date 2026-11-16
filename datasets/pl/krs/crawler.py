@@ -432,7 +432,7 @@ def make_address(context: Context, seat: Data) -> str | None:
         street=clean(address.pop("ulica", None)),
         house_number=house,
         postal_code=address.pop("kodPocztowy", None),
-        city=address.pop("miejscowosc"),
+        city=address.pop("miejscowosc", None),
         country=country,
         country_code="pl" if country == "POLSKA" else None,
     )
