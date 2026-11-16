@@ -1,9 +1,6 @@
-import re
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
-from zavod.util import Element
 
 
 def crawl_page(
@@ -11,8 +8,7 @@ def crawl_page(
     link: str,
     unblock_validator: str,
     program_key: str,
-    required: bool = True,
-) -> Element:
+) -> None:
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
     # Inject newlines after each <p> so multi-value cells (one value per
     # paragraph) can be split on "\n" below.
@@ -20,11 +16,7 @@ def crawl_page(
         p.tail = p.tail + "\n" if p.tail else "\n"
     tables = h.xpath_elements(doc, './/div[@class="content-block"]//table')
     if len(tables) == 0:
-        if required:
-            raise ValueError(f"No table found in {link}")
-        else:
-            return doc
-
+        raise ValueError(f"No table found in {link}")
     assert len(tables) == 1, f"Expected exactly one table in {link}"
     # Headers are in <td>, not <th>. squash=False preserves the \n separators
     # injected above for splitting multi-value cells.
@@ -80,30 +72,40 @@ def crawl_page(
             context.emit(rel)
 
         context.audit_data(data)
-    return doc
 
 
-def crawl_unsc_1373_list(context: Context, doc: Element) -> None:
-    # The UNSCR 1373 list is published as an ordered list of "NAME, YYYY-MM-DD" items
-    for item in h.xpath_elements(doc, './/div[@class="content-block"]//ol/li'):
-        text = h.element_text(item)
-        match = re.fullmatch(r"(?P<name>[^,]+), (?P<dob>\d{4}-\d{2}-\d{2})", text)
-        if match is None:
-            # Skip rather than crash, so one odd item doesn't hold back the rest.
-            context.log.warning("Unexpected UNSCR 1373 list item", text=text)
+def crawl_unsc_1373_list(context: Context) -> None:
+    doc = fetch_html(
+        context,
+        "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
+        ".//*[contains(text(), 'JT ST rezoliucijoje 1373 (2001)')]",
+        cache_days=3,
+    )
+    table = h.xpath_element(doc, './/div[@class="content-block"]//table')
+    for row in h.parse_html_table(table, header_tag="td"):
+        data = {k: h.element_text(v) for k, v in row.items()}
+        # The source pads the table with a blank row.
+        if all(value == "" for value in data.values()):
             continue
-        name = match.group("name")
-        dob = match.group("dob")
+        first_name = data.pop("vardas")
+        last_name = data.pop("pavarde")
+        dob = data.pop("gimimo_data")
 
         person = context.make("Person")
-        person.id = context.make_id(name, dob)
-        person.add("name", name)
+        person.id = context.make_id(first_name, last_name, dob)
+        h.apply_name(person, first_name=first_name, last_name=last_name)
         h.apply_date(person, "birthDate", dob)
         person.add("topics", "sanction")
 
         sanction = h.make_sanction(context, person, program_key="LT-UNSC1373")
+        h.apply_date(sanction, "listingDate", data.pop("data"))
+        sanction.add("authorityId", data.pop("isakymo_nr"))
         context.emit(person)
         context.emit(sanction)
+        context.audit_data(data)
+
+    main = h.xpath_element(doc, ".//main")
+    h.assert_dom_hash(main, "c5a94ec84ce2a2a00bb94e23271a787835a4388c")
 
 
 def crawl(context: Context) -> None:
@@ -128,13 +130,4 @@ def crawl(context: Context) -> None:
     # List of natural or legal persons, groups and entities included in the list of natural or legal persons,
     # groups and entities associated with terrorist acts, whose funds and other financial assets must be frozen,
     # established on the basis of UNSCR 1373 (2001) (as amended)
-    unsc_1373_doc = crawl_page(
-        context,
-        "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
-        ".//*[contains(text(), 'JT ST rezoliucijoje 1373 (2001)')]",
-        program_key="LT-UNSC1373",
-        required=False,
-    )
-    crawl_unsc_1373_list(context, unsc_1373_doc)
-    unsc_1373_main = h.xpath_element(unsc_1373_doc, ".//main")
-    h.assert_dom_hash(unsc_1373_main, "04d5637f5bf378136eb86d8fbad109c0f8be3251")
+    crawl_unsc_1373_list(context)
