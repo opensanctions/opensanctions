@@ -60,18 +60,25 @@ def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
 def parse_aliases(names: h.Names, text: str | None) -> None:
     """Split a packed alias field by the UN alias quality labels.
 
-    The source packs aliases as "Good, <name>, Low, <name>". Only fields made
-    up entirely of such pairs are split here. Names that contain a comma make
-    the pairing ambiguous, so those fields stay whole and go to review.
+    The source packs aliases as "Good, <name>, Low, <name>". Names can contain
+    ", " themselves, so every segment up to the next label belongs to the name.
+    Fields that do not start with a label stay whole and go to review.
     """
     if text is None:
         return
-    if re.fullmatch(r"(?:Good|Low), [^,]+(?:, (?:Good|Low), [^,]+)*", text) is None:
+    segments = text.split(", ")
+    if segments[0] not in ("Good", "Low"):
         names.add("alias", text)
         return
-    segments = text.split(", ")
-    for label, name in zip(segments[::2], segments[1::2]):
-        names.add("alias" if label == "Good" else "weakAlias", name)
+    labelled_names: list[tuple[str, list[str]]] = []
+    for segment in segments:
+        if segment in ("Good", "Low"):
+            prop = "alias" if segment == "Good" else "weakAlias"
+            labelled_names.append((prop, []))
+        else:
+            labelled_names[-1][1].append(segment)
+    for prop, name_segments in labelled_names:
+        names.add(prop, ", ".join(name_segments))
 
 
 def crawl_row(context: Context, data: dict[str, str]) -> None:
