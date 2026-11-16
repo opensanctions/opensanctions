@@ -1,3 +1,6 @@
+from hashlib import sha1
+from pathlib import Path
+
 from rigour.mime.types import XLSX
 from python_calamine import CalamineWorkbook
 
@@ -56,10 +59,24 @@ def crawl(context: Context) -> None:
         unblock_validator=excel_xpath,
         absolute_links=True,
     )
-    excel_url = h.xpath_string(landing_page, excel_xpath)
-    _, _, _, path = zyte_api.fetch_resource(
-        context, "source.xlsx", excel_url, expected_media_type=XLSX, geolocation="US"
-    )
+    # The page can link to several copies of the list (WordPress re-uploads get a
+    # "-1" suffix). Accept them only if they are byte-identical.
+    excel_urls = sorted(set(h.xpath_strings(landing_page, excel_xpath)))
+    assert len(excel_urls) > 0, "No sanction list XLSX link found"
+    paths: list[Path] = []
+    for idx, excel_url in enumerate(excel_urls):
+        _, _, _, path = zyte_api.fetch_resource(
+            context,
+            f"source_{idx}.xlsx",
+            excel_url,
+            expected_media_type=XLSX,
+            geolocation="US",
+        )
+        paths.append(path)
+    checksums = {sha1(p.read_bytes()).hexdigest() for p in paths}
+    if len(checksums) != 1:
+        raise ValueError(f"Sanction list XLSX links differ in content: {excel_urls}")
+    path = paths[0]
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     wb = CalamineWorkbook.from_path(path)
     assert len(wb.sheet_names) == 1, wb.sheet_names
