@@ -13,6 +13,9 @@ description: |
   facing temporary bans from offering auditing services to Central Bank-regulated institutions.
   These restrictions, often a result of penalties in administrative proceedings,
   aim to ensure the reliability and integrity of those in key auditing roles.
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: Banco Central do Brasil
   name_en: Central Bank of Brazil

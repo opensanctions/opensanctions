@@ -40,6 +40,7 @@ publisher:
 tags:
   - list.debarment
   - sector.devbank
+  - risk.misconduct
 url: https://www.worldbank.org/en/projects-operations/procurement/debarred-firms
 data:
   url: "https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM"

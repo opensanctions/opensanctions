@@ -22,7 +22,8 @@ description: |
 url: https://ori.hhs.gov/phs-administrative-action-bulletin-board
 tags:
   - list.debarment
-  - juris.us
+  - sector.health
+  - risk.misconduct
 publisher:
   name: Office of Research Integrity
   acronym: ORI

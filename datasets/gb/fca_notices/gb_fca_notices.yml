@@ -28,9 +28,10 @@ publisher:
   country: gb
   official: true
 tags:
-  - list.regulatory
   - publisher.west
   - sector.financial
+  - list.watch
+  - risk.unlicensed
 data:
   url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
   format: HTML

@@ -15,6 +15,9 @@ description: |
   > its final rulings on serious violations of supervisory law, including
   > personal details of those involved, once a ruling has become legally
   > binding and it provides for this.
+tags:
+  - list.enforcement
+  - risk.misconduct
 publisher:
   name: Swiss Financial Market Supervisory Authority
   acronym: FINMA

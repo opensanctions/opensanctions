@@ -13,6 +13,9 @@ description: |
   Philippines Anti-Money Laundering Council (AMLC) pursuant to Republic Act No. 10168 (Terrorism
   Financing Prevention and Suppression Act of 2012) and related legislation. These sanctions are
   issued through AMLC resolutions implementing [Anti-Terrorism Council (ATC) designations](https://dfa.gov.ph/search?searchword=Anti-Terrorism%20Council&searchphrase=all).
+tags:
+  - list.sanction
+  - risk.terror
 publisher:
   name: Republic of the Philippines Anti-Money Laundering Council
   acronym: AMLC

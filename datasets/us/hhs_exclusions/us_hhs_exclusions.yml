@@ -28,6 +28,10 @@ description: |
   For more information about exclusion reason references, refer to the
   [OIG's Exclusions FAQ page](https://oig.hhs.gov/faqs/exclusions-faq).
 
+tags:
+  - list.debarment
+  - sector.health
+  - risk.misconduct
 publisher:
   name: Department of Health and Human Services Office of Inspector General
   acronym: OIG

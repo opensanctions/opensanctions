@@ -21,7 +21,9 @@ description: |
 
   [Provider Termination page](https://medicaid.ms.gov/providers/provider-terminations/)
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Mississippi Division of Medicaid
   description: >

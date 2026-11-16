@@ -26,6 +26,9 @@ description: |
   > or has been licensed or regulated by BNM. As with any financial investment,
   > consumers are advised to exercise due care when investing in any entity or
   > financial scheme.
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Bank Negara Malaysia
   name_en: Central Bank of Malaysia

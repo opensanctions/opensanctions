@@ -39,6 +39,9 @@ description: |
     or schedule fund, as may be required under the
     securities laws or guidelines issued by the Commission,
     for a period not exceeding twelve months or permanently.
+tags:
+  - list.enforcement
+  - risk.misconduct
 publisher:
   name: Suruhanjaya Sekuriti Malaysia
   name_en: Securities Commission Malaysia

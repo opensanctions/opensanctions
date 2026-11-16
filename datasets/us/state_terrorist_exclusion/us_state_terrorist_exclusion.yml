@@ -33,6 +33,7 @@ publisher:
   country: "us"
 tags:
   - list.sanction
+  - risk.terror
 url: "https://www.state.gov/terrorist-exclusion-list/"
 data:
   url: https://www.state.gov/terrorist-exclusion-list/

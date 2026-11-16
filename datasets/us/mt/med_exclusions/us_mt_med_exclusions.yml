@@ -12,7 +12,9 @@ description: |
   of providers who needs to be terminated or excluded from the Medicaid
   program under 42 CFR 1002.210.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Montana Department of Public Health & Human Services
   description: >

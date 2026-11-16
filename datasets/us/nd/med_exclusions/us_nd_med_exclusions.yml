@@ -12,7 +12,9 @@ description: |
   has been terminated. Providers listed are not allowed to receive reimbursement for Medicaid services
   in any capacity.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: North Dakota Health and Human Services
   acronym: NDHHS

@@ -20,6 +20,9 @@ description: |
   > exclusion record completely to understand how it impacts the excluded party. The
   > links include the three-digit Julian date for easier identification of the most
   > recent file.
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: General Services Administration
   acronym: GSA
@@ -118,7 +121,7 @@ lookups:
           - usgsa-fcb326ccafe214f20e157f39cfb51cd2bace6df3
           - usgsa-fe04b0a94f78e214fe59b5e804fc4b26c364253a
           - usgsa-ffe2c566b67f9fdd20812a9cff9f5e8435b4272e
-          - usgsa-14095aa080157ed8debcf2a0b20e377deb101c88 # 'All American Lending, Inc.'
+          - usgsa-14095aa080157ed8debcf2a0b20e377deb101c88  # 'All American Lending, Inc.'
           - us-fed-excl-an-international-llc-11432-jamaica
           - us-fed-excl-bridgeway-chiropractic-94116-san-francisco
           - us-fed-excl-forest-lake-home-care-inc-55025-forest-lake
@@ -170,7 +173,7 @@ lookups:
           - usgsa-b76ad267e29b918dfb67a99063626b75d639dba1
         value: Organization
       - match:
-          - usgsa-56526dd420c908797dfd72e4b69add5424ca4731 # 'Baikal' (the vessel, not the company alias)
+          - usgsa-56526dd420c908797dfd72e4b69add5424ca4731  # 'Baikal' (the vessel, not the company alias)
         value: Vessel
   type.address:
     lowercase: true
@@ -239,7 +242,7 @@ lookups:
         value: WA
       - match: WV
         value: WV
-      - match: AB # Possibly Alberta, but doesn't hurt to just keep.
+      - match: AB  # Possibly Alberta, but doesn't hurt to just keep.
         value: AB
   type.identifier:
     lowercase: true
@@ -325,7 +328,7 @@ lookups:
           - "S.A.P.I. DE C.V."
           - "S.R.O."
           # "Individual","","","YUKI","","****", (invalid lastName)
-          - H # H and H Metalform GmbH
+          - H  # H and H Metalform GmbH
         value: null
   type.date:
     options:

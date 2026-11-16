@@ -28,6 +28,7 @@ data:
   format: JSON
 tags:
   - list.sanction
+  - risk.terror
 
 assertions:
   min:

@@ -29,6 +29,7 @@ deprecation: |
   and will remove it on 2026-11-16.
 tags:
   - list.sanction
+  - risk.terror
 publisher:
   name: OMNIO Compliance
   description: |

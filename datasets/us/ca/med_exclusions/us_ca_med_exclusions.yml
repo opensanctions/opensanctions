@@ -46,7 +46,9 @@ description: |
   > or entities from the federal Medicare and Medicaid programs, to identify suspended, excluded
   > or otherwise ineligible providers.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Department of Health Care Services
   description: >

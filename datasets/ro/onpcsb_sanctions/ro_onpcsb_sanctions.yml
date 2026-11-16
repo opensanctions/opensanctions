@@ -44,6 +44,7 @@ data:
   format: csv
 tags:
   - list.sanction
+  - risk.terror
 
 dates:
   formats: ["%m/%d/%Y", "%Y"]

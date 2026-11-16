@@ -13,6 +13,9 @@ description: |
   It enumerates individuals who, due to penalties incurred in administrative sanction proceedings,
   are temporarily prohibited from occupying key positions such as administrators
   or board members in financial or consortium administration entities.
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: Banco Central do Brasil
   name_en: Central Bank of Brazil

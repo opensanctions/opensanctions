@@ -37,6 +37,7 @@ publisher:
 tags:
   - list.debarment
   - sector.devbank
+  - risk.misconduct
 url: https://www.adb.org/who-we-are/integrity/sanctions
 data:
   url: https://apim.adb.org/sanctions/lists/v1/published-list

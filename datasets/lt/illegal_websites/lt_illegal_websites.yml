@@ -12,6 +12,9 @@ description: |
   It publishes the company name, brand and domain of the illegal websites.
 
   This copy of the data is only updated occasionally.
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Lietuvos bankas
   name_en: Bank of Lithuania

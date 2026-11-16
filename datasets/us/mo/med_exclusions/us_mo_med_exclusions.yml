@@ -16,7 +16,9 @@ description: |
   > the provider. In determining the appropriate sanction MMAC takes into account the following
   > aggravating and/or mitigating circumstances in accordance with 13 CSR 70-3.030.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Missouri Medicaid Audit & Compliance
   description: |
