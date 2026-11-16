@@ -48,10 +48,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 30
+      LegalEntity: 80
   max:
     schema_entities:
-      LegalEntity: 100
+      LegalEntity: 200
 
 lookups:
   # The names in the source data often include parenthetical information that should be split into separate fields.
