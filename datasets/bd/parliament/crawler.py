@@ -1,7 +1,9 @@
 import json
+import unicodedata
 from typing import Any
 
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.review import assert_all_accepted
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -92,10 +94,27 @@ def crawl_member(
     person = context.make("Person")
     # Source member ids are per parliament, so they don't link terms.
     person.id = context.make_id(name, dob)
-    person.add(
-        "name", h.strip_name_titles(context, name), lang="eng", original_value=name
+    # Names can carry a nickname in brackets, e.g. "Mofazzal Hossain Chowdhury (Maya)",
+    # or comma-separated initials, e.g. "A, Z, M, Rezwanul Haque".
+    h.apply_reviewed_name_string(
+        context,
+        person,
+        string=h.strip_name_titles(context, name),
+        lang="eng",
+        llm_cleaning=True,
     )
-    person.add("name", member.pop("nameBng"), lang="ben")
+    # Some Bengali names use decomposed vowel signs, which the title prefixes only
+    # match once composed.
+    name_bn = member.pop("nameBng")
+    if name_bn is not None:
+        name_bn = unicodedata.normalize("NFC", name_bn)
+    h.apply_reviewed_name_string(
+        context,
+        person,
+        string=h.strip_name_titles(context, name_bn),
+        lang="ben",
+        llm_cleaning=True,
+    )
     person.add("fatherName", member.pop("fatherNameEng"), lang="eng")
     person.add("fatherName", member.pop("fatherNameBng"), lang="ben")
     person.add("motherName", member.pop("motherNameEng"), lang="eng")
@@ -197,3 +216,5 @@ def crawl(context: Context) -> None:
             )
         for member in response["data"]:
             crawl_member(context, position, categorisation, parliament, member)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

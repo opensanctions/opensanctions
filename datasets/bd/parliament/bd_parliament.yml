@@ -41,6 +41,14 @@ tags:
 # term. The source omits members of older parliaments: the 10th lists only 220.
 
 names:
+  schema_rules:
+    Person:
+      # Initials separated by commas, e.g. "A, Z, M, Rezwanul Haque".
+      reject_chars: ","
+      # "মো:" abbreviates Mohammad, like "Md.".
+      allow_chars: ":"
+      # Single names are common, e.g. "SUBIKUNNAHAR".
+      require_space: false
   prefixes_strip:
     - Dr.
     - "Dr "
@@ -58,14 +66,32 @@ names:
     - Major
     - Major General
     - Brig. General
+    # The same titles in Bengali.
+    - "ড." # Dr.
+    - "ড," # Dr.
+    - "ডা:" # Dr.
+    - "ডাঃ" # Dr.
+    - আলহাজ্ব # Alhaj
+    - হাজী # Haji
+    - এডভোকেট # Advocate
+    - ব্যারিস্টার # Barrister
+    - অধ্যাপক # Professor
+    - "ক্যাপ্টেন (অব:)" # Capt. (Retd)
+    - ক্যাপ্টেন # Capt.
+    - মেজর জেনারেল # Major General
+    - "মে. জে." # Maj. Gen.
   suffixes_strip:
     - (Retd)
     - Retd.
     - Ad. # Advocate
+    - "(অবঃ)" # (Retd)
     # Gallantry awards of the 1971 Liberation War
     - Bir Uttam
     - Bir Bikram
     - Bir Protik
+    - ", বীর উত্তম"
+    - ", বীর বিক্রম"
+    - ", বীর প্রতীক"
 
 lookups:
   type.date:
