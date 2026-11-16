@@ -1,9 +1,14 @@
+import re
+from datetime import datetime
+from urllib.parse import quote
+
 from normality import collapse_spaces, slugify
 import pdfplumber
 from rigour.mime.types import PDF
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 HEADERS = [
     "last_name",
@@ -70,25 +75,58 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     context.audit_data(row)
 
 
-def crawl_pdf_url(context: Context) -> str:
+def grid_rows(doc: Element) -> list[Element]:
+    # The RadGrid alternates row classes, so both make up the listing.
+    return h.xpath_elements(doc, "//tr[@class='rgRow' or @class='rgAltRow']")
+
+
+def crawl_pdf_url(context: Context) -> tuple[str, str]:
+    """Return the URL of the latest monthly list and of the folder page listing it."""
     doc = context.fetch_html(context.data_url)
-    # Construct the URL from bits in the table because they'd rather do that than just construct a working URL.
-    rows = h.xpath_elements(doc, "//tr[@class='rgRow']")  # RadGrid row
-    assert len(rows) == 1, len(rows)
-    row = rows[0]
-    link_element = h.xpath_element(
-        row, ".//a[contains(@href, 'javascript:__doPostBack')]"
-    )
-    doc_name = h.element_text(link_element).strip().replace(" ", "%20")
-    parent_folder = h.element_text(
-        h.xpath_element(row, ".//td[@style='display:none;']")
-    ).strip()
-    return f"https://www.wvmmis.com/SharepointDownload?parent={parent_folder}&docname={doc_name}"
+    folders: dict[int, str] = {}
+    for row in grid_rows(doc):
+        cells = [h.element_text(cell) for cell in h.xpath_elements(row, "./td")]
+        year_text, folder_name = cells[1], cells[3]
+        assert re.fullmatch(r"\d{4}", year_text), year_text
+        assert folder_name.endswith(f"--{year_text}"), folder_name
+        folders[int(year_text)] = folder_name
+    assert len(folders) > 0, "No year folders found"
+
+    # A new year's folder can exist before its first monthly list is uploaded.
+    for year in sorted(folders, reverse=True):
+        folder_url = f"https://www.wvmmis.com/SitePages/{quote(folders[year])}"
+        folder = context.fetch_html(folder_url)
+        files: dict[int, tuple[str, str]] = {}
+        for row in grid_rows(folder):
+            cells = [h.element_text(cell) for cell in h.xpath_elements(row, "./td")]
+            doc_name, parent_folder = cells[1], cells[3]
+            match = re.fullmatch(
+                r"WV Provider Exclusions and Terminations (\w+) (\d{4})\.pdf", doc_name
+            )
+            assert match is not None, doc_name
+            assert int(match.group(2)) == year, doc_name
+            month = datetime.strptime(match.group(1), "%B").month
+            assert month not in files, doc_name
+            files[month] = (doc_name, parent_folder)
+        if len(files) == 0:
+            context.log.info("Year folder is empty", year=year)
+            continue
+        # Each monthly file is a full snapshot of the list.
+        doc_name, parent_folder = files[max(files)]
+        context.log.info("Using monthly list", doc_name=doc_name)
+        pdf_url = (
+            "https://www.wvmmis.com/SharepointDownload?"
+            f"parent={parent_folder}&docname={quote(doc_name)}"
+        )
+        return pdf_url, folder_url
+    raise ValueError("No monthly list found in any year folder")
 
 
 def crawl(context: Context) -> None:
+    pdf_url, folder_url = crawl_pdf_url(context)
+    # The server answers with an empty body when the Referer is the top-level page.
     path = context.fetch_resource(
-        "source.pdf", crawl_pdf_url(context), headers={"Referer": context.data_url}
+        "source.pdf", pdf_url, headers={"Referer": folder_url}
     )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
