@@ -158,7 +158,7 @@ def crawl(context: Context) -> None:
     assert url is not None
     doc = fetch_html(context, url, menu_xpath)
     menu = h.xpath_element(doc, menu_xpath)
-    h.assert_dom_hash(menu, "c9c65e75da96617f8901f10e731c9aae367fc7a8")
+    h.assert_dom_hash(menu, "5f2460977091966582603166fe19d42514ec800f")
 
     crawl_type(
         context, query_type="topten", query_id="0f737222c5054a81a120bce207b0446a"
