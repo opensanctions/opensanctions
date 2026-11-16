@@ -204,6 +204,10 @@ lookups:
         values:
           - Colombia
           - Spain
+      - match: Democratic Republic of the Congo, Rwanda
+        values:
+          - CD
+          - RW
   type.identifier:
     options:
       - match: Central African Republic armed forces (FACA) Military identification number 911-10-77
