@@ -331,6 +331,9 @@ lookups:
           - "n/d"
           - "qom, iran"
         value: null
+      # The acquisition date is not a registration date.
+      - match: "first founded in 1916, acquired by renova group on 26.7.2012"
+        value: 1916
       - match: "1922 as bank and 2007 as development institute"
         values:
           - 1922
@@ -1223,6 +1226,8 @@ lookups:
         values:
           - 2013-03-27
           - 2023-03-27
+      - match: "9.2022"
+        value: 2022-09
       - match: "18.8.2023, previously registered as southfront.org since 30.4.2015"
         values:
           - 2015-04-30
@@ -2139,6 +2144,14 @@ lookups:
         value: "emo.xz@chemplant.ru"
       - match: "general@angstrem.r"
         value: "general@angstrem.ru"
+      # Council Implementing Regulation (EU) 2026/2574 prints the website of
+      # entry 1939 under its "Email" label.
+      - match: "https://www.ul-mc.ru"
+        value: null
+      - match: "info@slaviabank.ru, mail@slaviabank.ru"
+        values:
+          - "info@slaviabank.ru"
+          - "mail@slaviabank.ru"
       - match: "info@ao-pribor.ru, ppribor@mail.ru, pprubor@mail.ru, pribor005uprav@yandex.ru, priborotiz@mail.ru, zakupki.pribor@mail.ru"
         values:
           - "info@ao-pribor.ru"
@@ -2207,6 +2220,10 @@ lookups:
         values:
           - "info@sctbankers.com"
           - "zanjani@sctbankers.com"
+      - match: "katisha@kalmtn.ru, ktn-buh@rambler.ru"
+        values:
+          - "katisha@kalmtn.ru"
+          - "ktn-buh@rambler.ru"
       - match: "kama@portal.ru, ppz@perm.ru"
         values:
           - "kama@portal.ru"
