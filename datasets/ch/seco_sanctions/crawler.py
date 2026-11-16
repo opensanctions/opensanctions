@@ -39,6 +39,7 @@ UNSC_ID = re.compile(r"^[A-Z]{2}[ie]\.\d{3}$")
 SKIP_OLD = {"41406"}
 # SECO doesn't date modifications older than the go-live of its sanctions list
 # application, so pre-launch listings carry no dates at all.
+# Every later amendment is dated, so finalize_sanction(amendments_dated=True) holds.
 SECO_LAUNCH_DATE = "2012-11-27"
 NAME_QUALITY_WEAK: dict[MayStr, bool] = {"good": False, "low": True}
 NAME_TYPE: dict[MayStr, str] = {
@@ -590,8 +591,6 @@ def parse_entry(
     dates_ = [d for d in dates if d is not None]
     if len(dates_):
         sanction.add("modifiedAt", max(dates_))
-    if not sanction.has("modifiedAt"):
-        sanction.add("modifiedAt", sanction.get("listingDate"), origin=ORIGIN_INFERRED)
 
     if last_modification_type == "de-listed":
         return
@@ -644,6 +643,7 @@ def parse_entry(
         parse_identity(context, entity, identity, places)
 
     context.emit(entity)
+    h.finalize_sanction(context, sanction, amendments_dated=True)
     context.emit(sanction)
 
 
