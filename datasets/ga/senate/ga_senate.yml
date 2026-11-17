@@ -1,0 +1,181 @@
+title: Gabon Members of the Senate
+entry_point: crawler.py
+prefix: ga-sen
+coverage:
+  frequency: monthly
+  start: 2026-11-17
+load_statements: true
+summary: >-
+  Members of the upper house of Gabon's bicameral parliament
+description: |
+  Current and recent members of the Senate of Gabon (Sénat), the upper house of the
+  country's bicameral parliament. Its senators are elected by municipal and
+  departmental councillors for a five-year term and, together with the National
+  Assembly, hold the country's legislative power, including passing laws, approving
+  the budget, and overseeing the government.
+
+  Members of the appointed Transition Senate, which sat from 2023 to 2025 after the
+  military takeover, are included as former senators. Substitutes are not included
+  unless they sit in the Senate.
+url: https://senat.ga/
+publisher:
+  name: Sénat du Gabon
+  name_en: Senate of Gabon
+  description: >
+    The Senate is the upper house of the Parliament of Gabon.
+  url: https://senat.ga/
+  country: ga
+  official: true
+data:
+  url: https://senat.ga/wp-json/wp/v2/
+  format: JSON
+  lang: fra
+
+http:
+  # The server answers 403 to the default python-requests user agent.
+  user_agent: zavod (opensanctions.org)
+
+tags:
+  - list.pep
+
+names:
+  schema_rules:
+    Person:
+      # Married and maiden names are given inline, e.g. "NANA Raïssa Epse GHOGHO" or
+      # "NYAMA-EKOUME Huguette Yvonne épse AWORI ONANGA". Matching ignores case.
+      # "ASSAYI Veuve MAVIOGA Anna Claudine" gives a widow's name.
+      reject_strings:
+        [" ép. ", " née ", " ep. ", " ep ", " nee ", " épouse ", " épse ", " epse ", " veuve "]
+
+assertions:
+  min:
+    # The Transition senators' ended occupancies age out around Dec 2030, when Persons
+    # drop to about 70: revise these minimums then.
+    schema_entities:
+      Person: 110
+      Position: 2
+    country_entities:
+      ga: 110
+    property_fill_rate:
+      Person:
+        birthDate: 0.85
+  max:
+    # Two rosters of at most 70 seats each.
+    schema_entities:
+      Person: 150
+      Position: 2
+
+lookups:
+  # Dates of each populated term, keyed on the legislature slug. The source doesn't
+  # date its terms; an unknown populated term crashes the crawl so a maintainer adds
+  # it here and ends the previous one.
+  term:
+    required: true
+    options:
+      - match: senat-de-la-transition
+        # Appointed after the August 2023 takeover; the full chamber was named on
+        # 6 Oct 2023. It ended when the elected Senate's mandate began (below).
+        period_start: "2023-10"
+        period_end: "2025-12-17"
+        # Appointed, so no eligibility rule applies, and the département some posts
+        # give is not a constituency.
+        country_prop: country
+        has_constituency: false
+      - match: sixieme-legislature
+        # 2024 Constitution: the mandate begins on the day the chamber elects its
+        # Bureau, which was 17 Dec 2025.
+        period_start: "2025-12-17"
+        # Senators must be Gabonese by origin: Organic Law 001/2025 on the Electoral
+        # Code, Art. 222. https://journal-officiel.ga/21554-001-2025-
+        country_prop: citizenship
+        has_constituency: true
+  # Posts whose legislature tag is missing or wrong, keyed on the post slug; the value
+  # is the term slug the post's content belongs to, or null to skip it.
+  # Known source issues, emitted as published:
+  # - Duplicate posts left to dedupe: 566/567 Missambo, 553/602 Ona Essangui, 556/557
+  #   Matsanga Mayila (birth years 1972 vs 1974).
+  # - Missing: Pascal Ogowe Siffon (elected for Akanda, Nov 2025; post 524 IMOUNGA
+  #   OREZANS may be his replacement); the Transition roster has 62, against the
+  #   70 named in the Oct 2023 decree.
+  post_term:
+    options:
+      # Her 6th-legislature record; "missambo-paulette" is her Transition one.
+      - match: missambo-paulette-2
+        value: sixieme-legislature
+      # Tagged as Transition, but lists his 6th-legislature constituency and group.
+      - match: nzengue-mayila-philippe
+        value: sixieme-legislature
+      # Untagged; a rapporteur of the Transition Senate's health committee, sitting
+      # for civil society.
+      - match: okome-beka-veronique-solange
+        value: senat-de-la-transition
+      # Untagged; his record (PDG, Libreville 4th arrondissement) is from a pre-2023
+      # Senate. Skipped because the source doesn't date that term.
+      - match: damas-ozimo-claude-aristide
+        value: null
+  # Roles from each post's heading and from the Bureau page. Only the presidency is a
+  # position of its own; other Bureau and committee roles don't get one.
+  position:
+    required: true
+    normalize: true
+    lowercase: true
+    options:
+      - match: [Président du Sénat, Présidente du Sénat]
+        name: President of the Senate of Gabon
+      - match: [Président du Sénat de la Transition, Présidente du Sénat de la Transition]
+        name: President of the Senate of Gabon
+        # The Transition Bureau was appointed on 11 Sep 2023, before the full chamber.
+        period_start: "2023-09"
+      # Matched after lowercasing and stripping accents and punctuation.
+      - contains:
+          - vice president
+          - vive president
+          - secretaire
+          - questeur
+          - rapporteur
+          - commission
+          - groupe
+        value: null
+      - match: [Sénateur de la Transition, Sénatrice de la Transition]
+        value: null
+  # Serves both Person:political and Occupancy:politicalGroup on purpose: the party and
+  # group fields share spellings. The Transition Senate's appointment colleges (Société
+  # Civile, Partis Politiques, ...) are kept as groups.
+  type.string:
+    normalize: true
+    lowercase: true
+    options:
+      - match: [Néant, Non Inscrit, Indépendant, Indépendante]
+        value: null
+      # Transition Senate categories given as a party; they are not parties.
+      - match: [Société Civil, Personnalité Civil, Religieux]
+        value: null
+      # Canonical forms are listed too, so their case variants are folded into them.
+      - match:
+          - Union Démocratique des Bâtisseurs (UDB)
+          - Union Démocratique des Bâtisseurs
+          - Union des Bâtisseurs
+        value: Union Démocratique des Bâtisseurs (UDB)
+      - match:
+          - PDG
+          - Parti Démocratique Gabonais (PDG)
+          - Parti Démocratique Gabonais
+          - Partie Démocratique Gabonais (PDG)
+          - Groupe Parlementaire du Parti Démocratique Gabonais
+        value: Parti Démocratique Gabonais (PDG)
+      - match: Union National
+        value: Union Nationale
+      - match: [Forces Patriotiques (FP), Forces patriotiques]
+        value: Forces Patriotiques (FP)
+      - match: [Groupe Parlementaire UN/LD, Union Nationale/Les Démocrates]
+        value: Union Nationale/Les Démocrates (UN/LD)
+      - match: LD
+        value: Les Démocrates
+      - match: RPM
+        value: Rassemblement pour la Patrie et la Modernité (RPM)
+      - match: PSD
+        value: Parti Social Démocrate (PSD)
+      - match: UPR
+        value: Union pour la République (UPR)
+      - match: Syndicat
+        value: Syndicats
