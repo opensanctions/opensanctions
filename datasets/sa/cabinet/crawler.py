@@ -11,13 +11,6 @@ from zavod import helpers as h
 from zavod.extract import zyte_api
 
 MINISTRIES = 17489  # The "Ministries" agency type.
-# Agencies filed under Ministries that no minister heads.
-NOT_MINISTRIES = {
-    17342,  # National Guard Health Affairs, run by a chief executive
-    17909,  # King Faisal Medical City for Southern Regions
-    18116,  # Special Forces for Environmental Security, under a commander
-    18275,  # Prince Saud Al Faisal Institute for Diplomatic Studies
-}
 IGNORE = [
     # Drupal node bookkeeping.
     "uuid",
@@ -119,7 +112,7 @@ def crawl_agency(context: Context, url: str) -> None:
     title = squash_spaces(pop_value(record, "title"))
     raw_name = pop_value(record, "field_na_officer_name")
     context.audit_data(record, ignore=IGNORE)
-    if nid in NOT_MINISTRIES:
+    if context.lookup_value("not_ministry", str(nid)) is not None:
         return
     match = re.match(r"^Ministry of (?P<portfolio>.+)$", title, re.IGNORECASE)
     if match is None:

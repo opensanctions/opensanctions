@@ -45,6 +45,19 @@ names:
     - Mr.
     - Prince
 
+lookups:
+  # Agencies filed under Ministries that no minister heads, by agency ID; skipped.
+  not_ministry:
+    options:
+      - match: "17342" # National Guard Health Affairs, run by a chief executive
+        value: skip
+      - match: "17909" # King Faisal Medical City for Southern Regions
+        value: skip
+      - match: "18116" # Special Forces for Environmental Security, under a commander
+        value: skip
+      - match: "18275" # Prince Saud Al Faisal Institute for Diplomatic Studies
+        value: skip
+
 assertions:
   min:
     schema_entities:
