@@ -202,7 +202,17 @@ def manifest_statements_view(
         selects.append(select)
     if len(selects) == 0:
         selects.append(_empty_statements_sql())
-    union = " UNION ALL ".join(f"SELECT * FROM ({select})" for select in selects)
+    # TODO: remove once the line break change is announced, see
+    # https://github.com/opensanctions/opensanctions/issues/6261
+    # The artifacts keep the \r\n crawlers emitted; serve \n, as statements
+    # read from packs in text mode have had.
+    newlines = (
+        "regexp_replace(value, '\\r\\n?', chr(10), 'g') AS value, "
+        "regexp_replace(original_value, '\\r\\n?', chr(10), 'g') AS original_value"
+    )
+    union = " UNION ALL ".join(
+        f"SELECT * REPLACE ({newlines}) FROM ({select})" for select in selects
+    )
     conn.execute(f"CREATE OR REPLACE VIEW {relation} AS {union}")
     duck.validate_statement_relation(conn, relation)
     return relation

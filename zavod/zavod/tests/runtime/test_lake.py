@@ -26,7 +26,7 @@ from zavod.runtime.lake import (
     dump_statements_pack,
     manifest_statements_view,
 )
-from zavod.tests.util import get_manifest, make_context, run_dataset
+from zavod.tests.util import finish_statements, get_manifest, make_context, run_dataset
 
 SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -297,3 +297,46 @@ def test_manifest_statements_view(testdataset1: Dataset):
     with duck.connect() as conn:
         with pytest.raises(FileNotFoundError):
             manifest_statements_view(conn, manifest, relation="test_lake")
+
+
+def test_manifest_statements_view_line_breaks(testdataset1: Dataset):
+    # TODO: remove with the normalisation, see
+    # https://github.com/opensanctions/opensanctions/issues/6261
+    version = settings.RUN_VERSION
+    context = make_context(testdataset1, version)
+    context.begin()
+    person = context.make("Person")
+    person.id = "crlf-person"
+    person.add("name", "Jane Doe")
+    person.add("notes", "line one\r\nline two\rline three")
+    person.add("address", "1 Main St\r\nBerlin")
+    context.emit(person)
+    finish_statements(context)
+    context.close()
+
+    parquet_path = dataset_artifact_path(testdataset1.name, version, STATEMENTS_PARQUET)
+    query = (
+        "SELECT id, prop, value, original_value FROM {} "
+        "WHERE entity_id = 'crlf-person' AND prop IN ('notes', 'address')"
+    )
+    with duck.connect() as conn:
+        # The artifact keeps the line breaks as emitted.
+        stored = conn.execute(
+            query.format(f"read_parquet('{parquet_path.as_posix()}')")
+        ).fetchall()
+        relation = manifest_statements_view(
+            conn, get_manifest(testdataset1), relation="test_lake"
+        )
+        served = conn.execute(query.format(relation)).fetchall()
+
+    stored_by_prop = {prop: (id, v, ov) for id, prop, v, ov in stored}
+    served_by_prop = {prop: (id, v, ov) for id, prop, v, ov in served}
+    assert stored_by_prop["notes"][1] == "line one\r\nline two\rline three"
+    assert stored_by_prop["address"][2] == "1 Main St\r\nBerlin"
+    # The view serves \n in value and original_value, with the same ids.
+    assert served_by_prop["notes"][1] == "line one\nline two\nline three"
+    assert served_by_prop["address"][2] == "1 Main St\nBerlin"
+    assert served_by_prop["address"][1] == stored_by_prop["address"][1]
+    assert {p: s[0] for p, s in served_by_prop.items()} == {
+        p: s[0] for p, s in stored_by_prop.items()
+    }
