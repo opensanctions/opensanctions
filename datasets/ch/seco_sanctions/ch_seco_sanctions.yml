@@ -101,7 +101,7 @@ lookups:
         value: SECO-BURUNDI
       - match: "Ordinance of 18 May 2016 on measures against North Korea (SR 946.231.127.6), annexes 1 et 6"
         value: SECO-NORTHKOREA
-      - match: "Ordinance of 22 June 2005 on measures against the Democratic Republic of Congo (SR 946.231.12), annexes 1 and 2"
+      - match: "Ordinance of 22 June 2005 on measures against the Democratic Republic of the Congo (SR 946.231.12), annexes 1 and 2"
         value: SECO-DRC
       - match: "Ordinance of 28 March 2018 on measures against Venezuela (RS 946.231.178.5), Annex 1"
         value: SECO-VEN
