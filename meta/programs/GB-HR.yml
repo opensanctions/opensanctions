@@ -1,17 +1,21 @@
 id: 224
-title: UK sanctions relating to global human rights
+title: UK sanctions relating to global human rights and international humanitarian law
 key: GB-HR
 url: https://www.gov.uk/government/collections/uk-global-human-rights-sanctions
 summary: Targets individuals and entities involved in serious violations of the
   right to life, the prohibition of torture and cruel, inhuman or degrading
-  treatment, or the right to be free from slavery and forced labour, whether
-  committed by state or non-state actors anywhere in the world. Designated
-  persons are subject to an asset freeze, and designated individuals are barred
-  from entering or transiting the United Kingdom.
+  treatment, the right to be free from slavery and forced labour, or the right
+  to liberty and security of person, whether committed by state or non-state
+  actors anywhere in the world. Since October 2026, the regime also covers
+  serious violations of international humanitarian law and the obstruction of
+  humanitarian assistance. Designated persons are subject to an asset freeze,
+  and designated individuals are barred from entering or transiting the United
+  Kingdom.
 issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - Global Human Rights
+  - Global Human Rights and International Humanitarian Law
   - SI 2020/680
   - SI 2026/1071
   - The Global Human Rights Sanctions Regulations 2020
