@@ -158,7 +158,10 @@ def crawl(context: Context) -> None:
     assert url is not None
     doc = fetch_html(context, url, menu_xpath)
     menu = h.xpath_element(doc, menu_xpath)
-    h.assert_dom_hash(menu, "5f2460977091966582603166fe19d42514ec800f")
+    # Hash only the category names: markup changes (e.g. active-item classes)
+    # are irrelevant, but a new or renamed category must be added to the
+    # crawl_type calls below or to the ignore comments at the end.
+    h.assert_dom_hash(menu, "5a59ebd15b52f5d1a0c233a3760816ce8ff1d2a3", text_only=True)
 
     crawl_type(
         context, query_type="topten", query_id="0f737222c5054a81a120bce207b0446a"
