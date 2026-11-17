@@ -16,6 +16,7 @@ from followthemoney.dataset import Version
 from nomenklatura import duck
 from nomenklatura.duck import check_relation_name
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.runtime.manifest import Manifest
@@ -25,6 +26,7 @@ from zavod.archive import (
     STATEMENTS_RAW,
     backfill_artifact,
     dataset_artifact_path,
+    dataset_state_path,
     get_artifact_object,
     get_last_successful_version,
 )
@@ -34,6 +36,14 @@ log = get_logger(__name__)
 # Fields can be up to PROP_VALUE_MAX (30 MB), far beyond duckdb's default
 # maximum line size.
 PACK_MAX_LINE = 33554432
+# DuckDB's csv reader defaults its buffer to 16 times the maximum line size,
+# 512 MiB here, and holds two buffers at once for packs larger than one. Two
+# lines' worth is enough to read any line.
+PACK_BUFFER_SIZE = 2 * PACK_MAX_LINE
+# The minimum memory limit of a pack conversion, in MB: the sort spills to disk
+# beyond it, so a small job can convert a 1.5 GB pack. Larger packs need more,
+# about 1,000 MB for 6.6 GB, which conversions get from the store's limit.
+PACK_CONVERT_MEMORY_MB = 500
 # Render TIMESTAMP columns back to the string form used by Statement.
 SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
 # Full sort key for statement artifacts: `id` is unique after dedupe, so the
@@ -68,7 +78,8 @@ def _read_pack_sql(path: Path) -> str:
             CAST(first_seen AS TIMESTAMP) AS first_seen,
             CAST(last_seen AS TIMESTAMP) AS last_seen
         FROM read_csv('{_sql_str(path)}', header = true, all_varchar = true,
-            delim = ',', quote = '"', escape = '"', max_line_size = {PACK_MAX_LINE})
+            delim = ',', quote = '"', escape = '"', max_line_size = {PACK_MAX_LINE},
+            buffer_size = {PACK_BUFFER_SIZE})
     """
 
 
@@ -148,20 +159,40 @@ def _version_statements_sql(
         dataset=dataset_name,
         version=version.id,
     )
+    _convert_pack(dataset_name, pack, path)
+    return f"SELECT * FROM read_parquet('{_sql_str(path)}')"
+
+
+def _convert_pack(dataset_name: str, pack: Path, path: Path) -> None:
+    """
+    Convert a statements pack into a parquet file at `path`.
+
+    The pack's csv reader needs buffers sized for the longest possible line
+    (PACK_MAX_LINE). A dedicated short-lived connection is used, so that the
+    store's connection (e.g. the export
+    store's) can have a limit sized for its own queries.
+
+    The conversion connection's memory limit is the larger of PACK_CONVERT_MEMORY_MB
+    and settings.STORE_DUCKDB_MEMORY.
+    """
     tmp_path = path.with_suffix(".parquet.tmp")
+    temp_directory = dataset_state_path(dataset_name) / "convert.tmp"
+    memory_mb = PACK_CONVERT_MEMORY_MB
+    if settings.STORE_DUCKDB_MEMORY is not None:
+        memory_mb = max(memory_mb, int(settings.STORE_DUCKDB_MEMORY))
     try:
-        conn.execute(
-            f"""
-            COPY (SELECT * FROM ({_dedupe_sql(_read_pack_sql(pack))})
-                ORDER BY {STATEMENT_ORDER})
-            TO '{_sql_str(tmp_path)}' (FORMAT parquet, COMPRESSION zstd)
-            """
-        )
+        with duck.connect(memory_mb=memory_mb, temp_directory=temp_directory) as conn:
+            conn.execute(
+                f"""
+                COPY (SELECT * FROM ({_dedupe_sql(_read_pack_sql(pack))})
+                    ORDER BY {STATEMENT_ORDER})
+                TO '{_sql_str(tmp_path)}' (FORMAT parquet, COMPRESSION zstd)
+                """
+            )
         tmp_path.replace(path)
     except Exception:
         tmp_path.unlink(missing_ok=True)
         raise
-    return f"SELECT * FROM read_parquet('{_sql_str(path)}')"
 
 
 def _previous_statements_sql(

@@ -4,7 +4,8 @@ coverage:
   start: "2021-09-01"
   schedule: "0 1,7,13,19 * * *"
 deploy:
-  memory: "1500Mi"
+  memory: "2500Mi"
+  memory_limit: "3000Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
 exports:

@@ -1,8 +1,11 @@
 import shutil
 from datetime import timedelta
+from pathlib import Path
 
 import pytest
 from followthemoney.dataset import Version
+from followthemoney.statement import Statement
+from followthemoney.statement.serialize import PACK, write_statements
 from nomenklatura import duck
 from rigour.time import datetime_iso
 
@@ -22,6 +25,9 @@ from zavod.exporters.metadata import DatasetVersionResult, write_dataset_index
 from zavod.meta import Dataset
 from zavod.publish import publish_dataset
 from zavod.runtime.lake import (
+    PACK_BUFFER_SIZE,
+    _convert_pack,
+    _version_statements_sql,
     build_statements_parquet,
     dump_statements_pack,
     manifest_statements_view,
@@ -340,3 +346,51 @@ def test_manifest_statements_view_line_breaks(testdataset1: Dataset):
     assert {p: s[0] for p, s in served_by_prop.items()} == {
         p: s[0] for p, s in stored_by_prop.items()
     }
+
+
+def test_pack_conversion_has_its_own_memory(testdataset1: Dataset) -> None:
+    """Converting an archived pack doesn't use the caller's connection, so a
+    store with a small memory limit can still read pack-only versions."""
+    version = run_dataset(testdataset1)
+    local = dataset_artifact_path(testdataset1.name, version, STATEMENTS_PARQUET)
+    local.unlink()
+    archived = (
+        settings.ARCHIVE_PATH
+        / ARTIFACTS
+        / testdataset1.name
+        / version.id
+        / STATEMENTS_PARQUET
+    )
+    archived.unlink()
+
+    # Reading the pack needs buffers sized for the longest possible line,
+    # far more than this connection is allowed.
+    with duck.connect(memory_mb=100) as conn:
+        select = _version_statements_sql(conn, testdataset1.name, version)
+        assert select is not None
+        row = conn.execute(f"SELECT count(*) FROM ({select})").fetchone()
+    assert row is not None and row[0] > 0
+    assert local.is_file()
+
+
+def test_pack_conversion_long_lines(tmp_path: Path) -> None:
+    """A line close to the maximum line size converts, as do lines crossing the
+    csv reader's buffer boundaries."""
+    lengths = [30_000_000] + [1_000_000] * (PACK_BUFFER_SIZE // 1_000_000 + 2)
+    statements = [
+        Statement(f"e{i:03d}", "notes", "Thing", "x" * length, "test")
+        for i, length in enumerate(lengths)
+    ]
+    pack = tmp_path / "statements.pack"
+    with open(pack, "wb") as fh:
+        write_statements(fh, PACK, statements)
+    assert pack.stat().st_size > PACK_BUFFER_SIZE
+
+    out = tmp_path / "statements.parquet"
+    _convert_pack("test", pack, out)
+    with duck.connect() as conn:
+        rows = conn.execute(
+            f"SELECT entity_id, length(value) FROM read_parquet('{out}') "
+            "ORDER BY entity_id"
+        ).fetchall()
+    assert rows == [(f"e{i:03d}", length) for i, length in enumerate(lengths)]

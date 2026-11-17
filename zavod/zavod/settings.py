@@ -66,8 +66,9 @@ ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive"))
 
 # Memory limits (in MB) for the DuckDB instances of the store and of the delta
 # hash lookup. The two are separate instances open at the same time during an
-# export, and each would otherwise assume DuckDB's default share of the
-# available memory for itself. Unset, nomenklatura's settings apply.
+# export, and each would otherwise assume DuckDB's default share (80%) of the
+# total memory available to the container, resulting in over-committing and running
+# out of memory.
 STORE_DUCKDB_MEMORY = env.get("ZAVOD_STORE_DUCKDB_MEMORY")
 DELTA_DUCKDB_MEMORY = env.get("ZAVOD_DELTA_DUCKDB_MEMORY")
 
