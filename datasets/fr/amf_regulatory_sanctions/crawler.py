@@ -47,7 +47,7 @@ prefix_anon = "(" + "|".join(PREFIXES) + r")[\. \b]+" + placeholder
 comma_anon = r"(,|et) +" + placeholder
 
 
-class Party(BaseModel):
+class Respondent(BaseModel):
     entity_schema: Literal["Person", "LegalEntity"]
     name: str
     previous_names: list[str] = []
@@ -58,8 +58,8 @@ class Succession(BaseModel):
     successor: str
 
 
-class Parties(BaseModel):
-    parties: list[Party]
+class Respondents(BaseModel):
+    respondents: list[Respondent]
     successions: list[Succession] = []
 
 
@@ -71,12 +71,12 @@ def clean_names_str(names_str: str) -> str | None:
     return names_str
 
 
-def party_id(context: Context, party: Party) -> str:
+def respondent_id(context: Context, respondent: Respondent) -> str:
     # Lookup-era IDs hashed a list of current and previous names as its str() form.
-    if party.previous_names:
-        id_ = context.make_id(str([party.name, *party.previous_names]))
+    if respondent.previous_names:
+        id_ = context.make_id(str([respondent.name, *respondent.previous_names]))
     else:
-        id_ = context.make_id(party.name)
+        id_ = context.make_id(respondent.name)
     assert id_ is not None
     return id_
 
@@ -93,13 +93,13 @@ def is_person(raw: str, name: str) -> bool:
     return re.search(r"soci[ée]t[ée]|cabinet|banque", match.group(1), re.I) is None
 
 
-def parties_from_lookup(raw: str, res: Result) -> Parties:
-    parties: list[Party] = []
+def respondents_from_lookup(raw: str, res: Result) -> Respondents:
+    respondents: list[Respondent] = []
     for value in res.entities or []:
         if isinstance(value, list):
             name, *previous_names = value
-            parties.append(
-                Party(
+            respondents.append(
+                Respondent(
                     entity_schema="LegalEntity",
                     name=name,
                     previous_names=previous_names,
@@ -110,7 +110,7 @@ def parties_from_lookup(raw: str, res: Result) -> Parties:
         schema: Literal["Person", "LegalEntity"] = (
             "Person" if is_person(raw, value) else "LegalEntity"
         )
-        parties.append(Party(entity_schema=schema, name=value))
+        respondents.append(Respondent(entity_schema=schema, name=value))
 
     successions: list[Succession] = []
     for rel in res.relationships or []:
@@ -122,7 +122,7 @@ def parties_from_lookup(raw: str, res: Result) -> Parties:
         predecessor = rel["from"][0] if isinstance(rel["from"], list) else rel["from"]
         successor = rel["to"][0] if isinstance(rel["to"], list) else rel["to"]
         successions.append(Succession(predecessor=predecessor, successor=successor))
-    return Parties(parties=parties, successions=successions)
+    return Respondents(respondents=respondents, successions=successions)
 
 
 def parse_listing_date(timestamp: str) -> str:
@@ -131,9 +131,9 @@ def parse_listing_date(timestamp: str) -> str:
     return published.date().isoformat()
 
 
-def emit_parties(
+def emit_respondents(
     context: Context,
-    parties: Parties,
+    respondents: Respondents,
     *,
     origin: str,
     reason: str,
@@ -142,13 +142,13 @@ def emit_parties(
     source_urls: list[str],
 ) -> None:
     ids: dict[str, str] = {}
-    for party in parties.parties:
+    for respondent in respondents.respondents:
         # Names and schemata stay as published until the switch to reviewed
         # extraction, so the backfill doesn't change them.
         entity = context.make("LegalEntity")
-        entity.id = party_id(context, party)
-        ids[party.name] = entity.id
-        entity.add("name", [party.name, *party.previous_names], origin=origin)
+        entity.id = respondent_id(context, respondent)
+        ids[respondent.name] = entity.id
+        entity.add("name", [respondent.name, *respondent.previous_names], origin=origin)
         entity.add("topics", "reg.action")
         entity.add("sourceUrl", source_urls)
 
@@ -160,7 +160,7 @@ def emit_parties(
         context.emit(sanction)
         context.emit(entity)
 
-    for succession in parties.successions:
+    for succession in respondents.successions:
         predecessor_id = ids[succession.predecessor]
         successor_id = ids[succession.successor]
         relation = context.make("Succession")
@@ -209,19 +209,19 @@ def crawl(context: Context) -> None:
             context.log.warning(f"No entity mapping for {names_str!r}")
             continue
 
-        parties = parties_from_lookup(raw_names, entities_res)
+        respondents = respondents_from_lookup(raw_names, entities_res)
         # Backfill the lookup as accepted reviews, so the move to reviewed
         # extraction keeps the names and IDs we already publish.
         review_extraction(
             context,
             source_value=TextSourceValue(
-                key_parts=raw_names, label="Parties (text_egard)", text=raw_names
+                key_parts=raw_names, label="Respondents (text_egard)", text=raw_names
             ),
-            original_extraction=parties,
+            original_extraction=respondents,
             origin="lookups",
             default_accepted=True,
         )
-        if not parties.parties:
+        if not respondents.respondents:
             continue
 
         title = infos_dict.pop("title")
@@ -250,9 +250,9 @@ def crawl(context: Context) -> None:
             ],
         )
 
-        emit_parties(
+        emit_respondents(
             context,
-            parties,
+            respondents,
             origin="lookups",
             reason=reason,
             listing_date=listing_date,
