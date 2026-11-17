@@ -1,0 +1,51 @@
+title: Gabon Members of the National Assembly
+entry_point: crawler.py
+prefix: ga-an
+coverage:
+  frequency: monthly
+  start: 2026-11-17
+load_statements: true
+ci_test: false  # Zyte
+summary: >-
+  Members of the lower house of Gabon's bicameral parliament
+description: |
+  Current members of the National Assembly of Gabon (Assemblée nationale), the lower
+  house of the country's bicameral parliament. Its deputies are directly elected for a
+  five-year term and, together with the Senate, hold the country's legislative power,
+  including passing laws, approving the budget, and overseeing the government.
+url: https://www.assemblee-nationale.ga/14eme-legislature/tous-les-deputes/
+publisher:
+  name: Assemblée nationale du Gabon
+  name_en: National Assembly of Gabon
+  description: >
+    The National Assembly is the lower house of the Parliament of Gabon.
+  url: https://www.assemblee-nationale.ga/
+  country: ga
+  official: true
+data:
+  url: https://www.assemblee-nationale.ga/wp-json/wp/v2/
+  format: JSON
+  lang: fra
+
+tags:
+  - list.pep
+
+names:
+  schema_rules:
+    Person:
+      # Married and maiden names are given inline, e.g. "LONGO Armande ép. MOULENGUI"
+      # or "MBAGOU née MATSOUGOU Jeanne". Spaces on both sides keep "Ednée" clean.
+      reject_strings: [" ép. ", " née ", " ep. ", " nee ", " épouse "]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 1
+    country_entities:
+      ga: 120
+  max:
+    # Tighter than the usual ~2x: the chamber has a fixed 145 seats.
+    schema_entities:
+      Person: 160
+      Position: 1
