@@ -1,4 +1,5 @@
 import csv
+import shutil
 from rigour.mime.types import CSV
 from pathlib import Path
 
@@ -81,9 +82,11 @@ def crawl(context: Context) -> None:
     #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
     h.assert_dom_hash(table, "6562ffeeba8bf24c94e2fcac3ee58ea9ac69c78e", text_only=True)
 
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    source_file = Path(__file__).parent / "covered_list.csv"
+    resource_path = context.get_resource_path("source.csv")
+    shutil.copy(source_file, resource_path)
+    context.export_resource(resource_path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path) as fh:
+    with open(source_file, encoding="utf-8", newline="") as fh:
         for item in csv.DictReader(fh):
             crawl_item(context, item)

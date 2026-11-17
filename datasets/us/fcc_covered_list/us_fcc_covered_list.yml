@@ -60,7 +60,7 @@ publisher:
   country: "us"
 url: "https://www.fcc.gov/supplychain/coveredlist"
 data:
-  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCtBj1fAWXKlV5yhN38V66umTej12IlkQGzXGWC5LR7RCEPHlLMaBwqWpey6oHkShbyYYgRGm_0AbO/pub?output=csv"
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/us/fcc_covered_list/covered_list.csv
   format: CSV
   lang: eng
 dates:
