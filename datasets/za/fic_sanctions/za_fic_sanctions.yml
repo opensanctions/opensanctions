@@ -219,6 +219,8 @@ lookups:
         value: Jin Tiesan
       - match: ??? ?????? (Abdullah Sindhi)
         value: Abdullah Sindhi
+      # Original-script alias replaced entirely by "?" in the source export.
       - match:
           - None
+          - ??? ?????? ???
         value: null
