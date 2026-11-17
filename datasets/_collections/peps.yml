@@ -51,6 +51,7 @@ children:
   - au_wa_parliament
   - az_parliament
   - ba_parliament
+  - bd_parliament
   - be_chamber
   - be_flemish_parliament
   - be_senate
@@ -81,6 +82,7 @@ children:
   - cm_senate
   - cn_npc
   - cn_peoples_congress_wikipedia
+  - co_camara_representantes
   - co_funcion_publica
   - co_join_dots
   - cr_legislature
@@ -236,6 +238,7 @@ children:
   - us_plum_book
   - us_plural_legislators
   - us_state_dept
+  - uy_parliament
   - uy_pep
   - uz_legislative_chamber
   - uz_senate
@@ -246,6 +249,7 @@ children:
   - wd_peps
   - xk_assembly
   - ye_house_representatives
+  - ye_house_representatives_sanaa
   - za_mm_officials
   - za_pmg_legislators
   - zw_parliament
