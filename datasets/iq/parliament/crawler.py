@@ -8,21 +8,23 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.extract import zyte_api
 
-# A presiding officer's name carries their office in brackets, e.g.
-# "هيبت حمد عباس عبدالجبار الحلبوسي (رئيس مجلس النواب)".
+# Presiding officers carry their office in brackets: "<name> (رئيس مجلس النواب)".
 NAME_ROLE = re.compile(r"^(?P<name>[^()]+?)\s*\((?P<role>[^()]+)\)\s*$")
+TOPICS = ["gov.national", "gov.legislative"]
 
 
 def crawl_presiding_office(context: Context, person: Entity, role: str) -> None:
-    res = context.lookup("position", role, warn_unmatched=True)
-    if res is None:
+    # Held in addition to the seat.
+    title = context.lookup_value("presiding_office", role, warn_unmatched=True)
+    if title is None:
         return
     office = h.make_position(
         context,
-        name=res.name,
+        name=f"{title} of the Council of Representatives of Iraq",
         country="iq",
-        topics=res.topics,
-        wikidata_id=res.wikidata_id,
+        topics=TOPICS,
+        # The deputy offices have no Wikidata item.
+        wikidata_id="Q20404109" if title == "Speaker" else None,
         lang="eng",
     )
     categorisation = categorise(context, office)
@@ -38,29 +40,28 @@ def crawl_row(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    row: list[_Element],
+    row: dict[str, _Element],
 ) -> None:
-    _, name_cell, party_cell, governorate_cell = row
-    raw_name = h.element_text(name_cell, squash=False)
+    raw_name = h.element_text(row.pop("name"), squash=False)
+    party = h.element_text(row.pop("party"))
+    governorate = h.element_text(row.pop("governorate"))
+    context.audit_data(row, ignore=["row_number"])
+
     role = None
     if "(" in raw_name or ")" in raw_name:
         match = NAME_ROLE.match(raw_name)
         if match is None:
             context.log.warning("Unexpected brackets in member name", name=raw_name)
             return
-        # The office is split off so that the ID survives the holder leaving it.
+        # Keeps the ID stable when the holder leaves office.
         raw_name, role = match.group("name"), squash_spaces(match.group("role"))
     name = squash_spaces(raw_name)
 
     person = context.make("Person")
     person.id = context.make_id(raw_name)
     person.add("name", name)
-    # Members must be Iraqi: Constitution of Iraq (2005), Art. 49 Second.
-    # https://www.constituteproject.org/constitution/Iraq_2005
     person.add("citizenship", "iq")
-    party = h.element_text(party_cell)
-    # The members holding the nine minority quota seats stand as individuals and
-    # have their own name in the party column.
+    # Minority quota members list their own name as the party.
     if party != name:
         person.add("political", party or None)
 
@@ -69,7 +70,7 @@ def crawl_row(
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", h.element_text(governorate_cell) or None)
+    occupancy.add("constituency", governorate or None)
     context.emit(occupancy)
     if role is not None:
         crawl_presiding_office(context, person, role)
@@ -82,7 +83,7 @@ def crawl(context: Context) -> None:
         name="Member of the Council of Representatives of Iraq",
         wikidata_id="Q21328603",
         country="iq",
-        topics=["gov.legislative", "gov.national"],
+        topics=TOPICS,
         lang="eng",
     )
     categorisation = categorise(context, position)
@@ -91,15 +92,13 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # Cloudflare serves a JavaScript challenge to anything but a rendering browser.
+    # Behind a Cloudflare JavaScript challenge.
     doc = zyte_api.fetch_html(context, context.data_url, "//article//table//tr[td]")
-    header, *rows = h.xpath_elements(doc, "//article//table//tr")
-    # The header is an ordinary row of cells, numbered "1." like the members below.
-    header_labels = [h.element_text(td) for td in h.xpath_elements(header, "./td")]
-    assert header_labels[1:] == ["اسم النائب", "اسم الحزب", "اسم المحافظة"], (
-        header_labels
-    )
-    for row in rows:
-        cells = h.xpath_elements(row, "./td")
-        assert len(cells) == 4, h.element_text(row)
-        crawl_row(context, position, categorisation, cells)
+    table = h.xpath_element(doc, "//article//table")
+    for cells in h.parse_html_table(table, header_tag="td", slugify_headers=False):
+        row: dict[str, _Element] = {}
+        for header, cell in cells.items():
+            column = context.lookup_value("columns", header)
+            assert column is not None, header
+            row[column] = cell
+        crawl_row(context, position, categorisation, row)
