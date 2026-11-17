@@ -35,9 +35,12 @@ PREFIXES = [
 ]
 
 
-comma_prefix_anon = "(,|et) +(" + "|".join(PREFIXES) + r")[\. \b]+[A-Z]\b"
-prefix_anon = "(" + "|".join(PREFIXES) + r")[\. \b]+[A-Z]\b"
-comma_anon = r"(,|et) +[A-Z]\b"
+# A placeholder letter must not run on into the rest of a real name, such as
+# "M Capital Partners", "A Plus Finance", "X-Trade" or "B*CAPITAL".
+placeholder = r"[A-Z](?![\w*-]|\s+[A-Z][a-zà-ÿ])"
+comma_prefix_anon = "(,|et) +(" + "|".join(PREFIXES) + r")[\. \b]+" + placeholder
+prefix_anon = "(" + "|".join(PREFIXES) + r")[\. \b]+" + placeholder
+comma_anon = r"(,|et) +" + placeholder
 
 
 def clean_names_str(names_str: str) -> str | None:
