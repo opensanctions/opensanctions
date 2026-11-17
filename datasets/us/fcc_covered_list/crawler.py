@@ -60,8 +60,12 @@ def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     assert context.dataset.url is not None
-    table_xpath = './/div[@id="covered-list"]//table'
-    doc = zyte_api.fetch_html(context, context.dataset.url, table_xpath)
+    table_xpath = './/table[.//th[contains(., "Date of Inclusion on Covered List")]]'
+    # The rendered page gains hidden "Visit - " spans from a third-party
+    # accessibility script in some renders but not others, which flips the hash.
+    doc = zyte_api.fetch_html(
+        context, context.dataset.url, table_xpath, html_source="httpResponseBody"
+    )
     table = h.xpath_element(doc, table_xpath)
     with open(Path(__file__).parent / "table.csv", "w") as fh:
         rows = [h.cells_to_str(r) for r in h.parse_html_table(table)]
@@ -75,7 +79,7 @@ def crawl(context: Context) -> None:
     #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
     #   2. Edit the Google Sheet to match (that edit lives in Google Drive, not the PR).
     #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
-    h.assert_dom_hash(table, "2449673a90f923cb4668b6405ff85267135bf06a", text_only=True)
+    h.assert_dom_hash(table, "6562ffeeba8bf24c94e2fcac3ee58ea9ac69c78e", text_only=True)
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
