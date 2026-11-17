@@ -1,0 +1,67 @@
+title: Iraq Members of the Council of Representatives
+entry_point: crawler.py
+prefix: iq-parl
+coverage:
+  frequency: monthly
+  start: 2026-11-17
+load_statements: true
+ci_test: false # The source is only reachable through Zyte browser rendering.
+summary: >-
+  Unicameral national legislature elected by proportional representation in the
+  governorates
+description: |
+  Current members of the Council of Representatives of Iraq (Majlis al-Nuwab), the
+  country's unicameral national legislature. Its members are elected under proportional
+  representation for a four-year term, with the governorates as constituencies and
+  seats reserved for women and for minorities. Members hold the country's legislative
+  power, including passing laws, approving the budget, and overseeing the government.
+
+  The dataset also covers the offices of the Speaker and the Deputy Speakers.
+url: https://iq.parliament.iq/
+publisher:
+  name: مجلس النواب العراقي
+  name_en: Council of Representatives of Iraq
+  description: >
+    The Council of Representatives is the unicameral national legislature of Iraq,
+    established by the 2005 Constitution. It passes federal laws, approves the budget,
+    elects the President of the Republic and oversees the work of the government.
+  url: https://iq.parliament.iq/
+  country: iq
+  official: true
+data:
+  url: https://iq.parliament.iq/النواب/
+  format: HTML
+  lang: ara
+
+tags:
+  - list.pep
+
+# The roster gives no dates and names no term: its members are taken as the sitting
+# parliament, elected in November 2025.
+
+lookups:
+  # Presiding offices, as the roster appends them to the holder's name.
+  position:
+    options:
+      - match: رئيس مجلس النواب
+        name: Speaker of the Council of Representatives of Iraq
+        wikidata_id: Q20404109
+        topics: [gov.national, gov.legislative]
+      - match: النائب الأول لرئيس مجلس النواب
+        name: First Deputy Speaker of the Council of Representatives of Iraq
+        topics: [gov.national, gov.legislative]
+      - match: نائب رئيس مجلس النواب
+        name: Deputy Speaker of the Council of Representatives of Iraq
+        topics: [gov.national, gov.legislative]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 1
+    country_entities:
+      iq: 300
+  max:
+    schema_entities:
+      Person: 340
+      Position: 4
