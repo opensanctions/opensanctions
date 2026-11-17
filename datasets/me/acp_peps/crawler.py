@@ -1,7 +1,6 @@
 import re
+from dataclasses import dataclass
 from typing import Any
-
-import requests
 
 from zavod.stateful.positions import OccupancyStatus, categorise
 
@@ -10,22 +9,24 @@ from zavod import helpers as h
 from zavod.util import Element
 
 
-def fetch_filing(context: Context, barcode: int) -> tuple[str, Element | None]:
-    """Fetch a filing of either system as an HTML report.
+@dataclass
+class Function:
+    position: Entity
+    start_date: str | None
+    end_date: str | None
+    status: OccupancyStatus | None
 
-    Returns the report URL, and the document or None if the server fails."""
+
+def fetch_filing(context: Context, barcode: int) -> tuple[str, Element]:
+    """Fetch a filing of either system as an HTML report, with its URL."""
     url = (
         "https://obsidian.antikorupcija.me/api/registri/reports/report"
         "?reportname=registar_izvjestaja_o_prihodima_i_imovini_funkcionera_izvjestaj"
         f"&reporttype=html&parm_01={int(barcode)}"
     )
-    try:
-        # Filings don't change. The response omits its UTF-8 charset.
-        return url, context.fetch_html(url, cache_days=90, encoding="utf-8")
-    except (requests.ConnectionError, requests.Timeout) as exc:
-        # The server sometimes stalls for up to an hour, then times out.
-        context.log.warning("Failed to fetch filing", url=url, error=str(exc))
-        return url, None
+    # Filings don't change. The response omits its UTF-8 charset. When the server
+    # stalls, the run fails, and the next run resumes from the cached reports.
+    return url, context.fetch_html(url, cache_days=90, encoding="utf-8")
 
 
 def read_section(doc: Element, title: str) -> list[dict[str, str | None]]:
@@ -103,7 +104,7 @@ def crawl_relatives(
 
 def parse_function(
     context: Context, person: Entity, row: dict[str, str | None]
-) -> tuple[Entity, str | None, str | None, OccupancyStatus | None] | None:
+) -> Function | None:
     """Make the position and dates for a function listed in a filing."""
     function = row.pop("naziv_funkcije")
     organization = row.pop("organ_vlasti_gdje_se_obavlja_funkcija")
@@ -141,7 +142,7 @@ def parse_function(
     )
     # Some functions are marked as ended without an end date.
     status = OccupancyStatus.ENDED if ended == "X" and end_date is None else None
-    return position, start_date, end_date, status
+    return Function(position, start_date, end_date, status)
 
 
 def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
@@ -149,19 +150,17 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
     filings: list[dict[str, Any]] = person_data.pop("izvjestajImovine")
     function_labels: list[str] = person_data.pop("nazivFunkcije")
 
-    filing_date: str | None = None
-    source_url: str | None = None
-    family_rows: list[dict[str, str | None]] = []
-    function_rows: list[dict[str, str | None]] = []
-    if filings:
-        # A person can file more than once on the same day.
-        latest = max(filings, key=lambda f: (f["datum"], f["barcode"]))
-        filing_date = latest["datum"]
-        source_url, doc = fetch_filing(context, latest["barcode"])
-        # Without the report, fall back to the index labels below.
-        if doc is not None:
-            family_rows = read_section(doc, "2.2 Članovi porodice")
-            function_rows = read_section(doc, "2.4 Javna funkcija")
+    if not filings:
+        # Without a filing we can't date their functions. They're due to file yearly.
+        context.log.info("Person without a filing", name=full_name)
+        return
+
+    # A person can file more than once on the same day.
+    latest = max(filings, key=lambda f: (f["datum"], f["barcode"]))
+    filing_date = latest["datum"]
+    source_url, doc = fetch_filing(context, latest["barcode"])
+    family_rows = read_section(doc, "2.2 Članovi porodice")
+    function_rows = read_section(doc, "2.4 Javna funkcija")
 
     # The official is listed among their family as "Funkcioner".
     officials = [row for row in family_rows if row.get("srodstvo") == "Funkcioner"]
@@ -182,21 +181,20 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
     # Appointed officials need not be citizens. Filings state citizenship.
     person.add("country", "me")
 
-    held: list[tuple[Entity, str | None, str | None, OccupancyStatus | None]] = []
-    if function_rows:
-        for row in function_rows:
-            function = parse_function(context, person, row)
-            if function is not None:
-                held.append(function)
-    else:
-        # People without a filing still owe one for the function, so keep them.
-        status = OccupancyStatus.UNKNOWN if filing_date is None else None
-        for label in function_labels:
-            position = h.make_position(context, label, country="me")
-            held.append((position, None, None, status))
+    held: list[Function] = []
+    for row in function_rows:
+        function = parse_function(context, person, row)
+        if function is not None:
+            held.append(function)
+    if not held:
+        # Mostly civil servants, whose form doesn't list their post. The index
+        # labels name no organisation, so we don't make positions from them.
+        context.log.info("No functions in the latest filing", name=full_name)
+        return
 
     is_national = False
-    for position, start_date, end_date, status in held:
+    for function in held:
+        position = function.position
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             continue
@@ -206,11 +204,11 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
             person,
             position,
             categorisation=categorisation,
-            start_date=start_date,
-            end_date=end_date,
+            start_date=function.start_date,
+            end_date=function.end_date,
             declaration_date=filing_date,
             no_end_implies_current=False,  # a filing is a snapshot
-            status=status,
+            status=function.status,
         )
         if occupancy is None:
             continue
