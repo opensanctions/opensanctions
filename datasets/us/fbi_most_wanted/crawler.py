@@ -156,9 +156,9 @@ def crawl(context: Context) -> None:
     menu_xpath = ".//ul[contains(@class, 'section-nav-list')]"
     url = context.dataset.model.url
     assert url is not None
-    doc = fetch_html(context, url, menu_xpath)
+    doc = fetch_html(context, url, menu_xpath, html_source="httpResponseBody")
     menu = h.xpath_element(doc, menu_xpath)
-    h.assert_dom_hash(menu, "5f2460977091966582603166fe19d42514ec800f")
+    h.assert_dom_hash(menu, "c1c16c120c12dce7696a930dc5d9302852b39f69")
 
     crawl_type(
         context, query_type="topten", query_id="0f737222c5054a81a120bce207b0446a"

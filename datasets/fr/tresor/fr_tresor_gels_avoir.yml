@@ -12496,6 +12496,53 @@ lookups:
       - match: "Ocean Maritime Management Company, Limited"
         associates:
           - "Ocean Maritime Management Company, Limited"
+      - match: "groupe criminel armé non étatique"
+        note: true
+      - match: "Principal lieu d’activité: Europe"
+        note: true
+      - match: "Numéro d’enregistrement: 7728390408"
+        props:
+          registrationNumber: "7728390408"
+      - match: "NIF: 0103001895"
+        props:
+          taxNumber: "0103001895"
+      - match: "NIF: 1650025163"
+        props:
+          taxNumber: "1650025163"
+      - match: "NIF: 2225019491"
+        props:
+          taxNumber: "2225019491"
+      - match: "NIF: 4026005138"
+        props:
+          taxNumber: "4026005138"
+      - match: "NIF: 5617000264"
+        props:
+          taxNumber: "5617000264"
+      - match: "NIF: 6455000037"
+        props:
+          taxNumber: "6455000037"
+      - match: "NIF: 7727038017"
+        props:
+          taxNumber: "7727038017"
+      - match: "NIF: 7813662356"
+        props:
+          taxNumber: "7813662356"
+      - match: "KPP: 222501001"
+        schema: Company
+        props:
+          kppCode: "222501001"
+      - match: "KPP: 231001001"
+        schema: Company
+        props:
+          kppCode: "231001001"
+      - match: "KPP: 402701001"
+        schema: Company
+        props:
+          kppCode: "402701001"
+      - match: "KPP: 645501001"
+        schema: Company
+        props:
+          kppCode: "645501001"
   # =====================================
   #
   #  ADDRESSES
