@@ -15,7 +15,7 @@ deploy:
   cpu: "1000m"
   cpu_limit: "2000m"
   memory: "5000Mi"
-  memory_limit: "6000Mi"
+  memory_limit: "8000Mi"
   disk: "150Gi"
   env:
     # Building the store view is the bulk of the analyzer's memory use, and it
