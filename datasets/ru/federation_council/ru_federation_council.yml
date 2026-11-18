@@ -48,3 +48,10 @@ assertions:
     schema_entities:
       Person: 270
       Position: 1
+
+lookups:
+  type.date:
+    options:
+      # One profile puts the comma after the month in its "Took office" date.
+      - match: "September, 19 2023"
+        value: "2023-09-19"
