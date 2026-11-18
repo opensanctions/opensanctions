@@ -6,6 +6,7 @@ coverage:
   start: "2023-05-25"
 deploy:
   memory: "2Gi"
+  memory_limit: "3Gi"
 load_statements: true
 ci_test: false
 summary: >
