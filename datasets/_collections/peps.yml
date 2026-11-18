@@ -4,8 +4,8 @@ coverage:
   start: "2021-12-01"
   frequency: daily
 deploy:
-  memory: "1500Mi"
-  memory_limit: "2000Mi"
+  memory: "4000Mi"
+  memory_limit: "5000Mi"
   cpu: "500m"
 ci_test: false
 exports:
