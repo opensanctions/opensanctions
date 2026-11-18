@@ -7,6 +7,8 @@ deploy:
   memory: "4000Mi"
   memory_limit: "5000Mi"
   cpu: "500m"
+  disk: "30Gi"
+  disk_limit: "50Gi"
 ci_test: false
 exports:
   - statistics.json

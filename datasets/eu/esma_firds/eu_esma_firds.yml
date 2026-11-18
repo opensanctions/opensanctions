@@ -6,8 +6,8 @@ coverage:
   start: 2024-03-02
 deploy:
   cpu: 1000m
-  memory: 3500Mi
-  memory_limit: 4000Mi
+  memory: 7000Mi
+  memory_limit: 8000Mi
   disk: 150Gi
 resolve: false
 ci_test: false

@@ -17,6 +17,10 @@ deploy:
   memory: "5000Mi"
   memory_limit: "6000Mi"
   disk: "150Gi"
+  env:
+    # Building the store view is the bulk of the analyzer's memory use, and it
+    # has no delta export, so the store gets more than its derived share.
+    ZAVOD_STORE_DUCKDB_MEMORY: "3500"
 load_statements: true
 ci_test: false
 summary: >
