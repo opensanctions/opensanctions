@@ -112,6 +112,7 @@ children:
   - fr_hatvp_declarations
   - fr_maires
   - fr_senat
+  - ga_national_assembly
   - gb_commons
   - gb_lords
   - ge_declarations
