@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote, urldefrag
 
 from followthemoney.types import registry
 from lxml import etree
@@ -458,9 +459,21 @@ def parse_html(text: str, url: str) -> etree._Element:
 
 def archive_link(href: str | None) -> str | None:
     """Normalise a link to an EDGAR archive document, dropping the iXBRL viewer."""
-    if href is None or "sec.gov/Archives/edgar/data/" not in href:
+    if href is None:
         return None
-    return href.replace("/ix?doc=", "/").replace("http://", "https://")
+    # A percent-encoded absolute link ("https%3A%2F%2Fwww.sec.gov%2FArchives...")
+    # is resolved as relative to the filing directory.
+    if "%3A%2F%2F" in href.upper():
+        href = unquote(href)
+    marker = "sec.gov/Archives/edgar/data/"
+    if marker not in href:
+        return None
+    href = href.replace("/ix?doc=", "/").replace("http://", "https://")
+    # Keep only the last archive URL: "C:/Inet/DocViewServlet?...&docName=http:/www.
+    # sec.gov/Archives/...", ".../000119312526128949/https://www.sec.gov/Archives/..."
+    start = href.rfind(marker)
+    host = "www." if href[:start].endswith("www.") else ""
+    return f"https://{host}{href[start:]}"
 
 
 def cells_text(row: etree._Element) -> list[str]:
@@ -488,13 +501,28 @@ def find_referenced_ex21(context: Context, pacer: Pacer, url: str) -> list[str]:
     return urls
 
 
+def clean_ex21_urls(urls: list[str], primary_url: str) -> list[str]:
+    """Normalise EX-21 links, including those cached before a link fix."""
+    cleaned: list[str] = []
+    for url in urls:
+        target = archive_link(url)
+        # "Subsidiaries of the Registrant: Refer to page 2 of this Form 10-K"
+        # links to an anchor in the annual report itself, not to an exhibit.
+        if target is None or urldefrag(target).url == primary_url:
+            continue
+        if target not in cleaned:
+            cleaned.append(target)
+    return cleaned
+
+
 def find_ex21_urls(context: Context, pacer: Pacer, report: AnnualReport) -> list[str]:
     key = f"ex21-urls:{report.accession}"
     cached = context.cache.get_json(key, max_age=EX21_CACHE_DAYS)
     if cached == []:
         cached = context.cache.get_json(key, max_age=EX21_MISSING_CACHE_DAYS)
+    primary_url = f"{report.base_url}/{report.primary_document}"
     if cached is not None:
-        return [str(u) for u in cached]
+        return clean_ex21_urls([str(u) for u in cached], primary_url)
     pacer.wait()
     index_url = f"{report.base_url}/{report.accession}-index.htm"
     doc = context.fetch_html(index_url, absolute_links=True)
@@ -508,10 +536,9 @@ def find_ex21_urls(context: Context, pacer: Pacer, report: AnnualReport) -> list
             if target is not None and target not in urls:
                 urls.append(target)
     if len(urls) == 0 and report.primary_document:
-        primary_url = f"{report.base_url}/{report.primary_document}"
         urls = find_referenced_ex21(context, pacer, primary_url)
     context.cache.set_json(key, urls)
-    return urls
+    return clean_ex21_urls(urls, primary_url)
 
 
 def fetch_ex21(context: Context, pacer: Pacer, url: str) -> etree._Element:
