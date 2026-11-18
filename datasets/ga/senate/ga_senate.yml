@@ -132,8 +132,8 @@ lookups:
         value: null
       - match: [Sénateur de la Transition, Sénatrice de la Transition]
         value: null
-  # Serves both Person:political and Occupancy:politicalGroup on purpose: the party and
-  # group fields share spellings.
+  # Serves both Person:political and Occupancy:politicalGroup. Party and group names are
+  # kept as the source spells them; only values that name no party or group are dropped.
   type.string:
     normalize: true
     lowercase: true
@@ -155,30 +155,3 @@ lookups:
           - Syndicat
           - Syndicats
         value: null
-      # Canonical forms are listed too, so their case variants are folded into them.
-      - match:
-          - Union Démocratique des Bâtisseurs (UDB)
-          - Union Démocratique des Bâtisseurs
-          - Union des Bâtisseurs
-        value: Union Démocratique des Bâtisseurs (UDB)
-      - match:
-          - PDG
-          - Parti Démocratique Gabonais (PDG)
-          - Parti Démocratique Gabonais
-          - Partie Démocratique Gabonais (PDG)
-          - Groupe Parlementaire du Parti Démocratique Gabonais
-        value: Parti Démocratique Gabonais (PDG)
-      - match: Union National
-        value: Union Nationale
-      - match: [Forces Patriotiques (FP), Forces patriotiques]
-        value: Forces Patriotiques (FP)
-      - match: [Groupe Parlementaire UN/LD, Union Nationale/Les Démocrates]
-        value: Union Nationale/Les Démocrates (UN/LD)
-      - match: LD
-        value: Les Démocrates
-      - match: RPM
-        value: Rassemblement pour la Patrie et la Modernité (RPM)
-      - match: PSD
-        value: Parti Social Démocrate (PSD)
-      - match: UPR
-        value: Union pour la République (UPR)
