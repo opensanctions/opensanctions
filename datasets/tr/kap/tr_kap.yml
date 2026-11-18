@@ -7,7 +7,7 @@ entry_point: crawler.py
 prefix: tr-kap
 coverage:
   frequency: weekly
-  start: "2026-11-10"
+  start: "2026-11-14"
 exports:
   - statistics.json
   - entities.ftm.json
