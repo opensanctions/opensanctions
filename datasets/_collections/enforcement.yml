@@ -5,7 +5,7 @@ coverage:
   frequency: daily
 deploy:
   memory: "1000Mi"
-  memory_limit: "2000Mi"
+  memory_limit: "3000Mi"
 ci_test: false
 summary: >
   Entities involved in enforcement actions and regulatory notices.
