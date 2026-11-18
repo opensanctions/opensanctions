@@ -10,6 +10,7 @@ from zavod.exporters.senzing import (
     classify_identification,
     crypto_id_type,
     ogrn_subtype,
+    stable_first,
 )
 from zavod.crawl import crawl_dataset
 from zavod.tests.exporters.util import harnessed_export
@@ -383,3 +384,38 @@ def test_inn_is_always_russian(tmp_path):
     )
     (inn,) = [f for f in record["FEATURES"] if f.get("TAX_ID_TYPE") == "INN"]
     assert inn["TAX_ID_COUNTRY"] == "ru"
+
+
+def test_stable_first():
+    """stable_first() returns the lowest value whatever order the values were added in."""
+    ds = Dataset({"name": "test", "title": "Test"})
+    for countries in (["ua", "ru", "by"], ["by", "ua", "ru"], ["ru", "by", "ua"]):
+        entity = Entity(
+            ds, {"schema": "Company", "id": "c", "properties": {"country": countries}}
+        )
+        assert stable_first(entity, "country") == "by"
+    empty = Entity(ds, {"schema": "Company", "id": "c", "properties": {}})
+    assert stable_first(empty, "country") is None
+
+
+def test_identifier_country_multi_valued(tmp_path):
+    """With several countries in the property the id country is taken from, every
+    identifier gets the same, lowest country."""
+    record = export_one(
+        tmp_path,
+        {
+            "schema": "Person",
+            "id": "NK-abc",
+            "properties": {
+                "name": ["Jane Doe"],
+                "country": ["tr", "ps"],
+                "nationality": ["sy", "lb"],
+                "idNumber": ["905337655"],
+                "passportNumber": ["N123456"],
+            },
+        },
+    )
+    (national,) = [f for f in record["FEATURES"] if "NATIONAL_ID_NUMBER" in f]
+    assert national["NATIONAL_ID_COUNTRY"] == "ps"
+    (passport,) = [f for f in record["FEATURES"] if "PASSPORT_NUMBER" in f]
+    assert passport["PASSPORT_COUNTRY"] == "lb"
