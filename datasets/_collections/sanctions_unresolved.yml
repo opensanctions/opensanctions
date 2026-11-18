@@ -6,6 +6,7 @@ coverage:
   frequency: monthly
 deploy:
   memory: "1500Mi"
+  memory_limit: "3500Mi"
 exports:
   - statistics.json
   - entities.ftm.json
@@ -14,7 +15,7 @@ resolve: false
 summary: >
   Includes all entities from the sanctions collection without any de-duplication
 description: |
-  A version of [the sanctions dataset](/datasets/sanctions/) where no 
+  A version of [the sanctions dataset](/datasets/sanctions/) where no
   de-duplication has been applied.
 
 children:
