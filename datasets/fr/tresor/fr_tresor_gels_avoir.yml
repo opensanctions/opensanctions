@@ -192,6 +192,8 @@ lookups:
         value: CN
       - match: "ÉTAT DE PALESTINE"
         value: PS
+      - match: "Saint-Pétersbourg, Fédération de Russie"
+        value: RU
   type.identifier:
     options:
       - match:
@@ -249,6 +251,16 @@ lookups:
         prop: ogrnCode
       - match: "Numéro d'identification fiscale (INN)"
         prop: innCode
+      - match:
+          - "Numéro d'enregistrement"
+          - "Numéro au registre du commerce"
+        prop: registrationNumber
+      - match:
+          - "Numéro d'identification fiscale"
+          - "NIF"
+        prop: taxNumber
+      - match: "Numéro OMI"
+        prop: imoNumber
   ####################################################################################################
   ####################################################################################################
   # Matched against the whole identification field ("<Commentaire>: <Identification>",
@@ -12543,6 +12555,57 @@ lookups:
         schema: Company
         props:
           kppCode: "645501001"
+      - match: "KPP: 784001001"
+        schema: Company
+        props:
+          kppCode: "784001001"
+      - match: "KPP: 720301001"
+        schema: Company
+        props:
+          kppCode: "720301001"
+      - match: "KPP: 616601001"
+        schema: Company
+        props:
+          kppCode: "616601001"
+      - match: "KPP: 583601001"
+        schema: Company
+        props:
+          kppCode: "583601001"
+      - match: "KPP: 450101001"
+        schema: Company
+        props:
+          kppCode: "450101001"
+      - match: "Entité associée: Russie unie"
+        associates:
+          - Russie unie
+      - match: "Numéro d’enregistrement: Numéro au registre du commerce (Oman): 1593563"
+        props:
+          registrationNumber: "1593563"
+      # The principal establishment "Oman, Émirats arabes unis" names no single
+      # place, so it is kept in the notes only.
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Seychelles - Date d’enregistrement: 9.1.2025 - Établissement principal: Oman, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: sc
+          incorporationDate: 2025-01-09
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Seychelles - Date d’enregistrement: 8.1.2025 - Établissement principal: Oman, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: sc
+          incorporationDate: 2025-01-08
+      - match: "Type d’entité: Société unipersonnelle - Lieu d’enregistrement: Oman, Émirats arabes unis - Date d’enregistrement: Oman: 20/01/2025 - Établissement principal: Oman, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: Société unipersonnelle
+          incorporationDate: 2025-01-20
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.3.2025 - Établissement principal: Fédération de Russie, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: ru
+          incorporationDate: 2025-03-17
   # =====================================
   #
   #  ADDRESSES
