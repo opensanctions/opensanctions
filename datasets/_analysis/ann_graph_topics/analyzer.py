@@ -348,7 +348,6 @@ def crawl(context: Context) -> None:
     scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(Manifest.get_transient(scope), linker)
-    store.sync()
     view = store.view(scope, external=True)
 
     for entity_idx, entity in enumerate(view.entities()):

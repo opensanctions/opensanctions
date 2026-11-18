@@ -7,7 +7,8 @@ from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.context import Context, ContextStats
 from zavod.exc import RunFailedException
-from zavod.archive import dataset_data_path
+from zavod.archive import STATEMENTS_RAW, dataset_artifact_path, dataset_data_path
+from zavod.runtime.lake import build_statements_parquet, dump_statements_pack
 from zavod.runtime.loader import load_entry_point
 from zavod.runtime.manifest import Manifest
 from zavod.runner.enrich import enrich
@@ -41,12 +42,16 @@ def crawl_dataset(dataset: Dataset, version: Version) -> ContextStats:
         entry_point(context)
         context.flush()
         context.finalize_statements()
+        build_statements_parquet(dataset, context.version)
+        dump_statements_pack(dataset, context.version)
+        # The raw statements file has served its purpose; only the derived
+        # parquet and pack artifacts remain (and get published).
+        dataset_artifact_path(dataset.name, context.version, STATEMENTS_RAW).unlink()
         context.log.info(
             "Run completed",
             version=context.version.id,
             entities=context.stats.entities,
             statements=context.stats.statements,
-            changed=context.stats.changed,
         )
         if settings.DEBUG:
             context.debug_lookups()

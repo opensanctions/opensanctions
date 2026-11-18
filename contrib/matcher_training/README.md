@@ -16,8 +16,8 @@ evidence a human decider saw at judgement time.
   production resolver database (or a local copy) — the replay reads all live
   judgement edges (~3M rows). `NOMENKLATURA_DB_URL` has no effect here:
   `zavod.settings` overrides it on import.
-- Archive access for the scope's datasets: the script builds a local LevelDB
-  store from dataset statements on first run.
+- Archive access for the scope's datasets: the script builds a local DuckDB
+  store from the datasets' statement artifacts on each run.
 
 ## Run
 

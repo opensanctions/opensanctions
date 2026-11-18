@@ -6,8 +6,7 @@ coverage:
   frequency: daily
   start: 2021-11-17
 deploy:
-  memory: "1000Mi"
-  memory_limit: "1500Mi"
+  memory: "1300Mi"
 load_statements: true
 ci_test: false
 summary: >

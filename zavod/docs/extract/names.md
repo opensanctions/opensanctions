@@ -340,7 +340,7 @@ The process is
     - This shows us how well the prompt works on the validation set
     - It also shows us how well it works directly, compared with via the DSPy client.
 
-We use the prompt directly, rather than via DSPy, to avoid introducing DSPy as a production ETL dependency with significant additional dependencies. There is also a bug in leveldb which interacts with something in DSPy, which is a bit scary to have to dance around in production code.
+We use the prompt directly, rather than via DSPy, to avoid introducing DSPy as a production ETL dependency with significant additional dependencies.
 
 
 ### Optimising the prompt

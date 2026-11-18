@@ -14,7 +14,7 @@ from zavod.meta import Dataset
 from zavod.integration.logic import logic_decide
 
 if TYPE_CHECKING:
-    from zavod.store import Store
+    from zavod.store import LakeStore
 
 log = get_logger(__name__)
 
@@ -42,7 +42,7 @@ def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
 def blocking_xref(
     resolver: Resolver[Entity],
     session: Session,
-    store: "Store",
+    store: "LakeStore",
     state_path: Path,
     limit: int = 5000,
     patience: int = 500000,

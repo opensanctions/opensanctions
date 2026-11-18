@@ -44,13 +44,11 @@ from zavod.store import get_store
 
 @click.command()
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def main(dataset_paths: list[Path], clear: bool) -> None:
+def main(dataset_paths: list[Path]) -> None:
     configure_logging(level=logging.INFO)
 
     dataset = _load_datasets(dataset_paths)
     store = get_store(Manifest.get_transient(dataset), Linker[Entity]({}))
-    store.sync(clear=clear)
     view = store.default_view()
 
     with make_session() as session:

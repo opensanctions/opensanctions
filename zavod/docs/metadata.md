@@ -155,11 +155,15 @@ Coalition tags that aren't derived from the publisher country, such as `publishe
 The `deploy` section configures the Kubernetes job that runs the crawler in production. It is consumed by the deployment tooling, not by zavod itself. Override the defaults only when a crawler demonstrably needs it:
 
 - `deploy`
-    - `memory` / `memory_limit` - memory request and limit (defaults `700Mi` / `1600Mi`), e.g. `2000Mi` for crawlers that hold large source files in memory.
+    - `memory` / `memory_limit` - memory request and limit (defaults `700Mi` / `1600Mi`). See also the `ZAVOD_STORE_DUCKDB_MEMORY` and `ZAVOD_DELTA_DUCKDB_MEMORY` env var settings.
     - `cpu` / `cpu_limit` - CPU request and limit (defaults `200m` / `1600m`).
+    - `env` - environment variables for the job, overriding those common to all jobs, e.g. `NOMENKLATURA_DUCKDB_THREADS: "2"`
     - `disk` / `disk_limit` - scratch disk (default `9Gi`) for crawlers that download large source archives.
     - `premium` - `boolean` - whether its compute instance may be evicted, restarting the job. Set to `true` for jobs running for several hours.
     - `schedule` - cron schedule; only consulted when `coverage.schedule` is not set.
+
+!!! info "Diagnosing out-of-memory failures"
+    When an export fails, the error says which part ran out: an OutOfMemoryException naming duckdb_batch.py is the store, one in runtime/delta.py is the delta, and exit code 137 means the container ran out, usually because DuckDB's limits leave too little for Python.
 
 ### Continuous Integration
 

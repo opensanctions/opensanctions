@@ -12,6 +12,7 @@ from zavod.archive import DELTA_EXPORT_FILE, backfill_artifact, clear_data_path
 from zavod.archive import dataset_artifact_path, stream_statements
 from zavod.archive import get_last_successful_version
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
+from zavod.archive import STATEMENTS_PARQUET
 from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE, MANIFEST_FILE
 from zavod.archive import ISSUES_FILE, ISSUES_LOG, RESOURCES_FILE
 from zavod.archive import HASH_FILE, DELTA_INDEX_FILE, CATALOG_FILE
@@ -117,6 +118,7 @@ def test_publish_dataset(
         DELTA_INDEX_FILE,
         DELTA_EXPORT_FILE,
         STATEMENTS_FILE,
+        STATEMENTS_PARQUET,
         STATISTICS_FILE,
         # Registered resources outside the artifact directory:
         "source.csv",
@@ -241,7 +243,6 @@ def test_empty_crawl_does_not_resurrect_archived_statements(testdataset1: Datase
     assert len(list(manifest.statements())) == 0
 
     store = get_store(manifest, linker)
-    store.sync(clear=True)
     view = store.view(testdataset1, external=False)
     assert len(list(view.entities())) == 0
     store.close()
