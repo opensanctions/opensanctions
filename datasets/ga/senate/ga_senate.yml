@@ -139,8 +139,7 @@ lookups:
       - match: [Sénateur de la Transition, Sénatrice de la Transition]
         value: null
   # Serves both Person:political and Occupancy:politicalGroup on purpose: the party and
-  # group fields share spellings. The Transition Senate's appointment colleges (Société
-  # Civile, Partis Politiques, ...) are kept as groups.
+  # group fields share spellings.
   type.string:
     normalize: true
     lowercase: true
@@ -149,6 +148,18 @@ lookups:
         value: null
       # Transition Senate categories given as a party; they are not parties.
       - match: [Société Civil, Personnalité Civil, Religieux]
+        value: null
+      # The colleges Transition senators were appointed from, given as their group;
+      # they are not parliamentary groups.
+      - match:
+          - Partis Politiques
+          - Service de l’Etat
+          - Forces de Défenses et de Sécurité
+          - Confession Religieuse
+          - Patronat
+          - Société Civile
+          - Syndicat
+          - Syndicats
         value: null
       # Canonical forms are listed too, so their case variants are folded into them.
       - match:
@@ -177,5 +188,3 @@ lookups:
         value: Parti Social Démocrate (PSD)
       - match: UPR
         value: Union pour la République (UPR)
-      - match: Syndicat
-        value: Syndicats
