@@ -299,9 +299,14 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
             previous_sql = _previous_statements_sql(conn, dataset)
             if previous_sql is None:
                 previous_sql = _empty_statements_sql()
+            # The dedupe is staged in its own table: in a single pipeline with
+            # the join and the sort, its window holds memory that the other two
+            # need, and the build runs out of memory where each part would
+            # spill on its own (us_sam_exclusions, 3M statements, at 751 MB).
+            conn.execute(f"CREATE TEMP TABLE raw_deduped AS {_dedupe_sql(raw_sql)}")
             select = f"""
                 WITH raw AS (
-                    {_dedupe_sql(raw_sql)}
+                    SELECT * FROM raw_deduped
                 ),
                 previous AS (
                     SELECT id, min(first_seen) AS first_seen
