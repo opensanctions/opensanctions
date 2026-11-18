@@ -75,7 +75,7 @@ lookups:
       - match: senat-de-la-transition
         # Appointed after the August 2023 takeover; the full chamber was named on
         # 6 Oct 2023. It ended when the elected Senate's mandate began (below).
-        period_start: "2023-10"
+        period_start: "2023-10-06"
         period_end: "2025-12-17"
         elected: false
       - match: sixieme-legislature
