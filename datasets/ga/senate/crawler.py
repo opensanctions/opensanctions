@@ -8,7 +8,7 @@ from lxml import html as lxml_html
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.stateful.review import assert_all_accepted
 
-from zavod import Context, Entity, settings
+from zavod import Context, Entity
 from zavod import helpers as h
 
 TOPICS = ["gov.legislative", "gov.national"]
@@ -124,10 +124,8 @@ def crawl_senator(
     dob = fields.pop("Né le")
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}", dob) is None:
         raise ValueError(f"Unexpected birth date in post {slug}: {dob}")
-    # The form pre-fills the entry date (2025, 2026) and one value reads 1557. Senators
-    # must be at least 40 (Organic Law 001/2025 on the Electoral Code, Art. 221), so
-    # drop dates outside that range; one bound serves the Transition senators too.
-    if "1900" <= dob[:4] <= str(settings.RUN_TIME.year - 40):
+    # The form pre-fills the entry date (2025, 2026) and one value reads 1557.
+    if 1900 <= int(dob[:4]) <= 2000:
         h.apply_date(person, "birthDate", dob)
     else:
         context.log.info("Dropping implausible birth date", slug=slug, dob=dob)
