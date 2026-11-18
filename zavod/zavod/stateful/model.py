@@ -58,7 +58,8 @@ observation_table = Table(
     meta,
     Column("id", Integer, primary_key=True),
     Column("dataset", Unicode(KEY_LEN), nullable=False),
-    # The authority-issued designation ID, never the FtM entity ID.
+    # The authority-issued designation ID, never the FtM entity ID. The row with
+    # an empty key marks the dataset's baseline, and must never be deleted.
     Column("key", Unicode(KEY_LEN), nullable=False),
     # "" when only the key is observed: NULLs never conflict in a unique index.
     Column("checksum", Unicode(KEY_LEN), nullable=False),
