@@ -24,6 +24,13 @@ def emit_holder(
     constituency: str | None = None,
     group: str | None = None,
 ) -> None:
+    if term.elected:
+        # Senators must be Gabonese by origin: Organic Law 001/2025 on the Electoral
+        # Code, Art. 222. https://journal-officiel.ga/21554-001-2025-
+        person.add("citizenship", "ga")
+    else:
+        # Appointed, so no eligibility rule applies.
+        person.add("country", "ga")
     occupancy = h.make_occupancy(
         context,
         person,
@@ -113,7 +120,6 @@ def crawl_senator(
     name = html.unescape(record.pop("title")["rendered"])
     h.apply_reviewed_name_string(context, person, string=name, llm_cleaning=True)
     person.add("sourceUrl", record.pop("link"))
-    person.add(term.country_prop, "ga")
 
     dob = fields.pop("Né le")
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}", dob) is None:
@@ -129,7 +135,8 @@ def crawl_senator(
     person.add("profession", fields.pop("Profession", None))
     person.add("political", fields.pop("Partie politique", None))
     constituency = fields.pop("Département", None)
-    if not term.has_constituency:
+    if not term.elected:
+        # The département some appointed senators give is not a constituency.
         constituency = None
     group = fields.pop("Groupe parlementaire", None)
     # Province is a slug of the département's province; the seat repeats the
@@ -177,7 +184,6 @@ def crawl_bureau_president(
     person.id = context.make_id(name)
     h.apply_reviewed_name_string(context, person, string=name, llm_cleaning=True)
     person.add("sourceUrl", page["link"])
-    person.add(term.country_prop, "ga")
     emit_holder(context, person, member, categorisation, term, office)
 
 
@@ -202,7 +208,10 @@ def crawl(context: Context) -> None:
         # The 1st-5th legislatures exist as empty terms.
         if term["count"] > 0:
             # The required lookup raises on a populated term that has no dates yet.
-            context.lookup("term", term["slug"])
+            res = context.lookup("term", term["slug"])
+            assert res is not None
+            if not isinstance(res.elected, bool):
+                raise ValueError(f"Term {term['slug']} needs an elected flag")
             term_slugs[term["id"]] = term["slug"]
 
     # Fetch every post rather than per term: some posts carry no legislature tag.

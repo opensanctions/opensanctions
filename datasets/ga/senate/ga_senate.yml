@@ -77,18 +77,12 @@ lookups:
         # 6 Oct 2023. It ended when the elected Senate's mandate began (below).
         period_start: "2023-10"
         period_end: "2025-12-17"
-        # Appointed, so no eligibility rule applies, and the département some posts
-        # give is not a constituency.
-        country_prop: country
-        has_constituency: false
+        elected: false
       - match: sixieme-legislature
         # 2024 Constitution: the mandate begins on the day the chamber elects its
         # Bureau, which was 17 Dec 2025.
         period_start: "2025-12-17"
-        # Senators must be Gabonese by origin: Organic Law 001/2025 on the Electoral
-        # Code, Art. 222. https://journal-officiel.ga/21554-001-2025-
-        country_prop: citizenship
-        has_constituency: true
+        elected: true
   # Posts whose legislature tag is missing or wrong, keyed on the post slug; the value
   # is the term slug the post's content belongs to, or null to skip it.
   # Known source issues, emitted as published:
