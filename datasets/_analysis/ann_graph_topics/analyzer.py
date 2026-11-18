@@ -350,7 +350,7 @@ def crawl(context: Context) -> None:
     store = get_store(Manifest.get_transient(scope), linker)
     view = store.view(scope, external=True)
 
-    for entity_idx, entity in enumerate(view.entities()):
+    for entity_idx, entity in enumerate(view.entities(prefetch_nested=True)):
         if entity_idx > 0 and entity_idx % 1000 == 0:
             context.log.info(f"Processed {entity_idx} entities")
         analyze_entity(context, view, entity)
