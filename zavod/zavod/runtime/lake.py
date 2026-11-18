@@ -40,10 +40,11 @@ PACK_MAX_LINE = 33554432
 # 512 MiB here, and holds two buffers at once for packs larger than one. Two
 # lines' worth is enough to read any line.
 PACK_BUFFER_SIZE = 2 * PACK_MAX_LINE
-# The minimum memory limit of a pack conversion, in MB: the sort spills to disk
-# beyond it, so a small job can convert a 1.5 GB pack. Larger packs need more,
-# about 1,000 MB for 6.6 GB, which conversions get from the store's limit.
-PACK_CONVERT_MEMORY_MB = 500
+# The minimum memory limit of the lake's utility connections, in MB: their sorts
+# spill to disk beyond it, so a small job can convert a 1.5 GB pack. Larger
+# packs need more, about 1,000 MB for 6.6 GB, which they get from the store's
+# limit.
+UTIL_DUCKDB_MEMORY_MB = 500
 # Render TIMESTAMP columns back to the string form used by Statement.
 SEEN_FORMAT = "%Y-%m-%dT%H:%M:%S"
 # Full sort key for statement artifacts: `id` is unique after dedupe, so the
@@ -54,6 +55,24 @@ STATEMENT_ORDER = "entity_id, prop, id"
 
 def _sql_str(value: Path | str) -> str:
     return str(value).replace("'", "''")
+
+
+def _util_duckdb_connect(dataset_name: str, purpose: str) -> duckdb.DuckDBPyConnection:
+    """Open a short-lived connection for building or converting one dataset's
+    statement artifacts.
+
+    Ensures every utility connection has a temporary directory configured in the
+    dataset's state path.
+
+    Configures a memory limit if STORE_DUCKDB_MEMORY is set so that production runs
+    with tight memory and thread limits are constrained, while development doesn't
+    normally have to set memory or thread limits. Remember lots of cores defaults to
+    lots of threads, needing lots of memory."""
+    temp_directory = dataset_state_path(dataset_name) / f"{purpose}.tmp"
+    if settings.STORE_DUCKDB_MEMORY is None:
+        return duck.connect(temp_directory=temp_directory)
+    memory_mb = max(UTIL_DUCKDB_MEMORY_MB, int(settings.STORE_DUCKDB_MEMORY))
+    return duck.connect(memory_mb=memory_mb, temp_directory=temp_directory)
 
 
 def _read_pack_sql(path: Path) -> str:
@@ -171,17 +190,10 @@ def _convert_pack(dataset_name: str, pack: Path, path: Path) -> None:
     (PACK_MAX_LINE). A dedicated short-lived connection is used, so that the
     store's connection (e.g. the export
     store's) can have a limit sized for its own queries.
-
-    The conversion connection's memory limit is the larger of PACK_CONVERT_MEMORY_MB
-    and settings.STORE_DUCKDB_MEMORY.
     """
     tmp_path = path.with_suffix(".parquet.tmp")
-    temp_directory = dataset_state_path(dataset_name) / "convert.tmp"
-    memory_mb = PACK_CONVERT_MEMORY_MB
-    if settings.STORE_DUCKDB_MEMORY is not None:
-        memory_mb = max(memory_mb, int(settings.STORE_DUCKDB_MEMORY))
     try:
-        with duck.connect(memory_mb=memory_mb, temp_directory=temp_directory) as conn:
+        with _util_duckdb_connect(dataset_name, "convert") as conn:
             conn.execute(
                 f"""
                 COPY (SELECT * FROM ({_dedupe_sql(_read_pack_sql(pack))})
@@ -276,7 +288,7 @@ def build_statements_parquet(dataset: Dataset, version: Version) -> None:
     if not raw_path.is_file():
         raise FileNotFoundError(f"No raw statements file: {raw_path}")
     out_path = dataset_artifact_path(dataset.name, version, STATEMENTS_PARQUET)
-    conn = duck.connect()
+    conn = _util_duckdb_connect(dataset.name, "build")
     try:
         if raw_path.stat().st_size == 0:
             # The crawl emitted nothing (see Context.finalize_statements).
@@ -357,7 +369,7 @@ def dump_statements_pack(dataset: Dataset, version: Version) -> None:
         raise FileNotFoundError(f"No statements parquet file: {parquet_path}")
     pack_path = dataset_artifact_path(dataset.name, version, STATEMENTS_FILE)
     tmp_path = pack_path.with_suffix(".pack.tmp")
-    conn = duck.connect()
+    conn = _util_duckdb_connect(dataset.name, "dump")
     try:
         conn.execute(
             f"""

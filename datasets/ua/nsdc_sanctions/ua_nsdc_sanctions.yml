@@ -7,6 +7,7 @@ coverage:
   start: 2021-11-17
 deploy:
   memory: "1300Mi"
+  memory_limit: "3000Mi"
 load_statements: true
 ci_test: false
 summary: >
