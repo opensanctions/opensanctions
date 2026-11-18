@@ -13,6 +13,7 @@ deploy:
   schedule: "1 12 * * *"
   cpu: "2000m"
   memory: "7000Mi"
+  memory_limit: "8500Mi"
 load_statements: true
 ci_test: false
 summary: >-
