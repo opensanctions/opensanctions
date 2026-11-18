@@ -140,18 +140,19 @@ lookups:
     options:
       - match: [Néant, Non Inscrit, Indépendant, Indépendante]
         value: null
-      # Transition Senate categories given as a party; they are not parties.
-      - match: [Société Civil, Personnalité Civil, Religieux]
-        value: null
-      # The colleges Transition senators were appointed from, given as their group;
-      # they are not parliamentary groups.
+      # The colleges Transition senators were appointed from (civil society,
+      # religious groups, unions, ...), given as a party or a group. They are
+      # neither parties nor parliamentary groups.
       - match:
+          - Société Civil
+          - Société Civile
+          - Personnalité Civil
+          - Religieux
+          - Confession Religieuse
           - Partis Politiques
           - Service de l’Etat
           - Forces de Défenses et de Sécurité
-          - Confession Religieuse
           - Patronat
-          - Société Civile
           - Syndicat
           - Syndicats
         value: null
