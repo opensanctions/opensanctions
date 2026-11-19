@@ -12682,6 +12682,10 @@ lookups:
         schema: Company
         props:
           kppCode: "231201001"
+      - match: "KPP: 7704010014"
+        schema: Company
+        props:
+          kppCode: "7704010014"
   # =====================================
   #
   #  ADDRESSES
