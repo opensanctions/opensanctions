@@ -72,6 +72,8 @@ def parse_associates(context: Context, target: Entity, value: str) -> None:
 
 
 def crawl_entity(context: Context, data: dict[str, Any]) -> None:
+    # Hash the row as read from the workbook, before any of it is popped.
+    checksum = h.record_hash(data)
     unique_id = data.pop("Unique Identifier")
     entity_type = data.pop("Type")
     if entity_type in ("Asset", "Total") or entity_type is None:
@@ -122,17 +124,23 @@ def crawl_entity(context: Context, data: dict[str, Any]) -> None:
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction.add("authorityId", unique_id)
     sanction.add("startDate", data.pop("Date of Sanction"))
-    # Commencement of the regulations is both the listing and the start date.
-    for stmt in sanction.get_statements("startDate"):
-        sanction.adopt_statement(stmt, prop="listingDate")
-    modified_at = clean_date(data.pop("Date of Additional Sanction"))
-    h.apply_date(sanction, "modifiedAt", modified_at)
+    # TODO: find a mapping for this date. It was set only for the 2022 extensions
+    # of measures, so it doesn't date later amendments and isn't a modifiedAt.
+    data.pop("Date of Additional Sanction")
     sanction.add("status", data.pop("Sanction Status"))
     sanction.add("reason", data.pop("General Rationale for Sanction"))
     for scope in SCOPES:
         if as_bool(data.pop(scope)):
             sanction.add("provisions", scope)
 
+    key = stringify(unique_id)
+    if key is None:
+        context.log.error("Designation without a unique identifier", data=data)
+        return None
+    # Commencement of the regulations is both the listing and the start date.
+    h.finalize_sanction(
+        context, sanction, effective_on_listing=True, key=key, checksum=checksum
+    )
     context.emit(entity)
     context.emit(sanction)
     context.audit_data(data)
