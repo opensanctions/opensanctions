@@ -60,11 +60,14 @@ names:
     - ", DVM"
 
 lookups:
-  # "Ministry of …" agencies without a minister, by agency ID.
-  not_minister:
+  # "Ministry of …" agencies whose type misleads, by agency ID: "minister" says whether a
+  # minister heads it. Any other "Ministry of …" outside the "Ministries" type warns.
+  minister:
     options:
-      - match: "17342" # National Guard Health Affairs, run by a CEO
-        value: null
+      - match: "17342" # National Guard Health Affairs: typed Ministries, run by a CEO
+        minister: false
+      - match: "17627" # Ministry of Defense: typed Other
+        minister: true
 
 assertions:
   min:

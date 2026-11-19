@@ -59,8 +59,6 @@ IGNORE = [
     "field_na_branch_closing_time",
     "field_na_branch_wday_start",
     "field_na_branch_wday_end",
-    # Not used: the Ministry of Defense is filed under "Other".
-    "field_na_type",
     # No emails or phones for PEPs.
     "field_na_officer_email",
     "field_na_officer_mobile",
@@ -75,10 +73,10 @@ IGNORE = [
 ]
 
 
-def pop_value(record: dict[str, Any], key: str) -> Any:
+def pop_value(record: dict[str, Any], key: str, attr: str = "value") -> Any:
     items = record.pop(key)
     assert len(items) <= 1, (key, items)
-    return items[0]["value"] if len(items) == 1 else None
+    return items[0][attr] if len(items) == 1 else None
 
 
 def fetch_agency(context: Context, url: str) -> dict[str, Any]:
@@ -109,12 +107,18 @@ def crawl_agency(context: Context, url: str) -> None:
     nid = str(pop_value(record, "nid"))
     title = squash_spaces(pop_value(record, "title"))
     raw_name = pop_value(record, "field_na_officer_name")
+    agency_type = pop_value(record, "field_na_type", "label")
     context.audit_data(record, ignore=IGNORE)
-    # A minister heads each "Ministry of …", except the agencies in not_minister.
+    # A minister heads a "Ministry of …" of the "Ministries" type; the minister
+    # lookup settles the exceptions.
     portfolio = None
     match = re.fullmatch(r"Ministry of (.+)", title, re.IGNORECASE)
-    if match is not None and context.lookup("not_minister", nid) is None:
-        portfolio = match.group(1)
+    if match is not None:
+        res = context.lookup("minister", nid)
+        if res is None and agency_type != "Ministries":
+            context.log.warning("Unexpected ministry type", url=url, type=agency_type)
+        elif res is None or res.minister:
+            portfolio = match.group(1)
     if raw_name is None or raw_name.strip() == "-":
         if portfolio is not None:
             context.log.warning("Ministry has no head", url=url, title=title)
@@ -141,11 +145,13 @@ def crawl_agency(context: Context, url: str) -> None:
         categorisation = categorise(context, position)
     else:
         person.add("country", "sa")
+        position_name = f"Head of {title}"
+        # Name the country for national bodies, not regional emirates and municipalities.
+        regional = re.fullmatch(r"Emirate of .+|.+ Municipality", title, re.IGNORECASE)
+        if regional is None and "saudi" not in title.lower():
+            position_name = f"{position_name} of Saudi Arabia"
         position = h.make_position(
-            context,
-            name=f"Head of {title}",
-            country="sa",
-            lang="eng",
+            context, name=position_name, country="sa", lang="eng"
         )
         # Universities, hospitals etc. too: emit only once categorised in the UI.
         categorisation = categorise(context, position, default_is_pep=None)
