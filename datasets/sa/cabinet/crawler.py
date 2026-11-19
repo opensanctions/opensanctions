@@ -4,6 +4,7 @@ from typing import Any
 
 from lxml import etree
 from normality import squash_spaces
+from rigour.mime.types import XML
 from zavod.stateful.positions import categorise
 
 from zavod import Context
@@ -118,11 +119,15 @@ def crawl_agency(context: Context, url: str) -> None:
     if match is None:
         context.log.warning("Unexpected ministry title", url=url, title=title)
         return
+    if raw_name is None:
+        context.log.warning("Ministry has no head", url=url, title=title)
+        return
 
     person = context.make("Person")
     person.id = context.make_id(raw_name)
     name = h.strip_name_titles(context, raw_name)
-    person.add("name", name, original_value=raw_name if name != raw_name else None)
+    stripped = name != squash_spaces(raw_name)
+    person.add("name", name, original_value=raw_name if stripped else None)
     # Ministers must be Saudi nationals: Law of the Council of Ministers (1993),
     # Art. 3(a). https://hrlibrary.umn.edu/research/saudiarabia/law-council_ministries.html
     person.add("citizenship", "sa")
@@ -149,9 +154,7 @@ def crawl_agency(context: Context, url: str) -> None:
 
 
 def sitemap_locs(context: Context, url: str) -> list[str]:
-    _, _, _, text = zyte_api.fetch_text(
-        context, url, expected_media_type="application/xml"
-    )
+    _, _, _, text = zyte_api.fetch_text(context, url, expected_media_type=XML)
     doc = etree.fromstring(text.encode())
     return h.xpath_strings(doc, "//*[local-name()='loc']/text()")
 
