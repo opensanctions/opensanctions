@@ -5,7 +5,8 @@ coverage:
   frequency: daily
   start: 2026-11-14
 deploy:
-  disk: 30Gi
+  disk: 60Gi
+  disk_limit: 80Gi
   memory: 2Gi
   memory_limit: 8Gi
   premium: true
