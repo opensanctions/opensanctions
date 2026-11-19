@@ -103,8 +103,9 @@ def crawl_member(
     council: str,
     is_current: bool,
     member_position: tuple[Entity, PositionCategorisation],
-    speaker_position: tuple[Entity, PositionCategorisation] | None,
-) -> None:
+) -> Entity:
+    """Emit the member's occupancy and return the person, not yet emitted, so the
+    caller can add the presiding offices they hold."""
     person = context.make("Person")
     person.id = context.make_slug(member_id)
     apply_name(context, person, card_name)
@@ -166,18 +167,7 @@ def crawl_member(
     if occupancy is not None:
         occupancy.add("politicalGroup", political_group)
         context.emit(occupancy)
-    if speaker_position is not None:
-        position, categorisation = speaker_position
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            categorisation=categorisation,
-            key_prefix=council,
-        )
-        if occupancy is not None:
-            context.emit(occupancy)
-    context.emit(person)
+    return person
 
 
 def crawl_council(
@@ -204,17 +194,27 @@ def crawl_council(
                 card, ".//input[contains(@name, 'hfRepresentativeID')]/@value"
             )
             member_ids.add(member_id)
-            is_speaker = is_current and member_id == speaker_id
             name = h.element_text(h.xpath_element(card, ".//h6"))
-            crawl_member(
+            person = crawl_member(
                 context,
                 member_id=member_id,
                 card_name=name,
                 council=council_id,
                 is_current=is_current,
                 member_position=member_position,
-                speaker_position=speaker_position if is_speaker else None,
             )
+            if is_current and member_id == speaker_id:
+                position, categorisation = speaker_position
+                occupancy = h.make_occupancy(
+                    context,
+                    person,
+                    position,
+                    categorisation=categorisation,
+                    key_prefix=council_id,
+                )
+                if occupancy is not None:
+                    context.emit(occupancy)
+            context.emit(person)
     assert len(council_ids) == 1, (url, council_ids)
     return int(council_ids.pop()), member_ids
 
