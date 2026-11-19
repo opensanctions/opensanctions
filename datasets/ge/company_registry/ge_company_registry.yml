@@ -7,6 +7,8 @@ coverage:
   end: 2024-08-13
 deploy:
   schedule: "@monthly"
+  memory_limit: 4Gi
+  disk: 20Gi
 resolve: false
 ci_test: false
 summary: >-
