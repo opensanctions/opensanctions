@@ -1,0 +1,107 @@
+# Every head in the directory gets a position. Ministers' positions are named from
+# the ministry. Every other position is named "<source position text>, <agency>" and
+# is only emitted once it is categorised as PEP in the review UI. A new head, or an
+# edit to the position text, creates a new position to categorise.
+title: Saudi Arabia Government Directory
+entry_point: crawler.py
+prefix: sa-gov
+coverage:
+  frequency: monthly
+  start: 2026-11-17
+load_statements: true
+ci_test: false # Needs the Zyte API.
+summary: >-
+  Heads of ministries, regional emirates and other public bodies in Saudi Arabia
+description: |
+  Heads of the ministries, regional emirates, authorities, councils, courts and other
+  public bodies listed in the Directory of Government Entities on Saudi Arabia's
+  national portal. Ministers are appointed by royal order and sit on the Council of
+  Ministers, which the Prime Minister chairs and which sets and executes the state's
+  internal, external, financial and economic policy.
+
+  Only heads whose positions are politically exposed are included; the directory also
+  lists universities, hospitals and service centres. The Prime Minister and the
+  ministers of state, who sit on the Council without heading a ministry, are not
+  included. The source names each body's current head without appointment dates.
+url: https://my.gov.sa/en/agencies
+publisher:
+  name: هيئة الحكومة الرقمية
+  name_en: Digital Government Authority
+  acronym: DGA
+  description: >
+    The Digital Government Authority regulates and develops digital government in
+    Saudi Arabia. It runs the Unified National Platform (my.gov.sa), whose Directory
+    of Government Entities names the head of each government body.
+  url: https://dga.gov.sa/
+  country: sa
+  official: true
+data:
+  url: https://my.gov.sa/sitemap.xml
+  format: XML
+  lang: eng
+
+tags:
+  - list.pep
+
+names:
+  prefixes_strip:
+    - Doctor
+    - Dr.
+    - Dr
+    - Eng.
+    - H.E.
+    - His Excellency
+    - His Highness /
+    - His Highness
+    - His Royal Highness
+    - Mr.
+    - Prince
+    - Prof.
+    # Stray Arabic diacritics typed before some names.
+    - "ٍ"
+    - "ِ"
+  suffixes_strip:
+    - ",PhD"
+    - ", PhD"
+    - ", DVM"
+
+lookups:
+  # Directory records that are test pages, not government bodies, by agency ID; skipped.
+  test_agency:
+    options:
+      - match:
+          - "18143" # AMER-TEST
+          - "319731" # Test Agency AC999
+        value: null
+  # Agencies titled "Ministry of …" that no minister heads, by agency ID. Their head
+  # gets a position from the source's position text, like any other agency's.
+  not_minister:
+    options:
+      - match: "17342" # National Guard Health Affairs, run by a chief executive
+        value: null
+  # Source position texts that hold only an honorific, not a role; the position is
+  # named "Head, <agency>" instead. Texts repeating the head's name get "Head" in code.
+  position_role:
+    options:
+      - match:
+          - Dr.
+          - Eng.
+          - HE
+          - His Excellency
+          - His Highness
+          - Mr.
+        value: Head
+      - match: "ٌRector" # A stray Arabic diacritic before "Rector"
+        value: Rector
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20
+      Position: 20
+    country_entities:
+      sa: 20
+  max:
+    schema_entities:
+      Person: 550
+      Position: 600
