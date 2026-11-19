@@ -102,8 +102,8 @@ def crawl_member(
     card_name: str,
     council: str,
     is_current: bool,
-    member: tuple[Entity, PositionCategorisation],
-    speaker: tuple[Entity, PositionCategorisation] | None,
+    member_position: tuple[Entity, PositionCategorisation],
+    speaker_position: tuple[Entity, PositionCategorisation] | None,
 ) -> None:
     person = context.make("Person")
     person.id = context.make_slug(member_id)
@@ -151,7 +151,7 @@ def crawl_member(
             ],
         )
 
-    position, categorisation = member
+    position, categorisation = member_position
     occupancy = h.make_occupancy(
         context,
         person,
@@ -166,8 +166,8 @@ def crawl_member(
     if occupancy is not None:
         occupancy.add("politicalGroup", political_group)
         context.emit(occupancy)
-    if speaker is not None:
-        position, categorisation = speaker
+    if speaker_position is not None:
+        position, categorisation = speaker_position
         occupancy = h.make_occupancy(
             context,
             person,
@@ -184,8 +184,8 @@ def crawl_council(
     context: Context,
     url: str,
     is_current: bool,
-    member: tuple[Entity, PositionCategorisation],
-    speaker: tuple[Entity, PositionCategorisation],
+    member_position: tuple[Entity, PositionCategorisation],
+    speaker_position: tuple[Entity, PositionCategorisation],
     speaker_id: str,
 ) -> tuple[int, set[str]]:
     """Crawl a House's listing; return its number (hfConsId) and member IDs."""
@@ -211,8 +211,8 @@ def crawl_council(
                 card_name=name,
                 council=council_id,
                 is_current=is_current,
-                member=member,
-                speaker=speaker if is_speaker else None,
+                member_position=member_position,
+                speaker_position=speaker_position if is_speaker else None,
             )
     assert len(council_ids) == 1, (url, council_ids)
     return int(council_ids.pop()), member_ids
@@ -236,10 +236,10 @@ def make_position(
 
 
 def crawl(context: Context) -> None:
-    member = make_position(
+    member_position = make_position(
         context, "Member of the House of Representatives of Jordan", "Q17524418"
     )
-    speaker = make_position(
+    speaker_position = make_position(
         context, "Speaker of the House of Representatives of Jordan", "Q105531070"
     )
 
@@ -258,11 +258,11 @@ def crawl(context: Context) -> None:
 
     # The plain listing shows the sitting House.
     current, members = crawl_council(
-        context, context.data_url, True, member, speaker, speaker_id
+        context, context.data_url, True, member_position, speaker_position, speaker_id
     )
     assert speaker_id in members, speaker_id
     previous_url = f"{context.data_url}?CouncilID={current - 1}"
     previous, _ = crawl_council(
-        context, previous_url, False, member, speaker, speaker_id
+        context, previous_url, False, member_position, speaker_position, speaker_id
     )
     assert previous == current - 1, previous
