@@ -97,6 +97,7 @@ def apply_name(context: Context, person: Entity, full_name: str) -> None:
 
 def crawl_member(
     context: Context,
+    *,
     member_id: str,
     card_name: str,
     council: str,
@@ -206,12 +207,12 @@ def crawl_council(
             name = h.element_text(h.xpath_element(card, ".//h6"))
             crawl_member(
                 context,
-                member_id,
-                name,
-                council_id,
-                is_current,
-                member,
-                speaker if is_speaker else None,
+                member_id=member_id,
+                card_name=name,
+                council=council_id,
+                is_current=is_current,
+                member=member,
+                speaker=speaker if is_speaker else None,
             )
     assert len(council_ids) == 1, (url, council_ids)
     return int(council_ids.pop()), member_ids
@@ -239,7 +240,7 @@ def crawl(context: Context) -> None:
         context, "Member of the House of Representatives of Jordan", "Q17524418"
     )
     speaker = make_position(
-        context, "Speaker of the House of Representatives of Jordan", None
+        context, "Speaker of the House of Representatives of Jordan", "Q105531070"
     )
 
     # The presidency page lists the Speaker of each session of the sitting House.
