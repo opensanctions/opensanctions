@@ -413,6 +413,11 @@ def crawl_directors(
         directorship.id = context.make_id(krs, organ, director.id, role)
         directorship.add("director", director)
         directorship.add("organization", company)
+        # Some entries spell out the full scope of a power of attorney in the
+        # role field, which is kept as a description under the organ's name.
+        if len(role) > registry.string.max_length:
+            directorship.add("description", role)
+            role = organ
         directorship.add("role", role)
         context.audit_data(item, ignore=["czyZawieszona", "dataZawieszeniaDo"])
         context.emit(directorship)

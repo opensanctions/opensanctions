@@ -123,6 +123,8 @@ lookups:
     options:
       - match: "2982-07-29"
         value: "1982-07-29"
+      - match: "2992-01-24"
+        value: "1992-01-24"
   type.url:
     options:
       # A host without a top-level domain, left by a bare or truncated entry.
