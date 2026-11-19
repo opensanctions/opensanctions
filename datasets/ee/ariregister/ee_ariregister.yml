@@ -8,6 +8,7 @@ coverage:
 deploy:
   disk: 50Gi
   memory: 2Gi
+  memory_limit: 5Gi
 exports:
   - statistics.json
   - entities.ftm.json
