@@ -253,6 +253,7 @@ def crawl(context: Context) -> None:
         )
         assert session not in speakers, session
         speakers[session] = h.xpath_string(tr, ".//a/@href").rsplit("=", 1)[1]
+    # The Speaker elected for the latest session holds the office now.
     speaker_id = speakers[max(speakers)]
 
     # The plain listing shows the sitting House.
