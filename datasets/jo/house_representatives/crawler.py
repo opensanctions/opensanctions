@@ -17,18 +17,6 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 
-def fetch_html(context: Context, url: str, validator: str, cache_days: int) -> Element:
-    # The government network only serves Jordanian IPs.
-    return zyte_api.fetch_html(
-        context,
-        url,
-        unblock_validator=validator,
-        html_source="httpResponseBody",
-        geolocation="JO",
-        cache_days=cache_days,
-    )
-
-
 def fetch_pages(context: Context, url: str) -> Iterator[Element]:
     """Page through an ASP.NET listing by replaying the pager's postback for the
     link after the current page, until the pager reports the last page."""
@@ -120,7 +108,14 @@ def crawl_member(
         url = urljoin(
             context.data_url, f"CouncilMembersDetails?RepresentativeID={member_id}"
         )
-        doc = fetch_html(context, url, ".//div[@id='info']", cache_days=7)
+        doc = zyte_api.fetch_html(
+            context,
+            url,
+            unblock_validator=".//div[@id='info']",
+            html_source="httpResponseBody",
+            geolocation="JO",
+            cache_days=7,
+        )
         row: dict[str, str] = {}
         for tr in h.xpath_elements(doc, ".//div[@id='info']//tr[count(td) = 2]"):
             label, value = [h.element_text(td) for td in h.xpath_elements(tr, "./td")]
@@ -219,34 +214,43 @@ def crawl_council(
     return int(council_ids.pop()), member_ids
 
 
-def make_position(
-    context: Context, name: str, wikidata_id: str | None
-) -> tuple[Entity, PositionCategorisation]:
-    position = h.make_position(
+def crawl(context: Context) -> None:
+    member = h.make_position(
         context,
-        name=name,
-        wikidata_id=wikidata_id,
+        name="Member of the House of Representatives of Jordan",
+        wikidata_id="Q17524418",
         country="jo",
         topics=["gov.legislative", "gov.national"],
         lang="eng",
     )
-    categorisation = categorise(context, position)
-    assert categorisation.is_pep, position.id
-    context.emit(position)
-    return position, categorisation
+    member_categorisation = categorise(context, member)
+    assert member_categorisation.is_pep, member.id
+    context.emit(member)
+    member_position = (member, member_categorisation)
 
-
-def crawl(context: Context) -> None:
-    member_position = make_position(
-        context, "Member of the House of Representatives of Jordan", "Q17524418"
+    speaker = h.make_position(
+        context,
+        name="Speaker of the House of Representatives of Jordan",
+        wikidata_id="Q105531070",
+        country="jo",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
     )
-    speaker_position = make_position(
-        context, "Speaker of the House of Representatives of Jordan", "Q105531070"
-    )
+    speaker_categorisation = categorise(context, speaker)
+    assert speaker_categorisation.is_pep, speaker.id
+    context.emit(speaker)
+    speaker_position = (speaker, speaker_categorisation)
 
     # The presidency page lists the Speaker of each session of the sitting House.
     president_url = urljoin(context.data_url, "CouncilPresident")
-    doc = fetch_html(context, president_url, ".//table//tbody/tr", cache_days=1)
+    doc = zyte_api.fetch_html(
+        context,
+        president_url,
+        unblock_validator=".//table//tbody/tr",
+        html_source="httpResponseBody",
+        geolocation="JO",
+        cache_days=1,
+    )
     speakers: dict[int, str] = {}
     for tr in h.xpath_elements(doc, ".//table//tbody/tr"):
         session = session_number(
