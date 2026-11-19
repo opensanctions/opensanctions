@@ -1,28 +1,22 @@
-# Every head in the directory gets a position. Ministers' positions are named from
-# the ministry. Every other position is named "<source position text>, <agency>" and
-# is only emitted once it is categorised as PEP in the review UI. A new head, or an
-# edit to the position text, creates a new position to categorise.
+# Non-minister positions ("Head of <agency>") are emitted once categorised in the UI.
 title: Saudi Arabia Government Directory
 entry_point: crawler.py
 prefix: sa-gov
 coverage:
   frequency: monthly
-  start: 2026-11-17
+  start: 2026-11-19
 load_statements: true
 ci_test: false # Needs the Zyte API.
 summary: >-
   Heads of ministries, regional emirates and other public bodies in Saudi Arabia
 description: |
-  Heads of the ministries, regional emirates, authorities, councils, courts and other
-  public bodies listed in the Directory of Government Entities on Saudi Arabia's
-  national portal. Ministers are appointed by royal order and sit on the Council of
-  Ministers, which the Prime Minister chairs and which sets and executes the state's
-  internal, external, financial and economic policy.
+  Current heads of the ministries, regional emirates, authorities, councils, courts
+  and other public bodies listed in Saudi Arabia's Directory of Government Entities.
+  Ministers are appointed by royal order and sit on the Council of Ministers, chaired
+  by the Prime Minister.
 
-  Only heads whose positions are politically exposed are included; the directory also
-  lists universities, hospitals and service centres. The Prime Minister and the
-  ministers of state, who sit on the Council without heading a ministry, are not
-  included. The source names each body's current head without appointment dates.
+  Heads of bodies that confer no political exposure, such as universities and
+  hospitals, are left out, as are the Prime Minister and the ministers of state.
 url: https://my.gov.sa/en/agencies
 publisher:
   name: هيئة الحكومة الرقمية
@@ -57,7 +51,7 @@ names:
     - Mr.
     - Prince
     - Prof.
-    # Stray Arabic diacritics typed before some names.
+    # Stray Arabic diacritics.
     - "ٍ"
     - "ِ"
   suffixes_strip:
@@ -66,33 +60,11 @@ names:
     - ", DVM"
 
 lookups:
-  # Directory records that are test pages, not government bodies, by agency ID; skipped.
-  test_agency:
-    options:
-      - match:
-          - "18143" # AMER-TEST
-          - "319731" # Test Agency AC999
-        value: null
-  # Agencies titled "Ministry of …" that no minister heads, by agency ID. Their head
-  # gets a position from the source's position text, like any other agency's.
+  # "Ministry of …" agencies without a minister, by agency ID.
   not_minister:
     options:
-      - match: "17342" # National Guard Health Affairs, run by a chief executive
+      - match: "17342" # National Guard Health Affairs, run by a CEO
         value: null
-  # Source position texts that hold only an honorific, not a role; the position is
-  # named "Head, <agency>" instead. Texts repeating the head's name get "Head" in code.
-  position_role:
-    options:
-      - match:
-          - Dr.
-          - Eng.
-          - HE
-          - His Excellency
-          - His Highness
-          - Mr.
-        value: Head
-      - match: "ٌRector" # A stray Arabic diacritic before "Rector"
-        value: Rector
 
 assertions:
   min:

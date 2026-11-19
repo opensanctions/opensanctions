@@ -59,30 +59,30 @@ IGNORE = [
     "field_na_branch_closing_time",
     "field_na_branch_wday_start",
     "field_na_branch_wday_end",
-    # The agency type, e.g. "Ministries", "Emirates". Ministers are told apart by the
-    # agency title instead: the Ministry of Defense is filed under "Other".
+    # Not used: the Ministry of Defense is filed under "Other".
     "field_na_type",
-    # The head's office contacts and photo; emails and phone numbers are not
-    # extracted for PEPs.
+    # No emails or phones for PEPs.
     "field_na_officer_email",
     "field_na_officer_mobile",
     "field_na_officer_phone",
     "field_na_officer_phone_ext",
     "field_na_officer_photo",
     "field_na_officer_social",
-    # An honorific, sometimes the full name instead, e.g. "HE", "mr.".
+    # An honorific, e.g. "HE".
     "field_na_officer_prefix",
+    # Unreliable ("mr.", "CEO", the head's name): positions are named by agency.
+    "field_na_officer_position",
 ]
 
 
-def pop_value(record: dict[str, Any], key: str, attr: str = "value") -> Any:
+def pop_value(record: dict[str, Any], key: str) -> Any:
     items = record.pop(key)
     assert len(items) <= 1, (key, items)
-    return items[0][attr] if len(items) == 1 else None
+    return items[0]["value"] if len(items) == 1 else None
 
 
 def fetch_agency(context: Context, url: str) -> dict[str, Any]:
-    # The record is embedded in the Next.js payload pushed in the page's scripts.
+    # The record sits in the Next.js payload of the page's scripts.
     doc = zyte_api.fetch_html(
         context,
         url,
@@ -96,8 +96,7 @@ def fetch_agency(context: Context, url: str) -> dict[str, Any]:
     stream = "".join(
         json.loads(c[len("self.__next_f.push([1,") : -len("])")]) for c in chunks
     )
-    # Rows aren't reliably newline-separated (free-text rows run into the next),
-    # so decode the record object where it starts.
+    # Rows aren't reliably newline-separated, so decode from where the record starts.
     marker = '{"data":{"nid":'
     assert stream.count(marker) == 1, url
     payload, _ = json.JSONDecoder().raw_decode(stream, stream.index(marker))
@@ -105,38 +104,19 @@ def fetch_agency(context: Context, url: str) -> dict[str, Any]:
     return record
 
 
-def make_position_name(
-    context: Context, raw_role: str | None, raw_name: str, agency: str
-) -> str:
-    """Name a head's position from the source's position text and the agency.
-
-    The text becomes "Head" where it holds only an honorific or the head's own name,
-    and the agency is appended unless the text already names it."""
-    role = "Head"
-    if raw_role is not None and squash_spaces(raw_role) != squash_spaces(raw_name):
-        role = squash_spaces(raw_role)
-        res = context.lookup("position_role", role)
-        role = role if res is None else str(res.value)
-    if agency.lower() in role.lower():
-        return role
-    return f"{role}, {agency}"
-
-
 def crawl_agency(context: Context, url: str) -> None:
     record = fetch_agency(context, url)
     nid = str(pop_value(record, "nid"))
     title = squash_spaces(pop_value(record, "title"))
     raw_name = pop_value(record, "field_na_officer_name")
-    raw_role = pop_value(record, "field_na_officer_position")
     context.audit_data(record, ignore=IGNORE)
-    if context.lookup("test_agency", nid) is not None:
-        return
-    ministry = re.fullmatch(r"Ministry of (?P<portfolio>.+)", title, re.IGNORECASE)
-    if context.lookup("not_minister", nid) is not None:
-        ministry = None
-    # "-" is a placeholder for no head.
+    # A minister heads each "Ministry of …", except the agencies in not_minister.
+    portfolio = None
+    match = re.fullmatch(r"Ministry of (.+)", title, re.IGNORECASE)
+    if match is not None and context.lookup("not_minister", nid) is None:
+        portfolio = match.group(1)
     if raw_name is None or raw_name.strip() == "-":
-        if ministry is not None:
+        if portfolio is not None:
             context.log.warning("Ministry has no head", url=url, title=title)
         return
 
@@ -147,15 +127,13 @@ def crawl_agency(context: Context, url: str) -> None:
     person.add("name", name, original_value=raw_name if stripped else None)
     person.add("sourceUrl", url)
 
-    if ministry is not None:
+    if portfolio is not None:
         # Ministers must be Saudi nationals: Law of the Council of Ministers (1993),
         # Art. 3(a). https://hrlibrary.umn.edu/research/saudiarabia/law-council_ministries.html
         person.add("citizenship", "sa")
-        # The source's position text is unreliable for ministers ("mr.", or two
-        # offices), so the position is named from the ministry.
         position = h.make_position(
             context,
-            name=f"Minister of {ministry.group('portfolio')} of Saudi Arabia",
+            name=f"Minister of {portfolio} of Saudi Arabia",
             country="sa",
             topics=["gov.national", "gov.executive"],
             lang="eng",
@@ -165,16 +143,15 @@ def crawl_agency(context: Context, url: str) -> None:
         person.add("country", "sa")
         position = h.make_position(
             context,
-            name=make_position_name(context, raw_role, raw_name, title),
+            name=f"Head of {title}",
             country="sa",
             lang="eng",
         )
-        # The directory mixes political offices with universities, hospitals and
-        # the like, so each position waits for categorisation in the review UI.
+        # Universities, hospitals etc. too: emit only once categorised in the UI.
         categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:
         return
-    # The directory names each ministry's incumbent head, without dates.
+    # Current heads only, undated.
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
     )
@@ -191,8 +168,7 @@ def sitemap_locs(context: Context, url: str) -> list[str]:
 
 
 def crawl(context: Context) -> None:
-    # The directory's own listing pages overlap and miss agencies, so walk the
-    # sitemap, which lists every agency page.
+    # The listing pages miss agencies; the sitemap has them all.
     urls: set[str] = set()
     for sitemap in sitemap_locs(context, context.data_url):
         urls.update(
