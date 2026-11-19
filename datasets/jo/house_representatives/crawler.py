@@ -1,7 +1,7 @@
 import re
 from uuid import uuid4
 from collections.abc import Iterator
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urljoin
 
 from lxml import html
 from zavod.extract import zyte_api
@@ -15,9 +15,6 @@ from zavod.util import Element, LangText
 
 from zavod import Context, Entity
 from zavod import helpers as h
-
-DETAIL_URL = "https://representatives.jo/Ar/pages/CouncilMembersDetails"
-PRESIDENT_URL = "https://representatives.jo/Ar/Pages/CouncilPresident"
 
 
 def fetch_html(context: Context, url: str, validator: str, cache_days: int) -> Element:
@@ -118,7 +115,9 @@ def crawl_member(
     # so they are only fetched for the sitting House.
     political_group = None
     if is_current:
-        url = f"{DETAIL_URL}?RepresentativeID={member_id}"
+        url = urljoin(
+            context.data_url, f"CouncilMembersDetails?RepresentativeID={member_id}"
+        )
         doc = fetch_html(context, url, ".//div[@id='info']", cache_days=7)
         row: dict[str, str] = {}
         for tr in h.xpath_elements(doc, ".//div[@id='info']//tr[count(td) = 2]"):
@@ -244,7 +243,8 @@ def crawl(context: Context) -> None:
     )
 
     # The presidency page lists the Speaker of each session of the sitting House.
-    doc = fetch_html(context, PRESIDENT_URL, ".//table//tbody/tr", cache_days=1)
+    president_url = urljoin(context.data_url, "CouncilPresident")
+    doc = fetch_html(context, president_url, ".//table//tbody/tr", cache_days=1)
     speakers: dict[int, str] = {}
     for tr in h.xpath_elements(doc, ".//table//tbody/tr"):
         session = session_number(
