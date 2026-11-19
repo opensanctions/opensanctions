@@ -78,6 +78,7 @@ def clean_reference(ref: str) -> str | None:
 def parse_reference(
     context: Context, reference: str, rows: list[dict[str, str | None]]
 ) -> None:
+    checksum = h.record_hash(rows)
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
@@ -189,6 +190,7 @@ def parse_reference(
         )
 
     entity.add("topics", "sanction")
+    h.finalize_sanction(context, sanction, key=reference, checksum=checksum)
     context.emit(entity)
     context.emit(sanction)
 
