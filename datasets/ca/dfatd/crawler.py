@@ -101,6 +101,18 @@ def parse_entry(context: Context, node: Element) -> None:
             text = child.text.strip()
             if text:
                 row[child.tag] = text
+    # The listing date was filled in for every record at once, and dates the
+    # listing rather than an amendment.
+    checksum = h.record_hash(
+        {k: v for k, v in row.items() if k != "DateOfListing-DateDinscription"}
+    )
+    key = "|".join(
+        (
+            row.get("Country-Pays", ""),
+            row.get("Schedule-Annexe", ""),
+            row["Item-NumeroDarticle"],
+        )
+    )
 
     entity_name = row.pop("EntityOrShip-EntiteOuNavire", None)
     given_name = row.pop("GivenName-Prenom", None)
@@ -183,9 +195,6 @@ def parse_entry(context: Context, node: Element) -> None:
     h.apply_date(
         sanction, "listingDate", row.pop("DateOfListing-DateDinscription", None)
     )
-    # Amending regulations are made, registered and in force on the same day.
-    for stmt in sanction.get_statements("listingDate"):
-        sanction.adopt_statement(stmt, prop="startDate")
 
     names = squash_spaces(row.pop("Aliases-Alias", ""))
     if names:
@@ -209,5 +218,9 @@ def parse_entry(context: Context, node: Element) -> None:
     )
 
     context.audit_data(row)
+    # Amending regulations are made, registered and in force on the same day.
+    h.finalize_sanction(
+        context, sanction, effective_on_listing=True, key=key, checksum=checksum
+    )
     context.emit(entity)
     context.emit(sanction)
