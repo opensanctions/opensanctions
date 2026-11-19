@@ -182,6 +182,7 @@ def crawl_member(
 
 def crawl_council(
     context: Context,
+    *,
     url: str,
     is_current: bool,
     member_position: tuple[Entity, PositionCategorisation],
@@ -258,11 +259,21 @@ def crawl(context: Context) -> None:
 
     # The plain listing shows the sitting House.
     current, members = crawl_council(
-        context, context.data_url, True, member_position, speaker_position, speaker_id
+        context,
+        url=context.data_url,
+        is_current=True,
+        member_position=member_position,
+        speaker_position=speaker_position,
+        speaker_id=speaker_id,
     )
     assert speaker_id in members, speaker_id
     previous_url = f"{context.data_url}?CouncilID={current - 1}"
     previous, _ = crawl_council(
-        context, previous_url, False, member_position, speaker_position, speaker_id
+        context,
+        url=previous_url,
+        is_current=False,
+        member_position=member_position,
+        speaker_position=speaker_position,
+        speaker_id=speaker_id,
     )
     assert previous == current - 1, previous
