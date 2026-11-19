@@ -1,0 +1,82 @@
+# Non-minister positions ("Head of <agency>") are emitted once categorised in the UI.
+title: Saudi Arabia Government Directory
+entry_point: crawler.py
+prefix: sa-gov
+coverage:
+  frequency: monthly
+  start: 2026-11-19
+load_statements: true
+ci_test: false # Needs the Zyte API.
+summary: >-
+  Heads of ministries, regional emirates and other public bodies in Saudi Arabia
+description: |
+  Current heads of the ministries, regional emirates, authorities, councils, courts
+  and other public bodies listed in Saudi Arabia's Directory of Government Entities.
+  Ministers are appointed by royal order and sit on the Council of Ministers, chaired
+  by the Prime Minister.
+
+  Heads of bodies that confer no political exposure, such as universities and
+  hospitals, are left out, as are the Prime Minister and the ministers of state.
+url: https://my.gov.sa/en/agencies
+publisher:
+  name: هيئة الحكومة الرقمية
+  name_en: Digital Government Authority
+  acronym: DGA
+  description: >
+    The Digital Government Authority regulates and develops digital government in
+    Saudi Arabia. It runs the Unified National Platform (my.gov.sa), whose Directory
+    of Government Entities names the head of each government body.
+  url: https://dga.gov.sa/
+  country: sa
+  official: true
+data:
+  url: https://my.gov.sa/sitemap.xml
+  format: XML
+  lang: eng
+
+tags:
+  - list.pep
+
+names:
+  prefixes_strip:
+    - Doctor
+    - Dr.
+    - Dr
+    - Eng.
+    - H.E.
+    - His Excellency
+    - His Highness /
+    - His Highness
+    - His Royal Highness
+    - Mr.
+    - Prince
+    - Prof.
+    # Stray Arabic diacritics.
+    - "ٍ"
+    - "ِ"
+  suffixes_strip:
+    - ",PhD"
+    - ", PhD"
+    - ", DVM"
+
+lookups:
+  # "Ministry of …" agencies whose type misleads, by agency ID: "minister" says whether a
+  # minister heads it. Any other "Ministry of …" outside the "Ministries" type warns.
+  minister:
+    options:
+      - match: "17342" # National Guard Health Affairs: typed Ministries, run by a CEO
+        minister: false
+      - match: "17627" # Ministry of Defense: typed Other
+        minister: true
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20
+      Position: 20
+    country_entities:
+      sa: 20
+  max:
+    schema_entities:
+      Person: 550
+      Position: 600
