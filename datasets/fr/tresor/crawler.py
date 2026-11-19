@@ -241,7 +241,12 @@ def apply_prop(
     elif field == "REFERENCE_ONU":
         sanction.add("unscId", value.pop("ReferenceOnu"))
     elif field == "FONDEMENT_JURIDIQUE":
-        sanction.add("program", value.pop("FondementJuridiqueLabel"), lang="fra")
+        # The legal acts that listed, amended or renewed the designation.
+        label = value.pop("FondementJuridiqueLabel")
+        sanction.add("program", label, lang="fra")
+        program_key = h.lookup_sanction_program_key(context, label)
+        sanction.add("programId", program_key, original_value=label)
+        entity.add("programId", program_key)
         # TODO: derive target countries?
     elif field == "MOTIFS":
         motifs = value.pop("Motifs")
@@ -254,6 +259,8 @@ def apply_prop(
 
 
 def crawl_entity(context: Context, data: dict[str, Any]) -> None:
+    # Hash the record as published, before any of it is popped.
+    checksum = h.record_hash(data)
     nature = data.pop("Nature")
     reg_id = data.pop("IdRegistre")
 
@@ -277,23 +284,34 @@ def crawl_entity(context: Context, data: dict[str, Any]) -> None:
                 program_name = val.get("FondementJuridiqueLabel")
                 if program_name:
                     program_names.append(program_name)
-    # For each program name, create a separate sanction.
-    for program_name in program_names:
-        sanction = h.make_sanction(
-            context,
-            entity,
-            program_name=program_name,
-            source_program_key=program_name,
-            program_key=h.lookup_sanction_program_key(context, program_name),
-        )
-        sanction.add("authorityId", reg_id)
+    # Take the first given name in source order: entity.first() picks an arbitrary one.
+    first_names: list[str] = []
+    for detail in data.get("RegistreDetail", []):
+        if detail.get("TypeChamp") == "PRENOM":
+            for val in detail.get("Valeur", []):
+                prenom = val.get("Prenom")
+                if prenom is not None and len(prenom.strip()) > 0:
+                    first_names.append(prenom.strip())
+    first_name = first_names[0] if len(first_names) > 0 else None
+    if len(program_names) == 0:
+        context.log.error("Designation without a legal basis", reg_id=reg_id)
+        return
+    # One sanction per designation: the legal bases are the acts that listed and
+    # then amended it, almost always under a single regime.
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=program_names[0],
+        source_program_key=program_names[0],
+        program_key=h.lookup_sanction_program_key(context, program_names[0]),
+    )
+    sanction.add("authorityId", reg_id)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
             apply_prop(context, entity, sanction, field, value)
 
     name = data.pop("Nom")
-    first_name = entity.first("firstName", quiet=True)
     # Entities that don't have a first name usually have their full name in the "Nom" field.
     if first_name is None:
         h.apply_name(
@@ -309,6 +327,7 @@ def crawl_entity(context: Context, data: dict[str, Any]) -> None:
             quiet=True,
         )
     entity.add("topics", "sanction")
+    h.finalize_sanction(context, sanction, key=str(reg_id), checksum=checksum)
     context.emit(entity)
     context.emit(sanction)
 
