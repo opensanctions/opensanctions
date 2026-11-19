@@ -113,14 +113,17 @@ def crawl_member(
         if p
     )
     assert first or last, f"Deputy {dip_id} without a name"
+    birth = deputy.findtext("FechaNacimiento")
+    birth_date = birth[:10] if birth else None
 
     person = context.make("Person")
-    person.id = context.make_slug(dip_id)
+    # The source assigns a new Id to the same deputy in each legislative period,
+    # so the Id cannot key the person. Deputies of early periods have no birth date.
+    person.id = context.make_id(first, last, birth_date)
     h.apply_name(person, first_name=first, last_name=last, lang="spa")
     person.add("gender", deputy.findtext("Sexo"))
-    birth = deputy.findtext("FechaNacimiento")
-    if birth is not None:
-        h.apply_date(person, "birthDate", birth[:10])
+    if birth_date is not None:
+        h.apply_date(person, "birthDate", birth_date)
     for party in parties(deputy):
         person.add("political", party, lang="spa")
     # Deputies must be citizens with the right to vote (Constitution of Chile,
