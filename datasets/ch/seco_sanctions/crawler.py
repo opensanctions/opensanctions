@@ -588,9 +588,7 @@ def parse_entry(
         else:
             sanction.add("listingDate", publication_date)
             sanction.add("startDate", effective_date)
-    dates_ = [d for d in dates if d is not None]
-    if len(dates_):
-        sanction.add("modifiedAt", max(dates_))
+    sanction.add("modifiedAt", list(dates))
 
     if last_modification_type == "de-listed":
         return

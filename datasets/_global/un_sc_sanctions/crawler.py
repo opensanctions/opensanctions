@@ -140,11 +140,7 @@ def parse_common(context: Context, entity: Entity, node: Element) -> Entity:
     for last_day_updated in values(node.find("./LAST_DAY_UPDATED")):
         h.apply_date(entity, "modifiedAt", last_day_updated)
     # LAST_DAY_UPDATED keeps the two most recent amendment dates.
-    h.apply_date(
-        sanction,
-        "modifiedAt",
-        max(values(node.find("./LAST_DAY_UPDATED")), default=None),
-    )
+    h.apply_dates(sanction, "modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     reference = node.findtext("./REFERENCE_NUMBER")
     sanction.add("unscId", reference)
     sanction.add("authorityId", reference)
