@@ -41,6 +41,7 @@ const expectedPositionColumns = new Set<string>([
   'countries',
   'subnational_areas',
   'is_pep',
+  'seniority',
   'topics',
   'dataset',
   'created_at',
@@ -86,6 +87,7 @@ export interface PositionTable {
   countries: JSONColumnType<string[], string[], string[]>
   subnational_areas: JSONColumnType<string[], string[], string[]> | null
   is_pep: boolean | null
+  seniority: string | null
   topics: JSONColumnType<string[], string[], string[]>
   dataset: string
   created_at: Date

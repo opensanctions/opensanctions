@@ -31,6 +31,13 @@ const ROLE_ENTRIES = [
   ["gov.religion", "Relig"]
 ] as const;
 
+const SENIORITY_ENTRIES = [
+  ["leadership", "Lead"],
+  ["senior", "Senior"],
+  ["middle", "Mid"],
+  ["junior", "Junior"]
+] as const;
+
 type PositionTaggerRowProps = {
   countries: Map<string, string>,
   position: Position,
@@ -61,6 +68,7 @@ export default function PositionTaggerRow({ countries, position, isSelected, onS
   // Initial state for the component
   const [state, setState] = useState({
     is_pep: position.is_pep,
+    seniority: position.seniority,
     topics: new Set(position.topics),
     modified_at: position.modified_at ?? null,
     modified_by: position.modified_by ?? null,
@@ -86,6 +94,7 @@ export default function PositionTaggerRow({ countries, position, isSelected, onS
           setState(prevState => ({
             ...prevState,
             is_pep: result.is_pep,
+            seniority: result.seniority,
             topics: new Set(result.topics),
             modified_at: new Date(result.modified_at),
             modified_by: result.modified_by,
@@ -231,6 +240,23 @@ export default function PositionTaggerRow({ countries, position, isSelected, onS
             ))}
           </ButtonGroup>
         </div>
+      </td>
+      <td>
+        {/* Clicking the active seniority again resets it to undecided */}
+        <ButtonGroup aria-label="Seniority">
+          {SENIORITY_ENTRIES.map(([seniority, label]) => (
+            <Button
+              key={seniority}
+              variant="outline-dark"
+              className="btn-sm"
+              active={state.seniority === seniority}
+              disabled={saving}
+              onClick={() => updatePosition({ seniority: state.seniority === seniority ? null : seniority })}
+            >
+              {label}
+            </Button>
+          ))}
+        </ButtonGroup>
       </td>
       <td className="text-nowrap" title={position.created_at.toISOString()}>{position.created_at.toISOString().slice(0, 10)}</td>
       <td className="text-nowrap" title={position.last_seen?.toISOString()}>{position.last_seen?.toISOString().slice(0, 10)}</td>
