@@ -1,0 +1,116 @@
+# The Jordanian government network only answers Jordanian IPs, so every request
+# goes through Zyte with JO geolocation. Zyte intermittently fails with a 421
+# connection error; re-run the crawl. A full run takes over an hour, hence
+# ci_test: false.
+#
+# The listing is the royal decree that appointed the sitting Senate. Members who
+# have since left keep their card, marked with a leading "*". A note on the listing
+# ("التعديلات التي طرأت على المجلس") gives each later decree, which appoints members
+# or accepts a resignation, and the crawler fails on an entry it cannot read.
+# A note-only appointee's ID changes to the card-based ID once the site adds their card.
+title: Jordan Members of the Senate
+prefix: jo-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-09
+load_statements: true
+ci_test: false
+summary: >-
+  Upper chamber of the Parliament of Jordan, whose members the King appoints
+description: |
+  Current and recent members of the Senate of Jordan (مجلس الأعيان), the upper
+  chamber of the bicameral Parliament of Jordan. Its members are appointed by the
+  King for a four-year term, number no more than half the House of
+  Representatives, and share the country's legislative power with the elected
+  House, including passing laws and approving the budget.
+
+  The dataset covers the members of the current Senate, including those appointed
+  during its term and those who have since left it.
+url: https://senate.jo/Ar/List/اعضاء_المجلس_الحالي_والسير_الذاتية
+publisher:
+  name: مجلس الأعيان الأردني
+  name_en: Senate of Jordan
+  description: >
+    The Senate is the upper chamber of the Parliament of Jordan, whose members are
+    appointed by the King.
+  url: https://senate.jo/
+  country: jo
+  official: true
+data:
+  url: https://senate.jo/Ar/List/اعضاء_المجلس_الحالي_والسير_الذاتية
+  format: HTML
+  lang: ara
+dates:
+  formats: ["%d/%m/%Y", "%Y/%m/%d", "%d %m %Y", "%Y"]
+  # Levantine Arabic month names, as in "22 نيسان 1952".
+  months:
+    "01": كانون الثاني
+    "02": شباط
+    "03": آذار
+    "04": نيسان
+    "05": أيار
+    "06": حزيران
+    "07": تموز
+    "08": [آب, اب]
+    "09": أيلول
+    "10": تشرين الأول
+    "11": تشرين الثاني
+    "12": كانون الأول
+
+tags:
+  - list.pep
+
+lookups:
+  # Honorifics and ranks dropped from member names, matched word by word; a title
+  # such as "الدكتورة" gives the gender.
+  honorifics:
+    options:
+      - match: ["سعادة", "معالي", "دولة", "د.", "باشا"]
+        gender: null
+      # Military ranks, e.g. "الفريق أول ركن", "فريق ركن متقاعد",
+      # "اللواء الركن المتقاعد".
+      - match: ["الفريق", "فريق", "أول", "ركن", "الركن", "اللواء", "متقاعد", "المتقاعد"]
+        gender: null
+      - match: ["السيد", "الدكتور", "المهندس", "المحامي", "الأستاذ"]
+        gender: male
+      - match: ["السيدة", "الدكتورة", "المهندسة", "المحامية", "الأستاذة"]
+        gender: female
+  # Headings in the CV pages, mapped to the field the text after them holds.
+  cv_labels:
+    options:
+      - match: ["الاسم والشهرة:", "الاسم والشهرة :"]
+        value: alias
+      # The place and date of birth, in either order, or only the date.
+      - match:
+          - "مكان وتاريخ الولادة:"
+          - "تاريخ ومكان الولادة :"
+          - "مكان وتاريخ الميلاد:"
+          - "تاريخ الولادة:"
+        value: birth
+      - match: "مكان الولادة:"
+        value: birthPlace
+  # Place and date of birth values to drop: the year in Fadel al-Hamoud's
+  # (فاضل محمد عبدالله الحمود) is a typo.
+  birth:
+    options:
+      - match: '20\11\1658'
+        value: null
+  # Names in the note spelled differently from the member's card, mapped to the
+  # card's name (honorifics and quotes removed).
+  note_names:
+    options:
+      - match: "مصطفى إبراهيم بطرس إسحق الحمارنة"
+        value: "مصطفى إبراهيم بطرس الحمارنة"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 1
+    country_entities:
+      jo: 60
+  max:
+    schema_entities:
+      Person: 150
+      Position: 2
