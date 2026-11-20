@@ -2,7 +2,9 @@ import re
 
 from lxml.etree import _Element
 from normality import squash_spaces
+from zavod.shed.trans import apply_translit_full_name
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import LangText
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -62,6 +64,7 @@ def crawl_row(
     person = context.make("Person")
     person.id = context.make_id(raw_name)
     person.add("name", name)
+    apply_translit_full_name(context, person, LangText(name, "ara"))
     person.add("citizenship", "iq")
     # Minority quota members list their own name as the party.
     if party != name:
