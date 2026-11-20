@@ -469,6 +469,9 @@ def archive_link(href: str | None) -> str | None:
     if marker not in href:
         return None
     href = href.replace("/ix?doc=", "/").replace("http://", "https://")
+    # Check Point email protection wraps links as "https://protect.checkpoint.com/
+    # v2/r01/___https:/www.sec.gov/Archives/...htm___.<token>"; drop the token.
+    href = re.sub(r"___\.[A-Za-z0-9+/=_-]+$", "", href)
     # Keep only the last archive URL: "C:/Inet/DocViewServlet?...&docName=http:/www.
     # sec.gov/Archives/...", ".../000119312526128949/https://www.sec.gov/Archives/..."
     start = href.rfind(marker)
