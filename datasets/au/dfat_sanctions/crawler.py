@@ -185,9 +185,8 @@ def parse_reference(
                 context.log.error(
                     "Unexpected provision flag", field=field, value=applies
                 )
-        control_date = row.pop("control_date")
-        h.apply_date(sanction, "startDate", control_date)
-        h.apply_date(entity, "createdAt", control_date)
+        # The last date the entry was edited, per DFAT's guide to the list.
+        h.apply_date(sanction, "modifiedAt", row.pop("control_date"))
         context.audit_data(
             row,
             ignore=["reference"],
@@ -196,6 +195,11 @@ def parse_reference(
     entity.add("topics", "sanction")
     context.emit(entity)
     for sanction in sanctions.values():
+        # Each name row has its own control date; the latest dates the entry.
+        modified = sorted(sanction.get_statements("modifiedAt"), key=lambda s: s.value)
+        sanction.pop("modifiedAt")
+        if len(modified) > 0:
+            sanction.adopt_statement(modified[-1])
         h.finalize_sanction(context, sanction, key=reference, checksum=checksum)
         context.emit(sanction)
 
