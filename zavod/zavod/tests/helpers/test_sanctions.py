@@ -221,6 +221,19 @@ def test_finalize_sanction_observe(vcontext: Context, zavod_db, monkeypatch):
         finalize_sanction(vcontext, sanction, checksum="x")
 
 
+def test_finalize_sanction_latest_modified(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    sanction = make_sanction(vcontext, person)
+    sanction.add("modifiedAt", "2023-01-05", origin=ORIGIN_INFERRED)
+    sanction.add("modifiedAt", ["2021-03-01", "2022-07-10"])
+    finalize_sanction(vcontext, sanction)
+    (stmt,) = sanction.get_statements("modifiedAt")
+    assert stmt.value == "2023-01-05"
+    assert stmt.origin == ORIGIN_INFERRED
+
+
 def test_finalize_sanction_defaults(vcontext: Context):
     person = vcontext.make("Person")
     person.id = "jeff"
