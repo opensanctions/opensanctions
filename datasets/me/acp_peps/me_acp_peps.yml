@@ -85,6 +85,23 @@ lookups:
         value: Bor
       - match: Šas
         value: Šas
+      - match: Sas
+        value: Sas
+      - match: Jaz
+        value: Jaz
+      - match: Muo
+        value: Muo
+      - match: Bać
+        value: Bać
+      # Common abbreviation of Podgorica
+      - match: PG
+        value: Podgorica
+      # "bb" (bez broja, no house number) and bare house numbers aren't places
+      - match:
+          - bb
+          - "47"
+          - "51"
+        value: null
   type.string:
     options:
       - match: "%"
