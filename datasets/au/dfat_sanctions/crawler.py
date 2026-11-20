@@ -194,11 +194,6 @@ def parse_reference(
     entity.add("topics", "sanction")
     context.emit(entity)
     for source_program, sanction in sanctions.items():
-        # Each name row has its own control date; the latest dates the entry.
-        modified = sorted(sanction.get_statements("modifiedAt"), key=lambda s: s.value)
-        sanction.pop("modifiedAt")
-        if len(modified) > 0:
-            sanction.adopt_statement(modified[-1])
         # Autonomous designation instruments take effect the day after they are
         # registered, so they start as they appear on the list. UN listings
         # take effect in Australia independently of the list.
