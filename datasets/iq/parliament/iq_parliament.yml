@@ -16,7 +16,7 @@ description: |
   seats reserved for women and for minorities. Members hold the country's legislative
   power, including passing laws, approving the budget, and overseeing the government.
 
-  The dataset also covers the offices of the Speaker and the Deputy Speakers.
+  The dataset also covers the Speaker and the Deputy Speakers.
 url: https://iq.parliament.iq/النواب/
 publisher:
   name: مجلس النواب العراقي
@@ -50,8 +50,8 @@ lookups:
         value: party
       - match: اسم المحافظة
         value: governorate
-  # Bracketed office after a presiding officer's name.
-  presiding_office:
+  # Bracketed role after a presiding member's name.
+  presiding_role:
     options:
       - match: رئيس مجلس النواب
         value: Speaker

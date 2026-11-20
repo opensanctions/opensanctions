@@ -8,32 +8,34 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.extract import zyte_api
 
-# Presiding officers carry their office in brackets: "<name> (رئيس مجلس النواب)".
+# Presiding members carry their role in brackets: "<name> (رئيس مجلس النواب)".
 NAME_ROLE = re.compile(r"^(?P<name>[^()]+?)\s*\((?P<role>[^()]+)\)\s*$")
 TOPICS = ["gov.national", "gov.legislative"]
 
 
-def crawl_presiding_office(context: Context, person: Entity, role: str) -> None:
+def crawl_presiding_role(context: Context, person: Entity, role: str) -> None:
     # Held in addition to the seat.
-    title = context.lookup_value("presiding_office", role, warn_unmatched=True)
+    title = context.lookup_value("presiding_role", role, warn_unmatched=True)
     if title is None:
         return
-    office = h.make_position(
+    presiding_position = h.make_position(
         context,
         name=f"{title} of the Council of Representatives of Iraq",
         country="iq",
         topics=TOPICS,
-        # The deputy offices have no Wikidata item.
+        # The deputy roles have no Wikidata item.
         wikidata_id="Q20404109" if title == "Speaker" else None,
         lang="eng",
     )
-    categorisation = categorise(context, office)
+    categorisation = categorise(context, presiding_position)
     if not categorisation.is_pep:
         return
-    occupancy = h.make_occupancy(context, person, office, categorisation=categorisation)
+    occupancy = h.make_occupancy(
+        context, person, presiding_position, categorisation=categorisation
+    )
     if occupancy is not None:
         context.emit(occupancy)
-        context.emit(office)
+        context.emit(presiding_position)
 
 
 def crawl_row(
@@ -73,7 +75,7 @@ def crawl_row(
     occupancy.add("constituency", governorate)
     context.emit(occupancy)
     if role is not None:
-        crawl_presiding_office(context, person, role)
+        crawl_presiding_role(context, person, role)
     context.emit(person)
 
 
