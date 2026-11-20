@@ -5,7 +5,7 @@ from collections import defaultdict
 from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 SPLITS = [f" {char})" for char in string.ascii_lowercase]
@@ -122,6 +122,7 @@ def parse_reference(
         entity.add(name_prop, name)
 
     primary_name = None
+    sanctions: dict[str | None, Entity] = {}
     for row in rows:
         addr = row.pop("address")
         if addr is not None:
@@ -130,18 +131,21 @@ def parse_reference(
                     address = h.make_address(context, full=sub_part)
                     h.apply_address(context, entity, address)
         source_program = row.pop("committees")
-        sanction = h.make_sanction(
-            context,
-            entity,
-            key=source_program,
-            program_name=source_program,
-            source_program_key=source_program,
-            program_key=(
-                h.lookup_sanction_program_key(context, source_program)
-                if source_program
-                else None
-            ),
-        )
+        sanction = sanctions.get(source_program)
+        if sanction is None:
+            sanction = h.make_sanction(
+                context,
+                entity,
+                key=source_program,
+                program_name=source_program,
+                source_program_key=source_program,
+                program_key=(
+                    h.lookup_sanction_program_key(context, source_program)
+                    if source_program
+                    else None
+                ),
+            )
+            sanctions[source_program] = sanction
         sanction.add("authorityId", clean_reference(reference))
         country = h.multi_split(row.pop("citizenship"), [";"])
         if entity.schema.is_a("Person"):
@@ -190,9 +194,10 @@ def parse_reference(
         )
 
     entity.add("topics", "sanction")
-    h.finalize_sanction(context, sanction, key=reference, checksum=checksum)
     context.emit(entity)
-    context.emit(sanction)
+    for sanction in sanctions.values():
+        h.finalize_sanction(context, sanction, key=reference, checksum=checksum)
+        context.emit(sanction)
 
 
 def hash_row(row: dict[str, str | None]) -> int:
