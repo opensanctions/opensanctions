@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from lxml import etree
 from rigour.mime.types import XML
@@ -101,26 +102,31 @@ def crawl_member(
     period_end: str,
 ) -> None:
     dip_id = h.xpath_string(deputy, "Id/text()")
-    first = " ".join(
-        p for p in (deputy.findtext("Nombre"), deputy.findtext("Nombre2")) if p
+    first_name = deputy.findtext("Nombre")
+    second_name = deputy.findtext("Nombre2")
+    paternal_surname = deputy.findtext("ApellidoPaterno")
+    maternal_surname = deputy.findtext("ApellidoMaterno")
+    birth_datetime = deputy.findtext("FechaNacimiento")
+    birth_date = (
+        datetime.fromisoformat(birth_datetime).date() if birth_datetime else None
     )
-    last = " ".join(
-        p
-        for p in (
-            deputy.findtext("ApellidoPaterno"),
-            deputy.findtext("ApellidoMaterno"),
-        )
-        if p
-    )
-    assert first or last, f"Deputy {dip_id} without a name"
+    given_names = " ".join(n for n in (first_name, second_name) if n)
+    surnames = " ".join(n for n in (paternal_surname, maternal_surname) if n)
+    assert given_names or surnames, f"Deputy {dip_id} without a name"
 
     person = context.make("Person")
-    person.id = context.make_slug(dip_id)
-    h.apply_name(person, first_name=first, last_name=last, lang="spa")
+    # The source assigns a new Id to the same deputy in each legislative period,
+    # so the Id cannot key the person. Deputies of early periods have no birth date.
+    person.id = context.make_id(
+        first_name,
+        second_name,
+        paternal_surname,
+        maternal_surname,
+        birth_date.isoformat() if birth_date is not None else None,
+    )
+    h.apply_name(person, first_name=given_names, last_name=surnames, lang="spa")
     person.add("gender", deputy.findtext("Sexo"))
-    birth = deputy.findtext("FechaNacimiento")
-    if birth is not None:
-        h.apply_date(person, "birthDate", birth[:10])
+    h.apply_date(person, "birthDate", birth_date)
     for party in parties(deputy):
         person.add("political", party, lang="spa")
     # Deputies must be citizens with the right to vote (Constitution of Chile,
