@@ -142,8 +142,9 @@ def finalize_sanction(
     """Complete a sanction's dates and status once the crawler has set them.
 
     Call this after all source dates are applied to the sanction and before
-    emitting it. If the sanction has an ``endDate`` but no ``status``, the
-    status is derived with `is_active`.
+    emitting it. Of several ``modifiedAt`` values, only the latest is kept. If
+    the sanction has an ``endDate`` but no ``status``, the status is derived with
+    `is_active`.
 
     Args:
         context: The runner context with dataset metadata.
@@ -202,6 +203,12 @@ def finalize_sanction(
         if len(listed) > 0:
             latest = max(listed, key=lambda stmt: stmt.value)
             sanction.adopt_statement(latest, prop="modifiedAt")
+
+    modified = sanction.get_statements("modifiedAt")
+    if len(modified) > 1:
+        latest = max(modified, key=lambda stmt: stmt.value)
+        sanction.pop("modifiedAt")
+        sanction.adopt_statement(latest)
 
     if sanction.has("endDate") and not sanction.has("status"):
         sanction.add("status", "active" if is_active(sanction) else "inactive")
