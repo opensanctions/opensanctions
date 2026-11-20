@@ -63,14 +63,14 @@ def crawl_row(
     person.add("citizenship", "iq")
     # Minority quota members list their own name as the party.
     if party != name:
-        person.add("political", party or None)
+        person.add("political", party)
 
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", governorate or None)
+    occupancy.add("constituency", governorate)
     context.emit(occupancy)
     if role is not None:
         crawl_presiding_office(context, person, role)
