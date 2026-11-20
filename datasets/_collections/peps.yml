@@ -136,6 +136,7 @@ children:
   - ie_parliament
   - il_knesset_members
   - in_sansad
+  - iq_parliament
   - is_althingi
   - it_deputies
   - it_senate
@@ -206,6 +207,7 @@ children:
   - ru_federation_council
   - ru_kremlin_persons
   - rw_parliament
+  - sa_gov_dir
   - sa_shura_council
   - sb_parliament
   - se_riksdag
