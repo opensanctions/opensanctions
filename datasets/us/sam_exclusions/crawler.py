@@ -288,17 +288,26 @@ def crawl(context: Context) -> None:
 
         context.emit(entity)
 
-        sanction = h.make_sanction(context, entity, key=agency)
-        if agency is not None and len(agency):
-            sanction.set("authority", agency)
+        program = row.pop("Exclusion Program")
+        provisions = row.pop("Exclusion Type")
+        status = row.pop("Record Status")
+        start_date = parse_date(row.pop("Active Date"))
+        end_date = parse_date(row.pop("Termination Date"))
+        summary = row.pop("Additional Comments")
 
-        sanction.add("program", row.pop("Exclusion Program"))
-        sanction.add("provisions", row.pop("Exclusion Type"))
-        sanction.add("status", row.pop("Record Status"))
-        h.apply_date(sanction, "listingDate", creation_date)
-        h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
-        h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
-        sanction.add("summary", row.pop("Additional Comments"))
-        context.emit(sanction)
+        # OFAC exclusions mirror the SDN list, whose sanctions us_ofac_sdn emits.
+        if agency != "OFAC":
+            sanction = h.make_sanction(context, entity, key=agency)
+            if agency is not None and len(agency):
+                sanction.set("authority", agency)
+
+            sanction.add("program", program)
+            sanction.add("provisions", provisions)
+            sanction.add("status", status)
+            h.apply_date(sanction, "listingDate", creation_date)
+            h.apply_date(sanction, "startDate", start_date)
+            h.apply_date(sanction, "endDate", end_date)
+            sanction.add("summary", summary)
+            context.emit(sanction)
 
         context.audit_data(row, ignore=IGNORE_COLUMNS)
