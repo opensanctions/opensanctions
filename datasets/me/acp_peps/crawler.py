@@ -165,7 +165,13 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> None:
     # The official is listed among their family as "Funkcioner".
     officials = [row for row in family_rows if row.get("srodstvo") == "Funkcioner"]
     relatives = [row for row in family_rows if row.get("srodstvo") != "Funkcioner"]
-    if len(officials) > 1:
+    # Some filings repeat the official's row, sometimes with first and last name
+    # swapped (Mirheta Gačević). Only warn when the rows name different people.
+    official_names = {
+        tuple(sorted((row.get(key) or "").casefold() for key in ("ime", "prezime")))
+        for row in officials
+    }
+    if len(official_names) > 1:
         context.log.warning("Multiple officials in a filing", name=full_name)
 
     if officials:
