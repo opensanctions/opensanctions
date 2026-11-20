@@ -167,7 +167,6 @@ def parse_reference(
         if listing_info is not None and re.fullmatch(
             r"\d{4}-\d{2}-\d{2}", listing_info
         ):
-            h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         elif listing_info is not None:
             sanction.add("summary", listing_info.replace("\r", ""))
