@@ -68,6 +68,29 @@ lookups:
         minister: false
       - match: "17627" # Ministry of Defense: typed Other
         minister: true
+  # Agency titles with typos, or cut off at 80 characters.
+  agency_title:
+    options:
+      - match: General Directorate of Public Pecurity
+        value: General Directorate of Public Security
+      - match: General Secretariat of the Military Service Councel
+        value: General Secretariat of the Military Service Council
+      - match: Human Rights Commision
+        value: Human Rights Commission
+      - match: General Commission for the Guardianship of Trust Funds for Miniros and their Cou
+        value: General Commission for the Guardianship of Trust Funds for Minors and their Counterparts
+      - match: privet sector partnership program
+        value: Private Sector Partnership Program
+      - match: The General Authority for the Affairs of the Grand Mosque and the Prophet's Mosq
+        value: The General Authority for the Affairs of the Grand Mosque and the Prophet's Mosque
+      - match: The General Organization for the Conservation of Coral Reefs and Turtles in the
+        value: The General Organization for the Conservation of Coral Reefs and Turtles in the Red Sea
+      - match: The National Research and Development Center for Sustainable Agriculture (Estida
+        value: The National Research and Development Center for Sustainable Agriculture (Estidamah)
+      - match: Immam Mohammed Bin Saud Islamic University
+        value: Imam Mohammed Bin Saud Islamic University
+      - match: Council of Universities's Affairs
+        value: Council of Universities' Affairs
 
 assertions:
   min:
