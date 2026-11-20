@@ -11,8 +11,6 @@ from zavod.stateful.review import assert_all_accepted
 from zavod import Context, Entity
 from zavod import helpers as h
 
-TOPICS = ["gov.legislative", "gov.national"]
-
 
 def emit_holder(
     context: Context,
@@ -51,7 +49,7 @@ def emit_holder(
             context,
             name=office.name,
             country="ga",
-            topics=TOPICS,
+            topics=["gov.legislative", "gov.national"],
             lang="eng",
         )
         office_categorisation = categorise(context, office_position)
@@ -191,7 +189,7 @@ def crawl(context: Context) -> None:
         name="Member of the Senate of Gabon",
         wikidata_id="Q21295135",
         country="ga",
-        topics=TOPICS,
+        topics=["gov.legislative", "gov.national"],
         lang="eng",
     )
     categorisation = categorise(context, member)
