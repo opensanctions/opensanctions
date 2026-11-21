@@ -165,19 +165,18 @@ def test_finalize_sanction_amendments_dated(vcontext: Context):
     assert sanction.get("modifiedAt") == []
 
 
-def test_finalize_sanction_observe(vcontext: Context, zavod_db, monkeypatch):
+def test_finalize_sanction_observe(vcontext: Context, zavod_db):
     person = vcontext.make("Person")
     person.id = "jeff"
     run_date = settings.RUN_TIME.date().isoformat()
 
     # The first observation of the dataset is its baseline: nothing is dated.
     sanction = make_sanction(vcontext, person, key="a")
-    monkeypatch.setattr(settings, "FEAT_FINALIZE_OBSERVE", True)
     finalize_sanction(vcontext, sanction, key="K0", checksum="x")
     assert sanction.get("listingDate") == []
     assert sanction.get("modifiedAt") == []
 
-    # Records after the baseline are observed but not applied with the flag off.
+    # Records after the baseline are dated with their first sighting.
     baseline = select(observation_table).where(observation_table.c.key == "")
     vcontext.db.execute(
         observation_table.update()
@@ -185,23 +184,16 @@ def test_finalize_sanction_observe(vcontext: Context, zavod_db, monkeypatch):
         .values(first_seen=datetime(2020, 1, 1), last_seen=datetime(2020, 1, 1))
     )
     _load_baseline.cache_clear()
-    monkeypatch.setattr(settings, "FEAT_FINALIZE_OBSERVE", False)
-    sanction = make_sanction(vcontext, person, key="b")
-    finalize_sanction(vcontext, sanction, key="K1", checksum="x")
-    assert sanction.get("listingDate") == []
-    assert sanction.get("modifiedAt") == []
-    keys = select(observation_table.c.key, observation_table.c.checksum)
-    rows = vcontext.db.execute(keys.where(observation_table.c.key == "K1")).fetchall()
-    assert {tuple(r) for r in rows} == {("K1", ""), ("K1", "x")}
-    assert len(vcontext.db.execute(baseline).fetchall()) == 1
-
-    monkeypatch.setattr(settings, "FEAT_FINALIZE_OBSERVE", True)
     sanction = make_sanction(vcontext, person, key="c")
     finalize_sanction(vcontext, sanction, key="K1", checksum="x")
     assert sanction.get("listingDate") == [run_date]
     assert sanction.get("modifiedAt") == [run_date]
     (stmt,) = sanction.get_statements("modifiedAt")
     assert stmt.origin == ORIGIN_OBSERVED
+    keys = select(observation_table.c.key, observation_table.c.checksum)
+    rows = vcontext.db.execute(keys.where(observation_table.c.key == "K1")).fetchall()
+    assert {tuple(r) for r in rows} == {("K1", ""), ("K1", "x")}
+    assert len(vcontext.db.execute(baseline).fetchall()) == 1
 
     # Source dates win over observed ones.
     sanction = make_sanction(vcontext, person, key="d")

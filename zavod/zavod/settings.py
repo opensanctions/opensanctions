@@ -17,9 +17,6 @@ LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
 # Debug mode
 DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
 
-# Feature flag: fill sanction dates from observations in h.finalize_sanction.
-FEAT_FINALIZE_OBSERVE = as_bool(env_str("ZAVOD_FEAT_FINALIZE_OBSERVE", "false"))
-
 # Default paths. Repository-relative defaults assume zavod is installed
 # editable from its checkout inside the opensanctions repository.
 _REPO_ROOT = Path(__file__).parent.parent.parent
