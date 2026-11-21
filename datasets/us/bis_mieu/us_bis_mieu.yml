@@ -74,13 +74,16 @@ config:
     # 1. Fetch the warning's text_api_url (the eCFR full-text API for the new
     #    amendment date) and diff paragraph (f)(2) against mieu.csv.
     # 2. For each newly named organization, append one mieu.csv row: the name
-    #    verbatim from the regulation (acronym in Alias), Date set to the
-    #    effective date of the Federal Register rule that made the amendment,
-    #    and that rule's federalregister.gov URL as Source URL. Find the rule
+    #    verbatim from the regulation (acronym in Alias), Listing date set to
+    #    the publication date and Date to the effective date of the Federal
+    #    Register rule that made the amendment, and that rule's
+    #    federalregister.gov URL as Source URL. Find the rule
     #    via https://www.federalregister.gov/api/v1/documents.json with
     #    conditions[cfr][title]=15&conditions[cfr][part]=744 and the
     #    publication date near the amendment date.
     # 3. For a removal, set the row's End date instead of deleting the row.
+    #    For a removal or any other change to an existing row (e.g. a renamed
+    #    organization), set its Modified date to the rule's publication date.
     # 4. Append the amendment date to reviewed_versions below with a comment
     #    saying what the amendment changed. This mutes the warning.
     # 5. If the crawler warns that the section was redesignated or removed
