@@ -5,7 +5,7 @@ from collections import defaultdict
 from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 SPLITS = [f" {char})" for char in string.ascii_lowercase]
@@ -78,6 +78,7 @@ def clean_reference(ref: str) -> str | None:
 def parse_reference(
     context: Context, reference: str, rows: list[dict[str, str | None]]
 ) -> None:
+    checksum = h.record_hash(rows)
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
@@ -121,6 +122,7 @@ def parse_reference(
         entity.add(name_prop, name)
 
     primary_name = None
+    sanctions: dict[str | None, Entity] = {}
     for row in rows:
         addr = row.pop("address")
         if addr is not None:
@@ -129,18 +131,21 @@ def parse_reference(
                     address = h.make_address(context, full=sub_part)
                     h.apply_address(context, entity, address)
         source_program = row.pop("committees")
-        sanction = h.make_sanction(
-            context,
-            entity,
-            key=source_program,
-            program_name=source_program,
-            source_program_key=source_program,
-            program_key=(
-                h.lookup_sanction_program_key(context, source_program)
-                if source_program
-                else None
-            ),
-        )
+        sanction = sanctions.get(source_program)
+        if sanction is None:
+            sanction = h.make_sanction(
+                context,
+                entity,
+                key=source_program,
+                program_name=source_program,
+                source_program_key=source_program,
+                program_key=(
+                    h.lookup_sanction_program_key(context, source_program)
+                    if source_program
+                    else None
+                ),
+            )
+            sanctions[source_program] = sanction
         sanction.add("authorityId", clean_reference(reference))
         country = h.multi_split(row.pop("citizenship"), [";"])
         if entity.schema.is_a("Person"):
@@ -162,7 +167,6 @@ def parse_reference(
         if listing_info is not None and re.fullmatch(
             r"\d{4}-\d{2}-\d{2}", listing_info
         ):
-            h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         elif listing_info is not None:
             sanction.add("summary", listing_info.replace("\r", ""))
@@ -180,9 +184,8 @@ def parse_reference(
                 context.log.error(
                     "Unexpected provision flag", field=field, value=applies
                 )
-        control_date = row.pop("control_date")
-        h.apply_date(sanction, "startDate", control_date)
-        h.apply_date(entity, "createdAt", control_date)
+        # The last date the entry was edited, per DFAT's guide to the list.
+        h.apply_date(sanction, "modifiedAt", row.pop("control_date"))
         context.audit_data(
             row,
             ignore=["reference"],
@@ -190,7 +193,21 @@ def parse_reference(
 
     entity.add("topics", "sanction")
     context.emit(entity)
-    context.emit(sanction)
+    for source_program, sanction in sanctions.items():
+        # Autonomous designation instruments take effect the day after they are
+        # registered, so they start as they appear on the list. UN listings
+        # take effect in Australia independently of the list.
+        autonomous = source_program is not None and source_program.startswith(
+            "Autonomous"
+        )
+        h.finalize_sanction(
+            context,
+            sanction,
+            effective_on_listing=autonomous,
+            key=reference,
+            checksum=checksum,
+        )
+        context.emit(sanction)
 
 
 def hash_row(row: dict[str, str | None]) -> int:

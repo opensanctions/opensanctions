@@ -71,7 +71,7 @@ SANCTION_FEATURES = {
     "PEESA Information:": "summary",
     "PAIPA Section 2 Information:": "summary",  # e.g. "BLOCKING OF PROPERTY (entity). ..."
     "Effective Date (CMIC)": "startDate",
-    "Purchase/Sales For Divestment Date (CMIC)": "startDate",
+    "Purchase/Sales For Divestment Date (CMIC)": "provisions",
     "Effective Date (EO 14024 Directive 1a):": "startDate",
     "Effective Date (EO 14024 Directive 2):": "startDate",
     "Effective Date (EO 14024 Directive 3):": "startDate",
@@ -381,8 +381,12 @@ def parse_distinct_party(
     # We skip emitting entries with ListId "Consolidated List" because they always have a second,
     # more specific ListId attached (such as "CAPTA List"). This assert ensures that this assumption
     # always holds so that we don't skip emitting a Sanction for every entity on the list.
+    party_hash = h.xml_node_hash(party)
+    assert party_hash is not None, profile_id
     sanction_entities = [
-        emit_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+        emit_sanctions_entry(
+            context, proxy, refs, features, sanctions_entry, party_hash
+        )
         for sanctions_entry in doc.findall(entry_path)
     ]
     sanction_found = any(sanction is not None for sanction in sanction_entities)
@@ -580,6 +584,7 @@ def emit_sanctions_entry(
     refs: Element,
     features: dict[str, FeatureValues],
     entry: Element,
+    party_hash: str,
 ) -> Entity | None:
     # context.inspect(entry)
     proxy.add("topics", "sanction")
@@ -628,10 +633,24 @@ def emit_sanctions_entry(
         # lists delivered the designation lives in free text. cf. #4980
         sanction.add("summary", f"Source list: {list_id}")
 
+    # OFAC actions take effect on notice, i.e. on listing. Directive and CMIC entries
+    # have a wind-down (their effective date comes from features), and HKAA, CAPTA
+    # and PLC entry dates mark transfers between lists or the list's creation.
+    starts_on_listing = list_id in (
+        "SDN List",
+        "Sectoral Sanctions Identifications List",
+    ) or (
+        list_id == "Non-SDN Menu-Based Sanctions List"
+        and source_program in ("CAATSA - RUSSIA", "PAIPA", "ILLICIT-DRUGS-EO14059")
+    )
     for event in entry.findall("./EntryEvent"):
         sanction.add("summary", event.findtext("./Comment"))
         basis = get_ref_text(refs, "LegalBasis", event.get("LegalBasisID"))
         sanction.add("reason", basis)
+        entry_date = parse_date(event.find("./Date"))
+        sanction.add("listingDate", entry_date)
+        if starts_on_listing:
+            sanction.add("startDate", entry_date)
 
     for measure in entry.findall("./SanctionsMeasure"):
         sanctions_type_id = measure.get("SanctionsTypeID")
@@ -641,6 +660,13 @@ def emit_sanctions_entry(
         sanction.add("provisions", sanctions_type)
 
     for feature, prop in SANCTION_FEATURES.items():
+        # Directive and CMIC dates are profile features, but they date only the
+        # entries for that measure; on the profile's other entries they are context.
+        if prop in ("listingDate", "startDate") and list_id not in (
+            "Non-SDN CMIC List",
+            "Non-SDN Menu-Based Sanctions List",
+        ):
+            prop = "summary"
         for value in features.get(feature, []):
             if prop == "program":
                 if not isinstance(value, str):
@@ -649,11 +675,17 @@ def emit_sanctions_entry(
                 program_id = h.lookup_sanction_program_key(context, value)
                 sanction.add("programId", program_id)
                 proxy.add("programId", program_id)
-            if prop == "summary":
+            if prop in ("summary", "provisions"):
                 fname = feature.rstrip(":").rstrip("-").strip()
                 value = f"{fname}: {value}"
             sanction.add(prop, value)
 
+    # The checksum covers the party and the entry, not the locations, ID documents
+    # and relations they reference.
+    entry_id = entry.get("ID")
+    assert entry_id is not None, entry
+    checksum = h.record_hash([party_hash, h.xml_node_hash(entry)])
+    h.finalize_sanction(context, sanction, key=entry_id, checksum=checksum)
     context.emit(sanction)
     return sanction
 
