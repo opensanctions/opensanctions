@@ -2,7 +2,7 @@ from rigour.dates import ended_before, starts_after
 
 from zavod import helpers as h
 from zavod import settings
-from zavod.constants import ORIGIN_METADATA
+from zavod.constants import ORIGIN_METADATA, ORIGIN_OBSERVED
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful import programs
@@ -136,16 +136,27 @@ def finalize_sanction(
     sanction: Entity,
     effective_on_listing: bool = False,
     amendments_dated: bool = False,
+    key: str | None = None,
+    checksum: str | None = None,
 ) -> None:
     """Complete a sanction's dates and status once the crawler has set them.
 
     Call this after all source dates are applied to the sanction and before
-    emitting it. If the sanction has an ``endDate`` but no ``status``, the
-    status is derived with `is_active`.
+    emitting it. Of several ``modifiedAt`` values, only the latest is kept. If
+    the sanction has an ``endDate`` but no ``status``, the status is derived with
+    `is_active`.
 
     Args:
         context: The runner context with dataset metadata.
         sanction: The Sanction to finalize.
+        key: The authority-issued ID of the designation. It is recorded with
+            `observe_item`, and a missing ``listingDate`` is filled with the
+            date it was first seen.
+        checksum: A checksum of the designation's source content, which needs a
+            ``key``. It is recorded with `observe_change`, and a missing
+            ``modifiedAt`` is filled with the date the content was first seen.
+            Observations never fill dates for records already in the source
+            at the dataset's first observation.
         effective_on_listing: Designations on this list take effect when they are
             listed, as set by the legal instrument. Check this per list. If one of
             ``listingDate`` and ``startDate`` is missing, it is filled with the
@@ -157,6 +168,19 @@ def finalize_sanction(
             latest ``startDate`` if there is no listing date.
     """
     assert sanction.schema.is_a("Sanction"), sanction.schema
+    assert checksum is None or key is not None, "An observed checksum needs a key"
+    if key is not None:
+        item_seen = h.observe_item(context, key)
+        change_seen = None
+        if checksum is not None:
+            change_seen = h.observe_change(context, key, checksum)
+        if item_seen is not None and not sanction.has("listingDate"):
+            item_date = item_seen.date().isoformat()
+            sanction.add("listingDate", item_date, origin=ORIGIN_OBSERVED)
+        if change_seen is not None and not sanction.has("modifiedAt"):
+            change_date = change_seen.date().isoformat()
+            sanction.add("modifiedAt", change_date, origin=ORIGIN_OBSERVED)
+
     if effective_on_listing:
         listing = sanction.get_statements("listingDate")
         start = sanction.get_statements("startDate")
@@ -177,6 +201,12 @@ def finalize_sanction(
         if len(listed) > 0:
             latest = max(listed, key=lambda stmt: stmt.value)
             sanction.adopt_statement(latest, prop="modifiedAt")
+
+    modified = sanction.get_statements("modifiedAt")
+    if len(modified) > 1:
+        latest = max(modified, key=lambda stmt: stmt.value)
+        sanction.pop("modifiedAt")
+        sanction.adopt_statement(latest)
 
     if sanction.has("endDate") and not sanction.has("status"):
         sanction.add("status", "active" if is_active(sanction) else "inactive")
