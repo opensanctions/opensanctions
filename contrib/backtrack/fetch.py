@@ -1,4 +1,4 @@
-"""Download every distinct version of a dataset's source files from the archive.
+"""Download the daily versions of a dataset's source files from the archive.
 
 Source files live in two places in the archive bucket:
 
@@ -6,12 +6,13 @@ Source files live in two places in the archive bucket:
   run of that day; it runs from 2021-05 to 2026-08.
 * `artifacts/{dataset}/{version}/` holds one copy per run, from 2026-06 on.
 
-We use the per-run copies wherever they exist and the daily copies before
-that. Changes are detected from object MD5 hashes in the bucket listing, so
-only the files whose content differs from the previous run are downloaded.
+Observations are dated by day, so we keep one copy per day: the last run of
+each day where per-run copies exist, and the daily copies before that. Changes
+are detected from object MD5 hashes in the bucket listing, so only the days
+whose content differs from the previous day are downloaded.
 
 Each version is saved as `{timestamp}-{resource}`, where the timestamp is
-`YYYYMMDDHHMMSS` of the first run that had this content. Daily copies only
+`YYYYMMDDHHMMSS` of the last run on the first day that had this content. Daily copies only
 carry a date, so their timestamp is padded to midnight. Files are written to
 `<data path>/backtrack/<dataset>/`; those already present are skipped, so a
 re-run only fetches what is new.
@@ -87,14 +88,18 @@ def list_artifacts(bucket: Bucket, dataset: str, prefix: str) -> list[SourceVers
 
 def find_changes(versions: list[SourceVersion]) -> list[SourceVersion]:
     """Merge daily and per-run copies of one resource and keep only the changes."""
-    run_days = [v.timestamp[:8] for v in versions if not v.daily]
+    last_runs: dict[str, SourceVersion] = {}
+    for version in versions:
+        if version.daily:
+            continue
+        last = last_runs.get(version.timestamp[:8])
+        if last is None or version.timestamp > last.timestamp:
+            last_runs[version.timestamp[:8]] = version
     # The daily copy of a day with per-run copies is the last run of that day,
     # so it would sort before the runs it duplicates.
-    cutoff = min(run_days) if run_days else "99999999"
-    timeline = sorted(
-        (v for v in versions if not v.daily or v.timestamp[:8] < cutoff),
-        key=lambda v: v.timestamp,
-    )
+    cutoff = min(last_runs) if last_runs else "99999999"
+    daily = [v for v in versions if v.daily and v.timestamp[:8] < cutoff]
+    timeline = sorted(daily + list(last_runs.values()), key=lambda v: v.timestamp)
     changes: list[SourceVersion] = []
     for version in timeline:
         if version.blob.md5_hash is None:
@@ -126,7 +131,7 @@ def download(version: SourceVersion, out_dir: Path) -> None:
 )
 @click.option("--dry-run", is_flag=True, help="List the changes without downloading.")
 def main(dataset: str, prefix: str, dry_run: bool) -> None:
-    """Fetch every distinct version of DATASET's source files from the archive."""
+    """Fetch the distinct daily versions of DATASET's source files from the archive."""
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.getLogger("google").setLevel(logging.WARNING)
     out_dir = settings.DATA_PATH / "backtrack" / dataset
