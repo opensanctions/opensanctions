@@ -46,24 +46,10 @@ def lookup_topic(context: Context, program_name: str | None) -> str | None:
     return topic
 
 
-def emit_relationship(
-    context: Context,
-    entity_id: str,
-    *,
-    related_name: str,
-    list_entry: dict[str, Any],
-    source_program: str,
-) -> None:
+def emit_relationship(context: Context, entity_id: str, related_name: str) -> None:
     related_entity = context.make("LegalEntity")
     related_entity.id = context.make_id(related_name)
     related_entity.add("name", related_name)
-    make_and_emit_sanction(
-        context,
-        related_entity,
-        source_program=source_program,
-        list_entry=list_entry,
-    )
-    # Emit after make_and_emit_sanction, which adds programId to the entity.
     context.emit(related_entity)
 
     rel = context.make("UnknownLink")
@@ -209,19 +195,11 @@ def parse_list_entry(context: Context, list_entry: dict[str, Any]) -> None:
         # For now we only support one related name, even though conceptually there could be multiple
         assert isinstance(related_name, str) or related_name is None
         # Example: "Huawei Technologies Co., Ltd. (Huawei). Affiliated Entity: Hangzhou Huawei (...)"
-        # Here, the affiliate (Hangzhou Huawei) is processed directly, while the main entity (Huawei)
-        # is extracted from the 'related' field and emitted via 'emit_relationship'. Since some main
-        # entities might only appear through related names, we also apply 'make_and_emit_sanction'
-        # within 'emit_relationship' to ensure they're not missed.
+        # The record's listing applies to the affiliate (Hangzhou Huawei), so the main entity
+        # (Huawei) is only emitted as a linked entity; it gets its Sanction from its own record.
         if related_name is not None:
             assert entity.id is not None
-            emit_relationship(
-                context,
-                entity.id,
-                related_name=related_name,
-                list_entry=list_entry,
-                source_program=source_program,
-            )
+            emit_relationship(context, entity.id, related_name)
     else:
         # If it's a really long name, it's likely a name with extra info
         if len(name) > registry.name.max_length or any(
