@@ -1,4 +1,5 @@
 import csv
+import re
 
 from rigour.mime.types import CSV
 
@@ -8,6 +9,7 @@ from zavod import helpers as h
 # Program key reused from 'us_trade_csl' for consistency
 # Refers to the same BIS Denied Persons List program
 PROGRAM_KEY = "US-BIS-DPL"
+REGEX_FR_CITATION = re.compile(r"(\d+)\s*F\.?\s?R\.?\s*(\d+)")
 
 
 def split_name_address(name_and_address: str) -> tuple[str, str | None]:
@@ -20,6 +22,7 @@ def split_name_address(name_and_address: str) -> tuple[str, str | None]:
 
 
 def parse_row(context: Context, row: dict[str, str | None]) -> None:
+    checksum = h.record_hash(row)
     entity = context.make("LegalEntity")
     name_and_address = row.pop("name_and_address")
     assert name_and_address is not None
@@ -38,6 +41,17 @@ def parse_row(context: Context, row: dict[str, str | None]) -> None:
     sanction.add("program", citation)
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     h.apply_date(sanction, "endDate", row.pop("expiration_date"))
+
+    # The source has no record IDs. A party can have several rows under one order,
+    # so the key needs the full name and address field; rows sharing a key would
+    # alternate their checksums and look amended on every run. Renewals append FR
+    # citations, so the first one names the original order.
+    key = name_and_address
+    first_citation = REGEX_FR_CITATION.search(citation or "")
+    if first_citation is not None:
+        volume, page = first_citation.groups()
+        key = f"{name_and_address} {volume} FR {page}"
+    h.finalize_sanction(context, sanction, key=key, checksum=checksum)
 
     if h.is_active(sanction):
         entity.add("topics", "sanction")
