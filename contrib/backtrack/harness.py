@@ -12,9 +12,12 @@ crawler as extensively as needed and don't factor anything out of it. Once the
 backfill is imported, the crawler is the only place that computes observations.
 """
 
+import shutil
+import tarfile
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from nomenklatura.db import Session, get_engine, make_session
 from sqlalchemy import select
@@ -25,17 +28,33 @@ from zavod import settings
 
 
 def iter_versions(dataset: str, resource: str) -> Iterator[tuple[datetime, Path]]:
-    """Yield the time and path of each downloaded version of a resource, oldest first."""
-    src_dir = settings.DATA_PATH / "backtrack" / dataset
-    paths = sorted(src_dir.glob(f"*-{resource}"))
-    if len(paths) == 0:
-        raise RuntimeError(
-            f"No versions of {resource} in {src_dir}, run backtrack.fetch"
-        )
-    for path in paths:
-        stamp, _ = path.name.split("-", 1)
-        # Naive UTC, like settings.RUN_TIME and the observation columns.
-        yield datetime.strptime(stamp, "%Y%m%d%H%M%S"), path  # noqa: DTZ007
+    """Yield the time and path of each downloaded version of a resource, oldest first.
+
+    Versions are extracted from the archive one at a time, and each path is
+    deleted when the iteration moves on.
+    """
+    archive = settings.DATA_PATH / "backtrack" / dataset / f"{resource}.tar.xz"
+    if not archive.exists():
+        raise RuntimeError(f"No archive {archive}, run backtrack.fetch")
+    previous = ""
+    with (
+        tarfile.open(archive, "r:xz", ignore_zeros=True) as tar,
+        TemporaryDirectory() as tmp,
+    ):
+        for member in tar:
+            if member.name <= previous:
+                raise RuntimeError(f"{archive}: {member.name} is out of order")
+            previous = member.name
+            src = tar.extractfile(member)
+            if src is None:
+                raise RuntimeError(f"{archive}: {member.name} is not a file")
+            path = Path(tmp) / member.name
+            with src, open(path, "wb") as dst:
+                shutil.copyfileobj(src, dst)
+            stamp, _ = member.name.split("-", 1)
+            # Naive UTC, like settings.RUN_TIME and the observation columns.
+            yield datetime.strptime(stamp, "%Y%m%d%H%M%S"), path  # noqa: DTZ007
+            path.unlink()
 
 
 def open_db(dataset: str) -> Session:
