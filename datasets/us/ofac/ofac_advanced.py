@@ -381,8 +381,12 @@ def parse_distinct_party(
     # We skip emitting entries with ListId "Consolidated List" because they always have a second,
     # more specific ListId attached (such as "CAPTA List"). This assert ensures that this assumption
     # always holds so that we don't skip emitting a Sanction for every entity on the list.
+    party_hash = h.xml_node_hash(party)
+    assert party_hash is not None, profile_id
     sanction_entities = [
-        emit_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+        emit_sanctions_entry(
+            context, proxy, refs, features, sanctions_entry, party_hash
+        )
         for sanctions_entry in doc.findall(entry_path)
     ]
     sanction_found = any(sanction is not None for sanction in sanction_entities)
@@ -580,6 +584,7 @@ def emit_sanctions_entry(
     refs: Element,
     features: dict[str, FeatureValues],
     entry: Element,
+    party_hash: str,
 ) -> Entity | None:
     # context.inspect(entry)
     proxy.add("topics", "sanction")
@@ -675,6 +680,12 @@ def emit_sanctions_entry(
                 value = f"{fname}: {value}"
             sanction.add(prop, value)
 
+    # The checksum covers the party and the entry, not the locations, ID documents
+    # and relations they reference.
+    entry_id = entry.get("ID")
+    assert entry_id is not None, entry
+    checksum = h.record_hash([party_hash, h.xml_node_hash(entry)])
+    h.finalize_sanction(context, sanction, key=entry_id, checksum=checksum)
     context.emit(sanction)
     return sanction
 
