@@ -60,7 +60,13 @@ def emit_relationship(context: Context, entity_id: str, related_name: str) -> No
 
 
 def make_and_emit_sanction(
-    context: Context, entity: Entity, *, source_program: str, list_entry: dict[str, Any]
+    context: Context,
+    entity: Entity,
+    *,
+    source_program: str,
+    list_entry: dict[str, Any],
+    key: str,
+    checksum: str,
 ) -> None:
     sanction = h.make_sanction(
         context,
@@ -86,6 +92,19 @@ def make_and_emit_sanction(
     sanction.add("authority", source_program)
     sanction.add("sourceUrl", list_entry.pop("source_information_url", None))
 
+    # Entity List and MEU start dates are the first FR notice, i.e. the listing.
+    # DPL start dates move with each renewed order, so its listing is observed.
+    h.finalize_sanction(
+        context,
+        sanction,
+        effective_on_listing=source_program
+        in (
+            "Entity List (EL) - Bureau of Industry and Security",
+            "Military End User (MEU) List - Bureau of Industry and Security",
+        ),
+        key=key,
+        checksum=checksum,
+    )
     context.emit(sanction)
 
 
@@ -144,6 +163,7 @@ def clean_authority(value: str | None) -> list[str] | None:
 
 
 def parse_list_entry(context: Context, list_entry: dict[str, Any]) -> None:
+    checksum = h.record_hash(list_entry)
     for k, v in list(list_entry.items()):
         if isinstance(v, str) and len(v.strip()) == 0:
             list_entry.pop(k)
@@ -158,7 +178,8 @@ def parse_list_entry(context: Context, list_entry: dict[str, Any]) -> None:
         schema = "Address"
 
     entity = context.make(schema)
-    entity.id = context.make_slug(list_entry.pop("id"))
+    key = list_entry.pop("id")
+    entity.id = context.make_slug(key)
     source_program = list_entry.pop("source", "")
     if source_program:
         entity.add("topics", lookup_topic(context, source_program))
@@ -269,6 +290,8 @@ def parse_list_entry(context: Context, list_entry: dict[str, Any]) -> None:
         entity,
         source_program=source_program,
         list_entry=list_entry,
+        key=key,
+        checksum=checksum,
     )
     list_entry.pop("source_list_url")
 
