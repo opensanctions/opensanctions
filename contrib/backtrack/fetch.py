@@ -11,17 +11,22 @@ each day where per-run copies exist, and the daily copies before that. Changes
 are detected from object MD5 hashes in the bucket listing, so only the days
 whose content differs from the previous day are downloaded.
 
-Each version is saved as `{timestamp}-{resource}`, where the timestamp is
-`YYYYMMDDHHMMSS` of the last run on the first day that had this content. Daily copies only
-carry a date, so their timestamp is padded to midnight. Files are written to
-`<data path>/backtrack/<dataset>/`; those already present are skipped, so a
-re-run only fetches what is new.
+The versions of a resource are stored in one solid archive,
+`<data path>/backtrack/<dataset>/<resource>.tar.xz`, oldest first. Its
+dictionary is larger than a version, so a day that repeats most of the previous
+one costs little. Each member is named `{timestamp}-{resource}`, where the
+timestamp is `YYYYMMDDHHMMSS` of the last run on the first day that had this
+content; daily copies only carry a date, so their timestamp is padded to
+midnight. A re-run appends the new days as a further xz stream, which starts
+with an empty dictionary.
 
 A change of the file hash does not imply a change of the list: re-published
 files with a new issue date or container timestamps differ byte-wise only.
 """
 
 import logging
+import lzma
+import tarfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +38,9 @@ from zavod import settings
 
 log = logging.getLogger("backtrack.fetch")
 BUCKET = "data.opensanctions.org"
+# A dictionary larger than the biggest source version lets the next day's
+# copy refer back to all of it.
+FILTERS = [{"id": lzma.FILTER_LZMA2, "preset": 1, "dict_size": 256 << 20}]
 
 
 @dataclass
@@ -110,15 +118,46 @@ def find_changes(versions: list[SourceVersion]) -> list[SourceVersion]:
     return changes
 
 
-def download(version: SourceVersion, out_dir: Path) -> None:
-    path = out_dir / version.file_name
-    # Downloads are verified before the rename, so an existing file is complete.
-    if path.exists():
-        return
-    log.info("Downloading %s -> %s", version.blob.name, path.name)
-    partial = path.with_name(f".{path.name}.partial")
-    version.blob.download_to_filename(partial, checksum="md5")
-    partial.rename(path)
+def archived_names(archive: Path) -> list[str]:
+    """List the member names of a resource archive, or none if it doesn't exist."""
+    if not archive.exists():
+        return []
+    with tarfile.open(archive, "r:xz", ignore_zeros=True) as tar:
+        return tar.getnames()
+
+
+def find_missing(archive: Path, changes: list[SourceVersion]) -> list[SourceVersion]:
+    """Return the versions to append to the archive, all newer than its last member."""
+    names = archived_names(archive)
+    missing = [v for v in changes if v.file_name not in names]
+    if len(names) > 0 and len(missing) > 0 and missing[0].file_name < names[-1]:
+        raise RuntimeError(
+            f"{archive}: {missing[0].file_name} predates the last member, "
+            "delete the archive to rebuild it"
+        )
+    return missing
+
+
+def append_versions(archive: Path, versions: list[SourceVersion]) -> None:
+    """Download versions one at a time and append them as one xz stream."""
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    partial = archive.with_name(f".{archive.name}.partial")
+    size = archive.stat().st_size if archive.exists() else 0
+    with open(archive, "ab") as fh:
+        try:
+            with (
+                lzma.LZMAFile(fh, "w", format=lzma.FORMAT_XZ, filters=FILTERS) as xz,
+                tarfile.open(fileobj=xz, mode="w|") as tar,
+            ):
+                for version in versions:
+                    log.info("Downloading %s", version.blob.name)
+                    version.blob.download_to_filename(partial, checksum="md5")
+                    tar.add(partial, arcname=version.file_name)
+                    partial.unlink()
+        except BaseException:
+            # A half-written stream would make the whole archive unreadable.
+            fh.truncate(size)
+            raise
 
 
 @click.command()
@@ -141,25 +180,24 @@ def main(dataset: str, prefix: str, dry_run: bool) -> None:
     by_resource: dict[str, list[SourceVersion]] = {}
     for version in versions:
         by_resource.setdefault(version.resource, []).append(version)
-    changes: list[SourceVersion] = []
     for resource, resource_versions in sorted(by_resource.items()):
-        resource_changes = find_changes(resource_versions)
+        changes = find_changes(resource_versions)
+        archive = out_dir / f"{resource}.tar.xz"
+        missing = find_missing(archive, changes)
         log.info(
-            "%s: %d copies, %d distinct, %s .. %s",
+            "%s: %d copies, %d distinct, %s .. %s, %d to fetch",
             resource,
             len(resource_versions),
-            len(resource_changes),
-            resource_changes[0].timestamp,
-            resource_changes[-1].timestamp,
+            len(changes),
+            changes[0].timestamp,
+            changes[-1].timestamp,
+            len(missing),
         )
-        changes.extend(resource_changes)
-    if dry_run:
-        for change in changes:
-            print(change.file_name, change.blob.size, change.blob.name)
-        return
-    out_dir.mkdir(parents=True, exist_ok=True)
-    with ThreadPoolExecutor(4) as pool:
-        list(pool.map(lambda v: download(v, out_dir), changes))
+        if dry_run:
+            for version in missing:
+                print(version.file_name, version.blob.size, version.blob.name)
+        elif len(missing) > 0:
+            append_versions(archive, missing)
 
 
 if __name__ == "__main__":
