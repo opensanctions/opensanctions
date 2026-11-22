@@ -20,11 +20,18 @@ content; daily copies only carry a date, so their timestamp is padded to
 midnight. A re-run appends the new days as a further xz stream, which starts
 with an empty dictionary.
 
+Objects stored with gzip content encoding are downloaded as stored and
+decompressed locally: the client's own decompression transfers the full size
+and resumes an interrupted download at an offset into the decompressed data,
+which the bucket rejects.
+
 A change of the file hash does not imply a change of the list: re-published
 files with a new issue date or container timestamps differ byte-wise only.
 """
 
+import gzip
 import logging
+import shutil
 import lzma
 import tarfile
 from concurrent.futures import ThreadPoolExecutor
@@ -142,6 +149,7 @@ def append_versions(archive: Path, versions: list[SourceVersion]) -> None:
     """Download versions one at a time and append them as one xz stream."""
     archive.parent.mkdir(parents=True, exist_ok=True)
     partial = archive.with_name(f".{archive.name}.partial")
+    stored = archive.with_name(f".{archive.name}.stored")
     size = archive.stat().st_size if archive.exists() else 0
     with open(archive, "ab") as fh:
         try:
@@ -151,12 +159,23 @@ def append_versions(archive: Path, versions: list[SourceVersion]) -> None:
             ):
                 for version in versions:
                     log.info("Downloading %s", version.blob.name)
-                    version.blob.download_to_filename(partial, checksum="md5")
+                    blob = version.blob
+                    blob.download_to_filename(stored, checksum="md5", raw_download=True)
+                    if blob.content_encoding == "gzip":
+                        with gzip.open(stored, "rb") as src, open(partial, "wb") as dst:
+                            shutil.copyfileobj(src, dst)
+                        stored.unlink()
+                    elif blob.content_encoding is None:
+                        stored.rename(partial)
+                    else:
+                        raise ValueError(f"Unexpected encoding: {blob.name}")
                     tar.add(partial, arcname=version.file_name)
                     partial.unlink()
         except BaseException:
             # A half-written stream would make the whole archive unreadable.
             fh.truncate(size)
+            if size == 0:
+                archive.unlink()
             raise
 
 
