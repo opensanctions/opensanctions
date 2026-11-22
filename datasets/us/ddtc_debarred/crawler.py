@@ -16,6 +16,7 @@ def crawl_debarment(
     program_name: str,
     name_field: str,
     notice_date_field: str,
+    statutory: bool,
 ) -> None:
     date_of_birth = row.pop("date_of_birth", None)
     if date_of_birth:
@@ -48,8 +49,17 @@ def crawl_debarment(
         program_name=program_name,
         program_key="US-AECA-DEBARRED",
     )
-    sanction.add("listingDate", row.pop(notice_date_field))
-    sanction.add("listingDate", row.pop("corrected_notice_date", None))
+    # Either column of a corrected row may cite the correcting notice (e.g. 57 FR
+    # 43768 corrects the older 57 FR 37184, while 85 FR 39967 corrects the older
+    # 85 FR 30783), so the earlier notice is the listing.
+    notice_dates = [row.pop(notice_date_field)]
+    corrected_notice_date = row.pop("corrected_notice_date", None)
+    if corrected_notice_date:
+        notice_dates.append(corrected_notice_date)
+    notice_dates.sort()
+    h.apply_date(sanction, "listingDate", notice_dates[0])
+    if len(notice_dates) > 1:
+        h.apply_date(sanction, "modifiedAt", notice_dates[-1])
     sanction.add(
         "description",
         "Federal register notice: " + row.pop("federal_register_notice"),
@@ -60,6 +70,21 @@ def crawl_debarment(
             "description",
             "Corrected federal register notice: " + corrected_notice_number,
         )
+
+    if statutory:
+        # Statutory notices up to 2010 took effect on each person's conviction
+        # date, which the list doesn't give; from 76 FR 70805 on, they take
+        # effect on the notice date. Corrections are dated by their own notice.
+        h.finalize_sanction(
+            context,
+            sanction,
+            effective_on_listing=notice_dates[0] >= "2011-11-15",
+            amendments_dated=True,
+        )
+    else:
+        # The administrative list's date is the order's effective date on some
+        # rows and the notice's publication date on others, so it's no start date.
+        h.finalize_sanction(context, sanction)
 
     context.emit(entity)
     context.emit(sanction)
@@ -74,7 +99,12 @@ def crawl(context: Context) -> None:
     assert len(workbook.sheet_names) == 1, workbook.sheet_names
     for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         crawl_debarment(
-            context, row, "Statutorily Debarred Parties", "party_name", "notice_date"
+            context,
+            row,
+            "Statutorily Debarred Parties",
+            "party_name",
+            "notice_date",
+            statutory=True,
         )
 
     path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
@@ -83,5 +113,10 @@ def crawl(context: Context) -> None:
     assert len(workbook.sheet_names) == 1, workbook.sheet_names
     for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         crawl_debarment(
-            context, row, "Administratively Debarred Parties", "name", "date"
+            context,
+            row,
+            "Administratively Debarred Parties",
+            "name",
+            "date",
+            statutory=False,
         )
