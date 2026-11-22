@@ -51,6 +51,7 @@ data:
 dates:
   formats: ["%B %Y", "%B, %Y", "%B,, %Y"]
   months:
+    "January": "Janurary"
     "February": "Febuary"
 
 assertions:

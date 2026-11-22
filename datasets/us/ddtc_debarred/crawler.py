@@ -1,13 +1,45 @@
 from typing import Any
+from urllib.parse import urljoin
 
+from lxml import html
 from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
 
-STATUTORY_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=27c46b251baf29102b6ca932f54bcb20"
-ADMINISTRATIVE_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=9f8bbc2f1b8f29d0c6c3866ae54bcbdb"
+
+def fetch_article(context: Context) -> html.HtmlElement:
+    """Fetch the body of the dataset's article page, which links the lists.
+
+    DDTC uploads each version of a list as a new attachment, so the links change
+    with every update.
+    """
+    page = context.fetch_json(
+        "https://www.pmddtc.state.gov/api/now/sp/page"
+        "?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"
+    )
+    texts = [
+        widget["widget"]["data"]["text"]
+        for container in page["result"]["containers"]
+        for row in container["rows"]
+        for column in row["columns"]
+        for widget in column["widgets"]
+        if "text" in widget["widget"]["data"]
+    ]
+    assert len(texts) == 1, f"Expected one article text, found {len(texts)}"
+    return html.fromstring(texts[0])
+
+
+def find_excel_url(context: Context, article: html.HtmlElement, heading: str) -> str:
+    # Headings may separate their words with non-breaking spaces.
+    href = h.xpath_string(
+        article,
+        f".//strong[contains(translate(., ' ', ' '), '{heading}')]"
+        "/following::a[@title='Excel Format'][1]/@href",
+    )
+    assert context.dataset.url is not None
+    return urljoin(context.dataset.url, href)
 
 
 def crawl_debarment(
@@ -93,7 +125,9 @@ def crawl_debarment(
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("statutory.xlsx", STATUTORY_XLSX_URL)
+    article = fetch_article(context)
+    statutory_url = find_excel_url(context, article, "Statutory Debarments")
+    path = context.fetch_resource("statutory.xlsx", statutory_url)
     context.export_resource(path, XLSX, title="Statutory Debarments")
     workbook = CalamineWorkbook.from_path(path)
     assert len(workbook.sheet_names) == 1, workbook.sheet_names
@@ -107,7 +141,8 @@ def crawl(context: Context) -> None:
             statutory=True,
         )
 
-    path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
+    administrative_url = find_excel_url(context, article, "Administrative Debarments")
+    path = context.fetch_resource("administrative.xlsx", administrative_url)
     context.export_resource(path, XLSX, title="Administrative Debarments")
     workbook = CalamineWorkbook.from_path(path)
     assert len(workbook.sheet_names) == 1, workbook.sheet_names
