@@ -26,6 +26,9 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     db = open_db(DATASET)
     for seen, path in iter_versions(DATASET, "source.json"):
+        if path.stat().st_size == 0:
+            log.warning("%s: empty file, skipped", path.name)
+            continue
         with open(path) as fh:
             results = json.load(fh)["results"]
         keys: set[str] = set()
