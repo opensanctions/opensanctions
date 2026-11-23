@@ -1,0 +1,72 @@
+# English names come from /en/deputats/<id> where given. Russian (/ru/) names are not
+# used: many of those pages are empty, show another member or keep the Tajik spelling.
+# Some member pages still carry an earlier convocation's election line (e.g. /deputats/24
+# says 2020); it is kept as that occupancy's electionDate.
+title: Tajikistan Members of the Majlisi Namoyandagon
+entry_point: crawler.py
+prefix: tj-namoy
+coverage:
+  frequency: monthly
+  start: 2026-11-18
+load_statements: true
+ci_test: false
+summary: >-
+  Members and presiding officers of the lower chamber of Tajikistan's Supreme Assembly
+description: |
+  Current members of the Majlisi Namoyandagon (Маҷлиси намояндагон), the lower chamber
+  of the bicameral Supreme Assembly (Majlisi Oli) of the Republic of Tajikistan. Its
+  members are elected for a five-year term, partly in single-member constituencies and
+  partly by party-list proportional representation, and hold the country's legislative
+  power, including passing laws and approving the budget.
+
+  The chamber's Chairman, First Deputy Chairman and Deputy Chairmen are also included in
+  those roles.
+url: https://www.parlament.tj/deputats
+publisher:
+  name: Маҷлиси намояндагони Маҷлиси Олии Ҷумҳурии Тоҷикистон
+  name_en: Majlisi Namoyandagon of the Supreme Assembly of the Republic of Tajikistan
+  description: >
+    The Majlisi Namoyandagon (Assembly of Representatives) is the lower chamber of the
+    Supreme Assembly (Majlisi Oli), the bicameral national legislature of the Republic
+    of Tajikistan.
+  url: https://www.parlament.tj/
+  country: tj
+  official: true
+data:
+  url: https://www.parlament.tj/deputats
+  format: HTML
+  lang: tgk
+
+# The crawler normalises dates to "<day> <month> <year>", with the Tajik genitive
+# month name, or keeps them as dd.mm.yyyy.
+dates:
+  formats: ["%d %m %Y", "%d.%m.%Y"]
+  months:
+    "1": январи
+    "2": феврали
+    "3": марти
+    "4": апрели
+    "5": майи
+    "6": июни
+    "7": июли
+    "8": августи
+    "9": сентябри
+    "10": октябри
+    "11": ноябри
+    "12": декабри
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 55
+      Position: 4
+      Occupancy: 55
+    country_entities:
+      tj: 55
+  max:
+    schema_entities:
+      Person: 130
+      Position: 4
