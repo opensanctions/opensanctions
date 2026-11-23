@@ -400,4 +400,6 @@ lookups:
           - undisclosed gender
           - San Diego
           - Transfer tax
+          # Static (Q26833615): P21 points to the musical duo item Q46247565
+          - Static & Ben El Tavori
         value: null
