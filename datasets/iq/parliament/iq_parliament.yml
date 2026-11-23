@@ -1,0 +1,73 @@
+title: Iraq Members of the Council of Representatives
+entry_point: crawler.py
+prefix: iq-parl
+coverage:
+  frequency: monthly
+  start: 2026-11-17
+load_statements: true
+ci_test: false # Needs Zyte browser rendering.
+summary: >-
+  Unicameral national legislature elected by proportional representation in the
+  governorates
+description: |
+  Current members of the Council of Representatives of Iraq (Majlis al-Nuwab), the
+  country's unicameral national legislature. Its members are elected under proportional
+  representation for a four-year term, with the governorates as constituencies and
+  seats reserved for women and for minorities. Members hold the country's legislative
+  power, including passing laws, approving the budget, and overseeing the government.
+
+  The dataset also covers the Speaker and the Deputy Speakers.
+url: https://iq.parliament.iq/النواب/
+publisher:
+  name: مجلس النواب العراقي
+  name_en: Council of Representatives of Iraq
+  description: >
+    The Council of Representatives is the unicameral national legislature of Iraq,
+    established by the 2005 Constitution. It passes federal laws, approves the budget,
+    elects the President of the Republic and oversees the work of the government.
+  url: https://iq.parliament.iq/
+  country: iq
+  official: true
+data:
+  url: https://iq.parliament.iq/النواب/
+  format: HTML
+  lang: ara
+
+tags:
+  - list.pep
+
+# The roster has no dates or term; it is taken as the sitting parliament.
+
+lookups:
+  # Roster column headings; an unknown one stops the crawl. "1." heads the row numbers.
+  columns:
+    options:
+      - match: "1."
+        value: row_number
+      - match: اسم النائب
+        value: name
+      - match: اسم الحزب
+        value: party
+      - match: اسم المحافظة
+        value: governorate
+  # Bracketed role after a presiding member's name.
+  presiding_role:
+    options:
+      - match: رئيس مجلس النواب
+        value: Speaker
+      - match: النائب الأول لرئيس مجلس النواب
+        value: First Deputy Speaker
+      - match: نائب رئيس مجلس النواب
+        value: Deputy Speaker
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 1
+    country_entities:
+      iq: 300
+  max:
+    schema_entities:
+      Person: 340
+      Position: 4

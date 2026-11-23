@@ -69,7 +69,9 @@ lookups:
     options:
       - match: The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
         value: GB-MIGR
-      - match: The Global Human Rights Sanctions Regulations 2020
+      - match:
+          - The Global Human Rights Sanctions Regulations 2020
+          - The Global Human Rights and International Humanitarian Law Sanctions Regulations 2026
         value: GB-HR
       - match: The Global Anti-Corruption Sanctions Regulations 2021
         value: GB-AC
@@ -129,60 +131,6 @@ lookups:
         value: GB-DPRK
       - match: Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019
         value: GB-ISIL
-  languages:
-    options:
-      - match: Arabic
-        value: ara
-      - match: Chinese
-        value: zho
-      - match: Russian
-        value: rus
-      - match: Belarusian
-        value: bel
-      - match: Bosnian
-        value: bos
-      - match: Korean
-        value: kor
-      - match: Romanian; Moldavian; Moldovan
-        value: ron
-      - match: Persian
-        value: fas
-      - match: Ukrainian
-        value: ukr
-      - match: Greek
-        value: ell
-      - match: Hebrew
-        value: heb
-      - match: Bulgarian
-        value: bul
-      - match: Serbian
-        value: srp
-      - match: Turkish
-        value: tur
-      - match: Burmese
-        value: mya
-      - match: Kazakh
-        value: kaz
-      - match: Georgian
-        value: kat
-      - match: Thai
-        value: tha
-      - match: Polish
-        value: pol
-      - match: Czech
-        value: ces
-      - match: Kirghiz; Kyrgyz
-        value: kir
-      - match: Croatian
-        value: hrv
-      - match: Japanese
-        value: jpn
-      - match: Central Khmer
-        value: khm
-      - match: Lao
-        value: lao
-      - match: "" # we don't want to warn on empty languages
-        value: null
   name_type:
     # is_alias tells us whether we should pay attention to "Alias strength"
     lowercase: true
@@ -392,6 +340,27 @@ lookups:
         value: "T710219"
   reg_number:
     options:
+      - match: "511079618 (Israel) "
+        props:
+          registrationNumber: "511079618"
+      - match: "511145138 (Israel) "
+        props:
+          registrationNumber: "511145138"
+      - match: "511626145 (Israel) "
+        props:
+          registrationNumber: "511626145"
+      - match: "513991273 (Israel) "
+        props:
+          registrationNumber: "513991273"
+      - match: "514730167 (Israel) "
+        props:
+          registrationNumber: "514730167"
+      - match: "515049872 (Israel)"
+        props:
+          registrationNumber: "515049872"
+      - match: "516060720 (Israel) "
+        props:
+          registrationNumber: "516060720"
       - match: " Unknown commercial register ID: 1489833Unknown chamber of commerce ID: 337486Cedar Rose internal identifier: AEC222397594Alternative Cedar rose number: 0119786794"
         props:
           registrationNumber: ["1489833", "337486", "AEC222397594", "0119786794"]
@@ -1883,6 +1852,17 @@ lookups:
       - match: "USCC: 91370112MA3RNKQ371"
         props:
           uscCode: "91370112MA3RNKQ371"
+      - match: "1067746343708"
+        props:
+          registrationNumber: "1067746343708"
+      - match: "Russia INN - 7708129854Russia OGRN - 1027700151380"
+        props:
+          innCode: "7708129854"
+          ogrnCode: "1027700151380"
+      - match: "TIN 4205049090OGRN 1034205040935"
+        props:
+          taxNumber: "4205049090"
+          ogrnCode: "1034205040935"
   companies:
     normalize: true
     options:
@@ -2566,7 +2546,18 @@ lookups:
           - Tudor Maritime Ltd
           - Valkur LLC
           - Kyrgyz Ministry of Finance
+          - Norvex Pte Ltd
+          - Trivanta Pte Ltd
+          - Global Seaway LLC
+          - Toila Shipping Ltd
+          - Novatek OAO
+          - IOB Co Ltd
+          - Rosneft
+          - Dzovpar Trans Ltd
+          - Trident Dexterity Ltd
         value: SAME
+      - match: Benefit Shipping Ltd-HKG
+        value: Benefit Shipping Ltd
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
           - Organisation for Technological Industries (OTI)

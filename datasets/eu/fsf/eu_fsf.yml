@@ -6,8 +6,7 @@ coverage:
   frequency: daily
   start: 2021-01-24
 deploy:
-  memory: "1000Mi"
-  memory_limit: "1500Mi"
+  memory: "1300Mi"
 load_statements: true
 summary: >
   As part of the Common Foreign Security Policy the European Union publishes
@@ -376,6 +375,10 @@ lookups:
         values:
           - info@sctbankers.com
           - zanjani@sctbankers.com
+      - match: am.kalyagin@mon.zo.gov.ru kalyaginam_mgudt@bk.ru
+        values:
+          - am.kalyagin@mon.zo.gov.ru
+          - kalyaginam_mgudt@bk.ru
       - match: "emo.xz@ chemplant.ru"
         value: emo.xz@chemplant.ru
       - match: "natalya.s.gonchar enko@bspb.ru"

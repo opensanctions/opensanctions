@@ -18,7 +18,9 @@ description: |
   This dataset contains information about entities that have
   been convicted of state medicaid fraud.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Oregon Health Authority's Program Integrity Audit Unit
   acronym: PIAU

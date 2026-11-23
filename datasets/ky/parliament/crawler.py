@@ -38,18 +38,6 @@ REGEX_POSITIONISH = re.compile(
     r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
 )
 REGEX_TERM_HEADING = re.compile(r"^(\d{4})[-–](\d{4}) Members$")
-REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
-HONORIFICS = ["Hon. ", "Hon ", "Ms. ", "Mr. ", "Mrs. ", "Sir ", "Dr. "]
-NAMES_ALLOW_LIST = ["A. Royston (Roy) Tatum", "Johany S. (Jay) Ebanks"]
-
-
-def clean_name(context: Context, name: str) -> str:
-    name = re.sub(r",.+", "", name)
-    for honorific in HONORIFICS:
-        name = name.replace(honorific, "")
-    if not REGEX_NAME.match(name) and name not in NAMES_ALLOW_LIST:
-        context.log.warning("Name doesn't look like a name", name=name)
-    return name.strip()
 
 
 def parse_current_term(doc: Element) -> str:
@@ -73,12 +61,14 @@ def crawl_card(
 ) -> Entity | None:
     content_el = h.xpath_element(el, ".//div[@class='member-select-content']")
     links_el = h.xpath_element(el, ".//div[@class='member-select-links']")
-    name = clean_name(context, h.xpath_string(content_el, "./h1/text()"))
+    raw_name = h.xpath_string(content_el, "./h1/text()")
+    name = h.strip_name_titles(context, raw_name)
+    assert name is not None, raw_name
     entity = context.make("Person")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(raw_name)
     # BOTC and Caymanian: https://portal.elections.ky/index.php/candidates-agents/qualifications-for-candidates
     entity.add("citizenship", "KY")
-    entity.add("name", name)
+    h.apply_reviewed_name_string(context, entity, string=name, lang="eng")
     personal_page_url = h.xpath_string(
         links_el, ".//p[@class='change-add-to-cart-text']/a/@href"
     )
@@ -132,9 +122,11 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         return
 
     entity = context.make("Person")
-    name = row.pop("Name")
-    entity.id = context.make_id(name)
-    entity.add("name", name)
+    raw_name = row.pop("Name")
+    name = h.strip_name_titles(context, raw_name)
+    assert name is not None, raw_name
+    entity.id = context.make_id(raw_name)
+    h.apply_reviewed_name_string(context, entity, string=name, lang="eng")
     entity.add("citizenship", "KY")
     entity.add("title", row.pop("Title"))
 

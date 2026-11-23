@@ -16,7 +16,9 @@ description: |
 
   [Provider Termination page](https://hcpf.colorado.gov/provider-termination)
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Colorado Department of Health Care Policy & Financing
   description: |

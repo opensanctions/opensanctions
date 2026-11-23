@@ -1,7 +1,6 @@
 type: external
 title: Hong Kong Disclosure of Interests (HKEX)
 entry_point: zavod.runner.local_enricher:enrich
-full_dataset: hk_hkex_di
 disabled: false
 hidden: false
 coverage:

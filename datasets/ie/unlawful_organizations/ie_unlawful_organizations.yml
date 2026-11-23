@@ -35,6 +35,7 @@ data:
   lang: eng
 tags:
   - list.sanction
+  - risk.terror
 
 assertions:
   min:

@@ -44,6 +44,7 @@ dates:
   formats: ["%d %B %Y", "%d %b %Y", "%d.%m.%Y"]
 tags:
   - list.sanction
+  - risk.terror
 
 assertions:
   min:

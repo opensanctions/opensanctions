@@ -6,6 +6,8 @@ rule has one home, and every other place points to it.
 ## Layers
 
 - `zavod/docs` holds every rule and method, one home each, including worked examples.
+  [Upgrading crawlers](upgrading_crawlers.md) records when a rule changed and links
+  to its home; it never restates the rule.
 - `.claude/skills` holds agent procedure only.
 - `.claude/docs` is legacy and is being moved into `zavod/docs`. Add nothing new to it.
 - The root `CLAUDE.md` holds routing and the core coding conventions.

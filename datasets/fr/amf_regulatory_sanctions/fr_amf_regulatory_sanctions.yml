@@ -36,8 +36,9 @@ data:
   url: https://www.amf-france.org/fr/rest/listing_sanction/91,184,183,325,90,461,89,242,86,462,181/all/all?t=1722860865328&_=1722860865172
   format: json
 tags:
-  - list.regulatory # Regulation and compliance
-  - sector.financial # Focuses on financial market regulations
+  - sector.financial  # Focuses on financial market regulations
+  - list.enforcement
+  - risk.misconduct
 
 assertions:
   min:
@@ -61,7 +62,6 @@ lookups:
           - ", la SOCIÉTÉ Z"
           - "et arrêt de la Cour d'appel de Paris du 3 octobre 2013 à l'égard de"
           - "et Mlle B"
-          - "*CAPITAL"
           - "Société GROUPE X"
           - "et sociétés X"
           - "(anciennement dénommée Y)"
@@ -247,9 +247,12 @@ lookups:
       - match: "Société Conseil Patrimoine Finance"
         entities:
           - Conseil Patrimoine Finance
-      - match: "Plus Finance"
+      - match: "Société A Plus Finance"
         entities:
-          - Plus Finance
+          - A Plus Finance
+      - match: "Société B*CAPITAL"
+        entities:
+          - B*CAPITAL
       - match: "Sociétés Cybergun, Ingeco SARL"
         entities:
           - Cybergun
@@ -815,9 +818,9 @@ lookups:
         entities:
           - Acadian Advisors & Associates
           - Didier Hoffelt
-      - match: "-Trade Brokers Dom Maklerski S.A."
+      - match: "La société X-Trade Brokers Dom Maklerski S.A."
         entities:
-          - Trade Brokers Dom Maklerski S.A.
+          - X-Trade Brokers Dom Maklerski S.A.
       - match: "La société Fidoma<br /> La société Banque Sainte Olive<br /> M. Didier Domange"
         entities:
           - Fidoma
@@ -1049,9 +1052,9 @@ lookups:
       - match: La société Caceis Bank
         entities:
           - Caceis Bank
-      - match: Capital Partners<br /> M. Rudy Secco<br /> Mme Stéphanie Minissier<br />
+      - match: La société M Capital Partners<br /> M. Rudy Secco<br /> Mme Stéphanie Minissier<br />
         entities:
-          - Capital Partners
+          - M Capital Partners
           - Rudy Secco
           - Stéphanie Minissier
       - match: La société Makor Securities Paris<br /> M. Yankel Hassan
@@ -1077,3 +1080,8 @@ lookups:
           - Financière Fonds Privés
           - Pierre-Michel Deléglise
           - Thierry de Chambure
+      - match: "La société Auris Gestion <br /> M. Marc de Saint Denis<br /> M. Sébastien Grasset"
+        entities:
+          - Auris Gestion
+          - Marc de Saint Denis
+          - Sébastien Grasset

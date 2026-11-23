@@ -4,7 +4,8 @@ coverage:
   start: "2021-09-01"
   schedule: "0 1,7,13,19 * * *"
 deploy:
-  memory: "1500Mi"
+  memory: "2500Mi"
+  memory_limit: "3000Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
 exports:
@@ -50,7 +51,6 @@ children:
   - az_fiu_sanctions
   - be_fod_sanctions
   - bg_mft_national
-  - bg_omnio_poi
   - ca_dfatd_sema_sanctions
   - ca_facfoa
   - ca_listed_terrorists
@@ -104,7 +104,6 @@ children:
   - pk_proscribed_persons
   - pl_finanse_sanctions
   - pl_mswia_sanctions
-  - ps_local_freezing
   - ps_national_terrorism_list
   - qa_nctc_sanctions
   - ro_onpcsb_sanctions

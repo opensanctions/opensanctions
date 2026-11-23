@@ -24,6 +24,9 @@ description: |
   > authorisation. The companies and individuals in question will be removed
   > from the list once FINMA has completed its investigations and taken any
   > appropriate measures.
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Swiss Financial Market Supervisory Authority
   acronym: FINMA

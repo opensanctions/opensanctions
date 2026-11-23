@@ -25,6 +25,9 @@ description: |
   > You can view the [official SEC release describing and providing more details about this list](https://www.sec.gov/rules/other/2007/34-56534.pdf).
   > If you have information, questions or comments about the entities on
   > this list, submit a question or complaint to the SEC.
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Securities and Exchange Commission
   acronym: SEC

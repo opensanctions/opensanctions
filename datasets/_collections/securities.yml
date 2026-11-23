@@ -3,6 +3,8 @@ title: Sanctioned Securities
 coverage:
   start: "2023-12-04"
   frequency: daily
+deploy:
+  memory_limit: "3000Mi"
 exports:
   - statistics.json
   - securities.csv

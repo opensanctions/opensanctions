@@ -13,6 +13,9 @@ description: |
   Philippines Anti-Money Laundering Council (AMLC) pursuant to Republic Act No. 10168 (Terrorism
   Financing Prevention and Suppression Act of 2012) and related legislation. These sanctions are
   issued through AMLC resolutions implementing [Anti-Terrorism Council (ATC) designations](https://dfa.gov.ph/search?searchword=Anti-Terrorism%20Council&searchphrase=all).
+tags:
+  - list.sanction
+  - risk.terror
 publisher:
   name: Republic of the Philippines Anti-Money Laundering Council
   acronym: AMLC
@@ -25,8 +28,8 @@ publisher:
   official: true
 url: https://www.amlc.gov.ph/terrorism-financing-resolutions
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSx2vPQN4-ngJcicYOHesRnRDU6qm8fRGwQuuFGWszngpqEUQUtMJZDUr8ohjb8-f_i3F_ku3grsdkW/pub?output=csv
-  format: csv
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/ph/amlc_sanctions/sanctions.csv
+  format: CSV
 
 assertions:
   min:

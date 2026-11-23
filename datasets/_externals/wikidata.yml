@@ -13,6 +13,9 @@ deploy:
   schedule: "1 12 * * *"
   cpu: "2000m"
   memory: "7000Mi"
+  memory_limit: "8500Mi"
+  disk: "30Gi"
+  disk_limit: "50Gi"
 load_statements: true
 ci_test: false
 summary: >-
@@ -397,4 +400,6 @@ lookups:
           - undisclosed gender
           - San Diego
           - Transfer tax
+          # Static (Q26833615): P21 points to the musical duo item Q46247565
+          - Static & Ben El Tavori
         value: null

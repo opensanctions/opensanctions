@@ -19,6 +19,10 @@ description: |
 
   * [Posted Workers Act (Entsendegesetz, EntsG)](https://www.gesetze.li/konso/2000.88)
   * [Posted Workers Decree (Entsendeverordnung, EntsV)](https://www.gesetze.li/konso/2019.371)
+tags:
+  - list.debarment
+  - list.enforcement
+  - risk.misconduct
 publisher:
   name: Office of Economic Affairs
   acronym: AVW

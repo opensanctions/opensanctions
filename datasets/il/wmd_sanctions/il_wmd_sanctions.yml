@@ -21,9 +21,9 @@ description: |
   > economic activity is mandatory. It is also mandatory to report suspicion of such
   > activity to the Israeli Police.
 publisher:
-  name: Isreali Ministry of Finance
+  name: Israeli Ministry of Finance
   description: |
-    The Isreali Ministry of Finance is the government's main financial authority,
+    The Israeli Ministry of Finance is the government's main financial authority,
     responsible for developing and implementing economic policies. It sets fiscal
     targets, prepares and oversees the State Budget, and manages state revenues
     through tax collection. Additionally, it promotes foreign investment, manages
@@ -128,7 +128,7 @@ lookups:
       - contains:
           - (אימוץ קבוע)
           - "Date of adoption of the designation in Israel"
-        value: isreal_adoption_date
+        value: israel_adoption_date
       - match:
           - "Date of the update to the designation in Israel"
           - " מועד אימוץ ההכרזה בישראל (אימוץ אוטומטי זמני)"

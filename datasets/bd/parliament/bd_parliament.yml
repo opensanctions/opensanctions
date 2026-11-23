@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: bd-parl
 coverage:
   frequency: monthly
-  start: 2026-11-06
+  start: 2026-11-20
 load_statements: true
 ci_test: true
 summary: >-
@@ -41,12 +41,21 @@ tags:
 # term. The source omits members of older parliaments: the 10th lists only 220.
 
 names:
+  schema_rules:
+    Person:
+      # Initials separated by commas, e.g. "A, Z, M, Rezwanul Haque".
+      reject_chars: ","
+      # "মো:" abbreviates Mohammad, like "Md.".
+      allow_chars: ":"
+      # Single names are common, e.g. "SUBIKUNNAHAR".
+      require_space: false
   prefixes_strip:
     - Dr.
     - "Dr "
     - Mr.
     - Mrs.
     - Alhaj
+    - Alhaz
     - Haji
     - Advocate
     - Barrister
@@ -58,12 +67,37 @@ names:
     - Major
     - Major General
     - Brig. General
+    # The same titles in Bengali.
+    - "ড." # Dr.
+    - "ড," # Dr.
+    - "ডা:" # Dr.
+    - "ডাঃ" # Dr.
+    - আলহাজ্ব # Alhaj
+    - হাজী # Haji
+    - এডভোকেট # Advocate
+    - ব্যারিস্টার # Barrister
+    - ব্যারিষ্টার # Barrister
+    - অধ্যাপক # Professor
+    - "ক্যাপ্টেন (অব:)" # Capt. (Retd)
+    - ক্যাপ্টেন # Capt.
+    - মেজর জেনারেল # Major General
+    - "মে. জে." # Maj. Gen.
   suffixes_strip:
     - (Retd)
+    - Retd.
+    - Ad. # Advocate
+    - Advocate
+    - "(অবঃ)" # (Retd)
     # Gallantry awards of the 1971 Liberation War
     - Bir Uttam
     - Bir Bikram
     - Bir Protik
+    - ", বীর উত্তম"
+    - ", বীর বিক্রম"
+    - ", বীর প্রতীক"
+    - বীর উত্তম
+    - বীর বিক্রম
+    - বীর প্রতীক
 
 lookups:
   type.date:

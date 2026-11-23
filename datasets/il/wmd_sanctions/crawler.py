@@ -150,7 +150,7 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
         # No designation on the list predates 2000.
         two_digit_year_base=2000,
     )
-    h.apply_dates(sanction, "startDate", clean_date(row.pop("isreal_adoption_date")))
+    h.apply_dates(sanction, "startDate", clean_date(row.pop("israel_adoption_date")))
 
     context.emit(entity)
     context.emit(sanction)

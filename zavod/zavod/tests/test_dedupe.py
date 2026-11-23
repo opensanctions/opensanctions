@@ -22,7 +22,6 @@ def test_store_access(
     assert list(resolver.get_judgements()) == []
 
     store = get_store(get_manifest(testdataset1), resolver)
-    store.sync()
     state_path = dataset_state_path(testdataset1.name)
     blocking_xref(resolver, session, store, state_path)
     candidates = list(resolver.get_candidates())
@@ -44,7 +43,6 @@ def test_resolve_dedupe(testdataset1: Dataset, resolver: Resolver[Entity]):
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
     store = get_store(get_manifest(testdataset1), resolver)
-    store.sync()
     view = store.default_view()
     for ent in view.entities():
         assert ent.id != "osv-john-doe"

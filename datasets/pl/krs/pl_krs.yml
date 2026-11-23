@@ -3,10 +3,12 @@ prefix: pl-krs
 entry_point: crawler.py
 coverage:
   frequency: daily
-  start: 2026-11-03
+  start: 2026-11-14
 deploy:
-  disk: 30Gi
+  disk: 60Gi
+  disk_limit: 80Gi
   memory: 2Gi
+  memory_limit: 8Gi
   premium: true
 exports:
   - statistics.json
@@ -47,7 +49,7 @@ data:
   format: JSON
 
 config:
-  batch_size: 50_000
+  batch_size: 200_000
   # A guess at a run of unused numbers long enough to mean the end of the
   # register, not checked against gaps in the KRS numbering.
   stop_after_misses: 5000
@@ -122,6 +124,11 @@ lookups:
     options:
       - match: "2982-07-29"
         value: "1982-07-29"
+      - match: "2992-01-24"
+        value: "1992-01-24"
+      # A shareholder's birth date with no telling which year was meant.
+      - match: "2032-04-10"
+        value: null
   type.url:
     options:
       # A host without a top-level domain, left by a bare or truncated entry.

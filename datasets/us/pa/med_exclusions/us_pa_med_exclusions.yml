@@ -13,7 +13,9 @@ description: |
   providers are required by law to screen all employees, contractors, and entities against
   this list at the time of hire or contracting and perform monthly checks thereafter.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Department of Human Services
   description: >

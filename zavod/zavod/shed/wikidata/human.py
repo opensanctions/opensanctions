@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient
 from nomenklatura.wikidata.value import clean_wikidata_name
@@ -86,3 +86,30 @@ def wikidata_basic_human(
         item.label.apply(entity, "name", clean=clean_wikidata_name)
 
     return entity
+
+
+def fetch_human(
+    context: Context,
+    client: WikidataClient,
+    qid: str,
+    modified_at: datetime | None = None,
+    strict: bool = False,
+) -> tuple[Item, Entity] | None:
+    """Fetch a person's item and build their basic Person entity, following a
+    redirect to the merged item. Use this when a crawl starts from a person QID
+    found in a query or a claim.
+
+    Returns:
+        The item and the entity, or None if the item is missing or isn't a
+        person `wikidata_basic_human` accepts.
+    """
+    item = client.fetch_item(qid, modified_at=modified_at)
+    if item is None:
+        return None
+    if item.id != qid:
+        context.resolver.rename_node(qid, item.id)
+        context.flush()
+    entity = wikidata_basic_human(context, client, item, strict=strict)
+    if entity is None:
+        return None
+    return item, entity

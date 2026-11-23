@@ -22,7 +22,9 @@ description: |
 
   Entities on this list due to the OIG LEIE are not re-listed in this dataset.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Louisiana Department of Health
   description: |

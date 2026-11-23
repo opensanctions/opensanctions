@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from followthemoney import model
+
 from zavod import Context, Entity
 from zavod.constants import ORIGIN_INFERRED
 from zavod.integration import get_dataset_linker
@@ -113,15 +115,16 @@ def crawl(context: Context) -> None:
     scope = get_multi_dataset(get_catalog(), context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(Manifest.get_transient(scope), linker)
-    store.sync()
     view = store.view(scope)
     pep_count = 0
 
-    for entity_idx, entity in enumerate(view.entities()):
+    persons = [s for s in model.schemata.values() if s.is_a("Person")]
+    entities = view.entities(include_schemata=persons, prefetch_nested=True)
+    for entity_idx, entity in enumerate(entities):
         if entity_idx > 0 and entity_idx % 10000 == 0:
             context.log.info(f"Processed {entity_idx} entities")
 
-        if not entity.schema.is_a("Person") or "role.pep" not in entity.get("topics"):
+        if "role.pep" not in entity.get("topics"):
             continue
 
         # Skip if this is the only dataset containing this PEP. This should be implicit

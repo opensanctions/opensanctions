@@ -37,6 +37,7 @@ publisher:
 tags:
   - publisher.west
   - list.enforcement
+  - risk.misconduct
 url: https://ofac.treasury.gov/recent-actions/enforcement-actions
 data:
   url: https://ofac.treasury.gov/recent-actions/enforcement-actions

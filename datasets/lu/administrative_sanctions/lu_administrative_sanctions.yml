@@ -12,6 +12,9 @@ description: |
   financial regulator, the Commission de Surveillance du Secteur Financier,
   on financial institutions that have violated the law or regulations imposed
   by the CSSF.
+tags:
+  - list.enforcement
+  - risk.misconduct
 publisher:
   name: Commission de Surveillance du Secteur Financier
   name_en: Financial Sector Supervisory Commission of Luxembourg

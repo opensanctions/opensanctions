@@ -53,7 +53,7 @@ assertions:
       Organization: 3200
       LegalEntity: 60
       Vessel: 80
-      Company: 320
+      Company: 650
 
 lookups:
   sanction.program:
@@ -192,6 +192,14 @@ lookups:
         value: CN
       - match: "ÉTAT DE PALESTINE"
         value: PS
+      - match:
+          - "Saint-Pétersbourg, Fédération de Russie"
+          - "125130, Moscou"
+        value: RU
+      - match:
+          - "Sharjah, Émirats arabes unis"
+          - "Ajman, Émirats arabes unis"
+        value: AE
   type.identifier:
     options:
       - match:
@@ -243,12 +251,33 @@ lookups:
         prop: legalForm
       - match: "Lieu d'enregistrement"
         prop: jurisdiction
-      - match: "Date d'enregistrement"
+      - match:
+          - "Date d'enregistrement"
+          - "Date de l'enregistrement"
         prop: incorporationDate
-      - match: "Numéro d'enregistrement (OGRN)"
+      - match:
+          - "Numéro d'enregistrement (OGRN)"
+          - "OGRN"
         prop: ogrnCode
-      - match: "Numéro d'identification fiscale (INN)"
+      - match:
+          - "Numéro d'identification fiscale (INN)"
+          - "INN"
         prop: innCode
+      - match:
+          - "Numéro d'enregistrement"
+          - "Numéro au registre du commerce"
+          - "Numéro d'inscription au registre du commerce"
+          # Singapore's Unique Entity Number (UEN), its company registration number.
+          - "Numéro d'entité unique"
+        prop: registrationNumber
+      - match:
+          - "Numéro d'identification fiscale"
+          - "NIF"
+        prop: taxNumber
+      - match:
+          - "Numéro OMI"
+          - "OMI"
+        prop: imoNumber
   ####################################################################################################
   ####################################################################################################
   # Matched against the whole identification field ("<Commentaire>: <Identification>",
@@ -2333,6 +2362,11 @@ lookups:
           incorporationDate: 2010-06-18
           innCode: 5008054416
           registrationNumber: 1105047006954
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 20.6.2002 - Établissement principal: Fédération de Russie"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2002-06-20
       - match: "Type d'entité: organisation non gouvernementale"
         props:
           legalForm: organisation non gouvernementale
@@ -12496,6 +12530,167 @@ lookups:
       - match: "Ocean Maritime Management Company, Limited"
         associates:
           - "Ocean Maritime Management Company, Limited"
+      - match: "groupe criminel armé non étatique"
+        note: true
+      - match: "Principal lieu d’activité: Europe"
+        note: true
+      - match: "Numéro d’enregistrement: 7728390408"
+        props:
+          registrationNumber: "7728390408"
+      - match: "NIF: 0103001895"
+        props:
+          taxNumber: "0103001895"
+      - match: "NIF: 1650025163"
+        props:
+          taxNumber: "1650025163"
+      - match: "NIF: 2225019491"
+        props:
+          taxNumber: "2225019491"
+      - match: "NIF: 4026005138"
+        props:
+          taxNumber: "4026005138"
+      - match: "NIF: 5617000264"
+        props:
+          taxNumber: "5617000264"
+      - match: "NIF: 6455000037"
+        props:
+          taxNumber: "6455000037"
+      - match: "NIF: 7727038017"
+        props:
+          taxNumber: "7727038017"
+      - match: "NIF: 7813662356"
+        props:
+          taxNumber: "7813662356"
+      - match: "KPP: 222501001"
+        schema: Company
+        props:
+          kppCode: "222501001"
+      - match: "KPP: 231001001"
+        schema: Company
+        props:
+          kppCode: "231001001"
+      - match: "KPP: 402701001"
+        schema: Company
+        props:
+          kppCode: "402701001"
+      - match: "KPP: 645501001"
+        schema: Company
+        props:
+          kppCode: "645501001"
+      - match: "KPP: 784001001"
+        schema: Company
+        props:
+          kppCode: "784001001"
+      - match: "KPP: 720301001"
+        schema: Company
+        props:
+          kppCode: "720301001"
+      - match: "KPP: 616601001"
+        schema: Company
+        props:
+          kppCode: "616601001"
+      - match: "KPP: 583601001"
+        schema: Company
+        props:
+          kppCode: "583601001"
+      - match: "KPP: 450101001"
+        schema: Company
+        props:
+          kppCode: "450101001"
+      - match: "Entité associée: Russie unie"
+        associates:
+          - Russie unie
+      - match: "Numéro d’enregistrement: Numéro au registre du commerce (Oman): 1593563"
+        props:
+          registrationNumber: "1593563"
+      # The principal establishment "Oman, Émirats arabes unis" names no single
+      # place, so it is kept in the notes only.
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Seychelles - Date d’enregistrement: 9.1.2025 - Établissement principal: Oman, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: sc
+          incorporationDate: 2025-01-09
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Seychelles - Date d’enregistrement: 8.1.2025 - Établissement principal: Oman, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: sc
+          incorporationDate: 2025-01-08
+      - match: "Type d’entité: Société unipersonnelle - Lieu d’enregistrement: Oman, Émirats arabes unis - Date d’enregistrement: Oman: 20/01/2025 - Établissement principal: Oman, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: Société unipersonnelle
+          incorporationDate: 2025-01-20
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.3.2025 - Établissement principal: Fédération de Russie, Émirats arabes unis"
+        note: true
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: ru
+          incorporationDate: 2025-03-17
+      - match: "Type d’entité: société à responsabilité limité - Date d’enregistrement: 20.12.2021 - Lieu d’enregistrement: Hong Kong, Chine - Établissement principal: Hong Kong"
+        props:
+          legalForm: société à responsabilité limité
+          jurisdiction: hk
+          incorporationDate: 2021-12-20
+      - match: "Type d’entité: société de zone franche - Lieu d’enregistrement: Dubaï, Émirats arabes unis - Établissement principal: Dubaï, Émirats arabes unis"
+        props:
+          legalForm: société de zone franche
+          jurisdiction: ae
+      - match: "Type d’entité: société en zone franche - Lieu d’enregistrement: Dubaï, EAU - Établissement principal: Dubaï, EAU"
+        props:
+          legalForm: société en zone franche
+          jurisdiction: ae
+      - match: "Type d’entité: société à responsabilité limitée - Date d’enregistrement: 9.2022 - Établissement principal: Abou Dhabi"
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: ae
+          incorporationDate: 2022-09
+      - match: "Date d’enregistrement: 1.8.2002 - Établissement principal: Fédération de Russie"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2002-08-01
+      - match: "Type d’entité: société par actions fermée - Date d’enregistrement: 11.10.2002 - Établissement principal: Fédération de Russie"
+        props:
+          legalForm: société par actions fermée
+          jurisdiction: ru
+          incorporationDate: 2002-10-11
+      # The 2012 date is an acquisition by the Renova group, not the incorporation, so
+      # only the 1916 founding year is used and the full text is kept in the notes.
+      - match: "Type d’entité: société par actions - Date d’enregistrement: initialement fondée en 1916, acquise par le groupe Renova le 26.7.2012 - Lieu d’enregistrement: 131, Uspensky Ave., Verkhnyaya Pyshma, région de Sverdlovsk, Russie - Etablissement principal: Verkhnyaya Pyshma, région de Sverdlovsk, Russie"
+        note: true
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1916
+      - match: "KPP: 246601001"
+        schema: Company
+        props:
+          kppCode: "246601001"
+      - match: "KPP: 668401001"
+        schema: Company
+        props:
+          kppCode: "668401001"
+      - match: "KPP: 332701001"
+        schema: Company
+        props:
+          kppCode: "332701001"
+      - match: "KPP: 184101001"
+        schema: Company
+        props:
+          kppCode: "184101001"
+      - match: "KPP: 254001001"
+        schema: Company
+        props:
+          kppCode: "254001001"
+      - match: "KPP: 231201001"
+        schema: Company
+        props:
+          kppCode: "231201001"
+      - match: "KPP: 7704010014"
+        schema: Company
+        props:
+          kppCode: "7704010014"
   # =====================================
   #
   #  ADDRESSES

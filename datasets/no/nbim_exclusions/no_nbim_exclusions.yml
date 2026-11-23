@@ -50,6 +50,7 @@ dates:
 
 tags:
   - sector.energy
+  - list.watch
 
 assertions:
   min:

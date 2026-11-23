@@ -19,7 +19,9 @@ description: |
   last 30 days. In such cases, MaineCare Services recommends conducting a name search using their
   [portal](https://mainecare.maine.gov/mhpviewer.aspx?FID=MEEX).
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Maine Department of Health and Human Services
   description: |
@@ -36,7 +38,7 @@ publisher:
 url: "https://mainecare.maine.gov/mhpviewer.aspx?FID=MEEX"
 data:
   url: https://mainecare.maine.gov/SPDocumentLibrary/DocumentLibrary/Monthly%20Provider%20Exclusion%20Report
-  format: PDF
+  format: XLSX
   lang: eng
 
 dates:

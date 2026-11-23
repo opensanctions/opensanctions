@@ -1,4 +1,5 @@
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import parse_qs, urljoin, urlparse
@@ -77,13 +78,19 @@ class Ownerships:
 def fetch_page(
     context: Context, url: str, marker: str, cache_days: int | None = None
 ) -> Element:
-    """Fetch a page, failing on the error page HKEX serves in its place. The
-    marker is the ID of a label that only real pages carry."""
-    doc = context.fetch_html(url, cache_days=cache_days, absolute_links=True)
-    if len(h.xpath_elements(doc, f'//span[@id="{marker}"]')) != 1:
+    """Fetch a page, retrying with growing pauses while HKEX serves its error
+    page in its place. The marker is the ID of a label that only real pages
+    carry, and fill in: HKEX also serves pages with the labels left blank."""
+    for attempt in range(5):
+        if attempt > 0:
+            time.sleep(10 * 2 ** (attempt - 1))
+        doc = context.fetch_html(url, cache_days=cache_days, absolute_links=True)
+        markers = h.xpath_elements(doc, f'//span[@id="{marker}"]')
+        if len(markers) == 1 and h.element_text(markers[0]) != "":
+            return doc
         context.clear_url(url)
-        raise ValueError(f"HKEX error page: {url}")
-    return doc
+        context.log.info("Error page, retrying", url=url, attempt=attempt)
+    raise ValueError(f"HKEX error page: {url}")
 
 
 def label(doc: Element, id: str) -> str | None:
@@ -120,13 +127,16 @@ def nested_rows(doc: Element, id: str) -> list[list[Element]]:
     return rows
 
 
-def form_link(cell: Element) -> tuple[str, str] | None:
-    """Return the form page (e.g. "NSForm2") and the link of a list cell."""
+def form_link(cell: Element) -> tuple[str, str, str] | None:
+    """Return the form page (e.g. "NSForm2"), link and serial of a list cell.
+    The serial is the link text: the cell appends the serial an amendment
+    amends, upper-cased where the form keeps the filer's case."""
     links = h.xpath_elements(cell, ".//a[@href]")
     if len(links) == 0:
         return None
     href = links[0].get("href", "")
-    return urlparse(href).path.rsplit("/", 1)[-1].removesuffix(".aspx"), href
+    page = urlparse(href).path.rsplit("/", 1)[-1].removesuffix(".aspx")
+    return page, href, h.element_text(links[0])
 
 
 def split_resigned(name: str | None) -> tuple[str | None, str | None]:
@@ -492,7 +502,9 @@ def crawl_form(
     # serial, which appends "(Amendment to <serial>)" to the form's serial label.
     doc = fetch_page(context, url, serial_label, cache_days=3650)
     form_serial = label(doc, serial_label)
-    assert form_serial is not None and form_serial.startswith(serial), url
+    if form_serial is None or not form_serial.startswith(serial):
+        context.clear_url(url)
+        raise ValueError(f"Form serial {form_serial!r} is not {serial!r}: {url}")
     for table in h.xpath_elements(doc, '//table[starts-with(@id, "grd")]'):
         if table.get("id") not in FORM_TABLES:
             raise ValueError(f"Unknown table {table.get('id')}: {url}")
@@ -553,12 +565,11 @@ def crawl_shareholder(
     if serial_cell is None:
         serial_cell = row.pop("form_serial_no")
     name = h.element_text(row.pop("name_of_substantial_shareholder"))
-    serial = h.element_text(serial_cell)
     link = form_link(serial_cell)
     if link is None:
         context.log.warning("Shareholder without form", name=name)
         return
-    kind, href = link
+    kind, href, serial = link
     if kind not in ("NSForm1", "NSForm2", "NSForm3A"):
         context.log.warning("Unknown shareholder form", kind=kind, name=name)
         return
@@ -689,7 +700,7 @@ def crawl_issuer(
         serial_cell = row.pop("form_serial_number")
         link = form_link(serial_cell)
         if link is not None and link[0] == "NSForm3A":
-            serial = h.element_text(serial_cell)
+            serial = link[2]
             if serial not in crawled:
                 crawled[serial] = crawl_form(
                     context,

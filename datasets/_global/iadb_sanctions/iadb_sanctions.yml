@@ -4,11 +4,6 @@ prefix: iadb
 coverage:
   start: 2021-10-22
   schedule: "@weekly"
-manual_check:
-  last_checked: "2026-10-01"
-  interval: 180
-  message: Check if the dataset has been updated recently. If nothing has changed, check if they've made changes to the source, maybe the magic values in in REQUEST_DATA or GET_TOKEN_URL need to be updated. Maybe we can even get rid of this manual check if we're sure that it's stable and we'll be getting new data in the future?
-ci_test: false # zyte isn't available in CI
 load_statements: true
 summary: >-
   The firms and individuals listed have been sanctioned for having engaged in
@@ -54,13 +49,12 @@ publisher:
 tags:
   - list.debarment
   - sector.devbank
-url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
+  - risk.misconduct
+url: https://www.iadb.org/en/who-we-are/transparency/sanctions-system/sanctioned-firms-and-individuals
 
 data:
-  url: https://wabi-us-east2-redirect.analysis.windows.net/export/xlsx
-  format: XLSX
-dates:
-  formats: ["%m/%d/%Y %H:00:00 AM", "%b %d, %Y"]
+  url: https://data.iadb.org/datastore/dump/cd0bd9ac-18c6-44bc-8592-9be468c2efd9
+  format: CSV
 
 assertions:
   min:

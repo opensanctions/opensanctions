@@ -27,6 +27,7 @@ publisher:
   country: "us"
 tags:
   - list.sanction
+  - risk.terror
 url: https://www.state.gov/foreign-terrorist-organizations/
 data:
   url: https://www.state.gov/foreign-terrorist-organizations/

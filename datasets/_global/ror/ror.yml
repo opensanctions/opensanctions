@@ -72,8 +72,11 @@ lookups:
         value: cg
   type.date:
     options:
+      # Founding years before 1000 (e.g. 799, Archdiocese of Paderborn) are
+      # correct but cannot be represented as FtM dates.
       - match:
           - 712
+          - 799
           - 970
           - 976
         value: null

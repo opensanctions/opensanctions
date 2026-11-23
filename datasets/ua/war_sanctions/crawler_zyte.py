@@ -49,6 +49,8 @@ VESSEL_SKIP_LABELS = {
 # Rostec" is handled separately (parsed into Ownership edges), not skipped.
 COMPANY_SKIP_LABELS = {
     "Products",
+    # Weapon systems linked to the entity (e.g. "Kh-59M2/M2A Missile"), which we don't model.
+    "Weapons",
     # A relationship to other entities, not a property of this one.
     "Banks that serve the enterprise",
     # A repeating block listing the machine tools at the plant, which we don't model.

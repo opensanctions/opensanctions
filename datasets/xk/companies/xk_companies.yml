@@ -1,7 +1,7 @@
 name: xk_companies
 title: Kosovo Registry of Business Organizations and Trade Names.
 prefix: xk-reg
-disabled: false
+disabled: true
 entry_point: crawler
 coverage:
   frequency: monthly
@@ -40,7 +40,7 @@ http:
   backoff_factor: 3
   retry_statuses: [503, 429, 403]
 
-dates: 
+dates:
   formats: ["%m/%d/%Y %I:%M:%S %p", "%m/%d/%Y %H:%M:%S"]
 lookups:
   company_type:

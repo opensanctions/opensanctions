@@ -4,10 +4,16 @@ coverage:
   start: "2021-09-01"
   schedule: "0 */6 * * *"
 deploy:
-  memory: "4000Mi"
-  memory_limit: "6000Mi"
+  memory: "8000Mi"
+  memory_limit: "8000Mi"
   cpu: "1200m"
   cpu_limit: "2000m"
+  env:
+    NOMENKLATURA_DUCKDB_THREADS: "2"
+    # Pinned rather than derived from memory_limit because the export is known
+    # to work at these limits while there's very little headroom for Python
+    ZAVOD_STORE_DUCKDB_MEMORY: "2193"
+    ZAVOD_DELTA_DUCKDB_MEMORY: "1000"
   disk: "100Gi"
   command: /etl/scripts/export-default.sh
   premium: true

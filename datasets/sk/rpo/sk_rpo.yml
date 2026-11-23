@@ -4,7 +4,7 @@ disabled: false
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-11-03
+  start: 2026-11-14
 deploy:
   memory: 4Gi
   disk: 20Gi

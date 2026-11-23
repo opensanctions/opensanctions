@@ -3,7 +3,6 @@ from nomenklatura.resolver import Linker
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
-from zavod.exporters.consolidate import consolidate_entity
 from zavod.exporters.fragment import ViewFragment
 from zavod.meta import Dataset
 from zavod.runtime.statistics import Statistics
@@ -26,8 +25,8 @@ def harnessed_export(
     exporter.setup()
     for entity in view.entities():
         exporter.feed_unconsolidated(entity)
-        entity = consolidate_entity(view.store.linker, entity)
         fragment = ViewFragment(view, entity)
+        entity = fragment.entity
         stats.observe(entity)
         exporter.feed(entity, fragment)
     exporter.finish(view)

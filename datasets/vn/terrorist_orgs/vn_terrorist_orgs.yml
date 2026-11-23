@@ -36,7 +36,8 @@ data:
   format: JSON
   lang: vie
 tags:
-  - list.terror
+  - list.sanction
+  - risk.terror
 
 names:
   schema_rules:

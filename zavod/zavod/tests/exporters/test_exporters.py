@@ -22,12 +22,22 @@ from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
-from zavod.tests.util import get_test_view, make_context
+from zavod.tests.util import finish_statements, get_test_view, make_context
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.statistics import Statistics
 import pytest
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
+
+# Every RECORD_TYPE the Senzing exporter can emit (zavod/exporters/senzing.py).
+# testdataset1 only holds Person/Organization, but the set must track the code.
+SENZING_RECORD_TYPES = {
+    "PERSON",
+    "ORGANIZATION",
+    "AIRCRAFT",
+    "VESSEL",
+    "VEHICLE",
+}
 
 default_exports = {
     "entities.ftm.json",
@@ -54,12 +64,13 @@ def emit_entity(
     )
     context.emit(entity)
 
+    finish_statements(context)
     context.close()
     return entity
 
 
 def export(dataset: Dataset) -> None:
-    view = get_test_view(dataset, clear=True)
+    view = get_test_view(dataset)
     export_dataset(dataset, settings.RUN_VERSION, view)
 
 
@@ -101,8 +112,14 @@ def test_export(testdataset1: Dataset):
     with open(dataset_path / "senzing.json") as senzing_file:
         entities = [loads(line) for line in senzing_file.readlines()]
         assert len(entities) == 8
+        # RECORD_TYPE is a feature inside the single-list FEATURES schema, like every
+        # other feature; only DATA_SOURCE/RECORD_ID/LAST_CHANGE/URL stay top-level.
         for ent in entities:
-            assert ent["RECORD_TYPE"] in {"PERSON", "ORGANIZATION"}
+            record_types = [
+                f["RECORD_TYPE"] for f in ent["FEATURES"] if "RECORD_TYPE" in f
+            ]
+            assert len(record_types) == 1, record_types
+            assert record_types[0] in SENZING_RECORD_TYPES
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
@@ -374,6 +391,67 @@ def test_statements_preserves_consolidated_removals() -> None:
     entities = read_exported_entities(collection)
     person = next(e for e in entities if e.id == "person-stmts-1")
     assert person.get("name") == ["John Doe"]
+
+
+def test_statements_preserves_removals_of_looked_up_neighbours() -> None:
+    """Statements export must include all original statements of an entity
+    even when an earlier entity's export looked it up and consolidated it.
+
+    The traversal runs in canonical id order, so the target "a-person" is
+    exported first, and its nested export looks up its address "z-address"
+    while the address is still waiting for its own turn in the batch."""
+    catalog = get_catalog()
+    # One dataset per entity: emit_entity runs a whole crawl of its dataset.
+    ds_person = Dataset({"name": "test_stmts_nb_ds_person"})
+    ds_a = Dataset({"name": "test_stmts_nb_ds_a"})
+    ds_b = Dataset({"name": "test_stmts_nb_ds_b"})
+    collection = Dataset(
+        {
+            "name": "test_stmts_nb_collection",
+            "children": [ds_person.name, ds_a.name, ds_b.name],
+            "exports": ["statements.csv", "targets.nested.json"],
+        }
+    )
+    catalog.add(ds_person)
+    catalog.add(ds_a)
+    catalog.add(ds_b)
+    catalog.add(collection)
+
+    emit_entity(
+        ds_person,
+        "Person",
+        id_="a-person",
+        properties={
+            "name": ["Jane Doe"],
+            "topics": ["sanction"],
+            "addressEntity": ["z-address"],
+        },
+    )
+    emit_entity(
+        ds_a,
+        "Address",
+        id_="z-address",
+        properties={"full": ["1 Main Street"], "modifiedAt": ["2023-01-01"]},
+    )
+    emit_entity(
+        ds_b,
+        "Address",
+        id_="z-address",
+        properties={"full": ["1 Main Street"], "modifiedAt": ["2024-01-01"]},
+    )
+
+    export(collection)
+
+    # Consolidation keeps only the latest modifiedAt, drops some equivalent names, etc,
+    # but the statements export must maintain all original statements.
+    dataset_path = dataset_artifact_directory(collection.name, settings.RUN_VERSION)
+    stmts = list(read_path_statements(dataset_path / "statements.csv", CSV))
+    modified = {
+        s.value
+        for s in stmts
+        if s.prop == "modifiedAt" and s.canonical_id == "z-address"
+    }
+    assert modified == {"2023-01-01", "2024-01-01"}, modified
 
 
 def test_consolidate_names_never_remove_ofac_names():

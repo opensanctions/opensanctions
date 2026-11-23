@@ -4,9 +4,11 @@ coverage:
   start: "2021-12-01"
   frequency: daily
 deploy:
-  memory: "1500Mi"
-  memory_limit: "2000Mi"
+  memory: "4000Mi"
+  memory_limit: "5000Mi"
   cpu: "500m"
+  disk: "30Gi"
+  disk_limit: "50Gi"
 ci_test: false
 exports:
   - statistics.json
@@ -51,6 +53,7 @@ children:
   - au_wa_parliament
   - az_parliament
   - ba_parliament
+  - bd_parliament
   - be_chamber
   - be_flemish_parliament
   - be_senate
@@ -81,8 +84,10 @@ children:
   - cm_senate
   - cn_npc
   - cn_peoples_congress_wikipedia
+  - co_camara_representantes
   - co_funcion_publica
   - co_join_dots
+  - co_senate
   - cr_legislature
   - cu_inventario_legislatura
   - cy_parliament
@@ -94,6 +99,7 @@ children:
   - do_congress
   - dz_apn
   - dz_council_nation
+  - ec_national_assembly
   - ee_riigikogu
   - eg_house_representatives
   - es_mayors_councillors
@@ -110,6 +116,7 @@ children:
   - fr_hatvp_declarations
   - fr_maires
   - fr_senat
+  - ga_national_assembly
   - gb_commons
   - gb_lords
   - ge_declarations
@@ -182,7 +189,6 @@ children:
   - om_parliament
   - pa_asamblea
   - pe_congreso
-  - pg_parliament
   - ph_house_representatives
   - ph_senate
   - pk_na_members
@@ -213,6 +219,7 @@ children:
   - sm_consiglio
   - sn_assembly
   - so_house_people
+  - so_senate
   - sr_national_assembly
   - sv_legislature
   - th_cabinet
@@ -237,6 +244,7 @@ children:
   - us_plum_book
   - us_plural_legislators
   - us_state_dept
+  - uy_parliament
   - uy_pep
   - uz_legislative_chamber
   - uz_senate
@@ -247,6 +255,8 @@ children:
   - wd_peps
   - xk_assembly
   - ye_house_representatives
+  - ye_house_representatives_sanaa
   - za_mm_officials
   - za_pmg_legislators
+  - zm_national_assembly
   - zw_parliament

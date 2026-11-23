@@ -70,6 +70,8 @@ tags:
   - sector.defense
   - target.cn
   - publisher.west
+  - list.watch
+  - risk.tech
 
 assertions:
   min:

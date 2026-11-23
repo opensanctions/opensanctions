@@ -156,6 +156,29 @@ class Entity(StatementEntity):
             cleaned=True,
         )
 
+    def clone_without_statements(self, removed: dict[str, set[Statement]]) -> Self:
+        """Return a copy of this entity without the given statements, keyed by
+        property.
+
+        The copy keeps the entity's ID, schema, dataset, last change and
+        referents. This is useful when you need to mutate an entity without
+        affecting another instance of the same entity.
+
+        Statement objects are shared to minimise memory impact."""
+        # Caption must be recalculated in the cloned entity.
+        data = {
+            "schema": self.schema.name,
+            "id": self.id,
+            "last_change": self.last_change,
+        }
+        cloned = type(self)(self.dataset, data)
+        cloned.extra_referents = set(self.extra_referents)
+        cloned._statements = {
+            prop: stmts - removed.get(prop, set())
+            for prop, stmts in self._statements.items()
+        }
+        return cloned
+
     def add_schema(self, schema: str | Schema) -> None:
         """Try to apply the given schema to the current entity, making it more
         specific (e.g. turning a `LegalEntity` into a `Company`). This raises an

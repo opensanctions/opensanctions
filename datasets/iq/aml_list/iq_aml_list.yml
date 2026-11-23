@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2025-02-13
 load_statements: true
-ci_test: false # LLM-based transliteration is too costly to run in CI
+ci_test: false  # LLM-based transliteration is too costly to run in CI
 summary: >
   Individuals and entities suspected of involvement in money laundering or terrorist
   financing activities, sourced from Iraq's local freezing list.
@@ -31,6 +31,7 @@ data:
   format: JSON
 tags:
   - list.sanction
+  - risk.terror
 dates:
   formats: ["%Y"]
 

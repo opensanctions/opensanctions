@@ -15,6 +15,9 @@ description: |
 
   Some entities in this list may impersonate legitimate entities which
   are described as “potential clone”.
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Suruhanjaya Sekuriti Malaysia
   name_en: Securities Commission Malaysia

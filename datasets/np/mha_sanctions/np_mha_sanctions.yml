@@ -8,22 +8,22 @@ deploy:
   schedule: "@weekly"
 load_statements: true
 summary: >
-  List of Prohibited Persons or Groups in the National Strategy and Action Plan of the 
-  Government of Nepal for Prevention of Money Laundering and Financial Investment in Terrorist 
+  List of Prohibited Persons or Groups in the National Strategy and Action Plan of the
+  Government of Nepal for Prevention of Money Laundering and Financial Investment in Terrorist
   Activities (2076-2081)
 description: |
-  The list contains individuals or groups identified as prohibited by the Government of 
-  Nepal under the National Strategy and Action Plan (2076-2081) to prevent money 
-  laundering and terrorist financing. The data includes names, aliases, birth dates, 
+  The list contains individuals or groups identified as prohibited by the Government of
+  Nepal under the National Strategy and Action Plan (2076-2081) to prevent money
+  laundering and terrorist financing. The data includes names, aliases, birth dates,
   birthplaces, and addresses of these prohibited individuals and groups.
 publisher:
   name: Ministry of Home Affairs, Government of Nepal
   acronym: MOHA
   description: |
     The Ministry of Home Affairs in Nepal, established in 2008, is responsible for managing
-    the country's internal affairs and ensuring peace, security, and good governance. It 
-    oversees 77 district administration offices, along with various departments and security 
-    agencies, operating from the central to the local level. Its main objective is to protect 
+    the country's internal affairs and ensuring peace, security, and good governance. It
+    oversees 77 district administration offices, along with various departments and security
+    agencies, operating from the central to the local level. Its main objective is to protect
     citizens' lives, property, and freedoms by upholding law and order.
     [Source: Official Website](https://moha.gov.np)
   country: np
@@ -47,6 +47,7 @@ dates:
   formats: ["%m/%d/%Y"]
 tags:
   - list.sanction
+  - risk.terror
 
 lookups:
   type.identifier:

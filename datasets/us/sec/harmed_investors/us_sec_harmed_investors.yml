@@ -12,6 +12,9 @@ description: |
   the defendants or respondents were ordered to pay financial judgments.
   In these instances, the SEC may work to distribute these funds to investors
   who were harmed.
+tags:
+  - list.enforcement
+  - risk.misconduct
 publisher:
   name: Securities and Exchange Commission
   acronym: SEC
@@ -1190,3 +1193,9 @@ lookups:
           - Crown Bridge Partners LLC
           - Soheil Ahdoot
           - Sepas Ahdoot
+      - match: John Mark Marino, Jason “Jai” Johnson, Abraham Borenstein, and Anthony Brown
+        names:
+          - John Mark Marino
+          - Jason “Jai” Johnson
+          - Abraham Borenstein
+          - Anthony Brown

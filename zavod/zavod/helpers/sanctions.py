@@ -117,6 +117,8 @@ def make_sanction(
     sanction.add("authority", dataset.publisher.name, origin=ORIGIN_METADATA)
     sanction.add("sourceUrl", dataset.url, origin=ORIGIN_METADATA)
     sanction.set("program", program_name)
+    # TODO: derive status only in finalize_sanction, once all sanctions crawlers
+    # call it, so that dates applied after construction count towards it.
     _apply_program_and_dates(
         context,
         entity,
@@ -127,6 +129,57 @@ def make_sanction(
         end_date,
     )
     return sanction
+
+
+def finalize_sanction(
+    context: Context,
+    sanction: Entity,
+    effective_on_listing: bool = False,
+    amendments_dated: bool = False,
+) -> None:
+    """Complete a sanction's dates and status once the crawler has set them.
+
+    Call this after all source dates are applied to the sanction and before
+    emitting it. If the sanction has an ``endDate`` but no ``status``, the
+    status is derived with `is_active`.
+
+    Args:
+        context: The runner context with dataset metadata.
+        sanction: The Sanction to finalize.
+        effective_on_listing: Designations on this list take effect when they are
+            listed, as set by the legal instrument. Check this per list. If one of
+            ``listingDate`` and ``startDate`` is missing, it is filled with the
+            earliest value of the other, keeping that value's origin.
+        amendments_dated: The source dates every amendment of a designation, so
+            one without a ``modifiedAt`` was never amended. Check this per list,
+            e.g. against the archived source history. If ``modifiedAt`` is
+            missing, it is filled with the latest ``listingDate``, or the
+            latest ``startDate`` if there is no listing date.
+    """
+    assert sanction.schema.is_a("Sanction"), sanction.schema
+    if effective_on_listing:
+        listing = sanction.get_statements("listingDate")
+        start = sanction.get_statements("startDate")
+        if len(listing) > 0 and len(start) == 0:
+            earliest = min(listing, key=lambda stmt: stmt.value)
+            sanction.adopt_statement(earliest, prop="startDate")
+        elif len(start) > 0 and len(listing) == 0:
+            earliest = min(start, key=lambda stmt: stmt.value)
+            sanction.adopt_statement(earliest, prop="listingDate")
+
+    # A modifiedAt taken from the listing asserts the designation was never
+    # amended, which is false on lists that amend without dating it (e.g. eu_fsf).
+    # Of several candidate dates (source, observed), the latest one wins.
+    if amendments_dated and not sanction.has("modifiedAt"):
+        listed = sanction.get_statements("listingDate")
+        if len(listed) == 0:
+            listed = sanction.get_statements("startDate")
+        if len(listed) > 0:
+            latest = max(listed, key=lambda stmt: stmt.value)
+            sanction.adopt_statement(latest, prop="modifiedAt")
+
+    if sanction.has("endDate") and not sanction.has("status"):
+        sanction.add("status", "active" if is_active(sanction) else "inactive")
 
 
 def make_risk(

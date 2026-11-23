@@ -1,8 +1,10 @@
 import csv
+import io
 
 from normality import slugify
 from rigour.ids.npi import NPI
 from rigour.mime.types import CSV
+from rigour.text import is_nullword
 from zavod.extract.zyte_api import fetch_html
 
 from zavod import Context
@@ -16,17 +18,19 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     last_name = row.pop("last_name")
     aliases = row.pop("a_k_a_also_known_asd_b_a_doing_business_as")
 
-    if first_name != "N/A":
+    if not is_nullword(first_name, normalize=True):
         entity = context.make("Person")
         entity.id = context.make_id(first_name, middle_name, last_name, addresses)
 
         h.apply_name(
             entity,
             first_name=first_name,
-            middle_name=middle_name if middle_name != "N/A" else None,
+            middle_name=None
+            if is_nullword(middle_name, normalize=True)
+            else middle_name,
             last_name=last_name,
         )
-        if aliases != "N/A":
+        if not is_nullword(aliases, normalize=True):
             entity.add("alias", [a.strip() for a in aliases.split(";")])
 
     else:
@@ -34,7 +38,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
         entity.id = context.make_id(last_name, addresses)
         entity.add("name", last_name)
 
-        if aliases != "N/A":
+        if not is_nullword(aliases, normalize=True):
             for alias in aliases.split(";"):
                 related_entity = context.make("LegalEntity")
                 related_entity.id = context.make_id(alias, entity.id)
@@ -51,14 +55,19 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     entity.add("country", "us")
     entity.add("topics", "debarment")
     for sector in h.multi_split(row.pop("provider_type"), [";"]):
-        if sector != "N/A":
+        # rigour treats "Other" as a nullword, but here it is a provider type.
+        if sector == "Other" or not is_nullword(sector, normalize=True):
             entity.add("sector", sector)
-    entity.add("address", h.multi_split(addresses, [", &", ";"]))
-    entity.add(
-        "registrationNumber", h.multi_split(row.pop("license_number"), [",", ";"])
-    )
+    for address in h.multi_split(addresses, [", &", ";"]):
+        if not is_nullword(address, normalize=True):
+            entity.add("address", address)
+    for license_number in h.multi_split(row.pop("license_number"), [",", ";"]):
+        if not is_nullword(license_number, normalize=True):
+            entity.add("registrationNumber", license_number)
 
     for num in h.multi_split(row.pop("provider_number"), [","]):
+        if is_nullword(num, normalize=True):
+            continue
         if NPI.is_valid(num):
             entity.add("npiCode", num)
         else:
@@ -66,7 +75,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
     sanction = h.make_sanction(context, entity)
     start_date = row.pop("date_of_suspension")
-    if start_date != "N/A":
+    if not is_nullword(start_date, normalize=True):
         h.apply_date(sanction, "startDate", start_date)
     sanction.add("duration", row.pop("active_period"))
 
@@ -91,12 +100,16 @@ def crawl_data_url(context: Context) -> str:
     dataset_url = h.xpath_string(landing_doc, xpath + "/@href")
     assert dataset_url is not None, "Could not find dataset URL"
 
-    dataset_doc = context.fetch_html(dataset_url, cache_days=1, absolute_links=True)
+    dataset_doc = fetch_html(
+        context, dataset_url, xpath, cache_days=1, absolute_links=True
+    )
     resource_url = h.xpath_strings(dataset_doc, xpath + "/@href")[0]
     assert resource_url is not None, "Could not find resource URL"
 
-    resource_doc = context.fetch_html(resource_url, cache_days=1, absolute_links=True)
     file_xpath = ".//a[contains(@href, '.csv')]"
+    resource_doc = fetch_html(
+        context, resource_url, file_xpath, cache_days=1, absolute_links=True
+    )
     file_url = h.xpath_string(resource_doc, file_xpath + "/@href")
     assert file_url is not None, "Could not find CSV file URL"
     return file_url
@@ -108,9 +121,15 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", excel_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path, encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        assert reader.fieldnames is not None
-        reader.fieldnames = [slugify(key, sep="_") or "" for key in reader.fieldnames]
-        for row in reader:
-            crawl_item(row, context)
+    # The publisher alternates between UTF-8 (with and without BOM) and cp1252.
+    raw = path.read_bytes()
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = raw.decode("cp1252")
+
+    reader = csv.DictReader(io.StringIO(text))
+    assert reader.fieldnames is not None
+    reader.fieldnames = [slugify(key, sep="_") or "" for key in reader.fieldnames]
+    for row in reader:
+        crawl_item(row, context)

@@ -6,6 +6,7 @@ coverage:
   frequency: daily
   start: "2023-10-19"
 load_statements: true
+ci_test: false
 summary: >
   Sanctions by Polish Ministry of Finance countering money laundering and terror
   financing, as well as UN Security Council resolutions 2253 and 1988
@@ -34,6 +35,7 @@ publisher:
   official: true
 tags:
   - list.sanction
+  - risk.terror
 url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
 data:
   url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu

@@ -87,6 +87,7 @@ def crawl_designation(context: Context, item: dict[str, Any]) -> None:
         h.apply_date(sanction, "startDate", regime.pop("date_in_force"))
         sanction.add("provisions", regime.pop("measures"))
         context.audit_data(regime)
+        h.finalize_sanction(context, sanction)
         context.emit(sanction)
 
     entity.add("topics", "sanction")
@@ -135,9 +136,8 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", row.pop("motif"), lang="fra")
     h.apply_date(sanction, "listingDate", row.pop("date_inscription"))
-    # Designations take effect when listed, so this is also the start date.
-    for stmt in sanction.get_statements("listingDate"):
-        sanction.adopt_statement(stmt, prop="startDate")
+    # Designations on this list take effect when listed.
+    h.finalize_sanction(context, sanction, effective_on_listing=True)
 
     entity.add("topics", "sanction")
     context.emit(sanction)

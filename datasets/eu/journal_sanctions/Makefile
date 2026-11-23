@@ -6,14 +6,14 @@ all: parse validate
 # script matches the `config.consolidation` pin in eu_journal_sanctions.yml.
 parse:
 	$(PYTHON) -m scripts.parse_32001R2580 02001R2580-20260227
-	$(PYTHON) -m scripts.parse_32002R0881 02002R0881-20261010
+	$(PYTHON) -m scripts.parse_32002R0881 02002R0881-20261105
 	$(PYTHON) -m scripts.parse_32003R1210 02003R1210-20261024
 	$(PYTHON) -m scripts.parse_32004R0314 02004R0314-20260219
 	$(PYTHON) -m scripts.parse_32005R1183 02005R1183-20251210
 	$(PYTHON) -m scripts.parse_32006R0305 02006R0305-20240913
 	$(PYTHON) -m scripts.parse_32006R0765 02006R0765-20261015
 	$(PYTHON) -m scripts.parse_32009R1284 02009R1284-20261015
-	$(PYTHON) -m scripts.parse_32010D0573 02010D0573-20251029
+	$(PYTHON) -m scripts.parse_32010D0573 02010D0573-20261028
 	$(PYTHON) -m scripts.parse_32010R0356 02010R0356-20240913
 	$(PYTHON) -m scripts.parse_32011D0173 02011D0173-20260331
 	$(PYTHON) -m scripts.parse_32011R0101 02011R0101-20260131

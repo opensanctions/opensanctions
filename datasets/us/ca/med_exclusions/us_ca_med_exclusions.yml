@@ -46,7 +46,9 @@ description: |
   > or entities from the federal Medicare and Medicaid programs, to identify suspended, excluded
   > or otherwise ineligible providers.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Department of Health Care Services
   description: >
@@ -86,7 +88,9 @@ lookups:
         value: California
   type.identifier:
     options:
-      - match: N/A
+      - match:
+          - N/A
+          - NA
         value: null
       - match: "00A400330; 00A400331; 00A400332; 00A400333; 00A400334; 1770766750"
         values:
@@ -96,3 +100,11 @@ lookups:
           - 00A400333
           - 00A400334
           - 1770766750
+  type.name:
+    options:
+      - match: NA
+        value: null
+  type.string:
+    options:
+      - match: NA
+        value: null

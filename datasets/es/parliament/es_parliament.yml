@@ -100,11 +100,12 @@ lookups:
       # Match on the role prefix plus the two stable anchors of this commission
       # ("Koldo García Izaguirre" and a "Delorme," followed by the corruption
       # clause that makes the label over-length) instead, and pin each role to
-      # one canonical English name. The Position id is derived from the
+      # one canonical English name. Role words also drift ("Vice President" vs.
+      # "Vice-Chair"), so the role alternatives cover the observed variants. The Position id is derived from the
       # untranslated Spanish name and is unaffected.
-      - regex: '(?i:^First Vice[- ]?President, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
+      - regex: '(?i:^First Vice[- ]?(?:President|Chair(?:man|woman|person)?), .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'First Vice President, Commission of Inquiry into Contracts, Licenses, Concessions, Aid and Other Operations of the Government and Public Sector, Related to the Mediation of Koldo García Izaguirre and Other Persons Linked to the Scheme Investigated in Operation Delorme'
-      - regex: '(?i:^Second Vice[- ]?President, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
+      - regex: '(?i:^Second Vice[- ]?(?:President|Chair(?:man|woman|person)?), .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'Second Vice President, Commission of Investigation on Contracts, Licenses, Concessions, Aids, and Other Operations of the Government and the Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Network Investigated in Operation Delorme'
       - regex: '(?i:^First Secretary, .*Koldo Garc[ií]a Izaguirre.*Delorme,)'
         value: 'First Secretary, Commission of Investigation on the Contracts, Licenses, Concessions, Aid and Other Operations of the Government and the Public Sector, Related to the Mediation of Koldo García Izaguirre and with Other Persons Linked to the Scheme Investigated in Operation Delorme'

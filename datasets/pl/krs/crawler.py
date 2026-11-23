@@ -253,10 +253,10 @@ def make_person(context: Context, krs: str, organ: str, item: Data) -> Entity | 
     """Make a stub for a natural person, whose name and PESEL the register
     masks, local to the entity they are listed with."""
     surname = item.pop("nazwisko")
-    first = surname.pop("nazwiskoICzlon")
+    first = surname.pop("nazwiskoICzlon", None)
     second = surname.pop("nazwiskoIICzlon", None)
     context.audit_data(surname)
-    last_name = first if second is None else f"{first}-{second}"
+    last_name = "-".join(p for p in (first, second) if p is not None) or None
     names = item.pop("imiona")
     given = names.pop("imie", None)
     middle = names.pop("imieDrugie", None)
@@ -298,6 +298,8 @@ def make_legal_entity(
     regon = clean_regon(ident.pop("regon", None))
     nip = ident.pop("nip", None)
     context.audit_data(ident)
+    # A foreign company's registration as "number, register, country".
+    foreign = item.pop("krajNazwaRejestruNumerWRejestrze", None)
 
     entity = context.make("LegalEntity")
     if other_krs is not None and other_krs != NO_KRS:
@@ -308,6 +310,13 @@ def make_legal_entity(
     entity.add("name", unmask(name))
     entity.add("registrationNumber", regon)
     entity.add("taxNumber", nip)
+    if foreign is not None:
+        parts = [part.strip() for part in foreign.split(",")]
+        if len(parts) == 3:
+            entity.add("registrationNumber", parts[0])
+            entity.add("jurisdiction", parts[2])
+        else:
+            context.log.warning("Unparsed foreign registration", krs=krs, value=foreign)
     if not entity.properties:
         context.log.info("Skipping a fully masked legal entity", krs=krs, name=name)
         return None
@@ -366,12 +375,13 @@ def crawl_group(context: Context, company: Entity, krs: str, items: list[Data]) 
     section = "wzmiankaOUczestnicwieWGrupieSpolek"
     for item in items:
         kind = item.pop("czyPodmiotZaleznyDominujacy")
+        # Some entries state the role but name no other company.
         if kind == "SPÓŁKA ZALEŻNA":
             is_parent = False
-            members = item.pop("podmiotDominujacy")
+            members = item.pop("podmiotDominujacy", [])
         elif kind == "PODMIOT DOMINUJĄCY":
             is_parent = True
-            members = item.pop("spolkiZalezne")
+            members = item.pop("spolkiZalezne", [])
         else:
             context.log.warning(
                 "Unknown role in a group of companies", krs=krs, kind=kind
@@ -412,6 +422,11 @@ def crawl_directors(
         directorship.id = context.make_id(krs, organ, director.id, role)
         directorship.add("director", director)
         directorship.add("organization", company)
+        # Some entries spell out the full scope of a power of attorney in the
+        # role field, which is kept as a description under the organ's name.
+        if len(role) > registry.string.max_length:
+            directorship.add("description", role)
+            role = organ
         directorship.add("role", role)
         context.audit_data(item, ignore=["czyZawieszona", "dataZawieszeniaDo"])
         context.emit(directorship)
@@ -431,7 +446,7 @@ def make_address(context: Context, seat: Data) -> str | None:
         street=clean(address.pop("ulica", None)),
         house_number=house,
         postal_code=address.pop("kodPocztowy", None),
-        city=address.pop("miejscowosc"),
+        city=address.pop("miejscowosc", None),
         country=country,
         country_code="pl" if country == "POLSKA" else None,
     )

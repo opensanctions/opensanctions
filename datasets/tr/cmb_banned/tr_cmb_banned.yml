@@ -13,6 +13,9 @@ description: |
   be involved in market fraud, including market manipulation and speculation. The list may also include
   entities wanted for terrorism-related activities.
 
+tags:
+  - list.debarment
+  - risk.misconduct
 publisher:
   name: Sermaye Piyasası Kurulu
   name_en: Capital Markets Board of Türkiye

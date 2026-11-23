@@ -47,9 +47,10 @@ names:
     Person:
       # "?" flags transliteration artefacts; "f.k.a"/"f.n.a" are alias markers
       # not covered by rigour's name_split_phrases_list (which has "f/k/a").
-      # "Good"/"Low" are UN alias-quality labels the source prefixes to each
-      # alias; flag them so the packed alias lists are split via review.
-      reject_chars: "?"
+      # "," flags names in "Lastname, Firstname" order or with extra details
+      # attached. "Good"/"Low" are UN alias-quality labels; the crawler splits
+      # fields that start with one, and flags the others for review.
+      reject_chars: "?,"
       reject_strings:
         - f.k.a
         - f.n.a
@@ -57,7 +58,7 @@ names:
         - Low
     LegalEntity:
       # As Person, plus parentheses (in the Person baseline but not LegalEntity's).
-      reject_chars: "?()"
+      reject_chars: "?(),"
       reject_strings:
         - f.k.a
         - f.n.a
@@ -204,6 +205,10 @@ lookups:
         values:
           - Colombia
           - Spain
+      - match: Democratic Republic of the Congo, Rwanda
+        values:
+          - CD
+          - RW
   type.identifier:
     options:
       - match: Central African Republic armed forces (FACA) Military identification number 911-10-77
@@ -214,6 +219,8 @@ lookups:
         value: Jin Tiesan
       - match: ??? ?????? (Abdullah Sindhi)
         value: Abdullah Sindhi
+      # Original-script alias replaced entirely by "?" in the source export.
       - match:
           - None
+          - ??? ?????? ???
         value: null

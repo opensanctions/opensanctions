@@ -42,8 +42,11 @@ description: |
 
   This dataset is manually maintained and is updated shortly after changes to the source.
 
+tags:
+  - list.watch
+  - risk.tech
 publisher:
-  name: Federal Communications Comission
+  name: Federal Communications Commission
   acronym: FCC
   description: |
     > The Federal Communications Commission regulates interstate and international

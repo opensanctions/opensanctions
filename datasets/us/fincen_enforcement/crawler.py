@@ -37,7 +37,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     # process row
     str_row = h.cells_to_str(row)
     case_name = str_row.pop("enforcement_action")
-    sanction_date = str_row.pop("date_sort_ascending")
+    sanction_date = str_row.pop("date")
     matter_number = str_row.pop("matter_number")
     assert sanction_date is not None
     if not h.within_max_age(context, sanction_date, MAX_AGE_DAYS):
@@ -104,6 +104,14 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     table = h.xpath_element(doc, ".//table")
+    # The date header holds screen-reader text that reflects the sort widget
+    # state and would otherwise end up in the column key.
+    for hidden in h.xpath_elements(
+        table, ".//th//span[@class='visually-hidden']", expect_exactly=1
+    ):
+        parent = hidden.getparent()
+        assert parent is not None
+        parent.remove(hidden)
 
     for row in h.parse_html_table(table):
         crawl_row(context, row)

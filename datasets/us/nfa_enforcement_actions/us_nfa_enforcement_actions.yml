@@ -55,6 +55,7 @@ tags:
   - list.enforcement
   - publisher.west
   - sector.financial
+  - risk.misconduct
 
 assertions:
   min:

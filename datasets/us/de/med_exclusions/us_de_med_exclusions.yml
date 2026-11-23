@@ -19,7 +19,9 @@ description: |
   to permanent terminations, and includes details on providers' reinstatement
   statuses when applicable.
 tags:
+  - list.debarment
   - sector.health
+  - risk.misconduct
 publisher:
   name: Delaware Health and Social Services
   description: |

@@ -20,6 +20,9 @@ description: |
    > made in or accompanied by a document lodged or registered with MAS.
    >
    > This list is not exhaustive and is based on what was known to MAS at the time of publication.
+tags:
+  - list.watch
+  - risk.unlicensed
 publisher:
   name: Monetary Authority of Singapore
   acronym: MAS

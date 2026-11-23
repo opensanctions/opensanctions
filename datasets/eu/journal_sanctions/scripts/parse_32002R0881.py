@@ -330,6 +330,11 @@ MISPRINT_REPAIRS: dict[str, str] = {
     "(name in Arabic script: محمد مصطفى سالم. Address:": (
         "(name in Arabic script: محمد مصطفى سالم). Address:"
     ),
+    # El Motassadeq (M370): a space is printed before the colon of the
+    # "original script" label.
+    "Mounir El Motassadeq (original script : ": (
+        "Mounir El Motassadeq (original script: "
+    ),
 }
 
 # Values that legitimately contain a known "Label:" string and must not be
