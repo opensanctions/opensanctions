@@ -1,8 +1,3 @@
-# The Jordanian government network only answers Jordanian IPs, so every request
-# goes through Zyte with JO geolocation. Zyte intermittently fails with a 421
-# connection error; re-run the crawl. A full run takes over an hour, hence
-# ci_test: false.
-#
 # The listing is the royal decree that appointed the sitting Senate. Members who
 # have since left keep their card, marked with a leading "*". A note on the listing
 # ("التعديلات التي طرأت على المجلس") gives each later decree, which appoints members
@@ -15,7 +10,7 @@ coverage:
   frequency: monthly
   start: 2026-11-09
 load_statements: true
-ci_test: false
+ci_test: false  # Zyte
 summary: >-
   Upper chamber of the Parliament of Jordan, whose members the King appoints
 description: |
