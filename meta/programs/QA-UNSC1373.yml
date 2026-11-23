@@ -1,0 +1,18 @@
+title: Qatar Counter-Terrorism (UNSCR 1373) Sanctions Regime
+key: QA-UNSC1373
+url: https://www.moci.gov.qa/en/about-the-ministry/anti-money-laundering-and-terrorism-financing/legal-framework/unified-record-of-persons-and-entities-designated-on-sanction-list/
+summary: >
+  Qatar implements UN Security Council Resolution 1373 (2001) through a national
+  sanctions list established by Law No. 27 of 2019 on Combating Terrorism.
+  Designations are made by order of the Public Prosecutor and published by the
+  National Counter Terrorism Committee, which maintains the list alongside the
+  designations Qatar implements from the UN Security Council lists. Designated
+  persons and entities have their funds and economic resources frozen, and no
+  funds may be made available to them.
+issuer: qa_qatar
+dataset: qa_nctc_sanctions
+aliases:
+  - Resolution 1373
+  - Law No. 27 of 2019
+measures:
+  - Asset freeze
