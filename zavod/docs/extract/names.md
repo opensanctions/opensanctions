@@ -40,7 +40,9 @@ Includes names like `THE NATIONAL BANK PLC (FORMERLY AL RAFAH MICROFINANCE BANK)
 `crawler.py` replace `entity.add` with
 
 ```python
-h.apply_reviewed_name_string(context, entity, string=legal_name, llm_cleaning=True, lang="rus")
+h.apply_reviewed_name_string(
+    context, entity, string=legal_name, llm_cleaning=True, lang="rus"
+)
 ```
 
 `iso9362.yml` add
