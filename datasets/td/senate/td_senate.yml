@@ -1,0 +1,78 @@
+title: Chad Members of the Senate
+entry_point: crawler.py
+prefix: td-sen
+coverage:
+  frequency: monthly
+  start: 2026-11-23
+load_statements: true
+summary: >-
+  Members of the upper house of Chad's Parliament, elected indirectly or appointed
+description: |
+  Current members of the Senate of Chad (Sénat), the upper house of the bicameral
+  Parliament. Two thirds of its senators are elected indirectly by provincial and
+  communal councillors and one third are appointed by the President, all for a
+  six-year term. Together with the National Assembly, the Senate holds the country's
+  legislative power, including passing laws and overseeing the government.
+url: https://senat.td/index.php/les-senateurs/
+publisher:
+  name: Sénat du Tchad
+  name_en: Senate of Chad
+  description: >
+    The Senate is the upper house of the Parliament of Chad, representing the
+    country's autonomous local authorities.
+  url: https://senat.td/
+  country: td
+  official: true
+data:
+  url: https://senat.td/index.php/les-senateurs/
+  format: HTML
+  lang: fra
+# The source doesn't date anyone's mandate or tell elected senators apart from
+# appointed ones. The roster carries no term marker either, so the partial renewal of
+# a third of the seats (Constitution of Chad 2023, Art. 116 and 120) isn't detectable
+# from the source: check the roster has been updated after each renewal.
+# The page's second inline array (`const senators = [{name, gender, province, seats}]`)
+# was considered for Occupancy:constituency but skipped: its provinces don't follow the
+# two-per-province seat allocation, `seats` is constant, and it joins to the roster
+# only by name, which differs at least once.
+# The source lags real changes: in Nov 2026 the roster still listed Mariam Mahamat
+# Nour, who left for the ECCAS Commission in Jan 2026, and lacked her replacement
+# Bichara Abderrahmane Moussa, elected at the 21 June 2026 by-election
+# (https://tchadinfos.com/2026/06/25/elections-partielles-au-tchad-le-conseil-constitutionnel-proclame-les-resultats-definitifs/).
+dates:
+  formats: ["%d/%m/%Y", "%Y"]
+names:
+  prefixes_strip:
+    - "Dr "
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 1
+    country_entities:
+      td: 60
+  max:
+    schema_entities:
+      Person: 80
+      Position: 1
+
+lookups:
+  # The source marks these senators as male in error. Beassemda Lydie is a woman per
+  # the appointment decree 0122/PR/2025 (https://tchadinfos.com/2025/03/04/tchad-23-personnalites-nommees-senateurs-par-le-president-de-la-republique/);
+  # the published total of 26 women (18 elected, 8 appointed) only adds up with both
+  # corrections.
+  gender_override:
+    options:
+      - match: BEASSEMDA LYDIE
+        value: female
+      - match: AWATIF OUSMAN ALI FADEL
+        value: female
+  type.gender:
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female
