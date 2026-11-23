@@ -10,7 +10,7 @@ from collections import Counter, defaultdict
 
 import click
 from lxml import etree
-from zavod.helpers import record_hash, remove_namespace, xml_node_hash
+from zavod.helpers import record_hash, remove_namespace, xml_node_sorted_hash
 
 from contrib.backtrack.harness import (
     dump_sql,
@@ -46,7 +46,7 @@ def main(dataset: str) -> None:
         events: Counter[str | None] = Counter()
         for party in doc.findall("DistinctParties/DistinctParty"):
             profile_id = party.find("Profile").get("ID")
-            party_hash = xml_node_hash(party)
+            party_hash = xml_node_sorted_hash(party)
             for entry in entries[profile_id]:
                 if not keep_entry(dataset, lists[entry.get("ListID")]):
                     continue
@@ -56,7 +56,7 @@ def main(dataset: str) -> None:
                 if key in keys:
                     log.warning("%s: duplicate entry ID %s", path.name, key)
                 keys.add(key)
-                checksum = record_hash([party_hash, xml_node_hash(entry)])
+                checksum = record_hash([party_hash, xml_node_sorted_hash(entry)])
                 events[observe_designation(db, dataset, key, checksum, seen)] += 1
         if len(keys) == 0:
             raise RuntimeError(f"{path.name}: no designations found")
