@@ -1080,3 +1080,8 @@ lookups:
           - Financière Fonds Privés
           - Pierre-Michel Deléglise
           - Thierry de Chambure
+      - match: "La société Auris Gestion <br /> M. Marc de Saint Denis<br /> M. Sébastien Grasset"
+        entities:
+          - Auris Gestion
+          - Marc de Saint Denis
+          - Sébastien Grasset
