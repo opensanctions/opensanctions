@@ -118,15 +118,14 @@ context.emit(sanction)
     ```python
     # Avoid: a closure buried inside another function
     def crawl(context):
-        def parse(row):
-            ...
+        def parse(row): ...
+
 
     # Prefer: a named function at module level
-    def parse_row(context, row):
-        ...
+    def parse_row(context, row): ...
 
-    def crawl(context):
-        ...
+
+    def crawl(context): ...
     ```
 
 - To improve readability and maintainability, break down deeply nested logic into smaller, focused functions.
@@ -287,7 +286,8 @@ a KeyError if the API response changes:
 next_url: str | None = context.data_url
 while next_url:
     response = context.fetch_json(next_url)
-    next_url = response["links"]["next"]  # KeyError if structure changes; None on last page
+    # KeyError if structure changes; None on last page
+    next_url = response["links"]["next"]
     for item in response["data"]:
         crawl_row(context, item)
 ```

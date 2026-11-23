@@ -101,6 +101,7 @@ In our example above, we'd create a file in `datasets/eu/fsf/crawler.py` with a 
 ```python
 from zavod import Context
 
+
 def crawl(context: Context):
     context.log.info("Hello, World!")
 ```
@@ -117,8 +118,8 @@ XML document. The [`context`][zavod.context.Context] provides utility methods th
 ```python
 def crawl(context):
     # Fetch the source data URL specified in the metadata to a local path:
-    source_path = context.fetch_resource('source.xml', context.dataset.data.url)
-    with open(source_path, 'r') as fh:
+    source_path = context.fetch_resource("source.xml", context.dataset.data.url)
+    with open(source_path, "r") as fh:
         print(len(fh.read()))
 
     # You can also register the file as a resource with the dataset that
@@ -130,6 +131,7 @@ Other crawlers might not be as lucky: instead of fetching their source data as a
 
 ```python
 from lxml import html
+
 
 def crawl(context):
     response = context.http.get(context.dataset.data.url)
@@ -146,6 +148,7 @@ Responses from the ``context.http`` session can also be cached using built-in he
 
 ```python
 from lxml import html
+
 
 def crawl_person(context, url):
     # Fetch, cache and parse a person's detail page into an lxml DOM:
@@ -171,16 +174,16 @@ def crawl(context):
     # This is often ideally derived from its ID in the source database,
     # or a string with the above properties.
     # See the entity ID guide: best_practices/entity_id.md
-    entity.id = context.make_id('Joseph Biden')
+    entity.id = context.make_id("Joseph Biden")
 
     # Assign some property values:
-    entity.add('name', 'Joseph Robinette Biden Jr.')
-    entity.add('alias', 'Joe Biden')
-    entity.add('birthDate', '1942-11-20')
+    entity.add("name", "Joseph Robinette Biden Jr.")
+    entity.add("alias", "Joe Biden")
+    entity.add("birthDate", "1942-11-20")
 
     # Invalid property values ('never' is not a date) will produce a log
     # error:
-    entity.add('deathDate', 'never')
+    entity.add("deathDate", "never")
 
     # Store or update the entity in the database:
     context.emit(entity)
