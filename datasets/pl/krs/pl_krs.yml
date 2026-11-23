@@ -126,6 +126,9 @@ lookups:
         value: "1982-07-29"
       - match: "2992-01-24"
         value: "1992-01-24"
+      # A shareholder's birth date with no telling which year was meant.
+      - match: "2032-04-10"
+        value: null
   type.url:
     options:
       # A host without a top-level domain, left by a bare or truncated entry.
