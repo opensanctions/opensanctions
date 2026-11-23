@@ -298,6 +298,8 @@ def make_legal_entity(
     regon = clean_regon(ident.pop("regon", None))
     nip = ident.pop("nip", None)
     context.audit_data(ident)
+    # A foreign company's registration as "number, register, country".
+    foreign = item.pop("krajNazwaRejestruNumerWRejestrze", None)
 
     entity = context.make("LegalEntity")
     if other_krs is not None and other_krs != NO_KRS:
@@ -308,6 +310,13 @@ def make_legal_entity(
     entity.add("name", unmask(name))
     entity.add("registrationNumber", regon)
     entity.add("taxNumber", nip)
+    if foreign is not None:
+        parts = [part.strip() for part in foreign.split(",")]
+        if len(parts) == 3:
+            entity.add("registrationNumber", parts[0])
+            entity.add("jurisdiction", parts[2])
+        else:
+            context.log.warning("Unparsed foreign registration", krs=krs, value=foreign)
     if not entity.properties:
         context.log.info("Skipping a fully masked legal entity", krs=krs, name=name)
         return None
