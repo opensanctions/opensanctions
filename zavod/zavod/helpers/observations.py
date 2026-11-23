@@ -26,7 +26,9 @@ def observe_change(context: Context, key: str, checksum: str) -> datetime | None
     Use this to date a designation's last amendment where the source doesn't. A
     new checksum returns the time of the current run. Derive the checksum from
     the same portion of the source on every run (e.g. with
-    [`h.xml_node_hash`][zavod.helpers.xml_node_hash]): changing what it covers
+    [`h.xml_node_hash`][zavod.helpers.xml_node_hash], or
+    [`h.xml_node_sorted_hash`][zavod.helpers.xml_node_sorted_hash] where the
+    source shuffles its elements): changing what it covers
     makes every record look amended. Returns None for content that was already
     in the source at the dataset's first observation.
 

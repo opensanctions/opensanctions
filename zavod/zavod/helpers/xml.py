@@ -69,3 +69,44 @@ def xml_node_hash(node: ElementOrTree | None, text_only: bool = False) -> str | 
         return None
     digest.update(text.replace(" ", "").encode("utf-8"))
     return digest.hexdigest()
+
+
+def _normalise(text: str | None) -> str:
+    if text is None:
+        return ""
+    return squash_spaces(text.lower()).replace(" ", "")
+
+
+def _sorted_digest(el: etree._Element) -> str:
+    digest = sha1(_normalise(str(el.tag)).encode("utf-8"))
+    for key, value in sorted((str(k), str(v)) for k, v in el.attrib.items()):
+        digest.update(f"\x1f{key}={_normalise(value)}".encode())
+    digest.update(f"\x1e{_normalise(el.text)}".encode())
+    children = [_sorted_digest(c) for c in el.iterchildren(etree.Element)]
+    for child in sorted(children):
+        digest.update(child.encode("utf-8"))
+    digest.update(f"\x1d{_normalise(el.tail)}".encode())
+    return digest.hexdigest()
+
+
+def xml_node_sorted_hash(node: ElementOrTree | None) -> str | None:
+    """Compute a SHA1 hash of an XML node that ignores the order of its elements.
+
+    Use this instead of `h.xml_node_hash` for data-style XML whose publisher
+    serialises sibling elements in no stable order, so that a reshuffled export
+    doesn't register as a change. Like `h.xml_node_hash`, the hash ignores case
+    and whitespace. Text after a child element moves with that element, which
+    makes the hash unfit for HTML and other mixed content, where that order
+    carries meaning.
+
+    Args:
+        node: The element or tree to hash.
+
+    Returns:
+        A hex digest, or `None` if the node is missing.
+    """
+    if node is None:
+        return None
+    if isinstance(node, etree._ElementTree):
+        node = node.getroot()
+    return _sorted_digest(node)
