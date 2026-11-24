@@ -497,3 +497,9 @@ lookups:
       # Tekwang Lending Corp. is the victim of identity misuse by Tekcash.
       - match: "PUBLIC ADVISORY UNAUTHORIZED USE OF THE OLP NAME AND CORPORATE IDENTITY OF TEKWANG LENDING CORP. BY “TEKCASH” (https://tekcash.app/)"
         name: "TEKCASH"
+      - match: "SEC ADVISORY CARZIQO/CORZIQO TECHNOLOGIES LTD. /CARZIQO CAR RENTAL SERVICES/ CARZIQO CAR RENTAL INC."
+        name:
+          - "CARZIQO TECHNOLOGIES LTD."
+          - "CORZIQO TECHNOLOGIES LTD."
+          - "CARZIQO CAR RENTAL SERVICES"
+          - "CARZIQO CAR RENTAL INC."
