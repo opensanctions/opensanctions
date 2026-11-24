@@ -59,6 +59,29 @@ that warning is in the `config.discovery` section of the dataset `.yml`.
   from the table. Every row must cite one; the set of cited URLs doubles as
   the record of which documents have been reviewed.
 
+## Dates
+
+`documents.csv` dates every document the table links, one row per link:
+
+- `Measure` — the join key, as in `details.csv`.
+- `Stage` — `finding`, `nprm`, `final_rule` (also a Section 9714 or 2313a
+  order), `extension` (moves the effective date of a final rule or order),
+  `amendment` (a supplement or an order amending a final rule or order), or
+  `rescission` (also a withdrawal of a finding or proposed rule).
+- `URL` — the document exactly as linked from the table.
+- `Published` — its Federal Register publication date.
+- `Effective` — the date it takes effect, per its DATES section; for an
+  extension, the new effective date of the measure. Empty for findings and
+  proposed rules.
+
+The crawler derives each measure's Sanction dates from these rows, not from
+the dates in the table, which are often signing or public-inspection dates:
+`listingDate` is the first publication of a finding, proposed rule or order;
+`startDate` is the effective date of the final rule or order, as last
+extended; `modifiedAt` is the latest extension or amendment, or the listing
+date if there is none; `endDate` is the effective date of the rescission.
+`target` rows share their measure's dates.
+
 ## Topics
 
 Topics are never set per row; the crawler derives them from the relationship

@@ -131,6 +131,13 @@ config:
     # 4. federalregister.gov public-inspection URLs are replaced by
     #    /documents/ URLs once published: re-review the published version and
     #    move any details.csv citations / list entry to the new URL.
+    #
+    # Handling "Undated special measures document" warnings: add a
+    # documents.csv row for the URL (see README.md). Take Published and
+    # Effective from the Federal Register API's publication_date and
+    # effective_on, and check Effective against the document's DATES section,
+    # which some documents state relative to publication. A public-inspection
+    # URL replaced by a /documents/ URL keeps its row under the new URL.
     reviewed_urls:
       # Dead links on the FinCEN site (404); the 2013 NPRM content for both
       # exchange houses is covered by their findings, which are mined.
