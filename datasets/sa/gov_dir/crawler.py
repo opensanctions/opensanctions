@@ -145,14 +145,22 @@ def crawl_agency(context: Context, url: str) -> None:
         categorisation = categorise(context, position)
     else:
         person.add("country", "sa")
-        position_name = f"Head of {title}"
         # Name the country for national bodies, not regional emirates and municipalities.
         regional = re.fullmatch(r"Emirate of .+|.+ Municipality", title, re.IGNORECASE)
-        if regional is None and "saudi" not in title.lower():
-            position_name = f"{position_name} of Saudi Arabia"
+        national = regional is None and "saudi" not in title.lower()
+        suffix = " of Saudi Arabia" if national else ""
         position = h.make_position(
-            context, name=position_name, country="sa", lang="eng"
+            context, name=f"Head of {title}{suffix}", country="sa", lang="eng"
         )
+        # The ID stays on the source title; the lookup fixes the name only.
+        fixed_title = context.lookup_value("agency_title", title)
+        if fixed_title is not None:
+            position.set(
+                "name",
+                f"Head of {fixed_title}{suffix}",
+                lang="eng",
+                original_value=title,
+            )
         # Universities, hospitals etc. too: emit only once categorised in the UI.
         categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:

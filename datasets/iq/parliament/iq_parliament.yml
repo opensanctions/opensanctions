@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: iq-parl
 coverage:
   frequency: monthly
-  start: 2026-11-17
+  start: 2026-11-23
 load_statements: true
 ci_test: false # Needs Zyte browser rendering.
 summary: >-
