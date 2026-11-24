@@ -12,7 +12,7 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # Dates are written as "12 июни соли 1988", "26-уми сентябри соли 1974",
 # "14 апрели 1981" or "12.03.1988".
 DATE = (
-    r"(?:(?P<day>\d{1,2})\s*-?\s*(?:[ую]ми?)?\s*-?\s*"
+    r"(?P<date>(?P<day>\d{1,2})\s*-?\s*(?:[ую]ми?)?\s*-?\s*"
     r"(?P<month>(?:январ|феврал|март|апрел|май|июн|июл|август|сентябр|октябр|ноябр|декабр)и)"
     r"\s+(?:соли\s+)?(?P<year>\d{4})|(?P<numeric>\d{2}\.\d{2}\.\d{4}))"
 )
@@ -40,7 +40,7 @@ def page_text(el: _Element) -> str:
     # Names and labels are split across inline tags (<strong>ФАЙЗАЛ</strong>
     # <strong>Ӣ</strong>), while paragraphs follow each other without whitespace.
     # Break only after block elements so that paragraphs don't run together.
-    for block in el.iter("p", "div", "br", "td", "li", "span", "h1"):
+    for block in el.iter("p", "div", "br", "td", "li", "h1"):
         block.tail = "\n" + (block.tail or "")
     return h.element_text(el)
 
@@ -55,7 +55,10 @@ def match_date(match: re.Match[str] | None) -> str | None:
 
 def apply_biography(person: Entity, text: str) -> None:
     birth = BIRTH_DATE_LABEL.search(text) or BIRTH_DATE_PROSE.search(text)
-    h.apply_date(person, "birthDate", match_date(birth))
+    if birth is not None:
+        h.apply_date(
+            person, "birthDate", match_date(birth), original_value=birth.group("date")
+        )
     place = BIRTH_PLACE.search(text)
     if place is not None:
         person.add("birthPlace", place.group(1), lang="tgk")
@@ -113,31 +116,34 @@ def crawl_member(
         election_date=election,
         categorisation=member_categorisation,
     )
-    if occupancy is not None:
-        context.emit(occupancy)
-        context.emit(person)
+    if occupancy is None:
+        return election
+    context.emit(occupancy)
+    context.emit(person)
     return election
 
 
-def check_sitting_term(context: Context, elections: list[str]) -> None:
-    """Warn when the members' pages disagree on the sitting convocation's election
-    date, or when that election is over a term old. A few pages keep the line from
-    an earlier convocation, e.g. /deputats/24."""
+def check_sitting_term(context: Context, elections: list[str]) -> str:
+    """Return the sitting convocation's election date, as most members' pages state
+    it. Warn when the pages disagree on it, or when that election is over a term old.
+    A few pages keep the line from an earlier convocation, e.g. /deputats/24."""
     assert len(elections) > 0, "No member page states an election date"
-    counts = Counter(
-        h.extract_date(context.dataset, election, fallback_to_original=False)[0]
-        for election in elections
-    )
+    counts: Counter[str] = Counter()
+    for election in elections:
+        parsed = h.extract_date(context.dataset, election, fallback_to_original=False)
+        assert len(parsed) == 1, ("Unparsed election date", election)
+        counts[parsed[0]] += 1
     election_date, votes = counts.most_common(1)[0]
     if votes < 0.8 * len(elections):
         context.log.warning(
             "Members' pages disagree on the election date", dates=dict(counts)
         )
-    if election_date < (settings.RUN_TIME - STALE_AFTER).date().isoformat():
+    if election_date < h.backdate(settings.RUN_TIME, STALE_AFTER):
         context.log.warning(
             "The roster's election is over a term old; is the listing stale?",
             election_date=election_date,
         )
+    return election_date
 
 
 def crawl_leaders(
@@ -147,6 +153,7 @@ def crawl_leaders(
     office: Entity,
     member: Entity,
     member_categorisation: PositionCategorisation,
+    election_date: str,
 ) -> None:
     """Leadership pages hold free-form biographies of one or more office holders,
     each introduced by their name and the date they were elected to the office."""
@@ -156,7 +163,6 @@ def crawl_leaders(
         url,
         unblock_validator="//div[contains(@class, 'wrap-page-news')]",
         html_source="httpResponseBody",
-        cache_days=7,
     )
     text = page_text(h.xpath_element(doc, "//div[contains(@class, 'wrap-page-news')]"))
     matches = list(LEADER.finditer(text))
@@ -167,30 +173,40 @@ def crawl_leaders(
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
         name = match.group("name")
         person = context.make("Person")
+        # The listing leaves the officers out and their pages don't link a
+        # /deputats/<id> page, so they are keyed by name.
         person.id = context.make_id(name)
         person.add("name", name, lang="tgk")
         person.add("sourceUrl", url)
         apply_biography(person, text[match.end() : end])
 
-        # The presiding officers are deputies elected from among the members.
+        # The presiding officers are deputies elected from among the members. Their
+        # biographies don't state when they were elected deputy, so they take the
+        # sitting convocation's election date.
         membership = h.make_occupancy(
-            context, person, member, categorisation=member_categorisation
+            context,
+            person,
+            member,
+            election_date=election_date,
+            categorisation=member_categorisation,
         )
         if membership is None:
             continue
         context.emit(membership)
-        if office_categorisation.is_pep:
-            occupancy = h.make_occupancy(
-                context,
-                person,
-                office,
-                start_date=match_date(match),
-                categorisation=office_categorisation,
-            )
-            if occupancy is not None:
-                context.emit(occupancy)
-                context.emit(office)
         context.emit(person)
+        if not office_categorisation.is_pep:
+            continue
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            office,
+            start_date=match_date(match),
+            categorisation=office_categorisation,
+        )
+        if occupancy is None:
+            continue
+        context.emit(occupancy)
+        context.emit(office)
 
 
 def crawl(context: Context) -> None:
@@ -211,6 +227,7 @@ def crawl(context: Context) -> None:
     # The listing pages through the deputies, 12 at a time. Its card names are
     # abbreviated or missing, so only the links are used.
     elections: list[str] = []
+    page = 1
     next_url: str | None = context.data_url
     while next_url is not None:
         doc = fetch_html(
@@ -218,7 +235,6 @@ def crawl(context: Context) -> None:
             next_url,
             unblock_validator="//div[contains(@class, 'deputats-page')]",
             html_source="httpResponseBody",
-            cache_days=1,
             absolute_links=True,
         )
         links = h.xpath_strings(
@@ -232,11 +248,20 @@ def crawl(context: Context) -> None:
         )
         assert len(next_links) <= 1, next_links
         next_url = next_links[0] if len(next_links) == 1 else None
+        # The pagination shows a window of page numbers, not the last one, so
+        # follow "»" but fail if it goes missing while a later page is listed.
+        if next_url is None:
+            numbers = h.xpath_strings(
+                doc, "//ul[@class='pagination-standard']//a/text()"
+            )
+            later = [n for n in numbers if n.isdigit() and int(n) > page]
+            assert len(later) == 0, ("No next link, but later pages listed", later)
+        page += 1
         for url in links:
             election = crawl_member(context, url, member, member_categorisation)
             if election is not None:
                 elections.append(election)
-    check_sitting_term(context, elections)
+    election_date = check_sitting_term(context, elections)
 
     # The listing leaves out the chamber's presiding officers.
     for url, holders, name, wikidata_id in [
@@ -274,4 +299,5 @@ def crawl(context: Context) -> None:
             office,
             member,
             member_categorisation,
+            election_date,
         )
