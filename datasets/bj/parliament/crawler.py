@@ -1,3 +1,5 @@
+import re
+
 from normality import normalize
 from zavod.stateful.positions import PositionCategorisation, categorise
 
@@ -36,7 +38,12 @@ def crawl_deputy(
     person = context.make("Person")
     person.id = context.make_id(name)
     # Not split: surnames vary, e.g. "do REGO Léansou B.".
-    person.add("name", name)
+    names = [name]
+    if re.search(r"\b(eps|epouse)\b", name, re.IGNORECASE):
+        res = context.lookup("married_names", name, warn_unmatched=True)
+        if res is not None:
+            names = res.values
+    person.add("name", names)
     # Electoral Code (Law 2019-43), Art. 39 al. 1 with Art. 9.
     person.add("citizenship", "bj")
     party = parties.get(name_key(name))

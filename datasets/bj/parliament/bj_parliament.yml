@@ -55,7 +55,9 @@ lookups:
       # Stray control character.
       - match: "NOUTAÏ\x8f Tohouegnon Nestor"
         value: "NOUTAÏ Tohouegnon Nestor"
-      # "X Epouse Y": birth name X, married name Y.
+  # "X Epouse Y": birth name X, married name Y. The crawler warns on unlisted ones.
+  married_names:
+    options:
       - match: "TIBOUTE Eps SAMA Emilie"
         values: ["TIBOUTE Emilie", "SAMA Emilie"]
       - match: "SALIOU Epouse AREKPA Alidjanatou"
