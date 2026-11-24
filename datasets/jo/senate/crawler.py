@@ -72,15 +72,13 @@ def clean_name(context: Context, raw_name: str) -> str:
     return name
 
 
-def name_key(name: str) -> str:
-    # "عبد الكريم" is also written "عبدالكريم".
-    return name.replace(" ", "")
-
-
-def note_key(context: Context, raw_name: str) -> str:
+def name_key(context: Context, raw_name: str) -> str:
+    """Match a name in the note to a member's card."""
     name = clean_name(context, raw_name)
     # The note can spell a name differently from the member's card.
-    return name_key(context.lookup_value("note_names", name) or name)
+    name = context.lookup_value("note_names", name) or name
+    # "عبد الكريم" is also written "عبدالكريم".
+    return name.replace(" ", "")
 
 
 def parse_note(
@@ -101,24 +99,21 @@ def parse_note(
             headings += 1
             continue
         decrees += 1
+        since = r"،? اعتباراً? من تاريخ (\d{4}/\d{1,2}/\d{1,2})\."
         appointment = re.fullmatch(
-            r"[يت]عين (.+) عضو(?:اً?|ين) في مجلس الأعيان،? اعتباراً? من تاريخ"
-            r" (\d{4}/\d{1,2}/\d{1,2})\.",
-            text,
+            rf"[يت]عين (.+) عضو(?:اً?|ين) في مجلس الأعيان{since}", text
         )
         resignation = re.fullmatch(
-            r"تقبل استقالة (.+) من عضوية مجلس الأعيان،? اعتباراً? من تاريخ"
-            r" (\d{4}/\d{1,2}/\d{1,2})\.",
-            text,
+            rf"تقبل استقالة (.+) من عضوية مجلس الأعيان{since}", text
         )
         if appointment is not None:
             # "يعين دولة … وسعادة …" appoints two members.
             for name in re.split(r" و(?=سعادة |معالي |دولة )", appointment.group(1)):
-                appointments[note_key(context, name)] = (name, appointment.group(2))
+                appointments[name_key(context, name)] = (name, appointment.group(2))
         elif resignation is not None:
-            resignations[note_key(context, resignation.group(1))] = resignation.group(2)
+            resignations[name_key(context, resignation.group(1))] = resignation.group(2)
         else:
-            raise ValueError(f"Unexpected paragraph in the note: {text!r}")
+            context.log.warning("Unexpected paragraph in the note", text=text)
     assert headings == decrees, (headings, decrees)
     return appointments, resignations
 
@@ -166,7 +161,7 @@ def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
         if len(dates) != 1:
             context.log.warning("Cannot parse place and date of birth", value=birth)
         else:
-            h.apply_date(person, "birthDate", dates[0].replace("\\", "/"))
+            h.apply_date(person, "birthDate", dates[0])
             place = birth.replace(dates[0], "").strip(" ,،.-–/")
             person.add("birthPlace", place or None)
 
@@ -184,7 +179,6 @@ def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    person_id: str | None,
     raw_name: str,
     url: str | None,
     start_date: str | None,
@@ -192,7 +186,11 @@ def crawl_member(
     status: OccupancyStatus | None,
 ) -> None:
     person = context.make("Person")
-    person.id = person_id
+    if url is None:
+        person.id = context.make_id(raw_name)
+    else:
+        # The item in /ListDetails/<slug>/<list>/<item> is only unique per list.
+        person.id = context.make_id(*url.rsplit("/", 2)[1:])
     name = clean_name(context, raw_name)
     person.add("name", name, original_value=raw_name)
     apply_translit_full_name(context, person, LangText(name, "ara"))
@@ -242,7 +240,7 @@ def crawl(context: Context) -> None:
             url = h.xpath_string(card, ".//a[@id='lnkMore']/@href")
             label = h.element_text(h.xpath_element(card, ".//h6"))
             raw_name = label.lstrip("* ")
-            key = name_key(clean_name(context, raw_name))
+            key = name_key(context, raw_name)
             # Members who have left are starred. The note dates resignations, but
             # not deaths.
             starred = label.startswith("*")
@@ -253,9 +251,6 @@ def crawl(context: Context) -> None:
                 context,
                 position,
                 categorisation,
-                # The item number in /ListDetails/<slug>/<list>/<item> is only
-                # unique within the list.
-                context.make_id(*url.rsplit("/", 2)[1:]),
                 raw_name,
                 url,
                 start_date=None if appointment is None else appointment[1],
@@ -268,7 +263,6 @@ def crawl(context: Context) -> None:
             context,
             position,
             categorisation,
-            context.make_id(raw_name),
             raw_name,
             None,
             start_date=start_date,

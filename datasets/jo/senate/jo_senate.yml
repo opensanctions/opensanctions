@@ -1,7 +1,7 @@
 # The listing is the royal decree that appointed the sitting Senate. Members who
 # have since left keep their card, marked with a leading "*". A note on the listing
 # ("التعديلات التي طرأت على المجلس") gives each later decree, which appoints members
-# or accepts a resignation, and the crawler fails on an entry it cannot read.
+# or accepts a resignation; the crawler warns on an entry it cannot read.
 # A note-only appointee's ID changes to the card-based ID once the site adds their card.
 title: Jordan Members of the Senate
 prefix: jo-sen
@@ -37,7 +37,7 @@ data:
   format: HTML
   lang: ara
 dates:
-  formats: ["%d/%m/%Y", "%Y/%m/%d", "%d %m %Y", "%Y"]
+  formats: ["%d/%m/%Y", "%d\\%m\\%Y", "%Y/%m/%d", "%d %m %Y", "%Y"]
   # Levantine Arabic month names, as in "22 نيسان 1952".
   months:
     "01": كانون الثاني
