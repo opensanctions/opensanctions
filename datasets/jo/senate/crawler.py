@@ -138,8 +138,9 @@ def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
         if field is None or h.element_text(el.getparent()) == label:
             continue
         assert field not in fields, (url, label)
-        value = h.xpath_element(el, "following::*[normalize-space()][1]")
-        fields[field] = h.element_text(value)
+        # Not normalize-space(): it keeps elements holding only a non-breaking space.
+        values = (h.element_text(v) for v in h.xpath_elements(el, "following::*"))
+        fields[field] = next(v for v in values if v != "")
 
     # "الاسم والشهرة": the name the member is commonly known by.
     if "alias" in fields:
@@ -158,7 +159,9 @@ def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
         # "عمان – 1/7/1966", "20 كانون الثاني 1939 - السلط", "السلط 1953"
         dates = BIRTH_DATE.findall(birth)
         if len(dates) != 1:
-            context.log.warning("Cannot parse place and date of birth", value=birth)
+            context.log.warning(
+                "Cannot parse place and date of birth", url=url, value=birth
+            )
         else:
             h.apply_date(person, "birthDate", dates[0])
             place = birth.replace(dates[0], "").strip(" ,،.-–/")
