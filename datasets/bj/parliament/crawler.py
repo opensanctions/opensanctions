@@ -43,7 +43,7 @@ def crawl_deputy(
         res = context.lookup("married_names", name, warn_unmatched=True)
         if res is not None:
             names = res.values
-    person.add("name", names)
+    person.add("name", names, original_value=name)
     # Electoral Code (Law 2019-43), Art. 39 al. 1 with Art. 9.
     person.add("citizenship", "bj")
     party = parties.get(name_key(name))
