@@ -1,6 +1,5 @@
 import re
-from typing import cast
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urljoin
 from uuid import uuid4
 
 from lxml import html
@@ -35,14 +34,15 @@ def fetch_pages(context: Context) -> list[Element]:
         result = zyte_api.fetch(context, request)
         assert result.status_code == 200, result.status_code
         doc = html.fromstring(result.response_text)
-        cast(html.HtmlElement, doc).make_links_absolute(context.data_url)
         docs.append(doc)
         pager = h.xpath_element(doc, ".//span[@id='pagerList']")
         # "صفحة 3 من 8": page 3 of 8
         nav = h.element_text(h.xpath_element(pager, "./ancestor::nav[1]"))
         match = re.search(r"صفحة (\d+) من (\d+)", nav)
-        assert match is not None and int(match.group(1)) == len(docs), nav
-        if len(docs) == int(match.group(2)):
+        assert match is not None, nav
+        current, total = int(match.group(1)), int(match.group(2))
+        assert current == len(docs), nav
+        if current == total:
             return docs
         # The next page's number, or "..." for the next block of pages.
         href = h.xpath_string(
@@ -90,6 +90,7 @@ def parse_note(
     appointments: dict[str, tuple[str, str]] = {}
     resignations: dict[str, str] = {}
     headings = decrees = 0
+    since = r"،? اعتباراً? من تاريخ (\d{4}/\d{1,2}/\d{1,2})\."
     for el in [note, *h.xpath_elements(note, "following-sibling::*")]:
         text = h.element_text(el).removeprefix("* التعديلات التي طرأت على المجلس: ")
         # Each decree is a numbered heading, a preamble and the decree's text.
@@ -99,7 +100,6 @@ def parse_note(
             headings += 1
             continue
         decrees += 1
-        since = r"،? اعتباراً? من تاريخ (\d{4}/\d{1,2}/\d{1,2})\."
         appointment = re.fullmatch(
             rf"[يت]عين (.+) عضو(?:اً?|ين) في مجلس الأعيان{since}", text
         )
@@ -137,13 +137,12 @@ def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
         field = context.lookup_value("cv_labels", label)
         if field is None or h.element_text(el.getparent()) == label:
             continue
-        values = [h.element_text(v) for v in h.xpath_elements(el, "following::*")]
         assert field not in fields, (url, label)
-        fields[field] = next(v for v in values if v != "")
+        value = h.xpath_element(el, "following::*[normalize-space()][1]")
+        fields[field] = h.element_text(value)
 
     # "الاسم والشهرة": the name the member is commonly known by.
     if "alias" in fields:
-        person.add("gender", context.lookup_value("gender", fields["alias"]))
         alias = clean_name(context, fields["alias"])
         if alias != name:
             person.add("alias", alias)
@@ -180,10 +179,10 @@ def crawl_member(
     position: Entity,
     categorisation: PositionCategorisation,
     raw_name: str,
-    url: str | None,
-    start_date: str | None,
-    end_date: str | None,
-    status: OccupancyStatus | None,
+    url: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    starred: bool = False,
 ) -> None:
     person = context.make("Person")
     if url is None:
@@ -208,7 +207,8 @@ def crawl_member(
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,
-        status=status,
+        # Members who have left are starred. The note dates resignations, not deaths.
+        status=OccupancyStatus.ENDED if starred and end_date is None else None,
     )
     if occupancy is None:
         return
@@ -234,28 +234,22 @@ def crawl(context: Context) -> None:
     docs = fetch_pages(context)
     appointments, resignations = parse_note(context, docs[0])
     for doc in docs:
-        cards = h.xpath_elements(doc, ".//div[@id='divHeight']")
-        assert len(cards) > 0, "No member cards on a listing page"
-        for card in cards:
-            url = h.xpath_string(card, ".//a[@id='lnkMore']/@href")
+        for card in h.xpath_elements(doc, ".//div[@id='divHeight']"):
             label = h.element_text(h.xpath_element(card, ".//h6"))
             raw_name = label.lstrip("* ")
             key = name_key(context, raw_name)
-            # Members who have left are starred. The note dates resignations, but
-            # not deaths.
-            starred = label.startswith("*")
-            end_date = resignations.pop(key, None)
-            assert end_date is None or starred, (url, end_date)
             appointment = appointments.pop(key, None)
             crawl_member(
                 context,
                 position,
                 categorisation,
                 raw_name,
-                url,
+                url=urljoin(
+                    context.data_url, h.xpath_string(card, ".//a[@id='lnkMore']/@href")
+                ),
                 start_date=None if appointment is None else appointment[1],
-                end_date=end_date,
-                status=OccupancyStatus.ENDED if starred and end_date is None else None,
+                end_date=resignations.pop(key, None),
+                starred=label.startswith("*"),
             )
     # Members appointed by a later decree who have no card yet.
     for key, (raw_name, start_date) in appointments.items():
@@ -264,10 +258,8 @@ def crawl(context: Context) -> None:
             position,
             categorisation,
             raw_name,
-            None,
             start_date=start_date,
             end_date=resignations.pop(key, None),
-            status=None,
         )
     # Every resignation ends a starred member's or an appointee's occupancy.
     assert len(resignations) == 0, resignations
