@@ -56,21 +56,23 @@ dates:
 tags:
   - list.pep
 
+names:
+  # Stripping repeats: "معالي الدكتورة X", "سعادة الفريق أول ركن متقاعد X".
+  prefixes_strip: [
+    سعادة, معالي, دولة, د., السيد, السيدة, الدكتور, الدكتورة, المهندس, المهندسة,
+    المحامي, المحامية, الأستاذ, الأستاذة,
+    الفريق, فريق, اللواء, أول, ركن, الركن, متقاعد, المتقاعد,  # military ranks
+  ]
+  suffixes_strip: [متقاعد, المتقاعد]
+
 lookups:
-  # Honorifics and ranks dropped from member names, matched word by word; a title
-  # such as "الدكتورة" gives the gender.
-  honorifics:
+  # A gendered title before the name. Later in the name, "السيد" is a family name.
+  gender:
     options:
-      - match: ["سعادة", "معالي", "دولة", "د.", "باشا"]
-        gender: null
-      # Military ranks, e.g. "الفريق أول ركن", "فريق ركن متقاعد",
-      # "اللواء الركن المتقاعد".
-      - match: ["الفريق", "فريق", "أول", "ركن", "الركن", "اللواء", "متقاعد", "المتقاعد"]
-        gender: null
-      - match: ["السيد", "الدكتور", "المهندس", "المحامي", "الأستاذ"]
-        gender: male
-      - match: ["السيدة", "الدكتورة", "المهندسة", "المحامية", "الأستاذة"]
-        gender: female
+      - regex: '^(?:(?:سعادة|معالي|دولة|د\.) )*(?:السيد|الدكتور|المهندس|المحامي|الأستاذ)\s'
+        value: male
+      - regex: '^(?:(?:سعادة|معالي|دولة|د\.) )*(?:السيدة|الدكتورة|المهندسة|المحامية|الأستاذة)\s'
+        value: female
   # Headings in the CV pages, mapped to the field the text after them holds.
   cv_labels:
     options:
