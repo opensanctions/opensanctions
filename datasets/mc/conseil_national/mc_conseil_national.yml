@@ -14,7 +14,7 @@ description: |
   legislature of the Principality of Monaco. Its 24 members are directly elected for a
   five-year term and hold the principality's legislative power, including passing laws
   and approving the budget.
-url: https://www.conseil-national.mc/vos-elus/
+url: https://www.conseil-national.mc/elus-et-commissions/les-elus/
 publisher:
   name: Conseil National de Monaco
   name_en: National Council of Monaco
@@ -24,8 +24,8 @@ publisher:
   country: mc
   official: true
 data:
-  url: https://www.conseil-national.mc/wp-json/wp/v2/pages
-  format: JSON
+  url: https://www.conseil-national.mc/elus-et-commissions/les-elus/
+  format: HTML
   lang: fra
 
 tags:
