@@ -7,7 +7,7 @@ coverage:
   start: 2026-11-14
 deploy:
   memory: 4Gi
-  disk: 20Gi
+  disk: 50Gi
 exports:
   - statistics.json
   - entities.ftm.json
