@@ -51,7 +51,10 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         start_date=row.pop("Listed"),
         end_date=row.pop("Delisted"),
     )
+    h.apply_date(sanction, "listingDate", row.pop("Listing date"))
+    h.apply_date(sanction, "modifiedAt", row.pop("Modified"))
     sanction.add("sourceUrl", row.pop("Source URL"))
+    h.finalize_sanction(context, sanction, amendments_dated=True)
     if h.is_active(sanction):
         entity.add("topics", "sanction")
     context.emit(sanction)

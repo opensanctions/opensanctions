@@ -98,8 +98,11 @@ config:
     #    eli-<eli-with-dashes>-<yyyymmdd>-de-xml.xml.
     # 2. For each newly listed person, append one freezes.csv row: names and
     #    the German description verbatim from the annex (variants set in
-    #    italics become aliases), Listed set to the version date, and the
-    #    version_url as Source URL.
+    #    italics become aliases), Listed set to the version date, Listing
+    #    date to the publication date of the amending act in the AS, and the
+    #    version_url as Source URL. If the version changes an existing
+    #    person's entry, update the row, set its Modified to the version
+    #    date and its Source URL to the version_url.
     # 3. For a removed person, set the row's Delisted to the version date
     #    instead of deleting the row.
     # 4. Versions that only extend the ordinance's validity leave the annex
