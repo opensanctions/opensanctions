@@ -7,12 +7,12 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  Sitting deputies of Benin's parliament, including members who replaced a departed deputy
+  Current deputies of Benin's parliament, elected by direct universal suffrage
 description: |
   Current members of the National Assembly (Assemblée nationale), Benin's national
-  legislature. Its deputies are elected by list proportional representation in
-  multi-member electoral constituencies and hold the country's legislative power,
-  including passing laws, approving the budget and overseeing the government.
+  legislature. Its deputies are elected by direct universal suffrage and hold the
+  country's legislative power, including passing laws, approving the budget and
+  overseeing the government.
 url: https://assemblee-nationale.bj/
 publisher:
   name: Assemblée nationale du Bénin

@@ -35,7 +35,9 @@ def crawl_deputy(
 ) -> None:
     person = context.make("Person")
     person.id = context.make_id(name)
+    # Not split: surnames vary, e.g. "do REGO Léansou B.".
     person.add("name", name)
+    # Electoral Code (Law 2019-43), Art. 39 al. 1 with Art. 9.
     person.add("citizenship", "bj")
     party = parties.get(name_key(name))
     if party is None:
@@ -62,6 +64,7 @@ def crawl(context: Context) -> None:
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
+        context.log.warning("Position is not categorised as PEP", position=position.id)
         return
     context.emit(position)
 
