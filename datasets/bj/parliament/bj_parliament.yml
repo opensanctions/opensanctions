@@ -55,3 +55,8 @@ lookups:
       # Stray control character.
       - match: "NOUTAÏ\x8f Tohouegnon Nestor"
         value: "NOUTAÏ Tohouegnon Nestor"
+      # "X Epouse Y": birth name X, married name Y.
+      - match: "TIBOUTE Eps SAMA Emilie"
+        values: ["TIBOUTE Emilie", "SAMA Emilie"]
+      - match: "SALIOU Epouse AREKPA Alidjanatou"
+        values: ["SALIOU Alidjanatou", "AREKPA Alidjanatou"]
