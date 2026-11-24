@@ -1,0 +1,57 @@
+title: Benin Members of the National Assembly
+entry_point: crawler.py
+prefix: bj-parl
+coverage:
+  frequency: monthly
+  start: 2026-11-24
+load_statements: true
+ci_test: true
+summary: >-
+  Current deputies of Benin's parliament, elected by direct universal suffrage
+description: |
+  Current members of the National Assembly (Assemblée nationale), Benin's national
+  legislature. Its deputies are elected by direct universal suffrage and hold the
+  country's legislative power, including passing laws, approving the budget and
+  overseeing the government.
+url: https://assemblee-nationale.bj/
+publisher:
+  name: Assemblée nationale du Bénin
+  name_en: National Assembly of Benin
+  acronym: AN
+  description: >
+    The National Assembly is the parliament of the Republic of Benin. It passes laws,
+    approves the state budget and oversees the action of the government.
+  url: https://assemblee-nationale.bj/
+  country: bj
+  official: true
+data:
+  url: https://assemblee-nationale.bj/index.php/depute/menu-liste-des-deputes/liste-des-deputes/
+  format: HTML
+  lang: fra
+
+tags:
+  - list.pep
+
+# Party comes from the groups page, which lags behind the list: replacement
+# deputies may have no party.
+assertions:
+  min:
+    schema_entities:
+      Person: 95
+      Position: 1
+    country_entities:
+      bj: 95
+    entities_with_prop:
+      Person:
+        political: 85
+  max:
+    schema_entities:
+      Person: 220
+      Position: 1
+
+lookups:
+  type.name:
+    options:
+      # Stray control character.
+      - match: "NOUTAÏ\x8f Tohouegnon Nestor"
+        value: "NOUTAÏ Tohouegnon Nestor"
