@@ -1,0 +1,110 @@
+# The listing is the royal decree that appointed the sitting Senate. Members who
+# have since left keep their card, marked with a leading "*". A note on the listing
+# ("التعديلات التي طرأت على المجلس") gives each later decree, which appoints members
+# or accepts a resignation; the crawler warns on an entry it cannot read.
+# A note-only appointee's ID changes to the card-based ID once the site adds their card.
+title: Jordan Members of the Senate
+prefix: jo-sen
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-11-09
+load_statements: true
+ci_test: false  # Zyte
+summary: >-
+  Royal appointees to the upper chamber of Parliament, sitting term only
+description: |
+  Current and recent members of the Senate, the upper chamber of Jordan's bicameral
+  Parliament. Its members are appointed by the King for a four-year term and, together
+  with the elected House of Representatives, hold the country's legislative power,
+  including passing laws and approving the budget. The dataset covers the sitting Senate only,
+  including members appointed during its term and those who have since left it.
+url: https://senate.jo/Ar/List/اعضاء_المجلس_الحالي_والسير_الذاتية
+publisher:
+  name: مجلس الأعيان الأردني
+  name_en: Senate of Jordan
+  description: >
+    The Senate is the upper chamber of the Parliament of Jordan, whose members are
+    appointed by the King.
+  url: https://senate.jo/
+  country: jo
+  official: true
+data:
+  url: https://senate.jo/Ar/List/اعضاء_المجلس_الحالي_والسير_الذاتية
+  format: HTML
+  lang: ara
+dates:
+  formats: ["%d/%m/%Y", "%d\\%m\\%Y", "%Y/%m/%d", "%d %m %Y", "%Y"]
+  # Levantine Arabic month names, as in "22 نيسان 1952".
+  months:
+    "01": كانون الثاني
+    "02": شباط
+    "03": آذار
+    "04": نيسان
+    "05": أيار
+    "06": حزيران
+    "07": تموز
+    "08": [آب, اب]
+    "09": أيلول
+    "10": تشرين الأول
+    "11": تشرين الثاني
+    "12": كانون الأول
+
+tags:
+  - list.pep
+
+names:
+  # Stripping repeats: "معالي الدكتورة X", "سعادة الفريق أول ركن متقاعد X".
+  prefixes_strip: [
+    سعادة, معالي, دولة, د., السيد, السيدة, الدكتور, الدكتورة, المهندس, المهندسة,
+    المحامي, المحامية, الأستاذ, الأستاذة,
+    الفريق, فريق, اللواء, أول, ركن, الركن, متقاعد, المتقاعد,  # military ranks
+  ]
+  suffixes_strip: [متقاعد, المتقاعد]
+
+lookups:
+  # A gendered title before the name. Later in the name, "السيد" is a family name.
+  gender:
+    options:
+      - regex: '^(?:(?:سعادة|معالي|دولة|د\.) )*(?:السيد|الدكتور|المهندس|المحامي|الأستاذ)\s'
+        value: male
+      - regex: '^(?:(?:سعادة|معالي|دولة|د\.) )*(?:السيدة|الدكتورة|المهندسة|المحامية|الأستاذة)\s'
+        value: female
+  # Headings in the CV pages, mapped to the field the text after them holds.
+  cv_labels:
+    options:
+      - match: ["الاسم والشهرة:", "الاسم والشهرة :"]
+        value: alias
+      # The place and date of birth, in either order, or only the date.
+      - match:
+          - "مكان وتاريخ الولادة:"
+          - "تاريخ ومكان الولادة :"
+          - "مكان وتاريخ الميلاد:"
+          - "تاريخ الولادة:"
+        value: birth
+      - match: "مكان الولادة:"
+        value: birthPlace
+  type.date:
+    options:
+      # Fadel al-Hamoud's (فاضل محمد عبدالله الحمود) birth date "20\11\1658" has a
+      # typo in the year.
+      - match: "1658-11-20"
+        value: null
+  # Names in the note spelled differently from the member's card, mapped to the
+  # card's name (honorifics and quotes removed).
+  note_names:
+    options:
+      - match: "مصطفى إبراهيم بطرس إسحق الحمارنة"
+        value: "مصطفى إبراهيم بطرس الحمارنة"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 1
+    country_entities:
+      jo: 60
+  max:
+    schema_entities:
+      Person: 150
+      Position: 2
