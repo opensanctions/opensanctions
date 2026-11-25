@@ -53,3 +53,12 @@ lookups:
           - "198"
           - "28138"
         value: null
+  sentences:
+    # Court sentences entered in the alias field.
+    options:
+      - match: مؤبد
+        value: Sentenced to life imprisonment
+      - match: "15 عشر سنة"
+        value: Sentenced to 15 years imprisonment
+      - match: اعدام
+        value: Sentenced to death
