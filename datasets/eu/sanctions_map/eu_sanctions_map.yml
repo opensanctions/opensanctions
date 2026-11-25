@@ -27,6 +27,10 @@ description: |
   EU sanction types (which do not involve asset freezes) are not included in the main list,
   but featured on the Sanctions Map.
 
+  The Sanctions Map was developed by the Estonian Ministry of Foreign Affairs during
+  Estonia's 2017 Presidency of the Council of the EU, and has been maintained by the
+  European Commission since 2018.
+
   > The EU Sanctions Map provides information on restrictive measures (sanctions) adopted
   > by the European Union - either to transpose measures imposed by the United Nations
   > Security Council or autonomously. The EU Sanctions Map does not provide information on
@@ -43,11 +47,13 @@ description: |
   > Regulation (EU) No 833/2014. They are, however, not subject to an asset freeze, hence
   > not included in the Consolidated list.
 publisher:
-  name: Council of the European Union
+  name: Directorate‑General for Financial Stability, Financial Services and Capital Markets Union
+  acronym: DG FISMA
   description: |
-    The Sanctions Map was created by the Estonian Presidency of the EU in 2017.
-  url: https://www.sanctionsmap.eu/
+    The Directorate‑General for Financial Stability, Financial Services and Capital Markets
+    Union is the Commission department responsible for EU policy on financial services.
   country: eu
+  url: https://commission.europa.eu/about-european-commission/departments-and-executive-agencies/financial-stability-financial-services-and-capital-markets-union_en
   official: true
 url: https://www.sanctionsmap.eu/
 data:

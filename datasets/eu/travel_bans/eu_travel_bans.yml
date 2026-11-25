@@ -11,8 +11,8 @@ summary: >
   European Union, released as part of the EU Sanctions Map.
 description: |
   This database consolidates all individuals which are disallowed from entering
-  the European Union. This includes entities designated under the following
-  EU instruments:
+  the European Union, as published on the [EU Sanctions Map](/datasets/eu_sanctions_map/).
+  This includes entities designated under the following EU instruments:
 
   * [Council Decision 2014/145/CFSP of 17 March 2014](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02014D0145-20220421)
   * [Council Decision (CFSP) 2022/837 of 30 May 2022](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.LI.2022.147.01.0003.01.ENG&toc=OJ%3AL%3A2022%3A147I%3ATOC)
@@ -34,11 +34,13 @@ tags:
   - list.sanction
   - publisher.west
 publisher:
-  name: Council of the European Union
+  name: Directorate‑General for Financial Stability, Financial Services and Capital Markets Union
+  acronym: DG FISMA
   description: |
-    The Sanctions Map was created by the Estonian Presidency of the EU in 2017.
-  url: https://www.sanctionsmap.eu/
+    The Directorate‑General for Financial Stability, Financial Services and Capital Markets
+    Union is the Commission department responsible for EU policy on financial services.
   country: eu
+  url: https://commission.europa.eu/about-european-commission/departments-and-executive-agencies/financial-stability-financial-services-and-capital-markets-union_en
   official: true
 url: https://www.sanctionsmap.eu/#/main/travel/ban
 data:
