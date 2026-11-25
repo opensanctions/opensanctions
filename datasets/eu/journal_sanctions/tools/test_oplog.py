@@ -9,9 +9,16 @@ import pytest
 from zavod.shed.ojeu.cellar import RelatedAct
 
 from . import common, validate
-from .common import OPLOG_COLUMNS, write_oplog
+from .common import (
+    OPLOG_COLUMNS,
+    cell_values,
+    encode_row,
+    haystack,
+    missing_values,
+    write_oplog,
+)
 from .lookup import decide, parse_date, rank
-from .replay import replay
+from .replay import Op, replay
 
 FRAMEWORK = "32099R0001"
 ACTS = [("32099R0002", "2099-02-01"), ("32099R0003", "2099-03-01")]
@@ -196,3 +203,47 @@ def test_parse_date_shapes() -> None:
     assert parse_date("4 Sept. 2003") == (2003, 9, 4)
     assert parse_date("26 Feb 2011") is None
     assert parse_date("approximately 1962") is None
+
+
+def test_encode_row_round_trip() -> None:
+    row = encode_row(
+        {"op": "ADD", "name": "Foo", "alias": ["A; B", 'C "D"'], "reason": "R."}
+    )
+    assert row["alias"] == '"A; B"; "C ""D"""'
+    assert cell_values(row, "alias") == ["A; B", 'C "D"']
+    assert cell_values(row, "reason") == ["R."]
+    assert cell_values(row, "notes") == []
+    assert cell_values(row, "name") == ["Foo"]
+    with pytest.raises(ValueError):
+        encode_row({"name": ["A", "B"]})
+    with pytest.raises(ValueError):
+        encode_row({"alias": ["A", "A"]})
+    with pytest.raises(ValueError):
+        encode_row({"nickname": "A"})
+
+
+def test_missing_values() -> None:
+    text = haystack(
+        "▼M3 (1) | Ivan PETROV ¶ Born 1.1.1960. ►M4 Adviser◄ to the ¶ minister."
+    )
+    row = encode_row(
+        {
+            "op": "ADD",
+            "id": "a" * 40,
+            "programKey": "EU-XYZ",
+            "name": "Ivan PETROV",
+            "birthDate": "1.1.1960",
+            "reason": "Adviser to the minister.",
+            "alias": ["Ivan Petrov", "Ivan PETROV"],
+        }
+    )
+    assert missing_values(row, text) == [("alias", "Ivan Petrov")]
+
+
+def test_alias_markers_warn() -> None:
+    issues: list[validate.Issue] = []
+    for alias in ["a) Sangin b) Sangeen", "X a.k.a. Y"]:
+        row = encode_row({"op": "ADD", "id": "a" * 40, "name": "N", "alias": alias})
+        validate.check_row(Op("32099R0001", 2, row), issues)
+    warnings = [i for i in issues if "label or enumeration" in i.message]
+    assert len(warnings) == 2

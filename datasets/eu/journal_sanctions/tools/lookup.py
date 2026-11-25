@@ -23,6 +23,7 @@ from rigour.text.distance import levenshtein_similarity
 from .common import (
     DEL_COLUMNS,
     OPLOG_COLUMNS,
+    cell_values,
     mint_id,
     read_oplog,
     split_multi,
@@ -77,8 +78,7 @@ def name_forms(value: str) -> list[list[str]]:
 def row_forms(row: dict[str, str]) -> list[list[str]]:
     forms: list[list[str]] = []
     for column in NAME_COLUMNS:
-        values = [row[column]] if column == "name" else split_multi(row[column])
-        for value in values:
+        for value in cell_values(row, column):
             forms.extend(name_forms(value))
     return forms
 
@@ -131,7 +131,7 @@ def parse_date(text: str) -> tuple[int, int, int] | None:
 
 
 def dates(cell: str) -> set[tuple[int, int, int]]:
-    found = {parse_date(value) for value in split_multi(cell)}
+    found = {parse_date(value) for value in split_multi(cell) if value}
     return {d for d in found if d is not None}
 
 

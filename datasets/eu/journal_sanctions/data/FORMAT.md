@@ -78,7 +78,7 @@ of a live key and a `MOD` or `DEL` of a missing one are invalid.
 | `annex` | When stated | The source's annex or section identifier, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. An annex inserted by an amending act keeps its printed lowercase suffix: `Ia`. |
 | `measure` | Yes | One sanctions measure from the `Measure` vocabulary in `zavod/zavod/stateful/programs.py`, which must also appear in the selected program's `measures:` list. |
 | `listingDate` | No | The source's printed per-designation listing date, date-only — for regimes mirroring a UN list, the printed date of UN designation. Empty when the source prints none — never infer one. |
-| `reason` | No | The source's rationale for listing, as prose. |
+| `reason` | No | The source's rationale for listing, as prose: one value per separately printed passage (e.g. grounds for listing and a narrative summary of reasons). Consecutive paragraphs of one passage join into one value. |
 
 A designation in several programs or under several measures has one row per
 legal context, sharing its `id`.
@@ -152,7 +152,7 @@ have only `name`.
 
 - Cells are trimmed. Missing values are empty cells — never placeholders such
   as `unknown`, `N/A`, or `-`.
-- Every entity column except `name` is multi-valued, separated by `;` with a
+- `reason` and every entity column except `name` are multi-valued, separated by `;` with a
   single space after the separator preferred: `Foo; Bar`. A value that itself
   contains `;` or `"` is CSV-quoted within the cell, with embedded quotes
   doubled — `"Foo; Bar"; Baz` holds two values — so cells decode losslessly

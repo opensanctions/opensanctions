@@ -32,7 +32,12 @@ scratch area with one directory per act.
    line per paragraph or table row, nothing dropped).
 2. Read the act and decide what it does to `F`'s list.
 3. Write `data/regulations/F/C.csv` with `id` left empty, by hand or with a
-   throwaway script that stays in `tools/out/C/`.
+   throwaway script that stays in `tools/out/C/`. A script builds each row
+   with `tools.common.encode_row`, which encodes multi-valued cells, and
+   writes them with `tools.common.write_oplog`. `programKey` and `measure`
+   come from the regime's program in `meta/programs/`; the regime's
+   `data/consolidated/{F}.csv` shows the program, measure and annex choices
+   made so far.
 4. `python -m tools.lookup resolve F data/regulations/F/C.csv` mints ids for
    `ADD` rows and matches `MOD`/`DEL` rows to the live entries they amend.
    It lists the live entries the act does not touch; for an act that
@@ -41,14 +46,19 @@ scratch area with one directory per act.
    `python -m tools.lookup find`, and pass `--pin LINE=ID` only when the act's
    text settles it.
 5. `python -m tools.validate F --online`, and account for every warning.
-6. Where EUR-Lex has a consolidation dated at or after `C`
-   (`query_act(F).consolidated`), compare it with
-   `python -m tools.replay F --as-of DATE`.
+6. `python -m tools.verify F C` checks that every value is printed in the
+   act and that the dates match CELLAR's.
+7. At each EUR-Lex consolidation dated on or after `C`
+   (`query_act(F).consolidated`), run
+   `python -m tools.replay F --compare <consolidated CELEX>`, which checks
+   every live entry's values against the consolidation's text. It cannot see
+   entries the consolidation prints but the replay lacks: check those by
+   reading.
 
 ## Review
 
-A transcription goes to review with the CSV diff, the validate report, and the
-consolidation comparison. State every pinned match, every accepted warning,
+A transcription goes to review with the CSV diff and the validate, verify and
+compare reports. State every pinned match, every accepted warning,
 and every judgement the act's text did not settle on its own.
 
 ## Shared extraction helpers

@@ -18,9 +18,11 @@ from zavod.stateful.programs import Measure, get_program_by_key
 from .common import (
     DEL_COLUMNS,
     ENTITY_COLUMNS,
+    MULTI_COLUMNS,
     OPLOG_COLUMNS,
     OPS,
     REGULATIONS_DIR,
+    cell_values,
     related_acts,
     split_multi,
 )
@@ -32,6 +34,12 @@ ISO_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 ISO_PARTIAL_RE = re.compile(r"^\d{4}(?:-\d{2}(?:-\d{2})?)?$")
 # A printed label ("Name:", "Title:") left inside a name value.
 LEAKED_LABEL_RE = re.compile(r"(?:^|\s)[A-Za-z][\w ().']{0,40}:(?:\s|$)")
+# Alias labels and enumeration markers say a name cell holds several names.
+ALIAS_MARKER_RE = re.compile(
+    r"\b(?:a\.\s?k\.\s?a\.?|f\.\s?k\.\s?a\.?|alias)(?:\s|:)|(?:^|\s)\(?[a-e]\)\s?\S",
+    re.IGNORECASE,
+)
+NAME_COLUMNS = ("name", "alias", "weakAlias", "previousName")
 DATE_LIKE_RE = re.compile(r"\d{1,2}\.\d{1,2}\.\d{4}")
 REQUIRED = ("name", "schema", "programKey", "measure")
 MEASURES = frozenset(get_args(Measure))
@@ -99,11 +107,10 @@ def check_row(op: Op, issues: list[Issue]) -> None:
     elif program is not None and row["measure"] not in program.measures:
         error(f"{row['programKey']} does not declare {row['measure']!r}")
     for column in ENTITY_COLUMNS:
-        if row[column] == "":
-            continue
-        if schema is not None and column not in schema.properties:
+        if row[column] != "" and schema is not None and column not in schema.properties:
             error(f"{column} is not a property of {schema.name}")
-        if column == "name":
+    for column in MULTI_COLUMNS:
+        if row[column] == "":
             continue
         try:
             values = split_multi(row[column])
@@ -112,9 +119,10 @@ def check_row(op: Op, issues: list[Issue]) -> None:
             continue
         if "" in values or len(set(values)) != len(values):
             error(f"{column} has empty or repeated values")
-    for column in ("name", "alias"):
-        if LEAKED_LABEL_RE.search(row[column]):
-            warn(f"{column} looks like it holds a printed label: {row[column][:60]!r}")
+    for column in NAME_COLUMNS:
+        for value in cell_values(row, column):
+            if LEAKED_LABEL_RE.search(value) or ALIAS_MARKER_RE.search(value):
+                warn(f"{column} holds a printed label or enumeration: {value[:60]!r}")
     if DATE_LIKE_RE.search(row["birthPlace"]):
         warn(f"birthPlace holds a date: {row['birthPlace']!r}")
 

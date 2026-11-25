@@ -9,6 +9,8 @@ vocabulary, the multi-value cell codec, file access, and how a designation's
 
 import csv
 import io
+import re
+from collections.abc import Mapping, Sequence
 from datetime import date
 from pathlib import Path
 
@@ -79,6 +81,8 @@ ENTITY_COLUMNS = (
     "notes",
 )
 OPLOG_COLUMNS = OP_COLUMNS + METADATA_COLUMNS + ENTITY_COLUMNS + ("reason",)
+# Columns holding `;`-separated values; every other column is scalar.
+MULTI_COLUMNS = tuple(c for c in ENTITY_COLUMNS if c != "name") + ("reason",)
 
 # The only cells a DEL row may fill: enough to target the entry and to
 # cross-check it against the live state.
@@ -94,6 +98,57 @@ DEL_COLUMNS = (
     "schema",
     "name",
 )
+
+
+# Columns that carry the transcriber's context rather than printed text, so
+# they are never looked up in an act's text.
+CONTEXT_COLUMNS = frozenset(
+    OP_COLUMNS + ("programKey", "measure", "schema", "annex", "recordId")
+)
+# EUR-Lex consolidation change markers: "▼B", "▼M12", "►C3", "◄".
+MARKER_RE = re.compile(r"[▼►][A-Z]\d*(?: —+)?|◄")
+SEPARATOR_RE = re.compile(r" [¶|] ")
+
+
+# Typographic variants EUR-Lex editors change between an act and its
+# consolidation.
+LOOSE_CHARS = str.maketrans({c: "'" for c in '‘’“”„«»"`´'} | {c: "-" for c in "‐‑‒–—"})
+
+
+def loosen(text: str) -> str:
+    """Casefold and unify quotes and dashes, for consolidation lookups."""
+    return text.casefold().translate(LOOSE_CHARS)
+
+
+def haystack(text: str, loose: bool = False) -> str:
+    """Flatten a rendered `text.txt` for value lookups.
+
+    Render separators and consolidation change markers become spaces, and
+    whitespace collapses, so a value split across paragraphs or cells by the
+    rendering still matches. `loose` also applies `loosen`.
+    """
+    text = SEPARATOR_RE.sub(" ", MARKER_RE.sub(" ", text))
+    text = " ".join(text.split())
+    return loosen(text) if loose else text
+
+
+def missing_values(
+    row: dict[str, str], text: str, loose: bool = False
+) -> list[tuple[str, str]]:
+    """List the (column, value) pairs of a row not printed in `text`.
+
+    `text` is a `haystack` built with the same `loose`. Multi-value cells are
+    looked up element by element; context columns are skipped.
+    """
+    missing: list[tuple[str, str]] = []
+    for column in OPLOG_COLUMNS:
+        if column in CONTEXT_COLUMNS or row[column] == "":
+            continue
+        for value in cell_values(row, column):
+            needle = " ".join(value.split())
+            if (loosen(needle) if loose else needle) not in text:
+                missing.append((column, value))
+    return missing
 
 
 def mint_id(framework: str, record_id: str, name: str) -> str:
@@ -141,6 +196,40 @@ def split_multi(value: str) -> list[str]:
     if len(rows) != 1:
         raise ValueError("multi-value cell contains a line break")
     return [element.strip() for element in rows[0]]
+
+
+def cell_values(row: dict[str, str], column: str) -> list[str]:
+    """Read a cell as a list: decoded if multi-valued, else empty or one value."""
+    if column in MULTI_COLUMNS:
+        return split_multi(row[column])
+    return [row[column]] if row[column] != "" else []
+
+
+def encode_row(values: Mapping[str, str | Sequence[str]]) -> dict[str, str]:
+    """Build a complete op-log row from values keyed by column.
+
+    Use this when writing op rows from a script: multi-valued columns take a
+    list (or a single string) and are encoded with `join_multi`; scalar
+    columns take a string; omitted columns are empty.
+
+    Raises:
+        ValueError: An unknown column, a list for a scalar column, or an
+            empty or repeated element.
+    """
+    row = dict.fromkeys(OPLOG_COLUMNS, "")
+    for column, value in values.items():
+        if column not in row:
+            raise ValueError(f"not an op-log column: {column!r}")
+        if isinstance(value, str):
+            row[column] = value.strip()
+            continue
+        if column not in MULTI_COLUMNS:
+            raise ValueError(f"{column} is scalar, got {value!r}")
+        elements = [element.strip() for element in value]
+        if "" in elements or len(set(elements)) != len(elements):
+            raise ValueError(f"{column} has empty or repeated values: {value!r}")
+        row[column] = join_multi(elements)
+    return row
 
 
 def regime_files(framework: str) -> list[Path]:

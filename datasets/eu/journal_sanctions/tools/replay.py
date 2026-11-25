@@ -7,12 +7,24 @@ dates the crawler derives: first listing, entry into force, last change.
 """
 
 import csv
+import re
 import sys
 from dataclasses import dataclass, field
 
 import click
+from zavod.shed.ojeu.cellar import cli_client
 
-from .common import ENTITY_COLUMNS, read_oplog, regime_files
+from .act import OUT_DIR, fetch_act
+from .common import (
+    ENTITY_COLUMNS,
+    haystack,
+    loosen,
+    missing_values,
+    read_oplog,
+    regime_files,
+)
+
+CONSOLIDATION_RE = re.compile(r"^0\d{4}[A-Z]\d{4}-(\d{4})(\d{2})(\d{2})$")
 
 Key = tuple[str, str, str]
 
@@ -130,11 +142,63 @@ def replay(
     return state
 
 
+def compare(framework: str, consolidation: str) -> int:
+    """Check a replay against a EUR-Lex consolidation's text; return errors.
+
+    Every value of every live entry must be printed in the consolidation,
+    up to case and the typography of quotes and dashes.
+    A deleted entry whose name is still printed is a warning, as another
+    entry may name it. Entries printed in the consolidation but missing from
+    the replay are not detected: finding entries takes reading the layout.
+    """
+    match = CONSOLIDATION_RE.match(consolidation)
+    if match is None:
+        raise click.UsageError(f"not a consolidated CELEX: {consolidation}")
+    as_of = "-".join(match.group(1, 2, 3))
+    directory = OUT_DIR / consolidation
+    if not (directory / "text.txt").exists():
+        with cli_client() as client:
+            fetch_act(client, consolidation, directory)
+    # Consolidations recase names and retypeset quotes, so match loosely.
+    text = haystack((directory / "text.txt").read_text(encoding="utf-8"), loose=True)
+    state = replay(framework, as_of=as_of)
+    errors = 0
+    for entry in state.live.values():
+        for column, value in missing_values(entry.row, text, loose=True):
+            errors += 1
+            click.echo(
+                f"ERROR    {entry.row['id'][:10]} {entry.row['name'][:40]!r}: "
+                f"{column} not in {consolidation}: {value[:60]!r}"
+            )
+    for entry in state.deleted.values():
+        if loosen(" ".join(entry.row["name"].split())) in text:
+            click.echo(
+                f"WARNING  {entry.row['id'][:10]} deleted, but "
+                f"{entry.row['name'][:40]!r} is printed in {consolidation}"
+            )
+    click.echo(
+        f"{consolidation}: {len(state.live)} live entries as of {as_of}, "
+        f"{errors} values missing"
+    )
+    return errors
+
+
 @click.command()
 @click.argument("framework")
 @click.option("--as-of", default=None, help="ISO date; default is every op.")
-def main(framework: str, as_of: str | None) -> None:
+@click.option(
+    "--compare",
+    "consolidation",
+    default=None,
+    help="A consolidated CELEX (02014R0269-20140512): check the replay as of "
+    "its date against its text instead of writing CSV. Entries the "
+    "consolidation prints but the replay lacks are not detected; check those "
+    "by reading.",
+)
+def main(framework: str, as_of: str | None, consolidation: str | None) -> None:
     """Write the live designations of FRAMEWORK as CSV to stdout."""
+    if consolidation is not None:
+        sys.exit(1 if compare(framework, consolidation) else 0)
     state = replay(framework, as_of=as_of)
     for error in state.errors:
         click.echo(error, err=True)
