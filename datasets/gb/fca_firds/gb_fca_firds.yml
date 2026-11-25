@@ -6,9 +6,13 @@ coverage:
   start: 2024-03-02
 deploy:
   cpu: 1000m
-  memory: 3500Mi
-  memory_limit: 4000Mi
+  memory: 10Gi
+  memory_limit: 10Gi
   disk: 150Gi
+  env:
+    # Pinned rather than derived from memory_limit, so the store has enough for
+    # its index build and the rest of the limit is left to Python.
+    ZAVOD_STORE_DUCKDB_MEMORY: "4000"
 resolve: false
 ci_test: false
 exports:

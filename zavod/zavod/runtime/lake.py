@@ -179,6 +179,7 @@ def _version_statements_sql(
         version=version.id,
     )
     _convert_pack(dataset_name, pack, path)
+    pack.unlink()
     return f"SELECT * FROM read_parquet('{_sql_str(path)}')"
 
 
