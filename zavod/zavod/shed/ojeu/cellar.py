@@ -122,11 +122,9 @@ SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
         cdm:work_has_resource-type ?type .
   FILTER (?type = rt:CORRIGENDUM)
   BIND("corrects" AS ?relation)
-  OPTIONAL {
-    ?expression cdm:expression_belongs_to_work ?work ;
-                cdm:expression_uses_language lang:ENG ;
-                cdm:expression_title ?title .
-  }
+  ?expression cdm:expression_belongs_to_work ?work ;
+              cdm:expression_uses_language lang:ENG .
+  OPTIONAL { ?expression cdm:expression_title ?title . }
 }
 ORDER BY ?doc_date ?celex ?framework_celex
 """
@@ -392,10 +390,12 @@ class CellarClient:
     def query_corrigenda(
         self, celexes: str | Iterable[str], cache_days: int | None = 1
     ) -> tuple[RelatedAct, ...]:
-        """Find the corrigenda that correct any of the given acts.
+        """Find the English corrigenda that correct any of the given acts.
 
-        Each result's `framework_celex` is the corrected act and its
-        `relation` is "corrects".
+        Corrigenda are language-specific; one without an English expression
+        leaves the English text unchanged and is not returned. Each result's
+        `framework_celex` is the corrected act and its `relation` is
+        "corrects".
         """
         request = corrigenda_request(celexes)
         response = self._fetch(request, cache_days)
