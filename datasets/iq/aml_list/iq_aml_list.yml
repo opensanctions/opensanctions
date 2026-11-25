@@ -17,17 +17,16 @@ description: |
   them until the designation is lifted. Designation decisions are published in the
   official gazette, al-Waqa'i al-Iraqiya.
 
-  The list is separate from the UN Security Council and foreign-country sanctions
-  lists that the publisher also republishes.
+  This dataset does not include the UN Security Council and foreign-country
+  sanctions lists that the office also republishes.
 publisher:
   name: مكتب مكافحة غسل الأموال وتمويل الإرهاب
   name_en: Office of Combating Money Laundering and Terrorist Financing
   description: >
-    The office was established in 2007 within the Central Bank of Iraq as the Money
-    Laundering Reporting Office, and was reconstituted by Law No. 39 of 2015 as a public
-    department with financial and administrative independence. It maintains Iraq's
-    sanctions lists, enforces asset-freezing orders and handles appeals and delisting
-    requests.
+    The Office of Combating Money Laundering and Terrorist Financing operates within the Central Bank of Iraq with financial and
+    administrative independence under Law No. 39 of 2015. It maintains Iraq's
+    sanctions lists, enforces asset-freezing orders and handles appeals and
+    delisting requests.
   url: https://aml.iq/?lang=en
   official: true
   country: iq
@@ -59,12 +58,11 @@ lookups:
           - "198"
           - "28138"
         value: null
-  sentences:
-    # Court sentences entered in the alias field.
+  alias_not_name:
+    # Court sentences entered in the alias field, not aliases.
     options:
-      - match: مؤبد
-        value: Sentenced to life imprisonment
-      - match: "15 عشر سنة"
-        value: Sentenced to 15 years imprisonment
-      - match: اعدام
-        value: Sentenced to death
+      - match:
+          - مؤبد
+          - "15 عشر سنة"
+          - اعدام
+        value: null

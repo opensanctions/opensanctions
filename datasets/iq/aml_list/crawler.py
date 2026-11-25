@@ -40,7 +40,6 @@ def crawl_item(context: Context, item: dict[str, str | None]) -> None:
         assert is_excluded == "Yes", is_excluded
         return
 
-    sentence: str | None = None
     if entity_type == "Entities":
         name = ENTITY_NAME_REASON.sub("", raw_name).strip()
         entity = context.make("LegalEntity")
@@ -57,9 +56,8 @@ def crawl_item(context: Context, item: dict[str, str | None]) -> None:
         # The nickname is embedded in the name and also duplicated in the
         # `alias` field, usually behind a "nicknamed" marker.
         alias_field = item.pop("alias")
-        # Some records carry the court sentence in the alias field instead.
-        sentence = context.lookup_value("sentences", alias_field)
-        if sentence is not None:
+        # Some records carry a court sentence in the alias field instead.
+        if context.lookup("alias_not_name", alias_field) is not None:
             alias_field = None
         parts = h.multi_split(raw_name, NAME_SPLITS)
         name = parts[0]
@@ -86,7 +84,6 @@ def crawl_item(context: Context, item: dict[str, str | None]) -> None:
 
     sanction = h.make_sanction(context, entity)
     sanction.add("recordId", decision_number)
-    sanction.add("summary", sentence)
     h.apply_date(sanction, "listingDate", item.pop("decision_year"))
 
     context.emit(entity)
