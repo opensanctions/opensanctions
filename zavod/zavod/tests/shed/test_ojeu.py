@@ -47,6 +47,9 @@ def test_parse_act_results() -> None:
     assert act.amends == ("32024R1485",)
     assert act.based_on == ("12012E/TXT", "32024R1485")
     assert act.latest_consolidated == "02024R1485-20260713"
+    assert act.publication_date == "2026-07-14"
+    assert act.entry_into_force == ("2026-07-14", "2026-08-01")
+    assert act.to_dict()["entry_into_force"] == ["2026-07-14", "2026-08-01"]
     assert act.to_dict()["eli_url"].endswith("/eli/reg_impl/2026/1708/oj")
     assert act.request.data == cellar.build_act_query("32026R1708")
 
@@ -63,6 +66,9 @@ def test_framework_results_include_own_consolidated_family() -> None:
         "02024R1485-20260713",
     )
     assert act.latest_consolidated == "02024R1485-20260713"
+    # Pre-2023 acts only carry the date of the OJ issue they appeared in.
+    assert act.publication_date == "2024-05-29"
+    assert act.entry_into_force == ("2024-05-30",)
     query = cellar.build_act_query("32024R1485").decode("utf-8")
     assert "BIND(COALESCE(?amended_framework, ?work) AS ?framework)" in query
 

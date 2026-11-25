@@ -38,10 +38,16 @@ PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
 PREFIX lang: <http://publications.europa.eu/resource/authority/language/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?title ?doc_date ?type ?eli ?amends_celex ?based_on_celex
-                ?cons_celex WHERE {
+SELECT DISTINCT ?title ?doc_date ?pub_date ?oj_pub_date ?eif_date ?type ?eli
+                ?amends_celex ?based_on_celex ?cons_celex WHERE {
   ?work cdm:resource_legal_id_celex "CELEX_ID"^^xsd:string .
   OPTIONAL { ?work cdm:work_date_document ?doc_date . }
+  OPTIONAL { ?work cdm:official-journal-act_date_publication ?pub_date . }
+  OPTIONAL {
+    ?work cdm:resource_legal_published_in_official-journal ?oj .
+    ?oj cdm:publication_general_date_publication ?oj_pub_date .
+  }
+  OPTIONAL { ?work cdm:resource_legal_date_entry-into-force ?eif_date . }
   OPTIONAL { ?work cdm:work_has_resource-type ?type . }
   OPTIONAL { ?work cdm:resource_legal_eli ?eli . }
   OPTIONAL {
@@ -138,6 +144,12 @@ class Act:
     celex: str
     title: str | None
     document_date: str | None
+    # Acts published since the act-by-act Official Journal (October 2023)
+    # carry their own publication date; older ones inherit their OJ issue's.
+    publication_date: str | None
+    # Several values when provisions enter into force or apply on different
+    # dates; the act's final article says which applies to what.
+    entry_into_force: tuple[str, ...]
     resource_type: str | None
     eli: str | None
     amends: tuple[str, ...]
@@ -159,8 +171,10 @@ class Act:
             "consolidated": list(self.consolidated),
             "document_date": self.document_date,
             "eli_url": self.eli,
+            "entry_into_force": list(self.entry_into_force),
             "eur_lex_url": eur_lex_url(self.celex),
             "latest_consolidated": self.latest_consolidated,
+            "publication_date": self.publication_date,
             "resource_type": self.resource_type,
             "resource_url": cellar_url(self.celex),
             "title": self.title,
@@ -542,6 +556,8 @@ def parse_act_results(value: str, result: Any, request: Request | None = None) -
         celex=celex,
         title=first("title"),
         document_date=first("doc_date"),
+        publication_date=first("pub_date") or first("oj_pub_date"),
+        entry_into_force=values("eif_date"),
         resource_type=resource_type,
         eli=first("eli"),
         amends=values("amends_celex"),
