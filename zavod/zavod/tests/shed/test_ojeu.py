@@ -361,3 +361,34 @@ def test_http_errors_are_not_hidden(requests_mock) -> None:
     requests_mock.post(cellar.SPARQL_ENDPOINT, status_code=503)
     with pytest.raises(requests.HTTPError):
         cellar.CellarClient(requests.Session()).query_act("32026R1708")
+
+
+def test_cellar_url_encodes_corrigendum_celex() -> None:
+    url = cellar.cellar_url("32017R1568R(01)")
+    assert url.endswith("/celex/32017R1568R%2801%29")
+
+
+def test_build_and_parse_corrigenda_query() -> None:
+    query = cellar.build_corrigenda_query(["32017R1568", "32016R0466"]).decode()
+    assert '"32016R0466"^^xsd:string "32017R1568"^^xsd:string' in query
+    assert "resource_legal_corrects_resource_legal" in query
+    result = {
+        "results": {
+            "bindings": [
+                {
+                    "celex": {"value": "32017R1568R(01)"},
+                    "framework_celex": {"value": "32017R1568"},
+                    "relation": {"value": "corrects"},
+                    "doc_date": {"value": "2017-09-29"},
+                    "type": {
+                        "value": "http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM"
+                    },
+                }
+            ]
+        }
+    }
+    (act,) = cellar.parse_related_act_results(result)
+    assert act.celex == "32017R1568R(01)"
+    assert act.framework_celex == "32017R1568"
+    assert act.relation == "corrects"
+    assert act.resource_type == "CORRIGENDUM"

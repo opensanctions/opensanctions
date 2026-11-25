@@ -11,6 +11,7 @@ from hashlib import sha256
 from pathlib import Path
 from collections.abc import Iterable, Iterator, Mapping
 from typing import Any, Protocol
+from urllib.parse import quote
 
 import click
 import orjson
@@ -104,6 +105,30 @@ SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
   FILTER (?type IN (RESOURCE_TYPES))
 }
 ORDER BY ?doc_date ?celex ?framework_celex ?relation
+"""
+
+CORRIGENDA_QUERY = """
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX lang: <http://publications.europa.eu/resource/authority/language/>
+PREFIX rt: <http://publications.europa.eu/resource/authority/resource-type/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
+  VALUES ?framework_celex { FRAMEWORK_VALUES }
+  ?corrected cdm:resource_legal_id_celex ?framework_celex .
+  ?work cdm:resource_legal_corrects_resource_legal ?corrected ;
+        cdm:resource_legal_id_celex ?celex ;
+        cdm:work_date_document ?doc_date ;
+        cdm:work_has_resource-type ?type .
+  FILTER (?type = rt:CORRIGENDUM)
+  BIND("corrects" AS ?relation)
+  OPTIONAL {
+    ?expression cdm:expression_belongs_to_work ?work ;
+                cdm:expression_uses_language lang:ENG ;
+                cdm:expression_title ?title .
+  }
+}
+ORDER BY ?doc_date ?celex ?framework_celex
 """
 
 CONSOLIDATIONS_QUERY = """
@@ -364,6 +389,23 @@ class CellarClient:
             self.clear(request)
             raise
 
+    def query_corrigenda(
+        self, celexes: str | Iterable[str], cache_days: int | None = 1
+    ) -> tuple[RelatedAct, ...]:
+        """Find the corrigenda that correct any of the given acts.
+
+        Each result's `framework_celex` is the corrected act and its
+        `relation` is "corrects".
+        """
+        request = corrigenda_request(celexes)
+        response = self._fetch(request, cache_days)
+        try:
+            result = orjson.loads(response.content)
+            return parse_related_act_results(result)
+        except Exception:
+            self.clear(request)
+            raise
+
     def query_consolidations(
         self,
         framework_celexes: str | Iterable[str],
@@ -410,7 +452,9 @@ class CellarClient:
 
 def cellar_url(value: str) -> str:
     """Build the content-negotiated CELLAR resource URL for a CELEX."""
-    return CELLAR_RESOURCE_URL.format(celex=normalize(value))
+    # Corrigendum CELEXes carry parentheses ("32017R1568R(01)"), which CELLAR
+    # only resolves percent-encoded.
+    return CELLAR_RESOURCE_URL.format(celex=quote(normalize(value), safe=""))
 
 
 def expression_headers(language: str, media_type: str) -> dict[str, str]:
@@ -480,6 +524,23 @@ def related_acts_request(
         data=build_related_acts_query(
             framework_celexes, date_from, date_to, resource_types
         ),
+        headers=tuple(SPARQL_HEADERS.items()),
+    )
+
+
+def build_corrigenda_query(celexes: str | Iterable[str]) -> bytes:
+    """Build a query for the corrigenda of several acts."""
+    values = _normalize_frameworks(celexes)
+    celex_values = " ".join(f'"{celex}"^^xsd:string' for celex in values)
+    return CORRIGENDA_QUERY.replace("FRAMEWORK_VALUES", celex_values).encode("utf-8")
+
+
+def corrigenda_request(celexes: str | Iterable[str]) -> Request:
+    """Build the exact request for finding the corrigenda of several acts."""
+    return Request(
+        SPARQL_ENDPOINT,
+        method="POST",
+        data=build_corrigenda_query(celexes),
         headers=tuple(SPARQL_HEADERS.items()),
     )
 
@@ -584,7 +645,7 @@ def parse_related_act_results(result: Any) -> tuple[RelatedAct, ...]:
             resource_type = str(binding["type"]["value"]).rstrip("/").rsplit("/", 1)[-1]
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError("Invalid related-act binding in CELLAR response") from exc
-        if relation not in {"amends", "based_on"}:
+        if relation not in {"amends", "based_on", "corrects"}:
             raise ValueError(f"Unsupported CELLAR relationship: {relation}")
         key = (celex, framework, relation, document_date, resource_type)
         title = str(binding.get("title", {}).get("value", "")).strip()
