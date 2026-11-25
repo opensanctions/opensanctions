@@ -1,0 +1,5 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,extra,reason
+DEL,e858e83277bbf578fc12b835b036b2f67aef6c1b,2018-02-27,2018-02-28,23,EU-PRK,XV.A,Asset freeze,,,Person,PAK Yong-sik,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,f465350211fdb3c0eb37457a896e0c2ceebbb0ba,2018-02-27,2018-02-28,31,EU-PRK,XV.A,Asset freeze,,,Person,KIM Jong Sik,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,6922caf37476610c0c6283518bd4403e3db05b24,2018-02-27,2018-02-28,5,EU-PRK,XV.B,Asset freeze,,,Organization,Ministry of People's Armed Forces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,572fb0a2e6525330e8950a23f6ec9c227777371b,2018-02-27,2018-02-28,5,EU-PRK,XV.C,Asset freeze,,,Person,CHOE Chun-Sik,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
