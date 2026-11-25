@@ -2,7 +2,7 @@
 
 Files apply in `(effectiveDate, publishedDate, celex)` order, rows in file
 order. The result holds every designation that is live, and every one that
-was deleted, under its key `(id, programKey, measure, annex)`, together with the
+was deleted, under its key `(id, programKey, measure)`, together with the
 dates the crawler derives: first listing, entry into force, last change.
 """
 
@@ -38,7 +38,7 @@ AMENDED_RE = re.compile(
 # Acts whose text is wholly superseded are listed without the "►".
 CORRECTED_RE = re.compile(r"^►?C\d+ \| Corrigendum.*\((?:No )?(\d+)/(\d+)\)")
 
-Key = tuple[str, str, str, str]
+Key = tuple[str, str, str]
 
 
 @dataclass
@@ -62,12 +62,7 @@ class Op:
 
     @property
     def key(self) -> Key:
-        return (
-            self.row["id"],
-            self.row["programKey"],
-            self.row["measure"],
-            self.row["annex"],
-        )
+        return (self.row["id"], self.row["programKey"], self.row["measure"])
 
     @property
     def where(self) -> str:
@@ -117,14 +112,7 @@ def apply(state: State, op: Op) -> None:
     elif row["op"] == "MOD":
         entry = state.live.get(key)
         if entry is None:
-            moved = [k for k in state.live if k[:3] == key[:3]]
-            if moved:
-                state.errors.append(
-                    f"{op.where}: MOD moves {row['id'][:10]} from annex "
-                    f"{moved[0][3]!r} to {row['annex']!r}; an entry's annex never changes"
-                )
-            else:
-                state.errors.append(f"{op.where}: MOD of missing {key}")
+            state.errors.append(f"{op.where}: MOD of missing {key}")
             return
         entry.row = dict(row)
         entry.modified = row["publishedDate"]

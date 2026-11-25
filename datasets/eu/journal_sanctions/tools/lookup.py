@@ -44,6 +44,7 @@ QUOTES_RE = re.compile(r"[‘’“”'\"«»]")
 TOKEN_MATCH = 0.7
 LISTING_BONUS = 0.3
 RECORD_BONUS = 0.15
+ANNEX_BONUS = 0.1
 PRIMARY_BONUS = 0.2
 # A match through an alias ranks below the same match on the primary names:
 # UN-style lists reuse one person's alias as another's name.
@@ -142,6 +143,9 @@ def rank(row: dict[str, str], entries: list[Entry]) -> list[Match]:
         ):
             score += PRIMARY_BONUS
             evidence.append("primary")
+        if row["annex"] != "" and row["annex"] == other["annex"]:
+            score += ANNEX_BONUS
+            evidence.append("annex")
         if row["recordId"] != "" and row["recordId"] == other["recordId"]:
             score += RECORD_BONUS
             evidence.append("recordId")
@@ -195,13 +199,6 @@ def only(state_entries: list[Entry], column: str, given: str | None) -> str:
     return used[0]
 
 
-def candidates(row: dict[str, str], entries: list[Entry]) -> list[Entry]:
-    """Entries a MOD or DEL row may target: its annex's, if it names one."""
-    if row["annex"] == "":
-        return entries
-    return [entry for entry in entries if entry.row["annex"] == row["annex"]]
-
-
 @cli.command()
 @click.argument("framework")
 @click.option("--before", required=True, help="The act doing the amending.")
@@ -235,7 +232,7 @@ def find(
         birthDate=birth_date,
         listingDate=listing_date,
     )
-    for match in rank(row, candidates(row, entries))[:5]:
+    for match in rank(row, entries)[:5]:
         click.echo(describe(match))
 
 
@@ -368,7 +365,7 @@ def resolve(
                 )
             continue
         if row["id"] != "":
-            matches = rank(row, candidates(row, live))
+            matches = rank(row, live)
             top = matches[0].entry.row["id"] if matches else None
             if top != row["id"]:
                 best = describe(matches[0]) if matches else "no candidates"
@@ -387,11 +384,7 @@ def resolve(
     while pending and progress:
         progress = False
         for line, row in list(pending.items()):
-            free = [
-                e
-                for e in candidates(row, live)
-                if (e.row["id"], e.row["annex"]) not in claimed
-            ]
+            free = [e for e in live if (e.row["id"], e.row["annex"]) not in claimed]
             matches = rank(row, free)
             chosen = decide(matches)
             if chosen is None:
@@ -402,11 +395,7 @@ def resolve(
             progress = True
     failed = bool(pending)
     for line, row in pending.items():
-        free = [
-            e
-            for e in candidates(row, live)
-            if (e.row["id"], e.row["annex"]) not in claimed
-        ]
+        free = [e for e in live if (e.row["id"], e.row["annex"]) not in claimed]
         report.append(f"{line} {row['op']} UNRESOLVED {row['name']}")
         report.extend(f"    {describe(match)}" for match in rank(row, free)[:3])
     # When an act replaces a whole annex, these are the entries it drops.

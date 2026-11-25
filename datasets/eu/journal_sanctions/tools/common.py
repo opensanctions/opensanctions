@@ -122,9 +122,15 @@ LOOSE_CHARS = str.maketrans(
 )
 
 
+# UN lists print names in numbered parts ("1: ABU 2: ZAYD"); transcriptions
+# join them.
+NAME_PART_RE = re.compile(r"(?<![\w:])\d{1,2}: ")
+
+
 def loosen(text: str) -> str:
-    """Casefold and unify quotes and dashes, for consolidation lookups."""
-    return text.casefold().translate(LOOSE_CHARS)
+    """Casefold and unify quotes, dashes, lookalike letters and UN name-part
+    labels, for consolidation lookups."""
+    return NAME_PART_RE.sub("", text.casefold().translate(LOOSE_CHARS))
 
 
 def haystack(text: str, loose: bool = False) -> str:

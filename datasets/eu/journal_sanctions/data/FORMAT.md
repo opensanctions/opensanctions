@@ -77,14 +77,13 @@ An act that replaces a whole annex is a `MOD` for every entry it lists, a
 Replay applies files in `(effectiveDate, publishedDate, CELEX)` order and rows
 in file order; a view as of a date applies every op with an `effectiveDate`
 on or before it, and treats a designation whose `endDate` lies before that
-date as lapsed. A designation's key is `(id, programKey, measure, annex)`, so
-an entry never changes annex through a `MOD`. An `ADD` of a live key and a
-`MOD` or `DEL` of a missing one are invalid.
+date as lapsed. A designation's key is `(id, programKey, measure)`. An `ADD`
+of a live key and a `MOD` or `DEL` of a missing one are invalid.
 
 A designee listed in a second annex of the framework is a separate
-designation with its own `id`, unless the act itself says it is the same
-designee — an entry transferred between annexes, or a cross-reference to the
-other entry — in which case it reuses that `id`.
+designation with its own `id`. An entry moves to another annex or part only
+when the act restructures the annex or transfers the entry; that is a `MOD`
+changing `annex`, so the listing continues.
 
 ## Sanctions metadata columns
 
@@ -115,8 +114,9 @@ legal context, sharing its `id`.
 `schema` and `name` are required on `ADD` and `MOD`. `schema` is one of
 `Person`, `LegalEntity`, `Organization`, `Company`, `Vessel`, or `Asset`:
 `LegalEntity` whenever it is unclear whether the target is a person or an
-organisation, `Company` only for a corporation, and `Organization` for any
-other group — militias, networks, unions, self-proclaimed republics. Every
+organisation, `Company` only for a share-capital company, and `Organization`
+for any other group — state enterprises and agencies, militias, networks,
+unions, self-proclaimed republics. Every
 populated entity column must be a property that exists on that
 FollowTheMoney schema (e.g. `flag` and `imoNumber` only on `Vessel`,
 `kppCode` only on `Company`).
@@ -130,7 +130,9 @@ separate names is decided case by case from the source. Every further
 rendering of the name the source prints on its own line — native script or
 Latin transliteration — is an `alias`; non-Latin renderings are always kept.
 Never transliterate or translate a name yourself; an unlabeled combined form
-stays whole in `name`. Identity documents printed with an alias
+stays whole in `name`. A name printed in numbered parts
+(`Name: 1: ABU 2: ZAYD 3: UMAR`) is the parts joined with spaces
+(`ABU ZAYD UMAR`). Identity documents printed with an alias
 (`a.k.a. X (Passport number: …)`) go to the designation's own columns.
 Irregular values are expected — the consuming crawler routes names through
 the review helpers, where a human categorises them.

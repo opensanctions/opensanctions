@@ -359,27 +359,42 @@ def test_replay_before_an_act_without_a_file(
     assert len(replay(FRAMEWORK, before="32099R0002").live) == 2
 
 
-def test_annex_is_part_of_the_key(stack: Path) -> None:
-    # The same id listed in a second annex is a separate designation.
+def test_annex_moves_and_separate_listings(stack: Path) -> None:
+    # A designee listed in a second annex has its own id.
     write_oplog(
         stack / "32099R0002.csv",
         [
             make_row(
-                "ADD", ALICE, "2099-02-01", annex="XV", name="Alice Smith", reason="EU."
+                "ADD",
+                "e" * 40,
+                "2099-02-01",
+                annex="XV",
+                name="Alice Smith",
+                reason="EU.",
             ),
         ],
     )
     assert len(replay(FRAMEWORK).live) == 3
-    # A MOD may not move an entry to another annex.
+    # A MOD may move an entry to another annex, with a warning to review.
     write_oplog(
         stack / "32099R0003.csv",
         [
             make_row(
-                "MOD", BOB, "2099-03-01", annex="XV", name="Bob Jones", reason="R."
+                "MOD",
+                BOB,
+                "2099-03-01",
+                recordId="2",
+                annex="XIV.B",
+                name="Bob Jones",
+                reason="R.",
             ),
         ],
     )
-    assert any("an entry's annex never changes" in e for e in errors())
+    bob = next(e for e in replay(FRAMEWORK).live.values() if e.row["id"] == BOB)
+    assert bob.row["annex"] == "XIV.B" and bob.listed_published == "2099-01-01"
+    issues = validate.validate_framework(FRAMEWORK)
+    assert [i.level for i in issues if "moves the entry" in i.message] == ["warning"]
+    assert errors() == []
 
 
 def test_row_as_mod_and_find(
@@ -443,6 +458,6 @@ def test_cited_acts_with_and_without_markers() -> None:
 
 def test_loose_matching_folds_lookalikes() -> None:
     # The act prints Ukrainian і (U+0456); the consolidation a Latin i.
-    text = haystack("Олексiй Мозговий", loose=True)
-    row = encode_row({"name": "Олексій Мозговий"})
+    text = haystack("Олексiй Мозговий ¶ Name: 1: ABU 2: ZAYD 3: UMAR", loose=True)
+    row = encode_row({"name": "Олексій Мозговий", "alias": "ABU ZAYD UMAR"})
     assert missing_values(row, text, loose=True) == []

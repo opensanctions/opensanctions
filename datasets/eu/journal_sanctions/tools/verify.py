@@ -55,7 +55,7 @@ def main(framework: str, celex: str) -> None:
     targets = replay(framework, before=celex).live
     errors = warnings = 0
     for line, row in enumerate(read_oplog(path), start=2):
-        key = (row["id"], row["programKey"], row["measure"], row["annex"])
+        key = (row["id"], row["programKey"], row["measure"])
         target = targets.get(key)
         carried = target.row if target is not None and row["op"] != "ADD" else None
         where = f"{celex}:{line}"
