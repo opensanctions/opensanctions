@@ -104,7 +104,7 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
         if "uk-switcher" in classes.split():
             break
     else:
-        context.log.debug("No switcher found for {name}")
+        context.log.debug(f"No switcher found for {name}")
         return
     # Unfortunately... these are not formatted in any particular way.
     # Do a best-effort extraction of some facts from the plain text
@@ -112,7 +112,7 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
 
 
 def crawl_member(
-    context: Context, member_link: Element, party: str, state: str
+    context: Context, member_link: Element, party: str | None, state: str
 ) -> None:
     """Extract member information from individual page."""
     assert member_link.text is not None
@@ -175,8 +175,11 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
 
         party_split = party_raw.split("Partido: ")
         # Some people are partyless (in this case, len(party_split) == 1)
+        party: str | None = None
         if len(party_split) == 2:
             party = party_split[1].strip()
+        elif len(party_split) != 1:
+            raise ValueError(f"Unexpected party format: {party_raw}")
 
         if member_link is None:
             context.log.error(f"No page found in element {el}")
@@ -211,7 +214,7 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
             if next_page == page_number + 1:
                 break
         else:
-            context.log.error(f"Link to page {page_number + 1} not found")
+            raise ValueError(f"Link to page {page_number + 1} not found")
         page_number = next_page
         context.log.debug(f"Fetching page {page_number} from {href}")
         page = zyte_api.fetch_html(
