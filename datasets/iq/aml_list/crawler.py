@@ -103,12 +103,10 @@ def crawl_item(context: Context, item: dict[str, str | None]) -> None:
 
 
 def crawl(context: Context) -> None:
-    # The paginated JSON API (context.data_url) caps pages at 200 rows and orders
-    # them unstably, so pages overlap and drop records. Its Excel export returns
-    # the whole list in one file.
-    path = context.fetch_resource(
-        "source.xlsx", f"{context.data_url}?Name=&IsExcelExport=true"
-    )
+    # The Excel export returns the whole list in one file. Without
+    # IsExcelExport, the endpoint is a paginated JSON API that caps pages at 200
+    # rows and orders them unstably, so pages overlap and drop records.
+    path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     sheet = CalamineWorkbook.from_path(path).get_sheet_by_name("Local Sanctions List")
     for item in h.parse_xlsx_sheet(context, sheet):

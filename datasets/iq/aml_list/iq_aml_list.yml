@@ -1,4 +1,4 @@
-title: Iraq Terrorist Fund Freezing Lists
+title: Iraq Terrorist Fund Freezing List
 entry_point: crawler.py
 prefix: iq-aml
 coverage:
@@ -10,25 +10,31 @@ summary: >
   Individuals and entities suspected of involvement in money laundering or terrorist
   financing activities, sourced from Iraq's local freezing list.
 description: |
-  This dataset comprises information about individuals and entities designated by the
-  Anti-Money Laundering and Terrorist Financing Office. It covers the local sanctions
-  list, featuring names of companies and individuals, and listing dates.
+  Iraq's local sanctions list of individuals and entities designated by the Committee
+  for Freezing Terrorists' Funds, established under the Anti-Money Laundering and
+  Counter-Terrorism Financing Law No. 39 of 2015. Banks and other financial
+  institutions must freeze the funds of listed persons and refrain from dealing with
+  them until the designation is lifted. Designation decisions are published in the
+  official gazette, al-Waqa'i al-Iraqiya.
 
-  **Note:** This crawler uses an LLM-based approach to transliterate entity names.
+  The list is separate from the UN Security Council and foreign-country sanctions
+  lists that the publisher also republishes.
 publisher:
-  name: Republic of Iraq Anti-Money Laundering and Countering Financing of Terrorism Office
+  name: مكتب مكافحة غسل الأموال وتمويل الإرهاب
+  name_en: Office of Combating Money Laundering and Terrorist Financing
   description: >
-    The Office of Combating Money Laundering and Terrorist Financing, established within the
-    Central Bank of Iraq, operates with full independence to address financial crimes. Its
-    mission involves the collection, analysis, and dissemination of information related to
-    suspected money laundering and terrorism financing activities.
+    The office was established in 2007 within the Central Bank of Iraq as the Money
+    Laundering Reporting Office, and was reconstituted by Law No. 39 of 2015 as a public
+    department with financial and administrative independence. It maintains Iraq's
+    sanctions lists, enforces asset-freezing orders and handles appeals and delisting
+    requests.
   url: https://aml.iq/?lang=en
   official: true
   country: iq
 url: https://aml.iq
 data:
-  url: https://api.aml.iq/api/localsanctionslist/getall/1
-  format: JSON
+  url: https://api.aml.iq/api/localsanctionslist/getall/1?Name=&IsExcelExport=true
+  format: XLSX
 tags:
   - list.sanction
   - risk.terror
