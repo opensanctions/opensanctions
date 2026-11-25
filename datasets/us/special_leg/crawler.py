@@ -32,7 +32,7 @@ CTO_CACHE_DAYS = 1
 FR_NOTICE_TITLE_RE = re.compile(r"nonproliferation (act )?measures", re.IGNORECASE)
 
 
-def crawl_row(context: Context, row: dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str], amendments_dated: bool) -> None:
     """Process one row of the CSV data"""
     schema = row.pop("schema")
     name = row.pop("name")
@@ -56,10 +56,12 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     h.apply_date(sanction, "listingDate", report_date)
     h.apply_date(sanction, "startDate", row.pop("start-date"))
     h.apply_date(sanction, "endDate", row.pop("end-date"))
+    h.apply_date(sanction, "modifiedAt", row.pop("modified-date"))
     sanction.add("reason", row.pop("reason"))
     sanction.add("description", f"Published in {report_date} report.")
     sanction.set("authority", row.pop("authority"))
     sanction.set("sourceUrl", h.multi_split(source_url, ";"))
+    h.finalize_sanction(context, sanction, amendments_dated=amendments_dated)
 
     if h.is_active(sanction):
         entity.add("topics", topics)
@@ -78,7 +80,8 @@ def crawl_fr_notices(context: Context) -> None:
     # any new notice triggers a warning.
     # If the hash changes, review the new entries in fr_notices.csv: impositions
     # add rows to source_files/inksna.csv, while terminations and modifications
-    # change the end-date of existing rows. Then commit the updated
+    # change the end-date of existing rows and set their modified-date to the
+    # notice's publication date. Then commit the updated
     # fr_notices.csv and update the hash in this function.
     h.assert_url_hash(context, FR_API_URL, "c18e1b039eee4811d279545dae865f8d65c3893b")
     rows: list[list[str]] = []
@@ -172,7 +175,10 @@ def crawl_source_file(context: Context, source_file: Path) -> None:
                 f"in the {row['report-date']!r} edition"
             )
         seen.add(listing)
-        crawl_row(context, row)
+        # Listings change only by dated acts, reports or notices. Section 1286
+        # editions restate the whole list, so its amendments are unknown.
+        amendments_dated = source_file != SECTION_1286_FILE and row["report-date"] != ""
+        crawl_row(context, row, amendments_dated=amendments_dated)
 
 
 def crawl(context: Context) -> None:

@@ -73,7 +73,9 @@ roughly once a year. Last run: FY25, July 2026.
      MSU became an alias of Moscow State University) or replaced by a related
      entity (FY25: IHEP/ITEF out, NRC "Kurchatov Institute" in) — REMOVE plus
      cross-referencing notes on both sides.
-7. **After `section_1286.csv` is updated**, touch `us_special_leg.yml`:
+7. **Apply REMOVE to the previous-year rows**: set both `end-date` and
+   `modified-date` to the new list's release date instead of deleting them.
+8. **After `section_1286.csv` is updated**, touch `us_special_leg.yml`:
    - add the new FY to the Section 1286 paragraph in `description`;
    - bump `manual_check.last_check`;
    - sanity-check `assertions` against the new Company entity count

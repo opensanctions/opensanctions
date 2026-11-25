@@ -27,8 +27,16 @@ All files share the same header:
 - `reason`: the grounds for the listing, where the source states them.
 - `report-date`: the edition the row was taken from (e.g. the fiscal year of a
   Section 1286 list). Emitted as the sanction's listing date.
-- `start-date` / `end-date`: when the source gives explicit effective dates.
-  INKSNA measures run for two years from the determination date.
+- `start-date` / `end-date`: when the listing takes effect and ends. INKSNA
+  measures run for two years from the determination date. Acts set their own
+  effective dates (Section 889: one year after enactment; Section 5949: five
+  years). A Section 353 listing applies from its report. Section 1286 lists
+  give no effective date, so their rows have none.
+- `modified-date`: the publication date of the notice or edition that changed
+  or ended an existing row, e.g. an INKSNA termination notice or the Section
+  1286 edition that dropped an institution. Without one, the `report-date`
+  counts as the last modification. Section 1286 rows are the exception: each
+  edition restates the whole list, so they get no modification date by default.
 - `country`: ISO 3166-1 alpha-2 code, or a value covered by the `type.country`
   lookup.
 - `notes`: maintainer context, including judgment calls made while transcribing.
@@ -65,5 +73,5 @@ that are not published as a list — Sections 889, 5949 and 154, and the Section
 
 The crawler polls the API for new INKSNA determinations and rewrites
 `fr_notices.csv`. Read each new notice, append or update a `source_files/inksna.csv`
-row per designated foreign person, then commit `fr_notices.csv` and update the
-hash in `crawler.py`.
+row per designated foreign person (setting `modified-date` on an updated row),
+then commit `fr_notices.csv` and update the hash in `crawler.py`.
