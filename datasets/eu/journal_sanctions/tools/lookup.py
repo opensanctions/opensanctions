@@ -12,6 +12,7 @@ draft file in place — matched for MOD/DEL rows, minted for ADD rows.
 """
 
 import csv
+import json
 import re
 import sys
 from dataclasses import dataclass
@@ -22,6 +23,7 @@ from normality import ascii_text
 from rigour.names import tokenize_name
 from rigour.text.distance import levenshtein_similarity
 
+from .act import OUT_DIR
 from .common import (
     DEL_COLUMNS,
     OPLOG_COLUMNS,
@@ -193,6 +195,13 @@ def only(state_entries: list[Entry], column: str, given: str | None) -> str:
     return used[0]
 
 
+def candidates(row: dict[str, str], entries: list[Entry]) -> list[Entry]:
+    """Entries a MOD or DEL row may target: its annex's, if it names one."""
+    if row["annex"] == "":
+        return entries
+    return [entry for entry in entries if entry.row["annex"] == row["annex"]]
+
+
 @cli.command()
 @click.argument("framework")
 @click.option("--before", required=True, help="The act doing the amending.")
@@ -200,6 +209,7 @@ def only(state_entries: list[Entry], column: str, given: str | None) -> str:
 @click.option("--schema", default="Person")
 @click.option("--program", default=None, help="Default: the stack's only programKey.")
 @click.option("--measure", default=None, help="Default: the stack's only measure.")
+@click.option("--annex", default="", help="Only entries in this annex.")
 @click.option("--birth-date", default="")
 @click.option("--listing-date", default="")
 def find(
@@ -209,42 +219,89 @@ def find(
     schema: str,
     program: str | None,
     measure: str | None,
+    annex: str,
     birth_date: str,
     listing_date: str,
 ) -> None:
     """Rank live designations against a printed name."""
     entries = list(replay(framework, before=before).live.values())
-    row = {column: "" for column in NAME_COLUMNS}
+    row = dict.fromkeys(OPLOG_COLUMNS, "")
     row.update(
         name=name,
         schema=schema,
         programKey=only(entries, "programKey", program),
         measure=only(entries, "measure", measure),
+        annex=annex,
         birthDate=birth_date,
         listingDate=listing_date,
     )
-    for match in rank(row, entries)[:5]:
+    for match in rank(row, candidates(row, entries))[:5]:
         click.echo(describe(match))
 
 
 @cli.command("row")
 @click.argument("framework")
-@click.argument("id")
+@click.argument("id", required=False)
 @click.option("--before", default=None, help="The act doing the amending.")
-def show_row(framework: str, id: str, before: str | None) -> None:
+@click.option("--annex", default=None, help="With --record, instead of an id.")
+@click.option("--record", default=None, help="The entry's recordId in --annex.")
+@click.option(
+    "--as-mod",
+    "as_mod",
+    default=None,
+    help="An act CELEX: set op=MOD and the act's dates from tools/out/<celex>/meta.json.",
+)
+@click.option(
+    "--out",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Write a complete op-log file here instead of printing.",
+)
+def show_row(
+    framework: str,
+    id: str | None,
+    before: str | None,
+    annex: str | None,
+    record: str | None,
+    as_mod: str | None,
+    out: Path | None,
+) -> None:
     """Print a live designation's current row, as the base for a full MOD.
 
-    Copy it into the act's file, set `op`, `publishedDate` and
-    `effectiveDate`, and change only what the act changes.
+    Name the entry by (a prefix of) its id, or by --annex and --record as a
+    corrigendum or amending act addresses it. With --as-mod, the row comes
+    out as a MOD dated like that act; change only what the act changes.
     """
-    state = replay(framework, before=before)
-    found = [e for e in state.live.values() if e.row["id"].startswith(id)]
+    state = replay(framework, before=before or as_mod)
+    if id is not None:
+        found = [e for e in state.live.values() if e.row["id"].startswith(id)]
+    elif annex is not None and record is not None:
+        found = [
+            e
+            for e in state.live.values()
+            if e.row["annex"] == annex and e.row["recordId"] == record
+        ]
+    else:
+        raise click.UsageError("give an id, or --annex and --record")
     if not found:
-        raise click.ClickException(f"no live designation with id {id}")
+        raise click.ClickException("no live designation matches")
+    rows = [dict(entry.row) for entry in found]
+    if as_mod is not None:
+        meta_path = OUT_DIR / as_mod / "meta.json"
+        if not meta_path.exists():
+            raise click.UsageError(f"run `python -m tools.act {as_mod}` first")
+        meta = json.loads(meta_path.read_text())
+        published = meta["publication_date"]
+        effective = min(meta["entry_into_force"] or [published])
+        for row in rows:
+            row.update(op="MOD", publishedDate=published, effectiveDate=effective)
+    if out is not None:
+        write_oplog(out, rows)
+        click.echo(f"{len(rows)} rows -> {out}")
+        return
     writer = csv.DictWriter(sys.stdout, OPLOG_COLUMNS, lineterminator="\n")
     writer.writeheader()
-    for entry in found:
-        writer.writerow(entry.row)
+    writer.writerows(rows)
 
 
 @cli.command()
@@ -257,44 +314,70 @@ def show_row(framework: str, id: str, before: str | None) -> None:
     help="The act replaces a whole list: append a DEL for every live entry it "
     "leaves out. Scope it with --annex when the act replaces one annex.",
 )
-@click.option("--annex", "annexes", multiple=True, help="Limit --delete-untouched.")
+@click.option("--show-untouched", is_flag=True, help="List the live entries left out.")
+@click.option("--annex", "annexes", multiple=True, help="Limit the untouched entries.")
 def resolve(
     framework: str,
     draft: Path,
     pin: tuple[str, ...],
     delete_untouched: bool,
+    show_untouched: bool,
     annexes: tuple[str, ...],
 ) -> None:
-    """Fill empty `id` cells of DRAFT in place.
+    """Fill empty `id` cells of DRAFT in place, and check filled ones.
 
     MOD and DEL rows take the id, annex and recordId of the live entry they
-    match; ADD rows get a minted id. The draft's file stem names the act, so
-    matching sees the state just before it. The file is written before the
-    report is printed.
+    match; a filled MOD/DEL id is checked against the ranking. ADD rows get a
+    minted id. A likely match in another annex is reported for review; a
+    filled ADD id reuses it, which only an act saying so justifies. The draft's file stem names the
+    act, so matching sees the state just before it. The file is written
+    before the report is printed.
     """
     pins = dict(p.split("=", 1) for p in pin)
     state = replay(framework, before=draft.stem)
-    by_id = {entry.row["id"]: entry for entry in state.live.values()}
+    live = list(state.live.values())
+    by_id = {entry.row["id"]: entry for entry in live}
     rows = read_oplog(draft)
-    claimed = {row["id"] for row in rows if row["id"] != ""}
+    claimed = {(row["id"], row["annex"]) for row in rows if row["id"] != ""}
     report: list[str] = []
 
     def settle(line: int, row: dict[str, str], entry: Entry, how: str) -> None:
         row["id"] = entry.row["id"]
-        claimed.add(row["id"])
-        for column in ("annex", "recordId"):
-            if row[column] == "":
-                row[column] = entry.row[column]
+        row["annex"] = entry.row["annex"]
+        row["recordId"] = entry.row["recordId"]
+        claimed.add((row["id"], row["annex"]))
         report.append(f"{line} {row['op']} {row['name']} -> {how}")
 
     pending: dict[int, dict[str, str]] = {}
     for line, row in enumerate(rows, start=2):
-        if row["id"] != "":
-            continue
         if row["op"] == "ADD":
-            row["id"] = mint_id(framework, row["recordId"], row["name"])
-            report.append(f"{line} ADD minted {row['id'][:10]} {row['name']}")
-        elif str(line) in pins:
+            elsewhere = [
+                m
+                for m in rank(row, [e for e in live if e.row["annex"] != row["annex"]])
+                if m.score >= ACCEPT
+            ][:2]
+            if row["id"] == "":
+                row["id"] = mint_id(framework, row["recordId"], row["name"])
+                report.append(f"{line} ADD minted {row['id'][:10]} {row['name']}")
+            else:
+                report.append(f"{line} ADD reuses {row['id'][:10]} {row['name']}")
+            for match in elsewhere:
+                report.append(
+                    f"    listed elsewhere? {describe(match)} — a separate listing; "
+                    "share its id only if the act says it is the same designee"
+                )
+            continue
+        if row["id"] != "":
+            matches = rank(row, candidates(row, live))
+            top = matches[0].entry.row["id"] if matches else None
+            if top != row["id"]:
+                best = describe(matches[0]) if matches else "no candidates"
+                report.append(
+                    f"{line} {row['op']} CHECK {row['name']}: filled id "
+                    f"{row['id'][:10]} is not the top match ({best})"
+                )
+            continue
+        if str(line) in pins:
             settle(line, row, by_id[pins[str(line)]], "pinned")
         else:
             pending[line] = row
@@ -304,7 +387,11 @@ def resolve(
     while pending and progress:
         progress = False
         for line, row in list(pending.items()):
-            free = [e for e in state.live.values() if e.row["id"] not in claimed]
+            free = [
+                e
+                for e in candidates(row, live)
+                if (e.row["id"], e.row["annex"]) not in claimed
+            ]
             matches = rank(row, free)
             chosen = decide(matches)
             if chosen is None:
@@ -315,22 +402,28 @@ def resolve(
             progress = True
     failed = bool(pending)
     for line, row in pending.items():
-        free = [e for e in state.live.values() if e.row["id"] not in claimed]
+        free = [
+            e
+            for e in candidates(row, live)
+            if (e.row["id"], e.row["annex"]) not in claimed
+        ]
         report.append(f"{line} {row['op']} UNRESOLVED {row['name']}")
         report.extend(f"    {describe(match)}" for match in rank(row, free)[:3])
     # When an act replaces a whole annex, these are the entries it drops.
-    touched = {row["id"] for row in rows}
+    touched = {(row["id"], row["annex"]) for row in rows}
     untouched = [
         e
-        for e in state.live.values()
-        if e.row["id"] not in touched and (not annexes or e.row["annex"] in annexes)
+        for e in live
+        if (e.row["id"], e.row["annex"]) not in touched
+        and (not annexes or e.row["annex"] in annexes)
     ]
     report.append(f"{len(untouched)} live entries not touched by this act")
     for entry in untouched:
-        report.append(
-            f"    {entry.row['id'][:10]} {entry.row['annex']}#{entry.row['recordId']}"
-            f" {entry.row['name']}"
-        )
+        if show_untouched or delete_untouched:
+            report.append(
+                f"    {entry.row['id'][:10]} {entry.row['annex']}#{entry.row['recordId']}"
+                f" {entry.row['name']}"
+            )
         if delete_untouched and not failed and rows:
             deletion = dict.fromkeys(OPLOG_COLUMNS, "")
             deletion.update({c: entry.row[c] for c in DEL_COLUMNS})

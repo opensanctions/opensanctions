@@ -27,7 +27,10 @@ interpretation.
 Run the tools from this directory as modules. `tools/out/` is a gitignored
 scratch area with one directory per act. The acts of `F`, including the
 English corrigenda of `F` and of its acts, come from
-`tools.common.related_acts(F)`; transcribe them in date order.
+`tools.common.related_acts(F)`; transcribe them in date order. A throwaway
+script in `tools/out/C/` is run by its path, not as a module. CELLAR clients
+come from `zavod.shed.ojeu.cellar.cli_client()`, a context manager:
+`with cli_client() as client: client.query_act(F).consolidated`.
 
 1. `python -m tools.act C` fetches the act into `tools/out/C/`: `body.html`,
    `meta.json` (publication and entry-into-force dates) and `text.txt` (one
@@ -37,16 +40,19 @@ English corrigenda of `F` and of its acts, come from
    throwaway script that stays in `tools/out/C/`. A script builds each row
    with `tools.common.encode_row`, which encodes multi-valued cells, and
    writes them with `tools.common.write_oplog`. `programKey` and `measure`
-   come from the regime's program in `meta/programs/`. A `MOD` starts from
-   its target's full current row, printed by
-   `python -m tools.lookup row F ID --before C`, and changes what the act
-   changes — a corrigendum included.
+   come from the regime's program in `meta/programs/`. A `MOD` that changes
+   part of an entry starts from its target's full current row:
+   `python -m tools.lookup row F ID --as-mod C --out tools/out/C/row.csv`
+   (or `--annex A --record N` instead of `ID`, as acts and corrigenda
+   address entries) writes it dated like `C`; then change what the act
+   changes.
 4. `python -m tools.lookup resolve F data/regulations/F/C.csv` mints ids for
-   `ADD` rows and matches `MOD`/`DEL` rows to the live entries they amend.
-   It lists the live entries the act does not touch; for an act that
-   replaces a whole annex, `--delete-untouched --annex X` writes their `DEL`
-   rows. An
-   unresolved row prints its candidates: check it with
+   `ADD` rows and matches `MOD`/`DEL` rows to the live entries they amend;
+   it checks `MOD`/`DEL` ids filled in by hand against its own ranking, and
+   reports likely listings of an `ADD`'s designee in other annexes. For an
+   act that replaces a whole annex, `--delete-untouched --annex X` writes
+   `DEL` rows for the entries it leaves out. An unresolved row prints its
+   candidates: check it with
    `python -m tools.lookup find`, and pass `--pin LINE=ID` only when the act's
    text settles it.
 5. `python -m tools.validate F --online`, and account for every warning.
@@ -56,9 +62,10 @@ English corrigenda of `F` and of its acts, come from
    (`query_act(F).consolidated`), run
    `python -m tools.replay F --compare <consolidated CELEX>`, which checks
    every live entry's values against the consolidation's text, and the acts
-   and corrigenda its header cites against the stack's files. It cannot see
-   entries the consolidation prints but the replay lacks: check those by
-   reading.
+   and corrigenda its header cites against the stack's files. It prints the
+   live entries per annex part: count the entries the consolidation prints
+   per part against them, since the tool cannot see entries the replay
+   lacks.
 
 ## Review
 

@@ -8,13 +8,33 @@ file's dates must agree with CELLAR's metadata. Run `python -m tools.act <celex>
 """
 
 import json
+import re
 import sys
+from datetime import date, timedelta
 
 import click
 
 from .act import OUT_DIR
 from .common import REGULATIONS_DIR, haystack, missing_values, read_oplog
 from .replay import replay
+
+SAME_DAY_RE = re.compile(
+    r"enter into force on the (?:date|day) of its publication", re.IGNORECASE
+)
+NEXT_DAY_RE = re.compile(
+    r"enter into force on the (?:day|date) following (?:that|the date) of its "
+    r"publication",
+    re.IGNORECASE,
+)
+
+
+def act_in_force(text: str, published: str) -> str | None:
+    """The entry-into-force date an act's standard final article states."""
+    if SAME_DAY_RE.search(text):
+        return published
+    if NEXT_DAY_RE.search(text):
+        return (date.fromisoformat(published) + timedelta(days=1)).isoformat()
+    return None
 
 
 @click.command()
@@ -35,7 +55,7 @@ def main(framework: str, celex: str) -> None:
     targets = replay(framework, before=celex).live
     errors = warnings = 0
     for line, row in enumerate(read_oplog(path), start=2):
-        key = (row["id"], row["programKey"], row["measure"])
+        key = (row["id"], row["programKey"], row["measure"], row["annex"])
         target = targets.get(key)
         carried = target.row if target is not None and row["op"] != "ADD" else None
         where = f"{celex}:{line}"
@@ -50,9 +70,12 @@ def main(framework: str, celex: str) -> None:
         in_force = meta["entry_into_force"] or [meta["publication_date"]]
         if row["effectiveDate"] not in in_force:
             warnings += 1
+            stated = act_in_force(text, meta["publication_date"])
+            agrees = "agrees" if stated == row["effectiveDate"] else "disagrees"
             click.echo(
-                f"WARNING  {where}: effectiveDate {row['effectiveDate']} is not among "
-                f"{in_force}"
+                f"WARNING  {where}: effectiveDate {row['effectiveDate']} is not "
+                f"CELLAR's {in_force}; the act's final article says {stated} "
+                f"({agrees})"
             )
         for column, value in missing_values(row, text, carried=carried):
             errors += 1

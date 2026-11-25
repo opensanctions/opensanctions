@@ -57,13 +57,19 @@ formula, without the dataset prefix.
 
 - `ADD` — a new designation: the full entry as printed. An `ADD` of a
   previously deleted `id` is a relisting and starts a new listing period.
-- `MOD` — a changed entry: always the full row, never a diff. Values the act
-  prints replace the target's; every other value is carried over unchanged
-  from the target, so a corrigendum that prints only "for … read …" is still
-  a full row.
+- `MOD` — a changed entry: always the full row, never a diff. When the act
+  replaces the whole entry ("the entry for X is replaced by the following"),
+  the row is the new entry and a column it does not print is empty. When the
+  act changes part of an entry — a corrigendum's "for … read …", or "in entry
+  23, the date … is replaced by …" — every value it does not change is
+  carried over from the target. A corrigendum gets a `MOD` for every entry it
+  names, even where a later act already made the change.
 - `DEL` — a removed entry. Only `op`, `id`, the two dates, `recordId`,
   `programKey`, `annex`, `measure`, `schema` and `name` are filled, carried
   from the live entry; `name` and `schema` must equal the live entry's.
+
+A `MOD` or `DEL` carries its target's `annex` and `recordId`; the act's own
+numbering of the entries it amends is not recorded.
 
 An act that replaces a whole annex is a `MOD` for every entry it lists, a
 `DEL` for each live entry it leaves out, and an `ADD` for each new one.
@@ -71,8 +77,14 @@ An act that replaces a whole annex is a `MOD` for every entry it lists, a
 Replay applies files in `(effectiveDate, publishedDate, CELEX)` order and rows
 in file order; a view as of a date applies every op with an `effectiveDate`
 on or before it, and treats a designation whose `endDate` lies before that
-date as lapsed. A designation's key is `(id, programKey, measure)`. An `ADD`
-of a live key and a `MOD` or `DEL` of a missing one are invalid.
+date as lapsed. A designation's key is `(id, programKey, measure, annex)`, so
+an entry never changes annex through a `MOD`. An `ADD` of a live key and a
+`MOD` or `DEL` of a missing one are invalid.
+
+A designee listed in a second annex of the framework is a separate
+designation with its own `id`, unless the act itself says it is the same
+designee — an entry transferred between annexes, or a cross-reference to the
+other entry — in which case it reuses that `id`.
 
 ## Sanctions metadata columns
 
@@ -80,11 +92,11 @@ of a live key and a `MOD` or `DEL` of a missing one are invalid.
 | --- | --- | --- |
 | `recordId` | No | The entry number the act prints, as printed. Acts that add entries number them locally (`1.`, `2.`, …). A `MOD` or `DEL` that prints none takes its target's. Never invent one. |
 | `programKey` | Yes | One OpenSanctions program key that resolves against `meta/programs/*.yml` (e.g. `EU-LBY`). |
-| `annex` | When stated | The source's annex or section identifier, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. A part is its printed letter or, where the source prints an unlettered part heading, that heading in capitals: `I.PERSONS`. An annex inserted by an amending act keeps its printed lowercase suffix: `Ia`. |
+| `annex` | When stated | The framework's annex the entry is listed in, never the amending act's own annex or sections, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. A part is the framework annex's own part: its printed letter or, where the framework prints an unlettered part heading, that heading in capitals (`I.PERSONS`, `I.ENTITIES`). An annex inserted by an amending act keeps its printed lowercase suffix: `Ia`. |
 | `measure` | Yes | One sanctions measure from the `Measure` vocabulary in `zavod/zavod/stateful/programs.py`, which must also appear in the selected program's `measures:` list. |
 | `listingDate` | No | The source's printed per-designation listing date, date-only — for regimes mirroring a UN list, the printed date of UN designation. Empty when the source prints none — never infer one. |
 | `endDate` | No | The printed date a time-limited designation ends, date-only (`valid … to 26 July 2016` produces `26 July 2016`). A renewal is a `MOD` with the new date. |
-| `reason` | No | The source's rationale for listing, as prose: one value per separately printed passage (e.g. grounds for listing and a narrative summary of reasons). Consecutive paragraphs of one passage join into one value. |
+| `reason` | No | The source's rationale for listing, as prose: one value per separately printed passage (e.g. grounds for listing and a narrative summary of reasons). The paragraphs of one passage join into one value with spaces; prefer one long value to fragments. |
 
 A designation in several programs or under several measures has one row per
 legal context, sharing its `id`.
@@ -101,8 +113,11 @@ legal context, sharing its `id`.
 ## Entity columns
 
 `schema` and `name` are required on `ADD` and `MOD`. `schema` is one of
-`Person`, `LegalEntity`, `Organization`, `Company`, `Vessel`, or `Asset`, and
-every populated entity column must be a property that exists on that
+`Person`, `LegalEntity`, `Organization`, `Company`, `Vessel`, or `Asset`:
+`LegalEntity` whenever it is unclear whether the target is a person or an
+organisation, `Company` only for a corporation, and `Organization` for any
+other group — militias, networks, unions, self-proclaimed republics. Every
+populated entity column must be a property that exists on that
 FollowTheMoney schema (e.g. `flag` and `imoNumber` only on `Vessel`,
 `kppCode` only on `Company`).
 
@@ -111,10 +126,12 @@ into `alias`, `weakAlias`, or `previousName` only when the source prints a
 label or structure that says so: `a.k.a.`, `alias` and `Good quality a.k.a.`
 mark an `alias`, `Low quality a.k.a.` a `weakAlias`, `f.k.a.` and `formerly`
 a `previousName`. Whether commas or semicolons inside a labelled alias group
-separate names is decided case by case from the source. Never extract
-transliteration variants; an unlabeled combined form stays whole in `name`.
-Identity documents printed with an alias (`a.k.a. X (Passport number: …)`)
-go to the designation's own columns.
+separate names is decided case by case from the source. Every further
+rendering of the name the source prints on its own line — native script or
+Latin transliteration — is an `alias`; non-Latin renderings are always kept.
+Never transliterate or translate a name yourself; an unlabeled combined form
+stays whole in `name`. Identity documents printed with an alias
+(`a.k.a. X (Passport number: …)`) go to the designation's own columns.
 Irregular values are expected — the consuming crawler routes names through
 the review helpers, where a human categorises them.
 
@@ -153,10 +170,12 @@ Labelled remarks inside a paragraph stay with it.
 `extra` keeps each labelled value that no column fits, verbatim with its
 label (`Deadweight: 4,996 t`), so unplaced data is kept and new columns can
 be added from evidence; the crawler does not emit it. Cell values are never
-assembled from parsed pieces. Identity-document validity lines
-(`Date of issue: …`, `Expiration date: …`), kin names (`Brother's name: …`),
-and relational lines that name other parties (`Associated individuals: …`)
-are not transcribed.
+assembled from parsed pieces. Identity-document validity is not transcribed,
+on its own line (`Date of issue: …`, `Expiration date: …`) or on the
+document's line (`Passport: A005465 (Libya), issued …, expires …` gives
+`A005465 (Libya)`). Kin names (`Brother's name: …`) and relational lines
+that name other parties (`Associated individuals: …`) are not transcribed
+either.
 
 Use `Asset` for a directly restricted thing that is not a legal entity or
 vessel: facilities and geographic zones use `name` with their published
@@ -187,5 +206,6 @@ Every stack must pass `tools/validate.py` before it is checked in. Errors
 break this contract or the replay and fail the run; warnings flag rows to
 re-check. `--online` also compares the files with the acts and English
 corrigenda CELLAR relates to the framework: a file for an unrelated act is an
-error, and a related act without a file is a warning. When this contract's
+error, and a related act without a file, dated up to the stack's newest
+file, is a warning. When this contract's
 columns change, `tools/migrate.py` brings existing files up to date.

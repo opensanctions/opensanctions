@@ -132,7 +132,7 @@ def check_file(celex: str, ops: list[Op], issues: list[Issue]) -> None:
     """Checks across the rows of one act's file."""
     if len({op.row["publishedDate"] for op in ops}) > 1:
         issues.append(Issue("error", celex, "publishedDate differs between rows"))
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[tuple[str, str, str, str]] = set()
     rows: set[tuple[str, ...]] = set()
     for op in ops:
         if op.key in seen:

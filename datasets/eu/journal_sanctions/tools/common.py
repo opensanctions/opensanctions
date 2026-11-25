@@ -114,7 +114,12 @@ SEPARATOR_RE = re.compile(r" [¶|‖] ")
 
 # Typographic variants EUR-Lex editors change between an act and its
 # consolidation.
-LOOSE_CHARS = str.maketrans({c: "'" for c in '‘’“”„«»"`´'} | {c: "-" for c in "‐‑‒–—"})
+LOOSE_CHARS = str.maketrans(
+    {c: "'" for c in '‘’“”„«»"`´'}
+    | {c: "-" for c in "‐‑‒–—"}
+    # Cyrillic letters that look like Latin ones and get swapped in print.
+    | dict(zip("аеіорсхуј", "aeiopcxyj"))
+)
 
 
 def loosen(text: str) -> str:

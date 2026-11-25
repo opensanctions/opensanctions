@@ -11,6 +11,8 @@ act is the transcriber's job.
 
 import json
 import re
+import time
+from collections.abc import Callable
 from pathlib import Path
 
 import click
@@ -90,17 +92,35 @@ def render_text(directory: Path) -> None:
     (directory / "text.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def retrying[T](call: Callable[[], T], tries: int = 3) -> T:
+    """Run a CELLAR call, retrying timeouts and server errors with backoff."""
+    for attempt in range(tries):
+        try:
+            return call()
+        except requests.HTTPError as exc:
+            status = exc.response.status_code if exc.response is not None else 0
+            if status < 500 or attempt == tries - 1:
+                raise
+        except (requests.Timeout, requests.ConnectionError):
+            if attempt == tries - 1:
+                raise
+        time.sleep(10 * (attempt + 1))
+    raise AssertionError("unreachable")
+
+
 def fetch_act(client: CellarClient, celex: str, directory: Path) -> dict[str, object]:
     """Fetch an act's body and metadata into `directory`; return the metadata."""
     directory.mkdir(parents=True, exist_ok=True)
-    meta = client.query_act(celex).to_dict()
+    meta = retrying(lambda: client.query_act(celex).to_dict())
     try:
-        expression = client.fetch_expression(celex)
+        expression = retrying(lambda: client.fetch_expression(celex))
     except requests.HTTPError as exc:
         # Older acts have no XHTML expression, only HTML.
         if exc.response is None or exc.response.status_code != 404:
             raise
-        expression = client.fetch_expression(celex, media_type="text/html")
+        expression = retrying(
+            lambda: client.fetch_expression(celex, media_type="text/html")
+        )
     meta["media_type"] = expression.media_type
     body = extract_body_html(expression)
     (directory / "body.html").write_bytes(body)

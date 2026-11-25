@@ -2,7 +2,7 @@
 
 Files apply in `(effectiveDate, publishedDate, celex)` order, rows in file
 order. The result holds every designation that is live, and every one that
-was deleted, under its key `(id, programKey, measure)`, together with the
+was deleted, under its key `(id, programKey, measure, annex)`, together with the
 dates the crawler derives: first listing, entry into force, last change.
 """
 
@@ -24,6 +24,7 @@ from .common import (
     parse_date,
     read_oplog,
     regime_files,
+    related_acts,
 )
 
 CONSOLIDATION_RE = re.compile(r"^0\d{4}[A-Z]\d{4}-(\d{4})(\d{2})(\d{2})$")
@@ -31,12 +32,13 @@ CONSOLIDATION_RE = re.compile(r"^0\d{4}[A-Z]\d{4}-(\d{4})(\d{2})(\d{2})$")
 # REGULATION (EU) 2017/1568 of …" and "►C1 | Corrigendum, OJ L 251, …
 # (2017/1568)".
 AMENDED_RE = re.compile(
-    r"^►M\d+ \| .*?(REGULATION|DECISION)\b[^|]*?\([A-Za-z]+\) (?:No )?(\d+)/(\d+)",
+    r"^►?M\d+ \| .*?(REGULATION|DECISION)\b[^|]*?\([A-Za-z]+\) (?:No )?(\d+)/(\d+)",
     re.IGNORECASE,
 )
-CORRECTED_RE = re.compile(r"^►C\d+ \| Corrigendum.*\((?:No )?(\d+)/(\d+)\)")
+# Acts whose text is wholly superseded are listed without the "►".
+CORRECTED_RE = re.compile(r"^►?C\d+ \| Corrigendum.*\((?:No )?(\d+)/(\d+)\)")
 
-Key = tuple[str, str, str]
+Key = tuple[str, str, str, str]
 
 
 @dataclass
@@ -60,7 +62,12 @@ class Op:
 
     @property
     def key(self) -> Key:
-        return (self.row["id"], self.row["programKey"], self.row["measure"])
+        return (
+            self.row["id"],
+            self.row["programKey"],
+            self.row["measure"],
+            self.row["annex"],
+        )
 
     @property
     def where(self) -> str:
@@ -110,7 +117,14 @@ def apply(state: State, op: Op) -> None:
     elif row["op"] == "MOD":
         entry = state.live.get(key)
         if entry is None:
-            state.errors.append(f"{op.where}: MOD of missing {key}")
+            moved = [k for k in state.live if k[:3] == key[:3]]
+            if moved:
+                state.errors.append(
+                    f"{op.where}: MOD moves {row['id'][:10]} from annex "
+                    f"{moved[0][3]!r} to {row['annex']!r}; an entry's annex never changes"
+                )
+            else:
+                state.errors.append(f"{op.where}: MOD of missing {key}")
             return
         entry.row = dict(row)
         entry.modified = row["publishedDate"]
@@ -161,18 +175,21 @@ def replay(
     """Replay a framework's ops.
 
     Args:
-        before: Stop ahead of this act, to see what it amends. An act without
-            a file yet is placed by the dates in its fetched `meta.json`.
+        before: Stop ahead of this act, to see what it amends. An act whose
+            file is missing or header-only is placed by the dates in its
+            fetched `meta.json`.
         as_of: Apply only ops with `effectiveDate` on or before this ISO date,
             and move designations whose `endDate` is before it to `lapsed`.
     """
     files = load_ops(framework)
     stop: tuple[str, str, str] | None = None
-    if before is not None and before not in {celex for celex, _ in files}:
+    # A header-only file has no dates of its own, so its act is placed by
+    # its metadata, like an act without a file.
+    if before is not None and before not in {celex for celex, ops in files if ops}:
         stop = act_position(before)
     state = State()
     for celex, ops in files:
-        if celex == before:
+        if celex == before and stop is None:
             break
         if stop is not None and file_position(celex, ops) >= stop:
             break
@@ -273,14 +290,35 @@ def compare(framework: str, consolidation: str) -> int:
     for celex in sorted(amended - files):
         errors += 1
         click.echo(f"ERROR    {consolidation} is amended by {celex}, which has no file")
+    later: dict[str, int] = {}
+    if any(
+        sum(1 for stem in files if stem.startswith(f"{c}R(")) != n
+        for c, n in corrected.items()
+    ):
+        # EUR-Lex folds corrigenda published after a consolidation's date
+        # into it; those cannot be in a stack replayed to that date.
+        for act in related_acts(framework):
+            if act.relation == "corrects" and act.document_date > as_of:
+                later[act.framework_celex] = later.get(act.framework_celex, 0) + 1
     for celex, count in sorted(corrected.items()):
         have = sum(1 for stem in files if stem.startswith(f"{celex}R("))
-        if have != count:
-            errors += 1
-            click.echo(
-                f"ERROR    {consolidation} cites {count} corrigenda of {celex}; "
-                f"the stack has {have}"
-            )
+        if have == count:
+            continue
+        message = (
+            f"{consolidation} cites {count} corrigenda of {celex}; the stack has {have}"
+        )
+        if have + later.get(celex, 0) >= count:
+            click.echo(f"WARNING  {message}, the rest published after {as_of}")
+            continue
+        errors += 1
+        click.echo(f"ERROR    {message}")
+    parts: dict[str, int] = {}
+    for entry in state.live.values():
+        parts[entry.row["annex"]] = parts.get(entry.row["annex"], 0) + 1
+    click.echo(
+        "live entries per annex part (check against the printed entries): "
+        + ", ".join(f"{annex or '-'} {n}" for annex, n in sorted(parts.items()))
+    )
     click.echo(
         f"{consolidation}: {len(state.live)} live entries as of {as_of}, "
         f"{len(state.lapsed)} lapsed, {errors} errors"

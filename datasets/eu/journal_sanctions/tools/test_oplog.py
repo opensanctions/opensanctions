@@ -357,3 +357,92 @@ def test_replay_before_an_act_without_a_file(
     )
     # The corrigendum-like act sits between the framework and 32099R0003.
     assert len(replay(FRAMEWORK, before="32099R0002").live) == 2
+
+
+def test_annex_is_part_of_the_key(stack: Path) -> None:
+    # The same id listed in a second annex is a separate designation.
+    write_oplog(
+        stack / "32099R0002.csv",
+        [
+            make_row(
+                "ADD", ALICE, "2099-02-01", annex="XV", name="Alice Smith", reason="EU."
+            ),
+        ],
+    )
+    assert len(replay(FRAMEWORK).live) == 3
+    # A MOD may not move an entry to another annex.
+    write_oplog(
+        stack / "32099R0003.csv",
+        [
+            make_row(
+                "MOD", BOB, "2099-03-01", annex="XV", name="Bob Jones", reason="R."
+            ),
+        ],
+    )
+    assert any("an entry's annex never changes" in e for e in errors())
+
+
+def test_row_as_mod_and_find(
+    stack: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from click.testing import CliRunner
+
+    from . import lookup
+
+    monkeypatch.setattr(lookup, "OUT_DIR", tmp_path / "out")
+    monkeypatch.setattr(replay_module, "OUT_DIR", tmp_path / "out")
+    meta = tmp_path / "out" / "32099R0002" / "meta.json"
+    meta.parent.mkdir(parents=True)
+    meta.write_text(
+        json.dumps(
+            {"publication_date": "2099-02-01", "entry_into_force": ["2099-02-02"]}
+        )
+    )
+    out = tmp_path / "row.csv"
+    result = CliRunner().invoke(
+        lookup.cli,
+        [
+            "row",
+            FRAMEWORK,
+            "--annex",
+            "",
+            "--record",
+            "2",
+            "--as-mod",
+            "32099R0002",
+            "--out",
+            str(out),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    (row,) = common.read_oplog(out)
+    assert (row["op"], row["id"], row["effectiveDate"]) == ("MOD", BOB, "2099-02-02")
+    write_oplog(stack / "32099R0002.csv", [])
+    result = CliRunner().invoke(
+        lookup.cli,
+        ["find", FRAMEWORK, "--before", "32099R0002", "--name", "Jones, Bob"],
+    )
+    assert result.exit_code == 0, result.output
+    assert BOB[:10] in result.output.splitlines()[0]
+
+
+def test_cited_acts_with_and_without_markers() -> None:
+    header = (
+        "Amended by:\n"
+        "►M1 | COUNCIL IMPLEMENTING REGULATION (EU) 2016/466 of 31 March 2016 | L 85 | 1 | 1.4.2016\n"
+        "M2 | COUNCIL IMPLEMENTING REGULATION (EU) No 284/2014 of 21 March 2014 | L 86 | 27 | 21.3.2014\n"
+        "Corrected by:\n"
+        "C1 | Corrigendum, OJ L 98, 14.4.2016, p. 6 (2016/466)\n"
+        "▼B\n"
+        "►M9 | not part of the header\n"
+    )
+    amended, corrected = replay_module.cited_acts(header)
+    assert amended == {"32016R0466", "32014R0284"}
+    assert corrected == {"32016R0466": 1}
+
+
+def test_loose_matching_folds_lookalikes() -> None:
+    # The act prints Ukrainian і (U+0456); the consolidation a Latin i.
+    text = haystack("Олексiй Мозговий", loose=True)
+    row = encode_row({"name": "Олексій Мозговий"})
+    assert missing_values(row, text, loose=True) == []
