@@ -1,0 +1,9 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,extra,reason
+MOD,68a4fea5eb1e28cbdb6f97c20d371d8f3073b3a3,2018-02-27,2018-02-27,1,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,PETREL 8,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9562233,620233000,,,,,,,,
+MOD,7194f9a86831e6c3fab30f9cffab60be44806fcc,2018-02-27,2018-02-27,2,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,HAO FAN 6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8628597,341985000,,,,,,,,
+MOD,c5947f85ba88777a328aa1d15990329e60ab7e52,2018-02-27,2018-02-27,3,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,TONG SAN 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8937675,445539000,,,,,,,,
+MOD,4040af042492462ea3b81288a1c82de917ac029c,2018-02-27,2018-02-27,4,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,JIE SHUN,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8518780,514569000,,,,,,,,
+MOD,0d051468413973c7c3b4307badd4667b346b6bbf,2018-02-27,2018-02-27,5,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,BILLIONS NO. 18,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9191773,,,,,,,,,
+MOD,6c588bd2dcc80d3c1b9db89c8b8fe5ace103c461,2018-02-27,2018-02-27,6,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,UL JI BONG 6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9114556,,,,,,,,,
+MOD,c0d2807ce004fceb45520a53291a79d8b3d677c0,2018-02-27,2018-02-27,7,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,RUNG RA 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9020534,,,,,,,,,
+MOD,92980bec09e52ec9c8571c3702f8dc98ddd4cb7e,2018-02-27,2018-02-27,8,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,RYE SONG GANG 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,7389704,,,,,,,,,
