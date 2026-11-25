@@ -175,7 +175,9 @@ be added from evidence; the crawler does not emit it. Cell values are never
 assembled from parsed pieces. Identity-document validity is not transcribed,
 on its own line (`Date of issue: …`, `Expiration date: …`) or on the
 document's line (`Passport: A005465 (Libya), issued …, expires …` gives
-`A005465 (Libya)`). Kin names (`Brother's name: …`) and relational lines
+`A005465 (Libya)`). Validity printed inside the identifier's own parenthesis
+cannot be separated, so the whole printed value is kept
+(`D 000952 (Afghan passport issued on 7.1.1999)`). Kin names (`Brother's name: …`) and relational lines
 that name other parties (`Associated individuals: …`) are not transcribed
 either.
 
