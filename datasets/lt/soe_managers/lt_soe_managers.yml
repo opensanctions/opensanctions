@@ -1,0 +1,57 @@
+title: Lithuania State-Owned Enterprise Leadership
+prefix: lt-soe
+url: https://governance.lt/apie-imones/atviri-duomenys/
+coverage:
+  frequency: weekly
+  start: "2026-11-25"
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Chief executives and board members of companies owned by the Lithuanian state.
+description: |
+  This dataset lists the heads and the members of the boards, supervisory boards
+  and management boards of state-owned enterprises in Lithuania. The Governance
+  Coordination Centre publishes the list for the enterprises in which the state
+  holds the shares, but not for their subsidiaries. A board member is marked as
+  its chair where the source does so.
+
+  The source lists the people who hold these roles today, with the start and
+  scheduled end of their terms. It also includes biographical notes on board
+  members.
+tags:
+  - list.pep
+publisher:
+  name: Valdymo koordinavimo centras
+  name_en: Governance Coordination Centre
+  acronym: VKC
+  description: |
+    The Governance Coordination Centre is a public institution that monitors the
+    governance and performance of state-owned enterprises in Lithuania, and
+    organises the selection of their board members.
+  country: lt
+  url: https://governance.lt/
+  official: true
+data:
+  url: https://governance.lt/apie-imones/atviri-duomenys/
+  format: XLSX
+  lang: lit
+deploy:
+  schedule: "@daily"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 150
+      Company: 30
+  max:
+    schema_entities:
+      Person: 260
+      Company: 45
+
+lookups:
+  type.gender:
+    options:
+      - match: V
+        value: male
+      - match: M
+        value: female
