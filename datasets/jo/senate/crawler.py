@@ -1,4 +1,5 @@
 import re
+from collections.abc import Iterator
 from urllib.parse import urlencode, urljoin
 from uuid import uuid4
 
@@ -23,8 +24,7 @@ BIRTH_DATE = re.compile(
 
 def fetch_pages(context: Context) -> list[Element]:
     """Page through the ASP.NET listing by replaying the pager's postbacks."""
-    # Geo-fenced to Jordan. The postbacks need the session cookie set on the first
-    # page, so all pages go through one Zyte session.
+    # Geo-fenced to Jordan; the postbacks need page 1's session cookie.
     session_id = str(uuid4())
     request = zyte_api.ZyteAPIRequest(
         url=context.data_url, geolocation="JO", session_id=session_id
@@ -81,14 +81,10 @@ def name_key(context: Context, raw_name: str) -> str:
     return name.replace(" ", "")
 
 
-def parse_note(
-    context: Context, doc: Element
-) -> tuple[dict[str, tuple[str, str]], dict[str, str]]:
-    """Read the note on the decrees since the one the listing publishes. Returns the
-    appointments, as (name, start date), and the resignation dates, by name key."""
+def parse_note(context: Context, doc: Element) -> Iterator[tuple[str, str, str]]:
+    """Read the note on decrees since the listed one. Yields each member it names
+    with "start" for an appointment or "end" for a resignation, and the date."""
     note = h.xpath_element(doc, ".//p[contains(., 'التعديلات التي طرأت على المجلس')]")
-    appointments: dict[str, tuple[str, str]] = {}
-    resignations: dict[str, str] = {}
     headings = decrees = 0
     since = r"،? اعتباراً? من تاريخ (\d{4}/\d{1,2}/\d{1,2})\."
     for el in [note, *h.xpath_elements(note, "following-sibling::*")]:
@@ -109,13 +105,28 @@ def parse_note(
         if appointment is not None:
             # "يعين دولة … وسعادة …" appoints two members.
             for name in re.split(r" و(?=سعادة |معالي |دولة )", appointment.group(1)):
-                appointments[name_key(context, name)] = (name, appointment.group(2))
+                yield name, "start", appointment.group(2)
         elif resignation is not None:
-            resignations[name_key(context, resignation.group(1))] = resignation.group(2)
+            yield resignation.group(1), "end", resignation.group(2)
         else:
             context.log.warning("Unexpected paragraph in the note", text=text)
     assert headings == decrees, (headings, decrees)
-    return appointments, resignations
+
+
+def cv_fields(context: Context, content: Element, url: str) -> dict[str, str]:
+    """Return the value after each CV heading, by the field cv_labels maps it to."""
+    fields: dict[str, str] = {}
+    for el in h.xpath_elements(content, ".//*"):
+        label = h.element_text(el)
+        field = context.lookup_value("cv_labels", label)
+        # A heading wrapped in <strong> or <span> is read from its outer element.
+        if field is None or h.element_text(el.getparent()) == label:
+            continue
+        assert field not in fields, (url, label)
+        # element_text treats an element holding only a non-breaking space as empty.
+        values = (h.element_text(v) for v in h.xpath_elements(el, "following::*"))
+        fields[field] = next(v for v in values if v != "")
+    return fields
 
 
 def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
@@ -129,18 +140,7 @@ def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
     )
     person.add("sourceUrl", url)
     content = h.xpath_element(doc, ".//div[@id='MainContent_DivContent']")
-    # A CV heading such as "مكان وتاريخ الولادة:" is followed by its value in the
-    # next element with text.
-    fields: dict[str, str] = {}
-    for el in h.xpath_elements(content, ".//*"):
-        label = h.element_text(el)
-        field = context.lookup_value("cv_labels", label)
-        if field is None or h.element_text(el.getparent()) == label:
-            continue
-        assert field not in fields, (url, label)
-        # Not normalize-space(): it keeps elements holding only a non-breaking space.
-        values = (h.element_text(v) for v in h.xpath_elements(el, "following::*"))
-        fields[field] = next(v for v in values if v != "")
+    fields = cv_fields(context, content, url)
 
     # "الاسم والشهرة": the name the member is commonly known by.
     if "alias" in fields:
@@ -149,12 +149,6 @@ def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
             person.add("alias", alias)
     person.add("birthPlace", fields.get("birthPlace"))
     birth = fields.get("birth")
-    if birth is None and "birthPlace" not in fields:
-        if re.search("الولادة|الميلاد", h.element_text(content)):
-            context.log.warning("Birth details under an unknown heading", url=url)
-    res = context.lookup("birth", birth)
-    if res is not None:
-        birth = res.value
     if birth is not None:
         # "عمان – 1/7/1966", "20 كانون الثاني 1939 - السلط", "السلط 1953"
         dates = BIRTH_DATE.findall(birth)
@@ -164,8 +158,11 @@ def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
             )
         else:
             h.apply_date(person, "birthDate", dates[0])
-            place = birth.replace(dates[0], "").strip(" ,،.-–/")
-            person.add("birthPlace", place or None)
+            person.add("birthPlace", birth.replace(dates[0], "").strip(" ,،.-–/"))
+    elif "birthPlace" not in fields and re.search(
+        "الولادة|الميلاد", h.element_text(content)
+    ):
+        context.log.warning("Birth details under an unknown heading", url=url)
 
     for email in h.xpath_strings(content, ".//a[starts-with(@href, 'mailto:')]/@href"):
         person.add("email", email.removeprefix("mailto:"))
@@ -181,15 +178,18 @@ def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    raw_name: str,
-    url: str | None = None,
-    start_date: str | None = None,
-    end_date: str | None = None,
-    starred: bool = False,
+    member: dict[str, str],
 ) -> None:
+    """Emit a member from their card, if any, and the dates later decrees give."""
+    # Members who have left are starred.
+    raw_name = member["name"].lstrip("* ")
+    url = member.get("url")
     person = context.make("Person")
     if url is None:
         person.id = context.make_id(raw_name)
+        if "start" not in member:
+            # Missing card or variant spelling (see note_names).
+            context.log.warning("Resignation matches no card", name=raw_name)
     else:
         # The item in /ListDetails/<slug>/<list>/<item> is only unique per list.
         person.id = context.make_id(*url.rsplit("/", 2)[1:])
@@ -203,15 +203,17 @@ def crawl_member(
     if url is not None:
         crawl_cv(context, person, name, url)
 
+    end_date = member.get("end")
+    left = member["name"].startswith("*")
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         categorisation=categorisation,
-        start_date=start_date,
+        start_date=member.get("start"),
         end_date=end_date,
-        # Members who have left are starred. The note dates resignations, not deaths.
-        status=OccupancyStatus.ENDED if starred and end_date is None else None,
+        # The note dates resignations, not deaths.
+        status=OccupancyStatus.ENDED if left and end_date is None else None,
     )
     if occupancy is None:
         return
@@ -235,34 +237,18 @@ def crawl(context: Context) -> None:
 
     # The whole listing first: slow member pages in between would end the session.
     docs = fetch_pages(context)
-    appointments, resignations = parse_note(context, docs[0])
+    members: dict[str, dict[str, str]] = {}
     for doc in docs:
-        for card in h.xpath_elements(doc, ".//div[@id='divHeight']"):
+        cards = h.xpath_elements(doc, ".//div[@id='divHeight']")
+        assert len(cards) > 0, "No member cards on a listing page"
+        for card in cards:
             label = h.element_text(h.xpath_element(card, ".//h6"))
-            raw_name = label.lstrip("* ")
-            key = name_key(context, raw_name)
-            appointment = appointments.pop(key, None)
-            crawl_member(
-                context,
-                position,
-                categorisation,
-                raw_name,
-                url=urljoin(
-                    context.data_url, h.xpath_string(card, ".//a[@id='lnkMore']/@href")
-                ),
-                start_date=None if appointment is None else appointment[1],
-                end_date=resignations.pop(key, None),
-                starred=label.startswith("*"),
-            )
-    # Members appointed by a later decree who have no card yet.
-    for key, (raw_name, start_date) in appointments.items():
-        crawl_member(
-            context,
-            position,
-            categorisation,
-            raw_name,
-            start_date=start_date,
-            end_date=resignations.pop(key, None),
-        )
-    # Every resignation ends a starred member's or an appointee's occupancy.
-    assert len(resignations) == 0, resignations
+            key = name_key(context, label.lstrip("* "))
+            assert key not in members, label
+            href = h.xpath_string(card, ".//a[@id='lnkMore']/@href")
+            members[key] = {"name": label, "url": urljoin(context.data_url, href)}
+    # Later decrees date the cards' members, or add members with no card yet.
+    for name, field, date in parse_note(context, docs[0]):
+        members.setdefault(name_key(context, name), {"name": name})[field] = date
+    for member in members.values():
+        crawl_member(context, position, categorisation, member)

@@ -87,11 +87,11 @@ lookups:
         value: birth
       - match: "مكان الولادة:"
         value: birthPlace
-  # Place and date of birth values to drop: the year in Fadel al-Hamoud's
-  # (فاضل محمد عبدالله الحمود) is a typo.
-  birth:
+  type.date:
     options:
-      - match: '20\11\1658'
+      # Fadel al-Hamoud's (فاضل محمد عبدالله الحمود) birth date "20\11\1658" has a
+      # typo in the year.
+      - match: "1658-11-20"
         value: null
   # Names in the note spelled differently from the member's card, mapped to the
   # card's name (honorifics and quotes removed).
