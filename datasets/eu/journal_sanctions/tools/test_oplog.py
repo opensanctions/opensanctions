@@ -5,19 +5,21 @@ Run from the dataset directory: `python -m pytest --import-mode=importlib tools/
 
 from pathlib import Path
 
+import click
 import pytest
 from zavod.shed.ojeu.cellar import RelatedAct
 
-from . import common, validate
+from . import common, migrate, validate
 from .common import (
     OPLOG_COLUMNS,
     cell_values,
     encode_row,
     haystack,
     missing_values,
+    parse_date,
     write_oplog,
 )
-from .lookup import decide, parse_date, rank
+from .lookup import decide, rank
 from .replay import Op, replay
 
 FRAMEWORK = "32099R0001"
@@ -247,3 +249,88 @@ def test_alias_markers_warn() -> None:
         validate.check_row(Op("32099R0001", 2, row), issues)
     warnings = [i for i in issues if "label or enumeration" in i.message]
     assert len(warnings) == 2
+
+
+def test_end_date_lapses_in_as_of_views(stack: Path) -> None:
+    write_oplog(
+        stack / "32099R0002.csv",
+        [
+            make_row(
+                "ADD",
+                "c" * 40,
+                "2099-02-01",
+                name="Vessel X",
+                schema="Vessel",
+                listingDate="1.2.2099",
+                endDate="30 April 2099",
+                reason="Listed.",
+            ),
+        ],
+    )
+    assert len(replay(FRAMEWORK, as_of="2099-04-30").lapsed) == 0
+    later = replay(FRAMEWORK, as_of="2099-05-01")
+    assert [e.row["name"] for e in later.lapsed.values()] == ["Vessel X"]
+    assert all(e.row["name"] != "Vessel X" for e in later.live.values())
+    assert errors() == []
+
+
+def test_missing_values_skips_carried() -> None:
+    text = haystack("for: ‘Pak Yon Sik’, read: ‘Pak Yong Sik’")
+    before = encode_row(
+        {"name": "Pak Yon Sik", "nationality": "DPRK", "reason": "Old."}
+    )
+    after = encode_row(
+        {"name": "Pak Yong Sik", "nationality": "DPRK", "reason": "Old."}
+    )
+    assert missing_values(after, text, carried=before) == []
+    assert missing_values(after, text) == [("nationality", "DPRK"), ("reason", "Old.")]
+
+
+def test_one_row_per_measure(stack: Path) -> None:
+    write_oplog(
+        stack / "32099R0002.csv",
+        [
+            make_row(
+                "ADD",
+                "d" * 40,
+                "2099-02-01",
+                name="Ship",
+                schema="Vessel",
+                measure="Asset freeze",
+                reason="R.",
+            ),
+            make_row(
+                "ADD",
+                "d" * 40,
+                "2099-02-01",
+                name="Ship",
+                schema="Vessel",
+                measure="Asset freeze",
+                reason="R2.",
+            ),
+        ],
+    )
+    assert any("twice in one act" in e for e in errors())
+
+
+def test_empty_id_stops_validation(stack: Path) -> None:
+    write_oplog(
+        stack / "32099R0002.csv",
+        [
+            make_row("MOD", "", "2099-02-01", name="Alice Smith", reason="R."),
+        ],
+    )
+    assert errors() == ["empty id; run `python -m tools.lookup resolve`"]
+
+
+def test_migrate_adds_columns(tmp_path: Path) -> None:
+    path = tmp_path / "32099R0001.csv"
+    path.write_text("op,id,name,reason\nADD,abc,Foo,Bar\n", encoding="utf-8")
+    rows = migrate.migrate(path)
+    assert rows is not None
+    assert (
+        rows[0]["name"] == "Foo" and rows[0]["extra"] == "" and rows[0]["endDate"] == ""
+    )
+    path.write_text("op,nickname\nADD,x\n", encoding="utf-8")
+    with pytest.raises(click.ClickException):
+        migrate.migrate(path)

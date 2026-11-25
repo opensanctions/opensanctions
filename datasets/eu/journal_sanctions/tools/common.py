@@ -39,6 +39,7 @@ METADATA_COLUMNS = (
     "annex",
     "measure",
     "listingDate",
+    "endDate",
     "schema",
 )
 ENTITY_COLUMNS = (
@@ -80,9 +81,10 @@ ENTITY_COLUMNS = (
     "website",
     "notes",
 )
-OPLOG_COLUMNS = OP_COLUMNS + METADATA_COLUMNS + ENTITY_COLUMNS + ("reason",)
+# `extra` keeps printed `Label: value` pairs that no column fits.
+OPLOG_COLUMNS = OP_COLUMNS + METADATA_COLUMNS + ENTITY_COLUMNS + ("extra", "reason")
 # Columns holding `;`-separated values; every other column is scalar.
-MULTI_COLUMNS = tuple(c for c in ENTITY_COLUMNS if c != "name") + ("reason",)
+MULTI_COLUMNS = tuple(c for c in ENTITY_COLUMNS if c != "name") + ("extra", "reason")
 
 # The only cells a DEL row may fill: enough to target the entry and to
 # cross-check it against the live state.
@@ -107,7 +109,7 @@ CONTEXT_COLUMNS = frozenset(
 )
 # EUR-Lex consolidation change markers: "▼B", "▼M12", "►C3", "◄".
 MARKER_RE = re.compile(r"[▼►][A-Z]\d*(?: —+)?|◄")
-SEPARATOR_RE = re.compile(r" [¶|] ")
+SEPARATOR_RE = re.compile(r" [¶|‖] ")
 
 
 # Typographic variants EUR-Lex editors change between an act and its
@@ -133,22 +135,62 @@ def haystack(text: str, loose: bool = False) -> str:
 
 
 def missing_values(
-    row: dict[str, str], text: str, loose: bool = False
+    row: dict[str, str],
+    text: str,
+    loose: bool = False,
+    carried: dict[str, str] | None = None,
 ) -> list[tuple[str, str]]:
     """List the (column, value) pairs of a row not printed in `text`.
 
     `text` is a `haystack` built with the same `loose`. Multi-value cells are
-    looked up element by element; context columns are skipped.
+    looked up element by element; context columns are skipped. A MOD or DEL
+    reproduces its target's row, so values equal to the target's (`carried`)
+    need not be printed in the act.
     """
     missing: list[tuple[str, str]] = []
     for column in OPLOG_COLUMNS:
         if column in CONTEXT_COLUMNS or row[column] == "":
             continue
+        previous = cell_values(carried, column) if carried is not None else []
         for value in cell_values(row, column):
+            if value in previous:
+                continue
             needle = " ".join(value.split())
             if (loosen(needle) if loose else needle) not in text:
                 missing.append((column, value))
     return missing
+
+
+MONTHS = {
+    m: i
+    for i, m in enumerate(
+        ("january", "february", "march", "april", "may", "june", "july")
+        + ("august", "september", "october", "november", "december"),
+        start=1,
+    )
+}
+DOTTED_RE = re.compile(r"^(\d{1,2})\.(\d{1,2})\.(\d{4})$")
+# Full month names ("2 December 1985") and UN abbreviations ("26 Feb. 2011").
+WORDED_RE = re.compile(r"^(\d{1,2}) ([A-Za-z]+)(\.?) (\d{4})$")
+
+
+def parse_date(text: str) -> tuple[int, int, int] | None:
+    """Read a full printed date; partial or other shapes give None."""
+    dotted = DOTTED_RE.match(text.strip())
+    if dotted is not None:
+        day, month, year = dotted.groups()
+        return (int(year), int(month), int(day))
+    worded = WORDED_RE.match(text.strip())
+    if worded is None:
+        return None
+    day, word, dot, year = worded.groups()
+    word = word.lower()
+    if dot:
+        found = [n for m, n in MONTHS.items() if m.startswith(word) and len(word) >= 3]
+        month = found[0] if len(found) == 1 else None
+    else:
+        month = MONTHS.get(word)
+    return None if month is None else (int(year), month, int(day))
 
 
 def mint_id(framework: str, record_id: str, name: str) -> str:
@@ -251,7 +293,10 @@ def read_oplog(path: Path) -> list[dict[str, str]]:
         reader = csv.reader(fh)
         header = tuple(next(reader, ()))
         if header != OPLOG_COLUMNS:
-            raise ValueError(f"{path}: header does not match the op-log contract")
+            raise ValueError(
+                f"{path}: header does not match the op-log contract;"
+                " `python -m tools.migrate` brings it up to date"
+            )
         rows: list[dict[str, str]] = []
         for line, cells in enumerate(reader, start=2):
             if len(cells) != len(header):
@@ -273,8 +318,12 @@ def related_acts(framework: str) -> list[RelatedAct]:
 
     Both relations count: implementing regulations often link to their
     framework only as their legal basis (`based_on`), not as `amends`.
+    Corrigenda of the framework and of those acts are included, with
+    relation "corrects".
     """
     with cli_client() as client:
-        found = client.query_related_acts(framework, date(1990, 1, 1))
+        found = list(client.query_related_acts(framework, date(1990, 1, 1)))
+        targets = {framework} | {act.celex for act in found}
+        found.extend(client.query_corrigenda(sorted(targets)))
     unique = {act.celex: act for act in found}
     return sorted(unique.values(), key=lambda act: (act.document_date, act.celex))

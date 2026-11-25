@@ -11,7 +11,9 @@ entries reprint it) and the date of birth.
 draft file in place — matched for MOD/DEL rows, minted for ADD rows.
 """
 
+import csv
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,6 +27,7 @@ from .common import (
     OPLOG_COLUMNS,
     cell_values,
     mint_id,
+    parse_date,
     read_oplog,
     split_multi,
     write_oplog,
@@ -36,18 +39,6 @@ PAREN_RE = re.compile(r"\(([^()]*)\)")
 AKA_RE = re.compile(r"\b(?:a\.k\.a\.?|f\.k\.a\.?|alias)\s", re.IGNORECASE)
 # Quotes often abut words without a space (‘Crimea’‘Chernomorneftegaz’).
 QUOTES_RE = re.compile(r"[‘’“”'\"«»]")
-MONTHS = {
-    m: i
-    for i, m in enumerate(
-        ("january", "february", "march", "april", "may", "june", "july")
-        + ("august", "september", "october", "november", "december"),
-        start=1,
-    )
-}
-DOTTED_RE = re.compile(r"^(\d{1,2})\.(\d{1,2})\.(\d{4})$")
-# Full month names ("2 December 1985") and UN abbreviations ("26 Feb. 2011").
-WORDED_RE = re.compile(r"^(\d{1,2}) ([A-Za-z]+)(\.?) (\d{4})$")
-
 TOKEN_MATCH = 0.7
 LISTING_BONUS = 0.3
 RECORD_BONUS = 0.15
@@ -109,25 +100,6 @@ def token_overlap(left: list[str], right: list[str]) -> float:
 
 def name_score(query: list[list[str]], candidate: list[list[str]]) -> float:
     return max((token_overlap(q, c) for q in query for c in candidate), default=0.0)
-
-
-def parse_date(text: str) -> tuple[int, int, int] | None:
-    """Read a full printed date; partial or other shapes give None."""
-    dotted = DOTTED_RE.match(text.strip())
-    if dotted is not None:
-        day, month, year = dotted.groups()
-        return (int(year), int(month), int(day))
-    worded = WORDED_RE.match(text.strip())
-    if worded is None:
-        return None
-    day, word, dot, year = worded.groups()
-    word = word.lower()
-    if dot:
-        found = [n for m, n in MONTHS.items() if m.startswith(word) and len(word) >= 3]
-        month = found[0] if len(found) == 1 else None
-    else:
-        month = MONTHS.get(word)
-    return None if month is None else (int(year), month, int(day))
 
 
 def dates(cell: str) -> set[tuple[int, int, int]]:
@@ -209,13 +181,25 @@ def cli() -> None:
     pass
 
 
+def only(state_entries: list[Entry], column: str, given: str | None) -> str:
+    """The option's value, or the one value the stack uses for that column."""
+    if given is not None:
+        return given
+    used = sorted({entry.row[column] for entry in state_entries})
+    if len(used) != 1:
+        raise click.UsageError(
+            f"the stack uses several {column} values {used}; pass one"
+        )
+    return used[0]
+
+
 @cli.command()
 @click.argument("framework")
 @click.option("--before", required=True, help="The act doing the amending.")
 @click.option("--name", required=True)
 @click.option("--schema", default="Person")
-@click.option("--program", default="EU-UKR")
-@click.option("--measure", default="Asset freeze")
+@click.option("--program", default=None, help="Default: the stack's only programKey.")
+@click.option("--measure", default=None, help="Default: the stack's only measure.")
 @click.option("--birth-date", default="")
 @click.option("--listing-date", default="")
 def find(
@@ -223,24 +207,44 @@ def find(
     before: str,
     name: str,
     schema: str,
-    program: str,
-    measure: str,
+    program: str | None,
+    measure: str | None,
     birth_date: str,
     listing_date: str,
 ) -> None:
     """Rank live designations against a printed name."""
+    entries = list(replay(framework, before=before).live.values())
     row = {column: "" for column in NAME_COLUMNS}
     row.update(
         name=name,
         schema=schema,
-        programKey=program,
-        measure=measure,
+        programKey=only(entries, "programKey", program),
+        measure=only(entries, "measure", measure),
         birthDate=birth_date,
         listingDate=listing_date,
     )
-    state = replay(framework, before=before)
-    for match in rank(row, list(state.live.values()))[:5]:
+    for match in rank(row, entries)[:5]:
         click.echo(describe(match))
+
+
+@cli.command("row")
+@click.argument("framework")
+@click.argument("id")
+@click.option("--before", default=None, help="The act doing the amending.")
+def show_row(framework: str, id: str, before: str | None) -> None:
+    """Print a live designation's current row, as the base for a full MOD.
+
+    Copy it into the act's file, set `op`, `publishedDate` and
+    `effectiveDate`, and change only what the act changes.
+    """
+    state = replay(framework, before=before)
+    found = [e for e in state.live.values() if e.row["id"].startswith(id)]
+    if not found:
+        raise click.ClickException(f"no live designation with id {id}")
+    writer = csv.DictWriter(sys.stdout, OPLOG_COLUMNS, lineterminator="\n")
+    writer.writeheader()
+    for entry in found:
+        writer.writerow(entry.row)
 
 
 @cli.command()
@@ -250,22 +254,30 @@ def find(
 @click.option(
     "--delete-untouched",
     is_flag=True,
-    help="The act replaces the whole list: append a DEL for every live entry it leaves out.",
+    help="The act replaces a whole list: append a DEL for every live entry it "
+    "leaves out. Scope it with --annex when the act replaces one annex.",
 )
+@click.option("--annex", "annexes", multiple=True, help="Limit --delete-untouched.")
 def resolve(
-    framework: str, draft: Path, pin: tuple[str, ...], delete_untouched: bool
+    framework: str,
+    draft: Path,
+    pin: tuple[str, ...],
+    delete_untouched: bool,
+    annexes: tuple[str, ...],
 ) -> None:
     """Fill empty `id` cells of DRAFT in place.
 
     MOD and DEL rows take the id, annex and recordId of the live entry they
     match; ADD rows get a minted id. The draft's file stem names the act, so
-    matching sees the state just before it.
+    matching sees the state just before it. The file is written before the
+    report is printed.
     """
     pins = dict(p.split("=", 1) for p in pin)
     state = replay(framework, before=draft.stem)
     by_id = {entry.row["id"]: entry for entry in state.live.values()}
     rows = read_oplog(draft)
     claimed = {row["id"] for row in rows if row["id"] != ""}
+    report: list[str] = []
 
     def settle(line: int, row: dict[str, str], entry: Entry, how: str) -> None:
         row["id"] = entry.row["id"]
@@ -273,7 +285,7 @@ def resolve(
         for column in ("annex", "recordId"):
             if row[column] == "":
                 row[column] = entry.row[column]
-        click.echo(f"{line} {row['op']} {row['name']} -> {how}")
+        report.append(f"{line} {row['op']} {row['name']} -> {how}")
 
     pending: dict[int, dict[str, str]] = {}
     for line, row in enumerate(rows, start=2):
@@ -281,7 +293,7 @@ def resolve(
             continue
         if row["op"] == "ADD":
             row["id"] = mint_id(framework, row["recordId"], row["name"])
-            click.echo(f"{line} ADD minted {row['id'][:10]} {row['name']}")
+            report.append(f"{line} ADD minted {row['id'][:10]} {row['name']}")
         elif str(line) in pins:
             settle(line, row, by_id[pins[str(line)]], "pinned")
         else:
@@ -304,15 +316,18 @@ def resolve(
     failed = bool(pending)
     for line, row in pending.items():
         free = [e for e in state.live.values() if e.row["id"] not in claimed]
-        click.echo(f"{line} {row['op']} UNRESOLVED {row['name']}")
-        for match in rank(row, free)[:3]:
-            click.echo(f"    {describe(match)}")
+        report.append(f"{line} {row['op']} UNRESOLVED {row['name']}")
+        report.extend(f"    {describe(match)}" for match in rank(row, free)[:3])
     # When an act replaces a whole annex, these are the entries it drops.
     touched = {row["id"] for row in rows}
-    untouched = [e for e in state.live.values() if e.row["id"] not in touched]
-    click.echo(f"{len(untouched)} live entries not touched by this act")
+    untouched = [
+        e
+        for e in state.live.values()
+        if e.row["id"] not in touched and (not annexes or e.row["annex"] in annexes)
+    ]
+    report.append(f"{len(untouched)} live entries not touched by this act")
     for entry in untouched:
-        click.echo(
+        report.append(
             f"    {entry.row['id'][:10]} {entry.row['annex']}#{entry.row['recordId']}"
             f" {entry.row['name']}"
         )
@@ -326,6 +341,8 @@ def resolve(
             )
             rows.append(deletion)
     write_oplog(draft, rows)
+    for message in report:
+        click.echo(message)
     if failed:
         raise click.ClickException("unresolved rows; check them with `find`")
 

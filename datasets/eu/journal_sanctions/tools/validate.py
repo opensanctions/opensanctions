@@ -23,10 +23,11 @@ from .common import (
     OPS,
     REGULATIONS_DIR,
     cell_values,
+    parse_date,
     related_acts,
     split_multi,
 )
-from .lookup import name_score, parse_date, row_forms
+from .lookup import name_score, row_forms
 from .replay import Op, State, apply, load_ops
 
 ID_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -84,10 +85,10 @@ def check_row(op: Op, issues: list[Issue]) -> None:
         warn(
             f"effectiveDate {effective} is not within a day of publication; check the final article"
         )
-    if row["listingDate"] != "" and not (
-        ISO_PARTIAL_RE.match(row["listingDate"]) or parse_date(row["listingDate"])
-    ):
-        error(f"listingDate has an unknown shape: {row['listingDate']!r}")
+    for column in ("listingDate", "endDate"):
+        value = row[column]
+        if value != "" and not (ISO_PARTIAL_RE.match(value) or parse_date(value)):
+            error(f"{column} has an unknown shape: {value!r}")
     if row["op"] == "DEL":
         filled = [c for c in OPLOG_COLUMNS if row[c] != "" and c not in DEL_COLUMNS]
         if filled:
@@ -131,14 +132,19 @@ def check_file(celex: str, ops: list[Op], issues: list[Issue]) -> None:
     """Checks across the rows of one act's file."""
     if len({op.row["publishedDate"] for op in ops}) > 1:
         issues.append(Issue("error", celex, "publishedDate differs between rows"))
-    seen: set[str] = set()
+    seen: set[tuple[str, str, str]] = set()
     rows: set[tuple[str, ...]] = set()
     for op in ops:
-        if op.row["id"] != "" and op.row["id"] in seen:
+        if op.key in seen:
             issues.append(
-                Issue("error", op.where, f"id {op.row['id'][:10]} twice in one act")
+                Issue(
+                    "error",
+                    op.where,
+                    f"id {op.row['id'][:10]} twice in one act for "
+                    f"{op.row['programKey']} / {op.row['measure']}",
+                )
             )
-        seen.add(op.row["id"])
+        seen.add(op.key)
         values = tuple(op.row.values())
         if values in rows:
             issues.append(Issue("error", op.where, "duplicate row"))
@@ -195,6 +201,13 @@ def validate_framework(framework: str, online: bool = False) -> list[Issue]:
         files = load_ops(framework)
     except ValueError as exc:
         return [Issue("error", framework, str(exc))]
+    blank = [op.where for _, ops in files for op in ops if op.row["id"] == ""]
+    if blank:
+        # Replaying rows without ids only produces confusing follow-on errors.
+        return [
+            Issue("error", where, "empty id; run `python -m tools.lookup resolve`")
+            for where in blank
+        ]
     state = State()
     slots: dict[tuple[str, str], dict[str, str]] = {}
     for celex, ops in files:

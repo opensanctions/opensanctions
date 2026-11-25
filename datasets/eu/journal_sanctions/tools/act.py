@@ -3,7 +3,8 @@
 Writes `body.html` (the act body as CELLAR serves it), `meta.json` (CELLAR
 metadata, including the publication and entry-into-force dates), and
 `text.txt` — a plain rendering with one line per paragraph and one line per
-table row, cells separated by ` | ` and paragraphs within a cell by ` ¶ `.
+table row, cells separated by ` | ` and paragraphs within a cell by ` ¶ `;
+cells of a table nested in a cell are separated by ` ‖ `.
 The rendering knows nothing about annexes, entries or labels: reading the
 act is the transcriber's job.
 """
@@ -32,7 +33,7 @@ def walk(element: html.HtmlElement, nested: bool = False) -> list[str]:
     Block elements and <br> end a line; inline elements are read through.
     A table yields one line per row, cells joined by ` | ` and the paragraphs
     of a cell by ` ¶ `. A table inside a cell (`nested`) yields one paragraph
-    per row, its cells joined by a space.
+    per row, its cells joined by ` ‖ `.
     """
     lines: list[str] = []
     buffer: list[str] = [element.text or ""]
@@ -57,7 +58,7 @@ def walk(element: html.HtmlElement, nested: bool = False) -> list[str]:
                         if cell.tag in ("td", "th")
                     ]
                     if any(cells):
-                        lines.append((" " if nested else " | ").join(cells))
+                        lines.append((" ‖ " if nested else " | ").join(cells))
             elif tag in BLOCK_TAGS:
                 flush()
                 buffer.append(child.text or "")
@@ -75,7 +76,7 @@ def walk(element: html.HtmlElement, nested: bool = False) -> list[str]:
 
 def ink(text: str) -> str:
     """The visible characters of a text, without whitespace or separators."""
-    return re.sub(r"[\s|¶]", "", text)
+    return re.sub(r"[\s|¶‖]", "", text)
 
 
 def render_text(directory: Path) -> None:

@@ -2,8 +2,9 @@
 
 Every transcribed value must be printed in the act: a value missing from
 `tools/out/<celex>/text.txt` was mistyped, assembled from pieces, or carried
-over from somewhere else. The file's dates must agree with CELLAR's metadata.
-Run `python -m tools.act <celex>` first to fetch the act.
+over from somewhere else. The exception is a MOD or DEL, which reproduces its
+target's row: values unchanged from the target need not be printed. The
+file's dates must agree with CELLAR's metadata. Run `python -m tools.act <celex>` first to fetch the act.
 """
 
 import json
@@ -13,6 +14,7 @@ import click
 
 from .act import OUT_DIR
 from .common import REGULATIONS_DIR, haystack, missing_values, read_oplog
+from .replay import replay
 
 
 @click.command()
@@ -28,8 +30,14 @@ def main(framework: str, celex: str) -> None:
         raise click.UsageError(f"run `python -m tools.act {celex}` first")
     meta = json.loads((directory / "meta.json").read_text())
     text = haystack((directory / "text.txt").read_text(encoding="utf-8"))
+    # A MOD or DEL reproduces its target's row; values carried over from the
+    # target need not be printed in this act.
+    targets = replay(framework, before=celex).live
     errors = warnings = 0
     for line, row in enumerate(read_oplog(path), start=2):
+        key = (row["id"], row["programKey"], row["measure"])
+        target = targets.get(key)
+        carried = target.row if target is not None and row["op"] != "ADD" else None
         where = f"{celex}:{line}"
         if row["publishedDate"] != meta["publication_date"]:
             errors += 1
@@ -37,13 +45,16 @@ def main(framework: str, celex: str) -> None:
                 f"ERROR    {where}: publishedDate {row['publishedDate']} is not "
                 f"CELLAR's {meta['publication_date']}"
             )
-        if row["effectiveDate"] not in meta["entry_into_force"]:
+        # CELLAR records no entry into force for corrigenda; they take
+        # effect on publication.
+        in_force = meta["entry_into_force"] or [meta["publication_date"]]
+        if row["effectiveDate"] not in in_force:
             warnings += 1
             click.echo(
                 f"WARNING  {where}: effectiveDate {row['effectiveDate']} is not among "
-                f"CELLAR's {meta['entry_into_force']}"
+                f"{in_force}"
             )
-        for column, value in missing_values(row, text):
+        for column, value in missing_values(row, text, carried=carried):
             errors += 1
             click.echo(f"ERROR    {where}: {column} not in the act: {value[:80]!r}")
     click.echo(f"{celex}: {errors} errors, {warnings} warnings")

@@ -25,7 +25,9 @@ interpretation.
 ## Transcribing an act `C` of framework `F`
 
 Run the tools from this directory as modules. `tools/out/` is a gitignored
-scratch area with one directory per act.
+scratch area with one directory per act. The acts of `F`, including the
+English corrigenda of `F` and of its acts, come from
+`tools.common.related_acts(F)`; transcribe them in date order.
 
 1. `python -m tools.act C` fetches the act into `tools/out/C/`: `body.html`,
    `meta.json` (publication and entry-into-force dates) and `text.txt` (one
@@ -35,13 +37,15 @@ scratch area with one directory per act.
    throwaway script that stays in `tools/out/C/`. A script builds each row
    with `tools.common.encode_row`, which encodes multi-valued cells, and
    writes them with `tools.common.write_oplog`. `programKey` and `measure`
-   come from the regime's program in `meta/programs/`; the regime's
-   `data/consolidated/{F}.csv` shows the program, measure and annex choices
-   made so far.
+   come from the regime's program in `meta/programs/`. A `MOD` starts from
+   its target's full current row, printed by
+   `python -m tools.lookup row F ID --before C`, and changes what the act
+   changes — a corrigendum included.
 4. `python -m tools.lookup resolve F data/regulations/F/C.csv` mints ids for
    `ADD` rows and matches `MOD`/`DEL` rows to the live entries they amend.
    It lists the live entries the act does not touch; for an act that
-   replaces a whole annex, `--delete-untouched` writes their `DEL` rows. An
+   replaces a whole annex, `--delete-untouched --annex X` writes their `DEL`
+   rows. An
    unresolved row prints its candidates: check it with
    `python -m tools.lookup find`, and pass `--pin LINE=ID` only when the act's
    text settles it.
@@ -51,7 +55,8 @@ scratch area with one directory per act.
 7. At each EUR-Lex consolidation dated on or after `C`
    (`query_act(F).consolidated`), run
    `python -m tools.replay F --compare <consolidated CELEX>`, which checks
-   every live entry's values against the consolidation's text. It cannot see
+   every live entry's values against the consolidation's text, and the acts
+   and corrigenda its header cites against the stack's files. It cannot see
    entries the consolidation prints but the replay lacks: check those by
    reading.
 
