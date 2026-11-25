@@ -12,16 +12,13 @@ coverage:
 load_statements: true
 ci_test: false  # Zyte
 summary: >-
-  Upper chamber of the Parliament of Jordan, whose members the King appoints
+  Royal appointees to the upper chamber of Parliament, sitting term only
 description: |
-  Current and recent members of the Senate of Jordan (مجلس الأعيان), the upper
-  chamber of the bicameral Parliament of Jordan. Its members are appointed by the
-  King for a four-year term, number no more than half the House of
-  Representatives, and share the country's legislative power with the elected
-  House, including passing laws and approving the budget.
-
-  The dataset covers the members of the current Senate, including those appointed
-  during its term and those who have since left it.
+  Current and recent members of the Senate, the upper chamber of Jordan's bicameral
+  Parliament. Its members are appointed by the King for a four-year term and, together
+  with the elected House of Representatives, hold the country's legislative power,
+  including passing laws and approving the budget. The dataset covers the sitting Senate only,
+  including members appointed during its term and those who have since left it.
 url: https://senate.jo/Ar/List/اعضاء_المجلس_الحالي_والسير_الذاتية
 publisher:
   name: مجلس الأعيان الأردني
