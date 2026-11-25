@@ -3,6 +3,7 @@
 Run from the dataset directory: `python -m pytest --import-mode=importlib tools/`.
 """
 
+import json
 from pathlib import Path
 
 import click
@@ -10,6 +11,7 @@ import pytest
 from zavod.shed.ojeu.cellar import RelatedAct
 
 from . import common, migrate, validate
+from . import replay as replay_module
 from .common import (
     OPLOG_COLUMNS,
     cell_values,
@@ -334,3 +336,24 @@ def test_migrate_adds_columns(tmp_path: Path) -> None:
     path.write_text("op,nickname\nADD,x\n", encoding="utf-8")
     with pytest.raises(click.ClickException):
         migrate.migrate(path)
+
+
+def test_replay_before_an_act_without_a_file(
+    stack: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write_oplog(
+        stack / "32099R0003.csv",
+        [
+            make_row("DEL", BOB, "2099-03-01", recordId="2", name="Bob Jones"),
+        ],
+    )
+    monkeypatch.setattr(replay_module, "OUT_DIR", tmp_path / "out")
+    with pytest.raises(click.UsageError):
+        replay(FRAMEWORK, before="32099R0002")
+    meta = tmp_path / "out" / "32099R0002" / "meta.json"
+    meta.parent.mkdir(parents=True)
+    meta.write_text(
+        json.dumps({"publication_date": "2099-02-01", "entry_into_force": []})
+    )
+    # The corrigendum-like act sits between the framework and 32099R0003.
+    assert len(replay(FRAMEWORK, before="32099R0002").live) == 2

@@ -7,6 +7,7 @@ dates the crawler derives: first listing, entry into force, last change.
 """
 
 import csv
+import json
 import re
 import sys
 from dataclasses import dataclass, field
@@ -82,9 +83,7 @@ def load_ops(framework: str) -> list[tuple[str, list[Op]]]:
     for path in regime_files(framework):
         rows = read_oplog(path)
         ops = [Op(path.stem, line, row) for line, row in enumerate(rows, start=2)]
-        effective = min((op.row["effectiveDate"] for op in ops), default="")
-        published = min((op.row["publishedDate"] for op in ops), default="")
-        loaded.append(((effective, published, path.stem), path.stem, ops))
+        loaded.append((file_position(path.stem, ops), path.stem, ops))
     loaded.sort(key=lambda item: item[0])
     return [(celex, ops) for _, celex, ops in loaded]
 
@@ -133,19 +132,49 @@ def apply(state: State, op: Op) -> None:
         state.errors.append(f"{op.where}: unknown op {row['op']!r}")
 
 
+def file_position(celex: str, ops: list[Op]) -> tuple[str, str, str]:
+    """A file's place in replay order."""
+    effective = min((op.row["effectiveDate"] for op in ops), default="")
+    published = min((op.row["publishedDate"] for op in ops), default="")
+    return (effective, published, celex)
+
+
+def act_position(celex: str) -> tuple[str, str, str]:
+    """Where an act without a file yet would sit in replay order.
+
+    Raises:
+        click.UsageError: The act has not been fetched with `tools.act`.
+    """
+    path = OUT_DIR / celex / "meta.json"
+    if not path.exists():
+        raise click.UsageError(
+            f"{celex} has no file; run `python -m tools.act {celex}` first"
+        )
+    meta = json.loads(path.read_text())
+    published = meta["publication_date"]
+    return (min(meta["entry_into_force"] or [published]), published, celex)
+
+
 def replay(
     framework: str, before: str | None = None, as_of: str | None = None
 ) -> State:
     """Replay a framework's ops.
 
     Args:
-        before: Stop ahead of this act's file, to see what it amends.
+        before: Stop ahead of this act, to see what it amends. An act without
+            a file yet is placed by the dates in its fetched `meta.json`.
         as_of: Apply only ops with `effectiveDate` on or before this ISO date,
             and move designations whose `endDate` is before it to `lapsed`.
     """
+    files = load_ops(framework)
+    stop: tuple[str, str, str] | None = None
+    if before is not None and before not in {celex for celex, _ in files}:
+        stop = act_position(before)
     state = State()
-    for celex, ops in load_ops(framework):
+    for celex, ops in files:
         if celex == before:
+            break
+        if stop is not None and file_position(celex, ops) >= stop:
             break
         for op in ops:
             if as_of is not None and op.row["effectiveDate"] > as_of:
