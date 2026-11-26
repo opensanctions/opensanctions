@@ -9,8 +9,8 @@ coverage:
 deploy:
   disk: 100Gi
   disk_limit: 200Gi
-  memory: 4Gi
-  memory_limit: 7Gi
+  memory: 12Gi
+  memory_limit: 12Gi
   # premium: true
 exports:
   - statistics.json

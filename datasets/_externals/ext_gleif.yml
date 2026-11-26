@@ -12,7 +12,7 @@ exports:
   - entities.delta.json
 deploy:
   cpu: "3000m"
-  memory: "9000Mi"
+  memory: "12Gi"
   disk: "30Gi"
 load_statements: true
 ci_test: false

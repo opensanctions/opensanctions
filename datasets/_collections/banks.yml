@@ -4,7 +4,7 @@ coverage:
   start: "2024-11-13"
   frequency: monthly
 deploy:
-  memory: "1500Mi"
+  memory: "5000Mi"
 ci_test: false
 summary: >
   Reference data on banks and financial services companies

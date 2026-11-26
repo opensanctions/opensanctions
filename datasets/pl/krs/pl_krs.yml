@@ -7,8 +7,8 @@ coverage:
 deploy:
   disk: 60Gi
   disk_limit: 80Gi
-  memory: 8Gi
-  memory_limit: 8Gi
+  memory: 9800Mi
+  memory_limit: 9800Mi
   premium: true
 exports:
   - statistics.json
