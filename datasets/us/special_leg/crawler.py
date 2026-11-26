@@ -13,6 +13,7 @@ LOCAL_PATH = Path(__file__).parent
 # One CSV per act, report or designation authority covered by the dataset.
 SOURCE_FILES_PATH = LOCAL_PATH / "source_files"
 SECTION_1286_FILE = SOURCE_FILES_PATH / "section_1286.csv"
+SECTION_353_FILE = SOURCE_FILES_PATH / "section_353.csv"
 FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
 # The Section 1286 lists are published by the DoD Chief Technology Officer as a
 # WordPress post per fiscal year, each linking that year's list as a PDF. The
@@ -32,7 +33,12 @@ CTO_CACHE_DAYS = 1
 FR_NOTICE_TITLE_RE = re.compile(r"nonproliferation (act )?measures", re.IGNORECASE)
 
 
-def crawl_row(context: Context, row: dict[str, str], amendments_dated: bool) -> None:
+def crawl_row(
+    context: Context,
+    row: dict[str, str],
+    amendments_dated: bool,
+    effective_on_listing: bool,
+) -> None:
     """Process one row of the CSV data"""
     schema = row.pop("schema")
     name = row.pop("name")
@@ -61,7 +67,12 @@ def crawl_row(context: Context, row: dict[str, str], amendments_dated: bool) -> 
     sanction.add("description", f"Published in {report_date} report.")
     sanction.set("authority", row.pop("authority"))
     sanction.set("sourceUrl", h.multi_split(source_url, ";"))
-    h.finalize_sanction(context, sanction, amendments_dated=amendments_dated)
+    h.finalize_sanction(
+        context,
+        sanction,
+        effective_on_listing=effective_on_listing,
+        amendments_dated=amendments_dated,
+    )
 
     if h.is_active(sanction):
         entity.add("topics", topics)
@@ -178,7 +189,9 @@ def crawl_source_file(context: Context, source_file: Path) -> None:
         # Listings change only by dated acts, reports or notices. Section 1286
         # editions restate the whole list, so its amendments are unknown.
         amendments_dated = source_file != SECTION_1286_FILE and row["report-date"] != ""
-        crawl_row(context, row, amendments_dated=amendments_dated)
+        # Section 353(c) sanctions each person identified in the report.
+        effective_on_listing = source_file == SECTION_353_FILE
+        crawl_row(context, row, amendments_dated, effective_on_listing)
 
 
 def crawl(context: Context) -> None:

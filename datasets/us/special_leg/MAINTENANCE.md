@@ -30,8 +30,9 @@ All files share the same header:
 - `start-date` / `end-date`: when the listing takes effect and ends. INKSNA
   measures run for two years from the determination date. Acts set their own
   effective dates (Section 889: one year after enactment; Section 5949: five
-  years). A Section 353 listing applies from its report. Section 1286 lists
-  give no effective date, so their rows have none.
+  years). Section 353 rows leave `start-date` empty: a listing applies from
+  its report, so the crawler copies the `report-date`. Section 1286 lists give
+  no effective date, so their rows have none.
 - `modified-date`: the publication date of the notice or edition that changed
   or ended an existing row, e.g. an INKSNA termination notice or the Section
   1286 edition that dropped an institution. Without one, the `report-date`
