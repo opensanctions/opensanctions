@@ -15,7 +15,7 @@ from . import replay as replay_module
 from .__main__ import cli
 from .common import OPLOG_COLUMNS, cell_values, encode_row, parse_date, write_oplog
 from .match import decide, haystack, missing_values, rank
-from .replay import Op, replay
+from .replay import Entry, Op, replay
 
 FRAMEWORK = "32099R0001"
 ACTS = [("32099R0002", "2099-02-01"), ("32099R0003", "2099-03-01")]
@@ -496,3 +496,22 @@ def test_check_decodes_escaped_references() -> None:
     assert missing_values(row, text) == []
     loose = haystack("Bălţi", loose=True)
     assert missing_values(encode_row({"name": "Bălți"}), loose, loose=True) == []
+
+
+def test_cited_acts_reads_eu_prefixed_corrigenda() -> None:
+    header = "C2 | Corrigendum, OJ L 007, 12.1.2018, p. 41 (2017/1509)\n"
+    header += "►C7 | Corrigendum, OJ L 90164, 7.12.2023, p. 1 ((EU) 2017/1509)\n"
+    assert check.cited_acts(header) == (set(), {"32017R1509": 2})
+
+
+def test_rank_matches_renamed_vessels_by_imo() -> None:
+    def vessel(name: str, imo: str) -> Entry:
+        row = make_row("ADD", ALICE if imo == "9114555" else BOB, "2018-01-01")
+        row.update(schema="Vessel", name=name, imoNumber=imo)
+        return Entry(row=row, listed_published="", listed_effective="")
+
+    live = [vessel("UL JI BONG 6", "9114555"), vessel("UL JI BONG 5", "9114543")]
+    query = make_row("MOD", "", "2022-01-01", schema="Vessel")
+    query.update(name="MI RIM 2", imoNumber="IMO 9114555")
+    chosen = decide(rank(query, live))
+    assert chosen is not None and chosen.entry.row["id"] == ALICE

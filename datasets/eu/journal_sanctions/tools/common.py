@@ -265,6 +265,10 @@ def related_acts(framework: str) -> list[RelatedAct]:
     with cli_client() as client:
         found = list(client.query_related_acts(framework, date(1990, 1, 1)))
         targets = {framework} | {act.celex for act in found}
-        found.extend(client.query_corrigenda(sorted(targets)))
+        # CELLAR occasionally links a corrigendum of an unrelated act with the
+        # same number (32023R2465R(02) to 32024R2465); its CELEX names the act
+        # it really corrects.
+        corrigenda = client.query_corrigenda(sorted(targets))
+        found.extend(c for c in corrigenda if c.celex.split("R(")[0] in targets)
     unique = {act.celex: act for act in found}
     return sorted(unique.values(), key=lambda act: (act.document_date, act.celex))

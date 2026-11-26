@@ -25,6 +25,7 @@ PAREN_RE = re.compile(r"\(([^()]*)\)")
 AKA_RE = re.compile(r"\b(?:a\.k\.a\.?|f\.k\.a\.?|alias)\s", re.IGNORECASE)
 # Quotes often abut words without a space (‘Crimea’‘Chernomorneftegaz’).
 QUOTES_RE = re.compile(r"[‘’“”'\"«»]")
+IMO_RE = re.compile(r"\b\d{7}\b")
 TOKEN_MATCH = 0.7
 LISTING_BONUS = 0.3
 RECORD_BONUS = 0.15
@@ -34,6 +35,8 @@ PRIMARY_BONUS = 0.2
 # UN-style lists reuse one person's alias as another's name.
 ALIAS_WEIGHT = 0.9
 BIRTH_BONUS = 0.2
+# An IMO number identifies one hull, whatever the vessel is renamed to.
+IMO_BONUS = 1.0
 BIRTH_CONFLICT = -0.2
 ACCEPT = 0.9
 CONTAINED = 0.7
@@ -101,12 +104,18 @@ class Match:
     evidence: str
 
 
+def imo_numbers(row: dict[str, str]) -> set[str]:
+    """The seven-digit IMO numbers in a row's `imoNumber` cell."""
+    return {m for v in cell_values(row, "imoNumber") for m in IMO_RE.findall(v)}
+
+
 def rank(row: dict[str, str], entries: list[Entry]) -> list[Match]:
     """Score live entries of the same schema, program and measure against a row."""
     query = row_forms(row)
     primary = name_forms(row["name"])
     births = dates(row["birthDate"])
     listing = parse_date(row["listingDate"])
+    imos = imo_numbers(row)
     matches: list[Match] = []
     for entry in entries:
         other = entry.row
@@ -136,6 +145,9 @@ def rank(row: dict[str, str], entries: list[Entry]) -> list[Match]:
         if listing is not None and listing == parse_date(other["listingDate"]):
             score += LISTING_BONUS
             evidence.append("listingDate")
+        if imos & imo_numbers(other):
+            score += IMO_BONUS
+            evidence.append("imoNumber")
         other_births = dates(other["birthDate"])
         if births and other_births:
             if births & other_births:

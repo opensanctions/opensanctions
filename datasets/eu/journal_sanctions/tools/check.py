@@ -359,7 +359,9 @@ AMENDED_RE = re.compile(
     re.IGNORECASE,
 )
 # Acts whose text is wholly superseded are listed without the "►".
-CORRECTED_RE = re.compile(r"^►?C\d+ \| Corrigendum.*\((?:No )?(\d+)/(\d+)\)")
+CORRECTED_RE = re.compile(
+    r"^►?C\d+ \| Corrigendum.*\((?:\((?:EU|EC)\) )?(?:No )?(\d+)/(\d+)\)"
+)
 
 
 def cited_acts(text: str) -> tuple[set[str], dict[str, int]]:
@@ -455,25 +457,29 @@ def compare(framework: str, consolidation: str) -> int:
                 f"WARNING  {entry.row['id'][:10]} deleted, but "
                 f"{entry.row['name'][:40]!r} is printed in {consolidation}"
             )
-    later: dict[str, int] = {}
+    later: set[str] = set()
     if any(
         sum(1 for stem in files if stem.startswith(f"{c}R(")) != n
         for c, n in corrected.items()
     ):
         # EUR-Lex folds corrigenda published after a consolidation's date
-        # into it; those cannot be in a stack replayed to that date.
-        for act in related_acts(framework):
-            if act.relation == "corrects" and act.document_date > as_of:
-                later[act.framework_celex] = later.get(act.framework_celex, 0) + 1
+        # into it; the stack files them on their own, later dates.
+        later = {
+            act.celex
+            for act in related_acts(framework)
+            if act.relation == "corrects" and act.document_date > as_of
+        }
     for celex, count in sorted(corrected.items()):
-        have = sum(1 for stem in files if stem.startswith(f"{celex}R("))
-        if have == count:
+        mine = {stem for stem in files if stem.startswith(f"{celex}R(")}
+        before = len(mine - later)
+        if before == count:
             continue
         message = (
-            f"{consolidation} cites {count} corrigenda of {celex}; the stack has {have}"
+            f"{consolidation} cites {count} corrigenda of {celex}; the stack "
+            f"has {before} published by {as_of}"
         )
-        if have + later.get(celex, 0) >= count:
-            click.echo(f"WARNING  {message}, the rest published after {as_of}")
+        if before < count <= before + len(mine & later):
+            click.echo(f"WARNING  {message}, and folds in later ones")
             continue
         errors += 1
         click.echo(f"ERROR    {message}")
