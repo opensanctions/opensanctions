@@ -66,6 +66,28 @@ SHORT_COLUMNS = (
     "flag",
 )
 DATE_LIKE_RE = re.compile(r"\d{1,2}\.\d{1,2}\.\d{4}")
+NUMBER_COLUMNS = ("innCode", "ogrnCode", "kppCode", "okpoCode")
+# A legal form cut off a company name ("X Co., Ltd." split at its comma).
+NAME_FRAGMENT_RE = re.compile(r"^(?:Ltd|Limited|LLC|JSC|Inc|Co)\.?$", re.IGNORECASE)
+# Printed labels in notes whose values have a column of their own.
+NOTES_LABELS = {
+    "fatherName": re.compile(r"\b(?:Father[’']?s name|Name of father)\s*:", re.I),
+    "motherName": re.compile(r"\b(?:Mother[’']?s name|Name of mother)\s*:", re.I),
+    "appearance": re.compile(r"\bPhysical description\s*:", re.I),
+    "related": re.compile(r"\bAssociated (?:entit|individual|person)\w*\s*:", re.I),
+}
+# Columns whose values the source often lists with "; ", which separates them.
+LISTED_COLUMNS = (
+    "address",
+    "website",
+    "email",
+    "phone",
+    "country",
+    "jurisdiction",
+    "legalForm",
+    "incorporationDate",
+    "registrationNumber",
+)
 REQUIRED = ("name", "schema", "programKey", "annex", "measure")
 MEASURES = frozenset(get_args(Measure))
 WRONG_TARGET = 0.5
@@ -156,6 +178,28 @@ def check_row(op: Op, issues: list[Issue]) -> None:
                 warn(f"{column} holds a printed label: {value[:60]!r}")
     if DATE_LIKE_RE.search(row["birthPlace"]):
         warn(f"birthPlace holds a date: {row['birthPlace']!r}")
+    for column in NUMBER_COLUMNS:
+        for value in cell_values(row, column):
+            if not value.replace(" ", "").isdigit():
+                warn(f"{column} holds more than a number: {value[:60]!r}")
+    for value in cell_values(row, "phone"):
+        if DATE_LIKE_RE.search(value):
+            warn(f"phone holds a date: {value[:60]!r}")
+    for value in cell_values(row, "email"):
+        if "@" not in value:
+            warn(f"email holds no address: {value[:60]!r}")
+    for column in NAME_COLUMNS:
+        for value in cell_values(row, column):
+            if NAME_FRAGMENT_RE.match(value):
+                warn(f"{column} holds a fragment of a name: {value!r}")
+    for value in cell_values(row, "notes"):
+        for column, label in NOTES_LABELS.items():
+            if label.search(value):
+                warn(f"notes holds a value for {column}: {value[:60]!r}")
+    for column in LISTED_COLUMNS:
+        for value in cell_values(row, column):
+            if "; " in value:
+                warn(f"{column} joins values the source separates: {value[:60]!r}")
 
 
 def check_file(celex: str, ops: list[Op], issues: list[Issue]) -> None:
