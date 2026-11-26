@@ -26,7 +26,7 @@ BOB = "b" * 40
 def make_row(op: str, id: str, published: str, **values: str) -> dict[str, str]:
     row = dict.fromkeys(OPLOG_COLUMNS, "")
     row.update(op=op, id=id, publishedDate=published, effectiveDate=published)
-    row.update(programKey="EU-UKR", measure="Asset freeze", schema="Person")
+    row.update(programKey="EU-UKR", annex="I", measure="Asset freeze", schema="Person")
     row.update(values)
     return row
 
@@ -410,7 +410,7 @@ def test_row_as_mod_and_find(
         [
             FRAMEWORK,
             "--annex",
-            "",
+            "I",
             "--record",
             "2",
             "--as-mod",

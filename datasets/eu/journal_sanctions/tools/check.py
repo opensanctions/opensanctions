@@ -65,7 +65,7 @@ SHORT_COLUMNS = (
     "flag",
 )
 DATE_LIKE_RE = re.compile(r"\d{1,2}\.\d{1,2}\.\d{4}")
-REQUIRED = ("name", "schema", "programKey", "measure")
+REQUIRED = ("name", "schema", "programKey", "annex", "measure")
 MEASURES = frozenset(get_args(Measure))
 WRONG_TARGET = 0.5
 
