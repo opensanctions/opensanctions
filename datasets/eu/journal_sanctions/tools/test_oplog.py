@@ -453,6 +453,12 @@ def test_loose_matching_folds_lookalikes() -> None:
     assert missing_values(row, text, loose=True) == []
 
 
+def test_name_parts_join_in_strict_lookups() -> None:
+    text = haystack("Name: 1: MUS'AB 2: ABU-QARIN 3: na")
+    row = encode_row({"name": "MUS'AB ABU-QARIN"})
+    assert missing_values(row, text) == []
+
+
 def test_run_makes_the_tools_importable(tmp_path: Path) -> None:
     from click.testing import CliRunner
 

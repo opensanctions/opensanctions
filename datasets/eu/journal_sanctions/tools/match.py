@@ -191,9 +191,9 @@ NAME_PART_RE = re.compile(r"(?<![\w:])\d{1,2}: ")
 
 
 def loosen(text: str) -> str:
-    """Casefold and unify quotes, dashes, lookalike letters and UN name-part
-    labels, for consolidation lookups."""
-    return NAME_PART_RE.sub("", text.casefold().translate(LOOSE_CHARS))
+    """Casefold and unify quotes, dashes and lookalike letters, for
+    consolidation lookups."""
+    return text.casefold().translate(LOOSE_CHARS)
 
 
 def haystack(text: str, loose: bool = False) -> str:
@@ -201,9 +201,11 @@ def haystack(text: str, loose: bool = False) -> str:
 
     Render separators and consolidation change markers become spaces, and
     whitespace collapses, so a value split across paragraphs or cells by the
-    rendering still matches. `loose` also applies `loosen`.
+    rendering still matches, and UN name-part labels go, as transcriptions
+    join the parts. `loose` also applies `loosen`.
     """
     text = SEPARATOR_RE.sub(" ", MARKER_RE.sub(" ", text))
+    text = NAME_PART_RE.sub("", text)
     text = " ".join(text.split())
     return loosen(text) if loose else text
 

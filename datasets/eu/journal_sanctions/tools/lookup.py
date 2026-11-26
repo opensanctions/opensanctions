@@ -153,8 +153,8 @@ def resolve(
 ) -> None:
     """Fill empty `id` cells of DRAFT in place, and check filled ones.
 
-    MOD and DEL rows take the id, annex and recordId of the live entry they
-    match; a filled MOD/DEL id is checked against the ranking. ADD rows get a
+    MOD and DEL rows take the id of the live entry they match, and its annex
+    and recordId where theirs are empty; a filled MOD/DEL id is checked against the ranking. ADD rows get a
     minted id. A likely match in another annex is reported for review; a
     filled ADD id reuses it, which only an act saying so justifies. The draft's file stem names the
     act, so matching sees the state just before it. The file is written
@@ -170,8 +170,10 @@ def resolve(
 
     def settle(line: int, row: dict[str, str], entry: Entry, how: str) -> None:
         row["id"] = entry.row["id"]
-        row["annex"] = entry.row["annex"]
-        row["recordId"] = entry.row["recordId"]
+        # A MOD that moves or renumbers the entry prints its new place.
+        for column in ("annex", "recordId"):
+            if row[column] == "":
+                row[column] = entry.row[column]
         claimed.add(row["id"])
         report.append(f"{line} {row['op']} {row['name']} -> {how}")
 
