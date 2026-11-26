@@ -11,6 +11,7 @@ coverage:
 deploy:
   cpu: "2000m"
   memory: "5000Mi"
+  disk: "30Gi"
 load_statements: true
 ci_test: false
 summary: >
