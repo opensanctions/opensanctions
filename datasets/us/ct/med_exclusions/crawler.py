@@ -22,14 +22,6 @@ def clean(value: str) -> str | None:
     return None if value in ("", "N/A", ",") else value
 
 
-def add_years(start: date, years: int) -> date:
-    try:
-        return start.replace(year=start.year + years)
-    except ValueError:
-        # 29 February in a year that has none.
-        return start.replace(year=start.year + years, day=28)
-
-
 def crawl_row(context: Context, row: dict[str, str]) -> None:
     raw_name = row.pop("Name")
     raw_business = row.pop("Business")
@@ -74,16 +66,17 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         ),
     )
     period = row.pop("Period")
-    if period != "Indefinite":
-        match = REGEX_PERIOD.match(period)
-        start = sanction.first("startDate")
-        if match is None or start is None or len(start) != 10:
-            context.log.warning(
-                "Unexpected exclusion period", period=period, start=start
-            )
-        else:
-            end = add_years(date.fromisoformat(start), int(match.group("years")))
-            sanction.add("endDate", end.isoformat())
+    sanction.add("duration", period)
+    match = REGEX_PERIOD.match(period)
+    start = sanction.first("startDate")
+    if match is not None and start is not None:
+        start_date = date.fromisoformat(start)
+        years = int(match.group("years"))
+        h.apply_date(
+            sanction, "endDate", start_date.replace(year=start_date.year + years)
+        )
+    elif period != "Indefinite":
+        context.log.warning("Unexpected exclusion period", period=period)
     if h.is_active(sanction):
         entity.add("topics", "debarment")
 
