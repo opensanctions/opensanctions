@@ -44,7 +44,7 @@ assertions:
       LegalEntity: 500
   max:
     schema_entities:
-      LegalEntity: 1000
+      LegalEntity: 1500
 
 dates:
   formats: ["%d %B %Y"]
@@ -503,3 +503,8 @@ lookups:
           - "CORZIQO TECHNOLOGIES LTD."
           - "CARZIQO CAR RENTAL SERVICES"
           - "CARZIQO CAR RENTAL INC."
+      - match: "TLREX PHILIPPINES MANAGERS INC.; TLREX PH; and TLREX"
+        name:
+          - "TLREX PHILIPPINES MANAGERS INC."
+          - "TLREX PH"
+          - "TLREX"

@@ -7,20 +7,20 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  Current deputies of Benin's parliament, elected by direct universal suffrage
+  Elected lower house of Benin's Parliament, alongside the appointed Senate
 description: |
-  Current members of the National Assembly (Assemblée nationale), Benin's national
-  legislature. Its deputies are elected by direct universal suffrage and hold the
-  country's legislative power, including passing laws, approving the budget and
-  overseeing the government.
+  Current members of the National Assembly of Benin (Assemblée nationale), the lower
+  house of the country's bicameral Parliament. Its deputies are elected by direct
+  universal suffrage from party lists for a seven-year term. They pass laws, approve
+  the budget and oversee the government.
 url: https://assemblee-nationale.bj/
 publisher:
   name: Assemblée nationale du Bénin
   name_en: National Assembly of Benin
   acronym: AN
   description: >
-    The National Assembly is the parliament of the Republic of Benin. It passes laws,
-    approves the state budget and oversees the action of the government.
+    The National Assembly is the lower house of the Parliament of the Republic of
+    Benin.
   url: https://assemblee-nationale.bj/
   country: bj
   official: true

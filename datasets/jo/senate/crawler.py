@@ -1,0 +1,254 @@
+import re
+from collections.abc import Iterator
+from urllib.parse import urlencode, urljoin
+from uuid import uuid4
+
+from lxml import html
+from zavod.extract import zyte_api
+from zavod.shed.trans import apply_translit_full_name
+from zavod.stateful.positions import (
+    OccupancyStatus,
+    PositionCategorisation,
+    categorise,
+)
+from zavod.util import Element, LangText
+
+from zavod import Context, Entity
+from zavod import helpers as h
+
+# d/m/Y (also with backslashes), Y/m/d, "d <month> Y", or only the year.
+BIRTH_DATE = re.compile(
+    r"\d{1,2}[/\\]\d{1,2}[/\\]\d{4}|\d{4}/\d{1,2}/\d{1,2}|\d{1,2} \D+? \d{4}|\d{4}"
+)
+
+
+def fetch_pages(context: Context) -> list[Element]:
+    """Page through the ASP.NET listing by replaying the pager's postbacks."""
+    # Geo-fenced to Jordan; the postbacks need page 1's session cookie.
+    session_id = str(uuid4())
+    request = zyte_api.ZyteAPIRequest(
+        url=context.data_url, geolocation="JO", session_id=session_id
+    )
+    docs: list[Element] = []
+    while True:
+        result = zyte_api.fetch(context, request)
+        assert result.status_code == 200, result.status_code
+        doc = html.fromstring(result.response_text)
+        docs.append(doc)
+        pager = h.xpath_element(doc, ".//span[@id='pagerList']")
+        # "صفحة 3 من 8": page 3 of 8
+        nav = h.element_text(h.xpath_element(pager, "./ancestor::nav[1]"))
+        match = re.search(r"صفحة (\d+) من (\d+)", nav)
+        assert match is not None, nav
+        current, total = int(match.group(1)), int(match.group(2))
+        assert current == len(docs), nav
+        if current == total:
+            return docs
+        # The next page's number, or "..." for the next block of pages.
+        href = h.xpath_string(
+            pager, "./span[@class='CurrentPageClass']/following-sibling::a[1]/@href"
+        )
+        target = re.fullmatch(r"javascript:__doPostBack\('([^']+)',''\)", href)
+        assert target is not None, href
+        form = {
+            el.get("name", ""): el.get("value", "")
+            for el in h.xpath_elements(doc, ".//form//input[@type='hidden']")
+        }
+        form["__EVENTTARGET"] = target.group(1)
+        request = zyte_api.ZyteAPIRequest(
+            url=context.data_url,
+            method="POST",
+            body=urlencode(form).encode("utf-8"),
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            geolocation="JO",
+            session_id=session_id,
+        )
+
+
+def clean_name(context: Context, raw_name: str) -> str:
+    # Quotes only group the parts of a compound name; "باشا" can follow the given name.
+    name = h.strip_name_titles(context, re.sub(r'["“”]|\bباشا\b', " ", raw_name))
+    assert name is not None, raw_name
+    return name
+
+
+def name_key(context: Context, raw_name: str) -> str:
+    """Match a name in the note to a member's card."""
+    name = clean_name(context, raw_name)
+    # The note can spell a name differently from the member's card.
+    name = context.lookup_value("note_names", name) or name
+    # "عبد الكريم" is also written "عبدالكريم".
+    return name.replace(" ", "")
+
+
+def parse_note(context: Context, doc: Element) -> Iterator[tuple[str, str, str]]:
+    """Read the note on decrees since the listed one. Yields each member it names
+    with "start" for an appointment or "end" for a resignation, and the date."""
+    note = h.xpath_element(doc, ".//p[contains(., 'التعديلات التي طرأت على المجلس')]")
+    headings = decrees = 0
+    since = r"،? اعتباراً? من تاريخ (\d{4}/\d{1,2}/\d{1,2})\."
+    for el in [note, *h.xpath_elements(note, "following-sibling::*")]:
+        text = h.element_text(el).removeprefix("* التعديلات التي طرأت على المجلس: ")
+        # Each decree is a numbered heading, a preamble and the decree's text.
+        if text == "" or re.match(r"نحن عبد ?الله الثاني ", text):
+            continue
+        if re.match(r"\d+\. إرادة ملكية ب", text):
+            headings += 1
+            continue
+        decrees += 1
+        appointment = re.fullmatch(
+            rf"[يت]عين (.+) عضو(?:اً?|ين) في مجلس الأعيان{since}", text
+        )
+        resignation = re.fullmatch(
+            rf"تقبل استقالة (.+) من عضوية مجلس الأعيان{since}", text
+        )
+        if appointment is not None:
+            # "يعين دولة … وسعادة …" appoints two members.
+            for name in re.split(r" و(?=سعادة |معالي |دولة )", appointment.group(1)):
+                yield name, "start", appointment.group(2)
+        elif resignation is not None:
+            yield resignation.group(1), "end", resignation.group(2)
+        else:
+            context.log.warning("Unexpected paragraph in the note", text=text)
+    assert headings == decrees, (headings, decrees)
+
+
+def cv_fields(context: Context, content: Element, url: str) -> dict[str, str]:
+    """Return the value after each CV heading, by the field cv_labels maps it to."""
+    fields: dict[str, str] = {}
+    for el in h.xpath_elements(content, ".//*"):
+        label = h.element_text(el)
+        field = context.lookup_value("cv_labels", label)
+        # A heading wrapped in <strong> or <span> is read from its outer element.
+        if field is None or h.element_text(el.getparent()) == label:
+            continue
+        assert field not in fields, (url, label)
+        # element_text treats an element holding only a non-breaking space as empty.
+        values = (h.element_text(v) for v in h.xpath_elements(el, "following::*"))
+        fields[field] = next(v for v in values if v != "")
+    return fields
+
+
+def crawl_cv(context: Context, person: Entity, name: str, url: str) -> None:
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=".//div[@id='MainContent_DivContent']",
+        html_source="httpResponseBody",
+        geolocation="JO",
+        cache_days=7,
+    )
+    person.add("sourceUrl", url)
+    content = h.xpath_element(doc, ".//div[@id='MainContent_DivContent']")
+    fields = cv_fields(context, content, url)
+
+    # "الاسم والشهرة": the name the member is commonly known by.
+    if "alias" in fields:
+        alias = clean_name(context, fields["alias"])
+        if alias != name:
+            person.add("alias", alias)
+    person.add("birthPlace", fields.get("birthPlace"))
+    birth = fields.get("birth")
+    if birth is not None:
+        # "عمان – 1/7/1966", "20 كانون الثاني 1939 - السلط", "السلط 1953"
+        dates = BIRTH_DATE.findall(birth)
+        if len(dates) != 1:
+            context.log.warning(
+                "Cannot parse place and date of birth", url=url, value=birth
+            )
+        else:
+            h.apply_date(person, "birthDate", dates[0])
+            person.add("birthPlace", birth.replace(dates[0], "").strip(" ,،.-–/"))
+    elif "birthPlace" not in fields and re.search(
+        "الولادة|الميلاد", h.element_text(content)
+    ):
+        context.log.warning("Birth details under an unknown heading", url=url)
+
+    for email in h.xpath_strings(content, ".//a[starts-with(@href, 'mailto:')]/@href"):
+        person.add("email", email.removeprefix("mailto:"))
+    # Some give the address only as text: "البريد الإلكتروني: x@senate.jo".
+    for para in h.xpath_elements(content, ".//p"):
+        text = h.element_text(para)
+        match = re.fullmatch(r"البريد ال[إا]لكتروني ?: ?(\S+@\S+)", text)
+        if match is not None:
+            person.add("email", match.group(1))
+
+
+def crawl_member(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    member: dict[str, str],
+) -> None:
+    """Emit a member from their card, if any, and the dates later decrees give."""
+    # Members who have left are starred.
+    raw_name = member["name"].lstrip("* ")
+    url = member.get("url")
+    person = context.make("Person")
+    if url is None:
+        person.id = context.make_id(raw_name)
+        if "start" not in member:
+            # Missing card or variant spelling (see note_names).
+            context.log.warning("Resignation matches no card", name=raw_name)
+    else:
+        # The item in /ListDetails/<slug>/<list>/<item> is only unique per list.
+        person.id = context.make_id(*url.rsplit("/", 2)[1:])
+    name = clean_name(context, raw_name)
+    person.add("name", name, original_value=raw_name)
+    apply_translit_full_name(context, person, LangText(name, "ara"))
+    person.add("gender", context.lookup_value("gender", raw_name))
+    # Senators must be Jordanian: Constitution of Jordan, Art. 75(1)(a).
+    # https://www.constituteproject.org/constitution/Jordan_2016
+    person.add("citizenship", "jo")
+    if url is not None:
+        crawl_cv(context, person, name, url)
+
+    end_date = member.get("end")
+    left = member["name"].startswith("*")
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        categorisation=categorisation,
+        start_date=member.get("start"),
+        end_date=end_date,
+        # The note dates resignations, not deaths.
+        status=OccupancyStatus.ENDED if left and end_date is None else None,
+    )
+    if occupancy is None:
+        return
+    context.emit(occupancy)
+    context.emit(person)
+
+
+def crawl(context: Context) -> None:
+    position = h.make_position(
+        context,
+        name="Member of the Senate of Jordan",
+        wikidata_id="Q20081407",
+        country="jo",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
+    context.emit(position)
+
+    # The whole listing first: slow member pages in between would end the session.
+    docs = fetch_pages(context)
+    members: dict[str, dict[str, str]] = {}
+    for doc in docs:
+        cards = h.xpath_elements(doc, ".//div[@id='divHeight']")
+        assert len(cards) > 0, "No member cards on a listing page"
+        for card in cards:
+            label = h.element_text(h.xpath_element(card, ".//h6"))
+            key = name_key(context, label.lstrip("* "))
+            assert key not in members, label
+            href = h.xpath_string(card, ".//a[@id='lnkMore']/@href")
+            members[key] = {"name": label, "url": urljoin(context.data_url, href)}
+    # Later decrees date the cards' members, or add members with no card yet.
+    for name, field, date in parse_note(context, docs[0]):
+        members.setdefault(name_key(context, name), {"name": name})[field] = date
+    for member in members.values():
+        crawl_member(context, position, categorisation, member)
