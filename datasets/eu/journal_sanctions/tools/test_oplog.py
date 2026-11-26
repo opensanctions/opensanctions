@@ -538,6 +538,14 @@ def test_missing_values_finds_passages_split_by_page_breaks() -> None:
     assert missing_values(row, text) == [("reason", "First part. Third part.")]
 
 
+def test_corrected_in_place_accepts_reprinted_words() -> None:
+    text = haystack("for: ‘Lyudmila Rukavishikova’, read: ‘Lyudmila Rukavishnikova’.")
+    old = "Lyudmila Rukavishikova is the mother-in-law of a listed person."
+    new = "Lyudmila Rukavishnikova is the mother-in-law of a listed person."
+    assert check.corrected_in_place(new, old, text)
+    assert not check.corrected_in_place(new.replace("listed", "known"), old, text)
+
+
 def test_fold_applies_later_corrigenda_in_as_of_views(stack: Path) -> None:
     write_oplog(
         stack / "32099R0002R(01).csv",

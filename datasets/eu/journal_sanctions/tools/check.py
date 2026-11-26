@@ -8,6 +8,7 @@ run; warnings flag rows to look at again. `compare` checks a replay against
 a EUR-Lex consolidation's text.
 """
 
+import difflib
 import json
 import re
 import sys
@@ -347,9 +348,32 @@ def check_against_act(framework: str, celex: str, issues: list[Issue]) -> None:
                 )
             )
         for column, value in missing_values(row, text, carried=carried):
+            previous = cell_values(carried, column) if carried is not None else []
+            if any(corrected_in_place(value, p, text) for p in previous):
+                continue
             issues.append(
                 Issue("error", where, f"{column} not in the act: {value[:80]!r}")
             )
+
+
+def corrected_in_place(value: str, previous: str, text: str) -> bool:
+    """Tell whether `value` is `previous` with one span replaced as `text` prints it.
+
+    A corrigendum's "for … read …" reprints only the corrected words of a long
+    value; the words around them are carried from the entry it corrects.
+    """
+    new_words, old_words = value.split(), previous.split()
+    matcher = difflib.SequenceMatcher(a=old_words, b=new_words, autojunk=False)
+    changed = False
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == "equal":
+            continue
+        new = " ".join(new_words[j1:j2])
+        old = " ".join(old_words[i1:i2])
+        if not new or new not in text or (old and old not in text):
+            return False
+        changed = True
+    return changed
 
 
 CONSOLIDATION_RE = re.compile(r"^0\d{4}[A-Z]\d{4}-(\d{4})(\d{2})(\d{2})$")
