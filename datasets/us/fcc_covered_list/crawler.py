@@ -1,4 +1,5 @@
 import csv
+import shutil
 from rigour.mime.types import CSV
 from pathlib import Path
 
@@ -8,16 +9,21 @@ from zavod.extract import zyte_api
 PROGRAM_KEY = "US-FCC"
 
 
-def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
-    name = input_dict.pop("Entity Name")
-    description = input_dict.pop("Covered Equipment or Services")
+def crawl_item(context: Context, row: dict[str, str]) -> None:
+    name = row.pop("entity_name")
+    description = row.pop("covered_equipment_or_services")
+    inclusion_date = row.pop("date_of_inclusion_on_covered_list")
+    updated_date = row.pop("updated")
+    source_url = row.pop("source_url")
+    if source_url == "":
+        raise ValueError(f"Row for {name!r} has no source_url")
 
     entity = context.make("Company")
     entity.id = context.make_slug(name)
     entity.add("name", name)
     entity.add("topics", "debarment")
 
-    for subsidiary_name in input_dict.pop("Subsidiary Names").split(";"):
+    for subsidiary_name in row.pop("subsidiary_names").split(";"):
         subsidiary_name = subsidiary_name.strip()
         if subsidiary_name == "":
             continue
@@ -34,11 +40,10 @@ def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
 
         subsidiary_sanction = h.make_sanction(context, subsidiary)
         subsidiary_sanction.add("description", description)
-        h.apply_date(
-            subsidiary_sanction,
-            "startDate",
-            input_dict.get("Date of Inclusion on Covered List"),
-        )
+        subsidiary_sanction.add("sourceUrl", source_url)
+        h.apply_date(subsidiary_sanction, "listingDate", inclusion_date)
+        h.apply_date(subsidiary_sanction, "modifiedAt", updated_date)
+        h.finalize_sanction(context, subsidiary_sanction, effective_on_listing=True)
 
         context.emit(subsidiary)
         context.emit(ownership)
@@ -46,16 +51,16 @@ def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
 
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction.add("description", description)
-    sanction.add("description", input_dict.pop("Notes 1"))
-    sanction.add("description", input_dict.pop("Notes 2"))
-    h.apply_date(
-        sanction, "startDate", input_dict.pop("Date of Inclusion on Covered List")
-    )
+    sanction.add("description", row.pop("footnote_1"))
+    sanction.add("sourceUrl", source_url)
+    h.apply_date(sanction, "listingDate", inclusion_date)
+    h.apply_date(sanction, "modifiedAt", updated_date)
+    h.finalize_sanction(context, sanction, effective_on_listing=True)
 
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(input_dict)
+    context.audit_data(row)
 
 
 def crawl(context: Context) -> None:
@@ -72,18 +77,15 @@ def crawl(context: Context) -> None:
         writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
         writer.writeheader()
         writer.writerows(rows)
-    # The FCC only publishes the Covered List as an HTML table, so the actual data is a
-    # hand-curated Google Sheet (the dataset's data_url) mirroring it. To update it when the
-    # FCC list changes:
-    #   1. Run the crawler locally. It rewrites table.csv from the FCC page and logs a
-    #      "DOM hash changed" warning with the new hash; diff table.csv to see what changed.
-    #   2. Edit the Google Sheet to match (that edit lives in Google Drive, not the PR).
-    #   3. Put the new hash below, then commit crawler.py + table.csv and re-run to confirm.
+    # The entities in covered_list.csv are transcribed by hand from this table. The
+    # runbook for a changed hash is in the dataset YAML.
     h.assert_dom_hash(table, "6562ffeeba8bf24c94e2fcac3ee58ea9ac69c78e", text_only=True)
 
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    source_file = Path(__file__).parent / "covered_list.csv"
+    resource_path = context.get_resource_path("source.csv")
+    shutil.copy(source_file, resource_path)
+    context.export_resource(resource_path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path) as fh:
-        for item in csv.DictReader(fh):
-            crawl_item(context, item)
+    with open(source_file, encoding="utf-8", newline="") as fh:
+        for row in csv.DictReader(fh):
+            crawl_item(context, row)
