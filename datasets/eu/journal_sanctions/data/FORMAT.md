@@ -33,7 +33,8 @@ this document states the consequences that need fixing in one way.
    column visible: a value in it is an extraction failure that marks a
    column to add. Metadata about a value — a document's issue or
    expiry, a listing's review or amendment history — is not about the
-   designee and is not transcribed.
+   designee and is not transcribed, nor are the kinds the annex lists as
+   not modelled.
 6. **A designation continues while the acts address it as the same entry**,
    whether they amend, rename, renumber, move, or re-register it. It ends at
    its `DEL`. A new entry is a new designation.
@@ -172,3 +173,11 @@ with its label, one value per statement. It is copied, not interpreted.
 - `modifiedAt` is the `publishedDate` of the latest `MOD`.
 - The entity ID is `context.make_slug(id)`.
 - Deleted and lapsed designations are not emitted.
+
+## Annex: not modelled
+
+Values of these kinds are deliberately not transcribed, and are not written
+to `extra`:
+
+- licence numbers (`licenseNumber`);
+- a vessel's deadweight (`deadweightTonnage`).
