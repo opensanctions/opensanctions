@@ -494,6 +494,15 @@ def test_label_in_short_column_warns() -> None:
     assert any("nationality holds a printed label" in i.message for i in issues)
 
 
+def test_check_reports_extra_values() -> None:
+    issues: list[check.Issue] = []
+    row = encode_row(
+        {"op": "ADD", "id": "a" * 40, "name": "N", "extra": "Airline code QD"}
+    )
+    check.check_row(Op("32099R0001", 2, row), issues)
+    assert [i.level for i in issues if "extra" in i.message] == ["warning"]
+
+
 def test_check_decodes_escaped_references() -> None:
     text = haystack("Леонид &amp;amp;#x042D;дуардович Слуцкий; Bălţi")
     row = encode_row({"name": "Леонид Эдуардович Слуцкий"})

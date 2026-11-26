@@ -59,14 +59,16 @@ the tools from this directory as `python -m tools <command>`.
    annex part against the live counts it reports, since it cannot see
    entries the replay lacks.
 
-When the contract's columns change, `python -m tools migrate` brings the
-files up to date.
+There is only the latest contract. When it changes, the files are migrated
+to it: columns by `python -m tools migrate`, moved values by a one-off
+script.
 
 ## Review
 
 A transcription goes to review with the CSV diff and the `check` and
-`compare` reports. State every pinned match, every accepted warning, and
-every judgement the act's text did not settle on its own.
+`compare` reports. State every pinned match, every accepted warning, every
+value written to `extra`, and every judgement the act's text did not settle
+on its own.
 
 ## Shared extraction helpers
 

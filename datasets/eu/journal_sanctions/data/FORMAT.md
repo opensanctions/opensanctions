@@ -30,8 +30,8 @@ this document states the consequences that need fixing in one way.
    discarding placeholders such as `na` — belongs to the consuming crawler.
 5. **Everything about the designee is modelled.** A value goes to the most
    specific column whose meaning fits. `extra` exists only to make a missing
-   column visible: a value in it is an extraction failure, reported so the
-   column can be added. Metadata about a value — a document's issue or
+   column visible: a value in it is an extraction failure that marks a
+   column to add. Metadata about a value — a document's issue or
    expiry, a listing's review or amendment history — is not about the
    designee and is not transcribed.
 6. **A designation continues while the acts address it as the same entry**,
@@ -155,9 +155,9 @@ with its label, one value per statement. It is copied, not interpreted.
 
 - Cells are trimmed; a missing value is an empty cell.
 - `reason`, `related`, `extra` and every designee column except `schema`
-  and `name` are multi-valued, separated by `; `. A value containing `;` or `"` is CSV-quoted within the
-  cell, quotes doubled (`"Foo; Bar"; Baz` holds two values). Values are
-  non-empty and unique.
+  and `name` are multi-valued, separated by `; `. A value containing `;`
+  or `"` is CSV-quoted within the cell, quotes doubled (`"Foo; Bar"; Baz`
+  holds two values). Values are non-empty and unique.
 - Designee dates keep the source's wording (`Approximately 1952`).
   `listingDate` and `endDate` are bare dates: ISO partial (`2011-02-28`),
   dotted (`28.2.2011`), worded (`2 December 1985`) or UN-abbreviated

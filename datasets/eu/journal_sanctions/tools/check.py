@@ -147,6 +147,8 @@ def check_row(op: Op, issues: list[Issue]) -> None:
         for value in cell_values(row, column):
             if LEAKED_LABEL_RE.search(value) or ALIAS_MARKER_RE.search(value):
                 warn(f"{column} holds a printed label or enumeration: {value[:60]!r}")
+    for value in cell_values(row, "extra"):
+        warn(f"extra holds a value no column fits: {value[:60]!r}")
     for column in SHORT_COLUMNS:
         for value in cell_values(row, column):
             if LEAKED_LABEL_RE.search(value):
