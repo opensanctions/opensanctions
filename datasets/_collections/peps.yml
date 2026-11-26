@@ -118,6 +118,7 @@ children:
   - fr_maires
   - fr_senat
   - ga_national_assembly
+  - ga_senate
   - gb_commons
   - gb_lords
   - ge_declarations
@@ -141,6 +142,8 @@ children:
   - is_althingi
   - it_deputies
   - it_senate
+  - jo_house_representatives
+  - jo_senate
   - jp_sangiin
   - jp_shugiin
   - ke_judiciary
@@ -225,6 +228,7 @@ children:
   - so_senate
   - sr_national_assembly
   - sv_legislature
+  - td_senate
   - th_cabinet
   - th_house_representatives
   - th_senate

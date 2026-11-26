@@ -8,7 +8,7 @@ prefix: jo-sen
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-11-09
+  start: 2026-11-26
 load_statements: true
 ci_test: false  # Zyte
 summary: >-
