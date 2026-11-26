@@ -21,7 +21,10 @@ from lxml import html
 from zavod.shed.ojeu.celex import normalize
 from zavod.shed.ojeu.cellar import CellarClient, cli_client, extract_body_html
 
+from .common import DATASET_DIR
+
 OUT_DIR = Path(__file__).resolve().parent / "out"
+CORPUS_DIR = DATASET_DIR.parents[2] / "data" / "tmp" / "eu_oj"
 BLOCK_TAGS = {"p", "div", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ul", "ol", "hr"}
 
 
@@ -129,6 +132,25 @@ def fetch_act(client: CellarClient, celex: str, directory: Path) -> dict[str, ob
     return meta
 
 
+def obtain_act(celex: str, directory: Path) -> dict[str, object]:
+    """Copy an act from the local corpus into `directory`, else fetch it.
+
+    The corpus copy is re-rendered, so `text.txt` always comes from the
+    current renderer.
+    """
+    cached = CORPUS_DIR / celex
+    if (cached / "meta.json").exists() and (cached / "body.html").exists():
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / "body.html").write_bytes((cached / "body.html").read_bytes())
+        render_text(directory)
+        meta_text = (cached / "meta.json").read_text()
+        (directory / "meta.json").write_text(meta_text)
+        meta: dict[str, object] = json.loads(meta_text)
+        return meta
+    with cli_client() as client:
+        return fetch_act(client, celex, directory)
+
+
 @click.command()
 @click.argument("celex")
 @click.option(
@@ -139,11 +161,11 @@ def fetch_act(client: CellarClient, celex: str, directory: Path) -> dict[str, ob
     help="Work directory; default tools/out/<celex>/.",
 )
 def main(celex: str, directory: Path | None) -> None:
-    """Fetch CELEX and print its dates and relations."""
+    """Fetch CELEX (from the local corpus when it holds it) and print its
+    dates and relations."""
     celex = normalize(celex)
     directory = directory or OUT_DIR / celex
-    with cli_client() as client:
-        meta = fetch_act(client, celex, directory)
+    meta = obtain_act(celex, directory)
     click.echo(f"{celex}  {meta['title']}")
     click.echo(
         f"  adopted {meta['document_date']}  published {meta['publication_date']}"

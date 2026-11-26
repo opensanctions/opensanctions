@@ -27,7 +27,8 @@ The acts of `F` — including the English corrigenda of `F` and of its acts —
 come from `tools.common.related_acts(F)`; transcribe them in date order. Run
 the tools from this directory as `python -m tools <command>`.
 
-1. `python -m tools act C` fetches the act into `tools/out/C/`: `body.html`,
+1. `python -m tools act C` fetches the act into `tools/out/C/` — from the
+   local corpus (see below) when it holds the act, else from CELLAR: `body.html`,
    `meta.json` (publication and entry-into-force dates) and `text.txt` (one
    line per paragraph or table row, nothing dropped).
 2. Read the act and decide what it does to `F`'s list.

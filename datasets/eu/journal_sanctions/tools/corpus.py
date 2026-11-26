@@ -15,10 +15,8 @@ import click
 import yaml
 from zavod.shed.ojeu.cellar import cli_client
 
-from .act import fetch_act
+from .act import CORPUS_DIR, fetch_act
 from .common import DATASET_DIR, related_acts
-
-CORPUS_DIR = DATASET_DIR.parents[2] / "data" / "tmp" / "eu_oj"
 
 
 def frameworks() -> list[str]:

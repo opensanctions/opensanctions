@@ -21,7 +21,7 @@ from followthemoney import model
 from zavod.shed.ojeu.cellar import cli_client
 from zavod.stateful.programs import Measure, get_program_by_key
 
-from .act import OUT_DIR, fetch_act
+from .act import OUT_DIR, fetch_act, obtain_act
 from .common import (
     DEL_COLUMNS,
     ENTITY_COLUMNS,
@@ -523,8 +523,7 @@ def check_command(frameworks: tuple[str, ...], online: bool, fetch: bool) -> Non
             for path in regime_files(framework):
                 if fetch and not (OUT_DIR / path.stem / "text.txt").exists():
                     try:
-                        with cli_client() as client:
-                            fetch_act(client, path.stem, OUT_DIR / path.stem)
+                        obtain_act(path.stem, OUT_DIR / path.stem)
                     except requests.RequestException as exc:
                         issues.append(
                             Issue(
