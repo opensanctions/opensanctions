@@ -112,7 +112,7 @@ config:
   #
   # Before you write a CSV in data/, read data/FORMAT.md. It is the contract
   # for both file kinds. Before you change a parser in scripts/, read
-  # scripts/CLAUDE.md.
+  # scripts/AGENTS.md.
   #
   # To read the text of an act, get the body HTML with its annex tables:
   #
