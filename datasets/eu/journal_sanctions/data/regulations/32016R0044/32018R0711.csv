@@ -1,3 +1,3 @@
 op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,extra,reason
-DEL,90abeb77c0beca29a8b9e9bac25413f8df46b493,2018-05-15,2018-05-15,,EU-LBY,V,Transportation restrictions,,,Vessel,NADINE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,90abeb77c0beca29a8b9e9bac25413f8df46b493,2018-05-15,2018-05-15,1,EU-LBY,V,Transportation restrictions,,,Vessel,NADINE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 DEL,ffb5327bbc0b5378a96b2a51a1f9a3db0c66e1b2,2018-05-15,2018-05-15,2,EU-LBY,V,Transportation restrictions,,,Vessel,Lynn S,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
