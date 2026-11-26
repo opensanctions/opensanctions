@@ -1,3 +1,4 @@
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -6,17 +7,100 @@ from collections.abc import Iterator
 
 import xlrd
 
+from pydantic import BaseModel, Field
 from rigour.mime.types import XLSX, XLS
 import openpyxl
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
+from zavod.extract.llm import run_typed_text_prompt
+from zavod.stateful.review import (
+    TextSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
 
 SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_sebi.xls"
 OTHER_DEBARRMENT_URL = (
     "https://nsearchives.nseindia.com/content/press/prs_ra_others.xls"
 )
+
+OWNERSHIP_MARKER = re.compile(
+    r"\b(?:proprietor(?:y|ship)?|owner)\b|\bprop\.", re.IGNORECASE
+)
+LLM_MODEL_VERSION = "gpt-5.4"
+
+
+class OwnershipExtraction(BaseModel):
+    owner_name: str = Field(
+        min_length=1,
+        description="Name of the natural or legal person that owns the business.",
+    )
+    asset_name: str = Field(
+        min_length=1,
+        description="Name of the proprietorship, trading firm, or business asset.",
+    )
+    asset_is_debarred: bool = Field(
+        description=(
+            "Whether the source explicitly includes the business itself among the "
+            "debarred parties, rather than only identifying it as the owner's business."
+        )
+    )
+
+
+OWNERSHIP_PROMPT = """
+Extract an owner and their proprietorship or trading business from the supplied
+`Entity / Individual Name` cell of the NSE debarment list.
+
+Rules:
+- Return the owner's name in `owner_name` and the business name in `asset_name`,
+  regardless of which one appears first.
+- Preserve the spelling, capitalization, initials, and honorifics of each name exactly
+  as written. Do not correct, expand, or invent names.
+- Remove only the prose expressing the ownership relationship and punctuation or
+  brackets used solely to enclose that prose.
+- Set `asset_is_debarred` to true only if the wording lists both the owner and business
+  as subjects, for example "Business and its Proprietor Person" or
+  "Person & its proprietorship firm viz. Business".
+- Set `asset_is_debarred` to false when the business is only used to identify the
+  owner's trade name, for example "Person, Proprietor of Business".
+"""
+
+
+def extract_ownership(
+    context: Context,
+    entity: Entity,
+    name: str,
+    source_url: str | None,
+) -> tuple[OwnershipExtraction, str | None] | None:
+    """Request review of an ownership name and return only accepted extraction."""
+    if OWNERSHIP_MARKER.search(name) is None:
+        return None
+
+    source_value = TextSourceValue(
+        key_parts=name,
+        label="Entity / Individual Name ownership extraction",
+        text=name,
+        url=source_url,
+    )
+    extraction = run_typed_text_prompt(
+        context,
+        prompt=OWNERSHIP_PROMPT,
+        string=source_value.value_string,
+        response_type=OwnershipExtraction,
+        model=LLM_MODEL_VERSION,
+    )
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=extraction,
+        origin=LLM_MODEL_VERSION,
+    )
+    review.link_entity(context, entity)
+    if not review.accepted:
+        return None
+    return review.extracted_data, review.origin
 
 
 def load_sheet(workbook: Any, possible_names: list[str]) -> Any:
@@ -29,20 +113,24 @@ def load_sheet(workbook: Any, possible_names: list[str]) -> Any:
 
 
 def crawl_ownership(
-    context: Context, owner: Entity, asset_name: str, is_debarred: bool = False
+    context: Context,
+    owner: Entity,
+    asset_name: str,
+    is_debarred: bool = False,
+    origin: str | None = None,
 ) -> Entity:
     # The source describes these as proprietorship concerns of the debarred
     # person. Company inherits from both Asset and LegalEntity, so it fits the
     # range of Ownership:asset (LegalEntity does not).
     asset = context.make("Company")
     asset.id = context.make_id(owner.id, asset_name)
-    asset.add("name", asset_name)
+    asset.add("name", asset_name, origin=origin)
     if is_debarred:
-        asset.add("topics", "debarment")
+        asset.add("topics", "debarment", origin=origin)
     ownership = context.make("Ownership")
     ownership.id = context.make_id("own", owner.id, asset_name)
-    ownership.add("owner", owner)
-    ownership.add("asset", asset)
+    ownership.add("owner", owner, origin=origin)
+    ownership.add("asset", asset, origin=origin)
     context.emit(ownership)
     context.emit(asset)
     return asset
@@ -59,24 +147,22 @@ def crawl_item(context: Context, input_dict: dict[str, str | None]) -> None:
 
     asset = None
     debarreds = []
+    name_origin = None
 
-    names = h.multi_split(name, ["Proprietor of", "Owner of"])
-    if len(names) == 2:
-        name = names[0]
-        crawl_ownership(context, entity, names[1])
-
-    names = h.multi_split(name, ["Proprietor", "Owner", "Prop."])
-    if len(names) == 2 and names[0].strip():
-        name = names[1]
-        asset_name = names[0]
-        asset_is_debarred = False
-        if "and its" in asset_name:
-            asset_name = asset_name.replace("and its", "")
-            asset_is_debarred = True
+    ownership_result = extract_ownership(
+        context, entity, name, input_dict.get("source_url")
+    )
+    if ownership_result is not None:
+        ownership, name_origin = ownership_result
+        name = ownership.owner_name
         asset = crawl_ownership(
-            context, entity, asset_name, is_debarred=asset_is_debarred
+            context,
+            entity,
+            ownership.asset_name,
+            is_debarred=ownership.asset_is_debarred,
+            origin=name_origin,
         )
-        if asset_is_debarred:
+        if ownership.asset_is_debarred:
             debarreds.append(asset)
     address = None
     names = h.multi_split(name, ["(Address :"])
@@ -90,7 +176,7 @@ def crawl_item(context: Context, input_dict: dict[str, str | None]) -> None:
     is_revoked = period and "revoked" in period.lower()
     topics = "reg.warn" if is_revoked else "debarment"
 
-    entity.add("name", name)
+    entity.add("name", name, origin=name_origin)
     if address is not None:
         entity.add("address", address)
     entity.add("jurisdiction", "in")
@@ -203,3 +289,7 @@ def crawl(context: Context) -> None:
             item["nse_circular_no_for_debarment"] = nse_circular_num
 
         crawl_item(context, item)
+
+    # The raw combined name is retained while an ownership extraction awaits review,
+    # so outstanding reviews should not block publication of this daily dataset.
+    assert_all_accepted(context, raise_on_unaccepted=False)
