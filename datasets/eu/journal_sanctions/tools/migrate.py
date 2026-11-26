@@ -64,7 +64,3 @@ def main(frameworks: tuple[str, ...], check: bool) -> None:
                 write_oplog(path, rows)
                 click.echo(f"migrated: {path}")
     sys.exit(1 if check and pending else 0)
-
-
-if __name__ == "__main__":
-    main()

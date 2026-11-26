@@ -15,7 +15,7 @@ import click
 import yaml
 from zavod.shed.ojeu.cellar import cli_client
 
-from .act import fetch_act, render_text
+from .act import fetch_act
 from .common import DATASET_DIR, related_acts
 
 CORPUS_DIR = DATASET_DIR.parents[2] / "data" / "tmp" / "eu_oj"
@@ -30,19 +30,8 @@ def frameworks() -> list[str]:
 @click.command()
 @click.option("--framework", "selected", multiple=True, help="Limit to these.")
 @click.option("--dir", "directory", type=click.Path(path_type=Path), default=CORPUS_DIR)
-@click.option("--rerender", is_flag=True, help="Only rewrite text.txt from body.html.")
-def main(selected: tuple[str, ...], directory: Path, rerender: bool) -> None:
+def main(selected: tuple[str, ...], directory: Path) -> None:
     """Fetch the framework acts and all their related acts."""
-    if rerender:
-        broken: list[str] = []
-        for body in sorted(directory.glob("*/body.html")):
-            try:
-                render_text(body.parent)
-            except ValueError as exc:
-                broken.append(body.parent.name)
-                click.echo(str(exc), err=True)
-        click.echo(f"re-rendered, {len(broken)} failed: {broken}")
-        return
     index: dict[str, dict[str, list[str]]] = {}
     for framework in selected or frameworks():
         index.setdefault(framework, {"frameworks": [], "relations": []})
@@ -69,7 +58,3 @@ def main(selected: tuple[str, ...], directory: Path, rerender: bool) -> None:
             if number % 50 == 0:
                 click.echo(f"{number}/{len(index)}", err=True)
     click.echo(f"{len(index)} acts, {len(failed)} failed: {failed}")
-
-
-if __name__ == "__main__":
-    main()

@@ -150,7 +150,3 @@ def main(celex: str, directory: Path | None) -> None:
         f"  in force {meta['entry_into_force']}  amends {meta['amends']}"
     )
     click.echo(f"  -> {directory}")
-
-
-if __name__ == "__main__":
-    main()

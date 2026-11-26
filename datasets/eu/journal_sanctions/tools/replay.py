@@ -8,35 +8,18 @@ dates the crawler derives: first listing, entry into force, last change.
 
 import csv
 import json
-import re
 import sys
 from dataclasses import dataclass, field
 
 import click
-from zavod.shed.ojeu.cellar import cli_client
 
-from .act import OUT_DIR, fetch_act
+from .act import OUT_DIR
 from .common import (
     ENTITY_COLUMNS,
-    haystack,
-    loosen,
-    missing_values,
     parse_date,
     read_oplog,
     regime_files,
-    related_acts,
 )
-
-CONSOLIDATION_RE = re.compile(r"^0\d{4}[A-Z]\d{4}-(\d{4})(\d{2})(\d{2})$")
-# Header lines of a EUR-Lex consolidation: "►M2 | COUNCIL IMPLEMENTING
-# REGULATION (EU) 2017/1568 of …" and "►C1 | Corrigendum, OJ L 251, …
-# (2017/1568)".
-AMENDED_RE = re.compile(
-    r"^►?M\d+ \| .*?(REGULATION|DECISION)\b[^|]*?\([A-Za-z]+\) (?:No )?(\d+)/(\d+)",
-    re.IGNORECASE,
-)
-# Acts whose text is wholly superseded are listed without the "►".
-CORRECTED_RE = re.compile(r"^►?C\d+ \| Corrigendum.*\((?:No )?(\d+)/(\d+)\)")
 
 Key = tuple[str, str, str]
 
@@ -193,143 +176,11 @@ def replay(
     return state
 
 
-def cited_acts(text: str) -> tuple[set[str], dict[str, int]]:
-    """Read the acts a consolidation's header lists as amending or correcting.
-
-    Returns the CELEXes of the "Amended by" acts and, per corrected act, how
-    many corrigenda the "Corrected by" list cites.
-    """
-    amended: set[str] = set()
-    corrected: dict[str, int] = {}
-    for line in text.splitlines():
-        if line.startswith("▼B"):
-            break
-        amending = AMENDED_RE.match(line)
-        if amending is not None:
-            celex = act_celex(*amending.groups())
-            if celex is not None:
-                amended.add(celex)
-            continue
-        correcting = CORRECTED_RE.match(line)
-        if correcting is not None:
-            celex = act_celex("REGULATION", *correcting.groups())
-            if celex is not None:
-                corrected[celex] = corrected.get(celex, 0) + 1
-    return amended, corrected
-
-
-def act_celex(kind: str, first: str, second: str) -> str | None:
-    """Turn an act number ("2017/1548" or "No 284/2014") into a CELEX."""
-    letter = "D" if "DECISION" in kind.upper() else "R"
-    if len(first) == 4 and 1950 < int(first) < 2100:
-        year, number = first, second
-    elif len(second) == 4:
-        year, number = second, first
-    else:
-        return None
-    return f"3{year}{letter}{int(number):04d}"
-
-
-def compare(framework: str, consolidation: str) -> int:
-    """Check a replay against a EUR-Lex consolidation's text; return errors.
-
-    Every value of every live entry must be printed in the consolidation, up
-    to case and the typography of quotes and dashes; a value that differs
-    only in spacing is a warning. A deleted entry whose name is still printed
-    is a warning, as another entry may name it. The acts and corrigenda the
-    consolidation's header cites are compared with the stack's files.
-    Entries printed in the consolidation but missing from the replay are not
-    detected: finding entries takes reading the layout.
-    """
-    match = CONSOLIDATION_RE.match(consolidation)
-    if match is None:
-        raise click.UsageError(f"not a consolidated CELEX: {consolidation}")
-    as_of = "-".join(match.group(1, 2, 3))
-    directory = OUT_DIR / consolidation
-    if not (directory / "text.txt").exists():
-        with cli_client() as client:
-            fetch_act(client, consolidation, directory)
-    raw = (directory / "text.txt").read_text(encoding="utf-8")
-    # Consolidations recase names and retypeset quotes, so match loosely.
-    text = haystack(raw, loose=True)
-    squeezed = "".join(text.split())
-    state = replay(framework, as_of=as_of)
-    errors = 0
-    for entry in state.live.values():
-        for column, value in missing_values(entry.row, text, loose=True):
-            where = f"{entry.row['id'][:10]} {entry.row['name'][:40]!r}"
-            if "".join(loosen(value).split()) in squeezed:
-                click.echo(
-                    f"WARNING  {where}: {column} differs only in spacing: {value[:60]!r}"
-                )
-                continue
-            errors += 1
-            click.echo(
-                f"ERROR    {where}: {column} not in {consolidation}: {value[:60]!r}"
-            )
-    for entry in state.deleted.values():
-        if loosen(" ".join(entry.row["name"].split())) in text:
-            click.echo(
-                f"WARNING  {entry.row['id'][:10]} deleted, but "
-                f"{entry.row['name'][:40]!r} is printed in {consolidation}"
-            )
-    files = {path.stem for path in regime_files(framework)}
-    amended, corrected = cited_acts(raw)
-    for celex in sorted(amended - files):
-        errors += 1
-        click.echo(f"ERROR    {consolidation} is amended by {celex}, which has no file")
-    later: dict[str, int] = {}
-    if any(
-        sum(1 for stem in files if stem.startswith(f"{c}R(")) != n
-        for c, n in corrected.items()
-    ):
-        # EUR-Lex folds corrigenda published after a consolidation's date
-        # into it; those cannot be in a stack replayed to that date.
-        for act in related_acts(framework):
-            if act.relation == "corrects" and act.document_date > as_of:
-                later[act.framework_celex] = later.get(act.framework_celex, 0) + 1
-    for celex, count in sorted(corrected.items()):
-        have = sum(1 for stem in files if stem.startswith(f"{celex}R("))
-        if have == count:
-            continue
-        message = (
-            f"{consolidation} cites {count} corrigenda of {celex}; the stack has {have}"
-        )
-        if have + later.get(celex, 0) >= count:
-            click.echo(f"WARNING  {message}, the rest published after {as_of}")
-            continue
-        errors += 1
-        click.echo(f"ERROR    {message}")
-    parts: dict[str, int] = {}
-    for entry in state.live.values():
-        parts[entry.row["annex"]] = parts.get(entry.row["annex"], 0) + 1
-    click.echo(
-        "live entries per annex part (check against the printed entries): "
-        + ", ".join(f"{annex or '-'} {n}" for annex, n in sorted(parts.items()))
-    )
-    click.echo(
-        f"{consolidation}: {len(state.live)} live entries as of {as_of}, "
-        f"{len(state.lapsed)} lapsed, {errors} errors"
-    )
-    return errors
-
-
 @click.command()
 @click.argument("framework")
 @click.option("--as-of", default=None, help="ISO date; default is every op.")
-@click.option(
-    "--compare",
-    "consolidation",
-    default=None,
-    help="A consolidated CELEX (02014R0269-20140512): check the replay as of "
-    "its date against its text instead of writing CSV. Entries the "
-    "consolidation prints but the replay lacks are not detected; check those "
-    "by reading.",
-)
-def main(framework: str, as_of: str | None, consolidation: str | None) -> None:
+def main(framework: str, as_of: str | None) -> None:
     """Write the live designations of FRAMEWORK as CSV to stdout."""
-    if consolidation is not None:
-        sys.exit(1 if compare(framework, consolidation) else 0)
     state = replay(framework, as_of=as_of)
     for error in state.errors:
         click.echo(error, err=True)
@@ -358,7 +209,3 @@ def main(framework: str, as_of: str | None, consolidation: str | None) -> None:
         )
     if state.errors:
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()

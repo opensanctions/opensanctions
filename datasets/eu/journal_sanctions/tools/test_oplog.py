@@ -10,18 +10,11 @@ import click
 import pytest
 from zavod.shed.ojeu.cellar import RelatedAct
 
-from . import common, migrate, validate
+from . import check, common, lookup, migrate
 from . import replay as replay_module
-from .common import (
-    OPLOG_COLUMNS,
-    cell_values,
-    encode_row,
-    haystack,
-    missing_values,
-    parse_date,
-    write_oplog,
-)
-from .lookup import decide, rank
+from .__main__ import cli
+from .common import OPLOG_COLUMNS, cell_values, encode_row, parse_date, write_oplog
+from .match import decide, haystack, missing_values, rank
 from .replay import Op, replay
 
 FRAMEWORK = "32099R0001"
@@ -42,7 +35,7 @@ def make_row(op: str, id: str, published: str, **values: str) -> dict[str, str]:
 def stack(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(common, "REGULATIONS_DIR", tmp_path / "regulations")
     acts = [RelatedAct(a, FRAMEWORK, "amends", None, d, "REG_IMPL") for a, d in ACTS]
-    monkeypatch.setattr(validate, "related_acts", lambda framework: acts)
+    monkeypatch.setattr(check, "related_acts", lambda framework: acts)
     directory = tmp_path / "regulations" / FRAMEWORK
     directory.mkdir(parents=True)
     write_oplog(
@@ -74,7 +67,7 @@ def stack(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 def errors(framework: str = FRAMEWORK) -> list[str]:
     return [
-        i.message for i in validate.validate_framework(framework) if i.level == "error"
+        i.message for i in check.validate_framework(framework) if i.level == "error"
     ]
 
 
@@ -175,7 +168,7 @@ def test_row_contract_errors(stack: Path) -> None:
 def test_unknown_act_and_coverage(stack: Path) -> None:
     write_oplog(stack / "32099R0003.csv", [])
     write_oplog(stack / "32099R0099.csv", [])
-    issues = validate.validate_framework(FRAMEWORK, online=True)
+    issues = check.validate_framework(FRAMEWORK, online=True)
     messages = [i.message for i in issues]
     assert "CELLAR relates no such act to the framework" in messages
     assert any("no file for 32099R0002" in m for m in messages)
@@ -245,10 +238,10 @@ def test_missing_values() -> None:
 
 
 def test_alias_markers_warn() -> None:
-    issues: list[validate.Issue] = []
+    issues: list[check.Issue] = []
     for alias in ["a) Sangin b) Sangeen", "X a.k.a. Y"]:
         row = encode_row({"op": "ADD", "id": "a" * 40, "name": "N", "alias": alias})
-        validate.check_row(Op("32099R0001", 2, row), issues)
+        check.check_row(Op("32099R0001", 2, row), issues)
     warnings = [i for i in issues if "label or enumeration" in i.message]
     assert len(warnings) == 2
 
@@ -392,7 +385,7 @@ def test_annex_moves_and_separate_listings(stack: Path) -> None:
     )
     bob = next(e for e in replay(FRAMEWORK).live.values() if e.row["id"] == BOB)
     assert bob.row["annex"] == "XIV.B" and bob.listed_published == "2099-01-01"
-    issues = validate.validate_framework(FRAMEWORK)
+    issues = check.validate_framework(FRAMEWORK)
     assert [i.level for i in issues if "moves the entry" in i.message] == ["warning"]
     assert errors() == []
 
@@ -401,8 +394,6 @@ def test_row_as_mod_and_find(
     stack: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     from click.testing import CliRunner
-
-    from . import lookup
 
     monkeypatch.setattr(lookup, "OUT_DIR", tmp_path / "out")
     monkeypatch.setattr(replay_module, "OUT_DIR", tmp_path / "out")
@@ -415,9 +406,8 @@ def test_row_as_mod_and_find(
     )
     out = tmp_path / "row.csv"
     result = CliRunner().invoke(
-        lookup.cli,
+        lookup.entry,
         [
-            "row",
             FRAMEWORK,
             "--annex",
             "",
@@ -434,8 +424,8 @@ def test_row_as_mod_and_find(
     assert (row["op"], row["id"], row["effectiveDate"]) == ("MOD", BOB, "2099-02-02")
     write_oplog(stack / "32099R0002.csv", [])
     result = CliRunner().invoke(
-        lookup.cli,
-        ["find", FRAMEWORK, "--before", "32099R0002", "--name", "Jones, Bob"],
+        lookup.entry,
+        [FRAMEWORK, "--before", "32099R0002", "--name", "Jones, Bob"],
     )
     assert result.exit_code == 0, result.output
     assert BOB[:10] in result.output.splitlines()[0]
@@ -451,7 +441,7 @@ def test_cited_acts_with_and_without_markers() -> None:
         "▼B\n"
         "►M9 | not part of the header\n"
     )
-    amended, corrected = replay_module.cited_acts(header)
+    amended, corrected = check.cited_acts(header)
     assert amended == {"32016R0466", "32014R0284"}
     assert corrected == {"32016R0466": 1}
 
@@ -461,3 +451,20 @@ def test_loose_matching_folds_lookalikes() -> None:
     text = haystack("Олексiй Мозговий ¶ Name: 1: ABU 2: ZAYD 3: UMAR", loose=True)
     row = encode_row({"name": "Олексій Мозговий", "alias": "ABU ZAYD UMAR"})
     assert missing_values(row, text, loose=True) == []
+
+
+def test_run_makes_the_tools_importable(tmp_path: Path) -> None:
+    from click.testing import CliRunner
+
+    script = tmp_path / "build.py"
+    out = tmp_path / "rows.csv"
+    script.write_text(
+        "import sys\n"
+        "from pathlib import Path\n"
+        "from tools.common import encode_row, write_oplog\n"
+        "write_oplog(Path(sys.argv[1]), [encode_row({'op': 'ADD', 'name': 'X'})])\n"
+    )
+    result = CliRunner().invoke(cli, ["run", str(script), str(out)])
+    assert result.exit_code == 0, result.output
+    (row,) = common.read_oplog(out)
+    assert row["name"] == "X"
