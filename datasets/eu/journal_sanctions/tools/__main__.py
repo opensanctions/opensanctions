@@ -12,7 +12,12 @@ import click
 from .act import main as act
 from .check import check_command, compare_command
 from .corpus import main as corpus
-from .ids import legacy_command, rewrite_command
+from .ids import rewrite_command
+from .legacy import (
+    legacy_compare_command,
+    legacy_ids_command,
+    legacy_status_command,
+)
 from .lookup import entry, resolve
 from .migrate import main as migrate
 from .replay import main as replay
@@ -40,7 +45,9 @@ cli.add_command(compare_command)
 cli.add_command(replay, "replay")
 cli.add_command(migrate, "migrate")
 cli.add_command(corpus, "corpus")
-cli.add_command(legacy_command)
+cli.add_command(legacy_ids_command)
+cli.add_command(legacy_compare_command)
+cli.add_command(legacy_status_command)
 cli.add_command(rewrite_command)
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ import click
 import pytest
 from zavod.shed.ojeu.cellar import RelatedAct
 
-from . import check, common, ids, lookup, migrate
+from . import check, common, ids, legacy, lookup, migrate
 from . import replay as replay_module
 from .__main__ import cli
 from .common import OPLOG_COLUMNS, cell_values, encode_row, parse_date, write_oplog
@@ -22,6 +22,7 @@ FRAMEWORK = "32099R0001"
 ACTS = [("32099R0002", "2099-02-01"), ("32099R0003", "2099-03-01")]
 ALICE = "a" * 40
 BOB = "b" * 40
+VESSEL = "d" * 40
 
 
 def make_row(op: str, id: str, published: str, **values: str) -> dict[str, str]:
@@ -608,36 +609,49 @@ def test_rewrite_ids_changes_every_row_or_none(stack: Path) -> None:
     assert errors() == []
 
 
-def test_legacy_ids_pair_published_rows(
-    stack: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    vessel = "d" * 40
+@pytest.fixture
+def published(stack: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Old consolidated and amendment data next to a stack with a renamed entry."""
     write_oplog(
         stack / "32099R0002.csv",
         [
             make_row("MOD", ALICE, "2099-02-01", recordId="1", name="Alice Smyth"),
             make_row(
-                "ADD", vessel, "2099-02-01", annex="II", name="Rang", schema="Vessel"
+                "ADD", VESSEL, "2099-02-01", annex="II", name="Rang", schema="Vessel"
             ),
         ],
     )
     data = tmp_path / "data"
     (data / "consolidated").mkdir(parents=True)
     (data / "amendments").mkdir()
-    columns = ["celex", "recordId", "annex", "name"]
+    columns = ["celex", "recordId", "programKey", "annex", "schema", "name", "alias"]
     with open(data / "consolidated" / f"{FRAMEWORK}.csv", "w", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, columns)
         writer.writeheader()
         writer.writerow(
-            dict(celex=FRAMEWORK, recordId="1", annex="I", name="Alice Smyth")
+            dict(
+                celex=FRAMEWORK,
+                recordId="1",
+                programKey="EU-UKR",
+                annex="I",
+                schema="Person",
+                name="Alice Smyth",
+                alias="Text of image",
+            )
         )
         writer.writerow(
-            dict(celex=FRAMEWORK, recordId="", annex="II", name="Rang (Po)")
+            dict(
+                celex=FRAMEWORK,
+                recordId="",
+                programKey="EU-UKR",
+                annex="II",
+                schema="Vessel",
+                name="Rang (Po)",
+            )
         )
+    columns = ["amendedCelex", "amendmentCelex", "recordId", "annex", "name"]
     with open(data / "amendments" / "32099R0003.csv", "w", encoding="utf-8") as fh:
-        writer = csv.DictWriter(
-            fh, ["amendedCelex", "amendmentCelex", "recordId", "annex", "name"]
-        )
+        writer = csv.DictWriter(fh, columns)
         writer.writeheader()
         writer.writerow(
             dict(
@@ -648,16 +662,86 @@ def test_legacy_ids_pair_published_rows(
                 name="Bob Jones",
             )
         )
-    monkeypatch.setattr(ids, "DATA_DIR", data)
+    monkeypatch.setattr(legacy, "DATA_DIR", data)
     monkeypatch.setattr(
-        ids, "_config", lambda: {"consolidation": {FRAMEWORK: "02099R0001-20990215"}}
+        legacy, "_config", lambda: {"consolidation": {FRAMEWORK: "02099R0001-20990215"}}
     )
+    return data
 
-    mapping, problems = ids.legacy_ids(FRAMEWORK)
+
+def test_legacy_ids_pair_published_rows(published: Path) -> None:
+    mapping, problems = legacy.legacy_ids(FRAMEWORK)
 
     assert problems == []
     assert mapping == {
         ALICE: common.mint_id(FRAMEWORK, "1", "Alice Smyth"),
         BOB: common.mint_id(FRAMEWORK, "2", "Bob Jones"),
-        vessel: common.mint_id(FRAMEWORK, "", "Rang (Po)"),
+        VESSEL: common.mint_id(FRAMEWORK, "", "Rang (Po)"),
     }
+
+
+def test_legacy_compare_reports_the_delta(
+    published: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # Bob is listed in the stack, but only in an amendment file of the old data.
+    assert legacy.legacy_compare(FRAMEWORK, details=True) == 0
+    out = capsys.readouterr().out
+    assert "UNMATCHED op-log I '2' 'Bob Jones'" in out
+    assert "ids: 0 as published, 2 not" in out
+    assert "alias" in out
+    # "Text of image" is a discounted placeholder, not lost content.
+    assert "entries with words only in the old snapshot: 0" in out
+
+
+def test_legacy_status_rows(published: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    acts = [RelatedAct(a, FRAMEWORK, "amends", None, d, "REG_IMPL") for a, d in ACTS]
+    monkeypatch.setattr(legacy, "related_acts", lambda framework: acts)
+    status = legacy._status(FRAMEWORK)
+    assert status["entries"] == "2"
+    assert status["acts"] == "1/2"
+    assert status["state"] == "in progress"
+
+
+def test_misplaced_values_warn() -> None:
+    row = make_row(
+        "ADD",
+        ALICE,
+        "2099-01-01",
+        schema="Company",
+        name="Acme Co., Ltd",
+        alias="Acme Co.; Ltd",
+        innCode="7704 863782 KPP: 770401001",
+        phone="10.7.2023 (registered as a small enterprise)",
+        email="www.acme.example",
+        notes="Physical description: tall",
+        # One value holding both, as a quoted cell does.
+        address='"1 Main St; 2 High St"',
+    )
+    issues: list[check.Issue] = []
+    check.check_row(Op(FRAMEWORK, 2, row), issues)
+    messages = " | ".join(i.message for i in issues if i.level == "warning")
+    assert "alias holds a fragment of a name: 'Ltd'" in messages
+    assert "innCode holds more than a number" in messages
+    assert "phone holds a date" in messages
+    assert "email holds no address" in messages
+    assert "notes holds a value for appearance" in messages
+    assert "address joins values the source separates" in messages
+
+
+def test_well_placed_values_do_not_warn() -> None:
+    row = make_row(
+        "ADD",
+        ALICE,
+        "2099-01-01",
+        schema="Company",
+        name="Acme Co., Ltd",
+        alias="Acme Co., Ltd",
+        innCode="7704 863782",
+        phone="+7 (495) 660-40-00",
+        email="office@acme.example",
+        notes="Associated with the Haqqani Network.",
+        address="1 Main St",
+    )
+    issues: list[check.Issue] = []
+    check.check_row(Op(FRAMEWORK, 2, row), issues)
+    assert [i.message for i in issues if i.level == "warning"] == []
