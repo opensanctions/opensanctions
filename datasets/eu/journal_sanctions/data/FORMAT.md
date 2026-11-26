@@ -93,7 +93,7 @@ designation whose `endDate` lies before that date as lapsed.
 | Column | Content |
 | --- | --- |
 | `op` | `ADD`, `MOD`, or `DEL`. |
-| `id` | The designation's ID, a bare lowercase 40-hex hash, repeated verbatim by every op on it. A new designation's is `make_entity_id(framework, recordId, name, key_prefix="eu_journal_sanctions")` over the printed number and the name as first listed. |
+| `id` | The designation's ID, a bare lowercase 40-hex hash, repeated verbatim by every op on it. A new designation's is `make_entity_id(framework, recordId, name, key_prefix="eu_journal_sanctions")` over the printed number and the name as first listed. A designation the crawler published before its framework was transcribed keeps the ID it was published under. |
 | `publishedDate` | The act's Official Journal publication date, ISO `YYYY-MM-DD`; the same on every row of a file. |
 | `effectiveDate` | The date the provision making this op enters into force or applies, ISO; a corrigendum's is its publication date. |
 | `recordId` | The entry number the list prints for the designation at the time, as printed, or empty. |

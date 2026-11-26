@@ -3,6 +3,7 @@
 Run from the dataset directory: `python -m pytest --import-mode=importlib tools/`.
 """
 
+import csv
 import json
 from pathlib import Path
 
@@ -10,7 +11,7 @@ import click
 import pytest
 from zavod.shed.ojeu.cellar import RelatedAct
 
-from . import check, common, lookup, migrate
+from . import check, common, ids, lookup, migrate
 from . import replay as replay_module
 from .__main__ import cli
 from .common import OPLOG_COLUMNS, cell_values, encode_row, parse_date, write_oplog
@@ -570,3 +571,93 @@ def test_fold_applies_later_corrigenda_in_as_of_views(stack: Path) -> None:
     assert "Alice Smith" in names(replay(FRAMEWORK, as_of="2099-01-15"))
     folded = replay(FRAMEWORK, as_of="2099-01-15", fold=frozenset({"32099R0002R(01)"}))
     assert "Alice SMITH" in names(folded)
+
+
+def test_rewrite_ids_changes_every_row_or_none(stack: Path) -> None:
+    carol = "c" * 40
+    write_oplog(
+        stack / "32099R0002.csv",
+        [
+            make_row("MOD", ALICE, "2099-02-01", recordId="1", name="Alice Smith"),
+            make_row(
+                "ADD",
+                ALICE,
+                "2099-02-01",
+                recordId="1",
+                name="Alice Smith",
+                measure="Travel ban",
+            ),
+        ],
+    )
+    before = {p: p.read_text() for p in stack.glob("*.csv")}
+    for bad in (
+        {"f" * 40: carol},
+        {ALICE: BOB},
+        {ALICE: carol, BOB: carol},
+        {ALICE: "x"},
+    ):
+        with pytest.raises(click.ClickException):
+            ids.rewrite_ids(FRAMEWORK, bad)
+        assert {p: p.read_text() for p in stack.glob("*.csv")} == before
+
+    changed = ids.rewrite_ids(FRAMEWORK, {ALICE: carol})
+
+    assert sum(changed.values()) == 3
+    rows = [r for p in common.regime_files(FRAMEWORK) for r in common.read_oplog(p)]
+    assert ALICE not in {r["id"] for r in rows}
+    assert errors() == []
+
+
+def test_legacy_ids_pair_published_rows(
+    stack: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    vessel = "d" * 40
+    write_oplog(
+        stack / "32099R0002.csv",
+        [
+            make_row("MOD", ALICE, "2099-02-01", recordId="1", name="Alice Smyth"),
+            make_row(
+                "ADD", vessel, "2099-02-01", annex="II", name="Rang", schema="Vessel"
+            ),
+        ],
+    )
+    data = tmp_path / "data"
+    (data / "consolidated").mkdir(parents=True)
+    (data / "amendments").mkdir()
+    columns = ["celex", "recordId", "annex", "name"]
+    with open(data / "consolidated" / f"{FRAMEWORK}.csv", "w", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, columns)
+        writer.writeheader()
+        writer.writerow(
+            dict(celex=FRAMEWORK, recordId="1", annex="I", name="Alice Smyth")
+        )
+        writer.writerow(
+            dict(celex=FRAMEWORK, recordId="", annex="II", name="Rang (Po)")
+        )
+    with open(data / "amendments" / "32099R0003.csv", "w", encoding="utf-8") as fh:
+        writer = csv.DictWriter(
+            fh, ["amendedCelex", "amendmentCelex", "recordId", "annex", "name"]
+        )
+        writer.writeheader()
+        writer.writerow(
+            dict(
+                amendedCelex=FRAMEWORK,
+                amendmentCelex="32099R0003",
+                recordId="2",
+                annex="I",
+                name="Bob Jones",
+            )
+        )
+    monkeypatch.setattr(ids, "DATA_DIR", data)
+    monkeypatch.setattr(
+        ids, "_config", lambda: {"consolidation": {FRAMEWORK: "02099R0001-20990215"}}
+    )
+
+    mapping, problems = ids.legacy_ids(FRAMEWORK)
+
+    assert problems == []
+    assert mapping == {
+        ALICE: common.mint_id(FRAMEWORK, "1", "Alice Smyth"),
+        BOB: common.mint_id(FRAMEWORK, "2", "Bob Jones"),
+        vessel: common.mint_id(FRAMEWORK, "", "Rang (Po)"),
+    }
