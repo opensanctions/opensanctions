@@ -72,7 +72,7 @@ def clean_names_str(names_str: str) -> str | None:
 
 
 def respondent_id(context: Context, respondent: Respondent) -> str:
-    # Lookup-era IDs hashed a list of current and previous names as its str() form.
+    # some entity values in the lookups were arrays of current and previous names, while most were just strings. The arrays were stringified and hashed by make_id.
     if respondent.previous_names:
         id_ = context.make_id(str([respondent.name, *respondent.previous_names]))
     else:
