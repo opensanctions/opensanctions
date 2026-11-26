@@ -7,12 +7,13 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  Elected lower house of Benin's Parliament, alongside the appointed Senate
+  Lower house of Parliament, with deputies elected from party lists for seven years
 description: |
   Current members of the National Assembly of Benin (Assemblée nationale), the lower
-  house of the country's bicameral Parliament. Its deputies are elected by direct
-  universal suffrage from party lists for a seven-year term. They pass laws, approve
-  the budget and oversee the government.
+  house of the country's bicameral Parliament. Its deputies are directly elected from
+  party lists for a seven-year term and, together with the Senate, hold the country's
+  legislative power, including passing laws, approving the budget and overseeing the
+  government.
 url: https://assemblee-nationale.bj/
 publisher:
   name: Assemblée nationale du Bénin
