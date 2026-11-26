@@ -66,6 +66,17 @@ data:
 dates:
   formats: ["%B %d, %Y"]
 
+# covered_list.csv: hand transcription of the FCC table (HTML only). One row per
+# entity designation; category entries (UAS, routers, ...) get no row. Columns:
+#   covered_equipment_or_services, date_of_inclusion_on_covered_list: verbatim
+#   updated: last "Updated:" date in the FCC date cell, else empty
+#   entity_name: as the FCC names it; the entity ID derives from it
+#   subsidiary_names: ";"-separated, as named in the entry
+#   footnote_1, footnote_2: the FCC's list-wide footnotes
+#   source_url: required
+# On "DOM hash changed": run the crawler, diff table.csv, edit covered_list.csv to
+# match, set the new hash in crawler.py, commit all three, re-run.
+
 assertions:
   min:
     schema_entities:
