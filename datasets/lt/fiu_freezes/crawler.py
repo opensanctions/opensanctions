@@ -39,9 +39,11 @@ def crawl_page(
                 cleaning_props = res.props
         reg_nr = data.pop("imones_kodas")
         measures = data.pop("isaldyto_turto_rusis").split("\n")
-        legal_grounds = data.pop("reglamentas_kurio_pagrindu_taikomas_turto_isaldymas")
+        # An asterisk marks the persons listed under the legal basis that is also
+        # prefixed with one (a national designation rather than an EU regulation).
+        legal_grounds = data.pop("teisinis_pagrindas").lstrip("*")
         related_entities = data.pop(
-            "fizinis_ar_juridinis_asmuo_kuriam_taikomos_tarptautines_sankcijos"
+            "fizinis_ar_juridinis_asmuo_kuriam_taikomos_tarptautines_sankcijos_nacionalines_ribojamosios_priemones"
         ).split("\n")
         company = context.make("Company")
         company.id = context.make_slug(nr, company_name_raw)
@@ -58,7 +60,8 @@ def crawl_page(
         context.emit(sanction)
 
         for related in related_entities:
-            if not len(related.strip()):
+            related = related.strip().rstrip("*")
+            if not len(related):
                 continue
             entity = context.make("LegalEntity")
             entity.id = context.make_slug("sanctioned", related)
@@ -105,7 +108,7 @@ def crawl_unsc_1373_list(context: Context) -> None:
         context.audit_data(data)
 
     main = h.xpath_element(doc, ".//main")
-    h.assert_dom_hash(main, "c5a94ec84ce2a2a00bb94e23271a787835a4388c")
+    h.assert_dom_hash(main, "a0379f0455a3ab57f984573f6d2965e175a2d344")
 
 
 def crawl(context: Context) -> None:

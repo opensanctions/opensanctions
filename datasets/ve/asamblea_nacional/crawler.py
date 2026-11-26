@@ -70,8 +70,11 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
     page."""
     context.log.debug(f"Fetching page for {name} from {href}")
     try:
-        # using Zyte to bypass 403
-        page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)
+        # Zyte bypasses a 403 on direct requests; Zyte exits outside VE are
+        # intermittently refused (421 domain-unreachable).
+        page = zyte_api.fetch_html(
+            context, href, ".//h3", geolocation="VE", cache_days=1
+        )
     except Exception as err:
         if href in KNOWN_ERRORS:
             context.log.info(f"Exception when fetching {href}: {err}")
@@ -101,7 +104,7 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
         if "uk-switcher" in classes.split():
             break
     else:
-        context.log.debug("No switcher found for {name}")
+        context.log.debug(f"No switcher found for {name}")
         return
     # Unfortunately... these are not formatted in any particular way.
     # Do a best-effort extraction of some facts from the plain text
@@ -109,7 +112,7 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
 
 
 def crawl_member(
-    context: Context, member_link: Element, party: str, state: str
+    context: Context, member_link: Element, party: str | None, state: str
 ) -> None:
     """Extract member information from individual page."""
     assert member_link.text is not None
@@ -172,8 +175,11 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
 
         party_split = party_raw.split("Partido: ")
         # Some people are partyless (in this case, len(party_split) == 1)
+        party: str | None = None
         if len(party_split) == 2:
             party = party_split[1].strip()
+        elif len(party_split) != 1:
+            raise ValueError(f"Unexpected party format: {party_raw}")
 
         if member_link is None:
             context.log.error(f"No page found in element {el}")
@@ -186,7 +192,7 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
     context.log.info(f"Fetching front page from {context.data_url}")
     page_number = 1
     page: HtmlElement = zyte_api.fetch_html(
-        context, context.data_url, ".//h3", cache_days=1
+        context, context.data_url, ".//h3", geolocation="VE", cache_days=1
     )
     yield page
     while True:
@@ -208,10 +214,12 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
             if next_page == page_number + 1:
                 break
         else:
-            context.log.error(f"Link to page {page_number + 1} not found")
+            raise ValueError(f"Link to page {page_number + 1} not found")
         page_number = next_page
         context.log.debug(f"Fetching page {page_number} from {href}")
-        page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)
+        page = zyte_api.fetch_html(
+            context, href, ".//h3", geolocation="VE", cache_days=1
+        )
         yield page
 
 
