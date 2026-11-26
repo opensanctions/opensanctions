@@ -15,6 +15,7 @@ import click
 from .act import OUT_DIR
 from .common import (
     DEL_COLUMNS,
+    OP_COLUMNS,
     OPLOG_COLUMNS,
     mint_id,
     read_oplog,
@@ -133,6 +134,16 @@ def entry(
     writer.writerows(rows)
 
 
+def changes(row: dict[str, str], target: dict[str, str]) -> str:
+    """Name the entity and context columns a MOD changes, for review."""
+    changed = [
+        column
+        for column in OPLOG_COLUMNS
+        if column not in OP_COLUMNS and row[column] != target[column]
+    ]
+    return "changes " + ", ".join(changed) if changed else "changes nothing"
+
+
 @click.command("resolve")
 @click.argument("framework")
 @click.argument("draft", type=click.Path(exists=True, path_type=Path))
@@ -176,6 +187,8 @@ def resolve(
                 row[column] = entry.row[column]
         claimed.add(row["id"])
         report.append(f"{line} {row['op']} {row['name']} -> {how}")
+        if row["op"] == "MOD":
+            report.append(f"    {changes(row, entry.row)}")
 
     pending: dict[int, dict[str, str]] = {}
     for line, row in enumerate(rows, start=2):
@@ -197,6 +210,10 @@ def resolve(
                 )
             continue
         if row["id"] != "":
+            if row["op"] == "MOD" and row["id"] in by_id:
+                report.append(
+                    f"{line} MOD {row['name']}: {changes(row, by_id[row['id']].row)}"
+                )
             matches = rank(row, live)
             top = matches[0].entry.row["id"] if matches else None
             if top != row["id"]:

@@ -41,11 +41,11 @@ the tools from this directory as `python -m tools <command>`.
    `python -m tools entry F ID --as-mod C --out tools/out/C/row.csv` (or
    `--annex A --record N` for `ID`; `--name` ranks candidates).
 4. `python -m tools resolve F data/regulations/F/C.csv` mints ids for `ADD`
-   rows, matches `MOD`/`DEL` rows to the entries they amend, checks ids filled
-   in by hand, and reports likely listings of a new designee in other
-   annexes. For an act that replaces a whole annex,
-   `--delete-untouched --annex X` adds `DEL` rows for the entries it leaves
-   out. Pin an unresolved row with `--pin LINE=ID` only when the act's text
+   rows, matches `MOD`/`DEL` rows to the entries they amend, names the
+   columns each `MOD` changes, checks ids filled in by hand, and reports
+   likely listings of a new designee in other annexes. For an act that
+   replaces a whole annex, `--delete-untouched --annex X` adds `DEL` rows for
+   the entries it leaves out. Pin an unresolved row with `--pin LINE=ID` only when the act's text
    settles it.
 5. `python -m tools check F --online` checks the stack against the contract
    and the replay, every fetched act against its file, and the files against
