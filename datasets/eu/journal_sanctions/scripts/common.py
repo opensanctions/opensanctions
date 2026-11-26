@@ -7,7 +7,7 @@ for every parser by necessity. Parsers call these
 functions top-down with plain data arguments; nothing here dispatches into
 or configures parser code. Document policy — which annexes exist, which date
 formats and labels are legal, per-entry quirk pins — always lives in the
-individual ``parse_<celex>.py`` script. See CLAUDE.md next to this file for
+individual ``parse_<celex>.py`` script. See AGENTS.md next to this file for
 the ground rules before adding anything.
 """
 
