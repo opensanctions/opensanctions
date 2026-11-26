@@ -528,3 +528,27 @@ def test_rank_matches_renamed_vessels_by_imo() -> None:
     query.update(name="MI RIM 2", imoNumber="IMO 9114555")
     chosen = decide(rank(query, live))
     assert chosen is not None and chosen.entry.row["id"] == ALICE
+
+
+def test_fold_applies_later_corrigenda_in_as_of_views(stack: Path) -> None:
+    write_oplog(
+        stack / "32099R0002R(01).csv",
+        [
+            make_row(
+                "MOD",
+                ALICE,
+                "2099-02-01",
+                recordId="1",
+                name="Alice SMITH",
+                listingDate="1.1.2099",
+                reason="Listed.",
+            ),
+        ],
+    )
+
+    def names(state: replay_module.State) -> set[str]:
+        return {e.row["name"] for e in state.live.values()}
+
+    assert "Alice Smith" in names(replay(FRAMEWORK, as_of="2099-01-15"))
+    folded = replay(FRAMEWORK, as_of="2099-01-15", fold=frozenset({"32099R0002R(01)"}))
+    assert "Alice SMITH" in names(folded)

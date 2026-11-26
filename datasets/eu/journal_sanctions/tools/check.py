@@ -426,9 +426,23 @@ def compare(framework: str, consolidation: str) -> int:
     # Consolidations recase names and retypeset quotes, so match loosely.
     text = haystack(raw, loose=True)
     squeezed = "".join(text.split())
-    state = replay(framework, as_of=as_of)
     files = {path.stem for path in regime_files(framework)}
     amended, corrected = cited_acts(raw)
+    later: list[str] = []
+    if any(stem.startswith(f"{c}R(") for c in corrected for stem in files):
+        # EUR-Lex folds corrigenda published after a consolidation's date
+        # into it; the stack files them on their own, later dates.
+        later = [
+            act.celex
+            for act in related_acts(framework)
+            if act.relation == "corrects" and act.document_date > as_of
+        ]
+    fold: set[str] = set()
+    for celex, count in corrected.items():
+        mine = {stem for stem in files if stem.startswith(f"{celex}R(")}
+        folded = [c for c in later if c in mine]
+        fold.update(folded[: max(count - len(mine - set(later)), 0)])
+    state = replay(framework, as_of=as_of, fold=frozenset(fold))
     unfiled = sorted(amended - files)
     errors = 0
     for celex in unfiled:
@@ -459,28 +473,16 @@ def compare(framework: str, consolidation: str) -> int:
                 f"WARNING  {entry.row['id'][:10]} deleted, but "
                 f"{entry.row['name'][:40]!r} is printed in {consolidation}"
             )
-    later: set[str] = set()
-    if any(
-        sum(1 for stem in files if stem.startswith(f"{c}R(")) != n
-        for c, n in corrected.items()
-    ):
-        # EUR-Lex folds corrigenda published after a consolidation's date
-        # into it; the stack files them on their own, later dates.
-        later = {
-            act.celex
-            for act in related_acts(framework)
-            if act.relation == "corrects" and act.document_date > as_of
-        }
     for celex, count in sorted(corrected.items()):
         mine = {stem for stem in files if stem.startswith(f"{celex}R(")}
-        before = len(mine - later)
+        before = len(mine - set(later))
         if before == count:
             continue
         message = (
             f"{consolidation} cites {count} corrigenda of {celex}; the stack "
             f"has {before} published by {as_of}"
         )
-        if before < count <= before + len(mine & later):
+        if before < count <= before + len(mine & set(later)):
             click.echo(f"WARNING  {message}, and folds in later ones")
             continue
         errors += 1

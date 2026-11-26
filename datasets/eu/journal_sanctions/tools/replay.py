@@ -144,7 +144,10 @@ def act_position(celex: str) -> tuple[str, str, str]:
 
 
 def replay(
-    framework: str, before: str | None = None, as_of: str | None = None
+    framework: str,
+    before: str | None = None,
+    as_of: str | None = None,
+    fold: frozenset[str] = frozenset(),
 ) -> State:
     """Replay a framework's ops.
 
@@ -154,6 +157,8 @@ def replay(
             fetched `meta.json`.
         as_of: Apply only ops with `effectiveDate` on or before this ISO date,
             and move designations whose `endDate` is before it to `lapsed`.
+        fold: Files whose ops apply in an `as_of` view whatever their date,
+            as EUR-Lex folds later corrigenda into a consolidation.
     """
     files = load_ops(framework)
     stop: tuple[str, str, str] | None = None
@@ -168,7 +173,8 @@ def replay(
         if stop is not None and file_position(celex, ops) >= stop:
             break
         for op in ops:
-            if as_of is not None and op.row["effectiveDate"] > as_of:
+            late = as_of is not None and op.row["effectiveDate"] > as_of
+            if late and celex not in fold:
                 continue
             apply(state, op)
     if as_of is not None:
