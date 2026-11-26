@@ -5,8 +5,9 @@ coverage:
   start: "2023-08-20"
   frequency: monthly
 deploy:
-  memory: "3500Mi"
-  memory_limit: "4000Mi"
+  memory: "11400Mi"
+  memory_limit: "11400Mi"
+  disk: 30Gi
 ci_test: false
 exports:
   - statistics.json

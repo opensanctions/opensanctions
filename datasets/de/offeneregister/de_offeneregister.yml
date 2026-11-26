@@ -10,7 +10,7 @@ coverage:
 deploy:
   schedule: "@monthly"
   disk: 150Gi
-  memory: 2Gi
+  memory: 12Gi
 exports:
   - statistics.json
   - entities.ftm.json
