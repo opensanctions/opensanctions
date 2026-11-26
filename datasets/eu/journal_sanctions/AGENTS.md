@@ -61,12 +61,8 @@ the tools from this directory as `python -m tools <command>`.
    annex part against the live counts it reports, since it cannot see
    entries the replay lacks.
 
-Once a framework's stack reaches the consolidation pinned for it in
-`eu_journal_sanctions.yml`, give its designations the IDs the crawler
-publishes: `python -m tools legacy-ids F --out tools/out/ids/F.csv` must
-report no errors, then `python -m tools rewrite-ids F tools/out/ids/F.csv`.
-`legacy-ids` reads `data/consolidated/` and `data/amendments/`, and goes with
-them.
+Moving a whole framework from the old consolidated data to the op-log
+follows [MIGRATION.md](MIGRATION.md).
 
 There is only the latest contract. When it changes, the files are migrated
 to it: columns by `python -m tools migrate`, moved values by a one-off
