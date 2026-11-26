@@ -1,0 +1,4 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,cd6abf92b9728ea0e780b5d9a5d924a4eb23d1a3,2024-09-24,2024-09-25,13,EU-GNB,I,Asset freeze,,,Person,Tchipa NA BIDON,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,a2b5ad50487818ae310824041659348d939ab043,2024-09-24,2024-09-25,16,EU-GNB,I,Asset freeze,,,Person,Idrissa DJALÓ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,6df5e44635cb98e15a6b01f440d54c5c39c26f02,2024-09-24,2024-09-25,21,EU-GNB,I,Asset freeze,,,Person,Lieutenant Julio NA MAN,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
