@@ -57,9 +57,18 @@ lookups:
         value: Suspension
       - match: Termination
         value: Termination
+  roles:
+    # Business cells that are roles.
+    options:
+      - match: Nursing Home Administrator
+        value: Nursing Home Administrator
   names:
     options:
       - match: Balkas (Steiner), Nicole
         first_name: Nicole
         last_name: Balkas
         alias: Nicole Steiner
+      - match: Rosario a/ka. Connors, Ella
+        first_name: Ella
+        last_name: Rosario
+        alias: Ella Connors

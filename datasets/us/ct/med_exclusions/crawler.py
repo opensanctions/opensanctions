@@ -36,7 +36,10 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     effective_date = row.pop("Effective Date")
     name = clean(raw_name)
     business = clean(raw_business)
-    assert name is not None or business is not None, row
+    if name is None and business is None:
+        # Test rows ("Test a11y").
+        context.log.info("Skipping row without name or business", row=row)
+        return
 
     entity = context.make("Person" if name is not None else "LegalEntity")
     entity.id = context.make_id(raw_name, raw_business, effective_date)
@@ -45,7 +48,8 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         if res is not None:
             h.apply_name(entity, first_name=res.first_name, last_name=res.last_name)
             entity.add("alias", res.alias)
-        elif name.count(",") == 1 and "(" not in name:
+        # "(" and "/" mark an alias.
+        elif name.count(",") == 1 and "(" not in name and "/" not in name:
             last_name, first_name = name.split(",")
             h.apply_name(entity, first_name=first_name, last_name=last_name)
         else:
@@ -55,7 +59,9 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         entity.add("name", business)
     entity.add("sector", clean(row.pop("Specialty")))
     entity.add("country", "us")
-    address = clean(row.pop("Address"))
+    # Drop blank parts, e.g. ", , CT, 06120".
+    parts = [" ".join(part.split()) for part in row.pop("Address").split(",")]
+    address = clean(", ".join(part for part in parts if part))
     if address is not None:
         h.copy_address(entity, h.make_address(context, full=address, country_code="us"))
 
@@ -84,16 +90,21 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     # The business is the practice the person worked at; the source doesn't say
     # whether the action extends to it, so it gets no topic.
     if name is not None and business is not None:
-        practice = context.make("LegalEntity")
-        practice.id = context.make_id("practice", raw_business, address)
-        practice.add("name", business)
-        practice.add("country", "us")
-        link = context.make("UnknownLink")
-        link.id = context.make_id(entity.id, practice.id)
-        link.add("subject", entity)
-        link.add("object", practice)
-        context.emit(practice)
-        context.emit(link)
+        # Some Business cells hold a role.
+        role = context.lookup_value("roles", business)
+        if role is not None:
+            entity.add("position", role)
+        else:
+            practice = context.make("LegalEntity")
+            practice.id = context.make_id("practice", raw_business)
+            practice.add("name", business)
+            practice.add("country", "us")
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, practice.id)
+            link.add("subject", entity)
+            link.add("object", practice)
+            context.emit(practice)
+            context.emit(link)
 
     context.emit(entity)
     context.emit(sanction)
