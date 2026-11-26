@@ -24,7 +24,9 @@ interpretation.
 ## Transcribing an act `C` of framework `F`
 
 The acts of `F` — including the English corrigenda of `F` and of its acts —
-come from `tools.common.related_acts(F)`; transcribe them in date order. Run
+come from `tools.common.related_acts(F)`; transcribe them in date order. An
+act CELLAR fails to relate, such as one a consolidation's header cites, is
+filed by hand like any other; `check` warns about it. Run
 the tools from this directory as `python -m tools <command>`.
 
 1. `python -m tools act C` fetches the act into `tools/out/C/` — from the

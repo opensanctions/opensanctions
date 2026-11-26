@@ -234,9 +234,15 @@ def check_acts(framework: str, present: set[str], issues: list[Issue]) -> None:
     for celex in sorted(present):
         # A corrigendum ("32014R0269R(01)") belongs to the act it corrects.
         base = celex.split("R(")[0]
+        # CELLAR misses some links (32023R0426 "amends" 32014D0269); such an
+        # act is filed by hand.
         if base != framework and base not in acts:
             issues.append(
-                Issue("error", celex, "CELLAR relates no such act to the framework")
+                Issue(
+                    "warning",
+                    celex,
+                    "CELLAR relates no such act to the framework; filed by hand?",
+                )
             )
     newest = max((acts[c] for c in present if c in acts), default=None)
     for celex, adopted in sorted(acts.items(), key=lambda item: item[1]):

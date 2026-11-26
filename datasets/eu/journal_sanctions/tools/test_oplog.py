@@ -169,8 +169,10 @@ def test_unknown_act_and_coverage(stack: Path) -> None:
     write_oplog(stack / "32099R0003.csv", [])
     write_oplog(stack / "32099R0099.csv", [])
     issues = check.validate_framework(FRAMEWORK, online=True)
+    unrelated = [i for i in issues if i.where == "32099R0099"]
+    assert [i.level for i in unrelated] == ["warning"]
+    assert "CELLAR relates no such act" in unrelated[0].message
     messages = [i.message for i in issues]
-    assert "CELLAR relates no such act to the framework" in messages
     assert any("no file for 32099R0002" in m for m in messages)
 
 
