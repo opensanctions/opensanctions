@@ -203,7 +203,10 @@ def check_op_against_state(op: Op, state: State, issues: list[Issue]) -> None:
                 "check that the act re-registers the entity",
             )
         )
-    if before["listingDate"] not in ("", row["listingDate"]):
+    old_date, new_date = before["listingDate"], row["listingDate"]
+    if old_date not in ("", new_date) and (
+        parse_date(old_date) is None or parse_date(old_date) != parse_date(new_date)
+    ):
         issues.append(
             Issue(
                 "warning",

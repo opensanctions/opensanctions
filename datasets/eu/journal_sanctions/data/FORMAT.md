@@ -100,8 +100,9 @@ zone, with its location in `address`, or a named crypto-asset with only
 **Names.** Name cells keep the source's wording and casing. A value goes to
 `alias`, `weakAlias` or `previousName` only on a printed label or structure:
 `a.k.a.`, `alias` and `Good quality a.k.a.` mark an `alias`, `Low quality
-a.k.a.` a `weakAlias`, `f.k.a.` and `formerly` a `previousName`; whether
-separators inside a labelled group divide names is judged from the source.
+a.k.a.` a `weakAlias`, `f.k.a.` and `formerly` a `previousName`, but
+`previously listed as` an `alias`; whether separators inside a labelled
+group divide names is judged from the source.
 Every further rendering the source prints on its own line — native script
 or Latin transliteration — is an `alias`, and non-Latin renderings are
 always kept. Never transliterate or translate a name; an unlabeled combined
