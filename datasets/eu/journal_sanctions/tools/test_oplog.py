@@ -468,3 +468,17 @@ def test_run_makes_the_tools_importable(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.output
     (row,) = common.read_oplog(out)
     assert row["name"] == "X"
+
+
+def test_label_in_short_column_warns() -> None:
+    issues: list[check.Issue] = []
+    row = encode_row(
+        {
+            "op": "ADD",
+            "id": "a" * 40,
+            "name": "N",
+            "nationality": "Afghan. Passport no.: D 1",
+        }
+    )
+    check.check_row(Op("32099R0001", 2, row), issues)
+    assert any("nationality holds a printed label" in i.message for i in issues)

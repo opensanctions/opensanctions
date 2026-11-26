@@ -49,6 +49,20 @@ ALIAS_MARKER_RE = re.compile(
     re.IGNORECASE,
 )
 NAME_COLUMNS = ("name", "alias", "weakAlias", "previousName")
+# Columns whose values are short facts: a printed label inside one means two
+# fields ran together ("Afghan. Passport no.: …").
+SHORT_COLUMNS = (
+    "nationality",
+    "birthDate",
+    "birthPlace",
+    "gender",
+    "passportNumber",
+    "idNumber",
+    "taxNumber",
+    "registrationNumber",
+    "imoNumber",
+    "flag",
+)
 DATE_LIKE_RE = re.compile(r"\d{1,2}\.\d{1,2}\.\d{4}")
 REQUIRED = ("name", "schema", "programKey", "measure")
 MEASURES = frozenset(get_args(Measure))
@@ -132,6 +146,10 @@ def check_row(op: Op, issues: list[Issue]) -> None:
         for value in cell_values(row, column):
             if LEAKED_LABEL_RE.search(value) or ALIAS_MARKER_RE.search(value):
                 warn(f"{column} holds a printed label or enumeration: {value[:60]!r}")
+    for column in SHORT_COLUMNS:
+        for value in cell_values(row, column):
+            if LEAKED_LABEL_RE.search(value):
+                warn(f"{column} holds a printed label: {value[:60]!r}")
     if DATE_LIKE_RE.search(row["birthPlace"]):
         warn(f"birthPlace holds a date: {row['birthPlace']!r}")
 
