@@ -1,0 +1,10 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,28364b03a11442d6801f1516ed9be9577dbfdc45,2022-08-01,2022-08-02,6,EU-GNB,I,Asset freeze,,,Person,General Augusto MÁRIO CÓ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,4b2b382a5ac54723d5ed69506f0a91fa2268a0da,2022-08-01,2022-08-02,7,EU-GNB,I,Asset freeze,,,Person,General Saya Braia Na NHAPKA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,ee6181466223e668f974ebc313774e7df25c62f9,2022-08-01,2022-08-02,8,EU-GNB,I,Asset freeze,,,Person,Colonel Tomás DJASSI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,c77427e4833312209d538b4265c2fb03c3643802,2022-08-01,2022-08-02,9,EU-GNB,I,Asset freeze,,,Person,Cranha DANFÁ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,b4ca473d4cf1f3dd07fcd1fc817dd50f5d4a8f93,2022-08-01,2022-08-02,10,EU-GNB,I,Asset freeze,,,Person,Colonel Celestino de CARVALHO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,6989e63a9975ffeb02edb35b6114eb822930fb5e,2022-08-01,2022-08-02,14,EU-GNB,I,Asset freeze,,,Person,Tcham NA MAN,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,cb4dffc4cc5d369e6dae15bca79bfa2b9f9afff4,2022-08-01,2022-08-02,15,EU-GNB,I,Asset freeze,,,Person,Major Samuel FERNANDES,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,5ffbcb47339e5f3e0e49d0a79de0fe24348308c3,2022-08-01,2022-08-02,18,EU-GNB,I,Asset freeze,,,Person,Commander (Navy) Agostinho Sousa CORDEIRO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,427dd06b0ddec27a31fbb9339641d791ba5d9391,2022-08-01,2022-08-02,20,EU-GNB,I,Asset freeze,,,Person,Lieutenant Lassana CAMARÁ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
