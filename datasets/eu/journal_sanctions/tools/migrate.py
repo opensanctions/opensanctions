@@ -3,8 +3,9 @@
 When the format gains, reorders or renames columns, this rewrites every file
 with the header from `common.OPLOG_COLUMNS`: new columns start empty, renamed
 ones move to their new name, and cell values and row order carry over
-unchanged. A column the contract no longer knows is an error that leaves the
-file untouched, so no data is dropped silently.
+unchanged. A column the contract no longer knows is dropped only while every
+cell in it is empty; a filled one is an error that leaves the file untouched,
+so no data is dropped silently.
 """
 
 import csv
@@ -24,9 +25,7 @@ def migrate(path: Path) -> list[dict[str, str]] | None:
     with open(path, encoding="utf-8", newline="") as fh:
         reader = csv.reader(fh)
         header = [RENAMES.get(column, column) for column in next(reader, [])]
-        unknown = [column for column in header if column not in OPLOG_COLUMNS]
-        if unknown:
-            raise click.ClickException(f"{path}: unknown columns {unknown}")
+        unknown = {column for column in header if column not in OPLOG_COLUMNS}
         if len(set(header)) != len(header):
             raise click.ClickException(f"{path}: repeated columns {header}")
         rows: list[dict[str, str]] = []
@@ -35,8 +34,13 @@ def migrate(path: Path) -> list[dict[str, str]] | None:
                 raise click.ClickException(
                     f"{path}:{line}: expected {len(header)} cells"
                 )
+            filled = [c for c, v in zip(header, cells) if c in unknown and v != ""]
+            if filled:
+                raise click.ClickException(
+                    f"{path}:{line}: values in unknown columns {filled}"
+                )
             row = dict.fromkeys(OPLOG_COLUMNS, "")
-            row.update(zip(header, cells))
+            row.update((c, v) for c, v in zip(header, cells) if c not in unknown)
             rows.append(row)
     if tuple(header) == OPLOG_COLUMNS:
         return None

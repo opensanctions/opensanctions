@@ -56,7 +56,6 @@ ENTITY_COLUMNS = (
     "passportNumber",
     "gender",
     "appearance",
-    "ethnicity",
     "fatherName",
     "motherName",
     "incorporationDate",
@@ -81,10 +80,17 @@ ENTITY_COLUMNS = (
     "website",
     "notes",
 )
-# `extra` keeps printed `Label: value` pairs that no column fits.
-OPLOG_COLUMNS = OP_COLUMNS + METADATA_COLUMNS + ENTITY_COLUMNS + ("extra", "reason")
+# Not entity properties: `related` holds printed statements naming other
+# parties, `extra` printed `Label: value` pairs that no column fits.
+OPLOG_COLUMNS = (
+    OP_COLUMNS + METADATA_COLUMNS + ENTITY_COLUMNS + ("related", "extra", "reason")
+)
 # Columns holding `;`-separated values; every other column is scalar.
-MULTI_COLUMNS = tuple(c for c in ENTITY_COLUMNS if c != "name") + ("extra", "reason")
+MULTI_COLUMNS = tuple(c for c in ENTITY_COLUMNS if c != "name") + (
+    "related",
+    "extra",
+    "reason",
+)
 
 # The only cells a DEL row may fill: enough to target the entry and to
 # cross-check it against the live state.

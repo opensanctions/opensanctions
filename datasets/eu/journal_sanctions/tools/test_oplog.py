@@ -329,6 +329,10 @@ def test_migrate_adds_columns(tmp_path: Path) -> None:
     path.write_text("op,nickname\nADD,x\n", encoding="utf-8")
     with pytest.raises(click.ClickException):
         migrate.migrate(path)
+    # An empty column the contract dropped goes away.
+    path.write_text("op,nickname,name\nADD,,Foo\n", encoding="utf-8")
+    rows = migrate.migrate(path)
+    assert rows is not None and "nickname" not in rows[0] and rows[0]["name"] == "Foo"
 
 
 def test_replay_before_an_act_without_a_file(
