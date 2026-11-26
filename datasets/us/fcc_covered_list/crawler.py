@@ -42,8 +42,8 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
         subsidiary_sanction.add("description", description)
         subsidiary_sanction.add("sourceUrl", source_url)
         h.apply_date(subsidiary_sanction, "listingDate", inclusion_date)
-        h.apply_date(subsidiary_sanction, "startDate", inclusion_date)
         h.apply_date(subsidiary_sanction, "modifiedAt", updated_date)
+        h.finalize_sanction(context, subsidiary_sanction, effective_on_listing=True)
 
         context.emit(subsidiary)
         context.emit(ownership)
@@ -54,8 +54,8 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
     sanction.add("description", row.pop("footnote_1"))
     sanction.add("sourceUrl", source_url)
     h.apply_date(sanction, "listingDate", inclusion_date)
-    h.apply_date(sanction, "startDate", inclusion_date)
     h.apply_date(sanction, "modifiedAt", updated_date)
+    h.finalize_sanction(context, sanction, effective_on_listing=True)
 
     context.emit(entity)
     context.emit(sanction)
