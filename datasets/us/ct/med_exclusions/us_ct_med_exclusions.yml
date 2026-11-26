@@ -7,13 +7,12 @@ coverage:
 load_statements: true
 ci_test: false  # Zyte is not available in CI
 summary: >
-  Providers excluded, suspended or terminated from Connecticut's Medicaid program.
+  Providers excluded, suspended or terminated from Connecticut's Medicaid program
 description: |
-  The Quality Assurance division of the Connecticut Department of Social Services
-  publishes the administrative actions it has taken against Medicaid providers:
-  exclusions, suspensions and terminations, with their effective date and period.
-  Where a period is given, the action ends that many years after its effective
-  date; other actions are indefinite.
+  The Connecticut Department of Social Services runs the state's Medicaid program,
+  HUSKY Health. Its Office of Quality Assurance audits the providers who bill the
+  program, from physicians and dentists to counselors and personal care assistants,
+  and lists those it has excluded, suspended or terminated.
 tags:
   - list.debarment
   - sector.health
@@ -47,6 +46,7 @@ assertions:
 
 lookups:
   action:
+    # Administrative Action column, stored as the sanction's provisions.
     options:
       - match: Exclusion
         value: Exclusion
@@ -63,6 +63,7 @@ lookups:
       - match: Nursing Home Administrator
         value: Nursing Home Administrator
   names:
+    # Names with a maiden name or a/k/a, split into name parts and an alias.
     options:
       - match: Balkas (Steiner), Nicole
         first_name: Nicole
