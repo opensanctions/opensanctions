@@ -42,34 +42,38 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT DISTINCT ?title ?doc_date ?pub_date ?oj_pub_date ?eif_date ?type ?eli
                 ?amends_celex ?based_on_celex ?cons_celex WHERE {
   ?work cdm:resource_legal_id_celex "CELEX_ID"^^xsd:string .
-  OPTIONAL { ?work cdm:work_date_document ?doc_date . }
-  OPTIONAL { ?work cdm:official-journal-act_date_publication ?pub_date . }
-  OPTIONAL {
+  # One branch per value, so an act amending dozens of frameworks yields rows
+  # that add up rather than a cross product of its multi-valued properties.
+  { ?work cdm:work_date_document ?doc_date . }
+  UNION { ?work cdm:official-journal-act_date_publication ?pub_date . }
+  UNION {
     ?work cdm:resource_legal_published_in_official-journal ?oj .
     ?oj cdm:publication_general_date_publication ?oj_pub_date .
   }
-  OPTIONAL { ?work cdm:resource_legal_date_entry-into-force ?eif_date . }
-  OPTIONAL { ?work cdm:work_has_resource-type ?type . }
-  OPTIONAL { ?work cdm:resource_legal_eli ?eli . }
-  OPTIONAL {
+  UNION { ?work cdm:resource_legal_date_entry-into-force ?eif_date . }
+  UNION { ?work cdm:work_has_resource-type ?type . }
+  UNION { ?work cdm:resource_legal_eli ?eli . }
+  UNION {
     ?expression cdm:expression_belongs_to_work ?work ;
                 cdm:expression_uses_language lang:ENG ;
                 cdm:expression_title ?title .
   }
-  OPTIONAL {
-    ?work cdm:resource_legal_amends_resource_legal ?amended_framework .
-    ?amended_framework cdm:resource_legal_id_celex ?amends_celex .
+  UNION {
+    ?work cdm:resource_legal_amends_resource_legal ?amended .
+    ?amended cdm:resource_legal_id_celex ?amends_celex .
   }
-  OPTIONAL {
-    ?work cdm:resource_legal_based_on_resource_legal ?based_on .
-    ?based_on cdm:resource_legal_id_celex ?based_on_celex .
+  UNION {
+    ?work cdm:resource_legal_based_on_resource_legal ?basis .
+    ?basis cdm:resource_legal_id_celex ?based_on_celex .
   }
-  BIND(COALESCE(?amended_framework, ?work) AS ?framework)
-  OPTIONAL {
-    ?framework cdm:resource_legal_id_celex ?framework_celex .
-    ?consolidated cdm:resource_legal_id_celex ?cons_celex .
-    FILTER(STRSTARTS(STR(?cons_celex),
-                     CONCAT("0", SUBSTR(STR(?framework_celex), 2), "-")))
+  UNION {
+    ?consolidated cdm:act_consolidated_based_on_resource_legal ?work ;
+                  cdm:resource_legal_id_celex ?cons_celex .
+  }
+  UNION {
+    ?work cdm:resource_legal_amends_resource_legal ?framework .
+    ?consolidated cdm:act_consolidated_based_on_resource_legal ?framework ;
+                  cdm:resource_legal_id_celex ?cons_celex .
   }
 }
 """
@@ -136,9 +140,10 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT DISTINCT ?framework_celex ?cons_celex WHERE {
   VALUES ?framework_celex { FRAMEWORK_VALUES }
   ?framework cdm:resource_legal_id_celex ?framework_celex .
-  ?consolidated cdm:resource_legal_id_celex ?cons_celex .
-  FILTER(STRSTARTS(STR(?cons_celex),
-                   CONCAT("0", SUBSTR(STR(?framework_celex), 2), "-")))
+  # Unlike act_consolidated_consolidates_resource_legal, this edge reaches
+  # every consolidation of the framework and none of other acts.
+  ?consolidated cdm:act_consolidated_based_on_resource_legal ?framework ;
+                cdm:resource_legal_id_celex ?cons_celex .
 }
 """
 

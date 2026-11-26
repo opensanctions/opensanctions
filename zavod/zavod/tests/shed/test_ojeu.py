@@ -70,7 +70,39 @@ def test_framework_results_include_own_consolidated_family() -> None:
     assert act.publication_date == "2024-05-29"
     assert act.entry_into_force == ("2024-05-30",)
     query = cellar.build_act_query("32024R1485").decode("utf-8")
-    assert "BIND(COALESCE(?amended_framework, ?work) AS ?framework)" in query
+    assert "act_consolidated_based_on_resource_legal ?work" in query
+    assert "act_consolidated_based_on_resource_legal ?framework" in query
+    assert "STRSTARTS" not in query
+
+
+def test_parse_act_results_aggregates_union_rows() -> None:
+    # The act query binds one variable per row; values are collected per key.
+    def row(key: str, value: str) -> dict[str, dict[str, str]]:
+        return {key: {"type": "literal", "value": value}}
+
+    bindings = [
+        row("doc_date", "2019-07-08"),
+        row("oj_pub_date", "2019-07-09"),
+        row("eif_date", "2019-07-10"),
+        row(
+            "type", "http://publications.europa.eu/resource/authority/resource-type/REG"
+        ),
+        row("title", "Commission Regulation (EU) 2019/1163"),
+        row("amends_celex", "32014R0269"),
+        row("amends_celex", "32011R0753"),
+        row("cons_celex", "02014R0269-20190715"),
+        row("cons_celex", "02011R0753-20190715"),
+        row("cons_celex", "02014R0269-20190715"),
+    ]
+    act = cellar.parse_act_results("32019R1163", {"results": {"bindings": bindings}})
+
+    assert act.document_date == "2019-07-08"
+    assert act.publication_date == "2019-07-09"
+    assert act.entry_into_force == ("2019-07-10",)
+    assert act.resource_type == "REG"
+    assert act.amends == ("32011R0753", "32014R0269")
+    assert act.based_on == ()
+    assert act.consolidated == ("02011R0753-20190715", "02014R0269-20190715")
 
 
 def test_build_and_parse_related_acts_query() -> None:
@@ -108,7 +140,8 @@ def test_build_and_parse_consolidations_query() -> None:
     ).decode("utf-8")
     assert query.count('"32014R0833"^^xsd:string') == 1
     assert '"32024R1485"^^xsd:string' in query
-    assert "resource_legal_id_celex ?cons_celex" in query
+    assert "act_consolidated_based_on_resource_legal ?framework" in query
+    assert "STRSTARTS" not in query
 
     result = json.loads((FIXTURES / "consolidations.json").read_text())
     consolidations = cellar.parse_consolidations_results(result)
