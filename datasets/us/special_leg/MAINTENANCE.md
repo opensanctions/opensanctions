@@ -11,6 +11,12 @@ named by several acts appears in several files. Within one edition an entity mus
 appear only once, with all of its names collected in `aliases` — the crawler
 rejects a name repeated within an edition.
 
+The crawler merges all rows of an entity in one file (spelling variants of a
+name share an entity ID) into a single Sanction spanning the designation: its
+listing date is the earliest `report-date`, the latest edition's row decides
+whether and when it ended, and an edition counts as an amendment only if it
+changes the entry's `aliases`, `country` or `reason`.
+
 ## Columns
 
 All files share the same header:
@@ -25,19 +31,20 @@ All files share the same header:
 - `authority`: the body that issued the listing (e.g. United States Congress,
   U.S. Department of State).
 - `reason`: the grounds for the listing, where the source states them.
-- `report-date`: the edition the row was taken from (e.g. the fiscal year of a
-  Section 1286 list). Emitted as the sanction's listing date.
+- `report-date`: the publication date of the edition the row was taken from:
+  the release of a Section 1286 list or Section 353 report, the publication of
+  an INKSNA notice, or the enactment of an act. It keys the edition.
 - `start-date` / `end-date`: when the listing takes effect and ends. INKSNA
   measures run for two years from the determination date. Acts set their own
   effective dates (Section 889: one year after enactment; Section 5949: five
   years). Section 353 rows leave `start-date` empty: a listing applies from
   its report, so the crawler copies the `report-date`. Section 1286 lists give
-  no effective date, so their rows have none.
+  no effective date, so their rows have none. An entity whose `start-date` is
+  still ahead is tagged `reg.warn` until then, and with its `topics` after.
 - `modified-date`: the publication date of the notice or edition that changed
   or ended an existing row, e.g. an INKSNA termination notice or the Section
-  1286 edition that dropped an institution. Without one, the `report-date`
-  counts as the last modification. Section 1286 rows are the exception: each
-  edition restates the whole list, so they get no modification date by default.
+  1286 edition that dropped an institution. Without one, the latest edition
+  that changed the entry counts, and otherwise the first `report-date`.
 - `country`: ISO 3166-1 alpha-2 code, or a value covered by the `type.country`
   lookup.
 - `notes`: maintainer context, including judgment calls made while transcribing.

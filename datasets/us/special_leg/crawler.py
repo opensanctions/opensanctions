@@ -33,53 +33,68 @@ CTO_CACHE_DAYS = 1
 FR_NOTICE_TITLE_RE = re.compile(r"nonproliferation (act )?measures", re.IGNORECASE)
 
 
-def crawl_row(
-    context: Context,
-    row: dict[str, str],
-    amendments_dated: bool,
-    effective_on_listing: bool,
+def crawl_designation(
+    context: Context, rows: list[dict[str, str]], effective_on_listing: bool
 ) -> None:
-    """Process one row of the CSV data"""
-    schema = row.pop("schema")
-    name = row.pop("name")
-    report_date = row.pop("report-date")
-    topics = row.pop("topics")
-    source_url = row.pop("source_url")
-    program = row.pop("program")
-    entity = context.make(schema)
-    entity.id = context.make_slug(name)
-    h.apply_name(entity, name)
-    entity.add("alias", row.pop("aliases").split(";"))
-    entity.add("country", row.pop("country"))
-    entity.add("sourceUrl", h.multi_split(source_url, ";"))
-    entity.add("notes", row.pop("notes"))
+    """Emit an entity and one Sanction spanning every edition that lists it.
+
+    The latest edition decides whether the designation still stands, and an
+    edition counts as an amendment only if it changes the entry.
+    """
+    rows.sort(key=lambda row: row["report-date"])
+    latest = rows[-1]
+    program = latest["program"]
+    topics = latest["topics"]
+    entity = context.make(latest["schema"])
+    entity.id = context.make_slug(latest["name"])
     sanction = h.make_sanction(
         context,
         entity,
         program_name=program,
         program_key=h.lookup_sanction_program_key(context, program),
     )
-    h.apply_date(sanction, "listingDate", report_date)
-    h.apply_date(sanction, "startDate", row.pop("start-date"))
-    h.apply_date(sanction, "endDate", row.pop("end-date"))
-    h.apply_date(sanction, "modifiedAt", row.pop("modified-date"))
-    sanction.add("reason", row.pop("reason"))
-    sanction.add("description", f"Published in {report_date} report.")
-    sanction.set("authority", row.pop("authority"))
-    sanction.set("sourceUrl", h.multi_split(source_url, ";"))
+    h.apply_date(sanction, "listingDate", rows[0]["report-date"])
+    start_dates = [row["start-date"] for row in rows if row["start-date"] != ""]
+    if len(start_dates) > 0:
+        h.apply_date(sanction, "startDate", start_dates[0])
+    h.apply_date(sanction, "endDate", latest["end-date"])
+
+    previous: tuple[str, ...] | None = None
+    for row in rows:
+        report_date = row.pop("report-date")
+        entry = (row["aliases"], row["country"], row["reason"])
+        if previous is not None and entry != previous:
+            h.apply_date(sanction, "modifiedAt", report_date)
+        previous = entry
+        h.apply_date(sanction, "modifiedAt", row.pop("modified-date"))
+        source_urls = h.multi_split(row.pop("source_url"), ";")
+        h.apply_name(entity, row.pop("name"))
+        entity.add("alias", row.pop("aliases").split(";"))
+        entity.add("country", row.pop("country"))
+        entity.add("sourceUrl", source_urls)
+        entity.add("notes", row.pop("notes"))
+        sanction.add("reason", row.pop("reason"))
+        sanction.add("description", f"Published in {report_date} report.")
+        sanction.add("authority", row.pop("authority"))
+        sanction.add("sourceUrl", source_urls)
+        for key in ("schema", "program", "topics", "start-date", "end-date"):
+            row.pop(key)
+        context.audit_data(row)
+
     h.finalize_sanction(
         context,
         sanction,
         effective_on_listing=effective_on_listing,
-        amendments_dated=amendments_dated,
+        amendments_dated=True,
     )
-
     if h.is_active(sanction):
         entity.add("topics", topics)
+    elif not sanction.has("endDate"):
+        # Named by the act or report, but its measures are not in force yet.
+        entity.add("topics", "reg.warn")
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(row)
 
 
 def crawl_fr_notices(context: Context) -> None:
@@ -178,6 +193,7 @@ def crawl_source_file(context: Context, source_file: Path) -> None:
     # within an edition mean the source was transcribed twice, or with one row
     # per alias instead of one row per entity.
     seen: set[tuple[str, str]] = set()
+    designations: dict[str, list[dict[str, str]]] = {}
     for row in rows:
         listing = (row["report-date"], row["name"])
         if listing in seen:
@@ -186,12 +202,15 @@ def crawl_source_file(context: Context, source_file: Path) -> None:
                 f"in the {row['report-date']!r} edition"
             )
         seen.add(listing)
-        # Listings change only by dated acts, reports or notices. Section 1286
-        # editions restate the whole list, so its amendments are unknown.
-        amendments_dated = source_file != SECTION_1286_FILE and row["report-date"] != ""
-        # Section 353(c) sanctions each person identified in the report.
-        effective_on_listing = source_file == SECTION_353_FILE
-        crawl_row(context, row, amendments_dated, effective_on_listing)
+        # Spelling variants of a name share an entity ID, so group by it.
+        entity_id = context.make_slug(row["name"])
+        assert entity_id is not None, row["name"]
+        designations.setdefault(entity_id, []).append(row)
+
+    # Section 353(c) sanctions each person identified in the report.
+    effective_on_listing = source_file == SECTION_353_FILE
+    for designation_rows in designations.values():
+        crawl_designation(context, designation_rows, effective_on_listing)
 
 
 def crawl(context: Context) -> None:
