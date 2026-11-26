@@ -251,6 +251,18 @@ def missing_values(
             if value in previous:
                 continue
             needle = " ".join(value.split())
-            if (loosen(needle) if loose else needle) not in text:
-                missing.append((column, value))
+            if loose:
+                needle = loosen(needle)
+            if needle in text:
+                continue
+            # A passage continued across a page break is printed as two table
+            # rows, with the other cells of the first row in between; each of
+            # its sentences is still printed whole.
+            sentences = SENTENCE_RE.split(needle)
+            if len(sentences) > 1 and all(s in text for s in sentences):
+                continue
+            missing.append((column, value))
     return missing
+
+
+SENTENCE_RE = re.compile(r"(?<=\.)\s+")

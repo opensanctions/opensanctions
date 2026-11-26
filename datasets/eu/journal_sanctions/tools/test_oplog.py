@@ -530,6 +530,14 @@ def test_rank_matches_renamed_vessels_by_imo() -> None:
     assert chosen is not None and chosen.entry.row["id"] == ALICE
 
 
+def test_missing_values_finds_passages_split_by_page_breaks() -> None:
+    text = haystack(" | 1. ‖ Alice ‖ First part. ‖ 1.1.2099\n | ‖ ‖ Second part. ‖")
+    row = make_row("ADD", ALICE, "2099-01-01", reason="First part. Second part.")
+    assert missing_values(row, text) == []
+    row.update(reason="First part. Third part.")
+    assert missing_values(row, text) == [("reason", "First part. Third part.")]
+
+
 def test_fold_applies_later_corrigenda_in_as_of_views(stack: Path) -> None:
     write_oplog(
         stack / "32099R0002R(01).csv",
