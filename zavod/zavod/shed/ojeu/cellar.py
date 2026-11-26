@@ -148,6 +148,7 @@ SELECT DISTINCT ?framework_celex ?cons_celex WHERE {
 """
 
 RELATED_ACT_TYPES = ("REG_IMPL", "DEC_IMPL", "REG", "DEC")
+CORRIGENDA_BATCH = 200
 
 
 @dataclass(frozen=True)
@@ -402,14 +403,24 @@ class CellarClient:
         `framework_celex` is the corrected act and its `relation` is
         "corrects".
         """
-        request = corrigenda_request(celexes)
-        response = self._fetch(request, cache_days)
-        try:
-            result = orjson.loads(response.content)
-            return parse_related_act_results(result)
-        except Exception:
-            self.clear(request)
-            raise
+        values = _normalize_frameworks(celexes)
+        found: list[RelatedAct] = []
+        # The endpoint rejects request bodies over about 8 KB with a 403.
+        for start in range(0, len(values), CORRIGENDA_BATCH):
+            request = corrigenda_request(values[start : start + CORRIGENDA_BATCH])
+            response = self._fetch(request, cache_days)
+            try:
+                result = orjson.loads(response.content)
+                found.extend(parse_related_act_results(result))
+            except Exception:
+                self.clear(request)
+                raise
+        return tuple(
+            sorted(
+                found,
+                key=lambda act: (act.document_date, act.celex, act.framework_celex),
+            )
+        )
 
     def query_consolidations(
         self,

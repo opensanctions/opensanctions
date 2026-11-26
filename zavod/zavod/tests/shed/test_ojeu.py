@@ -425,3 +425,33 @@ def test_build_and_parse_corrigenda_query() -> None:
     assert act.framework_celex == "32017R1568"
     assert act.relation == "corrects"
     assert act.resource_type == "CORRIGENDUM"
+
+
+def test_query_corrigenda_batches_large_target_sets(requests_mock) -> None:
+    def binding(celex: str) -> dict[str, dict[str, str]]:
+        return {
+            "celex": {"value": f"{celex}R(01)"},
+            "framework_celex": {"value": celex},
+            "relation": {"value": "corrects"},
+            "doc_date": {"value": f"2020-01-{celex[-2:]}"},
+            "type": {
+                "value": "http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM"
+            },
+        }
+
+    responses = [
+        {"json": {"results": {"bindings": [binding("32019R0102")]}}},
+        {"json": {"results": {"bindings": [binding("32019R0101")]}}},
+    ]
+    requests_mock.post(cellar.SPARQL_ENDPOINT, responses)
+    client = cellar.CellarClient(requests.Session())
+    targets = [f"32019R{n:04d}" for n in range(1, cellar.CORRIGENDA_BATCH + 2)]
+
+    found = client.query_corrigenda(targets)
+
+    assert requests_mock.call_count == 2
+    first, second = (r.body for r in requests_mock.request_history)
+    assert b'"32019R0001"^^xsd:string' in first
+    assert b'"32019R0201"^^xsd:string' in second
+    assert b'"32019R0201"^^xsd:string' not in first
+    assert [act.celex for act in found] == ["32019R0101R(01)", "32019R0102R(01)"]
