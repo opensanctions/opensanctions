@@ -44,8 +44,9 @@ op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,
   previously deleted `id` is a relisting and starts a new listing period.
 - `MOD` — a changed entry, always the full row, never a diff. When the act
   replaces the whole entry ("the entry for X is replaced by the following"),
-  the row is the new entry and a column it does not print is empty. When the
-  act changes part of an entry — a corrigendum's "for … read …", or "in entry
+  the row is the new entry: a field it leaves empty is empty, and a field
+  the act's layout has no place for is carried over from the target. When
+  the act changes part of an entry — a corrigendum's "for … read …", or "in entry
   23, the date … is replaced by …" — every value it does not change is
   carried over from the target. A corrigendum gets a `MOD` for every entry it
   names, even where a later act already made the change.
@@ -57,7 +58,8 @@ An act that replaces a whole annex is a `MOD` for every entry it lists, a
 `DEL` for each live entry it leaves out, and an `ADD` for each new one. An
 entry moves to another annex or part only when the act restructures the
 annex or transfers the entry; that is a `MOD` changing `annex`, so the
-listing continues. A designee listed in a second annex is a separate
+listing continues. A `MOD` changes `schema` only when the act re-registers
+the entity under another legal form. A designee listed in a second annex is a separate
 designation with its own `id`.
 
 Replay applies files in `(effectiveDate, publishedDate, CELEX)` order and rows

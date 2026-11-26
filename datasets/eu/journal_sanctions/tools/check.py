@@ -193,6 +193,15 @@ def check_op_against_state(op: Op, state: State, issues: list[Issue]) -> None:
                 f"{row['annex']!r}; check that the act restructures or transfers",
             )
         )
+    if row["schema"] != before["schema"]:
+        issues.append(
+            Issue(
+                "warning",
+                op.where,
+                f"MOD changes schema {before['schema']} -> {row['schema']}; "
+                "check that the act re-registers the entity",
+            )
+        )
     if row["listingDate"] != before["listingDate"]:
         issues.append(
             Issue(

@@ -77,7 +77,10 @@ def apply(state: State, op: Op) -> None:
     """Apply one op, recording an error instead of applying an invalid one."""
     row, key = op.row, op.key
     known = state.schemata.setdefault(row["id"], row["schema"])
-    if row["schema"] != known:
+    # A MOD may re-register an entity under another schema.
+    if row["op"] == "MOD" and key in state.live:
+        state.schemata[row["id"]] = row["schema"]
+    elif row["schema"] != known:
         state.errors.append(
             f"{op.where}: id {row['id']} was {known}, now {row['schema']}"
         )

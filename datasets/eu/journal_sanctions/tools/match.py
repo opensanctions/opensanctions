@@ -9,6 +9,7 @@ reprint it) and the date of birth. `missing_values` looks a row's values up
 in an act's or a consolidation's text.
 """
 
+import html
 import re
 from dataclasses import dataclass
 
@@ -182,6 +183,8 @@ LOOSE_CHARS = str.maketrans(
     | {c: "-" for c in "‐‑‒–—"}
     # Cyrillic letters that look like Latin ones and get swapped in print.
     | dict(zip("аеіорсхуј", "aeiopcxyj"))
+    # Romanian cedilla letters, which consolidations print with a comma below.
+    | dict(zip("ţşŢŞ", "țșȚȘ"))
 )
 
 
@@ -206,6 +209,10 @@ def haystack(text: str, loose: bool = False) -> str:
     """
     text = SEPARATOR_RE.sub(" ", MARKER_RE.sub(" ", text))
     text = NAME_PART_RE.sub("", text)
+    # Some acts print character references escaped twice or more
+    # ("&amp;amp;#x042D;"); the name they encode is what was meant.
+    while (unescaped := html.unescape(text)) != text:
+        text = unescaped
     text = " ".join(text.split())
     return loosen(text) if loose else text
 

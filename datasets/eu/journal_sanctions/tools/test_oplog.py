@@ -488,3 +488,11 @@ def test_label_in_short_column_warns() -> None:
     )
     check.check_row(Op("32099R0001", 2, row), issues)
     assert any("nationality holds a printed label" in i.message for i in issues)
+
+
+def test_check_decodes_escaped_references() -> None:
+    text = haystack("Леонид &amp;amp;#x042D;дуардович Слуцкий; Bălţi")
+    row = encode_row({"name": "Леонид Эдуардович Слуцкий"})
+    assert missing_values(row, text) == []
+    loose = haystack("Bălţi", loose=True)
+    assert missing_values(encode_row({"name": "Bălți"}), loose, loose=True) == []
