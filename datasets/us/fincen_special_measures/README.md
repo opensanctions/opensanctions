@@ -1,18 +1,26 @@
-# FinCEN special measures details
+# FinCEN special measures documents and details
 
-`details.csv` is a manually maintained record of facts stated in the
-rulemaking documents (findings, notices of proposed rulemaking, final rules)
-linked from the [FinCEN special measures table](https://www.fincen.gov/resources/statutes-and-regulations/special-measures/):
-addresses, aliases, identifiers, and the sub-entities the documents name.
-The crawler reads the live table for the measures themselves and joins this
-file for everything document-derived. Changes should be submitted as pull
+The crawler reads the live [FinCEN special measures table](https://www.fincen.gov/resources/statutes-and-regulations/special-measures/)
+for the measures themselves and joins two manually maintained sheets for
+everything taken from the rulemaking documents the table links:
+
+- `documents.csv` dates each linked document, one row per link (see
+  [Dates](#dates)).
+- `details.csv` records the facts stated in the documents: addresses,
+  aliases, identifiers, and the sub-entities the documents name.
+
+They are separate because many documents (extensions, withdrawals,
+procedural notices) name no entities, while one document can be cited by
+over a hundred `details.csv` rows. Changes should be submitted as pull
 requests.
 
-When the table links a document that no `details.csv` row cites, the crawler
-warns ("Unreviewed special measures document"); the runbook for resolving
-that warning is in the `config.discovery` section of the dataset `.yml`.
+When the table links a document without a `documents.csv` row, the crawler
+warns "Undated special measures document"; when no `details.csv` row cites
+it, "Unreviewed special measures document". The runbook for resolving both,
+and the crawl errors the sheets can raise, is in the `config.discovery`
+section of the dataset `.yml`.
 
-## Columns
+## `details.csv` columns
 
 - `Measure` — the target name exactly as it appears in the table's first
   column (including footnote asterisks); this is the join key, and the crawl
@@ -63,11 +71,19 @@ that warning is in the `config.discovery` section of the dataset `.yml`.
 
 `documents.csv` dates every document the table links, one row per link:
 
-- `Measure` — the join key, as in `details.csv`.
-- `Stage` — `finding`, `nprm`, `final_rule` (also a Section 9714 or 2313a
-  order), `extension` (moves the effective date of a final rule or order),
-  `amendment` (a supplement or an order amending a final rule or order), or
-  `rescission` (also a withdrawal of a finding or proposed rule).
+- `Measure` — the join key, as in `details.csv`. A document the table links
+  under several measures gets one row per measure.
+- `Stage` — one of:
+  - `finding` — a notice of finding.
+  - `nprm` — a notice of proposed rulemaking.
+  - `final_rule` — a final rule, or a Section 9714 or 2313a order. At most
+    one per measure.
+  - `extension` — a rule or order that only moves the effective date of the
+    final rule or order.
+  - `amendment` — a supplement, or a later rule or order that changes the
+    terms of the final rule or order.
+  - `rescission` — a rescission, or a withdrawal of a finding or proposed
+    rule.
 - `URL` — the document exactly as linked from the table.
 - `Published` — its Federal Register publication date.
 - `Effective` — the date it takes effect, per its DATES section; for an
@@ -80,7 +96,8 @@ the dates in the table, which are often signing or public-inspection dates:
 `startDate` is the effective date of the final rule or order, as last
 extended; `modifiedAt` is the latest extension or amendment, or the listing
 date if there is none; `endDate` is the effective date of the rescission.
-`target` rows share their measure's dates.
+`target` rows share their measure's dates. A measure whose final rule or
+order is published but not yet effective is `reg.warn` until its `startDate`.
 
 ## Topics
 
@@ -100,6 +117,8 @@ and from the measure's current stage in the table:
 ## Removed documents are not delistings
 
 A document URL going dead on fincen.gov does not end a measure or invalidate
-mined facts. Keep the rows and the original URL; if FinCEN replaces the link
-(e.g. a public-inspection URL becoming a published /documents/ URL), move the
-citations to the new URL in the same change.
+mined facts. Keep the rows and the original URL while the table still links
+it; if FinCEN replaces the link (e.g. a public-inspection URL becoming a
+published /documents/ URL), move the `documents.csv` row and the
+`details.csv` citations to the new URL in the same change. A `documents.csv`
+row must match a link in the table, so the crawl fails until it is moved.
