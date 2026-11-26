@@ -18,6 +18,10 @@ def crawl_term(
     doc = context.fetch_html(url, encoding="utf-8")
     for card in h.xpath_elements(doc, "//ul[@data-view-panel='saraksts']/li"):
         href = h.xpath_string(card, ".//a[@class='dep-card__name']/@href")
+        status = card.get("data-status")
+        if status not in ("current", "previous"):
+            context.log.warning("Unknown deputy status", status=status, url=href)
+            continue
         # Profile addresses end in the term and the deputy's name, numbered or located
         # for namesakes: 14-ainars-latkovskis, 9-andris-berzins-2. Without the term,
         # this is the name slug the previous source (titania.saeima.lv) was keyed on.
@@ -44,7 +48,7 @@ def crawl_term(
             period_end=period_end,
             # Deputies who lay down their mandate to serve as ministers stay listed
             # in the sitting term as "previous", without a date.
-            no_end_implies_current=card.get("data-status") == "current",
+            no_end_implies_current=status == "current",
             categorisation=categorisation,
         )
         if occupancy is None:
@@ -67,7 +71,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21191589",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     cutoff = h.earliest_term_start(TOPICS)
