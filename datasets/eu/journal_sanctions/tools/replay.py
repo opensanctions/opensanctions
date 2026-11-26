@@ -133,7 +133,7 @@ def act_position(celex: str) -> tuple[str, str, str]:
     path = OUT_DIR / celex / "meta.json"
     if not path.exists():
         raise click.UsageError(
-            f"{celex} has no file; run `python -m tools.act {celex}` first"
+            f"{celex} has no file; run `python -m tools act {celex}` first"
         )
     meta = json.loads(path.read_text())
     published = meta["publication_date"]

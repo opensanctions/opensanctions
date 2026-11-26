@@ -315,7 +315,7 @@ def test_empty_id_stops_validation(stack: Path) -> None:
             make_row("MOD", "", "2099-02-01", name="Alice Smith", reason="R."),
         ],
     )
-    assert errors() == ["empty id; run `python -m tools.lookup resolve`"]
+    assert errors() == ["empty id; run `python -m tools resolve`"]
 
 
 def test_migrate_adds_columns(tmp_path: Path) -> None:

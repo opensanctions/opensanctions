@@ -6,58 +6,43 @@ adds, modifies, or deletes one designation in one legal context. Replaying a
 framework's files in order yields its list at any date, and dates each
 designation by the acts that listed, changed, and removed it.
 
-## Fidelity and the cleaning boundary
+## Fidelity
 
 Cells hold the source's printed wording. Transcription performs structural
 extraction only: mapping printed labels to columns, splits dictated by the
 source's own labels, list structure, or enumeration, dropping printed
 placeholders (`na`, `n/a`, `n.a.`), collapsing whitespace, trimming a value's
-trailing full stop, and stripping EUR-Lex change markers. Semantic normalization — date parsing, country codes,
-identifier canonicalization, and any name categorisation beyond printed
-labels — belongs to the consuming crawler, via `type.*` lookups, the `dates`
-configuration, and the names review system.
+trailing full stop, and stripping EUR-Lex change markers. Cell values are
+never assembled from parsed pieces. Semantic normalization — date parsing,
+country codes, identifier canonicalization, name categorisation beyond
+printed labels — belongs to the consuming crawler; irregular names are
+expected and go through its names review.
 
 ## Files
 
 A framework's files live in `regulations/{framework}/`, named after the act
-they transcribe:
+they transcribe, as bare uppercase CELEX identifiers
+(`zavod.shed.ojeu.celex.normalize`):
 
 - `{framework}.csv` — the framework act itself, all `ADD` rows;
 - `{celex}.csv` — each act CELLAR relates to the framework (as amending it or
-  as based on it). An act that changes no designation gets a header-only
+  as based on it); an act that changes no designation gets a header-only
   file, so coverage stays checkable;
 - `{celex}R({nn}).csv` — an English corrigendum of the framework or of a
-  related act, as `MOD` rows. Its `effectiveDate` is its publication date.
+  related act.
 
-Names are bare, normalized, uppercase CELEX identifiers, the form produced by
-`zavod.shed.ojeu.celex.normalize`. The path is authoritative: rows carry no
-CELEX columns, and source URLs are derived from the CELEX.
-
-Files are UTF-8, comma-delimited, and start with this exact header:
+The path is authoritative: rows carry no CELEX columns. Files are UTF-8,
+comma-delimited, and start with this exact header:
 
 ```csv
 op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,extra,reason
 ```
 
-## Operation columns
-
-| Column | Content |
-| --- | --- |
-| `op` | `ADD`, `MOD`, or `DEL`. |
-| `id` | The designation's ID, a bare lowercase 40-hex hash. Set on its first `ADD` and repeated verbatim on every later op, so renames and renumbering never change it. |
-| `publishedDate` | The act's Official Journal publication date, ISO `YYYY-MM-DD`. Same on every row of a file. |
-| `effectiveDate` | The date the provision making this op enters into force or applies, ISO. Usually the same across a file; differs where the act's final article says so. |
-
-A new designation's `id` is
-`make_entity_id(framework, recordId, name, key_prefix="eu_journal_sanctions")`
-over the printed number and the name as first listed — the crawler's entity ID
-formula, without the dataset prefix.
-
 ## Operations
 
 - `ADD` — a new designation: the full entry as printed. An `ADD` of a
   previously deleted `id` is a relisting and starts a new listing period.
-- `MOD` — a changed entry: always the full row, never a diff. When the act
+- `MOD` — a changed entry, always the full row, never a diff. When the act
   replaces the whole entry ("the entry for X is replaced by the following"),
   the row is the new entry and a column it does not print is empty. When the
   act changes part of an entry — a corrigendum's "for … read …", or "in entry
@@ -68,148 +53,101 @@ formula, without the dataset prefix.
   `programKey`, `annex`, `measure`, `schema` and `name` are filled, carried
   from the live entry; `name` and `schema` must equal the live entry's.
 
-A `MOD` or `DEL` carries its target's `annex` and `recordId`; the act's own
-numbering of the entries it amends is not recorded.
-
 An act that replaces a whole annex is a `MOD` for every entry it lists, a
-`DEL` for each live entry it leaves out, and an `ADD` for each new one.
+`DEL` for each live entry it leaves out, and an `ADD` for each new one. An
+entry moves to another annex or part only when the act restructures the
+annex or transfers the entry; that is a `MOD` changing `annex`, so the
+listing continues. A designee listed in a second annex is a separate
+designation with its own `id`.
 
 Replay applies files in `(effectiveDate, publishedDate, CELEX)` order and rows
-in file order; a view as of a date applies every op with an `effectiveDate`
-on or before it, and treats a designation whose `endDate` lies before that
-date as lapsed. A designation's key is `(id, programKey, measure)`. An `ADD`
-of a live key and a `MOD` or `DEL` of a missing one are invalid.
+in file order. A designation's key is `(id, programKey, measure)`: an `ADD`
+of a live key and a `MOD` or `DEL` of a missing one are invalid. A view as of
+a date applies every op with an `effectiveDate` on or before it and treats a
+designation whose `endDate` lies before that date as lapsed.
 
-A designee listed in a second annex of the framework is a separate
-designation with its own `id`. An entry moves to another annex or part only
-when the act restructures the annex or transfers the entry; that is a `MOD`
-changing `annex`, so the listing continues.
+## Columns
 
-## Sanctions metadata columns
+| Column | Content |
+| --- | --- |
+| `op` | `ADD`, `MOD`, or `DEL`. |
+| `id` | The designation's ID, a bare lowercase 40-hex hash, repeated verbatim by every op on the designation. A new designation's is `make_entity_id(framework, recordId, name, key_prefix="eu_journal_sanctions")` over the printed number and the name as first listed. |
+| `publishedDate` | The act's Official Journal publication date, ISO `YYYY-MM-DD`; the same on every row of a file. |
+| `effectiveDate` | The date the provision making this op enters into force or applies, ISO; a corrigendum's is its publication date. |
+| `recordId` | On an `ADD`, the entry number the act prints, as printed, or empty — never invent one. A `MOD` or `DEL` carries its target's. |
+| `programKey` | Required. An OpenSanctions program key from `meta/programs/*.yml` (e.g. `EU-LBY`). |
+| `annex` | The framework's annex the entry is listed in, never the amending act's own annex or sections: compact Roman numerals with dot-separated parts (`IV`, `XIX.A`). A part is the framework annex's printed letter or, for an unlettered part heading, that heading in capitals (`I.PERSONS`). An annex inserted by an amending act keeps its lowercase suffix (`Ia`). A `MOD` or `DEL` carries its target's unless the act moves the entry. |
+| `measure` | Required. A measure from the `Measure` vocabulary in `zavod/zavod/stateful/programs.py` that the program lists. A designation under several programs or measures has one row per legal context, sharing its `id`. |
+| `listingDate` | The printed per-designation listing date — for UN-mirror regimes the printed date of UN designation — or empty. |
+| `endDate` | The printed end of a time-limited designation (`valid … to 26 July 2016` gives `26 July 2016`); a renewal is a `MOD` with the new date. |
+| `reason` | The rationale for listing, as prose: one value per separately printed passage (grounds for listing, a narrative summary); the paragraphs of one passage join with spaces. |
+| `extra` | Each labelled value no column fits, verbatim with its label (`Deadweight: 4,996 t`); kept for evidence, not emitted. |
 
-| Column | Required | Content |
-| --- | --- | --- |
-| `recordId` | No | The entry number the act prints, as printed. Acts that add entries number them locally (`1.`, `2.`, …). A `MOD` or `DEL` that prints none takes its target's. Never invent one. |
-| `programKey` | Yes | One OpenSanctions program key that resolves against `meta/programs/*.yml` (e.g. `EU-LBY`). |
-| `annex` | When stated | The framework's annex the entry is listed in, never the amending act's own annex or sections, as compact Roman numerals with dot-separated parts: `IV`, `XIX.A`, `XLV.D`. A part is the framework annex's own part: its printed letter or, where the framework prints an unlettered part heading, that heading in capitals (`I.PERSONS`, `I.ENTITIES`). An annex inserted by an amending act keeps its printed lowercase suffix: `Ia`. |
-| `measure` | Yes | One sanctions measure from the `Measure` vocabulary in `zavod/zavod/stateful/programs.py`, which must also appear in the selected program's `measures:` list. |
-| `listingDate` | No | The source's printed per-designation listing date, date-only — for regimes mirroring a UN list, the printed date of UN designation. Empty when the source prints none — never infer one. |
-| `endDate` | No | The printed date a time-limited designation ends, date-only (`valid … to 26 July 2016` produces `26 July 2016`). A renewal is a `MOD` with the new date. |
-| `reason` | No | The source's rationale for listing, as prose: one value per separately printed passage (e.g. grounds for listing and a narrative summary of reasons). The paragraphs of one passage join into one value with spaces; prefer one long value to fragments. |
+## Entity columns
 
-A designation in several programs or under several measures has one row per
-legal context, sharing its `id`.
+`schema` and `name` are required on `ADD` and `MOD`. `schema` is `Person`,
+`Vessel`, `Asset`, `Company` (share-capital companies only), `Organization`
+(any other group: state enterprises and agencies, militias, networks,
+unions, self-proclaimed republics), or `LegalEntity` (when it is unclear
+whether the target is a person or an organisation). Every filled entity
+column must be a property of that FollowTheMoney schema. `Asset` is a
+directly restricted thing that is neither entity nor vessel: a facility or
+zone, with its location in `address`, or a named crypto-asset with only
+`name`.
+
+**Names.** Name cells keep the source's wording and casing. A value goes to
+`alias`, `weakAlias` or `previousName` only on a printed label or structure:
+`a.k.a.`, `alias` and `Good quality a.k.a.` mark an `alias`, `Low quality
+a.k.a.` a `weakAlias`, `f.k.a.` and `formerly` a `previousName`; whether
+separators inside a labelled group divide names is judged from the source.
+Every further rendering the source prints on its own line — native script
+or Latin transliteration — is an `alias`, and non-Latin renderings are
+always kept. Never transliterate or translate a name; an unlabeled combined
+form stays whole in `name`. A name printed in numbered parts
+(`1: ABU 2: ZAYD`) is the parts joined with spaces.
+
+**Countries.** Use the most specific column — `nationality` (a person's),
+`jurisdiction` (where an entity is registered), `flag` (a vessel's) or
+`country` — and keep the source's territory wording (`Flag State: Cameroon`
+gives `Cameroon`). A place of birth goes in `birthPlace`, not a country
+column, unless the source states a separate country.
+
+**Identifiers and documents.** Use `birthDate` for people and
+`incorporationDate` for entities. Put identifiers in the most specific
+column (`innCode`, `ogrnCode`, `kppCode`, `okpoCode`, `leiCode`, `swiftBic`,
+`ticker`, `imoNumber`, `mmsi`), else `taxNumber`, `idNumber` or
+`registrationNumber`. Documents printed with an alias go to the
+designation's own columns. A document's validity is not transcribed when it
+can be separated (`Passport: A005465 (Libya), issued …, expires …` gives
+`A005465 (Libya)`); printed inside the identifier's own parenthesis it
+cannot, and the whole value is kept.
+
+**Prose.** `legalForm`, `position`, `sector`, `appearance`, `ethnicity`,
+`fatherName` and `motherName` hold the stated value. `notes` holds the
+source's other-information prose about the entity — anything printed as
+"Other information" — one value per printed line or paragraph, without its
+label; labelled remarks inside a paragraph stay with it. Kin names and
+lines naming other parties (`Associated individuals: …`) are not
+transcribed.
+
+## Values
+
+- Cells are trimmed; a missing value is an empty cell, never a placeholder.
+- `reason`, `extra` and every entity column except `name` are multi-valued,
+  separated by `; `. A value containing `;` or `"` is CSV-quoted within the
+  cell, quotes doubled (`"Foo; Bar"; Baz` holds two values). Values are
+  non-empty and unique.
+- Entity dates keep the source's wording (`Approximately 1952`).
+  `listingDate` and `endDate` are bare dates: ISO partial (`2011-02-28`),
+  dotted (`28.2.2011`), worded (`2 December 1985`) or UN-abbreviated
+  (`26 Feb. 2011`).
+- A file has no duplicate rows, and an `id` appears at most once per
+  `programKey` and `measure` in it.
 
 ## Mapping to the Sanction
 
 - `listingDate` is the printed `listingDate`, else the `ADD`'s `publishedDate`.
-- `startDate` is the `ADD`'s `effectiveDate`.
+- `startDate` is the `ADD`'s `effectiveDate`; `endDate` the printed `endDate`.
 - `modifiedAt` is the `publishedDate` of the latest `MOD`.
-- `endDate` is the printed `endDate`.
 - The entity ID is `context.make_slug(id)`.
 - Deleted and lapsed designations are not emitted.
-
-## Entity columns
-
-`schema` and `name` are required on `ADD` and `MOD`. `schema` is one of
-`Person`, `LegalEntity`, `Organization`, `Company`, `Vessel`, or `Asset`:
-`LegalEntity` whenever it is unclear whether the target is a person or an
-organisation, `Company` only for a share-capital company, and `Organization`
-for any other group — state enterprises and agencies, militias, networks,
-unions, self-proclaimed republics. Every
-populated entity column must be a property that exists on that
-FollowTheMoney schema (e.g. `flag` and `imoNumber` only on `Vessel`,
-`kppCode` only on `Company`).
-
-Name cells preserve the source's wording and casing. A value is categorised
-into `alias`, `weakAlias`, or `previousName` only when the source prints a
-label or structure that says so: `a.k.a.`, `alias` and `Good quality a.k.a.`
-mark an `alias`, `Low quality a.k.a.` a `weakAlias`, `f.k.a.` and `formerly`
-a `previousName`. Whether commas or semicolons inside a labelled alias group
-separate names is decided case by case from the source. Every further
-rendering of the name the source prints on its own line — native script or
-Latin transliteration — is an `alias`; non-Latin renderings are always kept.
-Never transliterate or translate a name yourself; an unlabeled combined form
-stays whole in `name`. A name printed in numbered parts
-(`Name: 1: ABU 2: ZAYD 3: UMAR`) is the parts joined with spaces
-(`ABU ZAYD UMAR`). Identity documents printed with an alias
-(`a.k.a. X (Passport number: …)`) go to the designation's own columns.
-Irregular values are expected — the consuming crawler routes names through
-the review helpers, where a human categorises them.
-
-The country columns are distinct — use the most specific one:
-
-- `nationality` — a person's nationality;
-- `jurisdiction` — where a legal entity is registered;
-- `flag` — a vessel's flag state;
-- `country` — a source association that fits no more specific property.
-
-Country-valued cells preserve the territory wording exactly as the source
-states it: `Flag State: Cameroon` produces `Cameroon`, not `cm`. A place of
-birth goes in `birthPlace`, not a country column, unless the source states a
-separate country.
-
-Use `birthDate` for people and `incorporationDate` for legal entities. Put
-identifiers in the most specific property the source supports (`innCode`,
-`ogrnCode`, `kppCode`, `okpoCode`, `leiCode`, `swiftBic`, `ticker`,
-`imoNumber`, `mmsi`); use `taxNumber`, `idNumber`, or `registrationNumber`
-only when no more specific system is established.
-
-`legalForm` holds the source's stated type or legal form of a legal entity.
-`position` holds a stated title or function. `appearance` holds
-physical-description prose, `ethnicity` the stated ethnic background, and
-`fatherName` and `motherName` a stated parent's name. `sector` holds the
-source's stated business sector of a legal entity.
-
-`notes` collects the source's other-information prose about the entity
-itself when it fits no structured column, one value per printed line or
-paragraph; anything printed as "Other information" goes here. Notes values
-are bare prose: a printed label is the instruction for which column the
-value belongs in and is never part of any cell value —
-`Other information: Owns a villa.` produces the notes value `Owns a villa.`
-Labelled remarks inside a paragraph stay with it.
-
-`extra` keeps each labelled value that no column fits, verbatim with its
-label (`Deadweight: 4,996 t`), so unplaced data is kept and new columns can
-be added from evidence; the crawler does not emit it. Cell values are never
-assembled from parsed pieces. Identity-document validity is not transcribed,
-on its own line (`Date of issue: …`, `Expiration date: …`) or on the
-document's line (`Passport: A005465 (Libya), issued …, expires …` gives
-`A005465 (Libya)`). Validity printed inside the identifier's own parenthesis
-cannot be separated, so the whole printed value is kept
-(`D 000952 (Afghan passport issued on 7.1.1999)`). Kin names (`Brother's name: …`) and relational lines
-that name other parties (`Associated individuals: …`) are not transcribed
-either.
-
-Use `Asset` for a directly restricted thing that is not a legal entity or
-vessel: facilities and geographic zones use `name` with their published
-location in `address` and an applicable `country`; a named crypto-asset may
-have only `name`.
-
-## Values and multiplicity
-
-- Cells are trimmed. Missing values are empty cells — never placeholders such
-  as `unknown`, `N/A`, or `-`.
-- `reason`, `extra` and every entity column except `name` are multi-valued,
-  separated by `;` with a
-  single space after the separator preferred: `Foo; Bar`. A value that itself
-  contains `;` or `"` is CSV-quoted within the cell, with embedded quotes
-  doubled — `"Foo; Bar"; Baz` holds two values — so cells decode losslessly
-  with a `;`-delimiter CSV parser. Elements must be non-empty and unique.
-  All other columns are scalar and never split.
-- Entity date columns preserve the source's wording (`4 Apr. 1944`,
-  `Approximately 1952`); the crawler normalizes them. `listingDate` and
-  `endDate` must be a bare date: ISO partial (`2011-02-28`), dotted (`28.2.2011`), worded
-  (`2 December 1985`), or UN-abbreviated (`26 Feb. 2011`).
-- Exact duplicate rows are invalid, and an `id` appears at most once per
-  `programKey` and `measure` in a file.
-
-## Validation
-
-Every stack must pass `tools/validate.py` before it is checked in. Errors
-break this contract or the replay and fail the run; warnings flag rows to
-re-check. `--online` also compares the files with the acts and English
-corrigenda CELLAR relates to the framework: a file for an unrelated act is an
-error, and a related act without a file, dated up to the stack's newest
-file, is a warning. When this contract's
-columns change, `tools/migrate.py` brings existing files up to date.

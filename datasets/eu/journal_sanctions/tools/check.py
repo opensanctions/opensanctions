@@ -222,7 +222,7 @@ def validate_framework(framework: str, online: bool = False) -> list[Issue]:
     if blank:
         # Replaying rows without ids only produces confusing follow-on errors.
         return [
-            Issue("error", where, "empty id; run `python -m tools.lookup resolve`")
+            Issue("error", where, "empty id; run `python -m tools resolve`")
             for where in blank
         ]
     state = State()

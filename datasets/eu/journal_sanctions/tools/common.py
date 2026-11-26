@@ -236,7 +236,7 @@ def read_oplog(path: Path) -> list[dict[str, str]]:
         if header != OPLOG_COLUMNS:
             raise ValueError(
                 f"{path}: header does not match the op-log contract;"
-                " `python -m tools.migrate` brings it up to date"
+                " `python -m tools migrate` brings it up to date"
             )
         rows: list[dict[str, str]] = []
         for line, cells in enumerate(reader, start=2):
