@@ -1,4 +1,4 @@
-from typing import Any
+from lxml.etree import _Element
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -7,20 +7,27 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 
 def crawl_member(
     context: Context,
-    page: dict[str, Any],
+    card: _Element,
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    name = page["title"]["rendered"].strip()
-    # Skip the section/index page; only individual councillors are members. The prefix
-    # match still holds when the year in the title changes with each new legislature.
-    if not name or name.lower().startswith("législature"):
-        return
+    url = card.get("href")
+    if url is None:
+        raise ValueError("Member card without a link")
 
     person = context.make("Person")
-    person.id = context.make_slug(page["slug"])
-    person.add("name", name)
-    person.add("sourceUrl", page.get("link"))
+    # Slugs are carried over from the former REST API pages, so IDs stay stable.
+    person.id = context.make_slug(url.rstrip("/").rsplit("/", 1)[-1])
+    h.apply_name(
+        person,
+        first_name=h.element_text(
+            h.xpath_element(card, ".//span[@class='legislature-member__firstname']")
+        ),
+        last_name=h.element_text(
+            h.xpath_element(card, ".//span[@class='legislature-member__lastname']")
+        ),
+    )
+    person.add("sourceUrl", url)
     # National Council members must have held Monegasque nationality for at least five
     # years (Constitution of Monaco, Article 54).
     # https://www.constituteproject.org/constitution/Monaco_2002
@@ -49,18 +56,9 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # Sitting councillors are the child pages of the stable "Les conseillers nationaux" page
-    slug = "les-conseillers-nationaux"
-    parents = context.fetch_json(context.data_url, params={"slug": slug}, cache_days=1)
-    if len(parents) != 1:
-        raise ValueError(
-            f"Expected exactly one page for slug {slug!r}, got {len(parents)}"
-        )
-
-    pages: list[dict[str, Any]] = context.fetch_json(
-        context.data_url,
-        params={"parent": parents[0]["id"], "per_page": "100"},
-        cache_days=1,
-    )
-    for page in pages:
-        crawl_member(context, page, position, categorisation)
+    # The REST API now requires authentication; the members page lists the sitting
+    # councillors grouped by political group.
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    cards = h.xpath_elements(doc, "//a[@class='legislature-member__card']")
+    for card in cards:
+        crawl_member(context, card, position, categorisation)
