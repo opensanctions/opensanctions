@@ -1,5 +1,5 @@
 op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,ethnicity,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,extra,reason
-ADD,0d051468413973c7c3b4307badd4667b346b6bbf,2018-01-13,2018-01-13,5,EU-PRK,XIV,Transportation restrictions,,,Vessel,BILLIONS NO. 18,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9191773,,,,,,,,,
-ADD,6c588bd2dcc80d3c1b9db89c8b8fe5ace103c461,2018-01-13,2018-01-13,6,EU-PRK,XIV,Transportation restrictions,,,Vessel,UL JI BONG 6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9114555,,,,,,,,,
-ADD,c0d2807ce004fceb45520a53291a79d8b3d677c0,2018-01-13,2018-01-13,7,EU-PRK,XIV,Transportation restrictions,,,Vessel,RUNG RA 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9020534,,,,,,,,,
-ADD,92980bec09e52ec9c8571c3702f8dc98ddd4cb7e,2018-01-13,2018-01-13,8,EU-PRK,XIV,Transportation restrictions,,,Vessel,RYE SONG GANG 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,7389704,,,,,,,,,
+ADD,0d051468413973c7c3b4307badd4667b346b6bbf,2018-01-13,2018-01-13,5,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,BILLIONS NO. 18,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9191773,,,,,,,,,
+ADD,6c588bd2dcc80d3c1b9db89c8b8fe5ace103c461,2018-01-13,2018-01-13,6,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,UL JI BONG 6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9114555,,,,,,,,,
+ADD,c0d2807ce004fceb45520a53291a79d8b3d677c0,2018-01-13,2018-01-13,7,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,RUNG RA 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9020534,,,,,,,,,
+ADD,92980bec09e52ec9c8571c3702f8dc98ddd4cb7e,2018-01-13,2018-01-13,8,EU-PRK,XIV.B,Transportation restrictions,,,Vessel,RYE SONG GANG 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,7389704,,,,,,,,,
