@@ -392,18 +392,31 @@ def compare(framework: str, consolidation: str) -> int:
     text = haystack(raw, loose=True)
     squeezed = "".join(text.split())
     state = replay(framework, as_of=as_of)
+    files = {path.stem for path in regime_files(framework)}
+    amended, corrected = cited_acts(raw)
+    unfiled = sorted(amended - files)
     errors = 0
+    for celex in unfiled:
+        errors += 1
+        click.echo(f"ERROR    {consolidation} is amended by {celex}, which has no file")
+    # With acts the stack lacks folded into the consolidation, a mismatch may
+    # be theirs: report it for review rather than as an error.
+    level = "WARNING" if unfiled else "ERROR"
     for entry in state.live.values():
-        for column, value in missing_values(entry.row, text, loose=True):
-            where = f"{entry.row['id'][:10]} {entry.row['name'][:40]!r}"
-            if "".join(loosen(value).split()) in squeezed:
-                click.echo(
-                    f"WARNING  {where}: {column} differs only in spacing: {value[:60]!r}"
-                )
-                continue
-            errors += 1
+        where = f"{entry.row['id'][:10]} {entry.row['name'][:40]!r}"
+        missing = missing_values(entry.row, text, loose=True)
+        spacing = [c for c, v in missing if "".join(loosen(v).split()) in squeezed]
+        differs = [(c, v) for c, v in missing if c not in spacing]
+        if spacing:
+            click.echo(f"WARNING  {where}: {', '.join(spacing)} differ only in spacing")
+        if differs:
+            if level == "ERROR":
+                errors += 1
+            column, value = differs[0]
+            columns = ", ".join(sorted({c for c, _ in differs}))
             click.echo(
-                f"ERROR    {where}: {column} not in {consolidation}: {value[:60]!r}"
+                f"{level:8} {where}: {columns} not in {consolidation} "
+                f"(e.g. {column} {value[:50]!r})"
             )
     for entry in state.deleted.values():
         if loosen(" ".join(entry.row["name"].split())) in text:
@@ -411,11 +424,6 @@ def compare(framework: str, consolidation: str) -> int:
                 f"WARNING  {entry.row['id'][:10]} deleted, but "
                 f"{entry.row['name'][:40]!r} is printed in {consolidation}"
             )
-    files = {path.stem for path in regime_files(framework)}
-    amended, corrected = cited_acts(raw)
-    for celex in sorted(amended - files):
-        errors += 1
-        click.echo(f"ERROR    {consolidation} is amended by {celex}, which has no file")
     later: dict[str, int] = {}
     if any(
         sum(1 for stem in files if stem.startswith(f"{c}R(")) != n
