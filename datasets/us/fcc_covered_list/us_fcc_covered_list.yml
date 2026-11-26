@@ -72,8 +72,8 @@ dates:
 #   updated: last "Updated:" date in the FCC date cell, else empty
 #   entity_name: as the FCC names it; the entity ID derives from it
 #   subsidiary_names: ";"-separated, as named in the entry
-#   footnote_1, footnote_2: the FCC's list-wide footnotes
-#   source_url: required
+#   footnote_1: the FCC's "*" footnote to the table header
+#   source_url: the page that lists the entry
 # On "DOM hash changed": run the crawler, diff table.csv, edit covered_list.csv to
 # match, set the new hash in crawler.py, commit all three, re-run.
 

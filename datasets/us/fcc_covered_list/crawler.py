@@ -52,7 +52,6 @@ def crawl_item(context: Context, row: dict[str, str]) -> None:
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction.add("description", description)
     sanction.add("description", row.pop("footnote_1"))
-    sanction.add("description", row.pop("footnote_2"))
     sanction.add("sourceUrl", source_url)
     h.apply_date(sanction, "listingDate", inclusion_date)
     h.apply_date(sanction, "startDate", inclusion_date)
