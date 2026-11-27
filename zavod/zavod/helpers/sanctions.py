@@ -153,7 +153,7 @@ def finalize_sanction(
             `observe_item`, and a missing ``listingDate`` is filled with the
             date it was first seen.
         checksum: A checksum of the designation's source content, which needs a
-            ``key``. It is recorded with `observe_change`, and a missing
+            ``key``. It is recorded with `observe_content`, and a missing
             ``modifiedAt`` is filled with the date the content was first seen.
             Observations never fill dates for records already in the source
             at the dataset's first observation.
@@ -171,15 +171,15 @@ def finalize_sanction(
     assert checksum is None or key is not None, "An observed checksum needs a key"
     if key is not None:
         item_seen = h.observe_item(context, key)
-        change_seen = None
+        content_seen = None
         if checksum is not None:
-            change_seen = h.observe_change(context, key, checksum)
+            content_seen = h.observe_content(context, key, checksum)
         if item_seen is not None and not sanction.has("listingDate"):
             item_date = item_seen.date().isoformat()
             sanction.add("listingDate", item_date, origin=ORIGIN_OBSERVED)
-        if change_seen is not None and not sanction.has("modifiedAt"):
-            change_date = change_seen.date().isoformat()
-            sanction.add("modifiedAt", change_date, origin=ORIGIN_OBSERVED)
+        if content_seen is not None and not sanction.has("modifiedAt"):
+            content_date = content_seen.date().isoformat()
+            sanction.add("modifiedAt", content_date, origin=ORIGIN_OBSERVED)
 
     if effective_on_listing:
         listing = sanction.get_statements("listingDate")

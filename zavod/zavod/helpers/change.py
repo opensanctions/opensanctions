@@ -166,7 +166,7 @@ def _record_lines(value: Any, path: tuple[str, ...]) -> Iterator[str]:
 
 
 def record_hash(record: Any) -> str:
-    """Return a stable checksum of a source record, for `h.observe_change`.
+    """Return a stable checksum of a source record, for `h.observe_content`.
 
     Use this for JSON or tabular sources; use `h.xml_node_hash` for XML. The
     hash evens out structural changes while keeping changes to the content:

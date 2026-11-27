@@ -89,7 +89,7 @@ def test_observe_baseline(testdataset1: Dataset, zavod_db):
 def test_observe_helpers(testdataset1: Dataset, zavod_db):
     context = make_context(testdataset1)
     assert h.observe_item(context, "K1") is None
-    assert h.observe_change(context, "K1", "a") is None
+    assert h.observe_content(context, "K1", "a") is None
     rows = context.db.execute(select(observation_table)).fetchall()
     assert len(rows) == 3
     assert {r.dataset for r in rows} == {testdataset1.name}
@@ -97,4 +97,4 @@ def test_observe_helpers(testdataset1: Dataset, zavod_db):
     with pytest.raises(AssertionError):
         h.observe_item(context, "")
     with pytest.raises(AssertionError):
-        h.observe_change(context, "K1", "")
+        h.observe_content(context, "K1", "")

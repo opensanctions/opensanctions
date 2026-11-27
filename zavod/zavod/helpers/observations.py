@@ -17,10 +17,12 @@ def observe_item(context: Context, key: str) -> datetime | None:
         key: The authority-issued ID of the record, never the FtM entity ID.
     """
     assert len(key) > 0, "Observation key must not be empty"
+    # "", not None: NULLs never conflict in the (dataset, key, checksum) unique
+    # index, so key-only rows stored as NULL would pile up as duplicates.
     return observe(context.db, context.dataset.name, key, "", settings.RUN_TIME)
 
 
-def observe_change(context: Context, key: str, checksum: str) -> datetime | None:
+def observe_content(context: Context, key: str, checksum: str) -> datetime | None:
     """Return when a record was first seen with its current source content.
 
     Use this to date a designation's last amendment where the source doesn't. A

@@ -37,7 +37,7 @@ def observe(
 ) -> datetime | None:
     """Record that a source record was seen, and return when it was first seen.
 
-    Use `zavod.helpers.observe_item` and `zavod.helpers.observe_change` in
+    Use `zavod.helpers.observe_item` and `zavod.helpers.observe_content` in
     crawlers; this takes `seen` explicitly so that a backfill can replay archived
     source snapshots at their own dates, oldest first.
 
