@@ -1,99 +1,104 @@
-import re
 from urllib.parse import urljoin
 
-from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise
+from zavod import Context, Entity
+from zavod import helpers as h
+from zavod.stateful.positions import PositionCategorisation, categorise
+
+TOPICS = ["gov.national", "gov.legislative"]
 
 
-def crawl_item(context: Context, unid: str) -> None:
-    # Resolves against the term's .nsf database in data.url, e.g. .../saeima14_depweb_public.nsf/0/<unid>
-    member_url = urljoin(context.data_url, f"0/{unid}?OpenDocument&lang=EN")
+def crawl_term(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    url: str,
+    period_start: str,
+    period_end: str | None,
+) -> None:
+    doc = context.fetch_html(url, encoding="utf-8")
+    for card in h.xpath_elements(doc, "//ul[@data-view-panel='saraksts']/li"):
+        href = h.xpath_string(card, ".//a[@class='dep-card__name']/@href")
+        status = card.get("data-status")
+        if status not in ("current", "previous"):
+            context.log.warning("Unknown deputy status", status=status, url=href)
+            continue
+        # Profile addresses end in the term and the deputy's name, numbered or located
+        # for namesakes: 14-ainars-latkovskis, 9-andris-berzins-2. Without the term,
+        # this is the name slug the previous source (titania.saeima.lv) was keyed on.
+        slug = href.rstrip("/").rsplit("/", 1)[-1].split("-", 1)[1]
 
-    member_doc = context.fetch_html(member_url)
+        person = context.make("Person")
+        person.id = context.make_slug(slug)
+        h.apply_name(
+            person,
+            first_name=card.get("data-vards"),
+            # Namesakes carry their constituency, e.g. "Bērziņš (Rīga)".
+            last_name=h.remove_bracketed(card.get("data-uzvards")),
+            lang="lav",
+        )
+        # citizenship required (Art 9): https://likumi.lv/ta/en/id/57980-the-constitution-of-the-republic-of-latvia
+        person.add("citizenship", "lv")
+        person.add("sourceUrl", urljoin(url, href))
 
-    # The title string is starting with two \xa0 characters, which are blank spaces, we will remove them
-    full_name = h.xpath_string(member_doc, './/*[@id="ViewBlockTitle"]/text()').replace(
-        "\xa0", ""
-    )
+        # Occupancies span the whole term, not the deputy's mandate. Profile pages
+        # list the exact mandate dates as a history of status events (confirmed,
+        # renewed, laid down, ended), e.g. for ministers who lay down and renew
+        # their mandate. Pairing these events into periods needs its own state
+        # handling, and reading them costs one request per deputy. The term dates
+        # are precise enough.
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            period_start=period_start,
+            period_end=period_end,
+            # Deputies who lay down their mandate to serve as ministers stay listed
+            # in the sitting term as "previous", without a date.
+            no_end_implies_current=status == "current",
+            categorisation=categorisation,
+        )
+        if occupancy is None:
+            continue
+        faction = card.get("data-frakcija-label")
+        # "Deputies not belonging to a faction"
+        if faction != "Pie frakcijām nepiederošie deputāti":
+            occupancy.add("politicalGroup", faction, lang="lav")
+        occupancy.add("constituency", card.get("data-apgabals"), lang="lav")
+        context.emit(occupancy)
+        context.emit(person)
 
-    entity = context.make("Person")
-    entity.id = context.make_slug(full_name)
-    h.apply_name(entity, full_name)
-    # citizenship required (Art 9): https://likumi.lv/ta/en/id/57980-the-constitution-of-the-republic-of-latvia
-    entity.add("citizenship", "lv")
 
-    entity.add("sourceUrl", member_url)
-
-    detail_strs = h.xpath_strings(
-        member_doc, "//div/span[normalize-space(text()) and not(@class)]/text()[1]"
-    )
-    if len(detail_strs) == 1:
-        h.apply_date(entity, "birthDate", detail_strs[0])
-    elif len(detail_strs) == 2:
-        # The year is in the second element, the first one is the previous name
-        # e.g. '09.12.2019. Name (Previous) Surname'
-        h.apply_date(entity, "birthDate", detail_strs[1])
-    else:
-        context.log.warning(f"Could not find birth date for {full_name}")
-
-    email_el = h.xpath_element(
-        member_doc,
-        './/*[text()=\'writeJsTrArr("form_email","E-pasta adrese")\']/../../span/a',
-    )
-    entity.add("email", h.element_text(email_el))
-
+def crawl(context: Context) -> None:
     position = h.make_position(
         context,
         "Member of the Saeima of Latvia",
         country="lv",
-        topics=["gov.national", "gov.legislative"],
+        topics=TOPICS,
         wikidata_id="Q21191589",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
-
-    occupancy = h.make_occupancy(
-        context,
-        entity,
-        position,
-        True,
-        categorisation=categorisation,
-    )
-
-    if occupancy is None:
-        return
-
-    context.emit(entity)
+    categorisation = categorise(context, position)
     context.emit(position)
-    context.emit(occupancy)
 
-
-def crawl(context: Context) -> None:
-    assert context.dataset.url is not None
-    overview_page = context.fetch_html(context.dataset.url, encoding="utf-8")
-    # Check if the overview page still lists the 14th Saeima in the main menu.
-    if (
-        len(
-            h.xpath_elements(
-                overview_page, "//a[normalize-space(.)='14. Saeimas deputāti']"
-            )
+    cutoff = h.earliest_term_start(TOPICS)
+    # The site serves "text/html" without a charset.
+    doc = context.fetch_html(context.data_url, encoding="utf-8")
+    for term in h.xpath_elements(doc, "//div[header[@class='sas-card__head']]"):
+        # "01.11.2022.-03.11.2026.", or "03.11.2026.-šobrīd" ("until now").
+        dates = h.element_text(h.xpath_element(term, ".//p[@class='sas-card__dates']"))
+        period_start, end = dates.split("-")
+        period_end = None if end == "šobrīd" else end
+        if period_end is not None and h.extract_date(context.dataset, end)[0] < cutoff:
+            context.log.info("Term predates the PEP window; skipping", dates=dates)
+            continue
+        href = h.xpath_string(
+            term, ".//a[@class='sas-card__link'][contains(@href, '/deputati/')]/@href"
         )
-        == 0
-    ):
-        context.log.warning(
-            "Hardcoded term is no longer current on the overview page, they probably elected a new Saeima.",
+        crawl_term(
+            context,
+            position,
+            categorisation,
+            urljoin(context.data_url, href),
+            period_start,
+            period_end,
         )
-
-    deputies_list_page = context.fetch_html(context.data_url)
-    # The links are generated using JS, so we parse the ID from some embedded javascript
-    # Using a a regex and build the URL from that.
-    members_data = h.xpath_string(
-        deputies_list_page, './/*[@class="viewHolderText"]/text()'
-    )
-
-    # The lines in the JS code are in this format:
-    # drawDep({sname:"Circene",name:"Ingrīda",shortStr:"JV",lst:"THE NEW UNITY parliamentary group",unid:"60440B76C204D1CFC22588E0002AE03F"});
-    # we use a regular expression to extract the data
-    matches = re.findall(r"unid:\"(?P<unid>[^\"]+)\"", members_data)
-    for unid in matches:
-        crawl_item(context, unid)
