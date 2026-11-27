@@ -136,14 +136,16 @@ def parse_entry(context: Context, entry: Element) -> None:
 
     for node in entry.findall("./address-list"):
         # Newer records move the city and country out of the address text.
-        parts = [
-            node.findtext("./address"),
-            node.findtext("./city"),
-            node.findtext("./state-province"),
-            node.findtext("./country"),
-        ]
-        address = ", ".join(p.strip() for p in parts if p is not None and p.strip())
-        entity.add("address", h.multi_split(address, SPLITS))
+        city = node.findtext("./city")
+        state = node.findtext("./state-province")
+        country = node.findtext("./country")
+        streets: list[str | None] = []
+        streets.extend(h.multi_split(node.findtext("./address"), SPLITS))
+        for street in streets or [None]:
+            address = h.format_address(
+                street=street, city=city, state=state, country=country
+            )
+            entity.add("address", address)
 
     for pob in entry.findall("./place-of-birth-list"):
         for p in h.multi_split(pob.text, ";"):
