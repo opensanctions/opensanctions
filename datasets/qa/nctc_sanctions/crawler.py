@@ -32,6 +32,7 @@ def crawl(context: Context) -> None:
     assert data["totalElements"] > 700, data["totalElements"]
 
     for item in data["content"]:
+        checksum = h.record_hash(item)
         data_id = item.pop("dataId")
         typ = item.pop("typ")
         full_name_en = item.pop("fullNameEn")
@@ -140,7 +141,7 @@ def crawl(context: Context) -> None:
                 "linkUrlAr",
             ],
         )
-        h.finalize_sanction(context, sanction)
+        h.finalize_sanction(context, sanction, key=reference_number, checksum=checksum)
 
         context.emit(sanction)
         context.emit(entity)
