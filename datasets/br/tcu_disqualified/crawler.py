@@ -12,23 +12,27 @@ def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
 
     :param input_dict: Data dict extracted from source.
                        Should have at least following keys:
-                        - cpf
+                        - tipoRegistro
+                        - numeroRegistro
                         - nome
-                        - processo
-                        - deliberacao
-                        - data_transito_julgado
-                        - data_final
+                        - numeroProcessoFormatado
+                        - numeroAcordaoFormatado
+                        - dataTransitoEmJulgado
+                        - dataFinalSancao
     :param context: The context object.
     """
 
     entity = context.make("Person")
 
-    cpf = input_dict.pop("cpf")
+    registry_type = input_dict.pop("tipoRegistro")
+    if registry_type != "CPF":
+        context.log.warning("Unexpected registry type", registry_type=registry_type)
+    cpf = input_dict.pop("numeroRegistro")
     name = input_dict.pop("nome")
     # make sure the CPF does not have any punctuation
-    cleaned_tax_number = CPF.normalize(cpf)
+    cleaned_tax_number = CPF.normalize(cpf) if cpf is not None else None
 
-    # if the tax number is None, it means it was invalid
+    # if the tax number is None, it means it was missing or invalid
     if cleaned_tax_number is None:
         entity.id = context.make_id(cpf, name)
     else:
@@ -39,7 +43,7 @@ def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
     entity.add("country", "br")
     entity.add("topics", "corp.disqual")
 
-    process_number = input_dict.pop("processo")
+    process_number = input_dict.pop("numeroProcessoFormatado")
 
     sanction = h.make_sanction(context, entity, key=process_number)
 
@@ -47,13 +51,13 @@ def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
     sanction.add(
         "description",
         "Process Number: {}, acording to the deliberation number: {}".format(
-            process_number, input_dict.pop("deliberacao")
+            process_number, input_dict.pop("numeroAcordaoFormatado")
         ),
     )
 
     # The start will be defined as the date of the final appel (transito em julgado)
-    sanction.add("startDate", input_dict.pop("data_transito_julgado"))
-    sanction.add("endDate", input_dict.pop("data_final"))
+    h.apply_date(sanction, "startDate", input_dict.pop("dataTransitoEmJulgado"))
+    h.apply_date(sanction, "endDate", input_dict.pop("dataFinalSancao"))
 
     sanction.add(
         "program",
@@ -65,7 +69,13 @@ def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
         input_dict,
         ignore=[
             # Decision date
-            "data_acordao",
+            "dataAcordao",
+            # Internal process ID and links to the process and its deliberations
+            "codigoProcesso",
+            "linkAcompanhamentoProcesso",
+            "linkDeliberacoesProcesso",
+            # Whether the process concerns public management; always "S"
+            "seProcessoGestao",
             # State code
             "uf",
             # Commune
@@ -78,24 +88,15 @@ def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    url = context.data_url
+    page = 1
     while True:
-        response = context.fetch_json(url)
-        if "items" not in response:
-            context.log.error("Items not found in JSON")
-            return
-
-        for item in response["items"]:
+        params = {"paginaAtual": page, "tamanhoPagina": 500}
+        response = context.fetch_json(context.data_url, params=params, method="POST")
+        total_pages = response.get("totalPaginas")
+        assert isinstance(total_pages, int), total_pages
+        for item in response["elementos"]:
             crawl_item(item, context)
 
-        # if hasMore = true -> there is a link for next
-        has_more = response.get("hasMore", False)
-        if not has_more:
+        if page >= total_pages:
             break
-
-        links = response.get("links", [])
-        link = [li.get("href") for li in links if li.get("rel") == "next"]
-        if not len(link):
-            break
-        url = link[0]
-        context.log.info(f"Fetching next page: {url}")
+        page += 1
