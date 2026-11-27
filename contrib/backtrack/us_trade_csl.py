@@ -3,11 +3,16 @@
 Keys designations on the trade.gov record ID and checksums each record with
 `h.record_hash`, as the crawler does. OFAC records are skipped: the crawler
 emits no Sanction for them.
+
+The replay starts on 2022-10-06, when trade.gov re-issued every record ID. The
+version of that day is the baseline. Later re-issued IDs, such as those of the
+DTC records, are recorded as new designations.
 """
 
 import json
 import logging
 from collections import Counter
+from datetime import date
 
 from zavod.helpers import record_hash
 
@@ -20,12 +25,15 @@ from contrib.backtrack.harness import (
 
 log = logging.getLogger("backtrack.us_trade_csl")
 DATASET = "us_trade_csl"
+REKEY_DATE = date(2022, 10, 6)
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     db = open_db(DATASET)
     for seen, path in iter_versions(DATASET, "source.json"):
+        if seen.date() < REKEY_DATE:
+            continue
         if path.stat().st_size == 0:
             log.warning("%s: empty file, skipped", path.name)
             continue
