@@ -10,48 +10,50 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
 
     :param input_dict: Data dict extracted from source.
                        Should have at least following keys:
-                        - cpf_cnpj
+                        - tipoRegistro
+                        - numeroRegistro
                         - nome
-                        - processo
-                        - deliberacao
-                        - data_transito_julgado
-                        - data_final
+                        - numeroProcessoFormatado
+                        - numeroAcordaoFormatado
+                        - dataTransitoEmJulgado
+                        - dataFinalSancao
     :param context: The context object.
     """
 
     entity = context.make("LegalEntity")
 
-    raw_tax_number = input_dict["cpf_cnpj"]
+    registry_type = input_dict.pop("tipoRegistro")
+    raw_tax_number = input_dict.pop("numeroRegistro")
+    name = input_dict.pop("nome")
 
-    # If it's length 18 with punctuation, then it is a CNPJ (XX.XXX.XXX/XXXX-XX)
-    if len(raw_tax_number) == 18:
+    if registry_type == "CNPJ":
         entity.add_schema("Company")
-        tax_number = CNPJ.normalize(raw_tax_number)
+        tax_number = (
+            CNPJ.normalize(raw_tax_number) if raw_tax_number is not None else None
+        )
         prefix = "br-cnpj"
-
-    # If it's length 14 with punctuation, then it is a CPF (XXX.XXX.XXX-XX)
-    elif len(raw_tax_number) == 14:
+    elif registry_type == "CPF":
         entity.add_schema("Person")
-        tax_number = CPF.normalize(raw_tax_number)
+        tax_number = (
+            CPF.normalize(raw_tax_number) if raw_tax_number is not None else None
+        )
         prefix = "br-cpf"
-
-    # If it's neither, then we just use the raw number
     else:
-        context.log.warning("Entity type not defined by tax number")
+        context.log.warning("Unexpected registry type", registry_type=registry_type)
         tax_number = None
         prefix = "br-unknown"
 
-    # If the tax number couldn't be defined as either a CPF or CNPJ, we generate a hash as the id
+    # If the tax number is missing or invalid, we generate a hash as the id
     if tax_number is None:
-        entity.id = context.make_id(input_dict["cpf"], input_dict["nome"])
+        entity.id = context.make_id(raw_tax_number, name)
     else:
         entity.id = context.make_slug(tax_number, prefix=prefix)
-    entity.add("name", input_dict["nome"])
+    entity.add("name", name)
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
     entity.add("topics", "debarment")
 
-    process_number = input_dict.pop("processo")
+    process_number = input_dict.pop("numeroProcessoFormatado")
 
     sanction = h.make_sanction(context, entity, key=process_number)
 
@@ -59,13 +61,13 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     sanction.add(
         "description",
         "Process Number: {}, acording to the deliberation number: {}".format(
-            process_number, input_dict.pop("deliberacao")
+            process_number, input_dict.pop("numeroAcordaoFormatado")
         ),
     )
 
     # The start will be defined as the date of the final appel (transito em julgado)
-    sanction.add("startDate", input_dict.pop("data_transito_julgado"))
-    sanction.add("endDate", input_dict.pop("data_final"))
+    h.apply_date(sanction, "startDate", input_dict.pop("dataTransitoEmJulgado"))
+    h.apply_date(sanction, "endDate", input_dict.pop("dataFinalSancao"))
 
     sanction.add(
         "program",
@@ -74,29 +76,38 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
             "restricts entities from participating in public biddings"
         ),
     )
+    context.audit_data(
+        input_dict,
+        ignore=[
+            # Decision date
+            "dataAcordao",
+            # Internal process ID and links to the process and its deliberations
+            "codigoProcesso",
+            "linkAcompanhamentoProcesso",
+            "linkDeliberacoesProcesso",
+            # Whether the process concerns public management; always "S"
+            "seProcessoGestao",
+            # State code
+            "uf",
+            # Commune
+            "municipio",
+        ],
+    )
 
     context.emit(entity)
     context.emit(sanction)
 
 
 def crawl(context: Context) -> None:
-    url = context.data_url
+    page = 1
     while True:
-        response = context.fetch_json(url)
-        if "items" not in response:
-            context.log.error("Items not found in JSON")
-            return
-
-        for item in response["items"]:
+        params = {"paginaAtual": page, "tamanhoPagina": 500}
+        response = context.fetch_json(context.data_url, params=params, method="POST")
+        total_pages = response.get("totalPaginas")
+        assert isinstance(total_pages, int), total_pages
+        for item in response["elementos"]:
             crawl_item(context, item)
 
-        has_more = response.get("hasMore", False)
-        if not has_more:
+        if page >= total_pages:
             break
-
-        links = response.get("links", [])
-        link = [li.get("href") for li in links if li.get("rel") == "next"]
-        if not len(link):
-            break
-        url = link[0]
-        context.log.info(f"Fetching next page: {url}")
+        page += 1

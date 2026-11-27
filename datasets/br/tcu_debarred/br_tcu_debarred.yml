@@ -22,10 +22,12 @@ publisher:
   url: https://portal.tcu.gov.br/inicio/
   official: true
   country: "br"
-url: "https://contas.tcu.gov.br/ords/f?p=704144:2:113816859035213::NO:2::"
+url: https://certidoes.apps.tcu.gov.br/lista-inidoneos
 data:
-  url: https://contas.tcu.gov.br/ords/condenacao/consulta/inidoneos
+  url: https://certidoes.apps.tcu.gov.br/api/publico/responsaveis-inidoneos-com-paginacao
   format: JSON
+dates:
+  formats: ["%d/%m/%Y"]
 
 assertions:
   min:
