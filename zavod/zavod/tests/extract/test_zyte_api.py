@@ -7,6 +7,8 @@ from zavod.tests.util import make_context
 from zavod.meta.dataset import Dataset
 from zavod.extract.zyte_api import (
     UnblockFailedException,
+    ZyteAPIRequest,
+    fetch,
     fetch_html,
     fetch_json,
     fetch_resource,
@@ -315,6 +317,31 @@ def test_fetch_text_headers(testdataset1: Dataset):
         cached, _, _, _ = fetch_text(context, url, cache_days=1)
         assert not cached
         assert m.call_count == 2
+
+    context.close()
+
+
+def test_fetch_session(testdataset1: Dataset):
+    context = make_context(testdataset1)
+    url = "https://test.com/listing"
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode(b"<p>1</p>").decode(),
+                "statusCode": 200,
+            },
+        )
+        first = fetch(context, ZyteAPIRequest(url=url, session_id="abc"))
+        assert m.request_history[0].json()["session"] == {"id": "abc"}
+
+        # A session ID differs per run, so it must not change the cache key.
+        second = fetch(context, ZyteAPIRequest(url=url, session_id="xyz"))
+        assert first.cache_fingerprint == second.cache_fingerprint
+
+        fetch(context, ZyteAPIRequest(url=url))
+        assert "session" not in m.request_history[2].json()
 
     context.close()
 

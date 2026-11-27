@@ -1,0 +1,6 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,76ef0d538d78fbf2975d9bc88b467958c29f4139,2024-01-05,2024-01-06,1,EU-MLI,I,Asset freeze,,,Person,AHMED AG ALBACHAR,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,8eb1fd557aa65efb9577d7b375f9d3b55048bc2c,2024-01-05,2024-01-06,2,EU-MLI,I,Asset freeze,,,Person,HOUKA HOUKA AG ALHOUSSEINI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,c9efd6379a043f3af664a6c8f2910cd2da896e91,2024-01-05,2024-01-06,3,EU-MLI,I,Asset freeze,,,Person,MAHRI SIDI AMAR BEN DAHA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,8d0d80423aaad76b079010b720d6bc8e8c45835d,2024-01-05,2024-01-06,4,EU-MLI,I,Asset freeze,,,Person,MOHAMED BEN AHMED MAHRI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,9ac4126cc5ddf813e4971de95ad1fdfcf97bb06d,2024-01-05,2024-01-06,5,EU-MLI,I,Asset freeze,,,Person,MOHAMED OULD MATALY,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

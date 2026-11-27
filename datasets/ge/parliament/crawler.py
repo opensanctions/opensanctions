@@ -1,8 +1,12 @@
+import json
 from typing import Any
+
 from lxml import html
+from rigour.mime.types import JSON
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 
@@ -88,13 +92,17 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    # Accept-Language "en" yields Latin-script (transliterated) names; without an
-    # Accept header the API returns HTTP 500. The browser User-Agent that avoids a
-    # 403 is configured via http.user_agent in the dataset metadata.
-    payload = context.fetch_json(
+    # Cloudflare blocks direct requests to the API, so fetch through Zyte.
+    # zyte_api.fetch_json can't send Accept-Language, which is needed here:
+    # "en" yields Latin-script (transliterated) names. Without an Accept
+    # header the API returns HTTP 500.
+    _, _, _, text = zyte_api.fetch_text(
+        context,
         context.data_url,
-        headers={"Accept": "application/json", "Accept-Language": "en"},
+        headers={"Accept": JSON, "Accept-Language": "en"},
+        expected_media_type=JSON,
         cache_days=1,
     )
+    payload = json.loads(text)
     for member in payload["data"]:
         crawl_member(context, member, position, categorisation)

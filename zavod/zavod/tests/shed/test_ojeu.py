@@ -47,6 +47,9 @@ def test_parse_act_results() -> None:
     assert act.amends == ("32024R1485",)
     assert act.based_on == ("12012E/TXT", "32024R1485")
     assert act.latest_consolidated == "02024R1485-20260713"
+    assert act.publication_date == "2026-07-14"
+    assert act.entry_into_force == ("2026-07-14", "2026-08-01")
+    assert act.to_dict()["entry_into_force"] == ["2026-07-14", "2026-08-01"]
     assert act.to_dict()["eli_url"].endswith("/eli/reg_impl/2026/1708/oj")
     assert act.request.data == cellar.build_act_query("32026R1708")
 
@@ -63,8 +66,43 @@ def test_framework_results_include_own_consolidated_family() -> None:
         "02024R1485-20260713",
     )
     assert act.latest_consolidated == "02024R1485-20260713"
+    # Pre-2023 acts only carry the date of the OJ issue they appeared in.
+    assert act.publication_date == "2024-05-29"
+    assert act.entry_into_force == ("2024-05-30",)
     query = cellar.build_act_query("32024R1485").decode("utf-8")
-    assert "BIND(COALESCE(?amended_framework, ?work) AS ?framework)" in query
+    assert "act_consolidated_based_on_resource_legal ?work" in query
+    assert "act_consolidated_based_on_resource_legal ?framework" in query
+    assert "STRSTARTS" not in query
+
+
+def test_parse_act_results_aggregates_union_rows() -> None:
+    # The act query binds one variable per row; values are collected per key.
+    def row(key: str, value: str) -> dict[str, dict[str, str]]:
+        return {key: {"type": "literal", "value": value}}
+
+    bindings = [
+        row("doc_date", "2019-07-08"),
+        row("oj_pub_date", "2019-07-09"),
+        row("eif_date", "2019-07-10"),
+        row(
+            "type", "http://publications.europa.eu/resource/authority/resource-type/REG"
+        ),
+        row("title", "Commission Regulation (EU) 2019/1163"),
+        row("amends_celex", "32014R0269"),
+        row("amends_celex", "32011R0753"),
+        row("cons_celex", "02014R0269-20190715"),
+        row("cons_celex", "02011R0753-20190715"),
+        row("cons_celex", "02014R0269-20190715"),
+    ]
+    act = cellar.parse_act_results("32019R1163", {"results": {"bindings": bindings}})
+
+    assert act.document_date == "2019-07-08"
+    assert act.publication_date == "2019-07-09"
+    assert act.entry_into_force == ("2019-07-10",)
+    assert act.resource_type == "REG"
+    assert act.amends == ("32011R0753", "32014R0269")
+    assert act.based_on == ()
+    assert act.consolidated == ("02011R0753-20190715", "02014R0269-20190715")
 
 
 def test_build_and_parse_related_acts_query() -> None:
@@ -102,7 +140,8 @@ def test_build_and_parse_consolidations_query() -> None:
     ).decode("utf-8")
     assert query.count('"32014R0833"^^xsd:string') == 1
     assert '"32024R1485"^^xsd:string' in query
-    assert "resource_legal_id_celex ?cons_celex" in query
+    assert "act_consolidated_based_on_resource_legal ?framework" in query
+    assert "STRSTARTS" not in query
 
     result = json.loads((FIXTURES / "consolidations.json").read_text())
     consolidations = cellar.parse_consolidations_results(result)
@@ -355,3 +394,64 @@ def test_http_errors_are_not_hidden(requests_mock) -> None:
     requests_mock.post(cellar.SPARQL_ENDPOINT, status_code=503)
     with pytest.raises(requests.HTTPError):
         cellar.CellarClient(requests.Session()).query_act("32026R1708")
+
+
+def test_cellar_url_encodes_corrigendum_celex() -> None:
+    url = cellar.cellar_url("32017R1568R(01)")
+    assert url.endswith("/celex/32017R1568R%2801%29")
+
+
+def test_build_and_parse_corrigenda_query() -> None:
+    query = cellar.build_corrigenda_query(["32017R1568", "32016R0466"]).decode()
+    assert '"32016R0466"^^xsd:string "32017R1568"^^xsd:string' in query
+    assert "resource_legal_corrects_resource_legal" in query
+    result = {
+        "results": {
+            "bindings": [
+                {
+                    "celex": {"value": "32017R1568R(01)"},
+                    "framework_celex": {"value": "32017R1568"},
+                    "relation": {"value": "corrects"},
+                    "doc_date": {"value": "2017-09-29"},
+                    "type": {
+                        "value": "http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM"
+                    },
+                }
+            ]
+        }
+    }
+    (act,) = cellar.parse_related_act_results(result)
+    assert act.celex == "32017R1568R(01)"
+    assert act.framework_celex == "32017R1568"
+    assert act.relation == "corrects"
+    assert act.resource_type == "CORRIGENDUM"
+
+
+def test_query_corrigenda_batches_large_target_sets(requests_mock) -> None:
+    def binding(celex: str) -> dict[str, dict[str, str]]:
+        return {
+            "celex": {"value": f"{celex}R(01)"},
+            "framework_celex": {"value": celex},
+            "relation": {"value": "corrects"},
+            "doc_date": {"value": f"2020-01-{celex[-2:]}"},
+            "type": {
+                "value": "http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM"
+            },
+        }
+
+    responses = [
+        {"json": {"results": {"bindings": [binding("32019R0102")]}}},
+        {"json": {"results": {"bindings": [binding("32019R0101")]}}},
+    ]
+    requests_mock.post(cellar.SPARQL_ENDPOINT, responses)
+    client = cellar.CellarClient(requests.Session())
+    targets = [f"32019R{n:04d}" for n in range(1, cellar.CORRIGENDA_BATCH + 2)]
+
+    found = client.query_corrigenda(targets)
+
+    assert requests_mock.call_count == 2
+    first, second = (r.body for r in requests_mock.request_history)
+    assert b'"32019R0001"^^xsd:string' in first
+    assert b'"32019R0201"^^xsd:string' in second
+    assert b'"32019R0201"^^xsd:string' not in first
+    assert [act.celex for act in found] == ["32019R0101R(01)", "32019R0102R(01)"]

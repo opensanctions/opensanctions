@@ -4,7 +4,7 @@ coverage:
   start: "2021-09-01"
   schedule: "0 */6 * * *"
 deploy:
-  memory: "7000Mi"
+  memory: "8000Mi"
   memory_limit: "8000Mi"
   cpu: "1200m"
   cpu_limit: "2000m"

@@ -1,0 +1,4 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,714c6ffc892a80e57bd0bc38512c3b08074e3c83,2022-10-25,2022-10-26,1,EU-BDI,I,Asset freeze,,,Person,Godefroid BIZIMANA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,16f11f30b55346412f817b76819108d80b476bce,2022-10-25,2022-10-26,2,EU-BDI,I,Asset freeze,,,Person,Gervais NDIRAKOBUCA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,4108b2ce9a9277a36215a4ec258f0059c849f2c3,2022-10-25,2022-10-26,4,EU-BDI,I,Asset freeze,,,Person,Léonard NGENDAKUMANA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

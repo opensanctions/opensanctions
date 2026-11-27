@@ -1,6 +1,7 @@
 from typing import Any
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 
@@ -83,6 +84,8 @@ def crawl_member(
 
 
 def crawl(context: Context) -> None:
-    members = context.fetch_json(context.data_url)
+    # The congreso.gov.py servers drop connections from our network (connect
+    # timeouts since 2026-11-19), but answer via Zyte from Paraguay.
+    members = zyte_api.fetch_json(context, context.data_url, geolocation="PY")
     for row in members:
         crawl_member(context, row)

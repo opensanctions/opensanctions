@@ -1,0 +1,5 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,f7f9185fa201a4fc6113906711f9c3ff8d08c97d,2026-04-21,2026-04-22,13,EU-SDNZ,I.A,Asset freeze,,,Person,Abdelrahim Hamdan DAGALO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,714cb9342c36d23d1eabc08c655da173d5b3be31,2026-04-21,2026-04-22,15,EU-SDNZ,I.A,Asset freeze,,,Person,Elfateh Abdullah Idris ADAM,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,ce569443ae0be5d67a141b92375e7dfde77a6dbb,2026-04-21,2026-04-22,17,EU-SDNZ,I.A,Asset freeze,,,Person,Tijani Ibrahim Moussa MOHAMED,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,e8e83adda4ffc9ff928c757e1f3418e0f336293e,2026-04-21,2026-04-22,18,EU-SDNZ,I.A,Asset freeze,,,Person,Gedo HAMDAN,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

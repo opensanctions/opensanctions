@@ -38,6 +38,7 @@ children:
   - am_hetq_officials
   - am_national_assembly
   - ann_pep_positions
+  - ao_parliament
   - ar_parliament
   - ar_senado
   - at_meine_abgeordneten
@@ -53,6 +54,7 @@ children:
   - au_wa_parliament
   - az_parliament
   - ba_parliament
+  - bd_parliament
   - be_chamber
   - be_flemish_parliament
   - be_senate
@@ -83,6 +85,7 @@ children:
   - cm_senate
   - cn_npc
   - cn_peoples_congress_wikipedia
+  - co_camara_representantes
   - co_funcion_publica
   - co_join_dots
   - co_senate
@@ -134,6 +137,7 @@ children:
   - ie_parliament
   - il_knesset_members
   - in_sansad
+  - iq_parliament
   - is_althingi
   - it_deputies
   - it_senate
@@ -204,6 +208,7 @@ children:
   - ru_federation_council
   - ru_kremlin_persons
   - rw_parliament
+  - sa_gov_dir
   - sa_shura_council
   - sb_parliament
   - se_riksdag
@@ -217,6 +222,7 @@ children:
   - sm_consiglio
   - sn_assembly
   - so_house_people
+  - so_senate
   - sr_national_assembly
   - sv_legislature
   - th_cabinet
@@ -241,6 +247,7 @@ children:
   - us_plum_book
   - us_plural_legislators
   - us_state_dept
+  - uy_parliament
   - uy_pep
   - uz_legislative_chamber
   - uz_senate
@@ -251,6 +258,8 @@ children:
   - wd_peps
   - xk_assembly
   - ye_house_representatives
+  - ye_house_representatives_sanaa
   - za_mm_officials
   - za_pmg_legislators
+  - zm_national_assembly
   - zw_parliament

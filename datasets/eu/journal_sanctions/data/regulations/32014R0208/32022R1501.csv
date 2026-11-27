@@ -1,0 +1,5 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,ccba03c46bfaf1989efe950ca690dedf6cbafa2d,2022-09-12,2022-09-13,1,EU-UKR,I.A,Asset freeze,,,Person,Viktor Fedorovych Yanukovych,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,e4f695dcad9c6edef2fe4fca79089e110ee42efd,2022-09-12,2022-09-13,3,EU-UKR,I.A,Asset freeze,,,Person,Viktor Pavlovych Pshonka,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,fa6f7089d8e7bb2e5a40771b6bf74635ede37410,2022-09-12,2022-09-13,7,EU-UKR,I.A,Asset freeze,,,Person,Oleksandr Viktorovych Yanukovych,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,4170013c95c9b4eebc593eefac7f05bd1f1fd8a4,2022-09-12,2022-09-13,9,EU-UKR,I.A,Asset freeze,,,Person,Artem Viktorovych Pshonka,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

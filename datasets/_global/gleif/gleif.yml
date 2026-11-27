@@ -9,7 +9,7 @@ coverage:
 deploy:
   disk: 30Gi
   disk_limit: 60Gi
-  memory: 9Gi
+  memory: 11Gi
   memory_limit: 12Gi
   premium: true
 exports:

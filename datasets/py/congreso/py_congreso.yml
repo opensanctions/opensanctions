@@ -5,7 +5,7 @@ coverage:
   frequency: monthly
   start: 2026-06-26
 load_statements: true
-ci_test: true
+ci_test: false
 summary: >-
   Members of the Chamber of Senators and the Chamber of Deputies of Paraguay
 description: |

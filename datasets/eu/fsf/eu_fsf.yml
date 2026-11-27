@@ -375,6 +375,10 @@ lookups:
         values:
           - info@sctbankers.com
           - zanjani@sctbankers.com
+      - match: am.kalyagin@mon.zo.gov.ru kalyaginam_mgudt@bk.ru
+        values:
+          - am.kalyagin@mon.zo.gov.ru
+          - kalyaginam_mgudt@bk.ru
       - match: "emo.xz@ chemplant.ru"
         value: emo.xz@chemplant.ru
       - match: "natalya.s.gonchar enko@bspb.ru"

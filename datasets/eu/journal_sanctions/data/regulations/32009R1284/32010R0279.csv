@@ -1,0 +1,5 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,7e23d0bf5afb888643e24ddef907b3d203a41c81,2010-04-01,2010-04-02,2,EU-GIN,II,Asset freeze,,,Person,Major-General Mamadouba (alias Mamadou) Toto CAMARA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,38bec0fa612b4cea9205353d8b3c1ba12d4b2ebd,2010-04-01,2010-04-02,3,EU-GIN,II,Asset freeze,,,Person,General Sékouba KONATÉ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,4e1691580693ad651decf02ba371e05d8da6f2cc,2010-04-01,2010-04-02,16,EU-GIN,II,Asset freeze,,,Person,Commandant Kelitigui FARO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,b3fb09e51615b03a98b3a6dcc24656c00a506237,2010-04-01,2010-04-02,43,EU-GIN,II,Asset freeze,,,Person,Mr Kabinet (alias Kabiné) KOMARA,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

@@ -3,7 +3,7 @@ prefix: co-cam
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-11-06
+  start: 2026-11-20
 load_statements: true
 summary: >-
   Elected legislators of the lower house of Colombia's bicameral Congress

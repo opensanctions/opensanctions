@@ -173,6 +173,10 @@ class ZyteAPIRequest:
     request_cookies: list[dict[str, Any]] | None = None
     # Request that response cookies be included in the ZyteResult
     response_cookies: bool = False
+    # Requests sharing a session ID go out from the same IP with the cookies
+    # accumulated across the session, e.g. to page through an ASP.NET listing
+    # whose postbacks are checked against the session. Not part of the cache key.
+    session_id: str | None = None
 
 
 @dataclass
@@ -269,6 +273,9 @@ def fetch(
                 from_cache=True,
                 cache_fingerprint=fingerprint,
             )
+
+    if zyte_request.session_id is not None:
+        zyte_data["session"] = {"id": zyte_request.session_id}
 
     context.log.debug(f"Zyte API request: {zyte_request.url}", data=zyte_data)
     configure_session(context.http)

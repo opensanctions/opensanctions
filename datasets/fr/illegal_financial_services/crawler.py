@@ -33,10 +33,12 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    response = context.fetch_html(context.data_url)
-    csv_url = h.xpath_string(
-        response, './/*[@title="Télécharger le fichier en csv"]/@href'
-    )
+    # The data.gouv.fr API record of the dataset lists the current CSV export.
+    data = context.fetch_json(context.data_url)
+    csv_urls = [r["url"] for r in data["resources"] if r["format"] == "csv"]
+    if len(csv_urls) != 1:
+        raise ValueError(f"Expected 1 CSV resource, got {len(csv_urls)}: {csv_urls}")
+    csv_url = csv_urls[0]
     # The object storage host serving the CSV blocks our production network,
     # so the download is routed via Zyte. It serves the file as an unlabelled
     # binary blob (application/octet-stream), so the media type isn't asserted.

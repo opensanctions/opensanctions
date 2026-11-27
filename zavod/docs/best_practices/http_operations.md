@@ -5,7 +5,9 @@
 Use `context` methods for HTTP operations, as they handle common tasks such as caching, using request sessions with sensible retry defaults, and checking the response status.
 
 ```python
-text = context.fetch_text(context.data_url, method="POST", headers=headers, data=body, cache_days=cache_days)
+text = context.fetch_text(
+    context.data_url, method="POST", headers=headers, data=body, cache_days=cache_days
+)
 ```
 
 ## Credentials
@@ -14,6 +16,7 @@ Read an API key, token or password issued to OpenSanctions from an environment v
 
 ```python
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
+
 
 def crawl(context: Context) -> None:
     assert API_KEY is not None, "No $OPENSANCTIONS_US_CONGRESS_API_KEY key set."

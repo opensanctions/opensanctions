@@ -14,7 +14,10 @@ exports:
 deploy:
   cpu: "1000m"
   cpu_limit: "2000m"
-  memory: "5000Mi"
+  # Counting page cache, memory use sits near the limit for the whole run.
+  # Requesting less makes the pod first in line for eviction when its node runs
+  # short of memory.
+  memory: "8000Mi"
   memory_limit: "8000Mi"
   disk: "150Gi"
   env:

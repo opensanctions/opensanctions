@@ -255,9 +255,7 @@ def crawl_member(
     person = context.make("Person")
     # ... set person props ...
 
-    occupancy = h.make_occupancy(
-        context, person, member, categorisation=categorisation
-    )
+    occupancy = h.make_occupancy(context, person, member, categorisation=categorisation)
     if occupancy is None:
         return
     context.emit(occupancy)

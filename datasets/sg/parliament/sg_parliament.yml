@@ -55,7 +55,9 @@ lookups:
         value: People's Action Party
       - match: Workers' Party
         value: Workers' Party
-      - match: Barisan Sosialis
+      - match:
+          - Barisan Sosialis
+          - Barisan Socialis
         value: Barisan Sosialis
       - match: Progress Singapore Party
         value: Progress Singapore Party

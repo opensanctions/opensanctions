@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: uy-parl
 coverage:
   frequency: monthly
-  start: 2026-11-06
+  start: 2026-11-20
 load_statements: true
 ci_test: false
 # The crawler reads both member lists: "Titulares" (elected, including members on

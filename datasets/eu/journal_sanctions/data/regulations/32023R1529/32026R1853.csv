@@ -1,0 +1,5 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,d16d95f656c89e650244dcac836a5f4ef9827a32,2026-07-27,2026-07-28,2,EU-IRN,III.A,Asset freeze,,,Person,Mohammad Shahab KHANIAN,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,f5023403d41f0dd42bef8b084155011230a9ecd8,2026-07-27,2026-07-28,8,EU-IRN,III.A,Asset freeze,,,Person,Gholam Ali RASHID,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,9a333c26696d860fcbffe857725959bb830c9866,2026-07-27,2026-07-28,13,EU-IRN,III.A,Asset freeze,,,Person,Behnam SHAHRIYARI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,4d3fcca06627c6dc2726f2aebe0d024aa57b6dce,2026-07-27,2026-07-28,14,EU-IRN,III.A,Asset freeze,,,Person,Ali SHADMANI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

@@ -1,0 +1,4 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,6c9b540b485adb324d54f1f2a29f8260143c3400,2024-07-23,2024-07-24,22,EU-LBY,III.A,Asset freeze,,,Person,Yevgeniy Viktorovich PRIGOZHIN,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,b1dfd35cc682b2301f0bce09f2a24bf862d815be,2024-07-23,2024-07-24,13,EU-LBY,III.B,Asset freeze,,,Company,Ashton Global Investments Limited,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,b527da013ecf416615eb2579d1e71c6a6b0670a1,2024-07-23,2024-07-24,15,EU-LBY,III.B,Asset freeze,,,Company,Kinloss Property Limited,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

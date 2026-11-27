@@ -11,6 +11,7 @@ from hashlib import sha256
 from pathlib import Path
 from collections.abc import Iterable, Iterator, Mapping
 from typing import Any, Protocol
+from urllib.parse import quote
 
 import click
 import orjson
@@ -38,31 +39,41 @@ PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
 PREFIX lang: <http://publications.europa.eu/resource/authority/language/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?title ?doc_date ?type ?eli ?amends_celex ?based_on_celex
-                ?cons_celex WHERE {
+SELECT DISTINCT ?title ?doc_date ?pub_date ?oj_pub_date ?eif_date ?type ?eli
+                ?amends_celex ?based_on_celex ?cons_celex WHERE {
   ?work cdm:resource_legal_id_celex "CELEX_ID"^^xsd:string .
-  OPTIONAL { ?work cdm:work_date_document ?doc_date . }
-  OPTIONAL { ?work cdm:work_has_resource-type ?type . }
-  OPTIONAL { ?work cdm:resource_legal_eli ?eli . }
-  OPTIONAL {
+  # One branch per value, so an act amending dozens of frameworks yields rows
+  # that add up rather than a cross product of its multi-valued properties.
+  { ?work cdm:work_date_document ?doc_date . }
+  UNION { ?work cdm:official-journal-act_date_publication ?pub_date . }
+  UNION {
+    ?work cdm:resource_legal_published_in_official-journal ?oj .
+    ?oj cdm:publication_general_date_publication ?oj_pub_date .
+  }
+  UNION { ?work cdm:resource_legal_date_entry-into-force ?eif_date . }
+  UNION { ?work cdm:work_has_resource-type ?type . }
+  UNION { ?work cdm:resource_legal_eli ?eli . }
+  UNION {
     ?expression cdm:expression_belongs_to_work ?work ;
                 cdm:expression_uses_language lang:ENG ;
                 cdm:expression_title ?title .
   }
-  OPTIONAL {
-    ?work cdm:resource_legal_amends_resource_legal ?amended_framework .
-    ?amended_framework cdm:resource_legal_id_celex ?amends_celex .
+  UNION {
+    ?work cdm:resource_legal_amends_resource_legal ?amended .
+    ?amended cdm:resource_legal_id_celex ?amends_celex .
   }
-  OPTIONAL {
-    ?work cdm:resource_legal_based_on_resource_legal ?based_on .
-    ?based_on cdm:resource_legal_id_celex ?based_on_celex .
+  UNION {
+    ?work cdm:resource_legal_based_on_resource_legal ?basis .
+    ?basis cdm:resource_legal_id_celex ?based_on_celex .
   }
-  BIND(COALESCE(?amended_framework, ?work) AS ?framework)
-  OPTIONAL {
-    ?framework cdm:resource_legal_id_celex ?framework_celex .
-    ?consolidated cdm:resource_legal_id_celex ?cons_celex .
-    FILTER(STRSTARTS(STR(?cons_celex),
-                     CONCAT("0", SUBSTR(STR(?framework_celex), 2), "-")))
+  UNION {
+    ?consolidated cdm:act_consolidated_based_on_resource_legal ?work ;
+                  cdm:resource_legal_id_celex ?cons_celex .
+  }
+  UNION {
+    ?work cdm:resource_legal_amends_resource_legal ?framework .
+    ?consolidated cdm:act_consolidated_based_on_resource_legal ?framework ;
+                  cdm:resource_legal_id_celex ?cons_celex .
   }
 }
 """
@@ -100,6 +111,28 @@ SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
 ORDER BY ?doc_date ?celex ?framework_celex ?relation
 """
 
+CORRIGENDA_QUERY = """
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX lang: <http://publications.europa.eu/resource/authority/language/>
+PREFIX rt: <http://publications.europa.eu/resource/authority/resource-type/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?celex ?framework_celex ?relation ?title ?doc_date ?type WHERE {
+  VALUES ?framework_celex { FRAMEWORK_VALUES }
+  ?corrected cdm:resource_legal_id_celex ?framework_celex .
+  ?work cdm:resource_legal_corrects_resource_legal ?corrected ;
+        cdm:resource_legal_id_celex ?celex ;
+        cdm:work_date_document ?doc_date ;
+        cdm:work_has_resource-type ?type .
+  FILTER (?type = rt:CORRIGENDUM)
+  BIND("corrects" AS ?relation)
+  ?expression cdm:expression_belongs_to_work ?work ;
+              cdm:expression_uses_language lang:ENG .
+  OPTIONAL { ?expression cdm:expression_title ?title . }
+}
+ORDER BY ?doc_date ?celex ?framework_celex
+"""
+
 CONSOLIDATIONS_QUERY = """
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -107,13 +140,15 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT DISTINCT ?framework_celex ?cons_celex WHERE {
   VALUES ?framework_celex { FRAMEWORK_VALUES }
   ?framework cdm:resource_legal_id_celex ?framework_celex .
-  ?consolidated cdm:resource_legal_id_celex ?cons_celex .
-  FILTER(STRSTARTS(STR(?cons_celex),
-                   CONCAT("0", SUBSTR(STR(?framework_celex), 2), "-")))
+  # Unlike act_consolidated_consolidates_resource_legal, this edge reaches
+  # every consolidation of the framework and none of other acts.
+  ?consolidated cdm:act_consolidated_based_on_resource_legal ?framework ;
+                cdm:resource_legal_id_celex ?cons_celex .
 }
 """
 
 RELATED_ACT_TYPES = ("REG_IMPL", "DEC_IMPL", "REG", "DEC")
+CORRIGENDA_BATCH = 200
 
 
 @dataclass(frozen=True)
@@ -138,6 +173,12 @@ class Act:
     celex: str
     title: str | None
     document_date: str | None
+    # Acts published since the act-by-act Official Journal (October 2023)
+    # carry their own publication date; older ones inherit their OJ issue's.
+    publication_date: str | None
+    # Several values when provisions enter into force or apply on different
+    # dates; the act's final article says which applies to what.
+    entry_into_force: tuple[str, ...]
     resource_type: str | None
     eli: str | None
     amends: tuple[str, ...]
@@ -159,8 +200,10 @@ class Act:
             "consolidated": list(self.consolidated),
             "document_date": self.document_date,
             "eli_url": self.eli,
+            "entry_into_force": list(self.entry_into_force),
             "eur_lex_url": eur_lex_url(self.celex),
             "latest_consolidated": self.latest_consolidated,
+            "publication_date": self.publication_date,
             "resource_type": self.resource_type,
             "resource_url": cellar_url(self.celex),
             "title": self.title,
@@ -350,6 +393,35 @@ class CellarClient:
             self.clear(request)
             raise
 
+    def query_corrigenda(
+        self, celexes: str | Iterable[str], cache_days: int | None = 1
+    ) -> tuple[RelatedAct, ...]:
+        """Find the English corrigenda that correct any of the given acts.
+
+        Corrigenda are language-specific; one without an English expression
+        leaves the English text unchanged and is not returned. Each result's
+        `framework_celex` is the corrected act and its `relation` is
+        "corrects".
+        """
+        values = _normalize_frameworks(celexes)
+        found: list[RelatedAct] = []
+        # The endpoint rejects request bodies over about 8 KB with a 403.
+        for start in range(0, len(values), CORRIGENDA_BATCH):
+            request = corrigenda_request(values[start : start + CORRIGENDA_BATCH])
+            response = self._fetch(request, cache_days)
+            try:
+                result = orjson.loads(response.content)
+                found.extend(parse_related_act_results(result))
+            except Exception:
+                self.clear(request)
+                raise
+        return tuple(
+            sorted(
+                found,
+                key=lambda act: (act.document_date, act.celex, act.framework_celex),
+            )
+        )
+
     def query_consolidations(
         self,
         framework_celexes: str | Iterable[str],
@@ -396,7 +468,9 @@ class CellarClient:
 
 def cellar_url(value: str) -> str:
     """Build the content-negotiated CELLAR resource URL for a CELEX."""
-    return CELLAR_RESOURCE_URL.format(celex=normalize(value))
+    # Corrigendum CELEXes carry parentheses ("32017R1568R(01)"), which CELLAR
+    # only resolves percent-encoded.
+    return CELLAR_RESOURCE_URL.format(celex=quote(normalize(value), safe=""))
 
 
 def expression_headers(language: str, media_type: str) -> dict[str, str]:
@@ -466,6 +540,23 @@ def related_acts_request(
         data=build_related_acts_query(
             framework_celexes, date_from, date_to, resource_types
         ),
+        headers=tuple(SPARQL_HEADERS.items()),
+    )
+
+
+def build_corrigenda_query(celexes: str | Iterable[str]) -> bytes:
+    """Build a query for the corrigenda of several acts."""
+    values = _normalize_frameworks(celexes)
+    celex_values = " ".join(f'"{celex}"^^xsd:string' for celex in values)
+    return CORRIGENDA_QUERY.replace("FRAMEWORK_VALUES", celex_values).encode("utf-8")
+
+
+def corrigenda_request(celexes: str | Iterable[str]) -> Request:
+    """Build the exact request for finding the corrigenda of several acts."""
+    return Request(
+        SPARQL_ENDPOINT,
+        method="POST",
+        data=build_corrigenda_query(celexes),
         headers=tuple(SPARQL_HEADERS.items()),
     )
 
@@ -542,6 +633,8 @@ def parse_act_results(value: str, result: Any, request: Request | None = None) -
         celex=celex,
         title=first("title"),
         document_date=first("doc_date"),
+        publication_date=first("pub_date") or first("oj_pub_date"),
+        entry_into_force=values("eif_date"),
         resource_type=resource_type,
         eli=first("eli"),
         amends=values("amends_celex"),
@@ -568,7 +661,7 @@ def parse_related_act_results(result: Any) -> tuple[RelatedAct, ...]:
             resource_type = str(binding["type"]["value"]).rstrip("/").rsplit("/", 1)[-1]
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError("Invalid related-act binding in CELLAR response") from exc
-        if relation not in {"amends", "based_on"}:
+        if relation not in {"amends", "based_on", "corrects"}:
             raise ValueError(f"Unsupported CELLAR relationship: {relation}")
         key = (celex, framework, relation, document_date, resource_type)
         title = str(binding.get("title", {}).get("value", "")).strip()
