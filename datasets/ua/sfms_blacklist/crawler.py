@@ -49,12 +49,12 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
 
     sanction = h.make_sanction(context, entity)
     sanction.add("program", entry.findtext("./program-entry"))
+    # SFMS moves date-entry to the day of each amendment to the record, so it
+    # doesn't date the listing.
     date_entry = entry.findtext("./date-entry")
     if date_entry:
         date = datetime.strptime(date_entry, "%Y%m%d")
-        entity.add("createdAt", date.date())
-        sanction.add("listingDate", date.date())
-        sanction.add("startDate", date.date())
+        sanction.add("modifiedAt", date.date())
 
     for aka in entry.findall("./aka-list"):
         aka_category = aka.findtext("category-aka")
@@ -126,6 +126,9 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
             entity.add("nationality", country_, quiet=True)
 
     entity.add("topics", "sanction")
+    h.finalize_sanction(
+        context, sanction, key=entry_id, checksum=h.xml_node_sorted_hash(entry)
+    )
     context.emit(entity)
     context.emit(sanction)
 
