@@ -1,0 +1,3 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,bd0a3705400d1539740d0ba3b168c2b83d0881d4,2024-08-14,2024-08-14,3,EU-YEM,I.A,Asset freeze,,,Person,Ali Abdullah Saleh,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,775a59d7d53c7542c6bf0b9cdb9b69f55233ddce,2024-08-14,2024-08-14,5,EU-YEM,I.A,Asset freeze,,,Person,Ahmed Ali Abdullah Saleh,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
