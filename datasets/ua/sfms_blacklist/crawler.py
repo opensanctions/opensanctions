@@ -182,7 +182,11 @@ def parse_entry(context: Context, entry: Element) -> None:
 
     entity.add("topics", "sanction")
     h.finalize_sanction(
-        context, sanction, key=entry_id, checksum=h.xml_node_sorted_hash(entry)
+        context,
+        sanction,
+        effective_on_listing=True,
+        key=entry_id,
+        checksum=h.xml_node_sorted_hash(entry),
     )
     context.emit(entity)
     context.emit(sanction)
