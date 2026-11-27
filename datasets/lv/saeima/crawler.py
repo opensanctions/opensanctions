@@ -40,6 +40,12 @@ def crawl_term(
         person.add("citizenship", "lv")
         person.add("sourceUrl", urljoin(url, href))
 
+        # Occupancies span the whole term, not the deputy's mandate. Profile pages
+        # list the exact mandate dates as a history of status events (confirmed,
+        # renewed, laid down, ended), e.g. for ministers who lay down and renew
+        # their mandate. Pairing these events into periods needs its own state
+        # handling, and reading them costs one request per deputy. The term dates
+        # are precise enough.
         occupancy = h.make_occupancy(
             context,
             person,
