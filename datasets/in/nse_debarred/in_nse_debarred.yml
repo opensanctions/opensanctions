@@ -159,21 +159,34 @@ lookups:
       # part of those paths is rewritten whenever the publisher re-saves the
       # workbook (the current export repeats "WORKING ON =%23REF/" a dozen
       # times in front of them), so match on the trailing circular path rather
-      # than on the whole string.
-      - contains: Circulars/INVG75388/INVG75388.zip
+      # than on the whole string. Depending on the re-save, the path uses
+      # forward slashes or Windows backslashes, so match both.
+      - contains:
+          - Circulars/INVG75388/INVG75388.zip
+          - Circulars\INVG75388\INVG75388.zip
         value: https://archives.nseindia.com/content/circulars/INVG75388.zip
-      - contains: Circulars/INVG75399/INVG75399.zip
+      - contains:
+          - Circulars/INVG75399/INVG75399.zip
+          - Circulars\INVG75399\INVG75399.zip
         value: https://archives.nseindia.com/content/circulars/INVG75399.zip
-      - contains: Circulars/INVG75403/INVG75403.zip
+      - contains:
+          - Circulars/INVG75403/INVG75403.zip
+          - Circulars\INVG75403\INVG75403.zip
         value: https://archives.nseindia.com/content/circulars/INVG75403.zip
       - match: b'Circulars\\2\\INVG75492.zip'
-        contains: Circulars/2/INVG75492.zip
+        contains:
+          - Circulars/2/INVG75492.zip
+          - Circulars\2\INVG75492.zip
         value: https://archives.nseindia.com/content/circulars/INVG75492.zip
       - match: b'Circulars\\3\\INVG75529.zip'
-        contains: Circulars/3/INVG75529.zip
+        contains:
+          - Circulars/3/INVG75529.zip
+          - Circulars\3\INVG75529.zip
         value: https://archives.nseindia.com/content/circulars/INVG75529.zip
       - match: b'Circulars\\4\\INVG75531.zip'
-        contains: Circulars/4/INVG75531.zip
+        contains:
+          - Circulars/4/INVG75531.zip
+          - Circulars\4\INVG75531.zip
         value: https://archives.nseindia.com/content/circulars/INVG75531.zip
       # Some links are absolute paths on the publisher's own machine, which we
       # cannot resolve to a public URL, so drop them.
