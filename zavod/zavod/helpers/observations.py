@@ -26,8 +26,8 @@ def observe_content(context: Context, key: str, checksum: str) -> datetime | Non
     """Return when a record was first seen with its current source content.
 
     Use this to date a designation's last amendment where the source doesn't. A
-    new checksum returns the time of the current run. Derive the checksum from
-    the same portion of the source on every run (e.g. with
+    new checksum returns the time of the current run. Derive the checksum the
+    same way on every run (e.g. with
     [`h.xml_node_hash`][zavod.helpers.xml_node_hash], or
     [`h.xml_node_sorted_hash`][zavod.helpers.xml_node_sorted_hash] where the
     source shuffles its elements): changing what it covers

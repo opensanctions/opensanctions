@@ -27,7 +27,7 @@ A hash is one kind of acknowledgment marker, not a correctness check. It proves 
 bytes or text are the version a maintainer reviewed; it does not prove that the crawler
 interpreted them correctly.
 
-## Choose the smallest stable input
+## When alerting maintainers, choose the smallest stable input
 
 Monitor only the content whose change requires action. Headers, footers, timestamps,
 advertising, and generated markup make whole-page hashes noisy and train maintainers to
@@ -45,9 +45,6 @@ ignore warnings.
   this helper.
 - [`h.xml_node_hash`][zavod.helpers.xml_node_hash] computes the node hash that
   `h.assert_dom_hash` checks, for callers that store or compare it themselves.
-- [`h.xml_node_sorted_hash`][zavod.helpers.xml_node_sorted_hash] hashes a node of
-  data-style XML regardless of the order of its elements, for sources that serialise
-  them in no stable order.
 
 The helpers return `False` and log a warning when the hash differs. If continuing would
 emit wrong or ambiguous data, set `raise_exc=True`.
