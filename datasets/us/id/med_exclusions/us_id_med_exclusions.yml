@@ -7,7 +7,7 @@ coverage:
 load_statements: true
 ci_test: false  # Zyte is not available in CI
 summary: >
-  Providers, individuals and entities excluded from Idaho's Medicaid program.
+  Providers, individuals and entities excluded from Idaho's Medicaid program
 description: |
   The Idaho Department of Health and Welfare publishes a list of providers, individuals,
   and entities that are excluded from participating in the Idaho Medicaid program. The
