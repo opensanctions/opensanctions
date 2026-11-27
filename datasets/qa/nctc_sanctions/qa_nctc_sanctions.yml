@@ -63,6 +63,21 @@ assertions:
       Organization: 370
 
 lookups:
+  # The letters leading the reference number, which name the regime a
+  # designation is made under: the UN Security Council lists Qatar implements,
+  # and QLD for Qatar's own list under UNSCR 1373.
+  sanction.program:
+    options:
+      - match: QD
+        value: UN-SCISIL
+      - match: TA
+        value: UN-SC1988
+      - match: KP
+        value: UN-SC1718
+      - match: IR
+        value: UN-SC1737
+      - match: QLD
+        value: QA-UNSC1373
   type.country:
     lowercase: true
     normalize: true

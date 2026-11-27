@@ -1,4 +1,5 @@
 import json
+import re
 from rigour.mime.types import JSON, HTML
 
 from zavod import Context
@@ -9,6 +10,9 @@ from zavod.extract import zyte_api
 
 TYPES = {"1": "Person", "2": "Organization"}
 ALIAS_SPLITS = [";", "original script", "(", ")", "previously listed as"]
+# moiListType tells UN-mandated designations apart from Qatar's own ones.
+UN_LIST_TYPE = "0"
+NATIONAL_LIST_TYPE = "1"
 
 
 def crawl(context: Context) -> None:
@@ -28,12 +32,27 @@ def crawl(context: Context) -> None:
     assert data["totalElements"] > 700, data["totalElements"]
 
     for item in data["content"]:
+        checksum = h.record_hash(item)
         data_id = item.pop("dataId")
         typ = item.pop("typ")
         full_name_en = item.pop("fullNameEn")
         entity = context.make(TYPES[typ])
         entity.id = context.make_slug(data_id, full_name_en)
-        sanction = h.make_sanction(context, entity)
+        assert entity.id is not None, (data_id, full_name_en)
+
+        list_type = item.pop("moiListType")
+        reference_number = (item.pop("referenceNumber") or "").strip()
+        sanctions_dto = item.pop("sanctionsDTO", {})
+        # The letters leading the reference number (QDi.001, QLDe.013) name the
+        # regime. sanctionId names it too, but is blank on part of the records.
+        match = re.match(r"^([A-Z]+)[ie]\.\d+$", reference_number)
+        regime = match.group(1) if match is not None else reference_number
+        sanction = h.make_sanction(
+            context,
+            entity,
+            source_program_key=sanctions_dto.pop("sanctionId", "") or None,
+            program_key=h.lookup_sanction_program_key(context, regime),
+        )
         entity.add("alias", h.multi_split(item.pop("aliases", ""), ALIAS_SPLITS))
         entity.add("topics", "sanction")
 
@@ -84,19 +103,47 @@ def crawl(context: Context) -> None:
             entity.add("registrationNumber", item.pop("passportNo"))
             entity.add("registrationNumber", item.pop("qid"))
             entity.add("jurisdiction", item.pop("nationality"))
-        # print(entity.to_dict())
 
-        sanction.add("listingDate", item.pop("listedOn"))
-        sanction.add("unscId", item.pop("referenceNumber"))
-        sanctions_dto = item.pop("sanctionsDTO", {})
-        sanction.add("authorityId", sanctions_dto.pop("sanctionId", None), lang="eng")
+        h.apply_date(sanction, "listingDate", item.pop("listedOn"))
+        if list_type == UN_LIST_TYPE:
+            # The reference number of the UN Security Council list this
+            # designation is mandated by.
+            sanction.add("unscId", reference_number)
+        elif list_type == NATIONAL_LIST_TYPE:
+            sanction.add("authorityId", reference_number)
+        else:
+            context.log.warning(
+                "Unknown moiListType",
+                moi_list_type=list_type,
+                reference_number=reference_number,
+                entity_id=entity.id,
+            )
         sanction.add("program", sanctions_dto.pop("sanctionRegimeEn"), lang="eng")
         sanction.add("program", sanctions_dto.pop("sanctionRegimeAr"), lang="ara")
         context.audit_data(sanctions_dto)
 
-        item.pop("designationDTO", {})
-        # h.audit_data(designation_dto)
+        designation_dto = item.pop("designationDTO", {})
+        # The source swaps the language suffixes here: legalBasisAr holds the
+        # English text and legalBasisEn the Arabic one.
+        sanction.add("reason", designation_dto.pop("legalBasisAr"), lang="eng")
+        sanction.add("reason", designation_dto.pop("legalBasisEn"), lang="ara")
+        sanction.add("sourceUrl", designation_dto.pop("linkUrl"))
+        context.audit_data(
+            designation_dto,
+            ignore=[
+                "desigId",
+                "designNumber",
+                # Repeats the legal basis, but is blank on most records.
+                "linkDecEn",
+                "linkDecAr",
+                "linkType",
+                # The Arabic rendering of linkUrl.
+                "linkUrlAr",
+            ],
+        )
+        h.finalize_sanction(context, sanction, key=reference_number, checksum=checksum)
 
+        context.emit(sanction)
         context.emit(entity)
         context.audit_data(
             item,
@@ -105,7 +152,6 @@ def crawl(context: Context) -> None:
                 "birthPlaceStatus",
                 "birthdateStatus",
                 "aliasesStatus",
-                "moiListType",
                 # Sometimes left over because we only use the name1,2,3,4 items for Companies
                 "fullNameAr",
             ],
