@@ -11,52 +11,55 @@ from zavod import helpers as h
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 CEO_HEADERS = (
-    "Įmonės pavadinimas",
-    "Įmonės kodas",
-    "Įmonės akcijų valdytojas/savininkas",
-    "Vadovas",
-    "Lytis",
-    "Vadovo kadencijos pradžia",
-    "Vadovo kadencijos pabaiga",
+    "Įmonės pavadinimas",  # Company name
+    "Įmonės kodas",  # Company code
+    "Įmonės akcijų valdytojas/savininkas",  # Shareholder / owner
+    "Vadovas",  # Head
+    "Lytis",  # Gender
+    "Vadovo kadencijos pradžia",  # Start of the head's term
+    "Vadovo kadencijos pabaiga",  # End of the head's term
 )
 TERM_HEADERS = (
-    "Eilė",
-    "Lytis",
-    "Einamosios kadencijos pradžia:",
-    "Einamosios kadencijos pabaiga:",
-    "Nario (-ės) pareigas eina nuo:",
-    "Perrinktas (-a)",
+    "Eilė",  # Order
+    "Lytis",  # Gender
+    "Einamosios kadencijos pradžia:",  # Start of the current term
+    "Einamosios kadencijos pabaiga:",  # End of the current term
+    "Nario (-ės) pareigas eina nuo:",  # Serving as a member since
+    "Perrinktas (-a)",  # Re-elected
 )
 COMPANY_HEADERS = (
-    "Įmonės pavadinimas",
-    "Įmonės kodas",
-    "Įmonės akcijų valdytojas/savininkas",
-    "Vardas, pavardė",
+    "Įmonės pavadinimas",  # Company name
+    "Įmonės kodas",  # Company code
+    "Įmonės akcijų valdytojas/savininkas",  # Shareholder / owner
+    "Vardas, pavardė",  # Name, surname
 )
 # Sheet name -> (English name of the body, header row). The CEO sheet is separate.
 BOARD_SHEETS = {
+    # Supervisory-type board
     "Priežiūros valdyba": (
         "Board",
         COMPANY_HEADERS
         + (
-            "Valdybos nario (-ės) kompetencijų sritys",
-            "Valdybos nario (-ės) patirtis",
-            "Eilė",
-            "Pozicija valdyboje",
+            "Valdybos nario (-ės) kompetencijų sritys",  # Member's areas of competence
+            "Valdybos nario (-ės) patirtis",  # Member's experience
+            "Eilė",  # Order
+            "Pozicija valdyboje",  # Position on the board
         )
         + TERM_HEADERS[1:],
     ),
+    # Supervisory board
     "Stebėtojų taryba": (
         "Supervisory Board",
         COMPANY_HEADERS
         + (
-            "Stebėtojų tarybos nario (-ės) kompetencijų sritys",
-            "Stebėtojų tarybos nario (-ės) patirtis",
-            "Eilė",
-            "Pozicija stebėtojų taryboje",
+            "Stebėtojų tarybos nario (-ės) kompetencijų sritys",  # Areas of competence
+            "Stebėtojų tarybos nario (-ės) patirtis",  # Member's experience
+            "Eilė",  # Order
+            "Pozicija stebėtojų taryboje",  # Position on the supervisory board
         )
         + TERM_HEADERS[1:],
     ),
+    # Management board
     "Vykdančioji valdyba": (
         "Management Board",
         COMPANY_HEADERS + ("Eilė", "Pozicija valdyboje") + TERM_HEADERS[1:],
@@ -108,10 +111,9 @@ def make_company(context: Context, row: dict[str, str | None]) -> Entity:
 
 def make_person(context: Context, company: Entity, name: str | None) -> Entity:
     assert name is not None, company.id
-    name = ACTING_PREFIX.sub("", name)
     person = context.make("Person")
     person.id = context.make_id(company.id, name)
-    person.add("name", name)
+    person.add("name", ACTING_PREFIX.sub("", name))
     # 'country' rather than 'citizenship': board members include foreign nationals.
     person.add("country", "lt")
     return person
@@ -195,10 +197,13 @@ def crawl_board_member(
     serving_since = row.pop("Nario (-ės) pareigas eina nuo:")
     if serving_since is not None:
         earlier = re.fullmatch(
-            f"Valdybos nar(?:io|ės) pareigas taip pat ėjo nuo {DATE} iki {DATE}",
+            f".+ nar(?:io|ės) pareigas taip pat ėjo nuo {DATE} iki {DATE}",
             serving_since,
         )
-        if earlier is not None:
+        if re.fullmatch(DATE, serving_since) is not None:
+            # The start of the first of consecutive terms.
+            start_date = serving_since
+        elif earlier is not None:
             emit_occupancy(
                 context,
                 person,
@@ -209,8 +214,12 @@ def crawl_board_member(
                 None,
             )
         else:
-            # A date: the start of the first of consecutive terms.
-            start_date = serving_since
+            context.log.warning(
+                "Unparsed serving-since note",
+                body=body,
+                person=person.id,
+                value=serving_since,
+            )
     role = f"Chair of the {body}" if is_chair else f"Member of the {body}"
     emit_occupancy(
         context,
@@ -250,6 +259,7 @@ def crawl(context: Context) -> None:
     # Not read-only: the bold font marking chairs is only loaded in full mode.
     workbook = load_workbook(path, data_only=True)
     assert set(workbook.sheetnames) == {"Vadovybė", *BOARD_SHEETS}, workbook.sheetnames
+    # Management
     for row, _ in read_sheet(workbook["Vadovybė"], CEO_HEADERS):
         crawl_ceo(context, row)
     for sheet_name, (body, headers) in BOARD_SHEETS.items():
