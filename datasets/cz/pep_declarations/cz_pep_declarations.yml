@@ -56,3 +56,34 @@ lookups:
           - '-'
           - ';'
         value: null
+  # Deputies and senators are identified by the source's per-position flags in
+  # the crawler.
+  role_country_prop:
+    lowercase: true
+    options:
+      # Act 6/2002 Coll. on courts and judges §60(1): "Soudcem nebo přísedícím
+      # může být ustanoven státní občan České republiky". Constitutional Court
+      # judges must be eligible for the Senate (Constitution Art. 84(3)).
+      - match: soudce
+        value: citizenship
+      # Act 128/2000 Coll. on municipalities §103(2): "Starosta a místostarosta
+      # musí být občanem České republiky." Prague districts fall under Act
+      # 131/2000 Coll. instead, which has no express equivalent: §69(1)
+      # requires members of the Prague city rada to be citizens, and §94(1)
+      # applies the rules on its members to district radas only "obdobně" (by
+      # analogy). A district with fewer than 15 councillors elects no rada at
+      # all (§95(2)), so for Prague district mayors this rests on an
+      # interpretation of the law.
+      - match:
+          - starosta
+          - místostarosta / zástupce starosty
+        value: citizenship
+      # Any voter can stand for a municipal council, including EU citizens with
+      # registered residence (Act 491/2001 Coll. §4(1), §5(1)).
+      - match: člen zastupitelstva
+        value: country
+      # The Civil Service Act admits EU/EEA citizens (Act 234/2014 Coll.
+      # §25(1)(a)); Czech citizenship is only required where an individual
+      # post's service regulation sets it (§25(3)(a)).
+      - match: ředitel odboru
+        value: country
