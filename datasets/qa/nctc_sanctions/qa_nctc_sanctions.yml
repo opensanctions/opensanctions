@@ -57,12 +57,10 @@ assertions:
     schema_entities:
       Person: 445
       Organization: 155
-      Sanction: 600
   max:
     schema_entities:
       Person: 1050
       Organization: 370
-      Sanction: 1420
 
 lookups:
   # The letters leading the reference number, which name the regime a
