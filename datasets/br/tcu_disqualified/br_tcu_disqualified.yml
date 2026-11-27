@@ -25,10 +25,12 @@ publisher:
   url: https://portal.tcu.gov.br/inicio/
   official: true
   country: "br"
-url: "https://contas.tcu.gov.br/ords/f?p=1660:1:::NO:1::"
+url: https://certidoes.apps.tcu.gov.br/lista-inabilitados
 data:
-  url: https://contas.tcu.gov.br/ords/condenacao/consulta/inabilitados
+  url: https://certidoes.apps.tcu.gov.br/api/publico/responsaveis-inabilitados-com-paginacao
   format: JSON
+dates:
+  formats: ["%d/%m/%Y"]
 
 assertions:
   min:

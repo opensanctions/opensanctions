@@ -100,15 +100,16 @@ def crawl_person(context: Context, row: dict[str, Element]) -> None:
     id = parse_qs(urlparse(detail_url).query)["bid"][0]
     person.id = context.make_slug(id)
 
-    # name3 handles additional middle names
+    # name3 and name4 handle additional middle names
     h.apply_name(
         person,
         first_name=forename_list[0],
         middle_name=forename_list[1] if len(forename_list) > 1 else None,
         name3=forename_list[2] if len(forename_list) > 2 else None,
+        name4=forename_list[3] if len(forename_list) > 3 else None,
         last_name=last_name,
     )
-    assert len(forename_list) <= 3, len(forename_list)
+    assert len(forename_list) <= 4, len(forename_list)
 
     person.add("sourceUrl", detail_url)
     person.add("topics", "crime")
