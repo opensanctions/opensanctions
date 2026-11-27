@@ -86,28 +86,33 @@ def parse_sanctions(
                 if source_program_key
                 else None
             ),
-            key=url,
+            # The regulation URL changes with every amendment, the regime doesn't.
+            # Travel ban regulations carry no programme, only the decision title.
+            key=source_program_key or regulation.get("numberTitle"),
         )
         sanction.set("sourceUrl", url)
         sanction.add("reason", regulation.get("numberTitle"))
 
-        # Sometimes the entity tag doesn't have a designationDate,
-        # and the regulation date is the correct start date.
-        # Sometimes the referenced regulation is an amendment,
-        # not the original regulation introducing the entity.
-        # In case both exist, use the earliest date.
-        start_dates = [
-            entry.get("designationDate"),
-            regulation.get("entryIntoForceDate"),
-        ]
-        valid_start_dates = [d for d in start_dates if d is not None]
-        start_date = min(valid_start_dates, default=None)
-        sanction.add("startDate", start_date)
-
-        sanction.add("listingDate", regulation.get("publicationDate"))
-        entity.add("modifiedAt", regulation.get("entryIntoForceDate"))
+        sanction.add("startDate", entry.get("designationDate"))
+        # <regulation> is the latest act touching the entry; each sub-element's
+        # regulationSummary names the act that introduced it.
+        acts = [s.get("publicationDate") for s in entry.iter("regulationSummary")]
+        acts.append(regulation.get("publicationDate"))
+        listed = min((a for a in acts if a is not None), default=None)
+        sanction.add("listingDate", listed)
+        if not sanction.has("startDate") and listed == regulation.get(
+            "publicationDate"
+        ):
+            # <regulation> is still the act that listed the entry.
+            sanction.add("startDate", regulation.get("entryIntoForceDate"))
+        sanction.add("modifiedAt", regulation.get("publicationDate"))
         sanction.add("unscId", entry.get("unitedNationId"))
         sanction.add("authorityId", entry.get("euReferenceNumber"))
+
+        key = entry.get("euReferenceNumber")
+        # The export reorders sibling elements between runs.
+        checksum = h.xml_node_sorted_hash(entry) if key is not None else None
+        h.finalize_sanction(context, sanction, key=key, checksum=checksum)
         context.emit(sanction)
 
 
