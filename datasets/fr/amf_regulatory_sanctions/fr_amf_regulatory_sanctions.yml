@@ -616,7 +616,8 @@ lookups:
       - match: "Sociétés INFOGRAMES ENTERTAINMENT et NATEXIS BLEICHROEDER, aux droits de laquelle vient la société NATIXIS SECURITIES."
         entities:
           - INFOGRAMES ENTERTAINMENT
-          - ["NATEXIS BLEICHROEDER", "NATIXIS SECURITIES"]
+          # Current name first, then the previous name.
+          - ["NATIXIS SECURITIES", "NATEXIS BLEICHROEDER"]
       - match: "La société Biosynex<br /> La société ALA Financière<br /> La société Axodev<br /> La société AJT Financière <br /> M. Larry Abensur<br /> M. Thierry Paper<br /> M. Thomas Lamy<br /> M. Elie Fraenckel"
         entities:
           - Biosynex
