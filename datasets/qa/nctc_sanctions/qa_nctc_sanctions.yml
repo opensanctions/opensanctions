@@ -42,8 +42,6 @@ data:
   format: JSON
 dates:
   formats:
-    # listedOn carries a UTC offset on a couple of records.
-    - "%Y-%m-%d-%H:%M"
     - EXACT_X_%Y_X_X
     - APPROXIMATELY_X_%Y_X_X
     - APPROXIMATELY_%d/%m/%Y___
@@ -67,20 +65,20 @@ assertions:
       Sanction: 1420
 
 lookups:
-  # sanctionsDTO.sanctionId, the source's code for the regime a designation is
-  # made under. 1-4 are the UN Security Council lists Qatar implements, 5 is
-  # Qatar's own list under UNSCR 1373.
+  # The letters leading the reference number, which name the regime a
+  # designation is made under: the UN Security Council lists Qatar implements,
+  # and QLD for Qatar's own list under UNSCR 1373.
   sanction.program:
     options:
-      - match: "1"
+      - match: QD
         value: UN-SCISIL
-      - match: "2"
+      - match: TA
         value: UN-SC1988
-      - match: "3"
+      - match: KP
         value: UN-SC1718
-      - match: "4"
+      - match: IR
         value: UN-SC1737
-      - match: "5"
+      - match: QLD
         value: QA-UNSC1373
   type.country:
     lowercase: true

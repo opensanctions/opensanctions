@@ -13,50 +13,6 @@ ALIAS_SPLITS = [";", "original script", "(", ")", "previously listed as"]
 # moiListType tells UN-mandated designations apart from Qatar's own ones.
 UN_LIST_TYPE = "0"
 NATIONAL_LIST_TYPE = "1"
-# The source leaves sanctionsDTO.sanctionId blank on part of the records. The
-# letters leading the reference number (QDi.001, QLDe.013, ...) name the same
-# regime, and agree with sanctionId wherever both are given.
-REFERENCE_NUMBER = re.compile(r"^(?P<regime>[A-Z]+)[ie]\.\d+$")
-REGIME_BY_REFERENCE_PREFIX = {
-    "QD": "1",
-    "TA": "2",
-    "KP": "3",
-    "IR": "4",
-    "QLD": "5",
-}
-
-
-def get_regime_key(context: Context, reference_number: str, entity_id: str) -> str:
-    """Derive the source's regime code from a reference number.
-
-    Args:
-        context: The runner context.
-        reference_number: The source's `referenceNumber`, stripped.
-        entity_id: The designated entity, for logging.
-
-    Returns:
-        The regime code the reference number implies, or an empty string if it
-        cannot be derived.
-    """
-    match = REFERENCE_NUMBER.match(reference_number)
-    if match is None:
-        context.log.warning(
-            "Cannot derive the sanctions regime from the reference number",
-            reference_number=reference_number,
-            entity_id=entity_id,
-        )
-        return ""
-    prefix = match.group("regime")
-    regime = REGIME_BY_REFERENCE_PREFIX.get(prefix)
-    if regime is None:
-        context.log.warning(
-            "Unknown reference number prefix",
-            prefix=prefix,
-            reference_number=reference_number,
-            entity_id=entity_id,
-        )
-        return ""
-    return regime
 
 
 def crawl(context: Context) -> None:
@@ -86,16 +42,15 @@ def crawl(context: Context) -> None:
         list_type = item.pop("moiListType")
         reference_number = (item.pop("referenceNumber") or "").strip()
         sanctions_dto = item.pop("sanctionsDTO", {})
-        # Blank on the records where the source omits the regime.
-        source_program_key = sanctions_dto.pop("sanctionId", "")
-        regime_key = source_program_key or get_regime_key(
-            context, reference_number, entity.id
-        )
+        # The letters leading the reference number (QDi.001, QLDe.013) name the
+        # regime. sanctionId names it too, but is blank on part of the records.
+        match = re.match(r"^([A-Z]+)[ie]\.\d+$", reference_number)
+        regime = match.group(1) if match is not None else reference_number
         sanction = h.make_sanction(
             context,
             entity,
-            source_program_key=source_program_key or None,
-            program_key=h.lookup_sanction_program_key(context, regime_key),
+            source_program_key=sanctions_dto.pop("sanctionId", "") or None,
+            program_key=h.lookup_sanction_program_key(context, regime),
         )
         entity.add("alias", h.multi_split(item.pop("aliases", ""), ALIAS_SPLITS))
         entity.add("topics", "sanction")
