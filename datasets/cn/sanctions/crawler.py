@@ -341,11 +341,14 @@ def apply_current_status(
     name: str,
     end_date: str | None,
     row: dict[str, str],
-) -> None:
-    """Project the latest official status of a designation onto its Sanction.
+) -> tuple[str, bool] | None:
+    """Add the latest official status of a designation row to its Sanction.
 
     The status phrase is emitted verbatim; the ``current_status`` lookup only decides
-    whether the notice ends the measure (``endDate``) or suspends it (``modifiedAt``).
+    whether the notice ends the row's measure or suspends it.
+
+    Returns:
+        The status date and whether it ends the measure, or None without a status.
     """
     phrase = row.pop("Current status (source)", None)
     status_date = row.pop("Current status date", None)
@@ -356,7 +359,7 @@ def apply_current_status(
     if not phrase:
         if status_date or status_url or quote:
             raise ValueError(f"Status columns without a status phrase for {name!r}")
-        return
+        return None
     if not status_date or not status_url or not quote or not language:
         raise ValueError(f"Incomplete current status columns for {name!r}")
     if phrase not in quote:
@@ -369,12 +372,121 @@ def apply_current_status(
     sanction.add("status", phrase, lang="zho")
     sanction.add("sourceUrl", status_url)
     sanction.add("provisions", quote, lang=language)
-    if res.ends:
-        if end_date and end_date != status_date:
-            raise ValueError(f"End date and status date differ for {name!r}")
-        h.apply_date(sanction, "endDate", status_date)
-    else:
-        h.apply_date(sanction, "modifiedAt", status_date)
+    if res.ends and end_date and end_date != status_date:
+        raise ValueError(f"End date and status date differ for {name!r}")
+    return status_date, bool(res.ends)
+
+
+def parse_date(context: Context, value: str) -> str:
+    """Parse a `DD.MM.YY(YY)` sheet date to ISO, or return an empty string."""
+    dates = h.extract_date(
+        context.dataset, value, two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE
+    )
+    return dates[0] if len(dates) > 0 else ""
+
+
+def crawl_designation(
+    context: Context, program_key: str | None, rows: list[dict[str, str]]
+) -> None:
+    """Emit a target and one Sanction spanning its rows under one program.
+
+    China often designates the same target again under a program it is already
+    listed on, and the MFA compiles its decisions onto an index page that is
+    recorded as a second row. The Sanction is listed on the earliest notice and
+    modified by every later notice, status change or end. Notices take effect on
+    publication, so the earliest `Date` is also the `startDate`; a `Listing date`
+    records a publication that precedes the effective date. A program can carry
+    several measures against one target, so the Sanction ends only once every
+    row has ended.
+    """
+    rows.sort(key=lambda row: parse_date(context, row["Date"]))
+    first = rows[0]
+    entity = context.make(first["Type"])
+    qid = first["QID"] or None
+    entity.id = qid or context.make_id(first["Name"])
+    entity.add("wikidataId", qid)
+    program = first["List"] or None
+    sanction = h.make_sanction(
+        context,
+        entity,
+        key=program_key,
+        program_name=program,
+        program_key=program_key,
+    )
+    first_date = first["Date"]
+    h.apply_date(sanction, "listingDate", first["Listing date"])
+    h.apply_date(
+        sanction,
+        "startDate",
+        first_date,
+        two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
+    )
+
+    topics: set[str] = set()
+    end_dates: list[str] = []
+    for row in rows:
+        if row.pop("Type") != entity.schema.name:
+            raise ValueError(f"Rows of {entity.id} disagree on the schema")
+        name = row.pop("Name")
+        row.pop("QID")
+        entity.add("name", name, lang="eng")
+        entity.add("alias", row.pop("Alias").split(";"), lang="eng")
+        entity.add("alias", row.pop("Chinese name"), lang="zho")
+        entity.add("country", row.pop("Country", None))
+        entity.add("address", row.pop("Address", None))
+        entity.add("notes", row.pop("Summary", None), lang="eng")
+        entity.add("notes", row.pop("Chinese summary", None), lang="zho")
+        topics.update(row.pop("Topics").split(";"))
+        sanction.add("program", row.pop("List", None))
+        source_url = row.pop("Source URL", None)
+        if not source_url:
+            raise ValueError(f"Row for {name!r} has no Source URL")
+        sanction.add("sourceUrl", source_url)
+        sanction.add("authority", row.pop("Body", None))
+        sanction.add("recordId", row.pop("Notice ID", None))
+        row.pop("Notice title", None)
+        designation_quote = row.pop("Designation quote", None)
+        designation_language = row.pop("Designation quote language", None)
+        if designation_quote:
+            sanction.add("provisions", designation_quote, lang=designation_language)
+
+        listing_date = row.pop("Listing date")
+        designation_date = row.pop("Date")
+        if designation_date != first_date:
+            h.apply_date(
+                sanction,
+                "modifiedAt",
+                listing_date or designation_date,
+                two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
+            )
+        end_date = row.pop("End date", None)
+        status = apply_current_status(context, sanction, name, end_date, row)
+        if status is not None:
+            status_date, ends = status
+            h.apply_date(sanction, "modifiedAt", status_date)
+            if ends:
+                end_date = status_date
+        if end_date:
+            h.apply_date(
+                sanction,
+                "modifiedAt",
+                end_date,
+                two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
+            )
+            end_dates.append(parse_date(context, end_date))
+        context.audit_data(row)
+
+    if len(end_dates) == len(rows):
+        h.apply_date(sanction, "endDate", max(end_dates))
+    h.finalize_sanction(
+        context, sanction, effective_on_listing=True, amendments_dated=True
+    )
+    # An ended designation stays in the dataset as history but no longer
+    # flags the target.
+    if h.is_active(sanction):
+        entity.add("topics", sorted(topics))
+    context.emit(sanction)
+    context.emit(entity)
 
 
 def crawl(context: Context) -> None:
@@ -388,64 +500,16 @@ def crawl(context: Context) -> None:
 
     discovery_config = context.dataset.config.get("discovery", {})
     reviewed_urls = collect_reviewed_urls(rows, discovery_config)
+    # One Sanction per target and program: a target listed under several MOFCOM
+    # and MFA programs keeps one Sanction for each, as their status diverges.
+    designations: dict[tuple[str, str | None], list[dict[str, str]]] = {}
     for row in rows:
-        entity = context.make(row.pop("Type"))
-        name = row.pop("Name")
-        if name is None:
-            continue
-        qid = row.pop("QID", None)
-        entity.id = qid or context.make_id(name)
-        entity.add("wikidataId", qid)
-        entity.add("name", name, lang="eng")
-        entity.add("alias", row.pop("Alias").split(";"), lang="eng")
-        entity.add("alias", row.pop("Chinese name"), lang="zho")
-        entity.add("country", row.pop("Country", None))
-        entity.add("address", row.pop("Address", None))
-        entity.add("notes", row.pop("Summary", None), lang="eng")
-        entity.add("notes", row.pop("Chinese summary", None), lang="zho")
-        topics = row.pop("Topics").split(";")
-        program = row.pop("List", None)
-        source_url = row.pop("Source URL", None)
-        if not source_url:
-            raise ValueError(f"Row for {name!r} has no Source URL")
-        # One Sanction per designation row: the same target is often listed under
-        # several MOFCOM and MFA measures whose status diverges.
-        sanction = h.make_sanction(
-            context,
-            entity,
-            key=f"{source_url}|{program}",
-            program_name=program,
-            program_key=h.lookup_sanction_program_key(context, program),
-        )
-        sanction.set("authority", row.pop("Body", None))
-        sanction.add("recordId", row.pop("Notice ID", None))
-        row.pop("Notice title", None)
-        designation_quote = row.pop("Designation quote", None)
-        designation_language = row.pop("Designation quote language", None)
-        if designation_quote:
-            sanction.add("provisions", designation_quote, lang=designation_language)
-        h.apply_date(
-            sanction,
-            "startDate",
-            row.pop("Date", None),
-            two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
-        )
-        end_date = row.pop("End date", None)
-        h.apply_date(
-            sanction,
-            "endDate",
-            end_date,
-            two_digit_year_base=TWO_DIGIT_SANCTION_YEAR_BASE,
-        )
-        sanction.add("sourceUrl", source_url)
-        apply_current_status(context, sanction, name, end_date, row)
-        # An ended designation stays in the dataset as history but no longer
-        # flags the target.
-        if h.is_active(sanction):
-            entity.add("topics", topics)
-        context.emit(sanction)
-        context.emit(entity)
-        context.audit_data(row)
+        entity_id = row["QID"] or context.make_id(row["Name"])
+        assert entity_id is not None, row["Name"]
+        program_key = h.lookup_sanction_program_key(context, row["List"])
+        designations.setdefault((entity_id, program_key), []).append(row)
+    for (_, program_key), designation_rows in designations.items():
+        crawl_designation(context, program_key, designation_rows)
 
     try:
         candidates = discover_candidates(context)
