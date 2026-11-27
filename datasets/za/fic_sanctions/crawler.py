@@ -78,7 +78,7 @@ def parse_aliases(names: h.Names, text: str | None) -> None:
         names.add("alias" if label == "Good" else "weakAlias", name)
 
 
-def crawl_row(context: Context, data: dict[str, str]) -> None:
+def crawl_row(context: Context, data: dict[str, str], key: str, checksum: str) -> None:
     full_name = data.pop("FullName", None)
     if full_name is not None:
         ent_id = data.pop("IndividualID")
@@ -125,6 +125,7 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
     sanction.add("unscId", data.pop("ReferenceNumber", None))
 
     context.audit_data(data, ignore=["ApplicationStatus"])
+    h.finalize_sanction(context, sanction, key=key, checksum=checksum)
     context.emit(entity)
     context.emit(sanction)
 
@@ -147,7 +148,15 @@ def crawl(context: Context) -> None:
                 if value is None or value == "NA":
                     continue
                 data[field.tag] = value
-            crawl_row(context, data)
+            key = data.get("ReferenceNumber")
+            if key is None:
+                raise ValueError(f"Row without ReferenceNumber: {data!r}")
+            # IndividualID and EntityID are row numbers, which the source
+            # renumbers without any change to the designations.
+            checksum = h.record_hash(
+                {k: v for k, v in data.items() if k not in ("IndividualID", "EntityID")}
+            )
+            crawl_row(context, data, key, checksum)
     potential_table = doc.find(".//Table2")
     if potential_table is not None:
         context.log.warning("Table2 found in source, but not yet implemented")
