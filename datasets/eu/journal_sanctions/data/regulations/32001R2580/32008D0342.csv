@@ -1,0 +1,7 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,f1e586200009f721252a41f2f38d729f8d41e223,2008-04-30,2008-04-30,3,EU-TERR,II.A,Asset freeze,,,Person,"AKHNIKH, Ismail",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,4755b551df018b17c69e573c0379bf57ee1b5951,2008-04-30,2008-04-30,7,EU-TERR,II.A,Asset freeze,,,Person,"AOURAGHE, Zine Labidine",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,41f600546711eebd548cedef56db935ad673057d,2008-04-30,2008-04-30,13,EU-TERR,II.A,Asset freeze,,,Person,"BOUGHABA, Mohamed Fahmi",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,7e492e2c252349863c1e4f3b3dab8260a5a3bc56,2008-04-30,2008-04-30,19,EU-TERR,II.A,Asset freeze,,,Person,"EL MORABIT, Mohamed",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,ad6c366646447c1e9291d8007d118a421b8c51a5,2008-04-30,2008-04-30,20,EU-TERR,II.A,Asset freeze,,,Person,"ETTOUMI, Youssef",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,ec6ecb8edef39c84f8a48a0574448a94e675ce9f,2008-04-30,2008-04-30,22,EU-TERR,II.A,Asset freeze,,,Person,"HAMDI, Ahmed",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
