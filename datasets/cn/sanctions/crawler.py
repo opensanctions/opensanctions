@@ -397,7 +397,8 @@ def crawl_designation(
     publication, so the earliest `Date` is also the `startDate`; a `Listing date`
     records a publication that precedes the effective date. A program can carry
     several measures against one target, so the Sanction ends only once every
-    row has ended.
+    row has ended, and counts as suspended only while every row that has not
+    ended is suspended.
     """
     rows.sort(key=lambda row: parse_date(context, row["Date"]))
     first = rows[0]
@@ -424,6 +425,7 @@ def crawl_designation(
 
     topics: set[str] = set()
     end_dates: list[str] = []
+    suspended = 0
     for row in rows:
         if row.pop("Type") != entity.schema.name:
             raise ValueError(f"Rows of {entity.id} disagree on the schema")
@@ -466,6 +468,8 @@ def crawl_designation(
             h.apply_date(sanction, "modifiedAt", status_date)
             if ends:
                 end_date = status_date
+            elif not end_date:
+                suspended += 1
         if end_date:
             h.apply_date(
                 sanction,
@@ -482,9 +486,12 @@ def crawl_designation(
         context, sanction, effective_on_listing=True, amendments_dated=True
     )
     # An ended designation stays in the dataset as history but no longer
-    # flags the target.
+    # flags the target. A suspended one is announced to resume, so it warns.
     if h.is_active(sanction):
-        entity.add("topics", sorted(topics))
+        if suspended + len(end_dates) == len(rows):
+            entity.add("topics", "reg.warn")
+        else:
+            entity.add("topics", sorted(topics))
     context.emit(sanction)
     context.emit(entity)
 

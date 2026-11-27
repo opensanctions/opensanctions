@@ -41,6 +41,8 @@ earliest row sets the listing and start dates, and every later row, status date 
 program has ended, as one program can carry several measures against a target. An ended
 `Sanction` keeps its target but no longer adds its `Topics` to the target, so the entity
 remains searchable as history without being flagged.
+While every row under the program that has not ended is suspended (a `current_status`
+phrase that does not end the measure), the target is tagged `reg.warn` instead of `Topics`.
 
 ## Map the CSV fields
 
