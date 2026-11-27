@@ -8,12 +8,9 @@ Only rows whose checksum differs from the previous version are observed, since
 an unchanged row would only move its `last_seen`. That is set once at the end
 for the rows of the last version, as the crawler's next run would.
 
-SAM Numbers are empty in the extracts before 2026-04-18, when SAM introduced
-its current record IDs, so the history before then cannot be keyed. The last
-version before that day only serves as the baseline. The keys first seen on
-the day are recorded as of the baseline, so that `listingDate` stays empty on
-the Sanctions without a usable creation date, while their checksums still date
-the change as `modifiedAt`.
+The replay starts on 2026-05-20, when SAM last re-issued record IDs: SAM
+Numbers are empty before 2026-04-18, and about 5,300 records got new ones on
+2026-05-20. The version of that day is the baseline.
 """
 
 import csv
@@ -26,7 +23,6 @@ from zipfile import ZipFile
 
 from zavod.helpers import record_hash
 from zavod.stateful.model import observation_table
-from zavod.stateful.observations import observe
 
 from contrib.backtrack.harness import (
     dump_sql,
@@ -37,7 +33,7 @@ from contrib.backtrack.harness import (
 
 log = logging.getLogger("backtrack.us_sam_exclusions")
 DATASET = "us_sam_exclusions"
-REKEY_DATE = date(2026, 4, 18)
+REKEY_DATE = date(2026, 5, 20)
 
 
 def read_rows(zip_path: Path) -> dict[str, str]:
@@ -62,22 +58,15 @@ def read_rows(zip_path: Path) -> dict[str, str]:
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     db = open_db(DATASET)
-    baseline: datetime | None = None
     previous: dict[str, str] = {}
     current: dict[str, str] = {}
     seen = datetime.min
     for seen, path in iter_versions(DATASET, "source.zip"):
         if seen.date() < REKEY_DATE:
-            baseline = seen
             continue
         current = read_rows(path)
         if len(current) == 0:
             raise RuntimeError(f"{path.name}: no designations found")
-        if seen.date() == REKEY_DATE:
-            if baseline is None:
-                raise RuntimeError(f"No version before {REKEY_DATE}")
-            for key in current:
-                observe(db, DATASET, key, "", baseline)
         events: Counter[str | None] = Counter()
         for key, checksum in current.items():
             if previous.get(key) == checksum:
