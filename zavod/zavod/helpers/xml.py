@@ -81,10 +81,18 @@ def _sorted_digest(el: etree._Element) -> str:
     digest = sha1(_normalise(str(el.tag)).encode("utf-8"))
     for key, value in sorted((str(k), str(v)) for k, v in el.attrib.items()):
         digest.update(f"\x1f{key}={_normalise(value)}".encode())
-    digest.update(f"\x1e{_normalise(el.text)}".encode())
-    children = [_sorted_digest(c) for c in el.iterchildren(etree.Element)]
-    for child in sorted(children):
-        digest.update(child.encode("utf-8"))
+    # Text after a comment or processing instruction is that node's tail, so it
+    # joins the element's own text while the node itself is skipped.
+    text = [el.text]
+    children: list[str] = []
+    for child in el.iterchildren():
+        if isinstance(child.tag, str):
+            children.append(_sorted_digest(child))
+        else:
+            text.append(child.tail)
+    digest.update(f"\x1e{''.join(_normalise(t) for t in text)}".encode())
+    for child_digest in sorted(children):
+        digest.update(child_digest.encode("utf-8"))
     digest.update(f"\x1d{_normalise(el.tail)}".encode())
     return digest.hexdigest()
 

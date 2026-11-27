@@ -55,3 +55,14 @@ def test_xml_node_sorted_hash():
     )
     assert xml_node_sorted_hash(moved) != xml_node_sorted_hash(doc)
     assert xml_node_sorted_hash(None) is None
+
+    commented = etree.fromstring("<a>foo<!-- c -->bar</a>")
+    after_comment = etree.fromstring("<a>foo<!-- c -->baz</a>")
+    assert xml_node_sorted_hash(commented) != xml_node_sorted_hash(after_comment)
+    after_newline = etree.fromstring("<a>foo<!-- c -->\nbaz</a>")
+    assert xml_node_sorted_hash(commented) != xml_node_sorted_hash(after_newline)
+    other_comment = etree.fromstring("<a>foo<!-- d -->bar</a>")
+    assert xml_node_sorted_hash(commented) == xml_node_sorted_hash(other_comment)
+    after_pi = etree.fromstring("<a><b/><?pi x?>bar</a>")
+    after_pi_changed = etree.fromstring("<a><b/><?pi x?>baz</a>")
+    assert xml_node_sorted_hash(after_pi) != xml_node_sorted_hash(after_pi_changed)
