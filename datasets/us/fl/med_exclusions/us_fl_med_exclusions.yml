@@ -10,7 +10,7 @@ coverage:
 load_statements: true
 ci_test: false  # Zyte is not available in CI
 summary: >
-  Providers terminated or suspended from Florida's Medicaid program.
+  Providers terminated or suspended from Florida's Medicaid program
 description: |
   The Florida Agency for Health Care Administration publishes the final orders in
   which it imposes sanctions on Medicaid providers that violate statutes, rules or

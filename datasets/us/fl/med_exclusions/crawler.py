@@ -1,5 +1,6 @@
 import re
 from collections import Counter
+from datetime import date
 from urllib.parse import urlencode, urljoin
 
 from lxml import html
@@ -37,7 +38,7 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
     # Names mix people and businesses, and neither the name nor the provider
     # type settles which, so every provider is a LegalEntity.
     entity = context.make("LegalEntity")
-    entity.id = context.make_id("fl-medicaid", provider_number)
+    entity.id = context.make_id(provider_number)
     entity.add("name", name)
     entity.add("idNumber", provider_number)
     entity.add("npiCode", row.pop("npi_number"))
@@ -48,9 +49,16 @@ def crawl_item(context: Context, row: dict[str, str | None]) -> None:
     sanction_type = row.pop("sanction_type")
     case_number = row.pop("ahca_case_number")
     sanction_date = row.pop("sanction_date")
+    assert sanction_date is not None, row
     assert row.pop("date_rendered") == sanction_date, row
-    sanction = h.make_sanction(context, entity, key=f"{case_number}-{sanction_type}")
+    sanction = h.make_sanction(
+        context, entity, key=f"{case_number}-{sanction_type}-{sanction_date}"
+    )
     h.apply_date(sanction, "startDate", sanction_date)
+    if sanction_type == "SUSPENSION":
+        # Fla. Stat. 409.913(16)(a) limits a suspension to "not more than 1 year".
+        start = date.fromisoformat(sanction_date)
+        h.apply_date(sanction, "endDate", start.replace(year=start.year + 1))
     sanction.add("provisions", sanction_type)
     sanction.add("authorityId", case_number)
     sanction.add("reason", row.pop("violation_code"))
