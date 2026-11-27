@@ -121,10 +121,11 @@ NATIVE_LABEL_RE = re.compile(r"^(?:Russian|Ukrainian|French): (.+)$")
 NAME_NATIVE_TAIL_RE = re.compile(r"^(.+) \((?:Russian|Ukrainian|French): (.+)\)$")
 
 # A.45's parenthetical wraps across two printed lines ("(Russian: …" /
-# "Ukrainian: …)"); each fragment is one rendering.
-NATIVE_SPLIT_PINS = frozenset({("A", "45")})
-NATIVE_OPEN_RE = re.compile(r"^\((?:Russian|Ukrainian|French): (.+)$")
-NATIVE_CLOSE_RE = re.compile(r"^(?:Russian|Ukrainian|French): (.+)\)$")
+# "Ukrainian: …)"); each fragment is one rendering. B.21's closes with a
+# labelled Latin transliteration ("(Russian: …;" / "Transliteration: …)").
+NATIVE_SPLIT_PINS = frozenset({("A", "45"), ("B", "21")})
+NATIVE_OPEN_RE = re.compile(r"^\((?:Russian|Ukrainian|French): (.+?);?$")
+NATIVE_CLOSE_RE = re.compile(r"^(?:Russian|Ukrainian|French|Transliteration): (.+)\)$")
 # B.4 prints its alias label as a bare "aka" inside the line ("AFA Media aka
 # RED"); elsewhere " aka " could be name text, so the split is pinned.
 INLINE_BARE_AKA_PINS = frozenset({("B", "4")})
@@ -139,6 +140,8 @@ INFO_LABELS = {
     "Date of birth": "birthDate",
     "POB": "birthPlace",
     "Place of birth": "birthPlace",
+    # A.110 prints the place-of-birth label with a typo ("POD").
+    "POD": "birthPlace",
     "Nationality": "nationality",
     "Gender": "gender",
     # A.64 prints the label with a typo; the value is still the gender.
@@ -177,6 +180,12 @@ INFO_LABELS = {
     # parsers carry them on `website` too.
     "X account": "website",
     "Instagram account": "website",
+    # VKontakte profiles from the 16.11.2026 listings (A.82–A.90), printed as
+    # a full URL or a bare handle; transcribed as printed, as in the reviewed
+    # amendment 32026R2558.
+    "VK": "website",
+    "VKontakte": "website",
+    "Vkontakte": "website",
     "Phone number": "phone",
 }
 # Columns whose labelled value legitimately continues onto bare follow-on
@@ -194,6 +203,12 @@ PASSPORT_LINE_RE = re.compile(r"^Passport No ([A-Z0-9]+ \(.+\))$")
 # cannot place, keyed by (part, entry) and the exact line. If the source
 # line changes, the lookup misses and the run breaks for re-review.
 INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = {
+    # An unlabelled line of prose about the person's online handle.
+    ("A", "92"): {
+        "Username ‘ManzaL’ on several social media platforms": (
+            ("notes", "Username ‘ManzaL’ on several social media platforms"),
+        ),
+    },
     # A colon-less registration number after the VAT line.
     ("B", "4"): {"Registration number 423277-5": (("registrationNumber", "423277-5"),)},
     # A paired-label line holding two identifiers.
