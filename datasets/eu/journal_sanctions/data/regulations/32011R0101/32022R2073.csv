@@ -1,0 +1,8 @@
+op,id,publishedDate,effectiveDate,recordId,programKey,annex,measure,listingDate,endDate,schema,name,alias,weakAlias,previousName,country,nationality,jurisdiction,birthDate,birthPlace,position,passportNumber,gender,appearance,fatherName,motherName,incorporationDate,legalForm,sector,registrationNumber,taxNumber,idNumber,innCode,ogrnCode,kppCode,okpoCode,leiCode,swiftBic,ticker,imoNumber,mmsi,flag,address,phone,email,website,notes,related,extra,reason
+DEL,cb941436b346fa82a600365ebb4bed933d149258,2022-10-28,2022-10-29,4,EU-TUN,I.A,Asset freeze,,,Person,Mohamed Ben Moncef Ben Mohamed TRABELSI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,a7f5c10ee4f5f8b5219bbf6f5ea592d906a0cc0d,2022-10-28,2022-10-29,36,EU-TUN,I.A,Asset freeze,,,Person,Kaïs Ben Slaheddine Ben Haj Hamda BEN ALI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,0958d5b03ee7d82043733bef1a88dead15015e4c,2022-10-28,2022-10-29,37,EU-TUN,I.A,Asset freeze,,,Person,Hamda Ben Slaheddine Ben Haj Hamda BEN ALI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,16dfda76ddfda5ce76601a6f4365295851b3262d,2022-10-28,2022-10-29,38,EU-TUN,I.A,Asset freeze,,,Person,Najmeddine Ben Slaheddine Ben Haj Hamda BEN ALI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,86be6e0f177b411615119e28f4df33d0e9ab8d76,2022-10-28,2022-10-29,39,EU-TUN,I.A,Asset freeze,,,Person,Najet Bent Slaheddine Ben Haj Hamda BEN ALI,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,a73d05792668bfd950d701e88ccf9b92c3cfd670,2022-10-28,2022-10-29,43,EU-TUN,I.A,Asset freeze,,,Person,Imed Ben Habib Ben Bouali LTAIEF,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DEL,f0442d5db7f7a9ad55d9d3b105082e03944b4e46,2022-10-28,2022-10-29,44,EU-TUN,I.A,Asset freeze,,,Person,Naoufel Ben Habib Ben Bouali LTAIEF,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
