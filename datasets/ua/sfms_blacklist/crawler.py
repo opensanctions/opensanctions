@@ -74,8 +74,14 @@ def parse_entry(context: Context, entry: Element) -> None:
     entry_id = entry.findtext("number-entry")
     entity.id = context.make_slug(entry_id)
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("program", entry.findtext("./program-entry"))
+    program = entry.findtext("./program-entry")
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=program,
+        source_program_key=program,
+        program_key=h.lookup_sanction_program_key(context, program),
+    )
     # SFMS moves date-entry to the day of each amendment to the record, so it
     # doesn't date the listing.
     date_entry = entry.findtext("./date-entry")
