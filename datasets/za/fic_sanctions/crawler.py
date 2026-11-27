@@ -1,11 +1,14 @@
 import re
 
+from followthemoney.types import registry
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.review import assert_all_accepted
 
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
+PASSPORT_LABELS = {"passport", "numero de passeport", "número de pasaporte"}
 ADDRESS_SPLITS = [
     "Branch Office 1:",
     "Branch Office 2:",
@@ -43,8 +46,13 @@ def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
             continue
         if value.lower() == "national identification number":
             is_id = True
-        elif value.lower() in "passport":
+        elif value.lower() in PASSPORT_LABELS:
             is_id = False
+        elif value.lower() == "unknown":
+            is_id = None
+        elif registry.country.clean_text(value) is not None:
+            # The issuing country after a number, e.g. "Passport, R00012098, South Sudan".
+            continue
         elif REGEX_PASSPORT.search(value):
             if is_id:
                 ids.append(value)
