@@ -117,7 +117,14 @@ def crawl_row(context: Context, data: dict[str, str], key: str, checksum: str) -
     listed_on = data.pop("ListedOn", None)
     h.apply_date(entity, "createdAt", listed_on)
 
-    sanction = h.make_sanction(context, entity)
+    # The UN reference starts with the committee's two-letter code, e.g. QDi.430.
+    committee = key[:2]
+    sanction = h.make_sanction(
+        context,
+        entity,
+        source_program_key=committee,
+        program_key=h.lookup_sanction_program_key(context, committee),
+    )
     h.apply_date(sanction, "listingDate", listed_on)
     # ListedOn is the UN date; UN designations take effect in South Africa on adoption.
     for stmt in sanction.get_statements("listingDate"):
