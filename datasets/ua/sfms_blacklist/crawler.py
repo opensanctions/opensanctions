@@ -6,7 +6,7 @@ from followthemoney.types.identifier import IdentifierType
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.util import ElementOrTree
+from zavod.util import Element
 from zavod.extract.zyte_api import fetch_resource
 from zavod.shed.un_sc import apply_un_name_list
 from normality import collapse_spaces
@@ -29,6 +29,29 @@ DATES_SPLITS = [
     "born in ",
     " in ",
 ]
+HANDLED_TAGS = {
+    "number-entry",
+    "type-entry",
+    "program-entry",
+    "date-entry",
+    "aka-list",
+    "title-list",
+    "document-list",
+    "id-number-list",
+    "address-list",
+    "place-of-birth-list",
+    "date-of-birth-list",
+    "nationality-list",
+    "citizenchip-list",
+    "designation-list",
+    "working-list",
+    "comments",
+    "noted-on-conviction",
+    "noted-on-prosecution",
+    # The amendment history of the record, and record-level metadata.
+    "comments-record",
+    "type-record",
+}
 
 
 def clean_id(entity: Entity, text: str | None) -> Generator[str, None, None]:
@@ -40,21 +63,31 @@ def clean_id(entity: Entity, text: str | None) -> Generator[str, None, None]:
         yield from REGEX_ID_NUMBER.findall(substring)
 
 
-def parse_entry(context: Context, entry: ElementOrTree) -> None:
+def parse_entry(context: Context, entry: Element) -> None:
+    for child in entry.iterchildren():
+        if child.tag not in HANDLED_TAGS:
+            context.log.warning("Unhandled field", tag=child.tag, text=child.text)
+
     entity = context.make("LegalEntity")
     if entry.findtext("./type-entry") == "2":
         entity = context.make("Person")
     entry_id = entry.findtext("number-entry")
     entity.id = context.make_slug(entry_id)
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("program", entry.findtext("./program-entry"))
+    program = entry.findtext("./program-entry")
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=program,
+        source_program_key=program,
+        program_key=h.lookup_sanction_program_key(context, program),
+    )
+    # SFMS moves date-entry to the day of each amendment to the record, so it
+    # doesn't date the listing.
     date_entry = entry.findtext("./date-entry")
     if date_entry:
         date = datetime.strptime(date_entry, "%Y%m%d")
-        entity.add("createdAt", date.date())
-        sanction.add("listingDate", date.date())
-        sanction.add("startDate", date.date())
+        sanction.add("modifiedAt", date.date())
 
     for aka in entry.findall("./aka-list"):
         aka_category = aka.findtext("category-aka")
@@ -98,6 +131,7 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
                 number=number,
                 summary=doc.findtext("./document-reg"),
                 country=doc.findtext("./document-country"),
+                start_date=doc.findtext("./document-date"),
                 passport=True,
             )
             if passport is not None:
@@ -107,7 +141,17 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
         entity.add("idNumber", list(clean_id(entity, doc.text)))
 
     for node in entry.findall("./address-list"):
-        entity.add("address", h.multi_split(node.findtext("./address"), SPLITS))
+        # Newer records move the city and country out of the address text.
+        city = node.findtext("./city")
+        state = node.findtext("./state-province")
+        country = node.findtext("./country")
+        streets: list[str | None] = []
+        streets.extend(h.multi_split(node.findtext("./address"), SPLITS))
+        for street in streets or [None]:
+            address = h.format_address(
+                street=street, city=city, state=state, country=country
+            )
+            entity.add("address", address)
 
     for pob in entry.findall("./place-of-birth-list"):
         for p in h.multi_split(pob.text, ";"):
@@ -125,7 +169,25 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
             country_ = h.remove_bracketed(country)
             entity.add("nationality", country_, quiet=True)
 
+    for node in entry.findall("./citizenchip-list"):
+        for country in h.multi_split(node.text, [";", ","]):
+            entity.add("citizenship", h.remove_bracketed(country))
+
+    for tag in ("./designation-list", "./working-list"):
+        for node in entry.findall(tag):
+            entity.add("position", node.text)
+
+    for tag in ("./comments", "./noted-on-conviction", "./noted-on-prosecution"):
+        entity.add("notes", h.clean_note(entry.findtext(tag)))
+
     entity.add("topics", "sanction")
+    h.finalize_sanction(
+        context,
+        sanction,
+        effective_on_listing=True,
+        key=entry_id,
+        checksum=h.xml_node_sorted_hash(entry),
+    )
     context.emit(entity)
     context.emit(sanction)
 

@@ -1,11 +1,14 @@
 import re
 
+from followthemoney.types import registry
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.review import assert_all_accepted
 
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
+PASSPORT_LABELS = {"passport", "numero de passeport", "número de pasaporte"}
 ADDRESS_SPLITS = [
     "Branch Office 1:",
     "Branch Office 2:",
@@ -43,8 +46,13 @@ def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
             continue
         if value.lower() == "national identification number":
             is_id = True
-        elif value.lower() in "passport":
+        elif value.lower() in PASSPORT_LABELS:
             is_id = False
+        elif value.lower() == "unknown":
+            is_id = None
+        elif registry.country.clean_text(value) is not None:
+            # The issuing country after a number, e.g. "Passport, R00012098, South Sudan".
+            continue
         elif REGEX_PASSPORT.search(value):
             if is_id:
                 ids.append(value)
@@ -78,7 +86,7 @@ def parse_aliases(names: h.Names, text: str | None) -> None:
         names.add("alias" if label == "Good" else "weakAlias", name)
 
 
-def crawl_row(context: Context, data: dict[str, str]) -> None:
+def crawl_row(context: Context, data: dict[str, str], key: str, checksum: str) -> None:
     full_name = data.pop("FullName", None)
     if full_name is not None:
         ent_id = data.pop("IndividualID")
@@ -117,7 +125,14 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
     listed_on = data.pop("ListedOn", None)
     h.apply_date(entity, "createdAt", listed_on)
 
-    sanction = h.make_sanction(context, entity)
+    # The UN reference starts with the committee's two-letter code, e.g. QDi.430.
+    committee = key[:2]
+    sanction = h.make_sanction(
+        context,
+        entity,
+        source_program_key=committee,
+        program_key=h.lookup_sanction_program_key(context, committee),
+    )
     h.apply_date(sanction, "listingDate", listed_on)
     # ListedOn is the UN date; UN designations take effect in South Africa on adoption.
     for stmt in sanction.get_statements("listingDate"):
@@ -125,6 +140,7 @@ def crawl_row(context: Context, data: dict[str, str]) -> None:
     sanction.add("unscId", data.pop("ReferenceNumber", None))
 
     context.audit_data(data, ignore=["ApplicationStatus"])
+    h.finalize_sanction(context, sanction, key=key, checksum=checksum)
     context.emit(entity)
     context.emit(sanction)
 
@@ -147,7 +163,15 @@ def crawl(context: Context) -> None:
                 if value is None or value == "NA":
                     continue
                 data[field.tag] = value
-            crawl_row(context, data)
+            key = data.get("ReferenceNumber")
+            if key is None:
+                raise ValueError(f"Row without ReferenceNumber: {data!r}")
+            # IndividualID and EntityID are row numbers, which the source
+            # renumbers without any change to the designations.
+            checksum = h.record_hash(
+                {k: v for k, v in data.items() if k not in ("IndividualID", "EntityID")}
+            )
+            crawl_row(context, data, key, checksum)
     potential_table = doc.find(".//Table2")
     if potential_table is not None:
         context.log.warning("Table2 found in source, but not yet implemented")

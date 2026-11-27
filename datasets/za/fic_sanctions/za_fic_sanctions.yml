@@ -76,6 +76,36 @@ assertions:
       Person: 900
 
 lookups:
+  sanction.program:
+    options:
+      - match: CD
+        value: UN-SC1533
+      - match: CF
+        value: UN-SC2127
+      - match: GB
+        value: UN-SC2048
+      - match: HT
+        value: UN-SC2653
+      - match: IQ
+        value: UN-SC1518
+      - match: IR
+        value: UN-SC1737
+      - match: KP
+        value: UN-SC1718
+      - match: LY
+        value: UN-SC1970
+      - match: QD
+        value: UN-SCISIL
+      - match: SD
+        value: UN-SC1591
+      - match: SO
+        value: UN-SC2713
+      - match: SS
+        value: UN-SC2206
+      - match: TA
+        value: UN-SC1988
+      - match: YE
+        value: UN-SC2140
   type.address:
     lowercase: true
     normalize: true

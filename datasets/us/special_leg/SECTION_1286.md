@@ -10,10 +10,11 @@ roughly once a year. Last run: FY25, July 2026.
 - The Section 1286 rows live in `source_files/section_1286.csv`, maintained by
   pull request. There is no automated crawl of the PDF.
 - Each fiscal year gets its **own complete set of rows**, keyed by the
-  `report-date` column (2022, 2023, 2024, …). A new release means adding a
-  full new year-block, not editing old rows.
+  `report-date` column, which holds the list's release date (FY22 was released
+  on 2023-06-30). A new release means adding a full new block, not editing old
+  rows.
 - Entity IDs are `make_slug(name)` (see `crawler.py`), so the same name across
-  years merges into one entity with multiple sanctions. **A changed name splits
+  years merges into one entity and one sanction. **A changed name splits
   the entity** — this drives most of the judgment calls below.
 - The official PDFs have been hosted on `basicresearch.defense.gov` and
   `rt.cto.mil/wp-content/uploads/`. The press release usually precedes the URL
@@ -37,7 +38,7 @@ roughly once a year. Last run: FY25, July 2026.
    now rejects a name repeated within an edition). Strip trailing
    "and affiliates" / "and select affiliates:" from names.
    `schema=Company`, `topics=debarment`,
-   `report-date=<year>`, `country` from the "Foreign Country of Concern"
+   `report-date=<release date>`, `country` from the "Foreign Country of Concern"
    column, `program` = the exact string mapped to `US-MCCAIN-1286` in the yml
    lookup.
 4. **Apply the file's structural conventions** (do not re-derive these):
@@ -73,7 +74,10 @@ roughly once a year. Last run: FY25, July 2026.
      MSU became an alias of Moscow State University) or replaced by a related
      entity (FY25: IHEP/ITEF out, NRC "Kurchatov Institute" in) — REMOVE plus
      cross-referencing notes on both sides.
-7. **After `section_1286.csv` is updated**, touch `us_special_leg.yml`:
+7. **Apply REMOVE to the previous-year rows**: set both `end-date` and
+   `modified-date` to the new list's release date instead of deleting them.
+   Older editions' rows need no change: the latest row decides.
+8. **After `section_1286.csv` is updated**, touch `us_special_leg.yml`:
    - add the new FY to the Section 1286 paragraph in `description`;
    - bump `manual_check.last_check`;
    - sanity-check `assertions` against the new Company entity count

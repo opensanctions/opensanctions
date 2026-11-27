@@ -104,33 +104,55 @@ config:
   # orders carry (e.g. Intercam's US affiliates), so those inherit the derived
   # topics too.
   discovery:
-    # Handling "Unreviewed special measures document" warnings:
+    # The overview table links each measure's rulemaking documents. The
+    # crawler never fetches them; two sheets record them by hand/agent (see
+    # README.md): documents.csv dates every linked document, and details.csv
+    # holds the addresses, aliases, identifiers and named sub-entities mined
+    # from them.
     #
-    # The overview table links each measure's rulemaking documents (finding,
-    # NPRM, final rule, rescission). Their content — addresses, aliases,
-    # identifiers and named sub-entities — is mined by hand/agent into
-    # details.csv (see README.md); the crawler never fetches the documents.
-    # A warning means the table links a document that no details.csv row
-    # cites and that is not listed below.
+    # Handling "Undated special measures document" and "Unreviewed special
+    # measures document" warnings (a new table link usually raises both):
     #
     # 1. Fetch the document. For federalregister.gov links, take the document
-    #    number from the URL and use the JSON API's raw_text_url
+    #    number from the URL and use the JSON API
     #    (https://www.federalregister.gov/api/v1/documents/<docnum>.json,
     #    or .../public-inspection-documents/<docnum>.json for public-inspection
-    #    links). For fincen.gov / govinfo.gov PDFs, download and run
-    #    `pdftotext -layout <file> -`.
-    # 2. Extract facts into details.csv rows citing the document URL exactly
-    #    as it appears in the table — that marks the URL reviewed. Follow the
-    #    column semantics in README.md: names and addresses verbatim, Notes as
-    #    quoted sentences from the document, no topics (the crawler derives
-    #    them). An affiliate the rule's definition of the target names gets a
-    #    `target` row in addition to its `subsidiary` row.
-    # 3. If the document names no addresses, aliases, identifiers or related
-    #    entities (procedural notices, withdrawals), add its URL below with a
-    #    one-line comment instead.
-    # 4. federalregister.gov public-inspection URLs are replaced by
-    #    /documents/ URLs once published: re-review the published version and
-    #    move any details.csv citations / list entry to the new URL.
+    #    links), whose raw_text_url has the text. For fincen.gov / govinfo.gov
+    #    PDFs, download and run `pdftotext -layout <file> -`.
+    # 2. Add a documents.csv row for the URL exactly as the table links it,
+    #    one per measure that links it. Choose Stage per README.md. Take
+    #    Published and Effective from the API's publication_date and
+    #    effective_on, and check Effective against the document's DATES
+    #    section, which some documents state relative to publication. For an
+    #    extension, Effective is the measure's new effective date.
+    # 3. Extract facts into details.csv rows citing the same URL — that marks
+    #    it reviewed. Follow the column semantics in README.md: names and
+    #    addresses verbatim, Notes as quoted sentences from the document, no
+    #    topics (the crawler derives them). An affiliate the rule's definition
+    #    of the target names gets a `target` row in addition to its
+    #    `subsidiary` row.
+    # 4. If the document names no addresses, aliases, identifiers or related
+    #    entities (procedural notices, extensions, withdrawals), add its URL
+    #    below with a one-line comment instead.
+    #
+    # federalregister.gov public-inspection URLs are replaced by /documents/
+    # URLs once published: re-review the published version, re-check Published
+    # and Effective, and move the documents.csv row, any details.csv citations
+    # and any entry below to the new URL in one change.
+    #
+    # Handling crawl errors:
+    #
+    # - "documents.csv rows not linked": the table no longer links a dated
+    #   document. If it links a replacement, move the row (and citations) to
+    #   it as above. If the link is gone without replacement, leave it to a
+    #   human.
+    # - "details.csv / documents.csv measures not in table": FinCEN renamed a
+    #   measure. Rename the Measure key in both sheets in the same change.
+    # - "Several final rules for one measure": a measure has one final rule or
+    #   order; re-classify the later document as `extension` if it only moves
+    #   the effective date, else as `amendment`.
+    # - "Unknown stage": fix the documents.csv row to one of the stages in
+    #   README.md.
     reviewed_urls:
       # Dead links on the FinCEN site (404); the 2013 NPRM content for both
       # exchange houses is covered by their findings, which are mined.

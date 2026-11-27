@@ -13,6 +13,7 @@
 import io
 import csv
 import time
+from datetime import date
 from pathlib import Path
 from typing import Any
 from collections.abc import Generator
@@ -25,7 +26,7 @@ from zavod import Context
 from zavod import helpers as h
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
-IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
+IGNORE_COLUMNS = ["CT Code", "Open Data Flag"]
 
 
 def parse_date(date: str | None) -> str | None:
@@ -119,6 +120,52 @@ def usgsa_id(
     return context.make_id(uei, id_name, id_zip, city, country)
 
 
+def make_entity_id(context: Context, agency: str, row: dict[str, str]) -> str | None:
+    if agency in ("HHS", "OPM"):
+        return us_fed_excl_id(
+            context,
+            full_name=row.get("Name"),
+            first_name=row.get("First"),
+            middle_name=row.get("Middle"),
+            last_name=row.get("Last"),
+            zip_code=row.get("Zip Code"),
+            city=row.get("City"),
+        )
+    return usgsa_id(
+        context,
+        uei=row.get("Unique Entity ID"),
+        full_name=row.get("Name"),
+        first_name=row.get("First"),
+        middle_name=row.get("Middle"),
+        last_name=row.get("Last"),
+        zip_code=row.get("Zip Code"),
+        city=row.get("City"),
+        country=row.get("Country"),
+    )
+
+
+def find_listing_dates(context: Context, path: Path) -> dict[tuple[str, str], str]:
+    """Find the earliest creation date of the rows behind each sanction.
+
+    Creation_Date is reset when a record is edited, so of the rows that make up
+    one sanction, the earliest comes closest to its listing.
+    """
+    dates: dict[tuple[str, str], str] = {}
+    for _, row in read_rows(path):
+        agency = row["Excluding Agency"]
+        entity_id = make_entity_id(context, agency, row)
+        created = parse_date(row["Creation_Date"])
+        # Records migrated into SAM all carry the date of the migration.
+        if entity_id is None or created is None or created == "2012-07-27":
+            continue
+        # Raises unless ISO, which the string comparison below needs.
+        date.fromisoformat(created)
+        key = (entity_id, agency)
+        if key not in dates or created < dates[key]:
+            dates[key] = created
+    return dates
+
+
 def sort_cross_ref(cross_ref: str) -> str:
     """
     Ensure ordering of cross-reference names is stable for values like
@@ -137,41 +184,20 @@ def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
+    listing_dates = find_listing_dates(context, path)
     schemata: dict[str, str] = {}
     for row_number, (filename, row) in enumerate(read_rows(path)):
+        checksum = h.record_hash(row)
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)
         if schema is None:
             context.log.warn("Unknown classification", classification=classification)
             continue
         agency = row.pop("Excluding Agency")
-
+        entity_id = make_entity_id(context, agency, row)
         zip_code = row.pop("Zip Code")
         country = row.pop("Country")
         uei = row.pop("Unique Entity ID")
-
-        if agency in ("HHS", "OPM"):
-            entity_id = us_fed_excl_id(
-                context,
-                full_name=row.get("Name"),
-                first_name=row.get("First"),
-                middle_name=row.get("Middle"),
-                last_name=row.get("Last"),
-                zip_code=zip_code,
-                city=row.get("City"),
-            )
-        else:
-            entity_id = usgsa_id(
-                context,
-                uei=uei,
-                full_name=row.get("Name"),
-                first_name=row.get("First"),
-                middle_name=row.get("Middle"),
-                last_name=row.get("Last"),
-                zip_code=zip_code,
-                city=row.get("City"),
-                country=country,
-            )
 
         if entity_id is None:
             context.log.warning(
@@ -208,9 +234,6 @@ def crawl(context: Context) -> None:
             )
             continue
         schemata[entity.id] = entity.schema.name
-
-        creation_date = parse_date(row.pop("Creation_Date"))
-        h.apply_date(entity, "createdAt", creation_date)
 
         # All exclusions in this dataset are debarments from US federal programs
         # This previously used to tag entities as sanctioned when they are on US
@@ -288,17 +311,30 @@ def crawl(context: Context) -> None:
 
         context.emit(entity)
 
-        sanction = h.make_sanction(context, entity, key=agency)
-        if agency is not None and len(agency):
-            sanction.set("authority", agency)
+        program = row.pop("Exclusion Program")
+        provisions = row.pop("Exclusion Type")
+        status = row.pop("Record Status")
+        start_date = parse_date(row.pop("Active Date"))
+        end_date = parse_date(row.pop("Termination Date"))
+        summary = row.pop("Additional Comments")
+        row.pop("Creation_Date")
+        record_id = row.pop("SAM Number")
 
-        sanction.add("program", row.pop("Exclusion Program"))
-        sanction.add("provisions", row.pop("Exclusion Type"))
-        sanction.add("status", row.pop("Record Status"))
-        h.apply_date(sanction, "listingDate", creation_date)
-        h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
-        h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
-        sanction.add("summary", row.pop("Additional Comments"))
-        context.emit(sanction)
+        # OFAC exclusions mirror the SDN list, whose sanctions us_ofac_sdn emits.
+        if agency != "OFAC":
+            sanction = h.make_sanction(context, entity, key=agency)
+            if agency is not None and len(agency):
+                sanction.set("authority", agency)
+
+            sanction.add("program", program)
+            sanction.add("provisions", provisions)
+            sanction.add("status", status)
+            listing_date = listing_dates.get((entity_id, agency))
+            h.apply_date(sanction, "listingDate", listing_date)
+            h.apply_date(sanction, "startDate", start_date)
+            h.apply_date(sanction, "endDate", end_date)
+            sanction.add("summary", summary)
+            h.finalize_sanction(context, sanction, key=record_id, checksum=checksum)
+            context.emit(sanction)
 
         context.audit_data(row, ignore=IGNORE_COLUMNS)

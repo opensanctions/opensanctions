@@ -1,13 +1,45 @@
 from typing import Any
+from urllib.parse import urljoin
 
+from lxml import html
 from python_calamine import CalamineWorkbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
 
-STATUTORY_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=27c46b251baf29102b6ca932f54bcb20"
-ADMINISTRATIVE_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=9f8bbc2f1b8f29d0c6c3866ae54bcbdb"
+
+def fetch_article(context: Context) -> html.HtmlElement:
+    """Fetch the body of the dataset's article page, which links the lists.
+
+    DDTC uploads each version of a list as a new attachment, so the links change
+    with every update.
+    """
+    page = context.fetch_json(
+        "https://www.pmddtc.state.gov/api/now/sp/page"
+        "?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"
+    )
+    texts = [
+        widget["widget"]["data"]["text"]
+        for container in page["result"]["containers"]
+        for row in container["rows"]
+        for column in row["columns"]
+        for widget in column["widgets"]
+        if "text" in widget["widget"]["data"]
+    ]
+    assert len(texts) == 1, f"Expected one article text, found {len(texts)}"
+    return html.fromstring(texts[0])
+
+
+def find_excel_url(context: Context, article: html.HtmlElement, heading: str) -> str:
+    # Headings may separate their words with non-breaking spaces.
+    href = h.xpath_string(
+        article,
+        f".//strong[contains(translate(., ' ', ' '), '{heading}')]"
+        "/following::a[@title='Excel Format'][1]/@href",
+    )
+    assert context.dataset.url is not None
+    return urljoin(context.dataset.url, href)
 
 
 def crawl_debarment(
@@ -16,6 +48,7 @@ def crawl_debarment(
     program_name: str,
     name_field: str,
     notice_date_field: str,
+    statutory: bool,
 ) -> None:
     date_of_birth = row.pop("date_of_birth", None)
     if date_of_birth:
@@ -48,8 +81,17 @@ def crawl_debarment(
         program_name=program_name,
         program_key="US-AECA-DEBARRED",
     )
-    sanction.add("listingDate", row.pop(notice_date_field))
-    sanction.add("listingDate", row.pop("corrected_notice_date", None))
+    # Either column of a corrected row may cite the correcting notice (e.g. 57 FR
+    # 43768 corrects the older 57 FR 37184, while 85 FR 39967 corrects the older
+    # 85 FR 30783), so the earlier notice is the listing.
+    notice_dates = [row.pop(notice_date_field)]
+    corrected_notice_date = row.pop("corrected_notice_date", None)
+    if corrected_notice_date:
+        notice_dates.append(corrected_notice_date)
+    notice_dates.sort()
+    h.apply_date(sanction, "listingDate", notice_dates[0])
+    if len(notice_dates) > 1:
+        h.apply_date(sanction, "modifiedAt", notice_dates[-1])
     sanction.add(
         "description",
         "Federal register notice: " + row.pop("federal_register_notice"),
@@ -61,6 +103,21 @@ def crawl_debarment(
             "Corrected federal register notice: " + corrected_notice_number,
         )
 
+    if statutory:
+        # Statutory notices up to 2010 took effect on each person's conviction
+        # date, which the list doesn't give; from 76 FR 70805 on, they take
+        # effect on the notice date. Corrections are dated by their own notice.
+        h.finalize_sanction(
+            context,
+            sanction,
+            effective_on_listing=notice_dates[0] >= "2011-11-15",
+            amendments_dated=True,
+        )
+    else:
+        # The administrative list's date is the order's effective date on some
+        # rows and the notice's publication date on others, so it's no start date.
+        h.finalize_sanction(context, sanction)
+
     context.emit(entity)
     context.emit(sanction)
 
@@ -68,20 +125,33 @@ def crawl_debarment(
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("statutory.xlsx", STATUTORY_XLSX_URL)
+    article = fetch_article(context)
+    statutory_url = find_excel_url(context, article, "Statutory Debarments")
+    path = context.fetch_resource("statutory.xlsx", statutory_url)
     context.export_resource(path, XLSX, title="Statutory Debarments")
     workbook = CalamineWorkbook.from_path(path)
     assert len(workbook.sheet_names) == 1, workbook.sheet_names
     for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         crawl_debarment(
-            context, row, "Statutorily Debarred Parties", "party_name", "notice_date"
+            context,
+            row,
+            "Statutorily Debarred Parties",
+            "party_name",
+            "notice_date",
+            statutory=True,
         )
 
-    path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
+    administrative_url = find_excel_url(context, article, "Administrative Debarments")
+    path = context.fetch_resource("administrative.xlsx", administrative_url)
     context.export_resource(path, XLSX, title="Administrative Debarments")
     workbook = CalamineWorkbook.from_path(path)
     assert len(workbook.sheet_names) == 1, workbook.sheet_names
     for row in h.parse_xlsx_sheet(context, workbook.get_sheet_by_index(0)):
         crawl_debarment(
-            context, row, "Administratively Debarred Parties", "name", "date"
+            context,
+            row,
+            "Administratively Debarred Parties",
+            "name",
+            "date",
+            statutory=False,
         )

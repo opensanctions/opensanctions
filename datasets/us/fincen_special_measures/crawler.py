@@ -10,20 +10,15 @@ from normality import slugify, squash_spaces
 from rigour.mime.types import CSV
 from zavod.entity import Entity
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 
 LOCAL_PATH = Path(__file__).parent
-REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
 # Trailing asterisks in the name column are footnote markers, not part of the name.
 REGEX_FOOTNOTE = re.compile(r"[\s*]+$")
 REGEX_ANNOTATION = re.compile(r"\b(includes|renamed|formerly)\b", re.IGNORECASE)
 RELATIONSHIPS = {"self", "target", "subsidiary", "owner", "controller", "related"}
-
-
-def convert_date(date_str: str) -> list[str]:
-    """Convert various date formats to 'YYYY-MM-DD'."""
-    return REGEX_DATE.findall(date_str)
+STAGES = {"finding", "nprm", "final_rule", "extension", "amendment", "rescission"}
 
 
 def load_details(context: Context) -> dict[str, list[dict[str, str]]]:
@@ -46,6 +41,69 @@ def load_details(context: Context) -> dict[str, list[dict[str, str]]]:
     return details
 
 
+def load_documents(context: Context) -> dict[str, list[dict[str, str]]]:
+    """Read documents.csv, grouping the dated rulemaking documents by measure.
+
+    Each row dates one document linked from the special measures table; the
+    measures' Sanction dates are derived from these (see README.md).
+    """
+    source_file = LOCAL_PATH / "documents.csv"
+    resource_path = context.get_resource_path("documents.csv")
+    shutil.copy(source_file, resource_path)
+    context.export_resource(resource_path, CSV, "Dated rulemaking documents")
+
+    documents: dict[str, list[dict[str, str]]] = {}
+    with open(source_file, encoding="utf-8", newline="") as fh:
+        for row in csv.DictReader(fh):
+            if row["Stage"] not in STAGES:
+                raise ValueError(f"Unknown stage: {row['Stage']!r}")
+            measure = squash_spaces(row.pop("Measure"))
+            documents.setdefault(measure, []).append(row)
+    return documents
+
+
+def measure_dates(measure: str, documents: list[dict[str, str]]) -> dict[str, str]:
+    """Derive a measure's Sanction dates from its dated documents.
+
+    The measure is listed when its first finding, proposed rule or order is
+    published, and starts when its rule or order takes effect, or the last
+    extension of that date. Supplements, extensions and amending orders modify
+    it; a rescission or withdrawal ends it.
+    """
+
+    def values(stages: set[str], column: str) -> list[str]:
+        return [d[column] for d in documents if d["Stage"] in stages and d[column]]
+
+    if len([d for d in documents if d["Stage"] == "final_rule"]) > 1:
+        raise ValueError(f"Several final rules for one measure: {measure!r}")
+    dates: dict[str, str] = {}
+    listed = values({"finding", "nprm", "final_rule"}, "Published")
+    if len(listed) > 0:
+        dates["listingDate"] = min(listed)
+    started = values({"extension"}, "Effective") or values({"final_rule"}, "Effective")
+    if len(started) > 0:
+        dates["startDate"] = max(started)
+    modified = values({"extension", "amendment"}, "Published")
+    if len(modified) > 0:
+        dates["modifiedAt"] = max(modified)
+    ended = values({"rescission"}, "Effective")
+    if len(ended) > 0:
+        dates["endDate"] = max(ended)
+    return dates
+
+
+def make_measure_sanction(
+    context: Context, entity: Entity, dates: dict[str, str]
+) -> Entity:
+    """Create the Sanction of an entity a measure applies to, with its dates."""
+    sanction = h.make_sanction(context, entity)
+    for prop, value in dates.items():
+        h.apply_date(sanction, prop, value)
+    # Every change to a measure is a dated Federal Register document.
+    h.finalize_sanction(context, sanction, amendments_dated=True)
+    return sanction
+
+
 def detail_entity_id(
     context: Context, measure: str, name: str, measure_names: set[str]
 ) -> str | None:
@@ -61,17 +119,18 @@ def detail_entity_id(
     return context.make_id(measure, name)
 
 
-def measure_status(final_rule: str, rescinded: str) -> str | None:
+def measure_status(dates: dict[str, str]) -> str | None:
     """Risk topic a measure confers on the entities it applies to, or None.
 
     A final rule (or Section 9714 order) in force prohibits specific dealings
-    with the target, which is what `sanction` denotes; a finding or proposed
-    rule only warns. A rescinded measure confers nothing — its Sanction record
-    with an end date is the history.
+    with the target, which is what `sanction` denotes; a finding, proposed rule
+    or order not yet in effect only warns. A rescinded measure confers nothing —
+    its Sanction record with an end date is the history.
     """
-    if rescinded != "":
+    if "endDate" in dates:
         return None
-    if final_rule != "":
+    start = dates.get("startDate")
+    if start is not None and start <= settings.RUN_TIME.date().isoformat():
         return "sanction"
     return "reg.warn"
 
@@ -84,9 +143,7 @@ def crawl_detail(
     measure_names: set[str],
     target_names: set[str],
     status: str | None,
-    listing_date: str,
-    start_date: str,
-    end_date: str,
+    dates: dict[str, str],
 ) -> None:
     """Emit one details.csv row: facts about the measure's own entity (`self`),
     a further entity the measure applies to (`target`), or a linked party.
@@ -131,14 +188,8 @@ def crawl_detail(
 
     if relationship == "target":
         entity.add("topics", status)
-        sanction = h.make_sanction(context, entity)
+        sanction = make_measure_sanction(context, entity, dates)
         sanction.add("sourceUrl", source_url)
-        for date in convert_date(listing_date):
-            h.apply_date(sanction, "listingDate", date)
-        for date in convert_date(start_date):
-            h.apply_date(sanction, "startDate", date)
-        for date in convert_date(end_date):
-            h.apply_date(sanction, "endDate", date)
         context.emit(sanction)
     elif status is not None and squash_spaces(name) not in target_names:
         entity.add("topics", "poi")
@@ -174,6 +225,7 @@ def crawl_item(
     context: Context,
     row: dict[str, html.HtmlElement],
     details: list[dict[str, str]],
+    documents: list[dict[str, str]],
     measure_names: set[str],
     target_names: set[str],
 ) -> list[str]:
@@ -181,16 +233,10 @@ def crawl_item(
     and its mined details; return the document URLs linked from the table row."""
     name = row.pop("name").text_content()
 
-    # Dates from the table row apply both to the measure's own sanction and to
-    # the sanctions of any `target` members, so compute them regardless.
-    finding_date = row["finding"].text_content()
-    nprm_date = row["notice-of-proposed-rulemaking"].text_content()
-    listing_date = finding_date if finding_date else nprm_date
-    final_rule_text = squash_spaces(row["final-rule"].text_content())
-    start_date = final_rule_text if final_rule_text != "---" else ""
-    rescinded_date = squash_spaces(row["rescinded"].text_content())
-    end_date = rescinded_date if rescinded_date != "---" else ""
-    status = measure_status(start_date, end_date)
+    # The dates apply both to the measure's own sanction and to the sanctions
+    # of any `target` members, so compute them regardless.
+    dates = measure_dates(name, documents)
+    status = measure_status(dates)
 
     # Document links from the table row, for provenance and for discovery.
     anchors = row["finding"].findall(".//a")
@@ -226,14 +272,8 @@ def crawl_item(
             main.add("name", clean_name, original_value=original)
         main.add("topics", status)
 
-        sanction = h.make_sanction(context, main)
+        sanction = make_measure_sanction(context, main, dates)
         sanction.add("sourceUrl", doc_urls)
-        for date in convert_date(listing_date):
-            h.apply_date(sanction, "listingDate", date)
-        for date in convert_date(start_date):
-            h.apply_date(sanction, "startDate", date)
-        for date in convert_date(end_date):
-            h.apply_date(sanction, "endDate", date)
 
     for detail in details:
         crawl_detail(
@@ -244,9 +284,7 @@ def crawl_item(
             measure_names,
             target_names,
             status,
-            listing_date,
-            start_date,
-            end_date,
+            dates,
         )
 
     if main is not None and sanction is not None:
@@ -285,6 +323,7 @@ def parse_table(
 # Main crawl function to fetch and process data.
 def crawl(context: Context) -> None:
     details = load_details(context)
+    documents = load_documents(context)
     reviewed_urls = {
         str(url)
         for url in context.dataset.config.get("discovery", {}).get("reviewed_urls", [])
@@ -304,17 +343,33 @@ def crawl(context: Context) -> None:
     unreviewed: dict[str, list[str]] = {}
     for row in rows:
         measure = squash_spaces(row["name"].text_content())
+        measure_docs = documents.pop(measure, [])
         doc_urls = crawl_item(
-            context, row, details.pop(measure, []), measure_names, target_names
+            context,
+            row,
+            details.pop(measure, []),
+            measure_docs,
+            measure_names,
+            target_names,
         )
+        stale = {d["URL"] for d in measure_docs} - set(doc_urls)
+        if len(stale) > 0:
+            raise ValueError(f"documents.csv rows not linked for {measure!r}: {stale}")
+        dated = {d["URL"] for d in measure_docs}
         for url in doc_urls:
             if url not in reviewed_urls:
                 unreviewed.setdefault(url, []).append(measure)
+            if url not in dated:
+                context.log.warning(
+                    "Undated special measures document", url=url, measure=measure
+                )
 
     if len(details) > 0:
         # A mined measure no longer matches any table row: FinCEN renamed or
         # removed it, and the join key in details.csv needs to follow.
         raise ValueError(f"details.csv measures not in table: {sorted(details)}")
+    if len(documents) > 0:
+        raise ValueError(f"documents.csv measures not in table: {sorted(documents)}")
 
     for url, measures in unreviewed.items():
         context.log.warning(

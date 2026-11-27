@@ -109,6 +109,10 @@ def fetch(context: Context, part: str) -> Any:
 def crawl_common(
     context: Context, data: dict[str, Any], part: str, schema: str
 ) -> Entity:
+    key = f"{part}:{data['DATAID']}"
+    # The comments toggle boilerplate such as INTERPOL notice links between
+    # versions, so they're left out of the checksum.
+    checksum = h.record_hash({k: v for k, v in data.items() if k != "COMMENTS1"})
     entity = context.make(schema)
     entity.id = context.make_slug(part, data.pop("DATAID"))
     entity.add("topics", "sanction")
@@ -129,7 +133,23 @@ def crawl_common(
     # The names are copied from the UN list, so use the same semantics
     apply_un_name_list(context, entity, names)
 
-    sanction = h.make_sanction(context, entity)
+    list_type = data.pop("LIST_TYPE")
+    list_label = data.pop("UN_LIST_TYPE")
+    if list_type == "ARG List":
+        sanction = h.make_sanction(context, entity, program_key="AR-TERROR")
+        # Names the list or body the listing cites, e.g. "OFAC - SDN List";
+        # the designation is still Argentina's own.
+        sanction.add("reason", list_label)
+    else:
+        if list_type not in ("UN List", ""):
+            context.log.warning("Unknown list type", list_type=list_type)
+        sanction = h.make_sanction(
+            context,
+            entity,
+            program_name=list_label,
+            source_program_key=list_label,
+            program_key=h.lookup_sanction_program_key(context, list_label),
+        )
     submitted_on = parse_date(data.pop("SUBMITTED_ON", None))
     listed_on = parse_date(data.pop("LISTED_ON"))
     modified_at = parse_date(data.pop("LAST_DAY_UPDATED"))
@@ -140,22 +160,18 @@ def crawl_common(
         # Overwiting the ref_num and extracting more structured data
         ref_num = ""
         resolution_number, country_, internal_id = match.groups()
-    h.apply_dates(entity, "createdAt", submitted_on)
-    h.apply_dates(entity, "createdAt", listed_on)
     if modified_at != []:
-        h.apply_date(entity, "createdAt", min(modified_at))
         h.apply_date(entity, "modifiedAt", max(modified_at))
 
     h.apply_dates(sanction, "listingDate", submitted_on)
     h.apply_dates(sanction, "listingDate", listed_on)
     h.apply_dates(sanction, "startDate", listed_on)
-    sanction.add("program", data.pop("UN_LIST_TYPE"))
-    sanction.add("program", data.pop("LIST_TYPE"))
     sanction.add("unscId", ref_num)
     if match:
         sanction.add("recordId", internal_id)
         sanction.add("authorityId", resolution_number)
     sanction.add("authority", data.pop("SUBMITTED_BY", None))
+    h.finalize_sanction(context, sanction, key=key, checksum=checksum)
     context.emit(sanction)
     return entity
 

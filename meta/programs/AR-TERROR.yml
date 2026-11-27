@@ -1,0 +1,21 @@
+title: Argentina National Terrorism Designations (RePET)
+key: AR-TERROR
+url: https://www.argentina.gob.ar/normativa/nacional/325214/texto
+summary: >
+  Besides the UN Security Council 1267 lists, Argentina's Public Registry of
+  Persons and Entities linked to acts of Terrorism and their Financing (RePET,
+  Decree 918/2012 as amended by Decrees 489/2019 and 496/2024) lists persons and
+  entities charged with terrorism financing by a court or prosecutor, those whose
+  assets the Financial Intelligence Unit (UIF) has frozen, and, since 2024, those
+  designated jointly by the Ministries of Security and Foreign Affairs. Entries
+  that cite a foreign list, such as the US OFAC SDN list, are Argentina's own
+  designations. Listing obliges reporting entities to report the parties'
+  transactions to the UIF, bars listed foreigners from entering the country, and
+  supports UIF asset freezes.
+issuer: ar_ar
+dataset: ar_repet
+aliases:
+  - RePET
+measures:
+  - Asset freeze
+  - Travel ban

@@ -108,7 +108,9 @@ config:
   #    verbatim from the decision (Bulgarian in "Name BG", a Latin name only
   #    if the decision gives one), Gazette set to the amendment's State
   #    Gazette reference (e.g. "ДВ, бр. 73 от 2022 г.") and Listed to that
-  #    issue's publication date.
+  #    issue's publication date. If an amendment changes an existing
+  #    person's entry, set that row's Modified to the amending issue's
+  #    publication date.
   # 3. For a removal, set the row's Delisted date instead of deleting the
   #    row. Amendments to sections I and II need no CSV change — those
   #    sections are out of scope — but note them in the commit message.

@@ -137,17 +137,17 @@ def parse_common(context: Context, entity: Entity, node: Element) -> Entity:
     )
     h.apply_date(entity, "createdAt", node.findtext("./LISTED_ON"))
     h.apply_date(sanction, "listingDate", node.findtext("./LISTED_ON"))
-    h.apply_date(sanction, "startDate", node.findtext("./LISTED_ON"))
     for last_day_updated in values(node.find("./LAST_DAY_UPDATED")):
-        h.apply_date(sanction, "modifiedAt", last_day_updated)
         h.apply_date(entity, "modifiedAt", last_day_updated)
-    # The UN only dates amendments, so an entry without one is unchanged since listing.
-    if not sanction.has("modifiedAt"):
-        for stmt in sanction.get_statements("listingDate"):
-            sanction.adopt_statement(stmt, prop="modifiedAt")
+    # LAST_DAY_UPDATED keeps the two most recent amendment dates.
+    h.apply_dates(sanction, "modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     reference = node.findtext("./REFERENCE_NUMBER")
     sanction.add("unscId", reference)
     sanction.add("authorityId", reference)
+    # Designations take effect when listed, and the UN dates every amendment.
+    h.finalize_sanction(
+        context, sanction, effective_on_listing=True, amendments_dated=True
+    )
     return sanction
 
 

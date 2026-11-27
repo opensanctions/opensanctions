@@ -12,7 +12,7 @@ Read the notice body and any linked annexes before extracting names. Record:
 - the issuing authority;
 - the measure or list being changed;
 - whether targets are added, removed, suspended, or amended;
-- the effective date, which may differ from the page publication date; and
+- the publication date and the effective date, which may differ; and
 - the number of targets stated by the notice.
 
 Treat numbered annex entries as part of the notice. Do not assume that the article
@@ -34,10 +34,15 @@ later suspension, cessation or removal in the current-status fields; a row carri
 the latest state, not a log of every notice. Do not infer a removal from changed
 wording, an inaccessible URL, or absence from a later notice.
 
-The crawler emits one `Sanction` per row, so the status of one measure never leaks onto
-another measure against the same target. A row whose designation has ended (an `End date`
-in the past) keeps its target and `Sanction` but no longer adds its `Topics` to the
-target, so the entity remains searchable as history without being flagged.
+The crawler emits one `Sanction` per target and program, so the status of one program
+never leaks onto another. Rows of the same target under one program are merged: the
+earliest row sets the listing and start dates, and every later row, status date and
+`End date` counts as a modification. The `Sanction` ends only once every row under the
+program has ended, as one program can carry several measures against a target. An ended
+`Sanction` keeps its target but no longer adds its `Topics` to the target, so the entity
+remains searchable as history without being flagged.
+While every row under the program that has not ended is suspended (a `current_status`
+phrase that does not end the measure), the target is tagged `reg.warn` instead of `Topics`.
 
 ## Map the CSV fields
 
@@ -56,7 +61,8 @@ Keep the existing header and column order.
 | `Chinese summary` | The same note as written in the Chinese notice, when available. Emitted as `notes`. |
 | `Body` | Use the English name of the issuing authority. |
 | `List` | Use the source-facing list name mapped below, not the internal program key. |
-| `Date` | Use the effective date in `DD.MM.YYYY` format. |
+| `Listing date` | The notice's publication date in `DD.MM.YYYY` format, only when it precedes the effective date. |
+| `Date` | Use the effective date in `DD.MM.YYYY` format. Most notices take effect on publication. |
 | `End date` | Set only when an official action ends the designation. When `Current status (source)` is an ending phrase, it must equal `Current status date`. |
 | `Source URL` | The exact official notice URL. Every row must have one, and the notice must name the target; a designation known only from press reporting is not included. |
 | `Address` | Preserve an address published for that target, including its postal code. |
@@ -65,7 +71,7 @@ Keep the existing header and column order.
 | `Designation quote` | A complete sentence or list entry copied character-for-character from the page in `Source URL`, naming the target and the measure. Emitted as `provisions`. |
 | `Designation quote language` | Language code for `Designation quote`. |
 | `Current status (source)` | The action clause copied character-for-character from the latest status notice, such as `停止执行相关措施`. It must be a substring of `Current status quote` and listed in the `current_status` lookup in the dataset metadata, which records whether the phrase ends the measure. Emitted as `status`. |
-| `Current status date` | Effective date stated for the latest status. Ending phrases (停止…, 移出…) project it to `endDate`; suspensions (暂停…) project it to `modifiedAt`. |
+| `Current status date` | Effective date stated for the latest status. Ending phrases (停止…, 移出…) project it to `endDate`; every status date also sets `modifiedAt`. |
 | `Current status notice title` | Verbatim title of the latest status notice; CSV-only provenance. |
 | `Current status source URL` | Official source for the latest status. Prefer the primary www.mofcom.gov.cn page over mirrors such as exportcontrol.mofcom.gov.cn. |
 | `Current status quote` | The complete sentence containing the status clause, copied character-for-character from that page. Emitted as `provisions`. |
