@@ -3,10 +3,26 @@
 The dataset is maintained as `sanctions.csv` next to the crawler; edits are made
 as pull requests against that file. There is no automated crawl of the PDF.
 
-One row per listing: `Start date` is the date of the edition that added the
-company, `End date` the date of the edition or notice that removed it. A company
-that is listed, removed and listed again keeps one row per listing period — the
-sanction is keyed on `Start date`, so the periods do not collide.
+One row per company per edition or notice that prints it: `Start date` is the
+publication date of that edition or notice, `End date` the publication date of
+the edition or notice that removed the company. Older editions were transcribed
+as one row per listing period, so not every edition has a row.
+
+The crawler merges all rows of a company (same `Clean Name`) into one Sanction
+spanning the listing:
+
+- `listingDate` and `startDate` are the earliest `Start date`. A company is
+  listed from the publication of the edition or notice that added it; Section
+  1260H attaches no consequence to the listing itself.
+- `endDate` is the latest row's `End date`: the latest row decides whether the
+  company is still listed.
+- `modifiedAt` is the latest edition whose row changes `Alias`, `Previous
+  Name`, `Parent Name` or `Note`, or the removal; otherwise the listing date.
+
+Topics follow `debarment_from` in the dataset config, the date the Section 805
+procurement ban applies from: a listed company is `debarment` from that date and
+`reg.warn` before it, and a removed company has no topic. When a statute or a
+court order changes when the ban applies, update that date.
 
 ## Columns
 
@@ -37,8 +53,8 @@ are collapsed to spaces when transcribing.
 
 1. Get the PDF linked from the press release and reconcile its entry count
    against the number the release claims.
-2. For each entry not yet listed, add a row with `Start date` set to the release
-   date and `Source Url` to the PDF.
+2. For each entry the edition prints, add a row with `Start date` set to the
+   release date and `Source Url` to the PDF.
 3. For each entry that has dropped off, set `End date` and `Removal Url` on every
    open row of that company rather than deleting the rows, and record any reason
    the list gives in `Removal Note`. Each edition is the complete list, so an
@@ -67,6 +83,6 @@ Register but not always as a press release, so the release-list check does not
 see them. They are covered by `manual_check` instead — see the message in the
 dataset yml.
 
-Record a notice like an edition, dated by the day it was signed and citing its
-`https://www.federalregister.gov/d/<document number>` page as `Source Url` or
-`Removal Url`.
+Record a notice like an edition, dated by its Federal Register publication and
+citing its `https://www.federalregister.gov/d/<document number>` page as
+`Source Url` or `Removal Url`.

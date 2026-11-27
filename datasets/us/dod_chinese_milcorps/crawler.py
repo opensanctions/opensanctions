@@ -1,12 +1,13 @@
 import csv
 import shutil
+from datetime import date
 from pathlib import Path
 
 from rigour.mime.types import CSV
 
 from zavod.extract import zyte_api
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 
 LOCAL_PATH = Path(__file__).parent
@@ -27,59 +28,82 @@ RELEASES_XPATH = ".//div[@class='alist stories release-list']"
 RELEASES_HASH = "646c3ba9b4d41eeac34d828e9694ca4f50d88481"
 
 
-def crawl_row(context: Context, row: dict[str, str]) -> None:
-    """Emit one listing of one company."""
+def crawl_company(
+    context: Context, rows: list[dict[str, str]], debarment_from: date
+) -> None:
+    """Emit a company and one Sanction spanning every edition that lists it.
+
+    The Sanction's startDate is the date the company was first included on the
+    list, i.e. the publication of the edition or Federal Register notice that
+    added it, so it equals the listingDate. Section 1260H attaches no consequence
+    to the listing itself: those come from other statutes, each with its own
+    date. The procurement ban that makes a listing a debarment applies from
+    `debarment_from`, set in the dataset config, and gates the topic instead of
+    the startDate.
+    """
+    rows.sort(key=lambda row: row["Start date"])
+    latest = rows[-1]
     entity = context.make("Company")
-    clean_name = row.pop("Clean Name")
-    raw_name = row.pop("Name")
-    alias = row.pop("Alias")
+    clean_name = latest["Clean Name"]
     entity.id = context.make_id(clean_name)
-    entity.add("name", clean_name, original_value=raw_name)
-    alias_prop = "weakAlias" if len(alias) <= 5 and alias.isupper() else "alias"
-    entity.add(alias_prop, alias, original_value=raw_name)
-    entity.add("previousName", h.multi_split(row.pop("Previous Name"), [";"]))
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
+    h.apply_date(sanction, "listingDate", rows[0]["Start date"])
+    # Each edition is the complete list, so the latest row decides whether the
+    # company is still listed.
+    end_date = latest["End date"]
+    h.apply_date(sanction, "endDate", end_date)
+    h.apply_date(sanction, "modifiedAt", end_date)
 
-    parent_name = row.pop("Parent Name")
-    if parent_name and parent_name != clean_name:
-        parent = context.make("Company")
-        parent.id = context.make_id(parent_name)
-        parent.add("name", parent_name)
-        context.emit(parent)
+    previous: tuple[str, ...] | None = None
+    for row in rows:
+        start_date = row.pop("Start date")
+        row.pop("End date")
+        # The printed name changes with the PDF's formatting, so only the parts
+        # of the entry the list states count as an amendment.
+        entry = (row["Alias"], row["Previous Name"], row["Parent Name"], row["Note"])
+        if previous is not None and entry != previous:
+            h.apply_date(sanction, "modifiedAt", start_date)
+        previous = entry
 
-        own = context.make("Ownership")
-        own.id = context.make_id("ownership", clean_name, parent_name)
-        own.add("owner", parent)
-        own.add("asset", entity)
-        context.emit(own)
+        row.pop("Clean Name")
+        raw_name = row.pop("Name")
+        alias = row.pop("Alias")
+        entity.add("name", clean_name, original_value=raw_name)
+        alias_prop = "weakAlias" if len(alias) <= 5 and alias.isupper() else "alias"
+        entity.add(alias_prop, alias, original_value=raw_name)
+        entity.add("previousName", h.multi_split(row.pop("Previous Name"), [";"]))
 
-    start_date = row.pop("Start date")
-    # Sanction per listing period: startDate = date added, endDate = date removed.
-    # start_date also keys the sanction to avoid collisions when entities are re-listed.
-    sanction = h.make_sanction(
-        context,
-        entity,
-        key=start_date,
-        program_key=PROGRAM_KEY,
-        start_date=start_date,
-        end_date=row.pop("End date"),
+        parent_name = row.pop("Parent Name")
+        if parent_name and parent_name != clean_name:
+            parent = context.make("Company")
+            parent.id = context.make_id(parent_name)
+            parent.add("name", parent_name)
+            context.emit(parent)
+
+            own = context.make("Ownership")
+            own.id = context.make_id("ownership", clean_name, parent_name)
+            own.add("owner", parent)
+            own.add("asset", entity)
+            context.emit(own)
+
+        sanction.add("reason", row.pop("Note"))
+        sanction.add("summary", row.pop("Removal Note"))
+        sanction.add("sourceUrl", row.pop("Source Url"))
+        sanction.add("sourceUrl", row.pop("Removal Url"))
+        context.audit_data(row)
+
+    h.finalize_sanction(
+        context, sanction, effective_on_listing=True, amendments_dated=True
     )
-    # A listing takes effect when its edition is published. The list records no
-    # amendments, so its last change is the removal, or else the listing itself.
-    for stmt in sanction.get_statements("startDate"):
-        sanction.adopt_statement(stmt, prop="listingDate")
-    last_change = "endDate" if sanction.has("endDate") else "startDate"
-    for stmt in sanction.get_statements(last_change):
-        sanction.adopt_statement(stmt, prop="modifiedAt")
-    sanction.add("reason", row.pop("Note"))
-    sanction.add("summary", row.pop("Removal Note"))
-    sanction.add("sourceUrl", row.pop("Source Url"))
-    sanction.add("sourceUrl", row.pop("Removal Url"))
-    # A company's rows merge into one entity, so any active listing tags it.
     if h.is_active(sanction):
-        entity.add("topics", "debarment")
+        debarred = settings.RUN_TIME.date() >= debarment_from
+        entity.add("topics", "debarment" if debarred else "reg.warn")
+    elif not sanction.has("endDate"):
+        # Transcribed ahead of the date the edition or notice takes effect.
+        entity.add("topics", "reg.warn")
+
     context.emit(sanction)
     context.emit(entity)
-    context.audit_data(row)
 
 
 def check_releases(context: Context) -> None:
@@ -99,8 +123,12 @@ def crawl(context: Context) -> None:
     shutil.copy(source_file, resource_path)
     context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
 
+    debarment_from = date.fromisoformat(context.dataset.config["debarment_from"])
+    companies: dict[str, list[dict[str, str]]] = {}
     with open(source_file, encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
-            crawl_row(context, row)
+            companies.setdefault(row["Clean Name"], []).append(row)
+    for rows in companies.values():
+        crawl_company(context, rows, debarment_from)
 
     check_releases(context)
