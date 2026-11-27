@@ -52,6 +52,13 @@ whichever of `listingDate` and `startDate` is missing from the other. When the s
 dates every amendment, pass `amendments_dated=True`: it fills a missing `modifiedAt`
 from the listing. Check both per list.
 
+Where the source doesn't date listings or amendments, also pass `key`, the
+designation's authority-issued ID, which must stay the same across versions, and
+`checksum`, a hash of its source record such as
+[`h.record_hash`][zavod.helpers.record_hash]. The checksum covers all of the record's
+data, especially everything that may affect screening. Change the data before hashing
+only for an extraordinary reason: the change is a source of instability itself.
+
 When the source lists a designation whose `endDate` has passed, emit it, and set its
 topics as described in [topics](../best_practices/topics.md#risk-topics-while-in-force).
 

@@ -1,11 +1,14 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
 import structlog
+from sqlalchemy import select
 
 from zavod import Entity, settings
 from zavod.context import Context
-from zavod.constants import ORIGIN_INFERRED
+from zavod.constants import ORIGIN_INFERRED, ORIGIN_OBSERVED
+from zavod.stateful.model import observation_table
+from zavod.stateful.observations import _load_baseline
 from zavod.helpers.sanctions import (
     finalize_sanction,
     make_risk,
@@ -160,6 +163,67 @@ def test_finalize_sanction_amendments_dated(vcontext: Context):
     sanction = make_sanction(vcontext, person, key="e")
     finalize_sanction(vcontext, sanction, amendments_dated=True)
     assert sanction.get("modifiedAt") == []
+
+
+def test_finalize_sanction_observe(vcontext: Context, zavod_db):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+    run_date = settings.RUN_TIME.date().isoformat()
+
+    # The first observation of the dataset is its baseline: nothing is dated.
+    sanction = make_sanction(vcontext, person, key="a")
+    finalize_sanction(vcontext, sanction, key="K0", checksum="x")
+    assert sanction.get("listingDate") == []
+    assert sanction.get("modifiedAt") == []
+
+    # Records after the baseline are dated with their first sighting.
+    baseline = select(observation_table).where(observation_table.c.key == "")
+    vcontext.db.execute(
+        observation_table.update()
+        .where(observation_table.c.key == "")
+        .values(first_seen=datetime(2020, 1, 1), last_seen=datetime(2020, 1, 1))
+    )
+    _load_baseline.cache_clear()
+    sanction = make_sanction(vcontext, person, key="c")
+    finalize_sanction(vcontext, sanction, key="K1", checksum="x")
+    assert sanction.get("listingDate") == [run_date]
+    assert sanction.get("modifiedAt") == [run_date]
+    (stmt,) = sanction.get_statements("modifiedAt")
+    assert stmt.origin == ORIGIN_OBSERVED
+    keys = select(observation_table.c.key, observation_table.c.checksum)
+    rows = vcontext.db.execute(keys.where(observation_table.c.key == "K1")).fetchall()
+    assert {tuple(r) for r in rows} == {("K1", ""), ("K1", "x")}
+    assert len(vcontext.db.execute(baseline).fetchall()) == 1
+
+    # Source dates win over observed ones.
+    sanction = make_sanction(vcontext, person, key="d")
+    sanction.add("listingDate", "2021-03-01")
+    sanction.add("modifiedAt", "2022-03-01")
+    finalize_sanction(vcontext, sanction, key="K2", checksum="x")
+    assert sanction.get("listingDate") == ["2021-03-01"]
+    assert sanction.get("modifiedAt") == ["2022-03-01"]
+
+    # Without a checksum, only the listing is observed.
+    sanction = make_sanction(vcontext, person, key="e")
+    finalize_sanction(vcontext, sanction, key="K3")
+    assert sanction.get("listingDate") == [run_date]
+    assert sanction.get("modifiedAt") == []
+
+    with pytest.raises(AssertionError):
+        finalize_sanction(vcontext, sanction, checksum="x")
+
+
+def test_finalize_sanction_latest_modified(vcontext: Context):
+    person = vcontext.make("Person")
+    person.id = "jeff"
+
+    sanction = make_sanction(vcontext, person)
+    sanction.add("modifiedAt", "2023-01-05", origin=ORIGIN_INFERRED)
+    sanction.add("modifiedAt", ["2021-03-01", "2022-07-10"])
+    finalize_sanction(vcontext, sanction)
+    (stmt,) = sanction.get_statements("modifiedAt")
+    assert stmt.value == "2023-01-05"
+    assert stmt.origin == ORIGIN_INFERRED
 
 
 def test_finalize_sanction_defaults(vcontext: Context):

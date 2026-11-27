@@ -27,7 +27,7 @@ A hash is one kind of acknowledgment marker, not a correctness check. It proves 
 bytes or text are the version a maintainer reviewed; it does not prove that the crawler
 interpreted them correctly.
 
-## Choose the smallest stable input
+## When alerting maintainers, choose the smallest stable input
 
 Monitor only the content whose change requires action. Headers, footers, timestamps,
 advertising, and generated markup make whole-page hashes noisy and train maintainers to

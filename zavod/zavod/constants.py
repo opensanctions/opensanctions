@@ -7,6 +7,9 @@ ORIGIN_INFERRED = "inferred"
 # Coming from data patch lookups
 ORIGIN_LOOKUP = "patch"
 
+# Dates derived from when we first observed a source record or its content
+ORIGIN_OBSERVED = "observed"
+
 # Datasets that emit derived annotations (topic patches, PEP categorisation)
 # computed from the rest of the graph, rather than crawled source data. Their
 # statements don't count as substance when deciding whether an entity has

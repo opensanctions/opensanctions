@@ -53,6 +53,28 @@ program_table = Table(
 )
 
 
+observation_table = Table(
+    "observation",
+    meta,
+    Column("id", Integer, primary_key=True),
+    Column("dataset", Unicode(KEY_LEN), nullable=False),
+    # The authority-issued designation ID, never the FtM entity ID. The row with
+    # an empty key marks the dataset's baseline, and must never be deleted.
+    Column("key", Unicode(KEY_LEN), nullable=False),
+    # "" when only the key is observed: NULLs never conflict in a unique index.
+    Column("checksum", Unicode(KEY_LEN), nullable=False),
+    Column("first_seen", DateTime, nullable=False),
+    Column("last_seen", DateTime, nullable=False),
+    Index(
+        "ix_observation_dataset_key_checksum",
+        "dataset",
+        "key",
+        "checksum",
+        unique=True,
+    ),
+)
+
+
 review_table = Table(
     "review",
     meta,
