@@ -67,10 +67,12 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     )
     period = row.pop("Period")
     sanction.add("duration", period)
-    match = REGEX_PERIOD.match(period)
     start = sanction.first("startDate")
-    if match is not None and start is not None:
-        start_date = date.fromisoformat(start)
+    assert start is not None, effective_date
+    # Raises on a partial date, which would make the end date meaningless.
+    start_date = date.fromisoformat(start)
+    match = REGEX_PERIOD.match(period)
+    if match is not None:
         years = int(match.group("years"))
         h.apply_date(
             sanction, "endDate", start_date.replace(year=start_date.year + years)
