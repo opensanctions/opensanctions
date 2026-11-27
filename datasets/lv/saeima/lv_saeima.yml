@@ -23,7 +23,7 @@ tags:
   - list.pep
 url: "https://www.saeima.lv/"
 data:
-  url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/deputies?OpenView&lang=EN&count=1000"
+  url: "https://www.saeima.lv/lv/sasaukumi/15-saeima/deputati/"
   format: HTML
 
 http:
