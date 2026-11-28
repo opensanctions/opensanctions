@@ -260,6 +260,13 @@ INFO_LABELS = {
     "Unified Social Credit Code": "registrationNumber",
     "China Unified Social Credit Code": "registrationNumber",
     "BIN/OGRN": "registrationNumber",
+    # Commercial Registration number (Gulf registers), printed from the
+    # 16.11.2026 listings (entry 1926).
+    "CR Number": "registrationNumber",
+    # Hong Kong Business Registration Number (entry 1946) and Singapore
+    # Unique Entity Number (entry 1933), from the 16.11.2026 listings.
+    "BRN": "registrationNumber",
+    "UEN": "registrationNumber",
     # maritime, banking and market identifiers
     "IMO": "imoNumber",
     "IMO number": "imoNumber",
@@ -311,6 +318,7 @@ INFO_LABELS = {
     "Telephone": "phone",
     "Telephone.": "phone",
     "Telephones": "phone",
+    "Phones": "phone",
     "Tel.": "phone",
     "Tel": "phone",
     # Printed with a Cyrillic "Т" (U+0422) on one entry.
@@ -478,9 +486,11 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
         "107078, Moscow, Masha Poryvaeva str., 34, Russian Federation",
         "107140, Moscow, Moskovsko-Kazansky Lane, 11-15, floor/room 1/7",
         "12 26-y Piket, Aldan, Aldanskiy Ulus, Republic of Sakha (Yakutia), 678900 (Russia)",
+        "125130, Moscow",
         "127254, Moscow, Ogorodny Prospekt, Building 5, Structure 4, Floor 3, Room 305",
         "127287, st. Khutorskaya 2nd, 38A, Moscow, Russian Federation",
         "129164, Moscow, Prospekt Mira, 126",
+        "131, Uspensky Ave., Verkhnyaya Pyshma, Sverdlovsk region, Russia",
         "19 Vavilova St., 117997 Moscow, Russian Federation",
         "222511, Republic of Belarus, Minsk Region, Borisov District, Borisov, Gagarin St., 54",
         "27 Kalanchevskaya str. Moscow, 107078, Russian Federation",
@@ -493,6 +503,7 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
         "672530, Transbaikal territory, Chita district, 1 Atamanovskoye, Atamanovka, ul. Zavodskaya, d.1",
         "676811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka, Russian Federation",
         "Abu Dhabi, United Arab Emirates",
+        "Ajman, UAE",
         "Alabuga, Russian Federation",
         "Azerbaijan",
         "Belarus",
@@ -508,12 +519,15 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
         "Degtyarnyy Pereulok, 11a, Saint Petersburg, 191144, Russian Federation",
         "Democratic People’s Republic of Korea",
         "Donetsk, Ukraine",
+        "Dubai UAE",
+        "Dubai, UAE",
         "Dubai, United Arab Emirates",
         "Dubai, United Arab Emirates (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubai, PO Box 507065, United Arab Emirates)",
         "Ekatrinburg, Russian Federation",
         "Firstly Ukraine then, after the illegal annexation of Crimea, Russian Federation",
         "Georgia",
         "Hong Kong",
+        "Hong Kong, China",
         "Hong Kong, People’s Republic of China",
         "India",
         "Isfahan, Iran",
@@ -545,6 +559,7 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
         "Nizhny Novgorod, Russia",
         "Office B-405, B Wing, Mahavir Icon, Plot 89/90, Sector 15, CBD Belapur, Navi Mumbai, Maharashtra, India, 400614",
         "Oman",
+        "Oman, United Arab Emirates",
         "Omsk, Russian Federation",
         "Pedestrian passage, home ownership 3. building 2, Moscow 125373, Russian Federation",
         "People’s Republic of China",
@@ -619,6 +634,7 @@ REGISTRATION_REVIEWED_VALUES = frozenset(
         "Sarapul, Russian Federation",
         "Sevastopol, Crimea",
         "Seychelles",
+        "Sharjah, UAE",
         "Sharjah, United Arab Emirates",
         "Singapore",
         "St Petersburg and Moscow, Russian Federation",
@@ -661,6 +677,10 @@ BUSINESS_LABELS = frozenset(
         # Entry 1838 (ENTITIES), printed under M129, title-cases the label.
         "Principal Place of Business",
         "Principal places of business",
+        # Entry 1922 (ENTITIES), printed under the 16.11.2026 listings,
+        # misspells the label; entry 1929 also lowercases it.
+        "Principle Place of Business",
+        "Principle place of business",
     }
 )
 BUSINESS_TERRITORIES = REGISTRATION_TERRITORIES | {
@@ -676,6 +696,7 @@ BUSINESS_TERRITORIES = REGISTRATION_TERRITORIES | {
 BUSINESS_REVIEWED_VALUES = frozenset(
     {
         "13 km of Shahid Babaei Highway, after Imam Hossein University, next to Telo Road, Tehran, Iran",
+        "Abu Dhabi",
         "Abu Dhabi, United Arab Emirates",
         "Arsenyev, Russian Federation",
         "Belarus",
@@ -683,6 +704,7 @@ BUSINESS_REVIEWED_VALUES = frozenset(
         "Crimea, Ukraine",
         "Czech Republic",
         "Democratic People’s Republic of Korea",
+        "Dubai, UAE",
         "Henan Province, People’s Republic of China",
         "Hong Kong",
         "Hong Kong Special Administrative Region of the People’s Republic of China",
@@ -703,6 +725,8 @@ BUSINESS_REVIEWED_VALUES = frozenset(
         "Nakhodka, Russian Federation",
         "Non-government controlled areas of Ukraine, namely the oblasts of Donetsk and Luhansk (the so-called “Donetsk People’s Republic” and “Luhansk People’s Republic”), Kherson and Zaporizhzhia",
         "Oman",
+        "Oman, UAE",
+        "Oman, United Arab Emirates",
         "People’s Republic of China",
         "People’s Republic of China/Hong Kong",
         "People’s Republic of China; Russian Federation",
@@ -726,6 +750,7 @@ BUSINESS_REVIEWED_VALUES = frozenset(
         "Russian Federation, Tarusa",
         "Russian Federation, Temporarily occupied territory of Ukraine (Simferopol)",
         "Russian Federation, Tula",
+        "Russian Federation, United Arab Emirates",
         "Russian Federation, Yekaterinburg",
         "Russian Federation; Belize",
         "Russian-occupied regions of Zaporizhzhia and Kherson",
@@ -739,6 +764,7 @@ BUSINESS_REVIEWED_VALUES = frozenset(
         "United Arab Emirate",
         "United Arab Emirates",
         "United Arab Emirates, Russian Federation, European Union",
+        "Verkhnyaya Pyshma, Sverdlovsk region, Russia",
         "Volgograd, Russian Federation",
         "so-called ‘Donetsk People’s Republic’",
         "so-called ‘Luhansk People’s Republic’",
@@ -942,6 +968,21 @@ INFO_OVERRIDES: dict[tuple[str, str], dict[str, tuple[tuple[str, str], ...]]] = 
                 "124460, city Moskva, city Zelenograd, prospekt Panfilovskiy, "
                 "bld. 4, str. 1, premises V; room 1-9",
             ),
+        ),
+    },
+    # A misprinted label: the business-place label carries a 13-digit number,
+    # not a place. The label does not say which identifier it is, and a
+    # column is never inferred, so the line is dropped (as in the reviewed
+    # transcription of the amending act, 32026R2574).
+    ("ENTITIES", "1915"): {
+        "Principal place of business: 1217700498652": (),
+    },
+    # A register label and a country qualifier printed inside the values; a
+    # printed label is never part of the cell value (data/FORMAT.md).
+    ("ENTITIES", "1922"): {
+        "Date of registration: Oman: 20.1.2025": (("incorporationDate", "20.1.2025"),),
+        "Registration number: CR Number (Oman): 1593563": (
+            ("registrationNumber", "1593563"),
         ),
     },
 }
